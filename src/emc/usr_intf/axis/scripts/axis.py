@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006, 2007, 2008, 2009
 #    Jeff Epler <jepler@unpythonic.net> and Chris Radek <chris@timeguy.com>
@@ -36,14 +36,9 @@ import gettext;
 import array, time, atexit, tempfile, shutil, errno, select, re, getopt
 import traceback
 
-if sys.version_info[0] == 3:
-    import tkinter as Tkinter
-    import _thread
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
-else:
-    import Tkinter
-    import thread as _thread
-    gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+import tkinter as Tkinter
+import _thread
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 # Print Tk errors to stdout. python.org/sf/639266
 OldTk = Tkinter.Tk
@@ -85,10 +80,8 @@ else:
 if hal_present == 1 :
     import hal
 
-if sys.version_info[0] == 3:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
+
 cp = configparser.ConfigParser
 class AxisPreferences(cp):
     types = {
@@ -2370,8 +2363,11 @@ class TclCommands(nf.TclCommands):
     def task_stop(*event):
         if s.task_mode == linuxcnc.MODE_AUTO and vars.running_line.get() != 0:
             o.set_highlight_line(vars.running_line.get())
+        comp["abort"] = True
         c.abort()
         c.wait_complete()
+        time.sleep(0.3)
+        comp["abort"] = False
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
@@ -2943,11 +2939,7 @@ class TclCommands(nf.TclCommands):
 
     def inifindall(section, item):
         # used by TKPKG=Ngcgui
-        if sys.version_info[0] == 3:
-            return inifile.findall(section,item) # list
-        else:
-            items = tuple(inifile.findall(section, item))
-            return root_window.tk.merge(*items)  # str
+        return inifile.findall(section,item) # list
 
     def clear_recent_files():
         ap.putpref('recentfiles', [], repr)
@@ -3633,7 +3625,7 @@ for jnum in range(num_joints):
         ja_name = _("Joint")
         if not homing_order_defined:
             widgets.homebutton.configure(text=_("Home Joint"))
-        if joint_sequence[jnum] is '':
+        if joint_sequence[jnum] == '':
             ja_id = "%d"%jnum
         elif (int(joint_sequence[jnum]) < 0):
             ja_id = "%d (Sequence: %2s SYNC)"%(jnum,joint_sequence[jnum])
@@ -3880,6 +3872,7 @@ if hal_present == 1 :
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 
@@ -3922,7 +3915,8 @@ def load_gladevcp_panel():
         from subprocess import Popen
         xid = gladevcp_frame.winfo_id()
         cmd = "halcmd loadusr -Wn {0} gladevcp -c {0}".format(gladename).split()
-        cmd += ['-x', str(xid)] + gladecmd
+        cmd += ['-d', '-x', str(xid)] + gladecmd
+        print(cmd)
         child = Popen(cmd)
         _dynamic_childs['{}'.format(gladename)] = (child, cmd, True)
 

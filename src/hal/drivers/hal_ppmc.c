@@ -1399,7 +1399,7 @@ static void write_pwmgens(slot_data_t *slot)
 	    freq = 500000.0;
 	}
 	/* calculate divisor */
-	if (slot->ver >= 3)  // accomodate 3.1 and newer boards with 40MHz clk
+	if (slot->ver >= 3)  // accommodate 3.1 and newer boards with 40MHz clk
 	  period = (40000000.0 / freq) + 0.5;  // 40 MHz clock on ver 3 and up
 	else
 	  period = (10000000.0 / freq) + 0.5;  // 10 MHz on lower version

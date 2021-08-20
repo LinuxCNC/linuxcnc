@@ -100,6 +100,7 @@ class _IStat(object):
             self.MACRO_PATH = None
         self.INI_MACROS = self.INI.findall("DISPLAY", "MACRO")
         self.MACHINE_IS_LATHE = bool(self.INI.find("DISPLAY", "LATHE"))
+        self.MACHINE_IS_QTPLASMAC = (self.INI.find("QTPLASMAC", "MODE")) or None
 
         extensions = self.INI.findall("FILTER", "PROGRAM_EXTENSION")
         self.PROGRAM_FILTERS = ([e.split(None, 1) for e in extensions]) or None
@@ -197,6 +198,7 @@ class _IStat(object):
         self.JOINT_TYPE = [None] * jointcount
         self.JOINT_TYPE_INT = [None] * jointcount
         self.JOINT_SEQUENCE = [None] * jointcount
+        self.HAS_ANGULAR_JOINT = False
         for j in range(jointcount):
             section = "JOINT_%d" % j
             self.JOINT_TYPE[j] = self.INI.find(section, "TYPE") or "LINEAR"
@@ -204,6 +206,7 @@ class _IStat(object):
                 self.JOINT_TYPE_INT[j] = 1
             else:
                 self.JOINT_TYPE_INT[j] = 2
+                self.HAS_ANGULAR_JOINT = True
             self.JOINT_SEQUENCE[j] = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
         # jog synchronized sequence
@@ -369,6 +372,9 @@ class _IStat(object):
         # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
         self.DISABLE_REPEAT_KEYS_LIST = self.INI.find("DISPLAY", "DISABLE_REPEAT_KEYS") or None
 
+        # maximum number of errors shown in on screen display
+        self.MAX_DISPLAYED_ERRORS = int(self.INI.find("DISPLAY", "MAX_DISPLAYED_ERRORS") or 10)
+
     ###################
     # helper functions
     ###################
@@ -378,7 +384,11 @@ class _IStat(object):
         if result:
             return result
         else:
-            log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+            if ('SPINDLE' in detail and self.MACHINE_IS_QTPLASMAC) or \
+               ('ANGULAR' in detail and not self.HAS_ANGULAR_JOINT):
+                return default
+            else:
+                log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
     def convert_machine_to_metric(self, data):

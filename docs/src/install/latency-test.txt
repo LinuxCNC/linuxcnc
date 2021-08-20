@@ -60,8 +60,8 @@ the latency test checks to see what the worst case numbers are.
 [NOTE]
 Do not run LinuxCNC or Stepconf while the latency test is running.
 
-The important numbers are the 'max jitter'. 
-In the example above, that is 9075 nanoseconds, or 9.075 microseconds. 
+The important number for software stepping is the 'max jitter' of the base thread. 
+In the example above, that is 6693 nanoseconds, or 6.693 microseconds. 
 Record this number, and enter it in Stepconf when it is requested.
 
 In the example above, latency-test only ran for a few seconds. 

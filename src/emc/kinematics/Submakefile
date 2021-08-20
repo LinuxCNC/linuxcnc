@@ -1,7 +1,8 @@
+#Note: userspace test program ugenserkins.c is deprecated
 INCLUDES += emc/kinematics
 
-GENSERKINSSRCS := \
-	emc/kinematics/genserkins.c
+GENSERKINSSRCS := emc/kinematics/ugenserkins.c
+GENSERKINSSRCS += emc/kinematics/genserfuncs.c
 USERSRCS += $(GENSERKINSSRCS)
 
 DELTAMODULESRCS := emc/kinematics/lineardeltakins.cc
@@ -11,13 +12,18 @@ $(call TOOBJS, $(DELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-stat
 DELTAMODULE := ../lib/python/lineardeltakins.so
 $(DELTAMODULE): $(call TOOBJS, $(DELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(DELTAMODULE)
 
+#ifdef ULAPI
+# userspace test program ../bin/genserkins:
+#   1) has not been maintained
+#   2) does not start up on RTAI
 ../bin/genserkins: $(call TOOBJS, $(GENSERKINSSRCS)) ../lib/liblinuxcnchal.so ../lib/libposemath.so
-	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) $(LDFLAGS) -o $@ $^
+	$(ECHO) emc/Submakefile:Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lm
 TARGETS += ../bin/genserkins
+#endif
 
 RDELTAMODULESRCS := emc/kinematics/rotarydeltakins.cc
 PYSRCS += $(RDELTAMODULESRCS)
@@ -26,7 +32,7 @@ $(call TOOBJS, $(RDELTAMODULESRCS)): CFLAGS += -x c++ -Wno-declaration-after-sta
 RDELTAMODULE := ../lib/python/rotarydeltakins.so
 $(RDELTAMODULE): $(call TOOBJS, $(RDELTAMODULESRCS))
 	$(ECHO) Linking python module $(notdir $@)
-	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIBS)
+	$(CXX) $(LDFLAGS) -shared -o $@ $^ $(BOOST_PYTHON_LIB)
 PYTARGETS += $(RDELTAMODULE)
 
 $(patsubst ./emc/kinematics/%,../include/%,$(wildcard ./emc/kinematics/*.h)): ../include/%.h: ./emc/kinematics/%.h

@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net> and
 #    Chris Radek <chris@timeguy.com>
@@ -25,11 +25,8 @@ Usage: axis-remote --clear|--ping|--reload|--quit|--mdi command|filename
 
 import sys, getopt, os
 
-if sys.version_info[0] == 3:
-    import tkinter
-    import _thread
-else:
-    import Tkinter as tkinter
+import tkinter
+import _thread
 
 UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = list(range(7))
 mode = UNSPECIFIED

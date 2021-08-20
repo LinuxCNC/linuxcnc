@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkTextBuffer" id="textbuffer1">
     <property name="text" translatable="yes">All the necessary information has now been gathered. 
 Click "Done" to write your configuration files to disk.
@@ -20,6 +20,7 @@ If you experience the "Unexpected Realtime Delay" message:
   </object>
   <object class="GtkTable" id="finished">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="n_columns">2</property>
     <child>
       <object class="GtkTextView" id="textview1">
@@ -32,6 +33,9 @@ If you experience the "Unexpected Realtime Delay" message:
         <property name="left_attach">1</property>
         <property name="right_attach">2</property>
       </packing>
+    </child>
+    <child>
+      <placeholder/>
     </child>
     <child>
       <placeholder/>

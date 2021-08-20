@@ -28,25 +28,25 @@ debug = 0
 class HandlerClass:
 
     def on_button_press(self,widget,data=None):
-        print "on_button_press"
+        print("on_button_press")
         self.anint += 1
         # show retained attributes as inifile and current values
-        print "attr\tini\tcurrent"
-        for k in self.defaults[IniFile.vars].keys():
-            print "%s\t%s\t%s" % (k,self.defaults[IniFile.vars][k],getattr(self,k,None))
+        print("attr\tini\tcurrent")
+        for k in list(self.defaults[IniFile.vars].keys()):
+            print("%s\t%s\t%s" % (k,self.defaults[IniFile.vars][k],getattr(self,k,None)))
 
     def on_destroy(self,obj,data=None):
         '''
         save state on application exit
         '''
-        print "on_destroy() - saving state"
+        print("on_destroy() - saving state")
         self.ini.save_state(self)
 
     def on_restore_defaults(self,button,data=None):
         '''
         example callback for 'Reset to defaults' button (unused)
         '''
-        print "on_restore_defaults() - setting default state"
+        print("on_restore_defaults() - setting default state")
         self.ini.create_default_ini()
         self.ini.restore_state(self)
 
@@ -85,7 +85,7 @@ def get_handlers(halcomp,builder,useropts):
 
     global debug
     for cmd in useropts:
-        exec cmd in globals()
+        exec(cmd, globals())
 
     # get some detail what save/restore etc are doing
     set_debug(debug)

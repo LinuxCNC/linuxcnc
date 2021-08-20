@@ -83,6 +83,9 @@ class screenOptionsDialog(QtWidgets.QDialog):
         layout = QtWidgets.QGridLayout()
         self.c_notify = QtWidgets.QCheckBox("Desktop Notify Errors")
         self.c_notify.setChecked(widget.desktop_notify)
+        self.c_notify_max_msgs = QtWidgets.QSpinBox("Notify Max Errors")
+        self.c_notify_max_msgs.setValue(widget.notify_max_messages)
+        self.c_notify_max_msgs.setRange(1, 10)
         self.c_errors = QtWidgets.QCheckBox("Catch Errors")
         self.c_errors.setChecked(widget.catch_errors)
         self.c_close = QtWidgets.QCheckBox("Catch close Event")
@@ -93,6 +96,7 @@ class screenOptionsDialog(QtWidgets.QDialog):
         self.c_use_pref_file.setChecked(widget.use_pref_file)
 
         layout.addWidget(self.c_notify)
+        layout.addWidget(self.c_notify_max_msgs)
         layout.addWidget(self.c_errors)
         layout.addWidget(self.c_close)
         layout.addWidget(self.c_play_sounds)
@@ -110,6 +114,8 @@ class screenOptionsDialog(QtWidgets.QDialog):
         if formWindow:
             formWindow.cursor().setProperty("notify_option",
                                             QtCore.QVariant(self.c_notify.isChecked()))
+            formWindow.cursor().setProperty("notify_max_messages",
+                                            QtCore.QVariant(self.c_notify_max_msgs.value()))
             formWindow.cursor().setProperty("catch_errors_option",
                                             QtCore.QVariant(self.c_errors.isChecked()))
             formWindow.cursor().setProperty("catch_close_option",

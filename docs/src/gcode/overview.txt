@@ -651,6 +651,24 @@ can be added easily without changes to the source code.
 * '#<_w>' -
     Return current relative W coordinate including all offsets. Same as #5428.
 
+* '#<_abs_x>' -
+    Return current absolute X coordinate (G53) including no offsets.
+
+* '#<_abs_y>' -
+    Return current absolute Y coordinate (G53) including no offsets.
+
+* '#<_abs_z>' -
+    Return current absolute Z coordinate (G53) including no offsets.
+
+* '#<_abs_a>' -
+    Return current absolute A coordinate (G53) including no offsets.
+
+* '#<_abs_b>' -
+    Return current absolute B coordinate (G53) including no offsets.
+
+* '#<_abs_c>' -
+    Return current absolute C coordinate (G53) including no offsets.
+
 * '#<_current_tool>' -
     Return number of the current tool in spindle. Same as #5400.
 

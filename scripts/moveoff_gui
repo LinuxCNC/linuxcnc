@@ -691,7 +691,7 @@ proc get_parms {} {
               set ::argv [lreplace $::argv 0 0]
              }
 
-      default {usage "Unkown option <$opt>"}
+      default {usage "Unknown option <$opt>"}
     }
   }
   set debug_get_parms 0

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkAdjustment" id="cl_bin_adjust">
     <property name="lower">10</property>
     <property name="upper">50</property>
@@ -90,6 +90,36 @@
                                 <property name="n_rows">5</property>
                                 <property name="n_columns">8</property>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkLabel" id="label466">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -159,8 +189,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">7</property>
@@ -176,8 +204,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">7</property>
@@ -193,8 +219,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">7</property>
@@ -210,8 +234,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">7</property>
@@ -227,8 +249,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">7</property>
@@ -305,8 +325,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -322,8 +340,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -339,8 +355,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -356,8 +370,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -373,8 +385,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -388,8 +398,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -405,8 +413,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -422,8 +428,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -439,8 +443,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -456,8 +458,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -515,36 +515,6 @@
                                     <property name="label" translatable="yes">Cmd 1</property>
                                   </object>
                                 </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                               </object>
                             </child>
                           </object>
@@ -552,10 +522,10 @@
                         <child type="label">
                           <object class="GtkCheckButton" id="halui">
                             <property name="label" translatable="yes">Include Halui user interface component / commands</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">False</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="relief">none</property>
                             <property name="xalign">0.55000001192092896</property>
                             <property name="draw_indicator">True</property>
@@ -631,12 +601,12 @@
                                       <object class="GtkLabel" id="label_digin">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0.039999999105930328</property>
                                         <property name="ypad">5</property>
                                         <property name="label" translatable="yes">Number of digital (bit) in pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">digitsin</property>
                                         <property name="angle">0.019999999552965164</property>
+                                        <property name="xalign">0.039999999105930328</property>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
@@ -648,11 +618,11 @@
                                       <object class="GtkLabel" id="label_digout">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0.039999999105930328</property>
                                         <property name="ypad">3</property>
                                         <property name="label" translatable="yes">Number of digital (bit) out pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">digitsout</property>
+                                        <property name="xalign">0.039999999105930328</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -664,12 +634,12 @@
                                       <object class="GtkLabel" id="label_s32in">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="ypad">6</property>
                                         <property name="label" translatable="yes"> Number of analog (s32) in pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="wrap_mode">word-char</property>
                                         <property name="mnemonic_widget">s32in</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -681,11 +651,11 @@
                                       <object class="GtkLabel" id="label_s32out">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="ypad">5</property>
                                         <property name="label" translatable="yes"> Number of analog (s32) out pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -697,11 +667,11 @@
                                       <object class="GtkLabel" id="label_floatin">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="ypad">5</property>
                                         <property name="label" translatable="yes"> Number of analog (float) in pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -713,11 +683,11 @@
                                       <object class="GtkLabel" id="label_floatout">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="ypad">5</property>
                                         <property name="label" translatable="yes"> Number of analog (float) out pins:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -729,11 +699,11 @@
                                       <object class="GtkLabel" id="label_bitmem">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="ypad">5</property>
                                         <property name="label" translatable="yes"> Number of Internal bit memory:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -745,11 +715,11 @@
                                       <object class="GtkLabel" id="label_wordmem">
                                         <property name="visible">True</property>
                                         <property name="can_focus">False</property>
-                                        <property name="xalign">0</property>
                                         <property name="ypad">5</property>
                                         <property name="label" translatable="yes"> Number of Internal word memory:</property>
                                         <property name="use_underline">True</property>
                                         <property name="mnemonic_widget">s32out</property>
+                                        <property name="xalign">0</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -760,10 +730,10 @@
                                     <child>
                                       <object class="GtkCheckButton" id="modbus">
                                         <property name="label" translatable="yes">Include modbus master support</property>
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
-                                        <property name="use_action_appearance">False</property>
                                         <property name="relief">none</property>
                                         <property name="use_underline">True</property>
                                         <property name="xalign">0</property>
@@ -794,8 +764,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_bin_adjust</property>
                                       </object>
                                       <packing>
@@ -811,8 +779,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_bout_adjust</property>
                                       </object>
                                       <packing>
@@ -828,8 +794,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_sin_adjust</property>
                                       </object>
                                       <packing>
@@ -845,8 +809,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_sout_adjust</property>
                                       </object>
                                       <packing>
@@ -862,8 +824,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_fin_adjust</property>
                                       </object>
                                       <packing>
@@ -879,8 +839,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_fout_adjust</property>
                                         <property name="climb_rate">0.040000000000000001</property>
                                       </object>
@@ -897,8 +855,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_bit_adjust</property>
                                         <property name="climb_rate">0.040000000000000001</property>
                                       </object>
@@ -915,8 +871,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">cl_word_adjust</property>
                                       </object>
                                       <packing>
@@ -958,10 +912,10 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkRadioButton" id="ladderblank">
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="active">True</property>
                                     <property name="draw_indicator">True</property>
                                     <child>
@@ -982,10 +936,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="ladder1">
                                     <property name="label" translatable="yes">Estop ladder program</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">ladderblank</property>
                                   </object>
@@ -998,10 +952,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="laddertouchz">
                                     <property name="label" translatable="yes">Z Auto Touch off program</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">ladderblank</property>
@@ -1015,10 +969,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="ladder2">
                                     <property name="label" translatable="yes">Serial modbus program</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">ladderblank</property>
@@ -1032,10 +986,10 @@
                                 <child>
                                   <object class="GtkRadioButton" id="ladderexist">
                                     <property name="label" translatable="yes">Existing custom program</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
                                     <property name="group">ladderblank</property>
@@ -1049,10 +1003,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="ladderconnect">
                                     <property name="label" translatable="yes">Include connections to HAL</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
@@ -1071,10 +1025,10 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="loadladder">
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">True</property>
-                                <property name="use_action_appearance">False</property>
                                 <signal name="clicked" handler="on_loadladder_clicked" swapped="no"/>
                                 <child>
                                   <object class="GtkAlignment" id="alignment5">
@@ -1142,10 +1096,10 @@ program</property>
             <child type="label">
               <object class="GtkCheckButton" id="classicladder">
                 <property name="label" translatable="yes">Include _Classicladder PLC</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_underline">True</property>
                 <property name="draw_indicator">True</property>
                 <signal name="toggled" handler="on_classicladder_toggled" swapped="no"/>

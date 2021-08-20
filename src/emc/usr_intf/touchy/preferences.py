@@ -15,12 +15,9 @@
 import os
 import sys
 
-if sys.version_info[0] == 3:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
+cp = configparser.RawConfigParser
 
-cp = configparser.ConfigParser
 class preferences(cp):
     types = {
         bool: cp.getboolean,

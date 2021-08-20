@@ -79,6 +79,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.error = linuxcnc.error_channel()
         self.catch_errors = True
         self.desktop_notify = True
+        self.notify_max_msgs = 10
         self.close_event = True
         self.play_sounds = True
         self.mchnMsg_play_sound = True
@@ -137,7 +138,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
-        self._zmq_sub_subscribe_name = ""
+        self._zmq_sub_subscribe_name = b""
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
 
@@ -195,6 +196,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         if self.PREFS_:
             self.catch_errors = self.PREFS_.getpref('catch_errors', self.catch_errors, bool, 'SCREEN_OPTIONS')
             self.desktop_notify = self.PREFS_.getpref('desktop_notify', self.desktop_notify, bool, 'SCREEN_OPTIONS')
+            self.notify_max_msgs = self.PREFS_.getpref('notify_max_msgs', self.notify_max_msgs, int, 'SCREEN_OPTIONS')
             self.close_event = self.PREFS_.getpref('shutdown_check', self.close_event, bool, 'SCREEN_OPTIONS')
             self.play_sounds = self.PREFS_.getpref('sound_player_on', self.play_sounds, bool, 'SCREEN_OPTIONS')
             self.mchnMsg_play_sound = self.PREFS_.getpref('mchnMsg_play_sound', self.mchnMsg_play_sound, bool, 'MCH_MSG_OPTIONS')
@@ -272,9 +274,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         # install remote control
         if self.add_send_zmq:
-            self.init_zmg_subscribe()
-        if self.add_receive_zmq:
             self.init_zmq_publish()
+        if self.add_receive_zmq:
+            self.init_zmg_subscribe()
+            
 
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to the widgets
@@ -313,34 +316,35 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def process_error(self, w, kind, text):
             if 'on limit switch error' in text:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text)
+                    NOTICE.update(self.notify_hard_limits, title='Machine Error:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Error:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Text:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_DISPLAY:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text)
+                    NOTICE.update(self.notify_critical, title='Operator Display:', message=text, msgs=self.notify_max_msgs)
 
             elif kind == linuxcnc.NML_ERROR:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text)
+                    NOTICE.update(self.notify_critical, title='Internal NML Error:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.NML_TEXT:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text)
+                    NOTICE.update(self.notify_critical, title='Internal NML Text:', message=text, msgs=self.notify_max_msgs)
             elif kind == linuxcnc.NML_DISPLAY:
                 if self.desktop_notify:
-                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text)
+                    NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text, msgs=self.notify_max_msgs)
 
             elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
                                     title='Operator Info:',
-                                     message=text,
+                                    message=text,
                                     status_timeout=0,
-                                    timeout=2)
+                                    timeout=2,
+                                    msgs=self.notify_max_msgs)
 
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
@@ -366,7 +370,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             except:
                 answer = True
             # system shutdown
-            if answer == -1:
+            if answer == QtWidgets.QMessageBox.DestructiveRole:
                 if 'system_shutdown_request__' in dir(self.QTVCP_INSTANCE_):
                     self.QTVCP_INSTANCE_.system_shutdown_request__()
                 else:
@@ -591,14 +595,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def init_zmg_subscribe(self):
         if import_ZMQ():
-            self._zmq_sub_context = zmq.Context()
-            self._zmq_sub_sock = self._zmq_sub_context.socket(zmq.SUB)
-            self._zmq_sub_sock.connect(self._zmq_sub_socket_address)
-            self._zmq_sub_sock.setsockopt(zmq.SUBSCRIBE, self._zmq_sub_subscribe_name)
+            try:
+                self._zmq_sub_context = zmq.Context()
+                self._zmq_sub_sock = self._zmq_sub_context.socket(zmq.SUB)
+                self._zmq_sub_sock.connect(self._zmq_sub_socket_address)
+                self._zmq_sub_sock.setsockopt(zmq.SUBSCRIBE, self._zmq_sub_subscribe_name)
 
-            self.read_noti = QtCore.QSocketNotifier(self._zmq_sub_sock.getsockopt(zmq.FD),
-                                                 QtCore.QSocketNotifier.Read, None)
-            self.read_noti.activated.connect(self.on_read_msg)
+                self.read_noti = QtCore.QSocketNotifier(
+                                    self._zmq_sub_sock.getsockopt(zmq.FD),
+                                    QtCore.QSocketNotifier.Read, None)
+                self.read_noti.activated.connect(self.on_read_msg)
+            except Exception as e:
+                LOG.error('zmq subscribe to message setup error: {}'.format(e))
 
     def on_read_msg(self):
         self.read_noti.setEnabled(False)
@@ -616,9 +624,10 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
                 # call handler function with arguments
                 try:
-                     self.QTVCP_INSTANCE_[function](*arguments)
+                     self.QTVCP_INSTANCE_[function](arguments)
                 except Exception as e:
                     LOG.error('zmq message parcing error: {}'.format(e))
+                    LOG.error('{} {}'.format(function, arguments))
         elif self._zmq_sub_sock.getsockopt(zmq.EVENTS) & zmq.POLLOUT:
             print("[Socket] zmq.POLLOUT")
         elif self._zmq_sub_sock.getsockopt(zmq.EVENTS) & zmq.POLLERR:
@@ -627,9 +636,12 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def init_zmq_publish(self):
         if import_ZMQ():
-            self._zmq_pub_context = zmq.Context()
-            self._zmq_pub_socket = self._zmq_pub_context.socket(zmq.PUB)
-            self._zmq_pub_socket.bind(self._zmq_pub_socket_address)
+            try:
+                self._zmq_pub_context = zmq.Context()
+                self._zmq_pub_socket = self._zmq_pub_context.socket(zmq.PUB)
+                self._zmq_pub_socket.bind(self._zmq_pub_socket_address)
+            except Exception as e:
+                LOG.error('zmq publish message setup error: {}'.format(e))
 
     def zmq_write_message(self, args,topic = 'QtVCP'):
         if self.add_send_zmq:
@@ -637,7 +649,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 message = json.dumps(args)
                 LOG.debug('Sending ZMQ Message:{} {}'.format(topic,message))
                 self._zmq_pub_socket.send_multipart(
-                    [topic, bytes((message).encode('utf-8'))])
+                    [bytes(topic.encode('utf-8')),
+                        bytes((message).encode('utf-8'))])
             except Exception as e:
                 LOG.error('zmq message sending error: {}'.format(e))
         else:
@@ -660,6 +673,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self.desktop_notify
     def reset_notify(self):
         self.desktop_notify = True
+
+    def set_max_messages(self, data):
+        self.notify_max_msgs = data
+    def get_max_messages(self):
+        return self.notify_max_msgs
+    def reset_max_messages(self):
+        self.notify_max_msgs = 10
 
     def set_close(self, data):
         self.close_event = data
@@ -715,6 +735,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     # designer will show these properties in this order:
     notify_option = QtCore.pyqtProperty(bool, get_notify, set_notify, reset_notify)
+    notify_max_messages = QtCore.pyqtProperty(int, get_max_messages, set_max_messages, reset_max_messages)
 
     catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
     close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)

@@ -42,11 +42,8 @@ sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 import vcpparse
 import hal
 
-if sys.version_info[0] == 3:
-    import tkinter as Tkinter
-    from tkinter import Tk
-else:
-    from Tkinter import Tk
+import tkinter as Tkinter
+from tkinter import Tk
 import getopt
 
 def usage():

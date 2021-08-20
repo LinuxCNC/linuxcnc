@@ -1,12 +1,6 @@
 /** This file, 'miscgtk.c', contains code for some generic GTK
     functions as declared in 'miscgtk.h'.  This includes new
     widgets and other items of a general nature.
-
-    It is also used for "compatibility code" needed to support
-    different versions of GTK.  Currently, GTK-1.2 is the oldest
-    version supported.  As GTK progresses and more version 1.2 APIs
-    are deprecated, support for pre-2.0 versions may eventually be
-    dropped.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -35,7 +29,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include <sys/types.h>
@@ -59,34 +53,6 @@
 /***********************************************************************
 *                    PUBLIC FUNCTION DEFINITIONS                       *
 ************************************************************************/
-
-#if !GTK_CHECK_VERSION(2,0,0)
-void gtk_widget_set_double_buffered( GtkWidget *widget, gboolean double_buffered) {
-    // does nothing
-}
-
-void gtk_widget_modify_fg( GtkWidget *widget, GtkStateType state, const GdkColor *color) {
-    gtk_widget_ensure_style(widget);
-    gtk_widget_set_style(widget, gtk_style_copy(widget->style));
-    widget->style->fg[state] = *color;
-}
-
-void gtk_widget_modify_bg( GtkWidget *widget, GtkStateType state, const GdkColor *color) {
-    gtk_widget_ensure_style(widget);
-    gtk_widget_set_style(widget, gtk_style_copy(widget->style));
-    widget->style->bg[state] = *color;
-}
-
-GdkFont* gtk_style_get_font(GtkStyle *style) {
-    return (style)->font;
-}
-#endif
-
-#if !GTK_CHECK_VERSION(2,8,0)
-void gtk_window_set_urgency_hint( GtkWindow *window, gboolean state ) { }
-gboolean gtk_window_is_active( GtkWindow *window ) { return FALSE; }
-#endif
-
 
 GtkWidget *gtk_label_new_in_box(const gchar * text, GtkWidget * box,
     gboolean expand, gboolean fill, guint padding)
@@ -220,102 +186,6 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
     free(text_buf);
     /* wow, all that just to size a box! what a pain! */
     return;
-}
-
-int dialog_generic_msg(GtkWidget * parent, const gchar * title, const gchar * msg,
-    const gchar * button1, const gchar * button2, const gchar * button3, const gchar * button4)
-{
-    dialog_generic_t dialog;
-    GtkWidget *button, *label, *content_area;
-    const gchar *button_name_array[4];
-    void (*button_funct_array[4]) (GtkWidget *, dialog_generic_t *);
-    gint n;
-
-    dialog.retval = 0;
-    /* create dialog window, disable resizing */
-    dialog.window = gtk_dialog_new();
-    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
-    /* set title */
-    if (title != NULL) {
-	gtk_window_set_title(GTK_WINDOW(dialog.window), title);
-    } else {
-	gtk_window_set_title(GTK_WINDOW(dialog.window), "Dialog");
-    }
-    if (msg != NULL) {
-	label = gtk_label_new(msg);
-	gtk_widget_set_margin_top(label, 15);
-	gtk_widget_set_margin_bottom(label, 15);
-	gtk_widget_set_margin_start(label, 15);
-	gtk_widget_set_margin_end(label, 15);
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, TRUE, TRUE, 0);
-    }
-    /* set up a callback function when the window is destroyed */
-    g_signal_connect(dialog.window, "destroy",
-	G_CALLBACK(dialog_generic_destroyed), &dialog);
-    /* transfer button name pointers to an array for looping */
-    button_name_array[0] = button1;
-    button_name_array[1] = button2;
-    button_name_array[2] = button3;
-    button_name_array[3] = button4;
-    /* make a matching array of pointers to functions */
-    button_funct_array[0] = dialog_generic_button1;
-    button_funct_array[1] = dialog_generic_button2;
-    button_funct_array[2] = dialog_generic_button3;
-    button_funct_array[3] = dialog_generic_button4;
-    /* loop to make buttons */
-    for (n = 0; n < 4; n++) {
-	if (button_name_array[n] != NULL) {
-	    /* make a button */
-            button = gtk_button_new_with_label(button_name_array[n]);
-            g_signal_connect(button, "clicked",
-                    G_CALLBACK(button_funct_array[n]), &dialog);
-            gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window),
-                    button, n + 1);
-	}
-    }
-    if (parent != NULL) {
-	gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	    GTK_WINDOW(parent));
-    }
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
-    return dialog.retval;
-}
-
-void dialog_generic_button1(GtkWidget * widget, dialog_generic_t * dptr)
-{
-    /* set return value */
-    dptr->retval = 1;
-    /* destroy window to cause dialog_generic_destroyed() to be called */
-    gtk_widget_destroy(dptr->window);
-}
-
-void dialog_generic_button2(GtkWidget * widget, dialog_generic_t * dptr)
-{
-    dptr->retval = 2;
-    gtk_widget_destroy(dptr->window);
-}
-
-void dialog_generic_button3(GtkWidget * widget, dialog_generic_t * dptr)
-{
-    dptr->retval = 3;
-    gtk_widget_destroy(dptr->window);
-}
-
-void dialog_generic_button4(GtkWidget * widget, dialog_generic_t * dptr)
-{
-    dptr->retval = 4;
-    gtk_widget_destroy(dptr->window);
-}
-
-void dialog_generic_destroyed(GtkWidget * widget, dialog_generic_t * dptr)
-{
-    /* this will drop out of the gtk_main call and allow dialog_generic() to
-       return */
-    gtk_main_quit();
 }
 
 void add_to_list(GtkWidget *list, char *strs[], const int num_cols)

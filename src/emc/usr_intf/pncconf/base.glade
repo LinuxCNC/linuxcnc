@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkListStore" id="machine_type_store">
     <columns>
       <!-- column-name gchararray1 -->
@@ -94,9 +94,9 @@
                               <object class="GtkLabel" id="label2">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Machine Name:</property>
                                 <property name="use_underline">True</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -111,8 +111,6 @@
                                 <property name="invisible_char">●</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
                                 <signal name="changed" handler="on_machinename_changed" swapped="no"/>
                               </object>
                               <packing>
@@ -136,8 +134,8 @@
                               <object class="GtkLabel" id="label1">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Configuration directory:</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -150,9 +148,9 @@
                                 <property name="width_request">250</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="xalign">1</property>
                                 <property name="label">confdir</property>
                                 <property name="selectable">True</property>
+                                <property name="xalign">1</property>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -176,9 +174,9 @@
                               <object class="GtkLabel" id="label3">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Axis configuration:</property>
                                 <property name="use_underline">True</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -243,9 +241,9 @@
                               <object class="GtkLabel" id="label4">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Machine units:</property>
                                 <property name="use_underline">True</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -350,10 +348,10 @@
                               <object class="GtkLabel" id="label437">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Actual Servo Period:             </property>
                                 <property name="use_markup">True</property>
                                 <property name="use_underline">True</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -368,8 +366,6 @@
                                 <property name="invisible_char">●</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
                                 <property name="adjustment">servo_adjustment</property>
                                 <property name="climb_rate">100</property>
                                 <property name="numeric">True</property>
@@ -385,8 +381,8 @@
                               <object class="GtkLabel" id="label443">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="label" translatable="yes">ns</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -404,8 +400,8 @@
                           <object class="GtkLabel" id="label444">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="xalign">0</property>
                             <property name="label" translatable="yes">Recommend servo period:    1000000</property>
+                            <property name="xalign">0</property>
                           </object>
                           <packing>
                             <property name="top_attach">1</property>
@@ -623,7 +619,6 @@ Period Jitter </property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="expanded">True</property>
-        <property name="use_markup">True</property>
         <child>
           <object class="GtkTable" id="table30">
             <property name="visible">True</property>

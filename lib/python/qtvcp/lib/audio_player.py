@@ -226,8 +226,8 @@ class Player:
 
 
 if __name__ == "__main__":
-    import gobject
-
+    import gi
+    from gi.repository import GObject as gobject
     try:
         test = Player()
         test.play_error()

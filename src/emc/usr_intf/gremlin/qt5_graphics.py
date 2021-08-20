@@ -28,14 +28,10 @@ except ImportError:
     LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
     LIB_GOOD = False
 
-if sys.version_info.major > 2:
-    import gi
-    gi.require_version('Pango', '1.0')
-    from gi.repository import Pango
-    import _thread
-else:
-    import pango
-    import thread as _thread
+import gi
+gi.require_version('Pango', '1.0')
+from gi.repository import Pango
+import _thread
     
 import glnav
 from rs274 import glcanon
@@ -414,7 +410,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             or 1)
 
         if not loaded_file:
-            props['name'] = _("No file loaded")
+            props['name'] = "No file loaded"
         else:
             ext = os.path.splitext(loaded_file)[1]
             program_filter = None
@@ -422,13 +418,13 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 program_filter = self.inifile.find("FILTER", ext[1:])
             name = os.path.basename(loaded_file)
             if program_filter:
-                props['name'] = _("generated from %s") % name
+                props['name'] = "generated from %s" % name
             else:
                 props['name'] = name
 
             size = os.stat(loaded_file).st_size
             lines = sum(1 for line in open(loaded_file))
-            props['size'] = _("%(size)s bytes\n%(lines)s gcode lines") % {'size': size, 'lines': lines}
+            props['size'] = "%(size)s bytes\n%(lines)s gcode lines" % {'size': size, 'lines': lines}
 
             if self.metric_units:
                 conv = 1
@@ -454,9 +450,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             props['G0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
             props['G1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
             if gt > 120:
-                props['Run'] = _("%.1f Minutes") % (gt/60)
+                props['Run'] = "%.1f Minutes" % (gt/60)
             else:
-                props['Run'] = _("%d Seconds") % (int(gt))
+                props['Run'] = "%d Seconds" % (int(gt))
 
             min_extents = from_internal_units(canon.min_extents, conv)
             max_extents = from_internal_units(canon.max_extents, conv)
@@ -464,7 +460,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 a = min_extents[i]
                 b = max_extents[i]
                 if a != b:
-                    props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+                    props[c] = "%(a)f to %(b)f = %(diff)f %(units)s".replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
             props['Units'] = units
         self.gcode_properties = props
 

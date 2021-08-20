@@ -26,11 +26,9 @@ import pyvcp_widgets
 import hal 
 import time
 import traceback
-if sys.version_info[0] == 3:
-    import tkinter as Tkinter
-    from tkinter import *
-else:
-    from Tkinter import *
+import tkinter as Tkinter
+from tkinter import *
+
 # this statement is required so that stuff from Tkinter
 # is not included in the pydoc documentation __All__ should list all 
 # functions in this module

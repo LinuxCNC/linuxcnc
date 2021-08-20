@@ -16,11 +16,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+import gi
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import GLib
+
 import sys
-import gtk
 import hal
-import gtk.glade
-import gobject
 import getopt
 
 from .hal_widgets import _HalWidgetBase
@@ -52,7 +55,7 @@ class GladePanel():
                 widget.hal_init(self.hal, idname, self)
                 self.widgets[idname] = widget
 
-        self.timer = gobject.timeout_add(100, self.update)   
+        self.timer = GLib.timeout_add(100, self.update)   
                
     def get_handler_obj(self):
         return self.extension_obj

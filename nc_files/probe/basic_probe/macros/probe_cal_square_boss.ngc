@@ -92,7 +92,7 @@ o<probe_cal_square_boss> sub
 
   #<x_minus_probed> = #5061
 
-  (probed center calulation)
+  (probed center calculation)
   #<x_center_probed> = [[#<x_minus_probed> + #<x_plus_probed>] / 2]
 
   (calculate X Width Probed)
@@ -140,7 +140,7 @@ o<probe_cal_square_boss> sub
 
   #<y_minus_probed> = #5062
 
-  (probed center calulation)
+  (probed center calculation)
   #<y_center_probed> = [[#<y_minus_probed> + #<y_plus_probed>] / 2]
 
   (calculate Y Width Probed)

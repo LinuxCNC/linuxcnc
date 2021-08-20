@@ -125,6 +125,23 @@ class _Lcnc_Action(object):
     def SET_MANUAL_MODE(self):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
 
+    # sets up a python generator that goes through the MDI list of lists.
+    # if it's a command that we have to wait indefinately
+    # ie like a manual tool change.
+    # then we wait for STATUS to return 'command-stopped'
+    # and then continue where we left off.
+    # normal commands just call normal mdi
+    # when the generator ends it forces the return
+    # to the recorded mode.
+    def CALL_MDI_LIST(self, code):
+        self.RECORD_CURRENT_MODE()
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        self._gen = self.generate_list(code)
+        try:
+            state = next(self._gen)
+        except StopIteration:
+            pass
+
     def CALL_MDI(self, code):
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
@@ -713,6 +730,38 @@ class _Lcnc_Action(object):
         self.tmp = tempfile.mkdtemp(prefix='emcflt-', suffix='.d')
         atexit.register(lambda: shutil.rmtree(self.tmp))
 
+
+    #-------MDI call list helpers----------
+    def change_mode_after(self, gen):
+        self._a = STATUS.connect('command-stopped', lambda w: self.command_stopped(gen))
+    # when command stops - we try to continue the generator.
+    # if generator is done - return to recorded mode.
+    def command_stopped(self, gen):
+        try:
+            state = next(gen)
+        except StopIteration:
+            STATUS.handler_disconnect(self._a)
+
+    # python generator that goes through the MDI list.
+    # if it's a command that we have to wait indefinately
+    # ie like a manual tool change.
+    # then we wait for STATUS to return 'command-stopped'
+    # and then continue where we left off.
+    # normal commands just call normal mdi
+    # when the generator ends it forces the return
+    # to the recorded mode.
+    def generate_list(self,cmdList):
+        for calltype, cmd in cmdList:
+            if calltype == 'commandStatusWait':
+                self.change_mode_after(self._gen)
+                self.cmd.mdi('%s' % cmd)
+                yield cmd
+            else:
+                result = self.CALL_MDI_WAIT(cmd,mode_return=False)
+                if result == -1:
+                    log.debug('MDI command {} failed.'.format(cmd))
+        self.RESTORE_RECORDED_MODE()
+
     def __getitem__(self, item):
         return getattr(self, item)
 
@@ -835,7 +884,7 @@ class FilterProgram:
         message = '''The filter program '{}' that was filtering '{}' 
                         exited with an error'''.format(self.program_filter, self.filtered_program)
         if stderr != '':
-            more = _("The error messages it produced are shown below:")
+            more = "The error messages it produced are shown below:"
         else:
             more = None
         mess = {'NAME': 'MESSAGE', 'ID': 'ACTION_ERROR__',
@@ -843,7 +892,7 @@ class FilterProgram:
                 'MORE': more,
                 'DETAILS': stderr,
                 'ICON': 'CRITICAL',
-                'FOCUS_TEXT': _('Filter program Error'),
+                'FOCUS_TEXT': 'Filter program Error',
                 'TITLE': 'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
         log.error('Filter Program Error:{}'.format(stderr))

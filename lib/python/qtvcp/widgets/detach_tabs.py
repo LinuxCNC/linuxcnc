@@ -254,7 +254,7 @@ class DetachTabWidget(QTabWidget):
         def mouseMoveEvent(self, event):
 
             # Determine if the current movement is detected as a drag
-            if not self.dragStartPos.isNull() and ((event.pos() - self.dragStartPos).manhattanLength() < QApplication.startDragDistance()):
+            if not self.dragStartPos.isNull() and ((event.pos() - self.dragStartPos).manhattanLength() > QApplication.startDragDistance()):
                 self.dragInitiated = True
 
             # If the current movement is a drag initiated by the left button

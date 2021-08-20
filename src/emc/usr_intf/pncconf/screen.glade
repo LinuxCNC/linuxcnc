@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkAdjustment" id="axis_height_adjust">
     <property name="upper">100</property>
     <property name="step_increment">1</property>
@@ -204,6 +204,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="model">screen_names</property>
+                            <property name="entry_text_column">0</property>
                             <signal name="changed" handler="on_combo_screentype_changed" swapped="no"/>
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext2"/>
@@ -276,7 +277,6 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="expanded">True</property>
-                            <property name="use_markup">True</property>
                             <child>
                               <object class="GtkTable" id="table34">
                                 <property name="visible">True</property>
@@ -395,16 +395,16 @@
                                   <object class="GtkLabel" id="label442">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Position_offset</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label441">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Position_feedback</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -415,8 +415,8 @@
                                   <object class="GtkLabel" id="label438">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Max Spindle Override </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -430,8 +430,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">max_so_adjust</property>
                                   </object>
                                   <packing>
@@ -443,8 +441,8 @@
                                   <object class="GtkLabel" id="label436">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Min Spindle Override</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -460,8 +458,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">min_so_adjust</property>
                                   </object>
                                   <packing>
@@ -511,8 +507,8 @@
                                   <object class="GtkLabel" id="label440">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Max Feed Override</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -528,8 +524,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">max_fo_adjust</property>
                                   </object>
                                   <packing>
@@ -553,10 +547,42 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <object class="GtkEntry" id="geometry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="invisible_char">●</property>
+                                    <property name="text" translatable="yes">xyzabc</property>
+                                    <property name="primary_icon_activatable">False</property>
+                                    <property name="secondary_icon_activatable">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="labelgeometry">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="label" translatable="yes">Display Geometry</property>
+                                    <property name="xalign">0</property>
+                                  </object>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <object class="GtkComboBox" id="position_offset">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">position_offset_store</property>
+                                    <property name="entry_text_column">0</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext3"/>
                                       <attributes>
@@ -574,6 +600,7 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="model">position_feedback_store</property>
+                                    <property name="entry_text_column">0</property>
                                     <child>
                                       <object class="GtkCellRendererText" id="cellrenderertext4"/>
                                       <attributes>
@@ -586,40 +613,6 @@
                                     <property name="right_attach">2</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <object class="GtkEntry" id="geometry">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="invisible_char">●</property>
-                                    <property name="text" translatable="yes">xyzabc</property>
-                                    <property name="invisible_char_set">True</property>
-                                    <property name="primary_icon_activatable">False</property>
-                                    <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">3</property>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel" id="labelgeometry">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Display Geometry</property>
-                                  </object>
-                                  <packing>
-                                    <property name="top_attach">2</property>
-                                    <property name="bottom_attach">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -722,16 +715,16 @@
                                   <object class="GtkLabel" id="label360">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Default linear velocity </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label361">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Min linear velocity</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -742,8 +735,8 @@
                                   <object class="GtkLabel" id="label362">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Max linear velocity</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">2</property>
@@ -757,8 +750,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">default_lin_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -774,8 +765,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">min_lin_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -793,8 +782,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">max_lin_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -822,8 +809,8 @@
                                   <object class="GtkLabel" id="label366">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Default Angular velocity </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -837,8 +824,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">default_ang_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -851,8 +836,8 @@
                                   <object class="GtkLabel" id="label421">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Editor</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">3</property>
@@ -867,8 +852,6 @@
                                     <property name="text" translatable="yes">gedit</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -881,8 +864,8 @@
                                   <object class="GtkLabel" id="label379">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Min Angular velocity</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -898,8 +881,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">min_ang_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -914,8 +895,8 @@
                                   <object class="GtkLabel" id="label422">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Increments </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">4</property>
@@ -930,8 +911,6 @@
                                     <property name="text" translatable="yes">5mm 1mm .5mm .1mm .05mm .01mm .005mm</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -944,8 +923,8 @@
                                   <object class="GtkLabel" id="label418">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Max Angular velocity</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">4</property>
@@ -961,8 +940,6 @@
                                     <property name="invisible_char">●</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">max_ang_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -1094,8 +1071,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">axis_xpos_adjust</property>
                                       </object>
                                       <packing>
@@ -1136,8 +1111,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">axis_ypos_adjust</property>
                                       </object>
                                       <packing>
@@ -1154,8 +1127,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">axis_width_adjust</property>
                                       </object>
                                       <packing>
@@ -1181,8 +1152,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">axis_height_adjust</property>
                                       </object>
                                       <packing>
@@ -1369,6 +1338,129 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkTable" id="table7">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -1395,8 +1487,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_height_adjust</property>
                                       </object>
                                       <packing>
@@ -1422,8 +1512,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_width_adjust</property>
                                       </object>
                                       <packing>
@@ -1438,8 +1526,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_ypos_adjust</property>
                                       </object>
                                       <packing>
@@ -1480,8 +1566,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_xpos_adjust</property>
                                       </object>
                                       <packing>
@@ -1545,23 +1629,16 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="touchytheme">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="model">themestore</property>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                                      <attributes>
-                                        <attribute name="text">0</attribute>
-                                      </attributes>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">4</property>
-                                    <property name="right_attach">6</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                  </packing>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -1604,6 +1681,18 @@
                                   <placeholder/>
                                 </child>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkVSeparator" id="vseparator23">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -1614,6 +1703,18 @@
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">5</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -1684,6 +1785,18 @@
                                     <property name="top_attach">4</property>
                                     <property name="bottom_attach">5</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -1836,6 +1949,44 @@
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="touchytheme">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="model">themestore</property>
+                                    <property name="entry_text_column">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">4</property>
+                                    <property name="right_attach">6</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                             </child>
                             <child type="label">
@@ -1858,7 +2009,6 @@
                             <child>
                               <object class="GtkTable" id="table1">
                                 <property name="visible">True</property>
-                                <property name="sensitive">False</property>
                                 <property name="can_focus">False</property>
                                 <property name="n_rows">8</property>
                                 <property name="n_columns">7</property>
@@ -1885,6 +2035,83 @@
                                 </child>
                                 <child>
                                   <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -2150,8 +2377,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_height_adjust</property>
                                       </object>
                                       <packing>
@@ -2177,8 +2402,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_width_adjust</property>
                                       </object>
                                       <packing>
@@ -2193,8 +2416,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_ypos_adjust</property>
                                       </object>
                                       <packing>
@@ -2235,8 +2456,6 @@
                                         <property name="invisible_char">●</property>
                                         <property name="primary_icon_activatable">False</property>
                                         <property name="secondary_icon_activatable">False</property>
-                                        <property name="primary_icon_sensitive">True</property>
-                                        <property name="secondary_icon_sensitive">True</property>
                                         <property name="adjustment">touchy_xpos_adjust</property>
                                       </object>
                                       <packing>
@@ -2300,23 +2519,16 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkComboBox" id="gmcpy_theme">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
-                                    <property name="model">themestore</property>
-                                    <child>
-                                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                                      <attributes>
-                                        <attribute name="text">0</attribute>
-                                      </attributes>
-                                    </child>
-                                  </object>
-                                  <packing>
-                                    <property name="left_attach">4</property>
-                                    <property name="right_attach">6</property>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                  </packing>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -2348,6 +2560,18 @@
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                                 <child>
                                   <placeholder/>
@@ -2493,6 +2717,62 @@
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <object class="GtkComboBox" id="gmcpytheme">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="model">themestore</property>
+                                    <property name="entry_text_column">0</property>
+                                    <child>
+                                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                                      <attributes>
+                                        <attribute name="text">0</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">4</property>
+                                    <property name="right_attach">6</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                             </child>
                             <child type="label">
@@ -2519,14 +2799,36 @@
                                 <property name="n_rows">11</property>
                                 <property name="n_columns">5</property>
                                 <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <object class="GtkSpinButton" id="qtplasmac_cam_y">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">qtplasmac_cam_y_adjust1</property>
                                     <property name="climb_rate">1</property>
                                     <property name="digits">3</property>
@@ -2542,8 +2844,8 @@
                                   <object class="GtkLabel" id="qtplasmac_cam_y_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">1</property>
                                     <property name="label" translatable="yes">  Y Offset</property>
+                                    <property name="xalign">1</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">3</property>
@@ -2559,8 +2861,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">qtplasmac_cam_x_adjust</property>
                                     <property name="climb_rate">1</property>
                                     <property name="digits">3</property>
@@ -2579,8 +2879,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">qtplasmac_laser_y_adjust1</property>
                                     <property name="climb_rate">1</property>
                                     <property name="digits">3</property>
@@ -2596,8 +2894,8 @@
                                   <object class="GtkLabel" id="qtplasmac_cam_x_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">1</property>
                                     <property name="label" translatable="yes"> X Offset</property>
+                                    <property name="xalign">1</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -2610,8 +2908,8 @@
                                   <object class="GtkLabel" id="qtplasmac_laser_x_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">1</property>
                                     <property name="label" translatable="yes"> X Offset</property>
+                                    <property name="xalign">1</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -2627,8 +2925,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">qtplasmac_laser_x_adjust1</property>
                                     <property name="digits">3</property>
                                   </object>
@@ -2643,8 +2939,8 @@
                                   <object class="GtkLabel" id="qtplasmac_laser_y_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">1</property>
                                     <property name="label" translatable="yes">  Y Offset</property>
+                                    <property name="xalign">1</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">3</property>
@@ -2657,8 +2953,8 @@
                                   <object class="GtkLabel" id="qtplasmac_cam_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Alignment Camera:   </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">3</property>
@@ -2669,8 +2965,8 @@
                                   <object class="GtkLabel" id="qtplasmac_laser_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Alignment Laser:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">4</property>
@@ -2681,9 +2977,9 @@
                                   <object class="GtkLabel" id="qtplasmac_screen_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="ypad">4</property>
                                     <property name="label" translatable="yes">Screen Aspect:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -2694,9 +2990,9 @@
                                   <object class="GtkLabel" id="qtplasmac_estop_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="ypad">4</property>
                                     <property name="label" translatable="yes">Estop Button:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">2</property>
@@ -2852,9 +3148,9 @@
                                   <object class="GtkLabel" id="qtplasmac_pmx_lbl">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="ypad">4</property>
                                     <property name="label" translatable="yes">Powermax Port:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">5</property>
@@ -2868,8 +3164,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -2882,17 +3176,17 @@
                                   <object class="GtkLabel" id="qtplasmac_screen_lbl1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="ypad">4</property>
                                     <property name="label" translatable="yes">Mode:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel" id="label7">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Default linear velocity </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">7</property>
@@ -2903,8 +3197,8 @@
                                   <object class="GtkLabel" id="label8">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Min linear velocity</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">8</property>
@@ -2915,8 +3209,8 @@
                                   <object class="GtkLabel" id="label9">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Max linear velocity</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">9</property>
@@ -2930,8 +3224,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">default_lin_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -2949,8 +3241,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">min_lin_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -2968,8 +3258,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">max_lin_vel_adjust</property>
                                     <property name="digits">2</property>
                                   </object>
@@ -2984,8 +3272,8 @@
                                   <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Increments </property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">10</property>
@@ -2998,11 +3286,8 @@
                                     <property name="can_focus">True</property>
                                     <property name="invisible_char">●</property>
                                     <property name="text" translatable="yes">10 1 .1 .01 .001</property>
-                                    <property name="invisible_char_set">True</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -3051,35 +3336,11 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <object class="GtkLabel" id="label11">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Max Feed Override</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">6</property>
@@ -3093,8 +3354,6 @@
                                     <property name="invisible_char">•</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
-                                    <property name="primary_icon_sensitive">True</property>
-                                    <property name="secondary_icon_sensitive">True</property>
                                     <property name="adjustment">max_fo_adjust</property>
                                   </object>
                                   <packing>

@@ -60,7 +60,7 @@ class HalToolCylinder(CylinderZ):
         except:
             dia = 0
         rad = dia / 2  # change to rad
-        # this instantly updates tool model but tooltip doesnt move till -
+        # this instantly updates tool model but tooltip doesn't move till -
         # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
         # Tool will "crash" if h and tool length does not match.
         try:
@@ -192,7 +192,7 @@ xassembly = HalTranslate([xassembly], c, "joint.0.pos-fb", MODEL_SCALING, 0, 0, 
 
 # Y assembly creation
 ybase = BoxCentered(200, 200, 10)
-# colorize it green so we can see it seperate from frame.
+# colorize it green so we can see it separate from frame.
 ybase = Color([0, 1, 0, 1], [ybase])
 # don't define translation for this one, as y also moves X table.
 # translating this would move itself alone. You want it to move X parts also.

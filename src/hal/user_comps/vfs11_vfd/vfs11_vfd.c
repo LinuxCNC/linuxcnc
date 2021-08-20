@@ -498,7 +498,7 @@ int read_ini(param_pointer p)
 	    return -1;
 	}
     } else {
-	fprintf(stderr, "%s:cant open inifile '%s'\n", 
+	fprintf(stderr, "%s:can not open inifile '%s'\n", 
 		p->progname, p->inifile);
 	return -1;
     }

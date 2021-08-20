@@ -51,7 +51,7 @@ if support_aux_apps:
                         ,stderr=subprocess.PIPE
                         )
     p,e = s.communicate()
-    gladevcp_aux_apps_dir = p.strip() # remove trailing \n
+    gladevcp_aux_apps_dir = p.strip().decode() # remove trailing \n
     for auxdir in glob.glob(gladevcp_aux_apps_dir + "/*"):
         print("gladevcp: auxiliary dir:",auxdir)
         for fname in glob.glob(auxdir + "/*.py"):

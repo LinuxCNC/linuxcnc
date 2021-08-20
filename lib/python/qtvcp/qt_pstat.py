@@ -18,6 +18,8 @@
 import os
 import sys
 
+from PyQt5 import QtCore
+
 # Set up logging
 from . import logger
 
@@ -192,26 +194,27 @@ class _PStat(object):
                 LOG.info("Resources.py file needs to be compiled at: {}".format(localqrcpy))
             self.QRCPY = localqrcpy
             self.QRCPY_IS_LOCAL = True
-            return
-        self.QRCPY = None
-        LOG.info("No resources.py file found, No QRC file to compile one from.")
-
-    def add_screen_paths(self):
-        # check for a local translation folder
-        locallocale = os.path.join(self.CONFIGPATH, "locale")
-        if os.path.exists(locallocale):
-            self.LOCALEDIR = locallocale
-            self.DOMAIN = self.BASEPATH
-            LOG.debug("CUSTOM locale name = {} {}".format(self.LOCALEDIR, self.BASEPATH))
         else:
-            locallocale = os.path.join(self.SCREENDIR, "%s/locale" % self.BASEPATH)
-            if os.path.exists(locallocale):
-                self.LOCALEDIR = locallocale
-                self.DOMAIN = self.BASEPATH
-                LOG.debug("SKIN locale name = {} {}".format(self.LOCALEDIR, self.BASEPATH))
+            self.QRCPY = None
+            LOG.info("No resources.py file found, No QRC file to compile one from.")
+
+        # translation path
+        lang = QtCore.QLocale.system().name().split('_')[0]
+        qm_fn = "languages/{}_{}.qm".format(self.BASEPATH,lang)
+        defaultqm = os.path.join(self.SCREENDIR, self.BASEPATH, qm_fn)
+        localqm = os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn)
+        LOG.debug("Checking for translation file in: yellow<{}>".format(localqm))
+        if os.path.exists(localqm):
+            LOG.info("Using LOCAL translation file from yellow<{}>".format(localqm))
+            self.LOCALEDIR = localqm
+        else:
+            LOG.debug("Checking for translation file in: yellow<{}>".format(defaultqm))
+            if os.path.exists(defaultqm):
+                LOG.info("Using DEFAULT translation file from yellow<{}>".format(defaultqm))
+                self.LOCALEDIR = defaultqm
             else:
-                self.LOCALEDIR = os.path.join(self.BASEDIR, "share", "locale")
-                self.DOMAIN = "linuxcnc"
+                LOG.info("Using no translations. Default system locale is: yellow<{}>".format(lang))
+                self.LOCALEDIR = None
 
     def find_screen_dirs(self):
         dirs = next(os.walk(self.SCREENDIR))[1]

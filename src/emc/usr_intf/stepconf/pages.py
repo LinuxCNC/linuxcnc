@@ -28,17 +28,12 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
 
-from __future__ import print_function
-#import gtk
 import os
 from gi.repository import Gtk
-#import gobject
 from gi.repository import GObject
 import sys
-
-if sys.version_info[0] == 2:
-    reload(sys)
-    sys.setdefaultencoding('utf8')
+import importlib
+importlib.reload(sys)
 
 class Pages:
     def __init__(self, app):
@@ -233,10 +228,12 @@ class Pages:
             filter = Gtk.FileFilter()
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
-            dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.w.window1, Gtk.FileChooserAction.OPEN,
-                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            dialog = Gtk.FileChooserDialog(
+                title=_("Modify Existing Configuration"),
+                parent=self.w.window1,
+                action=Gtk.FileChooserAction.OPEN)
+            dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+            dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
             dialog.set_default_response(Gtk.ResponseType.OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
@@ -928,19 +925,19 @@ class Pages:
         if axis == "a":
             self.w[axis + "screwunits"].set_text(_("degree / rev"))
             self.w[axis + "velunits"].set_text(_("deg / s"))
-            self.w[axis + "accunits"].set_text(_(u"deg / s²"))
+            self.w[axis + "accunits"].set_text(_("deg / s²"))
             self.w[axis + "accdistunits"].set_text(_("deg"))
             self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
         elif self.d.units:
             self.w[axis + "screwunits"].set_text(_("mm / rev"))
             self.w[axis + "velunits"].set_text(_("mm / s"))
-            self.w[axis + "accunits"].set_text(_(u"mm / s²"))
+            self.w[axis + "accunits"].set_text(_("mm / s²"))
             self.w[axis + "accdistunits"].set_text(_("mm"))
             self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
         else:
             self.w[axis + "screwunits"].set_text(_("rev / in"))
             self.w[axis + "velunits"].set_text(_("in / s"))
-            self.w[axis + "accunits"].set_text(_(u"in / s²"))
+            self.w[axis + "accunits"].set_text(_("in / s²"))
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 

@@ -114,7 +114,7 @@ class Data:
         # basic machine data
         self.help = "help-welcome.txt"
         self.machinename = _("my_LinuxCNC_machine")
-        self.frontend = _PD._AXIS 
+        self.frontend = _PD._AXIS
         self.axes = 0 # XYZ
         self.include_spindle = True
         self.available_axes = []
@@ -157,7 +157,7 @@ class Data:
         self.jograpidrate = 1.0
 
         self.externalmpg = False
-        self.guimpg = True    
+        self.guimpg = True
         self.multimpg = False
         self.sharedmpg = False
         self.incrselect = False
@@ -285,7 +285,7 @@ class Data:
         self.min_spindle_override = .5
         self.max_spindle_override = 1.0
         # These are for AXIS gui only
-        # linear jog defaults are set with: set_axis_unit_defaults() 
+        # linear jog defaults are set with: set_axis_unit_defaults()
         self.default_angular_velocity = 12
         self.min_angular_velocity = 3
         self.max_angular_velocity = 180
@@ -417,12 +417,12 @@ class Data:
         self.drivertype = "other"
         self.steptime = 5000
         self.stepspace = 5000
-        self.dirhold = 20000 
+        self.dirhold = 20000
         self.dirsetup = 20000
         self.latency = 15000
         self.period = 25000
 
-        # For parallel port 
+        # For parallel port
         self.pp1_direction = 1 # output
         self.ioaddr1 = "0"
         self.ioaddr2 = "1"
@@ -448,8 +448,8 @@ class Data:
         self.number_mesa = 1 # number of cards
         # for first mesa card
         self.mesa0_currentfirmwaredata = None
-        self.mesa0_boardtitle = "5i25-Internal Data"        
-        self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]  
+        self.mesa0_boardtitle = "5i25-Internal Data"
+        self.mesa0_firmware = _PD.MESA_INTERNAL_FIRMWAREDATA[0][2]
         self.mesa0_parportaddrs = "0x378"
         self.mesa0_card_addrs = "192.168.1.121"
         self.mesa0_isawatchdog = 1
@@ -793,7 +793,7 @@ class Data:
             conv = converters[n.getAttribute('type')]
             text = n.getAttribute('value')
             setattr(self, name, conv(text))
-        
+
         # this loads custom signal names created by the user
         # adds endings to the custom signal name when put in
         # hal signal name arrays
@@ -892,8 +892,8 @@ If you have a REALLY large config that you wish to convert to this newer version
         self.pncconf_loaded_version = self._pncconf_version
         if app:
             dialog = gtk.MessageDialog(app.widgets.window1,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_WARNING, gtk.BUTTONS_OK,
+                gtk.DIALOG_MODAL | gtk.DialogFlags.DESTROY_WITH_PARENT,
+                gtk.MESSAGE_WARNING, gtk.ButtonsType.OK,
                      "\n".join(warnings))
             dialog.show_all()
             dialog.run()
@@ -952,8 +952,8 @@ If you have a REALLY large config that you wish to convert to this newer version
 
             n.setAttribute('name', k)
             n.setAttribute('value', str(v))
-        
-        d.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+
+        d.writexml(open(filename, "wt"), addindent="  ", newl="\n")
         print("%s" % base)
 
         # write pncconf hidden preference file
@@ -1017,11 +1017,11 @@ If you have a REALLY large config that you wish to convert to this newer version
         n2.setAttribute('name', "customfirmwarefilename")
         n2.setAttribute('value', str("%s"% self._customfirmwarefilename))
 
-        d2.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        d2.writexml(open(filename, "wt"), addindent="  ", newl="\n")
 
         # write to Touchy preference file directly
         if self.frontend == _PD._TOUCHY:
-            #print "Setting TOUCHY preferences"
+            #print("Setting TOUCHY preferences")
             templist = {"touchyabscolor":"abs_textcolor","touchyrelcolor":"rel_textcolor",
                         "touchydtgcolor":"dtg_textcolor","touchyerrcolor":"err_textcolor"}
             for key,value in templist.items():
@@ -1044,7 +1044,7 @@ If you have a REALLY large config that you wish to convert to this newer version
             if _APP.warning_dialog(_PD.MESS_REPLACE_RC_FILE, False):
                 f1 = open(filename, "w")
                 if self.axisposition[0] or self.axissize[0]:
-                    #print "Setting AXIS geometry option"
+                    #print("Setting AXIS geometry option)
                     pos = size = ""
                     if self.axisposition[0]:
                         pos = "+%d+%d"% (self.axisposition[1],self.axisposition[2])
@@ -1053,7 +1053,7 @@ If you have a REALLY large config that you wish to convert to this newer version
                     geo = "%s%s"%(size,pos)
                     print("""root_window.tk.call("wm","geometry",".","%s")"""%(geo), file=f1)
                 if self.axisforcemax:
-                    #print "Setting AXIS forcemax option"
+                    #print("Setting AXIS forcemax option")
                     print("""# Find the largest size possible and set AXIS to it""", file=f1)
                     print("""maxgeo=root_window.tk.call("wm","maxsize",".")""", file=f1)
                     print("""try:""", file=f1)

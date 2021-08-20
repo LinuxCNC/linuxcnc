@@ -1417,7 +1417,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     if (false == *condition)
     {
         auto delay = (maxTimeouts - timeouts) * timeoutMs;
-        std::cerr << "hal   failed to wait for reqested mode. waited " << delay << "ms\n";
+        std::cerr << "hal   failed to wait for requested mode. waited " << delay << "ms\n";
         return false;
     }
     else

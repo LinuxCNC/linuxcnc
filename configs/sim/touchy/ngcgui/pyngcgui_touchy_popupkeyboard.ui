@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="window1">
     <property name="can_focus">False</property>
     <property name="resizable">False</property>
@@ -19,7 +16,6 @@
         <property name="verbose">False</property>
         <property name="send_function_name">default_send</property>
         <property name="send_to_dir">touchy</property>
-        <property name="gtk_theme_name"></property>
         <property name="control_font_name"></property>
       </object>
     </child>

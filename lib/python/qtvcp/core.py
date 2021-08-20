@@ -2,7 +2,8 @@
 # vim: sts=4 sw=4 et
 
 import linuxcnc
-import inspect
+import gi
+from gi.repository import GObject as gobject
 
 import sys
 if sys.version_info.major > 2:
@@ -157,7 +158,7 @@ class Status(GStat):
     _instance = None
     _instanceNum = 0
     __gsignals__ = {
-        'toolfile-stale': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'toolfile-stale': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
     TEMPARARY_MESSAGE = 255
     # only make one instance of the class - pass it to all other

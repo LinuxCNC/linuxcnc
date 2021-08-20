@@ -35,7 +35,7 @@
 
 
 
-// This function is a development of Jeff's orginal work for ver 7.100
+// This function is a development of Jeff's original work for ver 7.100
 // it converts variables or symbols to HAL signal names (if present)
 
 // It is called from the GetElementPropertiesForStatusBar function in edit.c 

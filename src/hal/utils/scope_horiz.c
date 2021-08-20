@@ -29,7 +29,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include "config.h"
@@ -168,10 +168,10 @@ static void init_horiz_window(void)
     /* third column - scale display */
     horiz->scale_label = gtk_label_new_in_box("----", hbox, FALSE, FALSE, 5);
     gtk_label_size_to_fit(GTK_LABEL(horiz->scale_label),
-	"99.9 mSec\nper div");
+	"99.9 ms\nper div");
     /* fourth column - record length and sample rate button */
     horiz->record_button =
-	gtk_button_new_with_label(_("----- Samples\nat ---- KHz"));
+	gtk_button_new_with_label(_("----- Samples\nat ---- kHz"));
     horiz->record_label = gtk_bin_get_child(GTK_BIN(horiz->record_button));
     gtk_label_size_to_fit(GTK_LABEL(horiz->record_label),
 	"99999 Samples\nat 99.9 MHz");
@@ -321,13 +321,13 @@ void write_horiz_config(FILE *fp)
 int set_sample_thread(char *name)
 {
     int rv;
-    
+
     /* This is broken into two parts.  When called directly
        while reading config file commands, both execute in
        order.  however, when the dialog is running, it calls
        the two separately, setting the sample_thread_name
        during the dialog, and sctivating it when the dialog
-       is closed.  This may not be neccessary, but that is
+       is closed.  This may not be necessary, but that is
        how it works right now. */
     rv = set_sample_thread_name(name);
     if ( rv < 0 ) {
@@ -375,14 +375,14 @@ int set_horiz_mult(int setting)
 {
     scope_horiz_t *horiz;
     long period_ns, max_mult;
-    
+
     /* validate setting */
     if ( setting < 1 ) {
 	return -1;
     }
     /* point to data */
     horiz = &(ctrl_usr->horiz);
-    /* get period, make sure is is valid */
+    /* get period, make sure it is valid */
     period_ns = horiz->thread_period_ns;
     if ( period_ns < 10 ) {
 	return -1;
@@ -395,10 +395,10 @@ int set_horiz_mult(int setting)
     /* make sure we aren't too high */
     if ( setting > max_mult ) {
 	setting = max_mult;
-    }    
+    }
     /* save new value */
     ctrl_shm->mult = setting;
-    /* refresh other stuff */    
+    /* refresh other stuff */
     calc_horiz_scaling();
     refresh_horiz_info();
     return 0;
@@ -420,7 +420,7 @@ int set_horiz_zoom(int setting)
     /* set zoom slider based on new setting */
     adj = GTK_ADJUSTMENT(horiz->zoom_adj);
     gtk_adjustment_set_value(adj, setting);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     calc_horiz_scaling();
     refresh_horiz_info();
     request_display_refresh(1);
@@ -443,7 +443,7 @@ int set_horiz_pos(double setting)
     /* set position slider based on new setting */
     adj = GTK_ADJUSTMENT(horiz->pos_adj);
     gtk_adjustment_set_value(adj, setting * 1000);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     refresh_horiz_info();
     request_display_refresh(1);
     return 0;
@@ -455,53 +455,63 @@ int set_horiz_pos(double setting)
 
 static void dialog_realtime_not_loaded(void)
 {
-    const gchar *title, *msg;
-    gint retval;
+    int retval;
     static int first_time=1;
+    GtkWidget *dialog;
 
     if(first_time) {
         first_time = 0;
         if(system(EMC2_BIN_DIR "/halcmd loadrt scope_rt") == 0) {
-	    sleep(1);
-	    return;
-	}
+            sleep(1);
+            return;
+        }
     }
-    title = _("Realtime component not loaded");
-    msg = _("HALSCOPE uses a realtime component called scope_rt'\n"
-	"to sample signals for display.  It is not currently loaded\n"
-        "and attempting to load it automatically failed.  More information\n"
-        "may be available in the terminal where halscope was started.\n\n"
-	"Please do one of the following:\n\n"
-	"Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
-	"or\n" "Click 'Quit' to exit HALSCOPE");
-    retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, "OK", "Quit",
-	NULL, NULL);
-    if ((retval == 0) || (retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
-	gtk_main_quit();
+    dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                    GTK_DIALOG_MODAL,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_NONE,
+                                    _("Realtime component not loaded"));
+    gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("HALSCOPE uses a realtime component called scope_rt'\n"
+            "to sample signals for display.  It is not currently loaded\n"
+            "and attempting to load it automatically failed.  More information\n"
+            "may be available in the terminal where halscope was started.\n\n"
+            "Please do one of the following:\n\n"
+            "Load the component (using 'halcmd loadrt scope_rt'), then click 'OK'\n"
+            "or\n" "Click 'Quit' to exit HALSCOPE"));
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("OK"), GTK_RESPONSE_OK,
+                           _("Quit"), GTK_RESPONSE_CLOSE,
+                           NULL);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    if (retval == GTK_RESPONSE_CLOSE) {
+        /* user pressed quit - end the program */
+        gtk_main_quit();
     }
 }
 
 static void dialog_realtime_not_linked(void)
 {
     scope_horiz_t *horiz;
-    dialog_generic_t dialog;
 
     int next, sel_row, n;
+    int retval;
     double period;
     hal_thread_t *thread;
-    gchar *strs[2];
-    gchar buf[BUFLEN + 1];
+    char *strs[2];
+    char buf[BUFLEN + 1];
     GtkWidget *hbox, *label;
     GtkWidget *content_area;
-    GtkWidget *button;
+    GtkWidget *dialog;
     GtkWidget *buttons[5];
     GtkWidget *scrolled_window;
     GtkTreeSelection *selection;
 
     char *titles[NUM_COLS];
-    const gchar *title, *msg;
+    const char *title, *msg;
 
     horiz = &(ctrl_usr->horiz);
     if (horiz->thread_name == NULL) {
@@ -518,20 +528,21 @@ static void dialog_realtime_not_linked(void)
 	    "or\n" "Click 'Quit' to exit HALSCOPE");
     }
     /* create dialog window, disable resizing and set title */
-    dialog.retval = 0;
-    dialog.window = gtk_dialog_new();
-    gtk_window_set_resizable(GTK_WINDOW(dialog.window), FALSE);
-    gtk_window_set_title(GTK_WINDOW(dialog.window), title);
-    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog.window));
+    dialog = gtk_dialog_new_with_buttons(title,
+                                         GTK_WINDOW(ctrl_usr->main_win),
+                                         GTK_DIALOG_MODAL,
+                                         _("_OK"), GTK_RESPONSE_OK,
+                                         _("Quit"), GTK_RESPONSE_CLOSE,
+                                         NULL);
+    gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
+    content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 
     /* display message */
     label = gtk_label_new(msg);
-    gtk_widget_set_margin_top(label, 5);
-    gtk_widget_set_margin_bottom(label, 5);
     gtk_widget_set_margin_start(label, 15);
     gtk_widget_set_margin_end(label, 15);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, TRUE, 0);
+            label, FALSE, TRUE, 5);
 
     /* a separator */
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
@@ -706,26 +717,11 @@ static void dialog_realtime_not_linked(void)
 	/* yes, preselect appropriate line */
         mark_selected_row(horiz->thread_list, sel_row);
     }
-    /* set up a callback function when the window is destroyed */
-    g_signal_connect(dialog.window, "destroy",
-	G_CALLBACK(dialog_generic_destroyed), &dialog);
+    gtk_widget_show_all(dialog);
 
-    /* make OK and Quit buttons */
-    button = gtk_button_new_with_label(_("OK"));
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window), button, 1);
-    g_signal_connect(button, "clicked",
-            G_CALLBACK(dialog_generic_button1), &dialog);
-    button = gtk_button_new_with_label(_("Quit"));
-    gtk_dialog_add_action_widget(GTK_DIALOG(dialog.window), button, 2);
-    g_signal_connect(button, "clicked",
-            G_CALLBACK(dialog_generic_button2), &dialog);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 
-    /* make window transient and modal */
-    gtk_window_set_transient_for(GTK_WINDOW(dialog.window),
-	GTK_WINDOW(ctrl_usr->main_win));
-    gtk_window_set_modal(GTK_WINDOW(dialog.window), TRUE);
-    gtk_widget_show_all(dialog.window);
-    gtk_main();
     /* these items no longer exist - NULL them */
     horiz->thread_list = NULL;
     horiz->thread_name_label = NULL;
@@ -733,33 +729,43 @@ static void dialog_realtime_not_linked(void)
     horiz->sample_period_label = NULL;
     horiz->mult_adj = NULL;
     horiz->mult_spinbutton = NULL;
-    /* we get here when the user hits OK or Cancel or closes the window */
-    if ((dialog.retval == 0) || (dialog.retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
+
+    /* we get here when the user hits OK or Quit */
+    if (retval == GTK_RESPONSE_CLOSE) {
+	/* user pressed quit - end the program */
 	gtk_main_quit();
-    } else {
-	activate_sample_thread();
     }
+    activate_sample_thread();
 }
 
 static void dialog_realtime_not_running(void)
 {
-    const gchar *title, *msg;
-    gint retval;
+    int retval;
+    GtkWidget *dialog;
 
-    title = _("Realtime thread(s) not running");
-    msg = _("HALSCOPE uses code in a realtime HAL thread to sample\n"
-	"signals for display.  The HAL thread(s) are not running.\n"
-	"Threads are usually started by the application you are\n"
-	"attempting to run, or you can use the 'halcmd start' command.\n\n"
-	"Please do one of the following:\n\n"
-	"Start the threads, then click 'OK'\n"
-	"or\n" "Click 'Quit' to exit HALSCOPE");
-    retval =
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), _("Quit"),
-	NULL, NULL);
-    if ((retval == 0) || (retval == 2)) {
-	/* user either closed dialog, or hit cancel - end the program */
+    dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                    GTK_DIALOG_MODAL,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_NONE,
+                                    _("Realtime thread(s) not running"));
+    gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("HALSCOPE uses code in a realtime HAL thread to sample\n"
+            "signals for display.  The HAL thread(s) are not running.\n"
+            "Threads are usually started by the application you are\n"
+            "attempting to run, or you can use the 'halcmd start' command.\n\n"
+            "Please do one of the following:\n\n"
+            "Start the threads, then click 'OK'\n"
+            "or\n" "Click 'Quit' to exit HALSCOPE"));
+    gtk_dialog_add_buttons(GTK_DIALOG(dialog),
+                           _("OK"), GTK_RESPONSE_OK,
+                           _("Quit"), GTK_RESPONSE_CLOSE,
+                           NULL);
+    retval = gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+    if (retval == GTK_RESPONSE_CLOSE) {
+	/* user pressed quit - end the program */
 	gtk_main_quit();
     }
 }
@@ -842,7 +848,7 @@ static int set_sample_thread_name(char *name)
     }
     /* shut down any prior thread */
     deactivate_sample_thread();
-    /* save info about the thread */ 
+    /* save info about the thread */
     horiz->thread_name = thread->name;
     horiz->thread_period_ns = thread->period;
     /* calc max possible mult (to keep sample period <= 1 sec */
@@ -873,7 +879,7 @@ static int activate_sample_thread(void)
 {
     scope_horiz_t *horiz;
     int rv;
- 
+
     /* get a pointer to the horiz data structure */
     horiz = &(ctrl_usr->horiz);
     /* has a thread name been specified? */
@@ -926,7 +932,7 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
 static void rec_len_button(GtkWidget * widget, gpointer gdata)
 {
     int retval;
-    const char *title, *msg;
+    GtkWidget *dialog;
 
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
@@ -935,12 +941,18 @@ static void rec_len_button(GtkWidget * widget, gpointer gdata)
     retval = set_rec_len((long)gdata);
     if (retval < 0) {
 	/* too many channels already enabled */
-	title = _("Not enough channels");
-	msg = _("This record length cannot handle the channels\n"
-	    "that are currently enabled.  Pick a shorter\n"
-	    "record length that supports more channels.");
-	dialog_generic_msg(ctrl_usr->main_win, title, msg, _("OK"), NULL, NULL,
-	    NULL);
+        dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
+                                        GTK_DIALOG_MODAL,
+                                        GTK_MESSAGE_INFO,
+                                        GTK_BUTTONS_OK,
+                                        _("Not enough channels"));
+        gtk_message_dialog_format_secondary_text(
+                GTK_MESSAGE_DIALOG(dialog),
+                _("This record length cannot handle the channels\n"
+                "that are currently enabled.  Pick a shorter\n"
+                "record length that supports more channels."));
+        gtk_dialog_run(GTK_DIALOG(dialog));
+        gtk_widget_destroy(dialog);
     }
 }
 
@@ -964,7 +976,7 @@ static void calc_horiz_scaling(void)
     horiz->sample_period = horiz->sample_period_ns / 1000000000.0;
     total_rec_time = ctrl_shm->rec_len * horiz->sample_period;
     if (total_rec_time < 0.000010) {
-	/* out of range, set to 1uS per div */
+	/* out of range, set to 1 µs per div */
 	horiz->disp_scale = 0.000001;
 	return;
     }
@@ -1143,18 +1155,18 @@ static void format_time_value(char *buf, int buflen, double timeval)
 
     /* convert to nanoseconds */
     timeval *= 1000000000.0;
-    units = _("nSec");
+    units = _("ns");
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("uSec");
+	units = _("µs");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("mSec");
+	units = _("ms");
     }
     if (timeval >= 1000.0) {
 	timeval /= 1000.0;
-	units = _("Sec");
+	units = _("s");
     }
     decimals = 2;
     if (timeval >= 10.0) {
@@ -1174,11 +1186,11 @@ static void format_freq_value(char *buf, int buflen, double freqval)
     units = _("Hz");
     if (freqval >= 1000.0) {
 	freqval /= 1000.0;
-	units = _("KHz");
+	units = _("kHz");
     }
     if (freqval >= 1000.0) {
 	freqval /= 1000.0;
-	units = _("Mhz");
+	units = _("MHz");
     }
     decimals = 2;
     if (freqval >= 10.0) {
@@ -1204,7 +1216,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     double disp_center, disp_start, disp_end;
     double rec_start, rec_end;
     double min, max, span, scale;
-    double newpos; 
+    double newpos;
 
     int x, y;
     GdkModifierType state;
@@ -1216,7 +1228,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
         y = event->y;
         state = event->state;
     }
-      
+
     if(!(state & GDK_BUTTON1_MASK)) return TRUE;
 
     motion = x - horiz->x0;

@@ -135,19 +135,9 @@ class QTVCP:
         if INIPATH:
             LOG.info('green<Building A Linuxcnc Main Screen with {}>'.format(ver))
             import linuxcnc
-            # internationalization and localization
-            import locale, gettext
             # pull info from the INI file
             self.inifile = linuxcnc.ini(INIPATH)
             self.inipath = INIPATH
-            # screens require more path info
-            PATH.add_screen_paths()
-
-            # International translation
-            locale.setlocale(locale.LC_ALL, '')
-            locale.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
-            gettext.install(PATH.DOMAIN, localedir=PATH.LOCALEDIR)
-            gettext.bindtextdomain(PATH.DOMAIN, PATH.LOCALEDIR)
 
             # if no handler file specified, use stock test one
             if not opts.usermod:
@@ -199,6 +189,16 @@ Pressing cancel will close linuxcnc.""" % target)
             if opts.component is None:
                 LOG.info('No HAL component base name specified - using: {}'.format(PATH.BASENAME))
                 opts.component = PATH.BASENAME
+
+        ############################
+        # International translation
+        ############################
+        if PATH.LOCALEDIR is not None:
+            translator = QtCore.QTranslator()
+            translator.load(PATH.LOCALEDIR)
+            self.app.installTranslator(translator)
+            #QtCore.QCoreApplication.installTranslator(translator)
+            #print(self.app.translate("MainWindow", 'Machine Log'))
 
         ##############
         # Build ui
@@ -288,7 +288,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # push the window id for embedment into an external program
         if opts.push_XID:
             wid = int(window.winId())
-            print >> sys.stdout,wid
+            print(wid, file=sys.stdout)
             sys.stdout.flush()
 
         # for window resize and or position options

@@ -1383,9 +1383,6 @@
                             <height>16777215</height>
                            </size>
                           </property>
-                          <property name="statusTip">
-                           <string>Open the selected G-Code file</string>
-                          </property>
                           <property name="text">
                            <string>SELECT</string>
                           </property>
@@ -1419,9 +1416,6 @@
                             <width>16777215</width>
                             <height>16777215</height>
                            </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Move down</string>
                           </property>
                           <property name="text">
                            <string>NEXT</string>
@@ -1460,9 +1454,6 @@
                             <height>16777215</height>
                            </size>
                           </property>
-                          <property name="statusTip">
-                           <string>Move up</string>
-                          </property>
                           <property name="text">
                            <string>PREV</string>
                           </property>
@@ -1493,9 +1484,6 @@
                             <width>40</width>
                             <height>40</height>
                            </size>
-                          </property>
-                          <property name="statusTip">
-                           <string>Close the file selector</string>
                           </property>
                           <property name="text">
                            <string>CANCEL</string>
@@ -2229,9 +2217,6 @@ ORIGIN</string>
                            <height>0</height>
                           </size>
                          </property>
-                         <property name="statusTip">
-                          <string>Estop status</string>
-                         </property>
                          <property name="text">
                           <string>ESTOP</string>
                          </property>
@@ -2277,12 +2262,10 @@ ORIGIN</string>
                           <double>0.200000000000000</double>
                          </property>
                          <property name="true_state_string" stdset="0">
-                          <string>ESTOP
-RESET</string>
+                          <string/>
                          </property>
                          <property name="false_state_string" stdset="0">
-                          <string>ESTOP
-SET</string>
+                          <string/>
                          </property>
                          <property name="is_estopped_status" stdset="0">
                           <bool>true</bool>
@@ -2360,9 +2343,6 @@ SET</string>
                          <property name="toolTip">
                           <string/>
                          </property>
-                         <property name="statusTip">
-                          <string>Switch the GUI on or off</string>
-                         </property>
                          <property name="text">
                           <string>POWER</string>
                          </property>
@@ -2405,12 +2385,10 @@ SET</string>
                           <double>0.200000000000000</double>
                          </property>
                          <property name="true_state_string" stdset="0">
-                          <string>MACHINE
-OFF</string>
+                          <string/>
                          </property>
                          <property name="false_state_string" stdset="0">
-                          <string>MACHINE
-ON</string>
+                          <string/>
                          </property>
                          <property name="is_estopped_status" stdset="0">
                           <bool>false</bool>
@@ -2482,9 +2460,6 @@ ON</string>
                            <height>40</height>
                           </size>
                          </property>
-                         <property name="statusTip">
-                          <string>Run the current G-Code program</string>
-                         </property>
                          <property name="text">
                           <string>CYCLE START</string>
                          </property>
@@ -2509,9 +2484,6 @@ ON</string>
                            <width>16777215</width>
                            <height>40</height>
                           </size>
-                         </property>
-                         <property name="statusTip">
-                          <string>Pause or resume the current G-Code program</string>
                          </property>
                          <property name="text">
                           <string>CYCLE PAUSE</string>
@@ -2686,7 +2658,7 @@ ON</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="ActionButton" name="abort">
+                        <widget class="QPushButton" name="abort">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -2705,178 +2677,8 @@ ON</string>
                            <height>40</height>
                           </size>
                          </property>
-                         <property name="statusTip">
-                          <string>Stop the current G-Code program</string>
-                         </property>
                          <property name="text">
                           <string>CYCLE STOP</string>
-                         </property>
-                         <property name="indicator_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="indicator_HAL_pin_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="indicator_status_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="checked_state_text_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="python_command_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="on_color" stdset="0">
-                          <color>
-                           <red>255</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </property>
-                         <property name="shape_option" stdset="0">
-                          <number>0</number>
-                         </property>
-                         <property name="off_color" stdset="0">
-                          <color>
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </property>
-                         <property name="indicator_size" stdset="0">
-                          <double>0.300000000000000</double>
-                         </property>
-                         <property name="circle_diameter" stdset="0">
-                          <double>10.000000000000000</double>
-                         </property>
-                         <property name="right_edge_offset" stdset="0">
-                          <double>0.000000000000000</double>
-                         </property>
-                         <property name="top_edge_offset" stdset="0">
-                          <double>0.000000000000000</double>
-                         </property>
-                         <property name="corner_radius" stdset="0">
-                          <double>5.000000000000000</double>
-                         </property>
-                         <property name="height_fraction" stdset="0">
-                          <double>0.300000000000000</double>
-                         </property>
-                         <property name="width_fraction" stdset="0">
-                          <double>0.900000000000000</double>
-                         </property>
-                         <property name="true_state_string" stdset="0">
-                          <string>True</string>
-                         </property>
-                         <property name="false_state_string" stdset="0">
-                          <string>False</string>
-                         </property>
-                         <property name="true_python_cmd_string" stdset="0">
-                          <string>print&quot;true command&quot;</string>
-                         </property>
-                         <property name="false_python_cmd_string" stdset="0">
-                          <string>print&quot;false command&quot;</string>
-                         </property>
-                         <property name="invert_the_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_paused_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_estopped_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_on_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_idle_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_homed_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_flood_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_mist_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_block_delete_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_optional_stop_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_joint_homed_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_limits_overridden_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_manual_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_mdi_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_auto_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_spindle_stopped_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_spindle_fwd_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_spindle_rev_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="joint_number_status" stdset="0">
-                          <number>0</number>
-                         </property>
-                         <property name="run_action" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="abort_action" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="template_label_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="joint_number" stdset="0">
-                          <number>0</number>
-                         </property>
-                         <property name="incr_imperial_number" stdset="0">
-                          <double>0.010000000000000</double>
-                         </property>
-                         <property name="incr_mm_number" stdset="0">
-                          <double>0.025000000000000</double>
-                         </property>
-                         <property name="incr_angular_number" stdset="0">
-                          <double>-1.000000000000000</double>
-                         </property>
-                         <property name="toggle_float_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="float_num" stdset="0">
-                          <double>0.300000000000000</double>
-                         </property>
-                         <property name="float_alt_num" stdset="0">
-                          <double>50.000000000000000</double>
-                         </property>
-                         <property name="view_type_string" stdset="0">
-                          <string>P</string>
-                         </property>
-                         <property name="command_text_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="ini_mdi_number" stdset="0">
-                          <number>0</number>
-                         </property>
-                         <property name="textTemplate" stdset="0">
-                          <string>%1.3f in</string>
-                         </property>
-                         <property name="alt_textTemplate" stdset="0">
-                          <string>%1.2f mm</string>
                          </property>
                         </widget>
                        </item>
@@ -2961,8 +2763,7 @@ ON</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>FEED
-100%</string>
+                             <string>FEED</string>
                             </property>
                            </widget>
                           </item>
@@ -2985,9 +2786,6 @@ ON</string>
                               <width>16777215</width>
                               <height>16777215</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Set the feed override percentage</string>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3042,8 +2840,7 @@ ON</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>RAPID
-100%</string>
+                             <string>RAPID</string>
                             </property>
                            </widget>
                           </item>
@@ -3060,9 +2857,6 @@ ON</string>
                               <width>0</width>
                               <height>0</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Set the rapid override percentage</string>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3111,8 +2905,7 @@ ON</string>
                              </size>
                             </property>
                             <property name="text">
-                             <string>JOG
-100</string>
+                             <string>JOG</string>
                             </property>
                            </widget>
                           </item>
@@ -3129,9 +2922,6 @@ ON</string>
                               <width>0</width>
                               <height>0</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Set the jog feed rate</string>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3269,9 +3059,6 @@ ON</string>
                            <height>16</height>
                           </size>
                          </property>
-                         <property name="statusTip">
-                          <string/>
-                         </property>
                          <property name="text">
                           <string>DRO</string>
                          </property>
@@ -3379,9 +3166,6 @@ ON</string>
                                  <height>40</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Select work coordinate system</string>
-                               </property>
                                <property name="text">
                                 <string/>
                                </property>
@@ -3476,9 +3260,6 @@ ON</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Current Z axis position</string>
-                            </property>
                             <property name="styleSheet">
                              <string notr="true"/>
                             </property>
@@ -3541,9 +3322,6 @@ ON</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Touch off the Z axis</string>
-                            </property>
                             <property name="text">
                              <string>0</string>
                             </property>
@@ -3586,9 +3364,6 @@ ON</string>
                               <width>40</width>
                               <height>40</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Touch off the Y axis</string>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -3633,9 +3408,6 @@ ON</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Current X axis position</string>
-                            </property>
                             <property name="styleSheet">
                              <string notr="true"/>
                             </property>
@@ -3676,9 +3448,6 @@ ON</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Touch off the A axis</string>
-                            </property>
                             <property name="text">
                              <string>0</string>
                             </property>
@@ -3718,9 +3487,6 @@ ON</string>
                               <width>40</width>
                               <height>40</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Touch off the X axis</string>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -3786,9 +3552,6 @@ ON</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Home the A axis</string>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -3904,9 +3667,6 @@ ON</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Current Y axis position</string>
-                            </property>
                             <property name="styleSheet">
                              <string notr="true"/>
                             </property>
@@ -3990,9 +3750,6 @@ ON</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Home the Y axis</string>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4106,9 +3863,6 @@ HOME</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Home the Z axis</string>
-                            </property>
                             <property name="text">
                              <string>HOME</string>
                             </property>
@@ -4182,9 +3936,6 @@ HOME</string>
                             <property name="toolTip">
                              <string/>
                             </property>
-                            <property name="statusTip">
-                             <string>Home all axes</string>
-                            </property>
                             <property name="text">
                              <string>HOME ALL</string>
                             </property>
@@ -4229,9 +3980,6 @@ HOME ALL</string>
                               <height>40</height>
                              </size>
                             </property>
-                            <property name="statusTip">
-                             <string>Current A axis position</string>
-                            </property>
                             <property name="styleSheet">
                              <string notr="true"/>
                             </property>
@@ -4274,9 +4022,6 @@ HOME ALL</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
-                            </property>
-                            <property name="statusTip">
-                             <string>Home the X axis</string>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4799,9 +4544,6 @@ HOME</string>
                                      <height>16</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Open the file selector</string>
-                                   </property>
                                    <property name="text">
                                     <string>OPEN</string>
                                    </property>
@@ -4826,9 +4568,6 @@ HOME</string>
                                      <width>60</width>
                                      <height>16</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Reload the current G-Code file</string>
                                    </property>
                                    <property name="text">
                                     <string>RELOAD</string>
@@ -5253,9 +4992,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Set the jog increment</string>
-                                   </property>
                                   </widget>
                                  </item>
                                  <item>
@@ -5281,9 +5017,6 @@ HOME</string>
                                    <property name="toolTip">
                                     <string/>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Toggle jog feed rate by a factor of 10</string>
-                                   </property>
                                    <property name="text">
                                     <string>FAST</string>
                                    </property>
@@ -5291,13 +5024,13 @@ HOME</string>
                                     <bool>true</bool>
                                    </property>
                                    <property name="checked_state_text_option" stdset="0">
-                                    <bool>true</bool>
+                                    <bool>false</bool>
                                    </property>
                                    <property name="true_state_string" stdset="0">
-                                    <string>SLOW</string>
+                                    <string/>
                                    </property>
                                    <property name="false_state_string" stdset="0">
-                                    <string>FAST</string>
+                                    <string/>
                                    </property>
                                    <property name="slider" stdset="0">
                                     <string>jog_slider</string>
@@ -5357,9 +5090,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Jog the X axis left</string>
-                                   </property>
                                    <property name="icon">
                                     <iconset>
                                      <normalon>:/images/x_minus_e.png</normalon>
@@ -5393,9 +5123,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Jog the X axis right</string>
                                    </property>
                                    <property name="icon">
                                     <iconset>
@@ -5431,9 +5158,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Jog the A axis counter clockwise</string>
-                                   </property>
                                    <property name="icon">
                                     <iconset>
                                      <normalon>:/images/a_minus_e.png</normalon>
@@ -5467,9 +5191,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Jog the A axis clockwise</string>
                                    </property>
                                    <property name="icon">
                                     <iconset>
@@ -5505,9 +5226,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Jog the Y axis back</string>
-                                   </property>
                                    <property name="icon">
                                     <iconset>
                                      <normalon>:/images/y_plus_e.png</normalon>
@@ -5541,9 +5259,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Jog the Z axis up</string>
                                    </property>
                                    <property name="icon">
                                     <iconset>
@@ -5579,9 +5294,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Jog the Z axis down</string>
-                                   </property>
                                    <property name="icon">
                                     <iconset>
                                      <normalon>:/images/z_minus_e.png</normalon>
@@ -5615,9 +5327,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Jog the Y axis forward</string>
                                    </property>
                                    <property name="icon">
                                     <iconset>
@@ -5840,9 +5549,6 @@ HOME</string>
                                         <height>40</height>
                                        </size>
                                       </property>
-                                      <property name="statusTip">
-                                       <string>Reverse move along current motion segment</string>
-                                      </property>
                                       <property name="text">
                                        <string>REV</string>
                                       </property>
@@ -5897,9 +5603,6 @@ HOME</string>
                                         <height>40</height>
                                        </size>
                                       </property>
-                                      <property name="statusTip">
-                                       <string>Cancel cut recovery</string>
-                                      </property>
                                       <property name="text">
                                        <string>CANCEL</string>
                                       </property>
@@ -5928,9 +5631,6 @@ HOME</string>
                                      <horstretch>0</horstretch>
                                      <verstretch>0</verstretch>
                                     </sizepolicy>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Paused motion feed rate override percentage</string>
                                    </property>
                                    <property name="maximum">
                                     <number>100</number>
@@ -6018,9 +5718,6 @@ HOME</string>
                                         <width>40</width>
                                         <height>40</height>
                                        </size>
-                                      </property>
-                                      <property name="statusTip">
-                                       <string>Forward move along current motion segment</string>
                                       </property>
                                       <property name="layoutDirection">
                                        <enum>Qt::LeftToRight</enum>
@@ -6124,9 +5821,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the X+ Y- direction</string>
-                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6158,9 +5852,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the Y- direction</string>
-                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6191,9 +5882,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the X- Y+ direction</string>
                                    </property>
                                    <property name="layoutDirection">
                                     <enum>Qt::LeftToRight</enum>
@@ -6229,9 +5917,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the X+ direction</string>
-                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6262,9 +5947,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the X- Y- direction</string>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -6297,9 +5979,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the X- direction</string>
-                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6330,9 +6009,6 @@ HOME</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
-                                   </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the Y+ direction</string>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -6365,9 +6041,6 @@ HOME</string>
                                      <height>40</height>
                                     </size>
                                    </property>
-                                   <property name="statusTip">
-                                    <string>Move torch in the X+ Y+ direction</string>
-                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6381,9 +6054,6 @@ HOME</string>
                                  </item>
                                  <item row="1" column="1">
                                   <widget class="QLabel" name="cut_rec_move_label">
-                                   <property name="statusTip">
-                                    <string>Distance the torch will move</string>
-                                   </property>
                                    <property name="text">
                                     <string>MOVE</string>
                                    </property>
@@ -6552,9 +6222,6 @@ HOME</string>
                                     <height>17</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string/>
-                                  </property>
                                   <property name="text">
                                    <string>UP</string>
                                   </property>
@@ -6576,9 +6243,6 @@ HOME</string>
                                     <width>20</width>
                                     <height>16777215</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string>THC is moving the Z axis up</string>
                                   </property>
                                   <property name="color">
                                    <color>
@@ -6603,9 +6267,6 @@ HOME</string>
                                     <height>16777215</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string>THC is currently active</string>
-                                  </property>
                                   <property name="color">
                                    <color>
                                     <red>252</red>
@@ -6628,9 +6289,6 @@ HOME</string>
                                     <width>20</width>
                                     <height>16777215</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string>THC is enabled</string>
                                   </property>
                                   <property name="color">
                                    <color>
@@ -6662,9 +6320,6 @@ HOME</string>
                                     <height>16777215</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string>THC is moving the Z axis down</string>
-                                  </property>
                                   <property name="color">
                                    <color>
                                     <red>252</red>
@@ -6688,9 +6343,6 @@ HOME</string>
                                     <height>17</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string/>
-                                  </property>
                                   <property name="text">
                                    <string>ACTIVE</string>
                                   </property>
@@ -6713,9 +6365,6 @@ HOME</string>
                                     <height>17</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string/>
-                                  </property>
                                   <property name="text">
                                    <string>DOWN</string>
                                   </property>
@@ -6737,9 +6386,6 @@ HOME</string>
                                     <width>64</width>
                                     <height>17</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string/>
                                   </property>
                                   <property name="text">
                                    <string>ENABLED</string>
@@ -6873,9 +6519,6 @@ HOME</string>
                                     <height>16777215</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string>Float switch status</string>
-                                  </property>
                                   <property name="color">
                                    <color>
                                     <red>252</red>
@@ -6899,9 +6542,6 @@ HOME</string>
                                     <height>17</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string/>
-                                  </property>
                                   <property name="text">
                                    <string>FLOAT</string>
                                   </property>
@@ -6923,9 +6563,6 @@ HOME</string>
                                     <width>20</width>
                                     <height>16777215</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string>Ohmic probe status</string>
                                   </property>
                                   <property name="color">
                                    <color>
@@ -6950,9 +6587,6 @@ HOME</string>
                                     <height>17</height>
                                    </size>
                                   </property>
-                                  <property name="statusTip">
-                                   <string/>
-                                  </property>
                                   <property name="text">
                                    <string>OHMIC</string>
                                   </property>
@@ -6974,9 +6608,6 @@ HOME</string>
                                     <width>20</width>
                                     <height>16777215</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string>Breakaway switch status</string>
                                   </property>
                                   <property name="color">
                                    <color>
@@ -7000,9 +6631,6 @@ HOME</string>
                                     <width>64</width>
                                     <height>17</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string/>
                                   </property>
                                   <property name="text">
                                    <string>BREAK</string>
@@ -7180,9 +6808,6 @@ HOME</string>
                                  <pointsize>40</pointsize>
                                 </font>
                                </property>
-                               <property name="statusTip">
-                                <string>Current arc voltage</string>
-                               </property>
                                <property name="frameShape">
                                 <enum>QFrame::NoFrame</enum>
                                </property>
@@ -7287,9 +6912,6 @@ HOME</string>
                                     <width>20</width>
                                     <height>16777215</height>
                                    </size>
-                                  </property>
-                                  <property name="statusTip">
-                                   <string>Arc OK signal</string>
                                   </property>
                                   <property name="color">
                                    <color>
@@ -7415,9 +7037,6 @@ HOME</string>
                                        <height>24</height>
                                       </size>
                                      </property>
-                                     <property name="statusTip">
-                                      <string>Override THC height down</string>
-                                     </property>
                                      <property name="text">
                                       <string>-</string>
                                      </property>
@@ -7436,9 +7055,6 @@ HOME</string>
                                        <width>30</width>
                                        <height>30</height>
                                       </size>
-                                     </property>
-                                     <property name="statusTip">
-                                      <string>THC override voltage</string>
                                      </property>
                                      <property name="text">
                                       <string>-0.0</string>
@@ -7461,9 +7077,6 @@ HOME</string>
                                        <width>24</width>
                                        <height>24</height>
                                       </size>
-                                     </property>
-                                     <property name="statusTip">
-                                      <string>Override THC height down</string>
                                      </property>
                                      <property name="text">
                                       <string>+</string>
@@ -7584,9 +7197,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Enable mesh mode cutting</string>
-                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
                                </property>
@@ -7666,9 +7276,6 @@ HOME</string>
                                  <height>0</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Use automatic voltage for THC</string>
-                               </property>
                               </widget>
                              </item>
                             </layout>
@@ -7723,9 +7330,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string>Ignore Arc OK signal</string>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -7812,9 +7416,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Enable ohmic probing</string>
-                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
                                </property>
@@ -7870,9 +7471,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Torch on status</string>
-                               </property>
                                <property name="color">
                                 <color>
                                  <red>252</red>
@@ -7895,9 +7493,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string/>
                                </property>
                                <property name="text">
                                 <string>TORCH ON</string>
@@ -7934,9 +7529,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string/>
-                               </property>
                                <property name="text">
                                 <string>ENABLE</string>
                                </property>
@@ -7964,9 +7556,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string>Enable the torch</string>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8023,9 +7612,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Velocity anti dive is active</string>
-                               </property>
                                <property name="color">
                                 <color>
                                  <red>252</red>
@@ -8048,9 +7634,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string/>
                                </property>
                                <property name="text">
                                 <string>VELOCITY ANTI DIVE</string>
@@ -8087,9 +7670,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string/>
-                               </property>
                                <property name="text">
                                 <string>ENABLE</string>
                                </property>
@@ -8117,9 +7697,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string>Enable velocity anti dive</string>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8176,9 +7753,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Void anti dive is active</string>
-                               </property>
                                <property name="color">
                                 <color>
                                  <red>252</red>
@@ -8201,9 +7775,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string/>
                                </property>
                                <property name="text">
                                 <string>VOID ANTI DIVE</string>
@@ -8268,9 +7839,6 @@ HOME</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
-                               <property name="statusTip">
-                                <string>Enable void anti dive</string>
-                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
                                </property>
@@ -8314,9 +7882,6 @@ HOME</string>
                                  <verstretch>0</verstretch>
                                 </sizepolicy>
                                </property>
-                               <property name="statusTip">
-                                <string>status of pmx485 communications</string>
-                               </property>
                                <property name="text">
                                 <string/>
                                </property>
@@ -8354,9 +7919,6 @@ HOME</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
-                               </property>
-                               <property name="statusTip">
-                                <string>Enable Powermax communications</string>
                                </property>
                                <property name="text">
                                 <string/>
@@ -8663,6 +8225,31 @@ HOME</string>
                       </property>
                       <property name="autoExclusive">
                        <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QPushButton" name="conv_ellipse">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>52</width>
+                        <height>52</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                      <property name="iconSize">
+                       <size>
+                        <width>48</width>
+                        <height>48</height>
+                       </size>
                       </property>
                      </widget>
                     </item>
@@ -12418,9 +12005,6 @@ HOME</string>
                         <height>16777215</height>
                        </size>
                       </property>
-                      <property name="statusTip">
-                       <string>cutting current in amps, indicator only, not used by PlasmaC</string>
-                      </property>
                       <property name="layoutDirection">
                        <enum>Qt::LeftToRight</enum>
                       </property>
@@ -12440,13 +12024,13 @@ HOME</string>
                        <number>0</number>
                       </property>
                       <property name="minimum">
-                       <double>15.000000000000000</double>
+                       <double>10.000000000000000</double>
                       </property>
                       <property name="maximum">
                        <double>999.000000000000000</double>
                       </property>
                       <property name="value">
-                       <double>15.000000000000000</double>
+                       <double>999.000000000000000</double>
                       </property>
                      </widget>
                     </item>
@@ -14220,6 +13804,23 @@ HOME</string>
                       </property>
                      </widget>
                     </item>
+                    <item row="6" column="7">
+                     <widget class="QLabel" name="label_5">
+                      <property name="text">
+                       <string>Tool Tips</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="6">
+                     <widget class="QCheckBox" name="chk_tool_tips">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
                    </layout>
                   </widget>
                  </item>
@@ -14667,6 +14268,11 @@ CONFIG</string>
            </item>
           </layout>
          </widget>
+         <widget class="QWidget" name="settings_tab">
+          <attribute name="title">
+           <string>SETTINGS</string>
+          </attribute>
+         </widget>
          <widget class="QWidget" name="stats_tab">
           <attribute name="title">
            <string>STATISTICS</string>
@@ -14701,9 +14307,9 @@ CONFIG</string>
              <property name="frameShadow">
               <enum>QFrame::Plain</enum>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_59" stretch="0,0">
+             <layout class="QVBoxLayout" name="verticalLayout_62">
               <property name="spacing">
-               <number>0</number>
+               <number>4</number>
               </property>
               <property name="leftMargin">
                <number>0</number>
@@ -14729,6 +14335,104 @@ CONFIG</string>
                  </size>
                 </property>
                </spacer>
+              </item>
+              <item>
+               <widget class="QFrame" name="machinelog_frame">
+                <property name="minimumSize">
+                 <size>
+                  <width>200</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Plain</enum>
+                </property>
+                <layout class="QVBoxLayout" name="verticalLayout_59">
+                 <property name="spacing">
+                  <number>4</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>4</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="machinelog_label">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>MACHINE LOG</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QFrame" name="frame_39">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>200</height>
+                    </size>
+                   </property>
+                   <property name="frameShape">
+                    <enum>QFrame::NoFrame</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Plain</enum>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_61">
+                    <property name="spacing">
+                     <number>4</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>4</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>4</number>
+                    </property>
+                    <item>
+                     <widget class="MachineLog" name="machinelog">
+                      <property name="frameShape">
+                       <enum>QFrame::NoFrame</enum>
+                      </property>
+                      <property name="frameShadow">
+                       <enum>QFrame::Plain</enum>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </item>
               <item>
                <widget class="QFrame" name="stats_frame">
@@ -15469,6 +15173,11 @@ CONFIG</string>
    <class>PushButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>MachineLog</class>
+   <extends>QTextEdit</extends>
+   <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
    <class>CamView</class>

@@ -44,9 +44,9 @@ class Private_Data:
                                 ['external',_('External Controls'),True,True],
                                 ['mesa0',_('Mesa Card 0'),False,True],
                                 ['mesa1',_('Mesa Card 1'),False,True],
-                                ['pport1',_('Parallel Port'),False,True],
-                                ['pport2',_('Parallel Port 2'),False,True],
-                                ['thcad',_('Mesa THCAD'),True,True],
+                                ['pport1',_('Parallel Port 0'),False,True],
+                                ['pport2',_('Parallel Port 1'),False,True],
+                                ['thcad',_('Mesa THCAD'),False,False],
                                 ['x_motor',_('X Motor'),True,True],
                                 ['x_axis',_('X Axis'),True,True],
                                 ['y_motor',_('Y Motor'),True,True],
@@ -115,10 +115,10 @@ class Private_Data:
              _("GPIO Input"),_("GPIO Output"),_("GPIO O Drain") ]
         (   self.SSR0,) = self.pintype_ssr = [
              _("SSR Output") ]
-        (   self.ENCA,self.ENCB,self.ENCI,self.ENCM 
+        (   self.ENCA,self.ENCB,self.ENCI,self.ENCM
         ) = self.pintype_encoder = [
             _("Quad Enc-A"),_("Quad Enc-B"),_("Quad Enc-I"),_("Quad Enc-M") ]
-        ( self. MXE0,self.MXE1,self.MXEI,self.MXEM,self.MXES 
+        ( self. MXE0,self.MXE1,self.MXEI,self.MXEM,self.MXES
         ) = self.pintype_muxencoder = [
             _("Muxed Enc 0"),_("Muxed Enc 1"),_("muxed Enc I"),_("Muxed Enc M"),_("mux select") ]
         (   self.RES0,self.RES1,self.RES2,self.RES3,self.RES4,self.RES5,self.RESU
@@ -180,7 +180,7 @@ class Private_Data:
             S.S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT,
             S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON
         ) = self.hal_output_names = [
-            "unused-output", 
+            "unused-output",
             "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "machine-is-enabled",
             "x-enable", "y-enable", "z-enable", "a-enable",
@@ -266,7 +266,7 @@ class Private_Data:
         ) = self.hal_pwm_output_names = [
             "unused-pwm",
             "x-pwm-pulse", "x-pwm-dir", "x-pwm-enable", "y-pwm-pulse", "y-pwm-dir", "y-pwm-enable",
-            "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable", 
+            "z-pwm-pulse", "z-pwm-dir", "z-pwm-enable", "a-pwm-pulse", "a-pwm-dir", "a-pwm-enable",
             "s-pwm-pulse", "s-pwm-dir", "s-pwm-enable",
             "x2-pwm-pulse", "x2-pwm-dir", "x2-pwm-enable", "y2-pwm-pulse", "y2-pwm-dir", "y2-pwm-enable",
             "z2-pwm-pulse", "z2-pwm-dir", "z2-pwm-enable", "a2-pwm-pulse", "a2-pwm-dir", "a2-pwm-enable"]
@@ -291,7 +291,7 @@ class Private_Data:
              "unused-encoder",
             "x-encoder-a", "x-encoder-b", "x-encoder-i", "x-encoder-m",
             "y-encoder-a", "y-encoder-b", "y-encoder-i", "y-encoder-m",
-            "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m", 
+            "z-encoder-a", "z-encoder-b", "z-encoder-i", "z-encoder-m",
             "a-encoder-a", "a-encoder-b", "a-encoder-i", "a-encoder-m",
             "s-encoder-a","s-encoder-b","s-encoder-i", "s-encoder-m",
             "x-mpg-a","x-mpg-b", "x-mpg-i", "x-mpg-m", "y-mpg-a", "y-mpg-b", "y-mpg-i", "y-mpg-m",
@@ -337,7 +337,7 @@ class Private_Data:
             S.CHARGE_PUMP_STEP,S.CHARGE_PUMP_DIR,S.CHARGE_PUMP_PHC,
             S.CHARGE_PUMP_PHD,S.CHARGE_PUMP_PHE,S.CHARGE_PUMP_PHF
         ) = self.hal_stepper_names =[
-            "unused-stepgen", 
+            "unused-stepgen",
             "x-stepgen-step", "x-stepgen-dir", "x-stepgen-phase-c",
             "x-stepgen-phase-d", "x-stepgen-phase-e", "x-stepgen-phase-f",
             "y-stepgen-step", "y-stepgen-dir", "y-stepgen-phase-c",
@@ -382,7 +382,7 @@ class Private_Data:
 
         (   S.UNUSED_SSERIAL, S.A8I20_T, S.A8I20_R, S.A8I20_E,
             S.I7I64_T, S.I7I64_R, S.I7I64_E, S.I7I69_T, S.I7I69_R, S.I7I69_E,
-            S.I7I70_T, S.I7I70_R, S.I7I70_E, S.I7I71_T, S.I7I71_R, S.I7I71_E, 
+            S.I7I70_T, S.I7I70_R, S.I7I70_E, S.I7I71_T, S.I7I71_R, S.I7I71_E,
             S.I7I76_M0_T, S.I7I76_M0_R, S.I7I76_M0_E, S.I7I76_M2_T, S.I7I76_M2_R, S.I7I76_M2_E,
             S.I7I77_M0_T, S.I7I77_M0_R, S.I7I77_M0_E, S.I7I77_M3_T, S.I7I77_M3_R, S.I7I77_M3_E,
             S.I7I73_M1_T, S.I7I73_M1_R, S.I7I73_M1_E, S.I7I84_M0_T, S.I7I84_M0_R, S.I7I84_M0_E,
@@ -408,14 +408,14 @@ class Private_Data:
             [_("Y Minimum Limit + Home"),S.MIN_HOME_Y ], [_("Z Minimum Limit + Home"),S.MIN_HOME_Z ],
             [_("A Minimum Limit + Home"),S.MIN_HOME_A ],[_("X Maximum Limit + Home"),S.MAX_HOME_X ],
             [_("Y Maximum Limit + Home"),S.MAX_HOME_Y ], [_("Z Maximum Limit + Home"),S.MAX_HOME_Z ],
-            [_("A Maximum Limit + Home"),S.MAX_HOME_A ],[_("X Both Limit + Home"),S.BOTH_HOME_X ], 
+            [_("A Maximum Limit + Home"),S.MAX_HOME_A ],[_("X Both Limit + Home"),S.BOTH_HOME_X ],
             [_("Y Both Limit + Home"),S.BOTH_HOME_Y ], [_("Z Both Limit + Home"),S.BOTH_HOME_Z ],
             [_("A Both Limit + Home"),S.BOTH_HOME_A ], [_("All Limits + Home"),S.ALL_LIMIT_HOME ] ]
         home_limits_shared2 = [[_("X2 Minimum Limit + Home"),S.MIN_HOME_X2 ],
             [_("Y2 Minimum Limit + Home"),S.MIN_HOME_Y2 ], [_("Z2 Minimum Limit + Home"),S.MIN_HOME_Z2 ],
             [_("A2 Minimum Limit + Home"),S.MIN_HOME_A2 ],[_("X2 Maximum Limit + Home"),S.MAX_HOME_X2 ],
             [_("Y2 Maximum Limit + Home"),S.MAX_HOME_Y2 ], [_("Z2 Maximum Limit + Home"),S.MAX_HOME_Z2 ],
-            [_("A2 Maximum Limit + Home"),S.MAX_HOME_A2 ],[_("X2 Both Limit + Home"),S.BOTH_HOME_X2 ], 
+            [_("A2 Maximum Limit + Home"),S.MAX_HOME_A2 ],[_("X2 Both Limit + Home"),S.BOTH_HOME_X2 ],
             [_("Y2 Both Limit + Home"),S.BOTH_HOME_Y2 ], [_("Z2 Both Limit + Home"),S.BOTH_HOME_Z2 ],
             [_("A2 Both Limit + Home"),S.BOTH_HOME_A2 ], ]
 
@@ -489,7 +489,7 @@ class Private_Data:
             [_("Charge Pump StepGen"), S.CHARGE_PUMP_STEP], [_("Spindle StepGen"), S.SPINDLE_STEPGEN_STEP],
             [_("Custom Signals"),[]] ]
         #
-        axis = [[_("X Encoder"), S.X_ENCODER_A], [_("Y Encoder"), S.Y_ENCODER_A], 
+        axis = [[_("X Encoder"), S.X_ENCODER_A], [_("Y Encoder"), S.Y_ENCODER_A],
                 [_("Z Encoder"), S.Z_ENCODER_A], [_("A Encoder"), S.A_ENCODER_A],
                 ]
         taxis = [[_("X2 Tandem Encoder"), S.X2_ENCODER_A], [_("Y2 Tandem Encoder"), S.Y2_ENCODER_A],
@@ -574,8 +574,8 @@ class Private_Data:
 # max smart serial, number of channels,
 # discovered sserial devices,
 # spare,spare,spare,spare,spare,spare,spare,
-# has watchdog, max GPIOI, 
-# low frequency rate , hi frequency rate, 
+# has watchdog, max GPIOI,
+# low frequency rate , hi frequency rate,
 # available connector numbers,  then list of component type and logical number
         self.MESA_INTERNAL_FIRMWAREDATA = [
     # 5i25 ####################
@@ -624,7 +624,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['5i25-Internal Data', '5i25', '7i77x2', '5i25', 'hm2_pci',
-        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2], 
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [3, 2],
         # TAB 3
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -717,6 +717,63 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    # 7i80 #################
+    ["7i80DB-Internal Data", "7i80db", "7I76x2", "7i80DB", "hm2_eth",
+        2,3, 0,0, 0,0, 0,0, 10,2, 4,4, [],0,0,0,0,0,0,0, 1, 68, 33, 100, [1,2,3,4],
+        #TAB 1
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.TXDATA0, 0],[S.RXDATA0, 0],[S.TXDATA1, 0],[S.RXDATA1, 0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        #TAB 2
+        [S.STEPB,5],[S.STEPA,5],[S.STEPB,6],[S.STEPA,6],[S.STEPB,7],[S.STEPA,7],[S.STEPB,8],[S.STEPA,8],[S.STEPB,9],[S.STEPA,9],
+        [S.TXDATA2, 0],[S.RXDATA2, 0],[S.TXDATA3, 0],[S.RXDATA3, 0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        #TAB 3
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        #TAB 4
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ["7i80HD-Internal Data", "7i80hd", "SV12", "7i80HD", "hm2_eth",
+        12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [1,2,3],
+        # TAB 1
+        [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
+        [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
+        # TAB 2
+        [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
+        [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
+        # TAB 3
+        [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
+        [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10],],
+
+    ["7i80HD-Internal Data", "7i80hd", "SVST8_4", "7i80HD", "hm2_eth",
+        8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [1,2,3],
+        # TAB 1
+        [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
+        [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
+        # TAB 2
+        [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
+        [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
+        # TAB 3
+        [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0] ],
+
+    # 7i90 ####################
+    ["7i90HD-Internal Data", "7i90", "SVST1_4_2x7i47s", "7i90HD", "hm2_7i90",
+        8,3, 0,0, 2,3, 0,0, 8,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [1,2,3],
+        #TAB 1
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],[S.ENCA,0],[S.ENCA,2],[S.ENCB,0],[S.ENCB,2],[S.ENCI,0],[S.ENCI,2],[S.ENCA,1],[S.ENCA,3],
+        [S.ENCB,1],[S.ENCB,3],[S.ENCI,1],[S.ENCI,3],[S.NUSED,0],[S.PWMD,0],[S.PWME,0],[S.PWMP,0],[S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],
+        #TAB 2
+        [S.STEPA,4],[S.STEPB,4],[S.STEPA,5],[S.STEPB,5],[S.ENCA,4],[S.ENCA,6],[S.ENCB,4],[S.ENCB,6],[S.ENCI,4],[S.ENCI,6],[S.ENCA,5],[S.ENCA,7],
+        [S.ENCB,5],[S.ENCB,7],[S.ENCI,5],[S.ENCI,7],[S.NUSED,0],[S.PWMD,1],[S.PWME,1],[S.PWMP,1],[S.STEPA,6],[S.STEPB,6],[S.STEPA,7],[S.STEPB,7],
+        #TAB 3
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],],
+
     # 7i92 ####################
     ["7i92-Internal Data", "7i92", "7i76x2 with one 7i76 ", "7i92", "hm2_eth",
          1,3, 0,0, 0,3, 0,0, 5,2, 1,2, [],0,0,0,0,0,0,0, 1, 34 , 33, 200, [2,1],
@@ -741,7 +798,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['7i92-Internal Data', '7i92', '7i77x2 with on 7i77', '7i92', 'hm2_eth',
-        6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+        6,3, 0,0, 0,3, 0,0, 0,2, 1,3, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1],
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -752,7 +809,7 @@ class Private_Data:
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     ['7i92-Internal Data', '7i92', '7i77x2', '7i92', 'hm2_eth',
-        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1], 
+        12,3, 0,0, 0,3, 0,0, 0,2, 1,6, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [2, 1],
         # TAB 2
         [S.TXEN2, 0],[S.TXDATA2, 0],[S.RXDATA2, 0],[S.SS7I77M1, 0],[S.RXDATA1, 0],[S.SS7I77M0, 0],[S.RXDATA0, 0],[S.MXES, 0],[S.MXE0, 0],[S.MXE1, 0],
         [S.MXEI, 0],[S.MXE0, 1],[S.MXE1, 1],[S.MXEI, 1],[S.MXE0, 2],[S.MXE1, 2],[S.MXEI, 2],
@@ -812,25 +869,6 @@ class Private_Data:
       [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
 [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
 [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],],
-
-    # 7i80HD #################
-    ["7i80HD-Internal Data", "7i80hd", "SV12", "7i80HD", "hm2_eth",
-        12,3, 0,0, 12,3, 0,0, 0,0, 0,0, [],0,0,0,0,0,0,0, 1, 72 , 33, 100, [2,3,4],
-        [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
-        [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
-        [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
-        [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
-        [S.ENCB,9],[S.ENCA,9],[S.ENCB,8],[S.ENCA,8],[S.ENCI,9],[S.ENCI,8],[S.PWMP,9],[S.PWMP,8],[S.PWMD,9],[S.PWMD,8],[S.PWME,9],[S.PWME,8],
-        [S.ENCB,11],[S.ENCA,11],[S.ENCB,10],[S.ENCA,10],[S.ENCI,11],[S.ENCI,10],[S.PWMP,11],[S.PWMP,10],[S.PWMD,11],[S.PWMD,10],[S.PWME,11],[S.PWME,10],],
-
-    ["7i80HD-Internal Data", "7i80hd", "SVST8_4", "7i80HD", "hm2_eth",
-      8,3, 0,0, 8,3, 0,0, 4,2, 0,0, [],0,0,0,0,0,0,0, 1, 72, 33, 100, [2,3,4],
-      [S.ENCB,1],[S.ENCA,1],[S.ENCB,0],[S.ENCA,0],[S.ENCI,1],[S.ENCI,0],[S.PWMP,1],[S.PWMP,0],[S.PWMD,1],[S.PWMD,0],[S.PWME,1],[S.PWME,0],
-      [S.ENCB,3],[S.ENCA,3],[S.ENCB,2],[S.ENCA,2],[S.ENCI,3],[S.ENCI,2],[S.PWMP,3],[S.PWMP,2],[S.PWMD,3],[S.PWMD,2],[S.PWME,3],[S.PWME,2],
-      [S.ENCB,5],[S.ENCA,5],[S.ENCB,4],[S.ENCA,4],[S.ENCI,5],[S.ENCI,4],[S.PWMP,5],[S.PWMP,4],[S.PWMD,5],[S.PWMD,4],[S.PWME,5],[S.PWME,4],
-      [S.ENCB,7],[S.ENCA,7],[S.ENCB,6],[S.ENCA,6],[S.ENCI,7],[S.ENCI,6],[S.PWMP,7],[S.PWMP,6],[S.PWMD,7],[S.PWMD,6],[S.PWME,7],[S.PWME,6],
-      [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
-      [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0] ],
 
     # 7i96 ####################
     ['7i96-Internal Data', '7i96', '7i96d', '7i96', 'hm2_eth',
@@ -1052,14 +1090,13 @@ class Private_Data:
         '5i25':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2},
         '7i43':{'DRIVER':'hm2_7i43','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
         '7i68':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':6},
-        '7i80hd':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
-        '7i80db':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':4},
         '7i76e':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
-        '7i90':{'DRIVER':'hm2_7i90','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
+        '7i80hd':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
+        '7i80db':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':4,'TAB_NUMS':[1,2,3,4],'TAB_NAMES':['P1','P2','P3','P4']},
+        '7i90':{'DRIVER':'hm2_7i90','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
         '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2},
         '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
-        '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,
-                'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
+        '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
         '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
         }
 

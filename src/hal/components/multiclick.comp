@@ -98,7 +98,7 @@ variable unsigned timeout;
 // X_click_hold_timer is decremented by the thread period, and when the
 // timer falls below 0, the X-click output pin goes  back to low again.
 //
-// Similarly for the X_click_only_hold_timer, but it doesnt start until
+// Similarly for the X_click_only_hold_timer, but it doesn't start until
 // max_space_ns after the click is detected (to ensure that this is not an
 // X+1 click).
 //

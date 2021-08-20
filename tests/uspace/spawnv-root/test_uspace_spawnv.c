@@ -2,6 +2,8 @@
 #include <rtapi_app.h>
 #include <errno.h>
 #include <stdio.h>
+#include <hal.h>
+#include <unistd.h>
 
 int comp;
 

@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <label>
+      <text>"millturn"</text>
+      <relief>RIDGE</relief>
+      <bd>3</bd>
+    </label>
+    <multilabel>
+      <legends>["MILL", "TURN"]</legends>
+      <font>("DejaVu Sans Mono",16)</font>
+      <bg>"black"</bg>
+      <fg>"yellow"</fg>
+    </multilabel>
+    <button>
+      <halpin>"mill-button"</halpin>
+      <text>"MILL"</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"turn-button"</halpin>
+      <text>"TURN"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <label>
+      <text>"Vismach"</text>
+      <relief>RIDGE</relief>
+      <bd>3</bd>
+    </label>
+    <button>
+      <halpin>"vismach-clear"</halpin>
+      <text>"Clear Path"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+</pyvcp>

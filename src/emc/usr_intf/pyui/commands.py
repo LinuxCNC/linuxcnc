@@ -230,6 +230,9 @@ class CNC_COMMANDS():
         def continuous_jog(self, wname, cmd):
             axisnum = int(cmd[0])
             jjogmode,j_or_a = self.get_jog_info(axisnum)
+            if j_or_a == -1 or jjogmode == -1:
+                print('missconfigured joint/axis or mode for {}'.format(axisnum))
+                return
             direction = int(cmd[1])
             if direction == 0:
                 self.isjogging[axisnum] = 0
@@ -245,6 +248,9 @@ class CNC_COMMANDS():
         def incremental_jog(self, wname, cmd):
             axisnum = int(cmd[0])
             jjogmode,j_or_a = self.get_jog_info(axisnum)
+            if j_or_a == -1 or jjogmode == -1:
+                print('missconfigured joint/axis or mode for {}'.format(axisnum))
+                return
             direction = int(cmd[1])
             distance = float(cmd[2])
             self.isjogging[axisnum] = direction
@@ -252,7 +258,7 @@ class CNC_COMMANDS():
                 rate = self.angular_jog_velocity
             else:
                 rate = self.jog_velocity
-            self.emccommand.jog(self.emc.JOG_INCREMENT, jjogmode, axisnum, direction * rate, distance)
+            self.emccommand.jog(self.emc.JOG_INCREMENT, jjogmode, j_or_a, direction * rate, distance)
             self.isjogging[axisnum] = 0
 
         def quill_up(self, wname, cmd):
@@ -337,7 +343,7 @@ class CNC_COMMANDS():
                 self.set_mdi_mode()
                 if isinstance(cmd,list):
                     for i in cmd:
-                        print(str(i))
+                        #print(str(i))
                         self.emccommand.mdi(str(i))
                 else:
                     self.emccommand.mdi(str(cmd))
@@ -347,7 +353,7 @@ class CNC_COMMANDS():
             self.set_mdi_mode()
             if isinstance(cmd,list):
                 for i in cmd:
-                    print(str(i))
+                    #print(str(i))
                     self.emccommand.mdi(str(i))
             else:
                 self.emccommand.mdi(str(cmd))

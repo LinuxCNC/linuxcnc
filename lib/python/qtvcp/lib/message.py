@@ -72,7 +72,7 @@ class Message:
             else:
                 statustext = text
             if self.NOTIFY:
-                self.NOTIFY.notify(_("INFO:"), statustext)
+                self.NOTIFY.notify("INFO:", statustext)
         if "dialog" in type or "okdialog" in type:
             if self.use_focus_overlay:
                 STATUS.emit('focus-overlay-changed', True, self.focus_text, self._color)

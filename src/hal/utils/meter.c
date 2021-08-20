@@ -11,7 +11,7 @@
     initially display the pin/signal/parameter <name>, otherwise it
     will initially display nothing.
 */
-/* Added ability to specify initial window positon on command line 
+/* Added ability to specify initial window position on command line 
     -g Xposition Yposiion    Chris Morley June 2009 
 */
 
@@ -41,7 +41,7 @@
     any responsibility for such compliance.
 
     This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    information, go to https://linuxcnc.org.
 */
 
 #include "config.h"

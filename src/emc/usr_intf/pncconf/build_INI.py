@@ -125,7 +125,7 @@ class INI:
         # qtplasmac has internal editor
         if self.d.frontend != _PD._QTPLASMAC:
             print("EDITOR = %s"% self.d.editor, file=file)
-        print("GEOMETRY = %s"% self.d.geometry, file=file) 
+        print("GEOMETRY = %s"% self.d.geometry, file=file)
         print("CYCLE_TIME = 100", file=file)
 
         print(file=file)
@@ -142,7 +142,7 @@ class INI:
             print("png = image-to-gcode", file=file)
             print("gif = image-to-gcode", file=file)
             print("jpg = image-to-gcode", file=file)
-            print("py = python", file=file)        
+            print("py = python", file=file)
 
         print(file=file)
         print("[TASK]", file=file)
@@ -169,7 +169,7 @@ class INI:
         print("[EMCMOT]", file=file)
         print("EMCMOT = motmod", file=file)
         print("COMM_TIMEOUT = 1.0", file=file)
-        #print >>file, "BASE_PERIOD = %d" % self.d.baseperiod
+        #print("BASE_PERIOD = %d" % self.d.baseperiod, file=file)
         print("SERVO_PERIOD = %d" % self.d.servoperiod, file=file)
         print(file=file)
         print("[HMOT]", file=file)
@@ -177,7 +177,12 @@ class INI:
             print("# **** This is for info only ****", file=file)
         print("CARD0=hm2_%s.0"% self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME], file=file)
         if self.d.number_mesa == 2:
-            print("CARD1=hm_%s.1"% self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME], file=file)
+            for boardnum in range(0,int(self.d.number_mesa)):
+                if boardnum == 1 and (self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME]):
+                    halnum = 1
+                else:
+                    halnum = 0
+            print(file, "CARD1=hm2_%s.%d"% (self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME], halnum), file=file)
         if self.d._substitution_list:
             print("# These are to ease setting custom component's parameters in a custom HAL file", file=file)
             print(file=file)
@@ -189,21 +194,28 @@ class INI:
                     print("%s=%s"%(a,b), file=file)
         print(file=file)
         print("[HAL]", file=file)
-        print("HALUI = halui", file=file)          
+        print("HALUI = halui", file=file)
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
         print("HALFILE = custom.hal", file=file)
-        if self.d.frontend in( _PD._AXIS, _PD._GMOCCAPY, _PD._QTDRAGON):
-            print("POSTGUI_HALFILE = postgui_call_list.hal", file=file)
-        elif self.d.frontend == _PD._QTPLASMAC:
-            print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
+
+        if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect:
+           print("POSTGUI_HALFILE = pyvcp_options.hal", file=file)
+        if self.d.serial_vfd:
+            if self.d.gs2_vfd:
+                print("POSTGUI_HALFILE = gs2_vfd.hal", file=file)
+            if self.d.mitsub_vfd:
+                print("POSTGUI_HALFILE = mitsub_vfd.hal", file=file)
+        if self.d.toolchangeprompt and self.d.frontend == _PD._QTDRAGON:
+            print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
+        print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
-        print("[HALUI]", file=file)          
+        print("[HALUI]", file=file)
         if self.d.halui == True:
             for i in range(0,15):
                 cmd =self.d["halui_cmd" + str(i)]
                 if cmd =="": break
-                print("MDI_COMMAND = %s"% cmd, file=file)           
+                print("MDI_COMMAND = %s"% cmd, file=file)
 
         # Build axis/joints info
 
@@ -238,7 +250,7 @@ class INI:
             coords += 'Z'
 
         if self.d.axes == 1: # for xyza
-            # add A axis 
+            # add A axis
             num_joints += 1
             coords += 'A'
             tandemjoint = self.a.tandem_check('a')
@@ -299,7 +311,7 @@ class INI:
                 print("TOOL_CHANGE_QUILL_UP = 1", file=file)
             if self.d.random_toolchanger:
                 print("RANDOM_TOOLCHANGER = 1", file=file)
-        
+
         all_homes = bool(self.a.home_sig("x") and self.a.home_sig("z"))
         if self.d.axes in (0,1): all_homes = bool(all_homes and self.a.home_sig("y"))
         # A axis usually doesn't have home switches
@@ -371,12 +383,12 @@ class INI:
         encoder = self.a.encoder_sig(letter)
         resolver = self.a.resolver_sig(letter)
         potoutput = self.a.potoutput_sig(letter)
-        
+
         closedloop = False
         if stepgen and (encoder or resolver): closedloop = True
         if (encoder or resolver) and (pwmgen or tppwmgen) : closedloop = True
         if closedloop and letter == "s": closedloop = False
-        #print "INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen
+        #print("INI ",letter + " is closedloop? "+ str(closedloop),encoder,pwmgen,tppwmgen,stepgen)
 
         print(file=file)
         if letter == 's':
@@ -401,12 +413,12 @@ class INI:
                 print("STEPGEN_MAXACCEL = %.2f" % (float(get("maxacc")) * factor), file=file)
 
         print("P = %s" % get("P"), file=file)
-        print("I = %s" % get("I"), file=file) 
+        print("I = %s" % get("I"), file=file)
         print("D = %s" % get("D"), file=file)
         print("FF0 = %s" % get("FF0"), file=file)
         print("FF1 = %s" % get("FF1"), file=file)
         print("FF2 = %s" % get("FF2"), file=file)
-        print("BIAS = %s"% get("bias"), file=file) 
+        print("BIAS = %s"% get("bias"), file=file)
         print("DEADBAND = %s"% get("deadband"), file=file)
         print("MAX_OUTPUT = %s" % get("maxoutput"), file=file)
         if encoder or resolver:
@@ -447,7 +459,7 @@ class INI:
             print("# these are in nanoseconds", file=file)
             print("DIRSETUP   = %d"% int(get("dirsetup")), file=file)
             print("DIRHOLD    = %d"% int(get("dirhold")), file=file)
-            print("STEPLEN    = %d"% int(get("steptime")), file=file)          
+            print("STEPLEN    = %d"% int(get("steptime")), file=file)
             print("STEPSPACE  = %d"% int(get("stepspace")), file=file)
             if get("invertmotor"):
                 temp = -1
@@ -462,8 +474,9 @@ class INI:
         minlim, maxlim = self.find_limits(letter)
         print("MIN_LIMIT = %s" % minlim, file=file)
         print("MAX_LIMIT = %s" % maxlim, file=file)
-        thisaxishome = set(("all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
-        ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        thisaxishome = set(("all-limit-home", "all-home", "home-" + letter, "min-home-" + letter, "max-home-" + letter, "both-home-" + letter))
+        ignore = set(("min-home-" + letter, "max-home-" + letter, "both-home-" + letter, "all-limit-home"))
+        share = set(("all-limit-home", "all-home"))
         homes = False
         for i in thisaxishome:
             if self.a.findsignal(i): homes = True
@@ -473,27 +486,31 @@ class INI:
         if homes:
             searchvel = abs(get("homesearchvel"))
             latchvel = abs(get("homelatchvel"))
-            #print get("searchdir")
+            #print(get("searchdir"))
             if get("searchdir") == 0:
                  searchvel = -searchvel
-                 if get("latchdir") == 0: 
-                    latchvel = -latchvel 
+                 if get("latchdir") == 0:
+                    latchvel = -latchvel
             else:
-                if get("latchdir") == 1: 
+                if get("latchdir") == 1:
                     latchvel = -latchvel
             if ismain:
                 print("HOME_OFFSET = %f" % get("homesw"), file=file)
             else:
                 print("HOME_OFFSET = %f" % get("hometandemsw"), file=file)
-            print("HOME_SEARCH_VEL = %f" % searchvel, file=file)                      
+            print("HOME_SEARCH_VEL = %f" % searchvel, file=file)
             print("HOME_LATCH_VEL = %f" % latchvel, file=file)
             print("HOME_FINAL_VEL = %f" % get("homefinalvel"), file=file)
             if get("usehomeindex"):useindex = "YES"
-            else: useindex = "NO"   
+            else: useindex = "NO"
             print("HOME_USE_INDEX = %s" % useindex, file=file)
             for i in ignore:
                 if self.a.findsignal(i):
                     print("HOME_IGNORE_LIMITS = YES", file=file)
+                    break
+            for i in share:
+                if self.a.findsignal(i):
+                    print("HOME_IS_SHARED = 1", file=file)
                     break
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)

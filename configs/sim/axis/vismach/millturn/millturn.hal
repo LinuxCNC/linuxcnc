@@ -1,0 +1,16 @@
+# start millturn vismach addition
+loadusr -W millturngui
+
+# "wire" linuxcnc pins to joints defined in vismach file
+net j0 <= joint.0.pos-fb => millturngui.jointX
+net j1 <= joint.1.pos-fb => millturngui.jointY
+net j2 <= joint.2.pos-fb => millturngui.jointZ
+net j3 <= joint.3.pos-fb => millturngui.jointA
+
+# tool input
+net tool_len    <= motion.tooloffset.z => millturngui.toollength
+net tool-x-offs <= motion.tooloffset.x => millturngui.tool-x-offset
+net tool_rad    <= halui.tool.diameter => millturngui.tooldiameter
+
+# kinematic input
+net :kinstype.is-0 => millturngui.millkins

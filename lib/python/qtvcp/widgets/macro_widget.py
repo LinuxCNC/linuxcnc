@@ -98,6 +98,9 @@ class CustomSVG(QtSvg.QSvgWidget):
         else:
             LOG.error("MacrosTab SVG-No Layer Found: {}".format(temp))
 
+    def sizeHint(self):
+        return QtCore.QSize(200, 200)
+
     def paintEvent(self, event):
         qp = QtGui.QPainter()
         qp.begin(self)
@@ -158,6 +161,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # add everything else
         self.buildStack()
 
+    def sizeHint(self):
+        return QtCore.QSize(200, 200)
+
     def _hal_init(self):
         self.runButton.setEnabled(False)
         STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
@@ -196,53 +202,78 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 # of these arrays
                 for i, tName in enumerate(tabName):
                     # make a widget that is added to the stack
+                    # TouchInterface can pop an entry dialog on focus
                     w = TouchInterface(self)
+                    w.setObjectName(tName)
                     w.keyboard_enable = True
                     # redirect Touchinterface call to our function
                     w.callDialog = self.getNumbers
+
+                    # main layout of this tab
                     hbox = QtWidgets.QHBoxLayout(w)
                     #hbox.addStretch(1)
+
+                    # vertical layout for labels and entries
                     vbox = QtWidgets.QVBoxLayout()
-                    w.setObjectName(tName)
+
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
                         # if no list of names then continue looking
                         if name[0]=='':continue
+
+                        # layout holds label and entry for one line
+                        hbox2 = QtWidgets.QHBoxLayout()
+                        # make a label 
                         l = QtWidgets.QLabel(name[0])
+
+                        # make appropriate entries:
+                        # radio buttons?
                         if name[1].lower() in('false', 'true'):
                             self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
                             if name[1].lower() == 'true':
                                 self['%s%d' % (tName, n)].setChecked(True)
+                        # line edits that will pop an entry dialog:
                         else:
                             self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
                             self['%s%d' % (tName, n)].keyboard_type = 'numeric'
                             self['%s%d' % (tName, n)].setText(name[1])
-                        vbox.addWidget(l)
-                        vbox.addWidget(self['%s%d' % (tName, n)])
-                    #add the SVG pic layer
+                        hbox2.addWidget(l)
+                        hbox2.addWidget(self['%s%d' % (tName, n)])
+
+                        # add label/entry layout to vertical layout fr this tab 
+                        vbox.addLayout(hbox2)
+
+                    #add the SVG/image pic layer
                     img_info = self[tName][1]
                     #print path+svg_info[0], svg_info[1]
+                    # SVG?
                     if img_info[0].endswith('.svg'):
                         svgpath = os.path.join(path, img_info[0])
                         self['sw%d' % i] = CustomSVG(svgpath,  int(img_info[1]))
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                    QtWidgets.QSizePolicy.MinimumExpanding)
+                    # some other supported image file?
                     else:
+                        # get image path
                         try:
                             #print(self[tName][1][1])
                             imgpath = os.path.join(path, self[tName][1][1])
                         except:
                             imgpath = os.path.join(path, img_info[0])
-                        #self['sw%d' % i] = QtWidgets.QPushButton()
-                        #self['sw%d' % i].setIcon(QtGui.QIcon(imgpath))
+
+                        # use a qlabel to display image
                         self['sw%d' % i] = QtWidgets.QLabel()
                         self['sw%d' % i].setPixmap(QtGui.QPixmap(imgpath))
-                        self['sw%d' % i]. setScaledContents(True)
-                        #self['sw%d' % i].setSizeHint(300, 300)
-                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.Expanding,QtWidgets.QSizePolicy.Expanding)
+                        self['sw%d' % i].setScaledContents(True)
+                        self['sw%d' % i].setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding,
+                                    QtWidgets.QSizePolicy.MinimumExpanding)
+
+                    # add image to the main layout for this tab
                     hbox.addWidget(self['sw%d' % i])
-                    vbox.addStretch(1)
+                    # add label/entry stack to the main layout for this tab
                     hbox.addLayout(vbox)
-                    # add the widget to the stack
+                    # add this tab to the stack
                     self.stack.addWidget(w)
         # No macros found in any path
         # show a message
@@ -260,7 +291,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         grid = QtWidgets.QGridLayout()
         grid.setSpacing(10)
         # we grid them in columns of (arbitrarily) 5
-        # hopefully we don;t have too many macros...
+        # hopefully we don't have too many macros...
         for i, tName in enumerate(tabNames):
             svg_name = self[tName][1][0]
             if svg_name.endswith('.svg'):
@@ -280,7 +311,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             btn.setWhatsThis('This button will select The entry page for the {} macro'.format(tName))
             btn.clicked.connect(self.menuButtonPress(i))
             btn.setSizePolicy(QtWidgets.QSizePolicy.Preferred,
-                              QtWidgets.QSizePolicy.Expanding)
+                              QtWidgets.QSizePolicy.Preferred)
             grid.addWidget(btn, row, col, 1, 1)
             row += 1
             if row > 4:
@@ -299,7 +330,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         w = QtWidgets.QWidget()
         vbox = QtWidgets.QVBoxLayout(w)
         vbox.addStretch(1)
-        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path(s) specified in INI file under heading [RS274NGC],\nSUBROUTINE_PATH=')
+        mess = QtWidgets.QLabel('No Usable Macros Found.\nLooked in path(s) specified in INI file under heading:\n[RS274NGC],\nSUBROUTINE_PATH=')
         vbox.addWidget(mess)
         mess = QtWidgets.QLabel( '\n'.join(map(str, INFO.SUB_PATH_LIST)))
         vbox.addWidget(mess)

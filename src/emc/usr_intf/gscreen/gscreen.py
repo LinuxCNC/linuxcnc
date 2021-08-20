@@ -45,16 +45,18 @@ for num,temp in enumerate(sys.argv):
         if temp == '-h' or temp == '--help' or len(sys.argv) == 1:
             _print_help()
 
-import pygtk
-pygtk.require("2.0")
-import gtk
-import gtk.glade
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+gi.require_version('PangoCairo', '1.0')
+from gi.repository import Gtk,Gdk,GObject,Pango,PangoCairo,cairo, Vte,GLib
+from gi.repository import Pango as pango
+
 import hal
 import errno
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
-import pango
+#import pango
 import traceback
 import atexit
 try:
@@ -142,9 +144,11 @@ from gscreen import preferences
 from gscreen import keybindings
 
 # this is for hiding the pointer when using a touch screen
-pixmap = gtk.gdk.Pixmap(None, 1, 1, 1)
-color = gtk.gdk.Color()
-INVISABLE = gtk.gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+#pixmap = gdk.Pixmap(None, 1, 1, 1)
+#color = gdk.Color()
+#INVISABLE = gdk.Cursor(pixmap, pixmap, color, color, 0, 0)
+INVISIBLE = Gdk.Cursor(Gdk.CursorType.BLANK_CURSOR)
+
 # to help with debugging new screens
 verbose_debug = False
 # print debug messages if debug is true
@@ -171,12 +175,16 @@ def excepthook(exc_type, exc_obj, exc_tb):
         print("".join(lines))
         print("*******************************************************\n",excepthook_msg_ct)
     if excepthook_msg_ct < 1:
-        m = gtk.MessageDialog(w,
-                gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-                ("Gscreen encountered an error.  The following "
+        m = Gtk.MessageDialog(
+                parent = w,
+                message_type = Gtk.MessageType.ERROR, 
+                buttons = Gtk.ButtonsType.OK, 
+                text = ("Gscreen encountered an error.  The following "
                 "information may be useful in troubleshooting:\n\n")
-                + "".join(lines))
+                + "".join(lines),
+                modal=True, 
+                destroy_with_parent=True
+            )
         m.show()
         m.run()
         m.destroy()
@@ -395,12 +403,12 @@ def load_handlers(usermod,halcomp,builder,useropts,gscreen):
             for temp in ("periodic","connect_signals","initialize_widgets"):
                 h = getattr(mod,temp,None)
                 if h and callable(h):
-                    print ("module '%s' : '%s' function found" % (mod.__name__,temp))
+                    print( ("module '%s' : '%s' function found" % (mod.__name__,temp)))
 
             # look for 'get_handlers' function
             h = getattr(mod,hdl_func,None)
             if h and callable(h):
-                print ("module '%s' : '%s' function found" % (mod.__name__,hdl_func))
+                print( ("module '%s' : '%s' function found" % (mod.__name__,hdl_func)))
                 objlist = h(halcomp,builder,useropts,gscreen)
             else:
                 # the module has no get_handlers() callable.
@@ -488,7 +496,7 @@ class Gscreen:
                 domain = "linuxcnc"
         locale.setlocale(locale.LC_ALL, '')
         locale.bindtextdomain(domain, LOCALEDIR)
-        gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+        gettext.install(domain, localedir=LOCALEDIR)
         gettext.bindtextdomain(domain, LOCALEDIR)
 
         # main screen
@@ -504,15 +512,15 @@ class Gscreen:
             else:
                 print(_("\n**** GSCREEN INFO:  using STOCK glade file from: %s ****"% xmlname2))
         try:
-            self.xml = gtk.Builder()
+            self.xml = Gtk.Builder()
             self.xml.set_translation_domain(domain) # for locale translations
             self.xml.add_from_file(xmlname)
             # this is a fix for themeing - it sets the widgets style name to 
             # the widget id name. You can over ride it later with:
             # self.widgets.<OBJECT NAME>.set_name('<STYLE NAME>')
             for o in self.xml.get_objects():
-                if isinstance(o, gtk.Widget):
-                    name = gtk.Buildable.get_name(o)
+                if isinstance(o, Gtk.Widget):
+                    name = Gtk.Buildable.get_name(o)
                     if name: o.set_name(name)
         except Exception as e:
             print(e)
@@ -549,7 +557,7 @@ class Gscreen:
         self.status = emc_interface.emc_status( self.data, linuxcnc)
         # access to MDI
         mdi_labels = mdi_eventboxes = []
-        self.mdi_control = mdi.mdi_control(gtk, linuxcnc, mdi_labels, mdi_eventboxes)
+        self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes)
         # pull info from the INI file
         self.inifile = self.emc.emc.ini(self.inipath)
         # change the display based on the requested axis
@@ -603,10 +611,6 @@ class Gscreen:
             temp = []
         dbg("**** GSCREEN INFO: handler file path: %s"%temp)
         handlers,self.handler_module,self.handler_instance = load_handlers(temp,self.halcomp,self.xml,[],self)
-
-        # so widgets can call handler functions - give them refeence to the handler object
-        panel.set_handler(self.handler_instance)
-
         self.xml.connect_signals(handlers)
 
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
@@ -625,7 +629,7 @@ class Gscreen:
         self.data.is_ladder = hal.component_exists('classicladder_rt')
 
         # get the system wide theme
-        settings = gtk.settings_get_default()
+        settings = Gtk.Settings.get_default()
         settings.props.gtk_button_images = True
         self.data.system_theme = settings.get_property("gtk-theme-name")
         # check for a local theme gtkrc file
@@ -642,7 +646,7 @@ class Gscreen:
             # create systemlink because one can't store themes in an arbitrary folder.
             if not os.path.exists(userthemedir+'/%s'%self.data.local_theme):
                 os.symlink(localtheme,userthemedir+'/%s'%self.data.local_theme)
-            settings = gtk.settings_get_default()
+            settings = Gtk.Settings.get_default()
             settings.set_string_property("gtk-theme-name", self.data.local_theme, "")
         else:
             self.data.local_theme = None
@@ -784,14 +788,14 @@ class Gscreen:
         else:
             self.connect_signals(handlers)
 
-        # see if there are user messages in the ini file 
-        self.message_setup()
-
         # Set up the widgets
         if "initialize_widgets" in dir(self.handler_instance):
             self.handler_instance.initialize_widgets()
         else:
             self.initialize_widgets()
+
+        # see if there are user messages in the ini file 
+        self.message_setup()
 
         # ok everything that might make HAL pins should be done now - let HAL know that
         self.halcomp.ready()
@@ -811,9 +815,9 @@ class Gscreen:
             temp = 100
         print(_("timeout %d" % int(temp)))
         if "timer_interrupt" in dir(self.handler_instance):
-            gobject.timeout_add(int(temp), self.handler_instance.timer_interrupt)
+            GLib.timeout_add(int(temp), self.handler_instance.timer_interrupt)
         else:
-            gobject.timeout_add(int(temp), self.timer_interrupt)
+            GLib.timeout_add(int(temp), self.timer_interrupt)
 
 
         # print out gscreen functions and docstrings so users know
@@ -1196,11 +1200,13 @@ class Gscreen:
             self.set_dtg_color()
             Not all screens use these widgets
         """
-        self.widgets.abs_colorbutton.set_color(gtk.gdk.color_parse(self.data.abs_textcolor))
+
+
+        self.widgets.abs_colorbutton.set_color(Gdk.color_parse(self.data.abs_textcolor))
         self.set_abs_color()
-        self.widgets.rel_colorbutton.set_color(gtk.gdk.color_parse(self.data.rel_textcolor))
+        self.widgets.rel_colorbutton.set_color(Gdk.color_parse(self.data.rel_textcolor))
         self.set_rel_color()
-        self.widgets.dtg_colorbutton.set_color(gtk.gdk.color_parse(self.data.dtg_textcolor))
+        self.widgets.dtg_colorbutton.set_color(Gdk.color_parse(self.data.dtg_textcolor))
         self.set_dtg_color()
 
     def init_screen2(self):
@@ -1301,11 +1307,11 @@ class Gscreen:
         # add terminal window
         try:
             self.widgets._terminal = vte.Terminal ()
-            self.widgets._terminal.connect ("child-exited", lambda term: gtk.main_quit())
+            self.widgets._terminal.connect ("child-exited", lambda term: Gtk.main_quit())
             self.widgets._terminal.fork_command()
             self.widgets._terminal.show()
             window = self.widgets.terminal_window.add(self.widgets._terminal)
-            self.widgets.terminal_window.connect('delete-event', lambda window, event: gtk.main_quit())
+            self.widgets.terminal_window.connect('delete-event', lambda window, event: Gtk.main_quit())
             self.widgets.terminal_window.show()
         except:
             print (_("**** WARNING GSCREEN: could not initialize vte terminal - is package vte installed? Is widget: terminal_window in GLADE file?"))
@@ -1362,7 +1368,7 @@ class Gscreen:
             self.data.theme_name = self.data.local_theme
         else:
             self.data.theme_name = "Follow System Theme"
-        settings = gtk.settings_get_default()
+        settings = Gtk.Settings.get_default()
         if not self.data.theme_name == "Follow System Theme":
             settings.set_string_property("gtk-theme-name", self.data.theme_name, "")
 
@@ -1404,10 +1410,12 @@ class Gscreen:
         # hide cursor if requested
         # that also sets the graphics to use touchscreen controls
         if self.data.hide_cursor:
-            self.widgets.window1.window.set_cursor(INVISABLE)
+            #self.widgets.window1.window.set_cursor(INVISABLE)
+            self.widgets.window1.get_window().set_cursor(INVISABLE)
             self.widgets.gremlin.set_property('use_default_controls',False)
         else:
-            self.widgets.window1.window.set_cursor(None)
+            #self.widgets.window1.window.set_cursor(None)
+            self.widgets.window1.get_window().set_cursor(None)
             self.widgets.gremlin.set_property('use_default_controls',True)
 
     def init_mode(self):
@@ -1726,15 +1734,8 @@ class Gscreen:
            if in manual mode, it will increase or decrease jog increments
            by calling set_jog_increments(index_dir = )
            It will ether increase or decrease the increments based on 'SHIFT'
-           Any jogging will be cancelled to avoid a runaway.
         """
-
         if state and self.data._MAN in self.check_mode(): # manual mode required
-            # stop any jogging if increments are changed
-            if self.data.machine_on:
-                for jnum in range(self.emcstat.joints):
-                    self.emc.stop_jog(jnum)
-
             if SHIFT:
                 self.set_jog_increments(index_dir = -1)
             else:
@@ -1826,7 +1827,7 @@ class Gscreen:
         self.widgets.gcode_view.redo()
 
     def keypress(self,accelgroup, acceleratable, accel_key, accel_mods):
-        print (gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods)
+        print (Gtk.accelerator_name(accel_key,accel_mods),acceleratable,accel_mods)
         return True
 
     def on_key_event(self,widget, event,state):
@@ -1842,15 +1843,15 @@ class Gscreen:
             Setting Gscreen into debug mode will show the errors.
         """
         CNTRL = SHIFT = ALT = 0
-        keyname = gtk.gdk.keyval_name(event.keyval)
+        keyname = Gdk.keyval_name(event.keyval)
         self.verbosely_print("Key %s (%d) was pressed state: %d last: %s" % (keyname, event.keyval,state, self.data.key_event_last))
-        if event.state & gtk.gdk.CONTROL_MASK:
+        if event.state & Gdk.ModifierType.CONTROL_MASK:
             CNTRL = 1
             self.verbosely_print("Control was being held down")
-        if event.state & gtk.gdk.MOD1_MASK:
+        if event.state & Gdk.ModifierType.MOD1_MASK:
             ALT = 1
             self.verbosely_print("Alt was being held down")
-        if event.state & gtk.gdk.SHIFT_MASK:
+        if event.state & Gdk.ModifierType.SHIFT_MASK:
             SHIFT = 1
             self.verbosely_print("Shift was being held down")
         if keyname in( "Shift_L","Shift_R"): return True # ignore shift key press
@@ -1975,20 +1976,22 @@ class Gscreen:
         """This is a callback function to launch a spindle preset speed dialog.
         """
         if self.data.preset_spindle_dialog: return
-        label = gtk.Label(_("Spindle Speed Preset Entry"))
+        label = Gtk.Label(_("Spindle Speed Preset Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.preset_spindle_dialog = gtk.Dialog(_("Spindle Speed Preset Entry"),
+        self.data.preset_spindle_dialog = Gtk.Dialog(_("Spindle Speed Preset Entry"),
                    self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   0,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
+                   destroy_with_parent = True)
+
         calc = gladevcp.Calculator()
-        self.data.preset_spindle_dialog.vbox.pack_start(label)
+        self.data.preset_spindle_dialog.vbox.pack_start(label, False, False, 0)
         self.data.preset_spindle_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : self.data.preset_spindle_dialog.emit('response',gtk.RESPONSE_ACCEPT))
+        calc.entry.connect("activate", lambda w : self.data.preset_spindle_dialog.emit('response',Gtk.ResponseType.ACCEPT))
         self.data.preset_spindle_dialog.parse_geometry("400x400")
         self.data.preset_spindle_dialog.set_decorated(False)
         self.data.preset_spindle_dialog.show_all()
@@ -1998,7 +2001,7 @@ class Gscreen:
         """This is a callback from the spindle preset dialog box.
             It calls preset_spindle_speed() with that data from the dialog
         """
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == Gtk.ResponseType.ACCEPT:
             data = calc.get_value()
             if data == None:
                 return
@@ -2011,20 +2014,21 @@ class Gscreen:
         """This is a callback to launch a manual toolchange dialog.
         """
         if self.data.index_tool_dialog: return
-        self.data.index_tool_dialog = gtk.Dialog(_("Manual Tool Index Entry"),
+        self.data.index_tool_dialog = Gtk.Dialog(_("Manual Tool Index Entry"),
                    self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        label = gtk.Label(_("Manual Tool Index Entry"))
+                   0,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
+                   destroy_with_parent = True)
+        label = Gtk.Label(_("Manual Tool Index Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.index_tool_dialog.vbox.pack_start(label)
+        self.data.index_tool_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         self.data.index_tool_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',gtk.RESPONSE_ACCEPT))
+        calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',Gtk.ResponseType.ACCEPT))
         self.data.index_tool_dialog.parse_geometry("400x400")
         self.data.index_tool_dialog.show_all()
         calc.num_pad_only(True)
@@ -2034,7 +2038,7 @@ class Gscreen:
     def on_index_tool_return(self,widget,result,calc):
         """This is a callbck function from the maunal toolchange dialog.
         """
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == Gtk.ResponseType.ACCEPT:
             raw = calc.get_value()
             try:
                 tool = abs(int((raw)))
@@ -2190,20 +2194,21 @@ class Gscreen:
             It will check to see if the handler file has this function, otherwise it will use the default.
         """
         if self.data.entry_dialog: return
-        label = gtk.Label(title)
+        label = Gtk.Label(title)
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.entry_dialog = gtk.Dialog(title,
+        self.data.entry_dialog = Gtk.Dialog(title,
                    self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   0,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
+                   destroy_with_parent = True)
         calc = gladevcp.Calculator()
         calc.set_editable(True)
-        self.data.entry_dialog.vbox.pack_start(label)
+        self.data.entry_dialog.vbox.pack_start(label, False, False, 0)
         self.data.entry_dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
-        calc.entry.connect("activate", lambda w : self.data.entry_dialog.emit('response',gtk.RESPONSE_ACCEPT))
+        calc.entry.connect("activate", lambda w : self.data.entry_dialog.emit('response',Gtk.ResponseType.ACCEPT))
         self.data.entry_dialog.parse_geometry("400x400")
         #self.data.entry_dialog.set_decorated(False)
         if callback in dir(self.handler_instance):
@@ -2217,7 +2222,7 @@ class Gscreen:
             Requires a status bar called 'statusbar1' to display the answer
         """
         data = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == Gtk.ResponseType.ACCEPT:
             print ("accept",data)
             if data == None:
                 data = 0
@@ -2232,7 +2237,7 @@ class Gscreen:
             it will set the offset and reload the graphics display
         """
         value = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == Gtk.ResponseType.ACCEPT:
             if value == None:
                 return
             # if an axis is selected then set it
@@ -2256,7 +2261,7 @@ class Gscreen:
             it will set the offset and reload the graphics display
         """
         value = calc.get_value()
-        if result == gtk.RESPONSE_ACCEPT:
+        if result == Gtk.ResponseType.ACCEPT:
             if value == None:
                 return
             # if an axis is selected then set it
@@ -2362,7 +2367,7 @@ class Gscreen:
         self.emc.machine_off(1)
         self.emc.estop(1)
         time.sleep(2)
-        gtk.main_quit()
+        Gtk.main_quit()
 
     def on_axis_selection_clicked(self,widget):
         """This is a callback to update the axis selection data.
@@ -2376,7 +2381,7 @@ class Gscreen:
             calls mode_changed()
         """
         # only change machine modes on click
-        if event.type == gtk.gdk.BUTTON_PRESS:
+        if event.type == Gdk.EventType.BUTTON_PRESS:
             a,b,c = self.data.mode_order
             self.data.mode_order = b,c,a
             label = self.data.mode_labels
@@ -2564,8 +2569,13 @@ class Gscreen:
             It calls change_theme(widget.get_active_text()
             Requires a calling widget that returns a text string.
         """
-        self.change_theme(widget.get_active_text())
+        active_iter = widget.get_active_iter()
+        if active_iter:
+            print("texst",widget.get_model()[active_iter][0])
+            #self.change_theme(widget.get_active_text())
+            self.change_theme(widget.get_model()[active_iter][0])
 
+        #self.change_theme(widget.get_active_text())
     # True is fullscreen
     def on_fullscreen1_pressed(self, widget):
         """This is a callback function for a toggle of the fullscreen button
@@ -2972,10 +2982,11 @@ class Gscreen:
         """This is a function to launch a manual spindle control dialog
         """
         if not self.data.spindle_control_dialog:
-            self.data.spindle_control_dialog = gtk.Dialog(_("Manual Spindle Control"),
+            self.data.spindle_control_dialog = Gtk.Dialog(_("Manual Spindle Control"),
                    self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CLOSE, gtk.RESPONSE_REJECT))
+                   0,
+                   (Gtk.STOCK_CLOSE, Gtk.ResponseType.REJECT),
+                   destroy_with_parent = True)
             self.data.spindle_control_dialog.vbox.add(self.widgets.frame_s)
             self.data.spindle_control_dialog.parse_geometry("200x200")
             self.data.spindle_control_dialog.connect("delete_event", self.spindle_dialog_return)
@@ -3010,13 +3021,14 @@ class Gscreen:
             Requires a gcode display widget called gcode_view
         """
         if self.widgets.gcode_view.buf.get_modified():
-                dialog = gtk.MessageDialog(self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,"You edited the File. save edits?\n Choosing No will erase the edits.")
+                dialog = Gtk.MessageDialog(self.widgets.window1,
+                   0,
+                   Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,"You edited the File. save edits?\n Choosing No will erase the edits.",
+                   destroy_with_parent = True)
                 dialog.show_all()
                 result = dialog.run()
                 dialog.destroy()
-                if result == gtk.RESPONSE_YES:
+                if result == Gtk.ResponseType.YES:
                     self.widgets.hal_action_saveas.emit("activate")
                 else:
                     self.widgets.gcode_view.load_file()
@@ -3061,15 +3073,15 @@ class Gscreen:
             else:
                 if load_keyboard():
                     sid = self.data.ob.stdout.readline()
-                    self.data.keyboard_dialog = gtk.Dialog(_("Keyboard"),
+                    self.data.keyboard_dialog = Gtk.Dialog(_("Keyboard"),
                                self.widgets.window1,
-                               gtk.DIALOG_DESTROY_WITH_PARENT)
+                               destroy_with_parent = True)
                     self.data.keyboard_dialog.set_accept_focus(False)
                     self.data.keyboard_dialog.set_deletable(False)
-                    socket = gtk.Socket()
+                    socket = Gtk.Socket()
                     socket.show()
                     self.data.keyboard_dialog.vbox.add(socket)
-                    socket.add_id(long(sid))
+                    socket.add_id(int(sid))
                     self.data.keyboard_dialog.parse_geometry("800x200")
                     self.data.keyboard_dialog.show_all()
                     self.data.keyboard_dialog.connect("destroy", self.keyboard_return)
@@ -3087,7 +3099,7 @@ class Gscreen:
                     socket = Gtk.Socket()
                     socket.show()
                     self.widgets.key_box.add(socket)
-                    socket.add_id(long(sid))
+                    socket.add_id(int(sid))
             else:
                 dialog_keyboard()
         except Exception as e:
@@ -3708,8 +3720,8 @@ class Gscreen:
                 continue
             if not name == None:
                 # this is how we make a pin that can be connected to a callback 
-                self.data[name] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
-                self.data[name].connect('value-changed', self.on_printmessage,name,bt,t,c)
+                self.data['name'] = hal_glib.GPin(self.halcomp.newpin(name, hal.HAL_BIT, hal.HAL_IN))
+                self.data['name'].connect('value-changed', self.on_printmessage,name,bt,t,c)
                 if ("dialog" in c):
                     self.halcomp.newpin(name+"-waiting", hal.HAL_BIT, hal.HAL_OUT)
                     if not ("ok" in c):
@@ -3718,13 +3730,15 @@ class Gscreen:
     # display dialog
     def warning_dialog(self,message, displaytype, secondary=None,pinname=None):
         if displaytype:
-            dialog = gtk.MessageDialog(self.widgets.window1,
-                gtk.DIALOG_DESTROY_WITH_PARENT,
-                gtk.MESSAGE_INFO, gtk.BUTTONS_OK,message)
+            dialog = Gtk.MessageDialog(self.widgets.window1,
+                0,
+                Gtk.MessageType.INFO, Gtk.ButtonsType.OK,message,
+                destroy_with_parent = True)
         else:   
-            dialog = gtk.MessageDialog(self.widgets.window1,
-               gtk.DIALOG_DESTROY_WITH_PARENT,
-               gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,message)
+            dialog = Gtk.MessageDialog(self.widgets.window1,
+               0,
+               Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,message,
+               destroy_with_parent = True)
         # if there is a secondary message then the first message text is bold
         if secondary:
             dialog.format_secondary_text(secondary)
@@ -3755,7 +3769,7 @@ class Gscreen:
                 self.show_try_errors()
             return
         if not dialogtype: # yes/no dialog
-            if result == gtk.RESPONSE_YES:result = True
+            if result == Gtk.ResponseType.YES:result = True
             else: result = False
             if pinname:
                 self.halcomp[pinname + "-response"] = result
@@ -3774,24 +3788,25 @@ class Gscreen:
             return_method = self.handler_instance.restart_dialog_return
         else:
             return_method = self.restart_dialog_return
-        self.data.restart_dialog = gtk.Dialog(_("Restart Entry"),
+        self.data.restart_dialog = Gtk.Dialog(_("Restart Entry"),
                    self.widgets.window1,
-                   gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-        label = gtk.Label(_("Restart Entry"))
+                   0,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT),
+                   destroy_with_parent = True)
+        label = Gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
-        self.data.restart_dialog.vbox.pack_start(label)
+        self.data.restart_dialog.vbox.pack_start(label, False, False, 0)
         calc = gladevcp.Calculator()
         self.data.restart_dialog.vbox.add(calc)
         calc.set_value("%d"%self.data.last_line)
         calc.set_property("font","sans 20")
         calc.set_editable(True)
-        box = gtk.HButtonBox()
-        upbutton = gtk.Button(label = _("Up"))
+        box = Gtk.HButtonBox()
+        upbutton = Gtk.Button(label = _("Up"))
         box.add(upbutton)
-        enterbutton = gtk.Button(label = _("Enter"))
+        enterbutton = Gtk.Button(label = _("Enter"))
         box.add(enterbutton)
-        downbutton = gtk.Button(label = _("Down"))
+        downbutton = Gtk.Button(label = _("Down"))
         box.add(downbutton)
         calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
         upbutton.connect("clicked",self.restart_up,calc)
@@ -3807,8 +3822,8 @@ class Gscreen:
     # either start the gcode at the line specified or cancel
     def restart_dialog_return(self,widget,result,calc):
         value = 0
-        if not result == gtk.RESPONSE_REJECT:
-            value = int(calc.get_value())
+        if not result == Gtk.ResponseType.REJECT:
+            value = calc.get_value()
             if value == None:value = 0
         self.widgets.gcode_view.set_line_number(value)
         self.add_alarm_entry(_("Ready to Restart program from line %d"%value))
@@ -3818,9 +3833,9 @@ class Gscreen:
 
     # adds the embedded object to a notebook tab or box
     def _dynamic_tab(self, widget, text):
-        s = gtk.Socket()
+        s = Gtk.Socket()
         try:
-            widget.append_page(s, gtk.Label(" " + text + " "))
+            widget.append_page(s, Gtk.Label(" " + text + " "))
         except:
             try:
                 widget.pack_end(s,True,True,0)
@@ -3922,15 +3937,15 @@ class Gscreen:
 
     def set_rel_color(self):
         self.data.rel_color = self.convert_to_rgb(self.widgets.rel_colorbutton.get_color())
-        self.prefs.putpref('rel_textcolor', self.widgets.rel_colorbutton.get_color(),str)
+        self.prefs.putpref('rel_textcolor', self.widgets.rel_colorbutton.get_color().to_string(),str)
 
     def set_abs_color(self):
         self.data.abs_color = self.convert_to_rgb(self.widgets.abs_colorbutton.get_color())
-        self.prefs.putpref('abs_textcolor', self.widgets.abs_colorbutton.get_color(),str)
+        self.prefs.putpref('abs_textcolor', self.widgets.abs_colorbutton.get_color().to_string(),str)
 
     def set_dtg_color(self):
         self.data.dtg_color = self.convert_to_rgb(self.widgets.dtg_colorbutton.get_color())
-        self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color(),str)
+        self.prefs.putpref('dtg_textcolor', self.widgets.dtg_colorbutton.get_color().to_string(),str)
 
     def set_unlock_code(self):
         self.prefs.putpref('unlock_code', self.data.unlock_code,str)
@@ -4393,7 +4408,7 @@ class Gscreen:
         elif theme == "Follow System Theme":
             theme = self.data.system_theme
         if theme == None: return
-        settings = gtk.settings_get_default()
+        settings = Gtk.Settings.get_default()
         settings.set_string_property("gtk-theme-name", theme, "")
 
     # check linuxcnc for status, error and then update the readout
@@ -4494,17 +4509,18 @@ class Gscreen:
                     data = self.data["%s_dtg"%i]
                     #text = "%+ 10.4f"% self.data["%s_dtg"%i]
                     label = "DTG"
-                if j == 2:
-                    if self.data.highlight_major:
-                        hlcolor = self.data.highlight_color
-                        bg_color = pango.AttrBackground(hlcolor[0],hlcolor[1],hlcolor[2], 0, -1)
-                        attr.insert(bg_color)
-                    size = pango.AttrSize(30000, 0, -1)
-                    attr.insert(size)
-                    weight = pango.AttrWeight(600, 0, -1)
-                    attr.insert(weight)
-                fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
-                attr.insert(fg_color)
+                #if j == 2:
+                #    if self.data.highlight_major:
+                #        hlcolor = self.data.highlight_color
+                ##        bg_color = pango.AttrBackground(hlcolor[0],hlcolor[1],hlcolor[2], 0, -1)
+                #        attr.insert(bg_color)
+                #    size = pango.AttrSize(30000, 0, -1)
+                #    attr.insert(size)
+                #    weight = pango.AttrWeight(600, 0, -1)
+                ##    attr.insert(weight)
+                #fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+                #attr.insert(fg_color)
+                #TODO: gtk3
                 self.widgets["%s_display_%d"%(i,j)].set_attributes(attr)
                 h = " "
                 if current == _ABS and self.data["%s_is_homed"% i]: h = "*"
@@ -4565,7 +4581,7 @@ class Gscreen:
         if tool == None: tool = "None"
         self.widgets.system.set_text((_("Tool %(t)s     %(l)s")%
              ({'t':tool,
-               'l':systemlabel[self.data.system]
+               'l':systemlabel[int(self.data.system)]
              })))
 
     def update_coolant_leds(self):
@@ -4660,10 +4676,14 @@ class Gscreen:
 # calls a postgui file if there is one.
 # then starts Gscreen
 if __name__ == "__main__":
+    #app = Gscreen()
     try:
         app = Gscreen()
     except KeyboardInterrupt:
         sys.exit(0)
+    except Exception as e:
+        print(">>>>>>>>>>>>>>>>>>")
+        print(e)
     postgui_halfile,inifile = Gscreen.postgui(app)
     print("**** GSCREEN INFO: postgui filename:",postgui_halfile)
     if postgui_halfile is not None:
@@ -4673,5 +4693,5 @@ if __name__ == "__main__":
             else:
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
             if res: raise SystemExit(res)
-    gtk.main()
+    Gtk.main()
 

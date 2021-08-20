@@ -20,6 +20,7 @@ import locale
 import operator
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -135,10 +136,11 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
         # set horizontal header properties
         hh = self.horizontalHeader()
-        hh.setMinimumSectionSize(75)
+        # auto adjust to contents
+        hh.setSectionResizeMode(3)
+        
         hh.setStretchLastSection(True)
         hh.setSortIndicator(1,Qt.AscendingOrder)
-
 
         vh = self.verticalHeader()
         vh.setVisible(False)
@@ -242,6 +244,19 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     def get_checked_list(self):
         return self.tablemodel.listCheckedTools()
 
+    def set_all_unchecked(self):
+        self.tablemodel.uncheckAllTools()
+
+    # This function uses the color name (string); setProperty
+    # expects a QColor object
+    def highlight(self, color):
+        self.setProperty('styleColorHighlight', QColor(color))
+
+    # This function uses the color name (string); calling setProperty
+    # expects a QColor object
+    def selected(self, color):
+        self.setProperty('styleColorSelection', QColor(color))
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -281,6 +296,20 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.tablemodel.imperial_text_template =  '%9.4f'
     imperial_template = pyqtProperty(str, getimperialtexttemplate, setimperialtexttemplate, resetimperialtexttemplate)
 
+    def getColorHighlight(self):
+        return QColor(self.tablemodel._highlightcolor)
+    def setColorHighlight(self, value):
+        self.tablemodel._highlightcolor = value.name()
+        #self.tablemodel.layoutChanged.emit()
+    styleColorHighlight = pyqtProperty(QColor, getColorHighlight, setColorHighlight)
+
+    def getColorSelection(self):
+        return QColor(self.tablemodel._selectedcolor)
+    def setColorSelection(self, value):
+        self.tablemodel._selectedcolor = value.name()
+        #self.tablemodel.layoutChanged.emit()
+    styleColorSelection = pyqtProperty(QColor, getColorSelection, setColorSelection)
+
 #########################################
 # custom model
 #########################################
@@ -299,7 +328,11 @@ class MyTableModel(QAbstractTableModel):
         self.degree_text_template = '%10.1f'
         self.metric_display = False
         self.diameter_display = False
-        self.headerdata = ['Select','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orientation','Comment']
+        self._highlightcolor = '#00ffff'
+        self._selectedcolor = '#00ff00'
+        self.headerdata = ['','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orient','Comment']
+        if INFO.MACHINE_IS_LATHE:
+            self.headerdata[2] = 'Stn'
         self.vheaderdata = []
         self.arraydata = [[0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         STATUS.connect('toolfile-stale',lambda o, d: self.update(d))
@@ -320,6 +353,11 @@ class MyTableModel(QAbstractTableModel):
             if row[0].isChecked():
                 checkedlist.append(row[1])
         return checkedlist
+
+    def uncheckAllTools(self):
+        for row in self.arraydata:
+            if row[0].isChecked():
+                row[0].setChecked(False)
 
     # update the internal array from STATUS's toolfile read array
     # we make sure the first array is switched to a QCheckbox widget
@@ -354,6 +392,7 @@ class MyTableModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
+
         elif role == Qt.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
             col = index.column()
@@ -382,9 +421,19 @@ class MyTableModel(QAbstractTableModel):
 
             if isinstance(value, str):
                 return '%s' % value
-
             # Default (anything not captured above: e.g. int)
             return value
+
+        elif role == Qt.BackgroundRole:
+            value = self.arraydata[index.row()][index.column()]
+            if (isinstance(value, int) or isinstance(value, float) or
+                  isinstance(value, str)):
+                if self.arraydata[index.row()][1] == self.parent().current_tool:
+                    return QColor(self._highlightcolor)
+                elif self.arraydata[index.row()][0].isChecked():
+                    return QColor(self._selectedcolor)
+                else:
+                    return QVariant()
             
         elif role == Qt.CheckStateRole:
             if index.column() == 0:
@@ -393,6 +442,7 @@ class MyTableModel(QAbstractTableModel):
                     return Qt.Checked
                 else:
                     return Qt.Unchecked
+
         return QVariant()
 
 
@@ -429,6 +479,7 @@ class MyTableModel(QAbstractTableModel):
                 self.arraydata[index.row()][index.column()].setChecked(False)
                 #self.arraydata[index.row()][index.column()].setText("Un")
             # don't emit dataChanged - return right away
+            self.parent().reset()
             return True
 
         try:
@@ -479,5 +530,7 @@ if __name__ == "__main__":
     w = ToolOffsetView()
     w.setEnabled(True)
     w._hal_init()
+    w.highlight('lightblue')
+    #w.setProperty('styleColorHighlight',QColor('purple'))
     w.show()
     sys.exit(app.exec_())

@@ -12,6 +12,9 @@
 
 import os
 
+#we need this _soley_ to define colours.
+from gi.repository import Gdk
+
 class filechooser:
     def __init__(self, gtk, emc, labels, eventboxes, listing):
         self.labels = labels
@@ -35,12 +38,12 @@ class filechooser:
             else:
                 l.set_text('')
             if self.selected == self.fileoffset + i:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#fff'))
             else:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse('#ccc'))
 
     def select(self, eventbox, event):
-        n = int(eventbox.get_name()[20:])
+        n = int(self.gtk.Buildable.get_name(eventbox)[20:])
         fn = self.labels[n].get_text()
         if len(fn) == 0: return(fn)
         self.selected = self.fileoffset + n

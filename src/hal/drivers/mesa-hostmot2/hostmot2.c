@@ -725,7 +725,7 @@ static int hm2_read_idrom(hostmot2_t *hm2) {
 
 
 // reads the Module Descriptors
-// doesnt do any validation or parsing or anything, that's in hm2_parse_module_descriptors(), which comes next
+// doesn't do any validation or parsing or anything, that's in hm2_parse_module_descriptors(), which comes next
 static int hm2_read_module_descriptors(hostmot2_t *hm2) {
     int addr = hm2->idrom_offset + hm2->idrom.offset_to_modules;
 
@@ -1388,7 +1388,7 @@ int hm2_register(hm2_lowlevel_io_t *llio, char *config_string) {
 
     //
     // export a parameter to deal with communication errors
-    // NOTE: this is really only useful for EPP boards, PCI doesnt use it
+    // NOTE: this is really only useful for EPP boards, PCI doesn't use it
     //
 
     {

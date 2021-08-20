@@ -298,7 +298,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('not-all-homed', lambda w, data: self._j_unhomed(data))
         elif self._is_limits_overridden:
             STATUS.connect('override-limits-changed', self._check_override_limits)
-            STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: only_false(data))
         elif self._is_manual or self._is_mdi or self._is_auto:
             STATUS.connect('mode-manual', lambda w: self._mode_changed(0))
             STATUS.connect('mode-mdi', lambda w: self._mode_changed(1))
@@ -985,8 +985,10 @@ class ScaledLabel(QtWidgets.QLabel):
         fs = max(f.pixelSize(), 1)
         while True:
             f.setPixelSize(fs)
-            br =  QtGui.QFontMetrics(f).boundingRect(self.text())
-
+            #gives bigger text
+            br =  QtGui.QFontMetrics(f).tightBoundingRect(self.text())
+            # then this
+            #br = QtGui.QFontMetrics(f).boundingRect(self.text())
             if dw >= 0 and dh >= 0: # label is expanding
                 if br.height() <= cr.height() and br.width() <= cr.width():
                     fs += 1
@@ -1001,6 +1003,6 @@ class ScaledLabel(QtWidgets.QLabel):
                     break
 
             if fs < 1: break
-
+        #print br, cr
         #--- update font size ---
         self.setFont(f)

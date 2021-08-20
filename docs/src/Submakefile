@@ -101,6 +101,7 @@ DOC_SRCS_EN := \
 	gui/gscreen.txt \
 	gui/qtdragon.txt \
 	gui/qtvcp.txt \
+	gui/qtvcp_VCPpanels.txt \
 	gui/qtvcp_widgets.txt \
 	gui/qtvcp_libraries.txt \
 	gui/qtvcp_custom_widgets.txt \
@@ -147,11 +148,12 @@ DOC_SRCS_EN := \
 	motion/tweaking-steppers.txt \
 	motion/5-axis-kinematics.txt \
 	motion/external-offsets.txt \
-	plasma/qtplasmac.txt \
+	motion/switchkins.txt \
 	tooldatabase/tooldatabase.txt \
-	plasma/plasmac-user-guide.txt \
+	plasma/qtplasmac.txt \
 	plasma/plasma-cnc-primer.txt \
 	remap/remap.txt \
+	tooldatabase/tooldatabase.txt \
 	user/starting-linuxcnc.txt \
 	user/user-concepts.txt \
 	user/user-foreword.txt \
@@ -319,7 +321,6 @@ DOC_SRCS_ES := \
 	motion/external-offsets_es.txt \
 	motion/pid-theory_es.txt \
 	motion/tweaking-steppers_es.txt \
-	plasma/plasmac-user-guide_es.txt \
 	plasma/plasma-cnc-primer_es.txt \
 	remap/remap_es.txt \
 	user/starting-linuxcnc_es.txt \
@@ -413,7 +414,7 @@ A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
-	  --asciidoc-opts "-f $(DOC_SRCDIR)/docbook.conf -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
+	  --asciidoc-opts="-f $(DOC_SRCDIR)/docbook.conf -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
 	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
 			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue \
                           $(A2X_LATEX_ENCODING)"
@@ -787,7 +788,7 @@ $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
 	a2x -v --doctype manpage \
 		--format manpage \
 		--destination-dir `dirname $@` \
-		--xsltproc-opts --nonet \
+		--xsltproc-opts="--nonet" \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
 		$<

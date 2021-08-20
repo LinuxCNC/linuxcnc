@@ -57,10 +57,10 @@ if LGPL:
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 """)
 
-h = open(args[0]).read();
+h = open(args[0], "rb").read();
 
 print("static unsigned char firmware[] = {")
 for i, c in enumerate(h):
-    print("%3d," % ord(c), end=' ')
+    print("%3d," % c, end=' ')
     if i % 16 == 15: print()
 print("};")
