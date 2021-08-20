@@ -89,12 +89,12 @@ class HAL:
         if self.d.number_pports:
             # pre process pport commands
             pport_load_cmnd,pport_read_cmnd,pport_write_cmnd = self.a.pport_command_string()
-        # print the mesa load commands
+        # print(the mesa load commands)
         for i in mesa_load_cmnd:
             print("%s"%i, file=file)
 
         if self.d.number_pports>0:
-            # print the pport load commands
+            # print(the pport load commands)
             for i in pport_load_cmnd:
                 print("%s"%i, file=file)
 
@@ -102,12 +102,12 @@ class HAL:
         if self.d.joystickjog:
             print("loadusr -W hal_input -KRAL %s\n"% self.d.usbdevicename, file=file)
 
-        spindle_enc = counter = probe = pwm = pump = estop = False 
+        spindle_enc = counter = probe = pwm = pump = estop = False
         spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = bldc = False
 
         if self.a.findsignal("s-encoder-a"):
-            spindle_enc = True        
+            spindle_enc = True
         if self.a.findsignal("probe"):
             probe = True
         if self.a.findsignal("s-pwm-pulse"):
@@ -139,7 +139,7 @@ class HAL:
         # if axis needs PID- (has pwm signal) then add its letter to pidlist
         temp = ""
         for i in self.d.available_axes:
-            #print "looking at available axis : ",i
+            #print("looking at available axis : ",i)
             #if not self.a.findsignal(i+"-encoder-a") and not self.a.findsignal(i+"-resolver"):
             #    continue
             temp = temp + "pid.%s,"%i
@@ -158,7 +158,7 @@ class HAL:
             if bldc:
                 for i in self.d.available_axes:
                     temp = self.d[i+"bldc_config"]
-                    #print i,temp
+                    #print(i,temp)
                     if temp:
                         self.d._bldcconfigstring = self.d._bldcconfigstring + temp + ","
             if self.d.userneededbldc:
@@ -223,22 +223,22 @@ class HAL:
             print(("loadrt classicladder_rt numPhysInputs=%d numPhysOutputs=%d numS32in=%d"
                           " numS32out=%d numFloatIn=%d numFloatOut=%d numBits=%d numWords=%d") \
                           %(self.d.digitsin , self.d.digitsout , self.d.s32in, self.d.s32out, self.d.floatsin, self.d.floatsout,self.d.bitmem,self.d.wordmem), file=file)
-        
+
         # load mux16
         self.d.mux16names=""
         for i in range(0,self.d.userneededmux16):
             self.d.mux16names = self.d.mux16names+"mux16.%d,"% (i)
-        if self.d.joystickjog: 
+        if self.d.joystickjog:
            self.d.mux16names = self.d.mux16names+"jogspeed,"
-        if self.d.externalmpg: 
-            self.d.mux16names = self.d.mux16names+"jogincr,"  
-        if self.d.externalfo: 
+        if self.d.externalmpg:
+            self.d.mux16names = self.d.mux16names+"jogincr,"
+        if self.d.externalfo:
             self.d.mux16names = self.d.mux16names+"foincr,"
-        if self.d.externalmvo: 
+        if self.d.externalmvo:
             self.d.mux16names = self.d.mux16names+"mvoincr,"
-        if self.d.externalso: 
+        if self.d.externalso:
             self.d.mux16names = self.d.mux16names+"soincr,"
-        if self.d.scaleselect: 
+        if self.d.scaleselect:
             self.d.mux16names = self.d.mux16names+"ratio_select,"
         temp = self.d.mux16names.rstrip(",")
         self.d.mux16names = temp
@@ -252,30 +252,30 @@ class HAL:
         # load user custom components
         for i in self.d.loadcompbase:
             if i == '': continue
-            else:              
-                print(i, file=file) 
+            else:
+                print(i, file=file)
         for i in self.d.loadcompservo:
             if i == '': continue
-            else:              
-                print(i, file=file) 
+            else:
+                print(i, file=file)
 
         print(file=file)
-        # print parport read commands
+        # print(parport read commands)
         if self.d.number_pports:
             for i in pport_read_cmnd:
                 print("%s"%i, file=file)
- 
+
         if pump: print("addf charge-pump servo-thread", file=file)
-           
+
         for i in self.d.addcompbase:
             if not i == '':
                 print(i +" base-thread", file=file)
 
-        # print mesa read commands
+        # print(mesa read commands)
         if self.d.number_mesa:
             for i in mesa_read_cmnd:
                 print("%s"%i, file=file)
-            
+
         print("addf motion-command-handler   servo-thread", file=file)
         print("addf motion-controller        servo-thread", file=file)
 
@@ -283,7 +283,7 @@ class HAL:
             temp = pidlist.split(",")
             for i in temp:
                 print("addf %s.do-pid-calcs       servo-thread"% i, file=file)
-        
+
         if bldc or self.d.userneededbldc:
             temp=self.d._bldcconfigstring.split(",")
             for num,j in enumerate(temp):
@@ -292,7 +292,7 @@ class HAL:
         if self.d.classicladder:
             print("addf classicladder.0.refresh servo-thread", file=file)
 
-        # mux16 addf 
+        # mux16 addf
         temp=self.d.mux16names.split(",")
         if not temp == ['']:
             for j in (temp):
@@ -331,12 +331,12 @@ class HAL:
         # qtplasmac addf
         if self.d.frontend == _PD._QTPLASMAC:
             print("addf plasmac servo-thread", file=file)
-        # print parport write commands
+        # print(parport write commands)
         if self.d.number_pports:
             for i in pport_write_cmnd:
                 print("%s"%i, file=file)
         if self.d.number_mesa:
-            # print mesa write commands
+            # print(mesa write commands)
             for i in mesa_write_cmnd:
                 print("%s"%i, file=file)
 
@@ -363,13 +363,13 @@ class HAL:
             self.qtplasmac_connections(file, base)
 
         print(file=file)
-        self.connect_output(file)              
+        self.connect_output(file)
         print(file=file)
         self.connect_input(file)
         print(file=file)
 
         ##############################################################
-        # connect joints 
+        # connect joints
         ##############################################################
         # self.d.axes:
         # 0 = xyz
@@ -422,7 +422,7 @@ class HAL:
 
             print(file=file)
             print("#******************************", file=file)
-            print(_("# connect miscellaneous signals"), file=file) 
+            print(_("# connect miscellaneous signals"), file=file)
             print("#******************************", file=file)
             print(file=file)
             print(_("#  ---HALUI signals---"), file=file)
@@ -431,7 +431,7 @@ class HAL:
             jnum = 0
             for axletter in axis_convert:
                 if axletter in self.d.available_axes:
-                    # support for KINEMATICS_IDENTITY kins only 
+                    # support for KINEMATICS_IDENTITY kins only
                     # Assumption: gui uses halui teleop jogging for KINEMATICS_IDENTITY configs
                     #             (axis gui does this for joints_axes)
                     print("net axis-select-%s  halui.axis.%s.select"% (axletter,axletter), file=file)
@@ -452,7 +452,7 @@ class HAL:
             print("net jog-speed             halui.axis.jog-speed", file=file)
             print("net MDI-mode              halui.mode.is-mdi", file=file)
             print(file=file)
-            if pump:    
+            if pump:
                 print(_("#  ---charge pump signals---"), file=file)
                 print("net estop-out       =>  charge-pump.enable", file=file)
                 print("net charge-pump     <=  charge-pump.out", file=file)
@@ -498,7 +498,7 @@ class HAL:
                         print("net jog-%s-analog         %s"% (axletter,pin_analog), file=file)
             print(file=file)
 
-        # check for shared MPG 
+        # check for shared MPG
         pinname = self.a.make_pinname(self.a.findsignal("select-mpg-a"), substitution = self.d.useinisubstitution)
         if pinname:
             print("shared MPG", pinname)
@@ -589,7 +589,7 @@ class HAL:
                 print("    setp halui.feed-override.direct-value false", file=file)
                 print("    setp halui.feed-override.scale .01", file=file)
                 if pinname: # dedicated MPG
-                    if self.a.findsignal("fo-enable"): # make it enable-able externally 
+                    if self.a.findsignal("fo-enable"): # make it enable-able externally
                         print("net  fo-enable           => halui.feed-override.count-enable", file=file)
                     else:
                         print("    setp halui.feed-override.count-enable true", file=file)
@@ -643,7 +643,7 @@ class HAL:
                 print("    setp halui.max-velocity.direct-value false", file=file)
                 print("    setp halui.max-velocity.scale %04f"% scale, file=file)
                 if pinname: # dedicated MPG
-                    if self.a.findsignal("mvo-enable"): # make it enable-able externally 
+                    if self.a.findsignal("mvo-enable"): # make it enable-able externally
                         print("net mvo-enable           =>  halui.max-velocity.count-enable", file=file)
                     else:
                         print("    setp halui.max-velocity.count-enable true", file=file)
@@ -787,9 +787,9 @@ class HAL:
                 print(file=file)
                 print("net tool-number             <=  iocontrol.0.tool-prep-number", file=file)
                 print("net tool-change-request     <=  iocontrol.0.tool-change", file=file)
-                print("net tool-change-confirmed   =>  iocontrol.0.tool-changed", file=file) 
+                print("net tool-change-confirmed   =>  iocontrol.0.tool-changed", file=file)
                 print("net tool-prepare-request    <=  iocontrol.0.tool-prepare", file=file)
-                print("net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared", file=file) 
+                print("net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared", file=file)
                 print(file=file)
         # qtplasmac tool change passthrough
         else:
@@ -848,7 +848,7 @@ class HAL:
                 f1 = open(gvcp_options_filename, "w")
                 print(_("# _DO NOT_ include your HAL commands here."), file=f1)
                 print(_("# Put custom HAL commands in custom_gvcp.hal"), file=f1)
-                print(file=f1) 
+                print(file=f1)
                 if self.d.spindlespeedbar:
                     print(_("# **** Setup of spindle speed display using gladevcp ****"), file=f1)
                     print(file=f1)
@@ -900,7 +900,7 @@ class HAL:
             f1 = open(pyfilename, "w")
             print(_("# _DO NOT_ include your HAL commands here."), file=f1)
             print(_("# Put custom HAL commands in custom_postgui.hal"), file=f1)
-            print(_("""# The commands in this file are run after the GUI loads"""), file=f1) 
+            print(_("""# The commands in this file are run after the GUI loads"""), file=f1)
             print(file=f1)
             print(_("# **** Setup of spindle speed display using pyvcp -START ****"), file=f1)
             print(file=f1)
@@ -965,33 +965,33 @@ class HAL:
             if os.path.exists(fname):
                 os.remove(fname)
 
-        if self.d.classicladder: 
+        if self.d.classicladder:
            if not self.d.laddername == "custom.clp":
                 filename = os.path.join(_PD.DISTDIR, "configurable_options/ladder/%s" % self.d.laddername)
                 original = os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)
-                if os.path.exists(filename): # check for the master file to copy from 
+                if os.path.exists(filename): # check for the master file to copy from
                   if os.path.exists(original):
-                     #print "custom file already exists"
+                     #print("custom file already exists")
                      writebackup(original)
-                     #shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/backups/custom_backup.clp" % self.d.machinename) ) 
+                     #shutil.copy( original,os.path.expanduser("~/linuxcnc/configs/%s/backups/custom_backup.clp" % self.d.machinename) )
                      print("made backup of existing custom")
                   shutil.copy( filename,original)
-                  #print "copied ladder program to usr directory"
-                  #print"%s" % filename
+                  #print("copied ladder program to usr directory")
+                  #print("%s" % filename)
                 else:
                      print("Master or temp ladder files missing from configurable_options dir")
-        if self.d.pyvcp and not self.d.pyvcpexist and self.d.frontend != _PD._QTPLASMAC:                
+        if self.d.pyvcp and not self.d.pyvcpexist and self.d.frontend != _PD._QTPLASMAC:
            panelname = os.path.join(_PD.DISTDIR, "configurable_options/pyvcp/%s" % self.d.pyvcpname)
            originalname = os.path.expanduser("~/linuxcnc/configs/%s/pyvcp-panel.xml" % self.d.machinename)
-           if os.path.exists(panelname):     
+           if os.path.exists(panelname):
                   if os.path.exists(originalname):
-                     #print "custom PYVCP file already exists"
+                     #print("custom PYVCP file already exists")
                      writebackup(originalname)
-                     #shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/backups/pyvcp-panel_backup.xml" % self.d.machinename) ) 
+                     #shutil.copy( originalname,os.path.expanduser("~/linuxcnc/configs/%s/backups/pyvcp-panel_backup.xml" % self.d.machinename) )
                      print("made backup of existing custom")
                   shutil.copy( panelname,originalname)
-                  #print "copied PYVCP program to usr directory"
-                  #print"%s" % panelname
+                  #print("copied PYVCP program to usr directory")
+                  #print("%s" % panelname)
            else:
                   print("Master PYVCP file: %s missing from configurable_options dir"% self.d.pyvcpname)
         file.close()
@@ -1050,7 +1050,7 @@ class HAL:
         print(file=file)
         if self.d.number_mesa != 0:
             for boardnum in range(0,int(self.d.number_mesa)):
-                print("Mesa hardware I/O card - board %d is designated as\n"% boardnum,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDTITLE], file=file) 
+                print("Mesa hardware I/O card - board %d is designated as\n"% boardnum,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDTITLE], file=file)
                 print("with", self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXGPIO], "I/O pins and firmware is:", self.d["mesa%d_firmware"% boardnum], file=file)
                 print(file=file)
             for boardnum in range(0,int(self.d.number_mesa)):
@@ -1066,34 +1066,34 @@ class HAL:
                         temptype = self.d["mesa%dc%dpin%dtype" % (boardnum,connector,pin) ]
                         if temptype in(_PD.GPIOI,_PD.GPIOO,_PD.GPIOD):
                             compnum = pin+(concount*24)
-                        if tempinv: 
+                        if tempinv:
                             invmessage = _("invrt")
                         else: invmessage =""
                         print(("P%d-%d   %d   (%d %s)  %s  %s\n"%(connector,conpin,pin,compnum,temptype,temp,invmessage)), file=file)
-                        #print >>file, ("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage})
+                        #print(("    connected to signal:'%(data)s'%(mess)s\n" %{'data':temp, 'mess':invmessage}), file=file)
                         conpin +=2
             print(file=file)
         templist = ("pp1","pp2","pp3")
         for j, k in enumerate(templist):
-            if self.d.number_pports < (j+1): break 
+            if self.d.number_pports < (j+1): break
             print(_("%(name)s Parport" % { 'name':k}), file=file)
-            for x in (2,3,4,5,6,7,8,9,10,11,12,13,15): 
+            for x in (2,3,4,5,6,7,8,9,10,11,12,13,15):
                 temp = self.d["%sIpin%d" % (k, x)]
                 tempinv = self.d["%sIpin%dinv" % (k, x)]
-                if tempinv: 
+                if tempinv:
                     invmessage = _("-> inverted")
                 else: invmessage =""
-                print(_("pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s" 
-                %{ 'pinnum':x,'data':temp,'mesag':invmessage}), file=file)          
-            for x in (1,2,3,4,5,6,7,8,9,14,16,17):  
+                print(_("pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
+                %{ 'pinnum':x,'data':temp,'mesag':invmessage}), file=file)
+            for x in (1,2,3,4,5,6,7,8,9,14,16,17):
                 temp = self.d["%sOpin%d" % (k, x)]
                 tempinv = self.d["%sOpin%dinv" % (k, x)]
-                if tempinv: 
+                if tempinv:
                     invmessage = _("-> inverted")
                 else: invmessage =""
-                print(_("pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s" 
-                %{ 'pinnum':x,'data':temp,'mesag':invmessage}), file=file)   
-            print(file=file) 
+                print(_("pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
+                %{ 'pinnum':x,'data':temp,'mesag':invmessage}), file=file)
+            print(file=file)
         file.close()
         self.d.add_md5sum(filename)
 
@@ -1151,20 +1151,20 @@ class HAL:
                 print("net gear-ratio       ratio_select.out-f => scale.gear.gain", file=file)
                 print("setp ratio_select.in00 %f" % (1/float(self.d.gsincrvalue0)), file=file)
                 print("setp ratio_select.in01 %f" % (1/float(self.d.gsincrvalue1)), file=file)
-                #print >>file, "setp ratio_select.in2 %f" % self.d.gsincrvalue2
-                #print >>file, "setp ratio_select.in4 %f" % self.d.gsincrvalue4
+                #print("setp ratio_select.in2 %f" % self.d.gsincrvalue2, file=file)
+                #print("setp ratio_select.in4 %f" % self.d.gsincrvalue4, file=file)
                 print("net gear-select-a         =>  ratio_select.sel0", file=file)
-                #print >>file, "net gear-select-b ratio_select.sel1"
-                #print >>file, "net gear-select-c ratio_select.sel2"
+                #print("net gear-select-b ratio_select.sel1", file=file)
+                #print("net gear-select-c ratio_select.sel2", file=file)
                 print("net spindle-output        <=  scale.gear.out", file=file)
             else:
                 print("net spindle-output        <=  pid.%s.output"% (let), file=file)
         else:
            print("net %s-pos-cmd       =>  pid.%s.command" % (name, let), file=file)
-           #print >>file, "net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let) # This must be connected to something
+           #print("net %s-vel-cmd       =>  pid.%s.command-deriv" % (name, let), file=file) # This must be connected to something
            print("net %s-pos-fb        =>  pid.%s.feedback"% (name,let), file=file)
            print("net %s-output        <=  pid.%s.output"% (name, let), file=file)
-           #print >>file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let) # This must be connected to something
+           #print(file, "net %s-vel-fb           => pid.%s.feedback-deriv"% (name, let), file=file) # This must be connected to something
         print(file=file)
 
     def connect_joint(self, file, jnum, let):
@@ -1353,16 +1353,16 @@ class HAL:
                 pulsetype = 1
                 if self.d[pwmtype] == _PD.PDMP: pulsetype = 3
                 if self.d[pwmtype] == _PD.UDMU: pulsetype = 2
-                print("setp   "+pwmpinname+".output-type %d"% pulsetype, file=file) 
+                print("setp   "+pwmpinname+".output-type %d"% pulsetype, file=file)
                 print("setp   "+pwmpinname+".scale  [%s_%d]OUTPUT_SCALE"% (title, jnum), file=file)
                 for i in pwminvertlist:
                     print("setp    "+i+".invert_output true", file=file)
                 print(file=file)
-                if let == 's':  
+                if let == 's':
                     print(file=file)
                     if closedloop or self.d.suseoutputrange2:
                         print("net spindle-output      => " + pwmpinname + ".value", file=file)
-                        print("net spindle-enable      => " + pwmpinname +".enable", file=file)    
+                        print("net spindle-enable      => " + pwmpinname +".enable", file=file)
                     else:
                         print("net spindle-vel-cmd-rpm     => " + pwmpinname + ".value", file=file)
                         print("net spindle-enable      => " + pwmpinname +".enable", file=file)
@@ -1401,7 +1401,7 @@ class HAL:
                    print("setp   " + steppinname + ".direction.invert_output   true", file=file)
             if let == "s":
                 print(file=file)
-                print("net spindle-enable          =>  " + steppinname + ".enable", file=file) 
+                print("net spindle-enable          =>  " + steppinname + ".enable", file=file)
                 print("net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd", file=file)
                 if not encoderpinname and not resolverpinname:
                     print("net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb", file=file)
@@ -1418,7 +1418,7 @@ class HAL:
                 print("net %s-enable     => %s.enable"% (let, steppinname), file=file)
                 print(file=file)
 
-        if encoderpinname:             
+        if encoderpinname:
             countmode = 0
             if let == "s" and self.d.ssingleinputencoder: countmode = 1
             print("# ---Encoder feedback signals/setup---", file=file)
@@ -1463,7 +1463,7 @@ class HAL:
             print(file=file)
 
         if let =='s':
-            print("# ---setup spindle control signals---", file=file) 
+            print("# ---setup spindle control signals---", file=file)
             print(file=file)
             print("net spindle-vel-cmd-rps        <=  spindle.0.speed-out-rps", file=file)
             print("net spindle-vel-cmd-rps-abs    <=  spindle.0.speed-out-rps-abs", file=file)
@@ -1502,7 +1502,7 @@ class HAL:
                   or self.d.gladevcp and self.d.spindlespeedbar:
                     print(_("#  Use ACTUAL spindle velocity from spindle encoder"), file=file)
                     print(_("#  spindle-velocity bounces around so we filter it with lowpass"), file=file)
-                    print(_("#  spindle-velocity is signed so we use absolute component to remove sign"), file=file) 
+                    print(_("#  spindle-velocity is signed so we use absolute component to remove sign"), file=file)
                     print(_("#  ACTUAL velocity is in RPS not RPM so we scale it."), file=file)
                     print(file=file)
                     print(("setp     scale.spindle.gain 60"), file=file)
@@ -1515,16 +1515,16 @@ class HAL:
 
         min_limsig = self.a.min_lim_sig(let)
         if not min_limsig: min_limsig = "%s-neg-limit" % let
-        max_limsig = self.a.max_lim_sig(let)  
-        if not max_limsig: max_limsig = "%s-pos-limit" % let 
+        max_limsig = self.a.max_lim_sig(let)
+        if not max_limsig: max_limsig = "%s-pos-limit" % let
         homesig = self.a.home_sig(let)
         if not homesig: homesig = "%s-home-sw" % let
-        print("# ---setup home / limit switch signals---", file=file)       
-        print(file=file)       
-        print("net %s     =>  joint.%d.home-sw-in" % (homesig, jnum), file=file)       
-        print("net %s     =>  joint.%d.neg-lim-sw-in" % (min_limsig, jnum), file=file)       
+        print("# ---setup home / limit switch signals---", file=file)
+        print(file=file)
+        print("net %s     =>  joint.%d.home-sw-in" % (homesig, jnum), file=file)
+        print("net %s     =>  joint.%d.neg-lim-sw-in" % (min_limsig, jnum), file=file)
         print("net %s     =>  joint.%d.pos-lim-sw-in" % (max_limsig, jnum), file=file)
-        print(file=file)                
+        print(file=file)
 
     def connect_input(self, file):
         print("# external input signals", file=file)
@@ -1533,7 +1533,7 @@ class HAL:
             # for input pins
             if t == _PD.GPIOI:
                 if not p == "unused-input":
-                    pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution) 
+                    pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                     print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if i: print("net %s     <= %s-not" % (p, pinname), file=file)
@@ -1652,7 +1652,7 @@ class HAL:
                         else:
                             print("net %s  =>     %s"% (p,temp), file=file)
                     if i: # invert pin
-                        if "sserial" in pname: 
+                        if "sserial" in pname:
                             ending = "-invert"
                         elif "parport" in pinname: ending = "-invert"
                         else: ending = ".invert_output"
@@ -1684,7 +1684,7 @@ class HAL:
                 if not p == "unused-tppwmgen":
                     for sig in (self.d.haltppwmoutputsignames):
                         if p == (sig+"-a"):
-                            pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution) 
+                            pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                             print("\n# ---",sig.upper(),"---", file=file)
                             print("net %s           <=  "% (sig+"-enable")+pinname +".enable", file=file)
                             print("net %s           <=  "% (sig+"-a-value")+pinname +".A-value", file=file)
@@ -1702,12 +1702,12 @@ class HAL:
                 if not p == "unused-stepgen":
                     for sig in (self.d.halsteppersignames):
                         if p == (sig+"-step"):
-                            pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution) 
+                            pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                             print("\n# ---",sig.upper(),"---", file=file)
-                            print("net %s           <=  "% (sig+"-enable")+pinname +".enable", file=file)  
-                            print("net %s            <=  "% (sig+"-count")+pinname +".counts", file=file) 
-                            print("net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd", file=file)  
-                            print("net %s     <=  "% (sig+"-act-position")+pinname +".position-fb", file=file) 
+                            print("net %s           <=  "% (sig+"-enable")+pinname +".enable", file=file)
+                            print("net %s            <=  "% (sig+"-count")+pinname +".counts", file=file)
+                            print("net %s     <=  "% (sig+"-cmd-position")+pinname +".position-cmd", file=file)
+                            print("net %s     <=  "% (sig+"-act-position")+pinname +".position-fb", file=file)
                             print("net %s         <=  "% (sig+"-velocity")+pinname +".velocity-fb", file=file)
                             pinlist = self.a.list_related_pins([_PD.STEPA,_PD.STEPB], boardnum, connector, channel, pin, 0)
                             for i in pinlist:
@@ -1727,10 +1727,10 @@ class HAL:
                     for sig in (self.d.halpotsignames):
                         print("looking",p,sig)
                         if p == (sig+"-output"):
-                            pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution) 
+                            pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
                             print("\n# ---",sig.upper(),"---", file=file)
-                            print("net %s            =>  "% (sig+"-enable")+pinname +".spinena", file=file)  
-                            print("net %s            =>  "% (sig+"-output")+pinname +".spinout", file=file) 
+                            print("net %s            =>  "% (sig+"-enable")+pinname +".spinena", file=file)
+                            print("net %s            =>  "% (sig+"-output")+pinname +".spinout", file=file)
                             print("net %s          =>  "% (sig+"-direction")+pinname +".spindir", file=file)
                             pinlist = self.a.list_related_pins([_PD.POTO,_PD.POTE], boardnum, port, channel, pin, 0)
                             for i in pinlist:
@@ -1891,7 +1891,7 @@ class HAL:
 
         if self.d.qtplasmacpmx:
             print("\n# ---POWERMAX RS485 COMPONENT---", file=file)
-            print("loadusr -Wn pmx485 pmx485 {}".format(self.d.qtplasmacpmx), file=file) 
+            print("loadusr -Wn pmx485 pmx485 {}".format(self.d.qtplasmacpmx), file=file)
 
 # BOILER CODE
     def __getitem__(self, item):
