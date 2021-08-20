@@ -79,8 +79,8 @@ sha256sum linuxcnc-2.8.2-buster.iso
 . 然后于以下校验和作比较
 +
 -----
-md5sum: 41b71c4956c0c89033a99a590ebaefec
-sha256sum: a542092aa9f399d3ad50bbb2f0f4dd63ad9332c23d8387f6061bdd186d1df3b0
+md5sum: 4496eae88a1d66f457205d0d5b69c3c2
+sha256sum: 94a6dc7ef12fbdc0bafd9259ce36797a8b3410ad22e73c4ab57b8e937a924e1a
 -----
 
 .在Windows或Mac上验证md5sum

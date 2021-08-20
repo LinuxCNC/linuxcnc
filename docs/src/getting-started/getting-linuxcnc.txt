@@ -111,8 +111,8 @@ sha256sum linuxcnc-2.8.2-buster.iso
 . Then compare to these checksums
 +
 -----
-md5sum: 41b71c4956c0c89033a99a590ebaefec
-sha256sum: a542092aa9f399d3ad50bbb2f0f4dd63ad9332c23d8387f6061bdd186d1df3b0
+md5sum: 4496eae88a1d66f457205d0d5b69c3c2
+sha256sum: 94a6dc7ef12fbdc0bafd9259ce36797a8b3410ad22e73c4ab57b8e937a924e1a
 -----
 
 .Verify md5sum on Windows or Mac
@@ -362,7 +362,8 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 ----
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+ echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -403,7 +404,8 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 ----
- echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+ echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -411,21 +413,12 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 ----
 sudo apt-get update
 ----
-. Install the RTAI kernel
-+
-----
-sudo apt-get install linux-image-4.19.195-rtai-amd64
-----
-. Install the RTAI application layer
-+
-----
-sudo apt-get install rtai-modules-4.19.195
-----
-. Install linuxcnc (a reboot may be required prior to installing)
+. Install the new realtime kernel, RTAI and the rtai version of linuxcnc
 +
 ----
 sudo apt-get install linuxcnc
 ----
+Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai kernel.
 
 === Installing on Raspbian 10
 
@@ -440,7 +433,7 @@ sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
 . Add the apt repository:
 +
 -----
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
 -----
 . Update the package list from linuxcnc.org
 +

@@ -836,13 +836,19 @@ the bottom of the screen, and several controls (such as those for
 preset views) are removed.  The coordinate readouts for X are replaced
 with diameter and radius.
 
+image::images/axis-lathe.png[align="center", alt="Back Tool Lathe"]
+
 Pressing 'V' zooms out to show the entire file, if one is loaded.
 
 When in lathe mode, the shape of the loaded tool (if any) is shown.
 
-.Lathe Tool Shape
-
 image::images/axis-lathe-tool.png[align="center", alt="Lathe Tool Shape"]
+
+To change the display to a back tool lathe you need to have both 'LATHE = 1'
+and 'BACK_TOOL_LATHE = 1' in the [DISPLAY] section. This will invert the view
+and put the tool on the back side of the Z axis.
+
+image::images/axis-back-tool-lathe.png[align="center", alt="Back Tool Lathe"]
 
 == Using AXIS in Foam Cutting mode
 
