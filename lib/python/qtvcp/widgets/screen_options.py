@@ -83,10 +83,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.close_event = True
         self.play_sounds = True
         self.mchnMsg_play_sound = True
-        self.mchnMsg_speak_errors = True
+        self.mchnMsg_speak_errors = False
+        self.mchnMsg_speak_text = True
         self.mchnMsg_sound_type  = 'ERROR'
         self.usrMsg_play_sound = True
-        self.usrMsg_sound_type = 'RING'
+        self.usrMsg_sound_type = 'BELL'
         self.usrMsg_use_FocusOverlay = True
         self.shutdown_play_sound = True
         self.shutdown_alert_sound_type = 'READY'
@@ -201,6 +202,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.play_sounds = self.PREFS_.getpref('sound_player_on', self.play_sounds, bool, 'SCREEN_OPTIONS')
             self.mchnMsg_play_sound = self.PREFS_.getpref('mchnMsg_play_sound', self.mchnMsg_play_sound, bool, 'MCH_MSG_OPTIONS')
             self.mchnMsg_speak_errors = self.PREFS_.getpref('mchnMsg_speak_errors', self.mchnMsg_speak_errors, bool, 'MCH_MSG_OPTIONS')
+            self.mchnMsg_speak_text = self.PREFS_.getpref('mchnMsg_speak_text', self.mchnMsg_speak_text, bool, 'MCH_MSG_OPTIONS')
             self.mchnMsg_sound_type = self.PREFS_.getpref('mchnMsg_sound_type', self.usrMsg_sound_type, str, 'MCH_MSG_OPTIONS')
             self.usrMsg_play_sound = self.PREFS_.getpref('usermsg_play_sound', self.usrMsg_play_sound, bool, 'USR_MSG_OPTIONS')
             self.usrMsg_sound_type = self.PREFS_.getpref('userMsg_sound_type', self.usrMsg_sound_type, str, 'USR_MSG_OPTIONS')
@@ -349,7 +351,13 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             if self.play_sounds and self.mchnMsg_play_sound:
                 STATUS.emit('play-sound', '%s' % self.mchnMsg_sound_type)
                 if self.mchnMsg_speak_errors:
-                    STATUS.emit('play-sound', 'SPEAK %s ' % text)
+                    if kind in (linuxcnc.OPERATOR_ERROR, linuxcnc.NML_ERROR):
+                        STATUS.emit('play-sound', 'SPEAK %s ' % text)
+                if self.mchnMsg_speak_text:
+                    if kind in (linuxcnc.OPERATOR_TEXT, linuxcnc.NML_TEXT,
+                                linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
+                        STATUS.emit('play-sound', 'SPEAK %s ' % text)
+
             STATUS.emit('update-machine-log', text, 'TIME')
 
 
