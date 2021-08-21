@@ -54,8 +54,11 @@ STATUS = Status()
 ESPEAK = False
 try:
     from espeak import espeak
+    import queue
+    esQueue = queue.Queue()
     espeak.set_voice("m3")
     espeak.set_parameter(espeak.Parameter.Rate,160)
+    espeak.set_parameter(espeak.Parameter.Pitch,1)
     ESPEAK = True
 except:
     LOG.warning('audio alerts - Is python3-espeak installed? (sudo apt install python3-espeak)')
@@ -79,6 +82,10 @@ class Player:
             bus = self.player.get_bus()
             bus.add_signal_watch()
             bus.connect("message", self.on_message)
+        try:
+            espeak.set_SynthCallback(self.speak_finished)
+        except Exception as e:
+            pass
 
     # set sounds based on distribution
     def set_sounds(self):
@@ -91,7 +98,7 @@ class Player:
             self.ring = '/usr/share/sounds/LinuxMint/stereo/phone-incoming-call.ogg'
             self.login = '/usr/share/sounds/LinuxMint/stereo/desktop-login.ogg'
             self.logout = '/usr/share/sounds/LinuxMint/stereo/desktop-logout.ogg'
-            self.bell = '/usr/share/sounds/linuxmint-login.wav'
+            self.bell = '/usr/share/sounds/freedesktop/stereo/bell.oga'
             if not os.path.exists(self.error):
                 log.error('Audio player - Mint sound File not found {}'.format(self.error))
             return
@@ -102,6 +109,7 @@ class Player:
         self.ring = '/usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga'
         self.login = '/usr/share/sounds/freedesktop/stereo/service-login.oga'
         self.logout = '/usr/share/sounds/freedesktop/stereo/service-logout.oga'
+        self.bell = '/usr/share/sounds/freedesktop/stereo/bell.oga'
         if not os.path.exists(self.error):
             LOG.error('Audio player - Default sound File not found {}'.format(self.error))
 
@@ -158,7 +166,7 @@ class Player:
             try:
                 self['play_%s' % f.lower()]()
             except:
-                LOG.error('Audio player - Alert not found {}'.format(f))
+                LOG.error('Audio player - Canned alert not found {}: {}'.format(f, self[f.lower()]))
 
     # this gets messages back from GStreamer to control playback
     def on_message(self, bus, message):
@@ -202,6 +210,13 @@ class Player:
         self.player.set_property("uri", "file://" + self.login)
         self.player.set_state(Gst.State.PLAYING)
 
+    def play_bell(self):
+        self.player.set_property("uri", "file://" + self.bell)
+        self.player.set_state(Gst.State.PLAYING)
+
+    ################
+    # beep functions
+    ################
     def beep_ring(self):
         os.system('''for n in 1 2 3 ; do
             for f in 1 2 1 2 1 2 1 2 1 2 ; do
@@ -217,13 +232,27 @@ class Player:
     def beep(self):
         os.system("beep -f 555 ")
 
+    ###################
+    # Espeak functions
+    ###################
     def os_speak(self, f):
         cmd = f.lower().lstrip('speak')
         if ESPEAK:
             try:
-                expeak.synth(cmd)
-            except:
+                # uses a queue so doesn;t speak over it's self.
+                esQueue.put(cmd)
+                if not espeak.is_playing():
+                    espeak.synth(esQueue.get())
+            except Exception as e:
+                #print ('oops',e)
+                # fallback call the system espeak - no queue used
                 os.system('''espeak -s 160 -v m3 -p 1 "%s" &''' % cmd)
+
+    # when sentences ends, start the next one, until there are none. 
+    def speak_finished(self, *args):
+        if args[0] == espeak.event_MSG_TERMINATED:
+            if not esQueue.empty():
+                espeak.synth(esQueue.get())
 
     ##############################
     # required class boiler code #
