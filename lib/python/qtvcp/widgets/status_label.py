@@ -232,7 +232,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._set_max_velocity(STATUS.get_max_velocity())
 
     def _tool_info(self, data, field):
-        if data.id is not -1:
+        if data.id != -1:
             if field == 'diameter':
                 data = self.conversion(data.diameter)
                 self._tool_dia = data
@@ -278,7 +278,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
            self._set_text(data)
 
     def _ss_tool_diam(self, data):
-        if data.id is not -1:
+        if data.id != -1:
             self._diameter = data.diameter
         else:
             self._diameter = 1
