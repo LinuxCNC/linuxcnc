@@ -112,11 +112,17 @@ class _IStat(object):
             # check the ini file if UNITS are set to mm"
             # first check the global settings
             units = self.INI.find("TRAJ", "LINEAR_UNITS")
-            if units == None:
-                # else then the X axis units
-                units = self.INI.find("AXIS_0", "UNITS")
+            if units is None:
+                log.critical('Misssing LINEAR_UNITS in TRAJ, guessing units for machine from JOINT 0') 
+                # else then guess; The joint 0 is usually X axis
+                units = self.INI.find("JOINT_0", "UNITS")
+                if units is None:
+                    log.critical('Misssing UNITS in JOINT_0, assuming metric based machine') 
+                    units = 'metric'
         except:
-            units = "inch"
+            units = "metric"
+        finally:
+            units = units.lower()
         # set up the conversion arrays based on what units we discovered
         if units == "mm" or units == "metric" or units == "1.0":
             self.MACHINE_IS_METRIC = True
