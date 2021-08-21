@@ -762,6 +762,21 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         ACTION.ENABLE_AUTOREPEAT_KEYS(self.nonRepeatKeys)
+        self.save_logfile(5)
+
+    def save_logfile(self, numLogs):
+            logPre = 'machine_log_'
+            logFiles = []
+            logFiles = [f for f in os.listdir(self.PATHS.CONFIGPATH) if f.startswith(logPre)]
+            logFiles.sort()
+            if len(logFiles) > (numLogs - 1):
+                for f in range(0, len(logFiles) - (numLogs - 1)):
+                    os.remove(logFiles[0])
+                    logFiles = logFiles[1:]
+            text = self.w.machinelog.toPlainText()
+            logName = '{}/{}{}.txt'.format(self.PATHS.CONFIGPATH, logPre, time.strftime('%y-%m-%d_%H-%M-%S'))
+            with open(logName, 'w') as f:
+                f.write(text)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -1238,22 +1253,18 @@ class HandlerClass:
         self.load_plasma_parameters()
 
     def backup_clicked(self):
-        text = self.w.machinelog.toPlainText()
-        logName = '{}/machine_log_{}.txt'.format(self.PATHS.CONFIGPATH, time.strftime('%y-%m-%d_%H-%M-%S'))
-        with open(logName, 'w') as f:
-            f.write(text)
+        self.save_logfile(6)
         bkpPath = '{}'.format(os.path.expanduser('~'))
         bkpName = '{}_V{}_{}.tar.gz'.format(self.machineName, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
         with tarfile.open('{}/{}'.format(bkpPath, bkpName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
-        msg  = 'A copy of the machine log has been saved in the\n' \
-               'configuration directory as:\n' \
-               '{}\n\n'.format(logName)
-        msg += 'A compressed backup of the machine configuration\n' \
-               'including the above machine log backup\n' \
-               'has been saved in your home directory as:\n' \
-               '{}\n\n'.format(bkpName)
-        msg += 'It is safe to delete these files at any time\n\n'
+        msg  = 'A compressed backup of the machine configuration\n' \
+               'including the machine logs has been saved in your\n' \
+               'home directory as:\n' \
+               '{}\n'.format(bkpName)
+        msg += '\nThis file may be posted on the forum as an aid\n' \
+               'in the diagnosis of issues.\n'
+        msg += '\nIt is safe to delete this file at any time.\n\n'
         self.dialog_show_ok(QMessageBox.Information, 'Backup Complete', msg)
 
     def feed_label_pressed(self):
