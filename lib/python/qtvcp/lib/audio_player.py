@@ -51,14 +51,20 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 # Instaniate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 STATUS = Status()
-
+ESPEAK = False
 try:
-    subprocess.check_output('''espeak --help''', shell=True)
+    from espeak import espeak
+    espeak.set_voice("m3")
+    espeak.set_parameter(espeak.Parameter.Rate,160)
     ESPEAK = True
 except:
-    ESPEAK = False
-    LOG.warning('audio alerts - Is espeak installed? (sudo apt install espeak)')
-    LOG.warning('Text to speech output not available. ')
+    LOG.warning('audio alerts - Is python3-espeak installed? (sudo apt install python3-espeak)')
+    try:
+        subprocess.check_output('''espeak --help''', shell=True)
+        ESPEAK = True
+    except:
+        LOG.warning('audio alerts - Is espeak installed? (sudo apt install espeak)')
+        LOG.warning('Text to speech output not available. ')
 
 
 # the player class does the work of playing the audio hints
@@ -212,9 +218,12 @@ class Player:
         os.system("beep -f 555 ")
 
     def os_speak(self, f):
+        cmd = f.lower().lstrip('speak')
         if ESPEAK:
-            cmd = f.lower().lstrip('speak')
-            os.system('''espeak -s 160 -v m3 -p 1 "%s" &''' % cmd)
+            try:
+                expeak.synth(cmd)
+            except:
+                os.system('''espeak -s 160 -v m3 -p 1 "%s" &''' % cmd)
 
     ##############################
     # required class boiler code #
