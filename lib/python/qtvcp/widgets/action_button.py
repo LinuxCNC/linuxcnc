@@ -354,8 +354,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.mdi_command or self.ini_mdi_command:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
         elif True in(self.exit, self.machine_log_dialog):
