@@ -3890,19 +3890,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -6230,44 +6230,6 @@ TO FILE</string>
                        <property name="verticalSpacing">
                         <number>4</number>
                        </property>
-                       <item row="1" column="1">
-                        <widget class="ActionButton" name="z_minus_jogbutton">
-                         <property name="minimumSize">
-                          <size>
-                           <width>50</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>50</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/z_minus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/z_minus_jog_button.png</iconset>
-                         </property>
-                         <property name="iconSize">
-                          <size>
-                           <width>48</width>
-                           <height>48</height>
-                          </size>
-                         </property>
-                         <property name="jog_joint_neg_action" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="joint_number" stdset="0">
-                          <number>2</number>
-                         </property>
-                         <property name="axis_letter" stdset="0">
-                          <string>Z</string>
-                         </property>
-                        </widget>
-                       </item>
                        <item row="3" column="0">
                         <widget class="ActionButton" name="x_minus_jogbutton">
                          <property name="sizePolicy">
@@ -6582,50 +6544,6 @@ TO FILE</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="0" column="1">
-                        <widget class="ActionButton" name="z_plus_jogbutton">
-                         <property name="sizePolicy">
-                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                           <horstretch>0</horstretch>
-                           <verstretch>0</verstretch>
-                          </sizepolicy>
-                         </property>
-                         <property name="minimumSize">
-                          <size>
-                           <width>50</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="maximumSize">
-                          <size>
-                           <width>50</width>
-                           <height>50</height>
-                          </size>
-                         </property>
-                         <property name="text">
-                          <string/>
-                         </property>
-                         <property name="icon">
-                          <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/z_plus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/z_plus_jog_button.png</iconset>
-                         </property>
-                         <property name="iconSize">
-                          <size>
-                           <width>48</width>
-                           <height>48</height>
-                          </size>
-                         </property>
-                         <property name="jog_joint_pos_action" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="joint_number" stdset="0">
-                          <number>2</number>
-                         </property>
-                         <property name="axis_letter" stdset="0">
-                          <string>Z</string>
-                         </property>
-                        </widget>
-                       </item>
                        <item row="5" column="0">
                         <widget class="ActionButton" name="a_minus_jogbutton">
                          <property name="minimumSize">
@@ -6702,6 +6620,487 @@ TO FILE</string>
                          </property>
                          <property name="axis_letter" stdset="0">
                           <string>A</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="2">
+                        <widget class="ActionButton" name="z_plus_jogbutton_2">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Goto
+Origin</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>48</width>
+                           <height>48</height>
+                          </size>
+                         </property>
+                         <property name="indicator_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_HAL_pin_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_status_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="checked_state_text_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="python_command_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="on_color" stdset="0">
+                          <color>
+                           <red>255</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="shape_option" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="off_color" stdset="0">
+                          <color>
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="indicator_size" stdset="0">
+                          <double>0.300000000000000</double>
+                         </property>
+                         <property name="circle_diameter" stdset="0">
+                          <double>10.000000000000000</double>
+                         </property>
+                         <property name="right_edge_offset" stdset="0">
+                          <double>0.000000000000000</double>
+                         </property>
+                         <property name="top_edge_offset" stdset="0">
+                          <double>0.000000000000000</double>
+                         </property>
+                         <property name="corner_radius" stdset="0">
+                          <double>5.000000000000000</double>
+                         </property>
+                         <property name="height_fraction" stdset="0">
+                          <double>0.300000000000000</double>
+                         </property>
+                         <property name="width_fraction" stdset="0">
+                          <double>0.900000000000000</double>
+                         </property>
+                         <property name="true_state_string" stdset="0">
+                          <string>True</string>
+                         </property>
+                         <property name="false_state_string" stdset="0">
+                          <string>False</string>
+                         </property>
+                         <property name="true_python_cmd_string" stdset="0">
+                          <string>print&quot;true command&quot;</string>
+                         </property>
+                         <property name="false_python_cmd_string" stdset="0">
+                          <string>print&quot;false command&quot;</string>
+                         </property>
+                         <property name="invert_the_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_paused_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_estopped_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_on_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_idle_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_homed_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_flood_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_mist_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_block_delete_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_optional_stop_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_joint_homed_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_limits_overridden_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_manual_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_mdi_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_auto_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_spindle_stopped_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_spindle_fwd_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_spindle_rev_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="joint_number_status" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="jog_joint_pos_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="mdi_command_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="template_label_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="joint_number" stdset="0">
+                          <number>2</number>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>Z</string>
+                         </property>
+                         <property name="incr_imperial_number" stdset="0">
+                          <double>0.010000000000000</double>
+                         </property>
+                         <property name="incr_mm_number" stdset="0">
+                          <double>0.025000000000000</double>
+                         </property>
+                         <property name="incr_angular_number" stdset="0">
+                          <double>-1.000000000000000</double>
+                         </property>
+                         <property name="toggle_float_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="float_num" stdset="0">
+                          <double>0.300000000000000</double>
+                         </property>
+                         <property name="float_alt_num" stdset="0">
+                          <double>50.000000000000000</double>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>P</string>
+                         </property>
+                         <property name="command_text_string" stdset="0">
+                          <string>G0 x0y0z0</string>
+                         </property>
+                         <property name="ini_mdi_number" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="textTemplate" stdset="0">
+                          <string>%1.3f in</string>
+                         </property>
+                         <property name="alt_textTemplate" stdset="0">
+                          <string>%1.2f mm</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="2">
+                        <widget class="ActionButton" name="z_minus_jogbutton_2">
+                         <property name="minimumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string>Goto
+Machine
+ Zero</string>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>48</width>
+                           <height>48</height>
+                          </size>
+                         </property>
+                         <property name="indicator_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_HAL_pin_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="indicator_status_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="checked_state_text_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="python_command_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="on_color" stdset="0">
+                          <color>
+                           <red>255</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="shape_option" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="off_color" stdset="0">
+                          <color>
+                           <red>0</red>
+                           <green>0</green>
+                           <blue>0</blue>
+                          </color>
+                         </property>
+                         <property name="indicator_size" stdset="0">
+                          <double>0.300000000000000</double>
+                         </property>
+                         <property name="circle_diameter" stdset="0">
+                          <double>10.000000000000000</double>
+                         </property>
+                         <property name="right_edge_offset" stdset="0">
+                          <double>0.000000000000000</double>
+                         </property>
+                         <property name="top_edge_offset" stdset="0">
+                          <double>0.000000000000000</double>
+                         </property>
+                         <property name="corner_radius" stdset="0">
+                          <double>5.000000000000000</double>
+                         </property>
+                         <property name="height_fraction" stdset="0">
+                          <double>0.300000000000000</double>
+                         </property>
+                         <property name="width_fraction" stdset="0">
+                          <double>0.900000000000000</double>
+                         </property>
+                         <property name="true_state_string" stdset="0">
+                          <string>True</string>
+                         </property>
+                         <property name="false_state_string" stdset="0">
+                          <string>False</string>
+                         </property>
+                         <property name="true_python_cmd_string" stdset="0">
+                          <string>print&quot;true command&quot;</string>
+                         </property>
+                         <property name="false_python_cmd_string" stdset="0">
+                          <string>print&quot;false command&quot;</string>
+                         </property>
+                         <property name="invert_the_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_paused_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_estopped_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_on_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_idle_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_homed_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_flood_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_mist_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_block_delete_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_optional_stop_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_joint_homed_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_limits_overridden_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_manual_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_mdi_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_auto_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_spindle_stopped_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_spindle_fwd_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="is_spindle_rev_status" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="joint_number_status" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="jog_joint_neg_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="mdi_command_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="template_label_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="joint_number" stdset="0">
+                          <number>2</number>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>Z</string>
+                         </property>
+                         <property name="incr_imperial_number" stdset="0">
+                          <double>0.010000000000000</double>
+                         </property>
+                         <property name="incr_mm_number" stdset="0">
+                          <double>0.025000000000000</double>
+                         </property>
+                         <property name="incr_angular_number" stdset="0">
+                          <double>-1.000000000000000</double>
+                         </property>
+                         <property name="toggle_float_option" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="float_num" stdset="0">
+                          <double>0.300000000000000</double>
+                         </property>
+                         <property name="float_alt_num" stdset="0">
+                          <double>50.000000000000000</double>
+                         </property>
+                         <property name="view_type_string" stdset="0">
+                          <string>P</string>
+                         </property>
+                         <property name="command_text_string" stdset="0">
+                          <string>g53 g0 x0y0z0</string>
+                         </property>
+                         <property name="ini_mdi_number" stdset="0">
+                          <number>0</number>
+                         </property>
+                         <property name="textTemplate" stdset="0">
+                          <string>%1.3f in</string>
+                         </property>
+                         <property name="alt_textTemplate" stdset="0">
+                          <string>%1.2f mm</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="0">
+                        <widget class="ActionButton" name="z_plus_jogbutton">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="qtdragon.qrc">
+                           <normaloff>:/buttons/images/qtdragon/images/z_plus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/z_plus_jog_button.png</iconset>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>48</width>
+                           <height>48</height>
+                          </size>
+                         </property>
+                         <property name="jog_joint_pos_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="joint_number" stdset="0">
+                          <number>2</number>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>Z</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0">
+                        <widget class="ActionButton" name="z_minus_jogbutton">
+                         <property name="minimumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>50</width>
+                           <height>50</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                         <property name="icon">
+                          <iconset resource="qtdragon.qrc">
+                           <normaloff>:/buttons/images/qtdragon/images/z_minus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/z_minus_jog_button.png</iconset>
+                         </property>
+                         <property name="iconSize">
+                          <size>
+                           <width>48</width>
+                           <height>48</height>
+                          </size>
+                         </property>
+                         <property name="jog_joint_neg_action" stdset="0">
+                          <bool>true</bool>
+                         </property>
+                         <property name="joint_number" stdset="0">
+                          <number>2</number>
+                         </property>
+                         <property name="axis_letter" stdset="0">
+                          <string>Z</string>
                          </property>
                         </widget>
                        </item>
@@ -13137,7 +13536,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>06:51:27 AM</string>
+            <string>11:37:13 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13195,32 +13594,9 @@ ZERO</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_graphics</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>OriginOffsetView</class>
-   <extends>QTableView</extends>
-   <header>qtvcp.widgets.origin_offsetview</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
-  </customwidget>
-  <customwidget>
-   <class>MDILine</class>
-   <extends>QLineEdit</extends>
-   <header>qtvcp.widgets.mdi_line</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StateLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.state_label</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>AxisToolButton</class>
@@ -13228,25 +13604,9 @@ ZERO</string>
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>LED</class>
+   <class>FileManager</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
-   <class>ScreenOptions</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.screen_options</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
+   <header>qtvcp.widgets.file_manager</header>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
@@ -13254,19 +13614,14 @@ ZERO</string>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
-   <class>CamView</class>
+   <class>LED</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.camview_widget</header>
+   <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
-  </customwidget>
-  <customwidget>
-   <class>ToolOffsetView</class>
-   <extends>QTableView</extends>
-   <header>qtvcp.widgets.tool_offsetview</header>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -13276,19 +13631,10 @@ ZERO</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>VirtualKeyboard</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.virtualkeyboard</header>
-  </customwidget>
-  <customwidget>
-   <class>FileManager</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.file_manager</header>
-  </customwidget>
-  <customwidget>
-   <class>SystemToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.system_tool_button</header>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
@@ -13297,9 +13643,62 @@ ZERO</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.tool_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>SystemToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>VirtualKeyboard</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.virtualkeyboard</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -14068,7 +14467,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
