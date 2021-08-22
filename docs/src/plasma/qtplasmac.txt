@@ -2857,7 +2857,9 @@ The delay is specified in seconds, if the delay is not specified then it will de
 
 The button colors will follow the state of the halpin.
 
-After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. They will stay this way until the delay timer has completed, which will return the button to the original colors and the HAL pin to the original pin state.
+After setting the code, upon clicking the button, the button will invert colors, the HAL pin will invert pin state, and the time remaining will be displayed on the button. The button color and the pin state will stay inverted until the delay timer has completed, which will return the button to the original colors, the HAL pin to the original pin state, and the original button name.
+
+An active pulse can be canceled by clicking the button again.
 
 There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
 

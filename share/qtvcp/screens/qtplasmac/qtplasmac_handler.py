@@ -1,4 +1,4 @@
-VERSION = '1.0.66'
+VERSION = '1.0.67'
 
 import os, sys
 from shutil import copy as COPY
@@ -679,9 +679,6 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
-        self.pinPulser = QTimer()
-        self.pinPulser.timeout.connect(self.pin_pulser_timeout)
-        self.pinPulser.setSingleShot(True)
         self.runButtonTimer = QTimer()
         self.runButtonTimer.setSingleShot(True)
         self.runButtonTimer.timeout.connect(self.run_button_timeout)
@@ -2344,6 +2341,26 @@ class HandlerClass:
                 break
         return pos if pos else axisPos
 
+    def invert_pin_state(self, halpin):
+        if 'qtplasmac.ext_out_' in halpin:
+            pin = 'out{}Pin'.format(halpin.split('out_')[1])
+            self[pin].set(not hal.get_value(halpin))
+        else:
+            hal.set_p(halpin, str(not hal.get_value(halpin)))
+        self.set_button_color()
+
+    def set_button_color(self):
+        for halpin in self.halTogglePins:
+            if hal.get_value(halpin):
+                self.button_active(self.halTogglePins[halpin][0])
+            else:
+                self.button_normal(self.halTogglePins[halpin][0])
+        for halpin in self.halPulsePins:
+            if hal.get_value(halpin):
+                self.button_active(self.halPulsePins[halpin][0])
+            else:
+                self.button_normal(self.halPulsePins[halpin][0])
+
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -2414,16 +2431,7 @@ class HandlerClass:
             self.color_last_tab(self.backColor, self.foreColor)
         else:
             self.color_last_tab(self.foreColor, self.backColor)
-        for pin in self.halTogglePins:
-            if hal.get_value(pin):
-                self.button_active(self.halTogglePins[pin][0])
-            else:
-                self.button_normal(self.halTogglePins[pin][0])
-        for pin in self.halPulsePins:
-            if hal.get_value(pin):
-                self.button_active(self.halPulsePins[pin][0])
-            else:
-                self.button_normal(self.halPulsePins[pin][0])
+        self.set_button_color()
         self.stats_update()
 
     def probe_timeout(self):
@@ -2468,13 +2476,22 @@ class HandlerClass:
         self.manualCut = False
         self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
 
-    def pin_pulser_timeout(self):
-        if 'qtplasmac.ext_out_' in self.pinPulsed:
-            pin = 'out{}Pin'.format(self.pinPulsed.split('out_')[1])
-            self[pin].set(self.halPulsePins[self.pinPulsed][2])
-        else:
-            hal.set_p(self.pinPulsed, str(self.halPulsePins[self.pinPulsed][2]))
-        self.button_normal(self.ppButton)
+    def pulse_timer_timeout(self):
+        # halPulsePins format is: button name, pulse time, button text, remaining time
+        active = False
+        for halpin in self.halPulsePins:
+            if self.halPulsePins[halpin][3] > 0.05:
+                active = True
+                if self.halPulsePins[halpin][1] == self.halPulsePins[halpin][3]:
+                    self.invert_pin_state(halpin)
+                self.halPulsePins[halpin][3] -= 0.1
+                self.w[self.halPulsePins[halpin][0]].setText('{:0.1f}'.format(self.halPulsePins[halpin][3]))
+            elif self.w[self.halPulsePins[halpin][0]].text() != self.halPulsePins[halpin][2]:
+                self.invert_pin_state(halpin)
+                self.halPulsePins[halpin][3] = 0
+                self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+        if not active:
+            self.pulseTimer.stop()
 
 
 #########################################################################################################################
@@ -2491,6 +2508,9 @@ class HandlerClass:
         self.torchTimer = QTimer()
         self.torchTimer.setSingleShot(True)
         self.torchTimer.timeout.connect(self.torch_timeout)
+        self.pulseTime = 0
+        self.pulseTimer = QTimer()
+        self.pulseTimer.timeout.connect(self.pulse_timer_timeout)
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
@@ -2614,7 +2634,8 @@ class HandlerClass:
                               'HAL pin "{}" does not exist\n'.format(bNum, halpin)
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
                         continue
-                self.halPulsePins[halpin] = [ 'button_{}'.format(str(bNum)), float(delay), pinstate]
+                # halPulsePins format is: button name, pulse time, button text, remaining time
+                self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0]
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
@@ -2673,16 +2694,10 @@ class HandlerClass:
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].strip()
             try:
-                pinstate = hal.get_value(halpin)
-                if 'qtplasmac.ext_out_' in halpin:
-                    pin = 'out{}Pin'.format(halpin.split('out_')[1])
-                    self[pin].set(not pinstate)
+                if halpin in self.halPulsePins and self.halPulsePins[halpin][3] > 0.05:
+                    self.halPulsePins[halpin][3] = 0.0
                 else:
-                    hal.set_p(halpin, str(not pinstate))
-                if pinstate:
-                    self.button_normal('button_{}'.format(str(bNum)))
-                else:
-                    self.button_active('button_{}'.format(str(bNum)))
+                    self.invert_pin_state(halpin)
             except:
                 msg = 'Invalid code for user button #{} code\n' \
                       'Failed to toggle HAL pin "{}"\n'.format(bNum, halpin)
@@ -2699,18 +2714,15 @@ class HandlerClass:
                           'Failed to puls HAL pin "{}"\n'.format(bNum, halpin)
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
                     return
+            # halPulsePins format is: button name, pulse time, button text, remaining time
             try:
-                pinstate = hal.get_value(halpin)
-                if 'qtplasmac.ext_out_' in halpin:
-                    pin = 'out{}Pin'.format(halpin.split('out_')[1])
-                    self[pin].set(not pinstate)
+                if self.halPulsePins[halpin][3] > 0.05:
+                    self.halPulsePins[halpin][3] = 0.0
                 else:
-                    hal.set_p(halpin, str(not pinstate))
-                self.halPulsePins[halpin][2] = pinstate
-                self.button_active('button_{}'.format(str(bNum)))
-                self.pinPulser.start(self.halPulsePins[halpin][1] * 1000)
-                self.pinPulsed = halpin
-                self.ppButton = 'button_{}'.format(str(bNum))
+                    self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+                    self.halPulsePins[halpin][3] = self.halPulsePins[halpin][1]
+                    if not self.pulseTimer.isActive():
+                        self.pulseTimer.start(100)
             except:
                 msg = 'Invalid code for user button #{} code\n' \
                       'Failed to pulse HAL pin "{}"\n'.format(bNum, halpin)
