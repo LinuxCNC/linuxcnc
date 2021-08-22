@@ -184,7 +184,7 @@ class Private_Data:
             self.ON, self.CW, self.CCW, self.PWM, self.BRAKE,
             self.MIST, self.FLOOD, self.ESTOP, self.AMP,
             self.PUMP, self.DOUT0, self.DOUT1, self.DOUT2, self.DOUT3,
-            self.OHMIC_ENABLE,self.SCRIBE_ARM,self.SCRIBE_ON,self.PLASMAC_TORCH,self.PLASMAC_LASER,
+            self.PLASMAC_TORCH,self.OHMIC_ENABLE,self.SCRIBE_ARM,self.SCRIBE_ON,self.PLASMAC_LASER,
             self.UNUSED_OUTPUT,
         ) = self.hal_output_names = [
             "xstep", "xdir", "ystep", "ydir",
@@ -194,7 +194,7 @@ class Private_Data:
             "spindle-on", "spindle-cw", "spindle-ccw", "spindle-pwm", "spindle-brake",
             "coolant-mist", "coolant-flood", "estop-out", "xenable",
             "charge-pump", "dout-00", "dout-01", "dout-02", "dout-03",
-            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on",
+            "plasmac:torch-on", "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:laser-on",
             "unused-output"]
 
         (   self.ESTOP_IN, self.PROBE, self.PPR, self.PHA, self.PHB,
@@ -206,7 +206,8 @@ class Private_Data:
             self.MAX_X, self.MAX_Y, self.MAX_Z, self.MAX_A,self.MAX_U, self.MAX_V, self.MAX_TX, self.MAX_TY,
             self.BOTH_X, self.BOTH_Y, self.BOTH_Z, self.BOTH_A,self.BOTH_U, self.BOTH_V, self.BOTH_TX, self.BOTH_TY,
             self.ALL_LIMIT, self.ALL_HOME, self.ALL_LIMIT_HOME, self.DIN0, self.DIN1, self.DIN2, self.DIN3,
-            self.ARC_VOLTS,self.ARC_OK,self.OHMIC_PROBE,self.FLOAT_SWITCH,self.BREAKAWAY,self.MOVE_UP,self.MOVE_DOWN,
+            self.ARC_VOLTS,self.ARC_OK,self.FLOAT_SWITCH,self.BREAKAWAY,
+            self.OHMIC_CONTACT,self.MOVE_UP,self.MOVE_DOWN,
             self.UNUSED_INPUT,
         ) = self.hal_input_names = [
             "estop-ext", "probe-in", "spindle-index", "spindle-phase-a", "spindle-phase-b",
@@ -218,8 +219,8 @@ class Private_Data:
             "max-x", "max-y", "max-z", "max-a", "max-u", "max-v", "max-x2", "max-y2",
             "both-x", "both-y", "both-z", "both-a", "both-u", "both-v", "both-x1", "both-y2",
             "all-limit", "all-home", "all-limit-home", "din-00", "din-01", "din-02", "din-03",
-            "plasmac:arc-voltage-raw", "plasmac:arc-ok-in", "plasmac:ohmic-probe", "plasmac:float-switch",
-            "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down",
+            "plasmac:arc-voltage-raw", "plasmac:arc-ok-in", "plasmac:float-switch", "plasmac:breakaway",
+            "plasmac:ohmic-sense-in", "plasmac:move-up", "plasmac:move-down",
             "unused-input"]
 
         self.human_output_names = (_("X Step"), _("X Direction"), _("Y Step"), _("Y Direction"),
@@ -230,7 +231,7 @@ class Private_Data:
             _("Coolant Mist"), _("Coolant Flood"), _("ESTOP Out"), _("Amplifier Enable"),
             _("Charge Pump"),
             _("Digital out 0"), _("Digital out 1"), _("Digital out 2"), _("Digital out 3"),
-            _("Plasma Ohmic Enable"), _("Plasma Scribe Arm"), _("Plasma Scribe On"),_("Plasma Torch On"),_("Plasma Laser On"),
+            _("Plasma Torch On"),_("Plasma Ohmic Enable"), _("Plasma Scribe Arm"), _("Plasma Scribe On"),_("Plasma Laser On"),
             _("Unused"))
 
         self.human_input_names = (_("ESTOP In"), _("Probe In"),
@@ -263,8 +264,8 @@ class Private_Data:
             _("Both Limit Tandem X"), _("Both Limit Tandem Y"),
             _("All limits"), _("All home"), _("All limits + homes"),
             _("Digital in 0"), _("Digital in 1"), _("Digital in 2"), _("Digital in 3"),
-            _("Plasma Arc Voltage"), _("Plasma Arc OK"), _("Plasma Ohmic Probe"), ("Plasma Float Switch"),
-            _("Plasma Breakaway"), _("Plasma Move Up"), _("Plasma Move Down"),
+            _("Plasma Arc Voltage"), _("Plasma Arc OK"), _("Plasma Float Switch"), _("Plasma Breakaway"),
+            _("Plasma Ohmic Contact"), _("Plasma Move Up"), _("Plasma Move Down"),
             _("Unused"))
 
         self.MESS_START = _('Start')
@@ -449,16 +450,17 @@ class Data:
         self.qtplasmacxlaser = 0.0
         self.qtplasmacylaser = 0.0
         self.qtplasmacpmx = ""
-        self.qtplasmac_bnames = ["PROBE\TEST","OHMIC\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE", \
-                                 "","","","","","","","","","","","","","",""]
-        self.qtplasmac_bcodes = ["probe-test 10","ohmic-test","single-cut","cut-type","torch-pulse 0.5", \
-                                 "","","","","","","","","","","","","","",""]
+        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
+                                 "","","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", \
+                                 "","","","","","","","","","","","","",""]
         self.thcadenc = 0
         self.voltsmodel = "10"
         self.voltsfjumper = "64"
         self.voltszerof = 100.0
         self.voltsfullf = 999.0
         self.voltsrdiv = 20
+        self.ohmiccontact = 0
 
         # tandem joints
         self.tandemjoints = []
