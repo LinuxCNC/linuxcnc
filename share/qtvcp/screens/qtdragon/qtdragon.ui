@@ -6713,10 +6713,10 @@ Origin</string>
                           <string>False</string>
                          </property>
                          <property name="true_python_cmd_string" stdset="0">
-                          <string>print&quot;true command&quot;</string>
+                          <string>ACTION. CALL_MDI_WAIT({'g0 Z0','GO X0,YO'})</string>
                          </property>
                          <property name="false_python_cmd_string" stdset="0">
-                          <string>print&quot;false command&quot;</string>
+                          <string/>
                          </property>
                          <property name="invert_the_status" stdset="0">
                           <bool>false</bool>
@@ -6775,10 +6775,16 @@ Origin</string>
                          <property name="joint_number_status" stdset="0">
                           <number>0</number>
                          </property>
+                         <property name="estop_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
                          <property name="jog_joint_pos_action" stdset="0">
                           <bool>false</bool>
                          </property>
                          <property name="mdi_command_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="ini_mdi_command_action" stdset="0">
                           <bool>true</bool>
                          </property>
                          <property name="template_label_option" stdset="0">
@@ -6812,7 +6818,7 @@ Origin</string>
                           <string>P</string>
                          </property>
                          <property name="command_text_string" stdset="0">
-                          <string>G0 x0y0z0</string>
+                          <string/>
                          </property>
                          <property name="ini_mdi_number" stdset="0">
                           <number>0</number>
@@ -6976,6 +6982,9 @@ Machine
                           <bool>false</bool>
                          </property>
                          <property name="mdi_command_action" stdset="0">
+                          <bool>false</bool>
+                         </property>
+                         <property name="ini_mdi_command_action" stdset="0">
                           <bool>true</bool>
                          </property>
                          <property name="template_label_option" stdset="0">
@@ -7009,10 +7018,10 @@ Machine
                           <string>P</string>
                          </property>
                          <property name="command_text_string" stdset="0">
-                          <string>g53 g0 x0y0z0</string>
+                          <string/>
                          </property>
                          <property name="ini_mdi_number" stdset="0">
-                          <number>0</number>
+                          <number>1</number>
                          </property>
                          <property name="textTemplate" stdset="0">
                           <string>%1.3f in</string>
@@ -13536,7 +13545,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>11:37:13 PM</string>
+            <string>10:05:59 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14467,7 +14476,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
