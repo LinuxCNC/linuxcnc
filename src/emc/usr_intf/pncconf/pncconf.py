@@ -354,21 +354,6 @@ class App:
             print("T0 P1 X0 Y0 ;torch", file=file)
             print("T1 P2 X0 Y0 ;scribe", file=file)
             file.close()
-            # if using thcad for arc voltage
-            if self.d.thcadenc == 1:
-                if self.d.voltsrdiv < 150:
-                    dratio = self.d.voltsrdiv
-                else:
-                    dratio = (self.d.voltsrdiv + 100000) / 100000
-                vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
-                voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
-                prefsfile = os.path.join(base, "qtplasmac.prefs")
-                if not os.path.exists(prefsfile):
-                    f1 = open(prefsfile, "w")
-                    print(("[PLASMA_PARAMETERS]"), file=f1)
-                    print("Arc Voltage Offset = %.3f" % voffset, file=f1)
-                    print("Arc Voltage Scale = %.6f" % vscale, file=f1)
-                    f1.close()
         self.copy(base, "tool.tbl")
         if self.warning_dialog(self._p.MESS_QUIT,False):
             Gtk.main_quit()
@@ -3487,11 +3472,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     customindex = len(humansignallist)-1
                     # check for a thcad encoder
                     if "Arc Voltage" in pinchanged:
+                        self.d._arcvpin = pin
                         self.p.page_set_state('thcad', True)
-                        self.d.thcadenc = 1
-                    else:
+                    elif pin == self.d._arcvpin and "Arc Voltage" not in pinchanged:
+                        self.d._arcvpin = None
                         self.p.page_set_state('thcad', False)
-                        self.d.thcadenc = 0
                 # for mux encoder pins
                 elif widgetptype in(_PD.MXE0,_PD.MXE1):
                     #print"\nptype encoder"

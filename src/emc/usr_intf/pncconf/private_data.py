@@ -222,7 +222,7 @@ class Private_Data:
             S.MIN_HOME_X2,S.MIN_HOME_Y2,S.MIN_HOME_Z2,S.MIN_HOME_A2,
             S.MAX_HOME_X2,S.MAX_HOME_Y2,S.MAX_HOME_Z2,S.MAX_HOME_A2,
             S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2,
-            S.ARC_OK,S.OHMIC_PROBE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN
+            S.ARC_OK,S.OHMIC_SENSE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN
         ) = self.hal_input_names = [
             "unused-input",
             "min-x", "min-y", "min-z", "min-a",
@@ -254,7 +254,7 @@ class Private_Data:
             "min-home-x2", "min-home-y2", "min-home-z2", "min-home-a2",
             "max-home-x2", "max-home-y2", "max-home-z2", "max-home-a2",
             "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2",
-            "plasmac:arc-ok-in", "plasmac:ohmic-probe", "plasmac:float-switch",
+            "plasmac:arc-ok-in", "plasmac:ohmic-sense-in", "plasmac:float-switch",
             "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down"]
 
         (   S.UNUSED_PWM,
@@ -303,7 +303,8 @@ class Private_Data:
             "y2-encoder-a", "y2-encoder-b", "y2-encoder-i", "y2-encoder-m",
             "z2-encoder-a", "z2-encoder-b", "z2-encoder-i", "z2-encoder-m",
             "a2-encoder-a", "a2-encoder-b", "a2-encoder-i", "a2-encoder-m",
-            "arc-volt-enc-a", "arc-volt-enc-b", "arc-volt-enc-i", "arc-volt-enc-m"]
+            "arc-volt-enc-a", "arc-volt-enc-b", "arc-volt-enc-i", "arc-volt-enc-m",
+            ]
 
         (   S.USED_RESOLVER,S.X_RESOLVER,S.Y_RESOLVER,
                 S.Z_RESOLVER,S.A_RESOLVER,S.S_RESOLVER
@@ -457,7 +458,7 @@ class Private_Data:
         blimits = [[_("Main Axis"),limit],[_("Tandem Axis"),limit2]]
         bhome = [[_("Main Axis"),home],[_("Tandem Axis"),home2]]
         bshared = [[_("Main Axis"),home_limits_shared],[_("Tandem Axis"),home_limits_shared2]]
-        plasma_in = [[_("Arc OK"),S.ARC_OK ], [_("Ohmic Probe"),S.OHMIC_PROBE ], [_("Float Switch"),S.FLOAT_SWITCH ],
+        plasma_in = [[_("Arc OK"),S.ARC_OK ], [_("Ohmic Contact"),S.OHMIC_SENSE ], [_("Float Switch"),S.FLOAT_SWITCH ],
                      [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ] ]
 
         self.human_input_names = [ [_("Unused Input"),S.UNUSED_INPUT],[_("Limits"),blimits],

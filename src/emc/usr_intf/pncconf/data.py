@@ -321,17 +321,16 @@ class Data:
         self.qtplasmacpmx = ""
         self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
         self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
-        self.qtplasmac_bnames = ["PROBE\TEST","OHMIC\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE", \
-                                 "","","","","","","","","","","","","","",""]
-        self.qtplasmac_bcodes = ["probe-test 10","ohmic-test","single-cut","cut-type","torch-pulse 0.5", \
-                                 "","","","","","","","","","","","","","",""]
-        self.thcadenc = 0
+        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
+                                 "","","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", \
+                                 "","","","","","","","","","","","","",""]
+        self._arcvpin = None
         self.voltsmodel = "10"
         self.voltsfjumper = "32"
         self.voltszerof = 100.0
         self.voltsfullf = 999.
         self.voltsrdiv = 20
-        self.voltsenc = "ENCA"
 
         # LinuxCNC assorted defaults and options
         self.toolchangeprompt = True

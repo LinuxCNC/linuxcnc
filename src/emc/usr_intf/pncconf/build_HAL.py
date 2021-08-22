@@ -1800,48 +1800,98 @@ class HAL:
         print("net plasmac:axis-position joint.{:d}.pos-fb => plasmac.axis-z-position".format(jnum), file=file)
         print("\n# ---PLASMA INPUTS---", file=file)
         print("# ---all modes---", file=file)
-        print("net plasmac:float-switch   => db_float.in", file=file)
-        print("net plasmac:breakaway      => db_breakaway.in", file=file)
-        print("net plasmac:ohmic-probe    => db_ohmic.in", file=file)
+        print("net plasmac:float-switch     => db_float.in", file=file)
+        print("net plasmac:breakaway        => db_breakaway.in", file=file)
+        print("net plasmac:ohmic-probe      => db_ohmic.in", file=file)
+        print("net plasmac:ohmic_sense_in   => plasmac.ohmic_sense_in", file=file)
         print("# ---modes 0 & 1", file=file)
-        print("net plasmac:arc-voltage-in => plasmac.arc-voltage-in", file=file)
+        print("net plasmac:arc-voltage-in   => plasmac.arc-voltage-in", file=file)
         print("# ---modes 1 & 2", file=file)
-        print("net plasmac:arc-ok-in      => db_arc-ok.in", file=file)
+        print("net plasmac:arc-ok-in        => db_arc-ok.in", file=file)
         print("# ---mode 2", file=file)
-        print("net plasmac:move-up        => plasmac.move-up", file=file)
-        print("net plasmac:move-down      => plasmac.move-down", file=file)
+        print("net plasmac:move-up          => plasmac.move-up", file=file)
+        print("net plasmac:move-down        => plasmac.move-down", file=file)
         print("\n# ---PLASMA OUTPUTS---", file=file)
         print("# ---all modes---", file=file)
-        print("net plasmac:ohmic-enable   <= plasmac.ohmic-enable", file=file)
-        print("net plasmac:scribe-arm     <= plasmac.scribe-arm", file=file)
-        print("net plasmac:scribe-on      <= plasmac.scribe-on", file=file)
+        print("net plasmac:ohmic-enable     <= plasmac.ohmic-enable", file=file)
+        print("net plasmac:scribe-arm       <= plasmac.scribe-arm", file=file)
+        print("net plasmac:scribe-on        <= plasmac.scribe-on", file=file)
         # check for arc voltage encoder
         pinname = self.a.make_pinname(self.a.findsignal("arc-volt-enc-a"), substitution = self.d.useinisubstitution)
         if pinname:
             ending = ""
             if "enc" in pinname: ending = ".velocity"
-            voltspin = pinname.replace(".00", ".0{}".format(["ENCA", "ENCB", "IDX"].index(self.d.voltsenc)))
+            if self.d.voltsrdiv < 150:
+                dratio = self.d.voltsrdiv
+            else:
+                dratio = (self.d.voltsrdiv + 100000) / 100000
+            vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
+            voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
+            prefsfile = os.path.join(base, "qtplasmac.prefs")
+            if not os.path.exists(prefsfile):
+                f1 = open(prefsfile, "w")
+                print(("[PLASMA_PARAMETERS]"), file=f1)
+                print("Arc Voltage Offset = %.3f" % voffset, file=f1)
+                print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+                f1.close()
             print("\n# ---ARC VOLTAGE ENCODER---", file=file)
-            print("net plasmac:arc-voltage-in <= %s%s"% (voltspin, ending), file=file)
-            print("setp {}.counter-mode  1".format(voltspin), file=file)
-            print("setp {}.filter        1".format(voltspin), file=file)
-            print("setp {}.scale        -1".format(voltspin), file=file)
+            print("net plasmac:arc-voltage-in <= %s%s"% (pinname, ending), file=file)
+            print("setp {}.counter-mode  1".format(pinname), file=file)
+            print("setp {}.filter        1".format(pinname), file=file)
+            print("setp {}.scale        -1".format(pinname), file=file)
+        # check for ohmic sensing with a relay contact or similar
+        pinname = self.a.make_pinname(self.a.findsignal("plasmac:ohmic-sense-in"), substitution = self.d.useinisubstitution)
+        if pinname:
+            vscale = 1
+            voffset = 0
+            print("\n# ---OHMIC SENSE LINK---", file=file)
+            print("net plasmac:ohmic-probe <= plasmac.ohmic-sense-out", file=file)
+        else:
+            print("NO OHMIC SENSE")
         # write custom hal file
         chfile = os.path.join(base, "custom.hal")
         if not os.path.exists(chfile):
             f1 = open(chfile, "w")
             print(("# Include your custom HAL commands here"), file=f1)
             print(_("# This file will not be overwritten when you run PNCconf again"), file=f1)
-            print("\n# for the float and ohmic inputs each increment in delay is", file=f1)
+            print("\n# ---COMMON PLASMAC DEBOUNCE---", file=f1)
+            print("# for the float and ohmic inputs each increment in delay is", file=f1)
             print("# is a 0.001mm (0.00004\") increase in any probed height result", file=f1)
             print("setp db_float.delay     5", file=f1)
-            print("setp db_ohmic.delay     5", file=f1)
+            if pinname:
+                print("# set to zero if using internal ohmic sensing", file=f1)
+                print("setp db_ohmic.delay     0", file=f1)
+            else:
+                print("setp db_ohmic.delay     5", file=f1)
             print("setp db_breakaway.delay 5", file=f1)
             print("setp db_arc-ok.delay    5", file=f1)
             print("\n# ---ARC VOLTAGE LOWPASS FILTER---", file=f1)
             print("# Only use this if comprehensive testing shows that it is required", file=f1)
             print("#setp plasmac.lowpass-frequency 0", file=f1)
+            if pinname:
+                self.plasmac_ohmic_sense(f1)
             f1.close()
+        else:
+            f1 = open(chfile, "r")
+            chdata = f1.readlines()
+            f1.close()
+            ohmics = False
+            for line in chdata:
+                if "plasmac.ohmic-sense" in line:
+                    return
+            f1 = open(chfile, "w")
+            for line in chdata:
+                if "db_ohmic.delay" in line and line.split("delay")[1].strip() != '0':
+                    print("# set to zero if using internal ohmic sensing", file=f1)
+                    line = "setp db_ohmic.delay     0"
+                print(line.strip(), file=f1)
+            self.plasmac_ohmic_sense(f1)
+
+    def plasmac_ohmic_sense(self, f1):
+        print("\n# ---OHMIC SENSE CONTACT DEBOUNCE---", file=f1)
+        print("setp plasmac.ohmic-sense-off-delay  3", file=f1)
+        print("setp plasmac.ohmic-sense-on-delay   3", file=f1)
+
 
     # plasmac hal component connections
     def plasmac_hal_component(self, file):

@@ -1269,7 +1269,6 @@ class Pages:
         self.w.voltszerof.set_value(self.d.voltszerof)
         self.w.voltsfullf.set_value(self.d.voltsfullf)
         self.w.voltsrdiv.set_value(self.d.voltsrdiv)
-        self.w.voltsenc.set_active(["ENCA", "ENCB", "IDX"].index(self.d.voltsenc))
 
     def thcad_finish(self):
         self.d.voltsmodel = self.w.voltsmodel.get_active_text()
@@ -1277,7 +1276,6 @@ class Pages:
         self.d.voltszerof = self.w.voltszerof.get_value()
         self.d.voltsfullf = self.w.voltsfullf.get_value()
         self.d.voltsrdiv = self.w.voltsrdiv.get_value()
-        self.d.voltsenc = self.w.voltsenc.get_active_text()
 
 #************
 # X_MOTOR PAGE
