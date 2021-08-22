@@ -175,11 +175,14 @@ class _Lcnc_Action(object):
         try:
             mdi = INFO.MDI_COMMAND_LIST[number]
         except:
-            log.error('MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number))
+            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number)
+            log.error(msg)
+            self.SET_ERROR_MESSAGE(msg)
             return
         mdi_list = mdi.split(';')
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
+            log.debug('CALL_INI_MDI comand:{}'.format(code))
             self.cmd.mdi('%s' % code)
 
     def CALL_OWORD(self, code, time=5):
@@ -671,6 +674,14 @@ class _Lcnc_Action(object):
     def ENABLE_AUTOREPEAT_KEYS(self, keys={'34','35','111','112','113','114','116','117'}):
         for k in keys:
             subprocess.Popen('xset r {}'.format(k), stdout = subprocess.PIPE, shell = True)
+
+    # send an operator info message to the gui
+    def SET_DISPLAY_MESSAGE(self, msg):
+        self.cmd.display_msg(msg)
+
+    # send an operator error message to the gui
+    def SET_ERROR_MESSAGE(self, msg):
+        self.cmd.error_msg(msg)
 
     ######################################
     # Action Helper functions
