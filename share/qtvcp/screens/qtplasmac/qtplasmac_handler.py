@@ -3514,88 +3514,99 @@ class HandlerClass:
         self.getMaterialBusy = 1
         with open(self.materialFile, 'r') as f_in:
             firstpass = True
+            material_error = False
             t_item = 0
             required = ['PIERCE_HEIGHT', 'PIERCE_DELAY', 'CUT_HEIGHT', 'CUT_SPEED']
             received = []
             for line in f_in:
-                if line.startswith('#'):
-                    continue
-                elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
-                    if int(line.rsplit('_', 1)[1].strip().strip(']')) < 1000000:
-                        newMaterial = True
-                        if not firstpass:
-                            self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
-                            for item in required:
-                                if item not in received:
-                                    msg = '{} is missing from Material #{}\n'.format(item, t_number)
-                                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
-                        firstpass = False
-                        t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
-                        self.materialNumList.append(t_number)
-                        t_name = k_width = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
-                        t_item += 1
-                        received = []
-                    else:
-                        msg  = 'Material number #{} is invalid\n'.format(int(line.rsplit('_', 1)[1].strip().strip(']')))
-                        msg += 'Material numbers need to be less than 1000000\n'
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                try:
+                    if line.startswith('#'):
                         continue
-                elif line.startswith('NAME'):
-                    if line.split('=')[1].strip():
-                        t_name = line.split('=')[1].strip()
-                elif line.startswith('KERF_WIDTH'):
-                    if line.split('=')[1].strip():
-                        k_width = float(line.split('=')[1].strip())
-                elif line.startswith('PIERCE_HEIGHT'):
-                    received.append('PIERCE_HEIGHT')
-                    if line.split('=')[1].strip():
-                        p_height = float(line.split('=')[1].strip())
-                    elif t_number:
-                        msg = 'No value for PIERCE_HEIGHT in Material #{}\n'.format(t_number)
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
-                elif line.startswith('PIERCE_DELAY'):
-                    received.append('PIERCE_DELAY')
-                    if line.split('=')[1].strip():
-                        p_delay = float(line.split('=')[1].strip())
-                    else:
-                        msg = 'No value for PIERCE_DELAY in Material #{}\n'.format(t_number)
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
-                elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                    if line.split('=')[1].strip():
-                        pj_height = float(line.split('=')[1].strip())
-                elif line.startswith('PUDDLE_JUMP_DELAY'):
-                    if line.split('=')[1].strip():
-                        pj_delay = float(line.split('=')[1].strip())
-                elif line.startswith('CUT_HEIGHT'):
-                    received.append('CUT_HEIGHT')
-                    if line.split('=')[1].strip():
-                        c_height = float(line.split('=')[1].strip())
-                    else:
-                        msg = 'No value for CUT_HEIGHT in Material #{}\n'.format(t_number)
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
-                elif line.startswith('CUT_SPEED'):
-                    received.append('CUT_SPEED')
-                    if line.split('=')[1].strip():
-                        c_speed = float(line.split('=')[1].strip())
-                    else:
-                        msg = 'No value for CUT_SPEED in Material #{}\n'.format(t_number)
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
-                elif line.startswith('CUT_AMPS'):
-                    if line.split('=')[1].strip():
-                        c_amps = float(line.split('=')[1].strip().replace(' ',''))
-                elif line.startswith('CUT_VOLTS'):
-                    if line.split('=')[1].strip():
-                        c_volts = float(line.split('=')[1].strip())
-                elif line.startswith('PAUSE_AT_END'):
-                    if line.split('=')[1].strip():
-                        pause = float(line.split('=')[1].strip())
-                elif line.startswith('GAS_PRESSURE'):
-                    if line.split('=')[1].strip():
-                        g_press = float(line.split('=')[1].strip())
-                elif line.startswith('CUT_MODE'):
-                    if line.split('=')[1].strip():
-                        c_mode = float(line.split('=')[1].strip())
-            if not firstpass:
+                    elif line.startswith('[MATERIAL_NUMBER_') and line.strip().endswith(']'):
+                        if int(line.rsplit('_', 1)[1].strip().strip(']')) < 1000000:
+                            newMaterial = True
+                            if not firstpass:
+                                self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
+                                for item in required:
+                                    if item not in received:
+                                        msg = '{} is missing from Material #{}\n'.format(item, t_number)
+                                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                            firstpass = False
+                            t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
+                            self.materialNumList.append(t_number)
+                            t_name = k_width = p_height = p_delay = pj_height = pj_delay = c_height = c_speed = c_amps = c_volts =  pause = g_press = c_mode = 0.0
+                            t_item += 1
+                            received = []
+                        else:
+                            msg  = 'Material number #{} is invalid\n'.format(int(line.rsplit('_', 1)[1].strip().strip(']')))
+                            msg += 'Material numbers need to be less than 1000000\n'
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                            continue
+                    elif line.startswith('NAME'):
+                        if line.split('=')[1].strip():
+                            t_name = line.split('=')[1].strip()
+                    elif line.startswith('KERF_WIDTH'):
+                        if line.split('=')[1].strip():
+                            k_width = float(line.split('=')[1].strip())
+                    elif line.startswith('PIERCE_HEIGHT'):
+                        received.append('PIERCE_HEIGHT')
+                        if line.split('=')[1].strip():
+                            p_height = float(line.split('=')[1].strip())
+                        elif t_number:
+                            msg = 'No value for PIERCE_HEIGHT in Material #{}\n'.format(t_number)
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                    elif line.startswith('PIERCE_DELAY'):
+                        received.append('PIERCE_DELAY')
+                        if line.split('=')[1].strip():
+                            p_delay = float(line.split('=')[1].strip())
+                        else:
+                            msg = 'No value for PIERCE_DELAY in Material #{}\n'.format(t_number)
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
+                        if line.split('=')[1].strip():
+                            pj_height = float(line.split('=')[1].strip())
+                    elif line.startswith('PUDDLE_JUMP_DELAY'):
+                        if line.split('=')[1].strip():
+                            pj_delay = float(line.split('=')[1].strip())
+                    elif line.startswith('CUT_HEIGHT'):
+                        received.append('CUT_HEIGHT')
+                        if line.split('=')[1].strip():
+                            c_height = float(line.split('=')[1].strip())
+                        else:
+                            msg = 'No value for CUT_HEIGHT in Material #{}\n'.format(t_number)
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                    elif line.startswith('CUT_SPEED'):
+                        received.append('CUT_SPEED')
+                        if line.split('=')[1].strip():
+                            c_speed = float(line.split('=')[1].strip())
+                        else:
+                            msg = 'No value for CUT_SPEED in Material #{}\n'.format(t_number)
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                    elif line.startswith('CUT_AMPS'):
+                        if line.split('=')[1].strip():
+                            c_amps = float(line.split('=')[1].strip().replace(' ',''))
+                    elif line.startswith('CUT_VOLTS'):
+                        if line.split('=')[1].strip():
+                            c_volts = float(line.split('=')[1].strip())
+                    elif line.startswith('PAUSE_AT_END'):
+                        if line.split('=')[1].strip():
+                            pause = float(line.split('=')[1].strip())
+                    elif line.startswith('GAS_PRESSURE'):
+                        if line.split('=')[1].strip():
+                            g_press = float(line.split('=')[1].strip())
+                    elif line.startswith('CUT_MODE'):
+                        if line.split('=')[1].strip():
+                            c_mode = float(line.split('=')[1].strip())
+                except:
+                    msg = 'Material file processing was aborted\n'
+                    msg += 'The following line in the material file\n'
+                    msg += 'contains an erroneous character:\n'
+                    msg += '{}'.format(line)
+                    msg += 'Fix the line and reload the material file\n'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MATERIALS ERROR:\n{}'.format(msg))
+                    material_error = True
+                    break
+            if not firstpass and not material_error:
                 self.write_materials(t_number,t_name,k_width,p_height,p_delay,pj_height,pj_delay,c_height,c_speed,c_amps,c_volts,pause,g_press,c_mode,t_item)
                 for item in required:
                     if item not in received:
