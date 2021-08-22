@@ -24,7 +24,6 @@ LOG = logger.getLogger(__name__)
 
 import os
 import subprocess
-from PyQt5 import QtCore, QtMultimedia
 
 # try to add ability for audio feedback to user.
 PY_LIB_GOOD = GST_LIB_GOOD = True
