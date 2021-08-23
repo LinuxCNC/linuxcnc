@@ -562,6 +562,7 @@ class Pages:
             self.w.qtplasmac_info.hide()
             self.page_set_state('vcp', True)
             self.page_set_state('ubuttons', False)
+            self.page_set_state('thcad', False)
         elif w.get_active()+1 == self._p._TOUCHY:
             self.w.Options1.show()
             self.w.touchy_info.set_expanded(True)
@@ -571,6 +572,7 @@ class Pages:
             self.w.qtplasmac_info.hide()
             self.page_set_state('vcp', True)
             self.page_set_state('ubuttons', False)
+            self.page_set_state('thcad', False)
         elif w.get_active()+1 == self._p._TKLINUXCNC:
             self.w.Options1.show()
             self.w.axis_info.hide()
@@ -579,6 +581,7 @@ class Pages:
             self.w.qtplasmac_info.hide()
             self.page_set_state('vcp', True)
             self.page_set_state('ubuttons', False)
+            self.page_set_state('thcad', False)
         elif w.get_active()+1 == self._p._GMOCCAPY:
             self.w.Options1.show()
             self.w.gmcpy_info.set_expanded(True)
@@ -588,6 +591,7 @@ class Pages:
             self.w.qtplasmac_info.hide()
             self.page_set_state('vcp', True)
             self.page_set_state('ubuttons', False)
+            self.page_set_state('thcad', False)
         elif w.get_active()+1 == self._p._QTDRAGON:
             self.w.Options1.show()
             self.w.gmcpy_info.hide()
@@ -596,6 +600,7 @@ class Pages:
             self.w.qtplasmac_info.hide()
             self.page_set_state('vcp', True)
             self.page_set_state('ubuttons', False)
+            self.page_set_state('thcad', False)
         elif w.get_active()+1 == self._p._QTPLASMAC:
             self.w.Options1.hide()
             self.w.qtplasmac_info.set_expanded(True)
@@ -605,6 +610,10 @@ class Pages:
             self.w.touchy_info.hide()
             self.page_set_state('vcp', False)
             self.page_set_state('ubuttons', True)
+            if self.d._arcvpin:
+                self.page_set_state('thcad', True)
+            else:
+                self.page_set_state('thcad', False)
 
     def on_halui_toggled(self, *args):
         i= self.w.halui.get_active()
@@ -1264,6 +1273,9 @@ class Pages:
 
     def thcad_prepare(self):
         self.d.help = "help-thcad.txt"
+        self.w.voltsbox.hide()
+        if self.d._arcvpin:
+            self.w.voltsbox.show()
         self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
         self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
         self.w.voltszerof.set_value(self.d.voltszerof)

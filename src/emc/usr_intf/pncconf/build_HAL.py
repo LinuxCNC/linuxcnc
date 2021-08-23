@@ -380,39 +380,46 @@ class HAL:
             print('error in number of axis identity: ', self.d.axes)
             return
         jnum = 0
+        coords = ['x']
         # Always add X axis
         self.connect_joint(file, jnum, 'x')
         tandemjoint = self.a.tandem_check('x')
         if tandemjoint:
             jnum += 1
+            coords.append('x2')
             self.connect_joint(file, jnum, 'x2')
 
         # Maybe add Y Axis ###################
         if self.d.axes in(0,1):
             jnum += 1
+            coords.append('y')
             self.connect_joint(file, jnum, 'y')
             tandemjoint = self.a.tandem_check('y')
             if tandemjoint:
                 jnum += 1
+                coords.append('y2')
                 self.connect_joint(file, jnum, 'y2')
 
         # Always add Z Axis ##################
         jnum += 1
+        coords.append('z')
         self.connect_joint(file, jnum, 'z')
         tandemjoint = self.a.tandem_check('z')
         if tandemjoint:
             jnum += 1
+            coords.append('z2')
             self.connect_joint(file, jnum, 'z2')
 
         # Maybe add A axis ###################
         if self.d.axes == 1:
             jnum += 1
+            coords.append('a')
             self.connect_joint(file, jnum, 'a')
             tandemjoint = self.a.tandem_check('a')
             if tandemjoint:
                 jnum += 1
+                coords.append('a2')
                 self.connect_joint(file, jnum, 'a2')
-
 
         # qtplasmac doesn't require these:
         if self.d.frontend != _PD._QTPLASMAC:
@@ -428,9 +435,8 @@ class HAL:
             print(_("#  ---HALUI signals---"), file=file)
             print(file=file)
 
-            jnum = 0
-            for axletter in axis_convert:
-                if axletter in self.d.available_axes:
+            for axletter in coords:
+                if len(axletter) == 1:
                     # support for KINEMATICS_IDENTITY kins only
                     # Assumption: gui uses halui teleop jogging for KINEMATICS_IDENTITY configs
                     #             (axis gui does this for joints_axes)
@@ -438,10 +444,10 @@ class HAL:
                     print("net jog-%s-pos      halui.axis.%s.plus"% (axletter,axletter), file=file)
                     print("net jog-%s-neg      halui.axis.%s.minus"% (axletter,axletter), file=file)
                     print("net jog-%s-analog   halui.axis.%s.analog"% (axletter,axletter), file=file)
-
                     # joints only items (no corresponding axis item):
-                    print("net %s-is-homed     halui.joint.%d.is-homed"% (axletter,jnum), file=file)
-                    jnum = jnum + 1 # expect joints in sequence (like trivkins)
+                    print("net %s-is-homed     halui.joint.%d.is-homed"% (axletter,coords.index(axletter)), file=file)
+                else:
+                    print("net %s-is-homed    halui.joint.%d.is-homed"% (axletter,coords.index(axletter)), file=file)
 
             print("net jog-selected-pos      halui.axis.selected.plus", file=file)
             print("net jog-selected-neg      halui.axis.selected.minus", file=file)
@@ -1809,8 +1815,8 @@ class HAL:
         print("# ---modes 1 & 2", file=file)
         print("net plasmac:arc-ok-in        => db_arc-ok.in", file=file)
         print("# ---mode 2", file=file)
-        print("net plasmac:move-up          => plasmac.move-up", file=file)
-        print("net plasmac:move-down        => plasmac.move-down", file=file)
+        print("net plasmac:move-up          <= plasmac.move-up", file=file)
+        print("net plasmac:move-down        <= plasmac.move-down", file=file)
         print("\n# ---PLASMA OUTPUTS---", file=file)
         print("# ---all modes---", file=file)
         print("net plasmac:ohmic-enable     <= plasmac.ohmic-enable", file=file)
@@ -1846,8 +1852,6 @@ class HAL:
             voffset = 0
             print("\n# ---OHMIC SENSE LINK---", file=file)
             print("net plasmac:ohmic-probe <= plasmac.ohmic-sense-out", file=file)
-        else:
-            print("NO OHMIC SENSE")
         # write custom hal file
         chfile = os.path.join(base, "custom.hal")
         if not os.path.exists(chfile):

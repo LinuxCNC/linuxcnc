@@ -3473,9 +3473,11 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     # check for a thcad encoder
                     if "Arc Voltage" in pinchanged:
                         self.d._arcvpin = pin
-                        self.p.page_set_state('thcad', True)
-                    elif pin == self.d._arcvpin and "Arc Voltage" not in pinchanged:
+                    elif self.d._arcvpin == pin:
                         self.d._arcvpin = None
+                    if self.d._arcvpin and self.d.frontend == _PD._QTPLASMAC:
+                        self.p.page_set_state('thcad', True)
+                    else:
                         self.p.page_set_state('thcad', False)
                 # for mux encoder pins
                 elif widgetptype in(_PD.MXE0,_PD.MXE1):
