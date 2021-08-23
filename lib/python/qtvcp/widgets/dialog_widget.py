@@ -363,7 +363,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self._useDesktopNotify = False
         self._frameless = False
         self._curLine = 0
-        self._actionbutton = self.addButton('Pause For Jogging', QMessageBox.ActionRole)
+        self._actionbutton = self.addButton('Pause For Jogging', QMessageBox.ApplyRole)
         self._actionbutton.setEnabled(False)
         self._flag = True
 
@@ -491,7 +491,8 @@ class ToolDialog(LcncDialog, GeometryMixin):
         # force the details box open on first time display
         if self._flag and details != ' Tool Info: ':
             for i in self.buttons():
-                if self.buttonRole(i) == 3:
+                if self.buttonRole(i) == QMessageBox.ActionRole:
+                    if i is self._actionbutton: continue
                     i.click()
                     self._flag = False
         if play_alert:
