@@ -49,10 +49,10 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         self.jograte_angular = False
         self.max_velocity = False
 
-        # for syslesheet dybamic property
+        # for syslesheet dynamic property
         self._alertState = ''
-        self._alertOver = 100
-        self._alertUnder = 50
+        self._alertOver = 100.0
+        self._alertUnder = 50.0
 
     def _hal_init(self):
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
@@ -216,7 +216,24 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         self._alertState = data
     def getAlertState(self):
         return self._alertState
+
+    def setAlertUnder(self, data):
+        self._alertUnder = data
+    def getAlertUnder(self):
+        return self._alertUnder
+    def resetAlertUnder(self):
+        self._alertUnder = 50.0
+
+    def setAlertOver(self, data):
+        self._alertOver = data
+    def getAlertOver(self):
+        return self._alertOver
+    def resetAlertOver(self):
+        self._alertOver = 100.0
+
     alertState = pyqtProperty(str, getAlertState, setAlertState)
+    alertUnder = pyqtProperty(float, getAlertUnder, setAlertUnder, resetAlertUnder)
+    alertOver = pyqtProperty(float, getAlertOver, setAlertOver, resetAlertOver)
 
     ##############################
     # required class boiler code #
