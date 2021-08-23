@@ -1,4 +1,4 @@
-VERSION = '1.0.67'
+VERSION = '1.0.68'
 
 import os, sys
 from shutil import copy as COPY
@@ -1180,14 +1180,15 @@ class HandlerClass:
             ACTION.PAUSE()
 
     def run_pressed(self):
-        if self.startLine and self.runText[:8] == 'SELECTED':
-            self.w.run.setEnabled(False)
-            if self.frButton:
-                self.w[self.frButton].setEnabled(False)
-            self.rflActive = True
-            self.run_from_line()
-        else:
-            ACTION.RUN(0)
+        if not self.run_critical_check():
+            if self.startLine and self.runText[:8] == 'SELECTED':
+                self.w.run.setEnabled(False)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(False)
+                self.rflActive = True
+                self.run_from_line()
+            else:
+                ACTION.RUN(0)
 
     def abort_pressed(self):
         if self.manualCut:
@@ -2372,6 +2373,22 @@ class HandlerClass:
             else:
                 self.button_normal(self.halPulsePins[halpin][0])
 
+    def run_critical_check(self):
+        rcButtonList = []
+        # halTogglePins format is: button name, run critical flag, button text
+        for halpin in self.halTogglePins:
+            if self.halTogglePins[halpin][1] and not hal.get_value(halpin):
+                rcButtonList.append(self.halTogglePins[halpin][2].replace('\n', ' '))
+        if rcButtonList:
+            msg  = '\nButton(s) not toggled:\n'
+            msg += '\n{}'.format('\n'.join(rcButtonList))
+            if self.dialog_show_yesno(QMessageBox.Warning, 'Run Critical Toggle', msg, 'CONTINUE', 'CANCEL'):
+                return False
+            else:
+                return True
+        else:
+            return False
+
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -2579,10 +2596,14 @@ class HandlerClass:
             elif 'framing' in bCode:
                 self.frButton = 'button_{}'.format(str(bNum))
                 self.idleHomedList.append(self.frButton)
-                if 'usecurrentzheight' in bCode.lower():
+                if len(bCode.lower().strip().split()) > 1 and 'usecurrentzheight' in bCode.lower():
                     self.defaultZ = False
-                else:
+                elif len(bCode.lower().strip().split()) == 1:
                     self.defaultZ = True
+                else:
+                    msg = 'Invalid code for user button #{}\n'.format(bNum)
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                    continue
                 self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
                 self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
             elif 'cut-type' in bCode and not self.ctButton:
@@ -2597,7 +2618,15 @@ class HandlerClass:
             elif 'load' in bCode:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'toggle-halpin' in bCode:
-                halpin = bCode.lower().split('toggle-halpin')[1].strip()
+                if len(bCode.lower().strip().split()) > 2 and 'runcritical' in bCode.lower():
+                    critical = True
+                elif len(bCode.lower().strip().split()) == 2:
+                    critical = False
+                else:
+                    msg = 'Invalid code for user button #{}\n'.format(bNum)
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                    continue
+                halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
                 excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
                                 'plasmac.probe-test', 'plasmac.consumable-change')
                 if halpin in excludedHalPins:
@@ -2615,7 +2644,8 @@ class HandlerClass:
                               'HAL pin "{}" does not exist\n'.format(bNum, halpin)
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
                         continue
-                self.halTogglePins[halpin] = ['button_{}'.format(str(bNum))]
+                # halTogglePins format is: button name, run critical flag, button text
+                self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
             elif 'pulse-halpin' in bCode:
                 try:
                     code, halpin, delay = bCode.lower().strip().split()
@@ -2703,7 +2733,7 @@ class HandlerClass:
             self.w.gcode_progress.setValue(0)
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
-            halpin = commands.lower().split('toggle-halpin')[1].strip()
+            halpin = commands.lower().split('toggle-halpin')[1].split(' ')[1].strip()
             try:
                 if halpin in self.halPulsePins and self.halPulsePins[halpin][3] > 0.05:
                     self.halPulsePins[halpin][3] = 0.0
