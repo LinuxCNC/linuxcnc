@@ -168,12 +168,34 @@ X = 106.9
 Y = -16.85
 ----
 
+SilverDragon has two optional probing tab screens:
+[source,{ini}]
+----
+[PROBE]
+#USE_PROBE = versaprobe
+USE_PROBE = basicprobe
+----
+
+QtDragon has two convience buttons for moving between +
+current user system origin (zero point) and Machine system origin  +
+These could also call OWord routines if desired. +
+user origin is the first MDI command in the list, machine origin is the second. +
+This example shows how to move Z axis up first. the commands are separated by the ;
+
+[source,{ini}]
+----
+[MDI_COMMAND_LIST]
+MDI_COMMAND = G0 Z0;X0 Y0
+MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0
+----
+
 The sample configuration
 'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use SilverDragon as its front-end. +
 There are several others, to demonstrate different machine configurations.
 
 == Key Bindings
 SilverDragon is not intended to primarily use a keyboard for machine control. +
+It lacks many keyboatd short cuts that for instance AXIS has - but you can use a mouse. +
 There are several key presses that will control the machine for convenience. +
 ----
 F1 - Estop on/off
@@ -274,6 +296,13 @@ qtdragon.eoffset_count
 qtdragon.eoffset_enable
 qtdragon.eoffset_value
 qtdragon.led_eoffset_limit
+----
+
+These pins reflect the current slider jograte (in machine units):
+[source,{hal}]
+----
+qtdragon.slider_jog_linear
+qtdragon.slider_jog_angular
 ----
 
 == HAL files
