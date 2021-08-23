@@ -885,6 +885,43 @@ This widget allow the user to adjust linuxcnc setting via a slide. +
 * spindle override rate
 * Rapid override rate
 
+==== Properties
+StatusSlider has properties that can be set in designer, in python handler code or +
+(if appropriate) in stylesheets.
+
+
+* halpin_option - sets option to make a HAL float pin that reflects current value.
+* rapid_rate - selects a rapid override rate slider
+* feed_rate - selects a feed override rate slider
+* spindle_rate - selects a spindle override rate slider
+* jograte_rate - selects a linear jograte slider
+* jograte_angular_rate - selects a angular jograte slider
+* max_velocity_rate - selects a maximum velocity rate slider
+* alertState - a string to define style change. (read-only - 'under','over' and 'normal')
+* alertUnder - set the float value that signals the stylesheet for 'under' warning.
+* alertOver - set the float value that signals the stylesheet for 'over' warning.
+
+ie. In handler file:
+[source,python]
+----
+self.w.status_slider.setProperty('spindle_rate',True)
+self.w.status_slider.setProperty('alertUnder',35)
+self.w.status_slider.setProperty('alertOver',100)
+----
+
+ie. In style sheets:
+----
+/* warning colors for overrides if out of normal range*/
+/* widget object name is slider_spindle_ovr */
+
+    #slider_spindle_ovr[alertState='over'] {
+        background: red;
+    }
+    #slider_spindle_ovr[alertState='under'] {
+        background: yellow;
+    }
+----
+
 It is based on pyQT's QSlider
 
 ===  State LED Widget
@@ -1275,7 +1312,7 @@ ToolOfsetView has properties that can be set in designer, in python handler code
 * test_dialog_code_string - sets which dialog will pop up with text entry.
 * metric_template - metric numerical data format.
 * imperial_template - imperial numerical data format.
-* styleCodeHighlight - current in-use highlight color.
+* styleCodeHighlight - current tool-in-use highlight color.
 * styleCodeSelected - selected highlight color
 
 ie. In handler file:
@@ -1299,12 +1336,14 @@ ToolOffsetView has some function that are useful for screen builders to add acti
 * add_tool() - adds a blank dummy tool (99) that the user can edit to suit.
 * delete_tools() - deletes the currently checkbox selected tools
 * get_checked_list() - returns a list of tools selected by checkboxs.
+* set_all_unchecked() - uncheck all selected tools.
 
 [source,python]
 ----
 self.w.tooloffsetview.add_tool()
 self.w.tooloffsetview.delete_tools()
 toolList = self.w.tooloffsetview.get_checked_list()
+self.w.tooloffsetview.set_all_unchecked()
 ----
 
 === BasicProbe

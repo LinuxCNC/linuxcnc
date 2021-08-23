@@ -306,6 +306,8 @@ ACTION.BEEP():
 ACTION.BEEP_RING():
 ACTION.BEEP_START():
 
+ACTION.SET_DISPLAY_MESSAGE(string)
+ACTION.SET_ERROR_MESSAGE(string)
 ----
 There are some 'helper functions' - mostly used for this library's support +
 [source,python]
