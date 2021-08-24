@@ -19,13 +19,28 @@ table th {
 </head>
 <body>
 
+<br><b><u>v1.0.69 2021 Aug 23</u></b>
+<ul style="margin:0;">
+  <li>manual cut enhancements:</li>
+<ol>
+  <li>automatically set the jog slider to the feed rate of the currently selected material</li>
+  <li>automatically return the jog slider to the previous value after manual cut</li>
+  <li>blink jog speed to show it is being overridden</li>
+  <li>disable jog speed manipulation during manual cut</li>
+  <li>disable Z jog during manual cut to prevent errors</li>
+  <li>CYCLE START will change to MANUAL CUT and blink</li>
+</ol>
+  <li>docs updates</li>
+</ul>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
+
 <br><b><u>v1.0.68 2021 Aug 22</u></b>
 <ul style="margin:0;">
   <li>allow toggle-halpin buttons to be marked "runcritical"</li>
   <li>check for spelling errors in a framing button using "usecurrentzheight"</li>
   <li>docs updates</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.67 2021 Aug 21</u></b>
 <ul style="margin:0;">
@@ -36,11 +51,13 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>docs updates</li>
   <li>add material file processing exception handling</li>
   <li>enhance pulse-halpin button code to:</li>
-  <li>1. display countdown timer on the button</li>
-  <li>2. allow canceling of a pulse by clicking the button again</li>
-  <li>3. allow canceling of a pulse by clicking a toggle-halpin button controlling the same halpin</li>
+<ol>
+  <li>display countdown timer on the button</li>
+  <li>allow canceling of a pulse by clicking the button again</li>
+  <li>allow canceling of a pulse by clicking a toggle-halpin button controlling the same halpin</li>
+</ol>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.66 2021 Aug 13</u></b>
 <ul style="margin:0;">
@@ -53,13 +70,13 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>load default material after a successful run with a temp material</li>
   <li>docs update</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.64 2021 Aug 11</u></b>
 <ul style="margin:0;">
   <li>Add scale for external height override</li>
 </ul>
-Changes submitted by fupeama (Martin Kaplan)<br>
+<i>Changes submitted by fupeama (Martin Kaplan)</i><br>
 
 <br><b><u>v1.0.63 2021 Aug 11</u></b>
 <ul style="margin:0;">
@@ -70,26 +87,26 @@ Changes submitted by fupeama (Martin Kaplan)<br>
 <ul style="margin:0;">
   <li>fix manual cut AttributeError for those without a Manual Cut button</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.61 2021 Aug 08</u></b>
 <ul style="margin:0;">
   <li>fix usecurrentzheight for framing button code</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.60 2021 Aug 03</u></b>
 <ul style="margin:0;">
   <li>fix exception handling for button code</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.59 2021 Aug 02</u></b>
 <ul style="margin:0;">
   <li>tidy previously submitted handler code</li>
   <li>update docs</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.58 2021 Aug 02</u></b>
 <ul style="margin:0;">
@@ -103,7 +120,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>create qtplasmac.thc_feed_rate pin and net to plasmac.thc-feed-rate for setting with the handler</li>
   <li>remove whitespace from handler</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.56 2021 Jul 26</u></b>
 <ul style="margin:0;">
@@ -119,12 +136,12 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
 <ul style="margin:0;">
   <li>add external pins ext_height_ovr_plus, ext_height_ovr_minus, ext_height_ovr_reset</li>
 </ul>
-Changes submitted by fupeama (Martin Kaplan)<br>
+<i>Changes submitted by fupeama (Martin Kaplan)</i><br>
 <ul style="margin:0;">
   <li>probe test can be canceled via cycle stop or esc key</li>
   <li>make manual cut button activate during manual cut</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.53 2021 Jul 18</u></b>
 <ul style="margin:0;">
@@ -142,7 +159,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>add probe test specific error messages</li>
   <li>update error message section of docs</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.50 2021 Jul 08</u></b>
 <ul style="margin:0;">
@@ -180,7 +197,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
 <ul style="margin:0;">
   <li>g-code parser - limit first Z move number of decimal places to 3</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.43 2021 Jun 22</u></b>
 <ul style="margin:0;">
@@ -284,7 +301,7 @@ Change submitted by snowgoer540 (Greg Carl)<br>
   <li>more conversational entry checks</li>
   <li>tidy a few more error messages</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.26 2021 Apr 25</u></b>
   <ul style="margin:0;">
@@ -294,7 +311,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>add more validity checks for custom user buttons</li>
   <li>more conversational entry checks</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.25 2021 Apr 21</u></b>
   <ul style="margin:0;">
@@ -313,7 +330,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>update bounds_check code to prevent errors due to language issues</li>
   <li>doc updates to explain returning to the default styling and to fix typos</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.22 2021 Apr 20</u></b>
   <ul style="margin:0;">
@@ -336,7 +353,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>align torch pulse code with probe test code</li>
   <li>doc updates for clarity</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.19 2021 Apr 16</u></b>
   <ul style="margin:0;">
@@ -372,13 +389,13 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>added exception handling to the m190 script to prevent erroneous errors in terminal</li>
   <li>minor docs changes</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.13 2021 Apr 10</u></b>
   <ul style="margin:0;">
   <li>fix abort via escape key</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.12 2021 Apr 9</u></b>
   <ul style="margin:0;">
@@ -397,7 +414,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>3. exiting the gcode editor if the program did not load properly</li>
   <li>4. canceling a file load if there was previously an error</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.10 2021 Apr 05</u></b>
  <ul style="margin:0;">
@@ -414,7 +431,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>add arc on registry reads to pmx485.py</li>
   <li>add pmx arc on panel to statistics tab</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v1.0.7 2021 Mar 26</u></b>
  <ul style="margin:0;">
@@ -459,7 +476,7 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
   <li>fix conversational error messages</li>
   <li>add kerf offset lead in check to star</li>
 </ul>
-Changes submitted by snowgoer540 (Greg Carl)<br>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 
 <br><b><u>v0.9.54 2021 Mar 12</u></b>
  <ul style="margin:0;">
@@ -530,74 +547,71 @@ Changes submitted by snowgoer540 (Greg Carl)<br>
 
 <br><b><u>v0.9.43 2021 Feb 25</u></b>
  <ul style="margin:0;">
-   <li>fix scaling block</li>
-</ul>
-
-   <li>fix cut recovery cancel feed rate</li>
-   <li>clear cut recovery offsets when cycle stop pressed</li>
-   <li>fix consumable change interlocks</li>
-   <li>pause consumable change when sensors tripped</li>
-   <li>don't accumulate statistics when torch disabled</li>
-   <li></li>
+  <li>fix scaling block</li>
+  <li>fix cut recovery cancel feed rate</li>
+  <li>clear cut recovery offsets when cycle stop pressed</li>
+  <li>fix consumable change interlocks</li>
+  <li>pause consumable change when sensors tripped</li>
+  <li>don't accumulate statistics when torch disabled</li>
 </ul>
 
 <br><b><u>v0.9.41 2021 Feb 20</u></b>
  <ul style="margin:0;">
-   <li>ensure offsets are correctly cleared</li>
+  <li>ensure offsets are correctly cleared</li>
 </ul>
 
 <br><b><u>v0.9.40 2021 Feb 19</u></b>
  <ul style="margin:0;">
-   <li>add statistics tab</li>
+  <li>add statistics tab</li>
 </ul>
 
 <br><b><u>v0.9.39 2021 Feb 16</u></b>
  <ul style="margin:0;">
-   <li>fix conversational material error</li>
+  <li>fix conversational material error</li>
 </ul>
 
 <br><b><u>v0.9.38 2021 Feb 15</u></b>
  <ul style="margin:0;">
-   <li>comment out commit #3368c01</li>
+  <li>comment out commit #3368c01</li>
 </ul>
 
 <br><b><u>v0.9.37 2021 Feb 15</u></b>
  <ul style="margin:0;">
-   <li>don't allow jogs while run not complete</li>
-   <li>stop run timer if powered off</li>
-   <li>remove a debug print</li>
-   <li>print #<keep-z-motion> if used</li>
+  <li>don't allow jogs while run not complete</li>
+  <li>stop run timer if powered off</li>
+  <li>remove a debug print</li>
+  <li>print #<keep-z-motion> if used</li>
 </ul>
 
 <br><b><u>v0.9.36 2021 Feb 14</u></b>
  <ul style="margin:0;">
-   <li>fix start error if no consumable change setting</li>
+  <li>fix start error if no consumable change setting</li>
 </ul>
 
 <br><b><u>v0.9.35 2021 Feb 13</u></b>
  <ul style="margin:0;">
-   <li>fix keyboard handler for file dialogs</li>
+  <li>fix keyboard handler for file dialogs</li>
 </ul>
 
 <br><b><u>v0.9.34 2021 Feb 13</u></b>
  <ul style="margin:0;">
-   <li>fix change-consumables</li>
+  <li>fix change-consumables</li>
 </ul>
 
 <br><b><u>v0.9.33 2021 Feb 13</u></b>
  <ul style="margin:0;">
-   <li>allow users custom styles</li>
+  <li>allow users custom styles</li>
 </ul>
 
 <br><b><u>v0.9.32 2020 Feb 13</u></b>
  <ul style="margin:0;">
-   <li>fix interlocks when ofsets are active</li>
-   <li>match sim panel colors to gui colors</li>
+  <li>fix interlocks when ofsets are active</li>
+  <li>match sim panel colors to gui colors</li>
 </ul>
 
 <br><b><u>v0.9.31 2021 Feb 12</u></b>
  <ul style="margin:0;">
-   <li>style the sim panel</li>
+  <li>style the sim panel</li>
 </ul>
 
 <br><b><u>v0.9.30 2021 Feb 01</u></b>

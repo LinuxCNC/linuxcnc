@@ -1,4 +1,4 @@
-VERSION = '1.0.68'
+VERSION = '1.0.69'
 
 import os, sys
 from shutil import copy as COPY
@@ -683,6 +683,7 @@ class HandlerClass:
         self.runButtonTimer.setSingleShot(True)
         self.runButtonTimer.timeout.connect(self.run_button_timeout)
         self.manualCut = False
+        self.slowJogClicked = False
         self.probeTest = False
 
     def get_overlay_text(self, kerf):
@@ -1482,7 +1483,7 @@ class HandlerClass:
             slider.setMaximum(max / self.slowJogFactor)
             slider.setValue(current / self.slowJogFactor)
             slider.setPageStep(10)
-        elif self.w.jog_slow.text()== 'SLOW':
+        elif self.w.jog_slow.text() == 'SLOW':
             self.w.jog_slow.setText('FAST')
             slider.setMaximum(max * self.slowJogFactor)
             slider.setValue(current * self.slowJogFactor)
@@ -1965,7 +1966,7 @@ class HandlerClass:
             if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
                (self.offsetsActivePin.get() and not self.manualCut) or self.runButtonTimer.isActive():
                 return
-            if shift or self.jogFast:
+            if (shift or self.jogFast) and not self.manualCut:
                 rate = INFO.MAX_LINEAR_JOG_VEL
             elif self.jogSlow and not self.w.jog_slow.text() == 'SLOW':
                 rate = STATUS.get_jograte()/60/self.slowJogFactor
@@ -2420,6 +2421,10 @@ class HandlerClass:
                 self.w.rapid_label.setText(' \n ')
         else:
             self.w.rapid_label.setText('RAPID\n{:.0f}%'.format(STATUS.stat.rapidrate * 100))
+        if self.manualCut and 'JOG' in self.w.jogs_label.text():
+            self.w.jogs_label.setText(' \n ')
+        else:
+            self.w.jogs_label.setText('JOG\n{:.0f}'.format(STATUS.get_jograte()))
         if self.heightOvr > 0.01 or self.heightOvr < -0.01:
             if self.w.height_ovr_label.text() == '':
                 self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
@@ -2427,13 +2432,18 @@ class HandlerClass:
                 self.w.height_ovr_label.setText('')
         else:
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
+        if self.manualCut:
+            if self.w.run.text() == '':
+                self.w.run.setText('MANUAL CUT')
+            else:
+                self.w.run.setText('')
         if self.startLine > 0:
             if not self.w.run.text().startswith('RUN'):
                 if self.w.run.text() == (''):
                     self.w.run.setText(self.runText)
                 else:
                     self.w.run.setText('')
-        else:
+        elif not self.manualCut:
             self.w.run.setText('CYCLE START')
         if not self.w.pmx485_enable.isChecked():
             self.w.pmx485_label.setText('')
@@ -2501,7 +2511,17 @@ class HandlerClass:
             self.w.run.setEnabled(True)
             if self.frButton:
                 self.w[self.frButton].setEnabled(True)
-        self.manualCut = False
+        if self.manualCut == True:
+            self.manualCut = False
+            if self.slowJogClicked == True:
+                self.jog_slow_clicked(True)
+                self.slowJogClicked = False
+            self.w.jog_slider.setValue(self.previousJogSpeed)
+            self.w.jog_slider.setEnabled(True)
+            self.w.jogs_label.setEnabled(True)
+            self.w.jog_slow.setEnabled(True)
+            self.w.jog_z_plus.setEnabled(True)
+            self.w.jog_z_minus.setEnabled(True)
         self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
 
     def pulse_timer_timeout(self):
@@ -3083,6 +3103,17 @@ class HandlerClass:
         ACTION.OPEN_PROGRAM(newFile)
 
     def manual_cut(self):
+        if not self.manualCut:
+            self.previousJogSpeed = self.w.jog_slider.value()
+            if self.w.jog_slow.text() == 'SLOW':
+                self.slowJogClicked = True
+                self.jog_slow_clicked(False)
+            self.w.jog_slider.setValue(self.w.cut_feed_rate.value())
+            self.w.jog_slider.setEnabled(False)
+            self.w.jogs_label.setEnabled(False)
+            self.w.jog_slow.setEnabled(False)
+            self.w.jog_z_plus.setEnabled(False)
+            self.w.jog_z_minus.setEnabled(False)
         if STATUS.is_spindle_on():
             ACTION.SET_SPINDLE_STOP(0)
             self.w.abort.setEnabled(False)
@@ -4968,14 +4999,14 @@ class HandlerClass:
                 self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not self.manualCut:
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), 1, shift)
             else:
                 self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not self.manualCut:
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), -1, shift)
             else:
@@ -5010,7 +5041,7 @@ class HandlerClass:
                 self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
-        if self.jogSlow:
+        if self.jogSlow or self.manualCut:
             return
         if state:
             self.jogFast = True
@@ -5018,7 +5049,7 @@ class HandlerClass:
             self.jogFast = False
 
     def on_keycall_MINUS(self, event, state, shift, cntrl):
-        if self.jogFast:
+        if self.jogFast or self.manualCut:
             return
         if state:
             self.jogSlow = True
@@ -5040,12 +5071,12 @@ class HandlerClass:
                 else:
                     self.w.feed_slider.setValue(100)
             else:
-                if number:
+                if number and not self.manualCut:
                     if self.w.jog_slow.text() == 'SLOW':
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number / self.slowJogFactor)
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number)
-                else:
+                elif not self.manualCut:
                     if self.w.jog_slow.text() == 'SLOW':
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL / self.slowJogFactor)
                     else:
