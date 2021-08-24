@@ -1982,17 +1982,18 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 
 Manual single cut requires that either <<qt_keyboard-shortcuts, keyboard shortcuts>> are enabled in the GUI SETTINGS section of the PARAMETERS Tab, or a custom user button is specified as a <<qt_button-mancut, manual cut>> button.
 
-If using a custom user button then sustitute *F9* with *User Button* in the following description.
+If the user is using a custom user button then substitute *F9* with *User Button* in the following description.
 
 . Jog to the required X/Y start position. +
-. Set the required feed rate with the Jog Speed slider. +
-. Start the procedure by pressing *F9*. +
+. Start the procedure by pressing *F9*. The jog speed will be automatically set to the feed rate of the currently selected material. The jog label will blink to indicate that the jog speed is temporarily being overridden (jog speed manipulation will be disabled while a manual cut is active). *CYCLE START* will change to *MANUAL CUT* and blink. +
 . After probing the torch will fire. +
 . When the Arc OK is received the machine can be jogged along the cut line using the jog keys. +
+. The Z height will remain locked at the cut height for the duration of the manual cut, regardless of the Torch Height Controller *ENABLE* status.
 . When the cut is complete press *F9* or *Esc* or the *CYCLE STOP* button. +
-. The torch will turn off and the Z axis will return to the starting position.
+. The torch will turn off and the Z axis will return to the starting position. +
+. The jog speed will automatically be returned to the value it was prior to initiating the manual cut process, the label will stop blinking and the jog speed manipulation will be enabled. *MANUAL CUT* will stop blinking and revert to *CYCLE START*.
 
-NOTE: If the torch flames out during cutting, the user must still press *F9* or *Esc* to end the cut. This clears the Z offsets and returns the torch to the starting position.
+NOTE: If the torch flames out during cutting, the user must still press *F9* or *Esc* or the *CYCLE STOP* button to end the cut. This clears the Z offsets and returns the torch to the starting position.
 
 [[qt_mesh-mode]]
 
