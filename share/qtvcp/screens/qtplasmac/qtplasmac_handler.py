@@ -1,4 +1,4 @@
-VERSION = '1.0.69'
+VERSION = '1.0.70'
 
 import os, sys
 from shutil import copy as COPY
@@ -304,8 +304,6 @@ class HandlerClass:
         self.CUT_REC_ON     = 23
         self.CUT_REC_OFF    = 24
         self.DEBUG          = 25
-
-        print("head = {}".format(_translate('HandlerClass', 'Unsaved Changes')))
 
     def initialized__(self):
         # ensure we get all startup errors
