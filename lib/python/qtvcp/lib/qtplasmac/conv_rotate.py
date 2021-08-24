@@ -1,7 +1,7 @@
 '''
 conv_rotate.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,9 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 from shutil import copy as COPY
 from re import compile as COMPILE
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
+
+_translate = QCoreApplication.translate
 
 def cancel(P, W):
     COPY(P.fNgcBkp, P.fNgc)
@@ -44,31 +46,35 @@ def preview(P, W):
     global PARAMS
     PARAMS = {}
     if P.dialogError: return
-    msg = ''
+    msg = []
     try:
         if W.aEntry.text():
             angle = float(W.aEntry.text())
         else:
             angle = 0
     except:
-        msg += 'ANGLE\n'
+        msg.append(_translate('Conversational', 'ANGLE'))
+    text = _translate('Conversational', 'OFFSET')
     try:
         if W.xEntry.text():
             xOffset = float(W.xEntry.text())
         else:
             xOffset = 0
     except:
-        msg += 'X OFFSET\n'
+        msg.append(_translate('Conversational', 'X {}'.format(text)))
     try:
         if W.yEntry.text():
             yOffset = float(W.yEntry.text())
         else:
             yOffset = 0
     except:
-        msg += 'Y OFFSET\n'
+        msg.append(_translate('Conversational', 'Y {}'.format(text)))
     if msg:
-        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        error_set(P, W, errMsg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, W, '{}:\n\n{}'.format(msg0, msg1))
         return
     if not angle and not xOffset and not yOffset:
         cancel(P, W)
@@ -211,7 +217,7 @@ def rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords):
             coords[clist.index('y')] = lastCoords[clist.index('y')]
         # calculate new coordinates
         if len(coords[clist.index('g')]):
-            newLine = 'g{}'.format(coords[clist.index('g')]) 
+            newLine = 'g{}'.format(coords[clist.index('g')])
         s = math.sin(math.radians(angle))
         c = math.cos(math.radians(angle))
         # attempt to create a float from the x/y coordinates
@@ -220,22 +226,22 @@ def rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords):
             y = float(coords[clist.index('y')].replace('[','(').replace(']',')'))
             xo = float(xOffset)
             yo = float(yOffset)
-            newLine += ' x{:.6f}'.format(x * c - y * s + xo) 
-            newLine += ' y{:.6f}'.format(y * c + x * s + yo) 
+            newLine += ' x{:.6f}'.format(x * c - y * s + xo)
+            newLine += ' y{:.6f}'.format(y * c + x * s + yo)
         # otherwise use the original x/y calculation
         except:
-            newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, coords[clist.index('y')], s, xOffset) 
-            newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, coords[clist.index('x')], s, yOffset) 
+            newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, coords[clist.index('y')], s, xOffset)
+            newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, coords[clist.index('x')], s, yOffset)
 
             # if coords[clist.index('x')] and coords[clist.index('y')]:
-            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, coords[clist.index('y')], s, xOffset) 
-            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, coords[clist.index('x')], s, yOffset) 
+            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, coords[clist.index('y')], s, xOffset)
+            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, coords[clist.index('x')], s, yOffset)
             # elif coords[clist.index('x')]:
-            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, lastCoords[clist.index('y')], s, xOffset) 
-            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(lastCoords[clist.index('y')], c, coords[clist.index('x')], s, yOffset) 
+            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(coords[clist.index('x')], c, lastCoords[clist.index('y')], s, xOffset)
+            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(lastCoords[clist.index('y')], c, coords[clist.index('x')], s, yOffset)
             # elif coords[clist.index('y')]:
-            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(lastCoords[clist.index('x')], c, coords[clist.index('y')], s, xOffset) 
-            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, lastCoords[clist.index('x')], s, yOffset) 
+            #     newLine += ' x[{}*{:.6f}-{}*{:.6f}+{}]'.format(lastCoords[clist.index('x')], c, coords[clist.index('y')], s, xOffset)
+            #     newLine += ' y[{}*{:.6f}+{}*{:.6f}+{}]'.format(coords[clist.index('y')], c, lastCoords[clist.index('x')], s, yOffset)
 
 
         # do arc calculations
@@ -250,8 +256,8 @@ def rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords):
                     newLine += (' j{:.6f}'.format(j * c + i * s))
                 # otherwise use the original i/j calculation
                 except:
-                    newLine += ' i[{}*{:.6f}-{}*{:.6f}]'.format(coords[clist.index('i')], c, coords[clist.index('j')], s) 
-                    newLine += ' j[{}*{:.6f}+{}*{:.6f}]'.format(coords[clist.index('j')], c, coords[clist.index('i')], s) 
+                    newLine += ' i[{}*{:.6f}-{}*{:.6f}]'.format(coords[clist.index('i')], c, coords[clist.index('j')], s)
+                    newLine += ' j[{}*{:.6f}+{}*{:.6f}]'.format(coords[clist.index('j')], c, coords[clist.index('i')], s)
             # radius format arc
             else:
                 # attempt to create a float from the r value
@@ -260,7 +266,7 @@ def rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords):
                     newLine += (' r{:.6f}'.format(r))
                 # otherwise use the original r calculation
                 except:
-                    newLine += ' r[{}]'.format(coords[clist.index('r')]) 
+                    newLine += ' r[{}]'.format(coords[clist.index('r')])
         # save the coordinates
         for co in coords:
             if co:
@@ -271,20 +277,21 @@ def rotate(P, W, angle, xOffset, yOffset, line, relative, lastCoords):
 def error_set(P, W, msg):
     cancel(P, W)
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Rotate Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Rotate Error'), msg)
 
 def widgets(P, W):
     #widgets
-    W.aLabel = QLabel('ANGLE')
+    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.aEntry = QLineEdit('0.0', objectName='aEntry')
-    W.xLabel = QLabel('X OFFSET')
+    text = _translate('Conversational', 'OFFSET')
+    W.xLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
     W.xEntry = QLineEdit('0.0', objectName = 'xsEntry')
-    W.yLabel = QLabel('Y OFFSET')
+    W.yLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
     W.yEntry = QLineEdit('0.0', objectName = 'ysEntry')
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('ROTATING SHAPE')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'ROTATING SHAPE'))
     #alignment and size
     rightAlign = ['aLabel', 'aEntry', 'xLabel', 'xEntry', 'yLabel', 'yEntry']
     centerAlign = ['lDesc']

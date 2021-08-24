@@ -1,7 +1,7 @@
 '''
 conv_slot.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -20,28 +20,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
+
+_translate = QCoreApplication.translate
 
 def preview(P, W):
     if P.dialogError: return
     length = width = 0
+    msg = []
     try:
         if W.lEntry.text():
             length = float(W.lEntry.text())
     except:
-        msg = 'Invalid LENGTH entry detected.\n'
-        error_set(P, msg)
-        return
+        msg.append(_translate('Conversational', 'LENGTH'))
     try:
         if W.wEntry.text():
             width = float(W.wEntry.text())
             radius = width / 2
     except:
-        msg = 'Invalid WIDTH entry detected.\n'
-        error_set(P, msg)
-        return
+        msg.append(_translate('Conversational', 'WIDTH'))
     if length > 0 and width > 0 and length >= width:
         blLength = math.sqrt((length / 2) ** 2 + width ** 2)
         blAngle = math.atan(width / (length / 2))
@@ -52,27 +51,21 @@ def preview(P, W):
             else:
                 angle = 0.0
         except:
-            msg = 'Invalid ANGLE entry detected.\n'
-            error_set(P, msg)
-            return
+            msg.append(_translate('Conversational', 'ANGLE'))
         try:
             if W.liEntry.text():
                 leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
             else:
                 leadInOffset = 0
         except:
-            msg = 'Invalid LEAD IN entry detected.\n'
-            error_set(P, msg)
-            return
+            msg.append(_translate('Conversational', 'LEAD IN'))
         try:
             if W.loEntry.text():
                 leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
             else:
                 leadOutOffset = 0
         except:
-            msg = 'Invalid LEAD OUT entry detected.\n'
-            error_set(P, msg)
-            return
+            msg.append(_translate('Conversational', 'LEAD OUT'))
         right = math.radians(0)
         up = math.radians(90)
         left = math.radians(180)
@@ -80,11 +73,10 @@ def preview(P, W):
         try:
             kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
         except:
-            msg = 'Invalid Kerf Width entry in material detected.\n'
-            error_set(P, msg)
-            return
+            msg.append(_translate('Conversational', 'KERF'))
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        text = _translate('Conversational', 'ORIGIN')
         try:
             if W.center.isChecked():
                 xS = float(W.xsEntry.text()) + (width / 2) * math.cos(angle + up)
@@ -94,9 +86,7 @@ def preview(P, W):
                 else:
                     xS = (float(W.xsEntry.text()) - kOffset) + blLength * math.cos(angle + right + blAngle)
         except:
-            msg = 'Invalid X ORIGIN entry detected.\n'
-            error_set(P, msg)
-            return
+            msg.append('X {}'.format(text))
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
         try:
@@ -108,8 +98,13 @@ def preview(P, W):
                 else:
                     yS = (float(W.ysEntry.text()) - kOffset) + blLength * math.sin(angle + right + blAngle)
         except:
-            msg = 'Invalid Y ORIGIN entry detected.\n'
-            error_set(P, msg)
+            msg.append('Y {}'.format(text))
+        if msg:
+            msg0 = _translate('Conversational', 'Invalid entry detected in')
+            msg1 = ''
+            for m in msg:
+                msg1 += '{}\n'.format(m)
+            error_set(P, '{}:\n\n{}'.format(msg0, msg1))
             return
         if W.cExt.isChecked():
             dir = [up, left, right]
@@ -201,19 +196,34 @@ def preview(P, W):
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
     else:
-        msg = ''
+        msg = []
+        pos = False
+        if length <= 0 or width <= 0:
+            text = _translate('Conversational', 'A positive value is required for')
+            msg.append('{}:\n\n'.format(text))
+            pos = True
         if length <= 0:
-            msg += 'A positive LENGTH is required.\n\n'
+            msg.append(_translate('Conversational', 'LENGTH'))
         if width <= 0:
-            msg += 'A positive WIDTH is required.\n\n'
+            msg.append(_translate('Conversational', 'WIDTH'))
         if length < width:
-            msg += 'LENGTH must be greater than or equal to WIDTH'
-        error_set(P, msg)
+            if pos:
+                msg.append('\n\n')
+            m0 = _translate('Conversational', 'LENGTH')
+            m1 = _translate('Conversational', 'must be greater than or equal to')
+            m2 = _translate('Conversational', 'WIDTH')
+            msg.append('{} {} {}'.format(m0, m1, m2))
+        if msg:
+            msg0 = ''
+            for m in msg:
+                msg0 += '{}\n'.format(m)
+            error_set(P, '{}\n'.format(msg0))
+            return
 
 def error_set(P, msg):
     P.conv_undo_shape()
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Slot Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Slot Error'), msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
@@ -222,17 +232,27 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
+    msg = []
     try:
-        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-            W.kOffset.setEnabled(False)
-            W.kOffset.setChecked(False)
-        else:
-            W.kOffset.setEnabled(True)
+        li = float(W.liEntry.text())
     except:
-        msg = 'Invalid LEAD IN entry detected.\n'
-        error_set(P, msg)
+        msg.append(_translate('Conversational', 'LEADIN'))
+    try:
+        kw = float(W.kerf_width.value())
+    except:
+        msg.append(_translate('Conversational', 'KERF'))
+    if msg:
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
+    if char == "operator" or not W.liEntry.text() or li == 0 or li <= kw / 2:
+        W.kOffset.setEnabled(False)
+        W.kOffset.setChecked(False)
+    else:
+        W.kOffset.setEnabled(True)
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -241,40 +261,41 @@ def undo_pressed(P, W):
     P.conv_undo_shape()
 
 def widgets(P, W):
-    W.ctLabel = QLabel('CUT TYPE')
+    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton('EXTERNAL')
+    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
     W.cExt.setChecked(True)
     W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton('INTERNAL')
+    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('KERF')
-    W.kOffset = QPushButton('OFFSET')
+    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
     W.kOffset.setCheckable(True)
-    W.spLabel = QLabel('START')
+    W.spLabel = QLabel(_translate('Conversational', 'START'))
     W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton('CENTER')
+    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton('BTM LEFT')
+    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
     W.spGroup.addButton(W.bLeft)
-    W.xsLabel = QLabel('X ORIGIN')
+    text = _translate('Conversational', 'ORIGIN')
+    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
     W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel('Y ORIGIN')
+    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
     W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-    W.liLabel = QLabel('LEAD IN')
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel('LEAD OUT')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    W.lLabel = QLabel('LENGTH')
+    W.lLabel = QLabel(_translate('Conversational', 'LENGTH'))
     W.lEntry = QLineEdit()
-    W.wLabel = QLabel('WIDTH')
+    W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
     W.wEntry = QLineEdit()
-    W.aLabel = QLabel('ANGLE')
+    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.aEntry = QLineEdit('0.0', objectName='aEntry')
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('CREATING SLOT')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING SLOT'))
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_slot_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)

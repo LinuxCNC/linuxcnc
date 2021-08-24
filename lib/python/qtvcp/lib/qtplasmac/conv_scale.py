@@ -21,9 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 from shutil import copy as COPY
 from re import compile as COMPILE
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
+
+_translate = QCoreApplication.translate
 
 def cancel(P, W):
     COPY(P.fNgcBkp, P.fNgc)
@@ -42,33 +44,38 @@ def accept(P, W):
 
 def preview(P, W):
     if P.dialogError: return
-    msg = ''
+    msg = []
     try:
         if W.scEntry.text():
             scale = float(W.scEntry.text())
         else:
             scale = 1
         if scale == 0:
-            msg += 'SCALE (greater than zero is required)\n'
+            scale = 1
+            W.scEntry.setText('1')
     except:
-        msg += 'SCALE\n'
+        msg.append(_translate('Conversational', 'SCALE'))
+    text = _translate('Conversational', 'OFFSET')
     try:
         if W.xEntry.text():
             xOffset = float(W.xEntry.text())
         else:
             xOffset = 0
     except:
-        msg += 'X OFFSET\n'
+        msg.append(_translate('Conversational', 'X {}'.format(text)))
     try:
         if W.yEntry.text():
             yOffset = float(W.yEntry.text())
         else:
             yOffset = 0
     except:
-        msg += 'Y OFFSET\n'
+        msg.append(_translate('Conversational', 'Y {}'.format(text)))
     if msg:
-        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        error_set(P, W, errMsg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, W, '{}:\n\n{}'.format(msg0, msg1))
         return
     if scale == 1 and not xOffset and not yOffset:
         cancel(P, W)
@@ -196,20 +203,21 @@ def scale_shape(P, W, scale, line, xOffset, yOffset):
 def error_set(P, W, msg):
     cancel(P, W)
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Scaling Error'), msg)
 
 def widgets(P, W):
     #widgets
-    W.scLabel = QLabel('SCALE')
+    W.scLabel = QLabel(_translate('Conversational', 'SCALE'))
     W.scEntry = QLineEdit('1.0')
-    W.xLabel = QLabel('X OFFSET')
+    text = _translate('Conversational', 'OFFSET')
+    W.xLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
     W.xEntry = QLineEdit('0.0', objectName = 'xsEntry')
-    W.yLabel = QLabel('Y OFFSET')
+    W.yLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
     W.yEntry = QLineEdit('0.0', objectName = 'ysEntry')
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('SCALING SHAPE')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'SCALING SHAPE'))
     #alignment and size
     rightAlign = ['scLabel', 'scEntry', 'xLabel', 'xEntry', 'yLabel', 'yEntry']
     centerAlign = ['lDesc']

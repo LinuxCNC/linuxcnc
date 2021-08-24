@@ -1,7 +1,7 @@
 '''
 conv_settings.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -23,36 +23,42 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+_translate = QCoreApplication.translate
+
 def save(P, W):
     if P.dialogError: return
-    msg = ''
+    msg = []
     P.preAmble = W.preEntry.text()
     P.postAmble = W.pstEntry.text()
     P.origin = W.center.isChecked()
     try:
         P.leadIn = float(W.liEntry.text())
     except:
-        msg += 'LEAD IN\n'
+        msg.append(_translate('Conversational', 'LEAD IN'))
     try:
         P.leadOut = float(W.loEntry.text())
     except:
-        msg += 'LEAD OUT\n'
+        msg.append(_translate('Conversational', 'LEAD OUT'))
     try:
         P.holeDiameter = float(W.hdEntry.text())
     except:
-        msg += 'DIAMETER\n'
+        msg.append(_translate('Conversational', 'DIAMETER'))
     try:
         P.holeSpeed = int(W.hsEntry.text())
     except:
-        msg += 'SPEED %\n'
+        msg.append(_translate('Conversational', 'SPEED %'))
     try:
         P.gridSize = float(W.gsEntry.text())
     except:
-        msg += 'GRID SIZE\n'
+        msg.append(_translate('Conversational', 'GRID SIZE'))
     if msg:
-        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        error_set(P, W, errMsg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
+
     W.PREFS_.putpref('Preamble', P.preAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Postamble', P.postAmble, str, 'CONVERSATIONAL')
     W.PREFS_.putpref('Origin', int(P.origin), int, 'CONVERSATIONAL')
@@ -64,9 +70,9 @@ def save(P, W):
     show(P, W)
     W[P.oldConvButton].click()
 
-def error_set(P, W, msg):
+def error_set(P, msg):
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Scaling Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Scaling Error'), msg)
 
 #def reload(parent, ambles, unitCode):
 def reload(P, W):
@@ -103,24 +109,24 @@ def show(P, W):
         W.conv_preview.set_current_view()
 
 def widgets(P, W):
-    W.preLabel = QLabel('PREAMBLE')
+    W.preLabel = QLabel(_translate('Conversational', 'PREAMBLE'))
     W.preLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     W.entries.addWidget(W.preLabel, 0, 0)
     W.preEntry = QLineEdit()
     W.entries.addWidget(W.preEntry, 0, 1, 1, 4)
-    W.pstLabel = QLabel('POSTAMBLE')
+    W.pstLabel = QLabel(_translate('Conversational', 'POSTAMBLE'))
     W.entries.addWidget(W.pstLabel, 1, 0)
     W.pstEntry = QLineEdit()
     W.entries.addWidget(W.pstEntry, 1, 1, 1, 4)
-    W.oLabel = QLabel('ORIGIN')
+    W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
     W.entries.addWidget(W.oLabel, 2, 1, 1, 3)
-    W.center = QRadioButton('  CENTER')
+    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.entries.addWidget(W.center, 3, 1)
-    W.btLeft = QRadioButton('BTM LEFT')
+    W.btLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
     W.entries.addWidget(W.btLeft, 3, 3)
-    W.llLabel = QLabel('LEAD LENGTHS')
+    W.llLabel = QLabel(_translate('Conversational', 'LEAD LENGTHS'))
     W.entries.addWidget(W.llLabel, 4, 1, 1, 3)
-    W.liLabel = QLabel('LEAD IN')
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.entries.addWidget(W.liLabel, 5, 0)
     W.liEntry = QLineEdit()
     W.liEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
@@ -128,11 +134,11 @@ def widgets(P, W):
     W.loEntry = QLineEdit()
     W.loEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.loEntry, 5, 3)
-    W.loLabel = QLabel('LEAD OUT')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.entries.addWidget(W.loLabel, 5, 4)
-    W.shLabel = QLabel('SMALL HOLES')
+    W.shLabel = QLabel(_translate('Conversational', 'SMALL HOLES'))
     W.entries.addWidget(W.shLabel, 6, 1, 1, 3)
-    W.hdLabel = QLabel('DIAMETER')
+    W.hdLabel = QLabel(_translate('Conversational', 'DIAMETER'))
     W.entries.addWidget(W.hdLabel, 7, 0)
     W.hdEntry = QLineEdit()
     W.hdEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
@@ -140,19 +146,19 @@ def widgets(P, W):
     W.hsEntry = QLineEdit()
     W.hsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.hsEntry, 7, 3)
-    W.hsLabel = QLabel('SPEED %')
+    W.hsLabel = QLabel(_translate('Conversational', 'SPEED %'))
     W.entries.addWidget(W.hsLabel, 7, 4)
-    W.pvLabel = QLabel('PREVIEW')
+    W.pvLabel = QLabel(_translate('Conversational', 'PREVIEW'))
     W.entries.addWidget(W.pvLabel, 8, 1, 1, 3)
-    W.gsLabel = QLabel('GRID SIZE')
+    W.gsLabel = QLabel(_translate('Conversational', 'GRID SIZE'))
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.gsEntry = QLineEdit()
     W.gsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
     W.entries.addWidget(W.gsEntry, 9, 1)
-    W.save = QPushButton('SAVE')
+    W.save = QPushButton(_translate('Conversational', 'SAVE'))
     W.save.pressed.connect(lambda:save(P, W))
     W.entries.addWidget(W.save, 12, 1)
-    W.reload = QPushButton('RELOAD')
+    W.reload = QPushButton(_translate('Conversational', 'RELOAD'))
     W.reload.pressed.connect(lambda:reload(P, W))
     W.entries.addWidget(W.reload, 12, 3)
     for blank in range(2):

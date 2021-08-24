@@ -1,7 +1,7 @@
 '''
 conv_sector.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -19,53 +19,62 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
 
+_translate = QCoreApplication.translate
+
 def preview(P, W):
     if P.dialogError: return
-    msg = ''
+    msg = []
     leadInOffset = leadOutOffset = radius = sAngle = angle = 0
     try:
         leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
     except:
-        msg += 'LEAD IN\n'
+        msg.append(_translate('Conversational', 'LEAD IN'))
     try:
         leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
     except:
-        msg += 'LEAD OUT\n'
+        msg.append(_translate('Conversational', 'LEAD OUT'))
     try:
         radius = float(W.rEntry.text())
     except:
-        msg += 'RADIUS\n'
+        msg.append(_translate('Conversational', 'RADIUS'))
     try:
         sAngle = math.radians(float(W.sEntry.text()))
     except:
-        msg += 'SEC ANGLE\n'
+        msg.append(_translate('Conversational', 'SEC ANGLE'))
     try:
         angle = math.radians(float(W.aEntry.text()))
     except:
-        msg += 'ANGLE\n'
+        msg.append(_translate('Conversational', 'ANGLE'))
     if msg:
-        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        error_set(P, errMsg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
     if radius == 0 or sAngle == 0:
-        msg = 'RADIUS or SEC ANGLE must be greater than zero.'.format(msg)
-        error_set(P, msg)
+        msg0 = _translate('Conversational', 'Value must be greater than zero for')
+        msg0 = _translate('Conversational', 'RADIUS')
+        msg0 = _translate('Conversational', 'SEC ANGLE')
+        error_set(P, '{}:\n\n{}\n{}\n'.format(msg0, msg1, msg2))
         return
     if W.kOffset.isChecked() and leadInOffset <= 0:
-        msg  = 'LEAD IN is required if\n\n'
-        msg += 'KERF OFFSET is enabled.\n'
-        error_set(P, msg)
+        msg0  = _translate('Conversational', 'LEAD IN')
+        msg1  = _translate('Conversational', 'is required if')
+        msg2 = _translate('Conversational', 'KERF OFFSET')
+        msg3 = _translate('Conversational', 'is enabled')
+        error_set(P, '{} {}\n\n{} {}\n'.format(msg0, msg1, msg2, msg3))
         return
 # set origin position
     try:
         kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
     except:
-        msg = 'Invalid Kerf Width entry in material detected.\n'
-        error_set(P, msg)
+        msg0 = _translate('Conversational', 'Invalid Kerf Width entry in material detected')
+        error_set(P, '{}.\n'.format(msg0))
         return
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
@@ -79,8 +88,9 @@ def preview(P, W):
             xO = float(W.xsEntry.text()) - kOffset
             yO = float(W.ysEntry.text()) - kOffset
     except:
-        msg = 'Invalid X or Y ORIGIN entry detected.\n'
-        error_set(P, msg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = _translate('Conversational', 'ORIGIN')
+        error_set(P, '{}:\n\n{}\n'.format(msg0, msg1))
         return
 # set start point
     xS = xO + (radius * 0.75) * math.cos(angle)
@@ -162,7 +172,7 @@ def preview(P, W):
 def error_set(P, msg):
     P.conv_undo_shape()
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Sector Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Sector Error'), msg)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
@@ -171,17 +181,27 @@ def auto_preview(P, W):
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
+    msg = []
     try:
-        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-            W.kOffset.setEnabled(False)
-            W.kOffset.setChecked(False)
-        else:
-            W.kOffset.setEnabled(True)
+        li = float(W.liEntry.text())
     except:
-        msg = 'Invalid LEAD IN entry detected.\n'
-        error_set(P, msg)
+        msg.append(_translate('Conversational', 'LEADIN'))
+    try:
+        kw = float(W.kerf_width.value())
+    except:
+        msg.append(_translate('Conversational', 'KERF'))
+    if msg:
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
+    if char == "operator" or not W.liEntry.text() or li == 0 or li <= kw / 2:
+        W.kOffset.setEnabled(False)
+        W.kOffset.setChecked(False)
+    else:
+        W.kOffset.setEnabled(True)
 
 def add_shape_to_file(P, W):
     P.conv_add_shape_to_file()
@@ -191,34 +211,35 @@ def undo_pressed(P, W):
 
 def widgets(P, W):
     #widgets
-    W.ctLabel = QLabel('CUT TYPE')
+    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton('EXTERNAL')
+    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
     W.cExt.setChecked(True)
     W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton('INTERNAL')
+    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('KERF')
-    W.kOffset = QPushButton('OFFSET')
+    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
     W.kOffset.setCheckable(True)
-    W.xsLabel = QLabel('X ORIGIN')
+    text = _translate('Conversational', 'ORIGIN')
+    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
     W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel('Y ORIGIN')
+    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
     W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-    W.liLabel = QLabel('LEAD IN')
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel('LEAD OUT')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    W.rLabel = QLabel('RADIUS')
+    W.rLabel = QLabel(_translate('Conversational', 'RADIUS'))
     W.rEntry = QLineEdit()
-    W.sLabel = QLabel('SEC ANGLE')
+    W.sLabel = QLabel(_translate('Conversational', 'SEC ANGLE'))
     W.sEntry = QLineEdit()
-    W.aLabel = QLabel('ANGLE')
+    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.aEntry = QLineEdit('0.0', objectName='aEntry')
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('CREATING SECTOR')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING SECTOR'))
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_sector_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)

@@ -1,7 +1,7 @@
 '''
 conv_circle.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -19,9 +19,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
+
+_translate = QCoreApplication.translate
 
 def preview(P, W):
     if P.dialogError: return
@@ -31,11 +33,11 @@ def preview(P, W):
         else:
             radius = 0
     except:
-        msg = 'Invalid DIAMETER entry detected.\n'
-        error_set(P, msg)
+        msg0 = _translate('Conversational', 'Invalid DIAMETER entry detected')
+        error_set(P, '{}.\n'.format(msg0))
         return
     if radius > 0:
-        msg = ''
+        msg = []
         angle = math.radians(45)
         ijOffset = radius * math.sin(angle)
         ijDiff = 0
@@ -46,27 +48,28 @@ def preview(P, W):
                 else:
                     ijDiff = float(W.kerf_width.value()) / 2 * -math.sin(angle)
         except:
-            msg += 'Kerf Width entry in material\n'
+            msg.append(_translate('Conversational', 'Kerf Width entry in material'))
         try:
             if W.liEntry.text():
                 leadInOffset = math.sin(angle) * float(W.liEntry.text())
             else:
                 leadInOffset = 0
         except:
-            msg += 'LEAD IN\n'
+            msg.append(_translate('Conversational', 'LEAD IN'))
         try:
             if W.loEntry.text():
                 leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
             else:
                 leadOutOffset = 0
         except:
-            msg += 'LEAD OUT\n'
+            msg.append(_translate('Conversational', 'LEAD OUT'))
         try:
             kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
         except:
-            msg += 'Kerf Width entry in material\n'
+            msg.append(_translate('Conversational', 'Kerf Width entry in material'))
         if not W.xsEntry.text():
             W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        text = _translate('Conversational', 'ORIGIN')
         try:
             if W.center.isChecked():
                 xC = float(W.xsEntry.text())
@@ -76,7 +79,7 @@ def preview(P, W):
                 else:
                     xC = float(W.xsEntry.text()) + radius - kOffset
         except:
-            msg += 'X ORIGIN\n'
+            msg.append('X {}'.format(text))
         if not W.ysEntry.text():
             W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
         try:
@@ -88,10 +91,13 @@ def preview(P, W):
                 else:
                     yC = float(W.ysEntry.text()) + radius - kOffset
         except:
-            msg += 'Y ORIGIN\n'
+            msg.append('Y {}'.format(text))
         if msg:
-            errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-            error_set(P, errMsg)
+            msg0 = _translate('Conversational', 'Invalid entry detected in')
+            msg1 = ''
+            for m in msg:
+                msg1 += '{}\n'.format(m)
+            error_set(P, '{}:\n\n{}'.format(msg0, msg1))
             return
         xS = xC - ijOffset - ijDiff
         yS = yC - ijOffset - ijDiff
@@ -185,20 +191,20 @@ def preview(P, W):
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
     else:
-        msg = 'DIAMETER is required'
-        error_set(P, msg)
+        msg0 = _translate('Conversational', 'DIAMETER is required')
+        error_set(P, '{}./n'.format(msg0))
 
 def error_set(P, msg):
     P.conv_undo_shape()
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Circle Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Circle Error'), msg)
 
 def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     try:
         oclength = float(W.ocEntry.text())
     except:
-        msg = 'Invalid OC LENGTH entry detected.\n'
-        error_set(P, msg)
+        msg0 = _translate('Conversational', 'Invalid OC LENGTH entry detected')
+        error_set(P, '{}./n'.format(msg0))
         oclength = 0
         return
     centerX = lastX + IJ
@@ -275,43 +281,44 @@ def undo_pressed(P, W):
 
 def widgets(P, W):
     #widgets
-    W.ctLabel = QLabel('CUT TYPE')
+    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton('EXTERNAL')
+    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
     W.cExt.setChecked(True)
     W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton('INTERNAL')
+    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('KERF')
-    W.kOffset = QPushButton('OFFSET')
+    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
     W.kOffset.setCheckable(True)
-    W.spLabel = QLabel('START')
+    W.spLabel = QLabel(_translate('Conversational', 'START'))
     W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton(' CENTER')
+    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton('BTM LEFT')
+    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
     W.spGroup.addButton(W.bLeft)
-    W.xsLabel = QLabel('X ORIGIN')
+    text = _translate('Conversational', 'ORIGIN')
+    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
     W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel('Y ORIGIN')
+    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
     W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-    W.liLabel = QLabel('LEAD IN')
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel('LEAD OUT')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    W.dLabel = QLabel('DIAMETER')
+    W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
     W.dEntry = QLineEdit(objectName = '')
-    W.overcut = QPushButton('OVER CUT')
+    W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
     W.overcut.setEnabled(False)
     W.overcut.setCheckable(True)
-    W.ocLabel = QLabel('OC LENGTH')
+    W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
     W.ocEntry = QLineEdit(objectName = 'ocEntry')
     W.ocEntry.setEnabled(False)
     W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('CREATING CIRCLE')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING CIRCLE'))
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_circle_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)

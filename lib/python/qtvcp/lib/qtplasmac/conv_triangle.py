@@ -1,7 +1,7 @@
 '''
 conv_triangle.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -19,19 +19,21 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 '''
 
 import math
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
 
+_translate = QCoreApplication.translate
+
 def preview(P, W):
     if P.dialogError: return
-    msg = ''
     try:
         kOffset = float(W.kerf_width.value()) * W.kOffset.isChecked() / 2
     except:
-        msg += 'Kerf Width entry in material\n'
-        error_set(P, msg)
+        msg0 += _translate('Conversational', 'Kerf Width entry in material')
+        error_set(P, '{}.\n'.format(msg0))
         return
+    msg = []
     if not W.xsEntry.text():
         W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
     if not W.ysEntry.text():
@@ -44,63 +46,70 @@ def preview(P, W):
             xBPoint = float(W.xsEntry.text()) - kOffset
             yBPoint = float(W.ysEntry.text()) - kOffset
     except:
-        msg += 'X or Y ORIGIN\n'
+        text1 = _translate('Conversational', 'or')
+        text2 = _translate('Conversational', 'ORIGIN')
+        msg.append(_translate('Conversational', 'X {} Y {}'.format(text1, text2)))
     try:
         if W.angEntry.text():
             angle = math.radians(float(W.angEntry.text()))
         else:
             angle = 0.0
     except:
-        msg += 'ANGLE\n'
+        msg.append(_translate('Conversational', 'ANGLE'))
     try:
         if W.liEntry.text():
             leadInOffset = math.sin(math.radians(45)) * float(W.liEntry.text())
         else:
             leadInOffset = 0
     except:
-        msg += 'LEAD IN\n'
+        msg.append(_translate('Conversational', 'LEAD IN'))
     try:
         if W.loEntry.text():
             leadOutOffset = math.sin(math.radians(45)) * float(W.loEntry.text())
         else:
             leadOutOffset = 0
     except:
-        msg += 'LEAD OUT\n'
+        msg.append(_translate('Conversational', 'LEAD OUT'))
     done = False
     a = b = c = A = B = C = 0
+    text = _translate('Conversational', 'LENGTH')
     try:
         if W.aEntry.text():
             a = float(W.aEntry.text())
     except:
-        msg += 'a LENGTH\n'
+        msg.append(_translate('Conversational', 'a {}'.format(text)))
     try:
         if W.bEntry.text():
             b = float(W.bEntry.text())
     except:
-        msg += 'b LENGTH\n'
+        msg.append(_translate('Conversational', 'b {}'.format(text)))
     try:
         if W.cEntry.text():
             c = float(W.cEntry.text())
     except:
-        msg += 'c LENGTH\n'
+        msg.append(_translate('Conversational', 'c {}'.format(text)))
+    text = _translate('Conversational', 'ANGLE')
     try:
         if W.AEntry.text():
             A = math.radians(float(W.AEntry.text()))
     except:
-        msg += 'A ANGLE\n'
+        msg.append(_translate('Conversational', 'A {}'.format(text)))
     try:
         if W.BEntry.text():
             B = math.radians(float(W.BEntry.text()))
     except:
-        msg += 'B ANGLE\n'
+        msg.append(_translate('Conversational', 'B {}'.format(text)))
     try:
         if W.CEntry.text():
             C = math.radians(float(W.CEntry.text()))
     except:
-        msg += 'C ANGLE\n'
+        msg.append(_translate('Conversational', 'C {}'.format(text)))
     if msg:
-        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        error_set(P, errMsg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
     if a and b and c:
         B = math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c))
@@ -223,9 +232,9 @@ def preview(P, W):
         W.undo.setEnabled(True)
     else:
         if A != 0 and B != 0 and C != 0 and A + B + C != math.radians(180):
-            msg = 'A + B + C must equal 180.'
+            msg0 = _translate('Conversational', 'A + B + C must equal 180')
         else:
-            msg = 'Minimum requirements are:\n\n'\
+            msg0 = 'Minimum requirements are:\n\n'\
                                      'a + b + c\n\n'\
                                      'or\n\n'\
                                      'a + b + C\n\n'\
@@ -235,26 +244,36 @@ def preview(P, W):
                                      'A + b + c\n\n'\
                                      'or\n\n'\
                                      'A + B + C + (a or b or c)'
-        error_set(P, msg)
+        error_set(P, msg0)
 
 def error_set(P, msg):
     P.conv_undo_shape()
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Triangle Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Triangle Error'), msg)
 
 def entry_changed(P, W, widget):
     char = P.conv_entry_changed(widget)
+    msg = []
     try:
-        if char == "operator" or not W.liEntry.text() or float(W.liEntry.text()) == 0 \
-                    or float(W.liEntry.text()) <= float(W.kerf_width.value()) / 2:
-            W.kOffset.setEnabled(False)
-            W.kOffset.setChecked(False)
-        else:
-            W.kOffset.setEnabled(True)
+        li = float(W.liEntry.text())
     except:
-        msg = 'Invalid LEAD IN entry detected.\n'
-        error_set(P, msg)
+        msg.append(_translate('Conversational', 'LEADIN'))
+    try:
+        kw = float(W.kerf_width.value())
+    except:
+        msg.append(_translate('Conversational', 'KERF'))
+    if msg:
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, '{}:\n\n{}'.format(msg0, msg1))
         return
+    if char == "operator" or not W.liEntry.text() or li == 0 or li <= kw / 2:
+        W.kOffset.setEnabled(False)
+        W.kOffset.setChecked(False)
+    else:
+        W.kOffset.setEnabled(True)
 
 def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and \
@@ -274,42 +293,45 @@ def undo_pressed(P, W):
 
 def widgets(P, W):
     #widgets
-    W.ctLabel = QLabel('CUT TYPE')
+    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton('EXTERNAL')
+    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
     W.cExt.setChecked(True)
     W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton('INTERNAL')
+    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
     W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel('KERF')
-    W.kOffset = QPushButton('OFFSET')
+    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
     W.kOffset.setCheckable(True)
-    W.xsLabel = QLabel('X ORIGIN')
+    text = _translate('Conversational', 'ORIGIN')
+    W.xsLabel = QLabel(_translate('Conversational', 'X {}.format(text)'))
     W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel('Y ORIGIN')
+    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
     W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-    W.liLabel = QLabel('LEAD IN')
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel('LEAD OUT')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    W.ALabel = QLabel('A ANGLE')
+    text = _translate('Conversational', 'ANGLE')
+    W.ALabel = QLabel(_translate('Conversational', 'A {}'.format(text)))
     W.AEntry = QLineEdit()
-    W.BLabel = QLabel('B ANGLE')
+    W.BLabel = QLabel(_translate('Conversational', 'B {}'.format(text)))
     W.BEntry = QLineEdit()
-    W.CLabel = QLabel('C ANGLE')
+    W.CLabel = QLabel(_translate('Conversational', 'C {}'.format(text)))
     W.CEntry = QLineEdit()
-    W.aLabel = QLabel('a LENGTH')
+    text = _translate('Conversational', 'LENGTH')
+    W.aLabel = QLabel(_translate('Conversational', 'a {}'.format(text)))
     W.aEntry = QLineEdit()
-    W.bLabel = QLabel('b LENGTH')
+    W.bLabel = QLabel(_translate('Conversational', 'b {}'.format(text)))
     W.bEntry = QLineEdit()
-    W.cLabel = QLabel('c LENGTH')
+    W.cLabel = QLabel(_translate('Conversational', 'c {}'.format(text)))
     W.cEntry = QLineEdit()
-    W.angLabel = QLabel('ANGLE')
+    W.angLabel = QLabel(_translate('Conversational', 'ANGLE'))
     W.angEntry = QLineEdit('0.0', objectName='aEntry')
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('CREATING TRIANGLE')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING TRIANGLE'))
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_triangle_l.png'.format(P.IMAGES)).scaledToWidth(196)
     W.iLabel.setPixmap(pixmap)

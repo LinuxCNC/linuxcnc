@@ -1,7 +1,7 @@
 '''
 conv_array.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -20,9 +20,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import math
 from shutil import copy as COPY
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QMessageBox
 from PyQt5.QtGui import QPixmap
+
+_translate = QCoreApplication.translate
 
 def cancel(P, W, widget):
     COPY(P.fNgcBkp, P.fNgc)
@@ -40,34 +42,37 @@ def accept(P, W):
 
 def preview(P, W):
     if P.dialogError: return
-    msg = ''
+    msg = []
     try:
         columns = int(W.cnEntry.text())
     except:
-        msg += 'COLUMNS NUMBER\n'
+        msg.append(_translate('Conversational', 'COLUMNS NUMBER'))
     try:
         rows = int(W.rnEntry.text())
     except:
-        msg += 'ROWS NUMBER\n'
+        msg.append(_translate('Conversational', 'ROWS NUMBER'))
     try:
         xOffset = float(W.coEntry.text())
     except:
-        msg += 'COLUMNS OFFSET\n'
+        msg.append(_translate('Conversational', 'COLUMNS OFFSET'))
     try:
         yOffset = float(W.roEntry.text())
     except:
-        msg += 'ROWS OFFSET\n'
+        msg.append(_translate('Conversational', 'ROWS OFFSET'))
     try:
         xOrgOffset = float(W.oxEntry.text())
     except:
-        msg += 'X OFFSET ORIGIN\n'
+        msg.append(_translate('Conversational', 'X OFFSET ORIGIN'))
     try:
         yOrgOffset = float(W.oyEntry.text())
     except:
-        msg += 'Y OFFSET ORIGIN\n'
+        msg.append(_translate('Conversational', 'Y OFFSET ORIGIN'))
     if msg:
-        errMsg = 'Invalid entry detected in:\n\n{}'.format(msg)
-        error_set(P, W, errMsg)
+        msg0 = _translate('Conversational', 'Invalid entry detected in')
+        msg1 = ''
+        for m in msg:
+            msg1 += '{}\n'.format(m)
+        error_set(P, W, '{}:\n\n{}'.format(msg0, msg1))
         return
     if columns > 0 and rows > 0 and (columns == 1 or (columns > 1 and xOffset != 0)) and (rows == 1 or (rows > 1 and yOffset != 0)):
         cancel(P, W, None)
@@ -171,45 +176,49 @@ def preview(P, W):
             W.add.setEnabled(True)
             W.undo.setEnabled(True)
     else:
-        msg = ''
+        msg = []
         if columns <= 0:
-            msg += 'COLUMNS entries are required.\n\n'
+            msg.append(_translate('Conversational', 'COLUMNS entries are required'))
         if rows <= 0:
-            msg += 'ROWS entries are required.\n\n'
+            msg.append(_translate('Conversational', 'ROWS entries are required'))
         if xOffset == 0 and columns > 1:
-            msg += 'COLUMNS OFFSET is required.\n\n'
+            msg.append(_translate('Conversational', 'COLUMNS OFFSET is required'))
         if yOffset == 0 and rows > 1:
-            msg += 'ROWS OFFSET is required.\n'
-        error_set(P, W, msg)
+            msg.append(_translate('Conversational', 'ROWS OFFSET is required'))
+        msg0 = ''
+        for m in msg:
+            msg0 += '{}.\n\n',format(m)
+        error_set(P, W, msg0)
         return
     W.add.setEnabled(True)
 
 def error_set(P, W, msg):
     cancel(P, W, 'dummy')
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Array Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Array Error'), msg)
 
 def widgets(P, W):
     #widgets
-    W.cLabel = QLabel('COLUMNS')
-    W.cnLabel = QLabel('NUMBER')
+    W.cLabel = QLabel(_translate('Conversational', 'COLUMNS'))
+    W.cnLabel = QLabel(_translate('Conversational', 'NUMBER'))
     W.cnEntry = QLineEdit('1', objectName='cnEntry')
     W.coEntry = QLineEdit('0.0')
-    W.coLabel = QLabel('OFFSET')
-    W.rLabel = QLabel('ROWS')
-    W.rnLabel = QLabel('NUMBER')
+    W.coLabel = QLabel(_translate('Conversational', 'OFFSET'))
+    W.rLabel = QLabel(_translate('Conversational', 'ROWS'))
+    W.rnLabel = QLabel(_translate('Conversational', 'NUMBER'))
     W.rnEntry = QLineEdit('1', objectName='rnEntry')
     W.roEntry = QLineEdit('0.0')
-    W.roLabel = QLabel('OFFSET')
-    W.oLabel = QLabel('ORIGIN')
-    W.oxLabel = QLabel('X OFFSET')
+    W.roLabel = QLabel(_translate('Conversational', 'OFFSET'))
+    W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
+    text = _translate('Conversational', 'OFFSET')
+    W.oxLabel = QLabel('X {}'.format(text))
     W.oxEntry = QLineEdit('0.0', objectName = 'xsEntry')
     W.oyEntry = QLineEdit('0.0', objectName = 'ysEntry')
-    W.oyLabel = QLabel('Y OFFSET')
-    W.preview = QPushButton('PREVIEW')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('CREATE ARRAY OF SHAPES')
+    W.oyLabel = QLabel('Y {}'.format(text))
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATE ARRAY OF SHAPES'))
     #alignment and size
     rightAlign = ['cnLabel', 'cnEntry', 'coEntry', \
                   'rnLabel', 'rnEntry', 'roEntry', \

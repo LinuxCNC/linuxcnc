@@ -1,7 +1,7 @@
 '''
 conv_line.py
 
-Copyright (C) 2020  Phillip A Carter
+Copyright (C) 2020, 2021  Phillip A Carter
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,9 +21,11 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import math
 import numpy
 from shutil import copy as COPY
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QCoreApplication
 from PyQt5.QtWidgets import QLabel, QLineEdit, QPushButton, QRadioButton, QButtonGroup, QComboBox, QMessageBox
 from PyQt5.QtGui import QPixmap
+
+_translate = QCoreApplication.translate
 
 def preview(P, W):
     if P.dialogError: return
@@ -33,16 +35,16 @@ def preview(P, W):
                 W.entry1.setText('{:0.3f}'.format(P.xOrigin))
             W.xS = float(W.entry1.text())
         except:
-            msg = 'Invalid X ORIGIN entry detected.\n'
-            error_set(P, msg)
+            msg0 = _translate('Conversational', 'Invalid X ORIGIN entry detected')
+            error_set(P, '{}./n'.format(msg0))
             return
         try:
             if not W.entry2.text():
                 W.entry2.setText('{:0.3f}'.format(P.yOrigin))
             W.yS = float(W.entry2.text())
         except:
-            msg = 'Invalid Y ORIGIN entry detected.\n'
-            error_set(P, msg)
+            msg0 = _translate('Conversational', 'Invalid Y ORIGIN entry detected')
+            error_set(P, '{}./n'.format(msg0))
             return
         outTmp = open(P.fTmp, 'w')
         outNgc = open(P.fNgc, 'w')
@@ -63,7 +65,7 @@ def preview(P, W):
         outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(W.xS, W.yS))
         outTmp.write('m3 $0 s1\n')
         try:
-            if W.lType.currentText() == 'LINE POINT ~ POINT':
+            if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
                 if P.landscape:
                     W.conv_savedX = W.entry4.text()
                     W.conv_savedY = W.entry5.text()
@@ -72,14 +74,14 @@ def preview(P, W):
                     W.conv_savedX = W.entry3.text()
                     W.conv_savedY = W.entry4.text()
                     do_line_point_to_point(P, W, float(W.entry3.text()), float(W.entry4.text()))
-            elif W.lType.currentText() == 'LINE BY ANGLE':
+            elif W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE'):
                 if not float(W.entry4.text()):
-                    raise Exception('Length cannot be zero.\n')
+                    raise Exception(_translate('Conversational', 'Length cannot be zero'))
                 if P.landscape:
                     do_line_by_angle(P, W, float(W.entry4.text()), float(W.entry5.text()))
                 else:
                     do_line_by_angle(P, W, float(W.entry3.text()), float(W.entry5.text()))
-            elif W.lType.currentText() == 'ARC 3P':
+            elif W.lType.currentText() == _translate('Conversational', 'ARC 3P'):
                 if P.landscape:
                     W.conv_savedX = W.entry7.text()
                     W.conv_savedY = W.entry8.text()
@@ -90,13 +92,13 @@ def preview(P, W):
                     W.conv_savedY = W.entry6.text()
                     do_arc_3_points(P, W, float(W.entry3.text()), float(W.entry4.text()), \
                                           float(W.entry5.text()), float(W.entry6.text()))
-            elif W.lType.currentText() == 'ARC 2P +RADIUS':
+            elif W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS'):
                 if P.landscape:
                     W.conv_savedX = W.entry4.text()
                     W.conv_savedY = W.entry5.text()
                     if float(W.entry7.text()) == 0:
-                        msg = 'Radius must be greater than zero.\n'
-                        error_set(P, msg)
+                        msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                        error_set(P, '{}./n'.format(msg0))
                         return
                     else:
                         do_arc_2_points_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
@@ -105,32 +107,32 @@ def preview(P, W):
                     W.conv_savedX = W.entry3.text()
                     W.conv_savedY = W.entry4.text()
                     if float(W.entry5.text()) == 0:
-                        msg = 'Radius must be greater than zero.\n'
-                        error_set(P, msg)
+                        msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                        error_set(P, '{}./n'.format(msg0))
                         return
                     else:
                         do_arc_2_points_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
                                                      float(W.entry5.text()))
-            elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
+            elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
                 if P.landscape:
                     if float(W.entry7.text()) == 0:
-                        msg = 'Radius must be greater than zero.\n'
-                        error_set(P, msg)
+                        msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                        error_set(P, '{}./n'.format(msg0))
                         return
                     else:
                         do_arc_by_angle_radius(P, W, float(W.entry4.text()), float(W.entry5.text()), \
                                                      float(W.entry7.text()))
                 else:
                     if float(W.entry5.text()) == 0:
-                        msg = 'Radius must be greater than zero.\n'
-                        error_set(P, msg)
+                        msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                        error_set(P, '{}./n'.format(msg0))
                         return
                     else:
                         do_arc_by_angle_radius(P, W, float(W.entry3.text()), float(W.entry4.text()), \
                                                      float(W.entry5.text()))
         except:
-            msg = 'Invalid entry detected.\n'
-            error_set(P, msg)
+            msg0 = _translate('Conversational', 'Invalid entry detected')
+            error_set(P, '{}./n'.format(msg0))
             outNgc.close()
             outTmp.close()
             return
@@ -155,15 +157,15 @@ def preview(P, W):
         COPY(P.fTmp, P.fNgc)
         outNgc = open(P.fNgc, 'w')
         try:
-            if W.lType.currentText() == 'LINE POINT ~ POINT':
+            if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
                 W.conv_savedX = W.entry1.text()
                 W.conv_savedY = W.entry2.text()
                 do_line_point_to_point(P, W, float(W.entry1.text()), float(W.entry2.text()))
-            elif W.lType.currentText() == 'LINE BY ANGLE':
+            elif W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE'):
                 if not float(W.entry1.text()):
-                    raise Exception('Length cannot be 0')
+                    raise Exception(_translate('Conversational', 'Length cannot be zero'))
                 do_line_by_angle(P, W, float(W.entry1.text()), float(W.entry2.text()))
-            elif W.lType.currentText() == 'ARC 3P':
+            elif W.lType.currentText() == _translate('Conversational', 'ARC 3P'):
                 if P.landscape:
                     W.conv_savedX = W.entry4.text()
                     W.conv_savedY = W.entry5.text()
@@ -174,36 +176,36 @@ def preview(P, W):
                     W.conv_savedY = W.entry4.text()
                     do_arc_3_points(P, W, float(W.entry1.text()), float(W.entry2.text()), \
                                           float(W.entry3.text()), float(W.entry4.text()))
-            elif W.lType.currentText() == 'ARC 2P +RADIUS':
+            elif W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS'):
                 W.conv_savedX = W.entry1.text()
                 W.conv_savedY = W.entry2.text()
                 if P.landscape:
                     if float(W.entry4.text()) == 0:
-                        msg = 'Radius must be greater than zero.\n'
-                        error_set(P, msg)
+                        msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                        error_set(P, '{}./n'.format(msg0))
                         return
                     else:
                         do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
                                                      float(W.entry4.text()))
                 else:
                     if float(W.entry3.text()) == 0:
-                        msg = 'Radius must be greater than zero.\n'
-                        error_set(P, msg)
+                        msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                        error_set(P, '{}./n'.format(msg0))
                         return
                     else:
                         do_arc_2_points_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
                                                      float(W.entry3.text()))
-            elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
+            elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
                 if float(W.entry3.text()) == 0:
-                    msg = 'Radius must be greater than zero.\n'
-                    error_set(P, msg)
+                    msg0 = _translate('Conversational', 'Radius must be greater than zero')
+                    error_set(P, '{}./n'.format(msg0))
                     return
                 else:
                     do_arc_by_angle_radius(P, W, float(W.entry1.text()), float(W.entry2.text()), \
                                                  float(W.entry3.text()))
         except:
-            msg = 'Invalid entry detected.\n'
-            error_set(P, msg)
+            msg0 = _translate('Conversational', 'Invalid entry detected')
+            error_set(P, '{}./n'.format(msg0))
             outNgc.close()
             outTmp.close()
             return
@@ -224,10 +226,10 @@ def preview(P, W):
     if P.conv_add_segment == 1:
         P.conv_add_segment = 2
 
-def error_set(P, msg):
+def error_set(P, error):
     P.conv_undo_shape()
     P.dialogError = True
-    P.dialog_show_ok(QMessageBox.Warning, 'Line Error', msg)
+    P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Line Error'), error)
 
 def do_line_point_to_point(P, W, inX, inY):
     W.xE = inX
@@ -287,9 +289,10 @@ def set_line_point_to_point(P, W):
     P.lType = None
     W.iLabel.setPixmap(W.pixLinePoint)
     if P.conv_add_segment > 0:
-        W.label1.setText('END X')
+        text = _translate('Conversational', 'END')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('')
-        W.label2.setText('END Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('')
         W.label3.setText('')
         W.entry3.hide()
@@ -307,27 +310,29 @@ def set_line_point_to_point(P, W):
         W.g2Arc.hide()
         W.entry1.setFocus()
     else:
-        W.label1.setText('START X')
+        text = _translate('Conversational', 'START')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('{:0.3f}'.format(0))
-        W.label2.setText('START Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('{:0.3f}'.format(0))
+        text = _translate('Conversational', 'END')
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('END X')
+            W.label4.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('END Y')
+            W.label5.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
         else:
-            W.label3.setText('END X')
+            W.label3.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
-            W.label4.setText('END Y')
+            W.label4.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
@@ -350,9 +355,9 @@ def set_line_by_angle(P, W):
     P.lType = None
     W.iLabel.setPixmap(W.pixLineAngle)
     if P.conv_add_segment > 0:
-        W.label1.setText('LENGTH')
+        W.label1.setText(_translate('Conversational', 'LENGTH'))
         W.entry1.setText('')
-        W.label2.setText('ANGLE')
+        W.label2.setText(_translate('Conversational', 'ANGLE'))
         W.entry2.setText('0')
         W.label3.setText('')
         W.entry3.hide()
@@ -370,29 +375,30 @@ def set_line_by_angle(P, W):
         W.g2Arc.hide()
         W.entry1.setFocus()
     else:
-        W.label1.setText('START X')
+        text = _translate('Conversational', 'START')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('{:0.3f}'.format(0))
-        W.label2.setText('START Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('{:0.3f}'.format(0))
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('LENGTH')
+            W.label4.setText(_translate('Conversational', 'LENGTH'))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('ANGLE')
+            W.label5.setText(_translate('Conversational', 'ANGLE'))
             W.label5.show()
             W.entry5.setText('0')
             W.entry5.show()
         else:
-            W.label3.setText('LENGTH')
+            W.label3.setText(_translate('Conversational', 'LENGTH'))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
             W.label4.setText('')
             W.entry4.hide()
-            W.label5.setText('ANGLE')
+            W.label5.setText(_translate('Conversational', 'ANGLE'))
             W.label5.show()
             W.entry5.setText('0')
             W.entry5.show()
@@ -413,27 +419,29 @@ def set_arc_3_points(P, W):
     P.lType = None
     W.iLabel.setPixmap(W.pixArc3p)
     if P.conv_add_segment > 0:
-        W.label1.setText('NEXT X')
+        text = _translate('Conversational', 'NEXT')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('')
-        W.label2.setText('NEXT Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('')
+        text = _translate('Conversational', 'END')
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('END X')
+            W.label4.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('END Y')
+            W.label5.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
         else:
-            W.label3.setText('END X')
+            W.label3.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
-            W.label4.setText('END Y')
+            W.label4.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
@@ -449,45 +457,49 @@ def set_arc_3_points(P, W):
         W.g2Arc.hide()
         W.entry1.setFocus()
     else:
-        W.label1.setText('START X')
+        text = _translate('Conversational', 'START')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('{:0.3f}'.format(0))
-        W.label2.setText('START Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('{:0.3f}'.format(0))
+        text = _translate('Conversational', 'NEXT')
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('NEXT X')
+            W.label4.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('NEXT Y')
+            W.label5.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
             W.label7.setText('')
             W.entry7.hide()
-            W.label7.setText('END X')
+            text = _translate('Conversational', 'END')
+            W.label7.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label7.show()
             W.entry7.setText('')
             W.entry7.show()
-            W.label8.setText('END Y')
+            W.label8.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label8.show()
             W.entry8.setText('')
             W.entry8.show()
         else:
-            W.label3.setText('NEXT X')
+            W.label3.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
-            W.label4.setText('NEXT Y')
+            W.label4.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('END X')
+            text = _translate('Conversational', 'END')
+            W.label5.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
-            W.label6.setText('END Y')
+            W.label6.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label6.show()
             W.entry6.setText('')
             W.entry6.show()
@@ -506,19 +518,20 @@ def set_arc_2_points_radius(P, W):
     P.lType = 'a2pr'
     W.iLabel.setPixmap(W.pixArc2pr)
     if P.conv_add_segment > 0:
-        W.label1.setText('END X')
+        text = _translate('Conversational', 'END')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('')
-        W.label2.setText('END Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('')
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('RADIUS')
+            W.label4.setText(_translate('Conversational', 'RADIUS'))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
         else:
-            W.label3.setText('RADIUS')
+            W.label3.setText(_translate('Conversational', 'RADIUS'))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
@@ -544,37 +557,39 @@ def set_arc_2_points_radius(P, W):
         W.g2Arc.show()
         W.entry1.setFocus()
     else:
-        W.label1.setText('START X')
+        text = _translate('Conversational', 'START')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('{:0.3f}'.format(0))
-        W.label2.setText('START Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('{:0.3f}'.format(0))
+        text = _translate('Conversational', 'END')
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('END X')
+            W.label4.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('END Y')
+            W.label5.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
             W.label6.setText('')
             W.entry6.hide()
-            W.label7.setText('RADIUS')
+            W.label7.setText(_translate('Conversational', 'RADIUS'))
             W.label7.show()
             W.entry7.setText('')
             W.entry7.show()
         else:
-            W.label3.setText('END X')
+            W.label3.setText(_translate('Conversational', 'X {}'.format(text)))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
-            W.label4.setText('END Y')
+            W.label4.setText(_translate('Conversational', 'Y {}'.format(text)))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('RADIUS')
+            W.label5.setText(_translate('Conversational', 'RADIUS'))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
@@ -603,11 +618,11 @@ def set_arc_by_angle_radius(P, W):
     P.lType = 'abar'
     W.iLabel.setPixmap(W.pixArcAngle)
     if P.conv_add_segment > 0:
-        W.label1.setText('LENGTH')
+        W.label1.setText(_translate('Conversational', 'LENGTH'))
         W.entry1.setText('')
-        W.label2.setText('ANGLE')
+        W.label2.setText(_translate('Conversational', 'ANGLE'))
         W.entry2.setText('0')
-        W.label3.setText('RADIUS')
+        W.label3.setText(_translate('Conversational', 'RADIUS'))
         W.entry3.setText('')
         W.label3.show()
         W.entry3.show()
@@ -633,37 +648,38 @@ def set_arc_by_angle_radius(P, W):
         W.g2Arc.show()
         W.entry1.setFocus()
     else:
-        W.label1.setText('START X')
+        text = _translate('Conversational', 'START')
+        W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
         W.entry1.setText('{:0.3f}'.format(0))
-        W.label2.setText('START Y')
+        W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
         W.entry2.setText('{:0.3f}'.format(0))
         if P.landscape:
             W.label3.setText('')
             W.entry3.hide()
-            W.label4.setText('LENGTH')
+            W.label4.setText(_translate('Conversational', 'LENGTH'))
             W.label4.show()
             W.entry4.setText('')
             W.entry4.show()
-            W.label5.setText('ANGLE')
+            W.label5.setText(_translate('Conversational', 'ANGLE'))
             W.label5.show()
             W.entry5.setText('0')
             W.entry5.show()
             W.label6.setText('')
             W.entry6.hide()
-            W.label7.setText('RADIUS')
+            W.label7.setText(_translate('Conversational', 'RADIUS'))
             W.label7.show()
             W.entry7.setText('')
             W.entry7.show()
         else:
-            W.label3.setText('LENGTH')
+            W.label3.setText(_translate('Conversational', 'LENGTH'))
             W.label3.show()
             W.entry3.setText('')
             W.entry3.show()
-            W.label4.setText('ANGLE')
+            W.label4.setText(_translate('Conversational', 'ANGLE'))
             W.label4.show()
             W.entry4.setText('0')
             W.entry4.show()
-            W.label5.setText('RADIUS')
+            W.label5.setText(_translate('Conversational', 'RADIUS'))
             W.label5.show()
             W.entry5.setText('')
             W.entry5.show()
@@ -689,15 +705,15 @@ def set_arc_by_angle_radius(P, W):
             W.entry3.setFocus()
 
 def line_type_changed(P, W):
-    if W.lType.currentText() == 'LINE POINT ~ POINT':
+    if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
         set_line_point_to_point(P, W)
-    elif W.lType.currentText() == 'LINE BY ANGLE':
+    elif W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE'):
         set_line_by_angle(P, W)
-    elif W.lType.currentText() == 'ARC 3P':
+    elif W.lType.currentText() == _translate('Conversational', 'ARC 3P'):
         set_arc_3_points(P, W)
-    elif W.lType.currentText() == 'ARC 2P +RADIUS':
+    elif W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS'):
         set_arc_2_points_radius(P, W)
-    elif W.lType.currentText() == 'ARC ANGLE +RADIUS':
+    elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
         set_arc_by_angle_radius(P, W)
 
 def auto_preview(P, W):
@@ -705,33 +721,33 @@ def auto_preview(P, W):
        W.entry1.text() and W.entry2.text():
         if (P.conv_add_segment == 0):
             if P.landscape:
-                if (W.lType.currentText() == 'LINE POINT ~ POINT' and W.entry4.text() and W.entry5.text()) or \
-                   (W.lType.currentText() == 'LINE BY ANGLE' and W.entry4.text() and W.entry5.text()) or \
-                   (W.lType.currentText() == 'ARC 3P' and W.entry4.text() and W.entry5.text() and W.entry7.text() and W.entry8.text()) or \
-                   (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry4.text() and W.entry5.text() and W.entry7.text()) or \
-                   (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry4.text() and W.entry5.text() and W.entry7.text()):
+                if (W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT') and W.entry4.text() and W.entry5.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE') and W.entry4.text() and W.entry5.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 3P') and W.entry4.text() and W.entry5.text() and W.entry7.text() and   W.entry8.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS') and W.entry4.text() and W.entry5.text() and W.entry7.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS') and W.entry4.text() and W.entry5.text() and W.entry7.text()):
                     preview(P, W)
             else:
-                if (W.lType.currentText() == 'LINE POINT ~ POINT' and W.entry3.text() and W.entry4.text()) or \
-                   (W.lType.currentText() == 'LINE BY ANGLE' and W.entry3.text() and W.entry5.text()) or \
-                   (W.lType.currentText() == 'ARC 3P' and W.entry3.text() and W.entry4.text() and W.entry5.text() and W.entry6.text()) or \
-                   (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry3.text() and W.entry4.text() and W.entry5.text()) or \
-                   (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text() and W.entry4.text() and W.entry5.text()):
+                if (W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT') and W.entry3.text() and W.entry4.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE') and W.entry3.text() and W.entry5.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 3P') and W.entry3.text() and W.entry4.text() and W.entry5.text() and W.entry6.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS') and W.entry3.text() and W.entry4.text() and W.entry5.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS') and W.entry3.text() and W.entry4.text() and W.entry5.text()):
                     preview(P, W)
         else:
             if P.landscape:
-                if (W.lType.currentText() == 'LINE POINT ~ POINT') or \
-                  (W.lType.currentText() == 'LINE BY ANGLE') or \
-                  (W.lType.currentText() == 'ARC 3P' and W.entry4.text() and W.entry5.text()) or \
-                  (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry4.text()) or \
-                  (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text()):
+                if (W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT')) or \
+                   (W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE')) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 3P') and W.entry4.text() and W.entry5.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS') and W.entry4.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS') and W.entry3.text()):
                     preview(P, W)
             else:
-                if (W.lType.currentText() == 'LINE POINT ~ POINT') or \
-                  (W.lType.currentText() == 'LINE BY ANGLE') or \
-                  (W.lType.currentText() == 'ARC 3P' and W.entry3.text() and W.entry4.text()) or \
-                  (W.lType.currentText() == 'ARC 2P +RADIUS' and W.entry3.text()) or \
-                  (W.lType.currentText() == 'ARC ANGLE +RADIUS' and W.entry3.text()):
+                if (W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT')) or \
+                   (W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE')) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 3P') and W.entry3.text() and W.entry4.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS') and W.entry3.text()) or \
+                   (W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS') and W.entry3.text()):
                     preview(P, W)
 
 def add_shape_to_file(P, W):
@@ -788,13 +804,15 @@ def widgets(P, W):
     W.entry7 = QLineEdit()
     W.label8 = QLabel()
     W.entry8 = QLineEdit()
-    W.preview = QPushButton('PREVIEW')
-    W.continu = QPushButton('CONTINUE')
-    W.add = QPushButton('ADD')
-    W.undo = QPushButton('UNDO')
-    W.lDesc = QLabel('CREATING LINE OR ARC')
-    W.g2Arc = QRadioButton('      CW')
-    W.g3Arc = QRadioButton('     CCW')
+    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    W.continu = QPushButton(_translate('Conversational', 'CONTINUE'))
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING LINE OR ARC'))
+    text = _translate('Conversational', 'CW')
+    W.g2Arc = QRadioButton('      {}'.format(text))
+    text = _translate('Conversational', 'CCW')
+    W.g3Arc = QRadioButton('     {}'.format(text))
     W.iLabel = QLabel()
     W.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
     W.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)
@@ -826,11 +844,11 @@ def widgets(P, W):
     W.add.setEnabled(False)
     W.undo.setEnabled(False)
     W.continu.setEnabled(False)
-    W.lType.addItem('LINE POINT ~ POINT')
-    W.lType.addItem('LINE BY ANGLE')
-    W.lType.addItem('ARC 3P')
-    W.lType.addItem('ARC 2P +RADIUS')
-    W.lType.addItem('ARC ANGLE +RADIUS')
+    W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
+    W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
+    W.lType.addItem(_translate('Conversational', 'ARC 3P'))
+    W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
+    W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
     P.conv_add_segment = 0
     P.conv_gcodeLine = ''
     P.conv_gcodeSave = ''
