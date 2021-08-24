@@ -100,7 +100,7 @@ class HalRotate(Collection):
     def apply(self):
         th, x, y, z = self.where
         GL.glPushMatrix()
-        if direct is None:
+        if self.direct is None:
             v = self.comp[self.var]
         else:
             try:
