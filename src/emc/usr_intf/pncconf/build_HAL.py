@@ -1833,13 +1833,16 @@ class HAL:
                 dratio = (self.d.voltsrdiv + 100000) / 100000
             vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
             voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
+            # prefs file if not existing
             prefsfile = os.path.join(base, "qtplasmac.prefs")
-            if not os.path.exists(prefsfile):
-                f1 = open(prefsfile, "w")
-                print(("[PLASMA_PARAMETERS]"), file=f1)
-                print("Arc Voltage Offset = %.3f" % voffset, file=f1)
-                print("Arc Voltage Scale = %.6f" % vscale, file=f1)
-                f1.close()
+            if os.path.exists(prefsfile):
+                # else make a file with new values
+                prefsfile = os.path.join(base, "qtplasmac.prefs.new_values")
+            f1 = open(prefsfile, "w")
+            print(("[PLASMA_PARAMETERS]"), file=f1)
+            print("Arc Voltage Offset = %.3f" % voffset, file=f1)
+            print("Arc Voltage Scale = %.6f" % vscale, file=f1)
+            f1.close()
             print("\n# ---ARC VOLTAGE ENCODER---", file=file)
             print("net plasmac:arc-voltage-in <= %s%s"% (pinname, ending), file=file)
             print("setp {}.counter-mode  1".format(pinname), file=file)
