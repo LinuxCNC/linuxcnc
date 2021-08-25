@@ -1,4 +1,4 @@
-VERSION = '1.0.70'
+VERSION = '1.0.71'
 
 import os, sys
 from shutil import copy as COPY
@@ -734,11 +734,9 @@ class HandlerClass:
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(250)
-        self.runButtonTimer = QTimer()
-        self.runButtonTimer.setSingleShot(True)
-        self.runButtonTimer.timeout.connect(self.run_button_timeout)
         self.manualCut = False
         self.slowJogClicked = False
+        self.jogIncrementsIndex = 0
         self.probeTest = False
 
     def get_overlay_text(self, kerf):
@@ -949,7 +947,6 @@ class HandlerClass:
             else :
                 self.set_buttons_state([self.idleHomedList], False)
         else:
-            self.runButtonTimer.stop()
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
             if self.ptButton and hal.get_value('plasmac.probe-test'):
                 self.probe_test(False)
@@ -997,7 +994,28 @@ class HandlerClass:
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
            self.plasmacStatePin.get() == 0 and not self.boundsError['loaded']:
-            self.runButtonTimer.start(75)
+            if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
+                self.w.materials_box.setCurrentIndex(0)
+            if self.w.gcode_display.lines() > 1:
+                self.w.run.setEnabled(True)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(True)
+            if self.manualCut == True:
+                self.manualCut = False
+                if self.slowJogClicked == True:
+                    self.jog_slow_clicked(True)
+                    self.slowJogClicked = False
+                if self.jogIncrementsIndex != 0:
+                    self.w.jogincrements.setCurrentIndex(self.jogIncrementsIndex)
+                    self.jogIncrementsIndex = 0
+                self.w.jog_slider.setValue(self.previousJogSpeed)
+                self.w.jog_slider.setEnabled(True)
+                self.w.jogs_label.setEnabled(True)
+                self.w.jog_slow.setEnabled(True)
+                self.w.jogincrements.setEnabled(True)
+                self.w.jog_z_plus.setEnabled(True)
+                self.w.jog_z_minus.setEnabled(True)
+            self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
@@ -1207,7 +1225,9 @@ class HandlerClass:
         elif not self.rflActive:
             self.startLine = 0
         else:
-            self.runText = 'RUN FROM LINE\nCYCLE START'
+            txt0 = _translate('HandlerClass', 'RUN FROM LINE')
+            txt1 = _translate('HandlerClass', 'CYCLE START')
+            self.runText = '{}\n{}'.format(txt0, txt1)
 
     def update_gcode_properties(self, props):
         self.gcodeProps = props
@@ -1550,7 +1570,7 @@ class HandlerClass:
             slider.setMaximum(max / self.slowJogFactor)
             slider.setValue(current / self.slowJogFactor)
             slider.setPageStep(10)
-        elif self.w.jog_slow.text()== _translate('HandlerClass', 'SLOW'):
+        elif self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
             self.w.jog_slow.setText(_translate('HandlerClass', 'FAST'))
             slider.setMaximum(max * self.slowJogFactor)
             slider.setValue(current * self.slowJogFactor)
@@ -2042,7 +2062,7 @@ class HandlerClass:
             rate = STATUS.get_jograte_angular()/60
         if state:
             if not STATUS.is_man_mode() or not STATUS.machine_is_on() or \
-               (self.offsetsActivePin.get() and not self.manualCut) or self.runButtonTimer.isActive():
+               (self.offsetsActivePin.get() and not self.manualCut):
                 return
             if (shift or self.jogFast) and not self.manualCut:
                 rate = INFO.MAX_LINEAR_JOG_VEL
@@ -2456,15 +2476,20 @@ class HandlerClass:
                 self.button_normal(self.halPulsePins[halpin][0])
 
     def run_critical_check(self):
+        if self.runText[:8] == _translate('HandlerClass', 'SELECTED')[:8]:
+            return
         rcButtonList = []
         # halTogglePins format is: button name, run critical flag, button text
         for halpin in self.halTogglePins:
             if self.halTogglePins[halpin][1] and not hal.get_value(halpin):
                 rcButtonList.append(self.halTogglePins[halpin][2].replace('\n', ' '))
         if rcButtonList:
-            msg  = '\nButton(s) not toggled:\n'
-            msg += '\n{}'.format('\n'.join(rcButtonList))
-            if self.dialog_show_yesno(QMessageBox.Warning, 'Run Critical Toggle', msg, 'CONTINUE', 'CANCEL'):
+            head = _translate('HandlerClass', 'Run Critical Toggle')
+            btn1 = _translate('HandlerClass', 'CONTINUE')
+            btn2 = _translate('HandlerClass', 'CANCEL')
+            msg0 = _translate('HandlerClass', 'Button not toggled')
+            msg1 = '\n{}'.format('\n'.join(rcButtonList))
+            if self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}:\n{}'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
                 return False
             else:
                 return True
@@ -2518,11 +2543,11 @@ class HandlerClass:
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         if self.manualCut:
             if self.w.run.text() == '':
-                self.w.run.setText('MANUAL CUT')
+                self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
             else:
                 self.w.run.setText('')
         if self.startLine > 0:
-            if not self.w.run.text().startswith('RUN'):
+            if not self.w.run.text().startswith(_translate('HandlerClass', 'RUN')):
                 if self.w.run.text() == (''):
                     self.w.run.setText(self.runText)
                 else:
@@ -2540,7 +2565,7 @@ class HandlerClass:
             else:
                 self.w.pmx485_label.setText('')
                 self.pmx485LabelState = None
-        elif not self.w.pmx485LabelState:
+        elif not self.pmx485LabelState:
             if self.w.pmx485_label.text() == '':
                 self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
                 self.pmx485LabelState = None
@@ -2592,26 +2617,6 @@ class HandlerClass:
                 self.w[self.tpButton].setText(_translate('HandlerClass', 'TORCH\nON'))
         else:
             self.torchTimer.start(100)
-
-    def run_button_timeout(self):
-        if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
-            self.w.materials_box.setCurrentIndex(0)
-        if self.w.gcode_display.lines() > 1:
-            self.w.run.setEnabled(True)
-            if self.frButton:
-                self.w[self.frButton].setEnabled(True)
-        if self.manualCut == True:
-            self.manualCut = False
-            if self.slowJogClicked == True:
-                self.jog_slow_clicked(True)
-                self.slowJogClicked = False
-            self.w.jog_slider.setValue(self.previousJogSpeed)
-            self.w.jog_slider.setEnabled(True)
-            self.w.jogs_label.setEnabled(True)
-            self.w.jog_slow.setEnabled(True)
-            self.w.jog_z_plus.setEnabled(True)
-            self.w.jog_z_minus.setEnabled(True)
-        self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
 
     def pulse_timer_timeout(self):
         # halPulsePins format is: button name, pulse time, button text, remaining time
@@ -2711,8 +2716,8 @@ class HandlerClass:
                 elif len(bCode.lower().strip().split()) == 1:
                     self.defaultZ = True
                 else:
-                    msg = 'Invalid code for user button #{}\n'.format(bNum)
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'HAL PIN ERROR:\n{}'.format(msg))
+                    head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
                     continue
                 self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
                 self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
@@ -2734,8 +2739,8 @@ class HandlerClass:
                 elif len(bCode.lower().strip().split()) == 2:
                     critical = False
                 else:
-                    msg = _translate('Invalid code for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg, bNum))
+                    head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
                     continue
                 halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
                 excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
@@ -3207,17 +3212,6 @@ class HandlerClass:
         ACTION.OPEN_PROGRAM(newFile)
 
     def manual_cut(self):
-        if not self.manualCut:
-            self.previousJogSpeed = self.w.jog_slider.value()
-            if self.w.jog_slow.text() == 'SLOW':
-                self.slowJogClicked = True
-                self.jog_slow_clicked(False)
-            self.w.jog_slider.setValue(self.w.cut_feed_rate.value())
-            self.w.jog_slider.setEnabled(False)
-            self.w.jogs_label.setEnabled(False)
-            self.w.jog_slow.setEnabled(False)
-            self.w.jog_z_plus.setEnabled(False)
-            self.w.jog_z_minus.setEnabled(False)
         if STATUS.is_spindle_on():
             ACTION.SET_SPINDLE_STOP(0)
             self.w.abort.setEnabled(False)
@@ -3225,13 +3219,27 @@ class HandlerClass:
                 self.w[self.mcButton].setEnabled(False)
                 self.button_normal(self.mcButton)
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
-            ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
+            self.previousJogSpeed = self.w.jog_slider.value()
+            if self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
+                self.slowJogClicked = True
+                self.jog_slow_clicked(False)
+            if self.w.jogincrements.currentIndex() != 0:
+                self.jogIncrementsIndex = self.w.jogincrements.currentIndex()
+                self.w.jogincrements.setCurrentIndex(0)
+            self.w.jog_slider.setValue(self.w.cut_feed_rate.value())
+            self.w.jog_slider.setEnabled(False)
+            self.w.jogs_label.setEnabled(False)
+            self.w.jog_slow.setEnabled(False)
+            self.w.jogincrements.setEnabled(False)
+            self.w.jog_z_plus.setEnabled(False)
+            self.w.jog_z_minus.setEnabled(False)
             self.manualCut = True
             self.w.abort.setEnabled(True)
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
             if self.mcButton:
                 self.w[self.mcButton].setEnabled(True)
                 self.button_active(self.mcButton)
+            ACTION.SET_SPINDLE_ROTATION(1 ,1 , 0)
         self.set_run_button_state()
 
     def button_active(self, button):
