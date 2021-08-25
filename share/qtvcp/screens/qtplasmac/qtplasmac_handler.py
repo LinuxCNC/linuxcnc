@@ -1,4 +1,4 @@
-VERSION = '1.0.71'
+VERSION = '1.0.72'
 
 import os, sys
 from shutil import copy as COPY
@@ -364,6 +364,7 @@ class HandlerClass:
         # only set hal pins after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
+        self.runText = self.w.run.text()
         self.startupTimer.start(250)
         if self.firstRun is True:
             self.firstRun = False
