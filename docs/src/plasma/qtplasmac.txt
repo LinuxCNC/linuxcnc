@@ -211,7 +211,7 @@ pncconf
 If using a Pico Systems board: +
 https://forum.linuxcnc.org/27-driver-boards/14977-pico-systems-faq[This LinuxCNC forum thread] may be helpful.
 
-The machine specific settings are not described here, refer to the docementation for the particular configuration wizard that you are using.
+The machine specific settings are not described here, refer to the documentation for the particular configuration wizard that is being used.
 
 There are Linuxcnc forum sections available for these wizards:
 
@@ -298,7 +298,7 @@ See <<qt_parameters-tab, Parameters Tab>>
 
 . Home the Z axis.
 
-. Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MINIMUM_LIMIT then click the 0 next to the Z axis DRO to *Touch Off* with the Z axis selected to set the Z axis at zero offset.
+. Ensure there is nothing below the torch then jog the Z axis down until it stops at the Z axis MINIMUM_LIMIT then click the 0 next to the Z axis DRO to *Touch Off* with the Z axis selected to set the Z axis at zero offset. This step only serves to allow the user to more easily visualize and adjust *Probe Height* this value is measured from the Z axis MINIMUM_LIMIT up.
 
 . Home the Z axis again.
 
@@ -322,7 +322,7 @@ If the machine is equipped with a float switch then the user will need to set th
 
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
 
-. CONGRATULATIONS! you should now have a working QtPlasmaC Configuration.
+. CONGRATULATIONS! The user should now have a working QtPlasmaC Configuration.
 
 NOTE: If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing, the probing section>> for a possible solution.
 
@@ -1611,7 +1611,7 @@ By using "magic comments" in a G-Code file it is possible to do the following:
 - Edit existing materials in the <machine_name>_material.cfg file.
 - Use one or more temporary materials.
 
-Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the GCode file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, you could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
+Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the GCode file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, however the user could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
 
 TIP: It is possible to use temporary materials only and have an empty <machine_name>_material.cfg file. This negates the need to keep the QtPlasmaC materials file updated with the CAM tool file.
 
@@ -3232,11 +3232,11 @@ A typical <<qt_rs485_connections, connection diagram>> is shown in the appendix 
 
 == Internationalisation
 
-It is possible to create translation files for QtPlasmaC to display in the language of the current locale. 
+It is possible to create translation files for QtPlasmaC to display in the language of the current locale.
 
 To create and or edit a translation file requires that LinuxCNC has been installed as run in place.
 
-The following assumes that your linuxcnc git directory is ~/linuxcnc-dev.
+The following assumes that the linuxcnc git directory is ~/linuxcnc-dev.
 
 The *$* indicates a terminal prompt.
 
@@ -3252,7 +3252,7 @@ The language is determined by an underscore plus the first two letters of the lo
 
 The default locale for QtPlasmaC is "_en" which means that any translation files created as "qtplasmac_en.*" will not be used for translations.
 
-If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then you will need to install pyqt5-dev-tools:
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install pyqt5-dev-tools:
 
 ----
 $ sudo apt install pyqt5-dev-tools
@@ -3268,7 +3268,7 @@ If any text changes have been made to the GUI then run the following to update t
 $ pyuic5 ../qtplasmac.ui > qtplasmac.py
 ----
 
-You can either create a new translation source file for a non existing language translation or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file. If modifying an existing translation that has had no source file changes then this step is not required.
+The user can either create a new translation source file for a non existing language translation or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file. If modifying an existing translation that has had no source file changes then this step is not required.
 
 Create or edit a .ts file:
 ----
@@ -3281,7 +3281,7 @@ $ linguist
 ----
 
 It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
-You do need to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
+The user needs to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
 
 When editing is complete save the file:
 ----
