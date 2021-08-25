@@ -336,7 +336,7 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
     P.a = (JA != -1)? pos->a : 0;
     P.u = (JU != -1)? pos->u : 0;
     P.v = (JV != -1)? pos->v : 0;
-    P.v = (JW != -1)? pos->w : 0;
+    P.w = (JW != -1)? pos->w : 0;
 
     // update joints with support for
     // multiple-joints per-coordinate letter:
