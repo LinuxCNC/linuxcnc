@@ -33,7 +33,6 @@ fi
 
 EXTRA_FILES=
 EXTRA_BUILD=
-PYTHON_VERSION=$(python3 -c 'import sys; print (sys.version[:3])')
 PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
 LIBREADLINE_DEV=libreadline-gplv2-dev
 
@@ -77,13 +76,11 @@ fi
 
 MODUTILS_DEPENDS=kmod
 PYTHON_PACKAGING_DEPENDS=dh-python
-PYTHON_PACKAGING=dh_python3
 PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
 YAPPS_RUNTIME="python3-yapps"
-STANDARDS_VERSION="3.9.8"
 
 case $DISTRIB_NAME in
     Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing)
@@ -139,9 +136,7 @@ sed \
     -e "s#@PYTHON_IMAGING@#$PYTHON_IMAGING#g" \
     -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
     -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
-    -e "s#@PYTHON_PACKAGING@#$PYTHON_PACKAGING#g" \
     -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
-    -e "s#@PYTHON_VERSION@#$PYTHON_VERSION#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
     -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
@@ -149,7 +144,6 @@ sed \
     -e "s#@XENOMAI_ARCHITECTURE@#$XENOMAI_ARCHITECTURE#g" \
     -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
     -e "s#@ENABLE_BUILD_DOCUMENTATION@#$ENABLE_BUILD_DOCUMENTATION#g" \
-    -e "s#@STANDARDS_VERSION@#$STANDARDS_VERSION#g" \
     $*
 }
 

@@ -774,8 +774,7 @@ static void offset_changed(GtkEditable * editable, struct offset_data *data)
     /* maybe user hit "ac coupled" button" */
     data->ac_coupled =
       gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
-    gtk_editable_set_editable(GTK_EDITABLE(ctrl_usr->vert.offset_entry),
-                !data->ac_coupled);
+    gtk_widget_set_sensitive(ctrl_usr->vert.offset_entry, !data->ac_coupled);
 
     /* maybe user typed something, save it in the buffer */
     text = gtk_entry_get_text(GTK_ENTRY(ctrl_usr->vert.offset_entry));
