@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h>
-#include "py3c/py3c.h"
 #include <structmember.h>
 
 #include "rs274ngc.hh"
@@ -30,8 +29,6 @@ int _task = 0; // control preview behaviour when remapping
 
 char _parameter_file_name[LINELEN];
 
-#if PY_MAJOR_VERSION >=3
-
 extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
@@ -42,23 +39,11 @@ struct _inittab builtin_modules[] = {
     { NULL, NULL }
 };
 
-#else
-
-extern "C" void initinterpreter();
-extern "C" void initemccanon();
-extern "C" struct _inittab builtin_modules[];
-struct _inittab builtin_modules[] = {
-    { (char *) "interpreter", initinterpreter },
-    { (char *) "emccanon", initemccanon },
-    // any others...
-    { NULL, NULL }
-};
-#endif
 
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(arr[i]));
+        PyTuple_SET_ITEM(res, i, PyLong_FromLong(arr[i]));
     }
     return res;
 }
@@ -544,7 +529,7 @@ void SET_PARAMETER_FILE_NAME(const char *name)
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
     PyObject *result = PyObject_GetAttrString(callback, "parameter_file");
     if(!result) { name[0] = 0; return; }
-    char *s = (char*)PyStr_AsString(result);
+    char *s = (char*)PyUnicode_AsUTF8(result);
     if(!s) { name[0] = 0; return; }
     memset(name, 0, max_size);
     strncpy(name, s, max_size - 1);
@@ -622,8 +607,8 @@ int GET_EXTERNAL_AXIS_MASK() {
     PyObject *result =
         callmethod(callback, "get_axis_mask", "");
     if(!result) { interp_error ++; return 7 /* XYZABC */; }
-    if(!PyInt_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
-    int mask = PyInt_AsLong(result);
+    if(!PyLong_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
+    int mask = PyLong_AsLong(result);
     Py_DECREF(result);
     return mask;
 }
@@ -656,8 +641,8 @@ double GET_EXTERNAL_TOOL_LENGTH_WOFFSET() {
     return tool_offset.w;
 }
 
-static bool PyInt_CheckAndError(const char *func, PyObject *p)  {
-    if(PyInt_Check(p)) return true;
+static bool PyLong_CheckAndError(const char *func, PyObject *p)  {
+    if(PyLong_Check(p)) return true;
     PyErr_Format(PyExc_TypeError,
             "%s: Expected int, got %s", func, Py_TYPE(p)->tp_name);
     return false;
@@ -773,7 +758,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         {
             PyObject *item = PyList_GetItem(initcodes, i);
             if(!item) return NULL;
-            const char *code = PyStr_AsString(item);
+            const char *code = PyUnicode_AsUTF8(item);
             if(!code) return NULL;
             result = pinterp->read(code);
             if(!RESULT_OK) goto out_error;
@@ -827,8 +812,8 @@ out_error:
     maybe_new_line();
     if(PyErr_Occurred()) { interp_error = 1; goto out_error; }
     PyObject *retval = PyTuple_New(2);
-    PyTuple_SetItem(retval, 0, PyInt_FromLong(result));
-    PyTuple_SetItem(retval, 1, PyInt_FromLong(last_sequence_number + error_line_offset));
+    PyTuple_SetItem(retval, 0, PyLong_FromLong(result));
+    PyTuple_SetItem(retval, 1, PyLong_FromLong(last_sequence_number + error_line_offset));
     return retval;
 }
 
@@ -840,7 +825,7 @@ static PyObject *rs274_strerror(PyObject *s, PyObject *o) {
     int err;
     if(!PyArg_ParseTuple(o, "i", &err)) return nullptr;
     pinterp->error_text(err, savedError, LINELEN);
-    return PyStr_FromString(savedError);
+    return PyUnicode_FromString(savedError);
 }
 
 static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
@@ -906,17 +891,10 @@ static PyObject *rs274_calc_extents(PyObject *self, PyObject *args) {
         min_xt, min_yt, min_zt,  max_xt, max_yt, max_zt);
 }
 
-#if PY_VERSION_HEX < 0x02050000
-#define PyObject_GetAttrString(o,s) \
-    PyObject_GetAttrString((o),const_cast<char*>((s)))
-#define PyArg_VaParse(o,f,a) \
-    PyArg_VaParse((o),const_cast<char*>((f)),(a))
-#endif
-
 static bool get_attr(PyObject *o, const char *attr_name, int *v) {
     PyObject *attr = PyObject_GetAttrString(o, attr_name);
-    if(attr && PyInt_CheckAndError(attr_name, attr)) {
-        *v = PyInt_AsLong(attr);
+    if(attr && PyLong_CheckAndError(attr_name, attr)) {
+        *v = PyLong_AsLong(attr);
         Py_DECREF(attr);
         return true;
     }
@@ -1082,15 +1060,16 @@ static struct PyModuleDef gcode_moduledef = {
     gcode_methods                             /* m_methods */
 };
 
-MODULE_INIT_FUNC(gcode)
+PyMODINIT_FUNC PyInit_gcode(void);
+PyMODINIT_FUNC PyInit_gcode(void)
 {
 
     PyObject *m = PyModule_Create(&gcode_moduledef);
     PyType_Ready(&LineCodeType);
     PyModule_AddObject(m, "linecode", (PyObject*)&LineCodeType);
-    PyObject_SetAttrString(m, "MAX_ERROR", PyInt_FromLong(maxerror));
+    PyObject_SetAttrString(m, "MAX_ERROR", PyLong_FromLong(maxerror));
     PyObject_SetAttrString(m, "MIN_ERROR",
-            PyInt_FromLong(INTERP_MIN_ERROR));
+            PyLong_FromLong(INTERP_MIN_ERROR));
     return m;
 }
 // vim:ts=8:sts=4:sw=4:et:

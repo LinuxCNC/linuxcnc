@@ -19,7 +19,6 @@
 #define PY_SSIZE_T_CLEAN
 #define __STDC_FORMAT_MACROS
 #include <Python.h>
-#include "py3c/py3c.h"
 #include <structseq.h>
 #include <pthread.h>
 #include <structmember.h>
@@ -123,7 +122,7 @@ static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
         Py_INCREF(Py_None);
         return Py_None;
     }
-    return PyStr_FromString(const_cast<char*>(out));
+    return PyUnicode_FromString(const_cast<char*>(out));
 }
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
@@ -137,7 +136,7 @@ static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
         if(out == NULL) {
             break;
         }
-        PyList_Append(result, PyStr_FromString(const_cast<char*>(out)));
+        PyList_Append(result, PyUnicode_FromString(const_cast<char*>(out)));
         num++;
     }
     return result;
@@ -250,7 +249,7 @@ static int emcSendCommand(pyCommandChannel *s, RCS_CMD_MSG & cmd) {
 static const char *get_nmlfile(void) {
     PyObject *fileobj = PyObject_GetAttrString(m, "nmlfile");
     if(fileobj == NULL) return NULL;
-    return PyStr_AsString(fileobj);
+    return PyUnicode_AsUTF8(fileobj);
 }
 
 static int Stat_init(pyStatChannel *self, PyObject *a, PyObject *k) {
@@ -416,7 +415,7 @@ static PyMemberDef Stat_members[] = {
 static PyObject *int_array(int *arr, int sz) {
     PyObject *res = PyTuple_New(sz);
     for(int i = 0; i < sz; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(arr[i]));
+        PyTuple_SET_ITEM(res, i, PyLong_FromLong(arr[i]));
     }
     return res;
 }
@@ -444,7 +443,7 @@ static PyObject *pose(const EmcPose &p) {
 }
 
 static PyObject *Stat_g5x_index(pyStatChannel *s) {
-    return PyInt_FromLong(s->status.task.g5x_index);
+    return PyLong_FromLong(s->status.task.g5x_index);
 }
 
 static PyObject *Stat_g5x_offset(pyStatChannel *s) {
@@ -521,7 +520,7 @@ static PyObject *Stat_limit(pyStatChannel *s) {
         if(s->status.motion.joint[i].maxHardLimit) v |= 2;
         if(s->status.motion.joint[i].minSoftLimit) v |= 4;
         if(s->status.motion.joint[i].maxSoftLimit) v |= 8;
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(v));
+        PyTuple_SET_ITEM(res, i, PyLong_FromLong(v));
     }
     return res;
 }
@@ -529,7 +528,7 @@ static PyObject *Stat_limit(pyStatChannel *s) {
 static PyObject *Stat_homed(pyStatChannel *s) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
-        PyTuple_SET_ITEM(res, i, PyInt_FromLong(s->status.motion.joint[i].homed));
+        PyTuple_SET_ITEM(res, i, PyLong_FromLong(s->status.motion.joint[i].homed));
     }
     return res;
 }
@@ -544,7 +543,7 @@ static PyObject *Stat_aout(pyStatChannel *s) {
 
 static void dict_add(PyObject *d, const char *name, unsigned char v) {
     PyObject *o;
-    PyDict_SetItemString(d, name, o = PyInt_FromLong(v));
+    PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
     Py_XDECREF(o);
 }
 static void dict_add(PyObject *d, const char *name, double v) {
@@ -694,7 +693,7 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
         }
         struct CANON_TOOL_TABLE &t = tdata;
         PyObject *tool = PyStructSequence_New(&ToolResultType);
-        PyStructSequence_SET_ITEM(tool,  0, PyInt_FromLong(t.toolno));
+        PyStructSequence_SET_ITEM(tool,  0, PyLong_FromLong(t.toolno));
         PyStructSequence_SET_ITEM(tool,  1, PyFloat_FromDouble(t.offset.tran.x));
         PyStructSequence_SET_ITEM(tool,  2, PyFloat_FromDouble(t.offset.tran.y));
         PyStructSequence_SET_ITEM(tool,  3, PyFloat_FromDouble(t.offset.tran.z));
@@ -707,7 +706,7 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
         PyStructSequence_SET_ITEM(tool, 10, PyFloat_FromDouble(t.diameter));
         PyStructSequence_SET_ITEM(tool, 11, PyFloat_FromDouble(t.frontangle));
         PyStructSequence_SET_ITEM(tool, 12, PyFloat_FromDouble(t.backangle));
-        PyStructSequence_SET_ITEM(tool, 13, PyInt_FromLong(t.orientation));
+        PyStructSequence_SET_ITEM(tool, 13, PyLong_FromLong(t.orientation));
         PyTuple_SetItem(res, j, tool);
         j++;
     }
@@ -717,7 +716,7 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
 
 static PyObject *Stat_axes(pyStatChannel *s) {
     PyErr_WarnEx(PyExc_DeprecationWarning, "stat.axes is deprecated and will be removed in the future", 0);
-    return PyInt_FromLong(s->status.motion.traj.deprecated_axes);
+    return PyLong_FromLong(s->status.motion.traj.deprecated_axes);
 }
 
 // XXX io.tool.toolTable
@@ -1369,7 +1368,7 @@ static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     double timeout = EMC_COMMAND_TIMEOUT;
     if (!PyArg_ParseTuple(o, "|d:emc.command.wait_complete", &timeout))
         return NULL;
-    return PyInt_FromLong(emcWaitCommandComplete(s, timeout));
+    return PyLong_FromLong(emcWaitCommandComplete(s, timeout));
 }
 
 static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
@@ -1545,14 +1544,14 @@ static PyObject* Error_poll(pyErrorChannel *s) {
         return Py_None;
     }
     PyObject *r = PyTuple_New(2);
-    PyTuple_SET_ITEM(r, 0, PyInt_FromLong(type));
+    PyTuple_SET_ITEM(r, 0, PyLong_FromLong(type));
 #define PASTE(a,b) a ## b
 #define _TYPECASE(tag, type, f) \
     case tag: { \
         char error_string[LINELEN]; \
         strncpy(error_string, ((type*)s->c->get_address())->f, LINELEN-1); \
         error_string[LINELEN-1] = 0; \
-        PyTuple_SET_ITEM(r, 1, PyStr_FromString(error_string)); \
+        PyTuple_SET_ITEM(r, 1, PyUnicode_FromString(error_string)); \
         break; \
     }
 #define TYPECASE(x, f) _TYPECASE(PASTE(x, _TYPE), x, f)
@@ -1567,7 +1566,7 @@ static PyObject* Error_poll(pyErrorChannel *s) {
         {
             char error_string[256];
             snprintf(error_string, sizeof(error_string), "unrecognized error %" PRId32, type);
-            PyTuple_SET_ITEM(r, 1, PyStr_FromString(error_string));
+            PyTuple_SET_ITEM(r, 1, PyUnicode_FromString(error_string));
             break;
         }
     }
@@ -2362,7 +2361,8 @@ static struct PyModuleDef linuxcnc_moduledef = {
     emc_methods     /* m_methods */
 };
 
-MODULE_INIT_FUNC(linuxcnc)
+PyMODINIT_FUNC PyInit_linuxcnc(void);
+PyMODINIT_FUNC PyInit_linuxcnc(void)
 {
         
     verbose_nml_error_messages = 0;
@@ -2398,7 +2398,7 @@ MODULE_INIT_FUNC(linuxcnc)
 
     PyStructSequence_InitType(&ToolResultType, &tool_result_desc);
     PyModule_AddObject(m, "tool", (PyObject*)&ToolResultType);
-    PyModule_AddObject(m, "version", PyStr_FromString(PACKAGE_VERSION));
+    PyModule_AddObject(m, "version", PyUnicode_FromString(PACKAGE_VERSION));
 
     ENUMX(4, EMC_LINEAR);
     ENUMX(4, EMC_ANGULAR);
