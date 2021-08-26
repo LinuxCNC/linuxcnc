@@ -5,7 +5,8 @@ qtplasmac-plasmac2qt.py
 This file is used to convert settings in the .cfg files from a PlasmaC
 configuration to the .prefs file for a QtPlasmaC configuration.
 
-Copyright (C) 2020 Phillip A Carter
+Copyright (C) 2020, 2021 Phillip A Carter
+Copyright (C) 2020, 2021  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

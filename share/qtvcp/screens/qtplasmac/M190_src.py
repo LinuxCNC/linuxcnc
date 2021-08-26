@@ -1,7 +1,8 @@
 '''
 M190
 
-Copyright (C) 2019 2020  Phillip A Carter
+Copyright (C) 2019, 2020, 2021  Phillip A Carter
+Copyright (C) 2020, 2021  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the

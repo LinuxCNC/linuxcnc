@@ -265,7 +265,7 @@ pin out float   target_volts                "target voltage for thc, set by arc 
 
 function _;
 
-author "Phillip A Carter";
+author "Phillip A Carter & Gregory D Carl";
 
 license "GPLv2 or greater";
 

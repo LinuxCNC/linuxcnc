@@ -1,5 +1,26 @@
 VERSION = '1.0.73'
 
+'''
+qtplasmac_handler.py
+
+Copyright (C) 2020, 2021  Phillip A Carter
+Copyright (C) 2020, 2021  Gregory D Carl
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc
+51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+'''
+
 import os, sys
 from shutil import copy as COPY
 from shutil import move as MOVE
@@ -11,7 +32,6 @@ import tarfile
 import math
 import linuxcnc
 import hal, hal_glib
-#import locale
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -77,18 +97,6 @@ class OverlayMaterial(QLabel):
 class ColorError(Exception):
     pass
 
-# # language translation
-# class Translator(QTranslator):
-#     def __init__(self, path):
-#         QTranslator.__init__(self)
-# #        lang = locale.getdefaultlocale()[0].split('_')[0]
-#         lang = locale.getdefaultlocale()[0]
-#         print('\nLANGUAGE: {}\n'.format(lang))
-#         langpath = path + '/qtplasmac/resources/qtplasmac_' + lang + '.qm'
-#         print('LANGPATH: {}'.format(langpath))
-#         self.load(langpath)
-#         return
-
 # the main handler
 class HandlerClass:
     # when self.w.button_frame changes size
@@ -97,41 +105,8 @@ class HandlerClass:
             self.size_changed(object)
         return True
 
-
-    # translation
-#    def _translate(self, context, text_to_translate):
-#        print('TRANSLATING: {}>{}'.format(context, text_to_translate))
-#        return QCoreApplication.translate(context, text_to_translate)
-
-
     def __init__(self, halcomp, widgets, paths):
         self.firstRun = True
-#        self.PATHS = paths
-
-#         lang = locale.getdefaultlocale()[0]
-#         langpath = self.PATHS.SCREENDIR + '/qtplasmac/resources/qtplasmac_' + lang + '.qm'
-#         self.translator = QTranslator()
-# #        self.translator.load(langpath)
-#         self.translator.load(self.PATHS.LOCALEDIR)
-# #        self.translator.load('{}/{}/resources/{}_{}.qm'.format(self.PATHS.SCREENDIR, self.PATHS.BASEPATH,self.PATHS.BASEPATH,lang))
-#         QApplication.installTranslator(self.translator)
-#
-#         print("1: {}".format(langpath))
-#         print("2: {}".format(self.PATHS.LOCALEDIR))
-#         print("3: {}".format('{}/{}/resources/{}_{}.qm'.format(self.PATHS.SCREENDIR, self.PATHS.BASEPATH,self.PATHS.BASEPATH,lang)))
-
-#        print("SELF:", self)
-#        print("APP:", APP)
-#        self.translator = Translator(self.PATHS.SCREENDIR)
-#        QApplication.installTranslator(self.translator)
-#        translator = Translator(self.PATHS.SCREENDIR)
-#        QApplication.installTranslator(translator)
-#        self.translator = Translator(self.PATHS.SCREENDIR)
-#        QApplication.installTranslator(Translator(self.PATHS.SCREENDIR))
-
-#        print("LOADED", self.PATHS.LOCALEDIR)
-#        self.w.load('{}'.format(self.PATHS.LOCALEDIR))
-
         self.h = halcomp
         self.w = widgets
         self.h.comp.setprefix('qtplasmac')
