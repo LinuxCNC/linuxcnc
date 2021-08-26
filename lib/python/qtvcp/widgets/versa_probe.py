@@ -207,14 +207,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
         string_to_send = 'PID${}\n'.format( str(os.getpid()))
-        if sys.version_info.major > 2:
-            self.proc.start('python3 {}'.format(SUBPROGRAM))
-            # send our PID so subprogram can check to see if it is still running
-            self.proc.writeData(bytes(string_to_send, 'utf-8'))     
-        else:
-            self.proc.start('python {}'.format(SUBPROGRAM))
-            # send our PID so subprogram can check to see if it is still running
-            self.proc.writeData(string_to_send)
+        self.proc.start('python3 {}'.format(SUBPROGRAM))
+        # send our PID so subprogram can check to see if it is still running
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))     
 
     def start_probe(self, cmd):
         if self.process_busy is True:
@@ -224,11 +219,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         ACTION.CALL_MDI("G10 L2 P0 X0 Y0 Z0")
         self.get_parms()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
-        print("String to send ", string_to_send)
-        if sys.version_info.major > 2:
-            self.proc.writeData(bytes(string_to_send, 'utf-8'))
-        else:
-            self.proc.writeData(string_to_send)
+        #print("String to send ", string_to_send)
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))
         self.process_busy = True
 
     def process_started(self):
@@ -250,50 +242,28 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         self.process_busy = False
-        if sys.version_info.major > 2:
-            if bytes("ERROR" ,'utf-8') in line:
-                print(line)
-            elif bytes("DEBUG", 'utf-8') in line:
-                print(line)
-            elif bytes("INFO", 'utf-8') in line:
-                print(line)
-            elif bytes("COMPLETE", 'utf-8') in line:
-                LOG.info("Probing routine completed without errors")
-                return_data = line.rstrip().split('$')
-                data = json.loads(return_data[1])
-                self.show_results(data)
-            elif bytes("HISTORY", 'utf-8') in line:
-                temp = line.strip('HISTORY$')
-                STATUS.emit('update-machine-log', temp, 'TIME')
-                LOG.info("Probe history updated to machine log")
-            else:
-                LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
-
+        line = line.decode("utf-8")
+        if "ERROR" in line:
+            print(line)
+        elif "DEBUG" in line:
+            print(line)
+        elif "INFO" in line:
+            print(line)
+        elif "COMPLETE" in line:
+            LOG.info("Probing routine completed without errors")
+            return_data = line.rstrip().split('$')
+            data = json.loads(return_data[1])
+            self.show_results(data)
+        elif "HISTORY" in line:
+            temp = line.strip('HISTORY$')
+            STATUS.emit('update-machine-log', temp, 'TIME')
+            LOG.info("Probe history updated to machine log")
         else:
-            if "ERROR" in line:
-                print(line)
-            elif "DEBUG" in line:
-                print(line)
-            elif "INFO" in line:
-                print(line)
-            elif "COMPLETE" in line:
-                LOG.info("Probing routine completed without errors")
-                return_data = line.rstrip().split('$')
-                data = json.loads(return_data[1])
-                self.show_results(data)
-            elif "HISTORY" in line:
-                temp = line.strip('HISTORY$')
-                STATUS.emit('update-machine-log', temp, 'TIME')
-                LOG.info("Probe history updated to machine log")
-            else:
-                LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
+            LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
         message ='_ErroR_ {},{} \n'.format(kind,text)
-        if sys.version_info.major > 2:
-            self.proc.writeData(bytes(message, 'utf-8'))
-        else:
-            self.proc.writeData(message)
+        self.proc.writeData(bytes(message, 'utf-8'))
 
 #####################################################
 # button callbacks
@@ -364,10 +334,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             file = QtCore.QFile(HELP)
             file.open(QtCore.QFile.ReadOnly)
             html = file.readAll()
-            if sys.version_info.major > 2:
-                html = str(html, encoding='utf8')
-            else:
-                html = str(html)
+            html = str(html, encoding='utf8')
             html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
             t.setHtml(html)
         except Exception as e:
