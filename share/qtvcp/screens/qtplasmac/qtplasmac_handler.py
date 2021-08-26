@@ -1,4 +1,4 @@
-VERSION = '1.0.73'
+VERSION = '1.0.74'
 
 '''
 qtplasmac_handler.py
@@ -1321,10 +1321,9 @@ class HandlerClass:
         with tarfile.open('{}/{}'.format(bkpPath, bkpName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
         head = _translate('HandlerClass', 'BACKUP COMPLETE')
-        msg0 = _translate('HandlerClass', 'A copy of the machine log has been saved in the configuration directory as')
-        msg1 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
-        msg2 = _translate('HandlerClass', 'It is safe to delete this file at any time')
-        self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}:\n{}\n\n{}\n'.format(msg0, logname, msg1, bkpName, msg2))
+        msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
+        msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
+        self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
