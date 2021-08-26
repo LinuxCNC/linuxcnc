@@ -28,6 +28,9 @@ ACTION = Action()
 STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
 current_dir =  os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
 CONFIG_DIR = os.getcwd()
@@ -161,14 +164,9 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
         string_to_send = 'PID${}\n'.format( str(os.getpid()))
-        if sys.version_info.major > 2:
-            self.proc.start('python3 {}'.format(SUBPROGRAM))
-            # send our PID so subprogram can check to see if it is still running
-            self.proc.writeData(bytes(string_to_send, 'utf-8'))
-        else:
-            self.proc.start('python {}'.format(SUBPROGRAM))
-            # send our PID so subprogram can check to see if it is still running
-            self.proc.writeData(string_to_send)
+        self.proc.start('python3 {}'.format(SUBPROGRAM))
+        # send our PID so subprogram can check to see if it is still running
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))
             
     def start_probe(self, cmd):
         if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
@@ -179,10 +177,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             return
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
 #        print("String to send ", string_to_send)
-        if sys.version_info.major > 2:
-            self.proc.writeData(bytes(string_to_send, 'utf-8'))
-        else:
-            self.proc.writeData(string_to_send)
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))
         self.process_busy = True
 
     def process_started(self):
@@ -203,14 +198,15 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         print(("Probe Process signals finished exitCode {} exitStatus {}".format(exitCode, exitStatus)))
 
     def parse_input(self, line):
+        line = line.decode("utf-8")
         self.process_busy = False
-        if b"ERROR" in line:
+        if "ERROR" in line:
             print(line)
-        elif b"DEBUG" in line:
+        elif "DEBUG" in line:
             print(line)
-        elif b"INFO" in line:
+        elif "INFO" in line:
             print(line)
-        elif b"COMPLETE" in line:
+        elif "COMPLETE" in line:
             LOG.info("Probing routine completed without errors")
             return_data = line.rstrip().split('$')
             data = json.loads(return_data[1])
@@ -223,10 +219,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
     def send_error(self, w, kind, text):
-        if sys.version_info.major > 2:
-            message = bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
-        else:
-            message = 'ERROR {},{} \n'.format(kind,text)
+        message = bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
         self.proc.writeData(message)
 
 # Main button handler routines
