@@ -1,4 +1,4 @@
-VERSION = '1.0.72'
+VERSION = '1.0.73'
 
 import os, sys
 from shutil import copy as COPY
@@ -1148,7 +1148,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
                 else:
                     msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                msgs += '{} {}: {}{} {}\n'.format(msgList[n], msg0, msgList[n + 2], units)
+                msgs += '{} {} {} {}\n'.format(msgList[n], msg0, msgList[n + 2], units)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msgs))
             if self.single_cut_request:
                 self.single_cut_request = False
