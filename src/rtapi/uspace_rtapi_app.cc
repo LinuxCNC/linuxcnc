@@ -645,8 +645,7 @@ struct Posix : RtapiApp
     static pthread_once_t lock_once;
     static pthread_mutex_t thread_lock;
     static void init_lock(void) {
-        pthread_mutexattr_t attr;
-        pthread_mutex_init(&thread_lock, &attr);
+        pthread_mutex_init(&thread_lock, NULL);
     }
 
     long long do_get_time(void) {
