@@ -33,7 +33,6 @@
     -g option allows setting of the initial position of the panel
 """
 
-from __future__ import print_function
 import sys, os, subprocess
 import traceback
 import warnings

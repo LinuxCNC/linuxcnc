@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 THIS_VERSION = "1.1"
 
@@ -8,12 +8,9 @@ import shutil
 import linuxcnc
 import re
 import datetime
-if sys.version_info[0] == 3:
-    import tkinter
-    from tkinter import messagebox
-else:
-    import Tkinter as tkinter
-    import tkMessageBox as messagebox
+
+import tkinter
+from tkinter import messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work

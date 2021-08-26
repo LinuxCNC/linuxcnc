@@ -19,8 +19,6 @@
 
 
 # import pdb
-
-from __future__ import print_function
 import sys, os
 import string
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))

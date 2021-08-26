@@ -46,7 +46,6 @@
     of HAL pin compname.my-led 
 """
 
-from __future__ import print_function
 import sys
 import tkinter as Tkinter
 from tkinter import *

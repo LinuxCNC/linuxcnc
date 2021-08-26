@@ -16,7 +16,6 @@
 ## image-to-gcode.py is Copyright (C) 2006 Jeff Epler
 ## jepler@unpy.net
 
-from __future__ import print_function
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
@@ -497,10 +496,7 @@ class ArcEntryCut:
             conv.g.set_feed(conv.feed)
 
 def ui(im, nim, im_name):
-    if sys.version_info[0] == 3:
-        import tkinter
-    else:
-        import Tkinter as tkinter
+    import tkinter
 
     try:
         from PIL import ImageTk
