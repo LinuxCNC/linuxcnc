@@ -193,7 +193,7 @@ def preview(P, W):
         W.undo.setEnabled(True)
     else:
         msg0 = _translate('Conversational', 'DIAMETER is required')
-        error_set(P, '{}./n'.format(msg0))
+        error_set(P, '{}.\n'.format(msg0))
 
 def error_set(P, msg):
     P.conv_undo_shape()
@@ -205,7 +205,7 @@ def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
         oclength = float(W.ocEntry.text())
     except:
         msg0 = _translate('Conversational', 'Invalid OC LENGTH entry detected')
-        error_set(P, '{}./n'.format(msg0))
+        error_set(P, '{}.\n'.format(msg0))
         oclength = 0
         return
     centerX = lastX + IJ

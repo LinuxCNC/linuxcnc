@@ -1036,7 +1036,9 @@ class HandlerClass:
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
         self.w.height_reset.setEnabled(True)
-        if STATUS.is_auto_mode() and self.w.mdi_show.text() == _translate('HandlerClass', 'MDI\nCLOSE'):
+        text0 = _translate('HandlerClass', 'MDI')
+        text1 = _translate('HandlerClass', 'CLOSE')
+        if STATUS.is_auto_mode() and self.w.mdi_show.text() == ('{}\n{}'.format(text0, text1)):
             self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
             self.w.gcode_stack.setCurrentIndex(0)
         self.w.main_tab_widget.setTabEnabled(1, False)
@@ -1103,7 +1105,9 @@ class HandlerClass:
             self.w.file_open.setText(os.path.basename(filename))
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
-            if self.w.mdi_show.text() == _translate('HandlerClass', 'MDI\nCLOSE'):
+            text0 = _translate('HandlerClass', 'MDI')
+            text1 = _translate('HandlerClass', 'CLOSE')
+            if self.w.mdi_show.text() == ('{}\n{}'.format(text0, text1)):
                 self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
                 self.w.gcode_stack.setCurrentIndex(0)
             self.w.file_reload.setEnabled(True)
@@ -1381,7 +1385,9 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(1)
         self.vkb_hide()
         self.overlay.hide()
-        if self.w.mdi_show.text() == _translate('HandlerClass', 'MDI\nCLOSE'):
+        text0 = _translate('HandlerClass', 'MDI')
+        text1 = _translate('HandlerClass', 'CLOSE')
+        if self.w.mdi_show.text() == ('{}\n{}'.format(text0, text1)):
             self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
             self.w.gcode_stack.setCurrentIndex(0)
         self.w.filemanager.table.setFocus()
@@ -1397,7 +1403,9 @@ class HandlerClass:
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
             if self.w.mdi_show.text() == _translate('HandlerClass', 'MDI'):
-                self.w.mdi_show.setText(_translate('HandlerClass', 'MDI\nCLOSE'))
+                text0 = _translate('HandlerClass', 'MDI')
+                text1 = _translate('HandlerClass', 'CLOSE')
+                self.w.mdi_show.setText('{}\n{}'.format(text0, text1))
                 self.w.gcode_stack.setCurrentIndex(1)
                 self.w.mdihistory.reload()
                 self.w.mdihistory.MDILine.setFocus()
@@ -3335,8 +3343,8 @@ class HandlerClass:
                 continue
             if num == 0 or num in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
-                msg3 = _translate('HandlerClass', 'is in use')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, num, msg3, msg2)
+                msg2 = _translate('HandlerClass', 'is in use')
+                msgs = '{} #{} {}.\n\n{}:'.format(msg0, num, msg2, msg1)
                 continue
             elif num >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
@@ -3345,7 +3353,7 @@ class HandlerClass:
             break
         msg1 = 'Enter New Material Name'
         while(1):
-            valid, nam = self.dialog_input(head, text, btn1)
+            valid, nam = self.dialog_input(head, msg1, btn1)
             if not valid:
                 return
             if not nam:
