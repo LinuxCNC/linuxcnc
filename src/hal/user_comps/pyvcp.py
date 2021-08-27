@@ -34,7 +34,6 @@
     -g option allows setting of the initial size and/or position of the panel
 """
 
-from __future__ import print_function
 import sys, os
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))

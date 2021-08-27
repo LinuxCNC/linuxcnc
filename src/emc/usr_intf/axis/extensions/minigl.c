@@ -17,7 +17,6 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h>
-#include "py3c/py3c.h"
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -372,7 +371,7 @@ static PyObject *pyglReadPixels(PyObject *s, PyObject *o) {
     sz = width * height * 4;
     buf = malloc(sz);
     glReadPixels(x,y,width,height,format,type,buf);
-    res = PyStr_FromStringAndSize(buf, sz); 
+    res = PyUnicode_FromStringAndSize(buf, sz); 
     free(buf);
     return res;
 }
@@ -790,7 +789,8 @@ static struct PyModuleDef minigl_moduledef = {
 
 //extern "C"
 //void init_hal(void) {
-MODULE_INIT_FUNC(minigl)
+PyMODINIT_FUNC PyInit_minigl(void);
+PyMODINIT_FUNC PyInit_minigl(void)
 {
     PyObject *m = PyModule_Create(&minigl_moduledef);
     glerror = PyErr_NewException("minigl.error", PyExc_RuntimeError, NULL);

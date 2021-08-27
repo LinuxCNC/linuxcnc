@@ -26,7 +26,6 @@
 # this would probably be most useful for user's custom status widgets.
 # you would need to calibrate your touchscreen to just work on a single screen
 """
-from __future__ import print_function
 import sys,os,subprocess
 def _print_help():
             print(""" Gscreen a customizable operator screen for linuxcnc based on pyGTK / GLADE.\n

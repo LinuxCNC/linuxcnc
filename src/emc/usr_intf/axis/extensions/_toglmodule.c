@@ -14,7 +14,6 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include <Python.h>
-#include "py3c/py3c.h"
 #include <emc/usr_intf/axis/extensions/togl.c>
 static int first_time = 1;
 
@@ -77,7 +76,8 @@ static struct PyModuleDef togl_moduledef = {
     togl_methods
 };
 
-MODULE_INIT_FUNC(_togl)
+PyMODINIT_FUNC PyInit__togl(void);
+PyMODINIT_FUNC PyInit__togl(void)
 {
     PyObject *m = PyModule_Create(&togl_moduledef);
     return m;

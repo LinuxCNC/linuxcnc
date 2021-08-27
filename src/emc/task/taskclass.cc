@@ -31,8 +31,6 @@
 #include "emc_nml.hh"
 #include "emcglb.h"		// EMC_INIFILE
 
-
-#include "py3c/py3c.h"
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include <rtapi_string.h>
@@ -397,21 +395,12 @@ int return_int(const char *funcname, PyObject *retval)
 	return -1;
     }
     if ((retval != Py_None) &&
-#if PY_MAJOR_VERSION >=3
     (PyLong_Check(retval))) {
     return PyLong_AsLong(retval);
-#else
-	(PyInt_Check(retval))) {
-	return PyInt_AS_LONG(retval);
-#endif
     } else {
 	emcOperatorError(0, "return_int(%s): expected int return value, got '%s' (%s)",
 			 funcname,
-#if PY_MAJOR_VERSION >=3
             PyBytes_AsString(retval),
-#else
-			PyString_AsString(retval),
-#endif
             Py_TYPE(retval)->tp_name);
 	Py_XDECREF(retval);
 	return -1;
@@ -434,14 +423,6 @@ int emcPluginCall(EMC_EXEC_PLUGIN_CALL *call_msg)
     }
 }
 
-// int emcAbortCleanup(int reason, const char *message)
-// {
-//     int status = interp.on_abort(reason,message);
-//     if (status > INTERP_MIN_ERROR)
-// 	print_interp_error(status);
-//     return status;
-// }
-#if PY_MAJOR_VERSION >=3
 extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
@@ -452,19 +433,6 @@ struct _inittab builtin_modules[] = {
     // any others...
     { NULL, NULL }
 };
-#else
-extern "C" void initemctask();
-extern "C" void initinterpreter();
-extern "C" void initemccanon();
-struct _inittab builtin_modules[] = {
-    { (char *) "interpreter", initinterpreter },
-    { (char *) "emccanon", initemccanon },
-    { (char *) "emctask", initemctask },
-    // any others...
-    { NULL, NULL }
-};
-#endif
-
 
 Task::Task() : use_iocontrol(0), random_toolchanger(0) {
 

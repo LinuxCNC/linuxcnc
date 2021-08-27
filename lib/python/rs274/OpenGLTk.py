@@ -11,17 +11,13 @@
 
 from minigl import *
 import math
-import os,sys
+import os
 import _togl
 import glnav
 
-import sys
-if sys.version_info[0] == 3:
-    from tkinter import _default_root
-    from tkinter import *
-else:
-    from Tkinter import _default_root
-    from Tkinter import *
+from tkinter import _default_root
+from tkinter import *
+
 # Keith Junius <junius@chem.rug.nl> provided many changes to Togl
 TOGL_NORMAL = 1
 TOGL_OVERLAY = 2
