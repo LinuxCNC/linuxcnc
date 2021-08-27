@@ -133,7 +133,7 @@ def preview(P, W):
                                                      float(W.entry5.text()))
         except:
             msg0 = _translate('Conversational', 'Invalid entry detected')
-            error_set(P, '{}./n'.format(msg0))
+            error_set(P, '{}.\n'.format(msg0))
             outNgc.close()
             outTmp.close()
             return
@@ -206,7 +206,7 @@ def preview(P, W):
                                                  float(W.entry3.text()))
         except:
             msg0 = _translate('Conversational', 'Invalid entry detected')
-            error_set(P, '{}./n'.format(msg0))
+            error_set(P, '{}.\n'.format(msg0))
             outNgc.close()
             outTmp.close()
             return
