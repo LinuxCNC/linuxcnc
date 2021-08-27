@@ -16,7 +16,9 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from rs274 import Translated, ArcsToSegmentsMixin, OpenGLTk
-from minigl import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
+import itertools
 import math
 import glnav
 import hershey
@@ -506,6 +508,7 @@ class GlCanonDraw:
     def select(self, x, y):
         if self.canon is None: return
         pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
+        pmatrix = [i for i in itertools.chain(*pmatrix.tolist())]
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
@@ -525,14 +528,17 @@ class GlCanonDraw:
             glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
 
             try:
-                buffer = list(glRenderMode(GL_RENDER))
+                buffer = glRenderMode(GL_RENDER)
             except OverflowError:
                 self.select_buffer_size *= 2
                 continue
             break
 
         if buffer:
-            min_depth, max_depth, names = min(buffer)
+            min_depth, max_depth, names = (buffer[0].near, buffer[0].far, buffer[0].names)
+            for x in buffer:
+                if min_depth < x.near:
+                    min_depth, max_depth, names = (x.near, x.far, x.names)
             self.set_highlight_line(names[0])
         else:
             self.set_highlight_line(None)

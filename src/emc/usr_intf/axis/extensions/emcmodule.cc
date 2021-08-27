@@ -41,6 +41,9 @@
 
 #include <cmath>
 
+#include <epoxy/gl.h>
+#include <epoxy/glx.h>
+
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
 #define LOCAL_SPINDLE_OFF (0)
@@ -1626,8 +1629,6 @@ static PyTypeObject Error_Type = {
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
 };
-
-#include <GL/gl.h>
 
 #define AXIS_MASK_A 0x08
 #define AXIS_MASK_B 0x10

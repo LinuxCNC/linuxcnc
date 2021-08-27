@@ -17,8 +17,10 @@
 import sys, rs274.OpenGLTk, signal, hal
 import tkinter
 
-from minigl import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
 from math import *
+import itertools
 import glnav
 import hal
 
@@ -644,6 +646,7 @@ class Capture(object):
 
     def capture(self):
         self.t = glGetDoublev(GL_MODELVIEW_MATRIX)
+        self.t = [i for i in itertools.chain(*self.t.tolist())]
         
     def volume(self):
         return 0.0

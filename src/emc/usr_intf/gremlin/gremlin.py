@@ -74,8 +74,6 @@ import os
 
 import _thread
 
-#from minigl import *
-
 class DummyProgress:
     def nextphase(self, unused): pass
     def progress(self): pass
