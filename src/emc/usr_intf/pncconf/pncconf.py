@@ -1135,7 +1135,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         #print(tempfunc,founddevice)
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
                         # as the 5i25/7i76 uses some of the sserial channels for it's pins.
-                        if boardname in ("5i25","7i92"):
+                        if boardname in ("5i25","7i92",'7i76e'):
                             if "7i77_7i76" in firmname:
                                 if tempfunc == "TXDATA1": convertedname = _PD.SS7I77M0
                                 elif tempfunc == "TXDATA2": convertedname = _PD.SS7I77M1
@@ -1192,7 +1192,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     # or if pinconvert fails eg. StepTable instance default to GPIO
                     temppinunit.append(_PD.GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
-                elif iocode >= 100:
+                elif iocode and iocode >= 100:
                     temppinunit.append(_PD.SSR0)
                     temppinunit.append(iocode)
                 else:
@@ -1318,37 +1318,42 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             halrun.close()
         if interface == '--addr' and address:
             board_command = '--device %s %s %s' %(devicename, interface, address)
+            admin = False
         elif interface == '--epp':
             board_command = '--device %s %s' %(devicename, interface)
+            admin = False
         else:
             board_command = '--device %s' %(devicename)
-
+            admin = True
         # PCI boards require sudo
-        cmd ="""pkexec sh -c 'mesaflash %s;mesaflash %s --sserial;mesaflash %s --readhmid'  """%(board_command, board_command, board_command)
+        if admin:
+            cmd ="""pkexec sh -c 'mesaflash %s;mesaflash %s --sserial;mesaflash %s --readhmid'  """%(board_command, board_command, board_command)
+        else:
+            cmd ="""sh -c 'mesaflash %s;mesaflash %s --sserial;mesaflash %s --readhmid'  """%(board_command, board_command, board_command)
         print('cmd=',cmd)
 
         discover = subprocess.Popen([cmd], shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE )
         output, error = discover.communicate()
         if error:
-            print('mesaflash error',error)
+            print('mesaflash error',error.decode())
         if output == '':
-            text = _("Discovery is  got an error\n\n Is mesaflash installed?\n\n %s"%error)
+            text = _("Discovery has an error,\n\n Is mesaflash installed?\n\n %s"%error.decode())
             self.warning_dialog(text,True)
             try :
-                textbuffer.set_text('Command:\n%s\n gave:\n%s'%(cmd,error))
+                textbuffer.set_text('Command:\n%s\n gave:\n%s'%(cmd,error.decode()))
                 self.widgets.helpnotebook.set_current_page(2)
             except Exception as e :
                 print(e)
             return None
 
         try :
-            textbuffer.set_text(output)
+            textbuffer.set_text(output.decode())
             self.widgets.helpnotebook.set_current_page(2)
             self.widgets.help_window.show_all()
         except:
             text = _("Discovery is  unavailable\n")
             self.warning_dialog(text,True)
-        return output
+        return output.decode()
 
     def parse_discovery(self,info,boardnum=0):
         DRIVER = BOARDNAME = ''
@@ -1385,6 +1390,9 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             #print(i,temp2)
             if 'BOARDNAME' in i:
                 BOARDNAME = temp2[2].strip('MESA').lower()
+                # 7i76e thinks it is a 7i76, set it straight
+                if 'ETH' in info and BOARDNAME == '7i76':
+                    BOARDNAME = '7i76e'
                 add_text(ELEMENT,'BOARDNAME',BOARDNAME)
             if 'ETH' in i:
                 DRIVER = 'hm2_eth'
@@ -1529,7 +1537,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         print(RESOLVERS,PWMGENS,LEDS)
         firmname = "~/mesa%d_discovered.xml"%boardnum
         filename = os.path.expanduser(firmname)
-        DOC.writexml(open(filename, "wb"), addindent="  ", newl="\n")
+        DOC.writexml(open(filename, "w"), addindent="  ", newl="\n")
         return DRIVER, BOARDNAME, firmname, filename
 
     # update all the firmware/boardname arrays and comboboxes
@@ -1537,10 +1545,12 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         driver, boardname, firmname, path = self.parse_discovery(info,boardnum=bdnum)
         print(driver, boardname, firmname, path)
         boardname = 'Discovered:%s'% boardname
-        firmdata = self.parse_xml( driver,boardname,firmname,path,boardnum)
+        firmdata = self.parse_xml( driver,boardname,firmname,path,bdnum)
         self._p.MESA_FIRMWAREDATA.append(firmdata)
         self._p.MESA_INTERNAL_FIRMWAREDATA.append(firmdata)
         self._p.MESA_BOARDNAMES.append(boardname)
+        # add discovery address to entry
+        self.widgets["mesa%s_card_addrs"%bdnum].set_text(self.widgets.discovery_address_entry.get_text())
         # add firmname to combo box if it's not there
         model = self.widgets["mesa%s_firmware"%bdnum].get_model()
         flag = True
@@ -2476,7 +2486,6 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets["mesa%dsserial0_2"% boardnum].hide()
         self.widgets["mesa%dsserial0_3"% boardnum].hide()
         self.widgets["mesa%dsserial0_4"% boardnum].hide()
-        currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
         for i in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]:
             self.widgets["mesa%dcon%dtable"% (boardnum,i)].show()
 
