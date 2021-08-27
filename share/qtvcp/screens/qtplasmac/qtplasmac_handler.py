@@ -1,4 +1,4 @@
-VERSION = '1.0.74'
+VERSION = '1.0.75'
 
 '''
 qtplasmac_handler.py
@@ -339,7 +339,6 @@ class HandlerClass:
         # only set hal pins after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
-        self.runText = self.w.run.text()
         self.startupTimer.start(250)
         if self.firstRun is True:
             self.firstRun = False
@@ -1248,15 +1247,14 @@ class HandlerClass:
             ACTION.PAUSE()
 
     def run_pressed(self):
-        if not self.run_critical_check():
-            if self.startLine and self.runText[:8] == _translate('HandlerClass', 'SELECTED')[:8]:
-                self.w.run.setEnabled(False)
-                if self.frButton:
-                    self.w[self.frButton].setEnabled(False)
-                self.rflActive = True
-                self.run_from_line()
-            else:
-                ACTION.RUN(0)
+        if self.startLine and self.runText[:8] == _translate('HandlerClass', 'SELECTED')[:8]:
+            self.w.run.setEnabled(False)
+            if self.frButton:
+                self.w[self.frButton].setEnabled(False)
+            self.rflActive = True
+            self.run_from_line()
+        elif not self.run_critical_check():
+            ACTION.RUN(0)
 
     def abort_pressed(self):
         if self.manualCut:
@@ -2459,8 +2457,6 @@ class HandlerClass:
                 self.button_normal(self.halPulsePins[halpin][0])
 
     def run_critical_check(self):
-        if self.runText[:8] == _translate('HandlerClass', 'SELECTED')[:8]:
-            return
         rcButtonList = []
         # halTogglePins format is: button name, run critical flag, button text
         for halpin in self.halTogglePins:
