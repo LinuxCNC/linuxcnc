@@ -323,11 +323,12 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         col = new.column()
         data = self.tabledata[row][col]
 
+        if row == 0: return
         # Hack to not edit any rotational offset but Z axis
         if row == 1 and not col == 2: return
 
         # dont evaluate text column
-        if col ==9 :return
+        if col == 9 :return
 
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
@@ -464,6 +465,8 @@ class MyTableModel(QAbstractTableModel):
         # print(">>> flags() index.column() = ", index.column())
         if index.column() == 9 and index.row() in(0, 1, 2, 3):
             return Qt.ItemIsEnabled
+        elif index.row() == 0:
+            return Qt.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
             return Qt.NoItemFlags
         else:
@@ -475,6 +478,7 @@ class MyTableModel(QAbstractTableModel):
         LOG.debug(self.arraydata[index.row()][index.column()])
         LOG.debug(">>> setData() role = {}".format(role))
         LOG.debug(">>> setData() index.column() = {}".format(index.column()))
+        if index.column() == 0: return False
         try:
             if index.column() == 9:
                 v = str(value)
