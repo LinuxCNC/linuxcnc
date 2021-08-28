@@ -120,7 +120,7 @@ class ProbeRoutines():
             #LOG.debug('MDI_COMMAND_WAIT result: {}'.format(result))
             if result == -1:
                 LOG.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( timeout, result))
-                #STATUS.emit('MDI time out error',)
+                ACTION.SET_ERROR_MESSAGE('Probe time out error - MDI command took long longer then {} seconds'.format(timeout))
                 ACTION.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
