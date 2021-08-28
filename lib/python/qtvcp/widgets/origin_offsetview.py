@@ -66,6 +66,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     def _hal_init(self):
         self.delay = 0
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()
                                                     and (STATUS.is_all_homed()
                                                          or INFO.NO_HOME_REQUIRED)))
