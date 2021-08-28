@@ -22,14 +22,14 @@ class ProbeRoutines():
 ##################
     def z_clearance_up(self):
         # move Z + z_clearance
-        s="""G91
+        s = """G91
         G1 F{} Z{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance)
         return self.CALL_MDI_WAIT(s, 30)
 
     def z_clearance_down(self):
         # move Z - z_clearance
-        s="""G91
+        s = """G91
         G1 F{} Z-{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance)        
         return self.CALL_MDI_WAIT(s, 30)
@@ -59,7 +59,7 @@ class ProbeRoutines():
     def rotate_coord_system(self,a=0.):
         self.status_a = a
         if self.allow_auto_skew is True:
-            s="G10 L2 P0"
+            s = "G10 L2 P0"
             if self.allow_auto_zero is True:
                 s += " X{}".format(self.data_adj_x)
                 s += " Y{}".format(self.data_adj_y)
@@ -157,147 +157,127 @@ class ProbeRoutines():
     ####################
     # Z rotation probing
     ####################
+    # Front left corner
     def probe_angle_yp(self):
         # move Y - xy_clearance
-        s="""G91
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        ycres=float(a[1])+0.5*self.data_probe_diam
+        ycres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yc = ycres
 
         # move X + edge_length
-        s="""G91
+        s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres = float(a[1])+0.5*self.data_probe_diam
         self.status_yp = ypres
-        alfa = math.degrees(math.atan2(ypres-ycres,self.data_side_edge_length))
-        self.add_history('Rotation YP ',"YcYpA",0,0,0,0,0,ycres,ypres,0,0,0,alfa)
+        alfa = math.degrees(math.atan2(ypres - ycres, self.data_side_edge_length))
+        self.add_history('Rotation YP ', "YcYpA", 0, 0, 0, 0, 0, ycres, ypres, 0, 0, 0, alfa)
 
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         self.rotate_coord_system(alfa)
         return 1
 
+    # Back right corner
     def probe_angle_ym(self):
         # move Y + xy_clearance
-        s="""G91
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        ycres=float(a[1])-0.5*self.data_probe_diam
+        ycres = float(a[1]) -0.5 * self.data_probe_diam
         self.status_yc = ycres
         # move X - edge_length
-        s="""G91
+        s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ymres = float(a[1])-0.5*self.data_probe_diam
         self.status_ym = ymres
         alfa = math.degrees(math.atan2(ycres-ymres,self.data_side_edge_length))
-        self.add_history('Rotation YM ',"YmYcA",0,0,0,0,ymres,ycres,0,0,0,0,alfa)
+        self.add_history('Rotation YM ', "YmYcA", 0, 0, 0, 0, ymres, ycres, 0, 0, 0, 0, alfa)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         self.rotate_coord_system(alfa)
         return 1
 
+    # Back left corner
     def probe_angle_xp(self):
         # move X - xy_clearance
-        s="""G91
+        s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xcres = float(a[0])+0.5*self.data_probe_diam
+        xcres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xc = xcres
 
         # move Y - edge_length
-        s="""G91
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xpres = float(a[0])+0.5*self.data_probe_diam
+        xpres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xpres
-        alfa = math.degrees(math.atan2(xcres-xpres,self.data_side_edge_length))
-        self.add_history('Rotation XP',"XcXpA",0,xcres,xpres,0,0,0,0,0,0,0,alfa)
+        alfa = math.degrees(math.atan2(xcres - xpres, self.data_side_edge_length))
+        self.add_history('Rotation XP', "XcXpA", 0, xcres, xpres, 0, 0, 0, 0, 0, 0, 0, alfa)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         self.rotate_coord_system(alfa)
         return 1
 
+    # Front right corner
     def probe_angle_xm(self):
         # move X + xy_clearance
-        s="""G91
+        s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xcres = float(a[0])-0.5*self.data_probe_diam
+        xcres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xc = xcres
 
         # move Y + edge_length
-        s="""G91
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xmres = float(a[0])-0.5*self.data_probe_diam
+        xmres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xmres
-        alfa = math.degrees(math.atan2(xcres-xmres,self.data_side_edge_length))
-        self.add_history('Rotation XM ',"XmXcA",xmres,xcres,0,0,0,0,0,0,0,0,alfa)
+        alfa = math.degrees(math.atan2(xcres - xmres, self.data_side_edge_length))
+        self.add_history('Rotation XM ', "XmXcA", xmres, xcres, 0, 0, 0, 0, 0, 0, 0, 0, alfa)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         self.rotate_coord_system(alfa)
         return 1
 
@@ -307,17 +287,14 @@ class ProbeRoutines():
 
     # Hole Xin- Xin+ Yin- Yin+
     def probe_xy_hole(self):
-        if self.z_clearance_down() == -1:
-            return
-        # move X - edge_length Y + xy_clearance
+        if self.z_clearance_down() == -1: return
+        # move X- edge_length Y+ xy_clearance
         tmpx = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, tmpx)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xmres = float(a[0])-0.5*self.data_probe_diam
@@ -328,239 +305,202 @@ class ProbeRoutines():
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, tmpx)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xpres = float(a[0])+0.5*self.data_probe_diam
+        xpres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xpres
         len_x = self.length_x()
-        xcres = 0.5*(xmres+xpres)
+        xcres = 0.5 * (xmres + xpres)
         self.status_xc = xcres
         # move X to new center
-        s="""G90
+        s = """G90
         G1 F%s X%f""" % (self.data_rapid_vel, xcres)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
 
         # move Y - edge_length + xy_clearance
-        tmpy = self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        tmpy = self.data_side_edge_length - self.data_xy_clearance
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, tmpy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        ymres = float(a[1])-0.5*self.data_probe_diam
+        ymres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = ymres
 
         # move Y +2 edge_length - 2 xy_clearance
-        tmpy = 2*(self.data_side_edge_length-self.data_xy_clearance)
-        s="""G91
+        tmpy = 2 * (self.data_side_edge_length - self.data_xy_clearance)
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, tmpy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        ypres = float(a[1])+0.5*self.data_probe_diam
+        ypres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = ypres
         len_y = self.length_y()
         # find, show and move to found  point
-        ycres = 0.5*(ymres+ypres)
+        ycres = 0.5 * (ymres + ypres)
         self.status_yc = ycres
-        diam = 0.5*((xpres-xmres)+(ypres-ymres))
+        diam = 0.5 * ((xpres - xmres) + (ypres - ymres))
         self.status_d = diam
 
-        self.add_history('Inside Hole ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,len_x,ymres,ycres,ypres,len_y,0,diam,0)
-        if self.z_clearance_up() == -1:
-            return
+        self.add_history('Inside Hole ', "XmXcXpLxYmYcYpLyD", xmres, xcres, xpres, len_x, ymres, ycres, ypres, len_y, 0, diam, 0)
+        if self.z_clearance_up() == -1: return
         # move to center
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
         
     # Corners
     # Move Probe manual under corner 2-3 mm
-    # X+Y+ 
+    # Back left inside corner
     def probe_inside_xpyp(self):
-        # move Y - edge_length X - xy_clearance
-        s="""G91
+        # move Y- edge_length X - xy_clearance
+        s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe("xplus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe("xplus") == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0])+0.5*self.data_probe_diam
+        xres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xres
         len_x = self.length_x()
 
         # move X - edge_length Y - xy_clearance
-        tmpxy=self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        tmpxy = self.data_side_edge_length - self.data_xy_clearance
+        s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe("yplus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe("yplus") == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])+0.5*self.data_probe_diam
+        yres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = yres
         len_y = self.length_y()
-        self.add_history('Inside XPYP ',"XpLxYpLy",0,0,xres,len_x,0,0,yres,len_y,0,0,0)
+        self.add_history('Inside XPYP ', "XpLxYpLy", 0, 0, xres, len_x, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
-    # X+Y-
+    # Front right inside corner
     def probe_inside_xpym(self):
-        # move Y + edge_length X - xy_clearance
-        s="""G91
+        # move Y+ edge_length X - xy_clearance
+        s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe("xplus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe("xplus") == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0])+0.5*self.data_probe_diam
+        xres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xres
         len_x = self.length_x()
 
         # move X - edge_length Y + xy_clearance
         tmpxy=self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe("yminus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe("yminus") == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])-0.5*self.data_probe_diam
+        yres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = yres
         len_y = self.length_y()
-        self.add_history('Inside XPYM ',"XpLxYmLy",0,0,xres,len_x,yres,0,0,len_y,0,0,0)
+        self.add_history('Inside XPYM ', "XpLxYmLy", 0, 0, xres, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
-    # X-Y+
+    # Back left inside corner
     def probe_inside_xmyp(self):
-        # move Y - edge_length X + xy_clearance
-        s="""G91
+        # move Y- edge_length X + xy_clearance
+        s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe("xminus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe("xminus") == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0])-0.5*self.data_probe_diam
+        xres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xres
         len_x = self.length_x()
 
         # move X + edge_length Y - xy_clearance
-        tmpxy=self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        tmpxy = self.data_side_edge_length - self.data_xy_clearance
+        s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe("yplus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe("yplus") == -1: return
 
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])+0.5*self.data_probe_diam
+        yres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = yres
         len_y = self.length_y()
-        self.add_history('Inside XMYP',"XmLxYpLy",xres,0,0,len_x,0,0,yres,len_y,0,0,0)
+        self.add_history('Inside XMYP', "XmLxYpLy", xres, 0, 0, len_x, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
-    # X-Y-
+    # Front left inside corner
     def probe_inside_xmym(self):
-        # move Y + edge_length X + xy_clearance
-        s="""G91
+        # move Y+ edge_length X + xy_clearance
+        s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe("xminus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe("xminus") == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0])-0.5*self.data_probe_diam
+        xres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xres
         len_x = self.length_x()
 
         # move X + edge_length Y - xy_clearance
-        tmpxy=self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        tmpxy = self.data_side_edge_length - self.data_xy_clearance
+        s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, tmpxy,tmpxy)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe("yminus") == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe("yminus") == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])-0.5*self.data_probe_diam
+        yres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = yres
         len_y = self.length_y()
-        self.add_history('Inside XMYM',"XmLxYmLy",xres,0,0,len_x,yres,0,0,len_y,0,0,0)
+        self.add_history('Inside XMYM', "XmLxYmLy", xres, 0, 0, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
@@ -568,408 +508,343 @@ class ProbeRoutines():
 # Outside probing
 #################
 
-    # X+
+    # Left outside edge, right inside edge
     def probe_xp(self):
-         # move X - xy_clearance
-        s="""G91
+        if self.probe_down_fast() == -1: return
+         # move X- xy_clearance
+        s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xplus') == -1: return
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0]+0.5*self.data_probe_diam)
+        xres = float(a[0] + 0.5 * self.data_probe_diam)
         self.status_xp = xres
         len_x = 0
-        self.add_history('Outside XP ',"XpLx",0,0,xres,len_x,0,0,0,0,0,0,0)
+        self.add_history('Outside XP ', "XpLx", 0, 0, xres, len_x, 0, 0, 0, 0, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f" % (self.data_rapid_vel, xres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("X")
         return 1
 
-    # Y+
+    # Front outside edge, back inside edge
     def probe_yp(self):
-         # move Y - xy_clearance
-        s="""G91
+        if self.probe_down_fast() == -1: return
+        # move Y- xy_clearance
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yplus') == -1: return
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])+0.5*self.data_probe_diam
+        yres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = yres
         len_y = 0
-        self.add_history('Outside YP ',"YpLy",0,0,0,0,0,0,yres,len_y,0,0,0)
+        self.add_history('Outside YP ', "YpLy", 0, 0, 0, 0, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("Y")
         return 1
 
-    # X-
+    # Right outside edge. left inside edge
     def probe_xm(self):
-         # move X + xy_clearance
-        s="""G91
+        if self.probe_down_fast() == -1: return
+        # move X+ xy_clearance
+        s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xminus') == -1: return
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0]-0.5*self.data_probe_diam)
+        xres = float(a[0] - 0.5 * self.data_probe_diam)
         self.status_xm = xres
         len_x = 0
-        self.add_history('Outside XM ',"XmLx",xres,0,0,len_x,0,0,0,0,0,0,0)
+        self.add_history('Outside XM ', "XmLx", xres, 0, 0, len_x, 0, 0, 0, 0, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f" % (self.data_rapid_vel, xres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("X")
         return 1
 
-    # Y-
+    # Back outside edge, front inside edge
     def probe_ym(self):
-         # move Y + xy_clearance
-        s="""G91
+        if self.probe_down_fast() == -1: return
+        # move Y+ xy_clearance
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s,30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s,30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yminus') == -1: return
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])-0.5*self.data_probe_diam
+        yres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = yres
         len_y = 0
-        self.add_history('Outside YM ',"YmLy",0,0,0,0,yres,0,0,len_y,0,0,0)
+        self.add_history('Outside YM ', "YmLy", 0, 0, 0, 0, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("Y")
         return 1
 
     # Corners
-    # Move Probe manual under corner 2-3 mm
-    # X+Y+ 
+    # Move Probe manual over corner 2-3 mm
+    # Front left outside corner
     def probe_outside_xpyp(self):
-        # move X - xy_clearance Y + edge_length
-        s="""G91
+        if self.probe_down_fast() == -1: return
+        # move X- xy_clearance Y+ edge_length
+        s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0]+0.5*self.data_probe_diam)
+        xres = float(a[0] + 0.5 * self.data_probe_diam)
         self.status_xp = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move X + edge_length +xy_clearance,  Y - edge_length - xy_clearance
-        a=self.data_side_edge_length+self.data_xy_clearance
-        s="""G91
+        # move X+ edge_length +xy_clearance,  Y- edge_length - xy_clearance
+        a = self.data_side_edge_length + self.data_xy_clearance
+        s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])+0.5*self.data_probe_diam
+        yres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = yres
         len_y = self.length_y()
-        self.add_history('Outside XPYP ',"XpLxYpLy",0,0,xres,len_x,0,0,yres,len_y,0,0,0)
+        self.add_history('Outside XPYP ', "XpLxYpLy", 0, 0, xres, len_x, 0, 0, yres, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
-    # X+Y-
+    # Back left outside corner
     def probe_outside_xpym(self):
-        # move X - xy_clearance Y + edge_length
-        s="""G91
+        if self.probe_down_fast() == -1: return
+        # move X- xy_clearance Y+ edge_length
+        s = """G91
         G1 F%s X-%f Y-%f
-        G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0]+0.5*self.data_probe_diam)
+        xres = float(a[0] + 0.5 * self.data_probe_diam)
         self.status_xp = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move X + edge_length +xy_clearance,  Y + edge_length + xy_clearance
-        a=self.data_side_edge_length+self.data_xy_clearance
-        s="""G91
+        # move X+ edge_length +xy_clearance,  Y+ edge_length + xy_clearance
+        a = self.data_side_edge_length + self.data_xy_clearance
+        s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])-0.5*self.data_probe_diam
+        yres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = yres
         len_y = self.length_y()
-        self.add_history('Outside XPYM ',"XpLxYmLy",0,0,xres,len_x,yres,0,0,len_y,0,0,0)
+        self.add_history('Outside XPYM ', "XpLxYmLy", 0, 0, xres, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
-    # X-Y+
+    # Front right outside corner
     def probe_outside_xmyp(self):
+        if self.probe_down_fast() == -1: return
         # move X + xy_clearance Y + edge_length
-        s="""G91
+        s = """G91
         G1 F%s X%f Y%f
-        G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0]-0.5*self.data_probe_diam)
+        xres = float(a[0] - 0.5 * self.data_probe_diam)
         self.status_xm = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
         # move X - edge_length - xy_clearance,  Y - edge_length - xy_clearance
-        a=self.data_side_edge_length+self.data_xy_clearance
-        s="""G91
+        a = self.data_side_edge_length + self.data_xy_clearance
+        s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])+0.5*self.data_probe_diam
+        yres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = yres
         len_y = self.length_y()
-        self.add_history('Outside XMYP ',"XmLxYpLy",xres,0,0,len_x,0,0,yres,len_y,0,0,0)
+        self.add_history('Outside XMYP ', "XmLxYpLy", xres, 0, 0, len_x, 0, 0, yres,len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
-    # X-Y-
+    # Back right outside corner
     def probe_outside_xmym(self):
-        # move X + xy_clearance Y - edge_length
-        s="""G91
+        if self.probe_down_fast() == -1: return
+        # move X+ xy_clearance Y- edge_length
+        s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xres=float(a[0]-0.5*self.data_probe_diam)
+        xres = float(a[0] - 0.5 * self.data_probe_diam)
         self.status_xm = xres
         len_x = self.length_x()
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move X - edge_length - xy_clearance,  Y + edge_length + xy_clearance
-        a=self.data_side_edge_length+self.data_xy_clearance
-        s="""G91
+        # move X- edge_length + xy_clearance,  Y+ edge_length + xy_clearance
+        a = self.data_side_edge_length + self.data_xy_clearance
+        s = """G91
         G1 F%s X-%f Y%f
-        G90""" % (self.data_rapid_vel, a,a)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        G90""" % (self.data_rapid_vel, a, a)        
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        yres=float(a[1])-0.5*self.data_probe_diam
+        yres = float(a[1]) -0.5 * self.data_probe_diam
         self.status_ym = yres
         len_y = self.length_y()
-        self.add_history('Outside XMYM ',"XmLxYmLy",xres,0,0,len_x,yres,0,0,len_y,0,0,0)
+        self.add_history('Outside XMYM ', "XmLxYmLy", xres, 0, 0, len_x, yres, 0, 0, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
-        s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres,yres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        s = "G1 F%s X%f Y%f" % (self.data_rapid_vel, xres, yres)
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
     # Center X+ X- Y+ Y-
     def probe_outside_xy_center(self):
-        # move X - edge_length- xy_clearance
-        s="""G91
+        # move X- edge_length- xy_clearance
+        s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length + self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xpres=float(a[0])+0.5*self.data_probe_diam
+        xpres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xpres
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move X + 2 edge_length + 2 xy_clearance
-        aa=2*(self.data_side_edge_length+self.data_xy_clearance)
-        s="""G91
+        # move X+ 2 edge_length + 2 xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
+        s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
         a = STATUS.get_probed_position_with_offsets()
-        xmres=float(a[0])-0.5*self.data_probe_diam
+        xmres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xmres
         len_x = self.length_x()
-        xcres=0.5*(xpres+xmres)
+        xcres = 0.5 * (xpres+xmres)
         self.status_xc = xcres
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
 
-        # move Y - edge_length- xy_clearance 
-        a=self.data_side_edge_length+self.data_xy_clearance
-        s="""G91
+        # move Y- edge_length- xy_clearance 
+        a = self.data_side_edge_length + self.data_xy_clearance
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, a)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        ypres=float(a[1])+0.5*self.data_probe_diam
+        ypres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = ypres
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move Y + 2 edge_length + 2 xy_clearance
-        aa=2*(self.data_side_edge_length+self.data_xy_clearance)
-        s="""G91
+        # move Y+ 2 edge_length + 2 xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)        
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
-        ymres=float(a[1])-0.5*self.data_probe_diam
+        ymres = float(a[1]) -0.5 * self.data_probe_diam
         self.status_ym = ymres
         len_y = self.length_y()
         # find, show and move to found  point
-        ycres=0.5*(ypres+ymres)
+        ycres = 0.5 * (ypres+ymres)
         self.status_yc = ycres
-        diam=0.5*((xmres-xpres)+(ymres-ypres))
+        diam = 0.5 * ((xmres - xpres) + (ymres - ypres))
         self.status_d = diam
-        self.add_history('Outside Circle ',"XmXcXpLxYmYcYpLyD",xmres,xcres,xpres,len_x,ymres,ycres,ypres,len_y,0,diam,0)
+        self.add_history('Outside Circle ', "XmXcXpLxYmYcYpLyD", xmres, xcres, xpres, len_x, ymres, ycres, ypres, len_y, 0, diam, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("XY")
         return 1
 
 #######################
 # Straight down probing
 #######################
+    # Probe Z Minus direction and set Z0 in current WCO
+    # End at Z_clearance above workpiece
     def probe_down(self):
         ACTION.CALL_MDI("G91")
         c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
@@ -981,204 +856,178 @@ class ProbeRoutines():
         if self.CALL_MDI_WAIT(c, 30) == -1: return -1
         a = STATUS.get_probed_position_with_offsets()
         self.status_z = float(a[2])
-        self.add_history('Straight Down ',"Z",0,0,0,0,0,0,0,0,a[2],0,0)
+        self.add_history('Straight Down ', "Z", 0, 0, 0, 0, 0, 0, 0, 0, a[2], 0, 0)
         self.set_zero("Z")
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         return 1
+
+    # Probe Z Minus direction and end at z_clearance above workpiece
+    # Used to establish Z height for edge probing
+    def probe_down_fast(self):
+        ACTION.CALL_MDI("G91")
+        c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
+        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
+        return self.z_clearance_up()
 
 ########
 # Length
 ########
     # Lx OUT
     def probe_outside_length_x(self):
-        # move X - edge_length- xy_clearance
-        s="""G91
+        # move X- edge_length + xy_clearance
+        s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length + self.data_xy_clearance)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
-        a=STATUS.get_probed_position_with_offsets()
-        xpres=float(a[0])+0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        xpres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xpres
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move X + 2 edge_length +  xy_clearance
-        aa=2*(self.data_side_edge_length + self.data_xy_clearance)
-        s="""G91
+        # move X+ 2 edge_length + xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
+        s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
-        a=STATUS.get_probed_position_with_offsets()
-        xmres=float(a[0])-0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        xmres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xmres
         len_x = self.length_x()
-        xcres=0.5*(xpres+xmres)
+        xcres = 0.5 * (xpres + xmres)
         self.status_xc = xcres
-        self.add_history('Outside Length X ',"XmXcXpLx",xmres,xcres,xpres,len_x,0,0,0,0,0,0,0)
+        self.add_history('Outside Length X ', "XmXcXpLx", xmres, xcres, xpres, len_x, 0,0,0,0,0,0,0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # go to the new center of X
         s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("X")
         return 1
 
     # Ly OUT
     def probe_outside_length_y(self):
-        # move Y - edge_length- xy_clearance
-        a=self.data_side_edge_length+self.data_xy_clearance
-        s="""G91
+        # move Y- edge_length- xy_clearance
+        a = self.data_side_edge_length + self.data_xy_clearance
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, a)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
-        a=STATUS.get_probed_position_with_offsets()
-        ypres=float(a[1])+0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        ypres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = ypres
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
 
-        # move Y + 2 edge_length +  xy_clearance
-        aa=2*(self.data_side_edge_length + self.data_xy_clearance)
-        s="""G91
+        # move Y+ 2 edge_length +  xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.z_clearance_down() == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.z_clearance_down() == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
-        a=STATUS.get_probed_position_with_offsets()
-        ymres=float(a[1])-0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        ymres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = ymres
         len_y = self.length_y()
         # find, show and move to found  point
-        ycres=0.5*(ypres+ymres)
+        ycres = 0.5 * (ypres + ymres)
         self.status_yc = ycres
-        self.add_history('Outside Length Y ',"YmYcYpLy",0,0,0,0,ymres,ycres,ypres,len_y,0,0,0)
+        self.add_history('Outside Length Y ', "YmYcYpLy", 0, 0, 0, 0, ymres, ycres, ypres, len_y, 0, 0, 0)
         # move Z to start point up
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to found  point
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("Y")
         return 1
 
     # Lx IN
     def probe_inside_length_x(self):
-        if self.z_clearance_down() == -1:
-            return
+        if self.z_clearance_down() == -1: return
         # move X - edge_length Y - xy_clearance
-        tmpx=self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        tmpx = self.data_side_edge_length - self.data_xy_clearance
+        s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, tmpx)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('xminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('xminus') == -1: return
         # show X result
-        a=STATUS.get_probed_position_with_offsets()
-        xmres=float(a[0])-0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        xmres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xmres
 
         # move X +2 edge_length - 2 xy_clearance
-        tmpx=2*(self.data_side_edge_length-self.data_xy_clearance)
-        s="""G91
+        tmpx = 2 * (self.data_side_edge_length - self.data_xy_clearance)
+        s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, tmpx)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('xplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('xplus') == -1: return
         # show X result
-        a=STATUS.get_probed_position_with_offsets()
-        xpres=float(a[0])+0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        xpres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xp = xpres
         len_x = self.length_x()
-        xcres=0.5*(xmres+xpres)
+        xcres = 0.5 * (xmres + xpres)
         self.status_xc = xcres
-        self.add_history('Inside Length X ',"XmXcXpLx",xmres,xcres,xpres,len_x,0,0,0,0,0,0,0)
+        self.add_history('Inside Length X ', "XmXcXpLx", xmres, xcres, xpres, len_x, 0,0,0,0,0,0,0)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move X to new center
         s = """G1 F%s X%f""" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("X")
         return 1
 
     # Ly IN
     def probe_inside_length_y(self):
-        if self.z_clearance_down() == -1:
-            return
+        if self.z_clearance_down() == -1: return
         # move Y - edge_length - xy_clearance
-        tmpy=self.data_side_edge_length-self.data_xy_clearance
-        s="""G91
+        tmpy = self.data_side_edge_length - self.data_xy_clearance
+        s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, tmpy)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('yminus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('yminus') == -1: return
         # show Y result
-        a=STATUS.get_probed_position_with_offsets()
-        ymres=float(a[1])-0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        ymres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = ymres
 
         # move Y +2 edge_length - 2 xy_clearance
-        tmpy=2*(self.data_side_edge_length-self.data_xy_clearance)
-        s="""G91
+        tmpy = 2 * (self.data_side_edge_length - self.data_xy_clearance)
+        s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, tmpy)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
-        if self.probe('yplus') == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
+        if self.probe('yplus') == -1: return
         # show Y result
-        a=STATUS.get_probed_position_with_offsets()
-        ypres=float(a[1])+0.5*self.data_probe_diam
+        a = STATUS.get_probed_position_with_offsets()
+        ypres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yp = ypres
         len_y = self.length_y()
         # find, show and move to found  point
-        ycres=0.5*(ymres+ypres)
+        ycres = 0.5 * (ymres + ypres)
         self.status_yc = ycres
-        self.add_history('Inside Length Y ',"YmYcYpLy",0,0,0,0,ymres,ycres,ypres,len_y,0,0,0)
+        self.add_history('Inside Length Y ', "YmYcYpLy", 0, 0, 0, 0, ymres, ycres, ypres, len_y, 0, 0, 0)
         # move Z to start point
-        if self.z_clearance_up() == -1:
-            return
+        if self.z_clearance_up() == -1: return
         # move to center
         s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1:
-            return
+        if self.CALL_MDI_WAIT(s, 30) == -1: return
         self.set_zero("Y")
         return 1
 
@@ -1353,4 +1202,3 @@ class ProbeRoutines():
         self.status_a = math.degrees(math.atan2(self.status_delta, self.data_side_edge_length))
         self.rotate_coord_system(self.status_a)
         return error
-
