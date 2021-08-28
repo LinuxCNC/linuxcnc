@@ -244,13 +244,13 @@ Linuxcnc does not have an internal angular jog rate. +
 This is GStat's internal jog rate. +
 It is expected to be in the machine's native units regardless of the current unit mode .
 
-*jogincrement-changed* :: '(returns float)' -
+*jogincrement-changed* :: '(returns float, text)' -
 Sent when jog increment has changed. +
 Linuxcnc does not have an internal jog increment. +
 This is GStat's internal jog increment. +
 It is expected to be in the machine's native units regardless of the current unit mode .
 
-*jogincrement-angular-changed* :: '(returns float)' -
+*jogincrement-angular-changed* :: '(returns float, text)' -
 Sent when angular jog increment has changed. +
 Linuxcnc does not have an internal angular jog increment. +
 This is GStat's internal angular jog increment. +
