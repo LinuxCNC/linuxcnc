@@ -172,10 +172,14 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # display in title bar for convenience
         self.setWindowTitle(sf)
         # row 0 is not editable (absolute position)
+        # row has limited entries (rotational)
         # column 9 is the descritive text column
         if item.column() == 9:
             self.callTextDialog(text,item)
-        elif item.column() <9 and item.row() > 0:
+        elif item.row() == 1:
+            if item.column() == 2:
+                self.callDialog(text,item)
+        elif item.row() > 1:
             self.callDialog(text,item)
 
     # alphanumerical
