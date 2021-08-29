@@ -369,8 +369,11 @@ class HandlerClass:
             msg1 = _translate('HandlerClass', 'Do you want to exit')
             if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
                 return
-            else:
+            elif self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
                 self.file_reload_clicked()
+            else:
+                self.w.gcode_editor.editor.new_text()
+                self.w.gcode_editor.editor.setModified(False)
         self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
@@ -1037,8 +1040,7 @@ class HandlerClass:
         self.w.height_reset.setEnabled(True)
         text0 = _translate('HandlerClass', 'MDI')
         text1 = _translate('HandlerClass', 'CLOSE')
-        if STATUS.is_auto_mode() and self.w.mdi_show.text() == ('{}\n{}'.format(text0, text1)):
-            self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
+        if STATUS.is_auto_mode() and self.w.gcode_stack.currentIndex() != 0:
             self.w.gcode_stack.setCurrentIndex(0)
         self.w.main_tab_widget.setTabEnabled(1, False)
         self.set_jog_button_state()
@@ -1104,10 +1106,7 @@ class HandlerClass:
             self.w.file_open.setText(os.path.basename(filename))
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
-            text0 = _translate('HandlerClass', 'MDI')
-            text1 = _translate('HandlerClass', 'CLOSE')
-            if self.w.mdi_show.text() == ('{}\n{}'.format(text0, text1)):
-                self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
+            if self.w.gcode_stack.currentIndex() != 0:
                 self.w.gcode_stack.setCurrentIndex(0)
             self.w.file_reload.setEnabled(True)
         self.w.gcodegraphics.logger.clear()
@@ -1116,7 +1115,6 @@ class HandlerClass:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
-        self.w.mdihistory.reload()
         msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
         if self.boundsError['loaded']:
             head = _translate('HandlerClass', 'AXIS LIMIT ERROR')
@@ -1383,34 +1381,24 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(1)
         self.vkb_hide()
         self.overlay.hide()
-        text0 = _translate('HandlerClass', 'MDI')
-        text1 = _translate('HandlerClass', 'CLOSE')
-        if self.w.mdi_show.text() == ('{}\n{}'.format(text0, text1)):
-            self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
-            self.w.gcode_stack.setCurrentIndex(0)
         self.w.filemanager.table.setFocus()
         self.w.filemanager.table.sortByColumn(0, Qt.AscendingOrder)
 
     def file_edit_clicked(self):
-        if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE:
+        if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != 2:
             self.w.preview_stack.setCurrentIndex(2)
             self.overlay.hide()
             self.w.gcode_editor.editor.setFocus()
             self.vkb_show()
+        else:
+            self.new_exitCall()
 
     def mdi_show_clicked(self):
-        if STATUS.is_on_and_idle() and STATUS.is_all_homed():
-            if self.w.mdi_show.text() == _translate('HandlerClass', 'MDI'):
-                text0 = _translate('HandlerClass', 'MDI')
-                text1 = _translate('HandlerClass', 'CLOSE')
-                self.w.mdi_show.setText('{}\n{}'.format(text0, text1))
-                self.w.gcode_stack.setCurrentIndex(1)
-                self.w.mdihistory.reload()
-                self.w.mdihistory.MDILine.setFocus()
-            else:
-                self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
-                self.w.gcode_stack.setCurrentIndex(0)
-                ACTION.SET_MANUAL_MODE()
+        if STATUS.is_on_and_idle() and STATUS.is_all_homed() and self.w.gcode_stack.currentIndex() != 1:
+            self.w.gcode_stack.setCurrentIndex(1)
+        else:
+            self.w.gcode_stack.setCurrentIndex(0)
+            ACTION.SET_MANUAL_MODE()
 
     def file_cancel_clicked(self):
         self.w.preview_stack.setCurrentIndex(0)
@@ -1924,6 +1912,8 @@ class HandlerClass:
         self.extHeightOvrScalePin.value_changed.connect(lambda v:self.height_ovr_scale_change(v))
         self.extJogSlowPin.value_changed.connect(lambda v:self.jog_slow_clicked(v))
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
+        self.w.preview_stack.currentChanged.connect(self.preview_stack_changed)
+        self.w.gcode_stack.currentChanged.connect(self.gcode_stack_changed)
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -2475,6 +2465,31 @@ class HandlerClass:
         else:
             return False
 
+    def preview_stack_changed(self):
+        if self.w.preview_stack.currentIndex() == 2:
+            self.button_active(self.w.file_edit.objectName())
+            text0 = _translate('HandlerClass', 'EDIT')
+            text1 = _translate('HandlerClass', 'CLOSE')
+            self.w.file_edit.setText('{}\n{}'.format(text0, text1))
+            self.w.file_reload.setEnabled(False)
+            self.w.file_open.setEnabled(False)
+        else:
+            self.button_normal(self.w.file_edit.objectName())
+            self.w.file_edit.setText(_translate('HandlerClass', 'EDIT'))
+            self.w.file_reload.setEnabled(True)
+            self.w.file_open.setEnabled(True)
+
+    def gcode_stack_changed(self):
+        if self.w.gcode_stack.currentIndex() == 1:
+            self.button_active(self.w.mdi_show.objectName())
+            text0 = _translate('HandlerClass', 'MDI')
+            text1 = _translate('HandlerClass', 'CLOSE')
+            self.w.mdi_show.setText('{}\n{}'.format(text0, text1))
+            self.w.mdihistory.reload()
+            self.w.mdihistory.MDILine.setFocus()
+        else:
+            self.button_normal(self.w.mdi_show.objectName())
+            self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
