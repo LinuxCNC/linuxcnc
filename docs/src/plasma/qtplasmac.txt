@@ -2092,7 +2092,7 @@ After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FRO
 . Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-Code line in the G-Code window.
 . Clicking *RELOAD* in the G-Code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-Code window header. This will return the user to the originally loaded file.
 
-NOTE: It is not possible to select a new line once Run From Line is active.  To select a different line, the user must press *RELOAD* and start over.
+NOTE: It is not possible to select a new line once Run From Line is active. To select a different line, the user must press *RELOAD* and start over.
 
 [[qt_scribe]]
 
@@ -2934,13 +2934,19 @@ NOTE: Enabling a user button as a Change Consumables button will add a <<qt_ext-
 
 [underline]*Load*
 
-Load a G-Code program by using the following format:
+Loading a G-Code program from the directory specified by the *PROGRAM_PREFIX* variable in the <machine_name>.ini file (usually ~/linuxcnc/nc_files) is possible by using the following format:
 
 ----
-BUTTON_n_CODE = load <path>G-Code.ngc
+BUTTON_n_CODE = load G-Code.ngc
 ----
 
-<path> does not need to be set by the user as it represents the directory specified by the *PROGRAM_PREFIX* variable in the <machine_name>.ini file. This is usually ~/linuxcnc/nc_files. For example: If the user's G-Code file was in a subdirectory of the *PROGRAM_PREFIX* directory named *plasma* then the entry would be *plasma/G-Code.ngc*. Note that the first "/" is not necessary as it will be added automatically.
+If the user's G-Code file is located in a sub-directory of the *PROGRAM_PREFIX* directory, it would be accessed by adding the sub-directory name to the beginning of the G-Code file name. Example for a sub-directory named *plasma*:
+
+----
+BUTTON_n_CODE = load plasma/G-Code.ngc
+----
+
+Note that the first "/" is not necessary as it will be added automatically.
 
 [[qt_button-torch]]
 
@@ -2978,7 +2984,7 @@ The laser enable HAL pin (qtplasmac.laser_on) will be enabled during the framing
 
 Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm before X/Y motion begins.
 
-Framing motion will occur at the feed rate for the currently selected material.
+The velocity for the XY movements of the Framing motion can be specified so that Framing motion always occurs at a set velocity. This can be achieved by adding the feed rate (F) as the as the last portion of the button code. If the feed rate is omitted from the button code, Framing motion velocity will default to the feed rate for the currently selected material.
 
 The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_parameters-tab, PARAMETERS Tab>>) are valid during Framing motion:
 
@@ -2997,6 +3003,18 @@ It is possible for the user to omit the initial default Z movement and run the f
 
 ----
 BUTTON_n_CODE = framing usecurrentzheight
+----
+
+To specify a feed rate:
+
+----
+BUTTON_n_CODE = framing F100
+----
+
+or:
+
+----
+BUTTON_n_CODE = framing usecurrentzheight F100
 ----
 
 Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
