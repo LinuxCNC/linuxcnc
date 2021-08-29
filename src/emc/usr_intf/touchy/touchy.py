@@ -872,8 +872,10 @@ if __name__ == "__main__":
             hwg = touchy(sys.argv[2])
         else:
             hwg = touchy()
-        res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
-        if res: raise SystemExit(res)
+        # load legacy postgui file if used
+        if os.path.exists('touchy.hal'):
+            res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-f", "touchy.hal"])
+            if res: raise SystemExit(res)
         #Attempt to support trivkins with non-default axis to joint assignments
         emc_interface.coordinates = touchy.trivkins(hwg)
         print("COORDINATES = %s" % emc_interface.coordinates)

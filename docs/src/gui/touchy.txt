@@ -21,10 +21,17 @@ image::images/touchy.png[align="center", alt="Touchy GUI"]
 
 === HAL connections
 
-Touchy requires that you create a file named 'touchy.hal' in your
-configuration directory (the directory your ini file is in) to 
-connect its controls. Touchy executes the HAL commands in this file
-after it has made its own pins available for connection.
+Touchy looks in the INI file, under the heading '[HAL]' for entries of 'POSTGUI_HALFILE=<filename>' +
+Typically '<filename>' would be 'touchy_postgui.hal', but can be any legal filename. +
+These commands are executed after the screen is built, guaranteeing the widget HAL 
+pins are available. +
+You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
+Each will be run one after the other in the order they appear in the INI file. +
+
+[NOTE]
+Touchy used to require that you create a file named 'touchy.hal' in your
+configuration directory (the directory your INI file is in). For legacy reasons 
+this will continue to work, but INI based postgui files are preferred.
 
 For more information on HAL files and the net command see the
 <<cha:basic-hal-reference,HAL Basics>>.
