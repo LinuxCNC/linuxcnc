@@ -1,4 +1,4 @@
-VERSION = '1.0.75'
+VERSION = '1.0.76'
 
 '''
 qtplasmac_handler.py
@@ -1124,7 +1124,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
                 else:
                     msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                msgs += '{} {} {} {}\n'.format(msgList[n], msg0, msgList[n + 2], units)
+                msgs += '{} {} {}{}\n'.format(msgList[n], msg0, msgList[n + 2], units)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msgs))
             if self.single_cut_request:
                 self.single_cut_request = False
@@ -1208,6 +1208,9 @@ class HandlerClass:
 
     def update_gcode_properties(self, props):
         self.gcodeProps = props
+        for axis in 'XY':
+            if not axis in self.gcodeProps:
+                self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
 
     def error_update(self, obj, kind, error):
         if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
@@ -1616,42 +1619,34 @@ class HandlerClass:
             units = 'mm'
             if self.gcodeProps['Units'] == 'in':
                 boundsMultiplier = 25.4
-        if 'X' in self.gcodeProps:
-            xMin = float(self.gcodeProps['X'].split()[0]) * boundsMultiplier - xOffset
-            if xMin < self.xMin:
-                amount = float(self.xMin - xMin)
-                msgList.append('X')
-                msgList.append('MIN')
-                msgList.append('{:0.2f}'.format(amount, units))
-                self.boundsError[boundsType] = True
-            xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier - xOffset
-            if xMax > self.xMax:
-                amount = float(xMax - self.xMax)
-                msgList.append('X')
-                msgList.append('MAX')
-                msgList.append('{:0.2f}'.format(amount, units))
-                self.boundsError[boundsType] = True
-        else:
-            xMin = 0
-            xMax = 0
-        if 'Y' in self.gcodeProps:
-            yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier - yOffset
-            if yMin < self.yMin:
-                amount = float(self.yMin - yMin)
-                msgList.append('Y')
-                msgList.append('MIN')
-                msgList.append('{:0.2f}'.format(amount, units))
-                self.boundsError[boundsType] = True
-            yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier - yOffset
-            if yMax > self.yMax:
-                amount = float(yMax - self.yMax)
-                msgList.append('Y')
-                msgList.append('MAX')
-                msgList.append('{:0.2f}'.format(amount, units))
-                self.boundsError[boundsType] = True
-        else:
-            yMin = 0
-            yMax = 0
+        xMin = float(self.gcodeProps['X'].split()[0]) * boundsMultiplier - xOffset
+        if xMin < self.xMin:
+            amount = float(self.xMin - xMin)
+            msgList.append('X')
+            msgList.append('MIN')
+            msgList.append('{:0.2f}'.format(amount, units))
+            self.boundsError[boundsType] = True
+        xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier - xOffset
+        if xMax > self.xMax:
+            amount = float(xMax - self.xMax)
+            msgList.append('X')
+            msgList.append('MAX')
+            msgList.append('{:0.2f}'.format(amount, units))
+            self.boundsError[boundsType] = True
+        yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier - yOffset
+        if yMin < self.yMin:
+            amount = float(self.yMin - yMin)
+            msgList.append('Y')
+            msgList.append('MIN')
+            msgList.append('{:0.2f}'.format(amount, units))
+            self.boundsError[boundsType] = True
+        yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier - yOffset
+        if yMax > self.yMax:
+            amount = float(yMax - self.yMax)
+            msgList.append('Y')
+            msgList.append('MAX')
+            msgList.append('{:0.2f}'.format(amount, units))
+            self.boundsError[boundsType] = True
         return msgList, units, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
@@ -2703,18 +2698,51 @@ class HandlerClass:
                 self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
                 self.extOhmicPin.value_changed.connect(lambda v:self.ext_ohmic_test(v))
             elif 'framing' in bCode:
-                self.frButton = 'button_{}'.format(str(bNum))
-                self.idleHomedList.append(self.frButton)
-                if len(bCode.lower().strip().split()) > 1 and 'usecurrentzheight' in bCode.lower():
-                    self.defaultZ = False
-                elif len(bCode.lower().strip().split()) == 1:
+                self.frFeed = 0
+                frCode = bCode.lower().strip().split()
+                if len(frCode) == 3:
+                    if frCode[1] == 'usecurrentzheight' and frCode[2][0] == 'f':
+                        self.defaultZ = False
+                        try:
+                            self.frFeed = float(frCode[2].replace('f', ''))
+                        except:
+                            head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                            continue
+                        frButton = True
+                    else:
+                        head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                        continue
+                elif len(frCode) == 2:
+                    if frCode[1] == 'usecurrentzheight':
+                        self.defaultZ = False
+                        frButton = True
+                    elif frCode[1][0] == 'f':
+                        self.defaultZ = True
+                        try:
+                            self.frFeed = float(frCode[1].replace('f', ''))
+                        except:
+                            head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                            continue
+                        frButton = True
+                    else:
+                        head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                        continue
+                elif len(frCode) == 1:
                     self.defaultZ = True
+                    frButton = True
                 else:
                     head = _translate('HandlerClass', 'USER BUTTON ERROR')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
                     continue
-                self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
-                self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
+                if frButton:
+                    self.frButton = 'button_{}'.format(str(bNum))
+                    self.idleHomedList.append(self.frButton)
+                    self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
+                    self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
             elif 'cut-type' in bCode and not self.ctButton:
                 self.ctButton = 'button_{}'.format(str(bNum))
                 self.idleOnList.append(self.ctButton)
@@ -3100,8 +3128,6 @@ class HandlerClass:
         if self.gcodeProps and state:
             self.framing = True
             self.w.run.setEnabled(False)
-            if self.frButton:
-                self.w[self.frButton].setEnabled(False)
             lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
             if lCode == '0':
                 xOffset, yOffset = 0, 0
@@ -3127,15 +3153,16 @@ class HandlerClass:
                         msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
                     else:
                         msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                    msgs += '{} {}: {}{} {}\n'.format(msgList[n], msg0, msgList[n + 2], units, msg1)
+                    msgs += '{} {} {}{} {}\n'.format(msgList[n], msg0, msgList[n + 2], units, msg1)
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msgs))
                 self.framing = False
                 self.w.run.setEnabled(True)
-                if self.frButton:
-                    self.w[self.frButton].setEnabled(True)
                 self.boundsError['framing'] = False
                 return
-            feed = float(self.w.cut_feed_rate.text())
+            if not self.frFeed:
+                feed = float(self.w.cut_feed_rate.text())
+            else:
+                feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 self.laserOnPin.set(1)
