@@ -103,8 +103,6 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         if not INFO.MACHINE_IS_LATHE:
             for i in (4,6,8,16,17,18):
                 self.hideColumn(i)
-        else:
-            self.hideColumn(15)
 
     def currentTool(self, data):
         self.current_tool = data
