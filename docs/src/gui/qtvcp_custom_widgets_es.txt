@@ -32,7 +32,7 @@ Lets look at a snippet of simple_widgets.py. +
 
 [source,python]
 ----
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 
 ###############################
 # Imports
@@ -94,7 +94,7 @@ This LED indicator widget will respond to selectable linuxcnc controller states.
 
 [source,python]
 ----
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 
 ###############################
 # Imports
