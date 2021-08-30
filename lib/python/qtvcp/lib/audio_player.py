@@ -237,9 +237,9 @@ class Player:
     def os_speak(self, f):
         cmd = f.lower().lstrip('speak')
         if ESPEAK:
-            print (cmd)
             if '_kill_' in cmd:
-                self.speak_cancel()
+                if espeak.is_playing():
+                    self.speak_cancel()
                 return
             try:
                 # uses a queue so doesn't speak over it's self.
