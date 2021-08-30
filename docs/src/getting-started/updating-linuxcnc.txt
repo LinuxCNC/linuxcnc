@@ -1254,6 +1254,16 @@ loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_ste
 The master branch is version-tagged with prerelease notation, typically
 2.9~pre*
 
+=== Python3 and GTK3
+
+2.9 changed to Python3 and GTK3. This only affects you if you have custom glade or python handlers in your config.
+
+. run py3clean in your config directory to remove any temporary files.
+. run py3clean in your linuxcnc source directory if you compile from source
+. run 2to3 -w on any .py files you have written
+. make sure the interpreter in the first line of the script is python3, not python2
+. open the ui file in glade, and save it. It should convert everything that can be converted automatically, and give you warnings.
+
 === LinuxCNC startup
 
 The main script, *linuxcnc*, supports a new option (-H dirname) to
