@@ -155,7 +155,6 @@ show "      git commit" $(git_commit)
 show "             tcl" $(echo "puts $::tcl_version"|tclsh)
 show "              tk" $(echo "puts $::tk_version;destroy ."|wish)
 show "           glade" $(tryversion glade)
-show "      glade-gtk2" $(tryversion glade-gtk2)
 echo
 echo "linuxcnc_var all:"
 echo

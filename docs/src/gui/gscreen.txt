@@ -40,10 +40,8 @@ generic name used for the buttons, sliders, labels etc of the PyGTK toolkit.
 A Glade file is a text file organized in the XML standard that describes the
 layout and the widgets of the screen. PyGTK uses this file to actually display
 and react to those widgets. The Glade editor makes it relatively easy to build
-and edit this file You must use the Glade 3.8.0 editor that uses the GTK2
-widgets. Newer versions of Linux use the newest Glade editor that uses GTK3
-widgets. In that case you must download the older Glade editor from their
-repository.
+and edit this file You must use the Glade 3.38.2 editor that uses the GTK3
+widgets.
 
 === PyGTK
 
@@ -123,7 +121,7 @@ GTK supports 'themes'.
 Themes are a way to modify the look and feel of the widgets on the screen.
 For instance the color or size of buttons and sliders can be changed using
 themes.
-There are many GTK2 themes available on the web.
+There are many GTK themes available on the web.
 Themes can also be customized to modify visuals of particular named widgets.
 This ties the theme file to the glade file more tightly.
 Some of the sample screen skins allow the user to select any of the themes on 
@@ -139,7 +137,7 @@ and changes the visual behaivor of those specific widgets. The Estop and
 machine-on buttons use different colors then the rest of the buttons so that
 they stand out. This is done in the handler file by giving them specific names
 an by adding specific commands in the theme's gtkrc file.
-For some info on GTK2 theming (The sample theme uses the pixmap theme engine) See:
+For some info on GTK theming (The sample theme uses the pixmap theme engine) See:
 
 https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes]
 
