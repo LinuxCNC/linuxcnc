@@ -11,7 +11,7 @@ import warnings
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-from PyQt5.QtCore import pyqtSignal, QPoint, QSize, Qt, QTimer
+from PyQt5.QtCore import pyqtProperty, pyqtSignal, QPoint, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QMessageBox, QSlider,
         QWidget)
@@ -28,9 +28,6 @@ except ImportError:
     LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
     LIB_GOOD = False
 
-import gi
-gi.require_version('Pango', '1.0')
-from gi.repository import Pango
 import _thread
     
 import glnav
@@ -285,6 +282,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.dro_mm = "% 9.3f"
         self.dro_deg = "% 9.2f"
         self.dro_vel = "   Vel:% 9.2F"
+        self._font = 'monospace bold 16'
         self.addTimer()
 
     # add a 100ms timer to poll linuxcnc stats
@@ -474,7 +472,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             return
         self._current_file = None
 
-        self.font_base, width, linespace = glnav.use_pango_font('courier bold 16', 0, 128)
+        self.font_base, width, linespace = glnav.use_pango_font(self._font, 0, 128)
         self.font_linespace = linespace
         self.font_charwidth = width
         glcanon.GlCanonDraw.realize(self)
@@ -1057,6 +1055,17 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glVertex3d(x2, y2, +z)
         GL.glVertex3d(x2, y2, -z)
         GL.glVertex3d(x1, y1, -z)
+
+#############
+# QProperties
+#############
+    def setfont(self, font):
+        self._font = font
+    def getfont(self):
+        return self._font
+    def resetfont(self):
+        self._font = 'monospace bold 16'
+    dro_font = pyqtProperty(str, getfont, setfont, resetfont)
 
 ###########
 # Testing
