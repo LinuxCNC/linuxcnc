@@ -160,7 +160,7 @@ class GstatLabelPropertySheet(QPyDesignerPropertySheetExtension):
             self.widget.setObjectName(value)
         if 'geometry' in prop:
             self.widget.setGeometry(value)
-        if prop is 'text':
+        if prop == 'text':
             self.widget.setText(value)
         if 'Status' in prop:
             self.do_alt_text_test(prop, index, value)
