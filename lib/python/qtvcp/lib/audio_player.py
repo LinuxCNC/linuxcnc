@@ -237,8 +237,12 @@ class Player:
     def os_speak(self, f):
         cmd = f.lower().lstrip('speak')
         if ESPEAK:
+            print (cmd)
+            if '_kill_' in cmd:
+                self.speak_cancel()
+                return
             try:
-                # uses a queue so doesn;t speak over it's self.
+                # uses a queue so doesn't speak over it's self.
                 esQueue.put(cmd)
                 if not espeak.is_playing():
                     espeak.synth(esQueue.get())
@@ -252,6 +256,9 @@ class Player:
         if args[0] == espeak.event_MSG_TERMINATED:
             if not esQueue.empty():
                 espeak.synth(esQueue.get())
+
+    def speak_cancel(self):
+        espeak.cancel()
 
     ##############################
     # required class boiler code #

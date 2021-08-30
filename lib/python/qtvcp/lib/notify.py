@@ -200,6 +200,7 @@ class Notify:
     def closeClicked(self, n, text):
         n.close()
         STATUS.emit('system_notify_button_pressed', Notify.CLOSE, True)
+        STATUS.emit('play-sound', 'SPEAK _KILL_')
 
     def OnClicked(self, n, signal_text):
         print('1: ' + str(n))
@@ -228,6 +229,7 @@ class Notify:
         self.alarmpage = []
         n.body = ''
         STATUS.emit('system_notify_button_pressed', Notify.CLEARALL, True)
+        STATUS.emit('play-sound', 'SPEAK _KILL_')
 
     #####################################################
     # General work functions
