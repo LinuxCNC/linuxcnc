@@ -228,28 +228,10 @@ Then connect any required HAL pins in a HAL file +
 You must have designer installed; These commands should add it: +
 Or use your package manager to install the same: +
 'sudo apt-get install qttools5-dev-tools' +
-'sudo apt-get install qttools5.dev' +
-'sudo apt-get install libpython-dev' +
+'sudo apt-get install qttools5-dev' +
+'sudo apt-get install libpython3-dev' +
 
-Then you need the python-module loading library added. +
-Qtvcp uses QT5 with python2 - this combination is not normally available from +
-repositories. You can compile it your self or there are precompiled versions +
-available for common systems. +
-in 'lib/python/qtvcp/designer' there are folders based on system architectures +
-and then QT version. +
-You must pick the cpu architecture folder then pick the series; 5.5, 5.7, or 5.9 of Qt. +
-currently Debian stretch uses 5.7, Mint 12 uses 5.5, Mint 19 uses 5.9 +
-if in doubt check the version of QT5 on the system. +
-
-You must decompress the file and then copy that proper version of +
-'libpyqt5_py2.so' to this folder: +
-'/usr/lib/x86_64-linux-gnu/qt5/plugins/designer' +
-(x86_64-linux-gnu might be called something slightly different +
-on different systems) +
-
-You will require super user privileges to copy the file to the folder. +
-
-then you must add a link to the qtvcp_plugin.py to the folder that designer will search. +
+Then you must add a link to the qtvcp_plugin.py to the folder that designer will search. +
 
 In a RIP version of linuxcnc qtvcp_plugin.py will be in: +
 '~/LINUXCNC_PROJECT_NAME/lib/python/qtvcp/plugins/qtvcp_plugin.py' +
