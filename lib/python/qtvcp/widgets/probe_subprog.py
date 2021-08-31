@@ -18,7 +18,6 @@ import sys
 import os
 import time
 import json
-import linuxcnc
 
 from PyQt5.QtCore import QObject
 from qtvcp.core import Status, Action, Info
@@ -42,6 +41,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.send_dict = {}
         self.error_status = None
         self.PID = None
+        self.sleep_counter = 0
         # list of parameters received from main probe program
         # excluding booleans, these are handled separately
         self.parm_list = ['probe_diam',
@@ -117,6 +117,7 @@ class ProbeSubprog(QObject, ProbeRoutines):
         self.history_log = ""
 
         self.process()
+        sys.exit(0)
 
     def process(self):
         while 1:
@@ -146,9 +147,15 @@ class ProbeSubprog(QObject, ProbeRoutines):
                     sys.stdout.write("ERROR Command Error: {}\n".format(e))
                     sys.stdout.flush()
             if self.PID is not None:
-                if not self.check_pid(self.PID):
+                if not self.check_pid(self.PID): break
 #                    sys.exit(0)
-                    self.terminate()
+            else:
+                time.sleep(0.1)
+                self.sleep_counter += 1
+                if self.sleep_counter > 10: break
+#                    sys.exit(0)
+
+
     # check for an error message was sent to us or
     # check that the command is actually a method in our class else
     # this message isn't for us - ignore it
@@ -156,6 +163,9 @@ class ProbeSubprog(QObject, ProbeRoutines):
         cmd = cmd.rstrip().split('$')
         if cmd[0] == '_ErroR_':
             self.process_error(cmd[1])
+            return None
+        elif cmd[0] == 'PID':
+            self.PID = int(cmd[1])
             return None
         elif cmd[0] in dir(self):
             if not STATUS.is_on_and_idle(): return None
@@ -165,9 +175,6 @@ class ProbeSubprog(QObject, ProbeRoutines):
             if error != 1 and STATUS.is_on_and_idle():
                 ACTION.CALL_MDI("G90")
             return error
-        elif cmd[0] == 'PID':
-            self.PID = int(cmd[1])
-            return None
         else:
             return 0
 
