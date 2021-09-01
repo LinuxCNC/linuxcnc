@@ -1,4 +1,4 @@
-VERSION = '1.0.76'
+VERSION = '1.0.77'
 
 '''
 qtplasmac_handler.py
@@ -2629,7 +2629,8 @@ class HandlerClass:
 # USER BUTTON FUNCTIONS #
 #########################################################################################################################
     def user_button_setup(self):
-        self.iniButtonCode = ['Codes']
+        self.iniButtonCodes = ['Codes']
+        iniButtonCodes = ['Codes']
         self.probePressed = False
         self.probeTime = 0
         self.probeTimer = QTimer()
@@ -2645,53 +2646,102 @@ class HandlerClass:
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
-        singleCodes = ['change-consumables', 'ohmic-test', 'probe-test', 'torch-pulse', 'cut-type', 'single-cut', 'manual-cut']
-        msg0 = _translate('HandlerClass', 'Invalid code for user button')
+        singleCodes = ['change-consumables', 'ohmic-test', 'probe-test', 'torch-pulse', 'cut-type', 'single-cut', 'manual-cut', 'framing']
+        head = _translate('HandlerClass', 'USER BUTTON ERROR')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
             bName = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_NAME') or ''
             bCode = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_CODE') or ''
-            if not bCode or not bName or (bCode in singleCodes and bCode in self.iniButtonCode):
+            bNameDup = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_NAME', 2)
+            bCodeDup = self.iniFile.find('QTPLASMAC', 'BUTTON_' + str(bNum) + '_CODE', 2)
+            if bNameDup or bCodeDup:
+                msg0 = _translate('HandlerClass', 'is already assigned')
+                msg1 = _translate('HandlerClass', 'Using first instance only of')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nBUTTON_{} {}\n{} BUTTON_{}'.format(head, bNum, msg0, msg1, bNum))
+            if (bCode and not bName) or (not bCode and bName):
+                msg0 = _translate('HandlerClass', 'are both required')
+                msg1 = _translate('HandlerClass', 'only one has been specified for')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nCODE + NAME {}\n{} BUTTON_{}'.format(head, msg0, msg1, bNum))
                 self.w['button_{}'.format(str(bNum))].setText('')
-                self.iniButtonCode.append('')
+                self.iniButtonCodes.append('')
                 continue
-            self.iniButtonCode.append(bCode)
+            if bCode == '':
+                self.w['button_{}'.format(str(bNum))].setText('')
+                self.iniButtonCodes.append('')
+                continue
+            code = bCode.lower().strip().split()[0]
+            if code in singleCodes and code in iniButtonCodes:
+                msg1 = _translate('HandlerClass', 'Duplicate code entry for')
+                msg2 = _translate('HandlerClass', 'Using first instance only of')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} BUTTON_{} + BUTTON_{}\n{} {}'
+                        .format(head, msg1, iniButtonCodes.index(code), bNum, msg2, bCode.split()[0]))
+                self.w['button_{}'.format(str(bNum))].setText('')
+                self.iniButtonCodes.append('')
+                continue
+            self.iniButtonCodes.append(bCode)
+            iniButtonCodes.append(code)
+            msg0 = _translate('HandlerClass', 'Invalid code for user button')
             bNames = bName.split('\\')
             bLabel = bNames[0]
             if len(bNames) > 1:
                 for name in range(1, len(bNames)):
                     bLabel += '\n{}'.format(bNames[name])
             self.w['button_{}'.format(str(bNum))].setText(bLabel)
-            if 'change-consumables' in bCode and not self.ccButton:
+            if 'change-consumables' in bCode:
                 self.ccParm = self.iniFile.find('QTPLASMAC','BUTTON_' + str(bNum) + '_CODE').replace('change-consumables','').replace(' ','').lower() or None
-                self.ccButton = 'button_{}'.format(str(bNum))
-                self.idleHomedList.append(self.ccButton)
-                self.pausedValidList.append(self.ccButton)
-                self.extChangeConsPin = self.h.newpin('ext_consumables', hal.HAL_BIT, hal.HAL_IN)
-                self.extChangeConsPin.value_changed.connect(lambda v:self.change_consumables(v))
-            elif 'probe-test' in bCode and not self.ptButton:
-                self.ptButton = 'button_{}'.format(str(bNum))
-                self.idleHomedList.append(self.ptButton)
-                self.probeText = self.w[self.ptButton].text()
-                if bCode.lower().replace('probe-test','').strip():
-                    self.ptTime = int(bCode.lower().replace('probe-test','').strip())
+                if self.ccParm != None and ('x' in self.ccParm or 'y' in self.ccParm) and 'f' in self.ccParm:
+                    self.ccButton = 'button_{}'.format(str(bNum))
+                    self.idleHomedList.append(self.ccButton)
+                    self.pausedValidList.append(self.ccButton)
+                    self.extChangeConsPin = self.h.newpin('ext_consumables', hal.HAL_BIT, hal.HAL_IN)
+                    self.extChangeConsPin.value_changed.connect(lambda v:self.ext_change_consumables(v))
                 else:
-                    self.ptTime = 30
-                self.extProbePin = self.h.newpin('ext_probe', hal.HAL_BIT, hal.HAL_IN)
-                self.extProbePin.value_changed.connect(lambda v:self.ext_probe_test(v))
-            elif 'torch-pulse' in bCode and not self.tpButton:
-                self.tpButton = 'button_{}'.format(str(bNum))
-                self.idleOnList.append(self.tpButton)
-                self.pausedValidList.append(self.tpButton)
-                self.tpText = self.w[self.tpButton].text()
-                if bCode.lower().replace('torch-pulse','').strip():
-                    self.tpTime = float(bCode.lower().replace('torch-pulse','').strip())
-                    self.tpTime = 3.0 if self.torchTime > 3.0 else self.tpTime
+                    msg1 = _translate('HandlerClass', 'Check button code for invalid or missing arguments')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    continue
+            elif 'probe-test' in bCode:
+                if len(bCode.split()) < 3:
+                    if bCode.lower().replace('probe-test','').strip():
+                        try:
+                            self.ptTime = round(float(bCode.lower().replace('probe-test','').strip()))
+                        except:
+                            msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            continue
+                    else:
+                        self.ptTime = 10
+                    self.ptButton = 'button_{}'.format(str(bNum))
+                    self.idleHomedList.append(self.ptButton)
+                    self.probeText = self.w[self.ptButton].text()
+                    self.extProbePin = self.h.newpin('ext_probe', hal.HAL_BIT, hal.HAL_IN)
+                    self.extProbePin.value_changed.connect(lambda v:self.ext_probe_test(v))
                 else:
-                    self.tpTime = 1.0
-                self.extPulsePin = self.h.newpin('ext_pulse', hal.HAL_BIT, hal.HAL_IN)
-                self.extPulsePin.value_changed.connect(lambda v:self.ext_torch_pulse(v))
-            elif 'ohmic-test' in bCode and not self.otButton:
+                    msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    continue
+            elif 'torch-pulse' in bCode:
+                if len(bCode.split()) < 3:
+                    if bCode.lower().replace('torch-pulse','').strip():
+                        try:
+                            self.tpTime = round(float(bCode.lower().replace('torch-pulse','').strip()), 1)
+                        except:
+                            msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            continue
+                        self.tpTime = 3.0 if self.torchTime > 3.0 else self.tpTime
+                    else:
+                        self.tpTime = 1.0
+                    self.tpButton = 'button_{}'.format(str(bNum))
+                    self.idleOnList.append(self.tpButton)
+                    self.pausedValidList.append(self.tpButton)
+                    self.tpText = self.w[self.tpButton].text()
+                    self.extPulsePin = self.h.newpin('ext_pulse', hal.HAL_BIT, hal.HAL_IN)
+                    self.extPulsePin.value_changed.connect(lambda v:self.ext_torch_pulse(v))
+                else:
+                    msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    continue
+            elif 'ohmic-test' in bCode:
                 self.otButton = 'button_{}'.format(str(bNum))
                 self.idleOnList.append(self.otButton)
                 self.pausedValidList.append(self.otButton)
@@ -2706,13 +2756,13 @@ class HandlerClass:
                         try:
                             self.frFeed = float(frCode[2].replace('f', ''))
                         except:
-                            head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                            msg1 = _translate('HandlerClass', 'Check button code for invalid feed argument')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                             continue
                         frButton = True
                     else:
-                        head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                        msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                         continue
                 elif len(frCode) == 2:
                     if frCode[1] == 'usecurrentzheight':
@@ -2723,46 +2773,47 @@ class HandlerClass:
                         try:
                             self.frFeed = float(frCode[1].replace('f', ''))
                         except:
-                            head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                            msg1 = _translate('HandlerClass', 'Check button code for invalid feed argument')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                             continue
                         frButton = True
                     else:
-                        head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                        msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                         continue
                 elif len(frCode) == 1:
                     self.defaultZ = True
                     frButton = True
                 else:
-                    head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                    msg1 = _translate('HandlerClass', 'Check button code argument count')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                     continue
                 if frButton:
                     self.frButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.frButton)
                     self.extFramingPin = self.h.newpin('ext_frame_job', hal.HAL_BIT, hal.HAL_IN)
                     self.extFramingPin.value_changed.connect(lambda v:self.ext_frame_job(v))
-            elif 'cut-type' in bCode and not self.ctButton:
+            elif 'cut-type' in bCode:
                 self.ctButton = 'button_{}'.format(str(bNum))
                 self.idleOnList.append(self.ctButton)
-            elif 'single-cut' in bCode and not self.scButton:
+            elif 'single-cut' in bCode:
                 self.scButton = 'button_{}'.format(str(bNum))
                 self.idleHomedList.append(self.scButton)
-            elif 'manual-cut' in bCode and not self.mcButton:
+            elif 'manual-cut' in bCode:
                 self.mcButton = 'button_{}'.format(str(bNum))
                 self.idleHomedList.append(self.mcButton)
             elif 'load' in bCode:
                 self.idleOnList.append('button_{}'.format(str(bNum)))
             elif 'toggle-halpin' in bCode:
                 head = _translate('HandlerClass', 'HAL PIN ERROR')
-                if len(bCode.lower().strip().split()) > 2 and 'runcritical' in bCode.lower():
+                if len(bCode.split()) == 3 and 'runcritical' in bCode.lower():
                     critical = True
-                elif len(bCode.lower().strip().split()) == 2:
+                elif len(bCode.split()) == 2:
                     critical = False
                 else:
                     head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                    msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                     continue
                 halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
                 excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
@@ -2785,37 +2836,50 @@ class HandlerClass:
                 # halTogglePins format is: button name, run critical flag, button text
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
             elif 'pulse-halpin' in bCode:
-                try:
-                    code, halpin, delay = bCode.lower().strip().split()
-                except:
+                if len(bCode.split()) < 4:
                     try:
-                        code, halpin = bCode.lower().strip().split()
-                        delay = '1.0'
+                        code, halpin, delay = bCode.lower().strip().split()
+                    except:
+                        try:
+                            code, halpin = bCode.lower().strip().split()
+                            delay = '1.0'
+                        except:
+                            head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                            msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                            code = halpin = delay = ''
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            continue
+                    excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
+                                    'plasmac.probe-test', 'plasmac.consumable-change')
+                    head = _translate('HandlerClass', 'HAL PIN ERROR')
+                    if halpin in excludedHalPins:
+                        msg1 = _translate('HandlerClass', 'HAL pin')
+                        msg2 = _translate('HandlerClass', 'must be pulsed')
+                        msg3 = _translate('HandlerClass', 'using standard button code')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
+                        continue
+                    else:
+                        try:
+                            pinstate = hal.get_value(halpin)
+                            self.idleOnList.append('button_{}'.format(str(bNum)))
+                        except:
+                            msg1 = _translate('HandlerClass', 'HAL pin')
+                            msg2 = _translate('HandlerClass', 'does not exist')
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}'.format(head, msg0, bNum, msg1, halpin, msg2))
+                            continue
+                    # halPulsePins format is: button name, pulse time, button text, remaining time
+                    try:
+                        self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0]
                     except:
                         head = _translate('HandlerClass', 'USER BUTTON ERROR')
-                        code = halpin = delay = ''
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                        msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                         continue
-                excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
-                                'plasmac.probe-test', 'plasmac.consumable-change')
-                head = _translate('HandlerClass', 'HAL PIN ERROR')
-                if halpin in excludedHalPins:
-                    msg1 = _translate('HandlerClass', 'HAL pin')
-                    msg2 = _translate('HandlerClass', 'must be pulsed')
-                    msg3 = _translate('HandlerClass', 'using standard button code')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
-                    continue
                 else:
-                    try:
-                        pinstate = hal.get_value(halpin)
-                        self.idleOnList.append('button_{}'.format(str(bNum)))
-                    except:
-                        msg1 = _translate('HandlerClass', 'HAL pin')
-                        msg2 = _translate('HandlerClass', 'does not exist')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}'.format(head, msg0, bNum, msg1, halpin, msg2))
-                        continue
-                # halPulsePins format is: button name, pulse time, button text, remaining time
-                self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0]
+                    head = _translate('HandlerClass', 'USER BUTTON ERROR')
+                    msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    continue
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
@@ -2841,7 +2905,7 @@ class HandlerClass:
                         break
 
     def user_button_down(self, bNum):
-        commands = self.iniButtonCode[bNum]
+        commands = self.iniButtonCodes[bNum]
         if not commands: return
         if 'change-consumables' in commands.lower() and not 'e-halpin' in commands.lower():
             self.change_consumables(True)
@@ -2944,7 +3008,7 @@ class HandlerClass:
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"'.format(head, msg0, bNum, msg1, command))
 
     def user_button_up(self, bNum):
-        commands = self.iniButtonCode[bNum]
+        commands = self.iniButtonCodes[bNum]
         if not commands: return
         elif 'torch-pulse' in commands.lower() and not 'e-halpin' in commands.lower():
             self.torch_pulse(False)
