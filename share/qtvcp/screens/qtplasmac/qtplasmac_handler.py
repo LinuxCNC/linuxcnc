@@ -1,4 +1,4 @@
-VERSION = '1.0.77'
+VERSION = '1.0.78'
 
 '''
 qtplasmac_handler.py
@@ -348,6 +348,10 @@ class HandlerClass:
 # CLASS PATCHING SECTION #
 #################################################################################################################################
     def class_patch__(self):
+        self.old_saveReturn = EDITOR.saveReturn
+        EDITOR.saveReturn = self.new_saveReturn
+        self.old_openReturn = EDITOR.openReturn
+        EDITOR.openReturn = self.new_openReturn
         self.old_exitCall = EDITOR.exitCall
         EDITOR.exitCall = self.new_exitCall
         self.old_gcodeLexerCall = EDITOR.gcodeLexerCall
@@ -358,10 +362,31 @@ class HandlerClass:
         CAM.wheelEvent = self.new_wheelEvent
         self.old_drawText = CAM.drawText
         CAM.drawText = self.new_drawText
+        self.old_mousePressEvent = CAM.mousePressEvent
+        CAM.mousePressEvent = self.new_mousePressEvent
+        self.old_mouseDoubleClickEvent = CAM.mouseDoubleClickEvent
+        CAM.mouseDoubleClickEvent = self.new_mouseDoubleClickEvent
         self.old_submit = MDI_LINE.submit
         MDI_LINE.submit = self.new_submit
 
 # patched gcode editor functions
+    # save a non gcode file and don't load it into linuxcnc
+    def new_saveReturn(self, filename):
+        saved = ACTION.SAVE_PROGRAM(self.w.gcode_editor.editor.text(), filename)
+        if saved is not None:
+            self.w.gcode_editor.editor.setModified(False)
+            if saved[-3:] in ['ngc', '.nc', '.tap']:
+                ACTION.OPEN_PROGRAM(saved)
+
+    # open a non gcode file and don't load it into linuxcnc
+    def new_openReturn(self, filename):
+        if filename[-3:] in ['ngc', '.nc', '.tap']:
+            ACTION.OPEN_PROGRAM(filename)
+        else:
+            self.w.gcode_editor.editor.load_text(filename)
+        self.w.gcode_editor.editor.setModified(False)
+
+    # modify the closing of the gcode editor
     def new_exitCall(self):
         if self.w.gcode_editor.editor.isModified():
             head = _translate('HandlerClass', 'Unsaved Changes')
@@ -369,46 +394,41 @@ class HandlerClass:
             msg1 = _translate('HandlerClass', 'Do you want to exit')
             if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
                 return
-            elif self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
-                self.file_reload_clicked()
-            else:
-                self.w.gcode_editor.editor.new_text()
-                self.w.gcode_editor.editor.setModified(False)
+        if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
+            self.file_reload_clicked()
+        else:
+            self.w.gcode_editor.editor.new_text()
+            self.w.gcode_editor.editor.setModified(False)
+        self.w.gcode_editor.editMode()
         self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
         ACTION.SET_MANUAL_MODE()
 
+    # we don't use lexer colors
     def new_gcodeLexerCall(self):
         pass
 
+    # we don't use lexer colors
     def new_pythonLexerCall(self):
         pass
 
-    def kill_check(self):
-        head = _translate('HandlerClass', 'Unsaved Changes')
-        msg0 = _translate('HandlerClass', 'Unsaved changes will be lost')
-        msg1 = _translate('HandlerClass', 'Do you want to exit')
-        if self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
-            return True
-        else:
-            return False
-
 # patched camera functions
+    # format the angle display
     def new_drawText(self, event, qp):
         qp.setPen(self.w.camview.text_color)
         qp.setFont(self.w.camview.font)
         if self.w.camview.pix:
-            angle = 0.0 if self.w.camview.rotation == 0 else 360 - self.w.camview.rotation
-            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignTop, '{:0.3f}{}'.format(angle, self.degreeSymbol))
+            qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignTop, '{:0.3f}{}'.format(self.w.camview.rotation, self.degreeSymbol))
         else:
             qp.drawText(self.w.camview.rect(), QtCore.Qt.AlignCenter, self.w.camview.text)
 
+    # limit scale and diameter, don't allow mouse rotation
     def new_wheelEvent(self, event):
         mouseState = qApp.mouseButtons()
-        size = self.w.camview.size()
-        w = size.width()
+        w = self.w.camview.size().width()
+        h = self.w.camview.size().height()
         if event.angleDelta().y() < 0:
             if mouseState == QtCore.Qt.NoButton:
                 self.w.camview.diameter -= 2
@@ -420,28 +440,42 @@ class HandlerClass:
             if mouseState == QtCore.Qt.LeftButton:
                 self.w.camview.scale += .1
         if self.w.camview.diameter < 2: self.w.camview.diameter = 2
-        if self.w.camview.diameter > w: self.w.camview.diameter = w
+        if self.w.camview.diameter > w - 5: self.w.camview.diameter = w - 5
+        if self.w.camview.diameter > h - 5: self.w.camview.diameter = h - 5
         if self.w.camview.scale < 1: self.w.camview.scale = 1
         if self.w.camview.scale > 5: self.w.camview.scale = 5
 
+    # inhibit mouse single clicks
+    def new_mousePressEvent(self, event):
+        pass
+
+    # don't reset rotation with double click
+    def new_mouseDoubleClickEvent(self, event):
+        if event.button() & QtCore.Qt.LeftButton:
+            self.w.camview.scale = 1
+        elif event.button() & QtCore.Qt.MiddleButton:
+            self.w.camview.diameter = 20
+
 # patched mdi_line functions
+    # don't allow M3 or M5 in MDI codes
     def new_submit(self):
         intext = str(self.w.mdihistory.MDILine.text()).rstrip()
         if intext == '': return
-        if intext == 'HALMETER':
+        if intext.upper() == 'HALMETER':
             AUX_PRGM.load_halmeter()
-        elif intext == 'STATUS':
+        elif intext.upper() == 'STATUS':
             AUX_PRGM.load_status()
-        elif intext == 'HALSHOW':
+        elif intext.upper() == 'HALSHOW':
             AUX_PRGM.load_halshow()
-        elif intext == 'CLASSICLADDER':
+        elif intext.upper() == 'CLASSICLADDER':
             AUX_PRGM.load_ladder()
-        elif intext == 'HALSCOPE':
+        elif intext.upper() == 'HALSCOPE':
             AUX_PRGM.load_halscope()
-        elif intext == 'CALIBRATION':
+        elif intext.upper() == 'CALIBRATION':
             AUX_PRGM.load_calibration()
-        elif intext == 'PREFERENCE':
-            STATUS.emit('show-preference')
+        elif intext.upper() == 'PREFERENCE':
+            self.new_openReturn(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs'))
+            self.w.gcode_editor.readOnlyMode()
             self.w.preview_stack.setCurrentIndex(2)
         else:
             head = _translate('HandlerClass', 'MDI ERROR')
@@ -4001,8 +4035,7 @@ class HandlerClass:
 # CAMERA AND LASER FUNCTIONS #
 #################################################################################################################################
     def camera_pressed(self):
-        # camview rotation is opposite direction to cartesian polar coordinates
-        self.w.camview.rotation = 0.0 if STATUS.stat.rotation_xy == 0 else 360 - STATUS.stat.rotation_xy
+        self.w.camview.rotation = STATUS.stat.rotation_xy
         if self.w.preview_stack.currentIndex() != 3:
             self.w.preview_stack.setCurrentIndex(3)
             self.overlay.hide()
@@ -4060,8 +4093,7 @@ class HandlerClass:
                     zAngle = 0
             else:
                 zAngle = 0
-            # camview rotation is opposite direction to cartesian polar coordinates
-            self.w.camview.rotation = 360 - zAngle
+            self.w.camview.rotation = zAngle
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle), 3)
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY), 3)
             if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
@@ -4097,11 +4129,11 @@ class HandlerClass:
         self.w.camview.scale -= 0.1
 
     def cam_dia_plus_pressed(self):
-        if self.w.camview.size().height() > self.w.camview.size().width():
+        if self.w.camview.size().height() < self.w.camview.size().width():
             size = self.w.camview.size().height()
         else:
             size = self.w.camview.size().width()
-        if self.w.camview.diameter >= size:
+        if self.w.camview.diameter >= size - 5:
             return
         self.w.camview.diameter += 2
 
