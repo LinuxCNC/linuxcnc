@@ -2878,10 +2878,12 @@ There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to puls
 
 [underline]*Probe Test*
 
-QtPlasmaC will begin a probe and when the material is detected, the Z axis will rise to the Pierce Height currently displayed in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*. QtPlasmaC will then wait in this state for the time specified (in seconds) before returning the Z axis to the starting position. An example of a 10 second delay is below. It there is no time specified then it will default to 10 seconds.
+QtPlasmaC will begin a probe and when the material is detected, the Z axis will rise to the Pierce Height currently displayed in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*.
+
+QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position. An example of an 6 second delay is below. If there is no time specified then the probe time will default to 10 seconds.
 
 ----
-BUTTON_n_CODE = probe-test 10
+BUTTON_n_CODE = probe-test 6
 ----
 
 NOTE: Enabling a user button as a Probe Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
@@ -2952,7 +2954,7 @@ Note that the first "/" is not necessary as it will be added automatically.
 
 [underline]*Torch Pulse*
 
-Pulse the torch on for a predetermined time. The time must be specified in seconds and the maximum allowable time is 3 seconds, anything specified above that will be limited to 3 seconds. An example of a 0.5 second pulse is below. It there is no time specified then it will default to 1 second.
+Pulse the torch on for a predetermined time. The time must be specified in seconds using up to one decimal place. The maximum allowable time is 3 seconds, anything specified above that value will be limited to 3 seconds. An example of a 0.5 second pulse is below. It there is no time specified then it will default to 1 second. Pulse times with more than one decimal place will be rounded to one decimal place.
 
 Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the PARAMETERS tab.
 
