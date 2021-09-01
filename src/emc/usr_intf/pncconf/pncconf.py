@@ -1136,7 +1136,10 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         # this auto selects the sserial 7i76 mode 0 card for sserial 0 and 2
                         # as the 5i25/7i76 uses some of the sserial channels for it's pins.
                         if boardname in ("5i25","7i92",'7i76e'):
-                            if "7i77_7i76" in firmname:
+                            if boardname == '7i76e' and 'discovered' in firmname:
+                                if tempfunc == "TXDATA0": convertedname = _PD.SS7I76M0
+                                else: convertedname = pinconvertsserial[tempfunc]
+                            elif "7i77_7i76" in firmname:
                                 if tempfunc == "TXDATA1": convertedname = _PD.SS7I77M0
                                 elif tempfunc == "TXDATA2": convertedname = _PD.SS7I77M1
                                 elif tempfunc == "TXDATA4": convertedname = _PD.SS7I76M3
