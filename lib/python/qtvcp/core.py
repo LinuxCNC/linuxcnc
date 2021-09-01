@@ -11,6 +11,7 @@ if sys.version_info.major > 2:
 else:
     import gobject as GObject
 
+import inspect
 import _hal
 import hal
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
