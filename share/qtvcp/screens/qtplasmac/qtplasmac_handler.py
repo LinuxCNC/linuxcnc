@@ -1242,10 +1242,11 @@ class HandlerClass:
             self.runText = '{}\n{}'.format(txt0, txt1)
 
     def update_gcode_properties(self, props):
-        self.gcodeProps = props
-        for axis in 'XY':
-            if not axis in self.gcodeProps:
-                self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
+        if props:
+            self.gcodeProps = props
+            for axis in 'XY':
+                if not axis in self.gcodeProps:
+                    self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
 
     def error_update(self, obj, kind, error):
         if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
