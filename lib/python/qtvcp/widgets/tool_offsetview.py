@@ -19,8 +19,8 @@ import os
 import locale
 import operator
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize
+from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -44,6 +44,8 @@ LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+ICONPATH = os.path.join(INFO.LIB_PATH, 'images/widgets/tool_offsetview')
 
 # custom spinbox controls for editing
 class ItemEditorFactory(QItemEditorFactory):
@@ -78,6 +80,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.setEnabled(False)
         self.dialog_code = 'CALCULATOR'
         self.text_dialog_code = 'KEYBOARD'
+        self.setIconSize(QSize(32,32))
 
         # create table
         self.createAllView()
@@ -363,7 +366,7 @@ class MyTableModel(QAbstractTableModel):
     def update(self, models):
         data = TOOL.CONVERT_TO_WEAR_TYPE(models)
         if data in (None, []):
-            data = [[QCheckBox(),0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
+            data = [[QCheckbox(),0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         for line in data:
                 if line[0] != QCheckBox:
                     line[0] = QCheckBox()
@@ -391,7 +394,9 @@ class MyTableModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
-
+        elif role == Qt.DecorationRole and index.column() == 18:
+            value = self.arraydata[index.row()][index.column()]
+            return QIcon(os.path.join(ICONPATH, "tool_pos_{}.png".format(value)))
         elif role == Qt.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
             col = index.column()
@@ -441,6 +446,13 @@ class MyTableModel(QAbstractTableModel):
                     return Qt.Checked
                 else:
                     return Qt.Unchecked
+
+        elif role == Qt.ForegroundRole:
+            value = self.arraydata[index.row()][index.column()]
+
+            if ((isinstance(value, int) or isinstance(value, float))
+                and value < 0 ):
+                return QColor('red')
 
         return QVariant()
 
