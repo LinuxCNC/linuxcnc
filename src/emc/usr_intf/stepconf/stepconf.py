@@ -1,4 +1,4 @@
-#!/usr/bin/env linuxcnc-python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    This is stepconf, a graphical configuration editor for LinuxCNC

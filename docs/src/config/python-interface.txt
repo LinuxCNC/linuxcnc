@@ -61,7 +61,7 @@ linuxcnc is running for typical values):
 
 [source,python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import sys
 import linuxcnc
@@ -376,7 +376,7 @@ are integers and the rest are floats.
 
 [source,python]
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
 s = linuxcnc.stat()
@@ -399,7 +399,7 @@ of a particular axis:
 
 [source,python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
 s = linuxcnc.stat()
@@ -548,7 +548,7 @@ so an appropriate test before sending an MDI command through
 
 [source,python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
 s = linuxcnc.stat()
@@ -570,7 +570,7 @@ Before sending a command, initialize a command channel like so:
 
 [source,python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
 c = linuxcnc.command()
@@ -750,7 +750,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 
 [source, python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import linuxcnc
 c = linuxcnc.command()
 
@@ -819,7 +819,7 @@ one error channel reader task in a setup.
 
 [source,python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
 e = linuxcnc.error_channel()
@@ -843,7 +843,7 @@ Here's an example for reading values from an ini file through the
 
 [source,python]
 ---------------------------------------------------------------------
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # run as:
 # python ini-example.py ~/emc2-dev/configs/sim/axis/axis_mm.ini

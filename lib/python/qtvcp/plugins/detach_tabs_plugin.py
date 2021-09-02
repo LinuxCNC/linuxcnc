@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from PyQt5 import QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin

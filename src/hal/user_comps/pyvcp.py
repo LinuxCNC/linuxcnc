@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    This is a component of emc
 #    Copyright 2007 Anders Wallin <anders.wallin@helsinki.fi>
 #    

@@ -49,7 +49,7 @@ of G20/G21.
 
 [source,python]
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import hal
 from hal_glib import GStat
@@ -93,7 +93,7 @@ This file assumes there are three GTK labels named: +
 
 [source,python]
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from hal_glib import GStat
 GSTAT = GStat()
@@ -134,7 +134,7 @@ This handler file assumes there are three QLabels named: +
 'interp_state_label' +
 [source,python]
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from qtvcp.core import Status
 GSTAT = Status()

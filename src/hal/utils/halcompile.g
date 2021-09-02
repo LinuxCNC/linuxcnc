@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    This is 'halcompile', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #

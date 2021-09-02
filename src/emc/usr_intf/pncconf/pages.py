@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    This is pncconf, a graphical configuration editor for LinuxCNC

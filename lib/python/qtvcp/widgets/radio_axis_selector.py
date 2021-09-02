@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase

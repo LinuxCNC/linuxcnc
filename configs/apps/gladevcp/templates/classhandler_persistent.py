@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of LinuxCNC
 #    classhandler_persistent.py  Copyright 2010 Michael Haberler

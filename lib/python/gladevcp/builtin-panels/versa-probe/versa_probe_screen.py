@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (c) 2015 Serguei Glavatski ( verser  from cnc-club.ru )
 #

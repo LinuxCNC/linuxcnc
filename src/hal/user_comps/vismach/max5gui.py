@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 #    Visulization model of Chris's MAX-NC mill, as modified to 5-axis
 #

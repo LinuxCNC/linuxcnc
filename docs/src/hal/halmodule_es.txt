@@ -14,7 +14,7 @@ una vez por segundo.
 
 [source,c]
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import hal, time
 h = hal.component("passthrough")
 h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)

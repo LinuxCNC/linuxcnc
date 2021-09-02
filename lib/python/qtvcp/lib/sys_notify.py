@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # QTVcp Notification Module
 # Provides a consistent and easy to use facility for showing system notifications.

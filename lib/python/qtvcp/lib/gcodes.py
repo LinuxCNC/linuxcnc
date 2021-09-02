@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from . import mdi_text as mdiText
 from qtvcp.qt_makegui import VCPWindow

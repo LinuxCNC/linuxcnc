@@ -1,4 +1,4 @@
-#!/usr/bin/env linuxcnc-python
+#!/usr/bin/env python3
 #   This is a component of LinuxCNC
 #   Copyright 2011 Michael Haberler <git@mah.priv.at>
 #

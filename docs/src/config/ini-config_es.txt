@@ -489,7 +489,7 @@ Este programa de ejemplo filtra un archivo y agrega un eje W para que coincida c
 Depende de que haya un espacio entre cada palabra de eje para trabajar.
 
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 

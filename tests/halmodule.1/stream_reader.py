@@ -1,4 +1,4 @@
-#!/usr/bin/env linuxcnc-python
+#!/usr/bin/env python3
 import hal
 import time
 c = hal.component("stream_reader")

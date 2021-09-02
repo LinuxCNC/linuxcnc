@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #    QT Designer custom widget plugin imports for linuxcnc
 #

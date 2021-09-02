@@ -511,7 +511,7 @@ This example program filters a file and adds a W axis to match the Z axis.
 It depends on there being a space between each axis word to work.
 
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 

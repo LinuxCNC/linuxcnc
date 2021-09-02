@@ -1,4 +1,4 @@
-#!/usr/bin/env linuxcnc-python
+#!/usr/bin/env python3
 import os
 os.system("halcmd unload all")
 import hal

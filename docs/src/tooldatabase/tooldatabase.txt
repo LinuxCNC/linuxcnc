@@ -102,7 +102,7 @@ reload operation is typically provided by the gui but on-demand
 reloads can be done with a USER_M command. Example:
 
 ----
-#!/usr/bin/python
+#!/usr/bin/env python3
 from  linuxcnc import command
 command().load_tool_table()
 ----

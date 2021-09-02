@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #    Gcode display / edit widget for QT_VCP
 #    Copyright 2016 Chris Morley
