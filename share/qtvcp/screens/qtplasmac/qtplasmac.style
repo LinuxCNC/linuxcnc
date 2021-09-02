@@ -44,12 +44,8 @@
 
 /****** TOOLTIPS ************/
 QToolTip {
-    color: foregnd;
-    background: backgnd;
-    border: 1px solid foregnd;
-    border-radius: 4px;
     font: 13px;
-    padding: 8 }
+    padding: 4 }
 
 /****** VELOCITY LABELS ************/
 #velocity_label{

@@ -1,4 +1,4 @@
-VERSION = '1.0.78'
+VERSION = '1.0.79'
 
 '''
 qtplasmac_handler.py
@@ -65,6 +65,7 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_rotate as CONVROTA
 from qtvcp.lib.qtplasmac import conv_array as CONVARAY
 from qtvcp.lib.qtplasmac import conv_scale as CONVSCAL
+from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 
 # **** TEMP FOR CONVERSATIONAL TESTING ****
 from importlib import reload
@@ -661,7 +662,7 @@ class HandlerClass:
         self.w.color_estop.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
         self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
         self.w.color_preview.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Preview', '#000000', str, 'COLOR_OPTIONS')))
-        self.tool_tips_changed()
+        TOOLTIPS.tool_tips_changed(self.w)
         self.soft_keyboard()
         self.cone_size_changed(self.w.cone_size.value())
         self.grid_size_changed(self.w.grid_size.value())
@@ -1751,7 +1752,7 @@ class HandlerClass:
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
-        self.w.chk_tool_tips.stateChanged.connect(self.tool_tips_changed)
+        self.w.chk_tool_tips.stateChanged.connect(lambda:TOOLTIPS.tool_tips_changed(self.w))
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.ohmic_probe_enable.stateChanged.connect(lambda w:self.ohmic_probe_enable_changed(w))
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
@@ -5376,126 +5377,6 @@ class HandlerClass:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL / self.slowJogFactor)
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
-
-
-#########################################################################################################################
-# TOOL TIP FUNCTIONS #
-#########################################################################################################################
-    def tool_tips_changed(self):
-        if self.w.chk_tool_tips.isChecked():
-            self.set_tool_tips()
-        else:
-            widgets = [
-            'abort','arc_voltage','cornerlock_enable','cut_amps','cut_rec_cancel',
-            'cut_rec_fwd','cut_rec_move_label','cut_rec_rev','cut_rec_speed','cut_rec_e',
-            'cut_rec_n','cut_rec_ne','cut_rec_nw','cut_rec_se','cut_rec_sw','cut_rec_w',
-            'dro_a','dro_x','dro_y','dro_z','estop','feed_slider','file_cancel',
-            'file_next','file_open','file_prev','file_reload','file_select','height_lower',
-            'height_raise','home_a','home_all','home_b','home_x','home_y','home_z',
-            'ignore_arc_ok','jog_a_minus','jog_a_plus','jog_slider','jog_slow',
-            'jog_b_minus','jog_b_plus','jog_x_minus','jog_x_plus','jog_y_minus',
-            'jog_y_plus','jog_z_minus','jog_z_plus','jogincrements','kerfcross_enable',
-            'led_arc_ok','led_breakaway_switch','led_corner_lock','led_float_switch',
-            'led_kerf_lock','led_ohmic_probe','led_torch_on','mesh_enable','ohmic_probe_enable',
-            'pause','pmx485_enable','pmx485_label','power','rapid_slider','run',
-            'led_thc_active','led_thc_down','led_thc_up','torch_enable','touch_a',
-            'touch_b','touch_x','touch_xy','touch_y','touch_z','use_auto_volts',
-            'wcs_button',
-            ]
-            for widget in widgets:
-                self.w[widget].setToolTip('')
-
-    def set_tool_tips(self):
-        self.w.abort.setToolTip(_translate('HandlerClass', 'Stop the currently running G-Code program'))
-        self.w.arc_voltage.setToolTip(_translate('HandlerClass', 'Current arc voltage'))
-        self.w.cornerlock_enable.setToolTip(_translate('HandlerClass', 'Enable velocity anti dive'))
-        self.w.cut_amps.setToolTip(_translate('HandlerClass', 'cutting current in amps, indicator only, not used by PlasmaC'))
-        self.w.cut_rec_cancel.setToolTip(_translate('HandlerClass', 'Cancel cut recovery'))
-        self.w.cut_rec_fwd.setToolTip(_translate('HandlerClass', 'Forward move along current motion segment'))
-        self.w.cut_rec_move_label.setToolTip(_translate('HandlerClass', 'Distance the torch will move'))
-        self.w.cut_rec_rev.setToolTip(_translate('HandlerClass', 'Reverse move along current motion segment'))
-        self.w.cut_rec_speed.setToolTip(_translate('HandlerClass', 'Paused motion feed rate override percentage'))
-        text0 = _translate('HandlerClass', 'Move in the')
-        text1 = _translate('HandlerClass', 'direction')
-        self.w.cut_rec_e.setToolTip('{} X+ {}'.format(text0, text1))
-        self.w.cut_rec_n.setToolTip('{} Y+ {}'.format(text0, text1))
-        self.w.cut_rec_ne.setToolTip('{} X+ Y+ {}'.format(text0, text1))
-        self.w.cut_rec_nw.setToolTip('{} X- Y+ {}'.format(text0, text1))
-        self.w.cut_rec_s.setToolTip('{} Y- {}'.format(text0, text1))
-        self.w.cut_rec_se.setToolTip('{} X+ Y- {}'.format(text0, text1))
-        self.w.cut_rec_sw.setToolTip('{} X- Y- {}'.format(text0, text1))
-        self.w.cut_rec_w.setToolTip('{} X- {}'.format(text0, text1))
-        text0 = _translate('HandlerClass', 'Current')
-        text1 = _translate('HandlerClass', 'axis position')
-        self.w.dro_a.setToolTip('{} A {}'.format(text0, text1))
-        self.w.dro_b.setToolTip('{} B {}'.format(text0, text1))
-        self.w.dro_x.setToolTip('{} X {}'.format(text0, text1))
-        self.w.dro_y.setToolTip('{} Y {}'.format(text0, text1))
-        self.w.dro_z.setToolTip('{} Z {}'.format(text0, text1))
-        self.w.estop.setToolTip(_translate('HandlerClass', 'Estop status'))
-        self.w.feed_slider.setToolTip(_translate('HandlerClass', 'Set the feed override percentage'))
-        self.w.file_cancel.setToolTip(_translate('HandlerClass', 'Close the file selector'))
-        self.w.file_next.setToolTip(_translate('HandlerClass', 'Move down'))
-        self.w.file_open.setToolTip(_translate('HandlerClass', 'Open the file selector'))
-        self.w.file_prev.setToolTip(_translate('HandlerClass', 'Move up'))
-        self.w.file_reload.setToolTip(_translate('HandlerClass', 'Reload the current G-Code file'))
-        self.w.file_select.setToolTip(_translate('HandlerClass', 'Open the selected G-Code file'))
-        self.w.height_lower.setToolTip(_translate('HandlerClass', 'Override THC height down'))
-        self.w.height_raise.setToolTip(_translate('HandlerClass', 'Override THC height up'))
-        text0 = _translate('HandlerClass', 'Home the')
-        text1 = _translate('HandlerClass', 'axis')
-        self.w.home_a.setToolTip('{} A {}')
-        self.w.home_all.setToolTip(_translate('HandlerClass', 'Home all axes'))
-        self.w.home_b.setToolTip('{} B {}')
-        self.w.home_x.setToolTip('{} X {}')
-        self.w.home_y.setToolTip('{} Y {}')
-        self.w.home_z.setToolTip('{} Z {}')
-        self.w.ignore_arc_ok.setToolTip(_translate('HandlerClass', 'Ignore Arc OK signal'))
-        self.w.jog_a_minus.setToolTip(_translate('HandlerClass', 'Jog the A axis counter clockwise'))
-        self.w.jog_a_plus.setToolTip(_translate('HandlerClass', 'Jog the A axis clockwise'))
-        self.w.jog_slider.setToolTip(_translate('HandlerClass', 'Set the jog feed rate'))
-        self.w.jog_slow.setToolTip(_translate('HandlerClass', 'Toggle jog feed rate by a factor of 10'))
-        self.w.jog_b_minus.setToolTip(_translate('HandlerClass', 'Jog the B axis counter clockwise'))
-        self.w.jog_b_plus.setToolTip(_translate('HandlerClass', 'Jog the B axis clockwise'))
-        self.w.jog_x_minus.setToolTip(_translate('HandlerClass', 'Jog the X axis left'))
-        self.w.jog_x_plus.setToolTip(_translate('HandlerClass', 'Jog the X axis right'))
-        self.w.jog_y_minus.setToolTip(_translate('HandlerClass', 'Jog the Y axis forward'))
-        self.w.jog_y_plus.setToolTip(_translate('HandlerClass', 'Jog the Y axis back'))
-        self.w.jog_z_minus.setToolTip(_translate('HandlerClass', 'Jog the Z axis down'))
-        self.w.jog_z_plus.setToolTip(_translate('HandlerClass', 'Jog the Z axis up'))
-        self.w.jogincrements.setToolTip(_translate('HandlerClass', 'Set the jog increment'))
-        self.w.kerfcross_enable.setToolTip(_translate('HandlerClass', 'Enable void anti dive'))
-        self.w.led_arc_ok.setToolTip(_translate('HandlerClass', 'Arc OK signal'))
-        self.w.led_breakaway_switch.setToolTip(_translate('HandlerClass', 'Breakaway switch status'))
-        self.w.led_corner_lock.setToolTip(_translate('HandlerClass', 'Velocity anti dive is active'))
-        self.w.led_float_switch.setToolTip(_translate('HandlerClass', 'Float switch status'))
-        self.w.led_kerf_lock.setToolTip(_translate('HandlerClass', 'Void anti dive is active'))
-        self.w.led_ohmic_probe.setToolTip(_translate('HandlerClass', 'Ohmic probe status'))
-        self.w.led_torch_on.setToolTip(_translate('HandlerClass', 'Torch on status'))
-        self.w.mesh_enable.setToolTip(_translate('HandlerClass', 'Enable mesh mode cutting'))
-        self.w.ohmic_probe_enable.setToolTip(_translate('HandlerClass', 'Enable ohmic probing'))
-        self.w.pause.setToolTip(_translate('HandlerClass', 'Pause or resume the currently running G-Code program'))
-        self.w.pmx485_enable.setToolTip(_translate('HandlerClass', 'Enable Powermax communications'))
-        self.w.pmx485_label.setToolTip(_translate('HandlerClass', 'Status of PMX485 communications'))
-        self.w.power.setToolTip(_translate('HandlerClass', 'Switch the GUI on or off'))
-        self.w.rapid_slider.setToolTip(_translate('HandlerClass', 'Set the rapid override percentage'))
-        self.w.run.setToolTip(_translate('HandlerClass', 'Run the currently loaded G-Code program'))
-        self.w.led_thc_active.setToolTip(_translate('HandlerClass', 'THC is currently active'))
-        self.w.led_thc_down.setToolTip(_translate('HandlerClass', 'THC is moving the Z axis down'))
-        self.w.led_thc_enabled.setToolTip(_translate('HandlerClass', 'THC is enabled'))
-        self.w.led_thc_up.setToolTip(_translate('HandlerClass', 'THC is moving the Z axis up'))
-        self.w.torch_enable.setToolTip(_translate('HandlerClass', 'Enable the torch'))
-        text0 = _translate('HandlerClass', 'Touch off the')
-        text1 = _translate('HandlerClass', 'axis')
-        text2 = _translate('HandlerClass', 'axes to zero')
-        self.w.touch_a.setToolTip('{} A {}')
-        self.w.touch_b.setToolTip('{} B {}')
-        self.w.touch_x.setToolTip('{} X {}')
-        self.w.touch_xy.setToolTip('{} X & Y {}')
-        self.w.touch_y.setToolTip('{} Y {}')
-        self.w.touch_z.setToolTip('{} Z {}')
-        self.w.use_auto_volts.setToolTip(_translate('HandlerClass', 'Use automatic voltage for THC'))
-        self.w.wcs_button.setToolTip(_translate('HandlerClass', 'Select work coordinate system'))
 
 
 ##################################################################################################################################

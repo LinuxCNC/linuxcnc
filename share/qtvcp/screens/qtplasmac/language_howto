@@ -10,7 +10,7 @@ The .ts files are the translation source files for the translations. These are t
 
 The .qm files are the compiled translation files used by pyqt.
 
-The language is determined by an underscore plus the first two letters of the locale, for example if an Italian translation was being done then it would be "_it". We will refer to it in the following as _<xx>, so "qtplasmac_<xx>.ts" for an Italian translation would be "qtplasmac_it.ts".
+The language is determined by an underscore plus the first two letters of the locale, for example if an Italian translation was being done then it would be "_it". We will refer to it in the following as _xx, so "qtplasmac_xx.ts" for an Italian translation would be "qtplasmac_it.ts".
 
 If any of the following utilities are not installed then you will need to install pyqt5-dev-tools:
 $ sudo apt install pyqt5-dev-tools
@@ -24,11 +24,14 @@ $ pyuic5 ../qtplasmac.ui > qtplasmac.py
 You can either create a new translation source file for a non existing language translation or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file. If modifying an existing translation that has had no source file changes then this step is not required.
 
 Create/edit a .ts file:
-$ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_<xx>.ts
+$ langfile xx
 
+(this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts)
 
 The editing of the translation is done with the linguist application:
 $ linguist
+
+Then open the required translation file.
 
 It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
 You do need to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
