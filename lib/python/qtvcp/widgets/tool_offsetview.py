@@ -366,7 +366,7 @@ class MyTableModel(QAbstractTableModel):
     def update(self, models):
         data = TOOL.CONVERT_TO_WEAR_TYPE(models)
         if data in (None, []):
-            data = [[QCheckbox(),0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
+            data = [[QCheckBox(),0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         for line in data:
                 if line[0] != QCheckBox:
                     line[0] = QCheckBox()
