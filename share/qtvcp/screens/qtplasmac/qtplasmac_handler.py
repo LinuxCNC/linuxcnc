@@ -1,4 +1,4 @@
-VERSION = '1.0.79'
+VERSION = '1.0.80'
 
 '''
 qtplasmac_handler.py
@@ -746,7 +746,7 @@ class HandlerClass:
         self.overlayConv = OverlayMaterial(self.w.conv_preview)
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
-        self.flasher.start(250)
+        self.flasher.start(500)
         self.manualCut = False
         self.slowJogClicked = False
         self.jogIncrementsIndex = 0
