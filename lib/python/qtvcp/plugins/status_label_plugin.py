@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import sip
 from PyQt5 import QtCore, QtGui, QtWidgets

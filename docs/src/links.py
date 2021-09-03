@@ -1,4 +1,4 @@
-#!/usr/bin/env linuxcnc-python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 
 import os, sys

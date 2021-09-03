@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # Qtvcp Widgets
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>

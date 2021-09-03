@@ -33,12 +33,12 @@ The basic sequence in creating the Vismach model is
 
 == Start the script
 
-It is useful for testing to include the '#!/usr/bin/env python' to allow the file
+It is useful for testing to include the '#!/usr/bin/env python3' to allow the file
 to be run as a script. The first thing to do is to import the required
 libraries.
 
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from vismach import *
 import hal

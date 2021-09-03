@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #############################################################################
 ##
 ## Copyright (C) 2010 Hans-Peter Jansen <hpj@urpla.net>.

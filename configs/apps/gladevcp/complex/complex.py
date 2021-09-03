@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of LinuxCNC
 #    complex.py Copyright 2010 Michael Haberler

@@ -546,7 +546,7 @@ Cet exemple de programme filtre un fichier et ajoute un axe W correspondant à
 l'axe Z. Il marchera selon la présence d'un espace entre chaque mot d'axe.
 
 ----
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import sys
 

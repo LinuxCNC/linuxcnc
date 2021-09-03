@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    This is a component of linuxcnc
 #    mitsub_vfd Copyright 2017 Chris Morley
 #

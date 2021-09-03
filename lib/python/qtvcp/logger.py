@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # QTVcp Logging Module
 # Provides a consistent and easy to use logging facility.  Log messages printed

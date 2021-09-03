@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Usage:
     python teach.py nmlfile outputfile
 If outputfile is not specified, writes to standard output.

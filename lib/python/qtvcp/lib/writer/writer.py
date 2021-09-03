@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python3
 
 # https://www.binpress.com/building-text-editor-pyqt-1/
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env linuxcnc-python
+#!/usr/bin/env python3
 """mkpre.py: Convert ASCII art into something that groff can render to
 text, HTML, or postscript/pdf
 

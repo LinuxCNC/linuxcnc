@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #--------------------------------------------------------------------------
 # Visualization model of the Mitsubishi RV6-SDL 6axis serial manipulator

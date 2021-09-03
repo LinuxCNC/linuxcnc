@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # qtvcp
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>

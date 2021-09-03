@@ -86,7 +86,7 @@ Then it reads the program line by line and passes it to standard output. +
 As it does along it updates any process listening to standard error output'
 [source,python]
 ----
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import sys
 import os

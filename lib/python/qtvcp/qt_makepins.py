@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #    QT_VCP
 #    Copyright 2016 Chris Morley

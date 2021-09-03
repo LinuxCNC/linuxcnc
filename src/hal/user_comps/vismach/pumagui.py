@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    Copyright 2007 John Kasunich and Jeff Epler
 #       
 # modified by Rudy du Preez to fit with the kinematics component pumakins.c

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    This is import_mach, a program to convert a mach 3 xml file to stepconf

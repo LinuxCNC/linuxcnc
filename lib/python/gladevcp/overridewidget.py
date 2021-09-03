@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # GladeVcp Widget - override widget
 # This widgets controls linuxcnc's override rate
 #

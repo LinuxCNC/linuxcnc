@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # based on earlier work by Rolf Redford, Nov 2018
 
