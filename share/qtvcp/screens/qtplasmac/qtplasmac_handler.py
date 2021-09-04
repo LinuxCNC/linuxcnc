@@ -1,4 +1,4 @@
-VERSION = '1.0.80'
+VERSION = '1.0.82'
 
 '''
 qtplasmac_handler.py
@@ -253,6 +253,7 @@ class HandlerClass:
         self.boundsError = {'loaded': False, 'framing': False}
         self.obLayout = ''
         self.notifyError = False
+        self.firstHoming = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -1177,6 +1178,10 @@ class HandlerClass:
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
         self.interp_idle(None)
+        if not self.firstHoming:
+            ACTION.CALL_MDI_WAIT('T0 M6', 0.5)
+            ACTION.SET_MANUAL_MODE()
+            self.firstHoming = True
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
@@ -4428,6 +4433,12 @@ class HandlerClass:
             self.w.cut_amps.setToolTip(_translate('HandlerClass', 'Powermax cutting current'))
             self.w.pmx485_enable.setChecked(True)
         else:
+            if hal.component_exists('pmx485'):
+                Popen('halcmd unloadusr pmx485', stdout = PIPE, shell = True)
+                head = _translate('HandlerClass', 'INI FILE ERROR')
+                msg0 = _translate('HandlerClass', 'Powermax comms not specified in ini file,')
+                msg1 = _translate('HandlerClass', 'unloading pmx485 component')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
             self.w.gas_pressure.hide()
             self.w.gas_pressure_label.hide()
             self.w.cut_mode.hide()
