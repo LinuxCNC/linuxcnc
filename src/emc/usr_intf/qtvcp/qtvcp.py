@@ -9,7 +9,7 @@ import signal
 import subprocess
 
 from optparse import Option, OptionParser
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 # Set up the base logger
 #   We have do do this before importing other modules because on import
@@ -390,27 +390,40 @@ Pressing cancel will close linuxcnc.""" % target)
         global ERROR_COUNT
         ERROR_COUNT +=1
 
-        lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
-        message = ("Qtvcp encountered an error.  The following "
+        # we count errors because often there are mutiple and the first is the
+        # only important one.
+        if ERROR_COUNT == 1:
+            lines = traceback.format_exception(exc_type, exc_obj, exc_tb)
+            self._message = ("Qtvcp encountered an error.  The following "
                     + "information may be useful in troubleshooting:\n"
                     + 'LinuxCNC Version  : %s\n'% INFO.LINUXCNC_VERSION)
-        if ERROR_COUNT > 5:
-            LOG.critical("Too Manu Errors \n {}\n{}\n".format(message,''.join(lines)))
-            self.shutdown()
-        msg = QtWidgets.QMessageBox()
-        msg.setIcon(QtWidgets.QMessageBox.Critical)
-        msg.setText(message)
-        msg.setInformativeText("QTvcp ERROR! Message # %d"%ERROR_COUNT)
-        msg.setWindowTitle("Error")
-        msg.setDetailedText(''.join(lines))
-        msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
-        msg.show()
-        retval = msg.exec_()
-        if retval == QtWidgets.QMessageBox.Abort: #cancel button
-            LOG.critical("Aborted from Error Dialog\n {}\n{}\n".format(message,''.join(lines)))
-            self.shutdown()
-        if ERROR_COUNT == 1:
-            self.shutdown()
+
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Critical)
+            msg.setText(self._message)
+            msg.setInformativeText("QTvcp ERROR! Message # %d"%ERROR_COUNT)
+            msg.setWindowTitle("Error")
+            msg.setDetailedText(''.join(lines))
+            msg.setStandardButtons(QtWidgets.QMessageBox.Retry | QtWidgets.QMessageBox.Abort)
+            msg.show()
+
+            # hack to scroll details to bottom;
+            for i in msg.children():
+                for j in i.children():
+                    if isinstance(j, QtWidgets.QTextEdit):
+                            j.moveCursor(QtGui.QTextCursor.End)
+            # hack to auto open details box
+            for i in msg.buttons():
+                if msg.buttonRole(i) == QtWidgets.QMessageBox.ActionRole:
+                    i.click()
+           
+            retval = msg.exec_()
+            if retval == QtWidgets.QMessageBox.Abort: #cancel button
+                LOG.critical("Aborted from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))
+                self.shutdown()
+            else:
+                ERROR_COUNT = 0
+                LOG.critical("Retry from Error Dialog\n {}\n{}\n".format(self._message,''.join(lines)))
 
 # starts Qtvcp
 if __name__ == "__main__":
