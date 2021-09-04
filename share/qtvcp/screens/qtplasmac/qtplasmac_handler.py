@@ -1,4 +1,4 @@
-VERSION = '1.0.82'
+VERSION = '1.0.83'
 
 '''
 qtplasmac_handler.py
@@ -253,6 +253,7 @@ class HandlerClass:
         self.boundsError = {'loaded': False, 'framing': False}
         self.obLayout = ''
         self.notifyError = False
+        self.notifyColor = 'normal'
         self.firstHoming = False
         # plasmac states
         self.IDLE           =  0
@@ -2472,15 +2473,21 @@ class HandlerClass:
 
     def set_button_color(self):
         for halpin in self.halTogglePins:
+            color = self.w[self.halTogglePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                self.button_active(self.halTogglePins[halpin][0])
+                if color == self.w.color_backgrnd.palette().color(QPalette.Background):
+                    self.button_active(self.halTogglePins[halpin][0])
             else:
-                self.button_normal(self.halTogglePins[halpin][0])
+                if color == self.w.color_foregrnd.palette().color(QPalette.Background):
+                    self.button_normal(self.halTogglePins[halpin][0])
         for halpin in self.halPulsePins:
+            color = self.w[self.halPulsePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                self.button_active(self.halPulsePins[halpin][0])
+                if color == self.w.color_backgrnd.palette().color(QPalette.Background):
+                    self.button_active(self.halPulsePins[halpin][0])
             else:
-                self.button_normal(self.halPulsePins[halpin][0])
+                if color == self.w.color_foregrnd.palette().color(QPalette.Background):
+                    self.button_normal(self.halPulsePins[halpin][0])
 
     def run_critical_check(self):
         rcButtonList = []
@@ -2608,11 +2615,17 @@ class HandlerClass:
             self.laserOnPin.set(0)
             self.w.gcodegraphics.logger.clear()
         if self.notifyError:
-            self.color_last_tab(self.backColor, self.estopColor)
+            if self.notifyColor != 'errored':
+                self.color_last_tab(self.backColor, self.estopColor)
+                self.notifyColor = 'errored'
         elif self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
-            self.color_last_tab(self.backColor, self.foreColor)
+            if self.notifyColor != 'reversed':
+                self.color_last_tab(self.backColor, self.foreColor)
+                self.notifyColor = 'reversed'
         else:
-            self.color_last_tab(self.foreColor, self.backColor)
+            if self.notifyColor != 'normal':
+                self.color_last_tab(self.foreColor, self.backColor)
+                self.notifyColor = 'normal'
         self.set_button_color()
         self.stats_update()
 
