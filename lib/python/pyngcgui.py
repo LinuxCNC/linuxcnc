@@ -3348,7 +3348,7 @@ class SaveSection():
                     if modlabel == 'ignoreme':
                         continue
                     modlabel = 'o<%03d%s>' % (g_label_id,modlabel)
-                    r = re.search(r'^o<(.*?)>(.*)',line)
+                    r = re.search(r'^o<(.*?)>(.*)',line.strip())
                     if r:
                         modline = r.group(2) + '\n'
                     else:
