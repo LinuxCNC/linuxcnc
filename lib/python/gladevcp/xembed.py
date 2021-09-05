@@ -7,6 +7,7 @@ XEmbed helper functions to allow correct embeding inside Axis
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import Gdk
 
 def reparent(window, parent):
     """ Forced reparent. When reparenting Gtk applications into Tk
@@ -85,9 +86,9 @@ def keyboard_forward(window, forward):
 
     def gtk2xlib(e, fw, g, type=None):
         if type is None: type = e.type
-        if type == gdk.KEY_PRESS:
+        if type == Gdk.EventType.KEY_PRESS:
             klass = event.KeyPress
-        elif type == gdk.KEY_RELEASE:
+        elif type == Gdk.EventType.KEY_RELEASE:
             klass = event.KeyRelease
         else:
             return
@@ -111,5 +112,5 @@ def keyboard_forward(window, forward):
     window.connect_after("key-press-event", forward, fw)
     window.connect("key-release-event", forward, fw)
     #TODO:
-    #window.add_events(gdk.KEY_PRESS_MASK)
-    #window.add_events(gdk.KEY_RELEASE_MASK)
+    #window.add_events(Gdk.EventType.KEY_PRESS_MASK)
+    #window.add_events(Gdk.EventType.KEY_RELEASE_MASK)
