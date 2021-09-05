@@ -149,6 +149,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'dimensions-off':
             self.show_extents_option = False
             self.updateGL()
+        elif v == 'record-view':
+            self.recordCurrentViewSettings()
+        elif v == 'set-recorded-view':
+            self.setRecordedView()
         else:
             self.set_view(v)
 

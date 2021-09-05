@@ -98,7 +98,6 @@ def glTranslateScene(w, s, x, y, mousex, mousey):
     glTranslatef(s * (x - mousex), s * (mousey - y), 0.0)
     glMultMatrixd(mat)
 
-
 def glRotateScene(w, s, xcenter, ycenter, zcenter, x, y, mousex, mousey):
     def snap(a):
         m = a%90
@@ -176,8 +175,14 @@ class GlNavBase:
         # View settings
         self.perspective = 0
         self.lat = 0
+        self.lon = 0
         self.minlat = -90
         self.maxlat = 90
+
+        # keep track of total translations
+        # since last view reset
+        self._totalx = 0.0
+        self._totaly = 0.0
 
     # This should almost certainly be part of some derived class.
     # But I have put it here for convenience.
@@ -256,7 +261,9 @@ class GlNavBase:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         self._redraw()
-
+        # zero the translations - we will be recentering
+        self._totalx = 0.0
+        self._totaly = 0.0
 
     def recordMouse(self, x, y):
         self.xmouse = x
@@ -307,6 +314,10 @@ class GlNavBase:
         scale     = abs( dist / ( 0.5 * win_height ) )
 
         glTranslateScene(self, scale, x, y, self.xmouse, self.ymouse)
+        # keep track of all translations since view reset
+        self._totalx = self._totalx + (x - self.xmouse)
+        self._totaly = self._totaly - (self.ymouse - y)
+
         self._redraw()
         self.recordMouse(x, y)
 
@@ -315,7 +326,10 @@ class GlNavBase:
         self.lat = lat
         self.lon = lon
         glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
-        self.tkRedraw()
+        self._redraw()
+
+    def get_viewangle(self):
+        return self.lat, self.lon
 
     def get_zoom_distance(self):
         data = self.distance
@@ -355,6 +369,10 @@ class GlNavBase:
             self.rotate(x, y)
         else:
             self.translate(x, y)
+
+    # can be used to get current view position
+    def get_total_translation(self):
+        return self._totalx, self._totaly
 
     def set_view_x(self):
         self.reset()
