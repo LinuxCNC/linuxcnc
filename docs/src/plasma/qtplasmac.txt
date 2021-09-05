@@ -1097,7 +1097,7 @@ This section shows the parameters which are active for the current cut.
 |Cut Amps|This sets the cut amperage for the currently selected material. +
           This is a visual indicator to the operator only, unless PowerMax communications are being used.
 |Cut Volts|This sets the cut voltage for the currently selected material.
-|Puddle Height|This sets the Puddle Jump height for the currently selected material. +
+|Puddle Height|Expressed as a percentage of Pierce Height, this sets the Puddle Jump height for the currently selected material. +
           Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
           If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle.
 |Puddle Delay|This sets the Puddle Jump delay (in seconds) for the currently selected material. +
