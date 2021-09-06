@@ -21,6 +21,12 @@ QToolButton {
     color: white;
 }
 
+QToolButton:checked,
+QToolButton:pressed {
+    border-color: #00FF00;
+    color: #00FF00;
+}
+
 QPushButton:checked,
 QPushButton:pressed {
     border-color: #00FF00;

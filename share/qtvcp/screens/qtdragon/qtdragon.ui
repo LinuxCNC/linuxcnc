@@ -2947,6 +2947,41 @@ RESET</string>
                          <number>0</number>
                         </property>
                         <item>
+                         <widget class="ActionToolButton" name="actiontoolbutton">
+                          <property name="minimumSize">
+                           <size>
+                            <width>50</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>50</width>
+                            <height>40</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Hold to save current view</string>
+                          </property>
+                          <property name="text">
+                           <string>User
+View</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>true</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>true</bool>
+                          </property>
+                          <property name="autoRaise">
+                           <bool>false</bool>
+                          </property>
+                          <property name="arrowType">
+                           <enum>Qt::NoArrow</enum>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
                          <widget class="ActionButton" name="actionbutton_view_p">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -3890,19 +3925,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -13545,7 +13580,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:05:59 AM</string>
+            <string>01:03:55 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13703,6 +13738,11 @@ ZERO</string>
    <class>SystemToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.action_tool_button</header>
   </customwidget>
   <customwidget>
    <class>VirtualKeyboard</class>
