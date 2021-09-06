@@ -38,6 +38,7 @@ CONFIG_DIR = os.getcwd()
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__(parent)
+        self.proc = None
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QDoubleValidator(-999.999, 999.999, 3)
         else:
@@ -83,7 +84,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                           'cal_y_width',
                           'calibration_offset']
 
-        self.process_busy = False
         # button connections
         self.cmb_probe_select.activated.connect(self.cmb_probe_select_changed)
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
@@ -130,7 +130,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.lineEdit_cal_x_width.setText(self.PREFS_.getpref('Cal x width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_y_width.setText(self.PREFS_.getpref('Cal y width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_diameter.setText(self.PREFS_.getpref('Cal diameter', '0', str, 'PROBE OPTIONS'))
-        self.start_process()
 
     def closing_cleanup__(self):
         if self.PREFS_:
@@ -151,7 +150,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref('Cal x width', self.lineEdit_cal_x_width.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Cal y width', self.lineEdit_cal_y_width.text(), str, 'PROBE OPTIONS')
             self.PREFS_.putpref('Cal diameter', self.lineEdit_cal_diameter.text(), str, 'PROBE OPTIONS')
-        self.proc.terminate()
+        if self.proc is not None: self.proc.terminate()
 
 #################
 # process control
@@ -163,22 +162,19 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        string_to_send = 'PID${}\n'.format( str(os.getpid()))
         self.proc.start('python3 {}'.format(SUBPROGRAM))
-        # send our PID so subprogram can check to see if it is still running
-        self.proc.writeData(bytes(string_to_send, 'utf-8'))
             
     def start_probe(self, cmd):
+        if self.proc is not None:
+            LOG.info("Probe Routine processor is busy")
+            return
         if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
             LOG.error("Probe tool not mounted in spindle")
             return
-        if self.process_busy is True:
-            LOG.error("Probing processor is busy")
-            return
+        self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
 #        print("String to send ", string_to_send)
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
-        self.process_busy = True
 
     def process_started(self):
         LOG.info("Basic_Probe subprogram started with PID {}\n".format(self.proc.processId()))
@@ -187,7 +183,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         qba = self.proc.readAllStandardOutput()
         line = qba.data()
         self.parse_input(line)
-        self.process_busy = False
 
     def read_stderror(self):
         qba = self.proc.readAllStandardError()
@@ -195,16 +190,16 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.parse_input(line)
 
     def process_finished(self, exitCode, exitStatus):
-        print(("Probe Process signals finished exitCode {} exitStatus {}".format(exitCode, exitStatus)))
+        LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
+        self.proc = None
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        self.process_busy = False
-        if "ERROR" in line:
+        if "INFO" in line:
+            print(line)
+        elif "ERROR" in line:
             print(line)
         elif "DEBUG" in line:
-            print(line)
-        elif "INFO" in line:
             print(line)
         elif "COMPLETE" in line:
             LOG.info("Probing routine completed without errors")
@@ -217,10 +212,6 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             LOG.info("Probe history updated to machine log")
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
-
-    def send_error(self, w, kind, text):
-        message = bytes('ERROR {},{} \n'.format(kind,text), 'utf-8')
-        self.proc.writeData(message)
 
 # Main button handler routines
     def probe_help_clicked(self):

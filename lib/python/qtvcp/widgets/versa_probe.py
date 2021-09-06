@@ -42,6 +42,7 @@ ICONPATH = os.path.join(INFO.IMAGE_PATH, 'probe_icons')
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(VersaProbe, self).__init__(parent)
+        self.proc = None
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
         else:
@@ -53,7 +54,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
-        self.process_busy = False
         self.dialog_code = 'CALCULATOR'
         #create parameter dictionary
         self.send_dict = {}
@@ -145,8 +145,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
 
-        self.start_process()
-
     # when qtvcp closes this gets called
     def closing_cleanup__(self):
         if self.PREFS_:
@@ -166,7 +164,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_angle", float(self.input_adj_angle.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_rapid_vel", float(self.input_rapid_vel.text()), float, 'VERSA_PROBE_OPTIONS')
-        self.proc.terminate()
 
     # process the STATUS return message
     # set the line edit to the value if not cancelled
@@ -206,22 +203,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.process_finished)
-        string_to_send = 'PID${}\n'.format( str(os.getpid()))
         self.proc.start('python3 {}'.format(SUBPROGRAM))
-        # send our PID so subprogram can check to see if it is still running
-        self.proc.writeData(bytes(string_to_send, 'utf-8'))     
 
     def start_probe(self, cmd):
-        if self.process_busy is True:
-            LOG.error("Probing processor is busy")
+        if self.proc is not None:
+            LOG.info("Probe Routine processor is busy")
             return
-        # clear all previous offsets
-        ACTION.CALL_MDI("G10 L2 P0 X0 Y0 Z0")
-        self.get_parms()
+        self.start_process()
         string_to_send = cmd + '$' + json.dumps(self.send_dict) + '\n'
-        #print("String to send ", string_to_send)
+#        print("String to send ", string_to_send)
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
-        self.process_busy = True
 
     def process_started(self):
         LOG.info("Versa_Probe started with PID {}\n".format(self.proc.processId()))
@@ -230,18 +221,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         qba = self.proc.readAllStandardOutput()
         line = qba.data()
         self.parse_input(line)
-        self.process_busy = False
 
     def read_stderror(self):
         qba = self.proc.readAllStandardError()
         line = qba.data()
         self.parse_input(line)
 
-    def process_finished(self):
-        print("Versa_Probe Process signals finished")
+    def process_finished(self, exitCode, exitStatus):
+        LOG.info(("Probe Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus)))
+        self.proc = None
 
     def parse_input(self, line):
-        self.process_busy = False
         line = line.decode("utf-8")
         if "ERROR" in line:
             print(line)
@@ -261,10 +251,6 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
-    def send_error(self, w, kind, text):
-        message ='_ErroR_ {},{} \n'.format(kind,text)
-        self.proc.writeData(bytes(message, 'utf-8'))
-
 #####################################################
 # button callbacks
 #####################################################
@@ -275,6 +261,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def probe_btn_clicked(self, button):
         cmd = button.property('probe')
         print("Button clicked ", cmd)
+        self.get_parms()
         self.start_probe(cmd)
 
     ###### set origin offset ######################

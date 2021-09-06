@@ -21,14 +21,14 @@ class ProbeRoutines():
 # Helper Functions
 ##################
     def z_clearance_up(self):
-        # move Z + z_clearance
+        # move Z+ z_clearance
         s = """G91
         G1 F{} Z{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance)
         return self.CALL_MDI_WAIT(s, 30)
 
     def z_clearance_down(self):
-        # move Z - z_clearance
+        # move Z- z_clearance
         s = """G91
         G1 F{} Z-{}
         G90""".format(self.data_rapid_vel, self.data_z_clearance)        
@@ -56,7 +56,7 @@ class ProbeRoutines():
             ACTION.CALL_MDI(c)
             ACTION.RELOAD_DISPLAY()
 
-    def rotate_coord_system(self,a=0.):
+    def rotate_coord_system(self, a=0.):
         self.status_a = a
         if self.allow_auto_skew is True:
             s = "G10 L2 P0"
@@ -74,10 +74,7 @@ class ProbeRoutines():
             ACTION.RELOAD_DISPLAY()
 
     def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
-        if STATUS.is_metric_mode():
-            tpl = '%.3f'
-        else:
-            tpl = '%.4f'
+        tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
         c = text
         list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
         arg = (xm, xc, xp, lx, ym, yc, yp, ly, z, d, a)
@@ -120,7 +117,7 @@ class ProbeRoutines():
             #LOG.debug('MDI_COMMAND_WAIT result: {}'.format(result))
             if result == -1:
                 LOG.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format( timeout, result))
-                ACTION.SET_ERROR_MESSAGE('Probe time out error - MDI command took longer then {} seconds'.format(timeout))
+                ACTION.SET_ERROR_MESSAGE('Probe time out error - MDI command took longer than {} seconds'.format(timeout))
                 ACTION.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
@@ -159,7 +156,7 @@ class ProbeRoutines():
     ####################
     # Front left corner
     def probe_angle_yp(self):
-        # move Y - xy_clearance
+        # move Y- xy_clearance
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
@@ -171,7 +168,7 @@ class ProbeRoutines():
         ycres = float(a[1]) + 0.5 * self.data_probe_diam
         self.status_yc = ycres
 
-        # move X + edge_length
+        # move X+ edge_length
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
@@ -191,7 +188,7 @@ class ProbeRoutines():
 
     # Back right corner
     def probe_angle_ym(self):
-        # move Y + xy_clearance
+        # move Y+ xy_clearance
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
@@ -202,7 +199,7 @@ class ProbeRoutines():
         a = STATUS.get_probed_position_with_offsets()
         ycres = float(a[1]) -0.5 * self.data_probe_diam
         self.status_yc = ycres
-        # move X - edge_length
+        # move X- edge_length
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
@@ -221,7 +218,7 @@ class ProbeRoutines():
 
     # Back left corner
     def probe_angle_xp(self):
-        # move X - xy_clearance
+        # move X- xy_clearance
         s = """G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
@@ -233,7 +230,7 @@ class ProbeRoutines():
         xcres = float(a[0]) + 0.5 * self.data_probe_diam
         self.status_xc = xcres
 
-        # move Y - edge_length
+        # move Y- edge_length
         s = """G91
         G1 F%s Y-%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
@@ -252,7 +249,7 @@ class ProbeRoutines():
 
     # Front right corner
     def probe_angle_xm(self):
-        # move X + xy_clearance
+        # move X+ xy_clearance
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance )
@@ -264,7 +261,7 @@ class ProbeRoutines():
         xcres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xc = xcres
 
-        # move Y + edge_length
+        # move Y+ edge_length
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, self.data_side_edge_length)
@@ -284,11 +281,9 @@ class ProbeRoutines():
 ###################
 #  Inside probing
 ###################
-
-    # Hole Xin- Xin+ Yin- Yin+
     def probe_xy_hole(self):
         if self.z_clearance_down() == -1: return
-        # move X- edge_length Y+ xy_clearance
+        # move X- edge_length - xy_clearance
         tmpx = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X-%f
@@ -300,8 +295,8 @@ class ProbeRoutines():
         xmres = float(a[0])-0.5*self.data_probe_diam
         self.status_xm =  xmres
 
-        # move X +2 edge_length - 2 xy_clearance
-        tmpx = 2*(self.data_side_edge_length-self.data_xy_clearance)
+        # move X+ 2 * (edge_length - xy_clearance)
+        tmpx = 2 * (self.data_side_edge_length - self.data_xy_clearance)
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, tmpx)        
@@ -319,7 +314,7 @@ class ProbeRoutines():
         G1 F%s X%f""" % (self.data_rapid_vel, xcres)        
         if self.CALL_MDI_WAIT(s, 30) == -1: return
 
-        # move Y - edge_length + xy_clearance
+        # move Y- edge_length + xy_clearance
         tmpy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s Y-%f
@@ -331,7 +326,7 @@ class ProbeRoutines():
         ymres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = ymres
 
-        # move Y +2 edge_length - 2 xy_clearance
+        # move Y+ 2 * (edge_length - xy_clearance)
         tmpy = 2 * (self.data_side_edge_length - self.data_xy_clearance)
         s = """G91
         G1 F%s Y%f
@@ -361,7 +356,7 @@ class ProbeRoutines():
     # Move Probe manual under corner 2-3 mm
     # Back left inside corner
     def probe_inside_xpyp(self):
-        # move Y- edge_length X - xy_clearance
+        # move X- xy_clearance Y- edge_length
         s = """G91
         G1 F%s X-%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
@@ -374,7 +369,7 @@ class ProbeRoutines():
         self.status_xp = xres
         len_x = self.length_x()
 
-        # move X - edge_length Y - xy_clearance
+        # move X- edge_length Y- xy_clearance
         tmpxy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X-%f Y%f
@@ -397,7 +392,7 @@ class ProbeRoutines():
 
     # Front right inside corner
     def probe_inside_xpym(self):
-        # move Y+ edge_length X - xy_clearance
+        # move X- xy_clearance Y+ edge_length
         s = """G91
         G1 F%s X-%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
@@ -410,7 +405,7 @@ class ProbeRoutines():
         self.status_xp = xres
         len_x = self.length_x()
 
-        # move X - edge_length Y + xy_clearance
+        # move X- edge_length Y+ xy_clearance
         tmpxy=self.data_side_edge_length-self.data_xy_clearance
         s = """G91
         G1 F%s X-%f Y-%f
@@ -433,7 +428,7 @@ class ProbeRoutines():
 
     # Back left inside corner
     def probe_inside_xmyp(self):
-        # move Y- edge_length X + xy_clearance
+        # move X+ xy_clearance Y- edge_length
         s = """G91
         G1 F%s X%f Y-%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
@@ -446,7 +441,7 @@ class ProbeRoutines():
         self.status_xm = xres
         len_x = self.length_x()
 
-        # move X + edge_length Y - xy_clearance
+        # move X+ edge_length Y- xy_clearance
         tmpxy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X%f Y%f
@@ -470,7 +465,7 @@ class ProbeRoutines():
 
     # Front left inside corner
     def probe_inside_xmym(self):
-        # move Y+ edge_length X + xy_clearance
+        # move Y+ edge_length X+ xy_clearance
         s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance,self.data_side_edge_length )        
@@ -483,7 +478,7 @@ class ProbeRoutines():
         self.status_xm = xres
         len_x = self.length_x()
 
-        # move X + edge_length Y - xy_clearance
+        # move X+ edge_length Y- xy_clearance
         tmpxy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X%f Y-%f
@@ -510,7 +505,6 @@ class ProbeRoutines():
 
     # Left outside edge, right inside edge
     def probe_xp(self):
-        if self.probe_down_fast() == -1: return
          # move X- xy_clearance
         s = """G91
         G1 F%s X-%f
@@ -533,7 +527,6 @@ class ProbeRoutines():
 
     # Front outside edge, back inside edge
     def probe_yp(self):
-        if self.probe_down_fast() == -1: return
         # move Y- xy_clearance
         s = """G91
         G1 F%s Y-%f
@@ -556,7 +549,6 @@ class ProbeRoutines():
 
     # Right outside edge. left inside edge
     def probe_xm(self):
-        if self.probe_down_fast() == -1: return
         # move X+ xy_clearance
         s = """G91
         G1 F%s X%f
@@ -579,7 +571,6 @@ class ProbeRoutines():
 
     # Back outside edge, front inside edge
     def probe_ym(self):
-        if self.probe_down_fast() == -1: return
         # move Y+ xy_clearance
         s = """G91
         G1 F%s Y%f
@@ -604,7 +595,6 @@ class ProbeRoutines():
     # Move Probe manual over corner 2-3 mm
     # Front left outside corner
     def probe_outside_xpyp(self):
-        if self.probe_down_fast() == -1: return
         # move X- xy_clearance Y+ edge_length
         s = """G91
         G1 F%s X-%f Y%f
@@ -620,7 +610,7 @@ class ProbeRoutines():
         # move Z to start point up
         if self.z_clearance_up() == -1: return
 
-        # move X+ edge_length +xy_clearance,  Y- edge_length - xy_clearance
+        # move X+ edge_length + xy_clearance,  Y- edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X%f Y-%f
@@ -644,7 +634,6 @@ class ProbeRoutines():
 
     # Back left outside corner
     def probe_outside_xpym(self):
-        if self.probe_down_fast() == -1: return
         # move X- xy_clearance Y+ edge_length
         s = """G91
         G1 F%s X-%f Y-%f
@@ -660,7 +649,7 @@ class ProbeRoutines():
         # move Z to start point up
         if self.z_clearance_up() == -1: return
 
-        # move X+ edge_length +xy_clearance,  Y+ edge_length + xy_clearance
+        # move X+ edge_length + xy_clearance,  Y+ edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X%f Y%f
@@ -684,8 +673,7 @@ class ProbeRoutines():
 
     # Front right outside corner
     def probe_outside_xmyp(self):
-        if self.probe_down_fast() == -1: return
-        # move X + xy_clearance Y + edge_length
+        # move X+ xy_clearance Y+ edge_length
         s = """G91
         G1 F%s X%f Y%f
         G90""" % (self.data_rapid_vel, self.data_xy_clearance, self.data_side_edge_length )        
@@ -700,7 +688,7 @@ class ProbeRoutines():
         # move Z to start point up
         if self.z_clearance_up() == -1: return
 
-        # move X - edge_length - xy_clearance,  Y - edge_length - xy_clearance
+        # move X- edge_length + xy_clearance,  Y- edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s X-%f Y-%f
@@ -724,7 +712,6 @@ class ProbeRoutines():
 
     # Back right outside corner
     def probe_outside_xmym(self):
-        if self.probe_down_fast() == -1: return
         # move X+ xy_clearance Y- edge_length
         s = """G91
         G1 F%s X%f Y-%f
@@ -764,81 +751,10 @@ class ProbeRoutines():
 
     # Center X+ X- Y+ Y-
     def probe_outside_xy_center(self):
-        # move X- edge_length- xy_clearance
-        s = """G91
-        G1 F%s X-%f
-        G90""" % (self.data_rapid_vel, self.data_side_edge_length + self.data_xy_clearance )        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xplus') == -1: return
-        # show X result
-        a = STATUS.get_probed_position_with_offsets()
-        xpres = float(a[0]) + 0.5 * self.data_probe_diam
-        self.status_xp = xpres
-        # move Z to start point up
-        if self.z_clearance_up() == -1: return
-
-        # move X+ 2 edge_length + 2 xy_clearance
-        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
-        s = """G91
-        G1 F%s X%f
-        G90""" % (self.data_rapid_vel, aa)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('xminus') == -1: return
-        # show X result
-        a = STATUS.get_probed_position_with_offsets()
-        xmres = float(a[0]) - 0.5 * self.data_probe_diam
-        self.status_xm = xmres
-        len_x = self.length_x()
-        xcres = 0.5 * (xpres+xmres)
-        self.status_xc = xcres
-        # move Z to start point up
-        if self.z_clearance_up() == -1: return
-        s = "G1 F%s X%f" % (self.data_rapid_vel, xcres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-
-        # move Y- edge_length- xy_clearance 
-        a = self.data_side_edge_length + self.data_xy_clearance
-        s = """G91
-        G1 F%s Y-%f
-        G90""" % (self.data_rapid_vel, a)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yplus') == -1: return
-        # show Y result
-        a = STATUS.get_probed_position_with_offsets()
-        ypres = float(a[1]) + 0.5 * self.data_probe_diam
-        self.status_yp = ypres
-        # move Z to start point up
-        if self.z_clearance_up() == -1: return
-
-        # move Y+ 2 edge_length + 2 xy_clearance
-        aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
-        s = """G91
-        G1 F%s Y%f
-        G90""" % (self.data_rapid_vel, aa)        
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        if self.z_clearance_down() == -1: return
-        if self.probe('yminus') == -1: return
-        # show Y result
-        a = STATUS.get_probed_position_with_offsets()
-        ymres = float(a[1]) -0.5 * self.data_probe_diam
-        self.status_ym = ymres
-        len_y = self.length_y()
-        # find, show and move to found  point
-        ycres = 0.5 * (ypres+ymres)
-        self.status_yc = ycres
-        diam = 0.5 * ((xmres - xpres) + (ymres - ypres))
-        self.status_d = diam
-        self.add_history('Outside Circle ', "XmXcXpLxYmYcYpLyD", xmres, xcres, xpres, len_x, ymres, ycres, ypres, len_y, 0, diam, 0)
-        # move Z to start point up
-        if self.z_clearance_up() == -1: return
-        # move to found  point
-        s = "G1 F%s Y%f" % (self.data_rapid_vel, ycres)
-        if self.CALL_MDI_WAIT(s, 30) == -1: return
-        self.set_zero("XY")
-        return 1
+        error = self.probe_outside_length_x()
+        if error != 1: return error
+        error = self.probe_outside_length_y()
+        return error
 
 #######################
 # Straight down probing
@@ -861,14 +777,6 @@ class ProbeRoutines():
         if self.z_clearance_up() == -1: return
         return 1
 
-    # Probe Z Minus direction and end at z_clearance above workpiece
-    # Used to establish Z height for edge probing
-    def probe_down_fast(self):
-        ACTION.CALL_MDI("G91")
-        c = "G38.2 Z-{} F{}".format(self.data_max_travel, self.data_search_vel)
-        if self.CALL_MDI_WAIT(c, 30) == -1: return -1
-        return self.z_clearance_up()
-
 ########
 # Length
 ########
@@ -888,7 +796,7 @@ class ProbeRoutines():
         # move Z to start point up
         if self.z_clearance_up() == -1: return
 
-        # move X+ 2 edge_length + xy_clearance
+        # move X+ 2 * (edge_length + xy_clearance)
         aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
         s = """G91
         G1 F%s X%f
@@ -914,7 +822,7 @@ class ProbeRoutines():
 
     # Ly OUT
     def probe_outside_length_y(self):
-        # move Y- edge_length- xy_clearance
+        # move Y- edge_length + xy_clearance
         a = self.data_side_edge_length + self.data_xy_clearance
         s = """G91
         G1 F%s Y-%f
@@ -929,7 +837,7 @@ class ProbeRoutines():
         # move Z to start point up
         if self.z_clearance_up() == -1: return
 
-        # move Y+ 2 edge_length +  xy_clearance
+        # move Y+ 2 * (edge_length +  xy_clearance)
         aa = 2 * (self.data_side_edge_length + self.data_xy_clearance)
         s = """G91
         G1 F%s Y%f
@@ -957,7 +865,7 @@ class ProbeRoutines():
     # Lx IN
     def probe_inside_length_x(self):
         if self.z_clearance_down() == -1: return
-        # move X - edge_length Y - xy_clearance
+        # move X- edge_length Y- xy_clearance
         tmpx = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s X-%f
@@ -969,7 +877,7 @@ class ProbeRoutines():
         xmres = float(a[0]) - 0.5 * self.data_probe_diam
         self.status_xm = xmres
 
-        # move X +2 edge_length - 2 xy_clearance
+        # move X+ 2 * (edge_length - xy_clearance)
         tmpx = 2 * (self.data_side_edge_length - self.data_xy_clearance)
         s = """G91
         G1 F%s X%f
@@ -995,7 +903,7 @@ class ProbeRoutines():
     # Ly IN
     def probe_inside_length_y(self):
         if self.z_clearance_down() == -1: return
-        # move Y - edge_length - xy_clearance
+        # move Y- edge_length - xy_clearance
         tmpy = self.data_side_edge_length - self.data_xy_clearance
         s = """G91
         G1 F%s Y-%f
@@ -1007,7 +915,7 @@ class ProbeRoutines():
         ymres = float(a[1]) - 0.5 * self.data_probe_diam
         self.status_ym = ymres
 
-        # move Y +2 edge_length - 2 xy_clearance
+        # move Y+ 2 * (edge_length - xy_clearance)
         tmpy = 2 * (self.data_side_edge_length - self.data_xy_clearance)
         s = """G91
         G1 F%s Y%f
