@@ -88,19 +88,22 @@ class Player:
 
     # set sounds based on distribution
     def set_sounds(self):
-        import distro
-        if 'mint' in distro.id().lower():
-            self.error = '/usr/share/sounds/LinuxMint/stereo/dialog-error.ogg'
-            self.ready = '/usr/share/sounds/LinuxMint/stereo/dialog-information.ogg'
-            self.done = '/usr/share/sounds/LinuxMint/stereo/system-ready.ogg'
-            self.attention = '/usr/share/sounds/LinuxMint/stereo/dialog-question.wav'
-            self.ring = '/usr/share/sounds/LinuxMint/stereo/phone-incoming-call.ogg'
-            self.login = '/usr/share/sounds/LinuxMint/stereo/desktop-login.ogg'
-            self.logout = '/usr/share/sounds/LinuxMint/stereo/desktop-logout.ogg'
-            self.bell = '/usr/share/sounds/freedesktop/stereo/bell.oga'
-            if not os.path.exists(self.error):
-                log.error('Audio player - Mint sound File not found {}'.format(self.error))
-            return
+        try:
+            import distro
+            if 'mint' in distro.id().lower():
+                self.error = '/usr/share/sounds/LinuxMint/stereo/dialog-error.ogg'
+                self.ready = '/usr/share/sounds/LinuxMint/stereo/dialog-information.ogg'
+                self.done = '/usr/share/sounds/LinuxMint/stereo/system-ready.ogg'
+                self.attention = '/usr/share/sounds/LinuxMint/stereo/dialog-question.wav'
+                self.ring = '/usr/share/sounds/LinuxMint/stereo/phone-incoming-call.ogg'
+                self.login = '/usr/share/sounds/LinuxMint/stereo/desktop-login.ogg'
+                self.logout = '/usr/share/sounds/LinuxMint/stereo/desktop-logout.ogg'
+                self.bell = '/usr/share/sounds/freedesktop/stereo/bell.oga'
+                if not os.path.exists(self.error):
+                    log.error('Audio player - Mint sound File not found {}'.format(self.error))
+                return
+        except:
+            pass
         self.error = '/usr/share/sounds/freedesktop/stereo/dialog-error.oga'
         self.ready = '/usr/share/sounds/freedesktop/stereo/message.oga'
         self.done = '/usr/share/sounds/freedesktop/stereo/complete.oga'

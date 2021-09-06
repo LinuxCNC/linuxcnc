@@ -50,8 +50,8 @@ ACTION = Action()
 
 try:
     SOUND = Player()
-except:
-    LOG.warning('Sound Player did not load')
+except Exception as e:
+    LOG.warning('Sound Player did not load: {}'.format(e))
 
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
