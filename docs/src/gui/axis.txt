@@ -1217,7 +1217,7 @@ print s.paused
 ----
 # set the view of the preview
 # valid views are view_x view_y view_y2 view_z view_z2 view_p
-c.set_view_z()
+commands.set_view_z()
 ----
 
 === Creating new AXISUI HAL Pins
