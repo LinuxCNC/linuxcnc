@@ -245,11 +245,10 @@ def file_save(fname,title_message='Save File'):
     if start_dir == '': start_dir = os.path.curdir
     fc = Gtk.FileChooserDialog(title=title_message
        ,parent=None
-       ,action=Gtk.FILE_CHOOSER_ACTION_SAVE
+       ,action=Gtk.FileChooserAction.SAVE
        ,buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL
                 ,Gtk.STOCK_OK,     Gtk.ResponseType.OK
                 )
-       ,backend=None
        )
     fc.set_current_folder(start_dir)
     fc.set_do_overwrite_confirmation(True)
@@ -3344,7 +3343,7 @@ class SaveSection():
                     if modlabel == 'ignoreme':
                         continue
                     modlabel = 'o<%03d%s>' % (g_label_id,modlabel)
-                    r = re.search(r'^o<(.*?)>(.*)',line)
+                    r = re.search(r'^o<(.*?)>(.*)',line.strip())
                     if r:
                         modline = r.group(2) + '\n'
                     else:
