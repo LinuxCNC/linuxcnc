@@ -117,7 +117,7 @@ def clear_tool_tips(W):
 
     parameters_utilities_widgets = [
         'actionbutton_halshow','actionbutton_halscope','actionbutton_halmeter',
-        'actionbutton_calibration','actionbutton_lcnc_status_2','backup']
+        'actionbutton_calibration','actionbutton_lcnc_status','backup']
 
     statistics_widgets = [
         'pierce_reset','cut_length_reset','cut_time_reset','torch_time_reset',
@@ -434,7 +434,7 @@ def set_tool_tips(W):
     W.actionbutton_halscope.setToolTip(_translate('ToolTips', 'Loads the HalScope application'))
     W.actionbutton_halmeter.setToolTip(_translate('ToolTips', 'Loads the HalMeter application'))
     W.actionbutton_calibration.setToolTip(_translate('ToolTips', 'Loads the LinuxCNC Calibration application'))
-    W.actionbutton_lcnc_status_2.setToolTip(_translate('ToolTips', 'Loads the LinuxCNC Status application'))
+    W.actionbutton_lcnc_status.setToolTip(_translate('ToolTips', 'Loads the LinuxCNC Status application'))
     W.backup.setToolTip(_translate('ToolTips', 'Creates a complete backup of the current machine configuration'))
 
     # statisticswidgets
