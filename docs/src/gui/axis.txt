@@ -980,10 +980,9 @@ root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 === USER_COMMAND_FILE
 
 A configuration-specific python file may be specified with an ini file
-setting '[DISLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
-this file is sourced just before the AXIS GUI is displayed.  This file needs to
-be located in the same directory as the ini file.
-When this file is specified, an existing `~/.axisrc` file is ignored.
+setting '[DISPLAY]USER_COMMAND_FILE=filename.py'.  Like a `~/.axisrc` file,
+this file is sourced just before the AXIS GUI is displayed.  This file
+is specific to an ini file configuration not the user's home directory.
 
 === user_live_update()
 
@@ -1199,21 +1198,15 @@ root_window.bind('<Key-0>',lambda event: set_feedrate(100))
 [source,python]
 ----
 # read an ini file item
-import sys
-import linuxcnc
-inifile = linuxcnc.ini(sys.argv[1])
-
 machine = inifile.find('EMC','MACHINE')
 print 'machine name =',machine
 ----
-
 
 === Read linuxcnc Status
 
 [source,python]
 ----
-import linuxcnc
-s = linuxcnc.stat() # create a connection to the status channel
+# linuxcnc status can be read from s.
 print s.actual_position 
 print s.paused 
 ----
@@ -1224,8 +1217,6 @@ print s.paused
 ----
 # set the view of the preview
 # valid views are view_x view_y view_y2 view_z view_z2 view_p
-import linuxcnc
-c = linuxcnc.command()
 c.set_view_z()
 ----
 
