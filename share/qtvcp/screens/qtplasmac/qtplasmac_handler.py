@@ -1,4 +1,4 @@
-VERSION = '1.0.85'
+VERSION = '1.0.86'
 
 '''
 qtplasmac_handler.py
@@ -397,7 +397,7 @@ class HandlerClass:
             msg1 = _translate('HandlerClass', 'Do you want to exit')
             if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
                 return
-        if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
+        if self.fileOpened == True:
             self.file_reload_clicked()
         else:
             self.w.gcode_editor.editor.new_text()
@@ -753,6 +753,10 @@ class HandlerClass:
         self.slowJogClicked = False
         self.jogIncrementsIndex = 0
         self.probeTest = False
+        self.rflSelected = False
+        self.fileOpened = False
+        self.laserButtonState = 'laser'
+        self.camButtonState = 'markedge'
 
     def get_overlay_text(self, kerf):
         if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
@@ -979,7 +983,7 @@ class HandlerClass:
                 ACTION.CALL_MDI('G91')
         if not self.manualCut:
             self.set_buttons_state([self.idleList], True)
-        if self.w.file_open.text() == _translate('HandlerClass', 'OPEN'):
+        if self.fileOpened == False:
             self.w.file_edit.setEnabled(False)
         if self.lastLoadedProgram == 'None':
             self.w.file_reload.setEnabled(False)
@@ -1075,8 +1079,6 @@ class HandlerClass:
         self.w.height_lower.setEnabled(True)
         self.w.height_raise.setEnabled(True)
         self.w.height_reset.setEnabled(True)
-        text0 = _translate('HandlerClass', 'MDI')
-        text1 = _translate('HandlerClass', 'CLOSE')
         if STATUS.is_auto_mode() and self.w.gcode_stack.currentIndex() != 0:
             self.w.gcode_stack.setCurrentIndex(0)
         self.w.main_tab_widget.setTabEnabled(1, False)
@@ -1141,6 +1143,7 @@ class HandlerClass:
                 if self.w.chk_overlay.isChecked():
                     self.overlay.show()
             self.w.file_open.setText(os.path.basename(filename))
+            self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
             if self.w.gcode_stack.currentIndex() != 0:
@@ -1234,6 +1237,7 @@ class HandlerClass:
             if not 'rfl.ngc' in self.lastLoadedProgram:
                 msg0 = _translate('HandlerClass', 'SELECTED')
                 self.runText = '{} {}'.format(msg0, line)
+                self.rflSelected = True
                 self.startLine = line - 1
             else:
                 head = _translate('HandlerClass', 'RUN FROM LINE ERROR')
@@ -1290,11 +1294,12 @@ class HandlerClass:
             ACTION.PAUSE()
 
     def run_pressed(self):
-        if self.startLine and self.runText[:8] == _translate('HandlerClass', 'SELECTED')[:8]:
+        if self.startLine and self.rflSelected:
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
             self.rflActive = True
+            self.rflSelected = False
             self.run_from_line()
         elif not self.run_critical_check():
             ACTION.RUN(0)
@@ -1645,7 +1650,7 @@ class HandlerClass:
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
             ACTION.CALL_MDI('G10 L20 P0 X{} Y{}'.format(x, y))
-            if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
+            if self.fileOpened == True:
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
 
@@ -2984,7 +2989,7 @@ class HandlerClass:
                 self.button_normal(self.ctButton)
                 self.w[self.ctButton].setText(self.cutTypeText)
             self.w.gcode_progress.setValue(0)
-            if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
+            if self.fileOpened == True:
                 self.file_reload_clicked()
         elif 'load' in commands.lower():
             lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
@@ -4071,26 +4076,30 @@ class HandlerClass:
             self.vkb_hide()
 
     def laser_pressed(self):
-        if self.w.laser.text() == _translate('HandlerClass', 'LASER'):
-            self.laserOnPin.set(1)
+        if self.laserButtonState == 'laser':
             self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
+            self.laserButtonState = 'markedge'
+            self.laserOnPin.set(1)
             return
-        elif self.w.laser.text() == _translate('HandlerClass', 'SET\nORIGIN'):
+        elif self.laserButtonState == 'setorigin':
             self.laserOnPin.set(0)
-        self.sheet_align(self.w.laser, self.laserOffsetX, self.laserOffsetY)
+        self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
 
-    def sheet_align(self, button, offsetX, offsetY):
-        if button.text() == _translate('HandlerClass', 'MARK\nEDGE'):
+    def sheet_align(self, button_state, button, offsetX, offsetY):
+        if button_state == 'markedge':
             self.w.cam_goto.setEnabled(False)
             button.setText(_translate('HandlerClass', 'SET\nORIGIN'))
+            button_state = 'setorigin'
             self.camCurrentX = STATUS.get_position()[0][0]
             self.camCurrentY = STATUS.get_position()[0][1]
             zAngle = 0
         else:
             if button == self.w.cam_mark:
                 button.setText(_translate('HandlerClass', 'MARK\nEDGE'))
+                button_state = 'markedge'
             else:
                 button.setText(_translate('HandlerClass', 'LASER'))
+                button_state = 'laser'
             xDiff = STATUS.get_position()[0][0] - self.camCurrentX
             yDiff = STATUS.get_position()[0][1] - self.camCurrentY
             if xDiff and yDiff:
@@ -4116,27 +4125,19 @@ class HandlerClass:
             self.w.camview.rotation = zAngle
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle), 3)
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY), 3)
-            if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
+            if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
             self.w.cam_goto.setEnabled(True)
             ACTION.SET_MANUAL_MODE()
+        return button_state
 
     def cam_mark_pressed(self):
-        self.sheet_align(self.w.cam_mark, self.cam_offsetX, self.cam_offsetY)
+        self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.cam_offsetX, self.cam_offsetY)
 
     def cam_goto_pressed(self):
-        if self.w.cam_goto.text() == _translate('HandlerClass', 'GOTO\nORIGIN'):
-            ACTION.CALL_MDI_WAIT('G0 X0 Y0')
-            ACTION.SET_MANUAL_MODE()
-        else:
-            self.w.cam_goto.setText(_translate('HandlerClass', 'GOTO\nORIGIN'))
-            self.w.cam_mark.setText(_translate('HandlerClass', 'MARK\nEDGE'))
-            self.w.camview.rotation = 0
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 R0', 0.5)
-            if self.w.file_open.text() != _translate('HandlerClass', 'OPEN'):
-                self.file_reload_clicked()
-            ACTION.SET_MANUAL_MODE()
+        ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+        ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
         if self.w.camview.scale >= 5:
