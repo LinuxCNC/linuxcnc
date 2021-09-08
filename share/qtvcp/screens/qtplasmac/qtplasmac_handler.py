@@ -183,11 +183,6 @@ class HandlerClass:
         self.jogSyncList = []
         self.axisAList = ['dro_a', 'dro_label_a', 'home_a', 'touch_a', 'jog_a_plus', 'jog_a_minus']
         self.axisBList = ['dro_b', 'dro_label_b', 'home_b', 'touch_b', 'jog_b_plus', 'jog_b_minus']
-        nonRepeatKeys = ['113','114','111','116','112','117','34','35','59','60',]
-        self.nonRepeatKeys = []
-        for k in range(0, len(self.axisList) * 2, 2):
-            self.nonRepeatKeys.append(nonRepeatKeys[k])
-            self.nonRepeatKeys.append(nonRepeatKeys[k + 1])
         self.xMin = float(self.iniFile.find('AXIS_X', 'MIN_LIMIT'))
         self.xMax = float(self.iniFile.find('AXIS_X', 'MAX_LIMIT'))
         self.yMin = float(self.iniFile.find('AXIS_Y', 'MIN_LIMIT'))
@@ -338,7 +333,7 @@ class HandlerClass:
         self.startupTimer.setSingleShot(True)
         self.set_color_styles()
         if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
-            ACTION.DISABLE_AUTOREPEAT_KEYS(self.nonRepeatKeys)
+            ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
         # only set hal pins after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
@@ -407,6 +402,7 @@ class HandlerClass:
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
+        ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
         ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
@@ -827,7 +823,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        ACTION.ENABLE_AUTOREPEAT_KEYS(self.nonRepeatKeys)
+        ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
         self.save_logfile(5)
 
     def save_logfile(self, numLogs):
@@ -1435,14 +1431,17 @@ class HandlerClass:
             self.overlay.hide()
             self.w.gcode_editor.editor.setFocus()
             self.vkb_show()
+            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
         else:
             self.new_exitCall()
 
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed() and self.w.gcode_stack.currentIndex() != 1:
             self.w.gcode_stack.setCurrentIndex(1)
+            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
         else:
             self.w.gcode_stack.setCurrentIndex(0)
+            ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
             ACTION.SET_MANUAL_MODE()
 
     def file_cancel_clicked(self):
