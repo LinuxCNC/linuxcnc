@@ -216,7 +216,6 @@ class HandlerClass:
         self.materialUpdate = False
         self.autoChange = False
         self.pmx485Exists = False
-        self.pmx485Loaded = False
         self.pmx485Connected = False
         self.pmx485CommsError = False
         self.pmx485FaultCode = 0.0
@@ -4498,14 +4497,12 @@ class HandlerClass:
                 msg1 = _translate('HandlerClass', 'cannot connect to Powermax')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
                 self.w.pmx485_enable.setChecked(False)
-                self.pmx485Loaded = False
                 return
             # good to go
             else:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'CONNECTING'))
                 self.pmx485LabelState = 'CONNECT'
                 self.w.pmx_stats_frame.hide()
-                self.pmx485Loaded = True
                 self.pmx485CommsTimer.start(3000)
         else:
             self.pmx485Connected = False

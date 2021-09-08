@@ -22,7 +22,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import sys
 import hal
-import time
 import serial
 
 print('Starting pmx485 communications')
