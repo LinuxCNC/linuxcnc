@@ -132,6 +132,9 @@ class HandlerClass:
         self.landscape = True
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
+        self.gui43 = False
+        if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+            self.gui43 = True
         self.widgetsLoaded = 0
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
@@ -666,7 +669,7 @@ class HandlerClass:
         self.set_basic_colors()
 
     def hide_widgets(self):
-        if not os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+        if not self.gui43:
             self.w.main_tab_widget.removeTab(3)
         for b in ['RUN', 'PAUSE', 'ABORT']:
             if int(self.iniFile.find('QTPLASMAC', 'HIDE_{}'.format(b)) or 0):
@@ -1483,7 +1486,7 @@ class HandlerClass:
             self.vkb_show(True)
         elif tab == 2:
             self.vkb_show(True)
-        elif tab == 3 and os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+        elif tab == 3 and self.gui43:
             self.vkb_show(True)
         if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.vkb_hide()
@@ -1600,11 +1603,11 @@ class HandlerClass:
     def param_tab_changed(self, state):
         if state:
             self.w.main_tab_widget.setTabEnabled(2, False)
-            if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+            if self.gui43:
                 self.w.main_tab_widget.setTabEnabled(3, False)
         else:
             self.w.main_tab_widget.setTabEnabled(2, True)
-            if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
+            if self.gui43:
                 self.w.main_tab_widget.setTabEnabled(3, True)
 
     def conv_tab_changed(self, state):
@@ -2102,8 +2105,8 @@ class HandlerClass:
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 4)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 4)
             self.vkb_check()
-            if (self.w.main_tab_widget.currentIndex() == 2 and os.path.basename(self.PATHS.XML) != 'qtplasmac_4x3.ui') or \
-               (self.w.main_tab_widget.currentIndex() == 3 and os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui'):
+            if (self.w.main_tab_widget.currentIndex() == 2 and not self.gui43) or \
+               (self.w.main_tab_widget.currentIndex() == 3 and self.gui43):
                 self.vkb_show(True)
         else:
             self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
@@ -4788,6 +4791,7 @@ class HandlerClass:
 #            except:
 #                print('EXCEPTION')
 #                self.conv_new_pressed()
+            self.conv_enable_tabs()
         else:
             self.conv_new_pressed(None)
         self.xOrigin = STATUS.get_position()[0][0]
@@ -4804,7 +4808,6 @@ class HandlerClass:
         self.w.conv_save.setEnabled(False)
         self.w.conv_send.setEnabled(False)
         self.w.conv_settings.setEnabled(True)
-        self.conv_enable_tabs()
 
     def conv_new_pressed(self, button):
         head = _translate('HandlerClass', 'Unsaved Shape')
@@ -4976,16 +4979,12 @@ class HandlerClass:
             self.w['conv_{}'.format(button)].setEnabled(state)
 
     def conv_enable_tabs(self):
-        if os.path.basename(self.PATHS.XML) == 'qtplasmac_4x3.ui':
-            tabs = 5
-        else:
-            tabs = 4
         if self.w.conv_save.isEnabled() and self.w.conv_send.isEnabled():
-            for n in range(tabs):
+            for n in range(self.w.main_tab_widget.count()):
                 if n != 1:
                     self.w.main_tab_widget.setTabEnabled(n, False)
         else:
-            for n in range(tabs):
+            for n in range(self.w.main_tab_widget.count()):
                 self.w.main_tab_widget.setTabEnabled(n, True)
                 self.w.gcode_editor.setStyleSheet( \
                         'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(self.foreColor))
