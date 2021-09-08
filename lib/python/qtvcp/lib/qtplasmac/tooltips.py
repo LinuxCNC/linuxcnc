@@ -366,7 +366,7 @@ def set_tool_tips(W):
     W.probe_start_height.setToolTip(_translate('ToolTips', 'Height above Z minimum limit that Probe Speed begins'))
     W.ohmic_probe_offset.setToolTip(_translate('ToolTips', 'Distance above material Z should move after an ohmic probe'))
     W.ohmic_max_attempts.setToolTip(_translate('ToolTips', 'Number of retry attempts before defaulting to float switch'))
-    W.skip_ihs_distance.setToolTip(_translate('ToolTips', 'Distance from first probe to check if the next probe can be skipped'))
+    W.skip_ihs_distance.setToolTip(_translate('ToolTips', 'Initial Height Sense distance, refer to user guide for detailed explanation'))
     W.safe_height.setToolTip(_translate('ToolTips', 'Height above material the torch will retract to before rapid moves'))
     W.scribe_arm_delay.setToolTip(_translate('ToolTips', 'Delay from scribe command to activation of scribe (seconds)'))
     W.scribe_on_delay.setToolTip(_translate('ToolTips', 'Delay from scribe activation to XY motion (seconds)'))
