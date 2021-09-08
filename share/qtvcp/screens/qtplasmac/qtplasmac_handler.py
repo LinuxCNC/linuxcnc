@@ -1,4 +1,4 @@
-VERSION = '1.0.86'
+VERSION = '1.0.87'
 
 '''
 qtplasmac_handler.py
@@ -748,8 +748,7 @@ class HandlerClass:
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(500)
         self.manualCut = False
-        self.slowJogClicked = False
-        self.jogIncrementsIndex = 0
+        self.jogPreManCut = [False, INFO.DEFAULT_LINEAR_JOG_VEL, 0]
         self.probeTest = False
         self.rflSelected = False
         self.fileOpened = False
@@ -1019,13 +1018,10 @@ class HandlerClass:
                     self.w[self.frButton].setEnabled(True)
             if self.manualCut == True:
                 self.manualCut = False
-                if self.slowJogClicked == True:
-                    self.jog_slow_clicked(True)
-                    self.slowJogClicked = False
-                if self.jogIncrementsIndex != 0:
-                    self.w.jogincrements.setCurrentIndex(self.jogIncrementsIndex)
-                    self.jogIncrementsIndex = 0
-                self.w.jog_slider.setValue(self.previousJogSpeed)
+                if self.jogPreManCut[0]:
+                    self.jog_slow_pressed(True)
+                self.w.jog_slider.setValue(self.jogPreManCut[1])
+                self.w.jogincrements.setCurrentIndex(self.jogPreManCut[2])
                 self.w.jog_slider.setEnabled(True)
                 self.w.jogs_label.setEnabled(True)
                 self.w.jog_slow.setEnabled(True)
@@ -1284,6 +1280,10 @@ class HandlerClass:
     def ext_touch_off(self, state):
         if self.w.touch_xy.isEnabled() and state:
             self.touch_xy_clicked()
+
+    def ext_jog_slow(self, state):
+        if self.w.jog_slow.isEnabled() and state:
+            self.jog_slow_pressed(True)
 
     def ext_run_pause(self, state):
         if self.w.run.isEnabled() and state:
@@ -1581,20 +1581,22 @@ class HandlerClass:
                 self.jogInhibit = ''
                 self.jogInhibitPin.set(False)
 
-    def jog_slow_clicked(self, state):
-        slider = self.w.jog_slider
-        current = slider.value()
-        max = slider.maximum()
-        if state:
-            self.w.jog_slow.setText(_translate('HandlerClass', 'SLOW'))
-            slider.setMaximum(max / self.slowJogFactor)
-            slider.setValue(current / self.slowJogFactor)
-            slider.setPageStep(10)
-        elif self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
+    def jog_slow_pressed(self, external=False):
+        if self.w.jog_slow.isChecked():
             self.w.jog_slow.setText(_translate('HandlerClass', 'FAST'))
-            slider.setMaximum(max * self.slowJogFactor)
-            slider.setValue(current * self.slowJogFactor)
-            slider.setPageStep(100)
+            self.w.jog_slider.setMaximum(self.w.jog_slider.maximum() * self.slowJogFactor)
+            self.w.jog_slider.setValue(self.w.jog_slider.value() * self.slowJogFactor)
+            self.w.jog_slider.setPageStep(100)
+            self.previousJogSpeed = self.w.jog_slider.value()
+            if external:
+                self.w.jog_slow.setChecked(False)
+        else:
+            self.w.jog_slow.setText(_translate('HandlerClass', 'SLOW'))
+            self.w.jog_slider.setValue(self.w.jog_slider.value() / self.slowJogFactor)
+            self.w.jog_slider.setMaximum(self.w.jog_slider.maximum() / self.slowJogFactor)
+            self.w.jog_slider.setPageStep(10)
+            if external:
+                self.w.jog_slow.setChecked(True)
 
     def chk_override_limits_changed(self, state):
         if state:
@@ -1761,7 +1763,7 @@ class HandlerClass:
         self.w.run.pressed.connect(self.run_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
-        self.w.jog_slow.clicked.connect(self.jog_slow_clicked)
+        self.w.jog_slow.pressed.connect(self.jog_slow_pressed)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
         self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
@@ -1953,7 +1955,7 @@ class HandlerClass:
         self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
         self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))
         self.extHeightOvrScalePin.value_changed.connect(lambda v:self.height_ovr_scale_change(v))
-        self.extJogSlowPin.value_changed.connect(lambda v:self.jog_slow_clicked(v))
+        self.extJogSlowPin.value_changed.connect(self.ext_jog_slow)
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
         self.w.preview_stack.currentChanged.connect(self.preview_stack_changed)
         self.w.gcode_stack.currentChanged.connect(self.gcode_stack_changed)
@@ -2080,7 +2082,7 @@ class HandlerClass:
                 return
             if (shift or self.jogFast) and not self.manualCut:
                 rate = INFO.MAX_LINEAR_JOG_VEL
-            elif self.jogSlow and not self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
+            elif self.jogSlow and not self.w.jog_slow.isChecked():
                 rate = STATUS.get_jograte()/60/self.slowJogFactor
             ACTION.JOG(joint, direction, rate, distance)
             self.isJogging[joint] = True
@@ -3364,14 +3366,13 @@ class HandlerClass:
                 self.w[self.mcButton].setEnabled(False)
                 self.button_normal(self.mcButton)
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
-            self.previousJogSpeed = self.w.jog_slider.value()
-            if self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
-                self.slowJogClicked = True
-                self.jog_slow_clicked(False)
-            if self.w.jogincrements.currentIndex() != 0:
-                self.jogIncrementsIndex = self.w.jogincrements.currentIndex()
-                self.w.jogincrements.setCurrentIndex(0)
+            self.jogPreManCut[0] = self.w.jog_slow.isChecked()
+            self.jogPreManCut[1] = self.w.jog_slider.value()
+            self.jogPreManCut[2] = self.w.jogincrements.currentIndex()
+            if self.w.jog_slow.isChecked():
+                self.jog_slow_pressed(True)
             self.w.jog_slider.setValue(self.w.cut_feed_rate.value())
+            self.w.jogincrements.setCurrentIndex(0)
             self.w.jog_slider.setEnabled(False)
             self.w.jogs_label.setEnabled(False)
             self.w.jog_slow.setEnabled(False)
@@ -5389,12 +5390,12 @@ class HandlerClass:
                     self.w.feed_slider.setValue(100)
             else:
                 if number and not self.manualCut:
-                    if self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
+                    if self.w.jog_slow.isChecked():
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number / self.slowJogFactor)
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number)
                 elif not self.manualCut:
-                    if self.w.jog_slow.text() == _translate('HandlerClass', 'SLOW'):
+                    if self.w.jog_slow.isChecked():
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL / self.slowJogFactor)
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
