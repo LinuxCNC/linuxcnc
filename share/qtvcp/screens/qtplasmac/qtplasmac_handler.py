@@ -1,4 +1,4 @@
-VERSION = '1.0.87'
+VERSION = '1.0.88'
 
 '''
 qtplasmac_handler.py
@@ -49,6 +49,8 @@ from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
+from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSETVIEW
+from qtvcp.widgets.origin_offsetview import MyTableModel as OFFSET_TABLE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.qtplasmac import conv_settings as CONVSET
 from qtvcp.lib.qtplasmac import conv_line as CONVLINE
@@ -239,6 +241,7 @@ class HandlerClass:
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
+        self.ovButton = ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         self.torchOn = False
@@ -348,6 +351,13 @@ class HandlerClass:
 # CLASS PATCHING SECTION #
 #################################################################################################################################
     def class_patch__(self):
+        self.gcode_editor_patch()
+        self.camview_patch()
+        self.mdi_line_patch()
+        self.offset_table_patch()
+
+# patched gcode editor functions
+    def gcode_editor_patch(self):
         self.old_saveReturn = EDITOR.saveReturn
         EDITOR.saveReturn = self.new_saveReturn
         self.old_openReturn = EDITOR.openReturn
@@ -358,18 +368,7 @@ class HandlerClass:
         EDITOR.gcodeLexerCall = self.new_gcodeLexerCall
         self.old_pythonLexerCall = EDITOR.pythonLexerCall
         EDITOR.pythonLexerCall = self.new_pythonLexerCall
-        self.old_wheelEvent = CAM.wheelEvent
-        CAM.wheelEvent = self.new_wheelEvent
-        self.old_drawText = CAM.drawText
-        CAM.drawText = self.new_drawText
-        self.old_mousePressEvent = CAM.mousePressEvent
-        CAM.mousePressEvent = self.new_mousePressEvent
-        self.old_mouseDoubleClickEvent = CAM.mouseDoubleClickEvent
-        CAM.mouseDoubleClickEvent = self.new_mouseDoubleClickEvent
-        self.old_submit = MDI_LINE.submit
-        MDI_LINE.submit = self.new_submit
 
-# patched gcode editor functions
     # save a non gcode file and don't load it into linuxcnc
     def new_saveReturn(self, filename):
         saved = ACTION.SAVE_PROGRAM(self.w.gcode_editor.editor.text(), filename)
@@ -416,6 +415,16 @@ class HandlerClass:
         pass
 
 # patched camera functions
+    def camview_patch(self):
+        self.old_wheelEvent = CAM.wheelEvent
+        CAM.wheelEvent = self.new_wheelEvent
+        self.old_drawText = CAM.drawText
+        CAM.drawText = self.new_drawText
+        self.old_mousePressEvent = CAM.mousePressEvent
+        CAM.mousePressEvent = self.new_mousePressEvent
+        self.old_mouseDoubleClickEvent = CAM.mouseDoubleClickEvent
+        CAM.mouseDoubleClickEvent = self.new_mouseDoubleClickEvent
+
     # format the angle display
     def new_drawText(self, event, qp):
         qp.setPen(self.w.camview.text_color)
@@ -458,6 +467,10 @@ class HandlerClass:
             self.w.camview.diameter = 20
 
 # patched mdi_line functions
+    def mdi_line_patch(self):
+        self.old_submit = MDI_LINE.submit
+        MDI_LINE.submit = self.new_submit
+
     # don't allow M3 or M5 in MDI codes
     def new_submit(self):
         intext = str(self.w.mdihistory.MDILine.text()).rstrip()
@@ -497,6 +510,27 @@ class HandlerClass:
             except:
                 pass
             STATUS.emit('mdi-history-changed')
+
+# patched offset table functions
+    def offset_table_patch(self):
+        self.old_flags = OFFSET_TABLE.flags
+        OFFSET_TABLE.flags = self.new_flags
+
+    # we don't allow editing z axis offsets
+    def new_flags(self, index):
+        if not index.isValid():
+            return None
+        if index.column() == 9 and index.row() in(0, 1, 2, 3):
+            return Qt.ItemIsEnabled
+        elif index.row() == 0:
+            return Qt.ItemIsEnabled
+        elif index.row() == 1 and not index.column() == 2:
+            return Qt.NoItemFlags
+        elif index.column() == 2:
+            return Qt.ItemIsEnabled
+        else:
+            return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
 
 #################################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
@@ -877,6 +911,9 @@ class HandlerClass:
                 if isinstance(receiver2, DOUBLESCALE):
                     flag = True
                     break
+                if isinstance(receiver2, OFFSETVIEW):
+                    flag = True
+                    break
                 if self.w.main_tab_widget.currentIndex() == 1 and \
                    (isinstance(receiver2, QtWidgets.QLineEdit) or \
                    isinstance(receiver2, QtWidgets.QComboBox) or \
@@ -1123,6 +1160,8 @@ class HandlerClass:
     def user_system_changed(self, obj, data):
         sys = self.systemList[int(data)]
         self.w.wcs_button.setText('WCS\n{}'.format(sys))
+        if ACTION.prefilter_path:
+            self.file_reload_clicked()
 
     def file_loaded(self, obj, filename):
         if os.path.basename(filename).count('.') > 1:
@@ -1131,7 +1170,7 @@ class HandlerClass:
         if filename is not None:
             self.w.gcode_progress.setValue(0)
             self.lastLoadedProgram = filename
-            if not self.cameraOn:
+            if not self.cameraOn and self.w.preview_stack.currentIndex() != 4:
                 self.w.preview_stack.setCurrentIndex(0)
                 self.vkb_hide()
                 if self.w.chk_overlay.isChecked():
@@ -2102,6 +2141,8 @@ class HandlerClass:
         if self.w.chk_soft_keyboard.isChecked():
             self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',True)
             inputType = 'CALCULATOR'
+            self.w.originoffsetview.setProperty('dialog_code_string','CALCULATOR')
+            self.w.originoffsetview.setProperty('text_dialog_code_string','KEYBOARD')
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 4)
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 4)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 4)
@@ -2113,6 +2154,8 @@ class HandlerClass:
         else:
             self.w.mdihistory.MDILine.setProperty('dialog_keyboard_option',False)
             inputType = 'ENTRY'
+            self.w.originoffsetview.setProperty('dialog_code_string','')
+            self.w.originoffsetview.setProperty('text_dialog_code_string','')
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 1)
             self.w.gcode_display.SendScintilla(QsciScintilla.SCI_SETEXTRADESCENT, 1)
             self.w.gcode_editor.editor.SendScintilla(QsciScintilla.SCI_SETEXTRAASCENT, 1)
@@ -2942,6 +2985,9 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                     continue
+            elif 'offsets-view' in bCode and not self.ovButton:
+                self.ovButton = 'button_{}'.format(str(bNum))
+                self.idleHomedList.append(self.ovButton)
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
@@ -3039,6 +3085,22 @@ class HandlerClass:
             self.single_cut()
         elif 'manual-cut' in commands.lower():
             self.manual_cut()
+        elif 'offsets-view' in commands.lower():
+            if self.w.preview_stack.currentIndex() == 4:
+                self.w.preview_stack.setCurrentIndex(0)
+                self.button_normal(self.ovButton)
+                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
+                if self.w.gcode_display.lines() > 1:
+                    self.w.run.setEnabled(True)
+            else:
+                self.w.preview_stack.setCurrentIndex(4)
+                self.button_active(self.ovButton)
+                buttonList = []
+                for button in self.idleHomedList:
+                    if button != self.ovButton:
+                        buttonList.append(button)
+                self.set_buttons_state([self.idleList, self.idleOnList, buttonList], False)
+                self.w.run.setEnabled(False)
         else:
             for command in commands.split('\\'):
                 command = command.strip()
@@ -5153,12 +5215,9 @@ class HandlerClass:
                     else:
                         outFile.write(line)
 
-        print("standard style done")
         # append custom style if found
         if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss')):
             with open(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss'), 'r') as inFile:
-
-                print("add custom_style")
                 with open(self.styleSheetFile, 'a') as outFile:
                     outFile.write(inFile.read())
 

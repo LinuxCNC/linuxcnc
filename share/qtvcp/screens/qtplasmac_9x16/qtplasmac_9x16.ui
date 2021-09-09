@@ -1912,6 +1912,28 @@ ORIGIN</string>
                   </item>
                  </layout>
                 </widget>
+                <widget class="QWidget" name="offsets_page">
+                 <layout class="QHBoxLayout" name="horizontalLayout_38">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="OriginOffsetView" name="originoffsetview"/>
+                  </item>
+                 </layout>
+                </widget>
                </widget>
               </item>
              </layout>
@@ -15138,71 +15160,8 @@ CONFIG</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_graphics</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
-  </customwidget>
-  <customwidget>
-   <class>AxisToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.axis_tool_button</header>
-  </customwidget>
-  <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
-   <class>ScreenOptions</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.screen_options</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
    <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
-   <class>MachineLog</class>
-   <extends>QTextEdit</extends>
-   <header>qtvcp.widgets.machine_log</header>
-  </customwidget>
-  <customwidget>
-   <class>CamView</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.camview_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>HALLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.hal_label</header>
-  </customwidget>
-  <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.dro_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>DoubleScale</class>
-   <extends>QDoubleSpinBox</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -15211,25 +15170,45 @@ CONFIG</string>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
+   <class>AxisToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.axis_tool_button</header>
+  </customwidget>
+  <customwidget>
    <class>FileManager</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.file_manager</header>
   </customwidget>
   <customwidget>
-   <class>GcodeDisplay</class>
-   <extends>QFrame</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
+   <class>DoubleScale</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>MachineLog</class>
+   <extends>QTextEdit</extends>
+   <header>qtvcp.widgets.machine_log</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>HALLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.hal_label</header>
+  </customwidget>
+  <customwidget>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>SystemToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.system_tool_button</header>
-  </customwidget>
-  <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -15238,9 +15217,58 @@ CONFIG</string>
    <header>qtvcp.widgets.mdi_history</header>
   </customwidget>
   <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GcodeDisplay</class>
+   <extends>QFrame</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>SystemToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
  </customwidgets>
  <resources>

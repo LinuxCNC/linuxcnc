@@ -184,6 +184,9 @@
         <blue>128</blue>
        </color>
       </property>
+      <property name="originOffsetDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
       <property name="originOffset_overlay_color" stdset="0">
        <color alpha="128">
         <red>128</red>
@@ -249,7 +252,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -1477,6 +1480,35 @@ EDGE</string>
                       </widget>
                      </item>
                     </layout>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+                <widget class="QWidget" name="offsets_page">
+                 <layout class="QHBoxLayout" name="horizontalLayout_36">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <property name="leftMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="topMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="rightMargin">
+                   <number>0</number>
+                  </property>
+                  <property name="bottomMargin">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="OriginOffsetView" name="originoffsetview">
+                    <property name="dialog_code_string" stdset="0">
+                     <string/>
+                    </property>
+                    <property name="text_dialog_code_string" stdset="0">
+                     <string/>
+                    </property>
                    </widget>
                   </item>
                  </layout>
@@ -6282,7 +6314,7 @@ EDGE</string>
                  <item>
                   <widget class="QStackedWidget" name="gcode_stack">
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <widget class="QWidget" name="gcode_page">
                     <property name="minimumSize">
@@ -15072,6 +15104,12 @@ CONFIG</string>
    <class>GcodeDisplay</class>
    <extends>QFrame</extends>
    <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
    <container>1</container>
   </customwidget>
   <customwidget>

@@ -2782,6 +2782,7 @@ Buttons can run the following:
 . <<qt_button-single, Single unidirectional cut>>
 . <<qt_button-framing, Framing a job>>
 . <<qt_button-mancut, Begin/End a manual cut>>
+. <<qt_button-offsets, Display/Hide an offsets viewer>>
 
 [[qt_button-cmds]]
 
@@ -3029,6 +3030,16 @@ Manual Cut functions identically to the *F9* button to begin or end a <<qt_manua
 
 ----
 BUTTON_n_CODE = manual-cut
+----
+
+[[qt_button-offsets]]
+
+[underline]*Offset Viewer*
+
+This allows the showing/hiding of an offset viewing screen that displays all machine offsets. All relative offsets can be edited and the G54 ~ G59.3 work system coordinates are able to be given custom names.
+
+----
+BUTTON_n_CODE = offsets-view
 ----
 
 [[qt_ext-hal-pin]]
