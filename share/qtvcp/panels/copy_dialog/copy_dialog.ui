@@ -46,6 +46,16 @@
           <widget class="QComboBox" name="comboBox"/>
          </item>
          <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Base Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit"/>
+         </item>
+         <item>
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Destination Folder:</string>
@@ -103,7 +113,7 @@
      <x>0</x>
      <y>0</y>
      <width>350</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -111,15 +121,15 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>FileManager</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.file_manager</header>
+  </customwidget>
+  <customwidget>
    <class>ScreenOptions</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.screen_options</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>FileManager</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.file_manager</header>
   </customwidget>
  </customwidgets>
  <resources/>
