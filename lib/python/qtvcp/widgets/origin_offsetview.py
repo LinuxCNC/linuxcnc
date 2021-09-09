@@ -479,7 +479,7 @@ class MyTableModel(QAbstractTableModel):
         LOG.debug(self.arraydata[index.row()][index.column()])
         LOG.debug(">>> setData() role = {}".format(role))
         LOG.debug(">>> setData() index.column() = {}".format(index.column()))
-        if index.column() == 0: return False
+        if index.row() == 0: return False
         try:
             if index.column() == 9:
                 v = str(value)
