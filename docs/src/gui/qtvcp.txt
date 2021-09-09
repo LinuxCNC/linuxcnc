@@ -145,8 +145,8 @@ qtvcp can also be customized with Qt stylesheets using css. +
 If present, local UI files in the configuration folder will be loaded instead +
 of the stock UI files. Local UI files allow you to use your customized +
 designs rather then the default screens. +
-qtvcp will look for MYNAME.ui, MYNAME_handler.py and MYNAME.qss in the launched configuration folder. +
-You can put these files in a arbitrary named folder - qtvcp will search all folders in your config folder. +
+QTVCP will look for a folder name MYNAME (in the launched configuration folder that holds the INI file). +
+In that folder QTVCP will load any of the available files; MYNAME.ui, MYNAME_handler.py and MYNAME.qss. +
 
 === Modifying Stock Screens
 
@@ -155,6 +155,8 @@ There is a QtVCP panel to help with this. +
 Open a terminal and type 'qtvcp copy_dialog' and a dialog will show to select the screen and +
 destination folder. This will copy all the file - delete the ones you don't wish to modify so +
 that the original files will be used. +
+It you wish to name your screen differently then the builtin screen's default name - +
+change the basename in the edit box.
 
 == VCP Panels
 Qtvcp can be used to create control panels that interface with HAL. +
