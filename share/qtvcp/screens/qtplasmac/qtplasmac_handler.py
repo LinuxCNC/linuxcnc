@@ -1,4 +1,4 @@
-VERSION = '1.0.88'
+VERSION = '1.0.89'
 
 '''
 qtplasmac_handler.py
@@ -252,7 +252,6 @@ class HandlerClass:
         self.framing = False
         self.boundsError = {'loaded': False, 'framing': False}
         self.obLayout = ''
-        self.notifyError = False
         self.notifyColor = 'normal'
         self.firstHoming = False
         # plasmac states
@@ -738,6 +737,8 @@ class HandlerClass:
         self.w.ohmic_probe_enable.setChecked(self.w.PREFS_.getpref('Ohmic probe enable', False, bool, 'ENABLE_OPTIONS'))
         self.w.lbl_gcodes = STATLABEL()
         self.w.lbl_mcodes = STATLABEL()
+        self.w.error_label = QLabel()
+        self.w.statusbar.addPermanentWidget(self.w.error_label, stretch=1)
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_gcodes)
         self.w.statusbar.addPermanentWidget(VLine())    # <---
@@ -1293,7 +1294,7 @@ class HandlerClass:
 
     def error_update(self, obj, kind, error):
         if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
-            self.notifyError = True
+            self.error_status(True)
 
 
 ###########################################################################################################################
@@ -1529,11 +1530,9 @@ class HandlerClass:
             self.vkb_show(True)
         if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.vkb_hide()
-            self.notifyError = False
             self.w.machinelog.moveCursor(QTextCursor.End)
             self.w.machinelog.setCursorWidth(0)
-        else:
-            self.color_last_tab(self.foreColor, self.backColor)
+            self.error_status(False)
 
     def z_height_changed(self, value):
         self.w.dro_z.update_user(value * hal.get_value('plasmac.units-multiplier'))
@@ -1679,15 +1678,14 @@ class HandlerClass:
 
     def system_notify_button_pressed(self, object, button, state):
         if button in ['clearAll', 'close', 'lastFive'] and state:
-            self.notifyError = False
-            if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
-                self.color_last_tab(self.backColor, self.foreColor)
-            else:
-                self.color_last_tab(self.foreColor, self.backColor)
+            self.error_status(False)
 
-    def color_last_tab(self, fg, bg):
-        self.w.main_tab_widget.setStyleSheet( \
-                'QTabBar::tab:last {{ color: {}; background: {} }}'.format(fg, bg))
+    def error_status(self, state):
+        if state:
+            text = _translate('HandlerClass', 'Error sent to machine log')
+        else:
+            text = ''
+        self.w.error_label.setText("{}".format(text))
 
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
@@ -2665,18 +2663,6 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.laserOnPin.set(0)
             self.w.gcodegraphics.logger.clear()
-        if self.notifyError:
-            if self.notifyColor != 'errored':
-                self.color_last_tab(self.backColor, self.estopColor)
-                self.notifyColor = 'errored'
-        elif self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
-            if self.notifyColor != 'reversed':
-                self.color_last_tab(self.backColor, self.foreColor)
-                self.notifyColor = 'reversed'
-        else:
-            if self.notifyColor != 'normal':
-                self.color_last_tab(self.foreColor, self.backColor)
-                self.notifyColor = 'normal'
         self.set_button_color()
         self.stats_update()
 
@@ -5175,6 +5161,8 @@ class HandlerClass:
             self.w[button].setStyleSheet(\
                     'QPushButton {{ background: {0} }} \
                      QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
+        # the error messge label on the status bar
+        self.w.error_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.estopColor))
         # some gcode display/editor colors cannot use .qss file
         # gcode display current gcode line
         self.w.gcode_display.setMarkerBackgroundColor(QColor(self.back1Color))

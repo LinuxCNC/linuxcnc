@@ -447,19 +447,26 @@ QComboBox::drop-down {
     width: 0;
     image: none }
 
-QComboBox QListView {
-    border: 4px solid foregnd;
-    border-radius: 0px }
+QComboBox:!editable:off,
+QComboBox::drop-down:editable:off,
+QComboBox:!editable:on,
+QComboBox::drop-down:editable:on {
+    color: foregnd;
+    background: backgnd;
+}
+
+QComboBox QAbstractItemView {
+border: 1px solid foregnd;
+border-radius: 4;
+padding: 20 2 20 2;
+}
 
 /****** MATERIAL SELECTOR COMBO BOX ************/
 #material_selector {
     color: backgnd;
     background: frames;
     border: none;
-    border-top-left-radius: 2px;
-    border-top-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
+    border-radius: 4 0 0 0;
     font: 11pt 'Lato';
     padding: 0px 0px 0px 16px;
     height: 16px;
@@ -470,11 +477,15 @@ QComboBox QListView {
 #material_selector::drop-down:editable:off,
 #material_selector:!editable:on,
 #material_selector::drop-down:editable:on {
-    color: frames;
-    background: backgnd }
+    color: foregnd;
+    background: backgnd;
+}
 
-#material_selector QListView {
-    border-color: frames }
+#material_selector QAbstractItemView {
+border: 1px solid foregnd;
+border-radius: 4;
+padding: 20 2 20 2;
+}
 
 /****** FILEMANAGER ************/
 QHeaderView::section {
@@ -602,15 +613,22 @@ QScrollBar::sub-line:vertical {
 
 /****** MENU ************/
 QMenu {
-    background: foregnd;
     font: 11pt;
-    margin: 4px }
+    margin: 0 16 0 16;
+     }
 
 QMenu::item {
     color: foregnd;
     background: backgnd;
-    border: 4px solid foregnd;
-    padding: 8px }
+    border: 1px solid foregnd;
+    border-radius: 4px;
+    padding: 8 0 8 8;
+    margin: 8 0 8 0;
+    width: 68;
+    }  
+
+#wcs_button::menu-indicator {
+    width: 0 }
 
 /****** TAB ************/
 QTabWidget::pane {
