@@ -1,4 +1,4 @@
-VERSION = '1.0.89'
+VERSION = '1.0.90'
 
 '''
 qtplasmac_handler.py
@@ -402,7 +402,6 @@ class HandlerClass:
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlay.show()
-        ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
         ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
@@ -1478,17 +1477,14 @@ class HandlerClass:
             self.overlay.hide()
             self.w.gcode_editor.editor.setFocus()
             self.vkb_show()
-            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
         else:
             self.new_exitCall()
 
     def mdi_show_clicked(self):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed() and self.w.gcode_stack.currentIndex() != 1:
             self.w.gcode_stack.setCurrentIndex(1)
-            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
         else:
             self.w.gcode_stack.setCurrentIndex(0)
-            ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
             ACTION.SET_MANUAL_MODE()
 
     def file_cancel_clicked(self):
@@ -2565,11 +2561,16 @@ class HandlerClass:
             self.w.file_edit.setText('{}\n{}'.format(text0, text1))
             self.w.file_reload.setEnabled(False)
             self.w.file_open.setEnabled(False)
+            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
+            self.w.jog_frame.setEnabled(False)
         else:
             self.button_normal(self.w.file_edit.objectName())
             self.w.file_edit.setText(_translate('HandlerClass', 'EDIT'))
             self.w.file_reload.setEnabled(True)
             self.w.file_open.setEnabled(True)
+            if self.w.gcode_stack.currentIndex() != 1:
+                ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
+                self.w.jog_frame.setEnabled(True)
 
     def gcode_stack_changed(self):
         if self.w.gcode_stack.currentIndex() == 1:
@@ -2579,9 +2580,14 @@ class HandlerClass:
             self.w.mdi_show.setText('{}\n{}'.format(text0, text1))
             self.w.mdihistory.reload()
             self.w.mdihistory.MDILine.setFocus()
+            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
+            self.w.jog_frame.setEnabled(False)
         else:
             self.button_normal(self.w.mdi_show.objectName())
             self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
+            if self.w.preview_stack.currentIndex() != 2:
+                ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
+                self.w.jog_frame.setEnabled(True)
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
