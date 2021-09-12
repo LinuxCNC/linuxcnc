@@ -27,6 +27,7 @@ from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import GLib
+import signal
 
 import sys
 import os
@@ -5445,4 +5446,6 @@ if __name__ == "__main__":
         app = App(dbgstate=options.debug)
     else:
         app = App('')
+    # catch control c
+    signal.signal(signal.SIGINT, lambda *args: Gtk.main_quit())
     Gtk.main()
