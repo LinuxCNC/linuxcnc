@@ -767,27 +767,45 @@ class HAL:
             if self.d.toolchangeprompt:
                 print(_("#  ---manual tool change signals---"), file=file)
                 print(file=file)
-                if not self.d.frontend == _PD._QTDRAGON:
-                    print("loadusr -W hal_manualtoolchange", file=file)
-                    print("net tool-change-request     iocontrol.0.tool-change       =>  hal_manualtoolchange.change", file=file)
-                    print("net tool-change-confirmed   iocontrol.0.tool-changed      <=  hal_manualtoolchange.changed", file=file)
-                    print("net tool-number             iocontrol.0.tool-prep-number  =>  hal_manualtoolchange.number", file=file)
+                print("net tool-change-request    <= iocontrol.0.tool-change", file=file)
+                print("net tool-change-confirmed  => iocontrol.0.tool-changed", file=file)
+                print("net tool-number            <= iocontrol.0.tool-prep-number", file=file)
+                print(file=file)
 
+                if not self.d.frontend in (_PD._QTDRAGON,_PD._GMOCCAPY):
+                    print(_("#  ---Use external manual tool change dialog---"), file=file)
                     print(file=file)
-                else:
-                    print("net tool-change-request     <= iocontrol.0.tool-change", file=file)
-                    print("net tool-changed-confirmed  => iocontrol.0.tool-changed", file=file)
-                    print("net tool-number             <= iocontrol.0.tool-prep-number", file=file)
+                    print("loadusr -W hal_manualtoolchange", file=file)
+                    print("net tool-change-request    =>  hal_manualtoolchange.change", file=file)
+                    print("net tool-change-confirmed  <=  hal_manualtoolchange.changed", file=file)
+                    print("net tool-number            =>  hal_manualtoolchange.number", file=file)
+                    print(file=file)
+
+                if self.d.frontend == _PD._GMOCCAPY:
+                    gm = os.path.join(base, "gmoccapy_postgui.hal")
+                    if not os.path.exists(gm):
+                        f1 = open(gm, "w")
+                        print(_("#  ---manual tool change signals to gmoccapy's dialog---"), file=f1)
+                        print(file=f1)
+                        print("net tool-change-request    => gmoccapy.toolchange-change", file=f1)
+                        print("net tool-change-confirmed  <= gmoccapy.toolchange-changed", file=f1)
+                        print("net tool-number            => gmoccapy.toolchange-number", file=f1)
+                        f1.close()
+                elif self.d.frontend == _PD._QTDRAGON:
                     qt = os.path.join(base, "qtvcp_postgui.hal")
                     if not os.path.exists(qt):
                         f1 = open(qt, "w")
-                        print(_("#  ---manual tool change signals to qtdragon---"), file=file)
-                        print(file=file)
-                        print("net tool-change  => hal_manualtoolchange.change", file=f1)
-                        print("net tool-changed <= hal_manualtoolchange.changed", file=f1)
-                        print("net tool-number  => hal_manualtoolchange.number", file=f1)
+                        print(_("#  ---manual tool change signals to qtdragon's dialog---"), file=f1)
+                        print(file=f1)
+                        print("net tool-change-request    => hal_manualtoolchange.change", file=f1)
+                        print("net tool-change-confirmed  <= hal_manualtoolchange.changed", file=f1)
+                        print("net tool-number            => hal_manualtoolchange.number", file=f1)
                         f1.close()
+
+                print(_("#  ---ignore tool prepare requests---"), file=file)
                 print("net tool-prepare-loopback   iocontrol.0.tool-prepare      =>  iocontrol.0.tool-prepared", file=file)
+                print(file=file)
+
             else:
                 print(_("#  ---toolchange signals for custom tool changer---"), file=file)
                 print(file=file)
@@ -797,6 +815,7 @@ class HAL:
                 print("net tool-prepare-request    <=  iocontrol.0.tool-prepare", file=file)
                 print("net tool-prepare-confirmed  =>  iocontrol.0.tool-prepared", file=file)
                 print(file=file)
+
         # qtplasmac tool change passthrough
         else:
             print("\n# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---", file=file)
