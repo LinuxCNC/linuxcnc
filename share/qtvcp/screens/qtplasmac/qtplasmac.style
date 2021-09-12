@@ -217,7 +217,10 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px }
 
-/****** OPEN BUTTON<<<<<<<<<<<<*/
+#file_open:disabled {
+    background: inactive }
+
+/****** RELOAD BUTTON<<<<<<<<<<<<*/
 #file_reload {
     color: backgnd;
     background: frames;
@@ -226,6 +229,9 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     border-top-right-radius: 2px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px }
+
+#file_reload:disabled {
+    background: inactive }
 
 /****** DRO DISPLAY<<<<<<<<<<<<*/
 DROLabel {
@@ -473,6 +479,9 @@ padding: 20 2 20 2;
     selection-color: backgnd;
     selection-background-color: frames }
 
+#material_selector:disabled {
+    background: inactive }
+
 #material_selector:!editable:off,
 #material_selector::drop-down:editable:off,
 #material_selector:!editable:on,
@@ -625,7 +634,7 @@ QMenu::item {
     padding: 8 0 8 8;
     margin: 8 0 8 0;
     width: 68;
-    }  
+    }
 
 #wcs_button::menu-indicator {
     width: 0 }

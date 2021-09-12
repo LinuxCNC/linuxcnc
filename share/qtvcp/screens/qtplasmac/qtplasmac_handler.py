@@ -1,4 +1,4 @@
-VERSION = '1.0.90'
+VERSION = '1.0.91'
 
 '''
 qtplasmac_handler.py
@@ -1037,7 +1037,7 @@ class HandlerClass:
         self.w.abort.setEnabled(False)
         if self.ccButton:
             self.button_normal(self.ccButton)
-        self.w.main_tab_widget.setTabEnabled(1, True)
+        self.set_tab_jog_states(True)
         self.set_run_button_state()
         self.set_jog_button_state()
         self.stats_idle()
@@ -1055,32 +1055,13 @@ class HandlerClass:
                     self.w[self.frButton].setEnabled(True)
             if self.manualCut == True:
                 self.manualCut = False
-                if self.jogPreManCut[0]:
-                    self.jog_slow_pressed(True)
-                self.w.jog_slider.setValue(self.jogPreManCut[1])
-                self.w.jogincrements.setCurrentIndex(self.jogPreManCut[2])
-                self.w.jog_slider.setEnabled(True)
-                self.w.jogs_label.setEnabled(True)
-                self.w.jog_slow.setEnabled(True)
-                self.w.jogincrements.setEnabled(True)
-                self.w.jog_z_plus.setEnabled(True)
-                self.w.jog_z_minus.setEnabled(True)
+                self.set_mc_states(True)
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
         else:
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
-
-    def set_pause_button_state(self):
-        if STATUS.machine_is_on() and STATUS.is_all_homed() and \
-           STATUS.is_interp_paused() and not self.offsetsActivePin.get():
-            self.w.pause.setEnabled(True)
-            if self.ccButton:
-                self.button_normal(self.ccButton)
-            hal.set_p('plasmac.consumable-change', '0')
-        else:
-            self.w.pause.setEnabled(False)
 
     def set_jog_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_interp_idle() and not self.offsetsActivePin.get():
@@ -1112,7 +1093,7 @@ class HandlerClass:
         self.w.height_reset.setEnabled(True)
         if STATUS.is_auto_mode() and self.w.gcode_stack.currentIndex() != 0:
             self.w.gcode_stack.setCurrentIndex(0)
-        self.w.main_tab_widget.setTabEnabled(1, False)
+        self.set_tab_jog_states(False)
         self.set_jog_button_state()
         self.stats_run()
 
@@ -1133,6 +1114,7 @@ class HandlerClass:
             self.w.wcs_button.setEnabled(False)
             if hal.get_value('plasmac.stop-type-out'):
                 self.w.set_cut_recovery()
+            self.set_tab_jog_states(True)
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
@@ -1141,6 +1123,7 @@ class HandlerClass:
                 self.w[self.tpButton].setEnabled(False)
             if self.otButton and STATUS.is_auto_running():
                 self.w[self.otButton].setEnabled(False)
+            self.set_tab_jog_states(False)
 
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')
@@ -2589,6 +2572,40 @@ class HandlerClass:
                 ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
                 self.w.jog_frame.setEnabled(True)
 
+    def set_mc_states(self, state):
+        if self.manualCut:
+            self.jogPreManCut[0] = self.w.jog_slow.isChecked()
+            self.jogPreManCut[1] = self.w.jog_slider.value()
+            self.jogPreManCut[2] = self.w.jogincrements.currentIndex()
+            if self.w.jog_slow.isChecked():
+                self.jog_slow_pressed(True)
+            self.w.jog_slider.setValue(self.w.cut_feed_rate.value())
+            self.w.jogincrements.setCurrentIndex(0)
+        else:
+            if self.jogPreManCut[0]:
+                self.jog_slow_pressed(True)
+            self.w.jog_slider.setValue(self.jogPreManCut[1])
+            self.w.jogincrements.setCurrentIndex(self.jogPreManCut[2])
+        self.w.jog_z_plus.setEnabled(state)
+        self.w.jog_z_minus.setEnabled(state)
+        self.w.wcs_button.setEnabled(state)
+        self.set_tab_jog_states(state)
+
+    def set_tab_jog_states(self, state):
+        if STATUS.is_auto_paused():
+            for n in range(self.w.main_tab_widget.count()):
+                if n != 0 and n != 1:
+                    self.w.main_tab_widget.setTabEnabled(n, state)
+        else:
+            for n in range(self.w.main_tab_widget.count()):
+                if n != 0:
+                    self.w.main_tab_widget.setTabEnabled(n, state)
+            self.w.jog_slider.setEnabled(state)
+            self.w.jogs_label.setEnabled(state)
+            self.w.jog_slow.setEnabled(state)
+            self.w.jogincrements.setEnabled(state)
+            self.w.material_selector.setEnabled(state)
+
 #########################################################################################################################
 # TIMER FUNCTIONS #
 #########################################################################################################################
@@ -2700,7 +2717,9 @@ class HandlerClass:
                     self.w.run.setEnabled(True)
                 self.button_normal(self.tpButton)
             else:
-                self.w[self.tpButton].setText(_translate('HandlerClass', 'TORCH\nON'))
+                text0 = _translate('HandlerClass', 'TORCH')
+                text1 = _translate('HandlerClass', 'ON')
+                self.w[self.tpButton].setText('{}\n{}'.format(text0, text1))
         else:
             self.torchTimer.start(100)
 
@@ -2743,7 +2762,7 @@ class HandlerClass:
         self.cutType = 0
         self.single_cut_request = False
         self.oldFile = None
-        singleCodes = ['change-consumables', 'ohmic-test', 'probe-test', 'torch-pulse', 'cut-type', 'single-cut', 'manual-cut', 'framing']
+        singleCodes = ['change-consumables', 'cut-type', 'framing', 'manual-cut', 'offsets-view', 'ohmic-test', 'probe-test', 'single-cut', 'torch-pulse']
         head = _translate('HandlerClass', 'USER BUTTON ERROR')
         for bNum in range(1,21):
             self.w['button_{}'.format(str(bNum))].setEnabled(False)
@@ -2977,7 +2996,7 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                     continue
-            elif 'offsets-view' in bCode and not self.ovButton:
+            elif 'offsets-view' in bCode:
                 self.ovButton = 'button_{}'.format(str(bNum))
                 self.idleHomedList.append(self.ovButton)
             else:
@@ -3266,6 +3285,7 @@ class HandlerClass:
                 self.w[self.tpButton].setText('{}'.format(self.torchTime))
                 self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
                 self.w.run.setEnabled(False)
+                self.w.wcs_button.setEnabled(False)
                 self.button_active(self.tpButton)
             else:
                 self.torchTimer.stop()
@@ -3284,6 +3304,7 @@ class HandlerClass:
                 self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
                 if self.w.gcode_display.lines() > 1:
                     self.w.run.setEnabled(True)
+                self.w.wcs_button.setEnabled(True)
                 self.button_normal(self.tpButton)
 
     def ext_ohmic_test(self, state):
@@ -3420,20 +3441,8 @@ class HandlerClass:
                 self.w[self.mcButton].setEnabled(False)
                 self.button_normal(self.mcButton)
         elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle():
-            self.jogPreManCut[0] = self.w.jog_slow.isChecked()
-            self.jogPreManCut[1] = self.w.jog_slider.value()
-            self.jogPreManCut[2] = self.w.jogincrements.currentIndex()
-            if self.w.jog_slow.isChecked():
-                self.jog_slow_pressed(True)
-            self.w.jog_slider.setValue(self.w.cut_feed_rate.value())
-            self.w.jogincrements.setCurrentIndex(0)
-            self.w.jog_slider.setEnabled(False)
-            self.w.jogs_label.setEnabled(False)
-            self.w.jog_slow.setEnabled(False)
-            self.w.jogincrements.setEnabled(False)
-            self.w.jog_z_plus.setEnabled(False)
-            self.w.jog_z_minus.setEnabled(False)
             self.manualCut = True
+            self.set_mc_states(False)
             self.w.abort.setEnabled(True)
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
             if self.mcButton:
@@ -5342,70 +5351,70 @@ class HandlerClass:
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('x'), 1, shift)
             else:
                 self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('x'), -1, shift)
             else:
                 self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('y'), 1, shift)
             else:
                 self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('y'), -1, shift)
             else:
                 self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not self.manualCut:
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running() and not self.manualCut:
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), 1, shift)
             else:
                 self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not self.manualCut:
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running() and not self.manualCut:
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), -1, shift)
             else:
                 self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('a'), 1, shift)
             else:
                 self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('a'), -1, shift)
             else:
                 self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_BPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('b'), 1, shift)
             else:
                 self.kb_jog(state, 4, 1, shift)
 
     def on_keycall_BNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('b'), -1, shift)
             else:
@@ -5442,7 +5451,7 @@ class HandlerClass:
                 else:
                     self.w.feed_slider.setValue(100)
             else:
-                if number and not self.manualCut:
+                if number and not self.manualCut and not STATUS.is_auto_running():
                     if self.w.jog_slow.isChecked():
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number / self.slowJogFactor)
                     else:
