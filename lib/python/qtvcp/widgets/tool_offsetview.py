@@ -19,7 +19,7 @@ import os
 import locale
 import operator
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize, pyqtSlot
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
 QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
@@ -81,6 +81,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         self.dialog_code = 'CALCULATOR'
         self.text_dialog_code = 'KEYBOARD'
         self.setIconSize(QSize(32,32))
+        self._last = 0
 
         # create table
         self.createAllView()
@@ -158,13 +159,12 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
     def showSelection(self, item):
         cellContent = item.data()
-        #text = cellContent.toPyObject()  # test
         text = cellContent
         LOG.debug('Text: {}, Row: {}, Column: {}'.format(text, item.row(), item.column()))
         sf = "You clicked on {}".format(text)
         # display in title bar for convenience
         self.setWindowTitle(sf)
-        # row 0 is not editable (absolute position)
+        # row 0 is not editable (checkbox position)
         # column 19 is the descritive text column
         if item.column() == 19:
             self.callTextDialog(text,item)
@@ -258,6 +258,41 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     # expects a QColor object
     def selected(self, color):
         self.setProperty('styleColorSelection', QColor(color))
+
+    # external controls
+    @pyqtSlot(float)
+    @pyqtSlot(int)
+    def scroll(self, data):
+        if data > self._last:
+            self.up()
+        elif data < self._last:
+            self.down()
+        self._last = data
+
+    # moves the selection up
+    @pyqtSlot()
+    def up(self):
+        cr = self.currentIndex().row()
+        cc = 0#self.currentIndex().column()
+        row = cr-1
+        if row < 0:
+            row = 0
+        z = self.model().createIndex(row,cc)
+        self.setCurrentIndex(z)
+
+    # moves the selection down
+    @pyqtSlot()
+    def down(self):
+        cr = self.currentIndex().row()
+        cc = 0#self.currentIndex().column()
+        row = cr+1
+        if row > self.model().rowCount(None)-1:
+            row = cr
+        z = self.model().createIndex(row, cc)
+        self.setCurrentIndex(z)
+
+    def toggleCurrent(self):
+        self.model().toggle(self.currentIndex().row())
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -361,6 +396,13 @@ class MyTableModel(QAbstractTableModel):
             if row[0].isChecked():
                 row[0].setChecked(False)
 
+    def toggle(self, row):
+        item = self.arraydata[row][0]
+        newState = (not item.isChecked())
+        self.uncheckAllTools()
+        item.setChecked(newState)
+        self.layoutChanged.emit()
+
     # update the internal array from STATUS's toolfile read array
     # we make sure the first array is switched to a QCheckbox widget
     def update(self, models):
@@ -392,11 +434,14 @@ class MyTableModel(QAbstractTableModel):
 
     # Returns the data stored under the given role for the item referred to by the index.
     def data(self, index, role=Qt.DisplayRole):
+
         if role == Qt.EditRole:
             return self.arraydata[index.row()][index.column()]
+
         elif role == Qt.DecorationRole and index.column() == 18:
             value = self.arraydata[index.row()][index.column()]
             return QIcon(os.path.join(ICONPATH, "tool_pos_{}.png".format(value)))
+
         elif role == Qt.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
             col = index.column()
@@ -431,7 +476,7 @@ class MyTableModel(QAbstractTableModel):
         elif role == Qt.BackgroundRole:
             value = self.arraydata[index.row()][index.column()]
             if (isinstance(value, int) or isinstance(value, float) or
-                  isinstance(value, str)):
+                  isinstance(value, str), isinstance(value, QCheckBox)):
                 if self.arraydata[index.row()][1] == self.parent().current_tool:
                     return QColor(self._highlightcolor)
                 elif self.arraydata[index.row()][0].isChecked():
@@ -462,7 +507,7 @@ class MyTableModel(QAbstractTableModel):
         if not index.isValid():
             return None
         if index.column() == 0:
-            return Qt.ItemIsEnabled | Qt.ItemIsUserCheckable
+            return Qt.ItemIsEnabled | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
@@ -493,6 +538,7 @@ class MyTableModel(QAbstractTableModel):
             self.parent().reset()
             return True
 
+
         try:
             if col in (1,2,18): # tool, pocket, orientation
                 v = int(value)
@@ -508,7 +554,7 @@ class MyTableModel(QAbstractTableModel):
                     v /=2
             self.arraydata[index.row()][col] = v
         except:
-            LOG.error("Invaliad data type in row {} column:{} ".format(index.row(), col))
+            LOG.error("Invalid data type in row {} column:{} ".format(index.row(), col))
             return False
         LOG.debug(">>> setData() value = {} ".format(value))
         self.dataChanged.emit(index, index)
