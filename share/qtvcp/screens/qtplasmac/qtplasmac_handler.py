@@ -1,4 +1,4 @@
-VERSION = '1.0.92'
+VERSION = '1.0.93'
 
 '''
 qtplasmac_handler.py
@@ -1138,7 +1138,8 @@ class HandlerClass:
                 self.w[self.tpButton].setEnabled(False)
             if self.otButton and STATUS.is_auto_running():
                 self.w[self.otButton].setEnabled(False)
-            self.set_tab_jog_states(False)
+            if STATUS.is_auto_running():
+                self.set_tab_jog_states(False)
 
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')

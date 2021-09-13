@@ -486,7 +486,10 @@ QComboBox::indicator {
     color: transparent;
     background-color: transparent }
 
-#material_selector:disabled {
+#material_selector:disabled,
+#material_label:disabled,
+#velocity_label:disabled,
+#velocity_show:disabled {
     background: inactive }
 
 /****** FILEMANAGER ************/
