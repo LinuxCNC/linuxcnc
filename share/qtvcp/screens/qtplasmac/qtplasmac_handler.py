@@ -1,4 +1,4 @@
-VERSION = '1.0.91'
+VERSION = '1.0.92'
 
 '''
 qtplasmac_handler.py
@@ -100,7 +100,22 @@ class OverlayMaterial(QLabel):
 class ColorError(Exception):
     pass
 
-# the main handler
+# click signal for some labels
+def click_signal(widget):
+    class Filter(QObject):
+        clicked = pyqtSignal()
+        def eventFilter(self, obj, event):
+            if obj == widget:
+                if event.type() == QEvent.MouseButtonRelease:
+                    if obj.rect().contains(event.pos()):
+                        self.clicked.emit()
+                        return True
+            return False
+    filter = Filter(widget)
+    widget.installEventFilter(filter)
+    return filter.clicked
+
+  # the main handler
 class HandlerClass:
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
@@ -346,9 +361,9 @@ class HandlerClass:
             self.firstRun = False
 
 
-#################################################################################################################################
+#########################################################################################################################
 # CLASS PATCHING SECTION #
-#################################################################################################################################
+#########################################################################################################################
     def class_patch__(self):
         self.gcode_editor_patch()
         self.camview_patch()
@@ -530,9 +545,9 @@ class HandlerClass:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
 
-#################################################################################################################################
+#########################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
-#################################################################################################################################
+#########################################################################################################################
     def make_hal_pins(self):
         self.colorBgPin = self.h.newpin('color_bg', hal.HAL_S32, hal.HAL_OUT)
         self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
@@ -985,9 +1000,9 @@ class HandlerClass:
             self.w['button_{}'.format(b)].show()
 
 
-#############################################################################################################################
+#########################################################################################################################
 # CALLBACKS FROM STATUS #
-#############################################################################################################################
+#########################################################################################################################
     def power_state(self, state):
         if state:
             self.set_buttons_state([self.idleOnList], True)
@@ -1279,9 +1294,9 @@ class HandlerClass:
             self.error_status(True)
 
 
-###########################################################################################################################
+#########################################################################################################################
 # CALLBACKS FROM FORM #
-###########################################################################################################################
+#########################################################################################################################
 
     def ext_power(self, state):
         if self.w.power.isEnabled() and state:
@@ -1975,6 +1990,9 @@ class HandlerClass:
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
         self.w.preview_stack.currentChanged.connect(self.preview_stack_changed)
         self.w.gcode_stack.currentChanged.connect(self.gcode_stack_changed)
+        click_signal(self.w.material_label).connect(self.show_material_selector)
+        click_signal(self.w.velocity_label).connect(self.show_material_selector)
+        click_signal(self.w.velocity_show).connect(self.show_material_selector)
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -2503,18 +2521,18 @@ class HandlerClass:
         for halpin in self.halTogglePins:
             color = self.w[self.halTogglePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                if color == self.w.color_backgrnd.palette().color(QPalette.Background):
+                if color != self.w.color_foregalt.palette().color(QPalette.Background):
                     self.button_active(self.halTogglePins[halpin][0])
             else:
-                if color == self.w.color_foregrnd.palette().color(QPalette.Background):
+                if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halTogglePins[halpin][0])
         for halpin in self.halPulsePins:
             color = self.w[self.halPulsePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                if color == self.w.color_backgrnd.palette().color(QPalette.Background):
+                if color != self.w.color_foregalt.palette().color(QPalette.Background):
                     self.button_active(self.halPulsePins[halpin][0])
             else:
-                if color == self.w.color_foregrnd.palette().color(QPalette.Background):
+                if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halPulsePins[halpin][0])
 
     def run_critical_check(self):
@@ -2605,6 +2623,10 @@ class HandlerClass:
             self.w.jog_slow.setEnabled(state)
             self.w.jogincrements.setEnabled(state)
             self.w.material_selector.setEnabled(state)
+
+    def show_material_selector(self):
+        self.w.material_selector.showPopup()
+
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -3822,10 +3844,9 @@ class HandlerClass:
         self.w.materials_box.clear()
         self.w.material_selector.clear()
         self.w.conv_material.clear()
-        head = _translate('HandlerClass', 'MATERIAL')
         for key in sorted(self.materialFileDict):
             self.w.materials_box.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
-            self.w.material_selector.addItem('{} = {:05d}: {}'.format(head, key, self.materialFileDict[key][0]))
+            self.w.material_selector.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.w.conv_material.addItem('{:05d}: {}'.format(key, self.materialFileDict[key][0]))
             self.materialList.append(key)
 
@@ -4121,9 +4142,10 @@ class HandlerClass:
                 self.w.PREFS_.getpref('Cut mode', 1, float, 'DEFAULT MATERIAL'),\
                 0)
 
-#################################################################################################################################
+
+#########################################################################################################################
 # CAMERA AND LASER FUNCTIONS #
-#################################################################################################################################
+#########################################################################################################################
     def camera_pressed(self):
         self.w.camview.rotation = STATUS.stat.rotation_xy
         if self.w.preview_stack.currentIndex() != 3:
@@ -4746,9 +4768,9 @@ class HandlerClass:
                 }
 
 
-###########################################################################################################################
+#########################################################################################################################
 # CUT RECOVERY FUNCTIONS #
-###########################################################################################################################
+#########################################################################################################################
     def set_cut_recovery(self):
         if hal.get_value('plasmac.cut-recovering'):
             self.w.jog_stack.setCurrentIndex(1)
@@ -5131,13 +5153,13 @@ class HandlerClass:
         color = QColorDialog.getColor(initColor, options=options)
         if color.isValid():
             widget.setStyleSheet('background-color: {}'.format(color.name()))
-            self.set_color_styles()
             buttons = ['foregrnd', 'foregalt', 'led', 'backgrnd', 'backgalt', 'frams', 'estop', 'disabled', 'preview']
             labels = ['Foreground', 'Highlight', 'LED', 'Background', 'Background Alt', 'Frames', 'Estop', 'Disabled', 'Preview']
             button = widget.objectName()
             label = labels[buttons.index(button.split('_')[1])]
-            self.w.PREFS_.putpref(label,  self.w[button].styleSheet().split(':')[1].strip(), str, 'COLOR_OPTIONS')
-        self.set_basic_colors()
+            self.w.PREFS_.putpref(label,  color.name(), str, 'COLOR_OPTIONS')
+            self.set_basic_colors()
+            self.set_color_styles()
 
     def set_basic_colors(self):
         self.foreColor = self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
@@ -5463,9 +5485,9 @@ class HandlerClass:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
 
 
-##################################################################################################################################
+#########################################################################################################################
 # required class boiler code #
-##################################################################################################################################
+#########################################################################################################################
     def __getitem__(self, item):
         return getattr(self, item)
 
@@ -5473,8 +5495,8 @@ class HandlerClass:
         return setattr(self, item, value)
 
 
-####################################################################################################################################
+#########################################################################################################################
 # required handler boiler code #
-####################################################################################################################################
+#########################################################################################################################
 def get_handlers(halcomp, widgets, paths):
     return [HandlerClass(halcomp, widgets, paths)]

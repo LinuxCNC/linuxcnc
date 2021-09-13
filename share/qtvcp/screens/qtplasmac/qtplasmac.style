@@ -47,6 +47,12 @@ QToolTip {
     font: 13px;
     padding: 4 }
 
+/****** MATERIAL LABEL ************/
+#material_label{
+    color: backgnd;
+    background: frames;
+    border-top-left-radius: 2px }
+
 /****** VELOCITY LABELS ************/
 #velocity_label{
     color: backgnd;
@@ -445,56 +451,43 @@ QSlider::groove:vertical:disabled {
 QComboBox {
     border: 1px solid foregnd;
     border-radius: 4px;
-    padding: 0px 0px 0px 18px;
-    selection-color: backgnd;
-    selection-background-color: foregnd }
+    padding-left: 6px }
+
+QComboBox#jogincrements {
+    padding-left: 18px }
+
+QComboBox#material_selector {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-radius: 0;
+    height: 16px;
+    }
 
 QComboBox::drop-down {
     width: 0;
     image: none }
 
-QComboBox:!editable:off,
-QComboBox::drop-down:editable:off,
-QComboBox:!editable:on,
-QComboBox::drop-down:editable:on {
-    color: foregnd;
-    background: backgnd;
-}
-
 QComboBox QAbstractItemView {
-border: 1px solid foregnd;
-border-radius: 4;
-padding: 20 2 20 2;
-}
+    border: 1px solid foregnd;
+    border-radius: 4;
+    padding: 20 4 20 4 }
 
-/****** MATERIAL SELECTOR COMBO BOX ************/
-#material_selector {
+QComboBox::item:selected {
     color: backgnd;
-    background: frames;
-    border: none;
-    border-radius: 4 0 0 0;
-    font: 11pt 'Lato';
-    padding: 0px 0px 0px 16px;
-    height: 16px;
-    selection-color: backgnd;
-    selection-background-color: frames }
+    background-color: foregnd;
+    margin-left: 0 }
+
+QComboBox::item:!selected {
+    color: foregnd;
+    background-color: backgnd }
+
+QComboBox::indicator {
+    color: transparent;
+    background-color: transparent }
 
 #material_selector:disabled {
     background: inactive }
-
-#material_selector:!editable:off,
-#material_selector::drop-down:editable:off,
-#material_selector:!editable:on,
-#material_selector::drop-down:editable:on {
-    color: foregnd;
-    background: backgnd;
-}
-
-#material_selector QAbstractItemView {
-border: 1px solid foregnd;
-border-radius: 4;
-padding: 20 2 20 2;
-}
 
 /****** FILEMANAGER ************/
 QHeaderView::section {
@@ -545,8 +538,7 @@ QHeaderView::section {
     border-radius: 4px;
     alternate-background-color: backgnd;
     padding: 2px;
-    gridline-color: backalt;
-    }
+    gridline-color: backalt }
 
 OriginOffsetView{
     qproperty-styleColorHighlight: backalt }
@@ -565,13 +557,14 @@ OriginOffsetView{
     border-radius: 4px;
     font: 11pt 'Lato';
     alternate-background-color: backalt;
-    show-decoration-selected: 1;
-    selection-background-color: foregnd;
-    selection-color:backgnd;
     padding: 2 }
 
 #mdihistory QListView::item {
     height: 36 }
+
+#mdihistory QListView::item:selected {
+    color: backgnd;
+    background-color: foregnd }
 
 #mdihistory QLineEdit {
     border: 1px solid foregnd;
@@ -623,8 +616,7 @@ QScrollBar::sub-line:vertical {
 /****** MENU ************/
 QMenu {
     font: 11pt;
-    margin: 0 16 0 16;
-     }
+    margin: 0 16 0 16 }
 
 QMenu::item {
     color: foregnd;
@@ -633,8 +625,7 @@ QMenu::item {
     border-radius: 4px;
     padding: 8 0 8 8;
     margin: 8 0 8 0;
-    width: 68;
-    }
+    width: 68 }
 
 #wcs_button::menu-indicator {
     width: 0 }
@@ -663,10 +654,10 @@ QTabBar::tab:selected {
 
 /****** STATUS BAR ************/
 QStatusBar {
-border: none }
+    border: none }
 
 QStatusBar::item {
- image: none }
+    image: none }
 
 QProgressBar {
     color: foregnd;
@@ -693,12 +684,10 @@ QPlainTextEdit {
 /****** GCODE EDITOR & GCODE DISPLAY ************/
 
 EditorBase#lexer {
-height: 44;
-}
+    height: 44 }
 
 /*QTableView::item{
-height: 44;
-}*/
+    height: 44 }*/
 
 EditorBase {
     qproperty-styleColorBackground: backgnd;

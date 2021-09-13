@@ -3696,7 +3696,7 @@ ON</string>
                        <property name="frameShadow">
                         <enum>QFrame::Plain</enum>
                        </property>
-                       <layout class="QHBoxLayout" name="horizontalLayout_27" stretch="0,0,0">
+                       <layout class="QHBoxLayout" name="horizontalLayout_27" stretch="0,0,0,0">
                         <property name="spacing">
                          <number>0</number>
                         </property>
@@ -3712,6 +3712,25 @@ ON</string>
                         <property name="bottomMargin">
                          <number>0</number>
                         </property>
+                        <item>
+                         <widget class="QLabel" name="material_label">
+                          <property name="minimumSize">
+                           <size>
+                            <width>0</width>
+                            <height>16</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>16777215</width>
+                            <height>16</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>MATERIAL =</string>
+                          </property>
+                         </widget>
+                        </item>
                         <item>
                          <widget class="QComboBox" name="material_selector">
                           <property name="sizePolicy">
