@@ -727,13 +727,13 @@ class Pages:
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
             self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
-            p = 'pp2_pin%d_in_inv' % pin
-            self.d[p] = self.w[p].get_active()
             if self.d[p] == "plasmac:arc-voltage-raw":
                 self.page_set_state('thcad', True)
                 self.d.thcadenc = 1
             if self.d[p] == "plasmac:ohmic-sense-in":
                 self.d.ohmiccontact = 1
+            p = 'pp2_pin%d_in_inv' % pin
+            self.d[p] = self.w[p].get_active()
         self.d.pp2_direction = self.w.pp2_direction.get_active()
         #self.d.ioaddr2 = self.w.ioaddr2.get_text()
         state = self.w.pp2_preset_io_combo.get_active()
