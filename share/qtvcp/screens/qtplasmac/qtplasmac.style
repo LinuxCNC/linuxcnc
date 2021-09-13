@@ -497,7 +497,6 @@ QHeaderView::section {
     font-size: 11pt;
     font: italic;
     margin: 1;
-    height: 20;
     padding-top: 5 }
 
 #filemanager QTableView {
@@ -506,9 +505,6 @@ QHeaderView::section {
     font: 11pt 'Lato';
     alternate-background-color: backalt;
     padding: 2px }
-
-#filemanager QTableView::item {
-    height: 36px }
 
 #filemanager QTableView::item:selected:active {
     color: backgnd;
@@ -532,6 +528,8 @@ QHeaderView::section {
     margin: 0px }
 
 /****** ORIGIN OFFSET VIEW ************/
+/* this also uses QHeaderView from FILEMANAGER */
+
 #originoffsetview {
     font: 11pt 'Lato';
     border: 1px solid foregnd;
@@ -540,7 +538,7 @@ QHeaderView::section {
     padding: 2px;
     gridline-color: backalt }
 
-OriginOffsetView{
+#originoffsetview {
     qproperty-styleColorHighlight: backalt }
 
 #originoffsetview::item:selected:active {
