@@ -177,10 +177,12 @@ class _ToggleBase(_WidgetBase):
                 output = self.true_function if self.state else self.false_function
                 #print ('output',output)
                 if isinstance(output,list):
-                    args = output[1]
+                    args = stringToPython(output[1])
                     funct = output[0]
                 else:
-                    arg1 = [None]
+                    funct = output
+                    args = [None]
+
                 if funct != 'NONE':
                     x = {"FUNCTION": funct,
                           "ARGS": args
@@ -200,6 +202,24 @@ class _ToggleBase(_WidgetBase):
         if self.status_pin:
             self.hal_status_pin.set(self.state)
             self.hal_status_pin_not.set(not self.state)
+
+    def stringToPython(self, cmd):
+        def convert(scmd):
+            if 'int(' in scmd:
+                out = eval(scmd)
+            elif 'float(' in scmd:
+                out = eval(scmd)
+            elif 'bool(' in scmd:
+                out = eval(scmd)
+            else:
+                return scmd
+            return out
+
+        if isinstance(cmd,list):
+            for num,i in enumerate(cmd):
+                cmd[num] = convert(i)
+        return cmd
+
 
 # A group widget is a master widget for other widgets
 # only one of the widgets under it can be true
