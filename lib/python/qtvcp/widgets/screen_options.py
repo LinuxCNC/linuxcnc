@@ -97,6 +97,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.notify_start_detail = 'This option can be changed in the preference file'
         self.notify_start_timeout = 5
         self.shutdown_msg_title = 'Do you want to Shutdown now?'
+        self.shutdown_msg_focus_text = ''
         self.shutdown_msg_detail = ''
         self.user_messages = True
         self.use_pref_file = True
@@ -123,7 +124,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._default_tab_name = ''
         self._close_color = QtGui.QColor(100, 0, 0, 150)
         self._messageDialogColor = QtGui.QColor(0, 0, 0, 150)
-        self._closeDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._entryDialogSoftkey = True
         self._entryDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolDialogColor = QtGui.QColor(100, 0, 0, 150)
@@ -214,6 +214,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             self.shutdown_exit_sound_type = self.PREFS_.getpref('shutdown_exit_sound_type', self.shutdown_exit_sound_type,
                                                                 str, 'SHUTDOWN_OPTIONS')
             self.shutdown_msg_title = self.PREFS_.getpref('shutdown_msg_title', self.shutdown_msg_title,
+                                                          str, 'SHUTDOWN_OPTIONS')
+            self.shutdown_msg_focus_text = self.PREFS_.getpref('shutdown_msg_focus_text', self.shutdown_msg_focus_text,
                                                           str, 'SHUTDOWN_OPTIONS')
             self.shutdown_msg_detail = self.PREFS_.getpref('shutdown_msg_detail',
                                                             self.shutdown_msg_detail,
@@ -372,7 +374,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  details=None,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type='YESNO',
-                                                                 focus_text='',
+                                                                 focus_text=self.shutdown_msg_focus_text,
                                                                  focus_color=self._close_color,
                                                                  play_alert=sound)
             except:
@@ -728,7 +730,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         return self._close_color
     def setColor(self, value):
         self._close_color = value
-    def resetState(self):
+    def resetColor(self):
         self._close_color = QtGui.QColor(100, 0, 0, 150)
 
     def set_send_zmg(self, data):
@@ -746,7 +748,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     notify_max_messages = QtCore.pyqtProperty(int, get_max_messages, set_max_messages, reset_max_messages)
 
     catch_close_option = QtCore.pyqtProperty(bool, get_close, set_close, reset_close)
-    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor)
+    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, getColor, setColor, resetColor)
 
     catch_errors_option = QtCore.pyqtProperty(bool, get_errors, set_errors, reset_errors)
     play_sounds_option = QtCore.pyqtProperty(bool, get_play_sounds, set_play_sounds, reset_play_sounds)
@@ -803,11 +805,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_closeDialog(self):
         self.add_close_dialog = False
     closeDialog_option = QtCore.pyqtProperty(bool, get_closeDialog, set_closeDialog, reset_closeDialog)
-    def get_closeDialogColor(self):
-        return self._closeDialogColor
-    def set_closeDialogColor(self, value):
-        self._closeDialogColor = value
-    close_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_closeDialogColor, set_closeDialogColor)
 
     def set_entryDialog(self, data):
         self.add_entry_dialog = data
