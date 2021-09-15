@@ -105,17 +105,23 @@ class HAL:
         spindle_enc = counter = probe = pwm = pump = estop = False
         spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = bldc = False
-
+        cstart = abort = sstep = False
         if self.a.findsignal("s-encoder-a"):
             spindle_enc = True
         if self.a.findsignal("probe"):
             probe = True
+        if self.a.findsignal("abort"):
+            abort = True
         if self.a.findsignal("s-pwm-pulse"):
             pwm = True
         if self.a.findsignal("charge-pump"):
             pump = True
+        if self.a.findsignal("cycle-start"):
+            cstart = True
         if self.a.findsignal("estop-ext"):
             estop = True
+        if self.a.findsignal("single-step"):
+            sstep = True
         if self.a.findsignal("spindle-enable"):
             spindle_on = True
         if self.a.findsignal("spindle-cw"):
@@ -457,6 +463,12 @@ class HAL:
             print("net machine-is-on         halui.machine.is-on", file=file)
             print("net jog-speed             halui.axis.jog-speed", file=file)
             print("net MDI-mode              halui.mode.is-mdi", file=file)
+            if not self.d.frontend == _PD._TOUCHY and cstart == True:
+                print("net cycle-start           halui.program.run", file=file)
+            if sstep == True:
+                print("net single-step           halui.program.step", file=file)
+            if abort == True:
+                print("net abort                 halui.abort", file=file)
             print(file=file)
             if pump:
                 print(_("#  ---charge pump signals---"), file=file)
