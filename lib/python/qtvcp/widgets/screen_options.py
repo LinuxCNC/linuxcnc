@@ -369,9 +369,11 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             if self.PREFS_ and self.play_sounds and self.shutdown_play_sound:
                 sound = self.shutdown_alert_sound_type
             try:
+                if self.shutdown_msg_detail == '': details = None
+                else: details = self.shutdown_msg_detail
                 answer = self.QTVCP_INSTANCE_.closeDialog_.showdialog(self.shutdown_msg_title,
                                                                  None,
-                                                                 details=None,
+                                                                 details=details,
                                                                  icon=MSG.CRITICAL,
                                                                  display_type='YESNO',
                                                                  focus_text=self.shutdown_msg_focus_text,
