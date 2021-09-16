@@ -20,7 +20,8 @@ import hal
 
 from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
-        QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget)
+        QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
+        QTextEdit)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
 from PyQt5 import uic
@@ -268,12 +269,17 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if play_alert:
             STATUS.emit('play-sound', play_alert)
         if not nblock:
+            self.show()
+            self.forceDetailsOpen()
             retval = self.exec_()
             STATUS.emit('focus-overlay-changed', False, None, None)
             LOG.debug('Value of pressed button: {}'.format(retval))
             return self.qualifiedReturn(retval)
         else:
             self.show()
+
+    def forceOpenDetails(self):
+        pass
 
     def qualifiedReturn(self, retval):
         if retval in(QMessageBox.No, QMessageBox.Cancel):
@@ -349,6 +355,20 @@ class CloseDialog(LcncDialog, GeometryMixin):
         self.shutdown = self.addButton('System\nShutdown',QMessageBox.DestructiveRole)
         self._request_name = 'CLOSEPROMPT'
         self._title = 'QtVCP'
+
+    def forceDetailsOpen(self):
+        try:
+            # force the details box open on first time display
+            for i in self.buttons():
+                if self.buttonRole(i) == QMessageBox.ActionRole:
+                    for j in self.children():
+                        for k in j.children():
+                            if isinstance( k, QTextEdit):
+                                #i.hide()
+                                if not k.isVisible():
+                                    i.click()
+        except:
+            pass
 
 ################################################################################
 # Tool Change Dialog
