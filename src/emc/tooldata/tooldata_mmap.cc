@@ -187,7 +187,6 @@ int tool_mmap_user()
 void tool_mmap_close()
 {
     if (!tool_mmap_base) { return; }
-    // mapped file is not deleted
     // flush mmapped file to filesystem
     if (msync(tool_mmap_base, TOOL_MMAP_SIZE, MS_SYNC) == -1) {
         perror("tool_mmap_close(): msync fail");
@@ -196,6 +195,9 @@ void tool_mmap_close()
         close(creator_fd);
         perror("tool_mmap_close(): munmapfail");
         exit(EXIT_FAILURE);
+    }
+    if( unlink(TOOL_MMAP_FILENAME)) {
+        perror("tool_mmap_close(): unlink fail for" TOOL_MMAP_FILENAME);
     }
     close(creator_fd);
 } //tool_mmap_close()
