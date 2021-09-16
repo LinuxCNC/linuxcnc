@@ -263,7 +263,8 @@ try:
                             started = False
                             comms.close()
 except:
-    print('Shutting down pmx485 communications, unknown error')
+    if enabled:
+        print('ERROR: Shutting down pmx485 communications, unknown error')
     if started:
         if not comms.isOpen():
             comms.open()
