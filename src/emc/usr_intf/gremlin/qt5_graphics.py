@@ -270,8 +270,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             live_axis_count += 1
         self.num_joints = int(self.inifile.find("KINS", "JOINTS") or live_axis_count)
 
-        # preset variables for user view
-        self.recordCurrentViewSettings()
+        # initialize variables for user view
+        self.presetViewSettings(v=None,z=0,
+            x=0,y=0,lat=None,lon=None)
+        # allow anyone else to preset user view with better settings
+        self._presetFlag = False
 
         self.object = 0
         self.xRot = 0
@@ -468,8 +471,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # setup details when window shows
     def realize(self):
         self.set_current_view()
-        # preset variables for user view
-        self.recordCurrentViewSettings()
+        # if user view has not been preset - set it now
+        # as it's in a reasonable place
+        if not self._presetFlag:
+            self.recordCurrentViewSettings()
+
         s = self.stat
         try:
             s.poll()
@@ -957,7 +963,6 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def user_plot(self):
         pass
-        #GL.glCallList(self.object)
 
     def panView(self,vertical=0,horizontal=0):
         self.translateOrRotate(self.xmouse + vertical, self.ymouse + horizontal)
@@ -968,40 +973,50 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def recordCurrentViewSettings(self):
         #print('record',self.current_view,self.get_zoom_distance(),
         #self.get_total_translation(),self.get_viewangle(),self.perspective)
+
+        # set flag that presets are valid
+        self._presetFlag = True
         self._recordedView = self.current_view
         self._recordedDist = self.get_zoom_distance()
         self._recordedTransX,self._recordedTransY = self.get_total_translation()
         self._lat,self._lon = self.get_viewangle()
 
+    def getRecordedViewSettings(self):
+        return self._recordedView, self._recordedDist, self._recordedTransX, \
+                self._recordedTransY, self._lat, self._lon
+
     def setRecordedView(self):
         #print('set to:',self._recordedView,self._recordedDist,self._recordedTransX,
         #        self._recordedTransY,self._lat,self._lon)
+
         getattr(self, 'set_view_%s' % self._recordedView)()
         self.set_zoom_distance(self._recordedDist)
         self.panView(self._recordedTransX,self._recordedTransY)
-        if not self.is_lathe():
-            self.set_viewangle(self._lat,self._lon)
+        self.set_viewangle(self._lat,self._lon)
 
     def getCurrentViewSettings(self):
-        return self.current_view,self.get_zoom_distance(), \
-                self._recordedTransX,self._recordedTransY, \
-                self.get_viewangle()
+        # if never been set - set it first
+        if not self._presetFlag:
+            self.recordCurrentViewSettings()
+        return self.current_view, self.get_zoom_distance(), \
+                self._recordedTransX, self._recordedTransY, \
+                self.get_viewangle()[0], self.get_viewangle()[1]
 
     def presetViewSettings(self,v,z,x,y,lat=None,lon=None):
+        #print('Preset:',v,z,x,y,lat,lon)
+
         self._recordedView = v
         self._recordedDist = z
         self._recordedTransX = x
         self._recordedTransY = y
-        if not lat is None:
-            self._lat = lat
-            self._lon = lon
+        self._lat = lat
+        self._lon = lon
 
     def setView(self,v,z,x,y,lat=None,lon=None):
         getattr(self, 'set_view_%s' % v)()
         self.set_zoom_distance(z)
         self.panView(x, y)
-        if not self.is_lathe() or not lat is None:
-            self.set_viewangle(lat, lon)
+        self.set_viewangle(lat, lon)
 
     ############################################################
     # display for when linuxcnc isn't runnimg - forQTDesigner

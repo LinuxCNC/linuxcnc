@@ -78,8 +78,19 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
-        STATUS.connect('graphics-view-changed', self.set_view_signal)
+        STATUS.connect('graphics-view-changed', lambda w, v, a: self.set_view_signal(v, a))
         STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
+
+        # If there is a preference file object use it to load the user view position data
+        if self.PREFS_:
+            v,z,x,y,lat,lon = self.getCurrentViewSettings()
+            v = self.PREFS_.getpref(self.HAL_NAME_+'-user-view', v, str, 'SCREEN_CONTROL_LAST_SETTING')
+            z = self.PREFS_.getpref(self.HAL_NAME_+'-user-zoom', z, float, 'SCREEN_CONTROL_LAST_SETTING')
+            x = self.PREFS_.getpref(self.HAL_NAME_+'-user-panx', x, float, 'SCREEN_CONTROL_LAST_SETTING')
+            y = self.PREFS_.getpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
+            lat = self.PREFS_.getpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
+            lon = self.PREFS_.getpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.presetViewSettings(v,z,x,y,lat,lon)
 
     # external source asked for hightlight,
     # make sure we block the propagation
@@ -88,7 +99,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._block_line_selected = True
         self.set_highlight_line(line)
 
-    def set_view_signal(self, w, view, args):
+    def set_view_signal(self, view, args):
         v = view.lower()
         if v == 'clear':
             self.logger.clear()
@@ -192,7 +203,17 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             print('error', self._reload_filename)
             pass
 
-
+    # when qtvcp closes this gets called
+    def closing_cleanup__(self):
+        if self.PREFS_:
+            v,z,x,y,lat,lon = self.getRecordedViewSettings()
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-view', v, str, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-zoom', z, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-panx', x, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
 
     ####################################################
     # functions that override qt5_graphics
