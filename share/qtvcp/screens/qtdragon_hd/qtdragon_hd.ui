@@ -1957,19 +1957,19 @@ GCODE</string>
                        <property name="cornerButtonEnabled">
                         <bool>false</bool>
                        </property>
-                       <attribute name="horizontalHeaderDefaultSectionSize">
+                       <attribute name="horizontalHeaderMinimumSectionSize">
                         <number>80</number>
                        </attribute>
-                       <attribute name="horizontalHeaderMinimumSectionSize">
+                       <attribute name="horizontalHeaderDefaultSectionSize">
                         <number>80</number>
                        </attribute>
                        <attribute name="verticalHeaderCascadingSectionResizes">
                         <bool>false</bool>
                        </attribute>
-                       <attribute name="verticalHeaderDefaultSectionSize">
+                       <attribute name="verticalHeaderMinimumSectionSize">
                         <number>30</number>
                        </attribute>
-                       <attribute name="verticalHeaderMinimumSectionSize">
+                       <attribute name="verticalHeaderDefaultSectionSize">
                         <number>30</number>
                        </attribute>
                       </widget>
@@ -5290,14 +5290,14 @@ OFF</string>
                    <number>15</number>
                   </property>
                   <property name="color">
-                   <color alpha="0">
+                   <color>
                     <red>0</red>
                     <green>255</green>
                     <blue>0</blue>
                    </color>
                   </property>
                   <property name="off_color" stdset="0">
-                   <color alpha="0">
+                   <color>
                     <red>0</red>
                     <green>255</green>
                     <blue>0</blue>
@@ -12855,7 +12855,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>09:56:35 AM</string>
+               <string>10:51:49 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -12939,32 +12939,9 @@ INCREMENT</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_graphics</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>OriginOffsetView</class>
-   <extends>QTableView</extends>
-   <header>qtvcp.widgets.origin_offsetview</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusSlider</class>
-   <extends>QSlider</extends>
-   <header>qtvcp.widgets.status_slider</header>
-  </customwidget>
-  <customwidget>
-   <class>MDILine</class>
-   <extends>QLineEdit</extends>
-   <header>qtvcp.widgets.mdi_line</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StateLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.state_label</header>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>AxisToolButton</class>
@@ -12972,30 +12949,9 @@ INCREMENT</string>
    <header>qtvcp.widgets.axis_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>LED</class>
+   <class>FileManager</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>Gauge</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.round_gauge</header>
-  </customwidget>
-  <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
-   <class>ScreenOptions</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.screen_options</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>PushButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
+   <header>qtvcp.widgets.file_manager</header>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
@@ -13003,19 +12959,14 @@ INCREMENT</string>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
-   <class>CamView</class>
+   <class>LED</class>
    <extends>QWidget</extends>
-   <header>qtvcp.widgets.camview_widget</header>
+   <header>qtvcp.widgets.led_widget</header>
   </customwidget>
   <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
-  </customwidget>
-  <customwidget>
-   <class>ToolOffsetView</class>
-   <extends>QTableView</extends>
-   <header>qtvcp.widgets.tool_offsetview</header>
+   <class>GCodeGraphics</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
   <customwidget>
@@ -13025,24 +12976,10 @@ INCREMENT</string>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>RoundButton</class>
-   <extends>ActionButton</extends>
-   <header>qtvcp.widgets.action_button_round</header>
-  </customwidget>
-  <customwidget>
-   <class>VirtualKeyboard</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.virtualkeyboard</header>
-  </customwidget>
-  <customwidget>
-   <class>FileManager</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.file_manager</header>
-  </customwidget>
-  <customwidget>
-   <class>SystemToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.system_tool_button</header>
+   <class>MDILine</class>
+   <extends>QLineEdit</extends>
+   <header>qtvcp.widgets.mdi_line</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>GcodeEditor</class>
@@ -13051,9 +12988,72 @@ INCREMENT</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>OriginOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.origin_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ToolOffsetView</class>
+   <extends>QTableView</extends>
+   <header>qtvcp.widgets.tool_offsetview</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
+   <class>StateLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.state_label</header>
+  </customwidget>
+  <customwidget>
    <class>ActionButton</class>
    <extends>QPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>RoundButton</class>
+   <extends>ActionButton</extends>
+   <header>qtvcp.widgets.action_button_round</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusSlider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.status_slider</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
+  </customwidget>
+  <customwidget>
+   <class>CamView</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.camview_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>SystemToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>VirtualKeyboard</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
+  <customwidget>
+   <class>Gauge</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.round_gauge</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -13822,7 +13822,7 @@ INCREMENT</string>
   <slot>chk_inhibit_selection_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
