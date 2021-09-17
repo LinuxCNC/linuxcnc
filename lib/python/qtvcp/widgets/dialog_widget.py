@@ -278,7 +278,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         else:
             self.show()
 
-    def forceOpenDetails(self):
+    def forceDetailsOpen(self):
         pass
 
     def qualifiedReturn(self, retval):
