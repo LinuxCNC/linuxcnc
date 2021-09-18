@@ -3925,19 +3925,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -7747,8 +7747,8 @@ MM/MIN</string>
                     </size>
                    </property>
                    <property name="text">
-                    <string>START
-LINE</string>
+                    <string>CYCLE
+START</string>
                    </property>
                    <property name="indicator_option" stdset="0">
                     <bool>true</bool>
@@ -13580,7 +13580,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>01:03:55 PM</string>
+            <string>12:10:30 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

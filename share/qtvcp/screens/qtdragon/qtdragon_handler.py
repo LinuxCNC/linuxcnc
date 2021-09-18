@@ -775,7 +775,7 @@ class HandlerClass:
                 self.add_status("Override limits not set")
 
     def chk_run_from_line_checked(self, state):
-        self.w.btn_start.setText("START\n1") if state else self.w.btn_start.setText("START")
+        self.w.btn_start.setText("START\n1") if state else self.w.btn_start.setText("CYCLE\nSTART")
 
     def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
