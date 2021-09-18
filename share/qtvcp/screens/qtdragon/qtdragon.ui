@@ -7063,7 +7063,7 @@ MCHN
                           <string/>
                          </property>
                          <property name="ini_mdi_number" stdset="0">
-                          <number>0</number>
+                          <number>1</number>
                          </property>
                          <property name="textTemplate" stdset="0">
                           <string>%1.3f in</string>
@@ -13587,7 +13587,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>12:45:48 AM</string>
+            <string>09:27:48 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
