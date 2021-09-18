@@ -325,7 +325,8 @@ class GlNavBase:
     def set_viewangle(self, lat, lon):
         self.lat = lat
         self.lon = lon
-        glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
+        if self.perspective:
+            glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
         self._redraw()
 
     def get_viewangle(self):
