@@ -835,69 +835,257 @@ It is based on pyQT's combobox
 This widget doesn't add anything visually to a screen but sets up important +
 options. This is the preferred way to use these options +
 
+These properties that can be set in designer, in python handler code or +
+(if appropriate) in stylesheets.
+
 .These include: 
 
-* 'notify_option':
+* 'notify_option': +
 Hooking into the desktop notification bubbles for error and messages
 
-* 'catch_close_option':
-catching the close event to pop up a 'are you sure' prompt
+* 'notify_max_messages': +
+Number of messages shown on screen at one time.
 
-* 'catch_error_option':
+* 'catch_close_option': +
+Catching the close event to pop up a 'are you sure' prompt
+
+* 'close_overlay_color': +
+Color of transparent layer shown when quitting.
+
+* 'catch_error_option': +
 monitoring the linuxcnc error channel. This also sends the message +
 through  STATUS to anything that registers
 
-* 'play_sounds_option':
+* 'play_sounds_option': +
 playing sounds using 'beep', 'espeak' and the system sound
 
-* 'use_pref_file_option':
+* 'use_pref_file_option': +
 setting up a preference filepath +
 Using the magic word 'WORKINGFOLDER' in the preference file path will be replaced with +
 the launched configuration path ie. WORKINFOLDER/my_preferences
 
-* 'embedded_program_option':
-Embed programs defined in the INI. There is a property for a default +
-location. +
+* 'use_send_zmq_option': +
+Used to initiate ZMQ based outgoing messages. +
 
-* 'focusOverlay_option':
-Focus_overlay will put an image or colored panel over the main +
+* 'use_receive_zmq_messages': +
+Used to initiate ZMQ based in coming messages. +
+These messages can be used to call functions in the handler file. +
+Allowing external programs to intergrate tightly with qtvcp based screens. +
+
+* 'embedded_program_option': +
+Embed programs defined in the INI. +
+
+* 'default_emebed_tab' +
+This is the property for a default location to embed external programs. +
+It would be set to the designer name of a tab page widget. +
+
+* 'focusOverlay_option': +
+Focus_overlay will put a transparent image or colored panel over the main +
 screen to emphasize focus to an external event - typically a dialog. +
 
-* 'messageDialog_option':
+* 'messageDialog_option': +
 sets up the message dialog - used for general messages
 
-* 'closeDialog_option':
+* 'message_overlay_color': +
+Color of transparent layer shown when the message dialog is shown.
+
+* 'closeDialog_option': +
 sets up the standard close screen prompt dialog
  
-* 'entryDiallog_option':
+* 'entryDialog_option': +
 sets up the numerical entry dialog
 
-* 'toolDialog_option':
+* 'entryDialogSoftKey_option': +
+    sets up a floating software keyboard when entry dialog is focused. +
+
+* 'entry_overlay_color': +
+Color of transparent layer shown when the entry dialog is shown.
+
+* 'toolDialog_option': +
 sets up the manual tool change dialog, including HAL pin.
 
-* 'fileDialog_option':
+* 'tool_overlay_color': +
+Color of transparent layer shown when the tool dialog is shown.
+
+* 'ToolUseDesktopNotify': +
+option to use desktop notify dialogs for manual tool change dialog. +
+
+* 'ToolFramesless': +
+Framesless dialogs can not be easily moved by users. +
+
+* 'fileDialog_option': +
 sets up the file choosing dialog.
 
-* 'vesaProbe_option':
-sets up the vera style probe dialog
+* 'file_overlay_color': +
+Color of transparent layer shown when the file dialog is shown.
 
-* 'macroTabeDialog_option':
+* 'keyboardDialog_option': +
+sets up a keyboard entry widget. +
+
+* 'keyboard_overlay_color': +
+Color of transparent layer shown when the keyboard dialog is shown.
+
+* 'vesaProbe_option': +
+sets up the versa style probe dialog
+
+* 'versaProbe_overlay_color': +
+Color of transparent layer shown when the versaProbe dialog is shown.
+
+* 'macroTabeDialog_option': +
 sets up the macro selection dialog
 
-* 'camViewDialog_option':
+* 'macoTab_overlay_color': +
+Color of transparent layer shown when the macroTab dialog is shown.
+
+* 'camViewDialog_option': +
 sets up the camera alignment dialog
 
-* 'toolOffset_option':
+* 'camView_overlay_color': +
+Color of transparent layer shown when the camView dialog is shown.
+
+* 'toolOffset_option': +
 sets up the tool offset display/editor dialog
 
-* 'originOffset_option':
+* 'toolOffset_overlay_color': +
+Color of transparent layer shown when the toolOffset dialog is shown.
+
+* 'originOffset_option': +
 sets up the origin display/editor dialog
 
-* 'calculatorDialog_option':
+* 'originOffset_overlay_color': +
+Color of transparent layer shown when the originOffset dialog is shown.
+
+* 'calculatorDialog_option': +
 sets up the calcylatory entry dialog
 
-* 'machineLogDialog_option':
+* 'calculator_overlay_color': +
+Color of transparent layer shown when the calculator dialog is shown.
+
+* 'machineLogDialog_option': +
 sets up a dialog to display logs from the machine and qtvcp
+
+* 'machineLog_overlay_color': +
+Color of transparent layer shown when the machineLog dialog is shown.
+
+* 'runFromLineDialog_option': +
+sets up a dialog to display starting options when starting machine +
+execution from a arbitrary line. +
+
+* 'runFromLine_overlay_color': +
+Color of transparent layer shown when the runFromLine dialog is shown.
+
+==== Setting Properties Programically
+
+The screen designer chooses the default settings of the screenOptions widget. +
+Once choosen, most won't ever need to be changed. +
+but if needed some can be changed in the handler file or in stylesheets. +
+Some settings are only checked on startup so will not cause changes after startup. +
+In these cases you would need to make the changes in Qtdesigner only. +
+
+ie. In the handler file +
+Here we reference the widget by the QtDesigner user defined name: +
+[source,python]
+----
+# red,green,blue,alpha 0-255
+color = QtGui.QColor(0, 255, 0, 191)
+self.w.screenoption.setProperty('close_overlay_color', color)
+self.w.screenoption.setProperty('play_sounds_option',False)
+----
+
+ie. In style sheets +
+Here we can reference the widget by QtDesigner user defined name +
+or by widget class name. +
+ 
+----
+/* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
+/* the # sign is used to refer to QtDesigner defined widget name */
+/* matches/applied to only this named widget */
+
+#screenoptions {
+qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
+}
+----
+----
+/* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
+/* use widget class name - matches/applied to all widgets of this class*/
+
+screenOptions {
+qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
+}
+----
+
+==== Preference File Entries
+
+If the preference file option is selected, screenOption widget will make an INI based preference file. +
+While other Qtvcp widgets will add to this list, the screenOptions widget will add these entries: +
+
+
+Under the heading: 'SCREEN_OPTIONS':
+
+* 'catch_errors =' -True or False
+* 'desktop_notify =' -True or False (whether to display errors/messages in the system's notification mechanism)
+* 'notify_max_msgs =' -Integer (number of displayed errors at one time)
+* 'shutdown_check =' -True or False (whether to pop a confirmation dialog)
+* 'sound_player_on =' -True or False (turns all sounds on or off)
+
+Under the heading: 'MCH_MSG_OPTIONS'
+
+* 'mchnMsg_play_sound =' -True or False (to play alert sound when dialog pops)
+* 'mchnMsg_speak_errors =' -True or False (to use Espeak to speak error messages)
+* 'mchnMsg_speak_text =' -True or False (to use Espeak to speak all other messages)
+* 'mchnMsg_sound_type =' -sound to play when messages displayed
+
+Under the heading: 'USER_MSG_OPTIONS'
+
+* 'usermsg_play_sound =' -True or False (to play alert sound when dialog pops)
+* 'userMsg_sound_type =' -sound to play when user messages displayed
+* 'userMsg_use_focusOverlay =' -True or False
+
+Under the heading: 'SHUTDOWN_OPTIONS'
+
+* 'shutdown_play_sound =' -True or False
+* 'shutdown_alert_sound_type =' -sound to play when messages displayed
+* 'shutdown_exit_sound_type =' -sound to play when messages displayed
+* 'shutdown_msg_title =' -Short title string to display in dialog
+* 'shutdown_msg_focus_text =' -Large text string to superimpose in focus layer
+* 'shutdown_msg_detail =' -Longer descriptive string to display in dialog
+
+Under the heading: 'NOTIFY_OPTIONS'
+
+* 'notify_start_greeting =' - True or False (whether to display a greeting dialog on start up)
+* 'notify_start_title =' - Short Title string. If the speak option is also selected it will be spoken with Espeak.
+* 'notify_start_detail =' - Longer description string.
+* 'notify_start_timeout =' - time in seconds to display before closing.
+
+[NOTE]
+
+
+In Debian/Ubuntu/Mint based systems these sounds should be available as sound-type entries above: + 
+(These Sound options require python3-gst1.0 installed.) +
+
+* ERROR
+* READY
+* DONE
+* ATTENTION
+* RING
+* LOGIN
+* LOGOUT
+* BELL
+
+You can also specify a file path to an arbitrary audio file. +
+(You can use ~ in path to substitute for the user home file path)
+
+[NOTE]
+If the Beep kernel module is installed and it is not disabled, these sound-type entries are available:
+
+* BEEP
+* BEEP_RING
+* BEEP_START
+
+[NOTE]
+If the Espeak module (python3-espeak) is install you can use the entry 'SPEAK' to pronounce text:
+
+* SPEAK 'my message'
 
 === StatusSlider Widget
 
