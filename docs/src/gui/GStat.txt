@@ -389,6 +389,10 @@ This depends on the widget/libraries used. +
 intended to be sent when graphics line is selected by user. +
 This depends on the widget/libraries used. +
 
+*graphics-loading-progress* :: '(returns integer)' -
+intended to return percentage done of loading a program or running a program. +
+This depends on the widget/libraries used. +
+
 *graphics-gcode-error* :: '(returns string)' -
 intended to be sent when a gcode error is found when loading. +
 This depends on the widget/libraries used. +
@@ -473,6 +477,10 @@ The dict usually has more keyname pair - it depends on implementation. +
 intended to be sent when one wishes to initialize or arbitrarily update an object. +
 This depends on the widget/libraries used. +
 
+*progress* :: '(returns integer, python object)'
+intended to be sent to indicate the progress of a filter program. +
+This depends on the widget/libraries used. +
+
 == Functions
 These are convenience functions that are commonly used in programming
 
@@ -485,7 +493,7 @@ It defaults to 15 +
 GSTAT.set_jog_rate(10) would set the jog rate to 10 machine-units-per-minute and emit the jograte-changed signal. +
 
 *get_jograte()* :: '(Nothing)' -
-x = GSTAT.get_jograte would return GSTAT's current internal jograte.
+x = GSTAT.get_jograte() would return GSTAT's current internal jograte (float).
 
 *set_jograte_angular* :: '(float)' -
 
