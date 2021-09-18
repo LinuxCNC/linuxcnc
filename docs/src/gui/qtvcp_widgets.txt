@@ -555,6 +555,31 @@ The capitalized word 'HAL' will give access to HAL's python module. +
 eg. 'HAL.set_p('motion.probe-input','1')' +
 Indicated PushButtons and Actionbuttons are based on pyQT's QPushButton
 
+=== ActionToolButton
+
+Action tool  buttons are similar in concept to action buttons, but they use QToolButtons to allow +
+optional actions to be selected by pushing and holding the button till the option menu pops up. +
+
+Currently there is only one option - user view +
+
+It is based on pyQT's QToolButton
+
+==== User View
+
+User view tool button allows a user to record and return to a arbitrary graphics view. +
+Press and hold the button to have the menu pop up and press 'record view'. +
+This records the currently displayed graphics view. +
+click the button normally to return to the last recorded position. +
+ +
+The position recorded position will be remembered at shutdown if a preference file option is set up. +
+
+[NOTE]
+Do to programming limitations, the recorded position may not show exactly the same, +
+Particularly if you pan zoomed out and pan again zoomed in while setting the desired view. +
+Best practice is to select a main view, modify as desired, record, then immediately +
+click the button to 'return' to the recorded position. If it is not as you like, +
+modify it's existing position and re-record.
+
 === RoundButton
 
 Round buttons work the same as ActionButtons other then the button is cropped round. +
