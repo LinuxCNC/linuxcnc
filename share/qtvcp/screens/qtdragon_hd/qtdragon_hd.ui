@@ -929,7 +929,7 @@
                  <enum>QFrame::Raised</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>8</number>
+                 <number>0</number>
                 </property>
                 <widget class="QWidget" name="main_tab_widgetPage1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -998,6 +998,41 @@
                      <property name="bottomMargin">
                       <number>0</number>
                      </property>
+                     <item>
+                      <widget class="ActionToolButton" name="actiontoolbutton">
+                       <property name="minimumSize">
+                        <size>
+                         <width>50</width>
+                         <height>40</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>50</width>
+                         <height>40</height>
+                        </size>
+                       </property>
+                       <property name="toolTip">
+                        <string>Hold to save current view</string>
+                       </property>
+                       <property name="text">
+                        <string>User
+View</string>
+                       </property>
+                       <property name="checkable">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoExclusive">
+                        <bool>true</bool>
+                       </property>
+                       <property name="autoRaise">
+                        <bool>false</bool>
+                       </property>
+                       <property name="arrowType">
+                        <enum>Qt::NoArrow</enum>
+                       </property>
+                      </widget>
+                     </item>
                      <item>
                       <widget class="ActionButton" name="actionbutton_view_p">
                        <property name="sizePolicy">
@@ -12855,7 +12890,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>10:51:49 AM</string>
+               <string>12:16:39 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -13044,6 +13079,11 @@ INCREMENT</string>
    <class>SystemToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.system_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.action_tool_button</header>
   </customwidget>
   <customwidget>
    <class>VirtualKeyboard</class>
