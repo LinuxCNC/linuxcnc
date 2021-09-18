@@ -21,6 +21,7 @@
 				// etc.
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
 #include "motion_debug.h"
+#include "homing.h"
 #include "emc.hh"
 #include "emccfg.h"		// EMC_INIFILE
 #include "emcglb.h"		// EMC_INIFILE
