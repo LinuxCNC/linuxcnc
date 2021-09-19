@@ -172,6 +172,7 @@ maxvel_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
 resume_inhibit = 0
+continuous_jog_in_progress = False
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -3211,7 +3212,7 @@ def jog_on(a, b):
         jog_cont[a] = False
     else:
         global continuous_jog_in_progress
-        continuous_jog_in_progress = 1
+        continuous_jog_in_progress = True
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
@@ -3223,7 +3224,7 @@ def jog_off(a):
 
 def jog_off_actual(a):
     global continuous_jog_in_progress
-    continuous_jog_in_progress = 0
+    continuous_jog_in_progress = False
     if not manual_ok(): return
     jog_after[a] = None
     jogging[a] = 0
