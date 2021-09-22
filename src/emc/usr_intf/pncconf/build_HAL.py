@@ -1840,7 +1840,7 @@ class HAL:
         print("net plasmac:float-switch     => db_float.in", file=file)
         print("net plasmac:breakaway        => db_breakaway.in", file=file)
         print("net plasmac:ohmic-probe      => db_ohmic.in", file=file)
-        print("net plasmac:ohmic_sense_in   => plasmac.ohmic_sense_in", file=file)
+        print("net plasmac:ohmic-sense-in   => plasmac.ohmic-sense-in", file=file)
         print("# ---modes 0 & 1", file=file)
         print("net plasmac:arc-voltage-in   => plasmac.arc-voltage-in", file=file)
         print("# ---modes 1 & 2", file=file)
