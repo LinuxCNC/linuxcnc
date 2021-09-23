@@ -269,6 +269,7 @@ class HandlerClass:
         self.obLayout = ''
         self.notifyColor = 'normal'
         self.firstHoming = False
+        self.droScale = 1
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -1250,12 +1251,11 @@ class HandlerClass:
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'inch' and STATUS.is_metric_mode():
-            hal.set_p('plasmac.units-multiplier', '25.4')
+            self.droScale = 25.4
         elif self.units == 'mm' and not STATUS.is_metric_mode():
-            hal.set_p('plasmac.units-multiplier', '{}'.format(1 / 25.4))
+            self.droScale = 1 / 25.4
         else:
-            hal.set_p('plasmac.units-multiplier', '1')
-
+            self.droScale = 1
         self.w.lbl_gcodes.setText('G-Codes: {}'.format(cod))
 
     def mcodes_changed(self, obj, cod):
@@ -1530,7 +1530,7 @@ class HandlerClass:
             self.error_status(False)
 
     def z_height_changed(self, value):
-        self.w.dro_z.update_user(value * hal.get_value('plasmac.units-multiplier'))
+        self.w.dro_z.update_user(value * self.droScale)
 
     def offsets_active_changed(self, value):
         if not value:

@@ -1193,6 +1193,14 @@ QtPlasmaC will automatically add a line of G-Code to move the Z axis to the corr
 
 *Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vX.X.XX - powered by QtVCP on LinuxCNC vY.Y.Y" where X.X.XX is the version of QtPlasmaC and Y.Y.Y is the version of LinuxCNC.
 
+=== Units Systems
+
+All settings and parameters in QtPlasmaC are required to be in the same units as specified in the ini file, being either metric or imperial.
+
+If the user is attempting to run a G-Code file that is in the "other" units system then all parameters including the material file parameters are still required to be in the native machines units. Any further conversions necessary to run the G-Code file will be handled automatically by the G-Code filter program.
+
+For example: if a user had a metric machine and wished to run a G-Code file that was set up to cut 1/4" thick material using imperial units (inch - G20) then the user with the metric machine would need to ensure that either the material number in the G-Code file was set to the corresponding metric material to be cut, or that a new material is created with the correct metric parameters for the metric material to be cut. If the metric user wanted to cut the G-Code file using imperial material, then the new material parameters would need to be converted from imperial units to metric when they are entered.
+
 === Preamble and Postamble Codes
 
 The following stanzas are the minimum recommended codes to include in the preamble and postamble of any G-Code file to be run by QtPlasmaC:

@@ -77,7 +77,7 @@ torchEnable = True
 pierceOnly = False
 scribing = False
 spotting = False
-offsetG41 = False
+offsetG4x = False
 feedWarning = False
 zSetup = False
 zBypass = False
@@ -152,14 +152,14 @@ def check_if_hole():
 # get hole radius and set velocity percentage
 def get_hole_radius(I, J, isHole):
     global holeActive, lineNum
-    if offsetG41:
+    if offsetG4x:
         radius = math.sqrt((I ** 2) + (J ** 2))
     else:
         #radius = math.sqrt((I ** 2) + (J ** 2)) + (materialDict[material[0]][1] / 2)
         radius = math.sqrt((I ** 2) + (J ** 2))
     # velocity reduction required
     if radius <= (minDiameter / 2) and (isHole or arcEnable):
-        if offsetG41:
+        if offsetG4x:
             lineNum += 1
             codeWarn = True
             gcodeList.append(';m67 e3 q0 (inactive due to g41)')
@@ -194,7 +194,7 @@ def overburn(I, J, radius):
     cosB = ((lastX - centerX) / radius)
     sinB = ((lastY - centerY) / radius)
     lineNum += 1
-    if offsetG41:
+    if offsetG4x:
         codeWarn = True
         gcodeList.append(';m62 p3 (inactive due to g41)')
         dlg  = '\nCannot enable/disable torch with cutter compensation active.\n'
@@ -361,19 +361,29 @@ def check_material_edit():
                         tmpMatNam = na
                 elif 'ph=' in item:
                     ph = float(item.split('=')[1])
+                    if unitMultiplier != 1:
+                        ph = ph / unitMultiplier
                 elif 'pd=' in item:
                     pd = float(item.split('=')[1])
                 elif 'ch=' in item:
                     ch = float(item.split('=')[1])
+                    if unitMultiplier != 1:
+                        ch = ch / unitMultiplier
                 elif 'fr=' in item:
                     fr = float(item.split('=')[1])
+                    if unitMultiplier != 1:
+                        fr = fr / unitMultiplier
                 # optional items
                 elif 'kw=' in item:
                     kw = float(item.split('=')[1])
+                    if unitMultiplier != 1:
+                        kw = kw / unitMultiplier
                 elif 'th=' in item:
                     th = int(item.split('=')[1])
                 elif 'jh=' in item:
                     jh = float(item.split('=')[1])
+                    if unitMultiplier != 1:
+                        jh = ph / unitMultiplier
                 elif 'jd=' in item:
                     jd = float(item.split('=')[1])
                 elif 'ca=' in item:
@@ -653,12 +663,15 @@ with open(inCode, 'r') as fRead:
                     minDiameter = 1.26
                 if not customLen:
                     ocLength = 0.157
-        # check for g41 offset set
-        if 'g41' in line:
-            offsetG41 = True
-        # check for g41 offset cleared
+        # check for g41 or g42 offsets
+        if 'g41' in line or 'g42' in line:
+            offsetG4x = True
+            if 'kerf_width-f]>' in line and unitMultiplier != 1:
+                line = line.replace('#<_hal[qtplasmac.kerf_width-f]>', \
+                                   '[#<_hal[qtplasmac.kerf_width-f]> * {}]'.format(unitMultiplier))
+        # check for g4x offset cleared
         elif 'g40' in line:
-            offsetG41 = False
+            offsetG4x = False
         # are we scribing
         if line.startswith('m3$1s'):
             if pierceOnly:
@@ -757,7 +770,7 @@ with open(inCode, 'r') as fRead:
                 continue
         # wait for material change
         if 'm66' in line:
-            if offsetG41:
+            if offsetG4x:
                 codeError = True
                 dlg  = '\nCannot validate a material change with cutter compensation acive\n'
                 dlg += '\nError near line #{}.\n'.format(lineNum)
@@ -865,8 +878,11 @@ with open(inCode, 'r') as fRead:
             continue
         # check feed rate
         if 'f' in line:
-            inFeed = line.split('f')[1]
-            if not inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
+            begin, inFeed = line.split('f', 1)
+            if inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
+                if unitMultiplier != 1:
+                    line = begin + '{}f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(begin, unitMultiplier)
+            else:
                 check_f_word(inFeed)
         # restore velocity if required
         if holeActive:
