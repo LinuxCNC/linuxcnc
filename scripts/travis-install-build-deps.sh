@@ -6,5 +6,13 @@ sudo apt-get install -y devscripts equivs build-essential --no-install-recommend
 sudo apt-get remove -f libreadline6-dev || true
 sudo apt-get remove -f libreadline-dev || true
 debian/configure
-mk-build-deps -i -r -s sudo -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --no-install-suggests'
+# This gives an error that is hidden from us
+#mk-build-deps -i -r -s sudo -t 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --no-install-suggests'
+if ! sudo apt-get -y build-dep . ; then
+    echo "E: could not install dependencies, maybe inspect d/control for hints:"
+    cat debian/control
+    echo
+    echo "E: apt-get -y build-dep . failed"
+    exit 1
+fi
 sudo apt install -y lintian
