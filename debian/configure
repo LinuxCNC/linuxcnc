@@ -53,7 +53,7 @@ while test $# -ne 0; do
 done
 
 DISTRIB_NAME=
-if [ "$(which lsb_release)" != "" ]; then
+if [ "$(command -v lsb_release)" != "" ] || [ "$(which lsb_release)" != "" ]; then
     DISTRIB_NAME="$(lsb_release -s -i)-$(lsb_release -s -r)"
 elif [ -f /etc/lsb-release ]; then
     source /etc/lsb-release
@@ -83,7 +83,7 @@ PYTHON_IMAGING_TK=python3-pil.imagetk
 YAPPS_RUNTIME="python3-yapps"
 
 case $DISTRIB_NAME in
-    Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing)
+    Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
         ;;
     Ubuntu-20.*)
@@ -104,6 +104,7 @@ EXTRA_RECOMMENDS=hostmot2-firmware-all
 MODULE_PATH=usr/lib/linuxcnc/modules
 MODULE_EXT=.so
 KERNEL_DEPENDS=libudev-dev,iptables
+KERNEL_DEPENDS_BUILD=libudev-dev
 KERNEL_HEADERS=
 KERNEL_VERSION=uspace
 MODUTILS_DEPENDS=
@@ -124,6 +125,7 @@ sed \
     -e "s#@EXTRA_RECOMMENDS@#$EXTRA_RECOMMENDS#g" \
     -e "s#@EXTRAS@#$EXTRAS#g" \
     -e "s#@KERNEL_DEPENDS@#$KERNEL_DEPENDS#g" \
+    -e "s#@KERNEL_DEPENDS_BUILD@#$KERNEL_DEPENDS_BUILD#g" \
     -e "s#@KERNEL_HEADERS@#$KERNEL_HEADERS#g" \
     -e "s#@KERNEL_VERSION@#$KERNEL_VERSION#g" \
     -e "s#@LIBREADLINE_DEV@#$LIBREADLINE_DEV#g" \
