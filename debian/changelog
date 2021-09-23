@@ -1,4 +1,4 @@
-linuxcnc (1:2.9.0~pre0) focal; urgency=medium
+linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
 
   * Master branch open for new features.
 

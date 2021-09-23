@@ -3,7 +3,7 @@ Section: misc
 Priority: optional
 Maintainer: Sebastian Kuzminsky <seb@highlab.com>
 Uploaders: Steffen Moeller <moeller@debian.org>
-Build-Depends: debhelper-compat (= 13),
+Build-Depends: debhelper (>= 9),
     @PYTHON_PACKAGING_DEPENDS@,
     @KERNEL_DEPENDS_BUILD@,
     @KERNEL_HEADERS@,
