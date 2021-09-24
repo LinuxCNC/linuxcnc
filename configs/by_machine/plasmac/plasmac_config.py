@@ -113,7 +113,7 @@ class HandlerClass:
         self.builder.get_object('scribe-on-delay').set_digits(1)
         self.builder.get_object('scribe-on-delay-adj').configure(0,0,9,0.1,0,0)
         self.builder.get_object('thc-delay').set_digits(1)
-        self.builder.get_object('thc-delay-adj').configure(1.5,0,9,0.1,0,0)
+        self.builder.get_object('thc-delay-adj').configure(0.5,0,9,0.1,0,0)
         self.builder.get_object('thc-threshold').set_digits(2)
         self.builder.get_object('thc-threshold-adj').configure(1,0.05,9,0.01,0,0)
         if self.i.find('TRAJ', 'LINEAR_UNITS').lower() == 'mm':
@@ -350,7 +350,7 @@ class HandlerClass:
 
     def __init__(self, halcomp,builder,useropts):
 
-        self.plasmacVersion = 'PlasmaC v0.188'
+        self.plasmacVersion = 'PlasmaC v0.189'
 
         self.W = gtk.Window()
         self.halcomp = halcomp
