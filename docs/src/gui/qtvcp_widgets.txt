@@ -210,7 +210,7 @@ The some indicator_status_options holds a property that can be used with a style
 to change the color of the button based on the state of the property in linuxcnc. +
 Currently these status options can be used to auto style buttons: +
 is_estopped_status indicated buttons change the property 'isEstopped' +
-is_on_status indicated buttons change the properry 'isStateOn' +
+is_on_status indicated buttons change the property 'isStateOn' +
 manual,mdi,auto _status indicated buttons change the properties 'isManual, isMDI, isAuto'
 
 Here is a sample stylesheet entry. +
@@ -221,10 +221,10 @@ ActionButton[isManual=true] {
     background: red;
 }
 ActionButton[isMdi=true] {
-    background: red;
+    background: blue;
 }
 ActionButton[isAuto=true] {
-    background: red;
+    background: green;
 }
 ----
 
@@ -241,6 +241,16 @@ ActionButton #estop button [isEstopped=false] {
 Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
 on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
 to specify the text for each state. +
+'\\n' will be converted to a newline.
+
+You can set/change these in style sheets: +
+
+----
+ActionButton #action_aux{
+qproperty-true_state_string: "Air\\nOn";
+qproperty-false_state_string: "Air\\nOff";
+}
+----
 
 ==== Call python commands on state
 
@@ -536,6 +546,16 @@ On Limits
 Choosing the checked_state_text_option allows a 'checkable' button to change the text based +
 on it's checked state. It uses the properties 'true_state_string' and 'false_state_string' +
 to specify the text for each state. +
+'\\n' will be converted to a newline.
+
+You can set/change these in style sheets: +
+
+----
+Indicated_PushButton #auxiliary {
+qproperty-true_state_string: "Air\\nOn";
+qproperty-false_state_string: "Air\\nOff";
+}
+----
 
 ==== Call python commands on state
 
