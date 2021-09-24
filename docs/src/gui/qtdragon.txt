@@ -388,9 +388,38 @@ qtdragon_hd has a resolution of 1920 x 1056. +
 
 == Customization
 
-All aspects of the GUI are fully customizable through qtdesigner. This is included with the qtvcp development environment.
-The extensive use of qtvcp widgets keeps the amount of required python code to a minimum, allowing relatively easy modifications.
-The LinuxCNC website has extensive documentation on the installation and use of qtvcp libraries.
+=== Stylesheets
+Stylesheets can be leveraged to do a fair amount of cutomization, but you usually need to know a bit about the widget names. +
+Pressing F12 will display a stylesheet editor dialog to load/test/save modification. +
+For instance: +
+
+To change the DRO font (look for this entry and change the font name):
+
+[source,{ini}]
+----
+DROLabel,
+StatusLabel#status_rpm {
+    border: 1px solid black;
+    border-radius: 4px;
+    font: 20pt "Noto Mono";
+}
+----
+
+To change the text of the mist button to 'air' (add these lines)
+
+[source,{ini}]
+----
+#action_mist{
+qproperty-true_state_string: "Air\\nOn";
+qproperty-false_state_string: "Air\\nOff";
+}
+----
+
+=== QtDesigner and python code
+All aspects of the GUI are fully customizable through qtdesigner and/or python code. +
+This capability is included with the qtvcp development environment. +
+The extensive use of qtvcp widgets keeps the amount of required python code to a minimum, allowing relatively easy modifications. +
+The LinuxCNC website has extensive documentation on the installation and use of qtvcp libraries. +
 <<cha:qtvcp,QtVCP Overview>> for more information
 
 .qtdragon - Customized Silverdragon
