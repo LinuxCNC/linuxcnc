@@ -1,4 +1,4 @@
-VERSION = '1.0.95'
+VERSION = '1.0.96'
 
 '''
 qtplasmac_handler.py
@@ -196,7 +196,7 @@ class HandlerClass:
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
-                              'mdi_show', 'height_lower', 'height_raise']
+                              'mdi_show', 'height_lower', 'height_raise', 'wcs_button']
         self.pausedValidList= []
         self.jogButtonList = ['jog_x_plus', 'jog_x_minus', 'jog_y_plus', 'jog_y_minus', 'jog_z_plus', \
                               'jog_z_minus', 'jog_a_plus', 'jog_a_minus', 'jog_b_plus', 'jog_b_minus']
@@ -800,6 +800,7 @@ class HandlerClass:
         self.manualCut = False
         self.jogPreManCut = [False, INFO.DEFAULT_LINEAR_JOG_VEL, 0]
         self.probeTest = False
+        self.torchPulse = False
         self.rflSelected = False
         self.fileOpened = False
         self.laserButtonState = 'laser'
@@ -1069,9 +1070,12 @@ class HandlerClass:
                 self.w.run.setEnabled(True)
                 if self.frButton:
                     self.w[self.frButton].setEnabled(True)
-            if self.manualCut == True:
+            if self.manualCut:
                 self.manualCut = False
                 self.set_mc_states(True)
+            if self.probeTest:
+                self.set_tab_jog_states(True)
+                self.probeTest = False
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
         else:
@@ -1353,8 +1357,10 @@ class HandlerClass:
             return
         else:
             ACTION.ABORT()
-        hal.set_p('plasmac.cut-recovery', '0')
-        self.interp_idle(None)
+            if self.torchPulse:
+                self.torch_pulse(True)
+            hal.set_p('plasmac.cut-recovery', '0')
+            self.interp_idle(None)
 
     def user_button_pressed(self, button):
         self.user_button_down(button)
@@ -2607,13 +2613,14 @@ class HandlerClass:
             self.w.jogincrements.setCurrentIndex(self.jogPreManCut[2])
         self.w.jog_z_plus.setEnabled(state)
         self.w.jog_z_minus.setEnabled(state)
-        self.w.wcs_button.setEnabled(state)
         self.set_tab_jog_states(state)
 
     def set_tab_jog_states(self, state):
         if STATUS.is_auto_paused():
+            if self.torchPulse:
+                self.w.pause.setEnabled(state)
             for n in range(self.w.main_tab_widget.count()):
-                if n != 0 and n != 1:
+                if n > 1:
                     self.w.main_tab_widget.setTabEnabled(n, state)
         else:
             for n in range(self.w.main_tab_widget.count()):
@@ -2624,6 +2631,8 @@ class HandlerClass:
             self.w.jog_slow.setEnabled(state)
             self.w.jogincrements.setEnabled(state)
             self.w.material_selector.setEnabled(state)
+            if self.probeTest or self.torchPulse:
+                self.w.jog_frame.setEnabled(state)
 
     def show_material_selector(self):
         self.w.material_selector.showPopup()
@@ -2718,11 +2727,7 @@ class HandlerClass:
             self.probeTimer.start(1000)
             self.w[self.ptButton].setText('{}'.format(self.probeTime))
         else:
-            self.probeTimer.stop()
-            self.probeTime = 0
-            hal.set_p('plasmac.probe-test','0')
-            self.w[self.ptButton].setText(self.probeText)
-            self.button_normal(self.ptButton)
+            self.probe_test_stop()
 
     def torch_timeout(self):
         if self.torchTime:
@@ -2733,12 +2738,7 @@ class HandlerClass:
             self.torchTimer.stop()
             self.torchTime = 0
             if not self.w[self.tpButton].isDown() and not self.extPulsePin.get():
-                hal.set_p('plasmac.torch-pulse-time', '0')
-                self.w[self.tpButton].setText(self.tpText)
-                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
-                if self.w.gcode_display.lines() > 1:
-                    self.w.run.setEnabled(True)
-                self.button_normal(self.tpButton)
+                self.torch_pulse_states(True)
             else:
                 text0 = _translate('HandlerClass', 'TORCH')
                 text1 = _translate('HandlerClass', 'ON')
@@ -3276,13 +3276,13 @@ class HandlerClass:
                 self.w.abort.setEnabled(True)
                 self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
                 self.w[self.ptButton].setEnabled(True)
+                self.set_tab_jog_states(False)
             else:
                 self.probe_test_stop()
 
     def probe_test_stop(self):
         self.probeTimer.stop()
         self.probeTime = 0
-        self.probeTest = False
         self.w.abort.setEnabled(False)
         hal.set_p('plasmac.probe-test','0')
         self.w[self.ptButton].setText(self.probeText)
@@ -3303,32 +3303,32 @@ class HandlerClass:
                self.w.torch_enable.isChecked() and not hal.get_value('plasmac.torch-on'):
                 self.torchTime = self.tpTime
                 self.torchTimer.start(100)
+                self.torchPulse = True
                 hal.set_p('plasmac.torch-pulse-time', str(self.torchTime))
                 hal.set_p('plasmac.torch-pulse-start', '1')
                 self.w[self.tpButton].setText('{}'.format(self.torchTime))
-                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
-                self.w.run.setEnabled(False)
-                self.w.wcs_button.setEnabled(False)
                 self.button_active(self.tpButton)
+                self.torch_pulse_states(False)
             else:
                 self.torchTimer.stop()
                 self.torchTime = 0.0
-                hal.set_p('plasmac.torch-pulse-time', '0')
-                self.w[self.tpButton].setText(self.tpText)
-                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
-                if self.w.gcode_display.lines() > 1:
-                    self.w.run.setEnabled(True)
-                self.button_normal(self.tpButton)
+                self.torch_pulse_states(True)
         else:
             hal.set_p('plasmac.torch-pulse-start','0')
             if self.torchTime == 0:
-                hal.set_p('plasmac.torch-pulse-time', '0')
-                self.w[self.tpButton].setText(self.tpText)
-                self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
-                if self.w.gcode_display.lines() > 1:
-                    self.w.run.setEnabled(True)
-                self.w.wcs_button.setEnabled(True)
-                self.button_normal(self.tpButton)
+                self.torch_pulse_states(True)
+
+    def torch_pulse_states(self, state):
+        self.set_tab_jog_states(state)
+        if not STATUS.is_auto_paused():
+            self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], state)
+            if self.w.gcode_display.lines() > 1:
+                self.w.run.setEnabled(state)
+        if state:
+            hal.set_p('plasmac.torch-pulse-time', '0')
+            self.w[self.tpButton].setText(self.tpText)
+            self.button_normal(self.tpButton)
+            self.torchPulse = False
 
     def ext_ohmic_test(self, state):
         if self.otButton and self.w[self.otButton].isEnabled():
@@ -5314,6 +5314,9 @@ class HandlerClass:
 #########################################################################################################################
 # KEY BINDING CALLS #
 #########################################################################################################################
+    def key_is_valid(self, key):
+        return not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and self.w['jog_{}'.format(key)].isEnabled()
+
     def on_keycall_ESTOP(self, event, state, shift, cntrl):
         if not event.isAutoRepeat() and state and self.keyboard_shortcuts():
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
@@ -5339,7 +5342,7 @@ class HandlerClass:
             self.probe_test_stop()
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
-        if state and not shift and STATUS.is_on_and_idle() and self.keyboard_shortcuts():
+        if state and not shift and STATUS.is_on_and_idle() and self.keyboard_shortcuts() and self.w.home_all.isEnabled():
             if STATUS.is_all_homed():
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
@@ -5370,81 +5373,83 @@ class HandlerClass:
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and \
+           self.keyboard_shortcuts() and not self.probeTest and not self.torchPulse and not self.framing and \
+           STATUS.is_interp_idle():
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('x_plus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('x'), 1, shift)
             else:
                 self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('x_minus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('x'), -1, shift)
             else:
                 self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('y_plus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('y'), 1, shift)
             else:
                 self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('y_minus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('y'), -1, shift)
             else:
                 self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running() and not self.manualCut:
+        if self.key_is_valid('z_plus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), 1, shift)
             else:
                 self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running() and not self.manualCut:
+        if self.key_is_valid('z_minus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), -1, shift)
             else:
                 self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('a_plus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('a'), 1, shift)
             else:
                 self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('a_minus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('a'), -1, shift)
             else:
                 self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_BPOS(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('b_plus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('b'), 1, shift)
             else:
                 self.kb_jog(state, 4, 1, shift)
 
     def on_keycall_BNEG(self, event, state, shift, cntrl):
-        if not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and not STATUS.is_auto_running():
+        if self.key_is_valid('b_minus'):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('b'), -1, shift)
             else:
                 self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
-        if self.jogSlow or self.manualCut:
+        if self.jogSlow and self.w.jog_slider.isEnabled():
             return
         if state:
             self.jogFast = True
@@ -5452,7 +5457,7 @@ class HandlerClass:
             self.jogFast = False
 
     def on_keycall_MINUS(self, event, state, shift, cntrl):
-        if self.jogFast or self.manualCut:
+        if self.jogFast and self.w.jog_slider.isEnabled():
             return
         if state:
             self.jogSlow = True
@@ -5474,12 +5479,12 @@ class HandlerClass:
                 else:
                     self.w.feed_slider.setValue(100)
             else:
-                if number and not self.manualCut and not STATUS.is_auto_running():
+                if number and self.w.jog_slider.isEnabled():
                     if self.w.jog_slow.isChecked():
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number / self.slowJogFactor)
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL * 0.10 * number)
-                elif not self.manualCut:
+                elif self.w.jog_slider.isEnabled():
                     if self.w.jog_slow.isChecked():
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL / self.slowJogFactor)
                     else:
