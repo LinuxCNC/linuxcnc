@@ -27,12 +27,13 @@
 
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
-#define TOOL_MMAP_FILENAME "/tmp/.tool.mmap"
+#define TOOL_MMAP_FILENAME ".tool.mmap"
 #define TOOL_MMAP_MODE     0600
 #define TOOL_MMAP_CREATOR_OPEN_FLAGS  O_RDWR | O_CREAT | O_TRUNC
 #define TOOL_MMAP_USER_OPEN_FLAGS     O_RDWR
 
 static int           creator_fd;
+static char          filename[LINELEN] = {};
 static char*         tool_mmap_base = 0;
 static EMC_TOOL_STAT const *toolstat;
 
@@ -68,6 +69,14 @@ typedef struct {
 **       DEFAULT_EMC_TASK_CYCLE_TIME 0.100 (.001 common)
 **       DEFAULT_EMC_IO_CYCLE_TIME   0.100
 */
+
+static char* tool_mmap_fname(void) {
+    if (*filename) {return filename;}
+    char* hdir = secure_getenv("HOME");
+    if (!hdir) {hdir = (char*)"/tmp";}
+    snprintf(filename,sizeof(filename),"%s/%s",hdir,TOOL_MMAP_FILENAME);
+    return(filename);
+}
 
 static int tool_mmap_mutex_get()
 {
@@ -121,7 +130,7 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
         exit(EXIT_FAILURE);
     }
     toolstat = ptr; //note NULL for sai
-    creator_fd = open(TOOL_MMAP_FILENAME,
+    creator_fd = open(tool_mmap_fname(),
                      TOOL_MMAP_CREATOR_OPEN_FLAGS,TOOL_MMAP_MODE);
     if (!creator_fd) {
         perror("tool_mmap_creator(): file open fail");
@@ -156,7 +165,7 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
 //typ: milltask, guis (emcmodule,emcsh,...), halui
 int tool_mmap_user()
 {
-    int fd = open(TOOL_MMAP_FILENAME,
+    int fd = open(tool_mmap_fname(),
                   TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
 
     if (fd < 0) {
@@ -196,8 +205,8 @@ void tool_mmap_close()
         perror("tool_mmap_close(): munmapfail");
         exit(EXIT_FAILURE);
     }
-    if( unlink(TOOL_MMAP_FILENAME)) {
-        perror("tool_mmap_close(): unlink fail for" TOOL_MMAP_FILENAME);
+    if( unlink(tool_mmap_fname() )) {
+        perror("tool_mmap_close(): unlink fail");
     }
     close(creator_fd);
 } //tool_mmap_close()
