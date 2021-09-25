@@ -2262,7 +2262,7 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC. In order for t
 |CTRL+8|Changes feed rate to 80%.
 |CTRL+9|Changes feed rate to 90%.
 |CTRL+0|Changes feed rate to 100%.
-|CTRL+h|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
+|CTRL+h or Home|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
 |CTRL+r|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
 |SPACE BAR|Pause motion.
 |o|Opens a new program.
