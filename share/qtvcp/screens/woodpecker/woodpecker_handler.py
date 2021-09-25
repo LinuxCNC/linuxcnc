@@ -370,7 +370,7 @@ class HandlerClass:
         except Exception as e:
             if is_pressed:
                 LOG.debug('Exception in KEYBINDING:', exc_info=e)
-                print 'Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key)
+                print('Error in, or no function for: %s in handler file for-%s'%(KEYBIND.convert(event),key))
         event.accept()
         return True
 
@@ -937,7 +937,7 @@ class HandlerClass:
 
     def add_status(self, message):
         self._m = message
-        print message
+        print (message)
         self.w.statusbar.showMessage(self._m, 5000)
         STATUS.emit('update-machine-log', self._m, 'TIME')
 
