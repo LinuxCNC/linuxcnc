@@ -177,7 +177,7 @@ class _ToggleBase(_WidgetBase):
                 output = self.true_function if self.state else self.false_function
                 #print ('output',output)
                 if isinstance(output,list):
-                    args = stringToPython(output[1])
+                    args = self.stringToPython(output[1])
                     funct = output[0]
                 else:
                     funct = output
@@ -218,6 +218,8 @@ class _ToggleBase(_WidgetBase):
         if isinstance(cmd,list):
             for num,i in enumerate(cmd):
                 cmd[num] = convert(i)
+        else:
+            cmd = convert(cmd)
         return cmd
 
 
