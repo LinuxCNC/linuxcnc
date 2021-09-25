@@ -46,7 +46,10 @@ int main (int argc,char**argv) {
     if (argc>=2) {idx_begin = atoi(argv[1]);idx_end=idx_begin;}
     if (argc>=3) {idx_end   = atoi(argv[2]);}
 
-    tool_mmap_user();
+    if (tool_mmap_user()) {
+        fprintf(stderr,"No active mmapped tooldata file, bye\n");
+        exit(1);
+    }
     idx_last = tooldata_last_index_get();
     is_random_tc = tool_mmap_is_random_toolchanger();
     if (idx_last < 0) {
