@@ -9,7 +9,8 @@
 #ifndef BOOST_PYTHON_MAX_ARITY
 #define BOOST_PYTHON_MAX_ARITY 4
 #endif
-#include <boost/python/iterator.hpp>
+#include <boost/python/class.hpp>
+#include <boost/python/object/class_detail.hpp>
 #include <boost/python/enum.hpp>
 #include <boost/python/object.hpp>
 #include <boost/python/scope.hpp>
