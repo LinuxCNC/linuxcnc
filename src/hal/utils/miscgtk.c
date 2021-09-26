@@ -159,7 +159,6 @@ void gtk_label_size_to_fit(GtkLabel * label, const gchar * str)
 {
     GtkRequisition req;
     const gchar *current_text;
-    gint text_len;
     gchar *text_buf;
 
     /* get a pointer to the current text */
