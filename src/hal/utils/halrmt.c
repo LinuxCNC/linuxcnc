@@ -1479,7 +1479,7 @@ static int doLoadUsr(char *args[])
     /* get program and component name */
     if(name_flag) {
         new_comp_name = *args++;
-    prog_name = *args++;
+        prog_name = *args++;
     } else {
         new_comp_name = prog_name = *args++;
     }
@@ -2880,7 +2880,7 @@ static cmdResponseType setUnload(char *s, connectionRecType *context)
 
 static cmdResponseType setLoadUsr(char *s, connectionRecType *context)
 {
-  char *argv[MAX_TOK+1];
+  char *argv[MAX_TOK+1] = {0};
 
   argv[0] = s;
   argv[1] = "\0";
@@ -3472,11 +3472,11 @@ int main(int argc, char **argv)
     // process halrmt command line args
     while((opt = getopt_long(argc, argv, "e:n:p:s:w:", longopts, NULL)) != -1) {
       switch(opt) {
-        case 'e': strncpy(enablePWD, optarg, strlen(optarg) + 1); break;
-        case 'n': strncpy(serverName, optarg, strlen(optarg) + 1); break;
+        case 'e': snprintf(enablePWD, sizeof(enablePWD), "%s", optarg); break;
+        case 'n': snprintf(serverName, sizeof(serverName), "%s", optarg); break;
         case 'p': sscanf(optarg, "%d", &port); break;
         case 's': sscanf(optarg, "%d", &maxSessions); break;
-        case 'w': strncpy(pwd, optarg, strlen(optarg) + 1); break;
+        case 'w': snprintf(pwd, sizeof(pwd), "%s", optarg); break;
         }
       }
 
