@@ -212,6 +212,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         item = message.get('ITEM')
         if code and (name or name2) and num is not None:
             self.tablemodel.setData(item, num, None)
+            self.tablemodel.layoutChanged.emit()
 
     # This function uses the color name (string); setProperty
     # expects a QColor object
