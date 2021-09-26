@@ -731,8 +731,8 @@ static int harden_rt()
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "cannot gain I/O privileges - "
-                        "forgot 'sudo make setuid'?\n");
-        return -EPERM;
+                        "forgot 'sudo make setuid' or using secure boot? -"
+                        "parallel port access is not allow\n");
     }
 #endif
 

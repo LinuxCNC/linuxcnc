@@ -91,6 +91,12 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
         if self._halpin_option:
             self.hal_pin.set(v)
 
+    # catch any programmed settings and update HAL pin
+    def setValue(self, v):
+        super(StatusSlider, self).setValue(v)
+        if self._halpin_option:
+            self.hal_pin.set(v)
+
     def _action(self, value):
         self._style_polish(state= self.get_alert_cmd(value))
         if self._halpin_option:
