@@ -1659,6 +1659,12 @@ SENSOR</string>
                      <property name="alignment">
                       <set>Qt::AlignCenter</set>
                      </property>
+                     <property name="textTemplate" stdset="0">
+                      <string>%9.4f</string>
+                     </property>
+                     <property name="alt_textTemplate" stdset="0">
+                      <string>%10.3f</string>
+                     </property>
                      <property name="tool_diameter_status" stdset="0">
                       <bool>true</bool>
                      </property>
@@ -13587,7 +13593,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>09:27:48 AM</string>
+            <string>11:00:09 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14056,8 +14062,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>299</x>
+     <y>465</y>
     </hint>
     <hint type="destinationlabel">
      <x>-3</x>
@@ -14072,8 +14078,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>397</x>
+     <y>465</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -14169,7 +14175,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>482</x>
-     <y>96</y>
+     <y>346</y>
     </hint>
     <hint type="destinationlabel">
      <x>454</x>
@@ -14184,8 +14190,8 @@ ZERO</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>388</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -14200,8 +14206,8 @@ ZERO</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>496</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -14232,8 +14238,8 @@ ZERO</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>415</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -14248,8 +14254,8 @@ ZERO</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>236</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -14264,8 +14270,8 @@ ZERO</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>442</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -14296,8 +14302,8 @@ ZERO</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>678</x>
-     <y>469</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
@@ -14392,8 +14398,8 @@ ZERO</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-5</x>
-     <y>-115</y>
+     <x>491</x>
+     <y>57</y>
     </hint>
     <hint type="destinationlabel">
      <x>832</x>
@@ -14440,8 +14446,8 @@ ZERO</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>557</x>
-     <y>251</y>
+     <x>528</x>
+     <y>86</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
