@@ -60,6 +60,21 @@
 #include <fnmatch.h>
 #include <search.h>
 
+static char *vseprintf(char *buf, char *ebuf, const char *fmt, va_list ap) {
+    int result = vsnprintf(buf, ebuf-buf, fmt, ap);
+    if(result < 0) return ebuf;
+    else if(buf + result > ebuf) return ebuf;
+    else return buf + result;
+}
+
+static char *seprintf(char *buf, char *ebuf, const char *fmt, ...) {
+    va_list ap;
+    va_start(ap, fmt);
+    char *result = vseprintf(buf, ebuf, fmt, ap);
+    va_end(ap);
+    return result;
+}
+
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);
 static int release_HAL_mutex(void);
@@ -255,49 +270,36 @@ int main(int argc, char **argv)
         }
     } else {
         int   extend_ct = 0; // extend lines with backslash (\)
-        char *elinenext = 0;
+        char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)] = {0,};
+        char *elineptr=eline, *elineend=eline + sizeof(eline);
 	/* read command line(s) from 'srcfile' */
 	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    char *tokens[MAX_TOK+1];
-            char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
-            char *elineptr;
             int   newLinePos;
 
 	    halcmd_set_linenumber(linenumber++);
 
             newLinePos = (int)strlen(raw_buf) - 1; // interactive
-            if (raw_buf[newLinePos] == '\n') { newLinePos--; }  // tty
+            if (raw_buf[newLinePos] == '\n') { raw_buf[newLinePos]=0; newLinePos--; }  // tty
 
-            if (newLinePos > 0 && raw_buf[newLinePos] == '\\') { // backslash
+            if (raw_buf[newLinePos] == '\\') { // backslash
                 raw_buf[newLinePos] = 0;
                 newLinePos++;
                 if (!extend_ct) { //first extend
                     if (prompt == prompt_interactive) prompt = prompt_continue;
-                    elineptr = eline;
-                    strncpy(elineptr,raw_buf,strlen(raw_buf));
-                    elinenext = elineptr + strlen(raw_buf);
-                } else { // subsequent extends
-                    strncpy(elinenext,raw_buf,newLinePos);
-                    elinenext = elinenext + strlen(raw_buf);
                 }
-                *elinenext = 0;
+                elineptr = seprintf(elineptr, elineend, "%s", raw_buf);
                 extend_ct++;
                 continue; // get next line to extend
             } else { // no backslash
-                if (extend_ct) { // extend finished
-                    strncpy(elinenext,raw_buf,strlen(raw_buf));
-                    *(eline+strlen(eline)+0)='\n';
-                    elinenext = elinenext + strlen(raw_buf);
-                    *elinenext = 0;
-                    elineptr = eline;
-                }
+                elineptr = seprintf(elineptr, elineend, "%s", raw_buf);
             }
-            if (!extend_ct) { elineptr = (char*)raw_buf; }
             extend_ct = 0;
             if (prompt == prompt_continue) { prompt = prompt_interactive; }
 
 	    /* remove comments, do var substitution, and tokenise */
-	    retval = halcmd_preprocess_line(elineptr, tokens);
+	    retval = halcmd_preprocess_line(eline, tokens);
+
 	    if(echo_mode) {
 	        halcmd_echo("%s\n", eline);
 	    }
@@ -324,6 +326,8 @@ int main(int argc, char **argv)
 		/* exit from loop */
 		break;
 	    }
+            elineptr=eline;
+            *eline = 0;
 	} //while get_input()
         extend_ct=0;
     }
