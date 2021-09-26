@@ -461,7 +461,7 @@ static hm2_eth_t boards[MAX_ETH_BOARDS];
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
-#define IPTABLES "/sbin/iptables"
+#define IPTABLES "env \"PATH=/usr/sbin:/sbin:$(PATH)\" iptables"
 #define CHAIN "hm2-eth-rules-output"
 
 static int shell(char *command) {
@@ -500,14 +500,14 @@ static int iptables_state = -1;
 static bool use_iptables() {
     if(iptables_state == -1) {
         if(!chain_exists()) {
-            int res = shell("/sbin/iptables -N " CHAIN);
+            int res = shell(IPTABLES " -N " CHAIN);
             if(res != EXIT_SUCCESS) {
                 LL_PRINT("ERROR: Failed to create iptables chain "CHAIN);
                 return (iptables_state = 0);
             }
         }
         // now add a jump to our chain at the start of the OUTPUT chain if it isn't in the chain already
-        int res = shell("/sbin/iptables -C OUTPUT -j " CHAIN " 2>/dev/null || /sbin/iptables -I OUTPUT 1 -j " CHAIN);
+        int res = shell(IPTABLES "-C OUTPUT -j " CHAIN " 2>/dev/null || /sbin/iptables -I OUTPUT 1 -j " CHAIN);
         if(res != EXIT_SUCCESS) {
             LL_PRINT("ERROR: Failed to insert rule in OUTPUT chain");
             return (iptables_state = 0);
