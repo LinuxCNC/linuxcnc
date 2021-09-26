@@ -2,7 +2,7 @@ Source: linuxcnc
 Section: misc
 Priority: optional
 Maintainer: Sebastian Kuzminsky <seb@highlab.com>
-Uploaders: Steffen Moeller <moeller@debian.org>
+Uploaders: Steffen Moeller <moeller@debian.org>, Jeff Epler <jepler@gmail.com>, Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends: debhelper (>= 9),
     @PYTHON_PACKAGING_DEPENDS@,
     @KERNEL_DEPENDS_BUILD@,
