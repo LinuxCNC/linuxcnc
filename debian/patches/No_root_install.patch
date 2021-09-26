@@ -1,0 +1,21 @@
+Index: linuxcnc/src/Makefile
+===================================================================
+--- linuxcnc.orig/src/Makefile
++++ linuxcnc/src/Makefile
+@@ -571,12 +571,12 @@ $(patsubst %,../include/%,$(wildcard *.h
+ $(patsubst %,../include/%,$(wildcard *.hh)): ../include/%.hh: %.hh
+ 	$(Q)-cp $^ $@
+ 
+-DIR=install -d -m 0755 -o root
+-FILE=install -m 0644 -o root
++DIR=install -d -m 0755
++FILE=install -m 0644
+ TREE=cp -dR
+ CONFIGFILE=install -m 0644
+-EXE=install -m 0755 -o root
+-SETUID=install -m 4755 -o root
++EXE=install -m 0755
++SETUID=install -m 4755
+ GLOB=$(wildcard $(1))
+ 
+ ifeq ($(RUN_IN_PLACE),yes)

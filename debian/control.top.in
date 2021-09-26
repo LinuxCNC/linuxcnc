@@ -2,9 +2,10 @@ Source: linuxcnc
 Section: misc
 Priority: optional
 Maintainer: Sebastian Kuzminsky <seb@highlab.com>
-Build-Depends: debhelper (>= 6),
+Uploaders: Steffen Moeller <moeller@debian.org>
+Build-Depends: debhelper (>= 9),
     @PYTHON_PACKAGING_DEPENDS@,
-    @KERNEL_DEPENDS@,
+    @KERNEL_DEPENDS_BUILD@,
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
@@ -37,19 +38,21 @@ Build-Depends: debhelper (>= 6),
     libtirpc-dev,
     libepoxy-dev,
     python3-xlib
-Standards-Version: 3.9.8
+Standards-Version: 4.6.0
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: git://github.com/linuxcnc/linuxcnc.git
+Rules-Requires-Root: no
 
 Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
-Depends: g++, @KERNEL_HEADERS@,
-    python3-serial,
-    ${python3:Depends}, ${misc:Depends},
-    @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
-    udev,
-    @YAPPS_RUNTIME@
+Depends: ${misc:Depends},
+         @KERNEL_HEADERS@,
+         python3-serial,
+         ${python3:Depends},
+         @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
+         udev,
+         @YAPPS_RUNTIME@
 Section: libs
 Description: PC based motion controller for real-time Linux
  LinuxCNC is the next-generation Enhanced Machine Controller which

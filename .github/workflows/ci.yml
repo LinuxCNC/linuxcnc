@@ -70,7 +70,8 @@ jobs:
         ./scripts/travis-install-build-deps.sh
         codename=$(grep VERSION_CODENAME /etc/os-release | cut -d = -f 2)
         dch --maintmaint --distribution $codename "GitHub test package."
-        debuild -uc -us -I -i -j$(nproc)
+        QUILT_PATCHES=debian/patches quilt push -a
+        fakeroot ./debian/rules binary
         sudo apt-get install ../*.deb
         ./scripts/runtests -p tests/
         lintian --info --display-info --pedantic --display-experimental ../*.deb
