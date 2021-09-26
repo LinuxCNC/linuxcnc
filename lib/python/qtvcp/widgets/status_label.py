@@ -387,7 +387,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._alt_textTemplate = data
         try:
             self._set_text(200.0)
-        except:
+        except TypeError:
+            try:
+                self.setText(data)
+            except ValueError:
+                raise
+        except Exception as e:
+            LOG.error("altTextTemplate: {}, Data: {}".format(self._textTemplate, data), exc_info=e)
             self.setText('Error 2')
     def get_alt_textTemplate(self):
         return self._alt_textTemplate

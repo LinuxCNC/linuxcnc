@@ -332,15 +332,15 @@ class StatusLabelDialog(QtWidgets.QDialog):
                   ('Spindle Override', ['spindle_override', 2], []),
                   ('Max Velocity Override', ['max_velocity_override', 2], []))
         node_2 = (('Jog Rate', ['jograte', 6], []),
-                  ('Jog Rate Angular', ['jograte_angular', 6], []),
+                  ('Jog Rate Angular', ['jograte_angular', 2], []),
                   ('Jog Increment', ['jogincr', 6], []),
                   ('Jog Increment Angular', ['jogincr_angular', 2], []))
-        node_3 = (('Spindle Rate Requested', ['requested_spindle_speed', 2], []),
-                  ('Spindle Rate Actual', ['actual_spindle_speed', 2], []))
+        node_3 = (('Spindle Rate Requested', ['requested_spindle_speed', 6], []),
+                  ('Spindle Rate Actual', ['actual_spindle_speed', 6], []))
         node_4 = (('Current Feed Rate', ['current_feedrate', 6], []),
                   ('Current Feed Unit', ['current_feedunit', 6], []))
         node_5 = (('Tool Number', ['tool_number', 2], []),
-                  ('Tool Diameter', ['tool_diameter', 2], []),
+                  ('Tool Diameter', ['tool_diameter', 6], []),
                   ('Tool Offset', ['tool_offset', 3], []),
                   ('Tool Comment', ['tool_comment', 2], []))
         node_6 = (('Active G Codes', ['gcodes', 2], []),
@@ -348,8 +348,9 @@ class StatusLabelDialog(QtWidgets.QDialog):
                   ('Active G5X System', ['user_system', 2], []))
         node_7 = (('File Name', ['filename', 2], []),
                   ('File Path', ['filepath', 2], []))
-        node_8 = (('Machine State', ['machine_state', 2], []),)
-        node_9 = (('Time', ['time_stamp', 2], []),)
+        node_8 = (('Machine State', ['machine_state', 8], []),)
+        node_9 = (('Time', ['time_stamp', 2], []),
+                    ('HAL Pin Status', ['halpin', 22], []))
         node_none = (('Unused', ['unused', 2], []),)
 
         parent_node = [('Unset', [None, None], node_none),
@@ -395,7 +396,7 @@ class StatusLabelDialog(QtWidgets.QDialog):
         # text template
         self.ud2 = QtWidgets.QWidget()
         vbox2 = QtWidgets.QVBoxLayout(self.ud2)
-        label = QtWidgets.QLabel('Text Template')
+        label = QtWidgets.QLabel('Imperial/Angular Text Template')
         vbox2.addWidget(label)
 
         hbox = QtWidgets.QHBoxLayout()
@@ -427,6 +428,27 @@ class StatusLabelDialog(QtWidgets.QDialog):
         vbox4.addLayout(hbox)
         layout.addWidget(self.ud4)
         self.ud4.hide()
+
+        self.ud8 = QtWidgets.QWidget()
+        vbox8 = QtWidgets.QVBoxLayout(self.ud8)
+        label = QtWidgets.QLabel('Please edit state_label_list \nproperty directly')
+        vbox8.addWidget(label)
+        layout.addWidget(self.ud8)
+        self.ud8.hide()
+
+        self.ud16 = QtWidgets.QWidget()
+        vbox2 = QtWidgets.QVBoxLayout(self.ud16)
+        label = QtWidgets.QLabel('HalPin Name')
+        vbox2.addWidget(label)
+
+        hbox = QtWidgets.QHBoxLayout()
+        self.halpinEditBox = QtWidgets.QLineEdit()
+        self.halpinEditBox.setText(self.widget._halpin_name)
+        hbox.addWidget(self.halpinEditBox)
+
+        vbox2.addLayout(hbox)
+        layout.addWidget(self.ud16)
+
 
         self.tab1.setLayout(layout)
 
@@ -468,8 +490,9 @@ class StatusLabelDialog(QtWidgets.QDialog):
             # if collapsed: return True
             # self.combo.select(0,0)
             return True
+        # hide/show user data widgets
         if not userDataCode is None:
-            for i in (1, 2, 4):
+            for i in (1, 2, 4, 8, 16):
                 widg = self['ud%s' % i]
                 if userDataCode & i:
                     widg.show()
@@ -506,6 +529,8 @@ class StatusLabelDialog(QtWidgets.QDialog):
                                         QtCore.QVariant(self.altTextTemplateEditBox.text()))
         formWindow.cursor().setProperty('text',
                                         QtCore.QVariant(self.defaultTextTemplateEditBox.text()))
+        formWindow.cursor().setProperty('halpin_name',
+                                        QtCore.QVariant(self.halpinEditBox.text()))
         self.widget._designer_block_signal = False
 
         self.accept()
