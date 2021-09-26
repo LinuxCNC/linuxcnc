@@ -33,8 +33,6 @@ else
   QUIETFLAGS    ?=
   QUIETFLAGS    += -Wno-unused-label
   QUIETFLAGS    += -Wno-format-overflow
-  QUIETFLAGS    += -Wno-format-truncation
-  QUIETFLAGS    += -Wno-stringop-truncation
   CXXQUIETFLAGS := $(QUIETFLAGS)
   CXXQUIETFLAGS += -Wno-catch-value
 endif
@@ -258,7 +256,7 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
-DEBUG := $(DEBUG) -g -Wall
+DEBUG := $(DEBUG) -g -Wall -Wno-stringop-truncation -Wno-format-truncation
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu99 -fgnu89-inline -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
 CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Woverloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
 CXXFLAGS += $(call cxx-option, -Wno-psabi)
