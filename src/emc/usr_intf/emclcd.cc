@@ -1705,9 +1705,9 @@ int main(int argc, char *argv[])
     while((opt = getopt_long(argc, argv, "p:d:a", longopts, NULL)) != -1) {
       switch(opt) {
         case 'a': autoStart = 1; break;
-        case 'd': strncpy(driver, optarg, strlen(optarg) + 1); break;
+        case 'd': snprintf(driver, sizeof(driver), "%s", optarg); break;
         case 'p': sscanf(optarg, "%d", &port); break;
-        case 's': strncpy(server, optarg, strlen(optarg) + 1); break;
+        case 's': snprintf(server, sizeof(server), "%s", optarg); break;
         case 'w': sscanf(optarg, "%f", &delay); break;
         }
       }
