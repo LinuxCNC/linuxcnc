@@ -1,4 +1,4 @@
-VERSION = '1.0.96'
+VERSION = '1.0.97'
 
 '''
 qtplasmac_handler.py
@@ -193,6 +193,7 @@ class HandlerClass:
         self.jogFast = False
         self.jogSlow = False
         self.lastLoadedProgram = 'None'
+        self.estopOnList = []
         self.idleList = ['file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
@@ -315,6 +316,7 @@ class HandlerClass:
         self.load_plasma_parameters()
         self.set_mode()
         self.user_button_setup()
+        self.set_buttons_state([self.estopOnList], True)
         self.check_material_file()
         self.load_materials()
         self.pmx485_check()
@@ -2624,8 +2626,8 @@ class HandlerClass:
                     self.w.main_tab_widget.setTabEnabled(n, state)
         else:
             for n in range(self.w.main_tab_widget.count()):
-                if n != 0:
-                    self.w.main_tab_widget.setTabEnabled(n, state)
+                if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
+                     self.w.main_tab_widget.setTabEnabled(n, state)
             self.w.jog_slider.setEnabled(state)
             self.w.jogs_label.setEnabled(state)
             self.w.jog_slow.setEnabled(state)
@@ -3037,7 +3039,7 @@ class HandlerClass:
                             msg2 = _translate('HandlerClass', 'does not exist')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}'.format(head, msg0, bNum, msg1, cmd, msg2))
                         else:
-                            self.idleList.append('button_{}'.format(str(bNum)))
+                            self.estopOnList.append('button_{}'.format(str(bNum)))
                     else:
                         head = _translate('HandlerClass', 'CODE ERROR')
                         msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
@@ -3340,9 +3342,10 @@ class HandlerClass:
         for button in self.idleOnList:
             if button != self.otButton:
                 buttonList.append(button)
-        if self.w.gcode_display.lines() > 1:
-            self.w.run.setEnabled(not state)
-        self.set_buttons_state([self.idleList, buttonList, self.idleHomedList], not state)
+        if not STATUS.is_auto_paused():
+            if self.w.gcode_display.lines() > 1:
+                self.w.run.setEnabled(not state)
+            self.set_buttons_state([self.idleList, buttonList, self.idleHomedList], not state)
 
     def ext_frame_job(self, state):
         if self.frButton and self.w[self.frButton].isEnabled():
