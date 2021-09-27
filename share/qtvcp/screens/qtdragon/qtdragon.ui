@@ -1671,21 +1671,24 @@ SENSOR</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLabel" name="lbl_tool_diam">
+                    <widget class="StateLabel" name="statelabel">
                      <property name="minimumSize">
                       <size>
                        <width>50</width>
-                       <height>0</height>
+                       <height>30</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
                        <width>50</width>
-                       <height>16777215</height>
+                       <height>30</height>
                       </size>
                      </property>
-                     <property name="text">
+                     <property name="true_textTemplate" stdset="0">
                       <string>MM</string>
+                     </property>
+                     <property name="false_textTemplate" stdset="0">
+                      <string>INCH</string>
                      </property>
                     </widget>
                    </item>
@@ -8741,10 +8744,19 @@ SPINDLE</string>
                        <number>1</number>
                       </property>
                       <property name="text">
-                       <string>0.000</string>
+                       <string> 200.0000</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
+                      </property>
+                      <property name="textTemplate" stdset="0">
+                       <string>%9.4f</string>
+                      </property>
+                      <property name="alt_textTemplate" stdset="0">
+                       <string>%10.3f</string>
+                      </property>
+                      <property name="index_number" stdset="0">
+                       <number>0</number>
                       </property>
                       <property name="tool_diameter_status" stdset="0">
                        <bool>true</bool>
@@ -13593,7 +13605,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>11:00:09 PM</string>
+            <string>12:09:42 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14529,7 +14541,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

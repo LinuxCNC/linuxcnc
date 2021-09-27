@@ -277,7 +277,7 @@ class HandlerClass:
         self.w.filemanager_usb.list.setAlternatingRowColors(False)
         self.w.filemanager_usb.showList()
 
-        if INFO.MACHINE_IS_METRIC:
+        if not INFO.MACHINE_IS_METRIC:
             self.w.lbl_tool_sensor_B2W.setText('INCH')
             self.w.lbl_tool_sensor_B2S.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
@@ -288,7 +288,6 @@ class HandlerClass:
             self.w.lbl_tool_sensor_loc.setText('INCH')
             self.w.lbl_laser_offset.setText('INCH')
             self.w.lbl_camera_offset.setText('INCH')
-            self.w.lbl_tool_diam.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
         #set up gcode list
         self.gcodes.setup_list()
