@@ -650,11 +650,7 @@ class Capture(object):
         self.t = []
 
     def capture(self):
-        # This conversion is need because minigl library gives a flat list and QTOpengl
-        # give a list of lists.
-        # It would be better to change all the functions so a flat list could be used 
-        # directly - i don't understand the code well enough
-        self.t = glGetDoublev(GL_MODELVIEW_MATRIX)
+        self.t = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
 
     def volume(self):
         return 0.0

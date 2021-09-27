@@ -271,7 +271,7 @@ class GLWidget(QOpenGLWidget):
         # since backplot lines only need vertexes, not orientation,
         # and the tooltip is at the origin, getting the tool coords
         # is easy
-        tx, ty, tz = self.tool2view.t[12:15]
+        tx, ty, tz = self.tool2view.t[3][:3]
         # now we have to transform them to the work frame
         wx = tx * view2work[0][0] + ty * view2work[1][0] + tz * view2work[2][0] + view2work[3][0]
         wy = tx * view2work[0][1] + ty * view2work[1][1] + tz * view2work[2][1] + view2work[3][1]
