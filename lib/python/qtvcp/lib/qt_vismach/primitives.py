@@ -1,4 +1,4 @@
-import itertools
+import copy
 import OpenGL.GL as GL
 from OpenGL import GLU
 import hal
@@ -164,9 +164,9 @@ class Track(Collection):
 
         view2world = invert(self.world2view.t)
 
-        px, py, pz = self.position.t[12:15]
+        px, py, pz = self.position.t[3][:3]
         px, py, pz = self.map_coords(px, py, pz, view2world)
-        tx, ty, tz = self.target.t[12:15]
+        tx, ty, tz = self.target.t[3][:3]
         tx, ty, tz = self.map_coords(tx, ty, tz, view2world)
         dx = tx - px;
         dy = ty - py;
@@ -654,8 +654,7 @@ class Capture(object):
         # give a list of lists.
         # It would be better to change all the functions so a flat list could be used 
         # directly - i don't understand the code well enough
-        # self.t = GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)
-        self.t = list(itertools.chain.from_iterable(GL.glGetDoublev(GL.GL_MODELVIEW_MATRIX)))
+        self.t = glGetDoublev(GL_MODELVIEW_MATRIX)
 
     def volume(self):
         return 0.0
@@ -672,17 +671,17 @@ class Capture(object):
 
 def invert(src):
     # make a copy
-    inv = src[:]
+    inv = copy.deepcopy(src[:])
     # The inverse of the upper 3x3 is the transpose (since the basis
     # vectors are orthogonal to each other.
-    inv[1], inv[4] = inv[4], inv[1]
-    inv[2], inv[8] = inv[8], inv[2]
-    inv[6], inv[9] = inv[9], inv[6]
+    inv[0][1], inv[1][0] = inv[1][0], inv[0][1]
+    inv[0][2], inv[2][0] = inv[2][0], inv[0][2]
+    inv[1][2], inv[2][1] = inv[2][1], inv[1][2]
     # The inverse of the translation component is just the negation
     # of the translation after dotting with the new upper3x3 rows. */
-    inv[12] = -(src[12] * inv[0] + src[13] * inv[4] + src[14] * inv[8])
-    inv[13] = -(src[12] * inv[1] + src[13] * inv[5] + src[14] * inv[9])
-    inv[14] = -(src[12] * inv[2] + src[13] * inv[6] + src[14] * inv[10])
+    inv[3][0] = -(src[3][0] * inv[0][0] + src[3][1] * inv[1][0] + src[3][2] * inv[2][0])
+    inv[3][1] = -(src[3][0] * inv[0][1] + src[3][1] * inv[1][1] + src[3][2] * inv[2][1])
+    inv[3][2] = -(src[3][0] * inv[0][2] + src[3][1] * inv[1][2] + src[3][2] * inv[2][2])
     return inv
 
 

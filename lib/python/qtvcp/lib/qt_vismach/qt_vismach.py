@@ -273,9 +273,9 @@ class GLWidget(QOpenGLWidget):
         # is easy
         tx, ty, tz = self.tool2view.t[12:15]
         # now we have to transform them to the work frame
-        wx = tx * view2work[0] + ty * view2work[4] + tz * view2work[8] + view2work[12]
-        wy = tx * view2work[1] + ty * view2work[5] + tz * view2work[9] + view2work[13]
-        wz = tx * view2work[2] + ty * view2work[6] + tz * view2work[10] + view2work[14]
+        wx = tx * view2work[0][0] + ty * view2work[1][0] + tz * view2work[2][0] + view2work[3][0]
+        wy = tx * view2work[0][1] + ty * view2work[1][1] + tz * view2work[2][1] + view2work[3][1]
+        wz = tx * view2work[0][2] + ty * view2work[1][2] + tz * view2work[2][2] + view2work[3][2]
         # wx, wy, wz are the values to use for backplot
         # so we save them in a buffer
         if len(self.plotdata) == self.plotlen:

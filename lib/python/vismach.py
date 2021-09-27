@@ -14,13 +14,13 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import copy
 import sys, rs274.OpenGLTk, signal, hal
 import tkinter
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
 from math import *
-import itertools
 import glnav
 import hal
 
@@ -165,9 +165,9 @@ class Track(Collection):
         
         view2world = invert(self.world2view.t)
         
-        px, py, pz = self.position.t[12:15]
+        px, py, pz = self.position.t[3][:3]
         px, py, pz = self.map_coords(px,py,pz,view2world)
-        tx, ty, tz = self.target.t[12:15]
+        tx, ty, tz = self.target.t[3][:3]
         tx, ty, tz = self.map_coords(tx,ty,tz,view2world)
         dx = tx - px; dy = ty - py; dz = tz - pz;
         (az,el,r) = self.angle_to(dx,dy,dz)
@@ -646,7 +646,6 @@ class Capture(object):
 
     def capture(self):
         self.t = glGetDoublev(GL_MODELVIEW_MATRIX)
-        self.t = [i for i in itertools.chain(*self.t.tolist())]
         
     def volume(self):
         return 0.0
@@ -662,17 +661,17 @@ class Capture(object):
 
 def invert(src):
         # make a copy
-        inv=src[:]
+        inv=copy.deepcopy(src)
         # The inverse of the upper 3x3 is the transpose (since the basis
         # vectors are orthogonal to each other.
-        inv[1],inv[4] = inv[4],inv[1]
-        inv[2],inv[8] = inv[8],inv[2]
-        inv[6],inv[9] = inv[9],inv[6]
+        inv[0][1],inv[1][0] = inv[1][0],inv[0][1]
+        inv[0][2],inv[2][0] = inv[2][0],inv[0][2]
+        inv[1][2],inv[2][1] = inv[2][1],inv[1][2]
         # The inverse of the translation component is just the negation
         # of the translation after dotting with the new upper3x3 rows. */        
-        inv[12] = -(src[12]*inv[0] + src[13]*inv[4] + src[14]*inv[8])
-        inv[13] = -(src[12]*inv[1] + src[13]*inv[5] + src[14]*inv[9])
-        inv[14] = -(src[12]*inv[2] + src[13]*inv[6] + src[14]*inv[10])
+        inv[3][0] = -(src[3][0]*inv[0][0] + src[3][1]*inv[1][0] + src[3][2]*inv[2][0])
+        inv[3][1] = -(src[3][0]*inv[0][1] + src[3][1]*inv[1][1] + src[3][2]*inv[2][1])
+        inv[3][2] = -(src[3][0]*inv[0][2] + src[3][1]*inv[1][2] + src[3][2]*inv[2][2])
         return inv
 
 class Hud(object):
@@ -822,11 +821,11 @@ class O(rs274.OpenGLTk.Opengl):
         # since backplot lines only need vertices, not orientation,
         # and the tooltip is at the origin, getting the tool coords
         # is easy
-        tx, ty, tz = self.tool2view.t[12:15]
+        tx, ty, tz = self.tool2view.t[3][:3]
         # now we have to transform them to the work frame
-        wx = tx*view2work[0]+ty*view2work[4]+tz*view2work[8]+view2work[12]
-        wy = tx*view2work[1]+ty*view2work[5]+tz*view2work[9]+view2work[13]
-        wz = tx*view2work[2]+ty*view2work[6]+tz*view2work[10]+view2work[14]
+        wx = tx*view2work[0][0]+ty*view2work[1][0]+tz*view2work[2][0]+view2work[3][0]
+        wy = tx*view2work[0][1]+ty*view2work[1][1]+tz*view2work[2][1]+view2work[3][1]
+        wz = tx*view2work[0][2]+ty*view2work[1][2]+tz*view2work[2][2]+view2work[3][2]
         # wx, wy, wz are the values to use for backplot
         # so we save them in a buffer
         if len(self.plotdata) == self.plotlen:

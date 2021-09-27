@@ -508,7 +508,6 @@ class GlCanonDraw:
     def select(self, x, y):
         if self.canon is None: return
         pmatrix = glGetDoublev(GL_PROJECTION_MATRIX)
-        pmatrix = [i for i in itertools.chain(*pmatrix.tolist())]
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
         glLoadIdentity()
