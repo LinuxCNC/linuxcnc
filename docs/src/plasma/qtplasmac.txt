@@ -164,6 +164,8 @@ NOTE: The minimum I/O requirement for a QtPlasmaC configuration to function are:
 
 === Recommended Settings:
 
+Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation of the terms below.
+
 * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (either calculated using the equation below or allow 5mm (0.2") below the lowest slat.
 * *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
 * *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4") below the maximum limit.
@@ -227,7 +229,7 @@ Note that PnCConf options allow user selection of Feed Override, Linear Velocity
 
 *PnCConf QtPlasmaC Options:*
 
-image::images/qtplasmac_pncconf_screen.png[width=600,align="center",Title="Blah Blh"]
+image::images/qtplasmac_pncconf_screen.png[width=600,align="center"]
 
 *StepConf QtPlasmaC Options:*
 
@@ -290,9 +292,13 @@ For a run in place installation enter the following command in a terminal window
 
 === Initial Setup
 
-Click on the *PARAMETERS* tab to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these is tailored to the machine.
+The following heights diagram will help the user visualize the different heights involved in plasma cutting and how they are measured:
 
-See <<qt_parameters-tab, Parameters Tab>>
+image::images/qtplasmac_heights_diagram.png[width=800,align="center"]
+
+Click on the <<qt_parameters-tab, Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these settings is tailored to the machine.
+
+To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-Code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
 
 . The user should be familiar with the recommended <<qt_z-settings, Z Axis Settings>>.
 
@@ -1008,7 +1014,7 @@ NOTE: When setting the OK Low Volts and OK High Volts in Mode 0, the cut voltage
 |*Name*|*Description*
 |Float Travel|This sets the amount of travel the float switch moves before completing the float switch circuit. This distance can be measured by using the Probe Test button, and the method described in <<qt_initial-setup, Initial Setup>>.
 |Probe Speed|This sets the speed at which the torch will probe to find the material after it moves to the Probe Height.
-|Probe Height|This sets the height above the Z axis minimum limit that Probe Speed begins.
+|Probe Height|This sets the height above the Z axis minimum limit that Probe Speed begins. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |Ohmic Offset|This sets the distance above the material the torch will should go after a successful ohmic probe. It is mainly used to compensate for high probing speeds.
 |Ohmic Retries|This sets the number of times QtPlasmaC will retry a failed ohmic probe before falling back to the float switch for material detection.
 |Skip IHS|This sets the distance threshold used to determine if an Initial Height Sense (probe) can be skipped for the current cut, see <<qt_ihs-skip, IHS Skip>>.
@@ -1022,7 +1028,7 @@ NOTE: If the amount of time between the torch contacting the material and when t
 |===
 |*Name*|*Description*
 |Safe Height|This sets the height above the material that the torch will retract to before executing rapid moves. +
-                   If set to Zero then Z axis maximum height will be used for the safe height.
+                   If set to Zero then Z axis maximum height will be used for the safe height. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |===
 
 [[qt_scribe-config]]
@@ -1089,17 +1095,17 @@ This section shows the parameters which are active for the current cut.
 |===
 |*Name*|*Description*
 |Material|The top drop down menu is used to manually select the current material cut parameters. If there are no materials in the material file then only the default material will be displayed.
-|Kerf Width|This sets the kerf width for the currently selected material.
-|Pierce Height|This sets the pierce height for the currently selected material.
+|Kerf Width|This sets the kerf width for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
+|Pierce Height|This sets the pierce height for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |Pierce Delay|This sets the pierce delay (in seconds) for the currently selected material.
-|Cut Height|This sets the cut height for the currently selected material.
+|Cut Height|This sets the cut height for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |Cut Feed Rate|This sets the cut feed rate for the currently selected material.
 |Cut Amps|This sets the cut amperage for the currently selected material. +
           This is a visual indicator to the operator only, unless PowerMax communications are being used.
 |Cut Volts|This sets the cut voltage for the currently selected material.
 |Puddle Height|Expressed as a percentage of Pierce Height, this sets the Puddle Jump height for the currently selected material. +
           Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
-          If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle.
+          If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |Puddle Delay|This sets the Puddle Jump delay (in seconds) for the currently selected material. +
          This value is mandatory if P-Jump Height is set as it sets the length of time the torch will stay at the P-Jump Height before proceeding to Cut Height.
 |Pause At End|This sets the amount of time (in seconds) the torch will stay on at the end of the cut before proceeding with the M5 command to turn off and raise the torch. For more information see <<qt_pause-at-end, Pause At End Of Cut>>.
