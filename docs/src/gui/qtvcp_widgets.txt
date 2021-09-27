@@ -670,6 +670,20 @@ DROLabel #dr0_x_axis [isHomed=false] {
 It is based on pyQT's QLabel
 
 === GcodeDisplay
+This displays Gcode in text form. It will highlight the currently running line. +
+This can also display MDI history when linuxcnc is in MDI mode. +
+This can also display log entries when linuxcnc is in MANUAL mode. +
+This will also display preference file entries if you enter 'PREFERENCE' in capitals +
+into the MDILine widget. +
+It has a signal percentDone(int) that that can be connected to a slot (such as a +
+progressBar to display percent run)
+
+
+* auto_show_mdi_status
+Set true to have the widget switch to MDI history when in MDI mode
+
+* auto_show_manual_status
+Set true to have the widget switch to machine log when in Manual mode
 
 The GcodeDisplay properties can be set in a stylesheet with the following code added to the .qss file. +
 
@@ -706,15 +720,9 @@ Font definitions:
 It is based on pyQT's  QsciScintilla
 
 === GcodeEditor Widget
-This displays Gcode in text form. It will highlight the currently running line. +
-This can also display MDI history when linuxcnc is in MDI mode. +
-This can also display log entries when linuxcnc is in MANUAL mode. +
-This will also display preference file entries if you enter 'PREFERENCE' in capitals +
-into the MDILine widget. +
-It has a signal percentDone(int) that that can be connected to a slot (such as a +
-progressBar to display percent run)
+This is an extension of the gcodeDisplay widget that adds editing convenience.
 
-It is based on pyQT's widget which incorporates GcodeDisplay widget +
+It is based on pyQT's QWidget which incorporates GcodeDisplay widget +
 
 === GCodeGraphics Widget
 
@@ -758,6 +766,8 @@ inhibit-selection-off
 dimensions-on
 dimensions-off
 grid-size
+record-view
+set-recorded-view
 P
 X
 Y
@@ -774,12 +784,28 @@ It is based on pyQT's opengl widget. +
 ===  StateLabel Widget
 This will display a label based on true/false states of the machine controller. +
 You can select different text based on true or false. +
-You can use Rich text for different fonts/colours etc. +
-These states are selectable: +
-CSS Mode +
-Diameter Mode +
-FPR Mode +
-Metric Mode +
+These states are selectable via these properties: +
+
+* 'css_mode_status' +
+When true machine is in G96 Constant Surface Speed Mode +
+* 'diameter_mode_status' +
+When true machine is in G7 Lathe Diameter Mode +
+* 'fpr_mode_status' +
+When true machine is in G95 Feed per revolution Mode +
+*  'metric_mode_status' +
+When true machine is in G21 Metric Mode+
+
+Other Properties:
+
+* 'true_textTemplate' +
+This will be the text set when the option is true. +
+You can use Qt rich text code for different fonts/colours etc. +
+Typical template for metric mode in true state, might be: 'Metric Mode' +
+
+* 'false_textTemplate' +
+This will be the text set when the option is true. +
+You can use Qt rich text code for different fonts/colours etc. + 
+Typical template for metric mode in false state, might be: 'Imperial Mode' +
 
 It is based on pyQT's QLabel
 
@@ -788,16 +814,90 @@ This will display a label based on variable states of the machine controller. +
 You can change how the state will be display by substituting  +
 You can use Rich text for different fonts/colors etc. +
 These states are selectable: +
-CSS Mode +
-Feed Override  +
-Rapid Override  +
-Spindle Override  +
-Jograte  +
-Jogincr  +
-Tool Number  +
-Current Feedrate  +
-Requested Spindle Speed  +
-User System  +
+
+* 'actual_spindle_speed_status' +
+Used to display the actual spindle speed as reported from the HAL pin spindle.0.speed-in +
+It's converted to RPM. Typically would use a textTemplate of %d
+* 'actual surface speed_status' +
+Used to display the actual cutting surface speed on a lathe based on X axis and spindle speed +
+It's converted to distance per minute. +
+Typically would use a textTemplate of %4.1f (feet per minute) +
+and altTextTemplate of %d (meters per minute)
+* 'blendcode_status' +
+Shows the current g64 setting +
+* 'current_feedrate_status' +
+Shows the current actual feedrate +
+* 'current_FPU_status' +
+Shows the current actual feed per unit
+* 'fcode_status' +
+Shows the current programmed F Code setting
+* 'feed_override_status' +
+Shows the current feed override setting in percent
+* 'filename_status' +
+Shows the last loaded file name
+* 'filepath_status' +
+Shows the last loade full file path name
+* 'gcode_status' +
+Shows all active G codes
+* 'gcode selected_status' +
+Show the current selected Gcode line
+* 'halpin status' +
+Shows the HAL pin output of a selected HAL pin
+* 'jograte_status' +
+Shows the current QTvcp based Jog Rate
+* 'jograte_angular_status' +
+Shows the current QTvcp based Angular Jog Rate
+* 'jogincr_status' +
+Shows the current QTvcp based Jog increment
+* 'jogincr_angular_status' +
+Shows the current QTvcp based Angular Jog increment
+* 'machine state_status' +
+Shows the current machine interpeter state using the text described from the state_list. +
+The interpeter states are: Estopped, Running, Stopped, Paused, Waiting, Reading
+* 'max_velocity_override_status' +
+Shows the current max axis velocity override setting
+* 'mcode_status' +
+Shows all active M codes
+* 'requested_spindle_speed_status' +
+Shows the requested spindle speed - actual may be different.
+* 'rapid_override_status' +
+Shows the current rapid override setting in (0-100) percent
+* 'spindle_override_status' +
+Shows the current spindle override setting in percent
+* 'timestamp_status' +
+Shows the time based on the system settings. +
+An example of a useful textTemplate setting: '%I:%M:%S %p' see the python time module for more info
+* 'tool comment_status' +
+returns the comment text from the current loaded tool
+* 'tool diameter_status' +
+returns the diameter from the current loaded tool
+* 'tool_number_status' +
+returns the tool number of the current loaded tool
+* 'tool_offset_status' +
+returns the offset of the current loaded tool, indexed by 'index_number' to select axis (0=x,1=y,etc)
+* 'user_system_status' +
+Shows the active user coordinate system (G5x setting)
+
+Other Properties:
+
+* 'index_number' +
+Integer that specifies the tool status index to display.
+* 'state_label_list' +
+List of labels used for different machine states.
+* 'halpin_names' +
+Name of the halpin to monitor (including HAL component basename.
+* 'textTemplate' +
+This uses python formatting rules to set the text output. +
+This is usually used for imperial (G20) or angular numerical settings, though +
+not every option has imperial/metric conversion. +
+One can use %s for no conversion, %d for integer conversion, %f for float conversion. etc +
+You can also use Qt rich text code. + 
+Typical template used for formatting imperial float numbers to text eg. '%9.4f' or '%9.4f inch' +
+
+* 'alt_textTemplate' +
+This uses python formatting rules to set the text output. +
+This is usual used for metric (G21) numerical settings. +
+Typical template used for formatting metric float to text eg. '%10.3f' or '%10.3f mm'
 
 It is based on pyQT's QLabel
 
@@ -997,7 +1097,7 @@ Color of transparent layer shown when the runFromLine dialog is shown.
 ==== Setting Properties Programically
 
 The screen designer chooses the default settings of the screenOptions widget. +
-Once choosen, most won't ever need to be changed. +
+Once chosen, most won't ever need to be changed. +
 but if needed some can be changed in the handler file or in stylesheets. +
 Some settings are only checked on startup so will not cause changes after startup. +
 In these cases you would need to make the changes in Qtdesigner only. +
@@ -1029,7 +1129,7 @@ qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
 /* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
 /* use widget class name - matches/applied to all widgets of this class*/
 
-screenOptions {
+ScreenOptions {
 qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
 }
 ----
