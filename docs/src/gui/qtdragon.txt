@@ -346,6 +346,15 @@ The second method uses a tool setter in a fixed position and a known height abov
 
 For touching off with a touch probe, whether you use the touchplate operation with thickness set to 0 or use a probing routine, the height from table to top of workpiece parameter is not taken into account and can be ignored. It is only for the tool setter.
 
+== Touch plate
+.qtdragon - Touch Plate
+image::images/qtdragon_touchplate.png["QTDragon Touch Plate",scale="25%"]
+
+You can use a conductive touch plate or equivalent to auto touch off (zero the user coordinate) for the Z position of a tool. +
+There must be a tool loaded prior to probing. +
+In the tool tab set the touch plate height then press the 'Touch Plate' button. +
+There is a LED to confirm the probe connection is reliable prior to probing. +
+
 == Run from Line
 
 A gcode program can be started at any line by clicking on the desired line in the gcode display while in AUTO mode. +
