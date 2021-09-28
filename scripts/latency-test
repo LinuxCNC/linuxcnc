@@ -114,6 +114,7 @@ net reset lat.reset => timedelta.0.reset timedelta.1.reset
 waitusr lat
 loadusr -w bash latexit.sh
 EOF
+fi
 
 cat > lat.xml <<EOF
 <pyvcp>
@@ -157,7 +158,6 @@ L=\$((halcmd gets sj; halcmd gets bj;
     ) | sort -n | tail -1)
 echo \$L > $HOME/.latency
 EOF
-fi
 
 
 halrun lat.hal
