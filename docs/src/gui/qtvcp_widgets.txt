@@ -1108,8 +1108,8 @@ Here we reference the widget by the QtDesigner user defined name: +
 ----
 # red,green,blue,alpha 0-255
 color = QtGui.QColor(0, 255, 0, 191)
-self.w.screenoption.setProperty('close_overlay_color', color)
-self.w.screenoption.setProperty('play_sounds_option',False)
+self.w.screen_options.setProperty('close_overlay_color', color)
+self.w.screen_options.setProperty('play_sounds_option',False)
 ----
 
 ie. In style sheets +
@@ -1121,9 +1121,8 @@ or by widget class name. +
 /* the # sign is used to refer to QtDesigner defined widget name */
 /* matches/applied to only this named widget */
 
-#screenoptions {
+#screen_options {
 qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
-}
 ----
 ----
 /* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
@@ -1131,7 +1130,6 @@ qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
 
 ScreenOptions {
 qproperty-close_overlay_color: rgba(0, 255, 0, 0.75) }
-}
 ----
 
 ==== Preference File Entries
