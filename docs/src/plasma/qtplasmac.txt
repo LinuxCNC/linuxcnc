@@ -780,7 +780,13 @@ If ESTOP_TYPE is omitted from the <machine_name>.ini file, this button will defa
 |CYCLE PAUSE|This button pauses the cycle for any loaded G-Code file. +
 If a cycle is paused, this button will display *CYCLE RESUME* and flash. +
 Pressing *CYCLE RESUME* will resume the cycle.
-|CYCLE STOP|This button stops any actively running or paused cycle.
+|CYCLE STOP|This button stops any actively running or paused cycle. +
+This includes: +
+- G-Code Programs +
+- Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-Code program execution as well) +
+- Probe Test +
+- Framing +
+- Manual Cut
 |FEED|This slider overrides the feed rate for all feed moves. +
 Any value other than 100% will cause the label to flash. +
 Clicking the label will return the slider to 100%.
@@ -881,9 +887,9 @@ For more information, see the <<qt_pm_comms, PowerMax Communications>> section.
 |*Name*|*Description*
 |ENABLE|This box determines whether the THC will be enabled or disabled during a cut.
 |ENABLED|This LED indicates whether the THC is enabled or disabled.
-|THC Active|This LED indicates that the THC is actively controlling the Z axis.
-|THC Up|This LED indicates that the THC is commanding the Z axis to raise.
-|THC Down|This LED indicates that the THC is commanding the Z axis to lower.
+|ACTIVE|This LED indicates that the THC is actively controlling the Z axis.
+|UP|This LED indicates that the THC is commanding the Z axis to raise.
+|DOWN|This LED indicates that the THC is commanding the Z axis to lower.
 |===
 
 [underline]*JOGGING*
@@ -2351,9 +2357,11 @@ Global settings for the shape library can be set by pressing the *SETTINGS* butt
 
 Any internal circle that has a diameter less than *Small hole diameter* is classified as a small hole and will have a straight lead-in with a length that is the lesser of either the radius of the hole or the specified lead-in length. It will also have its feed rate set to *Small hole speed*.
 
-Pressing the *SAVE* button will save all the settings as displayed and will change the window size to the displayed size.
+Pressing the *RELOAD* button will discard any changed settings.
 
-After saving the settings panel will close and the user may press click on any shape to start the Conversational process.
+Pressing the *SAVE* button will save all the settings as displayed.
+
+After pressing *SAVE* or *RELOAD*, the settings panel will close and the user may press click on any shape to start/resume the Conversational process.
 
 === Conversational Lines And Arcs
 
