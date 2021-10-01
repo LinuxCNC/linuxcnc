@@ -305,7 +305,7 @@ font-weight:600; color:#f40c11;">%0.4f</span></p></body></html>
 
 ----
 The 'setDisplay' slot can be connected to a integer, float or bool signal. +
-If the property 'pin_name' is not set the widet name will be used. +
+If the property 'pin_name' is not set the widget name will be used. +
 
 There are function calls to display values: +
 
@@ -316,7 +316,27 @@ It is based on pyQT's QLabel
 
 === LCD Number Widget
 
-This widget displays HAL float values in a LCD looking way. +
+This widget displays HAL float/s32/bit values in a LCD looking way. +
+It can display numbers in decimal, hexadecimal, binary and octal formats 
+by setting the property 'mode'. +
+When using floats you can set a formatting string. +
+You must set the property 'digitCount' to an appropriate setting to display the largest number. +
+
+==== Properties 
+
+* 'pin_name': +
+Option string to be used as the HAL pin name. If set to an empty string the widget name will be used. +
+* 'bit_pin_type': +
+Selects the input pin as type BIT.
+* 's32_pin_type': +
+Selects the input pin as type S32.
+* 'float_pin_type': +
+Selects the input pin as type FLOAT.
+* 'floatTemplate': +
+A string that will be used as a python3 format template to tailor the LCD display. +
+Only used when a FLOAT pin is selected. +
+eg '{:.2f}' will display a float rounded to 2 numbers after the decimal. +
+A blank setting will allow the decimal to move as required. +
 
 It is based on pyQT's QLCDNumber
 
