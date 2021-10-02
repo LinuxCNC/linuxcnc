@@ -163,11 +163,13 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
         self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.set(1)
-        def _f(data):
-            scale = self.hal_pin_scale.get()
-            self.hal_pin_s.set(data)
-            self.hal_pin_f.set(data*scale)
-        self.valueChanged.connect(partial(_f))
+        self.updateValue(self.value())
+        self.valueChanged.connect(lambda data:self.updateValue(data))
+
+    def updateValue(self, data):
+        scale = self.hal_pin_scale.get()
+        self.hal_pin_s.set(data)
+        self.hal_pin_f.set(data*scale)
 
 class Dial(QtWidgets.QDial, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -186,6 +188,7 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.value_changed.connect(lambda data: self.updateScale(data))
         self.hal_pin_scale.set(1)
+        self.updateCount(self.value())
         self.valueChanged.connect(lambda data:self.updateCount(data))
 
     def updateScale(self, data):
