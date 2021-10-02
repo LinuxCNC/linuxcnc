@@ -862,26 +862,9 @@ class HandlerClass:
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
-        ACTION.CALL_MDI("G21 G49")
-        ACTION.CALL_MDI("G10 L20 P0 Z0")
-        ACTION.CALL_MDI("G91")
-        command = "G38.2 Z-{} F{}".format(max_probe, search_vel)
-        if ACTION.CALL_MDI_WAIT(command, 10) == -1:
-            ACTION.CALL_MDI("G90")
-            return
-        if ACTION.CALL_MDI_WAIT("G1 Z4.0"):
-            ACTION.CALL_MDI("G90")
-            return
-        ACTION.CALL_MDI("G4 P0.5")
-        command = "G38.2 Z-4.4 F{}".format(probe_vel)
-        if ACTION.CALL_MDI_WAIT(command, 10) == -1:
-            ACTION.CALL_MDI("G90")
-            return
-        command = "G10 L20 P0 Z{}".format(z_offset)
-        ACTION.CALL_MDI_WAIT(command)
-        command = "G1 Z10 F{}".format(search_vel)
-        ACTION.CALL_MDI_WAIT(command)
-        ACTION.CALL_MDI("G90")
+        rtn = ACTION.TOUCHPLATE_TOUCHOFF(max_probe, search_vel, probe_vel, z_offset)
+        if rtn == 0:
+            self.add_status("Touchplate touchoff routine is already running")
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
