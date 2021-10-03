@@ -1814,8 +1814,8 @@ FILE</string>
                           <string/>
                          </property>
                          <property name="icon">
-                          <iconset>
-                           <normaloff>images/Right_arrow.png</normaloff>images/Right_arrow.png</iconset>
+                          <iconset resource="qtdragon_hd.qrc">
+                           <normaloff>:/buttons/images/Right_arrow.png</normaloff>:/buttons/images/Right_arrow.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -1852,8 +1852,8 @@ FILE</string>
                           <string/>
                          </property>
                          <property name="icon">
-                          <iconset>
-                           <normaloff>images/Left_arrow.png</normaloff>images/Left_arrow.png</iconset>
+                          <iconset resource="qtdragon_hd.qrc">
+                           <normaloff>:/buttons/images/Left_arrow.png</normaloff>:/buttons/images/Left_arrow.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -4618,7 +4618,7 @@ TO FILE</string>
                         <string/>
                        </property>
                        <property name="pixmap">
-                        <pixmap>images/silver_dragon.png</pixmap>
+                        <pixmap> resource=&quot;qtdragon_hd.qrc&quot;&gt;:/images/images/silver_dragon.png</pixmap>
                        </property>
                       </widget>
                      </item>
@@ -7126,7 +7126,7 @@ SPINDLE</string>
                <string/>
               </property>
               <property name="pixmap">
-               <pixmap>images/atc_spindle_tool.png</pixmap>
+               <pixmap resource="qtdragon_hd.qrc">:/images/images/atc_spindle_tool.png</pixmap>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -11278,8 +11278,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/z_minus_jog_button.png</normaloff>images/z_minus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11322,8 +11322,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/x_minus_jog_button.png</normaloff>images/x_minus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/x_minus_jog_button.png</normaloff>:/buttons/images/x_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11402,8 +11402,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/y_plus_jog_button.png</normaloff>images/y_plus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/y_plus_jog_button.png</normaloff>:/buttons/images/y_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11482,8 +11482,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/y_minus_jog_button.png</normaloff>images/y_minus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/y_minus_jog_button.png</normaloff>:/buttons/images/y_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11562,8 +11562,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/x_plus_jog_button.png</normaloff>images/x_plus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/x_plus_jog_button.png</normaloff>:/buttons/images/x_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11642,8 +11642,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/z_plus_jog_button.png</normaloff>images/z_plus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/z_plus_jog_button.png</normaloff>:/buttons/images/z_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11686,8 +11686,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/a_minus_jog_button.png</normaloff>images/a_minus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/a_minus_jog_button.png</normaloff>:/buttons/images/a_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -11733,8 +11733,8 @@ ZERO</string>
                     <string/>
                    </property>
                    <property name="icon">
-                    <iconset>
-                     <normaloff>images/a_plus_jog_button.png</normaloff>images/a_plus_jog_button.png</iconset>
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/a_plus_jog_button.png</normaloff>:/buttons/images/a_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
@@ -12896,7 +12896,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>10:49:59 PM</string>
+               <string>01:14:13 AM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -13868,7 +13868,7 @@ INCREMENT</string>
   <slot>chk_inhibit_selection_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

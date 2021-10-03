@@ -28,6 +28,7 @@
   <qresource prefix="images">
     <file>images/atc_spindle_tool.png</file>
     <file>images/brushed_metal.png</file>
+    <file>images/silver_dragon.png</file>
     <file>images/tool_probe.png</file>
   </qresource>
 </RCC>
