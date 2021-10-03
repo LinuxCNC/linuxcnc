@@ -63,10 +63,8 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def updateFloatDisplay(self, data):
         try:
             if self._floatTemplate == '':
-                print ('None')
                 self.updateDisplay(data)
                 return
-            print(':',self._floatTemplate)
             t = self._floatTemplate.format
             self.display(t(data))
         except:
