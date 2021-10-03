@@ -21,25 +21,22 @@ class TouchOffSubprog(QObject):
     def process(self):
         while 1:
             try:
-                line = sys.stdin.readline()
-            except KeyboardInterrupt:
-                break
-            if line:
-                cmd = line
-                line = None
-                try:
+                cmd = sys.stdin.readline()
+                if cmd:
                     error = self.process_command(cmd)
                     # error = 1 means success, error = None means ignore, anything else is an error
                     if error is not None:
                         if error != 1:
-                            sys.stdout.write("ERROR Probe routine returned with error\n")
+                            sys.stdout.write("ERROR Touchplate probe routine returned with error\n")
                         else:
                             sys.stdout.write("COMPLETE\n")
                         sys.stdout.flush()
-                except Exception as e:
-                    sys.stdout.write("ERROR Command Error: {}\n".format(e))
+            except KeyboardInterrupt:
+                    break
+            except Exception as e:
+                    sys.stdout.write("ERROR Touchplate touchoff command error: {}\n".format(e))
                     sys.stdout.flush()
-                break
+            break
 
     def process_command(self, cmd):
         cmd = cmd.rstrip().split('$')
@@ -55,26 +52,27 @@ class TouchOffSubprog(QObject):
         return error
 
     def probe_down(self):
+        ACTION.CALL_MDI('M70') # record gcode state
         ACTION.CALL_MDI("G21 G49")
         ACTION.CALL_MDI("G10 L20 P0 Z0")
         ACTION.CALL_MDI("G91")
         command = "G38.2 Z-{} F{}".format(self.max_travel, self.search_vel)
         if ACTION.CALL_MDI_WAIT(command, 10) == -1:
-            ACTION.CALL_MDI("G90")
-            return
+            ACTION.CALL_MDI('M72')
+            return 0
         if ACTION.CALL_MDI_WAIT("G1 Z4.0") == -1:
-            ACTION.CALL_MDI("G90")
-            return
+            ACTION.CALL_MDI('M72')
+            return 0
         ACTION.CALL_MDI("G4 P0.5")
         command = "G38.2 Z-4.4 F{}".format(self.probe_vel)
         if ACTION.CALL_MDI_WAIT(command, 10) == -1:
-            ACTION.CALL_MDI("G90")
-            return
+            ACTION.CALL_MDI('M72')
+            return 0
         command = "G10 L20 P0 Z{}".format(self.z_offset)
         ACTION.CALL_MDI_WAIT(command)
         command = "G1 Z10 F{}".format(self.search_vel)
         ACTION.CALL_MDI_WAIT(command)
-        ACTION.CALL_MDI("G90")
+        ACTION.CALL_MDI('M72')
         return 1
 
 ####################################

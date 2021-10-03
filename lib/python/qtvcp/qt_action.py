@@ -146,29 +146,29 @@ class _Lcnc_Action(object):
             pass
 
     def CALL_MDI(self, code):
+        LOG.debug('CALL_MDI Command: {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
     def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
-        LOG.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
+        LOG.debug('MDI_WAIT_Command= {}, maxt = {}'.format(code, time))
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
-            LOG.debug('MDI_COMMAND: {}'.format(l))
+            LOG.debug('CALL_MDI_WAIT Command: {}'.format(l))
             self.cmd.mdi(l)
             result = self.cmd.wait_complete(time)
             if result == -1:
-                LOG.error('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format(time, result))
+                LOG.error('CALL_MDI_WAIT timeout surpassed {} seconds'.format(time))
                 # STATUS.emit('MDI time out error',)
                 self.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
-                LOG.debug('MDI_COMMAND_WAIT RCS error: {}'.format(time, result))
-                # STATUS.emit('MDI time out error',)
+                LOG.debug('CALL_MDI_WAIT RCS error: {}'.format(time, result))
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
                 STATUS.emit('error', result[0], result[1])
-                LOG.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
+                LOG.error('CALL_MDI_WAIT Error: {}'.format(result[1]))
                 return -1
         if mode_return:
             self.ensure_mode(premode)
@@ -815,17 +815,25 @@ class _Lcnc_Action(object):
     def parse_line(self, line):
         line = line.decode("utf-8")
         if "COMPLETE" in line:
-            self.SET_DISPLAY_MESSAGE("Touxhplate touchoff routine returned successfully")
+            self.SET_DISPLAY_MESSAGE("Touchplate touchoff routine returned successfully")
         elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
-            LOG.debug(line[line.find('DEBUG]'):])
+            LOG.debug(line[line.find('DEBUG')+6:])
+        # This also gets error text sent from logging of ACTION libray in the subprogram
         elif "ERROR" in line:
-            self.SET_ERROR_MESSAGE(line[line.find('ERROR]'):])
+            # remove preceeding text
+            s = line[line.find('ERROR')+6:]
+            s = s[s.find(']')+1:]
+            # remove (possible)trailing debug info
+            d = s.find('(')
+            if not d == -1:
+                s = s[:d]
+            self.SET_ERROR_MESSAGE(s)
 
     def touchoff_started(self):
-        LOG.debug("TouchOff subprogram started with PID {}\n".format(self.proc.processId()))
+        LOG.debug("Touchplate touchOff subprogram started with PID {}\n".format(self.proc.processId()))
 
     def touchoff_finished(self, exitCode, exitStatus):
-        LOG.debug("Touchoff Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus))
+        LOG.debug("Touchplate touchoff Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus))
         self.proc = None
 
     #------- boiler code
