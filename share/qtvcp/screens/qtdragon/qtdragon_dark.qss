@@ -133,13 +133,15 @@ QCheckBox::disabled {
 }
 
 QCheckBox::indicator:checked {
-    background-color: white;
+    image: url(:/buttons/images/checked.png);
+    background-color: #404040;
     height: 14px;
     width: 14px;
 }
 
 QCheckBox::indicator:unchecked {
-    background-color: #404040;
+    image: url(:/buttons/images/unchecked.png);
+    background-color: white;
     height: 14px;
     width: 14px;
 }

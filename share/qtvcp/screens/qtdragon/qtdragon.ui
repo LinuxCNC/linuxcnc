@@ -628,7 +628,7 @@
                    <string/>
                   </property>
                   <property name="pixmap">
-                   <pixmap resource="qtdragon.qrc">:/images/images/qtdragon/images/tool_probe.png</pixmap>
+                   <pixmap resource="qtdragon.qrc">:/images/images/tool_probe.png</pixmap>
                   </property>
                   <property name="alignment">
                    <set>Qt::AlignCenter</set>
@@ -1575,7 +1575,7 @@ SENSOR</string>
                      <string/>
                     </property>
                     <property name="pixmap">
-                     <pixmap resource="qtdragon.qrc">:/images/images/qtdragon/images/atc_spindle_tool.png</pixmap>
+                     <pixmap resource="qtdragon.qrc">:/images/images/atc_spindle_tool.png</pixmap>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -3756,7 +3756,7 @@ FILE</string>
                              <string/>
                             </property>
                             <property name="icon">
-                             <iconset resource="qtdragon.qrc">
+                             <iconset>
                               <normaloff>:/buttons/images/qtdragon/images/Right_arrow.png</normaloff>:/buttons/images/qtdragon/images/Right_arrow.png</iconset>
                             </property>
                             <property name="iconSize">
@@ -3794,7 +3794,7 @@ FILE</string>
                              <string/>
                             </property>
                             <property name="icon">
-                             <iconset resource="qtdragon.qrc">
+                             <iconset>
                               <normaloff>:/buttons/images/qtdragon/images/Left_arrow.png</normaloff>:/buttons/images/qtdragon/images/Left_arrow.png</iconset>
                             </property>
                             <property name="iconSize">
@@ -5807,7 +5807,7 @@ TO FILE</string>
                            <string/>
                           </property>
                           <property name="pixmap">
-                           <pixmap>images/silver_dragon.png</pixmap>
+                           <pixmap resource="qtdragon.qrc">:/images/images/silver_dragon.png</pixmap>
                           </property>
                          </widget>
                         </item>
@@ -6299,7 +6299,7 @@ TO FILE</string>
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/x_minus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/x_minus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/x_minus_jog_button.png</normaloff>:/buttons/images/x_minus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -6373,7 +6373,7 @@ TO FILE</string>
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/y_plus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/y_plus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/y_plus_jog_button.png</normaloff>:/buttons/images/y_plus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -6453,7 +6453,7 @@ TO FILE</string>
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/y_minus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/y_minus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/y_minus_jog_button.png</normaloff>:/buttons/images/y_minus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -6533,7 +6533,7 @@ TO FILE</string>
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/x_plus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/x_plus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/x_plus_jog_button.png</normaloff>:/buttons/images/x_plus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -6607,7 +6607,7 @@ TO FILE</string>
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/a_minus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/a_minus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/a_minus_jog_button.png</normaloff>:/buttons/images/a_minus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -6648,7 +6648,7 @@ TO FILE</string>
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/a_plus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/a_plus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/a_plus_jog_button.png</normaloff>:/buttons/images/a_plus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -7107,7 +7107,7 @@ MCHN
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/z_plus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/z_plus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/z_plus_jog_button.png</normaloff>:/buttons/images/z_plus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -7145,7 +7145,7 @@ MCHN
                          </property>
                          <property name="icon">
                           <iconset resource="qtdragon.qrc">
-                           <normaloff>:/buttons/images/qtdragon/images/z_minus_jog_button.png</normaloff>:/buttons/images/qtdragon/images/z_minus_jog_button.png</iconset>
+                           <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
                          </property>
                          <property name="iconSize">
                           <size>
@@ -8550,7 +8550,7 @@ SPINDLE</string>
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap resource="qtdragon.qrc">:/images/images/qtdragon/images/atc_spindle_tool.png</pixmap>
+                  <pixmap resource="qtdragon.qrc">:/images/images/atc_spindle_tool.png</pixmap>
                  </property>
                  <property name="scaledContents">
                   <bool>true</bool>
@@ -13605,7 +13605,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>12:09:42 AM</string>
+            <string>12:04:45 AM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
