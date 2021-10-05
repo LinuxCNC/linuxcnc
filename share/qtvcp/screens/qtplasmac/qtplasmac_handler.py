@@ -1,4 +1,4 @@
-VERSION = '1.0.97'
+VERSION = '1.0.98'
 
 '''
 qtplasmac_handler.py
@@ -354,8 +354,7 @@ class HandlerClass:
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
         self.set_color_styles()
-        if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
-            ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
+        self.autorepeat_keys(False)
         # only set hal pins after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
@@ -881,7 +880,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
+        self.autorepeat_keys(True)
         self.save_logfile(5)
 
     def save_logfile(self, numLogs):
@@ -1520,6 +1519,7 @@ class HandlerClass:
                 self.vkb_show()
             else:
                 self.vkb_hide()
+            self.autorepeat_keys(False)
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
@@ -1527,10 +1527,13 @@ class HandlerClass:
             self.oldConvButton = False
             self.conv_setup()
             self.vkb_show(True)
+            self.autorepeat_keys(True)
         elif tab == 2:
             self.vkb_show(True)
+            self.autorepeat_keys(True)
         elif tab == 3 and self.gui43:
             self.vkb_show(True)
+            self.autorepeat_keys(True)
         if self.w.main_tab_widget.currentIndex() == self.w.main_tab_widget.count() - 1:
             self.vkb_hide()
             self.w.machinelog.moveCursor(QTextCursor.End)
@@ -2571,7 +2574,7 @@ class HandlerClass:
             self.w.file_edit.setText('{}\n{}'.format(text0, text1))
             self.w.file_reload.setEnabled(False)
             self.w.file_open.setEnabled(False)
-            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
+            self.autorepeat_keys(True)
             self.w.jog_frame.setEnabled(False)
         else:
             self.button_normal(self.w.file_edit.objectName())
@@ -2579,7 +2582,7 @@ class HandlerClass:
             self.w.file_reload.setEnabled(True)
             self.w.file_open.setEnabled(True)
             if self.w.gcode_stack.currentIndex() != 1:
-                ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
+                self.autorepeat_keys(False)
                 self.w.jog_frame.setEnabled(True)
 
     def gcode_stack_changed(self):
@@ -2590,13 +2593,13 @@ class HandlerClass:
             self.w.mdi_show.setText('{}\n{}'.format(text0, text1))
             self.w.mdihistory.reload()
             self.w.mdihistory.MDILine.setFocus()
-            ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
+            self.autorepeat_keys(True)
             self.w.jog_frame.setEnabled(False)
         else:
             self.button_normal(self.w.mdi_show.objectName())
             self.w.mdi_show.setText(_translate('HandlerClass', 'MDI'))
             if self.w.preview_stack.currentIndex() != 2:
-                ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
+                self.autorepeat_keys(False)
                 self.w.jog_frame.setEnabled(True)
 
     def set_mc_states(self, state):
@@ -2638,6 +2641,13 @@ class HandlerClass:
 
     def show_material_selector(self):
         self.w.material_selector.showPopup()
+
+    def autorepeat_keys(self, state):
+        if not self.iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') == 'ENABLE':
+            if state:
+                ACTION.ENABLE_AUTOREPEAT_KEYS(' ')
+            else:
+                ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
 
 
 #########################################################################################################################
