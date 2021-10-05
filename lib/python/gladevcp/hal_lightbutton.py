@@ -123,17 +123,17 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         self.light_is_on = False
         self.mouseover = False
         
-        self.default_Pangolayout = self.create_Pango_layout(self.button_text)
-        self.on_Pangolayout = self.create_Pango_layout(self.button_on_text)
+        self.default_pangolayout = self.create_pango_layout(self.button_text)
+        self.on_pangolayout = self.create_pango_layout(self.button_on_text)
         
         self.set_size_request(*self._size_request)
-        self.set_events(Gdk.EXPOSURE_MASK
-                       | Gdk.ENTER_NOTIFY_MASK
-                       | Gdk.LEAVE_NOTIFY_MASK
+        self.set_events( Gdk.EventMask.EXPOSURE_MASK
+                       | Gdk.EventMask.ENTER_NOTIFY_MASK
+                       | Gdk.EventMask.LEAVE_NOTIFY_MASK
                        | Gdk.EventMask.BUTTON_PRESS_MASK
-                       | Gdk.BUTTON_RELEASE_MASK
-                       | Gdk.POINTER_MOTION_MASK
-                       | Gdk.POINTER_MOTION_HINT_MASK)
+                       | Gdk.EventMask.BUTTON_RELEASE_MASK
+                       | Gdk.EventMask.POINTER_MOTION_MASK
+                       | Gdk.EventMask.POINTER_MOTION_HINT_MASK)
  
         self.connect("draw", self.expose)
         #self.connect('button-press-event', self.pressed)
@@ -273,11 +273,11 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
             cr.restore()
 
         # write text
-        _layout = self.default_Pangolayout
+        _layout = self.default_pangolayout
         if (self.light_is_on):
             set_color(self.font_on_color)
             if (not self.button_on_text == ""):
-                _layout = self.on_Pangolayout
+                _layout = self.on_pangolayout
         else:
             set_color(self.font_off_color)
  
@@ -292,13 +292,13 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
             fontweight = "bold"
         else:
             fontweight = ""
-        self.default_Pangolayout.set_font_description(Pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
-        self.on_Pangolayout.set_font_description(Pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
+        self.default_pangolayout.set_font_description(Pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
+        self.on_pangolayout.set_font_description(Pango.FontDescription(self.font_face + ' ' + fontweight + ' ' + str(self.font_size)))
         self.update_widget_size()
     
     def update_widget_size(self):
-        w1, h1 = self.default_Pangolayout.get_pixel_size()
-        w2, h2 = self.on_Pangolayout.get_pixel_size()
+        w1, h1 = self.default_pangolayout.get_pixel_size()
+        w2, h2 = self.on_pangolayout.get_pixel_size()
         width = max(w1 + self.border_width*2, w2 + self.border_width*2)
         height = max(h1 + self.border_width*2, h2 + self.border_width*2)
         self.set_size_request(int(width), int(height))
@@ -321,12 +321,12 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         
     def set_text(self, text):
         self.button_text = text
-        self.default_Pangolayout.set_text(text)
+        self.default_pangolayout.set_text(text)
         self.update_widget_size()
         
     def set_on_text(self, text):
         self.button_on_text = text
-        self.on_Pangolayout.set_text(text)
+        self.on_pangolayout.set_text(text)
         self.update_widget_size()
 
     #**************************************************************
