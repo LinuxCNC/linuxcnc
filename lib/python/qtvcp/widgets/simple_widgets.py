@@ -37,7 +37,7 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent=None):
         super(LCDNumber, self).__init__(parent)
         self._pin_name = ''
-        self._floatTemplate = '{:.4f}'
+        self._floatTemplate = ''
         self._bit_pin_type = False
         self._s32_pin_type = False
         self._float_pin_type = True
@@ -124,7 +124,7 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def get_floatTemplate(self):
         return self._floatTemplate
     def reset_floatTemplate(self):
-        self._floatTemplate = '{:.4f}'
+        self._floatTemplate = ''
 
     # designer will show these properties in this order:
     pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
