@@ -58,6 +58,8 @@ static int num_dio = DEFAULT_DIO;	/* default number of motion synched DIO */
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
 static int num_aio = DEFAULT_AIO;	/* default number of motion synched AIO */
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
+static int num_misc_error = DEFAULT_MISC_ERROR;	/* default number of misc errors */
+RTAPI_MP_INT(num_misc_error, "number of misc error inputs");
 
 static int unlock_joints_mask = 0;/* mask to select joints for unlock pins */
 RTAPI_MP_INT(unlock_joints_mask, "mask to select joints for unlock pins");
@@ -264,6 +266,13 @@ int rtapi_app_main(void)
 	return -1;
     }
 
+  if (( num_misc_error < 1 ) || ( num_misc_error > EMCMOT_MAX_MISC_ERROR )) {
+    rtapi_print_msg(RTAPI_MSG_ERR,
+                    _("MOTION: num_misc_error is %d, must be between 1 and %d\n"), num_misc_error, EMCMOT_MAX_MISC_ERROR);
+    hal_exit(mot_comp_id);
+    return -1;
+  }
+
     /* initialize/export HAL pins and parameters */
     retval = init_hal_io();
     if (retval != 0) {
@@ -374,7 +383,12 @@ static int init_hal_io(void)
 	if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) != 0) goto error;
     }
 
-    /* export machine wide hal pins */
+  /* export misc error input pins */
+  for (n = 0; n < num_misc_error; n++) {
+    if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->misc_error[n]), mot_comp_id, "motion.misc-error-%02d", n)) != 0) goto error;
+  }
+
+  /* export machine wide hal pins */
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->motion_enabled), mot_comp_id, "motion.motion-enabled")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->in_position), mot_comp_id, "motion.in-position")) != 0) goto error;
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->motion_type), mot_comp_id, "motion.motion-type")) != 0) goto error;
@@ -454,7 +468,11 @@ static int init_hal_io(void)
 	 *(emcmot_hal_data->analog_output[n]) = 0.0;
 	 *(emcmot_hal_data->analog_input[n]) = 0.0;
     }
-    
+
+    for (n = 0; n < num_misc_error; n++) {
+      *(emcmot_hal_data->misc_error[n]) = 0;
+    }
+
     /*! \todo FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
     *(emcmot_hal_data->motion_enabled) = 0;
@@ -770,6 +788,7 @@ static int init_comm_buffers(void)
     emcmotConfig->numSpindles = num_spindles;
     emcmotConfig->numDIO = num_dio;
     emcmotConfig->numAIO = num_aio;
+    emcmotConfig->numMiscError = num_misc_error;
 
     ZERO_EMC_POSE(emcmotStatus->carte_pos_cmd);
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);
