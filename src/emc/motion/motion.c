@@ -268,7 +268,7 @@ int rtapi_app_main(void)
 
   if (( num_misc_error < 0 ) || ( num_misc_error > EMCMOT_MAX_MISC_ERROR )) {
     rtapi_print_msg(RTAPI_MSG_ERR,
-                    _("MOTION: num_misc_error is %d, must be between 1 and %d\n"), num_misc_error, EMCMOT_MAX_MISC_ERROR);
+                    _("MOTION: num_misc_error is %d, must be between 0 and %d\n"), num_misc_error, EMCMOT_MAX_MISC_ERROR);
     hal_exit(mot_comp_id);
     return -1;
   }
