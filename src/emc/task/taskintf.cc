@@ -1939,7 +1939,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     int joint;
     int error;
     int exec;
-    int dio, aio;
+    int dio, aio, num_error;
 
     // read the emcmot status
     if (0 != usrmotReadEmcmotStatus(&emcmotStatus)) {
@@ -1990,6 +1990,10 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     for (aio = 0; aio < EMCMOT_MAX_AIO; aio++) {
 	stat->analog_input[aio] = emcmotStatus.analog_input[aio];
 	stat->analog_output[aio] = emcmotStatus.analog_output[aio];
+    }
+
+    for (num_error = 0; num_error < EMCMOT_MAX_MISC_ERROR; num_error++){
+      stat->misc_error[num_error] = emcmotStatus.misc_error[num_error];
     }
 
     stat->numExtraJoints=emcmotStatus.numExtraJoints;
