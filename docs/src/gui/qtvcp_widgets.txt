@@ -130,6 +130,58 @@ The maximum allowed value is set to the gauge maximum value and minimum value is
 This is the text that appears below the value readout, near the bottom of the gauge.
 The function of the gauge is then easily visible.
 
+=== HALPad
+
+.HALPAD
+image::images/qtvcp_HALPad.png["QTvcp HAL button Joypad ",scale="25%"]
+
+This widget looks and acts like a 5 button D-pad, with an LED ring +
+Each button has an selectable type (Bit, S32 or Float) output HAL pin. +
+The LED center ring has selectable colors for off and on and is controlled by a Bit HAL pin. +
+
+==== Properties
+* 'pin_name': +
+Optional name to use for the HAL pins basename. If left blank, the designer widget name will be used.
+
+* 'bit_pin_type': +
+Select the HAL output pin type to be True/False bool type. Mutually exclusive with S32/float options.
+
+* 's32_pin_type': +
+Select the HAL output pin type to be signed integer type. Mutually exclusive with Bit/float options.
+
+* 'float_pin_type': +
+Select the HAL output pin type to be signed float point type. Mutually exclusive with Bit/S32 options.
+
+* 'left_image_path':
+* 'right_image_path':
+* 'center_image_path':
+* 'top_image_path':
+* 'bottom_image_path': +
+A file path or resource path to an image to display in the described button location. +
+If the reset button is pressed in the Designer editor property, the image will not be displayed. (allowing optionally text) +
+
+* 'left_text':
+* 'right_text':
+* 'center_text':
+* 'top_text':
+* 'bottom_text': +
+A text string to be displayed in the described button location. +
+If left blank an image can be designated to be displayed. +
+
+* 'on_color':
+* 'off_color': +
+Color selection for the center LED ring to be displayed when the 'BASENAME.light.center' HAL pin is True or False. +
+
+==== StyleSheets
+
+The image, text and color properties could be set in styles sheets.
+----
+HALPad{
+qproperty-on_color: #000;
+qproperty-off_color: #444;
+}
+----
+
 === Push Button Widget
 
 This widget allows a user to set a HAL pin true or false. +
@@ -1922,4 +1974,67 @@ image::images/qtvcp_nurbsEditor.png["QTvcp nurbs editor",scale="25%"]
 
 The Nurbs editor allows you to manipulate a nurbs based geometry on screen and then +
 convert this to gcode. you can edit the gcode on screen and then send it to linuxcnc.
+
+== Import only Widgets
+These widgets are usually the base class widget for other QTvcp widgets. +
+They are not available directly from the Designer editor but could be imported and manually inserted. +
+They could also be subclassed to make a similar widget with new features. +
+
+=== JoyPad
+This widget looks and acts like a 5 button D-pad, with an LED ring +
+It is the base class for the HALpad widget. +
+
+==== Importing
+In the handler files 'IMPORT SECTION': +
+
+[source,python]
+----
+from qtvcp.widgets.joypad import JoyPad
+----
+
+==== Making a Widget Instance
+Once you have imported the widget "blueprint" code, you must make a live instance of the widget.
+You must also manually initialize the HAL Widget Basecode function. +
+ 
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTSCREEN
+    ##########################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        self.w.SOME_JOYPAD_WIDGET_NAME = JoyPad()
+        self.w.SOME_JOYPAD_WIDGET_NAME.hal_init()
+----
+
+==== Useful Override-able Functions
+
+----
+    def _pressedOutput(self, btncode):
+        self.joy_btn_pressed.emit(btncode)
+
+    def _releasedOutput(self, btncode):
+        self.joy_btn_released.emit(btncode)
+----
+
+==== Callable Functions
+----
+    set_highlight(btn, state):
+
+    set_icon(btn, kind, data):
+
+    set_tooltip(btn, tip):
+
+    set_highlight_color(color):
+----
+
+==== signals
+
+----
+    joy_btn_pressed = QtCore.pyqtSignal(str)
+    joy_btn_released = QtCore.pyqtSignal(str)
+----
 
