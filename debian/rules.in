@@ -16,6 +16,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+include /usr/share/dpkg/pkg-info.mk
+
 kernel_version = @KERNEL_VERSION@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
@@ -134,7 +136,13 @@ binary-arch: build install
 	dh_builddeb
 
 binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install
 
 debian/rules: debian/configure debian/*.in
 	debian/configure @TARGET@
+
+get-orig-source: $(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz
+
+$(DEB_SOURCE)_$(DEB_VERSION_UPSTREAM).orig.tar.xz:
+	git archive --prefix="$(DEB_SOURCE)/" HEAD | xz --compress > $@
+
+.PHONY: build clean binary-indep binary-arch binary install get-orig-source

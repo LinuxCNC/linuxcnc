@@ -1,0 +1,99 @@
+Debian packaging of LinuxCNC
+============================
+
+The following steps were performed to transform Upstream's git repository
+into
+ - a source tarball and
+ - a debian subdirectory
+for Debian's main distribution. The major obstacle is that
+LinuxCNC is used across a wide span of releases, now supporting from Squeeze
+(Wheezy and Jessie anyone?) up to the latest Ubuntu releases. Not too many changes
+are required for Debian unstable, the most prominent one likely is
+that there is already a debian directory in the source tree.
+
+Steps
+-----
+
+
+1. Generate the source tarball, This will use the version as specified
+   in the first line of tthe debian/changelog file. And maybe remove
+   anything outdated, just to avoid confusions:
+
+   If this is not the original tarball but an interim git tag/snapshot,
+   then set the version in debian/changelog. For git checkout, the
+   version stated in debian/changelog receives the suffix +gitYYYYMMDD.githash
+
+   rm -fi ../linuxcnc_*
+   debian/rules get-orig-source
+   unset WORKDIR
+
+2. Prepare shell to work in temp directory
+
+   export WORKDIR=$(mktemp -d)
+   mv linuxcnc_*.orig.tar.xz ${WORKDIR}/
+   bash
+   pushd $WORKDIR
+   echo -n "I: Now working in "; pwd
+
+3. Unpack
+
+   tar xJvf linuxcnc_*.orig.tar.xz
+   cd linuxcnc
+
+
+4. Configure debian directory for the "uspace" packages that are
+   prepared for the Non-RTAI but preempt realtime kernels that are
+   distributed with Debian.
+
+   ( cd debian && ./configure )
+
+5. Slightly adapt for upload to d/unstable
+
+   sed -i '/^Standards-Version: /s/ [0-9.]*/ 4.6.0/' debian/control
+   sed -i '1s/ stable;/ unstable;/' debian/changelog
+
+   mkdir -p debian/source
+   echo "3.0 (quilt)" > debian/source/format
+
+   # no epoch, debian version
+   if ! head -n 1 debian/changelog | grep -q -- "-1)"; then sed -i '1s/) /-1) /' debian/changelog; else echo "I: dversion already set"; fi
+   sed -i '1s/([0-9]:/(/' debian/changelog
+
+6a. build Debian package if in doubt - optional
+
+   dpkg-buildpackage
+
+6b. build Debian source package, which is what is uploaded to Debian
+
+   dpkg-buildpackage -S
+
+
+7. test build in cowbuilder
+
+   sudo cowbuilder --update
+   sudo cowbuilder --build ../linuxcnc_*.dsc
+
+8. check that nothing avoidable slipped through
+
+   lintian -i /var/cache/pbuilder/results/linuxcnc_*.changes
+
+8. get all the files just created
+
+   exit
+   mv ${WORKDIR}/linuxcnc_* ..
+
+
+Above sketched differences are not impeding routine workflows of Debian
+packaging. For instance we found that the routine-update script (from the
+Debian Science team) deals with these adaptations just fine.
+
+
+How to contribute
+-----------------
+
+LinuxCNC does not have a representation on salsa.debian.org. 
+Please join us on https://github.com/LinuxCNC/linuxcnc/ .
+
+A series of Lintian errors we want to address, still. These are
+collected in debian/TODO and we cordially invite everyone to help
+addressing them.
