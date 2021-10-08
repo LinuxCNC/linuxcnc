@@ -481,6 +481,9 @@ This depends on the widget/libraries used. +
 intended to be sent to indicate the progress of a filter program. +
 This depends on the widget/libraries used. +
 
+*following-error* :: '(returns python list)'
+returns a list of all joints current following error +
+
 == Functions
 These are convenience functions that are commonly used in programming
 

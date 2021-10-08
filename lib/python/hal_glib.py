@@ -208,6 +208,7 @@ class _GStat(GObject.GObject):
         'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'progress': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT)),
+        'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -302,6 +303,7 @@ class _GStat(GObject.GObject):
         # override limits / hard limits
         or_limit_list=[]
         hard_limit_list = []
+        ferror = []
         hard_limit = False
         or_limit_set = False
         for j in range(0, self.stat.joints):
@@ -311,10 +313,12 @@ class _GStat(GObject.GObject):
             max_hard_limit = self.stat.joint[j]['max_hard_limit']
             hard_limit = hard_limit or min_hard_limit or max_hard_limit
             hard_limit_list.append([min_hard_limit,max_hard_limit])
+            ferror.append(self.stat.joint[j]['ferror_current'])
         self.old['override-limits'] = or_limit_list
         self.old['override-limits-set'] = bool(or_limit_set)
         self.old['hard-limits-tripped'] = bool(hard_limit)
         self.old['hard-limits-list'] = hard_limit_list
+        self.old['ferror-current'] = ferror
 
         # active G codes
         active_gcodes = []
@@ -534,6 +538,9 @@ class _GStat(GObject.GObject):
         # calculate position offsets (native units)
         p,rel_p,dtg = self.get_position()
         self.emit('current-position',p, rel_p, dtg, self.stat.joint_actual_position)
+
+        # ferror
+        self.emit('following-error', self.old['ferror-current'])
 
         # spindle control
         spindle_enabled_old = old.get('spindle-enabled', None)
@@ -849,6 +856,9 @@ class _GStat(GObject.GObject):
         else:
             self._is_all_homed = False
             self.emit('not-all-homed', unhomed_joints)
+
+        # ferror
+        self.emit('following-error', self.old['ferror-current'])
 
         # update external objects
         self.emit('forced-update')
