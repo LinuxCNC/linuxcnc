@@ -65,6 +65,10 @@ class _HalWidgetBase_(object):
         """ Child HAL closing functions """
         pass
 
+    def _designer_init(self):
+        """ Child Designer editor plugin initialization functions """
+        pass
+
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables. 
 class _HalWidgetBase(_HalWidgetBase_):

@@ -124,6 +124,11 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self._alt_textTemplate = '%1.2f mm'
         self._run_from_line_int = 0
 
+    # only called from designer plugin when widget built in editor
+    def _designer_init(self):
+        self._designer_block_signal = True
+        self._designer_running = True
+
     ##################################################
     # This gets called by qtvcp_makepins
     # It infers HAL involvement but there is none
@@ -711,9 +716,9 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
     def setText(self,data):
-        #print 'set text:',data, self._designer_running
+        #print ('set text:',data, self._designer_running)
         if self._designer_running:
-            #print 'update'
+            #print('update')
             self.set_textTemplate(data)
         super(ActionButton, self).setText(data)
 
