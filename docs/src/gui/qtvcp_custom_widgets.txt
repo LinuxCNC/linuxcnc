@@ -25,6 +25,35 @@ And one is for dialog widgets. +
  +
 For Designer to add custom widgets to it's editor it must have a plugin added to the right folder. +
 
+=== initialization process
+
+Qtvcp does extra setup for widgets subclassed from _HALWidgetBase. (aka HAL-ified widgets)+
+This includes injecting important variables, calling an extra setup function and +
+calling a closing cleanup function at shutdown. +
+These functions are not called when the Designer editor displays the widgets. +
+When Qtvcp builds a screen from the .ui file, it searches for all the HAL-ified widgets. +
+Then it finds the ScreenOptions widget, to collect information it needs to inject into the other widgets. +
+It then instantiates each widget and if a HAL-fied widget, it calls the function hal_init(). +
+hal_init() is defined in the base class and it adds variables such as the preference file to every HAL-ifed widget. +
+hal_init() will then call _hal_init() on the widget. _hal_init() allows the widget designer to do setup that +
+requires access to the extra variables. +
+Here is a description of the extra variables inject into HAL-ified widgets: +
+[source,python]
+----
+        self.HAL_GCOMP = the HAL component instance
+        self.HAL_NAME = This widgets name as a string
+        self.QT_OBJECT_ = This widgets object instance
+        self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
+        self.PATHS_ = The instance of Qtvcp's path library
+        self.PREFS_ = the instance of an optional preference file
+----
+
+=== cleanup process
+When Qtvcp closes, it calls the function _hal_cleanup() on all HAL-ified widgets. +
+The baseclass creates an empty _hal_cleanup() function, which can be redefined in the custom widget subclass. +
+This can be used to do such things as record preferences, etc. +
+This function is not called when the Designer editor displays the widgets. +
+
 == Custom Hal Widgets
 Hal widgets are the simplest to show example of. +
 qtvcp/widgets/simple_widgets.py holds many HAL only widgets. +
@@ -227,7 +256,7 @@ in this function you have access to some extra information. (though we don't use
         self.QT_OBJECT_ = This widgets pyQt object instance
         self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
         self.PATHS_ = The instance of Qtvcp's path library
-        self.PREFS_ = the isnstance of an optional preference file
+        self.PREFS_ = the instance of an optional preference file
 ----
 We could use this information to create HAL pins or look up image paths etc. +
 [source,python]
@@ -295,7 +324,7 @@ from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.dialog_widget import EntryDialog
 from qtvcp.core import Status, Action, Info
 
-# Instiniate the libraries with global reference
+# Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # INFO holds ini details
 # ACTION gives commands to linuxcnc
@@ -473,7 +502,6 @@ Then qtvcp/plugins/qtvcp_plugin.py would need to be adjusted +
 to import them. +
 
 === Gridlayout example
-
 
 ----
 #!/usr/bin/env python3
