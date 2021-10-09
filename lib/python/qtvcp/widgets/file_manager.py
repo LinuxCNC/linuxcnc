@@ -430,7 +430,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
     # when qtvcp closes this gets called
     # record jump list paths
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             for i, key in enumerate(self._jumpList):
                 if i in(0,1):

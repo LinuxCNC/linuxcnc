@@ -204,7 +204,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             pass
 
     # when qtvcp closes this gets called
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             v,z,x,y,lat,lon = self.getRecordedViewSettings()
             LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))

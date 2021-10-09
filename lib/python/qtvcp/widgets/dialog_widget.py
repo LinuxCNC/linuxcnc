@@ -813,8 +813,8 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
-    def closing_cleanup__(self):
-        self._o.closing_cleanup__()
+    def _hal_cleanup(self):
+        self._o._hal_cleanup()
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -1219,8 +1219,8 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         self.set_default_geometry()
         STATUS.connect('dialog-request', self._external_request)
 
-    def closing_cleanup__(self):
-        self._o.closing_cleanup__()
+    def _hal_cleanup(self):
+        self._o._hal_cleanup()
 
     def _external_request(self, w, message):
         if message['NAME'] == self._request_name:

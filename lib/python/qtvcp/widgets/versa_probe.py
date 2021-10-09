@@ -146,7 +146,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
 
     # when qtvcp closes this gets called
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Versa probe data to preference file.')
             self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')

@@ -61,6 +61,10 @@ class _HalWidgetBase_(object):
         """ Child HAL initialization functions """
         pass
 
+    def _hal_cleanup(self):
+        """ Child HAL closing functions """
+        pass
+
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables. 
 class _HalWidgetBase(_HalWidgetBase_):

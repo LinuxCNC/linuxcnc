@@ -131,7 +131,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.lineEdit_cal_y_width.setText(self.PREFS_.getpref('Cal y width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_diameter.setText(self.PREFS_.getpref('Cal diameter', '0', str, 'PROBE OPTIONS'))
 
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Basic Probe data to preference file.')
             self.PREFS_.putpref('Probe tool', self.lineEdit_probe_tool.text(), str, 'PROBE OPTIONS')
