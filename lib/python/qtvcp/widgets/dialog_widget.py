@@ -574,6 +574,10 @@ class FileDialog(QFileDialog, GeometryMixin):
         options |= QFileDialog.DontUseNativeDialog
         self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+
         self.INI_exts = INFO.get_qt_filter_extensions()
         self.setNameFilter(self.INI_exts)
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
