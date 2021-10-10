@@ -167,6 +167,18 @@ The function to be called if the actionMyFunction button is pressed.
 
 == Add HAL Pins that call functions
 In this way you don't need to poll the state of input pins. +
+In the 'IMPORT SECTION' add: +
+[source,python]
+----
+from qtvcp.core import Qhal
+----
+Loads the Qhal library for access to Qtvcp's hal component.
+
+in the 'INSTANTIATE LIBRARY' Section add:
+[source,python]
+----
+QHAL = Qhal()
+----
 Under the initialised__ function, make sure there is an entry similar to this: +
 [source,python]
 ----
@@ -178,7 +190,7 @@ Under the initialised__ function, make sure there is an entry similar to this: +
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        self.pin_cycle_start_in = self.hal.newpin('cycle-start-in',hal.HAL_BIT, hal.HAL_IN)
+        self.pin_cycle_start_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
         self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
 ----
 
@@ -527,6 +539,19 @@ Sometimes you need to update a widget or read a value regularly that isn't cover
 Here we update an LED based on a watched HAL pin every 100ms. +
 We assume there is an LED named 'led' in the designer .ui file. +
 
+In the 'IMPORT SECTION' add: +
+[source,python]
+----
+from qtvcp.core import Qhal
+----
+Loads the Qhal library for access to Qtvcp's hal component.
+
+in the 'INSTANTIATE LIBRARY' Section add:
+[source,python]
+----
+QHAL = Qhal()
+----
+Now add/modify these sections to include code that is similar to this: +
 [source,python]
 ----
     ########################
@@ -546,7 +571,7 @@ We assume there is an LED named 'led' in the designer .ui file. +
     # general functions #
     #####################
     def update_periodic(self):
-        data = hal.get_value('spindle.0.is-oriented')
+        data = QHAL.getvalue('spindle.0.is-oriented')
         self.w.led.setState(data)
 ----
 
