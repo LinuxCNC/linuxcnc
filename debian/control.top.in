@@ -3,7 +3,7 @@ Section: misc
 Priority: optional
 Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
 Uploaders: Steffen Moeller <moeller@debian.org>, Jeff Epler <jepler@gmail.com>, Sebastian Kuzminsky <seb@highlab.com>
-Build-Depends: debhelper (>= 9),
+Build-Depends: @DEBHELPER@,
     @PYTHON_PACKAGING_DEPENDS@,
     @KERNEL_DEPENDS_BUILD@,
     @KERNEL_HEADERS@,
