@@ -216,6 +216,7 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_f.set(self._currentTotalCount * self.scale)
         self.hal_pin_d.set(self._deltaScaled)
 
+
 class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
     intOutput = QtCore.pyqtSignal(int)
     floatOutput = QtCore.pyqtSignal(float)
