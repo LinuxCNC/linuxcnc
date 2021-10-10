@@ -164,6 +164,12 @@ class _QHal(object):
 
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
+    def getvalue(self, name):
+        try:
+            return hal.get_value(name)
+        except Exception as e:
+            log.error("Qhal: Error getting value of {}\n {}".format(name, e))
+
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 
     def __getitem__(self, k): return self.comp[k]
