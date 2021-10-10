@@ -18,7 +18,7 @@ from qtvcp import logger
 LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
 
 
-from qtvcp.core import Status, Info, QComponent, Path
+from qtvcp.core import Status, Info, Qhal, Path
 from qtvcp.lib import xembed
 
 try:
@@ -211,7 +211,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize HAL
         try:
             self.halcomp = hal.component(opts.component)
-            self.hal = QComponent(self.halcomp, hal)
+            self.hal = Qhal(self.halcomp, hal)
         except:
             LOG.critical("Asking for a HAL component using a name that already exists?")
             raise Exception('"Asking for a HAL component using a name that already exists?')

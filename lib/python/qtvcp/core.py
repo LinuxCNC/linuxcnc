@@ -123,9 +123,29 @@ class DummyPin(QObject):
         pass
 
 
-class QComponent:
-    def __init__(self, comp, hal):
-        if isinstance(comp, QComponent):
+class _QHal(object):
+    HAL_BIT = hal.HAL_BIT
+    HAL_FLOAT = hal.HAL_FLOAT
+    HAL_S32 = hal.HAL_S32
+    HAL_U32 = hal.HAL_U32
+
+    HAL_IN = hal.HAL_IN
+    HAL_OUT = hal.HAL_OUT
+    HAL_IO = hal.HAL_IO
+    HAL_RO = hal.HAL_RO
+    HAL_RW = hal.HAL_RW
+
+    def __new__(cls, *a, **kw):
+        instance = super(_QHal, cls).__new__(cls)
+        instance.__init__(*a, **kw)
+        return instance
+
+    def __init__(self, comp=None, hal=None):
+        # only initialize once for all instances
+        if not self.__class__._instance is None:
+            return
+
+        if isinstance(comp, _QHal):
             comp = comp.comp
         self.comp = comp
         self.hal = hal
@@ -137,7 +157,7 @@ class QComponent:
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
             t = inspect.getframeinfo(inspect.currentframe().f_back)
-            log.error("QComponent: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
+            log.error("Qhal: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
                 format(e, t[0], t[1], t[2]))
             p = DummyPin(*a, ERROR=e)
         return p
@@ -149,6 +169,13 @@ class QComponent:
     def __getitem__(self, k): return self.comp[k]
     def __setitem__(self, k, v): self.comp[k] = v
 
+class Qhal(_QHal):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = _QHal.__new__(cls, *args, **kwargs)
+        return cls._instance
 
 ################################################################
 # GStat class

@@ -1,5 +1,4 @@
 import os
-import hal
 from PyQt5 import QtCore, QtWidgets, QtGui
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -10,7 +9,7 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
-from qtvcp.core import Status, Action, Info, Path
+from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
 
@@ -22,6 +21,7 @@ ACTION = Action()
 PATH = Path()
 STYLEEDITOR = SSE()
 WRITER = writer.Main()
+QHAL = Qhal()
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -149,21 +149,21 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = self.h.newpin("spindle_amps", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = QHAL.newpin("spindle_amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = self.h.newpin("spindle_volts", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = QHAL.newpin("spindle_volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = self.h.newpin("spindle_fault", hal.HAL_U32, hal.HAL_IN)
+        pin = QHAL.newpin("spindle_fault", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-#        self.h.newpin("spindle_at_speed", hal.HAL_BIT, hal.HAL_IN)
-        pin = self.h.newpin("modbus-errors", hal.HAL_U32, hal.HAL_IN)
+#        QHAL.newpin("spindle_at_speed", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin = QHAL.newpin("modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
-        self.h.newpin("spindle_inhibit", hal.HAL_BIT, hal.HAL_OUT)
+        QHAL.newpin("spindle_inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
         # external offset control pins
-        self.h.newpin("eoffset_enable", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("eoffset_clear", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("eoffset_count", hal.HAL_S32, hal.HAL_OUT)
-        pin = self.h.newpin("eoffset_value", hal.HAL_FLOAT, hal.HAL_IN)
+        QHAL.newpin("eoffset_enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset_clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset_count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset_value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.eoffset_changed)
 
     def init_preferences(self):
