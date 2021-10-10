@@ -49,7 +49,7 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 	#py3clean .
-	if [ -r src/Makefile ]; then cd src && $(MAKE) clean -s; fi
+	if [ -r src/Makefile.inc ]; then cd src && $(MAKE) clean -s; fi
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
 	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
