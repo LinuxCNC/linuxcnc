@@ -48,7 +48,7 @@ clean: debian/control
 	dh_testdir
 	dh_testroot
 	rm -f build-stamp
-	#py3clean .
+	py3clean .
 	if [ -r src/Makefile.inc ]; then cd src && $(MAKE) clean -s; fi
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
