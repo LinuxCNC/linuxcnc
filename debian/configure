@@ -156,7 +156,11 @@ sed \
     $*
 }
 
-subst compat.in > compat
+if [[ -z "${COMPAT}" ]]; then
+    rm -f compat
+else
+    subst compat.in > compat
+fi
 
 subst control.top.in > control
 
