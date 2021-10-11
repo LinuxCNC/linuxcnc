@@ -87,8 +87,8 @@ COMPAT="9"
 case $DISTRIB_NAME in
     Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
-        COMPAT="10"
-        DEBHELPER="debhelper (>= 10)"
+        COMPAT=""
+        DEBHELPER="debhelper-compat (= 13)"
         ;;
     Ubuntu-20.*)
         ;;
