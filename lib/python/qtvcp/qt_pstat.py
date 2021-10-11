@@ -48,9 +48,13 @@ class _PStat(object):
             self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
             self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
+            self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python","qtvcp","lib")
+            self.WIDGETDIR = os.path.join(self.BASEDIR, "lib", "python","qtvcp","widgets")
+            self.PLUGINDIR = os.path.join(self.BASEDIR, "lib", "python","qtvcp","plugins")
             # python library directory
-            self.LIBDIR = os.path.join(self.BASEDIR, "lib", "python")
-            sys.path.insert(0, self.LIBDIR)
+            self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
+            sys.path.insert(0, self.PYDIR)
+
         except:
             pass
 
