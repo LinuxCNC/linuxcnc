@@ -1,6 +1,7 @@
 linuxcnc-uspace
 files
 rules
+compat
 control
 tmp
 linuxcnc
