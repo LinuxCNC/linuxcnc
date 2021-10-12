@@ -388,15 +388,19 @@ PATH.PREFS_FILENAME # The preference file path
 PATH.WORKINGDIR     # The directory qtvcp was launched from
 PATH.IS_SCREEN      # Is this a screen or a VCP?
 PATH.CONFIGPATH     # launched configuration folder
+PATH.RIPCONFIGDIR   # The Run-in-place config folder for Qtvcp screens
 PATH.BASEDIR        # Base folder for linuxcnc
 PATH.BASENAME       # The Designer files name (no ending)
-PATH.LIBDIR         # The Qtvcp library folder
 PATH.IMAGEDIR       # The Qtvcp image folder
 PATH.SCREENDIR      # The Qtvcp builtin Screen folder
 PATH.PANELDIR       # The Qtvcp builtin VCP folder
 PATH.HANDLER        # Handler file Path
 PATH.XML            # Qtvcp ui file path
 PATH.QSS            # Qtvcp Qss file path
+PATH.PYDIR          # Linuxcnc's python library
+PATH.LIBDIR         # The Qtvcp library folder
+PATH.WIDGET         # The Qtvcp widget folder
+PATH.PLUGIN         # The Qtvcp widget plugin folder
 
 # Not currently used:
 PATH.LOCALEDIR      # Locale translation folder
