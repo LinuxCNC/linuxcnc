@@ -25,6 +25,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python3-cairo, python3-gi-cairo, python3-opengl, python3-configobj,
     tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
     mesa-utils, blt, udev
+Suggests: mesaflash
 Description: motion controller for CNC machines and robots
  LinuxCNC is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic
