@@ -27,6 +27,9 @@ from qtvcp.plugins.detach_tabs_plugin import DetachTabWidgetPlugin
 from qtvcp.plugins.round_progress_bar_plugin import RoundProgressBarPlugin
 from qtvcp.plugins.joypad_plugin import *
 
+# plain widgets
+from qtvcp.plugins.nurbs_editor_plugin import NurbsEditorPlugin
+
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin
 from qtvcp.plugins.container_plugin import JointEnableWidgetPlugin
