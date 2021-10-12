@@ -466,6 +466,19 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 if a != b:
                     props[c] = "%(a)f to %(b)f = %(diff)f %(units)s".replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
             props['Units'] = units
+
+            if self.metric_units:
+                if 200 in canon.state.gcodes:
+                    gcode_units = "in"
+                else:
+                    gcode_units = "mm"
+            else:
+                if 210 in canon.state.gcodes:
+                    gcode_units = "mm"
+                else:
+                    gcode_units = "in"
+            props['GCode Units'] = gcode_units
+
         self.gcode_properties = props
 
     # setup details when window shows
