@@ -49,17 +49,10 @@ clean: debian/control
 	dh_testroot
 	rm -f build-stamp
 	py3clean .
-	cd src && ./autogen.sh
-	cd src && ./configure \
-	    --prefix=/usr --sysconfdir=/etc \
-	    --mandir=/usr/share/man \
-	    $(configure_realtime_arg) \
-            $(enable_build_documentation) \
-	    --disable-check-runtime-deps
-	cd src && $(MAKE) clean -s
+	if [ -r src/Makefile.inc ]; then cd src && $(MAKE) clean -s; fi
 	rm -f Makefile.inc
 	rm -f src/config.log src/config.status
-
+	rm -f $(for i in $(find . -name "*.in"); do basename $i .in; done)
 	dh_clean
 
 install: build
