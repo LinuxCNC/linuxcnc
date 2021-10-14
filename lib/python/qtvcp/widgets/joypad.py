@@ -15,13 +15,26 @@
 ###############################################################################
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QLineF, QRect, QRectF, QSize, QSizeF, QEvent
+from PyQt5.QtCore import Qt, QPoint, QPointF, QLineF, QRect, QRectF, QSize, QSizeF, QEvent, Q_ENUM
 from PyQt5.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 
-class JoyPad(QtWidgets.QWidget):
+class IndicatorPosition:
+    NONE = 0
+    LEFT = 1
+    RIGHT = 2
+    CENTER = 3
+    TOP = 4
+    BOTTOM = 5
+    LEFTRIGHT = 6
+    TOPBOTTOM = 7
+
+class JoyPad(QtWidgets.QWidget, IndicatorPosition):
+    IndicatorPosition = IndicatorPosition
+    Q_ENUM(IndicatorPosition)
+
     joy_btn_pressed = QtCore.pyqtSignal(str)
     joy_btn_released = QtCore.pyqtSignal(str)
     joy_l_pressed = QtCore.pyqtSignal(bool)
@@ -44,6 +57,8 @@ class JoyPad(QtWidgets.QWidget):
         self.bottom_image = None
         self.center_image = None
         self._dummyPixmap = QtGui.QPixmap()
+        self._font = QFont('Lato Heavy', 20)
+        self._text_color = QColor('white')
         self._textL = ''
         self._textR = ''
         self._textC = ''
@@ -53,6 +68,7 @@ class JoyPad(QtWidgets.QWidget):
         self._true_color = QColor('lawngreen')
         self._false_color = QColor('gray')
         self.highlight_color = self._false_color
+        self._highlightPosition = IndicatorPosition.NONE
         self.highlight_left = False
         self.highlight_right = False
         self.highlight_top = False
@@ -65,8 +81,6 @@ class JoyPad(QtWidgets.QWidget):
         self.btn_names = {'L': 'left', 'R': 'right', 'T': 'top', 'B': 'bottom', 'C': 'center'}
         self.tooltips = {'L': '', 'R': '', 'T': '', 'B': '', 'C': ''}
         self.axis_list = ('X', 'Y', 'Z', 'A')
-        # we want center active for an indicator light
-        self.set_highlight('C', True)
 
     def eventFilter(self, obj, event):
         if obj is self and self.isEnabled():
@@ -165,8 +179,8 @@ class JoyPad(QtWidgets.QWidget):
         rect = QRect()
         rect.setSize(QSize(int(self.rect1.width() * 0.4), int(self.rect1.height() * 0.4)))
         center = event.rect().center()
-        qp.setPen(QPen(Qt.white, 2))
-        qp.setFont(QFont('Lato Heavy', 20))
+        qp.setPen(QPen(self._text_color, 2))
+        qp.setFont(self._font)
         # left button
         rect.moveCenter(QPoint(int(center.x() - self.rect2.width()/3), center.y()))
         if isinstance(self.left_image, QPixmap):
@@ -210,18 +224,47 @@ class JoyPad(QtWidgets.QWidget):
         rect.moveCenter(center)
         pen_width = self.rect1.width() * 0.08
         qp.setPen(QPen(self.highlight_color, pen_width, cap = Qt.FlatCap))
-        if self.highlight_right is True:
-            qp.drawArc(rect, -45 * 16, 90 * 16)
-        if self.highlight_left is True:
-            qp.drawArc(rect, 135 * 16, 90 * 16)
-        if self.highlight_top is True:
-            qp.drawArc(rect, 45 * 16, 90 * 16)
-        if self.highlight_bottom is True:
-            qp.drawArc(rect, 225 * 16, 90 * 16)
         if self.highlight_center is True:
             qp.drawArc(rect, 0, 5760)
+        else:
+            if self.highlight_right is True:
+                qp.drawArc(rect, -45 * 16, 90 * 16)
+            if self.highlight_left is True:
+                qp.drawArc(rect, 135 * 16, 90 * 16)
+            if self.highlight_top is True:
+                qp.drawArc(rect, 45 * 16, 90 * 16)
+            if self.highlight_bottom is True:
+                qp.drawArc(rect, 225 * 16, 90 * 16)
 
-    def set_highlight(self, btn, state):
+    def reset_highlight(self):
+        self.highlight_left = False
+        self.highlight_right = False
+        self.highlight_top = False
+        self.highlight_bottom = False
+        self.highlight_center = False
+
+    def set_highlight(self, btn, state=True):
+        if type(btn) == int:
+            if btn == IndicatorPosition.LEFT:
+                btn ='L'
+            elif btn == IndicatorPosition.RIGHT:
+                btn ='R'
+            elif btn == IndicatorPosition.CENTER:
+                btn ='C'
+            elif btn == IndicatorPosition.TOP:
+                btn ='T'
+            elif btn == IndicatorPosition.BOTTOM:
+                btn ='B'
+            elif btn == IndicatorPosition.LEFTRIGHT:
+                btn ='X'
+            elif btn == IndicatorPosition.TOPBOTTOM:
+                btn ='Z'
+            elif btn == IndicatorPosition.NONE:
+                self.reset_highlight()
+                return
+            else:
+                print ('undefined position:{}'.format(btn))
+                return
         if btn not in self.axis_list and btn not in self.btn_names.keys(): return
         if btn == 'X' or btn == 'A':
             self.highlight_left = state
@@ -258,6 +301,22 @@ class JoyPad(QtWidgets.QWidget):
             self.highlight_color = self._false_color
         self.update()
 
+    def set_HighlightPosition(self, position):
+        self._highlightPosition = position
+        self.reset_highlight()
+        self.set_highlight(position, True)
+        self.update()
+
+    def get_HighlightPosition(self):
+        return self._highlightPosition
+
+    def reset_HighlightPosition(self):
+        self._highlightPosition = IndicatorPosition.NONE
+        self.reset_highlight()
+        self.update()
+
+    highlightPosition = QtCore.pyqtProperty(IndicatorPosition,
+                        get_HighlightPosition, set_HighlightPosition, reset_HighlightPosition)
 
     @QtCore.pyqtSlot()
     def set_colorStateTrue(self):
@@ -333,6 +392,15 @@ class JoyPad(QtWidgets.QWidget):
     center_image_path = QtCore.pyqtProperty(QPixmap, getCenterImagePath, setCenterImagePath, resetCenterImagePath)
     top_image_path = QtCore.pyqtProperty(QPixmap, getTopImagePath, setTopImagePath, resetTopImagePath)
     bottom_image_path = QtCore.pyqtProperty(QPixmap, getBottomImagePath, setBottomImagePath, resetBottomImagePath)
+
+
+    def getFont(self):
+        return self._font
+    def setFont(self, value):
+        self._font = value
+    def resetFont(self):
+        self._font = QFont('Lato Heavy', 20)
+    button_font = QtCore.pyqtProperty(QFont, getFont, setFont, resetFont)
 
     def setLeftText(self, data):
         self._textL = data
@@ -427,8 +495,18 @@ class JoyPad(QtWidgets.QWidget):
         self._false_color = QColor('gray')
         self.setLight(self.colorState)
 
+    def set_text_color(self, color):
+        self._text_color = QColor(color)
+        self.update()
+    def get_text_color(self):
+        return self._text_color
+    def reset_text_color(self):
+        self._text_color = QColor('white')
+        self.update()
+
     true_color = QtCore.pyqtProperty(QColor, get_true_color, set_true_color, reset_true_color)
     false_color = QtCore.pyqtProperty(QColor, get_false_color, set_false_color, reset_false_color)
+    text_color = QtCore.pyqtProperty(QColor, get_text_color, set_text_color, reset_text_color)
 
     @QtCore.pyqtSlot(str)
     def btn_pressed(self, btn):
@@ -445,13 +523,20 @@ class JoyPad(QtWidgets.QWidget):
     def __setitem__(self, item, value):
         return setattr(self, item, value)
 
-class HALPad(JoyPad, _HalWidgetBase):
+class HALPinType:
+    NONE = 0
+    BIT = hal.HAL_BIT
+    S32 = hal.HAL_S32
+    FLOAT = hal.HAL_FLOAT
+
+class HALPad(JoyPad, _HalWidgetBase, HALPinType):
+    HALPinType = HALPinType
+    Q_ENUM(HALPinType)
+
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)
         self._pin_name = ''
-        self._bit_pin_type = True
-        self._s32_pin_type = False
-        self._float_pin_type = False
+        self._pin_type = HALPinType.BIT
 
         self._trueOutputR = 1.0
         self._trueOutputL = 1.0
@@ -464,7 +549,7 @@ class HALPad(JoyPad, _HalWidgetBase):
         self._false_color = QColor('red')
 
         # we want center active for an indicator light
-        self.set_highlight('C', True)
+        self.setProperty('highlightPosition',JoyPad.CENTER)
         self.setLight(False)
 
     def _hal_init(self):
@@ -472,30 +557,29 @@ class HALPad(JoyPad, _HalWidgetBase):
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name
-        if self._bit_pin_type:
-            ptype = hal.HAL_BIT
-        elif self._float_pin_type:
-            ptype =  hal.HAL_FLOAT
-        elif self._s32_pin_type:
-            ptype =  hal.HAL_S32
-        self.halPinR = self.HAL_GCOMP_.newpin(pname + '.right', ptype, hal.HAL_OUT)
-        self.halPinL = self.HAL_GCOMP_.newpin(pname + '.left', ptype, hal.HAL_OUT)
-        self.halPinT = self.HAL_GCOMP_.newpin(pname + '.top', ptype, hal.HAL_OUT)
-        self.halPinB = self.HAL_GCOMP_.newpin(pname + '.bottom', ptype, hal.HAL_OUT)
-        self.halPinC = self.HAL_GCOMP_.newpin(pname + '.center', ptype, hal.HAL_OUT)
-        self.halPinLightCenter = self.HAL_GCOMP_.newpin(pname + '.light.center', hal.HAL_BIT, hal.HAL_IN)
-        self.halPinLightCenter.value_changed.connect(lambda data: self.setLight(data))
+        if not self._pin_type == HALPinType.NONE:
+            ptype = self._pin_type
+            self.halPinR = self.HAL_GCOMP_.newpin(pname + '.right', ptype, hal.HAL_OUT)
+            self.halPinL = self.HAL_GCOMP_.newpin(pname + '.left', ptype, hal.HAL_OUT)
+            self.halPinT = self.HAL_GCOMP_.newpin(pname + '.top', ptype, hal.HAL_OUT)
+            self.halPinB = self.HAL_GCOMP_.newpin(pname + '.bottom', ptype, hal.HAL_OUT)
+            self.halPinC = self.HAL_GCOMP_.newpin(pname + '.center', ptype, hal.HAL_OUT)
+        if not self._highlightPosition == IndicatorPosition.NONE:
+            self.halPinLightCenter = self.HAL_GCOMP_.newpin(pname + '.light.center', hal.HAL_BIT, hal.HAL_IN)
+            self.halPinLightCenter.value_changed.connect(lambda data: self.setLight(data))
 
     def _pressedOutput(self, btncode):
         self.joy_btn_pressed.emit(btncode)
         self['joy_{}_pressed'.format(btncode.lower())].emit(True)
 
-        if self._bit_pin_type:
+        if self._pin_type == HALPinType.BIT:
             data = True
-        elif self._float_pin_type:
+        elif self._pin_type == HALPinType.FLOAT:
             data = float(self['_trueOutput{}'.format(btncode)])
-        elif self._s32_pin_type:
+        elif self._pin_type == HALPinType.S32:
             data = int(self['_trueOutput{}'.format(btncode)])
+        else:
+            return
         try:
             self['halPin{}'.format(btncode)].set(data)
         except:
@@ -505,12 +589,14 @@ class HALPad(JoyPad, _HalWidgetBase):
         self.joy_btn_released.emit(btncode)
         self['joy_{}_released'.format(btncode.lower())].emit(False)
 
-        if self._bit_pin_type:
+        if self._pin_type == HALPinType.BIT:
             data = False
-        elif self._float_pin_type:
+        elif self._pin_type == HALPinType.FLOAT:
             data = float(self._falseOutput)
-        elif self._s32_pin_type:
+        elif self._pin_type == HALPinType.S32:
             data = int(self._falseOutput)
+        else:
+            return
         try:
             self['halPin{}'.format(btncode)].set(data)
         except:
@@ -520,20 +606,11 @@ class HALPad(JoyPad, _HalWidgetBase):
         btncode = self.btn_names[btn.lower()]
         self['_trueOutput{}'.format(btncode)] = data
 
-
-
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
     # it will use the get set and reset calls to do those actions
     ########################################################################
-
-    def _toggle_properties(self, picked):
-        data = ('bit', 's32', 'float')
-
-        for i in data:
-            if not i == picked:
-                self[i+'_pin_type'] = False
 
     def set_pin_name(self, value):
         self._pin_name = value
@@ -542,40 +619,17 @@ class HALPad(JoyPad, _HalWidgetBase):
     def reset_pin_name(self):
         self._pin_name = ''
 
-    def set_bit_pin_type(self, value):
-        self._bit_pin_type = value
-        if value:
-            self._toggle_properties('bit')
-    def get_bit_pin_type(self):
-        return self._bit_pin_type
-    def reset_bit_pin_type(self):
-        self._bit_pin_type = ''
-
-    def set_s32_pin_type(self, value):
-        self._s32_pin_type = value
-        if value:
-            self._toggle_properties('s32')
-    def get_s32_pin_type(self):
-        return self._s32_pin_type
-    def reset_s32_pin_type(self):
-        self._s32_pin_type = ''
-
-    def set_float_pin_type(self, value):
-        self._float_pin_type = value
-        if value:
-            self._toggle_properties('float')
-    def get_float_pin_type(self):
-        return self._float_pin_type
-    def reset_float_pin_type(self):
-        self._float_pin_type = ''
+    def set_pin_type(self, value):
+        self._pin_type = value
+        print(value)
+    def get_pin_type(self):
+        return self._pin_type
+    def reset_pin_type(self):
+        self._pin_type = HALPinType.BIT
 
     # designer will show these properties in this order:
+    pinType = QtCore.pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
     pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
-
-    bit_pin_type = QtCore.pyqtProperty(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
-    s32_pin_type = QtCore.pyqtProperty(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
-    float_pin_type = QtCore.pyqtProperty(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
-
 
     #############################
     # Testing                   #
