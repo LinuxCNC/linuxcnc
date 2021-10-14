@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component>
+  <id>linuxcnc</id>
+  <metadata_license>MIT</metadata_license>
+  <name>LinuxCNC</name>
+  <summary>LinuxCNC Machine Controller</summary>
+  <description>
+    <p>LinuxCNC controls CNC machines. It can drive milling machines,
+      lathes, 3D printers, laser cutters, plasma cutters, robot arms,
+      hexapods, and more.</p>
+  </description>
+  <provides>
+    <modalias>usb:v10CEpEB93d*</modalias>
+    <modalias>usb:v10CEpEB70d*</modalias>
+  </provides>
+</component>
