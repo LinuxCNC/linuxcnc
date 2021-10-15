@@ -288,11 +288,15 @@ After creating a new configuration some initial setup is required before using t
 
 === Initial Setup
 
+The following heights diagram will help the user visualize the different heights involved in plasma cutting and how they are measured:
+
+image::images/plasmac_heights_diagram.png[width=800,align="center"]
+
 After running the command at the end of section 5.1, LinuxCNC should be running with the PlasmaC panels visible.
 
-Click on the Config tab to open the Config Panel and ensure every one of these settings is tailored to the machine.
+Click on the Config tab to open the <<config-panel, Config Panel>> and ensure every one of these settings is tailored to the machine.
 
-See <<config-panel, Config Panel>>
+To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in PlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-Code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
 
 . The user should be familiar with the recommended <<z_settings, Z Axis Settings>>
 
