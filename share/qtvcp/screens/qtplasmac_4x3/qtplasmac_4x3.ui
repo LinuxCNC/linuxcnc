@@ -78,6 +78,13 @@
       <property name="catch_close_option" stdset="0">
        <bool>false</bool>
       </property>
+      <property name="close_overlay_color" stdset="0">
+       <color alpha="128">
+        <red>128</red>
+        <green>128</green>
+        <blue>128</blue>
+       </color>
+      </property>
       <property name="play_sounds_option" stdset="0">
        <bool>false</bool>
       </property>
@@ -96,13 +103,6 @@
       </property>
       <property name="closeDialog_option" stdset="0">
        <bool>true</bool>
-      </property>
-      <property name="close_overlay_color" stdset="0">
-       <color alpha="128">
-        <red>128</red>
-        <green>128</green>
-        <blue>128</blue>
-       </color>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
@@ -225,7 +225,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>3</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -8580,66 +8580,20 @@ EDGE</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="PushButton" name="conv_rotate">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
+                     <spacer name="horizontalSpacer_17">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
                       </property>
-                      <property name="minimumSize">
+                      <property name="sizeHint" stdset="0">
                        <size>
-                        <width>60</width>
-                        <height>60</height>
+                        <width>40</width>
+                        <height>20</height>
                        </size>
                       </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="iconSize">
-                       <size>
-                        <width>48</width>
-                        <height>48</height>
-                       </size>
-                      </property>
-                      <property name="checkable">
-                       <bool>true</bool>
-                      </property>
-                      <property name="autoExclusive">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
+                     </spacer>
                     </item>
                     <item>
-                     <widget class="PushButton" name="conv_scale">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>60</width>
-                        <height>60</height>
-                       </size>
-                      </property>
-                      <property name="iconSize">
-                       <size>
-                        <width>48</width>
-                        <height>48</height>
-                       </size>
-                      </property>
-                      <property name="autoExclusive">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="PushButton" name="conv_array">
+                     <widget class="PushButton" name="conv_block">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -13757,6 +13711,9 @@ EDGE</string>
                   <widget class="QLabel" name="label_5">
                    <property name="text">
                     <string>Tool Tips</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>

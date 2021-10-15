@@ -2439,54 +2439,40 @@ To create a group of shapes:
 . Repeat until all the required shapes to complete the group have been added.
 . Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
 
-=== Conversational Rotate
+=== Conversational Block
 
-image::images/qtplasmac_conv_rotate.png[width=100,align="left"]
+image::images/qtplasmac_conv_block.png[width=100,align="left"]
 
-The rotate feature will rotate the current code displayed in the Preview tab, this can be a single shape, a group, or an imported G-Code file.
+The Conversational Block feature allows block operations to be performed on the current shape or group of shapes displayed in the <<qt_conversational-tab, CONVERSATIONAL Tab>>. This can include a G-Code file not created using the Conversational Shape Library that has been previously loaded from the <<qt_main-tab, MAIN Tab>>.
 
-Arrays created via Conversational may be rotated, however arrays that have been imported cannot be rotated.
+A previously saved Block G-Code file may also be loaded from the <<qt_main-tab, MAIN Tab>> and then have any of its operations edited using the Conversational Block feature.
 
-Rotation will not work on G-Code that is mathematically calculated, the values need to be specified.
+Block operations:
 
-. Create a shape, a group, or use the imported G-Code file.
-. Click the *Rotate* icon to open the rotate tab.
-. Enter the appropriate values in the rotate tab and press *PREVIEW* to display the rotated code.
-. If the rotation is not correct, edit the values and press *PREVIEW* and the new rotated code will be shown. Repeat until satisfied with the rotated code.
+- Rotate
+- Scale
+- Array
+
+To create a block:
+
+. Create a shape, a group, or use a previously loaded G-Code file.
+. Click the *Block* icon to open the Block tab.
+. Enter the appropriate values in the Block tab and press *PREVIEW* to display the resulting changes.
+. If the result is not correct, edit the values and press *PREVIEW* and the new result will be shown. Repeat until satisfied with the result.
 . Press *ADD* to complete the procedure.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting, or *SAVE* to save the G-Code file.
 
-=== Conversational Scaling
+COLUMNS & ROWS - specifies the number of duplicates of the original shape arranged in columns and rows as well as the offset distance from the original shape.
 
-image::images/qtplasmac_conv_scaling.png[width=100,align="left"]
+ORIGIN - offset the result from the origin coordinates.
 
-The scaling feature will scale the current code displayed in the Preview tab, this can be a single shape, a group, or an imported G-Code file.
+ANGLE - rotate the result.
 
-It is advisable to scale the shape before attempting to use it to create an array. Arrays created via Conversational may be scaled, however the origin of each object in the array will not change causing the objects to overlap.
+SCALE - scale the result.
 
-. Create a shape, a group, or use the imported G-Code file.
-. Click the *Scaling* icon to open the scaling tab.
-. Enter the appropriate values in the scaling tab and press *PREVIEW* to display the scaling.
-. If the scaling is not correct, edit the values and press *PREVIEW* and the new scaling will be shown. Repeat until satisfied with the scaling.
-. Press *ADD* to complete the procedure.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+ROTATION - rotate the shape within the result.
 
-=== Conversational Array
-
-image::images/qtplasmac_conv_array.png[width=100,align="left"]
-
-An array can be created from a shape, a group, or an imported G-Code file.
-
-Arrays created with Conversational may be arrayed but imported arrays cannot be arrayed.
-
-The cut order of an array is from the left column to the right column, starting at the bottom row and ending at the top row.
-
-. Create a shape, a group, or use the imported G-Code file.
-. Click the *Array* icon to open the array tab.
-. Enter the appropriate values in the array tab and press *PREVIEW* to display the array.
-. If the array is not correct, edit the values and press *PREVIEW* and the new array will be shown. Repeat until satisfied with the array.
-. Press *ADD* to complete the procedure.
-. Press *SEND* to send the G-Code file to LinuxCNC (QtPlasmaC) for cutting.
+If the result is an array of shapes then the cut order of the result is from the left column to the right column, starting at the bottom row and ending at the top row.
 
 === Conversational Saving A Job
 

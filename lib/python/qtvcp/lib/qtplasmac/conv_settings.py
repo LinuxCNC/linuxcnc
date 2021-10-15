@@ -69,6 +69,8 @@ def save(P, W):
     W.PREFS_.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
     W.PREFS_.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
+    P.convSettingsChanged = True
+    P.conv_restore_buttons()
     W[P.oldConvButton].click()
 
 def error_set(P, msg):
@@ -79,6 +81,8 @@ def error_set(P, msg):
 def reload(P, W):
     load(P, W)
     show(P, W)
+    P.convSettingsChanged = True
+    P.conv_restore_buttons()
     W[P.oldConvButton].click()
 
 def load(P, W):

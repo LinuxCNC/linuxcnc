@@ -88,9 +88,8 @@ def clear_tool_tips(W):
 
     conversational_widgets = [
     'conv_line','conv_circle','conv_ellipse','conv_triangle','conv_rectangle',
-    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset',
-    'conv_sector','conv_rotate','conv_scale','conv_array','conv_new',
-    'conv_save','conv_settings','conv_send']
+    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset','conv_sector',
+    'conv_block','conv_new','conv_save','conv_settings','conv_send']
 
     parameters_configuration_widgets = [
     'arc_fail_delay','arc_max_starts','arc_restart_delay','arc_voltage_scale',
@@ -337,9 +336,7 @@ def set_tool_tips(W):
     W.conv_star.setToolTip(_translate('ToolTips', 'Create a star'))
     W.conv_gusset.setToolTip(_translate('ToolTips', 'Create a gusset'))
     W.conv_sector.setToolTip(_translate('ToolTips', 'Create a sector'))
-    W.conv_rotate.setToolTip(_translate('ToolTips', 'Rotate the current G-Code program'))
-    W.conv_scale.setToolTip(_translate('ToolTips', 'Scale the current G-Code program'))
-    W.conv_array.setToolTip(_translate('ToolTips', 'Create an array'))
+    W.conv_block.setToolTip(_translate('ToolTips', 'Rotate, Scale, and Array the current G-Code program'))
     W.conv_new.setToolTip(_translate('ToolTips', 'Starts a new file'))
     W.conv_save.setToolTip(_translate('ToolTips', 'Saves the current file'))
     W.conv_settings.setToolTip(_translate('ToolTips', 'Opens the conversational settings panel'))

@@ -216,6 +216,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
+        P.conv_preview_button(True)
     else:
         msg0 = _translate('Conversational', 'Zero is invalid for')
         msg1 = _translate('Conversational', 'WIDTH')
@@ -223,7 +224,6 @@ def preview(P, W):
         error_set(P, '{}:\n\n{}\n{}\n'.format(msg0, msg1, msg2))
 
 def error_set(P, msg):
-    P.conv_undo_shape()
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Ellipse Error'), msg)
 
@@ -234,89 +234,82 @@ def auto_preview(P, W):
     if W.main_tab_widget.currentIndex() == 1 and W.wEntry.text() and W.hEntry.text():
         preview(P, W)
 
-def add_shape_to_file(P, W):
-    P.conv_add_shape_to_file()
-
-def undo_pressed(P, W):
-    P.conv_undo_shape()
-
 def widgets(P, W):
-    #widgets
-    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-    W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-    W.cExt.setChecked(True)
-    W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-    W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-    W.kOffset.setCheckable(True)
-    W.spLabel = QLabel(_translate('Conversational', 'START'))
-    W.spGroup = QButtonGroup(W)
-    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
-    W.spGroup.addButton(W.center)
-    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
-    W.spGroup.addButton(W.bLeft)
-    text = _translate('Conversational', 'ORIGIN')
-    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
-    W.wEntry = QLineEdit(objectName = '')
-    W.hLabel = QLabel(_translate('Conversational', 'HEIGHT'))
-    W.hEntry = QLineEdit(objectName = '')
-    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-    W.aEntry = QLineEdit('0', objectName = 'aEntry')
-    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING ELLIPSE'))
-    W.iLabel = QLabel()
-    pixmap = QPixmap('{}conv_ellipse_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
-    #alignment and size
-    rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
-                  'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', \
-                  'wEntry', 'hLabel', 'hEntry', 'aLabel', 'aEntry']
-    centerAlign = ['lDesc']
-    rButton = ['cExt', 'cInt', 'center', 'bLeft']
-    pButton = ['preview', 'add', 'undo', 'kOffset']
-    for widget in rightAlign:
-        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        W[widget].setFixedWidth(80)
-        W[widget].setFixedHeight(24)
-    for widget in centerAlign:
-        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-        W[widget].setFixedWidth(240)
-        W[widget].setFixedHeight(24)
-    for widget in rButton:
-        W[widget].setFixedWidth(80)
-        W[widget].setFixedHeight(24)
-    for widget in pButton:
-        W[widget].setFixedWidth(80)
-        W[widget].setFixedHeight(24)
-    #starting parameters
-    W.add.setEnabled(False)
-    W.undo.setEnabled(False)
-    if P.oSaved:
-        W.center.setChecked(True)
-    else:
-        W.bLeft.setChecked(True)
-    P.conv_undo_shape()
+    if not P.convSettingsChanged:
+        #widgets
+        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
+        W.ctGroup = QButtonGroup(W)
+        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
+        W.cExt.setChecked(True)
+        W.ctGroup.addButton(W.cExt)
+        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
+        W.ctGroup.addButton(W.cInt)
+        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
+        W.kOffset.setCheckable(True)
+        W.spLabel = QLabel(_translate('Conversational', 'START'))
+        W.spGroup = QButtonGroup(W)
+        W.center = QRadioButton(_translate('Conversational', 'CENTER'))
+        W.spGroup.addButton(W.center)
+        W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
+        W.spGroup.addButton(W.bLeft)
+        text = _translate('Conversational', 'ORIGIN')
+        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
+        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
+        W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
+        W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
+        W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
+        W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
+        W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
+        W.wEntry = QLineEdit(objectName = '')
+        W.hLabel = QLabel(_translate('Conversational', 'HEIGHT'))
+        W.hEntry = QLineEdit(objectName = '')
+        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
+        W.aEntry = QLineEdit('0', objectName = 'aEntry')
+        W.add = QPushButton(_translate('Conversational', 'ADD'))
+        W.lDesc = QLabel(_translate('Conversational', 'CREATING ELLIPSE'))
+        W.iLabel = QLabel()
+        pixmap = QPixmap('{}conv_ellipse_l.png'.format(P.IMAGES)).scaledToWidth(196)
+        W.iLabel.setPixmap(pixmap)
+        #alignment and size
+        rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
+                      'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', \
+                      'wEntry', 'hLabel', 'hEntry', 'aLabel', 'aEntry']
+        centerAlign = ['lDesc']
+        rButton = ['cExt', 'cInt', 'center', 'bLeft']
+        pButton = ['preview', 'add', 'undo', 'kOffset']
+        for widget in rightAlign:
+            W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            W[widget].setFixedWidth(80)
+            W[widget].setFixedHeight(24)
+        for widget in centerAlign:
+            W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+            W[widget].setFixedWidth(240)
+            W[widget].setFixedHeight(24)
+        for widget in rButton:
+            W[widget].setFixedWidth(80)
+            W[widget].setFixedHeight(24)
+        for widget in pButton:
+            W[widget].setFixedWidth(80)
+            W[widget].setFixedHeight(24)
+        #starting parameters
+        W.add.setEnabled(False)
+        if P.oSaved:
+            W.center.setChecked(True)
+        else:
+            W.bLeft.setChecked(True)
     #connections
+    W.preview.pressed.disconnect()
+    W.undo.pressed.disconnect()
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
     W.kOffset.toggled.connect(lambda:auto_preview(P, W))
     W.center.toggled.connect(lambda:auto_preview(P, W))
     W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:undo_pressed(P, W))
+    W.add.pressed.connect(lambda:P.conv_add_shape_to_file())
+    W.undo.pressed.connect(lambda:P.conv_undo_shape())
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'wEntry', 'hEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
@@ -345,7 +338,7 @@ def widgets(P, W):
         W.entries.addWidget(W.hEntry, 7, 1)
         W.entries.addWidget(W.aLabel, 8, 0)
         W.entries.addWidget(W.aEntry, 8, 1)
-        for r in range(9, 12):
+        for r in [9,10,11]:
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)
@@ -378,7 +371,7 @@ def widgets(P, W):
         W.entries.addWidget(W.hEntry, 5, 3)
         W.entries.addWidget(W.aLabel, 6, 0)
         W.entries.addWidget(W.aEntry, 6, 1)
-        for r in range(7, 9):
+        for r in [7,8]:
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)
@@ -388,3 +381,4 @@ def widgets(P, W):
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
     W.wEntry.setFocus()
+    P.convSettingsChanged = False

@@ -240,6 +240,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
+        P.conv_preview_button(True)
     else:
         msg = []
         if width <= 0:
@@ -255,7 +256,6 @@ def preview(P, W):
             return
 
 def error_set(P, msg):
-    P.conv_undo_shape()
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Gusset Error'), msg)
 
@@ -296,84 +296,77 @@ def entry_changed(P, W, widget):
     else:
         W.kOffset.setEnabled(True)
 
-def add_shape_to_file(P, W):
-    P.conv_add_shape_to_file()
-
-def undo_pressed(P, W):
-    P.conv_undo_shape()
-
 def widgets(P, W):
-    #widgets
-    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-    W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-    W.cExt.setChecked(True)
-    W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-    W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-    W.kOffset.setCheckable(True)
-    text = _translate('Conversational', 'ORIGIN')
-    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
-    W.wEntry = QLineEdit()
-    W.hLabel = QLabel(_translate('Conversational', 'HEIGHT'))
-    W.hEntry = QLineEdit()
-    W.rButton = QPushButton(_translate('Conversational', 'RADIUS'))
-    W.rEntry = QLineEdit('0.0')
-    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-    W.aEntry = QLineEdit('90.0', objectName='aEntry')
-    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
-    W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
-    W.lDesc = QLabel(_translate('Conversational', 'CREATING GUSSET'))
-    W.iLabel = QLabel()
-    pixmap = QPixmap('{}conv_gusset_l.png'.format(P.IMAGES)).scaledToWidth(196)
-    W.iLabel.setPixmap(pixmap)
-    #alignment and size
-    rightAlign = ['ctLabel', 'koLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
-                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', 'wEntry', \
-                  'hLabel', 'hEntry', 'rEntry', 'aLabel', 'aEntry']
-    centerAlign = ['lDesc']
-    rButton = ['cExt', 'cInt']
-    pButton = ['preview', 'add', 'undo', 'rButton', 'kOffset']
-    for widget in rightAlign:
-        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        W[widget].setFixedWidth(80)
-        W[widget].setFixedHeight(24)
-    for widget in centerAlign:
-        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-        W[widget].setFixedWidth(240)
-        W[widget].setFixedHeight(24)
-    for widget in rButton:
-        W[widget].setFixedWidth(80)
-        W[widget].setFixedHeight(24)
-    for widget in pButton:
-        W[widget].setFixedWidth(80)
-        W[widget].setFixedHeight(24)
-    #starting parameters
-    W.add.setEnabled(False)
-    W.undo.setEnabled(False)
-    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
-        W.kOffset.setChecked(False)
-        W.kOffset.setEnabled(False)
-    P.conv_undo_shape()
+    if not P.convSettingsChanged:
+        #widgets
+        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
+        W.ctGroup = QButtonGroup(W)
+        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
+        W.cExt.setChecked(True)
+        W.ctGroup.addButton(W.cExt)
+        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
+        W.ctGroup.addButton(W.cInt)
+        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
+        W.kOffset.setCheckable(True)
+        text = _translate('Conversational', 'ORIGIN')
+        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
+        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
+        W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
+        W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
+        W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
+        W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
+        W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
+        W.wEntry = QLineEdit()
+        W.hLabel = QLabel(_translate('Conversational', 'HEIGHT'))
+        W.hEntry = QLineEdit()
+        W.rButton = QPushButton(_translate('Conversational', 'RADIUS'))
+        W.rEntry = QLineEdit('0.0')
+        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
+        W.aEntry = QLineEdit('90.0', objectName='aEntry')
+        W.add = QPushButton(_translate('Conversational', 'ADD'))
+        W.lDesc = QLabel(_translate('Conversational', 'CREATING GUSSET'))
+        W.iLabel = QLabel()
+        pixmap = QPixmap('{}conv_gusset_l.png'.format(P.IMAGES)).scaledToWidth(196)
+        W.iLabel.setPixmap(pixmap)
+        #alignment and size
+        rightAlign = ['ctLabel', 'koLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
+                      'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', 'wEntry', \
+                      'hLabel', 'hEntry', 'rEntry', 'aLabel', 'aEntry']
+        centerAlign = ['lDesc']
+        rButton = ['cExt', 'cInt']
+        pButton = ['preview', 'add', 'undo', 'rButton', 'kOffset']
+        for widget in rightAlign:
+            W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            W[widget].setFixedWidth(80)
+            W[widget].setFixedHeight(24)
+        for widget in centerAlign:
+            W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+            W[widget].setFixedWidth(240)
+            W[widget].setFixedHeight(24)
+        for widget in rButton:
+            W[widget].setFixedWidth(80)
+            W[widget].setFixedHeight(24)
+        for widget in pButton:
+            W[widget].setFixedWidth(80)
+            W[widget].setFixedHeight(24)
+        #starting parameters
+        W.add.setEnabled(False)
+        if not W.liEntry.text() or float(W.liEntry.text()) == 0:
+            W.kOffset.setChecked(False)
+            W.kOffset.setEnabled(False)
     #connections
+    W.preview.pressed.disconnect()
+    W.undo.pressed.disconnect()
     W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
     W.cExt.toggled.connect(lambda:auto_preview(P, W))
     W.kOffset.toggled.connect(lambda:auto_preview(P, W))
     W.rButton.pressed.connect(lambda:rad_button_pressed(P, W, W.sender()))
     W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:undo_pressed(P, W))
+    W.add.pressed.connect(lambda:P.conv_add_shape_to_file())
+    W.undo.pressed.connect(lambda:P.conv_undo_shape())
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'wEntry', 'hEntry', 'rEntry', 'aEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
@@ -401,7 +394,7 @@ def widgets(P, W):
         W.entries.addWidget(W.rEntry, 7, 1)
         W.entries.addWidget(W.aLabel, 8, 0)
         W.entries.addWidget(W.aEntry, 8, 1)
-        for r in range(9, 12):
+        for r in [9,10,11]:
             W['s{}'.format(r)] = QLabel('')
             W['s{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['s{}'.format(r)], r, 0)
@@ -433,12 +426,14 @@ def widgets(P, W):
         W.entries.addWidget(W.rEntry, 6, 1)
         W.entries.addWidget(W.aLabel, 7, 0)
         W.entries.addWidget(W.aEntry, 7, 1)
-        W.s8 = QLabel('')
-        W.s8.setFixedHeight(24)
-        W.entries.addWidget(W.s8, 8, 0)
+        for r in [8]:
+            W['s{}'.format(r)] = QLabel('')
+            W['s{}'.format(r)].setFixedHeight(24)
+            W.entries.addWidget(W['s{}'.format(r)], r, 0)
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
     W.wEntry.setFocus()
+    P.convSettingsChanged = False
