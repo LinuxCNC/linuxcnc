@@ -879,26 +879,41 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def set_inhibit_selection(self, state):
         self.inhibit_selection = state
 
-    # sets plotter colors to default if arguments left out
-    def set_plot_colors(self, jog=None,traverse=None,feed=None,
-                    arc=None,toolchange=None,probe=None):
+    def get_plot_colors(self):
+        return self.logger.get_colors()
+
+    def get_default_plot_colors(self):
         def C(s):
             a = self.colors[s + "_alpha"]
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
+        jog = C('backplotjog')
+        traverse = C('backplottraverse')
+        feed = C('backplotfeed')
+        arc = C('backplotarc')
+        toolchange = C('backplottoolchange')
+        probe = C('backplotprobing')
+        return(jog,traverse,feed,arc,toolchange,probe)
+
+    # sets plotter colors to default if arguments left out
+    def set_plot_colors(self, jog=None,traverse=None,feed=None,
+                    arc=None,toolchange=None,probe=None):
+
+        c = self.logger.get_colors()
 
         if jog is None:
-            jog = C('backplotjog')
+            jog = c[0]
         if traverse is None:
-            traverse = C('backplottraverse')
+            traverse = c[1]
         if feed is None:
-           feed = C('backplotfeed')
+           feed = c[2]
         if arc is None:
-            arc = C('backplotarc')
+            arc = c[3]
         if toolchange is None:
-            toolchange = C('backplottoolchange')
+            toolchange = c[4]
         if probe is None:
-            probe = C('backplotprobing')
+            probe = c[5]
+
         try:
             self.logger.set_colors(
                 jog,
@@ -908,7 +923,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                 toolchange,
                 probe)
         except Exception as e:
-            print(e)
+            print('GcodeGraphics: set_color:',e)
 
     ####################################
     # view controls

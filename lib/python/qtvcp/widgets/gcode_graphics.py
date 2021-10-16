@@ -55,7 +55,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self.colors['back'] = (0.0, 0.0, 0.75)  # blue
         self._backgroundColor = QColor(0, 0, 0.75, 150)
-
+        self._jogColor = QColor(0, 0, 0, 0)
+        self._feedColor = QColor(0, 0, 0, 0)
+        self._rapidColor = QColor(0, 0, 0, 0)
         self.use_gradient_background = False
         # color1 is the bottom color that blends up to color2
         self.gradient_color1 = (0.,0,.5)
@@ -344,6 +346,49 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getGradientBackground(self):
         return self.use_gradient_background
     _use_gradient_background = pyqtProperty(bool, getGradientBackground, setGradientBackground)
+
+    def getJogColor(self):
+        return self._jogColor
+    def setJogColor(self, value):
+        self._jogColor = value
+        if value.alpha() == 0:
+            c = self.get_default_plot_colors()
+            self.set_plot_colors(jog = c[0])
+        else:
+            self.set_plot_colors(jog = (value.red(), value.green(), value.blue(),value.alpha()))
+    def resetJogColor(self):
+        self._jogColor = QColor(0, 0, 0, 0)
+
+    jog_color = pyqtProperty(QColor, getJogColor, setJogColor, resetJogColor)
+
+    def getFeedColor(self):
+        return self._feedColor
+    def setFeedColor(self, value):
+        self._feedColor = value
+        if value.alpha() == 0:
+            c = self.get_default_plot_colors()
+            self.set_plot_colors(feed = c[2], arc = c[3])
+        else:
+            self.set_plot_colors(feed = (value.red(), value.green(), value.blue(),value.alpha()),
+                                arc = (value.red(), value.green(), value.blue(),value.alpha()))
+    def resetFeedColor(self):
+        self._feedColor = QColor(0, 0, 0, 0)
+
+    Feed_color = pyqtProperty(QColor, getFeedColor, setFeedColor, resetFeedColor)
+
+    def getRapidColor(self):
+        return self._rapidColor
+    def setRapidColor(self, value):
+        self._rapidColor = value
+        if value.alpha() == 0:
+            c = self.get_default_plot_colors()
+            self.set_plot_colors(traverse = c[1])
+        else:
+            self.set_plot_colors(traverse = (value.red(), value.green(), value.blue(),value.alpha()))
+    def resetRapidColor(self):
+        self._rapidColor = QColor(0, 0, 0, 0)
+
+    Rapid_color = pyqtProperty(QColor, getRapidColor, setRapidColor, resetRapidColor)
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
