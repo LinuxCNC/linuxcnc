@@ -128,6 +128,14 @@ the value may be accessed or set using the subscript syntax:
 h['out'] = h['in']
 ----
 
+To see all pins with their values, getpins returns all values in a dictionary
+of that component.
+
+----
+h.getpins()
+>>>{'in': 0.0, 'out': 0.0}
+----
+
 === Driving output (HAL_OUT) pins
 
 Periodically, usually in response to a timer, all HAL_OUT pins should
