@@ -459,7 +459,7 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
                 + (i * sizeof(rtapi_u32)), &buff, sizeof(rtapi_u32));
     }
     
-    hm2->stepgen.mode_reg[i] = 3 || modebuff;
+    hm2->stepgen.mode_reg[i] = 3 | modebuff; // force 2 LSbs to 1,1 to select table mode in stepgen hardware
 
     buff = inst->hal.param.step_type -1;	    
     
