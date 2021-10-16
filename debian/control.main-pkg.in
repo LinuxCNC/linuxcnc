@@ -11,7 +11,7 @@ Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
     python3-numpy,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@,
-    @QTVCP_DEPENDS@
+    @QTVCP_DEPENDS@,
     libgtksourceview-3.0-dev,
     python3-xlib,
     python3-cairo, python3-gi-cairo, python3-opengl, python3-configobj,
