@@ -108,10 +108,9 @@ def show(P, W):
     else:
         W.btLeft.setChecked(True)
     P.oSaved = P.origin
-    if P.gridSize:
-        # grid size is in inches
-        W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
-        W.conv_preview.set_current_view()
+    # grid size is in inches
+    W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
+    W.conv_preview.set_current_view()
 
 def widgets(P, W):
     W.preLabel = QLabel(_translate('Conversational', 'PREAMBLE'))

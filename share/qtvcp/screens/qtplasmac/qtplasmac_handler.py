@@ -1,4 +1,4 @@
-VERSION = '1.0.99'
+VERSION = '1.0.100'
 
 '''
 qtplasmac_handler.py
@@ -68,7 +68,7 @@ from qtvcp.lib.qtplasmac import conv_block as CONVBLCK
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 
 # **** TEMP FOR CONVERSATIONAL TESTING ****
-from importlib import reload
+#from importlib import reload
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -1015,7 +1015,7 @@ class HandlerClass:
             if STATUS.is_all_homed():
                 self.set_buttons_state([self.idleHomedList], True)
                 self.wcs_rotation('set')
-            else :
+            else:
                 self.set_buttons_state([self.idleHomedList], False)
         else:
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
@@ -1384,16 +1384,20 @@ class HandlerClass:
                 self.heightOvr += height * self.w.thc_threshold.value()
             else:
                 self.heightOvr = 0
-        if self.heightOvr < -10 :self.heightOvr = -10
-        if self.heightOvr > 10 :self.heightOvr = 10
+        if self.heightOvr < -9:
+            self.heightOvr = -9
+        if self.heightOvr > 9:
+            self.heightOvr = 9
         self.heightOverridePin.set(self.heightOvr)
         self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
 
     def height_ovr_encoder(self,value):
         if (value != self.old_ovr_counts and self.extHeightOvrCountEnablePin.get()):
             self.heightOvr += (value-self.old_ovr_counts) * self.w.thc_threshold.value() * self.heightOvrScale
-            if self.heightOvr < -10 :self.heightOvr = -10
-            if self.heightOvr >  10 :self.heightOvr =  10
+            if self.heightOvr < -9:
+                self.heightOvr = -9
+            if self.heightOvr > 9:
+                self.heightOvr = 9
             self.heightOverridePin.set(self.heightOvr)
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
         self.old_ovr_counts = value
@@ -1519,6 +1523,11 @@ class HandlerClass:
 
     def main_tab_changed(self, tab):
         if tab == 0:
+            if self.w.view_p.isChecked():
+                self.w.gcodegraphics.set_view('P')
+            else:
+                self.w.gcodegraphics.set_view('Z')
+            self.w.gcodegraphics.set_current_view()
             if self.w.preview_stack.currentIndex() == 2:
                 self.vkb_show()
             else:
@@ -1729,28 +1738,28 @@ class HandlerClass:
             amount = float(self.xMin - xMin)
             msgList.append('X')
             msgList.append('MIN')
-            msgList.append('{:0.2f}'.format(amount, units))
+            msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
         xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier - xOffset
         if xMax > self.xMax:
             amount = float(xMax - self.xMax)
             msgList.append('X')
             msgList.append('MAX')
-            msgList.append('{:0.2f}'.format(amount, units))
+            msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
         yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier - yOffset
         if yMin < self.yMin:
             amount = float(self.yMin - yMin)
             msgList.append('Y')
             msgList.append('MIN')
-            msgList.append('{:0.2f}'.format(amount, units))
+            msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
         yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier - yOffset
         if yMax > self.yMax:
             amount = float(yMax - self.yMax)
             msgList.append('Y')
             msgList.append('MAX')
-            msgList.append('{:0.2f}'.format(amount, units))
+            msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
         return msgList, units, xMin, yMin, xMax, yMax
 
@@ -3480,7 +3489,7 @@ class HandlerClass:
         ACTION.OPEN_PROGRAM(newFile)
 
     def manual_cut(self):
-        if STATUS.is_spindle_on():
+        if self.manualCut:
             ACTION.SET_SPINDLE_STOP(0)
             self.w.abort.setEnabled(False)
             if self.mcButton:
@@ -4900,10 +4909,9 @@ class HandlerClass:
             self.unitCode = ['20', '0.004', 1.26]
         self.ambles = 'G{} G64P{} G40 G49 G80 G90 G92.1 G94 G97'.format(self.unitCode[0], self.unitCode[1])
         CONVSET.load(self, self.w)
-        if self.gridSize:
-            # grid size is in inches
-            self.w.conv_preview.grid_size = self.gridSize / self.unitsPerMm / 25.4
-            self.w.conv_preview.set_current_view()
+        # grid size is in inches
+        self.w.conv_preview.grid_size = self.gridSize / self.unitsPerMm / 25.4
+        self.w.conv_preview.set_current_view()
         self.w.conv_save.setEnabled(False)
         self.w.conv_send.setEnabled(False)
         self.w.conv_settings.setEnabled(True)
@@ -5028,7 +5036,7 @@ class HandlerClass:
 
     def conv_shape_request(self, shape, module, material):
 # **** TEMP FOR CONVERSATIONAL TESTING ****
-        reload(module)
+#        reload(module)
         if not self.convSettingsChanged:
             if self.convPreviewActive and not self.conv_active_shape():
                 return
@@ -5394,158 +5402,162 @@ class HandlerClass:
 #########################################################################################################################
 # KEY BINDING CALLS #
 #########################################################################################################################
-    def key_is_valid(self, key):
-        return not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts() and self.w['jog_{}'.format(key)].isEnabled()
+    def key_is_valid(self, event, state):
+        return self.keyboard_shortcuts() and state and not event.isAutoRepeat()
+
+    def jog_is_valid(self, key, event):
+        return self.keyboard_shortcuts() and not event.isAutoRepeat() and not self.w.main_tab_widget.currentIndex() and self.w['jog_{}'.format(key)].isEnabled()
 
     def on_keycall_ESTOP(self, event, state, shift, cntrl):
-        if not event.isAutoRepeat() and state and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state):
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
 
     def on_keycall_POWER(self, event, state, shift, cntrl):
-        if not event.isAutoRepeat() and state and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state):
             ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
 
     def on_keycall_ABORT(self, event, state, shift, cntrl):
-        if state:
-            self.torchTime = 0.0
-        if not event.isAutoRepeat() and state and STATUS.stat.interp_state != linuxcnc.INTERP_IDLE and self.keyboard_shortcuts():
-            ACTION.ABORT()
-            self.interp_idle(None)
-        if STATUS.is_spindle_on():
-            ACTION.SET_SPINDLE_STOP(0)
-        if self.manualCut:
-            self.w.abort.setEnabled(False)
-            if self.mcButton:
-                self.button_normal(self.mcButton)
-                self.w[self.mcButton].setEnabled(False)
-        if self.probeTest:
-            self.probe_test_stop()
+        if self.key_is_valid(event, state):
+            if STATUS.stat.interp_state != linuxcnc.INTERP_IDLE:
+                ACTION.ABORT()
+                self.interp_idle(None)
+            if self.torchPulse:
+                self.torch_pulse(True)
+            if self.manualCut:
+                ACTION.SET_SPINDLE_STOP(0)
+                self.w.abort.setEnabled(False)
+                if self.mcButton:
+                    self.button_normal(self.mcButton)
+                    self.w[self.mcButton].setEnabled(False)
+            if self.probeTest:
+                self.probe_test_stop()
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
-        if state and not shift and STATUS.is_on_and_idle() and self.keyboard_shortcuts() and self.w.home_all.isEnabled():
+        if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex() and STATUS.is_on_and_idle() and self.w.home_all.isEnabled():
             if STATUS.is_all_homed():
                 ACTION.SET_MACHINE_UNHOMED(-1)
             else:
                 ACTION.SET_MACHINE_HOMING(-1)
 
     def on_keycall_RUN(self, event, state, shift, cntrl):
-        if state and not shift and not self.w.main_tab_widget.currentIndex() and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex():
             if self.w.run.isEnabled():
                 self.run_pressed()
             elif self.w.pause.isEnabled():
                 ACTION.PAUSE()
 
     def on_keycall_PAUSE(self, event, state, shift, cntrl):
-        if state and not self.w.main_tab_widget.currentIndex() and self.w.pause.isEnabled() and \
-           not STATUS.stat.interp_state == linuxcnc.INTERP_PAUSED and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
+           self.w.pause.isEnabled() and not STATUS.stat.interp_state == linuxcnc.INTERP_PAUSED:
             ACTION.PAUSE()
 
     def on_keycall_OPEN(self, event, state, shift, cntrl):
-        if state and not self.w.main_tab_widget.currentIndex() and self.w.file_open.isEnabled() and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
+           self.w.file_open.isEnabled():
             self.file_open_clicked()
 
     def on_keycall_LOAD(self, event, state, shift, cntrl):
-        if state and not self.w.main_tab_widget.currentIndex() and self.w.file_reload.isEnabled() and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and \
+           self.w.file_reload.isEnabled():
             self.file_reload_clicked()
 
     def on_keycall_F12(self, event, state, shift, cntrl):
-        if not event.isAutoRepeat() and state:
+        if self.key_is_valid(event, state):
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and \
-           self.keyboard_shortcuts() and not self.probeTest and not self.torchPulse and not self.framing and \
-           STATUS.is_interp_idle():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() \
+           and not self.probeTest and not self.torchPulse and not self.framing and STATUS.is_interp_idle():
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):
-        if self.key_is_valid('x_plus'):
+        if self.jog_is_valid('x_plus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('x'), 1, shift)
             else:
                 self.kb_jog(state, 0, 1, shift)
 
     def on_keycall_XNEG(self, event, state, shift, cntrl):
-        if self.key_is_valid('x_minus'):
+        if self.jog_is_valid('x_minus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('x'), -1, shift)
             else:
                 self.kb_jog(state, 0, -1, shift)
 
     def on_keycall_YPOS(self, event, state, shift, cntrl):
-        if self.key_is_valid('y_plus'):
+        if self.jog_is_valid('y_plus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('y'), 1, shift)
             else:
                 self.kb_jog(state, 1, 1, shift)
 
     def on_keycall_YNEG(self, event, state, shift, cntrl):
-        if self.key_is_valid('y_minus'):
+        if self.jog_is_valid('y_minus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('y'), -1, shift)
             else:
                 self.kb_jog(state, 1, -1, shift)
 
     def on_keycall_ZPOS(self, event, state, shift, cntrl):
-        if self.key_is_valid('z_plus'):
+        if self.jog_is_valid('z_plus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), 1, shift)
             else:
                 self.kb_jog(state, 2, 1, shift)
 
     def on_keycall_ZNEG(self, event, state, shift, cntrl):
-        if self.key_is_valid('z_minus'):
+        if self.jog_is_valid('z_minus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('z'), -1, shift)
             else:
                 self.kb_jog(state, 2, -1, shift)
 
     def on_keycall_APOS(self, event, state, shift, cntrl):
-        if self.key_is_valid('a_plus'):
+        if self.jog_is_valid('a_plus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('a'), 1, shift)
             else:
                 self.kb_jog(state, 3, 1, shift)
 
     def on_keycall_ANEG(self, event, state, shift, cntrl):
-        if self.key_is_valid('a_minus'):
+        if self.jog_is_valid('a_minus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('a'), -1, shift)
             else:
                 self.kb_jog(state, 3, -1, shift)
 
     def on_keycall_BPOS(self, event, state, shift, cntrl):
-        if self.key_is_valid('b_plus'):
+        if self.jog_is_valid('b_plus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('b'), 1, shift)
             else:
                 self.kb_jog(state, 4, 1, shift)
 
     def on_keycall_BNEG(self, event, state, shift, cntrl):
-        if self.key_is_valid('b_minus'):
+        if self.jog_is_valid('b_minus', event):
             if STATUS.is_joint_mode():
                 self.kb_jog(state, self.coordinates.index('b'), -1, shift)
             else:
                 self.kb_jog(state, 4, -1, shift)
 
     def on_keycall_PLUS(self, event, state, shift, cntrl):
-        if self.jogSlow and self.w.jog_slider.isEnabled():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.jogSlow and self.w.jog_slider.isEnabled():
             return
-        if state:
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
             self.jogFast = True
         else:
             self.jogFast = False
 
     def on_keycall_MINUS(self, event, state, shift, cntrl):
-        if self.jogFast and self.w.jog_slider.isEnabled():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.jogFast and self.w.jog_slider.isEnabled():
             return
-        if state:
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
             self.jogSlow = True
         else:
             self.jogSlow = False
 
     def on_keycall_NUMBER(self, event, state, shift, cntrl, number):
-        if state and not self.w.main_tab_widget.currentIndex() and not event.isAutoRepeat() and self.keyboard_shortcuts():
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex():
             if shift and cntrl:
                 pass
             elif shift and not cntrl:
