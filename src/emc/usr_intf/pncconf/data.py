@@ -24,10 +24,7 @@ import errno
 import hashlib
 import xml.dom.minidom
 
-if sys.version_info[0] == 3:
-    import subprocess
-else:
-    import commands as subprocess
+import subprocess
 
 def md5sum(filename):
     try:

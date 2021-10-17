@@ -28,10 +28,6 @@ import sys
 import importlib
 import shutil
 
-if sys.version_info[0] == 2:
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-
 class INI:
     def __init__(self,app):
         # access to:
