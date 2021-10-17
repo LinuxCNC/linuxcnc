@@ -6,17 +6,17 @@ cat1/
 cat3/
 cat9/
 
-man1/hy_gt_vfd.1
-man1/svd-ps_vfd.1
-man1/linuxcnc.1
 man1/halstreamer.1
+man1/hy_gt_vfd.1
+man1/linuxcnc.1
 man1/sendkeys.1
+man1/svd-ps_vfd.1
 man1/thermistor.1
 man1/wj200_vfd.1
 man1/xhc-whb04b-6.1
 
-man9/abs_s32.9
 man9/abs.9
+man9/abs_s32.9
 man9/and2.9
 man9/axistest.9
 man9/bin2gray.9
@@ -127,11 +127,11 @@ man9/sim_axis_hardware.9
 man9/sim_home_switch.9
 man9/sim_matrix_kb.9
 man9/sim_parport.9
-man9/sim_spindle.9
 man9/simple_tp.9
+man9/sim_spindle.9
 man9/sphereprobe.9
-man9/spindle_monitor.9
 man9/spindle.9
+man9/spindle_monitor.9
 man9/steptest.9
 man9/streamer.9
 man9/sum2.9
@@ -141,8 +141,8 @@ man9/threadtest.9
 man9/time.9
 man9/timedelay.9
 man9/timedelta.9
-man9/toggle.9
 man9/toggle2nist.9
+man9/toggle.9
 man9/tristate_bit.9
 man9/tristate_float.9
 man9/updown.9
