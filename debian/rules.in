@@ -24,7 +24,7 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
-
+MAKEFLAGS += PYTHON=/usr/bin/python3
 
 build: build-arch build-indep
 build-arch: build-stamp
