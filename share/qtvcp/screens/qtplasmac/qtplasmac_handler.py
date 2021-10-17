@@ -1,4 +1,4 @@
-VERSION = '1.0.100'
+VERSION = '1.0.101'
 
 '''
 qtplasmac_handler.py
@@ -5418,19 +5418,7 @@ class HandlerClass:
 
     def on_keycall_ABORT(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state):
-            if STATUS.stat.interp_state != linuxcnc.INTERP_IDLE:
-                ACTION.ABORT()
-                self.interp_idle(None)
-            if self.torchPulse:
-                self.torch_pulse(True)
-            if self.manualCut:
-                ACTION.SET_SPINDLE_STOP(0)
-                self.w.abort.setEnabled(False)
-                if self.mcButton:
-                    self.button_normal(self.mcButton)
-                    self.w[self.mcButton].setEnabled(False)
-            if self.probeTest:
-                self.probe_test_stop()
+            self.abort_pressed()
 
     def on_keycall_HOME(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not shift and not self.w.main_tab_widget.currentIndex() and STATUS.is_on_and_idle() and self.w.home_all.isEnabled():
