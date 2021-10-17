@@ -2235,7 +2235,11 @@ If the virtual keyboad has been repositioned and on the next opening of a virtua
 
 === Keyboard Shortcuts
 
-Below is a list of all available keyboard shortcuts in QtPlasmaC. In order for the user to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the *PARAMETERS Tab*.
+Below is a list of all available keyboard shortcuts in QtPlasmaC.
+
+NOTE: All keyboard shortcuts are disabled by default.
+
+In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the *PARAMETERS Tab*.
 
 [width="100%",cols="4,16"]
 |===
@@ -2244,6 +2248,7 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC. In order for t
 |F1|Toggles the E-STOP button (if the GUI E-STOP button is enabled).
 |F2|Toggles the GUI power button.
 |F9|Toggles the "Cutting" command, used to begin or end a manual cut.
+|F12|Show stylesheet editor.
 |1|Changes jog speed to 10% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |2|Changes jog speed to 20% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |3|Changes jog speed to 30% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
@@ -2331,7 +2336,8 @@ The general functions are as follows:
 |PREVIEW|Displays a preview of the current shape provided the required information is present.
 |CONTINUE|This button is used for lines and arcs only. Allows another segment to be added to the current segment/segments.
 |ADD|Stores the current shape into the current job.
-|UNDO|Reverts to the previously stored state. If there have been no edits since the last store, it will stay at the current state.
+|UNDO|Reverts to the previously stored state. +
+|RELOAD|Reloads the original G-Code file or a blank file if none was loaded.
 |===
 
 If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the CONVERSATIONAL Tab is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
