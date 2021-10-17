@@ -1,0 +1,23 @@
+@startuml
+hide time-axis
+binary "in"  as in
+binary "out"  as out
+
+@0
+in is low
+out is low
+
+@1
+in is high
+out is high
+
+@1.5
+in is low
+
+@3
+in is high
+out is low
+
+@3.5
+in is low
+@enduml

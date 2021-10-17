@@ -1,0 +1,42 @@
+@startuml
+hide time-axis
+robust "in"  as in
+binary "on"  as on
+binary "off"  as off
+binary "is-on"  as ison
+
+@0
+in is low
+on is low
+off is low
+ison is low
+
+@1
+in is high
+on is high
+
+@2.2
+in is {low,high}
+
+@3
+on is low
+ison is high
+
+@4
+in is low
+
+@6
+in is high
+off is high
+
+@7.2
+in is {low,high}
+
+@8
+off is low
+ison is low
+
+@9
+in is low
+
+@enduml
