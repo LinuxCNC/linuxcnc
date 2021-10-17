@@ -22,7 +22,6 @@
 #    This builds the INI file from the collected data.
 #
 
-from __future__ import print_function
 import os
 import time
 import sys

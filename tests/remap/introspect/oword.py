@@ -16,7 +16,6 @@
 #   along with this program; if not, write to the Free Software
 #   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
-from __future__ import print_function
 import interpreter
 EMC_DEBUG_CONFIG            = 0x00000002
 EMC_DEBUG_VERSIONS          = 0x00000008
