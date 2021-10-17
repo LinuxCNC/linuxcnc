@@ -1,0 +1,6 @@
+# Just a couple of buttons to invoke a manual - xdg-open is a recommended dependency via xdg-utils
+linuxcnc-doc-fr: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef-fr.desktop xdg-open
+linuxcnc-doc-fr: desktop-command-not-in-package usr/share/applications/linuxcnc-gettingstarted-fr.desktop xdg-open
+linuxcnc-doc-fr: desktop-command-not-in-package usr/share/applications/linuxcnc-halmanual-fr.desktop xdg-open
+linuxcnc-doc-fr: desktop-command-not-in-package usr/share/applications/linuxcnc-integratormanual-fr.desktop xdg-open
+linuxcnc-doc-fr: desktop-command-not-in-package usr/share/applications/linuxcnc-usermanual-fr.desktop xdg-open

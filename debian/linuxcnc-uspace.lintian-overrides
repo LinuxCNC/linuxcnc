@@ -1,0 +1,16 @@
+# These are binaries that interact with hardware and so far LinuxCNC expects these to run as root.
+# 
+# linuxcnc_module_helper is a setuid root wrapper for insmod, and
+# rtapi_app is the main orchestrator that runs the realtime parts of uspace
+# LinuxCNC. These both need to run as root, and for now it is very much preferred to
+# keep them setuid root rather than try to teach our users to run sudo.
+#
+linuxcnc-uspace: elevated-privileges usr/bin/linuxcnc_module_helper 4755 root/root
+linuxcnc-uspace: elevated-privileges usr/bin/rtapi_app 4755 root/root
+
+# xdg-open command was added as a dependency - used only to show a mannual, should be fine
+linuxcnc-uspace: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef-vi.desktop xdg-open
+linuxcnc-uspace: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef.desktop xdg-open
+
+# that is intentional - for now
+linuxcnc-uspace: package-name-doesnt-match-sonames libcanterp0 liblinuxcnchal0 liblinuxcncini0 libnml0 libposemath0 libpyplugin0 librs274-0 libtooldata0
