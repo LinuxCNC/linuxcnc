@@ -24,7 +24,7 @@ ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
 endif
-
+MAKEFLAGS += PYTHON=/usr/bin/python3
 
 build: build-arch build-indep
 build-arch: build-stamp
@@ -90,6 +90,8 @@ endif
 	(cd debian/tmp/usr/share/doc/linuxcnc/examples; \
 	    ln -sf ../../../linuxcnc/ncfiles ./nc_files)
 	dh_movefiles
+	# Fixing python path
+	sed -i '1s%^#!/usr/bin/-*python3.*%#!/usr/bin/python3%' debian/linuxcnc-uspace/usr/bin/* debian/linuxcnc-uspace-dev/usr/bin/halcompile
 ifeq "$(enable_build_documentation)" ""
 	find debian/tmp/usr/share/applications -name linuxcnc-*.desktop -delete
 endif
