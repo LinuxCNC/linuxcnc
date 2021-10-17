@@ -277,6 +277,11 @@ class JoyPad(QtWidgets.QWidget, IndicatorPosition):
             self['highlight_' + name] = state
         self.update()
 
+    def set_button_icon(self, btn, path):
+        self.set_icon(btn, 'image', path)
+    def set_button_text(self, btn, text):
+        self.set_icon(btn, 'text', text)
+
     def set_icon(self, btn, kind, data):
         if btn not in self.btn_names.keys(): return
         name = self.btn_names[btn]
@@ -628,7 +633,7 @@ class HALPad(JoyPad, _HalWidgetBase, HALPinType):
         self._pin_type = HALPinType.BIT
 
     # designer will show these properties in this order:
-    pinType = QtCore.pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
+    pin_type = QtCore.pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
     pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
     #############################
