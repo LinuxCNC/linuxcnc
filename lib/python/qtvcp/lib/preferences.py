@@ -12,12 +12,8 @@
 
 
 import os
-import sys
 
-if sys.version_info.major > 2:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
 
 cp = configparser.RawConfigParser
 cp.optionxform = str

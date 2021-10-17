@@ -927,8 +927,7 @@ class FilterProgram:
             return True
         # process message from standard error
         stderr_line = self.p.stderr.readline()
-        if sys.version_info.major > 2:
-            stderr_line = stderr_line.decode("utf-8")
+        stderr_line = stderr_line.decode("utf-8")
         # compare to pre compiled re string
         # if true : update progress
         # else add it too error message string for later
@@ -944,8 +943,7 @@ class FilterProgram:
         self.progress.done()
         # .. might be something left on stderr
         for line in self.p.stderr:
-            if sys.version_info.major > 2:
-                line = line.decode("utf-8")
+            line = line.decode("utf-8")
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)

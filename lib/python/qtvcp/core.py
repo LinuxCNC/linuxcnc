@@ -5,11 +5,7 @@ import linuxcnc
 import gi
 from gi.repository import GObject as gobject
 
-import sys
-if sys.version_info.major > 2:
-    from gi.repository import GObject
-else:
-    import gobject as GObject
+from gi.repository import GObject
 
 import inspect
 import _hal
