@@ -6333,7 +6333,7 @@ EDGE</string>
                  <item>
                   <widget class="QStackedWidget" name="gcode_stack">
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="gcode_page">
                     <property name="minimumSize">
@@ -9731,13 +9731,13 @@ HOME ALL</string>
                              <bool>true</bool>
                             </property>
                             <property name="decimals">
-                             <number>1</number>
+                             <number>2</number>
                             </property>
                             <property name="maximum">
                              <double>9.000000000000000</double>
                             </property>
                             <property name="singleStep">
-                             <double>0.100000000000000</double>
+                             <double>0.010000000000000</double>
                             </property>
                             <property name="value">
                              <double>0.000000000000000</double>

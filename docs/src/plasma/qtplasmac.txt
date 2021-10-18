@@ -1698,12 +1698,13 @@ The THC can be enabled or disabled from the THC frame of the <<qt_main-tab, MAIN
 
 The THC can also be enabled or disabled directly from the G-Code program.
 
+The THC does not become active until the velocity reaches 99.9% of the *CutFeedRate* and then the THC *Delay* time if any in the THC section of the <<qt_parameters-tab, PARAMETERS Tab>> has timed out. This is to allow the arc voltage to stabilize.
+
 QtPlasmaC uses a control voltage which is dependent on the state of the *AUTO VOLTS* checkbox on the <<qt_main-tab, MAIN Tab>>:
 
-. If *Use Auto Volts* is checked then the actual cut voltage is sampled after the cut begins. To allow the arc voltage to stabilize, QtPlasmaC waits for the amount of time displayed in the *Delay* field in the THC section of the <<qt_parameters-tab, PARAMETERS Tab>> before sampling the voltage. The sampled voltage is then used as the target voltage to adjust the height of the torch.
-. If *Use Auto Volts* is not checked then the voltage displayed as Cut Volts in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is used as the target voltage to adjust the height of the torch.
+. If *Use Auto Volts* is checked then the actual cut voltage is sampled at the end of the THC *Delay* time and this is used as the target voltage to adjust the height of the torch.
 
-The THC does not become active until the velocity reaches 99.9% of the *CutFeedRate*.
+. If *Use Auto Volts* is not checked then the voltage displayed as Cut Volts in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is used as the target voltage to adjust the height of the torch.
 
 [underline]*G-Code THC*
 

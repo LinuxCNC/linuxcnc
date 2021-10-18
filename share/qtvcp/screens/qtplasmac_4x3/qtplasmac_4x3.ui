@@ -225,7 +225,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>3</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -9789,13 +9789,13 @@ EDGE</string>
                              <bool>true</bool>
                             </property>
                             <property name="decimals">
-                             <number>1</number>
+                             <number>2</number>
                             </property>
                             <property name="maximum">
                              <double>9.000000000000000</double>
                             </property>
                             <property name="singleStep">
-                             <double>0.100000000000000</double>
+                             <double>0.010000000000000</double>
                             </property>
                             <property name="value">
                              <double>0.000000000000000</double>
