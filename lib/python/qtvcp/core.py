@@ -2,9 +2,6 @@
 # vim: sts=4 sw=4 et
 
 import linuxcnc
-import gi
-from gi.repository import GObject as gobject
-
 from gi.repository import GObject
 
 import inspect
