@@ -109,6 +109,15 @@ def preview(P, W):
                     line ='#<blk_scale> = {}\n'.format(scale)
                 elif line.startswith('#<shape_angle>'):
                     line ='#<shape_angle> = {}\n'.format(rotation)
+                elif line.startswith('#<shape_mirror>'):
+                    line ='#<shape_mirror> = {}\n'.format(P.convMirror)
+                elif line.startswith('#<shape_flip>'):
+                    line ='#<shape_flip> = {}\n'.format(P.convFlip)
+                elif '#<shape_mirror>' in line and (P.convMirrorToggle or P.convFlipToggle):
+                    if 'g2' in line:
+                        line = line.replace('g2', 'g3')
+                    elif 'g3' in line:
+                        line = line.replace('g3', 'g2')
                 outNgc.write('{}'.format(line))
         # create new array
         else:
@@ -127,7 +136,9 @@ def preview(P, W):
             outNgc.write('#<origin_y_offset> = {}\n'.format(yOrgOffset))
             outNgc.write('#<array_angle> = {}\n'.format(angle))
             outNgc.write('#<blk_scale> = {}\n'.format(scale))
-            outNgc.write('#<shape_angle> = {}\n\n'.format(rotation))
+            outNgc.write('#<shape_angle> = {}\n'.format(rotation))
+            outNgc.write('#<shape_mirror> = {}\n'.format(P.convMirror))
+            outNgc.write('#<shape_flip> = {}\n\n'.format(P.convFlip))
             # calculations
             outNgc.write(';calculations\n')
             outNgc.write('#<this_col> = 0\n')
@@ -217,6 +228,8 @@ def preview(P, W):
         return
     W.add.setEnabled(True)
     P.convBlock[0] = True
+    P.convMirrorToggle = False
+    P.convFlipToggle = False
 
 def scale_shape(P, W, line):
     if line[0] == 'g' and (line[1] not in '0123' or (line[1] in '0123' and len(line) > 2 and line[2] in '0123456789')):
@@ -238,14 +251,32 @@ def scale_shape(P, W, line):
         # if beginning of comment
         if line[0] == '(' or line[0] == ';':
             if multiAxis and not zAxis and not fWord:
-                newLine += '*#<blk_scale>]'
+                if lastAxis == 'x':
+                    newLine += '*#<blk_scale>*#<shape_mirror>]'
+                elif lastAxis == 'i':
+                    newLine += '*#<blk_scale>*#<shape_mirror>]'
+                elif lastAxis == 'y':
+                    newLine += '*#<blk_scale>*#<shape_flip>]'
+                elif lastAxis == 'j':
+                    newLine += '*#<blk_scale>*#<shape_flip>]'
+                else:
+                    newLine += '*#<blk_scale>]'
             newLine += line
             break
         # if beginning of parameter
         elif line[0] == 'p':
             if not numParam and not namParam:
                 if multiAxis and not zAxis and not fWord:
-                    newLine += '*#<blk_scale>]'
+                    if lastAxis == 'x':
+                        newLine += '*#<blk_scale>*#<shape_mirror>]'
+                    elif lastAxis == 'i':
+                        newLine += '*#<blk_scale>*#<shape_mirror>]'
+                    elif lastAxis == 'y':
+                        newLine += '*#<blk_scale>*#<shape_flip>]'
+                    elif lastAxis == 'j':
+                        newLine += '*#<blk_scale>*#<shape_flip>]'
+                    else:
+                        newLine += '*#<blk_scale>]'
                 lastAxis = line[0]
             newLine += line[0]
             line = line[1:]
@@ -253,7 +284,17 @@ def scale_shape(P, W, line):
         elif line[0].isalpha():
             if not numParam and not namParam:
                 if multiAxis and not zAxis and not fWord:
-                    newLine += '*#<blk_scale>]'
+                    if lastAxis == 'x':
+                        newLine += '*#<blk_scale>*#<shape_mirror>]'
+                    elif lastAxis == 'i':
+                        newLine += '*#<blk_scale>*#<shape_mirror>]'
+                    elif lastAxis == 'y':
+                        newLine += '*#<blk_scale>*#<shape_flip>]'
+                    elif lastAxis == 'j':
+                        newLine += '*#<blk_scale>*#<shape_flip>]'
+                    else:
+#                    elif lastAxis not in 'p':
+                        newLine += '*#<blk_scale>]'
                 lastAxis = line[0]
                 if line[0] == 'z':
                     zAxis = True
@@ -298,15 +339,56 @@ def scale_shape(P, W, line):
         # empty line, must be finished
         if not line:
             if not zAxis and not fWord:
-                newLine += '*#<blk_scale>]'
+                if lastAxis == 'x':
+                    newLine += '*#<blk_scale>*#<shape_mirror>]'
+                elif lastAxis == 'i':
+                    newLine += '*#<blk_scale>*#<shape_mirror>]'
+                elif lastAxis == 'y':
+                    newLine += '*#<blk_scale>*#<shape_flip>]'
+                elif lastAxis == 'j':
+                    newLine += '*#<blk_scale>*#<shape_flip>]'
+                elif lastAxis not in 'p':
+                    newLine += '*#<blk_scale>]'
             break
+    if '#<shape_mirror>' in newLine and (P.convMirrorToggle or P.convFlipToggle):
+        if 'g2' in newLine:
+            newLine = newLine.replace('g2', 'g3')
+        elif 'g3' in newLine:
+            newLine = newLine.replace('g3', 'g2')
     return ('{}'.format(newLine))
+
+def mirror_shape(P, W):
+    if P.convMirror == 1:
+        P.convMirror = -1
+    else:
+        P.convMirror = 1
+    P.convMirrorToggle = True
+    preview(P, W)
+
+def flip_shape(P, W):
+    if P.convFlip == 1:
+        P.convFlip = -1
+    else:
+        P.convFlip = 1
+    P.convFlipToggle = True
+    preview(P, W)
+
+def undo_shape(P, W):
+    P.convMirror = 1
+    P.convMirrorToggle = False
+    P.convFlip = 1
+    P.convFlipToggle = False
+    P.conv_undo_shape()
 
 def get_parameters(P, W):
     P.wcs_rotation('get')
     inCode = open(P.fNgc, 'r')
     P.convBlock = [False, False]
     P.convUnits = [1, None]
+    P.convMirror = 1
+    P.convMirrorToggle = False
+    P.convFlip = 1
+    P.convFlipToggle = False
     for line in inCode:
         line = line.strip().lower()
         # maybe check here fo old style rotate, scale, and array
@@ -340,6 +422,10 @@ def get_parameters(P, W):
                 W.scEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<shape_angle>'):
                 W.rtEntry.setText(line.split('=')[1].strip())
+            elif line.startswith('#<shape_mirror>'):
+                P.convMirror = int(line.split('=')[1].strip())
+            elif line.startswith('#<shape_flip>'):
+                P.convFlip = int(line.split('=')[1].strip())
             elif 'm3' in line:
                 break
     inCode.seek(0, 0)
@@ -373,6 +459,8 @@ def widgets(P, W):
         W.scEntry = QLineEdit('1.0')
         W.rtEntry = QLineEdit('0.0', objectName='aEntry')
         W.rtLabel = QLabel(_translate('Conversational', 'ROTATION'))
+        W.mirror = QPushButton(_translate('Conversational', 'MIRROR'))
+        W.flip = QPushButton(_translate('Conversational', 'FLIP'))
         W.add = QPushButton(_translate('Conversational', 'ADD'))
         W.lDesc = QLabel(_translate('Conversational', 'CREATE ARRAY OF SHAPES'))
         W.shLabel = QLabel(_translate('Conversational', 'SHAPE'))
@@ -384,7 +472,7 @@ def widgets(P, W):
                       'rtEntry']
         leftAlign = ['coLabel', 'roLabel', 'oyLabel', 'aLabel', 'rtLabel']
         centerAlign = ['lDesc', 'cLabel', 'rLabel', 'oLabel','shLabel']
-        pButton = ['preview', 'add', 'undo']
+        pButton = ['preview', 'add', 'undo', 'mirror', 'flip']
         for widget in rightAlign:
             W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             W[widget].setFixedWidth(80)
@@ -410,7 +498,9 @@ def widgets(P, W):
     W.undo.pressed.disconnect()
     W.preview.pressed.connect(lambda:preview(P, W))
     W.add.pressed.connect(lambda:P.conv_accept())
-    W.undo.pressed.connect(lambda:P.conv_undo_shape())
+    W.undo.pressed.connect(lambda:undo_shape(P, W))
+    W.mirror.clicked.connect(lambda:mirror_shape(P, W, ))
+    W.flip.clicked.connect(lambda:flip_shape(P, W))
     entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'oxEntry',
                'oyEntry', 'scEntry', 'aEntry', 'rtEntry']
     for entry in entries:
@@ -443,7 +533,9 @@ def widgets(P, W):
         W.entries.addWidget(W.shLabel, 9, 2)
         W.entries.addWidget(W.rtEntry, 9, 3)
         W.entries.addWidget(W.rtLabel, 9, 4)
-        for r in [2,4,6,8,10,11]:
+        W.entries.addWidget(W.mirror, 11, 1)
+        W.entries.addWidget(W.flip, 11, 3)
+        for r in [2,4,6,8,10]:
             W['{}'.format(r)] = QLabel('')
             W['{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['{}'.format(r)], r, 0)
@@ -474,7 +566,9 @@ def widgets(P, W):
         W.entries.addWidget(W.shLabel, 8, 2)
         W.entries.addWidget(W.rtEntry, 8, 3)
         W.entries.addWidget(W.rtLabel, 8, 4)
-        for r in [1,3,5,7,9]:
+        W.entries.addWidget(W.mirror, 9, 1)
+        W.entries.addWidget(W.flip, 9, 3)
+        for r in [1,3,5,7]:
             W['{}'.format(r)] = QLabel('')
             W['{}'.format(r)].setFixedHeight(24)
             W.entries.addWidget(W['{}'.format(r)], r, 0)

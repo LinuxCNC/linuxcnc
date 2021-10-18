@@ -2458,6 +2458,8 @@ Block operations:
 - Rotate
 - Scale
 - Array
+- Mirror
+- Flip
 
 To create a block:
 
@@ -2477,6 +2479,10 @@ ANGLE - rotate the result.
 SCALE - scale the result.
 
 ROTATION - rotate the shape within the result.
+
+MIRROR - mirror the shape about its X coordinates within the result.
+
+FLIP - flip the shape about its Y coordinates within the result.
 
 If the result is an array of shapes then the cut order of the result is from the left column to the right column, starting at the bottom row and ending at the top row.
 
