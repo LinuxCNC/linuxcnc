@@ -50,10 +50,7 @@ validRead    = '0402'
 
 class App(QWidget):
     def __init__(self):
-        if sys.version_info < (3, 0):
-            super(QWidget, self).__init__()
-        else:
-            super().__init__()
+        super().__init__()
         if not sMod:
             msg = '\npyserial module not available\n'\
                   '\nto install, open a terminal and enter:\n'\

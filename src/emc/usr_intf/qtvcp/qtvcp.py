@@ -27,10 +27,8 @@ except:
     try:
         from PyQt5.QtWebKitWidgets import QWebView
     except:
-        if sys.version_info.major > 2:
-            LOG.error('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
-        else:
-            LOG.error('Qtvcp Error with loading webView - is python-pyqt5.qtwebkit or python-pyqt5.qtwebengine installed?')
+        LOG.error('Qtvcp Error with loading webView - is python3-pyqt5.qtwebengine installed?')
+
 # If log_file is none, logger.py will attempt to find the log file specified in
 # INI [DISPLAY] LOG_FILE, failing that it will log to $HOME/<base_log_name>.log
 
@@ -88,9 +86,8 @@ class QTVCP:
 
         (opts, args) = parser.parse_args()
 
-        if sys.version_info.major > 2:
-            # so web engine can load local images
-            sys.argv.append("--disable-web-security")
+        # so web engine can load local images
+        sys.argv.append("--disable-web-security")
 
         # initialize QApp so we can pop up dialogs now. 
         self.app = QtWidgets.QApplication(sys.argv)
@@ -124,10 +121,7 @@ class QTVCP:
             sys.exit(0)
 
         # keep track of python version during this transition
-        if sys.version_info.major > 2:
-            ver = 'Python 3'
-        else:
-            ver = 'Python 2'
+        ver = 'Python 3'
 
         #################
         # Screen specific

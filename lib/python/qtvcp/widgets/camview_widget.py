@@ -15,12 +15,7 @@
 #
 # use open cv to do camera alignment
 
-import sys
-
-if sys.version_info.major > 2:
-    import _thread as Thread
-else:
-    import thread as Thread
+import _thread as Thread
 
 import hal
 
@@ -77,10 +72,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             self.text = 'Missing\npython-opencv\nLibrary'
         self.pix = None
         self.stopped = False
-        if sys.version_info.major > 2:
-            self.degree = str("\N{DEGREE SIGN}")
-        else:
-            self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
+        self.degree = str("\N{DEGREE SIGN}")
         #self.blobInit()
 
     def _hal_init(self):
