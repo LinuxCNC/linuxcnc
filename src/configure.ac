@@ -1010,6 +1010,7 @@ AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
 AX_PYTHON
 AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
 AX_PYTHON_DEVEL([>='3.7'],,AC_MSG_ERROR([python-dev not found]))
+PYTHON=`echo ${PYTHON%.*}`
 AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
 
 AC_MSG_CHECKING([whether to build documentation])
