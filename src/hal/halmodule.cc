@@ -438,6 +438,23 @@ static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
     return pyhal_pin_new(pin, name);
 }
 
+
+static PyObject *pyhal_get_pins(PyObject *_self, PyObject *o) {
+  char *name;
+  halobject *self = (halobject *)_self;
+
+  EXCEPTION_IF_NOT_LIVE(NULL);
+
+  PyObject *d = PyDict_New();
+  for(itemmap::iterator i = self->items->begin(); i != self->items->end(); i++) {
+    halitem * pin = &(i->second);
+    name = strdup(i->first.c_str());
+    PyDict_SetItemString(d, name, pyhal_read_common(pin));
+  }
+  return d;
+}
+
+
 static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
     halobject *self = (halobject *)_self;
@@ -524,6 +541,8 @@ static PyMethodDef hal_methods[] = {
         "Create a new pin"},
     {"getitem", pyhal_get_pin, METH_VARARGS,
         "Get existing pin object"},
+    {"getpins", pyhal_get_pins, METH_VARARGS,
+            "Get all pins and values of component"},
     {"exit", pyhal_exit, METH_NOARGS,
         "Call hal_exit"},
     {"ready", pyhal_ready, METH_NOARGS,
