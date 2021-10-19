@@ -3085,6 +3085,25 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
 |Torch height override scale|qtplasmac.ext_height_ovr_scale|N/A
 |Toggle jogging speed between fast and slow|qtplasmac.ext_jog_slow|JOGGING FAST/SLOW
+|Toggle THC enable|qtplasmac.ext_thc_enable|THC ENABLE
+|Toggle torch enable|qtplasmac.ext_torch_enable|TORCH ENABLE
+|Toggle corner Lock enable|qtplasmac.ext_cornerlock_enable|VELOCITY ANTI DIVE ENABLE
+|Toggle kerfkross enable|qtplasmac.ext_kerfcross_enable|VOID ANTI DIVE ENABLE
+|Toggle use auto volts|qtplasmac.ext_auto_volts_enable|AUTO VOLTS
+|Toggle ohnic probe enable|qtplasmac.ext_ohmic_probe_enable|OHMIC ENABLE
+|Toggle mesh mode |qtplasmac.ext_mesh_mode|MESH MODE
+|Toggle arc ignore OK |qtplasmac.ext_ignore_arc_ok|IGNORE OK
+|Forward along the programmed path |qtplasmac.ext_cutrec_fwd|CUT RECOVERY FWD
+|Reverse along the programmed path |qtplasmac.ext_cutrec_rev|CUT RECOVERY REV
+|Cancel any Cut Recovery movement |qtplasmac.ext_cutrec_cancel| CUT RECOVERY CANCEL
+|Move up |qtplasmac.ext_cutrec_n| CUT RECOVERY arrow up
+|Move down |qtplasmac.ext_cutrec_s| CUT RECOVERY arrow down
+|Move right |qtplasmac.ext_cutrec_e| CUT RECOVERY arrow right
+|Move left |qtplasmac.ext_cutrec_w| CUT RECOVERY arrow left
+|Move up-right |qtplasmac.ext_cutrec_ne| CUT RECOVERY arrow up-right
+|Move up-left |qtplasmac.ext_cutrec_nw| CUT RECOVERY arrow up-left
+|Move down-right |qtplasmac.ext_cutrec_se| CUT RECOVERY arrow down-right
+|Move down-left |qtplasmac.ext_cutrec_sw| CUT RECOVERY arrow down-left
 |===
 
 The following HAL pins which allow the use of an MPG to control height override are always created.
