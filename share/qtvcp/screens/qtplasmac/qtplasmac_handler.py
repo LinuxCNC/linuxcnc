@@ -590,6 +590,25 @@ class HandlerClass:
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecRevPin = self.h.newpin('ext_cutrec_rev', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecFwdPin = self.h.newpin('ext_cutrec_fwd', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecNPin = self.h.newpin('ext_cutrec_n', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecNEPin = self.h.newpin('ext_cutrec_ne', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecEPin = self.h.newpin('ext_cutrec_e', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecSEPin = self.h.newpin('ext_cutrec_se', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecSPin = self.h.newpin('ext_cutrec_s', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecSWPin = self.h.newpin('ext_cutrec_sw', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecWPin = self.h.newpin('ext_cutrec_w', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutRecNWPin = self.h.newpin('ext_cutrec_nw', hal.HAL_BIT, hal.HAL_IN)
+        self.extCutReccancelPin = self.h.newpin('ext_cutrec_cancel', hal.HAL_BIT, hal.HAL_IN)
+        self.extTorchEnablePin = self.h.newpin('ext_torch_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extThcEnablePin = self.h.newpin('ext_thc_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extCornerLockEnablePin = self.h.newpin('ext_cornerlock_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extKerfCrossEnablePin = self.h.newpin('ext_kerfcross_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extIgnoreArcOkPin = self.h.newpin('ext_ignore_arc_ok', hal.HAL_BIT, hal.HAL_IN)
+        self.extMeshModePin = self.h.newpin('ext_mesh_mode', hal.HAL_BIT, hal.HAL_IN)
+        self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
+        self.extAutoVoltsEnablePin = self.h.newpin('ext_auto_volts_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrPlusPin = self.h.newpin('ext_height_ovr_plus', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrMinusPin = self.h.newpin('ext_height_ovr_minus', hal.HAL_BIT, hal.HAL_IN)
         self.extHeightOvrResetPin = self.h.newpin('ext_height_ovr_reset', hal.HAL_BIT, hal.HAL_IN)
@@ -1936,15 +1955,15 @@ class HandlerClass:
         self.w.cut_rec_fwd.released.connect(lambda:self.cutrec_motion(0))
         self.w.cut_rec_rev.pressed.connect(lambda:self.cutrec_motion(-1))
         self.w.cut_rec_rev.released.connect(lambda:self.cutrec_motion(0))
-        self.w.cut_rec_cancel.pressed.connect(self.cutrec_cancel_pressed)
-        self.w.cut_rec_n.pressed.connect(lambda:self.cutrec_move(0, 1))
-        self.w.cut_rec_ne.pressed.connect(lambda:self.cutrec_move(1, 1))
-        self.w.cut_rec_e.pressed.connect(lambda:self.cutrec_move(1, 0))
-        self.w.cut_rec_se.pressed.connect(lambda:self.cutrec_move(1, -1))
-        self.w.cut_rec_s.pressed.connect(lambda:self.cutrec_move(0, -1))
-        self.w.cut_rec_sw.pressed.connect(lambda:self.cutrec_move(-1, -1))
-        self.w.cut_rec_w.pressed.connect(lambda:self.cutrec_move(-1, 0))
-        self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(-1, 1))
+        self.w.cut_rec_cancel.pressed.connect(lambda:self.cutrec_cancel_pressed(1))
+        self.w.cut_rec_n.pressed.connect(lambda:self.cutrec_move(1, 0, 1))
+        self.w.cut_rec_ne.pressed.connect(lambda:self.cutrec_move(1, 1, 1))
+        self.w.cut_rec_e.pressed.connect(lambda:self.cutrec_move(1, 1, 0))
+        self.w.cut_rec_se.pressed.connect(lambda:self.cutrec_move(1, 1, -1))
+        self.w.cut_rec_s.pressed.connect(lambda:self.cutrec_move(1, 0, -1))
+        self.w.cut_rec_sw.pressed.connect(lambda:self.cutrec_move(1, -1, -1))
+        self.w.cut_rec_w.pressed.connect(lambda:self.cutrec_move(1, -1, 0))
+        self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(1, -1, 1))
         self.xOffsetPin.value_changed.connect(self.cutrec_offset_changed)
         self.yOffsetPin.value_changed.connect(self.cutrec_offset_changed)
         self.offsetsActivePin.value_changed.connect(lambda v:self.offsets_active_changed(v))
@@ -2017,6 +2036,25 @@ class HandlerClass:
         self.extHeightOvrResetPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,0))
         self.extHeightOvrCountsPin.value_changed.connect(lambda v:self.height_ovr_encoder(v))
         self.extHeightOvrScalePin.value_changed.connect(lambda v:self.height_ovr_scale_change(v))
+        self.extCutRecRevPin.value_changed.connect(lambda v:self.cutrec_motion(-v))
+        self.extCutRecFwdPin.value_changed.connect(lambda v:self.cutrec_motion(v))
+        self.extCutRecNPin.value_changed.connect(lambda v:self.cutrec_move(v, 0, 1))
+        self.extCutRecNEPin.value_changed.connect(lambda v:self.cutrec_move(v, 1, 1))
+        self.extCutRecEPin.value_changed.connect(lambda v:self.cutrec_move(v, 1, 0))
+        self.extCutRecSEPin.value_changed.connect(lambda v:self.cutrec_move(v, 1, -1))
+        self.extCutRecSPin.value_changed.connect(lambda v:self.cutrec_move(v, 0, -1))
+        self.extCutRecSWPin.value_changed.connect(lambda v:self.cutrec_move(v, -1, -1))
+        self.extCutRecWPin.value_changed.connect(lambda v:self.cutrec_move(v, -1, 0))
+        self.extCutRecNWPin.value_changed.connect(lambda v:self.cutrec_move(v, -1, 1))
+        self.extCutReccancelPin.value_changed.connect(lambda v:self.cutrec_cancel_pressed(v))
+        self.extTorchEnablePin.value_changed.connect(lambda v:self.ext_torch_enable_changed(v))
+        self.extThcEnablePin.value_changed.connect(lambda v:self.ext_thc_enable_changed(v))
+        self.extCornerLockEnablePin.value_changed.connect(lambda v:self.ext_corner_lock_enable_changed(v))
+        self.extKerfCrossEnablePin.value_changed.connect(lambda v:self.ext_kerf_cross_enable_changed(v))
+        self.extIgnoreArcOkPin.value_changed.connect(lambda v:self.ext_ignore_arc_ok_changed(v))
+        self.extMeshModePin.value_changed.connect(lambda v:self.ext_mesh_mode_changed(v))
+        self.extOhmicProbeEnablePin.value_changed.connect(lambda v:self.ext_ohmic_probe_enable_changed(v))
+        self.extAutoVoltsEnablePin.value_changed.connect(lambda v:self.ext_auto_volts_enable_changed(v))
         self.extJogSlowPin.value_changed.connect(self.ext_jog_slow)
         self.probeTestErrorPin.value_changed.connect(lambda v:self.probe_test_error(v))
         self.w.preview_stack.currentChanged.connect(self.preview_stack_changed)
@@ -3212,6 +3250,38 @@ class HandlerClass:
                 self.w[self.tpButton].setEnabled(True)
             else:
                 self.w[self.tpButton].setEnabled(False)
+
+    def ext_torch_enable_changed(self, state):
+        if (state):
+            self.w.torch_enable.setChecked(not (self.w.torch_enable.isChecked()))
+
+    def ext_thc_enable_changed(self, state):
+        if (state):
+            self.w.thc_enable.setChecked(not (self.w.thc_enable.isChecked()))
+
+    def ext_corner_lock_enable_changed(self, state):
+        if (state):
+            self.w.cornerlock_enable.setChecked(not (self.w.cornerlock_enable.isChecked()))
+
+    def ext_kerf_cross_enable_changed(self, state):
+        if (state):
+            self.w.kerfcross_enable.setChecked(not (self.w.kerfcross_enable.isChecked()))
+
+    def ext_ignore_arc_ok_changed(self, state):
+        if (state):
+            self.w.ignore_arc_ok.setChecked(not (self.w.ignore_arc_ok.isChecked()))
+
+    def ext_mesh_mode_changed(self, state):
+        if (state):
+            self.w.mesh_enable.setChecked(not (self.w.mesh_enable.isChecked()))
+
+    def ext_ohmic_probe_enable_changed(self, state):
+        if (state):
+            self.w.ohmic_probe_enable.setChecked(not (self.w.ohmic_probe_enable.isChecked())) 
+
+    def ext_auto_volts_enable_changed(self, state):
+        if (state):
+            self.w.use_auto_volts.setChecked(not (self.w.use_auto_volts.isChecked()))
 
     def ohmic_probe_enable_changed(self, state):
         if self.otButton:
@@ -4833,28 +4903,30 @@ class HandlerClass:
 #        self.w.cut_rec_move_label.setText('MOVE\n{}'.format(distance))
 
     def cutrec_motion(self, direction):
-        speed = float(self.w.cut_rec_speed.value()) * 0.01 * direction
-        hal.set_p('plasmac.paused-motion-speed',str(speed))
+        if self.w.cut_rec_fwd.isEnabled() and self.w.cut_rec_rev.isEnabled():
+            speed = float(self.w.cut_rec_speed.value()) * 0.01 * direction
+            hal.set_p('plasmac.paused-motion-speed',str(speed))
 
-    def cutrec_move(self, x, y):
-        head = _translate('HandlerClass', 'CUT RECOVERY ERROR')
-        distX = hal.get_value('qtplasmac.kerf_width-f') * x
-        distY = hal.get_value('qtplasmac.kerf_width-f') * y
-        if hal.get_value('plasmac.axis-x-position') + \
-           hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
-            msg0 = _translate('HandlerClass', 'X axis motion would trip X maximum limit')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
-            return
-        moveX = int(distX / self.oScale)
-        if hal.get_value('plasmac.axis-y-position') + \
-           hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
-            msg0 = _translate('HandlerClass', 'Y axis motion would trip Y maximum limit')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
-            return
-        moveY = int(distY / self.oScale)
-        hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
-        hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('axis.y.eoffset-counts') + moveY)))
-        hal.set_p('plasmac.cut-recovery', '1')
+    def cutrec_move(self, state, x, y):
+        if state:
+            head = _translate('HandlerClass', 'CUT RECOVERY ERROR')
+            distX = hal.get_value('qtplasmac.kerf_width-f') * x
+            distY = hal.get_value('qtplasmac.kerf_width-f') * y
+            if hal.get_value('plasmac.axis-x-position') + \
+                hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
+                msg0 = _translate('HandlerClass', 'X axis motion would trip X maximum limit')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                return
+            moveX = int(distX / self.oScale)
+            if hal.get_value('plasmac.axis-y-position') + \
+                hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
+                msg0 = _translate('HandlerClass', 'Y axis motion would trip Y maximum limit')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                return
+            moveY = int(distY / self.oScale)
+            hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
+            hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('axis.y.eoffset-counts') + moveY)))
+            hal.set_p('plasmac.cut-recovery', '1')
 
     def cutrec_offset_changed(self):
         if hal.get_value('plasmac.consumable-changing'):
@@ -4874,10 +4946,11 @@ class HandlerClass:
             if self.ccButton and STATUS.is_interp_paused():
                 self.w[self.ccButton].setEnabled(True)
 
-    def cutrec_cancel_pressed(self):
-        if hal.get_value('plasmac.cut-recovery'):
-            self.cancelWait = True
-            hal.set_p('plasmac.cut-recovery', '0')
+    def cutrec_cancel_pressed(self, state):
+        if (state):
+            if hal.get_value('plasmac.cut-recovery'):
+                self.cancelWait = True
+                hal.set_p('plasmac.cut-recovery', '0')
 
     def cutrec_motion_enable(self, state):
         for widget in ['fwd', 'rev', 'speed']:
