@@ -9,7 +9,7 @@
 </style>
 </head>
 <body>
-<b>Numbering Scheme v<font color="red">n</font>.<font color="green">nnn</font>.<font color="blue">nnnn</font></b>
+<b>Numbering Scheme v<font color="red">n</font>.<font color="green">nnn</font>.<font color="blue">nnn</font></b>
 <table>
     <tr>
         <th>Number</th>
@@ -24,40 +24,39 @@
         <td>hal component version</td>
     </tr>
     <tr>
-        <td><font color="blue">nnnn</font></td>
+        <td><font color="blue">nnn</font></td>
         <td>gui version</td>
     </tr>
 </table>
 <br>
 <!--- ****** ADD NEXT VERSION BELOW THIS LINE ****** --->
 
-<br><b><u>v1.214.0104 2021 Oct 18</u></b>
+<br><b><u>v1.214.105 2021 Oct 20</u></b>
 <ul style="margin:0;">
-  <li>add external pin for keyboard usage</li>
-  <li>Toggle THC enable			qtplasmac.ext_thc_enable</li>
-  <li>Toggle torch enable			qtplasmac.ext_torch_enable</li>
-  <li>Toggle corner Lock enable	qtplasmac.ext_cornerlock_enable</li>
-  <li>Toggle kerfkross enable		qtplasmac.ext_kerfcross_enable</li>
-  <li>Toggle use auto volts		qtplasmac.ext_auto_volts_enable</li>
-  <li>Toggle ohnic probe enable	qtplasmac.ext_ohmic_probe_enable</li>
-  <li>Toggle mesh mode 			qtplasmac.ext_mesh_mode</li>
-  <li>Toggle arc ignore OK 		qtplasmac.ext_ignore_arc_ok</li>
-  <li>Forward along the programmed path 	qtplasmac.ext_cutrec_fwd</li>
-  <li>Reverse along the programmed path 	qtplasmac.ext_cutrec_rev</li>
-  <li>Cancel any Cut Recovery movement 	qtplasmac.ext_cutrec_cancel</li>
-  <li>Move in Cut Recoverry</li>
-  <li>Move up 					qtplasmac.ext_cutrec_n</li>
-  <li>Move down 					qtplasmac.ext_cutrec_s</li>
-  <li>Move right 					qtplasmac.ext_cutrec_e</li>
-  <li>Move left 					qtplasmac.ext_cutrec_w</li>
-  <li>Move up-right 				qtplasmac.ext_cutrec_ne</li>
-  <li>Move up-left 				qtplasmac.ext_cutrec_nw</li>
-  <li>Move down-right 			qtplasmac.ext_cutrec_se</li>
-  <li>Move down-left 				qtplasmac.ext_cutrec_sw</li>
+  <li>fix startup display of kerf width zero</li>
+  <li>add new styles for gcode editor</li>
+  <li>change version numbers</li>
 </ul>
 
+<br><b><u>v1.214.104 2021 Oct 18</u></b>
+<ul style="margin:0;">
+  <li>add external hal pins for:</li>
+    <ul>
+      <li>thc enable</li>
+      <li>torch enable</li>
+      <li>corner lock enable</li>
+      <li>kerfcross enable</li>
+      <li>use auto volts</li>
+      <li>ohmic probe enable</li>
+      <li>mesh mode</li>
+      <li>ignore arc ok</li>
+      <li>cut recovery</li>
+    </ul>
+  </li>
+</ul>
+<i>Changes submitted by fupeama (Martin Kaplan)</i><br>
 
-<br><b><u>v1.214.0103 2021 Oct 18</u></b>
+<br><b><u>v1.214.103 2021 Oct 18</u></b>
 <ul style="margin:0;">
   <li>increase resolution of thc delay and change start time</li>
 </ul>

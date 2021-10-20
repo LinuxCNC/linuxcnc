@@ -1,4 +1,4 @@
-VERSION = '1.214.103'
+VERSION = '1.214.105'
 
 '''
 qtplasmac_handler.py
@@ -778,7 +778,7 @@ class HandlerClass:
         self.w.statusbar.addPermanentWidget(VLine())    # <---
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         text = _translate('HandlerClass', 'MOVE')
-        self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text))
+        self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text()))
         self.w.filemanager.button2.setText(_translate('HandlerClass', 'USER'))
         self.w.filemanager.button3.setText(_translate('HandlerClass', 'ADD JUMP'))
         # for copy/paste control if required
@@ -3277,7 +3277,7 @@ class HandlerClass:
 
     def ext_ohmic_probe_enable_changed(self, state):
         if (state):
-            self.w.ohmic_probe_enable.setChecked(not (self.w.ohmic_probe_enable.isChecked())) 
+            self.w.ohmic_probe_enable.setChecked(not (self.w.ohmic_probe_enable.isChecked()))
 
     def ext_auto_volts_enable_changed(self, state):
         if (state):

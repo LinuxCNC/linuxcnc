@@ -697,6 +697,9 @@ EditorBase {
     qproperty-styleColor2: foregnd;
     qproperty-styleColor3: foregnd;
     qproperty-styleColor4: foregnd;
+    qproperty-styleColor5: foregnd;
+    qproperty-styleColor6: foregnd;
+    qproperty-styleColor7: foregnd;
     qproperty-styleColorMarginText: foregnd;
     qproperty-styleColorMarginBackground: backgnd;
     qproperty-styleFont0: 'Lato,11,-1,0,60,0,0,0,0,0';
@@ -704,6 +707,9 @@ EditorBase {
     qproperty-styleFont2: 'Lato,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFont3: 'Lato,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFont4: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont5: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont6: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont7: 'Lato,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFontMargin: 'Lato,11,-1,0,20,00,0,0,0,0';
     qproperty-styleColorSelectionText: backgnd;
     qproperty-styleColorSelectionBackground: foregnd }
