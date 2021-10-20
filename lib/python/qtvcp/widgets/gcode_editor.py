@@ -80,9 +80,9 @@ class GcodeLexer(QsciLexerCustom):
         self._color6Codes = 'gst'
         self._color7Codes = 'mfpq'
 
-    def setColor5Codes(self, data):
+    def setColor6Codes(self, data):
         self._color6Codes = data.lower()
-    def getColor5Codes(self):
+    def getColor6Codes(self):
         return self._color6Codes
 
     def setColor7Codes(self, data):
