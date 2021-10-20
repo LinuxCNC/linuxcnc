@@ -1637,8 +1637,16 @@ It is an error if:
 (((G74 Left-hand Tapping Cycle Dwell)))
 
 ----
-G74 (X- Y- Z-) or (U- V- W-) R- L- P- $-
+G74 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-
 ----
+
+* 'R-' - Retract position along the Z axis.
+* 'L-' - Used in incremental mode; number of times to repeat the cycle. See <<gcode:g81,G81>> for examples.
+* 'P-' - Dwell time (seconds).
+* '$-' - Selected spindle.
+* 'F-' - Feed rate (spindle speed multiplied by distance traveled per revolution (thread pitch)).
+
+WARNING: G74 does not use synchronized motion.
 
 The 'G74' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
 
@@ -1659,8 +1667,8 @@ The 'G74' cycle is intended for tapping with floating chuck and dwell at the bot
 
     8. Restore Feed and Speed override enables to previous state
 
-The length of the dwell is specified by a 'P-' word in the G74 block. Thread pitch is F divided by S.
-In example S100 F125 gives pitch of 1.25MM per revolution.
+The length of the dwell is specified by a 'P-' word in the G74 block. The feed rate 'F-' is spindle speed multiplied by distance per revolution (thread pitch).
+In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [[gcode:g76]]
 == G76 Threading Cycle
@@ -2240,8 +2248,16 @@ It is an error if:
 (((G84 Right-hand Tapping Cycle Dwell)))
 
 ----
-G84 (X- Y- Z-) or (U- V- W-) R- L- P- $-
+G84 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-
 ----
+
+* 'R-' - Retract position along the Z axis.
+* 'L-' - Used in incremental mode; number of times to repeat the cycle. See <<gcode:g81,G81>> for examples.
+* 'P-' - Dwell time (seconds).
+* '$-' - Selected spindle.
+* 'F-' - Feed rate (spindle speed multiplied by distance traveled per revolution (thread pitch)).
+
+WARNING: G84 does not use synchronized motion.
 
 The 'G84' cycle is intended for tapping with floating chuck and dwell at the bottom of the hole.
 
@@ -2262,8 +2278,8 @@ The 'G84' cycle is intended for tapping with floating chuck and dwell at the bot
 
     8. Restore Feed and Speed override enables to previous state
 
-The length of the dwell is specified by a 'P-' word in the G84 block. Thread pitch is F divided by S.
-In example S100 F125 gives pitch of 1.25MM per revolution.
+The length of the dwell is specified by a 'P-' word in the G84 block. The feed rate 'F-' is spindle speed multiplied by distance per revolution (thread pitch).
+In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [[gcode:g85]]
 == G85 Boring Cycle, Feed Out
