@@ -544,6 +544,10 @@ static PyObject *Stat_aout(pyStatChannel *s) {
     return double_array(s->status.motion.analog_output, EMCMOT_MAX_AIO);
 }
 
+static PyObject *Stat_misc_error(pyStatChannel *s){
+  return int_array(s->status.motion.misc_error, EMCMOT_MAX_MISC_ERROR);
+}
+
 static void dict_add(PyObject *d, const char *name, unsigned char v) {
     PyObject *o;
     PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
@@ -738,6 +742,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"homed", (getter)Stat_homed},
     {(char*)"limit", (getter)Stat_limit},
     {(char*)"mcodes", (getter)Stat_activemcodes},
+    {(char*)"misc_error", (getter)Stat_misc_error},
     {(char*)"g5x_offset", (getter)Stat_g5x_offset},
     {(char*)"g5x_index", (getter)Stat_g5x_index},
     {(char*)"g92_offset", (getter)Stat_g92_offset},

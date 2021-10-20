@@ -1225,6 +1225,7 @@ class EMC_MOTION_STAT:public EMC_MOTION_STAT_MSG {
     int synch_do[EMCMOT_MAX_DIO];  // motion outputs queried by interp
     double analog_input[EMCMOT_MAX_AIO]; //motion analog inputs queried by interp
     double analog_output[EMCMOT_MAX_AIO]; //motion analog outputs queried by interp
+    int misc_error[EMCMOT_MAX_MISC_ERROR];
     int debug;			// copy of EMC_DEBUG global
     int on_soft_limit;
     int external_offsets_applied;

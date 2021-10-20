@@ -751,7 +751,7 @@ static void process_probe_inputs(void)
 
 static void check_for_faults(void)
 {
-    int joint_num, spindle_num;
+    int joint_num, spindle_num, error_num;
     emcmot_joint_t *joint;
     int neg_limit_override, pos_limit_override;
 
@@ -818,6 +818,14 @@ static void check_for_faults(void)
 	/* end of if JOINT_ACTIVE_FLAG(joint) */
 	}
     /* end of check for joint faults loop */
+    }
+
+    /* Check Miscellaneous faults */
+    for (error_num=0; error_num < emcmotConfig->numMiscError; error_num++){
+      if(emcmotStatus->misc_error[error_num] && GET_MOTION_ENABLE_FLAG()) {
+        reportError(_("Motion Stopped by misc error %d"), error_num);
+        emcmotDebug->enabling = 0;
+      }
     }
 }
 
@@ -2138,7 +2146,7 @@ static void output_to_hal(void)
 
 static void update_status(void)
 {
-    int joint_num, axis_num, dio, aio;
+    int joint_num, axis_num, dio, aio, misc_error;
     emcmot_joint_t *joint;
     emcmot_joint_status_t *joint_status;
     emcmot_axis_t *axis;
@@ -2209,6 +2217,10 @@ static void update_status(void)
     for (aio = 0; aio < emcmotConfig->numAIO; aio++) {
 	emcmotStatus->analog_input[aio] = *(emcmot_hal_data->analog_input[aio]);
 	emcmotStatus->analog_output[aio] = *(emcmot_hal_data->analog_output[aio]);
+    }
+
+    for (misc_error=0; misc_error < emcmotConfig->numMiscError; misc_error++){
+      emcmotStatus->misc_error[misc_error] = *(emcmot_hal_data->misc_error[misc_error]);
     }
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently
