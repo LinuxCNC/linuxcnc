@@ -59,7 +59,7 @@ class HandlerClass:
         self.home_all = False
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
         self.max_spindle_rpm = INFO.MAX_SPINDLE_SPEED
-        self.max_spindle_power = INFO.get_error_safe_setting('DISPLAY', 'MAX_SPINDLE_POWER',"0")
+        self.max_spindle_power = INFO.get_error_safe_setting('DISPLAY', 'MAX_SPINDLE_POWER',"1500")
         self.max_linear_velocity = INFO.MAX_TRAJ_VELOCITY
         self.system_list = ["G54","G55","G56","G57","G58","G59","G59.1","G59.2","G59.3"]
         self.slow_jog_factor = 10
@@ -412,7 +412,8 @@ class HandlerClass:
             if pc_power > 100:
                 pc_power = 100
             self.w.spindle_power.setValue(int(pc_power))
-        except:
+        except Exception as e:
+            #print(e)
             self.w.spindle_power.setValue(0)
 
     def spindle_fault_changed(self, data):
