@@ -71,14 +71,29 @@ class GcodeLexer(QsciLexerCustom):
             2: 'Key',
             3: 'Assignment',
             4: 'Value',
+            5: 'Axes',
+            6: 'Code1',
+            7: 'Code2'
             }
         for key, value in self._styles.items():
             setattr(self, value, key)
+        self._color6Codes = 'gst'
+        self._color7Codes = 'mfpq'
+
+    def setColor5Codes(self, data):
+        self._color6Codes = data.lower()
+    def getColor5Codes(self):
+        return self._color6Codes
+
+    def setColor7Codes(self, data):
+        self._color7Codes = data.lower()
+    def getColor7Codes(self):
+        return self._color7Codes
 
     # Paper sets the background color of each style of text
     def setPaperBackground(self, color, style=None):
         if style is None:
-            for i in range(0, 5):
+            for i in range(0, 8):
                 self.setPaper(color, i)
         else:
             self.setPaper(color, style)
@@ -104,6 +119,13 @@ class GcodeLexer(QsciLexerCustom):
             return QColor('#CC0000')  # red
         elif style == self.Value:
             return QColor('#00CC00')  # green
+        elif style == self.Axes:
+            return QColor('darkgreen')
+        elif style == self.Code1:
+            return QColor('darkred')
+        elif style == self.Code2:
+            return QColor('deeppink')
+
         return QsciLexerCustom.defaultColor(self, style)
 
     def styleText(self, start, end):
@@ -144,7 +166,7 @@ class GcodeLexer(QsciLexerCustom):
             # scintilla always asks to style whole lines
             for line in source.splitlines(True):
                 #print (line.decode('utf-8'))
-                graymode = False
+                graymode = notcode = False
                 line = line.decode('utf-8')
                 msg = ('msg' in line.lower() or 'debug' in line.lower())
                 for char in line:
@@ -164,12 +186,28 @@ class GcodeLexer(QsciLexerCustom):
                         else:
                             set_style(1, self.Comment)
                         continue
-                    elif char in ('%', '<', '>', '#', '='):
+                    elif char == ('<'):
+                        notcode = True
+                        set_style(1, self.Assignment)
+                        continue
+                    elif char == ('>'):
+                        notcode = False
+                        set_style(1, self.Assignment)
+                        continue
+                    elif char in ('%', '#', '='):
                         state = self.Assignment
                     elif char in ('[', ']'):
                         state = self.Value
                     elif char.isalpha():
-                        state = self.Key
+                        if not notcode:
+                            if char.lower() in self._color6Codes:
+                                state = self.Code1
+                            elif char.lower() in self._color7Codes:
+                                state = self.Code2
+                            elif char.lower() in ('x','y','z','a','b','c','u','v','w'):
+                                state = self.Axes
+                        else:
+                            state = self.Key
                     elif char.isdigit():
                         state = self.Default
                     else:
@@ -395,6 +433,40 @@ class EditorBase(QsciScintilla):
         self.lexer.setColor(value,4)
     styleColor4 = pyqtProperty(QColor, getColor4, setColor4)
 
+    def getColor5(self):
+        return self.lexer.color(5)
+    def setColor5(self, value):
+        self.lexer.setColor(value,5)
+    styleColor5 = pyqtProperty(QColor, getColor5, setColor5)
+
+    def getColor6(self):
+        return self.lexer.color(6)
+    def setColor6(self, value):
+        self.lexer.setColor(value,6)
+    styleColor6 = pyqtProperty(QColor, getColor6, setColor6)
+
+    def getColor7(self):
+        return self.lexer.color(7)
+    def setColor7(self, value):
+        self.lexer.setColor(value,7)
+    styleColor7 = pyqtProperty(QColor, getColor7, setColor7)
+
+    def getColor6Codes(self):
+        return self.lexer.getColor6Codes()
+    def setColor6Codes(self, value):
+        self.lexer.setColor6Codes(value)
+    def resetColor6Codes(self):
+        self.lexer.setColor6Codes('gst')
+    color6Codes = pyqtProperty(str, getColor6Codes, setColor6Codes,resetColor6Codes)
+
+    def getColor7Codes(self):
+        return self.lexer.getColor7Codes()
+    def setColor7Codes(self, value):
+        self.lexer.setColor7Codes(value)
+    def resetColor7Codes(self):
+        self.lexer.setColor7Codes('fmpq')
+    color7Codes = pyqtProperty(str, getColor7Codes, setColor7Codes, resetColor7Codes)
+
     def getColorMarginText(self):
         return self.marginsForegroundColor()
     def setColorMarginText(self, value):
@@ -454,6 +526,24 @@ class EditorBase(QsciScintilla):
     def setFont4(self, value):
         self.lexer.setFont(value,4)
     styleFont4 = pyqtProperty(QFont, getFont4, setFont4)
+
+    def getFont5(self):
+        return self.lexer.font(5)
+    def setFont5(self, value):
+        self.lexer.setFont(value,5)
+    styleFont5 = pyqtProperty(QFont, getFont5, setFont5)
+
+    def getFont6(self):
+        return self.lexer.font(6)
+    def setFont6(self, value):
+        self.lexer.setFont(value,6)
+    styleFont6 = pyqtProperty(QFont, getFont6, setFont6)
+
+    def getFont7(self):
+        return self.lexer.font(7)
+    def setFont7(self, value):
+        self.lexer.setFont(value,7)
+    styleFont7 = pyqtProperty(QFont, getFont7, setFont7)
 
     def getFontMargin(self):
         return self.font
