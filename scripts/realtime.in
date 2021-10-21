@@ -17,6 +17,11 @@
 # on @DATE@
 #
 
+# Get lsb functions and provide systemd hook into script, when it exist
+if [ -e /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+fi
+
 export LANG=C
 
 GREP=@GREP@
