@@ -122,7 +122,6 @@ qproperty-styleFont4: "Times,15,-1,5,90,0,0,1,1,0";
 qproperty-styleFont5: "Times,15,-1,5,90,0,0,1,1,0";
 qproperty-styleFont6: "Times,15,-1,5,90,0,0,1,1,0";
 qproperty-styleFont7: "Times,15,-1,5,90,0,0,1,1,0";
-qproperty-color5Codes: 'g';
 }
 
 QSpinBox {
