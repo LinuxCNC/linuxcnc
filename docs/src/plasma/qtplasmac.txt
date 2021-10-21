@@ -4,6 +4,10 @@
 :toclevels: 5
 :figure-caption!:
 
+== Preamble
+
+NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Version history can be seen by visiting this link:http://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.
+
 == License
 
 QtPlasmaC and all of its related software are released under GPLv2.
@@ -39,8 +43,6 @@ image::images/qtplasmac_9x16.png[width=450,align="center"]
 *4:3*
 
 image::images/qtplasmac_4x3.png[width=600,align="center"]
-
-NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Update notices are posted at: https://forum.linuxcnc.org/plasmac/37233-plasmac-updates which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.
 
 == Installing LinuxCNC
 
