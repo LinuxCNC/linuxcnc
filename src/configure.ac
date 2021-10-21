@@ -33,12 +33,6 @@ fi
 AC_PROG_CXX
 AC_PROG_INSTALL
 
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADER([boost/lockfree/queue.hpp],
-    [], [RTAPI_APP_CFLAGS="$RTAPI_APP_CFLAGS -I external"])
-AC_LANG_POP([C++])
-AC_SUBST([RTAPI_APP_CFLAGS])
-
 m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
