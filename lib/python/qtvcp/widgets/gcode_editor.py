@@ -171,7 +171,7 @@ class GcodeLexer(QsciLexerCustom):
                 msg = ('msg' in line.lower() or 'debug' in line.lower())
                 for char in line:
                     #print (char,msg)
-                    if char == ('('):
+                    if char in('(',';'):
                         graymode = True
                         set_style(1, self.Comment)
                         continue
