@@ -142,6 +142,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._zmq_sub_subscribe_name = b""
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
+        self._halBaseName = ''
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -984,6 +985,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_runFromLineDialogColor(self, value):
         self._runFromLineDialogColor = value
     runFromLine_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
+
+    def getHalCompName(self):
+        return self._halBaseName
+    def setHalCompName(self, value):
+        self._halBaseName = value
+    def resetHalCompName(self):
+        self._halBaseName = ''
+    halCompBaseName = QtCore.pyqtProperty(str, getHalCompName, setHalCompName, resetHalCompName)
 
     ##############################
     # required boiler code #

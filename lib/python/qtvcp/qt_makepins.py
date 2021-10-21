@@ -53,6 +53,16 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
+
+                    # change HAL base name to screenOptions setting if
+                    # a new base name was not specified on the command line
+                    # and screenOptions name is not blank 
+                    oldHALName = halcomp.comp.getprefix()
+                    if oldHALName == path.BASENAME:
+                        newHALName = widget.property('halCompBaseName')
+                        if not newHALName == '':
+                            halcomp.comp.setprefix(newHALName)
+                            LOG.info('Changed HAL Component basename to {}, as specified in screenOptions: '.format(newHALName))
                     try:
                         self.window['PREFS_'], pref_fn = widget._pref_init()
                     except Exception as e:

@@ -1069,6 +1069,14 @@ These properties that can be set in designer, in python handler code or +
 
 .These include: 
 
+* 'halCompBaseName': +
+If left empty Qtvcp will use the screen's name as the HAL component's basename. +
+If set, Qtvcp will use this string as the HAL component's basename. +
+If the -c command line option is used when loading Qtvcp, +
+Qtvcp will use the name specified in the command line - it overrides all above options. +
+If you programmically set the basename in the handlerfile - it will override all above options. +
+This option cannot be set in stylesheets. +
+
 * 'notify_option': +
 Hooking into the desktop notification bubbles for error and messages
 
