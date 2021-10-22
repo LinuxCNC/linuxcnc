@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>1920</width>
-    <height>1056</height>
+    <height>1080</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
   <property name="minimumSize">
    <size>
     <width>1920</width>
-    <height>1056</height>
+    <height>1080</height>
    </size>
   </property>
   <property name="maximumSize">
@@ -96,6 +96,9 @@
       <property name="notify_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="notify_max_messages" stdset="0">
+       <number>10</number>
+      </property>
       <property name="catch_close_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -140,6 +143,9 @@
       </property>
       <property name="runFromLineDialog_option" stdset="0">
        <bool>true</bool>
+      </property>
+      <property name="halCompBaseName" stdset="0">
+       <string>qtdragon</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_43">
        <property name="spacing">
@@ -1877,7 +1883,7 @@ FILE</string>
                         </spacer>
                        </item>
                        <item>
-                        <widget class="PushButton" name="btn_gcode_edit">
+                        <widget class="IndicatedPushButton" name="btn_gcode_edit">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -2236,7 +2242,7 @@ ROTATION</string>
                       <number>4</number>
                      </property>
                      <item>
-                      <widget class="PushButton" name="btn_tool_add">
+                      <widget class="IndicatedPushButton" name="btn_tool_add">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -2273,7 +2279,7 @@ ROTATION</string>
                       </widget>
                      </item>
                      <item>
-                      <widget class="PushButton" name="btn_tool_delete">
+                      <widget class="IndicatedPushButton" name="btn_tool_delete">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -2492,7 +2498,7 @@ ROTATION</string>
                       <number>0</number>
                      </property>
                      <item>
-                      <widget class="PushButton" name="btn_select_log">
+                      <widget class="IndicatedPushButton" name="btn_select_log">
                        <property name="sizePolicy">
                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                          <horstretch>0</horstretch>
@@ -5302,7 +5308,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_x">
+                 <widget class="StateLED" name="hal_led_home_x">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -5321,6 +5327,9 @@ OFF</string>
                     <height>24</height>
                    </size>
                   </property>
+                  <property name="halpin_option" stdset="0">
+                   <bool>false</bool>
+                  </property>
                   <property name="diameter">
                    <number>15</number>
                   </property>
@@ -5337,6 +5346,9 @@ OFF</string>
                     <green>255</green>
                     <blue>0</blue>
                    </color>
+                  </property>
+                  <property name="is_joint_homed_status" stdset="0">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -5382,7 +5394,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_y">
+                 <widget class="StateLED" name="hal_led_home_y">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -5401,6 +5413,9 @@ OFF</string>
                     <height>24</height>
                    </size>
                   </property>
+                  <property name="halpin_option" stdset="0">
+                   <bool>false</bool>
+                  </property>
                   <property name="diameter">
                    <number>15</number>
                   </property>
@@ -5417,6 +5432,12 @@ OFF</string>
                     <green>255</green>
                     <blue>0</blue>
                    </color>
+                  </property>
+                  <property name="is_joint_homed_status" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="joint_number_status" stdset="0">
+                   <number>1</number>
                   </property>
                  </widget>
                 </item>
@@ -5462,7 +5483,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_home_z">
+                 <widget class="StateLED" name="hal_led_home_z">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -5481,6 +5502,9 @@ OFF</string>
                     <height>24</height>
                    </size>
                   </property>
+                  <property name="halpin_option" stdset="0">
+                   <bool>false</bool>
+                  </property>
                   <property name="diameter">
                    <number>15</number>
                   </property>
@@ -5497,6 +5521,12 @@ OFF</string>
                     <green>255</green>
                     <blue>0</blue>
                    </color>
+                  </property>
+                  <property name="is_joint_homed_status" stdset="0">
+                   <bool>true</bool>
+                  </property>
+                  <property name="joint_number_status" stdset="0">
+                   <number>2</number>
                   </property>
                  </widget>
                 </item>
@@ -5561,6 +5591,9 @@ OFF</string>
                     <height>24</height>
                    </size>
                   </property>
+                  <property name="pin_name" stdset="0">
+                   <string>led-probe</string>
+                  </property>
                   <property name="diameter">
                    <number>15</number>
                   </property>
@@ -5595,7 +5628,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_atspeed">
+                 <widget class="StateLED" name="hal_led_atspeed">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -5614,6 +5647,12 @@ OFF</string>
                     <height>24</height>
                    </size>
                   </property>
+                  <property name="pin_name" stdset="0">
+                   <string>led-spindle-at-speed</string>
+                  </property>
+                  <property name="halpin_option" stdset="0">
+                   <bool>false</bool>
+                  </property>
                   <property name="color">
                    <color>
                     <red>0</red>
@@ -5627,6 +5666,9 @@ OFF</string>
                     <green>255</green>
                     <blue>0</blue>
                    </color>
+                  </property>
+                  <property name="is_spindle_at_speed_status" stdset="0">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -5690,6 +5732,9 @@ OFF</string>
                   </property>
                   <property name="toolTip">
                    <string>Motion limited due to external offsets</string>
+                  </property>
+                  <property name="pin_name" stdset="0">
+                   <string>led-limits-tripped</string>
                   </property>
                   <property name="color">
                    <color>
@@ -6164,7 +6209,7 @@ OFF</string>
                 <number>0</number>
                </property>
                <item>
-                <widget class="PushButton" name="btn_cycle_start">
+                <widget class="IndicatedPushButton" name="btn_cycle_start">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -6827,7 +6872,7 @@ OFF</string>
                 <number>0</number>
                </property>
                <item>
-                <widget class="PushButton" name="btn_pause_spindle">
+                <widget class="IndicatedPushButton" name="btn_pause_spindle">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -6861,6 +6906,9 @@ SPINDLE</string>
                  </property>
                  <property name="checked">
                   <bool>false</bool>
+                 </property>
+                 <property name="pin_name" stdset="0">
+                  <string/>
                  </property>
                  <property name="indicator_option" stdset="0">
                   <bool>false</bool>
@@ -7815,6 +7863,9 @@ OFF</string>
                    <property name="checked">
                     <bool>false</bool>
                    </property>
+                   <property name="pin_name" stdset="0">
+                    <string>btn-laser-on</string>
+                   </property>
                    <property name="indicator_option" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -8327,7 +8378,7 @@ CAMERA</string>
             </size>
            </property>
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="page_dro">
             <property name="maximumSize">
@@ -9528,7 +9579,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="1" column="5">
-                    <widget class="PushButton" name="btn_home_x">
+                    <widget class="IndicatedPushButton" name="btn_home_x">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -9571,7 +9622,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="2" column="5">
-                    <widget class="PushButton" name="btn_home_y">
+                    <widget class="IndicatedPushButton" name="btn_home_y">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -9611,7 +9662,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="3" column="5">
-                    <widget class="PushButton" name="btn_home_z">
+                    <widget class="IndicatedPushButton" name="btn_home_z">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -9654,7 +9705,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="0" column="4" colspan="2">
-                    <widget class="PushButton" name="btn_home_all">
+                    <widget class="IndicatedPushButton" name="btn_home_all">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -10010,6 +10061,9 @@ ZERO</string>
                           <property name="tickInterval">
                            <number>10</number>
                           </property>
+                          <property name="pin_name" stdset="0">
+                           <string>slider-override-maxv</string>
+                          </property>
                           <property name="rapid_rate" stdset="0">
                            <bool>false</bool>
                           </property>
@@ -10219,6 +10273,9 @@ ZERO</string>
                           </property>
                           <property name="tickInterval">
                            <number>10</number>
+                          </property>
+                          <property name="pin_name" stdset="0">
+                           <string>slider-override-rapid</string>
                           </property>
                           <property name="rapid_rate" stdset="0">
                            <bool>true</bool>
@@ -10441,6 +10498,9 @@ ZERO</string>
                           </property>
                           <property name="tickInterval">
                            <number>10</number>
+                          </property>
+                          <property name="pin_name" stdset="0">
+                           <string>slider-override-feed</string>
                           </property>
                           <property name="feed_rate" stdset="0">
                            <bool>true</bool>
@@ -10681,6 +10741,9 @@ ZERO</string>
                           </property>
                           <property name="tickInterval">
                            <number>10</number>
+                          </property>
+                          <property name="pin_name" stdset="0">
+                           <string>slider-override-spindle</string>
                           </property>
                           <property name="rapid_rate" stdset="0">
                            <bool>false</bool>
@@ -11887,13 +11950,16 @@ LINEAR</string>
                    <property name="tickInterval">
                     <number>200</number>
                    </property>
+                   <property name="pin_name" stdset="0">
+                    <string>slider-jogspeed-linear</string>
+                   </property>
                    <property name="jograte_rate" stdset="0">
                     <bool>true</bool>
                    </property>
                   </widget>
                  </item>
                  <item alignment="Qt::AlignHCenter">
-                  <widget class="PushButton" name="btn_jog_l_slow">
+                  <widget class="IndicatedPushButton" name="btn_jog_l_slow">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -12063,6 +12129,9 @@ ANGULAR</string>
                    <property name="orientation">
                     <enum>Qt::Vertical</enum>
                    </property>
+                   <property name="pin_name" stdset="0">
+                    <string>slider-jogspeed-angular</string>
+                   </property>
                    <property name="jograte_rate" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -12072,7 +12141,7 @@ ANGULAR</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="PushButton" name="btn_jog_a_slow">
+                  <widget class="IndicatedPushButton" name="btn_jog_a_slow">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -12455,11 +12524,14 @@ INCREMENT</string>
                         <iconset resource="qtdragon_hd.qrc">
                          <normaloff>:/buttons/images/spindle_rev.png</normaloff>:/buttons/images/spindle_rev.png</iconset>
                        </property>
+                       <property name="pin_name" stdset="0">
+                        <string>spindle-rev</string>
+                       </property>
                        <property name="indicator_option" stdset="0">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="indicator_HAL_pin_option" stdset="0">
-                        <bool>true</bool>
+                        <bool>false</bool>
                        </property>
                        <property name="indicator_status_option" stdset="0">
                         <bool>false</bool>
@@ -12479,6 +12551,9 @@ INCREMENT</string>
                        </property>
                        <property name="top_edge_offset" stdset="0">
                         <double>6.000000000000000</double>
+                       </property>
+                       <property name="is_spindle_rev_status" stdset="0">
+                        <bool>true</bool>
                        </property>
                        <property name="spindle_rev_action" stdset="0">
                         <bool>true</bool>
@@ -12569,11 +12644,14 @@ INCREMENT</string>
                         <iconset resource="qtdragon_hd.qrc">
                          <normaloff>:/buttons/images/spindle_fwd.png</normaloff>:/buttons/images/spindle_fwd.png</iconset>
                        </property>
+                       <property name="pin_name" stdset="0">
+                        <string>spindle-fwd</string>
+                       </property>
                        <property name="indicator_option" stdset="0">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="indicator_HAL_pin_option" stdset="0">
-                        <bool>true</bool>
+                        <bool>false</bool>
                        </property>
                        <property name="on_color" stdset="0">
                         <color>
@@ -12590,6 +12668,9 @@ INCREMENT</string>
                        </property>
                        <property name="top_edge_offset" stdset="0">
                         <double>6.000000000000000</double>
+                       </property>
+                       <property name="is_spindle_fwd_status" stdset="0">
+                        <bool>true</bool>
                        </property>
                        <property name="spindle_fwd_action" stdset="0">
                         <bool>true</bool>
@@ -12896,7 +12977,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>01:14:13 AM</string>
+               <string>11:24:37 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -12980,8 +13061,13 @@ INCREMENT</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
+   <class>IndicatedPushButton</class>
    <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -13041,6 +13127,11 @@ INCREMENT</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
@@ -13052,7 +13143,7 @@ INCREMENT</string>
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
-   <extends>QPushButton</extends>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
   <customwidget>
