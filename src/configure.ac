@@ -716,7 +716,7 @@ else
     esac
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
-    REALTIME=/etc/init.d/realtime
+    REALTIME=${prefix}/lib/linuxcnc/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
     HALLIB_DIR=${prefix}/share/linuxcnc/hallib
 fi
