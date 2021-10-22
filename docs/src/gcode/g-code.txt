@@ -1184,10 +1184,10 @@ redundant and need not be supplied), but it may be any valid tool number.
 'G41/G42 D0' is a little special.  Its behavior is different on
 random tool changer machines and nonrandom tool changer machines
 (see the <<mcode:m6,Tool Change>> section).  On nonrandom
-tool changer machines, 'G41/G42 D0' applies the TLO of the tool currently
-in the spindle, or a TLO of 0 if no tool is in the spindle.  On random
-tool changer machines, 'G41/G42 D0' applies the TLO of the tool T0 defined
-in the tool table file (or causes an error if T0 is not defined in the
+tool changer machines, 'G41/G42 D0' applies the Tool Length Offset of the tool
+currently in the spindle, or a TLO of 0 if no tool is in the spindle.  On
+random tool changer machines, 'G41/G42 D0' applies the TLO of the tool T0
+defined in the tool table file (or causes an error if T0 is not defined in the
 tool table).
 
 To start cutter compensation to the left of the part profile, use G41.
@@ -1259,8 +1259,8 @@ that axis's endpoint is the compensated location.
 'G43 H0' is a little special.  Its behavior is different on random
 tool changer machines and nonrandom tool changer machines (see the
 <<sec:tool-changers,Tool Changers>> section).  On nonrandom tool changer
-machines, 'G43 H0' applies the TLO of the tool currently in the spindle,
-or a TLO of 0 if no tool is in the spindle.  On random tool changer
+machines, 'G43 H0' applies the Tool Length Offset of the tool currently in the
+spindle, or a TLO of 0 if no tool is in the spindle.  On random tool changer
 machines, 'G43 H0' applies the TLO of the tool T0 defined in the tool
 table file (or causes an error if T0 is not defined in the tool table).
 
