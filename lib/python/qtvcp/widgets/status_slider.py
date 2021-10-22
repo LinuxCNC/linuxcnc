@@ -77,8 +77,13 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             self.setMaximum(int(INFO.MAX_TRAJ_VELOCITY))
         else:
             LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
+
         if self._halpin_option:
-            self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_FLOAT, hal.HAL_OUT)
+            if self._pin_name_ == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._pin_name_
+            self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_FLOAT, hal.HAL_OUT)
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)
@@ -210,6 +215,14 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     def reset_halpin_option(self):
         self._halpin_option = True
 
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+
+    pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
     halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
     feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)

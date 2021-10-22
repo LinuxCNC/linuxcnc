@@ -36,17 +36,16 @@ LOG = logger.getLogger(__name__)
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent=None):
         super(LCDNumber, self).__init__(parent)
-        self._pin_name = ''
         self._floatTemplate = ''
         self._bit_pin_type = False
         self._s32_pin_type = False
         self._float_pin_type = True
 
     def _hal_init(self):
-        if self._pin_name == '':
+        if self._pin_name_ == '':
             pname = self.HAL_NAME_
         else:
-            pname = self._pin_name
+            pname = self._pin_name_
         if self._bit_pin_type:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
@@ -86,11 +85,11 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
                 self[i+'_pin_type'] = False
 
     def set_pin_name(self, value):
-        self._pin_name = value
+        self._pin_name_ = value
     def get_pin_name(self):
-        return self._pin_name
+        return self._pin_name_
     def reset_pin_name(self):
-        self._pin_name = ''
+        self._pin_name_ = ''
 
     def set_bit_pin_type(self, value):
         self._bit_pin_type = value
@@ -157,9 +156,13 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         super(Slider, self).__init__(parent)
 
     def _hal_init(self):
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
-        self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        if self._pin_name_ == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name_
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname +'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.HAL_GCOMP_.newpin(pname +'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.set(1)
         self.updateValue(self.value())
         self.valueChanged.connect(lambda data:self.updateValue(data))
@@ -168,6 +171,14 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         scale = self.hal_pin_scale.get()
         self.hal_pin_s.set(data)
         self.hal_pin_f.set(data*scale)
+
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class Dial(QtWidgets.QDial, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -180,10 +191,14 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.scale = 1
 
     def _hal_init(self):
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
-        self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_d = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-d', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        if self._pin_name_ == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name_
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname +'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_d = self.HAL_GCOMP_.newpin(pname +'-d', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.HAL_GCOMP_.newpin(pname +'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.value_changed.connect(lambda data: self.updateScale(data))
         self.hal_pin_scale.set(1)
         self.updateCount(self.value())
@@ -216,6 +231,13 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_f.set(self._currentTotalCount * self.scale)
         self.hal_pin_d.set(self._deltaScaled)
 
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
     intOutput = QtCore.pyqtSignal(int)
@@ -239,6 +261,14 @@ class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
         super(DoubleScale, self)._pin_update(data)
         self.intOutput.emit(int(self.hal_pin_s.get()))
         self.floatOutput.emit(self.hal_pin_f.get())
+
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent=None):
@@ -360,7 +390,11 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
     def _hal_init(self):
         if self._HAL_pin:
-            self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
+            if self._pin_name_ == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._pin_name_
+            self.hal_pin_led = self.HAL_GCOMP_.newpin(pname + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
         elif self._ind_status:
             self._init_state_change()
@@ -734,6 +768,14 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_false_python_command(self):
         self.false_python_command = ''
 
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
     indicator_option = QtCore.pyqtProperty(bool, get_indicator, set_indicator, reset_indicator)
     indicator_HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
     indicator_status_option = QtCore.pyqtProperty(bool, get_ind_status, set_ind_status, reset_ind_status)
@@ -1034,7 +1076,11 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
     # then the button pins
     def _hal_init(self):
         super(PushButton, self)._hal_init()
-        self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
+        if self._pin_name_ == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name_
+        self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_BIT, hal.HAL_OUT)
 
         def _update(state):
             self.hal_pin.set(state)
