@@ -176,20 +176,20 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = QHAL.newpin("spindle_amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("spindle_volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = QHAL.newpin("spindle_fault", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-fault", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-        pin = QHAL.newpin("modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
-        QHAL.newpin("spindle_pause", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
         # external offset control pins
-        QHAL.newpin("eoffset_enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset_clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
-        QHAL.newpin("eoffset_count", QHAL.HAL_S32, QHAL.HAL_OUT)
-        pin = QHAL.newpin("eoffset_value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+        QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -388,18 +388,18 @@ class HandlerClass:
     def spindle_pwr_changed(self, data):
         # this calculation assumes the voltage is line to neutral
         # and that the synchronous motor spindle has a power factor of 0.9
-        power = self.h['spindle_volts'] * self.h['spindle_amps'] * 2.7 # 3 x V x I x PF
-        amps = "{:1.1f}".format(self.h['spindle_amps'])
+        power = self.h['spindle-volts'] * self.h['spindle-amps'] * 2.7 # 3 x V x I x PF
+        amps = "{:1.1f}".format(self.h['spindle-amps'])
         pwr = "{:1.1f}".format(power)
         self.w.lbl_spindle_amps.setText(amps)
         self.w.lbl_spindle_power.setText(pwr)
 
     def spindle_fault_changed(self, data):
-        fault = hex(self.h['spindle_fault'])
+        fault = hex(self.h['spindle-fault'])
         self.w.lbl_spindle_fault.setText(fault)
 
     def mb_errors_changed(self, data):
-        errors = self.h['modbus-errors']
+        errors = self.h['spindle-modbus-errors']
         self.w.lbl_mb_errors.setText(str(errors))
 
     def dialog_return(self, w, message):
@@ -414,7 +414,7 @@ class HandlerClass:
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
         elif wait_code and name == 'MESSAGE':
-            self.h['eoffset_clear'] = False
+            self.h['eoffset-clear'] = False
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
 
@@ -589,14 +589,14 @@ class HandlerClass:
         self.w.action_step.setEnabled(not state)
         if state:
         # set external offsets to lift spindle
-            self.h['eoffset_enable'] = self.w.chk_eoffsets.isChecked()
+            self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
             fval = float(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset_count'] = int(fval)
-            self.h['spindle_pause'] = True
+            self.h['eoffset-count'] = int(fval)
+            self.h['spindle-inhibit'] = True
         else:
-            self.h['eoffset_count'] = 0
-            self.h['eoffset_clear'] = True
-            self.h['spindle_pause'] = False
+            self.h['eoffset-count'] = 0
+            self.h['eoffset-clear'] = True
+            self.h['spindle-inhibit'] = False
         # instantiate warning box
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
@@ -847,8 +847,8 @@ class HandlerClass:
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
-        self.h['eoffset_count'] = 0
-        self.h['spindle_pause'] = False
+        self.h['eoffset-count'] = 0
+        self.h['spindle-inhibit'] = False
         if self.w.btn_spindle_pause.isChecked():
             self.w.btn_spindle_pause.setChecked(False)
 
@@ -909,7 +909,7 @@ class HandlerClass:
         else:
             self.add_status("Machine OFF")
         self.w.btn_spindle_pause.setChecked(False)
-        self.h['eoffset_count'] = 0
+        self.h['eoffset-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
 
