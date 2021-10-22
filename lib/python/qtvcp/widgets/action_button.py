@@ -23,7 +23,7 @@ from PyQt5 import QtCore, QtWidgets
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.simple_widgets import Indicated_PushButton
+from qtvcp.widgets.simple_widgets import IndicatedPushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
@@ -42,7 +42,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class ActionButton(Indicated_PushButton, _HalWidgetBase):
+class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False

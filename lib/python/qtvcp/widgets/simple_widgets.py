@@ -285,9 +285,9 @@ class RichButton(QtWidgets.QPushButton):
     richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
 
 # LED indicator on the right corner
-class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
+class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Indicated_PushButton, self).__init__(parent)
+        super(IndicatedPushButton, self).__init__(parent)
         self._indicator_state = False # Current State
 
         # changing text data
@@ -346,17 +346,17 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     # Override setText function so we can toggle displayed text
     def setText(self, text):
         if not self._state_text:
-            super(Indicated_PushButton, self).setText(text)
+            super(IndicatedPushButton, self).setText(text)
             return
         if self.isCheckable():
             if self.isChecked():
-                super(Indicated_PushButton, self).setText(self._true_string)
+                super(IndicatedPushButton, self).setText(self._true_string)
             else:
-                super(Indicated_PushButton, self).setText(self._false_string)
+                super(IndicatedPushButton, self).setText(self._false_string)
         elif self._indicator_state:
-            super(Indicated_PushButton, self).setText(self._true_string)
+            super(IndicatedPushButton, self).setText(self._true_string)
         else:
-            super(Indicated_PushButton, self).setText(self._false_string)
+            super(IndicatedPushButton, self).setText(self._false_string)
 
     def _hal_init(self):
         if self._HAL_pin:
@@ -489,7 +489,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     # override paint function to first paint the stock button
     # then our indicator paint routine
     def paintEvent(self, event):
-        super(Indicated_PushButton, self).paintEvent(event)
+        super(IndicatedPushButton, self).paintEvent(event)
         if self.draw_indicator:
             self.paintIndicator()
 
@@ -1026,7 +1026,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         return setattr(self, item, value)
 
 
-class PushButton(Indicated_PushButton, _HalWidgetBase):
+class PushButton(IndicatedPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
 
