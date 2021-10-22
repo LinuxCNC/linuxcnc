@@ -260,7 +260,7 @@ class StyleSheetEditor(QDialog):
             file = QFile(qssname)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-        self.styleTextView.setPlainText(str(file.readAll(), encoding='utf8'))
+        self.styleTextView.setPlainText(str(styleSheet, encoding='utf8'))
 
     def saveStyleSheet(self, fileName):
         styleSheet = self.styleTextEdit.toPlainText()
