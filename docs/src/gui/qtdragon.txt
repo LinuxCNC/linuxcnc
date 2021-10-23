@@ -1,16 +1,16 @@
-[[cha:qtdragon-gui]](((SilverDragon)))
+[[cha:qtdragon-gui]](((QtDragon)))
 
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 
-= SilverDragon GUI
+= QtDragon GUI
 
 == Introduction
-SilverDragon is built with the QTVCP framework.
+QtDragon and QtDragon_hd are built with the QTVCP framework.
 Much of it is based on the excellent work of others in the LinuxCNC community.
 [NOTE]
-SilverDragon and QtVcp are new programs added into linuxcnc.
+QtDragon and QtVcp are new programs added into linuxcnc.
 Bugs and oddities are possible. Please test carefully when using a 
 dangerous machine. Please forward reports to the forum or maillist.
 
@@ -22,9 +22,9 @@ image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
 
 == Getting Started
 
-If your configuration is not currently set up to use SilverDragon, 
+If your configuration is not currently set up to use QtDragon, 
 you can change it by editing the INI file. +
-This is not an exaustive list of options. +
+This is not an exhaustive list of options. +
 <<sec:display-section,Display Section>>
 
 === Display
@@ -74,7 +74,7 @@ MAX_FEED_OVERRIDE       = 1.2
 ----
 
 === Spindle controls
-Spindle control settings (in rpm):
+Spindle control settings (in rpm and watts):
 [source,{ini}]
 ----
 [DISPLAY]
@@ -82,6 +82,7 @@ DEFAULT_SPINDLE_0_SPEED = 500
 SPINDLE_INCREMENT = 200
 MIN_SPINDLE_0_SPEED = 100
 MAX_SPINDLE_0_SPEED = 2500
+MAX_SPINDLE_POWER = 1500
 ----
 
 === Jogging increments
@@ -154,7 +155,7 @@ jpg = image-to-gcode
 py = python
 ----
 
-SilverDragon has custom INI entries: +
+QtDragon has custom INI entries: +
 [source,{ini}]
 ----
 [TOOLSENSOR]
@@ -168,7 +169,7 @@ X = 106.9
 Y = -16.85
 ----
 
-SilverDragon has two optional probing tab screens:
+QtDragon has two optional probing tab screens:
 [source,{ini}]
 ----
 [PROBE]
@@ -190,11 +191,11 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0
 ----
 
 The sample configuration
-'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use SilverDragon as its front-end. +
+'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use QtDragon as its front-end. +
 There are several others, to demonstrate different machine configurations.
 
 == Key Bindings
-SilverDragon is not intended to primarily use a keyboard for machine control. +
+QtDragon is not intended to primarily use a keyboard for machine control. +
 It lacks many keyboatd short cuts that for instance AXIS has - but you can use a mouse. +
 There are several key presses that will control the machine for convenience. +
 ----
@@ -223,7 +224,7 @@ unless the machine is in AUTO mode. To hide the keyboard, do one of the followin
 It should be noted that keyboard jogging is disabled when using the virtual keyboard. +
 
 == HAL Pins
-These pins are specific to the qtDragon screen, There are of course are many more HAL pins +
+These pins are specific to the QtDragon screen, There are of course are many more HAL pins +
 that must be connected for linuxcnc to function. +
 
 If you need a manual tool change prompt, add these lines in your postgui file.
@@ -237,81 +238,72 @@ net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-num
 This input pin should be connected to indicate probe state: 
 [source,{hal}]
 ----
-qtdragon.hal_led_probe
+qtdragon.led-probe
 ----
 
-These pins can be connected to indicate home switch states:
-[source,{hal}]
-----
-qtdragon.hal_led_home_x
-qtdragon.hal_led_home_y
-qtdragon.hal_led_home_z
-----
 
 These pins are inputs related to spindle VFD indicating:
+The volt and amp pins are used to calculate spindle power.
+(You must also set the MAX_SPINDLE_POWER in the INI)
 [source,{hal}]
 ----
-qtdragon.modbus-errors
-qtdragon.spindle_amps
-qtdragon.spindle_fault
-qtdragon.spindle_volts
+qtdragon.spindle-modbus-errors
+qtdragon.spindle-amps
+qtdragon.spindle-fault
+qtdragon.spindle-volts
 ----
 
-This pin is an output to the spindle control to pause it:
+This bit pin is an output to the spindle control to pause it: +
+You would connect it to spindle.0.inhibit. 
 [source,{hal}]
 ----
-qtdragon.spindle_pause
+qtdragon.spindle-inhibit
 ----
 
-This output pins can be connected to turn on a laser:
+This bit output pin can be connected to turn on a laser:
 [source,{hal}]
 ----
-qtdragon.btn_laser_on
+qtdragon.btn-laser-on
 ----
 
-These output pins indicate buttons that were pushed, 
-they are probably of limited use:
+This float output pin indicates the camera rotation in degrees:
 [source,{hal}]
 ----
-qtdragon.btn_dimensions
-qtdragon.btn_gcode_edit
-qtdragon.btn_home_x
-qtdragon.btn_home_y
-qtdragon.btn_home_z
-qtdragon.btn_jog_a_slow
-qtdragon.btn_jog_l_slow
-qtdragon.btn_keyboard
-qtdragon.btn_probe_help
-qtdragon.btn_probe_mode
-qtdragon.btn_select_log
-qtdragon.btn_tool_add
-qtdragon.btn_tool_delete
+qtdragon.cam-rotation
 ----
 
-These pins are related to external offsets if they are used:
+These bit/s32 pins are related to external offsets if they are used:
 [source,{hal}]
 ----
-qtdragon.eoffset_clear
-qtdragon.eoffset_count
-qtdragon.eoffset_enable
-qtdragon.eoffset_value
-qtdragon.led_eoffset_limit
+qtdragon.eoffset-clear
+qtdragon.eoffset-count
+qtdragon.eoffset-enable
+qtdragon.eoffset-value
 ----
 
-These pins reflect the current slider jograte (in machine units):
+These float output pins reflect the current slider jograte (in machine units):
 [source,{hal}]
 ----
-qtdragon.slider_jog_linear
-qtdragon.slider_jog_angular
+qtdragon.slider-jogspeed-linear
+qtdragon.slider-jogspeed-angular
+----
+
+These float output pins reflect the current slider override rates:
+[source,{hal}]
+----
+qtdragon.slider-override-feed
+qtdragon.slider-override-maxv
+qtdragon.slider-override-rapid
+qtdragon.slider-override-spindle
 ----
 
 == HAL files
 
-The HAL files supplied are for simulation only. A real machine needs its own custom HAL files. The qtdragon screen
+The HAL files supplied are for simulation only. A real machine needs its own custom HAL files. The Qtdragon screen
 works with 3 or 4 axes with one joint per axis or 3 or 4 axes in a gantry configuration. (2 joints on 1 axis)
 
 == Manual Tool Changes
-If your machine requires manual tool changes, SilverDragon can pop a message box to direct you. +
+If your machine requires manual tool changes, QtDragon can pop a message box to direct you. +
 You must connect the proper HAL pin in the postgui HAL file.
 For example:
 [source,{hal}]
@@ -338,7 +330,7 @@ to watch the DROs and stop the routine at any time. +
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
 .qtdragon - Probe Sample
-image::images/silverdragon_probe.png["QTDragon Probe",scale="25%"]
+image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
 
 QtDragon has 2 possible methods for setting Z0. The first is a touchplate, where a metal plate of known thickness is placed on top of the workpiece and then the tool is lowered until it touches the plate, triggering the probe signal. Z0 is set to probe height - plate thickness. +
 
@@ -348,7 +340,7 @@ For touching off with a touch probe, whether you use the touchplate operation wi
 
 == Touch plate
 .qtdragon - Touch Plate
-image::images/qtdragon_touchplate.png["QTDragon Touch Plate",scale="25%"]
+image::images/qtdragon_touchplate.png["QtDragon Touch Plate",scale="25%"]
 
 You can use a conductive touch plate or equivalent to auto touch off (zero the user coordinate) for the Z position of a tool. +
 There must be a tool loaded prior to probing. +
@@ -374,11 +366,13 @@ When the crosshair is positioned over a desired reference point on the workpiece
 the X and Y offsets to the values indicated by the LASER OFFSET fields in the Settings page and the INI file. +
 
 == Setup Tab
-It's possible to load Html file (.html ending) with setup notes. They will be displayed in the setup tab. +
-Some program, such as Fusion and Aspire will create this files for you.
+It's possible to load Html or PDF file (.html ending) with setup notes. +
+HTML docs will be displayed in the setup tab and PDF will launch the system PDF Viewer. +
+Some program, such as Fusion and Aspire will create this files for you. +
+If you load a gcode program and there is an HTML/PDF file ofthe same name, it will load automatically.
 
 .qtdragon - Setup Tab Sample
-image::images/silverdragon_setup.png["QTDragon Setup Tab",scale="25%"]
+image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
 
 == Styles
 
@@ -387,18 +381,20 @@ through the stylesheet dialog widget in the GUI. To call up the dialog, press F1
 temporarily and then saved to a new qss file, or overwrite the current qss file.
 
 .qtdragon - Two Style Examples
-image::images/style-comparison.png["QTDragon styles",scale="25%"]
+image::images/style-comparison.png["QtDragon styles",scale="25%"]
 
 == Screen resolution
 
-This GUI was initially developed for a screen with 1440 x 900 resolution. It is not resizable. It will work in window mode on +
+This GUI was initially developed for a screen with 1440 x 900 resolution. +
+QtDragon_hd has a resolution of 1920 x 1056. +
+They are not resizable. They will work in window mode on +
 any monitor with higher resolution but not on monitors with lower resolution. +
-qtdragon_hd has a resolution of 1920 x 1056. +
+
 
 == Customization
 
 === Stylesheets
-Stylesheets can be leveraged to do a fair amount of cutomization, but you usually need to know a bit about the widget names. +
+Stylesheets can be leveraged to do a fair amount of customization, but you usually need to know a bit about the widget names. +
 Pressing F12 will display a stylesheet editor dialog to load/test/save modification. +
 For instance: +
 
@@ -425,12 +421,12 @@ qproperty-false_state_string: "Air\\nOff";
 ----
 
 === QtDesigner and python code
-All aspects of the GUI are fully customizable through qtdesigner and/or python code. +
-This capability is included with the qtvcp development environment. +
-The extensive use of qtvcp widgets keeps the amount of required python code to a minimum, allowing relatively easy modifications. +
-The LinuxCNC website has extensive documentation on the installation and use of qtvcp libraries. +
+All aspects of the GUI are fully customization through Qt Designer and/or python code. +
+This capability is included with the Qtvcp development environment. +
+The extensive use of Qtvcp widgets keeps the amount of required python code to a minimum, allowing relatively easy modifications. +
+The LinuxCNC website has extensive documentation on the installation and use of Qtvcp libraries. +
 <<cha:qtvcp,QtVCP Overview>> for more information
 
-.qtdragon - Customized Silverdragon
-image::images/silverdragon_custom.png["QTDragon customized",scale=25]
+.qtdragon - Customized QtDragon
+image::images/silverdragon_custom.png["QtDragon customized",scale=25]
 
