@@ -1,4 +1,4 @@
-VERSION = '1.215.105'
+VERSION = '1.215.106'
 
 '''
 qtplasmac_handler.py
@@ -1289,26 +1289,29 @@ class HandlerClass:
         self.w.lbl_mcodes.setText('M-Codes: {}'.format(cod))
 
     def set_start_line(self, line):
-        if self.w.sender():
-            if self.w.sender().objectName() == 'gcode_editor_display':
-                return
-        if self.w.chk_run_from_line.isChecked() and line > 1:
-            if not 'rfl.ngc' in self.lastLoadedProgram:
-                msg0 = _translate('HandlerClass', 'SELECTED')
-                self.runText = '{} {}'.format(msg0, line)
-                self.rflSelected = True
-                self.startLine = line - 1
+        if self.w.chk_run_from_line.isChecked():
+            if self.w.sender():
+                if self.w.sender().objectName() == 'gcode_editor_display':
+                    return
+            if line > 1:
+                if not 'rfl.ngc' in self.lastLoadedProgram:
+                    msg0 = _translate('HandlerClass', 'SELECTED')
+                    self.runText = '{} {}'.format(msg0, line)
+                    self.rflSelected = True
+                    self.startLine = line - 1
+                else:
+                    head = _translate('HandlerClass', 'RUN FROM LINE ERROR')
+                    msg0 = _translate('HandlerClass', 'Cannot select line while')
+                    msg1 = _translate('HandlerClass', 'run from line is active')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+            elif self.rflActive:
+                txt0 = _translate('HandlerClass', 'RUN FROM LINE')
+                txt1 = _translate('HandlerClass', 'CYCLE START')
+                self.runText = '{}\n{}'.format(txt0, txt1)
             else:
-                head = _translate('HandlerClass', 'RUN FROM LINE ERROR')
-                msg0 = _translate('HandlerClass', 'Cannot select line while')
-                msg1 = _translate('HandlerClass', 'run from line is active')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-        elif not self.rflActive:
-            self.startLine = 0
-        else:
-            txt0 = _translate('HandlerClass', 'RUN FROM LINE')
-            txt1 = _translate('HandlerClass', 'CYCLE START')
-            self.runText = '{}\n{}'.format(txt0, txt1)
+                self.startLine = 0
+                self.rflSelected = False
+                self.w.gcode_display.setCursorPosition(0, 0)
 
     def update_gcode_properties(self, props):
         if props:
@@ -2455,6 +2458,7 @@ class HandlerClass:
             self.rflActive = False
             self.set_run_button_state()
             self.startLine = 0
+            self.w.gcode_display.setCursorPosition(0, 0)
             return
         for param in params:
             if param:
