@@ -1,4 +1,4 @@
-VERSION = '1.215.106'
+VERSION = '1.215.107'
 
 '''
 qtplasmac_handler.py
@@ -2143,8 +2143,8 @@ class HandlerClass:
             self.w.float_switch_travel.setDecimals(3)
             self.w.float_switch_travel.setSingleStep(0.001)
             self.w.height_per_volt.setRange(0.001, 0.01)
-            self.w.height_per_volt.setDecimals(4)
-            self.w.height_per_volt.setSingleStep(0.0001)
+            self.w.height_per_volt.setDecimals(3)
+            self.w.height_per_volt.setSingleStep(0.001)
             self.w.ohmic_probe_offset.setRange(-1.0, 1.0)
             self.w.ohmic_probe_offset.setDecimals(3)
             self.w.ohmic_probe_offset.setSingleStep(0.001)
@@ -2152,8 +2152,8 @@ class HandlerClass:
             self.w.skip_ihs_distance.setDecimals(1)
             self.w.skip_ihs_distance.setSingleStep(0.1)
             self.w.kerf_width.setRange(0.0, 1.0)
-            self.w.kerf_width.setDecimals(4)
-            self.w.kerf_width.setSingleStep(0.0001)
+            self.w.kerf_width.setDecimals(3)
+            self.w.kerf_width.setSingleStep(0.001)
 #            self.w.cut_feed_rate.setRange(0.0, 999.0)
             self.w.cut_feed_rate.setDecimals(1)
             self.w.cut_feed_rate.setSingleStep(0.1)
