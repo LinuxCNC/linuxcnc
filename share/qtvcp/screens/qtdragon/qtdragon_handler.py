@@ -866,7 +866,7 @@ class HandlerClass:
         probe_vel = self.w.lineEdit_probe_vel.text()
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(max_probe, search_vel, probe_vel, z_offset)
         if rtn == 0:
-            self.add_status("Touchplate touchoff routine is already running")
+            self.add_status("Touchoff routine is already running")
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
