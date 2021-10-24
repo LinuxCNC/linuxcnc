@@ -1,3 +1,6 @@
+
+# ***** THIS FILE IS USED ONLY BY CONFIGS THAT HAVE BEEN MIGRATED FROM A PLASMAC CONFIGURATION *****
+
 # common connections for the plasmac component
 
 # PLASMAC COMPONENT ##########################################################
