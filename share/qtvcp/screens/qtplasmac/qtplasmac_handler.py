@@ -1,4 +1,4 @@
-VERSION = '1.215.107'
+VERSION = '1.215.108'
 
 '''
 qtplasmac_handler.py
@@ -3601,7 +3601,7 @@ class HandlerClass:
 
     def vkb_check(self):
         if self.w.chk_soft_keyboard.isChecked() and not os.path.isfile('/usr/bin/onboard'):
-            head = _translate('VIRTUAL KB ERROR')
+            head = _translate('HandlerClass', 'VIRTUAL KB ERROR')
             msg0  = _translate('HandlerClass', '"onboard" virtual keyboard is not installed')
             msg1 = _translate('HandlerClass', 'some keyboard functions are not available')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
