@@ -11,5 +11,4 @@ Registry:
  - Name: conda:conda-forge
    Entry: NA
  - Name: SciCrunch
-   Entry: NA
-   Comment: Request sent to be added.
+   Entry: SCR_021787
