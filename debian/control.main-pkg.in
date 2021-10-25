@@ -4,19 +4,27 @@ Architecture: any
 Recommends: linuxcnc-doc-en | linuxcnc-doc,
     librsvg2-dev,
     @EXTRA_RECOMMENDS@
-Depends: ${shlibs:Depends}, @KERNEL_DEPENDS@,
-    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
-    ${python3:Depends}, ${misc:Depends},
+Depends:
+    ${misc:Depends},
+    ${python3:Depends},
+    ${shlibs:Depends},
+    @KERNEL_DEPENDS@,
+    @MODUTILS_DEPENDS@,
+    blt,
+    mesa-utils,
     python3-tk,
     python3-numpy,
+    python3-cairo, python3-gi-cairo, python3-opengl, python3-configobj,
+    python3-xlib,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@,
     @QTVCP_DEPENDS@,
     libgtksourceview-3.0-dev,
-    python3-xlib,
-    python3-cairo, python3-gi-cairo, python3-opengl, python3-configobj,
-    tclreadline, procps, psmisc, tclx, @MODUTILS_DEPENDS@,
-    mesa-utils, blt, udev
+    tcl@TCLTK_VERSION@, tk@TCLTK_VERSION@, bwidget (>= 1.7), libtk-img (>=1.13),
+    tclreadline,
+    tclx,
+    procps, psmisc,
+    udev
 Suggests: mesaflash
 Description: motion controller for CNC machines and robots
  LinuxCNC is the next-generation Enhanced Machine Controller which
