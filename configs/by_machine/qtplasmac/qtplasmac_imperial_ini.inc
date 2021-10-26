@@ -55,6 +55,8 @@ HALFILE                 = machine.tcl
 HALFILE                 = custom.hal
 # custom postgui hal
 POSTGUI_HALFILE         = custom_postgui.hal
+# sim postgui hal
+POSTGUI_HALFILE         = sim_postgui.hal
 # required
 HALUI                   = halui
 
