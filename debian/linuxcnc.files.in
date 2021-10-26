@@ -1,10 +1,10 @@
 etc/linuxcnc/*
-etc/init.d/realtime
 etc/X11/app-defaults/*
 etc/xdg/menus/applications-merged/CNC.menu
 @EXTRA_FILES@
 @MODULE_PATH@/*@MODULE_EXT@
 usr/lib/*.so.*
+usr/lib/linuxcnc/realtime
 usr/lib/tcltk/linuxcnc
 usr/bin/*
 usr/lib/python*/*/*.py
