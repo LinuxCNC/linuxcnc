@@ -2284,6 +2284,7 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |CTRL+0|Changes feed rate to 100%.
 |CTRL+h or Home|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
 |CTRL+r|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
+|End|Touches off X and Y to 0.
 |SPACE BAR|Pause motion.
 |o|Opens a new program.
 |l|Loads the previously opened program if no program is loaded. Reloads the current program if there is a program loaded.
