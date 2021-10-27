@@ -1,4 +1,4 @@
-VERSION = '1.215.109'
+VERSION = '1.215.110'
 
 '''
 qtplasmac_handler.py
@@ -185,6 +185,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Less', 'on_keycall_BPOS')
         KEYBIND.add_call('Key_Period', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_Greater', 'on_keycall_BNEG')
+        KEYBIND.add_call('Key_End', 'on_keycall_END')
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -5647,6 +5648,9 @@ class HandlerClass:
                     else:
                         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
 
+    def on_keycall_END(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.w.touch_xy.isEnabled():
+            self.touch_xy_clicked()
 
 #########################################################################################################################
 # required class boiler code #
