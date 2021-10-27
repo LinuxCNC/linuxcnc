@@ -19,6 +19,10 @@
 kernel_version = @KERNEL_VERSION@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
+export DATE=`grep -- -- debian/changelog | head -n 1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '`
+export TIME=`grep -- -- debian/changelog | head -n 1 | sed -e 's/^.*  //' | cut -f5 -d' '`
+
+CPPFLAGS += -u__DATE__ -D__DATE__="$(DATE)" -u__TIME -D__TIME__="$(TIME)"
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
