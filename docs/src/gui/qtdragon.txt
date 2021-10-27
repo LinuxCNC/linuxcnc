@@ -319,6 +319,36 @@ The screen is intended to interface to a VFD, but will still work without it. Th
 in the linuxcnc distribution. It is up to the end user to supply the appropriate driver and HAL file connections according
 to his own machine setup.
 
+== Auto Raise Z Axis
+
+QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
+When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
+Press the button again to start spindle and lower it, then unpause program. +
+The amount to raise and lower is set in the 'Settings' tab under the heading 'Z Ext Offset'. +
+This requires additions to the INI and the qtdragon_post_gui file. +
+
+In the INI, under the AXIS_Z heading. +
+----
+[AXIS_Z]
+OFFSET_AV_RATIO  = 0.2
+----
+
+In the qtdragon_postgui.hal file add:
+
+[source,{hal}]
+----
+# Set up Z axis external offsets
+net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-count => axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+
+# uncomment for dragon_hd
+#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+
+setp axis.z.eoffset-enable 1
+setp axis.z.eoffset-scale 1.0
+----
+
 == Probing
 
 The probe screen has been through basic testing but there could still be some minor bugs. +
