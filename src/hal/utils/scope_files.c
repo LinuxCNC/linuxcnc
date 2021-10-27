@@ -190,7 +190,7 @@ int read_config_file (char *filename)
     while ( fgets(cmd_buf, 99, fp) != NULL ) {
 	/* remove trailing newline if present */
 	cp = cmd_buf;
-	while (( *cp != '\n' ) && ( *cp != '\0' )) {
+	while (( *cp != '\n' ) && ( *cp != '\r' ) && ( *cp != '\0' )) {
 	    cp++;
 	}
 	*cp = '\0';
@@ -384,7 +384,7 @@ static int parse_command(char *in)
 	}
 	arg_string = cp1;
 	/* find and replace newline at end */
-	while (( *cp1 != '\n' ) && ( *cp1 != '\0' )) {
+	while (( *cp1 != '\n' ) && ( *cp1 != '\r' ) && ( *cp1 != '\0')) {
 	    cp1++;
 	}
 	*cp1 = '\0';
