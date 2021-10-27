@@ -310,7 +310,7 @@
               <item>
                <widget class="QStackedWidget" name="preview_stack">
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>2</number>
                 </property>
                 <widget class="QWidget" name="preview_page">
                  <layout class="QHBoxLayout" name="horizontalLayout_18">
@@ -15005,8 +15005,13 @@ CONFIG</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
+   <class>IndicatedPushButton</class>
    <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -15086,7 +15091,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
-   <extends>QPushButton</extends>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
   <customwidget>
