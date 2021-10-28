@@ -6,7 +6,7 @@
 
 == Preamble
 
-NOTE: Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Version history can be seen by visiting this link:http://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.
+*Except where noted, this guide assumes the user is using the latest version of QtPlasmaC. Version history can be seen by visiting this link:http://htmlpreview.github.io/?https://github.com/LinuxCNC/linuxcnc/blob/master/share/qtvcp/screens/qtplasmac/versions.html[link] which will show the latest available version. The installed QtPlasmaC version is displayed in the title bar. See <<qt_update, Update QtPlasmaC>> for information on updating QtPlasmaC.*
 
 == License
 
@@ -448,7 +448,7 @@ Select the .ini file of the old PlasmaC configuration, select the .ini file of t
 
 === Lowpass Filter
 
-The plasmac HAL component has an built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
+The plasmac HAL component has a built in lowpass filter that if used is applied to the *plasmac.arc-voltage-in* input pin to filter any noise that could cause erroneous voltage readings. The lowpass filter should only be used after using Halscope to determine the required frequency and whether the amplitude of the noise is large enough to cause any issues. For most plasma machines lowpass is not required and should not be used unless it is required.
 
 The HAL pin assigned to this filter is *plasmac.lowpass-frequency* and is set to 0 (disabled) by default. To apply a lowpass filter to the arc-voltage, the user would edit the following entry in the custom.hal file in the machine's configuration directory to add the appropriate cutoff frequency as measured in Hertz (Hz).
 
@@ -485,7 +485,7 @@ All four signals above have an individual debounce component so the debounce per
 
 The default delay for all four inputs is five servo thread periods. In most cases this value will work quite well. If any of the inputs do not use mechanical switches, it may be possible to either reduce or remove the delay for those inputs.
 
-If debounce is required for other equipment like home or limit switches etc then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
+If debounce is required for other equipment like home or limit switches etc. then more dbounce components may added in any of the HAL files without any regard to the signals listed here.
 
 More information on contact bounce can be seen on page IX of link:https://www.finder-relais.net/en/Finder-general-technical-information-en.pdf[Finder Relays General Technical Information]
 
@@ -644,7 +644,7 @@ NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other varia
 These variables are mandatory.
 
 ----
-PROGRAM_EXTENSION   = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)
+PROGRAM_EXTENSION   = .ngc,.nc,.tap G-Code File (*.ngc, *.nc, *.tap)
 ngc                     = ./qtplasmac/qtplasmac_gcode.py
 nc                      = ./qtplasmac/qtplasmac_gcode.py
 tap                     = ./qtplasmac/qtplasmac_gcode.py
@@ -739,7 +739,7 @@ The following sections will give a general overview of the QtPlasmaC layout.
 
 === MAIN Tab
 
-Screenshot example of the QtPlasmaC MAIN tab in *16:9* aspect ratio:
+Screenshot example of the QtPlasmaC <<qt_main-tab, MAIN Tab>> in *16:9* aspect ratio:
 
 image::images/qtplasmac_16x9.png[width=800,align="center"]
 
@@ -759,10 +759,10 @@ Some functions/features are only used for particular modes and are not displayed
 |CA:|If "View Material" is selected on the PARAMETERS tab, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
 |P|This button changes the preview to an isometric view.
 |Z|This button changes the preview to a top down view.
-|Right Arrow|This button pans the preview right.
-|Left Arrow|This button pans the preview left.
-|Up Arrow|This button pans the preview up.
-|Down Arrow|This button pans the preview down.
+|→|This button pans the preview right.
+|←|This button pans the preview left.
+|↑|This button pans the preview up.
+|↓|This button pans the preview down.
 |+|This button zooms the preview.
 |-|This button zooms the preview.
 |C|This button clears the live plot.
@@ -1066,7 +1066,7 @@ NOTE: If the amount of time between the torch contacting the material and when t
 |===
 |*Name*|*Description*
 |Max. Speed|Displays the maximum velocity the Z axis is capable of (this is controlled by the <machine_name>.ini file).
-|Setup Speed|The Z axis velocity for setup moves (movements to Probe Height, Pierce Height, Cut Height, etc).
+|Setup Speed|The Z axis velocity for setup moves (movements to Probe Height, Pierce Height, Cut Height, etc.).
 |===
 
 NOTE: Setup Speed has no effect on THC speed which is capable of the velocity displayed in the Max. Speed field.
@@ -1205,7 +1205,7 @@ For reliable use of QtPlasmaC the user should *NOT* use any Z axis offsets other
 
 QtPlasmaC will automatically add a line of G-Code to move the Z axis to the correct height at the beginning of every G-Code program.
 
-*Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vX.X.XX - powered by QtVCP on LinuxCNC vY.Y.Y" where X.X.XX is the version of QtPlasmaC and Y.Y.Y is the version of LinuxCNC.
+*Version Information* - QtPlasmaC will display versioning information in the title of the main window. The information will be displayed as followed "QtPlasmaC vN.XXX.YYY - powered by QtVCP on LinuxCNC vZ.Z.Z" where N is the version of QtPlasmaC, XXX is the version of the hal component (PlasmaC.comp), YYY is the GUI version, and Z.Z.Z is the version of LinuxCNC.
 
 === Units Systems
 
@@ -1290,7 +1290,7 @@ CAMERA_TOUCHOFF = Xoffset Yoffset
 . Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
 . The offset is now successfully set.
 
-In the CAMVIEW panel, the mouse can effect the cross hairs and the zoom level as follows:
+In the CAMVIEW panel, the mouse can affect the cross hairs and the zoom level as follows:
 
 * Mouse Wheel Scroll - Change cross hair diameter.
 * Mouse Wheel Button Double Click - Restores cross hair diameter to default.
@@ -1633,7 +1633,7 @@ By using "magic comments" in a G-Code file it is possible to do the following:
 - Edit existing materials in the <machine_name>_material.cfg file.
 - Use one or more temporary materials.
 
-Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the GCode file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, however the user could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
+Temporary materials are numbered automatically by QtPlasmaC and the material change will also be done by QtPlasmaC and should not be added to the G-Code file by CAM software or otherwise. The material numbers begin at 1000000 and are incremented for each temporary material. It is not possible to save a temporary material, however the user could create a new material while a temporary material is displayed and it will use the settings from the temporary material as the defaults.
 
 TIP: It is possible to use temporary materials only and have an empty <machine_name>_material.cfg file. This negates the need to keep the QtPlasmaC materials file updated with the CAM tool file.
 
@@ -1650,7 +1650,7 @@ The options are:
 |===
 |*Option*|*Description*
 |0|Creates a temporary default material. +
-     Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new GCode file that has temporary materials.
+     Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new G-Code file that has temporary materials.
 |1|Adds a new material if the number specified does not exist.
 |2|Overwrites an existing material if the number specified exists. +
      Adds a new material if the number specified does not exist.
@@ -2230,9 +2230,9 @@ The following two custom layouts are used for soft key support:
 
 image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab", width=240,align="center"]
 
-image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for gcode editing and file management.",width=700,align="center"]
+image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for G-Code editing and file management.",width=700,align="center"]
 
-If the virtual keyboad has been repositioned and on the next opening of a virtual keyboard it is not visible then clicking twice on the onboard icon in the system tray will reposition the virtual keyboard so the move handle is visible.
+If the virtual keyboard has been repositioned and on the next opening of a virtual keyboard it is not visible then clicking twice on the onboard icon in the system tray will reposition the virtual keyboard so the move handle is visible.
 
 [[qt_keyboard-shortcuts]]
 
@@ -2247,7 +2247,7 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 [width="100%",cols="4,16"]
 |===
 |*Keyboard Shortcut*|*Action*
-|ESC|Stops current automated motion (For example: a running program).
+|ESC|Aborts current automated motion (example: a running program, a probe test, etc.) as well as an active torch pulse (behaves the same as clicking CYCLE STOP).
 |F1|Toggles the E-STOP button (if the GUI E-STOP button is enabled).
 |F2|Toggles the GUI power button.
 |F9|Toggles the "Cutting" command, used to begin or end a manual cut.
@@ -2282,25 +2282,25 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |CTRL+8|Changes feed rate to 80%.
 |CTRL+9|Changes feed rate to 90%.
 |CTRL+0|Changes feed rate to 100%.
-|CTRL+h or Home|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
-|CTRL+r|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
-|End|Touches off X and Y to 0.
+|CTRL+H or HOME|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
+|CTRL+R|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
+|END|Touches off X and Y to 0.
 |SPACE BAR|Pause motion.
-|o|Opens a new program.
-|l|Loads the previously opened program if no program is loaded. Reloads the current program if there is a program loaded.
-|right arrow|Jogs the X axis positive.
-|left arrow|Jogs the X axis negative.
-|up arrow|Jogs the Y axis positive.
-|down arrow|Jogs the Y axis negative.
-|page up|Jogs the Z axis positive.
-|page down|jog the Z axis negative.
+|O|Opens a new program.
+|L|Loads the previously opened program if no program is loaded. Reloads the current program if there is a program loaded.
+|→|Jogs the X axis positive.
+|←|Jogs the X axis negative.
+|↑|Jogs the Y axis positive.
+|↓|Jogs the Y axis negative.
+|PAGE UP|Jogs the Z axis positive.
+|PAGE DOWN|jog the Z axis negative.
 |[|Jogs the A axis positive.
 |]|Jogs the A axis negative.
 |.|Jogs the B axis positive.
 |,|Jogs the B axis negative.
-|shift|Is used in conjunction with any jog key to invoke a rapid jog.
-|+|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
-|-|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
+|SHIFT (+ Jog Key)|The shift key is used with any jog key to invoke a rapid jog.
+|+ (+ Jog Key)|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
+|- (+ Jog Key)|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
    If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 |===
 
@@ -2905,13 +2905,13 @@ There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to puls
 
 QtPlasmaC will begin a probe and when the material is detected, the Z axis will rise to the Pierce Height currently displayed in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>. If the user has "View Material" selected in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, this value will be displayed in the top left corner of the PREVIEW Window next to *PH:*.
 
-QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position. An example of an 6 second delay is below. If there is no time specified then the probe time will default to 10 seconds.
+QtPlasmaC will then wait in this state for the time specified (rounded to no decimal places) before returning the Z axis to the starting position. An example of a 6 second delay is below. If there is no time specified then the probe time will default to 10 seconds.
 
 ----
 BUTTON_n_CODE = probe-test 6
 ----
 
-NOTE: Enabling a user button as a Probe Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-ohmic]]
 
@@ -2923,7 +2923,7 @@ QtPlasmaC will enable the Ohmic Probe Enable output signal and if the Ohmic Prob
 BUTTON_n_CODE = ohmic-test
 ----
 
-NOTE: Enabling a user button as a Ohmic Test button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-cut]]
 
@@ -2955,7 +2955,7 @@ There are three methods to return to the previous coordinates:
 BUTTON_n_CODE = change-consumables X10 Y10 F1000
 ----
 
-NOTE: Enabling a user button as a Change Consumables button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-load]]
 
@@ -2989,7 +2989,7 @@ If the button is released before the countdown is complete then the torch will t
 BUTTON_n_CODE = torch-pulse 0.5
 ----
 
-NOTE: Enabling a user button as a Torch Pulse button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-single]]
 
@@ -3044,7 +3044,7 @@ or:
 BUTTON_n_CODE = framing usecurrentzheight F100
 ----
 
-Enabling a user button as a Framing button will add a <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+Enabling a user button as a Framing button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
 
 [[qt_button-mancut]]
 
@@ -3070,7 +3070,7 @@ BUTTON_n_CODE = offsets-view
 
 === External HAL Pins
 
-QtPlasmaC creates some HAL pins that may be connected to from an momentary external button or pendant etc.
+QtPlasmaC creates some HAL pins that may be used to connect a momentary external button or pendant etc.
 
 The following HAL bit pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
 
@@ -3078,11 +3078,11 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |===
 |*User Button Function*|*HAL Pin*|*GUI Function
 |Toggle machine power|qtplasmac.ext_power|POWER
-|Run the loaded gcode program|qtplasmac.ext_run|CYCLE START
-|Pause/Resume the loaded gcode program|qtplasmac.ext_pause|CYCLE PAUSE
-|Abort the loaded gcode program|qtplasmac.ext_abort|CYCLE STOP
+|Run the loaded G-Code program|qtplasmac.ext_run|CYCLE START
+|Pause/Resume the loaded G-Code program|qtplasmac.ext_pause|CYCLE PAUSE
+|Abort the loaded G-Code program|qtplasmac.ext_abort|CYCLE STOP
 |Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
-|Run/Pause/Resume the loaded gcode program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
+|Run/Pause/Resume the loaded G-Code program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
 |Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
 |Torch height override reset|qtplasmac.ext_height_ovr_reset|OVERRIDE RESET TO 0.00
@@ -3093,7 +3093,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Toggle corner Lock enable|qtplasmac.ext_cornerlock_enable|VELOCITY ANTI DIVE ENABLE
 |Toggle kerfkross enable|qtplasmac.ext_kerfcross_enable|VOID ANTI DIVE ENABLE
 |Toggle use auto volts|qtplasmac.ext_auto_volts_enable|AUTO VOLTS
-|Toggle ohnic probe enable|qtplasmac.ext_ohmic_probe_enable|OHMIC ENABLE
+|Toggle ohmic probe enable|qtplasmac.ext_ohmic_probe_enable|OHMIC ENABLE
 |Toggle mesh mode |qtplasmac.ext_mesh_mode|MESH MODE
 |Toggle arc ignore OK |qtplasmac.ext_ignore_arc_ok|IGNORE OK
 |Forward along the programmed path |qtplasmac.ext_cutrec_fwd|CUT RECOVERY FWD
@@ -3227,7 +3227,7 @@ The different states QtPlasmaC could encounter are as follows:
 |17|END_JOB|end the current job
 |18|TORCHPULSE|a torch pulse is active
 |19|PAUSED_MOTION|cut recovery motion is active while paused
-|20|OHMIC_TEST|a ohmic test is active
+|20|OHMIC_TEST|an ohmic test is active
 |21|PROBE_TEST|a probe test is active
 |22|SCRIBING|a scribing job is active
 |23|CONSUMABLE_CHANGE_ON|move to consumable change coordinates
@@ -3342,7 +3342,7 @@ If any text changes have been made to the GUI then run the following to update t
 $ pyuic5 ../qtplasmac.ui > qtplasmac.py
 ----
 
-The user can either create a new translation source file for a non existing language translation or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file. If modifying an existing translation that has had no source file changes then this step is not required.
+The user can either create a new translation source file for a non-existing language translation or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file. If modifying an existing translation that has had no source file changes then this step is not required.
 
 Create or edit a .ts file:
 ----
@@ -3409,7 +3409,7 @@ There are some sample G-Code files in nc_files/plasmac.
 
 It is recommended that a <<qt_backup, backup>> copy of the existing QtPlasmaC configuration is made before proceeding.
 
-To changed the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program.
+To change the type of LinuxCNC installation from a Package installation (Buildbot) to a Run In Place or vice versa the user will need to run the qtplasmac-setup program.
 
 Enter the following command into a terminal window do one of the following:
 
@@ -3738,7 +3738,7 @@ IMPORTANT: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN EACH OF THES
 
 CAUTION: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN OHMIC SENSING IS NOT RECOMMENDED.
 
-NOTE: These values can be calculated by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calulator].
+NOTE: These values can be calculated by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calculator].
 
 NOTE: There is a <<qt_lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
 
@@ -3800,9 +3800,9 @@ A full description is at <<qt-contact-load, Contact Load>>
 
 === Keyboard Jogging
 
-There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the autorepeat feature of keys used for jogging. QtPlasmaC uses this disabling feature by default and applies the disable to the standard jog keys for the X, Y, Z, and A axes. All other keys have autorepeat enabled. When QtPlasmaC is shut down then the autorepeat feature will be enabled for the jog keys.
+There is a known issue with some combinations of hardware and keyboards that may affect the autorepeat feature of the keyboard and will then affect keyboard jogging by intermittent stopping and starting during jogging. This issue can be prevented by disabling the Operating System's autorepeat feature for all keys. QtPlasmaC uses this disabling feature by default for all keys only when the <<qt_main-tab, MAIN Tab>> is visible, with the following exceptions when autorepeat is allowed with the <<qt_main-tab, MAIN Tab>> visible:  G-Code editor is active, MDI is active. When QtPlasmaC is shut down, the Operating System's autorepeat feature will be enabled for all keys.
 
-If the user wishes to leave the autorepeat feature enabled for the jog keys, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
+If the user wishes to prevent QtPlasmaC from changing the Operating System's autorepeat settings, enter the following in the [QTPLASMAC] section of the <machine_name>.ini file:
 
 ----
 AUTOREPEAT_ALL == ENABLE
