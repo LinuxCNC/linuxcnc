@@ -1,4 +1,4 @@
-.\" Copyright (c) 2020 Phillip A Carter
+.\" Copyright (c) 2021 Phillip A Carter
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -22,18 +22,20 @@
 .\"
 .\"
 .\"
-.TH pmx485 "1" "Feb 1 2020" "Powermax Modbus Communications" "LinuxCNC Documentation"
+.TH qtplasmac-setup "1" "Oct 28 2021" "QtPlasmaC Config Switcher" "LinuxCNC Documentation"
 .SH NAME
-\fBpmx485\fR \- Modbus communications with a Powermax Plasma Cutter.
+\fBqtplasmac-setup\fR \- Switch a QtPlasmaC installation type.
 .SH SYNOPSIS
-.B loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
+.B qtplasmac-setup
 .br
 .SH DESCRIPTION
-pmx485 is a userspace HAL component to communicate with a Hypertherm Powermax 
-plasma cutter using the Modbus ASCII protocol over RS485.
+qtplasmac-setup is a python script for switching a QtPlasmac configuration from 
+package to run in place and vice-versa.
 .PP
 .SH "SEE ALSO"
-See the Drivers section of the LinuxCNC Documentation for more information on pmx485.
+See the QtPlasmaC section of the LinuxCNC Documentation for more information.
+
+http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_change_type_of_linuxcnc_installation
 .SH AUTHOR
 Phillip Carter
 .SH LICENSE

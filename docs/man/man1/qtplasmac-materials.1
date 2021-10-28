@@ -1,4 +1,4 @@
-.\" Copyright (c) 2020 Phillip A Carter
+.\" Copyright (c) 2021 Phillip A Carter
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -22,18 +22,21 @@
 .\"
 .\"
 .\"
-.TH pmx485 "1" "Feb 1 2020" "Powermax Modbus Communications" "LinuxCNC Documentation"
+.TH qtplasmac-materials "1" "Oct 28 2021" "QtPlasmaC Materials Assistant" "LinuxCNC Documentation"
 .SH NAME
-\fBpmx485\fR \- Modbus communications with a Powermax Plasma Cutter.
+\fBqtplasmac-materials\fR \- Create a plasma materials file.
 .SH SYNOPSIS
-.B loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
+.B qtplasmac-materials
 .br
 .SH DESCRIPTION
-pmx485 is a userspace HAL component to communicate with a Hypertherm Powermax 
-plasma cutter using the Modbus ASCII protocol over RS485.
+qtplasmac-materials is a python script for creating a materials file.
+
+The file can be created by text entry or by importing text from a CAM tool file.
 .PP
 .SH "SEE ALSO"
-See the Drivers section of the LinuxCNC Documentation for more information on pmx485.
+See the QtPlasmaC section of the LinuxCNC Documentation for more information.
+
+http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_material_converter
 .SH AUTHOR
 Phillip Carter
 .SH LICENSE

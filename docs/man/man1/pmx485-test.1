@@ -1,4 +1,4 @@
-.\" Copyright (c) 2020 Phillip A Carter
+.\" Copyright (c) 2021 Phillip A Carter
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -22,18 +22,25 @@
 .\"
 .\"
 .\"
-.TH pmx485 "1" "Feb 1 2020" "Powermax Modbus Communications" "LinuxCNC Documentation"
+.TH pmx485-test "1" "Oct 28 2021" "Powermax Modbus Communications Testing" "LinuxCNC Documentation"
 .SH NAME
-\fBpmx485\fR \- Modbus communications with a Powermax Plasma Cutter.
+\fBpmx485-test\fR \- Modbus communications testing with a Powermax Plasma Cutter
 .SH SYNOPSIS
-.B loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
+.B pmx485-test
 .br
 .SH DESCRIPTION
-pmx485 is a userspace HAL component to communicate with a Hypertherm Powermax 
+pmx485 is a python script for testing communications with a Hypertherm Powermax 
 plasma cutter using the Modbus ASCII protocol over RS485.
 .PP
-.SH "SEE ALSO"
-See the Drivers section of the LinuxCNC Documentation for more information on pmx485.
+.SH USAGE
+Select the correct port from the list of available ports.
+
+Check RS485 to establish communications.
+
+Changing MODE, CURRENT, or PRESSURE will change the corresponding value on the
+ Powermax and the new value will be reported back to the test panel.
+
+Check PANEL to end communication.
 .SH AUTHOR
 Phillip Carter
 .SH LICENSE
