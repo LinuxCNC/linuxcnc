@@ -1597,7 +1597,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             print(("# This is a rule for LinuxCNC's hal_input\n"), file=file)
             print(("""SUBSYSTEM="input", MODE="0660", GROUP="plugdev" """), file=file)
             file.close()
-            p=os.popen("gksudo cp  %sLINUXCNCtempGeneral.rules /etc/udev/rules.d/50-LINUXCNC-general.rules"% sourcefile )
+            p=os.popen("""pkexec sh -c 'cp %sLINUXCNCtempGeneral.rules /etc/udev/rules.d/50-LINUXCNC-general.rules'"""% sourcefile )
             time.sleep(.1)
             p.flush()
             p.close()
@@ -1657,22 +1657,30 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 temp = name.replace(i,"")
                 name = temp
             newname = "50-LINUXCNC-%s.rules"% name.replace(" ","_")
-            os.popen("gksudo cp  %s /etc/udev/rules.d/%s"% (tempname,newname) )
+            print (tempname,newname)
+            p = os.popen("""pkexec sh -c 'cp %s /etc/udev/rules.d/%s'"""% (tempname,newname) )
             time.sleep(1)
+            p.flush()
+            p.close()
             os.remove('%sLINUXCNCtempspecific.rules'% sourcefile)
             text = ["Please unplug and plug in your device again"]
             if not self.warning_dialog("\n".join(text),True):return
 
     def test_joystick(self):
-        halrun = subprocess.Popen("halrun -I  ", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE )
-        #print("requested devicename = ",self.widgets.usbdevicename.get_text())
-        halrun.stdin.write("loadusr hal_input -W -KRAL +%s\n"% self.widgets.usbdevicename.get_text())
+        halrun = subprocess.Popen("halrun -I", shell=True,stdin=subprocess.PIPE,stdout=subprocess.PIPE, encoding='utf-8' )
+        halrun.stdin.write("echo\n")
+        print("requested devicename = ",self.widgets.usbdevicename.get_text())
+        if self.widgets.usbdevicename.get_text() == 'none':
+            self.warning_dialog("You must set a device name - press search button and look at the help/output page for a list.\n",True)
+            return
+        halrun.stdin.write("loadusr hal_input -W -KRAL %s\n"% self.widgets.usbdevicename.get_text())
         halrun.stdin.write("loadusr halmeter -g 0 500\n")
         time.sleep(1.5)
         halrun.stdin.write("show pin\n")
-        self.warning_dialog("Close me When done.\n",True)
-        halrun.stdin.write("exit\n")
         output = halrun.communicate()[0]
+        self.warning_dialog("Close me When done.\n",True)
+        #halrun.stdin.write("exit\n")
+
         temp2 = output.split(" ")
         temp=[]
         for i in temp2:
