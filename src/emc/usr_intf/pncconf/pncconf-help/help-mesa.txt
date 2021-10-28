@@ -15,10 +15,10 @@ Configuration Tab:
     tabs reflect the changes
     Any signalnames you had already pick will be lost unless 
     the component is the same as before the change.
-    Depending on the board chosen, the connector tabs will disapear
+    Depending on the board chosen, the connector tabs will disappear
     if not available.
     Sanity checks are available for some boards - these just remind you to
-    check some settings that are specific for the choosen board.
+    check some settings that are specific for the chosen board.
     The help page output tab will show the firmware PIN file,
     which shows the default components, their channel number
     and their Component number. The component number is useful for
@@ -33,7 +33,7 @@ Configuration Tab:
     setp hm2_5i20.0.gpio.049.is_opendrain true
 
     note that this says GPIO but the component number corresponds
-    to the stepper ouputs. See the manual for more options.
+    to the stepper outputs. See the manual for more options.
 
     If you are using the 5i25 card with 2x7i77 or 2x7i76 firmware
     but are only using one daughter board, deselecting half the components
@@ -58,7 +58,7 @@ Connector Tabs:
         GPIOD - open drain output
         The available signals will change if you switch between 
         GPIOI and GPIOO/GPIOD.
-        Sserial daugher boards GPIO type is not selectable.
+        Sserial daughter boards GPIO type is not selectable.
         In general, mainboard GPIO is updated faster then sserial GPIO.
 
      ENCODER - a hardware base quadrature counter
@@ -83,7 +83,7 @@ Connector Tabs:
         a select pin to choose a second set of encoders. This
         component is used with firmware that requires a special
         daughter board from Mesa. Remember when connecting encoders
-        you must use the pinout for the daugher board.
+        you must use the pinout for the daughter board.
 
      RESOLVER - a resolver encoder counter
         used with MESA 7i49 daughter board with special firmware
@@ -98,7 +98,7 @@ Connector Tabs:
         UDM -pulse width modulation using up and dowm output pins
         you select the PULSE signal and the direction and enable 
         signals are automatically setup.
-        Please see the Mesa daughter board documentaion for the most up-to-date
+        Please see the Mesa daughter board documentation for the most up-to-date
         recommendations for frequency and type. Here are the common ones: 
         The 7i33 daughter board requires PDM @ 6 MHz.
         The 7i78 daughter board (for the 5i25) requires PDM @ 5 Mhz.
@@ -125,7 +125,7 @@ Connector Tabs:
      POTENTIOMETER - A digital potentiometer used primaraly to control
         a spindle found with sserial card combo 5i25/7i76
 
-     SSERIAL - smartserial daughter boards comunication stream.
+     SSERIAL - smartserial daughter boards communication stream.
         allows connection to many daughter boards.
         Currently PNCconf recognizes:
         7i64 I/O board
