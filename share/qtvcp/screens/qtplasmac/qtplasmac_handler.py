@@ -5365,7 +5365,7 @@ class HandlerClass:
             self.w[button].setStyleSheet(\
                     'QPushButton {{ background: {0} }} \
                      QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
-        # the error messge label on the status bar
+        # the error message label on the status bar
         self.w.error_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.estopColor))
         # some gcode display/editor colors cannot use .qss file
         # gcode display current gcode line

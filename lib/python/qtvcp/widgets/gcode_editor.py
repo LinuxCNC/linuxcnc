@@ -265,7 +265,7 @@ class EditorBase(QsciScintilla):
         self.setMarkerBackgroundColor(QColor("yellow"),
                                       self.CURRENT_MARKER_NUM)
 
-        # user Hightlight line
+        # user Highlight line
         self.userHandle = self.markerDefine(QsciScintilla.Background,
                           self.USER_MARKER_NUM)
         self.setMarkerBackgroundColor(QColor("red"),
@@ -646,7 +646,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if STATUS.is_auto_running():
             self.highlight_line(None, line-1)
             return
-        LOG.debug('editor: got external hilight {}'.format(line))
+        LOG.debug('editor: got external highlight {}'.format(line))
         #self.highlight_line(None, line-1)
         self.ensureLineVisible(line-1)
         #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)

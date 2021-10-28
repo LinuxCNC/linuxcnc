@@ -438,7 +438,7 @@ class HomeLabel(QLabel, _HalWidgetBase):
 
     # update ishomed property
     # polish widget so stylesheet sees the property change
-    # some stylessheets color the text on home/unhome
+    # some stylesheets color the text on home/unhome
     def _home_status_polish(self, d, state):
         if self.joint_number = d:
             self.setProperty('isHomed', state)

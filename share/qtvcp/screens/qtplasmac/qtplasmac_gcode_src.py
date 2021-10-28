@@ -598,7 +598,7 @@ with open(inCode, 'r') as fRead:
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
-            # add material change for temporay material
+            # add material change for temporary material
             if line.startswith('(o=0'):
                 gcodeList.append('m190 p{} ({})'.format(tmpMatNum, tmpMatNam))
                 gcodeList.append('m66 p3 l3 q1')
@@ -772,7 +772,7 @@ with open(inCode, 'r') as fRead:
         if 'm66' in line:
             if offsetG4x:
                 codeError = True
-                dlg  = '\nCannot validate a material change with cutter compensation acive\n'
+                dlg  = '\nCannot validate a material change with cutter compensation active\n'
                 dlg += '\nError near line #{}.\n'.format(lineNum)
                 dlg += '\nEdit G-Code file to suit.\n'
                 dialog_box('ERROR', dlg)

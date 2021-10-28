@@ -643,7 +643,7 @@ class BoxCenteredXY(Box):
 
 
 # capture current transformation matrix
-# note that this tranforms from the current coordinate system
+# note that this transforms from the current coordinate system
 # to the viewport system, NOT to the world system
 class Capture(object):
     def __init__(self):
