@@ -690,7 +690,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 text = '%s mm' % str(self.jog_incr_mm)
             else:
                 incr = 0
-                text = 'Continous'
+                text = 'Continuous'
             if self.template_label:
                 self._set_alt_text(self.jog_incr_mm)
         else:
@@ -700,7 +700,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 text = '''%s "''' % str(self.jog_incr_imperial)
             else:
                 incr = 0
-                text = 'Continous'
+                text = 'Continuous'
             if self.template_label:
                 self._set_text(self.jog_incr_imperial)
         ACTION.SET_JOG_INCR(incr , text)
@@ -709,7 +709,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         if self.jog_incr_angle < 0: return
         elif self.jog_incr_angle == 0:
             incr = 0
-            text = 'Continous'
+            text = 'Continuous'
         else:
             incr = self.jog_incr_angle
             text = '''%s deg''' % str(self.jog_incr_angle)

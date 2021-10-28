@@ -1495,7 +1495,7 @@ def jogspeed_incremental(dir=1):
         cursel = int(cursel)
     if dir == 1:
         if cursel > 0:
-            # If it was "Continous" just before, then don't change last jog increment!
+            # If it was "Continuous" just before, then don't change last jog increment!
             jogincr_index_last += 1
         if jogincr_index_last >= jogincr_size:
             jogincr_index_last = jogincr_size - 1
