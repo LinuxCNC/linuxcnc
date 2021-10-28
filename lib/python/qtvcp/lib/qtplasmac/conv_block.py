@@ -391,7 +391,7 @@ def get_parameters(P, W):
     P.convFlipToggle = False
     for line in inCode:
         line = line.strip().lower()
-        # maybe check here fo old style rotate, scale, and array
+        # maybe check here for old style rotate, scale, and array
         if line.startswith(';conversational block'):
             P.convBlock = [True, True]
         elif 'G21' in line.upper().replace(' ', '') and P.unitsPerMm != 1:

@@ -5078,7 +5078,7 @@ TO FILE</string>
                            </sizepolicy>
                           </property>
                           <property name="toolTip">
-                           <string>Eanable Webcam for work offset location</string>
+                           <string>Enable Webcam for work offset location</string>
                           </property>
                           <property name="text">
                            <string>USE CAMERA</string>

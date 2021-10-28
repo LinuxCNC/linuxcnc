@@ -91,7 +91,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     # update ishomed property
     # polish widget so stylesheet sees the property change
-    # some stylessheets color the text on home/unhome
+    # some stylesheets color the text on home/unhome
     def _home_status_polish(self, d, state):
         if d == self.joint_number or (self.joint_number==10 and d==1):
             self.setProperty('isHomed', state)

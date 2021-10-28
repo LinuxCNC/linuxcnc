@@ -184,7 +184,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return CV.resize(frame, dims, interpolation=CV.INTER_CUBIC)
 
     def zoom(self, frame, scale):
-        # get orignal size of image
+        # get original size of image
         (oh, ow) = frame.shape[:2]
         #############################
         # scale image

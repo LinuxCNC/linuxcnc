@@ -317,7 +317,7 @@ Pressing cancel will close linuxcnc.""" % target)
         # theme (styles in QT speak) specify a qss file
         if opts.theme:
             window.apply_styles(opts.theme)
-        # appy qss file or default theme
+        # apply qss file or default theme
         else:
             window.apply_styles()
 
@@ -388,7 +388,7 @@ Pressing cancel will close linuxcnc.""" % target)
         global ERROR_COUNT
         ERROR_COUNT +=1
 
-        # we count errors because often there are mutiple and the first is the
+        # we count errors because often there are multiple and the first is the
         # only important one.
         if ERROR_COUNT == 1:
             lines = traceback.format_exception(exc_type, exc_obj, exc_tb)

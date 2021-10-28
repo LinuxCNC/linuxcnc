@@ -89,7 +89,7 @@ if [ ! -f $sopath/$p3sofile ]; then
     if [ -f $sopath/$p3sofile.old ]; then
         echo -e '\nrename libpyqt5.so.old file to libpyqt5.so'
         sudo mv $sopath/$p3sofile.old $sopath/$p3sofile
-    # othewise report an error
+    # otherwise report an error
     else
         echo -e '\nlibpyqt5.so is missing from:'
         echo -e '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/'
