@@ -1,0 +1,32 @@
+# Run this to update POT files and PO files from the original english
+# documentation, and to generate the translated documentation.
+
+cd $(dirname $0)/..
+
+echo "info: Process originals, update PO files and generate translated"
+#po4a --no-translations --msgmerge-opt --no-location po4a.cfg
+po4a --msgmerge-opt --no-location po4a.cfg
+
+
+echo "info: Generate translated master documents"
+LANGS="cn fr es"
+MASTERS="\
+       Master_Getting_Started.adoc \
+       Master_Documentation.adoc \
+       Master_Developer.adoc \
+       Master_Integrator.adoc \
+"
+for l in $LANGS; do
+    for m in $MASTERS; do
+	lMASTERbase=$(echo $m|sed s/.adoc/_$l-base.adoc/)
+	lMASTER=$(echo $m|sed s/.adoc/_$l.adoc/)
+	if [ -e src/$lMASTERbase ] ; then
+	    sed s/.adoc/_$l.adoc/ < src/$lMASTERbase > src/$lMASTER
+	fi
+    done
+done
+
+echo "info: POT and PO file status"
+for p in po/*.pot po/*.po; do
+    echo -n "$p ";  msgfmt --statistics -o /dev/null $p
+done
