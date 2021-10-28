@@ -81,7 +81,7 @@ class Pages:
         else:
             return True
 
-    # seaches (self._p.available_page) from the current page forward,
+    # searches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -124,13 +124,13 @@ class Pages:
         elif u == len(self._p.available_page):
             name,text,init_state,state = self._p.available_page[cur]
             self['%s_finish'%name]()
-        # if comming from page 0 to page 1 sensitize
+        # if coming from page 0 to page 1 sensitize
         # the back button and change fwd button text
         if cur == 0:
             self.w.button_back.set_sensitive(True)
             self.w.label_fwd.set_text(self._p.MESS_FWD)
 
-    # seaches (self._p.available_page) from the current page backward,
+    # searches (self._p.available_page) from the current page backward,
     # for the next page that is True or till first page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -737,7 +737,7 @@ class Pages:
         model = self.w.gladevcptheme.get_model()
         active = self.w.gladevcptheme.get_active()
         self.d.gladevcptheme = model[active][0]
-        # make sure there is a copy of the choosen gladevcp panel in /tmp/
+        # make sure there is a copy of the chosen gladevcp panel in /tmp/
         # We will copy it later into our config folder
         self.t.gladevcptestpanel(self)
 
@@ -1019,7 +1019,7 @@ class Pages:
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
-    # This is because the page in not inialized/loaded until needed
+    # This is because the page in not initialized/loaded until needed
     # callbacks:
     def on_mesapanel_clicked(self, *args):
         self.t.launch_mesa_panel()
@@ -1070,7 +1070,7 @@ class Pages:
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
-    # This is because the page in not inialized/loaded until needed
+    # This is because the page in not initialized/loaded until needed
     # callbacks:
 
     def on_mesa1_discovery_clicked(self, *args):

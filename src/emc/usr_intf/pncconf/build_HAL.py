@@ -140,7 +140,7 @@ class HAL:
                 bldc = True
                 break
         chargepump = self.a.findsignal("charge-pump-out")
-        # load PID compnent:
+        # load PID component:
         # if axis needs PID- (has pwm signal) then add its letter to pidlist
         temp = ""
         for i in self.d.available_axes:
@@ -598,10 +598,10 @@ class HAL:
                 print("setp    %s.filter true" % pinname, file=file)
                 print("setp    %s.counter-mode true" % pinname, file=file)
             print(file=file)
-        # was feed overrride option selected? MPG or switch selcted?
+        # was feed override option selected? MPG or switch selected?
         if self.d.externalfo:
             if self.d.fo_usempg:
-                print("# connect feed overide increments - MPG", file=file)
+                print("# connect feed override increments - MPG", file=file)
                 print(file=file)
                 print("    setp halui.feed-override.direct-value false", file=file)
                 print("    setp halui.feed-override.scale .01", file=file)
@@ -616,7 +616,7 @@ class HAL:
                     print("net axis-selected-count => halui.feed-override.counts", file=file)
                 print(file=file)
             elif self.d.fo_useswitch:
-                print("# connect feed overide increments - switches", file=file)
+                print("# connect feed override increments - switches", file=file)
                 print(file=file)
                 print("    setp halui.feed-override.count-enable true", file=file)
                 print("    setp halui.feed-override.direct-value true", file=file)
@@ -655,7 +655,7 @@ class HAL:
                 temp.append(float(self.d[i+"maxvel"]))
             scale = max(temp)/100
             if self.d.mvo_usempg:
-                print("# connect max velocity overide increments - MPG", file=file)
+                print("# connect max velocity override increments - MPG", file=file)
                 print(file=file)
                 print("    setp halui.max-velocity.direct-value false", file=file)
                 print("    setp halui.max-velocity.scale %04f"% scale, file=file)
@@ -670,7 +670,7 @@ class HAL:
                     print("net axis-selected-count =>  halui.max-velocity.counts", file=file)
                 print(file=file)
             elif self.d.mvo_useswitch:
-                print("# connect max velocity overide increments - switches", file=file)
+                print("# connect max velocity override increments - switches", file=file)
                 print(file=file)
                 print("    setp halui.max-velocity.count-enable true", file=file)
                 print("    setp halui.max-velocity.direct-value true", file=file)
@@ -704,7 +704,7 @@ class HAL:
             print(file=file)
         if self.d.externalso:
             if self.d.so_usempg:
-                print("# connect spindle overide increments - MPG", file=file)
+                print("# connect spindle override increments - MPG", file=file)
                 print(file=file)
                 print("    setp halui.spindle.0.override.direct-value false", file=file)
                 print("    setp halui.spindle.0.override.scale .01", file=file)
@@ -719,7 +719,7 @@ class HAL:
                     print("net axis-selected-count  =>  halui.spindle.0.override.counts", file=file)
                 print(file=file)
             elif self.d.so_useswitch:
-                print("# connect spindle overide increments ", file=file)
+                print("# connect spindle override increments ", file=file)
                 print(file=file)
                 print("    setp halui.spindle.0.override.count-enable true", file=file)
                 print("    setp halui.spindle.0.override.direct-value true", file=file)
@@ -1715,7 +1715,7 @@ class HAL:
                                 self._substitution_list.append((title.upper(),name))
                             self._substitution_list.append(("",""))
                             break
-            # fot TP pwm pins
+            # for TP pwm pins
             elif t == (_PD.TPPWMA):
                 if not p == "unused-tppwmgen":
                     for sig in (self.d.haltppwmoutputsignames):

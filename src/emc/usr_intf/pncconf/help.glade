@@ -11,11 +11,11 @@ It supports some of Mesa's sserial cards.
 It will forever be a work in progress as Linuxcnc changes.
 
 Many thanks To:
-Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with techincal difficulties.
+Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with technical difficulties.
 Big John T - John drew the original machine illustrations. Testing and suggestions.
 Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample equipment to test with.
 Andy Pugh - suggestions, questions answered and many pin name changes :) 
-Dave Armstrong - testing and suggestions expecially with resolvers.
+Dave Armstrong - testing and suggestions especially with resolvers.
 Everyone who gave a bug report ! I cannot test everything thoughly enough so reports help.
 
 Beta 1 version</property>
@@ -268,7 +268,7 @@ Beta 1 version</property>
     C is the home switch trip point/ 
                    Shared min limit trip
     D is the positive software limit
-    H is the final Home Positon  = 3 units
+    H is the final Home Position  = 3 units
     The -L and +L are the limit switches trip points
 
     A&lt;-&gt;B is the Negative Travel Distance  = -0 units
@@ -344,11 +344,11 @@ Beta 1 version</property>
     B is the G53 machine coordinate Origin
     C is the home switch trip point
     D is the positive software limit
-    H is the final home positon  = 0 units
+    H is the final home position  = 0 units
     The -L and +L are the limit switches trip points
 
     A&lt;-&gt;B is the Negative Travel Distance  = -3 units
-    B&lt;-&gt;C is the Home Swicth Location  = -2.3 units
+    B&lt;-&gt;C is the Home Switch Location  = -2.3 units
     B&lt;-&gt;D is the Positive Travel Distance  = 7 units
     A&lt;-&gt;D is the total travel = 10 units
 </property>

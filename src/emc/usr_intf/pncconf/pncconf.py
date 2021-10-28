@@ -700,7 +700,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     piter = self.d[item[0]].append(None, [parent[0], index,signame,item[3],0])
                     #print(parent,parentnum,count,signame,item[3],i,signame,count)
                 else:
-                    # If list is empty it's a custome signal - with no signals yet
+                    # If list is empty it's a custom signal - with no signals yet
                   if len(parent[1]) == 0:
                     piter = self.d[item[0]].append(None, [parent[0], 0,'none',item[3],0])
                   else:
@@ -1047,7 +1047,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 elif k in ("IOPort","AddrX","MuxedQCountSel"):
                     continue
                 else:
-                    print("**** WARNING: Pncconf parsing firmware: tagname (%s) not reconized"% k)
+                    print("**** WARNING: Pncconf parsing firmware: tagname (%s) not recognized"% k)
 
             discov_sserial = []
             ssname = root.findall("SSERIALDEVICES/SSERIALFUNCTION")
@@ -1187,7 +1187,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                     print(formatted_lines[-1])
 
                 if iocode == 0:
-                    # must be GPIO pins if there is no secondary mudule name
+                    # must be GPIO pins if there is no secondary module name
                     # or if pinconvert fails eg. StepTable instance default to GPIO
                     temppinunit.append(_PD.GPIOI)
                     temppinunit.append(0) # 0 signals to pncconf that GPIO can changed to be input or output
@@ -1266,7 +1266,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                         True)
 
             # This is a HACK to pass info about the interface forward
-            # otherwise thw driver info is blank in the discovered firmware
+            # otherwise the driver info is blank in the discovered firmware
             if interface == '--addr':
                 inter = 'ETH'
             elif interface == '--epp':
@@ -1602,7 +1602,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             p.flush()
             p.close()
             os.remove('%sLINUXCNCtempGeneral.rules'% sourcefile)
-        text.append(("disconect USB device please\n"))
+        text.append(("disconnect USB device please\n"))
         if not self.warning_dialog("\n".join(text),False):return
 
         os.popen('less /proc/bus/input/devices >> %sLINUXCNCnojoytemp.txt'% sourcefile)
@@ -1779,7 +1779,7 @@ if you change related options later -such as spindle feedback- the HAL connectio
               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/pyvcp-panel.xml" % self.d.machinename)):
                  if not self.warning_dialog(_("OK to replace existing custom pyvcp panel?\
 \nExisting pyvcp-panel.xml will be renamed and added to 'backups' folder\n\
-Clicking 'existing custom program' will aviod this warning. "),False):
+Clicking 'existing custom program' will avoid this warning. "),False):
                     return True
 
     # disallow some signal combinations
@@ -1895,7 +1895,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
                 if channel == _PD._NUM_CHANNELS: break # TODO may not have all channels worth of glade widgets
                 if not self.widgets['mesa%dsserial%d_%d'%(boardnum,port,channel)].get_visible():continue
-                #print("sserial data transfering")
+                #print("sserial data transferring")
                 for s in range (0,_PD._SSCOMBOLEN):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, s)
                     ptype = 'mesa%dsserial%d_%dpin%dtype' % (boardnum, port, channel, s)
@@ -1961,7 +1961,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # user info (board/connector/pin number designations) and doesn't record the signal ID numbers
         # none of this is done if mesa is not checked off in pncconf
         # TODO we should check to see if signals are already present as each time user goes though this page
-        # the signals get added again causing multple calls to the functions.
+        # the signals get added again causing multiple calls to the functions.
     def init_mesa_signals(self,boardnum):
         cb = "mesa%d_discovery"% (boardnum)
         i = "_mesa%dsignalhandler_discovery"% (boardnum)
@@ -2231,7 +2231,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                 if subboardname == "none":
                     #print("no subboard for %s"% subboardname)
                     continue
-                #print("sserial data transfering")
+                #print("sserial data transferring")
                 for pin in range (0,_PD._SSCOMBOLEN):
                     p = 'mesa%dsserial%d_%dpin%d' % (boardnum, port, channel, pin)
                     pinv = 'mesa%dsserial%d_%dpin%dinv' % (boardnum, port, channel, pin)
@@ -2333,7 +2333,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                     print("**** ERROR mesa-data-transfer: error unknown pin type:",pintype,"of ",ptype)
                     return
 
-                # **Start widget to data Convertion**
+                # **Start widget to data Conversion**
                 # for encoder pins
                 if piter == None:
                         #print("callin pin changed !!!")
@@ -2667,7 +2667,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
 
                 # ---SETUP GUI FOR ENCODER FAMILY COMPONENT---
                 # check that we are not converting more encoders that user requested
-                # if we are then we trick this routine into thinking the firware asked for GPIO:
+                # if we are then we trick this routine into thinking the firmware asked for GPIO:
                 # we can do that by changing the variable 'firmptype' to ask for GPIO
                 if firmptype in ( _PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM ):
                     if numofencoders >= (compnum+1):
@@ -2928,7 +2928,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                             else:
                                 self.widgets[p].set_sensitive(0)
                             # This is a bit of a hack to make 7i77 and 7i76 firmware automatically choose
-                            # the apropriate sserial component and allow the user to select different modes
+                            # the appropriate sserial component and allow the user to select different modes
                             # if the sserial ptype is 7i76 or 7i77 then the data must be set to 7i76/7i77 signal
                             # as that sserial instance can only be for the 7i76/7i77 I/O points
                             # 7i76:
@@ -3645,7 +3645,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
                                     self.widgets[table].hide()
                                     self.p.set_buttons_sensitive(1,1)
                                     return
-                                # set sserial tab names to corresond to connector numbers so users have a clue
+                                # set sserial tab names to correspond to connector numbers so users have a clue
                                 # first we have to find the daughter board in pncconf's internal list
                                 # TODO here we search the list- this should be done for the table names see above todo
                                 subfirmname = self.d[BASE+"subboard"]
@@ -3766,7 +3766,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
             p = '%s_%s%d' % (port, direction, pin)
             piter = self.widgets[p].get_active_iter()
             selection = self.widgets[p].get_child().get_text()
-            # **Start widget to data Convertion**
+            # **Start widget to data Conversion**
             if piter == None:# means new custom signal name and user never pushed enter
                     #print("callin pin changed !!!")
                     self.on_general_pin_changed( None,"parport", port, direction, None, pin, True)
@@ -3950,8 +3950,8 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         # TODO this should be smarter - after going thru a config once it
         # always uses the value set here - if it is set to a default value
         # if should keep checking that the value is still right.
-        # but thats a bigger change then we want now.
-        # We check fo None and 'None' because when None is saved
+        # but that's a bigger change then we want now.
+        # We check for None and 'None' because when None is saved 
         # it's saved as a string
         if not d[axis + "P"] == None and not d[axis + "P"] == 'None':
             set_value("P")
@@ -4417,7 +4417,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         self.widgets.spindle_cbmotor_gear2.set_active(twoscales)
         self.widgets.spindle_cbnegative_rot.set_active(self.widgets.susenegativevoltage.get_active())
 
-        # temparally add signals
+        # temporarily add signals
         for i in templist1:
             self.d[i] = self.widgets['spindle_'+i].connect("value-changed", self.update_spindle_calculation)
         for i in checkbutton_list:
@@ -4528,7 +4528,7 @@ Clicking 'existing custom program' will aviod this warning. "),False):
         for i in checkbutton_list:
             self.widgets[i].set_active(self.d[axis+i])
 
-        # temparally add signals
+        # temporarily add signals
         for i in templist1:
             self.d[i] = self.widgets[i].connect("value-changed", self.update_scale_calculation,axis)
         for i in checkbutton_list:
