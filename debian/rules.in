@@ -20,6 +20,12 @@ kernel_version = @KERNEL_VERSION@
 enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
 
+# Set time & date to the most recent release, for repeatable builds.
+TIMESTAMP=$(shell dpkg-parsechangelog -S timestamp)
+export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d %b %Y')
+export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
+CPPFLAGS += -u__DATE__ -D__DATE__="$(DATE)" -u__TIME__ -D__TIME__="$(TIME)"
+
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     MAKEFLAGS += -j$(NUMJOBS)
