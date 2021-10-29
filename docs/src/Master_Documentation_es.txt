@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
+:localdate: {sys: egrep "^ *--" debian/changelog | head -n1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '}
 LinuxCNC V{lversion}, {localdate}
 =================================
 :ascii-ids:
 :lang: es
+:revdate: 2021-10-28
 
 = Contenido
 

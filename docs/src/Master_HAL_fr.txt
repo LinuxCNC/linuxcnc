@@ -3,6 +3,8 @@
 :localdate: {sys: date +%d/%m/%Y}
 :ascii-ids:
 :lversion: {sys: cat ../VERSION}
+:localdate: {sys: egrep "^ *--" debian/changelog | head -n1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '}
+:revdate: 2021-10-28
 Manuel de HAL V{lversion}; {localdate}
 ======================================
 :masterdir: {indir}

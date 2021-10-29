@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
+:localdate: {sys: egrep "^ *--" debian/changelog | head -n1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '}
 Primeros Pasos V{lversion}, {localdate}
 ========================================
 :lang: es
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 [NOTE]
 Esta documentación no se ha actualizado desde LinuxCNC versión 2.5,

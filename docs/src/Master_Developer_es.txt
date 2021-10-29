@@ -1,10 +1,12 @@
 ﻿:lversion: {sys: cat ../VERSION}
+:localdate: {sys: egrep "^ *--" debian/changelog | head -n1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '}
 Manual del Desarrollador V{lversion}, {localdate}
 =================================================
 
 :ascii-ids:
 :lang: es
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 
 == Introducción

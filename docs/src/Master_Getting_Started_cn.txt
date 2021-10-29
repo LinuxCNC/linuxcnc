@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
+:localdate: {sys: egrep "^ *--" debian/changelog | head -n1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '}
 Getting Started V{lversion}, {localdate}
 ========================================
 :lang: zh_CN
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 The LinuxCNC Team
 

@@ -1,8 +1,9 @@
 :lang: fr
 :toc:
-:localdate: {sys: date +%d/%m/%Y}
+:localdate: {sys: egrep "^ *--" debian/changelog | head -n1 | sed -e 's/^.*  //' | cut -f2,3,4 -d' '}
 :ascii-ids:
 :lversion: {sys: cat ../VERSION}
+:revdate: 2021-10-28
 Manuel de l'intégrateur V{lversion}, {localdate}
 ================================================
 :masterdir: {indir}
