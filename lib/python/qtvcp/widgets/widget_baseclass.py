@@ -43,7 +43,8 @@ class _HalWidgetBase_(object):
         self.__class__.HAL_GCOMP_ = comp
         self.__class__.PATHS_ = path
         self.__class__.QTVCP_INSTANCE_ = window
-        self.__class__.SETTINGS_ = window.settings
+        if not window is None:
+            self.__class__.SETTINGS_ = window.settings
         self.__class__._instanceNum += 1
         #print self.__class__._instanceNum >=1
         #print 'comp',comp,self.__class__._instanceNum
