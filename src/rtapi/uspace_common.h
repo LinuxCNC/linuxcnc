@@ -1,4 +1,9 @@
-//    Copyright 2006-2014, various authors
+// Description:  uspace_common.h
+//              Shared methods used by various uspace modules.  Only
+//              included once in any module to avoid conflicting
+//              definitions.
+//
+//    Copyright 2006-2021, various authors
 //
 //    This program is free software; you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by

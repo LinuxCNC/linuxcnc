@@ -14,6 +14,7 @@
 ********************************************************************/
 #ifndef EMC_NML_HH
 #define EMC_NML_HH
+#include "linuxcnc.h"
 #include "emc.hh"
 #include "rcs.hh"
 #include "cmd_msg.hh"

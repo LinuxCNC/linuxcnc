@@ -15,7 +15,7 @@
 #ifndef EMCGLB_H
 #define EMCGLB_H
 
-#include "config.h"             /* LINELEN */
+#include "linuxcnc.h"           /* LINELEN */
 #include "math.h"		/* M_PI */
 #include "emcmotcfg.h"          /* EMCMOT_MAX_DIO */
 #include "debugflags.h"

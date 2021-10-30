@@ -38,6 +38,7 @@
  */
 
 #include "config.h"
+#include "emc/linuxcnc.h"
 #include "rtapi.h"
 #include "hal.h"
 #include "../hal_priv.h"
