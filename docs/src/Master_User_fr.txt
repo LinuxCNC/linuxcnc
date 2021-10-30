@@ -1,6 +1,6 @@
 :lang: fr
 :toc:
-:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
 :ascii-ids:
 :lversion: {sys: cat ../VERSION}
 :revdate: 2021-10-28

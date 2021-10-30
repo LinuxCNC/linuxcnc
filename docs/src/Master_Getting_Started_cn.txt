@@ -1,5 +1,5 @@
 :lversion: {sys: cat ../VERSION}
-:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
 Getting Started V{lversion}, {date}
 ===================================
 :lang: zh_CN
