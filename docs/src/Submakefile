@@ -431,6 +431,10 @@ clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 
 
+DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
+.PHONY: svgs_made_from_dots
+svgs_made_from_dots: $(DOTFILES:.dot=.svg)
+
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
@@ -439,8 +443,8 @@ ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
 install-doc: install-doc-html
 endif
-pdfdocs: $(PDF_TARGETS)
-htmldocs: .htmldoc-stamp checkref
+pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
+htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp
 	touch $@
@@ -747,6 +751,7 @@ docclean:
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
 	-rm -f .html-images-stamp
+	-rm -f $(DOTFILES:.dot=.svg)
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
