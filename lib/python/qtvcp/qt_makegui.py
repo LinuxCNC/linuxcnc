@@ -12,7 +12,7 @@ log = logger.getLogger(__name__)
 
 
 # Force the log level for this module
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self, methods):
@@ -95,6 +95,8 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
+        self.settings = QtCore.QSettings('QtVcp', path.BASENAME)
+        #print(self.settings.fileName())
         # make an instance with embedded variables so they
         # are available to all subclassed objects
         _HalWidgetBase(halcomp, path, self)
