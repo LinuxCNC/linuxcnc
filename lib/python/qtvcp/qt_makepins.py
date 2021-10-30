@@ -32,7 +32,7 @@ LOG = logger.getLogger(__name__)
 
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
     def __init__(self, halcomp, path, window, debug):
@@ -80,7 +80,6 @@ class QTPanel():
         LOG.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
-                self.window.registerHalWidget(widget)
                 idname = widget.objectName()
                 LOG.verbose('HAL-ified instance found: {}'.format(idname))
                 widget.hal_init()

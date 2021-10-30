@@ -50,6 +50,7 @@ class _HalWidgetBase_(object):
 
 
     def hal_init(self, HAL_NAME=None):
+        self.__class__.QTVCP_INSTANCE_.registerHalWidget(self)
         if HAL_NAME is not None:
             self.HAL_NAME_ = str(HAL_NAME)
         else:
