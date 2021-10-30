@@ -369,9 +369,12 @@ Pressing cancel will close linuxcnc.""" % target)
     def shutdown(self,signum=None,stack_frame=None):
         try:
             self.panel.window.shutdown()
+        except Exception as e:
+            print (e)
+        try:
             self.panel.shutdown()
-        except AttributeError:
-            pass
+        except Exception as e:
+            print (e)
         STATUS.shutdown()
         try:
             self.halcomp.exit()
