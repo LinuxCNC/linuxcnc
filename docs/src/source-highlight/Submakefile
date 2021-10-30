@@ -12,8 +12,8 @@ EMCLANGS=$(wildcard $(LOC_HL_DIR)/*.lang)
 GREPARG= $(patsubst %, -e %,$(EMCLANGS))
 
 # examples
-SOURCE_HIGHLIGHT_PDF_TARGETS := $(patsubst %.txt, %.pdf, $(wildcard $(LOC_HL_DIR)/*.txt))
-SOURCE_HIGHLIGHT_HTML_TARGETS := $(patsubst %.txt, %.html ,$(wildcard $(LOC_HL_DIR)/*.txt))
+SOURCE_HIGHLIGHT_PDF_TARGETS := $(patsubst %.adoc, %.pdf, $(wildcard $(LOC_HL_DIR)/*.txt))
+SOURCE_HIGHLIGHT_HTML_TARGETS := $(patsubst %.adoc, %.html ,$(wildcard $(LOC_HL_DIR)/*.txt))
 
 # tests with HTML output without going through asciidoc
 TEST_SRCS := hal-test.hal ini-test.ini ngc-test.ngc
@@ -56,8 +56,8 @@ docclean: clean-source-highlight
 clean-source-highlight:
 	-rm -rf local $(SOURCE_HIGHLIGHT_HTML_TARGETS) $(SOURCE_HIGHLIGHT_PDF_TARGETS) $(TEST_TARGETS)
 
-$(SOURCE_HIGHLIGHT_PDF_TARGETS):  %.pdf: %.txt
+$(SOURCE_HIGHLIGHT_PDF_TARGETS):  %.pdf: %.adoc
 	a2x -v -f pdf $<
 
-$(SOURCE_HIGHLIGHT_HTML_TARGETS): %.html: %.txt
+$(SOURCE_HIGHLIGHT_HTML_TARGETS): %.html: %.adoc
 	asciidoc $(ASCIIDOC_ARGS) -v  $<

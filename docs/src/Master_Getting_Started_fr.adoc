@@ -21,12 +21,12 @@ image::common/images/emc2-intro.*[]
 
 The LinuxCNC Team
 
-include::common/overleaf_fr.txt[]
+include::common/overleaf_fr.adoc[]
 
-// include::common/outdated-notice_fr.txt[]
+// include::common/outdated-notice_fr.adoc[]
 
-include::getting-started/Getting-Started-with-LinuxCNC.contents_fr.txt[]
+include::getting-started/Getting-Started-with-LinuxCNC.contents_fr.adoc[]
 
-include::common/GPLD_Copyright_fr.txt[]
+include::common/GPLD_Copyright_fr.adoc[]
 
 // vim: set syntax=asciidoc:

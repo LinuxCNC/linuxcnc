@@ -20,11 +20,11 @@ LinuxCNC V{lversion}, {date}
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf_es.txt[]
+include::common/overleaf_es.adoc[]
 
 = LinuxCNC History
 
-include::common/emc-history_es.txt[]
+include::common/emc-history_es.adoc[]
 
 :leveloffset: 0
 
@@ -36,27 +36,27 @@ include::common/emc-history_es.txt[]
 
 :leveloffset: 2
 
-include::user/user-foreword_es.txt[]
+include::user/user-foreword_es.adoc[]
 
-include::user/user-intro_es.txt[]
+include::user/user-intro_es.adoc[]
 
-include::user/user-concepts_es.txt[]
+include::user/user-concepts_es.adoc[]
 
-include::user/starting-linuxcnc_es.txt[]
+include::user/starting-linuxcnc_es.adoc[]
 
-include::gcode/machining-center_es.txt[]
+include::gcode/machining-center_es.adoc[]
 
-include::getting-started/running-linuxcnc_es.txt[]
+include::getting-started/running-linuxcnc_es.adoc[]
 
-include::config/stepconf_es.txt[]
+include::config/stepconf_es.adoc[]
 
-include::config/pncconf_es.txt[]
+include::config/pncconf_es.adoc[]
 
-include::common/linux-faq_es.txt[]
+include::common/linux-faq_es.adoc[]
 
-include::lathe/lathe-user_es.txt[]
+include::lathe/lathe-user_es.adoc[]
 
-include::plasma/plasma-cnc-primer_es.txt[]
+include::plasma/plasma-cnc-primer_es.adoc[]
 
 :leveloffset: 1
 
@@ -64,17 +64,17 @@ include::plasma/plasma-cnc-primer_es.txt[]
 
 :leveloffset: 2
 
-include::gui/axis_es.txt[]
+include::gui/axis_es.adoc[]
 
-include::gui/gmoccapy_es.txt[]
+include::gui/gmoccapy_es.adoc[]
 
-include::gui/ngcgui_es.txt[]
+include::gui/ngcgui_es.adoc[]
 
-include::gui/touchy_es.txt[]
+include::gui/touchy_es.adoc[]
 
-include::gui/gscreen_es.txt[]
+include::gui/gscreen_es.adoc[]
 
-include::gui/tklinuxcnc_es.txt[]
+include::gui/tklinuxcnc_es.adoc[]
 
 :leveloffset: 1
 
@@ -82,23 +82,23 @@ include::gui/tklinuxcnc_es.txt[]
 
 :leveloffset: 2
 
-include::gcode/coordinates_es.txt[]
+include::gcode/coordinates_es.adoc[]
 
-// include::gcode/overview_es.txt[]
+// include::gcode/overview_es.adoc[]
 
-include::gcode/g-code_es.txt[]
+include::gcode/g-code_es.adoc[]
 
-include::gcode/m-code_es.txt[]
+include::gcode/m-code_es.adoc[]
 
-include::gcode/o-code_es.txt[]
+include::gcode/o-code_es.adoc[]
 
-include::gcode/other-code_es.txt[]
+include::gcode/other-code_es.adoc[]
 
-include::examples/gcode_es.txt[]
+include::examples/gcode_es.adoc[]
 
-include::gcode/rs274ngc_es.txt[]
+include::gcode/rs274ngc_es.adoc[]
 
-// include::gui/image-to-gcode_es.txt[]
+// include::gui/image-to-gcode_es.adoc[]
 
 :leveloffset: 1
 
@@ -106,9 +106,9 @@ include::gcode/rs274ngc_es.txt[]
 
 :leveloffset: 2
 
-include::gcode/tool-compensation_es.txt[]
+include::gcode/tool-compensation_es.adoc[]
 
-include::gui/tooledit_es.txt[]
+include::gui/tooledit_es.adoc[]
 
 :leveloffset: 0
 
@@ -120,13 +120,13 @@ include::gui/tooledit_es.txt[]
 
 :leveloffset: 2
 
-include::config/integrator-concepts_es.txt[]
+include::config/integrator-concepts_es.adoc[]
 
-include::install/latency-test_es.txt[]
+include::install/latency-test_es.adoc[]
 
-include::motion/tweaking-steppers_es.txt[]
+include::motion/tweaking-steppers_es.adoc[]
 
-include::config/stepper-diagnostics_es.txt[]
+include::config/stepper-diagnostics_es.adoc[]
 
 :leveloffset: 1
 
@@ -134,21 +134,21 @@ include::config/stepper-diagnostics_es.txt[]
 
 :leveloffset: 2
 
-// include::config/stepper-quickstart_es.txt[]
+// include::config/stepper-quickstart_es.adoc[]
 
-include::config/ini-config_es.txt[]
+include::config/ini-config_es.adoc[]
 
-include::config/ini-homing_es.txt[]
+include::config/ini-homing_es.adoc[]
 
-include::config/lathe-config_es.txt[]
+include::config/lathe-config_es.adoc[]
 
-include::hal/haltcl_es.txt[]
+include::hal/haltcl_es.adoc[]
 
-include::remap/remap_es.txt[]
+include::remap/remap_es.adoc[]
 
-include::config/moveoff_es.txt[]
+include::config/moveoff_es.adoc[]
 
-include::config/stepper_es.txt[]
+include::config/stepper_es.adoc[]
 
 :leveloffset: 1
 
@@ -156,11 +156,11 @@ include::config/stepper_es.txt[]
 
 :leveloffset: 2
 
-// include::gui/pyvcp_es.txt[]
+// include::gui/pyvcp_es.adoc[]
 
-// include::gui/pyvcp-examples_es.txt[]
+// include::gui/pyvcp-examples_es.adoc[]
 
-// include::gui/gladevcp_es.txt[]
+// include::gui/gladevcp_es.adoc[]
 
 :leveloffset: 1
 
@@ -168,15 +168,15 @@ include::config/stepper_es.txt[]
 
 :leveloffset: 2
 
-// include::gui/panelui_es.txt[]
+// include::gui/panelui_es.adoc[]
 
-// include::gui/halui_es.txt[]
+// include::gui/halui_es.adoc[]
 
-include::hal/halui-examples_es.txt[]
+include::hal/halui-examples_es.adoc[]
 
-include::config/python-interface_es.txt[]
+include::config/python-interface_es.adoc[]
 
-// include::gui/vismach_es.txt[]
+// include::gui/vismach_es.adoc[]
 
 :leveloffset: 1
 
@@ -184,33 +184,33 @@ include::config/python-interface_es.txt[]
 
 :leveloffset: 2
 
-include::hal/parallel-port_es.txt[]
+include::hal/parallel-port_es.adoc[]
 
-// include::drivers/ax5214h_es.txt[]
+// include::drivers/ax5214h_es.adoc[]
 
-// include::drivers/gs2_es.txt[]
+// include::drivers/gs2_es.adoc[]
 
-// include::drivers/hostmot2_es.txt[]
+// include::drivers/hostmot2_es.adoc[]
 
-// include::drivers/motenc_es.txt[]
+// include::drivers/motenc_es.adoc[]
 
-// include::drivers/mb2hal_es.txt[]
+// include::drivers/mb2hal_es.adoc[]
 
-// include::drivers/opto22_es.txt[]
+// include::drivers/opto22_es.adoc[]
 
-// include::drivers/pico-ppmc_es.txt[]
+// include::drivers/pico-ppmc_es.adoc[]
 
-// include::drivers/pluto-p_es.txt[]
+// include::drivers/pluto-p_es.adoc[]
 
-// include::drivers/pmx485_es.txt[]
+// include::drivers/pmx485_es.adoc[]
 
-// include::drivers/servo-to-go_es.txt[]
+// include::drivers/servo-to-go_es.adoc[]
 
-// include::drivers/shuttle_es.txt[]
+// include::drivers/shuttle_es.adoc[]
 
-// include::drivers/gm_es.txt[]
+// include::drivers/gm_es.adoc[]
 
-// include::drivers/vfs11_es.txt[]
+// include::drivers/vfs11_es.adoc[]
 
 :leveloffset: 1
 
@@ -218,13 +218,13 @@ include::hal/parallel-port_es.txt[]
 
 :leveloffset: 2
 
-include::examples/pci-parallel-port_es.txt[]
+include::examples/pci-parallel-port_es.adoc[]
 
-include::examples/spindle_es.txt[]
+include::examples/spindle_es.adoc[]
 
-// include::examples/mpg_es.txt[]
+// include::examples/mpg_es.adoc[]
 
-include::examples/gs2-example_es.txt[]
+include::examples/gs2-example_es.adoc[]
 
 :leveloffset: 1
 
@@ -232,11 +232,11 @@ include::examples/gs2-example_es.txt[]
 
 :leveloffset: 2
 
-// include::ladder/ladder-intro_es.txt[]
+// include::ladder/ladder-intro_es.adoc[]
 
-// include::ladder/classic-ladder_es.txt[]
+// include::ladder/classic-ladder_es.adoc[]
 
-// include::ladder/ladder-examples_es.txt[]
+// include::ladder/ladder-examples_es.adoc[]
 
 :leveloffset: 1
 
@@ -244,33 +244,33 @@ include::examples/gs2-example_es.txt[]
 
 :leveloffset: 2
 
-include::hal/intro_es.txt[]
+include::hal/intro_es.adoc[]
 
-include::hal/basic-hal_es.txt[]
+include::hal/basic-hal_es.adoc[]
 
-include::hal/twopass_es.txt[]
+include::hal/twopass_es.adoc[]
 
-include::hal/tutorial_es.txt[]
+include::hal/tutorial_es.adoc[]
 
-include::hal/general-ref_es.txt[]
+include::hal/general-ref_es.adoc[]
 
-include::config/core-components_es.txt[]
+include::config/core-components_es.adoc[]
 
-include::hal/canonical-devices_es.txt[]
+include::hal/canonical-devices_es.adoc[]
 
-include::hal/tools_es.txt[]
+include::hal/tools_es.adoc[]
 
-include::hal/halshow_es.txt[]
+include::hal/halshow_es.adoc[]
 
-include::hal/components_es.txt[]
+include::hal/components_es.adoc[]
 
-include::hal/rtcomps_es.txt[]
+include::hal/rtcomps_es.adoc[]
 
-include::hal/hal-examples_es.txt[]
+include::hal/hal-examples_es.adoc[]
 
-include::hal/comp_es.txt[]
+include::hal/comp_es.adoc[]
 
-include::hal/halmodule_es.txt[]
+include::hal/halmodule_es.adoc[]
 
 
 :leveloffset: 0
@@ -279,23 +279,23 @@ include::hal/halmodule_es.txt[]
 
 :leveloffset: 1
 
-include::motion/kinematics_es.txt[]
+include::motion/kinematics_es.adoc[]
 
-include::motion/dh-parameters_es.txt[]
+include::motion/dh-parameters_es.adoc[]
 
-include::motion/5-axis-kinematics_es.txt[]
+include::motion/5-axis-kinematics_es.adoc[]
 
-include::motion/pid-theory_es.txt[]
+include::motion/pid-theory_es.adoc[]
 
-include::motion/external-offsets_es.txt[]
+include::motion/external-offsets_es.adoc[]
 
-include::code/rs274_es.txt[]
+include::code/rs274_es.adoc[]
 
 :leveloffset: 0
 
-include::common/glossary_es.txt[]
+include::common/glossary_es.adoc[]
 
-include::common/gpld-copyright_es.txt[]
+include::common/gpld-copyright_es.adoc[]
 
 // = Index
 

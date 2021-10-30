@@ -12,7 +12,7 @@ LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 ifeq ($(BUILD_DOCS),yes)
-GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildcard ../docs/src/man/*/*.adoc))
 endif
 
 MAN_SRCS = $(sort \
@@ -36,302 +36,303 @@ endif
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
-	code/code-notes.txt \
-	code/style-guide.txt \
-	code/nml-messages.txt \
-	code/rs274.txt \
-	code/adding-configs.txt \
-	code/contributing-to-linuxcnc.txt \
-	code/building-linuxcnc.txt \
-	common/emc-history.txt \
-	common/glossary.txt \
-	common/gpld-copyright.txt \
-	common/overleaf.txt \
-	config/core-components.txt \
-	config/ini-config.txt \
-	config/ini-homing.txt \
-  config/iov2.txt \
-	config/integrator-concepts.txt \
-	config/lathe-config.txt \
-	config/moveoff.txt \
-	config/pncconf.txt \
-	config/python-interface.txt \
-	config/stepconf.txt \
-	config/stepper-diagnostics.txt \
-	config/stepper.txt \
-	config/stepper-quickstart.txt \
-	drivers/ax5214h.txt \
-	drivers/vfs11.txt \
-	drivers/mitsub_vfd.txt \
-	drivers/gm.txt \
-	drivers/gs2.txt \
-	drivers/hostmot2.txt \
-	drivers/mb2hal.txt \
-	drivers/motenc.txt \
-	drivers/opto22.txt \
-	drivers/pico-ppmc.txt \
-	drivers/pluto-p.txt \
-	drivers/pmx485.txt \
-	drivers/servo-to-go.txt \
-	drivers/shuttle.txt \
-	examples/gcode.txt \
-	examples/gs2-example.txt \
-	examples/mpg.txt \
-	examples/pci-parallel-port.txt \
-	examples/spindle.txt \
-	gcode/coordinates.txt \
-	gcode/g-code.txt \
-	gcode/machining-center.txt \
-	gcode/m-code.txt \
-	gcode/o-code.txt \
-	gcode/other-code.txt \
-	gcode/overview.txt \
-	gcode/rs274ngc.txt \
-	gcode/tool-compensation.txt \
-	getting-started/about-linuxcnc.txt \
-	getting-started/getting-linuxcnc.txt \
-	common/linux-faq.txt \
-	getting-started/running-linuxcnc.txt \
-	getting-started/system-requirements.txt \
-	getting-started/updating-linuxcnc.txt \
-	gui/axis.txt \
-	gui/gladevcp.txt \
-	gui/gmoccapy.txt \
-	gui/gmoccapy-hu.txt \
-	gui/gscreen.txt \
-	gui/qtdragon.txt \
-	gui/qtvcp.txt \
-	gui/qtvcp_VCPpanels.txt \
-	gui/qtvcp_widgets.txt \
-	gui/qtvcp_libraries.txt \
-	gui/qtvcp_custom_widgets.txt \
-	gui/qtvcp_code_snippets.txt \
-	gui/qtvcp_development.txt \
-	gui/panelui.txt \
-	gui/halui.txt \
-	gui/image-to-gcode.txt \
-	gui/ngcgui.txt \
-	gui/tklinuxcnc.txt \
-	gui/tooledit.txt \
-	gui/touchy.txt \
-	gui/GStat.txt \
-	gui/vismach.txt \
-	hal/basic-hal.txt \
-	hal/canonical-devices.txt \
-	hal/comp.txt \
-	hal/components.txt \
-	hal/general-ref.txt \
-	hal/hal-examples.txt \
-	hal/halmodule.txt \
-	hal/halshow.txt \
-	hal/haltcl.txt \
-	hal/halui-examples.txt \
-	hal/intro.txt \
-	hal/parallel-port.txt \
-	gui/pyvcp.txt \
-	gui/pyvcp-examples.txt \
-	hal/rtcomps.txt \
-	hal/tools.txt \
-	hal/tutorial.txt \
-	hal/twopass.txt \
-	install/latency-test.txt \
-	integrator/steppers.txt \
-	integrator/stepper-timing.txt \
-	integrator/wiring.txt \
-	ladder/classic-ladder.txt \
-	ladder/ladder-examples.txt \
-	ladder/ladder-intro.txt \
-	lathe/lathe-user.txt \
-	motion/kinematics.txt \
-	motion/dh-parameters.txt \
-	motion/pid-theory.txt \
-	motion/tweaking-steppers.txt \
-	motion/5-axis-kinematics.txt \
-	motion/external-offsets.txt \
-	motion/switchkins.txt \
-	tooldatabase/tooldatabase.txt \
-	plasma/qtplasmac.txt \
-	plasma/plasma-cnc-primer.txt \
-	remap/remap.txt \
-	user/starting-linuxcnc.txt \
-	user/user-concepts.txt \
-	user/user-foreword.txt \
-	user/user-intro.txt \
-	Master_Getting_Started.txt \
-	Master_Documentation.txt \
-	Master_Developer.txt
+	code/code-notes.adoc \
+	code/style-guide.adoc \
+	code/nml-messages.adoc \
+	code/rs274.adoc \
+	code/adding-configs.adoc \
+	code/contributing-to-linuxcnc.adoc \
+	code/building-linuxcnc.adoc \
+	common/emc-history.adoc \
+	common/glossary.adoc \
+	common/gpld-copyright.adoc \
+	common/overleaf.adoc \
+	config/core-components.adoc \
+	config/ini-config.adoc \
+	config/ini-homing.adoc \
+  config/iov2.adoc \
+	config/integrator-concepts.adoc \
+	config/lathe-config.adoc \
+	config/moveoff.adoc \
+	config/pncconf.adoc \
+	config/python-interface.adoc \
+	config/stepconf.adoc \
+	config/stepper-diagnostics.adoc \
+	config/stepper.adoc \
+	config/stepper-quickstart.adoc \
+	drivers/ax5214h.adoc \
+	drivers/vfs11.adoc \
+	drivers/mitsub_vfd.adoc \
+	drivers/gm.adoc \
+	drivers/gs2.adoc \
+	drivers/hostmot2.adoc \
+	drivers/mb2hal.adoc \
+	drivers/motenc.adoc \
+	drivers/opto22.adoc \
+	drivers/pico-ppmc.adoc \
+	drivers/pluto-p.adoc \
+	drivers/pmx485.adoc \
+	drivers/servo-to-go.adoc \
+	drivers/shuttle.adoc \
+	examples/gcode.adoc \
+	examples/gs2-example.adoc \
+	examples/mpg.adoc \
+	examples/pci-parallel-port.adoc \
+	examples/spindle.adoc \
+	gcode/coordinates.adoc \
+	gcode/g-code.adoc \
+	gcode/machining-center.adoc \
+	gcode/m-code.adoc \
+	gcode/o-code.adoc \
+	gcode/other-code.adoc \
+	gcode/overview.adoc \
+	gcode/rs274ngc.adoc \
+	gcode/tool-compensation.adoc \
+	getting-started/about-linuxcnc.adoc \
+	getting-started/getting-linuxcnc.adoc \
+	common/linux-faq.adoc \
+	getting-started/running-linuxcnc.adoc \
+	getting-started/system-requirements.adoc \
+	getting-started/updating-linuxcnc.adoc \
+	gui/axis.adoc \
+	gui/gladevcp.adoc \
+	gui/gmoccapy.adoc \
+	gui/gmoccapy-hu.adoc \
+	gui/gscreen.adoc \
+	gui/qtdragon.adoc \
+	gui/qtvcp.adoc \
+	gui/qtvcp_VCPpanels.adoc \
+	gui/qtvcp_widgets.adoc \
+	gui/qtvcp_libraries.adoc \
+	gui/qtvcp_custom_widgets.adoc \
+	gui/qtvcp_code_snippets.adoc \
+	gui/qtvcp_development.adoc \
+	gui/panelui.adoc \
+	gui/halui.adoc \
+	gui/image-to-gcode.adoc \
+	gui/ngcgui.adoc \
+	gui/tklinuxcnc.adoc \
+	gui/tooledit.adoc \
+	gui/touchy.adoc \
+	gui/GStat.adoc \
+	gui/vismach.adoc \
+	hal/basic-hal.adoc \
+	hal/canonical-devices.adoc \
+	hal/comp.adoc \
+	hal/components.adoc \
+	hal/general-ref.adoc \
+	hal/hal-examples.adoc \
+	hal/halmodule.adoc \
+	hal/halshow.adoc \
+	hal/haltcl.adoc \
+	hal/halui-examples.adoc \
+	hal/intro.adoc \
+	hal/parallel-port.adoc \
+	gui/pyvcp.adoc \
+	gui/pyvcp-examples.adoc \
+	hal/rtcomps.adoc \
+	hal/tools.adoc \
+	hal/tutorial.adoc \
+	hal/twopass.adoc \
+	install/latency-test.adoc \
+	integrator/steppers.adoc \
+	integrator/stepper-timing.adoc \
+	integrator/wiring.adoc \
+	ladder/classic-ladder.adoc \
+	ladder/ladder-examples.adoc \
+	ladder/ladder-intro.adoc \
+	lathe/lathe-user.adoc \
+	motion/kinematics.adoc \
+	motion/dh-parameters.adoc \
+	motion/pid-theory.adoc \
+	motion/tweaking-steppers.adoc \
+	motion/5-axis-kinematics.adoc \
+	motion/external-offsets.adoc \
+	motion/switchkins.adoc \
+	tooldatabase/tooldatabase.adoc \
+	plasma/qtplasmac.adoc \
+	plasma/plasma-cnc-primer.adoc \
+	remap/remap.adoc \
+	user/starting-linuxcnc.adoc \
+	user/user-concepts.adoc \
+	user/user-foreword.adoc \
+	user/user-intro.adoc \
+	Master_Getting_Started.adoc \
+	Master_Documentation.adoc \
+	Master_Developer.adoc
 
 DOC_SRCS_FR := \
-	common/Glossary_fr.txt \
-	common/GPLD_Copyright_fr.txt \
-	common/Integrator_Concepts_fr.txt \
-	common/outdated-notice_fr.txt \
-	common/overleaf_fr.txt \
-	common/Stepper_Diagnostics_fr.txt \
-	config/linuxcnc2hal_fr.txt \
-	config/ini_config_fr.txt \
-	config/ini_homing_fr.txt \
-	config/lathe_config_fr.txt \
-	config/stepper_fr.txt \
-	drivers/AX5214H_fr.txt \
-	drivers/GS2_fr.txt \
-	drivers/hostmot2_fr.txt \
-	drivers/motenc_fr.txt \
-	drivers/opto22_fr.txt \
-	drivers/pico_ppmc_fr.txt \
-	drivers/pluto_p_fr.txt \
-	drivers/servo_to_go_fr.txt \
-	examples/gcode_fr.txt \
-	examples/gs2_example_fr.txt \
-	examples/misc_fr.txt \
-	examples/mpg_fr.txt \
-	examples/pci_parallel_port_fr.txt \
-	examples/spindle_fr.txt \
-	gcode/coordinates_fr.txt \
-	gcode/gcode_fr.txt \
-	gcode/machining_center_fr.txt \
-	gcode/m-code_fr.txt \
-	gcode/o-code_fr.txt \
-	gcode/other-code_fr.txt \
-	gcode/overview_fr.txt \
-	gcode/rs274ngc_fr.txt \
-	gcode/tool_compensation_fr.txt \
-	gui/axis_fr.txt \
-	gui/filter_programs.txt \
-	gui/gladevcp_fr.txt \
-	gui/image-to-gcode_fr.txt \
-	gui/ngcgui_fr.txt \
-	gui/tklinuxcnc_fr.txt \
-	gui/tooledit_fr.txt\
-	gui/touchy_fr.txt \
-	hal/basic_hal_fr.txt \
-	hal/comp_fr.txt \
-	hal/components_fr.txt \
-	hal/general_ref_fr.txt \
-	hal/hal-examples_fr.txt \
-	hal/halmodule_fr.txt \
-	hal/halshow_fr.txt \
-	hal/haltcl_fr.txt \
-	hal/halui_fr.txt \
-	hal/intro_fr.txt \
-	hal/parallel_port_fr.txt \
-	gui/pyvcp_fr.txt \
-	gui/pyvcp_examples_fr.txt \
-	hal/rtcomps_fr.txt \
-	hal/tutorial_fr.txt \
-	install/Latency_Test_fr.txt \
-	ladder/classic_ladder_fr.txt \
-	ladder/ladder_examples_fr.txt \
-	ladder/ladder_intro_fr.txt \
-	lathe/lathe-user_fr.txt \
-	motion/kinematics_fr.txt \
-	motion/pid_theory_fr.txt \
-	motion/tweaking_steppers_fr.txt \
-	user/user-concepts_fr.txt \
-	user/user-foreword_fr.txt \
-	user/user-intro_fr.txt \
-	Master_Getting_Started_fr.txt \
-	getting-started/index_fr.txt \
-	Master_User_fr.txt \
-	Master_HAL_fr.txt \
-	Master_Integrator_fr.txt \
+	common/Glossary_fr.adoc \
+	common/GPLD_Copyright_fr.adoc \
+	common/Integrator_Concepts_fr.adoc \
+	common/outdated-notice_fr.adoc \
+	common/overleaf_fr.adoc \
+	common/Stepper_Diagnostics_fr.adoc \
+	config/linuxcnc2hal_fr.adoc \
+	config/ini_config_fr.adoc \
+	config/ini_homing_fr.adoc \
+	config/lathe_config_fr.adoc \
+	config/stepper_fr.adoc \
+	drivers/AX5214H_fr.adoc \
+	drivers/GS2_fr.adoc \
+	drivers/hostmot2_fr.adoc \
+	drivers/motenc_fr.adoc \
+	drivers/opto22_fr.adoc \
+	drivers/pico_ppmc_fr.adoc \
+	drivers/pluto_p_fr.adoc \
+	drivers/servo_to_go_fr.adoc \
+	examples/gcode_fr.adoc \
+	examples/gs2_example_fr.adoc \
+	examples/misc_fr.adoc \
+	examples/mpg_fr.adoc \
+	examples/pci_parallel_port_fr.adoc \
+	examples/spindle_fr.adoc \
+	gcode/coordinates_fr.adoc \
+	gcode/gcode_fr.adoc \
+	gcode/machining_center_fr.adoc \
+	gcode/m-code_fr.adoc \
+	gcode/o-code_fr.adoc \
+	gcode/other-code_fr.adoc \
+	gcode/overview_fr.adoc \
+	gcode/rs274ngc_fr.adoc \
+	gcode/tool_compensation_fr.adoc \
+	gui/axis_fr.adoc \
+	gui/filter_programs.adoc \
+	gui/gladevcp_fr.adoc \
+	gui/image-to-gcode_fr.adoc \
+	gui/ngcgui_fr.adoc \
+	gui/tklinuxcnc_fr.adoc \
+	gui/tooledit_fr.adoc\
+	gui/touchy_fr.adoc \
+	hal/basic_hal_fr.adoc \
+	hal/comp_fr.adoc \
+	hal/components_fr.adoc \
+	hal/general_ref_fr.adoc \
+	hal/hal-examples_fr.adoc \
+	hal/halmodule_fr.adoc \
+	hal/halshow_fr.adoc \
+	hal/haltcl_fr.adoc \
+	hal/halui_fr.adoc \
+	hal/intro_fr.adoc \
+	hal/parallel_port_fr.adoc \
+	gui/pyvcp_fr.adoc \
+	gui/pyvcp_examples_fr.adoc \
+	hal/rtcomps_fr.adoc \
+	hal/tutorial_fr.adoc \
+	install/Latency_Test_fr.adoc \
+	ladder/classic_ladder_fr.adoc \
+	ladder/ladder_examples_fr.adoc \
+	ladder/ladder_intro_fr.adoc \
+	lathe/lathe-user_fr.adoc \
+	motion/kinematics_fr.adoc \
+	motion/pid_theory_fr.adoc \
+	motion/tweaking_steppers_fr.adoc \
+	user/user-concepts_fr.adoc \
+	user/user-foreword_fr.adoc \
+	user/user-intro_fr.adoc \
+	Master_Getting_Started_fr.adoc \
+	getting-started/index_fr.adoc \
+	Master_User_fr.adoc \
+	Master_HAL_fr.adoc \
+	Master_Integrator_fr.adoc \
 
 DOC_SRCS_ES := \
-	code/adding-configs_es.txt \
-	code/building-linuxcnc_es.txt \
-	code/code-notes_es.txt \
-	code/contributing-to-linuxcnc_es.txt \
-	code/nml-messages_es.txt \
-	code/rs274_es.txt \
-	code/style-guide_es.txt \
-	common/emc-history_es.txt \
-	common/glossary_es.txt \
-	common/gpld-copyright_es.txt \
-	common/linux-faq_es.txt \
-	common/overleaf_es.txt \
-	config/core-components_es.txt \
-	config/ini-config_es.txt \
-	config/ini-homing_es.txt \
-	config/integrator-concepts_es.txt \
-	config/lathe-config_es.txt \
-	config/moveoff_es.txt \
-	config/pncconf_es.txt \
-	config/python-interface_es.txt \
-	config/stepconf_es.txt \
-	config/stepper_es.txt \
-	config/stepper-diagnostics_es.txt \
-	config/stepper-quickstart_es.txt \
-	examples/gcode_es.txt \
-	examples/gs2-example_es.txt \
-	examples/pci-parallel-port_es.txt \
-	examples/spindle_es.txt \
-	gcode/coordinates_es.txt \
-	gcode/g-code_es.txt \
-	gcode/m-code_es.txt \
-	gcode/machining-center_es.txt \
-	gcode/o-code_es.txt \
-	gcode/other-code_es.txt \
-	gcode/overview_es.txt \
-	gcode/rs274ngc_es.txt \
-	gcode/tool-compensation_es.txt \
-	getting-started/about-linuxcnc_es.txt \
-	getting-started/getting-linuxcnc_es.txt \
-	getting-started/running-linuxcnc_es.txt \
-	getting-started/system-requirements_es.txt \
-	getting-started/updating-linuxcnc_es.txt \
-	gui/axis_es.txt \
-	gui/gladevcp_es.txt \
-	gui/gmoccapy_es.txt \
-	gui/gscreen_es.txt \
-	gui/halui_es.txt \
-	gui/ngcgui_es.txt\
-	gui/pyvcp_es.txt \
-	gui/pyvcp-examples_es.txt \
-	gui/qtdragon_es.txt \
-	gui/qtvcp_es.txt \
-	gui/qtvcp_widgets_es.txt \
-	gui/qtvcp_custom_widgets_es.txt \
-	gui/qtvcp_code_snippets_es.txt \
-	gui/qtvcp_development_es.txt \
-	gui/tooledit_es.txt \
-	gui/touchy_es.txt \
-	hal/basic-hal_es.txt \
-	hal/canonical-devices_es.txt \
-	hal/comp_es.txt \
-	hal/components_es.txt \
-	hal/general-ref_es.txt \
-	hal/hal-examples_es.txt \
-	hal/halmodule_es.txt \
-	hal/halshow_es.txt \
-	hal/haltcl_es.txt \
-	hal/halui-examples_es.txt \
-	hal/intro_es.txt \
-	hal/parallel-port_es.txt \
-	hal/rtcomps_es.txt \
-	hal/tools_es.txt \
-	hal/tutorial_es.txt \
-	hal/twopass_es.txt \
-	install/latency-test_es.txt \
-	lathe/lathe-user_es.txt \
-	ladder/classic-ladder_es.txt \
-	motion/kinematics_es.txt \
-	motion/dh-parameters_es.txt \
-	motion/5-axis-kinematics_es.txt \
-	motion/external-offsets_es.txt \
-	motion/pid-theory_es.txt \
-	motion/tweaking-steppers_es.txt \
-	plasma/plasma-cnc-primer_es.txt \
-	remap/remap_es.txt \
-	user/starting-linuxcnc_es.txt \
-	user/user-concepts_es.txt \
-	user/user-foreword_es.txt \
-	user/user-intro_es.txt \
-	Master_Getting_Started_es.txt \
-	Master_Documentation_es.txt \
-	Master_Developer_es.txt \
+	code/adding-configs_es.adoc \
+	code/building-linuxcnc_es.adoc \
+	code/code-notes_es.adoc \
+	code/contributing-to-linuxcnc_es.adoc \
+	code/nml-messages_es.adoc \
+	code/rs274_es.adoc \
+	code/style-guide_es.adoc \
+	common/emc-history_es.adoc \
+	common/glossary_es.adoc \
+	common/gpld-copyright_es.adoc \
+	common/linux-faq_es.adoc \
+	common/overleaf_es.adoc \
+	config/core-components_es.adoc \
+	config/ini-config_es.adoc \
+	config/ini-homing_es.adoc \
+	config/integrator-concepts_es.adoc \
+	config/lathe-config_es.adoc \
+	config/moveoff_es.adoc \
+	config/pncconf_es.adoc \
+	config/python-interface_es.adoc \
+	config/stepconf_es.adoc \
+	config/stepper_es.adoc \
+	config/stepper-diagnostics_es.adoc \
+	config/stepper-quickstart_es.adoc \
+	examples/gcode_es.adoc \
+	examples/gs2-example_es.adoc \
+	examples/pci-parallel-port_es.adoc \
+	examples/spindle_es.adoc \
+	gcode/coordinates_es.adoc \
+	gcode/g-code_es.adoc \
+	gcode/m-code_es.adoc \
+	gcode/machining-center_es.adoc \
+	gcode/o-code_es.adoc \
+	gcode/other-code_es.adoc \
+	gcode/overview_es.adoc \
+	gcode/rs274ngc_es.adoc \
+	gcode/tool-compensation_es.adoc \
+	getting-started/about-linuxcnc_es.adoc \
+	getting-started/getting-linuxcnc_es.adoc \
+	getting-started/running-linuxcnc_es.adoc \
+	getting-started/system-requirements_es.adoc \
+	getting-started/updating-linuxcnc_es.adoc \
+	gui/axis_es.adoc \
+	gui/gladevcp_es.adoc \
+	gui/gmoccapy_es.adoc \
+	gui/gscreen_es.adoc \
+	gui/halui_es.adoc \
+	gui/ngcgui_es.adoc\
+	gui/pyvcp_es.adoc \
+	gui/pyvcp-examples_es.adoc \
+	gui/qtdragon_es.adoc \
+	gui/qtvcp_es.adoc \
+	gui/qtvcp_widgets_es.adoc \
+	gui/qtvcp_custom_widgets_es.adoc \
+	gui/qtvcp_code_snippets_es.adoc \
+	gui/qtvcp_development_es.adoc \
+	gui/tooledit_es.adoc \
+	gui/touchy_es.adoc \
+	hal/basic-hal_es.adoc \
+	hal/canonical-devices_es.adoc \
+	hal/comp_es.adoc \
+	hal/components_es.adoc \
+	hal/general-ref_es.adoc \
+	hal/hal-examples_es.adoc \
+	hal/halmodule_es.adoc \
+	hal/halshow_es.adoc \
+	hal/haltcl_es.adoc \
+	hal/halui-examples_es.adoc \
+	hal/intro_es.adoc \
+	hal/parallel-port_es.adoc \
+	hal/rtcomps_es.adoc \
+	hal/tools_es.adoc \
+	hal/tutorial_es.adoc \
+	hal/twopass_es.adoc \
+	install/latency-test_es.adoc \
+	lathe/lathe-user_es.adoc \
+	ladder/classic-ladder_es.adoc \
+	motion/kinematics_es.adoc \
+	motion/dh-parameters_es.adoc \
+	motion/5-axis-kinematics_es.adoc \
+	motion/external-offsets_es.adoc \
+	motion/pid-theory_es.adoc \
+	motion/tweaking-steppers_es.adoc \
+	plasma/plasma-cnc-primer_es.adoc \
+	remap/remap_es.adoc \
+	user/starting-linuxcnc_es.adoc \
+	user/user-concepts_es.adoc \
+	user/user-foreword_es.adoc \
+	user/user-intro_es.adoc \
+	Master_Getting_Started_es.adoc \
+	Master_Documentation_es.adoc \
+	Master_Developer_es.adoc \
 
 
 DOC_SRCS_CN := \
+<<<<<<< HEAD
 	common/overleaf_cn.txt \
 	common/glossary_cn.txt \
 	common/gpld-copyright_cn.txt \
@@ -341,17 +342,28 @@ DOC_SRCS_CN := \
 	getting-started/about-linuxcnc_cn.txt \
 	getting-started/updating-linuxcnc_cn.txt \
 	Master_Getting_Started_cn.txt \
+=======
+	common/overleaf-cn.adoc \
+	common/glossary-cn.adoc \
+	common/gpld-copyright-cn.adoc \
+	getting-started/getting-linuxcnc-cn.adoc \
+	getting-started/system-requirements-cn.adoc \
+	getting-started/running-linuxcnc-cn.adoc \
+	getting-started/about-linuxcnc-cn.adoc \
+	getting-started/updating-linuxcnc-cn.adoc \
+	Master_Getting_Started_cn.adoc \
+>>>>>>> 62e91b09f (Also updating references between .adoc files, Makefiles)
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_CN)
 
-DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
+DOC_SRCS_TXT := $(patsubst %.adoc, %.adoc, $(DOC_SRCS))
 
 DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
 DOC_SRCS_CN_SMALL := $(filter-out Master_%,$(DOC_SRCS_CN))
 
-DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_SRCS_HTML := $(patsubst %.adoc, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
@@ -419,8 +431,8 @@ A2X = a2x --xsltproc-opts "--nonet \
                           $(A2X_LATEX_ENCODING)"
 
 ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
-Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
+-include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS_TXT))
+Makefile: $(patsubst %.adoc, depends/%.d, $(DOC_SRCS_TXT))
 endif
 
 docs: manpages
@@ -569,19 +581,19 @@ $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.txt
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc
 	$(ECHO) Building $@
 	@rm -f $@
 	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
+depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
 
-objects/%.links-stamp: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/links.xslt
+objects/%.links-stamp: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/links.xslt
 	@mkdir -p `dirname $@`
 	asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm -f $@; exit $$X)
 	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
@@ -594,16 +606,16 @@ objects/%.links: objects/%.links-stamp
 # See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
 .PRECIOUS: objects/%.links-stamp
 
-objects/xref_en.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_EN_SMALL))
+objects/xref_en.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_EN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_es.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_ES_SMALL))
+objects/xref_es.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ES_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
+objects/xref_fr.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_FR_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_cn.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_CN_SMALL))
+objects/xref_cn.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_CN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
@@ -635,7 +647,7 @@ $(DOC_SRCDIR)/%.html: STYLES_SCRIPTS=$(shell \
     fi \
 )
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_en.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -648,7 +660,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -661,7 +673,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_es.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -674,7 +686,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_cn.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_cn.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -a linkcss \
@@ -781,8 +793,8 @@ endif
 # a2x spuriously warns that this --destination-dir is ignored.  It is *NOT*
 # ignored, don't remove it trying to fix the diagnostic.
 # For more information, see https://github.com/asciidoc/asciidoc/issues/44
-GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.txt, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.txt))
-$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
+GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
+$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 	@mkdir -p `dirname $@`
 	a2x -v --doctype manpage \
 		--format manpage \
