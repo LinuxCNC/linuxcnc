@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
-Manuel de l'intégrateur V{lversion}, {localdate}
-================================================
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+Manuel de l'intégrateur V{lversion}, {date}
+===========================================
 :lang: fr
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 :leveloffset: 1
 

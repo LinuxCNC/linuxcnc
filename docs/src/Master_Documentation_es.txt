@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
-LinuxCNC V{lversion}, {localdate}
-=================================
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+LinuxCNC V{lversion}, {date}
+============================
 :ascii-ids:
 :lang: es
+:revdate: 2021-10-28
 
 = Contenido
 

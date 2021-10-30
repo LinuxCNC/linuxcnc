@@ -1,9 +1,11 @@
 :lversion: {sys: cat ../VERSION}
-Developer Manual V{lversion}, {localdate}
-=========================================
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+Developer Manual V{lversion}, {date}
+====================================
 
 :lang: en
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 
 == Introduction

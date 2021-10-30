@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
-Getting Started V{lversion}, {localdate}
-========================================
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+Getting Started V{lversion}, {date}
+===================================
 :lang: en
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 The LinuxCNC Team
 

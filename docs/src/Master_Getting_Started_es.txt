@@ -1,8 +1,10 @@
 :lversion: {sys: cat ../VERSION}
-Primeros Pasos V{lversion}, {localdate}
-========================================
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+Primeros Pasos V{lversion}, {date}
+==================================
 :lang: es
 :masterdir: {indir}
+:revdate: 2021-10-28
 
 [NOTE]
 Esta documentación no se ha actualizado desde LinuxCNC versión 2.5,

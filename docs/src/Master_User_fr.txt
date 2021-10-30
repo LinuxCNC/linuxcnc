@@ -1,10 +1,11 @@
 :lang: fr
 :toc:
-:localdate: {sys: date +%d/%m/%Y}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
 :ascii-ids:
 :lversion: {sys: cat ../VERSION}
-Manuel de l'utilisateur V{lversion}, {localdate}
-================================================
+:revdate: 2021-10-28
+Manuel de l'utilisateur V{lversion}, {date}
+===========================================
 
 [NOTE]
 Cette documentation n'a pas été mise à jour depuis LinuxCNC version 2.5,

@@ -1,10 +1,11 @@
 :lang: fr
 :toc:
-:localdate: {sys: date +%d/%m/%Y}
 :ascii-ids:
 :lversion: {sys: cat ../VERSION}
-Manuel de HAL V{lversion}; {localdate}
-======================================
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file $(git rev-parse --show-toplevel)/debian/changelog -S timestamp)" '+%d %b %Y'}
+:revdate: 2021-10-28
+Manuel de HAL V{lversion}; {date}
+=================================
 :masterdir: {indir}
 :leveloffset: 1
 
