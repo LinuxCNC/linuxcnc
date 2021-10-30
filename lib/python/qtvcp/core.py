@@ -163,6 +163,12 @@ class _QHal(object):
         except Exception as e:
             log.error("Qhal: Error getting value of {}\n {}".format(name, e))
 
+    def setp(self,name, value):
+        try:
+            return hal.set_p(name,value)
+        except Exception as e:
+            log.error("Qhal: Error setting value of {} to {}\n {}".format(name,value, e))
+
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 
     def __getitem__(self, k): return self.comp[k]
