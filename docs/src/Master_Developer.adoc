@@ -12,26 +12,26 @@ Developer Manual V{lversion}, {date}
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf.txt[]
+include::common/overleaf.adoc[]
 
 
 :leveloffset: 1
 
-include::code/code-notes.txt[]
+include::code/code-notes.adoc[]
 
-include::code/nml-messages.txt[]
+include::code/nml-messages.adoc[]
 
-include::code/style-guide.txt[]
+include::code/style-guide.adoc[]
 
-include::code/building-linuxcnc.txt[]
+include::code/building-linuxcnc.adoc[]
 
-include::code/adding-configs.txt[]
+include::code/adding-configs.adoc[]
 
-include::code/contributing-to-linuxcnc.txt[]
+include::code/contributing-to-linuxcnc.adoc[]
 
-include::common/glossary.txt[]
+include::common/glossary.adoc[]
 
-include::common/gpld-copyright.txt[]
+include::common/gpld-copyright.adoc[]
 
 // vim: set syntax=asciidoc:
 

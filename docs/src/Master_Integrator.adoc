@@ -8,10 +8,10 @@ Integrator Information V{lversion}, {date}
 
 :leveloffset: 1
 
-include::integrator/steppers.txt[]
+include::integrator/steppers.adoc[]
 
-include::integrator/stepper-timing.txt[]
+include::integrator/stepper-timing.adoc[]
 
-include::integrator/wiring.txt[]
+include::integrator/wiring.adoc[]
 
 // vim: set syntax=asciidoc:

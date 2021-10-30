@@ -20,19 +20,19 @@ The LinuxCNC Team
 
 image::common/images/emc2-intro.*[]
 
-include::common/overleaf_es.txt[]
+include::common/overleaf_es.adoc[]
 
-include::getting-started/about-linuxcnc_es.txt[]
+include::getting-started/about-linuxcnc_es.adoc[]
 
-include::getting-started/system-requirements_es.txt[]
+include::getting-started/system-requirements_es.adoc[]
 
-include::getting-started/getting-linuxcnc_es.txt[]
+include::getting-started/getting-linuxcnc_es.adoc[]
 
-include::getting-started/updating-linuxcnc_es.txt[]
+include::getting-started/updating-linuxcnc_es.adoc[]
 
-include::common/glossary_es.txt[]
+include::common/glossary_es.adoc[]
 
-include::common/gpld-copyright_es.txt[]
+include::common/gpld-copyright_es.adoc[]
 
 // vim: set syntax=asciidoc:
 
