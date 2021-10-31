@@ -1511,7 +1511,6 @@ class HandlerClass:
         self.vkb_hide()
         self.overlay.hide()
         self.w.filemanager.table.setFocus()
-        self.w.filemanager.table.sortByColumn(0, Qt.AscendingOrder)
 
     def file_edit_clicked(self):
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != 2:
