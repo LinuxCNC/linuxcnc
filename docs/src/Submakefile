@@ -611,7 +611,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
 
-DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
+DOTFILES=$(shell find . -name "*.dot") $(shell find $(DOC_DIR) -name "*.dot")
 .html-images-stamp: $(DOC_TARGETS_HTML) $(DOTFILES:.dot=.svg)
 	echo "svgfiles reqiested: $(DOTFILES:.dot=.svg)"
 	set -e; for HTML_FILE in $^; do \
