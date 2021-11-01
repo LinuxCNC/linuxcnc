@@ -632,13 +632,13 @@ Normalmente, para un puerto paralelo, puede usar resistencias de 47k.
 
 Cableado de interruptores N/C en serie (diagrama simplificado)
 
-image::images/switch-nc-series-es.png[align="center", alt = "Interruptores normalmente cerrados"]
+image::images/switch-nc-series_es.png[align="center", alt = "Interruptores normalmente cerrados"]
 
 . Interruptores normalmente abiertos
 
 Cableado de interruptores de N/O en paralelo (diagrama simplificado)
 
-image::images/switch-no-parallel-es.png[align="center", alt = "Interruptores normalmente abiertos"]
+image::images/switch-no-parallel_es.png[align="center", alt = "Interruptores normalmente abiertos"]
 
 Las siguientes combinaciones de interruptores están permitidas en Stepconf:
 
