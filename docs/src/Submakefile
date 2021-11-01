@@ -50,7 +50,7 @@ DOC_SRCS_EN := \
 	config/core-components.adoc \
 	config/ini-config.adoc \
 	config/ini-homing.adoc \
-  config/iov2.adoc \
+	config/iov2.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
 	config/moveoff.adoc \
@@ -234,7 +234,7 @@ DOC_SRCS_FR := \
 	getting-started/index_fr.adoc \
 	Master_User_fr.adoc \
 	Master_HAL_fr.adoc \
-	Master_Integrator_fr.adoc \
+	Master_Integrator_fr.adoc
 
 DOC_SRCS_ES := \
 	code/adding-configs_es.adoc \
@@ -328,31 +328,19 @@ DOC_SRCS_ES := \
 	user/user-intro_es.adoc \
 	Master_Getting_Started_es.adoc \
 	Master_Documentation_es.adoc \
-	Master_Developer_es.adoc \
+	Master_Developer_es.adoc
 
 
 DOC_SRCS_CN := \
-<<<<<<< HEAD
-	common/overleaf_cn.txt \
-	common/glossary_cn.txt \
-	common/gpld-copyright_cn.txt \
-	getting-started/getting-linuxcnc_cn.txt \
-	getting-started/system-requirements_cn.txt \
-	getting-started/running-linuxcnc_cn.txt \
-	getting-started/about-linuxcnc_cn.txt \
-	getting-started/updating-linuxcnc_cn.txt \
-	Master_Getting_Started_cn.txt \
-=======
-	common/overleaf-cn.adoc \
-	common/glossary-cn.adoc \
-	common/gpld-copyright-cn.adoc \
-	getting-started/getting-linuxcnc-cn.adoc \
-	getting-started/system-requirements-cn.adoc \
-	getting-started/running-linuxcnc-cn.adoc \
-	getting-started/about-linuxcnc-cn.adoc \
-	getting-started/updating-linuxcnc-cn.adoc \
-	Master_Getting_Started_cn.adoc \
->>>>>>> 62e91b09f (Also updating references between .adoc files, Makefiles)
+	common/overleaf_cn.adoc \
+	common/glossary_cn.adoc \
+	common/gpld-copyright_cn.adoc \
+	getting-started/getting-linuxcnc_cn.adoc \
+	getting-started/system-requirements_cn.adoc \
+	getting-started/running-linuxcnc_cn.adoc \
+	getting-started/about-linuxcnc_cn.adoc \
+	getting-started/updating-linuxcnc_cn.adoc \
+	Master_Getting_Started_cn.adoc
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_CN)
 
