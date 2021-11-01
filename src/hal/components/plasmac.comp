@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.215 - 2021 Oct 20
+1.216
 
 .I SUMMARY:
 .br
@@ -131,7 +131,9 @@ pin in  float   zero_window = 0.1           "sets window that voltage fluctuatio
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
+pin in  s32     arc_ok_counts = 10          "arc ok number of valid samples required [mode 0]";
 pin out bit     arc_ok_out                  "arc ok output";
+pin in  float   arc_ok_threshold = 10       "arc ok maximum arc voltage deviation allowed [mode 0]";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     consumable_changing         "consumables are being changed";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
@@ -172,9 +174,12 @@ pin out float   z_relative                  "distance of Z from last probed heig
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
 variable float  arc_fail_timer;             /* arc failure timer */
 variable float  arc_lost_timer;             /* arc lost timer */
+variable int    arc_ok_samples;             /* required number of arc ok samples [mode0] */
 variable int    arc_starts;                 /* number of attempts to start torch */
 variable float  arc_valid_timer;            /* timer to wait for valid arc_voltage_in */
 variable float  arc_voltage_raw;            /* filtered arc voltage to be scaled */
+variable int    arcvolts_buff_count;        /* current number of stored values in arc voltage buffer */
+variable int    arcvolts_buff_index;        /* arc voltage buffer write index */
 variable bool   auto_cut;                   /* auto cut mode is active */
 variable float  axis_x_finish;              /* axis x position at end of cut */
 variable float  axis_x_start;               /* axis x position at start of cut */
@@ -329,6 +334,31 @@ move_direction_t move_direction = ZERO;
 probe_type_t probe_type = FLOAT;
 tool_t tool = EMPTY;
 
+/* setup the arc voltage ring buffer */
+#define MAXBUFFSIZE 100
+float arcvolts_buff[MAXBUFFSIZE];
+
+/* read the arc voltage ring buffer and return the number of errors */
+int arc_v_buffer(int size, int index, float threshold, float target){
+    int reads = 0;
+    int errors = 0;
+    if(!target){
+        target = arcvolts_buff[index];
+    }
+    while(reads < size){
+        if (arcvolts_buff[index] < target - threshold || arcvolts_buff[index] > target + threshold){
+            errors ++;
+        }
+        if (index == size -1) {
+            index = 0;
+        } else {
+            index ++;
+        }
+        reads ++;
+    }
+    return(errors);
+}
+
 /* set an axis eoffset position at a set velocity */
 int offset_move(int offset, int vel, int target){
     if(offset - vel > target){
@@ -348,6 +378,17 @@ FUNCTION(_) {
         rtapi_set_msg_level(1);
     }else if(debug_print && rtapi_get_msg_level() != 3){
         rtapi_set_msg_level(3);
+    }
+
+    /* validate arc ok sample size for mode 0 */
+    if(mode == 0){
+        if(arc_ok_counts < 1){
+            arc_ok_samples = 1;
+        }else if(arc_ok_counts > 100){
+            arc_ok_samples = 100;
+        }else{
+            arc_ok_samples = arc_ok_counts;
+        }
     }
 
     /* wait until arc_voltage_in is valid */
@@ -618,30 +659,52 @@ FUNCTION(_) {
     }
 
     /* set arc ok from either arc ok input or from actual arc voltage
-     * if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
+       if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
+
+    /* arc ok setting */
     if(torch_on){
+        /* set from arc ok input */
         if(mode > 0){
             if(arc_ok_in){
                 arc_ok_out = TRUE;
                 arc_lost_timer = arc_lost_delay;
             }else if(arc_lost_timer > 0){
                 arc_lost_timer -= fperiod;
-                if(arc_lost_timer < 0){
-                    arc_lost_timer = 0;
-                }
             }else{
                 arc_ok_out = FALSE;
             }
+        /* synthesised from arc voltage */
         }else{
-            if(arc_voltage_out >= arc_ok_low && arc_voltage_out <= arc_ok_high){
+            /* push the current arc voltage to the buffer */
+            if(state_out > 6 && state_out < 12){
+                if (arcvolts_buff_count < arc_ok_samples) {
+                    arcvolts_buff_count++;
+                }
+                arcvolts_buff[arcvolts_buff_index] = arc_voltage_out;
+                arcvolts_buff_index ++;
+                if (arcvolts_buff_index >= arc_ok_samples) {
+                    arcvolts_buff_index = 0;
+                }
+            }
+            /* stable voltages required to set arc_ok */
+            if(!arc_ok_out){
+                if(arc_voltage_out >= arc_ok_low &&
+                   arc_voltage_out <= arc_ok_high &&
+                   !arc_v_buffer(arc_ok_samples, arcvolts_buff_index, arc_ok_threshold, 0)){
                 arc_ok_out = TRUE;
                 arc_lost_timer = arc_lost_delay;
-            }else if(arc_lost_timer > 0){
-                arc_lost_timer -= fperiod;
-            }else{
-                arc_ok_out = FALSE;
+                }
+            /* stable voltages required to maintain arc_ok */
+            }else if((arc_voltage_out < arc_ok_low || arc_voltage_out > arc_ok_high) &&
+                    arc_v_buffer(arc_ok_samples, arcvolts_buff_index, arc_ok_threshold, target_volts) >= arc_ok_samples){
+                if(arc_lost_timer <= 0){
+                    arc_ok_out = FALSE;
+                }else{
+                    arc_lost_timer -= fperiod;
+                }
             }
         }
+    /* unset arc ok */
     }else{
         arc_lost_timer = arc_lost_delay;
         arc_ok_out = FALSE;
@@ -1095,6 +1158,8 @@ FUNCTION(_) {
                             pierce_count += 1;
                         }
                         spotting = FALSE;
+                        /* clear arc voltage ring buffer */
+                        memset(arcvolts_buff, 0, arc_ok_samples * sizeof(*arcvolts_buff));
                         state = ARC_OK;
                     }
                 }

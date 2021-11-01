@@ -95,6 +95,8 @@ QtPlasmaC requires the selection of one of following three operating modes:
 
 IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0. It may also be possible to use a <<qt_reed-arc-ok, reed relay>> as an alternative method to establish an Arc OK signal when the power source does not provide one.
 
+NOTE: For fine tuning of Mode 0 Ark OK see <<mode0-arcok, Tuning Mode 0 Arc OK>> in the Advanced Topics section of the manual.
+
 === Available I/Os
 
 NOTE: This section only touches on the hardware I/O's required for QtPlasmaC. Base machine requirements such as limit switches, home switches, etc. are in addition to these.
@@ -3175,6 +3177,32 @@ setp plasmac.arc-lost-delay 0.1
 It is recommended that the user set this pin in the custom.hal file.
 
 This setting should only be used if the user experiences the above symptoms. It should also be noted that the user could use the appropriate <<qt_ignore-ok, Ignore Arc OK>> G-Code commands to achieve a similar result.
+
+[[mode0-arcok]]
+
+=== Tuning Mode 0 Arc OK
+
+Mode 0 Arc OK relies on the arc voltage to set the Arc OK signal. This is accomplished by sampling the arc voltage every servo thread cycle. There needs to be a specified number of consecutive samples all within a specified threshold for the Arc OK signal to be set. These voltages are also required to be within a specified range.
+
+There are two settings in the <<qt_parameters-tab, PARAMETERS Tab>> for setting the range, these are:
+
+- *OK HIGH VOLTS* which is the upper value of the voltage range. The default is 250V.
+
+- *OK LOW VOLTS* which is the lower value of the voltage range. The default is 60V.
+
+Both of these values may be changed by direct entry or by the use of the increment/decrement buttons.
+
+There are also two HAL pins that have been provided to allow the user to tune the set point. These HAL pins are:
+
+- *plasmac.arc-ok-counts* which is the number of consecutive readings within the threshold that are required to set the Arc OK signal. The default is 10.
+
+- *plasmac.arc-ok-threshold* which is the maximum voltage deviation that is allowed for a valid voltage to set the Arc OK signal. The default is 10.
+
+The following example would set the number of valid consecutive readings required to 6:
+
+----
+setp plasmac.arc-ok-counts 6
+----
 
 === Zero Window
 
