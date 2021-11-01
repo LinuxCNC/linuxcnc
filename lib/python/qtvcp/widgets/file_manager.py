@@ -178,10 +178,14 @@ class FileManager(QWidget, _HalWidgetBase):
         # install jump paths into toolbutton menu
         for i in self._jumpList:
             self.addAction(i)
-        sect = self.SETTINGS_.value('sortIndicatorSection')
-        order = self.SETTINGS_.value('sortIndicatorOrder')
+
+        # set recorded columns sort settings
+        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
+        sect = self.SETTINGS_.value('sortIndicatorSection', type = int)
+        order = self.SETTINGS_.value('sortIndicatorOrder', type = int)
+        self.SETTINGS_.endGroup()
         if not None in(sect,order):
-            self.table.horizontalHeader().setSortIndicator(int(sect),int(order))
+            self.table.horizontalHeader().setSortIndicator(sect,order)
 
     # when qtvcp closes this gets called
     # record jump list paths
@@ -194,8 +198,10 @@ class FileManager(QWidget, _HalWidgetBase):
 
         # record sorted columns
         h = self.table.horizontalHeader()
+        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
         self.SETTINGS_.setValue('sortIndicatorSection', h.sortIndicatorSection())
         self.SETTINGS_.setValue('sortIndicatorOrder', h.sortIndicatorOrder())
+        self.SETTINGS_.endGroup()
 
     #########################
     # callbacks
