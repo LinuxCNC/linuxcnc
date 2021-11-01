@@ -227,11 +227,11 @@ DOC_SRCS_FR := \
 	motion/kinematics_fr.txt \
 	motion/pid_theory_fr.txt \
 	motion/tweaking_steppers_fr.txt \
-	user/user-concepts-fr.txt \
-	user/user-foreword-fr.txt \
-	user/user-intro-fr.txt \
+	user/user-concepts_fr.txt \
+	user/user-foreword_fr.txt \
+	user/user-intro_fr.txt \
 	Master_Getting_Started_fr.txt \
-	getting-started/index-fr.txt \
+	getting-started/index_fr.txt \
 	Master_User_fr.txt \
 	Master_HAL_fr.txt \
 	Master_Integrator_fr.txt \

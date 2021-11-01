@@ -25,7 +25,7 @@ include::common/overleaf_fr.txt[]
 
 // include::common/outdated-notice_fr.txt[]
 
-include::getting-started/Getting-Started-with-LinuxCNC.contents-fr.txt[]
+include::getting-started/Getting-Started-with-LinuxCNC.contents_fr.txt[]
 
 include::common/GPLD_Copyright_fr.txt[]
 
