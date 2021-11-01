@@ -2,7 +2,7 @@
 Version=1.0
 Type=Application
 Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_User_Manual_fr.pdf
-Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-fr.svg
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc_fr.svg
 X-GNOME-DocPath=
 Terminal=false
 Name=User Manual - FR
