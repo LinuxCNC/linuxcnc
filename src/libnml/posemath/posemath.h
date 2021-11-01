@@ -71,8 +71,6 @@
 #ifndef POSEMATH_H
 #define POSEMATH_H
 
-// #include "config.h"
-
 #ifdef __cplusplus
 
 #define USE_CONST

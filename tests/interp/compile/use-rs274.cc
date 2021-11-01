@@ -15,6 +15,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h> // must be first header
+#include "linuxcnc.h"              // LINELEN
 #include "rs274ngc.hh"
 #include "canon.hh"
 

@@ -15,7 +15,7 @@
 
 #include <locale.h>
 #include <algorithm>
-#include "config.h"
+#include "linuxcnc.h"
 #include <limits.h>
 #include <stdio.h>
 #include <set>
@@ -58,10 +58,6 @@ inline int round_to_int(T x) {
  * example: a user G code command executes a tool change
  */
 #define MAX_NESTED_REMAPS 10
-
-// English - Metric conversion (long number keeps error buildup down)
-#define MM_PER_INCH 25.4
-//#define INCH_PER_MM 0.039370078740157477
 
 /* numerical constants */
 

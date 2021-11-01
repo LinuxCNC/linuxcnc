@@ -43,6 +43,7 @@
 #include <getopt.h>
 #include <string.h>
 
+#include "emc/linuxcnc.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML

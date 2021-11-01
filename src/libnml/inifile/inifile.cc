@@ -21,6 +21,7 @@
 
 
 #include "config.h"
+#include "emc/linuxcnc.h"
 #include "inifile.hh"
 
 #define MAX_EXTEND_LINES 20
