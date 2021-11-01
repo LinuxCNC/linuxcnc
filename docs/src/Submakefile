@@ -749,7 +749,7 @@ docclean:
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
 	-rm -f .html-images-stamp
-	rm -r $(DOTFILES:.dot=.svg)
+	rm -f $(DOTFILES:.dot=.svg)
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
