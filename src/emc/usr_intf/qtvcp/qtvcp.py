@@ -375,6 +375,7 @@ Pressing cancel will close linuxcnc.""" % target)
             self.panel.shutdown()
         except Exception as e:
             print (e)
+        self.panel.window.sync_qsettings()
         STATUS.shutdown()
         try:
             self.halcomp.exit()

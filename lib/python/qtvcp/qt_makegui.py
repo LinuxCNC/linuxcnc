@@ -126,6 +126,12 @@ class _VCPWindow(QtWidgets.QMainWindow):
             log.debug('Calling handler file Closing_cleanup__ function.')
             self.handler_instance.closing_cleanup__()
 
+    def sync_qsettings(self):
+        try:
+            self.settings.sync()
+        except Exception as e:
+            log.debug('Error with Qsettings sync function:\n {}'.format(e))
+
     # resource files are compiled from the qrs file
     # with an installed version of linuxcnc we can't save the resource
     # file in the installed directory without being root,
