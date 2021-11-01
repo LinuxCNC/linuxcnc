@@ -332,14 +332,14 @@ DOC_SRCS_ES := \
 
 
 DOC_SRCS_CN := \
-	common/overleaf-cn.txt \
-	common/glossary-cn.txt \
-	common/gpld-copyright-cn.txt \
-	getting-started/getting-linuxcnc-cn.txt \
-	getting-started/system-requirements-cn.txt \
-	getting-started/running-linuxcnc-cn.txt \
-	getting-started/about-linuxcnc-cn.txt \
-	getting-started/updating-linuxcnc-cn.txt \
+	common/overleaf_cn.txt \
+	common/glossary_cn.txt \
+	common/gpld-copyright_cn.txt \
+	getting-started/getting-linuxcnc_cn.txt \
+	getting-started/system-requirements_cn.txt \
+	getting-started/running-linuxcnc_cn.txt \
+	getting-started/about-linuxcnc_cn.txt \
+	getting-started/updating-linuxcnc_cn.txt \
 	Master_Getting_Started_cn.txt \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_CN)
