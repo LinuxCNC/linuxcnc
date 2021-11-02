@@ -33,12 +33,12 @@ FUNCTION(_) {
         if(pt < 0) {
             pt = 0;
             rtapi_print_msg(RTAPI_MSG_WARN,
-                            "IEC_TP: Pulse time must be positive, resetting to 0");
+                            "tp: Pulse time must be positive, resetting to 0");
         }
         if(et < 0) {
             et = 0;
             rtapi_print_msg(RTAPI_MSG_WARN,
-                            "IEC_TP: Elapsed time rolled over, resetting to 0");
+                            "tp: Elapsed time rolled over, resetting to 0");
         }
 
         // Check timers
