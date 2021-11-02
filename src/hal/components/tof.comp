@@ -14,7 +14,7 @@
 *
 * Copyright (c) 2021 All rights reserved.
 *
-* Last change: Creation
+* Last change: 2021-11-02 - Conversion to comp format
 *
 ********************************************************************/
 component tof "IEC TOF timer - delay falling edge on a signal";

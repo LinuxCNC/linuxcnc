@@ -14,7 +14,7 @@
 *
 * Copyright (c) 2021 All rights reserved.
 *
-* Last change: Creation
+* Last change: 2021-11-02 - Conversion to comp format
 *
 ********************************************************************/
 component tp "IEC TP timer - generate a high pulse of defined duration on rising edge";
