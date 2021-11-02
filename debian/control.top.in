@@ -41,7 +41,7 @@ Build-Depends:
     yapps2
 Standards-Version: 4.6.0
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
-Vcs-Git: git://github.com/linuxcnc/linuxcnc.git
+Vcs-Git: https://github.com/linuxcnc/linuxcnc.git
 Rules-Requires-Root: no
 
 Package: @MAIN_PACKAGE_NAME@-dev
