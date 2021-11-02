@@ -1,13 +1,9 @@
 /********************************************************************
-* Description: t_pulse.c
+* Description: tp.comp
 *   IEC_61131-3 Pulse Time timer for HAL bit signals.
 *
-*   This is a HAL component that can be used to send a pulse signals
+*   This is a HAL component that can be used to send a pulse signal
 *   for a certain amount of time.
-*
-*   It supports up to 255 timers.
-*
-*   Loosely based on work from John Kasunich from debounce.c
 *
 *********************************************************************
 *

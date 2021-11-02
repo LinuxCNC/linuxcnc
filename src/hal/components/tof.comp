@@ -1,13 +1,9 @@
 /********************************************************************
-* Description: t_off.c
+* Description: tof.comp
 *   IEC_61131-3 Time Off timer for HAL bit signals.
 *
-*   This is a HAL component that can be used to delay off signals
+*   This is a HAL component that can be used to delay falling edge signals
 *   for a certain amount of time.
-*
-*   It supports up to 255 timers.
-*
-*   Loosely based on work from John Kasunich from debounce.c
 *
 *********************************************************************
 *
@@ -16,7 +12,7 @@
 * Created on: 2021/06/10
 * System: Linux
 *
-* Copyright (c) 2020 All rights reserved.
+* Copyright (c) 2021 All rights reserved.
 *
 * Last change: Creation
 *

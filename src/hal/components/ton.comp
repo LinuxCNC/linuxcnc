@@ -1,22 +1,18 @@
 /********************************************************************
-* Description: t_on.c
+* Description: ton.comp
 *   IEC_61131-3 Time On timer for HAL bit signals.
 *
-*   This is a HAL component that can be used to delay on signals
+*   This is a HAL component that can be used to delay rising edge signals
 *   for a certain amount of time.
-*
-*   It supports up to 255 timers.
-*
-*   Loosely based on work from John Kasunich from debounce.c
 *
 *********************************************************************
 *
 * Author: Chad Woitas (aka satiowadahc)
 * License: GPL Version 2
-* Created on: 2020/06/10
+* Created on: 2021/06/10
 * System: Linux
 *
-* Copyright (c) 2020 All rights reserved.
+* Copyright (c) 2021 All rights reserved.
 *
 * Last change: Creation
 *
