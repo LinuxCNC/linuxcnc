@@ -1,4 +1,4 @@
-VERSION = '1.216.111'
+VERSION = '1.216.112'
 
 '''
 qtplasmac_handler.py
@@ -1224,6 +1224,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
                 msgs += '{} {} {}{}\n'.format(msgList[n], msg0, msgList[n + 2], units)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msgs))
+            self.set_run_button_state()
             if self.single_cut_request:
                 self.single_cut_request = False
                 if self.oldFile and not 'single_cut' in self.oldFile:
@@ -1755,28 +1756,28 @@ class HandlerClass:
             units = 'mm'
             if self.gcodeProps['Units'] == 'in':
                 boundsMultiplier = 25.4
-        xMin = float(self.gcodeProps['X'].split()[0]) * boundsMultiplier - xOffset
+        xMin = float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset
         if xMin < self.xMin:
             amount = float(self.xMin - xMin)
             msgList.append('X')
             msgList.append('MIN')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier - xOffset
+        xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier + xOffset
         if xMax > self.xMax:
             amount = float(xMax - self.xMax)
             msgList.append('X')
             msgList.append('MAX')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier - yOffset
+        yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier + yOffset
         if yMin < self.yMin:
             amount = float(self.yMin - yMin)
             msgList.append('Y')
             msgList.append('MIN')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier - yOffset
+        yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier + yOffset
         if yMax > self.yMax:
             amount = float(yMax - self.yMax)
             msgList.append('Y')
