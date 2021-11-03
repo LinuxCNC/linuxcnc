@@ -94,7 +94,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             lon = self.PREFS_.getpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.presetViewSettings(v,z,x,y,lat,lon)
 
-    # external source asked for hightlight,
+    # external source asked for highlight,
     # make sure we block the propagation
     def highlight_graphics(self, line):
         if self._current_file is None: return

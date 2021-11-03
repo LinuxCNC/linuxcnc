@@ -35,7 +35,7 @@ pyqt5-dev-tools
 Create the plugin directory for designer to search:
 mkdir -p ~/.designer/plugins/python
 
-The <pluginfile> is dependant on the type of LinuxCNC installation.
+The <pluginfile> is dependent on the type of LinuxCNC installation.
 For a package installation:
 /usr/lib/python3/dist-packages/qtvcp/plugins/qtvcp_pluin.py
 

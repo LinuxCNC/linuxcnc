@@ -662,7 +662,7 @@ HELP</string>
                  </size>
                 </property>
                 <property name="toolTip">
-                 <string>Inital probe velocity</string>
+                 <string>Initial probe velocity</string>
                 </property>
                 <property name="maxLength">
                  <number>10</number>

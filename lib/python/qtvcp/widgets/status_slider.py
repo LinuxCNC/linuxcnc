@@ -131,7 +131,7 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             return'normal'
 
     # polish widget so stylesheet sees the property change
-    # some stylessheets color the widget based on the abritrary hi/lo range
+    # some stylesheets color the widget based on the arbitrary hi/lo range
     def _style_polish(self, prop = 'alertState',state = 'normal'):
         if self._alertState != state:
             self.setProperty(prop, state)

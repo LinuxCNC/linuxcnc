@@ -1,7 +1,7 @@
 #BOOST_DEBUG_FLAGS= -DBOOST_DEBUG_PYTHON -g -O0
 BOOST_DEBUG_FLAGS=
 
-INCLUDES += emc/rs274ngc
+INCLUDES += emc emc/rs274ngc
 
 LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_arc.cc \

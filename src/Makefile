@@ -155,6 +155,7 @@ SUBDIRS := \
     emc/motion emc/ini emc/rs274ngc emc/sai emc emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
+    emc \
     \
     module_helper \
     \
@@ -310,7 +311,7 @@ default: $(INFILES)
 # files in the source tree are the ones used when building linuxcnc.  The copy
 # in ../include is used when building external components of linuxcnc.
 HEADERS := \
-    config.h \
+    emc/linuxcnc.h \
     emc/ini/emcIniFile.hh \
     emc/ini/iniaxis.hh \
     emc/ini/inijoint.hh \

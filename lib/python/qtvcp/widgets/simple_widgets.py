@@ -18,7 +18,6 @@ from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status
-from functools import partial
 import hal
 
 AUX_PRGM = _loader()
@@ -401,6 +400,25 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
                                  'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal}
         self._localsParameter = {'dir': dir, 'True':True, 'False':False}
+
+        def _update(state):
+            self.setChecked(state)
+            if self._HAL_pin is False:
+                self.indicator_update(state)
+            # if using state labels option update the labels
+            if self._state_text:
+                self.setText(None)
+            # if python commands call them 
+            if self._python_command:
+                if state == None:
+                    state = self._indicator_state
+                self.python_command(state)
+
+        if self.isCheckable():
+            self.toggled[bool].connect(_update)
+        else:
+            self.pressed.connect(lambda: _update(True))
+            self.released.connect(lambda: _update(False))
 
     def _init_state_change(self):
         def only_false(data):
@@ -1099,8 +1117,8 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
         if self.isCheckable():
             self.toggled[bool].connect(_update)
         else:
-            self.pressed.connect(partial(_update, True))
-            self.released.connect(partial(_update, False))
+            self.pressed.connect(lambda: _update(True))
+            self.released.connect(lambda: _update(False))
 
 class ScaledLabel(QtWidgets.QLabel):
     def __init__(self, parent=None):

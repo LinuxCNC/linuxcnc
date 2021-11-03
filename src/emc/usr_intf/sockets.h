@@ -22,10 +22,6 @@
 
 #include <stdlib.h>
 
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
-
 #ifndef LCDPORT
 # define LCDPORT 13666
 #endif

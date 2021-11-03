@@ -262,7 +262,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Outside Y Edge, Positive Direction, Finsh At Edge</string>
+                  <string>Probe Outside Y Edge, Positive Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -368,7 +368,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Outside X Edge, Negative Direction, Finsh At Edge</string>
+                  <string>Probe Outside X Edge, Negative Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -474,7 +474,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Outside X Edge, Positive Direction, Finsh At Edge</string>
+                  <string>Probe Outside X Edge, Positive Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -527,7 +527,7 @@
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Outside Y Edge, Negative Direction, Finsh At Edge</string>
+                  <string>Probe Outside Y Edge, Negative Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -1404,7 +1404,7 @@ Z</string>
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Inside Y Edge, Positive Direction, Finsh At Edge</string>
+                  <string>Probe Inside Y Edge, Positive Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -1510,7 +1510,7 @@ Z</string>
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Inside X Edge, Negative Direction, Finsh At Edge</string>
+                  <string>Probe Inside X Edge, Negative Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -1727,7 +1727,7 @@ Z</string>
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Inside Y Edge, Negative Direction, Finsh At Edge</string>
+                  <string>Probe Inside Y Edge, Negative Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>
@@ -1780,7 +1780,7 @@ Z</string>
                   </size>
                  </property>
                  <property name="toolTip">
-                  <string>Probe Inside Y Edge, Negative Direction, Finsh At Edge</string>
+                  <string>Probe Inside Y Edge, Negative Direction, Finish At Edge</string>
                  </property>
                  <property name="text">
                   <string/>

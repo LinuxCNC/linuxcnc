@@ -1,4 +1,4 @@
-VERSION = '1.215.110'
+VERSION = '1.216.111'
 
 '''
 qtplasmac_handler.py
@@ -1818,7 +1818,7 @@ class HandlerClass:
         self.w.setup_feed_rate.setValue(self.w.PREFS_.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
         self.w.probe_feed_rate.setMaximum(self.w.setup_feed_rate.value())
         self.w.arc_fail_delay.setValue(self.w.PREFS_.getpref('Arc Fail Timeout', 3, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_high.setValue(self.w.PREFS_.getpref('Arc OK High', 99999, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_high.setValue(self.w.PREFS_.getpref('Arc OK High', 250, float, 'PLASMA_PARAMETERS'))
         self.w.arc_ok_low.setValue(self.w.PREFS_.getpref('Arc OK Low', 60, float, 'PLASMA_PARAMETERS'))
         self.w.arc_max_starts.setValue(self.w.PREFS_.getpref('Arc Maximum Starts', 3, int, 'PLASMA_PARAMETERS'))
         self.w.arc_voltage_offset.setValue(self.w.PREFS_.getpref('Arc Voltage Offset', 0, float, 'PLASMA_PARAMETERS'))
@@ -5364,7 +5364,7 @@ class HandlerClass:
             self.w[button].setStyleSheet(\
                     'QPushButton {{ background: {0} }} \
                      QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
-        # the error messge label on the status bar
+        # the error message label on the status bar
         self.w.error_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.estopColor))
         # some gcode display/editor colors cannot use .qss file
         # gcode display current gcode line

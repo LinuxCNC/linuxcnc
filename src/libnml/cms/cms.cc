@@ -33,6 +33,7 @@ extern "C" {
 }
 #endif
 #include <rtapi_string.h>
+#include "cms_cfg.hh"
 #include "cms.hh"		/* class CMS */
 #include "cms_up.hh"		/* class CMS_UPDATER */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
@@ -120,15 +121,15 @@ CMS::CMS(long s)
     rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "new CMS (%lu)", s);
 
     /* Init string buffers */
-    memset(BufferName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferHost, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessHost, 0, CMS_CONFIG_LINELEN);
-    memset(buflineupper, 0, CMS_CONFIG_LINELEN);
-    memset(proclineupper, 0, CMS_CONFIG_LINELEN);
-    memset(PermissionString, 0, CMS_CONFIG_LINELEN);
+    memset(BufferName, 0, LINELEN);
+    memset(BufferHost, 0, LINELEN);
+    memset(ProcessName, 0, LINELEN);
+    memset(BufferLine, 0, LINELEN);
+    memset(ProcessLine, 0, LINELEN);
+    memset(ProcessHost, 0, LINELEN);
+    memset(buflineupper, 0, LINELEN);
+    memset(proclineupper, 0, LINELEN);
+    memset(PermissionString, 0, LINELEN);
 
     /* save constructor args */
     free_space = size = s;
@@ -198,15 +199,15 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     confirm_write = 0;
     disable_final_write_raw_for_dma = 0;
     /* Init string buffers */
-    memset(BufferName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferHost, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessName, 0, CMS_CONFIG_LINELEN);
-    memset(BufferLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessLine, 0, CMS_CONFIG_LINELEN);
-    memset(ProcessHost, 0, CMS_CONFIG_LINELEN);
-    memset(buflineupper, 0, CMS_CONFIG_LINELEN);
-    memset(proclineupper, 0, CMS_CONFIG_LINELEN);
-    memset(PermissionString, 0, CMS_CONFIG_LINELEN);
+    memset(BufferName, 0, LINELEN);
+    memset(BufferHost, 0, LINELEN);
+    memset(ProcessName, 0, LINELEN);
+    memset(BufferLine, 0, LINELEN);
+    memset(ProcessLine, 0, LINELEN);
+    memset(ProcessHost, 0, LINELEN);
+    memset(buflineupper, 0, LINELEN);
+    memset(proclineupper, 0, LINELEN);
+    memset(PermissionString, 0, LINELEN);
 
     /* Initialize some variables. */
     read_permission_flag = 0;	/* Allow both read and write by default.  */
@@ -234,8 +235,8 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     char *bufline = strdup(bufline_in);
     char *procline = strdup(procline_in);
 
-    convert2upper(buflineupper, bufline, CMS_CONFIG_LINELEN);
-    convert2upper(proclineupper, procline, CMS_CONFIG_LINELEN);
+    convert2upper(buflineupper, bufline, LINELEN);
+    convert2upper(proclineupper, procline, LINELEN);
 
     is_phantom = 0;
     max_message_size = 0;

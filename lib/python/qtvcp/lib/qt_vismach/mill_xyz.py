@@ -31,7 +31,7 @@ MODEL_SCALING = IMPERIAL
 # tells loadusr pins is ready
 # c.ready()
 
-# we are not using a component but the original code requires a varible
+# we are not using a component but the original code requires a variable
 c = None
 
 # Used for tool cylinder

@@ -16,6 +16,7 @@
  */
 
 #include "config.h"
+#include "linuxcnc.h"
 
 #ifdef __linux__
 #include <sys/fsuid.h>
@@ -52,8 +53,6 @@
 #include <pthread_np.h>
 #endif
 
-#include "config.h"
-
 #include "rtapi.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
@@ -82,9 +81,6 @@ WithRoot::~WithRoot() {
 #endif
     }
 }
-
-extern "C"
-int rtapi_is_realtime();
 
 namespace
 {
