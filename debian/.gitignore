@@ -9,6 +9,6 @@ linuxcnc-dev
 linuxcnc-uspace-dev
 linuxcnc-doc-*/
 *.substvars
-/linuxcnc*.files
+/linuxcnc*.install
 *.debhelper
 shlibs.local

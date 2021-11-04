@@ -175,25 +175,14 @@ subst control.top.in > control
 echo >> control
 subst control.main-pkg.in >> control
 
-cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
+if [ -r linuxcnc-dev.install.in ]; then subst linuxcnc-dev.install.in > ${MAIN_PACKAGE_NAME}-dev.install; fi
+if [ -r linuxcnc.install.in ]; then subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install; fi
+if [ -r linuxcnc.lintian-overrides.in ]; then subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides; fi
 
-subst rules.in > rules; chmod +x rules
-
-if [ -f $EXTRAS/linuxcnc.files ]; then
-    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
-else
-    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
-fi
+subst rules.in > rules
+chmod +x rules
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn})
-    for P in $DOCS_PACKAGES; do
-        if [ -f $EXTRAS/$P.files ]; then
-            cat $P.files.in $EXTRAS/$P.files > $P.files
-        else
-            cat $P.files.in > $P.files
-        fi
-    done
     subst control.docs.in >> control
 fi
 
