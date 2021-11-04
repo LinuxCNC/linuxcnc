@@ -2791,6 +2791,12 @@ For text on multiple lines, split the text with a \
 BUTTON_n_NAME = HAL\Show
 ----
 
+If an ampersand is required to be displayed as text then two consecutive ampersands are required:
+
+----
+BUTTON_n_NAME = PIERCE\&&CUT
+----
+
 .Button Code
 
 Buttons can run the following:
@@ -2891,11 +2897,11 @@ BUTTON_n_CODE = pulse-halpin the-hal-pin-name 0.5
 
 This code is required to be used as a single command and may only control one HAL bit pin per button.
 
-The delay is specified in seconds, if the delay is not specified then it will default to one second.
+The pulse duration is specified in seconds, if the pulse duration is not specified then it will default to one second.
 
 The button colors will follow the state of the hal pin.
 
-After setting the code, upon clicking the button, the button will invert colors, the HAL pin will invert pin state, and the time remaining will be displayed on the button. The button color and the pin state will stay inverted until the delay timer has completed, which will return the button to the original colors, the HAL pin to the original pin state, and the original button name.
+After setting the code, upon clicking the button, the button will invert colors, the HAL pin will invert pin state, and the time remaining will be displayed on the button. The button color and the pin state will stay inverted until the pulse duration timer has completed, which will return the button to the original colors, the HAL pin to the original pin state, and the original button name.
 
 An active pulse can be canceled by clicking the button again.
 
