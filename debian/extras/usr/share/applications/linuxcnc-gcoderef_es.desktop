@@ -2,7 +2,7 @@
 Version=1.0
 Type=Application
 Exec=/usr/bin/x-www-browser /usr/share/doc/linuxcnc/gcode_es.html
-Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-es.svg
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc_es.svg
 X-GNOME-DocPath=
 Terminal=false
 Name=G-Code Quick Reference - ES
