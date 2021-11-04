@@ -5,7 +5,7 @@
 
 After installation, LinuxCNC starts just like any other Linux program: 
 run it from the <<faq:terminal,terminal>> by issuing the command 'linuxcnc',
-or select it in the Applications - CNC menu.
+or select it in the 'Applications -> CNC' menu.
 
 == Configuration Launcher
 
