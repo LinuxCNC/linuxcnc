@@ -1,6 +1,6 @@
 usr/share/applications/linuxcnc.desktop
 usr/share/applications/linuxcnc-gcoderef.desktop
-usr/share/applications/linuxcnc-gcoderef_vi.desktop
+usr/share/applications/linuxcnc-gcoderef_vn.desktop
 usr/share/applications/linuxcnc-latency.desktop
 usr/share/applications/linuxcnc-stepconf.desktop
 usr/share/applications/linuxcnc-pncconf.desktop
@@ -12,7 +12,7 @@ usr/share/desktop-directories/linuxcnc-ref.directory
 usr/share/icons/hicolor/scalable/apps/linuxcnc_en.svg
 usr/share/icons/hicolor/scalable/apps/linuxcnc_es.svg
 usr/share/icons/hicolor/scalable/apps/linuxcnc_fr.svg
-usr/share/icons/hicolor/scalable/apps/linuxcnc_vi.svg
+usr/share/icons/hicolor/scalable/apps/linuxcnc_vn.svg
 usr/share/icons/hicolor/scalable/apps/linuxcnc_cn.svg
 etc/xdg/menus/applications-merged/CNC.menu
 lib/udev/rules.d/*.rules
