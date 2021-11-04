@@ -431,6 +431,10 @@ clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 
 
+DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
+.PHONY: svgs_made_from_dots
+svgs_made_from_dots: $(DOTFILES:.dot=.svg)
+
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
@@ -439,8 +443,8 @@ ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
 install-doc: install-doc-html
 endif
-pdfdocs: $(PDF_TARGETS)
-htmldocs: .htmldoc-stamp checkref
+pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
+htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp
 	touch $@
@@ -611,8 +615,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	mkdir -p $(shell dirname $@)
 	@cp $< $@
 
-DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
-.html-images-stamp: $(DOC_TARGETS_HTML) $(DOTFILES:.dot=.svg)
+.html-images-stamp: $(DOC_TARGETS_HTML)
 	echo "svgfiles reqiested: $(DOTFILES:.dot=.svg)"
 	set -e; for HTML_FILE in $^; do \
 		HTML_DIR=$$(basename $$(dirname $$HTML_FILE)); \
