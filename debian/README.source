@@ -5,11 +5,11 @@ The following steps were performed to transform Upstream's git repository
 into
  - a source tarball and
  - a debian subdirectory
-for Debian's main distribution. The major obstacle is that
-LinuxCNC is used across a wide span of releases, now supporting from Squeeze
-(Wheezy and Jessie anyone?) up to the latest Ubuntu releases. Not too many changes
-are required for Debian unstable, the most prominent one likely is
-that there is already a debian directory in the source tree.
+for Debian's main distribution.
+
+LinuxCNC is used across a wide span of releases, now supporting from
+Squeeze up to the latest version of Ubuntu. Not too many changes are
+required for Debian unstable.
 
 Steps
 -----
@@ -45,7 +45,7 @@ Steps
    prepared for the Non-RTAI but preempt realtime kernels that are
    distributed with Debian.
 
-   ( cd debian && ./configure )
+   debian/configure
 
 5. Slightly adapt for upload to d/unstable
 
@@ -55,18 +55,18 @@ Steps
    mkdir -p debian/source
    echo "3.0 (quilt)" > debian/source/format
 
-   # no epoch, debian version
+   # debian version
    if ! head -n 1 debian/changelog | grep -q -- "-1)"; then sed -i '1s/) /-1) /' debian/changelog; else echo "I: dversion already set"; fi
+   # no epoch
    sed -i '1s/([0-9]:/(/' debian/changelog
 
 6a. build Debian package if in doubt - optional
 
    dpkg-buildpackage
 
-6b. build Debian source package, which is what is uploaded to Debian
+6b. build Debian source package, which is what is uploaded to Debian upon acceptance and for updates
 
    dpkg-buildpackage -S
-
 
 7. test build in cowbuilder
 
@@ -93,7 +93,3 @@ How to contribute
 
 LinuxCNC does not have a representation on salsa.debian.org. 
 Please join us on https://github.com/LinuxCNC/linuxcnc/ .
-
-A series of Lintian errors we want to address, still. These are
-collected in debian/TODO and we cordially invite everyone to help
-addressing them.
