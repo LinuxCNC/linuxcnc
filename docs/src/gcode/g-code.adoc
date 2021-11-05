@@ -18,7 +18,7 @@ as the 'L number', and so on for any other letter.
 In the G code prototypes the word 'axes' stands for any axis as defined
 in your configuration.
 
-An optional value will be written like this '<L->'.
+An optional value will be written like this '<L- >'.
 
 A real value may be:
 
