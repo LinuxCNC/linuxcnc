@@ -1,4 +1,4 @@
-VERSION = '1.216.114'
+VERSION = '1.216.115'
 
 '''
 qtplasmac_handler.py
@@ -3199,8 +3199,7 @@ class HandlerClass:
                     dir = commands.split()[1]
                 else:
                     dir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
-                print(dir)
-                filess = glob.glob('{}/*.ngc'.format(dir))
+                files = glob.glob('{}/*.ngc'.format(dir))
                 latest = max(files, key = os.path.getctime)
                 self.w.gcode_progress.setValue(0)
                 ACTION.OPEN_PROGRAM(latest)
