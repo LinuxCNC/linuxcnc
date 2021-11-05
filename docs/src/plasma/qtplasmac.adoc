@@ -2816,6 +2816,7 @@ Buttons can run the following:
 . <<qt_button-framing, Framing a job>>
 . <<qt_button-mancut, Begin/End a manual cut>>
 . <<qt_button-offsets, Display/Hide an offsets viewer>>
+. <<qt_button-latest, Load the latest modified ngc file found in a directory>>
 
 [[qt_button-cmds]]
 
@@ -3073,6 +3074,16 @@ This allows the showing/hiding of an offset viewing screen that displays all mac
 
 ----
 BUTTON_n_CODE = offsets-view
+----
+
+[[qt_button-latest]]
+
+[underline]*Load Latest File
+
+this allows the loading of the last modified file in a directory. The directory name is optional and if omitted will default to the last directory a file was loaded from.
+
+----
+BUTTON_n_CODE = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 ----
 
 [[qt_ext-hal-pin]]

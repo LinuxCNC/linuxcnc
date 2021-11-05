@@ -30,6 +30,7 @@ from subprocess import check_output as CHKOP
 import time
 import tarfile
 import math
+import glob
 import linuxcnc
 import hal, hal_glib
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -256,7 +257,7 @@ class HandlerClass:
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton = ''
+        self.ovButton, self.llButton = '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         self.torchOn = False
@@ -2961,46 +2962,26 @@ class HandlerClass:
                 self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
                 self.extOhmicPin.value_changed.connect(lambda v:self.ext_ohmic_test(v))
             elif 'framing' in bCode:
+                frButton = True
+                self.defaultZ = True
                 self.frFeed = 0
-                frCode = bCode.lower().strip().split()
-                if len(frCode) == 3:
-                    if frCode[1] == 'usecurrentzheight' and frCode[2][0] == 'f':
-                        self.defaultZ = False
+                bCode = bCode.lower().replace('framing', '').strip()
+                if 'usecurrentzheight' in bCode:
+                    bCode = bCode.lower().replace('usecurrentzheight', '').strip()
+                    self.defaultZ = False
+                if len(bCode):
+                    if bCode[0] == 'f':
                         try:
-                            self.frFeed = float(frCode[2].replace('f', ''))
+                            self.frFeed = float(bCode.replace('f', ''))
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid feed argument')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            frButton = False
                             continue
-                        frButton = True
                     else:
                         msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                         STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
                         continue
-                elif len(frCode) == 2:
-                    if frCode[1] == 'usecurrentzheight':
-                        self.defaultZ = False
-                        frButton = True
-                    elif frCode[1][0] == 'f':
-                        self.defaultZ = True
-                        try:
-                            self.frFeed = float(frCode[1].replace('f', ''))
-                        except:
-                            msg1 = _translate('HandlerClass', 'Check button code for invalid feed argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
-                            continue
-                        frButton = True
-                    else:
-                        msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
-                        continue
-                elif len(frCode) == 1:
-                    self.defaultZ = True
-                    frButton = True
-                else:
-                    msg1 = _translate('HandlerClass', 'Check button code argument count')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
-                    continue
                 if frButton:
                     self.frButton = 'button_{}'.format(str(bNum))
                     self.idleHomedList.append(self.frButton)
@@ -3096,6 +3077,9 @@ class HandlerClass:
             elif 'offsets-view' in bCode:
                 self.ovButton = 'button_{}'.format(str(bNum))
                 self.idleHomedList.append(self.ovButton)
+            elif 'latest-file' in bCode:
+                self.llButton = 'button_{}'.format(str(bNum))
+                self.idleList.append(self.llButton)
             else:
                 for command in bCode.split('\\'):
                     command = command.strip()
@@ -3209,6 +3193,21 @@ class HandlerClass:
                         buttonList.append(button)
                 self.set_buttons_state([self.idleList, self.idleOnList, buttonList], False)
                 self.w.run.setEnabled(False)
+        elif 'latest-file' in commands.lower():
+            try:
+                if len(commands.split()) == 2:
+                    dir = commands.split()[1]
+                else:
+                    dir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
+                print(dir)
+                filess = glob.glob('{}/*.ngc'.format(dir))
+                latest = max(files, key = os.path.getctime)
+                self.w.gcode_progress.setValue(0)
+                ACTION.OPEN_PROGRAM(latest)
+            except:
+                head = _translate('HandlerClass', 'FILE ERROR')
+                msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
         else:
             for command in commands.split('\\'):
                 command = command.strip()
