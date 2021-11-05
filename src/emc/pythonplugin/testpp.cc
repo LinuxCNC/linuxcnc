@@ -146,7 +146,7 @@ main (int argc, char **argv)
     }
 
     if (!PythonPlugin::instantiate(builtins ? builtin_modules : NULL)) {
-	fprintf (stderr,"instantiate: cant instantiate Python plugin");
+	fprintf (stderr,"instantiate: can\'t instantiate Python plugin");
     }
 
     // creates the singleton instance

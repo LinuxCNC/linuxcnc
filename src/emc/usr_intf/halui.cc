@@ -1622,7 +1622,7 @@ static bool jogging_selected_axis(local_halui_str &hal) {
 
 
 // this function looks if any of the hal pins has changed
-// and sends appropiate messages if so
+// and sends appropriate messages if so
 static void check_hal_changes()
 {
     hal_s32_t counts;
@@ -2096,7 +2096,7 @@ static void check_hal_changes()
 }
 
 // this function looks at the received NML status message
-// and modifies the appropiate HAL pins
+// and modifies the appropriate HAL pins
 static void modify_hal_pins()
 {
     int joint;

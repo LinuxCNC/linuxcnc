@@ -132,7 +132,7 @@ static int export_axis(char c, axis_hal_t  * addr);
 static int export_spindle(int num, spindle_hal_t * addr);
 
 /* init_comm_buffers() allocates and initializes the command,
-   status, and error buffers used to communicate witht the user
+   status, and error buffers used to communicate with the user
    space parts of emc.
 */
 static int init_comm_buffers(void);

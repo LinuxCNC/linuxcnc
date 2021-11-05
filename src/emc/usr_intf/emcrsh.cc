@@ -110,7 +110,7 @@
   connection. If no parameters are specified, it will itemize the available commands.
   If a command is specified, it will provide usage information for the specified
   command. Help will respond regardless of whether a "Hello" has been
-  successsfully negotiated.
+  successfully negotiated.
   
   
   LinuxCNC sub-commands:
@@ -1424,7 +1424,7 @@ int commandSet(connectionRecType *context)
     case rtCustomError: // Custom error response entered in buffer
       return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
-    case rtCustomHandledError: ;// Custom error respose handled, take no action
+    case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
 }
@@ -2492,7 +2492,7 @@ int commandGet(connectionRecType *context)
     case rtCustomError: // Custom error response entered in buffer
       sockWrite(context);
       break;
-    case rtCustomHandledError: ;// Custom error respose handled, take no action
+    case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
 }

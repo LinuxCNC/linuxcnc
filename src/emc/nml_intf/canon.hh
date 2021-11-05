@@ -587,7 +587,7 @@ extern void SELECT_TOOL(int tool);
 
 extern void CHANGE_TOOL_NUMBER(int number);
 
-/* In extention to the comment above - for CHANGE_TOOL, sometimes on 
+/* In extension to the comment above - for CHANGE_TOOL, sometimes on 
 startup one would want to tell emc2 what tool it has loaded. As the last
 toolnumber before shutdown isn't currently written, there is no provision
 to allow emc2 to safely restart knowing what tool is in the spindle.

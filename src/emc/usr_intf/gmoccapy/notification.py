@@ -26,7 +26,7 @@
 #        the messages are placed correct, until you reached the given max, then
 #        the popup will jump one message height down. As far as I found out till now
 #        it is caused because the height of the first message is not taken in care
-#        calculating the hight of the popup.
+#        calculating the height of the popup.
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -149,13 +149,13 @@ class Notification(Gtk.Window):
         #labelnumber.show()
         self.vbox.show()
 
-    # add a message, the message is a string, it will be line wraped
+    # add a message, the message is a string, it will be line wrapped
     # if to long for the frame
     def add_message(self, message, icon_file_name):
         '''Notification.add_message(messagetext, icon_file_name)
         
            messagetext = a string to display
-           icon_file_name = a valid absolut path to an icon or None
+           icon_file_name = a valid absolute path to an icon or None
         '''
         self.popup.hide()
         self.popup.resize(1, 1)
@@ -206,7 +206,7 @@ class Notification(Gtk.Window):
             self._refill_messages()
             return True
         elif messagenumber > len(self.messages) or messagenumber < 0:
-            self.add_message(_('Error trying to delet the message with number {0}'.format(messagenumber), None))
+            self.add_message(_('Error trying to delete the message with number {0}'.format(messagenumber), None))
             return False
         try:
             del self.messages[int(messagenumber)]
@@ -216,20 +216,20 @@ class Notification(Gtk.Window):
         return True
 
     # this is the recomendet way to delete a message, by clicking the
-    # close button of the coresponding frame
+    # close button of the corresponding frame
     def _on_btn_close_clicked(self, widget, labelnumber):
         del self.messages[int(labelnumber)]
         self.emit("message_deleted", self.messages)
         self._refill_messages()
 
     def _refill_messages(self):
-        # first we have to hide all messages, otherwise the popup window will mantain
+        # first we have to hide all messages, otherwise the popup window will maintain
         # all the old messages
         childs = self.popup.get_children()[0].get_children()
         for child in childs:
             child.hide()
         # then we rezise the popup window to a very small size, otherwise the dimensions
-        # of the window will be mantained
+        # of the window will be maintained
         self.popup.resize(1, 1)
         # if it was the last message, than we can hide the popup window
         if len(self.messages) == 0:

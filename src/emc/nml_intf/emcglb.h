@@ -52,7 +52,7 @@ extern "C" {
     extern unsigned char have_tool_change_position;
 
 
-/*just used to keep track of unneccessary debug printing. */
+/*just used to keep track of unnecessary debug printing. */
     extern int taskplanopen;
 
     extern int emcGetArgs(int argc, char *argv[]);

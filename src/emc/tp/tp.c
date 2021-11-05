@@ -1620,13 +1620,13 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
  * Walk along the queue from the back to the front. Based on the "current"
  * segment's final velocity, calculate the previous segment's maximum allowable
  * final velocity. The depth we walk along the queue is controlled by the
- * TP_LOOKAHEAD_DEPTH constant for now. The process safetly aborts early due to
+ * TP_LOOKAHEAD_DEPTH constant for now. The process safely aborts early due to
  * a short queue or other conflicts.
  */
 STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     // Pointers to the "current", previous, and 2nd previous trajectory
     // components. Current in this context means the segment being optimized,
-    // NOT the currently excecuting segment.
+    // NOT the currently executing segment.
 
     TC_STRUCT *tc;
     TC_STRUCT *prev1_tc;

@@ -127,7 +127,7 @@ This finds the coordinates of a point, "end", in the currently
 active coordinate system, and sets the values of the pointers to the
 coordinates (which are the arguments to the function).
 
-In all cases, if no value for the coodinate is given in the block, the
+In all cases, if no value for the coordinate is given in the block, the
 current value for the coordinate is used. When cutter radius
 compensation is on, this function is called before compensation
 calculations are performed, so the current value of the programmed

@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     /* syntax is a.out {i|f # # # # # #} */
     if (argc == 8) {
         if (argv[1][0] == 'f') {
-            /* joints passed, so do interations on forward kins for timing */
+            /* joints passed, so do iterations on forward kins for timing */
             for (t = 0; t < 6; t++) {
                 if (1 != sscanf(argv[t + 2], "%lf", &joints[t])) {
                     fprintf(stderr, "bad value: %s\n", argv[t + 2]);

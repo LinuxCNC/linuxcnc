@@ -651,7 +651,7 @@ class Pages:
         if self.w.laddertouchz.get_active():
             i = self.d.gladevcphaluicmds
             self.w["halui_cmd%d"%(i)].set_text("G38.2 Z-2 F16   ( search for touch off plate )")
-            self.w["halui_cmd%d"%(i+1)].set_text("G10 L20 P0 Z.25 ( Ofset current Origin by plate thickness )")
+            self.w["halui_cmd%d"%(i+1)].set_text("G10 L20 P0 Z.25 ( Offset current Origin by plate thickness )")
             self.w["halui_cmd%d"%(i+2)].set_text("G0 Z.5           ( Rapid away from touch off plate )")
 
     def on_xusecomp_toggled(self, *args): self.a.comp_toggle('x')

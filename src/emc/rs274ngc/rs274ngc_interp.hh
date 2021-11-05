@@ -664,7 +664,7 @@ int read_inputs(setup_pointer settings);
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
 #define NAMEDPARAMS_MODULE "namedparams"
-    // describes intented use, and hence parameter and return value
+    // describes intended use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,
 		       PY_FINISH_OWORDCALL,

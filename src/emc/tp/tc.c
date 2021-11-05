@@ -273,7 +273,7 @@ int pmCircleTangentVector(PmCircle const * const circle,
 
 
 /**
- * Calulate the unit tangent vector at the start of a move for any segment.
+ * Calculate the unit tangent vector at the start of a move for any segment.
  */
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
@@ -295,7 +295,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 }
 
 /**
- * Calulate the unit tangent vector at the end of a move for any segment.
+ * Calculate the unit tangent vector at the end of a move for any segment.
  */
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 

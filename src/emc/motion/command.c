@@ -7,13 +7,13 @@
 * pc says:
 *
 *   Most of the configs would be better off being passed via an ioctl
-*   implimentation leaving pure realtime data to be handled by
+*   implementation leaving pure realtime data to be handled by
 *   emcmotCommandHandler() - This would provide a small performance
 *   increase on slower systems.
 *
 * jmk says:
 *
-*   Using commands to set config parameters is "undesireable", because
+*   Using commands to set config parameters is "undesirable", because
 *   of the large amount of code needed for each parameter.  Today you
 *   need to do the following to add a single new parameter called foo:
 *
@@ -42,7 +42,7 @@
 *       there are about 6 switch statements that need at least a
 *       case label added.
 *   12) Add cases to two giant switch statements in emc.cc, associated
-*       with looking up and formating the command.
+*       with looking up and formatting the command.
 *
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
@@ -1764,7 +1764,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
 
 	        /* if (emcmotStatus->spindle.orient) { */
-	        /* 	reportError(_("cant turn on spindle during orient in progress")); */
+	        /* 	reportError(_("can\'t turn on spindle during orient in progress")); */
 	        /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
 	        /* 	tpAbort(&emcmotDebug->tp); */
 	        /* 	SET_MOTION_ERROR_FLAG(1); */
@@ -1783,7 +1783,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
         }
         emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
 
-       // check wether it's passed correctly
+       // check whether it's passed correctly
        if (!emcmotStatus->atspeed_next_feed){
            rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON without wait-for-atspeed");
        }
@@ -1843,7 +1843,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        if (*(emcmot_hal_data->spindle[n].spindle_orient)) {
 		    rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
 
-		    // mah:FIXME unsure wether this is ok or an error
+		    // mah:FIXME unsure whether this is ok or an error
 		    /* reportError(_("orient already in progress")); */
 		    /* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
 		    /* tpAbort(&emcmotDebug->tp); */

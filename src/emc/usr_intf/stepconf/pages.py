@@ -56,7 +56,7 @@ class Pages:
         else:
             return True
 
-    # seaches (self._p.available_page) from the current page forward,
+    # searches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -84,13 +84,13 @@ class Pages:
         elif u == len(self._p.available_page):
             name,text,state = self._p.available_page[cur]
             self['%s_finish'%name]()
-        # if comming from page 0 to page 1 sensitize 
+        # if coming from page 0 to page 1 sensitize 
         # the back button and change fwd button text
         if cur == 0:
             self.w.button_back.set_sensitive(True)
             self.w.label_fwd.set_text(self._p.MESS_FWD)
 
-    # seaches (self._p.available_page) from the current page backward,
+    # searches (self._p.available_page) from the current page backward,
     # for the next page that is True or till first page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page

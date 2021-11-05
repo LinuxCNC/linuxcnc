@@ -119,7 +119,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->control_mode == CANON_CONTINUOUS) ? G_64 :
     (settings->control_mode == CANON_EXACT_PATH) ? G_61 : G_61_1;
   gez[12] = -1;
-  gez[13] = //I don't even know how to display the mode of an arbitray number of spindles (andypugh 17/6/16)
+  gez[13] = //I don't even know how to display the mode of an arbitrary number of spindles (andypugh 17/6/16)
     (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;

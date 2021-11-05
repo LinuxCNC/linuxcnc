@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: sockets.c
-*   socket utilites
+*   socket utilities
 *
 * Copyright(c) 2001, Joris Robijn
 *          (c) 2003, Rene Wagner

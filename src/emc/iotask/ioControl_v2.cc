@@ -33,7 +33,7 @@
  *  only if UEO, EEST are closed when URE gets strobed.
  *  If any of UEO (user requested stop) or EEST (external estop) have been
  *  opened, then EEI will open as well.
- *  After restoring normal condition (UEO and EEST closed), an aditional
+ *  After restoring normal condition (UEO and EEST closed), an additional
  *  URE (user-request-enable) is needed, this is either sent by the GUI
  *  (using the EMC_AUX_ESTOP_RESET NML message), or by a hardware button
  *  connected to the ladder driving URE.
@@ -686,7 +686,7 @@ static int read_inputs(void)
 
     if (*iocontrol_data->tool_change) {
 
-        // check wether a toolchanger fault will force an abort of this change
+        // check whether a toolchanger fault will force an abort of this change
         if ((proto > V1) && (*iocontrol_data->toolchanger_faulted))  {
 
             /* unlikely but possible: toolchanger_faulted was asserted since
@@ -1016,7 +1016,7 @@ int main(int argc, char *argv[])
                 // fix race condition by asserting abort-tool-change before
                 // deasserting tool-change and tool-prepare
                 *(iocontrol_data->emc_reason) = ((EMC_TOOL_ABORT *) emcioCommand)->reason;
-                *(iocontrol_data->emc_abort) = 1;      // notify TC of abort conditon
+                *(iocontrol_data->emc_abort) = 1;      // notify TC of abort condition
             }
             *(iocontrol_data->tool_change) = 0;      // abort tool change if in progress
             *(iocontrol_data->tool_prepare) = 0;     // abort tool prepare if in progress
@@ -1182,7 +1182,7 @@ int main(int argc, char *argv[])
             break;
         case EMC_TOOL_SET_NUMBER_TYPE:
         {
-            // changed als in interp_convert.cc to convey the pocket number, not the tool number
+            // changed also in interp_convert.cc to convey the pocket number, not the tool number
            // needed so toolTable[0] can be properly set including offsets
             int idx;
 

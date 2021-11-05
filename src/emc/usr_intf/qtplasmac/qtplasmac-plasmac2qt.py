@@ -291,7 +291,7 @@ class Converter(QMainWindow, object):
     # CHECK IF VALID PLASMAC CONFIG
         if not os.path.exists('{}/plasmac'.format(os.path.dirname(self.iniIn))):
             msg  = '{}\n'.format(self.iniIn)
-            msg += '\n is not a PlasmaC configurtion\n'
+            msg += '\n is not a PlasmaC configuration\n'
             self.dialog_ok('CONFIG ERROR', msg)
             self.fromFile.setFocus()
             return

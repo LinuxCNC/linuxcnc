@@ -440,7 +440,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
         shift = event.state & Gdk.ModifierType.SHIFT_MASK
         # for lathe or plasmas rotation is not used, so we check for it
-        # recomended to use mode 6 for that type of machines
+        # recommended to use mode 6 for that type of machines
         cancel = bool(self.lathe_option)
         
         # 0 = default: left rotate, middle move, right zoom

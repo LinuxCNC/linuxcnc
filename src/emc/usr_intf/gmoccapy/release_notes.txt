@@ -876,7 +876,7 @@ ver. 1.5.0
 
 - gmoccapy will now react to some halui pin as counts or direct value
   Be aware, that some of this may have side affects, it is strongly 
-  recomended to use the corresponding gmoccapy hal pin. 
+  recommended to use the corresponding gmoccapy hal pin. 
 
   * halui.spindle-override.counts
   * halui.feed-override.counts
@@ -1694,7 +1694,7 @@ ver. 0.9.3.2
 - changed hardware button handling to fit also to lathe mode
 - included a test to avoid speeding the spindle over its limit using the spindle speed override
   i.e. max = 6000 but S = 5500 and override = 120 % would result in 6600, but only 6000 is possible
-- also check spindle speed if the commands are given trough MDI and override is to high will reduce
+- also check spindle speed if the commands are given through MDI and override is to high will reduce
   the override value to max allowed
 
 ver. 0.9.3.1

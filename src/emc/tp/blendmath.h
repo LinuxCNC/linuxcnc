@@ -72,7 +72,7 @@ typedef struct {
     double tolerance;   /* Net blend tolerance (min of line 1 and 2) */
     double L1;          /* Available part of line 1 to blend over */
     double L2;          /* Available part of line 2 to blend over */
-    double v_req;       /* requsted velocity for the blend arc */
+    double v_req;       /* requested velocity for the blend arc */
     double a_max;       /* max acceleration allowed for blend */
 
     /* These fields are considered "output", and may be refactored into a

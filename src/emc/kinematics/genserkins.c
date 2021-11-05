@@ -16,7 +16,7 @@ TEST: switchable kinematics: identity or genserkins
 
 NOTE:
 a) requires *exactly* 6 joints
-b) identity assigments can use any of xyzabcuvw
+b) identity assignments can use any of xyzabcuvw
    but should agree with [TRAJ]COORDINATES
    and may be confusing
 
