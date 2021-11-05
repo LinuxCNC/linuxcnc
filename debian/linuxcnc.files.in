@@ -26,7 +26,7 @@ usr/share/doc/linuxcnc/gcode_vi.html
 usr/share/doc/linuxcnc/rtfaults.adoc
 usr/share/doc/linuxcnc/AUTHORS
 usr/share/doc/linuxcnc/axis_light_background
-usr/share/doc/linuxcnc/README
+usr/share/doc/linuxcnc/README.adoc
 usr/share/doc/linuxcnc/tklinuxcnc.adoc
 usr/share/doc/linuxcnc/README.axis
 usr/share/doc/linuxcnc/examples/nc_files
