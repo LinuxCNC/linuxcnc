@@ -804,7 +804,9 @@ PyObject *component_is_ready(PyObject *self, PyObject *args) {
 	return NULL;
     }
 
-    return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != 0);
+    // Bad form to assume comp name exists - stop crashing!
+    hal_comp_t *thecomp = halpr_find_comp_by_name(name);
+    return PyBool_FromLong((thecomp) && (thecomp->ready != 0));
 }
 
 PyObject *new_sig(PyObject *self, PyObject *args) {
