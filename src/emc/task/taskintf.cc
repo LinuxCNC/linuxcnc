@@ -1790,14 +1790,14 @@ int emcMotionSetDebug(int debug)
 }
 
 /*! \function emcMotionSetAout()
-    
+
     This function sends a EMCMOT_SET_AOUT message to the motion controller.
     That one plans a AOUT command when motion starts or right now.
 
-    @parameter	index	which output gets modified
-    @parameter	now	wheather change is imediate or synched with motion
-    @parameter	start	value set at start of motion
-    @parameter	end	value set at end of motion
+    @parameter index   which output gets modified
+    @parameter now     whether change is immediate or synched with motion
+    @parameter start   value set at start of motion
+    @parameter end     value set at end of motion
 */
 int emcMotionSetAout(unsigned char index, double start, double end, unsigned char now)
 {
@@ -1813,14 +1813,14 @@ int emcMotionSetAout(unsigned char index, double start, double end, unsigned cha
 }
 
 /*! \function emcMotionSetDout()
-    
+
     This function sends a EMCMOT_SET_DOUT message to the motion controller.
     That one plans a DOUT command when motion starts or right now.
 
-    @parameter	index	which output gets modified
-    @parameter	now	wheather change is imediate or synched with motion
-    @parameter	start	value set at start of motion
-    @parameter	end	value set at end of motion
+    @parameter index   which output gets modified
+    @parameter now     whether change is immediate or synched with motion
+    @parameter start   value set at start of motion
+    @parameter end     value set at end of motion
 */
 int emcMotionSetDout(unsigned char index, unsigned char start,
 		     unsigned char end, unsigned char now)
