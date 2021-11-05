@@ -1,4 +1,4 @@
-VERSION = '1.216.112'
+VERSION = '1.216.113'
 
 '''
 qtplasmac_handler.py
@@ -67,8 +67,8 @@ from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_block as CONVBLCK
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 
-# **** TEMP FOR CONVERSATIONAL TESTING ****
-#from importlib import reload
+# **** TEMP FOR CONVERSATIONAL TESTING 1 of 3 ****
+from importlib import reload
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -5011,6 +5011,7 @@ class HandlerClass:
         self.xSaved = '0.000'
         self.ySaved = '0.000'
         self.oSaved = self.origin
+        self.convBlock = [False, False]
         if not self.oldConvButton:
             self.conv_shape_request('conv_line', CONVLINE, True)
 
@@ -5071,6 +5072,8 @@ class HandlerClass:
         self.vkb_show(True)
 
     def conv_settings_pressed(self):
+# **** TEMP FOR CONVERSATIONAL TESTING 2 of 3 ****
+        reload(CONVSET)
         self.color_button_image(self.oldConvButton, self.foreColor)
         self.w[self.oldConvButton].setStyleSheet(\
                 'QPushButton {{ background: {0} }} \
@@ -5113,8 +5116,8 @@ class HandlerClass:
         self.conv_shape_request(self.w.sender().objectName(), CONVBLCK, False)
 
     def conv_shape_request(self, shape, module, material):
-# **** TEMP FOR CONVERSATIONAL TESTING ****
-#        reload(module)
+# **** TEMP FOR CONVERSATIONAL TESTING 3 of 3****
+        reload(module)
         if not self.convSettingsChanged:
             if self.convPreviewActive and not self.conv_active_shape():
                 return

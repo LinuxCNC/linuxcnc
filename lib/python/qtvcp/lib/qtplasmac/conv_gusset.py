@@ -297,6 +297,10 @@ def entry_changed(P, W, widget):
         W.kOffset.setEnabled(True)
 
 def widgets(P, W):
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     if not P.convSettingsChanged:
         #widgets
         W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
@@ -314,10 +318,6 @@ def widgets(P, W):
         W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
         W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
         W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-        W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-        W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-        W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
         W.wLabel = QLabel(_translate('Conversational', 'WIDTH'))
         W.wEntry = QLineEdit()
         W.hLabel = QLabel(_translate('Conversational', 'HEIGHT'))
@@ -326,37 +326,37 @@ def widgets(P, W):
         W.rEntry = QLineEdit('0.0')
         W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
         W.aEntry = QLineEdit('90.0', objectName='aEntry')
-        W.add = QPushButton(_translate('Conversational', 'ADD'))
-        W.lDesc = QLabel(_translate('Conversational', 'CREATING GUSSET'))
-        W.iLabel = QLabel()
-        pixmap = QPixmap('{}conv_gusset_l.png'.format(P.IMAGES)).scaledToWidth(196)
-        W.iLabel.setPixmap(pixmap)
-        #alignment and size
-        rightAlign = ['ctLabel', 'koLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
-                      'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', 'wEntry', \
-                      'hLabel', 'hEntry', 'rEntry', 'aLabel', 'aEntry']
-        centerAlign = ['lDesc']
-        rButton = ['cExt', 'cInt']
-        pButton = ['preview', 'add', 'undo', 'rButton', 'kOffset']
-        for widget in rightAlign:
-            W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in centerAlign:
-            W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            W[widget].setFixedWidth(240)
-            W[widget].setFixedHeight(24)
-        for widget in rButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in pButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        #starting parameters
-        W.add.setEnabled(False)
-        if not W.liEntry.text() or float(W.liEntry.text()) == 0:
-            W.kOffset.setChecked(False)
-            W.kOffset.setEnabled(False)
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING GUSSET'))
+    W.iLabel = QLabel()
+    pixmap = QPixmap('{}conv_gusset_l.png'.format(P.IMAGES)).scaledToWidth(196)
+    W.iLabel.setPixmap(pixmap)
+    #alignment and size
+    rightAlign = ['ctLabel', 'koLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
+                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'wLabel', 'wEntry', \
+                  'hLabel', 'hEntry', 'rEntry', 'aLabel', 'aEntry']
+    centerAlign = ['lDesc']
+    rButton = ['cExt', 'cInt']
+    pButton = ['preview', 'add', 'undo', 'rButton', 'kOffset']
+    for widget in rightAlign:
+        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in centerAlign:
+        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setFixedWidth(240)
+        W[widget].setFixedHeight(24)
+    for widget in rButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in pButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    #starting parameters
+    W.add.setEnabled(False)
+    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
+        W.kOffset.setChecked(False)
+        W.kOffset.setEnabled(False)
     #connections
     W.preview.pressed.disconnect()
     W.undo.pressed.disconnect()

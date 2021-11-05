@@ -1,6 +1,7 @@
 [[cha:qtplasmac]]
 
 = QtPlasmaC
+:toc:
 :toclevels: 5
 :figure-caption!:
 

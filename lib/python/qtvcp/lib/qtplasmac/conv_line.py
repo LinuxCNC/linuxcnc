@@ -570,53 +570,53 @@ def widgets(P, W):
         W.entry7 = QLineEdit()
         W.label8 = QLabel()
         W.entry8 = QLineEdit()
-        W.add = QPushButton(_translate('Conversational', 'ADD'))
-        W.lDesc = QLabel(_translate('Conversational', 'CREATING LINE OR ARC'))
-        text = _translate('Conversational', 'CW')
-        W.g2Arc = QRadioButton('      {}'.format(text))
-        text = _translate('Conversational', 'CCW')
-        W.g3Arc = QRadioButton('     {}'.format(text))
-        W.iLabel = QLabel()
-        P.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
-        P.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)
-        P.pixArc3p = QPixmap('{}conv_arc_3p.png'.format(P.IMAGES)).scaledToWidth(196)
-        P.pixArc2pr = QPixmap('{}conv_arc_2pr.png'.format(P.IMAGES)).scaledToWidth(196)
-        P.pixArcAngle = QPixmap('{}conv_arc_angle.png'.format(P.IMAGES)).scaledToWidth(196)
-        #alignment and size
-        rightAlign = ['label1', 'entry1', 'label2', 'entry2', 'label3', 'entry3', \
-                      'label4', 'entry4', 'label5', 'entry5', 'label6', 'entry6', \
-                      'label7', 'entry7', 'label8', 'entry8']
-        centerAlign = ['lDesc']
-        rButton = ['g2Arc', 'g3Arc']
-        pButton = ['preview', 'add', 'undo']
-        for widget in rightAlign:
-            W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in centerAlign:
-            W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            W[widget].setFixedWidth(240)
-            W[widget].setFixedHeight(24)
-        for widget in rButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in pButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        #starting parameters
-        W.add.setEnabled(False)
-        W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
-        W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
-        W.lType.addItem(_translate('Conversational', 'ARC 3P'))
-        W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
-        W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
-        P.conv_add_segment = 0
-        P.conv_gcodeLine = ''
-        P.conv_gcodeSave = ''
-        P.xLineStart = 0.000
-        P.yLineStart = 0.000
-        if not W.g2Arc.isChecked() and not W.g3Arc.isChecked():
-            W.g2Arc.setChecked(True)
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING LINE OR ARC'))
+    text = _translate('Conversational', 'CW')
+    W.g2Arc = QRadioButton('      {}'.format(text))
+    text = _translate('Conversational', 'CCW')
+    W.g3Arc = QRadioButton('     {}'.format(text))
+    W.iLabel = QLabel()
+    P.pixLinePoint = QPixmap('{}conv_line_point.png'.format(P.IMAGES)).scaledToWidth(196)
+    P.pixLineAngle = QPixmap('{}conv_line_angle.png'.format(P.IMAGES)).scaledToWidth(196)
+    P.pixArc3p = QPixmap('{}conv_arc_3p.png'.format(P.IMAGES)).scaledToWidth(196)
+    P.pixArc2pr = QPixmap('{}conv_arc_2pr.png'.format(P.IMAGES)).scaledToWidth(196)
+    P.pixArcAngle = QPixmap('{}conv_arc_angle.png'.format(P.IMAGES)).scaledToWidth(196)
+    #alignment and size
+    rightAlign = ['label1', 'entry1', 'label2', 'entry2', 'label3', 'entry3', \
+                  'label4', 'entry4', 'label5', 'entry5', 'label6', 'entry6', \
+                  'label7', 'entry7', 'label8', 'entry8']
+    centerAlign = ['lDesc']
+    rButton = ['g2Arc', 'g3Arc']
+    pButton = ['preview', 'add', 'undo']
+    for widget in rightAlign:
+        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in centerAlign:
+        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setFixedWidth(240)
+        W[widget].setFixedHeight(24)
+    for widget in rButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in pButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    #starting parameters
+    W.add.setEnabled(False)
+    W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
+    W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
+    W.lType.addItem(_translate('Conversational', 'ARC 3P'))
+    W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
+    W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
+    P.conv_add_segment = 0
+    P.conv_gcodeLine = ''
+    P.conv_gcodeSave = ''
+    P.xLineStart = 0.000
+    P.yLineStart = 0.000
+    if not W.g2Arc.isChecked() and not W.g3Arc.isChecked():
+        W.g2Arc.setChecked(True)
     #connections
     # we need an exception handler here as there is no signal connected in the first instance
     try:

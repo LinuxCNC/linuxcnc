@@ -229,6 +229,15 @@ def entry_changed(P, W, widget):
         W.kOffset.setEnabled(True)
 
 def widgets(P, W):
+    W.spGroup = QButtonGroup(W)
+    W.center = QRadioButton(_translate('Conversational', 'CENTER'))
+    W.spGroup.addButton(W.center)
+    W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
+    W.spGroup.addButton(W.bLeft)
+    W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
+    W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
+    W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
+    W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
     if not P.convSettingsChanged:
         W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
         W.ctGroup = QButtonGroup(W)
@@ -241,20 +250,11 @@ def widgets(P, W):
         W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
         W.kOffset.setCheckable(True)
         W.spLabel = QLabel(_translate('Conversational', 'START'))
-        W.spGroup = QButtonGroup(W)
-        W.center = QRadioButton(_translate('Conversational', 'CENTER'))
-        W.spGroup.addButton(W.center)
-        W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
-        W.spGroup.addButton(W.bLeft)
         text = _translate('Conversational', 'ORIGIN')
         W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
         W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
         W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
         W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
-        W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
-        W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-        W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
-        W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
         W.sLabel = QLabel(_translate('Conversational', 'SIDES'))
         W.sEntry = QLineEdit(objectName = 'intEntry')
         W.mCombo = QComboBox()
@@ -262,44 +262,44 @@ def widgets(P, W):
         W.dEntry = QLineEdit()
         W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
         W.aEntry = QLineEdit('0.0', objectName='aEntry')
-        W.add = QPushButton(_translate('Conversational', 'ADD'))
-        W.lDesc = QLabel(_translate('Conversational', 'CREATING POLYGON'))
-        W.iLabel = QLabel()
-        pixmap = QPixmap('{}conv_polygon_l.png'.format(P.IMAGES)).scaledToWidth(196)
-        W.iLabel.setPixmap(pixmap)
-        #alignment and size
-        rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
-                      'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', 'sLabel', \
-                      'sEntry', 'dLabel', 'dEntry', 'aLabel', 'aEntry']
-        centerAlign = ['lDesc']
-        rButton = ['cExt', 'cInt', 'center', 'bLeft']
-        pButton = ['preview', 'add', 'undo', 'kOffset']
-        for widget in rightAlign:
-            W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in centerAlign:
-            W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
-            W[widget].setFixedWidth(240)
-            W[widget].setFixedHeight(24)
-        for widget in rButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        for widget in pButton:
-            W[widget].setFixedWidth(80)
-            W[widget].setFixedHeight(24)
-        #starting parameters
-        W.add.setEnabled(False)
-        W.mCombo.addItem('CIRCUMSCRIBED')
-        W.mCombo.addItem('INSCRIBED')
-        W.mCombo.addItem('SIDE LENGTH')
-        if P.oSaved:
-            W.center.setChecked(True)
-        else:
-            W.bLeft.setChecked(True)
-        if not W.liEntry.text() or float(W.liEntry.text()) == 0:
-            W.kOffset.setChecked(False)
-            W.kOffset.setEnabled(False)
+    W.add = QPushButton(_translate('Conversational', 'ADD'))
+    W.lDesc = QLabel(_translate('Conversational', 'CREATING POLYGON'))
+    W.iLabel = QLabel()
+    pixmap = QPixmap('{}conv_polygon_l.png'.format(P.IMAGES)).scaledToWidth(196)
+    W.iLabel.setPixmap(pixmap)
+    #alignment and size
+    rightAlign = ['ctLabel', 'koLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
+                  'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', 'sLabel', \
+                  'sEntry', 'dLabel', 'dEntry', 'aLabel', 'aEntry']
+    centerAlign = ['lDesc']
+    rButton = ['cExt', 'cInt', 'center', 'bLeft']
+    pButton = ['preview', 'add', 'undo', 'kOffset']
+    for widget in rightAlign:
+        W[widget].setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in centerAlign:
+        W[widget].setAlignment(Qt.AlignCenter | Qt.AlignBottom)
+        W[widget].setFixedWidth(240)
+        W[widget].setFixedHeight(24)
+    for widget in rButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    for widget in pButton:
+        W[widget].setFixedWidth(80)
+        W[widget].setFixedHeight(24)
+    #starting parameters
+    W.add.setEnabled(False)
+    W.mCombo.addItem('CIRCUMSCRIBED')
+    W.mCombo.addItem('INSCRIBED')
+    W.mCombo.addItem('SIDE LENGTH')
+    if P.oSaved:
+        W.center.setChecked(True)
+    else:
+        W.bLeft.setChecked(True)
+    if not W.liEntry.text() or float(W.liEntry.text()) == 0:
+        W.kOffset.setChecked(False)
+        W.kOffset.setEnabled(False)
     #connections
     W.preview.pressed.disconnect()
     W.undo.pressed.disconnect()
