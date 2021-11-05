@@ -1,4 +1,5 @@
 README for Document Writers
+===========================
 
 Adding files:
 -------------
@@ -8,7 +9,7 @@ docs.xml is used to create the "previous" and "next" buttons at the top of each 
 it should generally match the order of the index.tmpl
 
 Notes on LinuxCNC documentation:
-----------------------------
+--------------------------------
 The main LinuxCNC makefile can optionally build the documentation and
 other files in this directory tree. Use "--enable-build-documentation" when
 invoking src/configure, and run "make" from src.
@@ -58,20 +59,19 @@ files are stored in Git, and the normal documentation build process only
 uses the PostScript files. If/when the DXF files are edited, they have
 to be converted to PostScript manually as follows:
 
-start QCAD
-File→Open→choose DXF file
-(The drawing appears in window.)
-Edit→CurrentDrawingPreferences→Paper
-Set paper size to "Letter", set orientation to "Landscape" or "Portrait"
+ - start QCAD
+ - File→Open→choose DXF file (The drawing appears in window.)
+ - Edit→CurrentDrawingPreferences→Paper
+ - Set paper size to "Letter", set orientation to "Landscape" or "Portrait"
   depending on the aspect ratio of the drawing.
-File→PrintPreview
-click the "fit to page" button on the toolbar (last button on the right at
-  least on version 2.0.4.0 of QCAD)
-File→Print
-  Select "Print to file"
-  Set the path to point to the same directory as the source .dxf file
-  Set the name to be the same as the source file, but .ps instead of .dxf
-  Click "OK"
+ - File→PrintPreview
+   click the "fit to page" button on the toolbar (last button on the right at
+   least on version 2.0.4.0 of QCAD)
+ - File→Print
+ * Select "Print to file"
+ * Set the path to point to the same directory as the source .dxf file
+ * Set the name to be the same as the source file, but .ps instead of .dxf
+ * Click "OK"
 
 The makers of QCAD also have a GPL'ed format converter called vec2web,
 which can do dxf to postscript conversion from the command-line. It
@@ -86,13 +86,18 @@ systems where vec2web is installed.
 To build vec2web, apt-get install qt3-dev-tools.
 The vec2web tarball contains a build script, but before you run it you
 must set $QTDIR to point at your Qt 3 installation — in my case it was
+```
   export QTDIR=/usr/share/qt3
+```
 Then run the build script:
+```
   ./build_vec2web.sh
+```
 There is no install step, the executable gets dumped into the build directory.
 There is also no man page, but running it with no args prints the following
 usage instructions:
 
+```
 Usage: vec2web <input file> <output file> [options]
 Where options are:
         -x #      maximum x size for the output bitmap in pixel
@@ -103,7 +108,7 @@ Where options are:
 
 e.g. vec2web drawing.dxf drawing.png
         converts drawing.dxf to a portable network graphic
-
+```
 Initial attempts to use vec2web resulted in the graphical parts of the
 drawing being converted, but all text was lost. I don't know if vec2web is
 worth spending much more time on, however, it _is_ GPLv2, and it includes a
@@ -112,9 +117,9 @@ community.
 
 Drawings from QCAD
 -------------------
-Save as .dxf to the same directory as the image
-Set line thickness to 0.50mm
-Export the  image as 480 x 480 Resolution Auto .png
+ - Save as .dxf to the same directory as the image
+ - Set line thickness to 0.50mm
+ - Export the  image as 480 x 480 Resolution Auto .png
 
 
 How to add a new translation language
