@@ -5,7 +5,7 @@
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #
 #    stepconf 1.1 revamped by Chris Morley 2014
-#    replaced Gnome Druid as that is not available in future linux distrubutions
+#    replaced Gnome Druid as that is not available in future linux distributions
 #    and because of GTK/GLADE bugs, the GLADE file could only be edited with Ubuntu 8.04
 #
 #    This program is free software; you can redistribute it and/or modify

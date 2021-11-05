@@ -212,7 +212,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	}
 	if (!inifile.Open(iniFileName)) {
 	    *status = 0;
-	    ERS(_("cant open ini file '%s'"), iniFileName);
+	    ERS(_("can\'t open ini file '%s'"), iniFileName);
 	}
 
 	char capName[LINELEN];

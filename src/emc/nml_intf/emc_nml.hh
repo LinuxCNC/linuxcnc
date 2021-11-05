@@ -51,7 +51,7 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
 
 /**
  * Send a textual information message to the operator.
- * This is similiar to EMC_OPERATOR_ERROR message except that the messages are
+ * This is similar to EMC_OPERATOR_ERROR message except that the messages are
  * sent in situations not necessarily considered to be errors.
  */
 class EMC_OPERATOR_TEXT:public RCS_CMD_MSG {
@@ -189,7 +189,7 @@ class EMC_JOINT_CMD_MSG:public RCS_CMD_MSG {
 
 /**
  * Set the joint type to linear or angular.
- * Similiar to the JOINT_TYPE field in the ".ini" file.
+ * Similar to the JOINT_TYPE field in the ".ini" file.
  */
 class EMC_JOINT_SET_JOINT:public EMC_JOINT_CMD_MSG {
   public:
@@ -1133,7 +1133,7 @@ class EMC_MOTION_SET_AOUT:public EMC_MOTION_CMD_MSG {
     unsigned char index;	// which to set
     double start;		// value at start
     double end;			// value at end
-    unsigned char now;		// wether command is imediate or synched with motion
+    unsigned char now;		// whether command is immediate or synched with motion
 };
 
 class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
@@ -1148,7 +1148,7 @@ class EMC_MOTION_SET_DOUT:public EMC_MOTION_CMD_MSG {
     unsigned char index;	// which to set
     unsigned char start;	// binary value at start
     unsigned char end;		// binary value at end
-    unsigned char now;		// wether command is imediate or synched with motion
+    unsigned char now;		// whether command is immediate or synched with motion
 };
 
 class EMC_MOTION_ADAPTIVE:public EMC_MOTION_CMD_MSG {
@@ -2111,7 +2111,7 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     double cycleTime;
     int debug;			// copy of EMC_DEBUG global
     int reason;			// to communicate abort/fault cause
-    int fault;                  //  0 on succes, 1 on fault during M6
+    int fault;                  //  0 on success, 1 on fault during M6
     // aggregate of IO-related status classes
     EMC_TOOL_STAT tool;
     EMC_COOLANT_STAT coolant;

@@ -2603,7 +2603,7 @@ int Interp::convert_home(int move,       //!< G code, must be G_28 or G_30
 Returned Value: int
    If any of the following errors occur, this returns the error shown.
    Otherwise, it returns INTERP_OK.
-   1. The g_code argument isnt G_20 or G_21:
+   1. The g_code argument isn't G_20 or G_21:
       NCE_BUG_CODE_NOT_G20_OR_G21
    2. Cutter radius compensation is on:
       NCE_CANNOT_CHANGE_UNITS_WITH_CUTTER_RADIUS_COMP
@@ -3165,8 +3165,8 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
   /* The M62-65 commands are used for DIO */
   /* M62 sets a DIO synched with motion
      M63 clears a DIO synched with motion
-     M64 sets a DIO imediately
-     M65 clears a DIO imediately 
+     M64 sets a DIO immediately
+     M65 clears a DIO immediately 
      M66 waits for an input
      M67 reads a digital input
      M68 reads an analog input*/

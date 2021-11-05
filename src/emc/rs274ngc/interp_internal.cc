@@ -44,7 +44,7 @@ Side effects: See below
 Called by:  read_text
 
 To simplify handling upper case letters, spaces, and tabs, this
-function removes spaces and and tabs and downcases everything on a
+function removes spaces and tabs and downcases everything on a
 line which is not part of a comment.
 
 Comments are left unchanged in place. Comments are anything

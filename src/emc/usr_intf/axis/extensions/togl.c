@@ -792,7 +792,7 @@ void Togl_ResetDefaultCallbacks( void )
 
 
 /*
- * Chnage the create callback for a specific Togl widget.
+ * Change the create callback for a specific Togl widget.
  */
 void Togl_SetCreateFunc( struct Togl *togl, Togl_Callback *proc )
 {
@@ -3187,7 +3187,7 @@ int main(int argc, char *argv[])
  *
  * MacintoshInit --
  *
- *	This procedure calls Mac specific initilization calls.  Most of
+ *	This procedure calls Mac specific initialization calls.  Most of
  *	these calls must be made as soon as possible in the startup
  *	process.
  *
@@ -3216,7 +3216,7 @@ int Togl_MacInit(void)
 
    /*
     * Tk needs us to set the qd pointer it uses.  This is needed
-    * so Tk doesn't have to assume the availablity of the qd global
+    * so Tk doesn't have to assume the availability of the qd global
     * variable.  Which in turn allows Tk to be used in code resources.
     */
    tcl_macQdPtr = &qd;

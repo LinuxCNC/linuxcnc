@@ -100,7 +100,7 @@ _BB_TOOL = 7
 _BB_LOAD_FILE = 8
 #_BB_HOME_JOINTS will not be used, we will reorder the notebooks to get the correct page shown
 
-_TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usualy /tmp
+_TEMPDIR = tempfile.gettempdir()  # Now we know where the tempdir is, usually /tmp
 
 # set up paths to files
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
@@ -146,7 +146,7 @@ class gmoccapy(object):
         locale.bindtextdomain("gmoccapy", LOCALEDIR)
         gettext.install("gmoccapy", localedir=LOCALEDIR)
 
-        # needed components to comunicate with hal and linuxcnc
+        # needed components to communicate with hal and linuxcnc
         self.halcomp = hal.component("gmoccapy")
         self.command = linuxcnc.command()
         self.stat = linuxcnc.stat()
@@ -170,8 +170,8 @@ class gmoccapy(object):
 
         self.start_line = 0  # needed for start from line
 
-        self.active_gcodes = []   # this are the formated G code values
-        self.active_mcodes = []   # this are the formated M code values
+        self.active_gcodes = []   # this are the formatted G code values
+        self.active_mcodes = []   # this are the formatted M code values
         self.gcodes = []          # this are the unformatted G code values to check if an update is required
         self.mcodes = []          # this are the unformatted M code values to check if an update is required
 
@@ -501,7 +501,7 @@ class gmoccapy(object):
         self.jog_increments = self.get_ini_info.get_increments()
         # check if NO_FORCE_HOMING is used in ini
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
-        # do we use a identity kinematics or do we have to distingish 
+        # do we use a identity kinematics or do we have to distinguish 
         # JOINT and Axis modes?
         self.trivial_kinematics = self.get_ini_info.get_trivial_kinematics()
         units = self.get_ini_info.get_machine_units()
@@ -1072,7 +1072,7 @@ class gmoccapy(object):
             return
 
         # if shift = True, then the user pressed SHIFT for Jogging and
-        # want's to jog at full speed
+        # wants to jog at full speed
         # This can only happen on keyboard jogging, not with the on screen jog button
         # We just only use one function for both cases
         if shift:
@@ -1773,7 +1773,7 @@ class gmoccapy(object):
             if "ntb_preview" in tab_locations:
                 self.widgets.ntb_preview.set_property( "show-tabs", True )
 
-            # This is normaly only used for the plasma screen layout
+            # This is normally only used for the plasma screen layout
             if "box_coolant_and_spindle" in tab_locations:
                 widgetlist = ["box_spindle", "box_cooling", "frm_spindle"]
                 for widget in widgetlist:
@@ -1899,7 +1899,7 @@ class gmoccapy(object):
         else:
             print (_("**** GMOCCAPY INFO ****"))
             print (_("**** no audio available! ****"))
-            print(_("**** PYGST libray not installed? ****"))
+            print(_("**** PYGST library not installed? ****"))
             print(_("**** is python-gstX.XX installed? ****"))
 
             self.widgets.audio_alert_chooser.set_sensitive(False)
@@ -1958,7 +1958,7 @@ class gmoccapy(object):
         self._set_enable_tooltips(not self.hide_tooltips)
 
 # =============================================================
-# Onboard keybord handling Start
+# Onboard keyboard handling Start
 
     # shows "Onboard" virtual keyboard if available
     # else error message
@@ -2041,7 +2041,7 @@ class gmoccapy(object):
             except:
                 pass
 
-# Onboard keybord handling End
+# Onboard keyboard handling End
 # =============================================================
 
     def _init_offsetpage(self):
@@ -2250,7 +2250,7 @@ class gmoccapy(object):
     # every 100 milli seconds this gets called
     # check linuxcnc for status, error and then update the readout
     def _periodic(self):
-        # we put the poll comand in a try, so if the linuxcnc pid is killed
+        # we put the poll command in a try, so if the linuxcnc pid is killed
         # from an external command, we also quit the GUI
         try:
             self.stat.poll()
@@ -2393,7 +2393,7 @@ class gmoccapy(object):
             # homed the second time, unfortunately we will then
             # not get out of MDI mode any more
             # That happen, because the tool in spindle did not change, so the 
-            # tool info is not updated and we self.change_tool will not be reseted
+            # tool info is not updated and we self.change_tool will not be reset
             if self.stat.tool_in_spindle != 0:
                 return
             self.reload_tool()
@@ -2459,7 +2459,7 @@ class gmoccapy(object):
             widgetlist.append("btn_tool_touchoff_z")
             widgetlist.append("btn_touch")
 
-        # This happen because hal_glib does emmit the signals in the order that idle is emited later that estop
+        # This happen because hal_glib does emit the signals in the order that idle is emitted later that estop
         if self.stat.task_state == linuxcnc.STATE_ESTOP or self.stat.task_state == linuxcnc.STATE_OFF:
             self._sensitize_widgets(widgetlist, False)
         else:
@@ -2788,7 +2788,7 @@ class gmoccapy(object):
         # set up the hal pin status of tool measurement
         # could not be done prior to this, as the hal pin are not created before
         # the tool measure check, due to the reason we need to know if creation
-        # of tool measurement button is needed. So we call the toogle action to
+        # of tool measurement button is needed. So we call the toggle action to
         # set all up and running
         self.on_chk_use_tool_measurement_toggled(self.widgets.chk_use_tool_measurement)
 
@@ -2835,7 +2835,7 @@ class gmoccapy(object):
         self.command.mdi(command)
         for btn in self.macrobuttons:
             btn.set_sensitive(False)
-        # we change the widget_image (doen by hal status)
+        # we change the widget_image (done by hal status)
         # and use the button to interrupt running macros
         if not self.onboard:
             self.macro_dic["keyboard"].set_sensitive(True)
@@ -2893,7 +2893,7 @@ class gmoccapy(object):
         # get the keyname
         keyname = Gdk.keyval_name(event.keyval)
 
-        # estop with F1 shold work every time
+        # estop with F1 should work every time
         # so should also escape abort actions
         if keyname == "F1":  # will estop the machine, but not reset estop!
             self.command.state(linuxcnc.STATE_ESTOP)
@@ -3378,7 +3378,7 @@ class gmoccapy(object):
         # but not from the ones we created dynamically
         for widget in self.widgets_with_tooltips:
             widget.set_has_tooltip(value)
-        # the dynamicaly created widgets are in ordert in dictionarys
+        # the dynamically created widgets are in ordered in dictionaries
         # self.joints_button_dic (only in non trivial kinematics)
         # self.ref_button_dic
         # self.touch_button_dic
@@ -3812,7 +3812,7 @@ class gmoccapy(object):
 
         # if we do not check this, we will get an error in auto mode and sub
         # calls from MDI containing i.e. G96 would not run, as the speed will
-        # be setted to the commanded value due the next code part
+        # be set to the commanded value due to the next code part
         if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
                 if self.stat.spindle[0]['direction'] > 0:
@@ -4448,7 +4448,7 @@ class gmoccapy(object):
 
     # Here we create a manual tool change dialog
     def on_tool_change(self, widget):
-        print("on tool chnage")
+        print("on tool change")
         change = self.halcomp['toolchange-change']
         toolnumber = self.halcomp['toolchange-number']
         if change:
@@ -4505,7 +4505,7 @@ class gmoccapy(object):
 
         if self.widgets.tooledit1.get_selected_tool() != self.stat.tool_in_spindle:
             message = _("you can not touch of a tool, witch is not mounted in the spindle")
-            message += _("your selection has been reseted to the tool in spindle")
+            message += _("your selection has been reset to the tool in spindle")
             self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             self.widgets.tooledit1.reload(self)
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
@@ -5100,7 +5100,7 @@ class gmoccapy(object):
         elif "v-button" in pin.name:
             location = "right"
         else:
-            print(_("Recieved a not clasified signal from pin {0}".format(pin.name)))
+            print(_("Received a not classified signal from pin {0}".format(pin.name)))
             return
 
         number = int(pin.name[-1])

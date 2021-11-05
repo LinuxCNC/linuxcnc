@@ -347,7 +347,7 @@ class HAL:
 
         # Same as from pncconf
         # the jump list allows multiple hal files to be loaded postgui
-        # this simplifies the problem of overwritting the users custom HAL code
+        # this simplifies the problem of overwriting the users custom HAL code
         # when they change pyvcp sample options
         # if the user picked existing pyvcp option and the postgui_call_list is present
         # don't overwrite it. otherwise write the file.

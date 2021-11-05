@@ -193,7 +193,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             a = self.colors[s + "_alpha"]
             s = self.colors[s]
             return [int(x * 255) for x in s + (a,)]
-        # requires linuxcnc running before laoding this widget
+        # requires linuxcnc running before loading this widget
         inifile = os.environ.get('INI_FILE_NAME', '/dev/null')
 
         # if status is not available then we are probably
@@ -202,7 +202,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         try:
             stat.poll()
         except:
-            LOG.warning('linuxcnc staus failed, Assuming linuxcnc is not running so using fake status for a XYZ machine')
+            LOG.warning('linuxcnc status failed, Assuming linuxcnc is not running so using fake status for a XYZ machine')
             stat = fakeStatus()
 
         self.inifile = linuxcnc.ini(inifile)
@@ -290,7 +290,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.addTimer()
 
     # add a 100ms timer to poll linuxcnc stats
-    # this may be overriden in sub widgets
+    # this may be overridden in sub widgets
     def addTimer(self):
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
@@ -500,7 +500,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         glcanon.GlCanonDraw.realize(self)
         if s.file: self.load()
 
-    # gettter / setters
+    # getter / setters
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base
     def get_program_alpha(self): return self.program_alpha

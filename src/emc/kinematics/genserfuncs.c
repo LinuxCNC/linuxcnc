@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: genserfuncs.c
-*   (orginally part of genserkins.c)
+*   (originally part of genserkins.c)
 *   Kinematics for a generalised serial kinematics machine
 *
 *   Derived from a work by Fred Proctor,
@@ -95,7 +95,7 @@ int genser_kin_init(void) {
 }
 
 /* compute the forward jacobian function:
-   the jacobian is a linear aproximation of the kinematics function.
+   the jacobian is a linear approximation of the kinematics function.
    It is calculated using derivation of the position transformation matrix,
    and usually used for feeding velocities through it.
    It is analytically possible to calculate the inverse of the jacobian

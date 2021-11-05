@@ -313,7 +313,7 @@ class CNC_COMMANDS():
         # if Linuxcnc is paused then pushing cycle start will step the program
         # else the program starts from restart_line_number
         # after restarting it resets the restart_line_number to 0.
-        # You must explicitily set a different restart line each time
+        # You must explicitly set a different restart line each time
         def smart_cycle_start(self, wname, cmd=None):
             self.emcstat.poll()
             if self.emcstat.task_mode != self.emc.MODE_AUTO:

@@ -236,7 +236,7 @@ class emc_control:
         # if Linuxcnc is paused then pushing cycle start will step the program
         # else the program starts from restart_line_number
         # after restarting it resets the restart_line_number to 0.
-        # You must explicitily set a different restart line each time
+        # You must explicitly set a different restart line each time
         def cycle_start(self):
                 if self.emcstat.task_mode != self.emc.MODE_AUTO:
                     self.emccommand.mode(self.emc.MODE_AUTO)

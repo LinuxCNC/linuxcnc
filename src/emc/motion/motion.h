@@ -145,9 +145,9 @@ extern "C" {
 	EMCMOT_SET_WORLD_HOME,	/* set pose for world home */
 
 	EMCMOT_SET_DEBUG,       /* sets the debug level */
-	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be imediate or synched with motion */
-	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be imediate or synched with motion */
-        EMCMOT_SET_SPINDLESYNC, /* syncronize motion to spindle encoder */
+	EMCMOT_SET_DOUT,        /* sets or unsets a DIO, this can be immediate or synched with motion */
+	EMCMOT_SET_AOUT,	/* sets or unsets a AIO, this can be immediate or synched with motion */
+        EMCMOT_SET_SPINDLESYNC, /* synchronize motion to spindle encoder */
 	EMCMOT_SPINDLE_ON,	/* start the spindle */
 	EMCMOT_SPINDLE_OFF,	/* stop the spindle */
 	EMCMOT_SPINDLE_INCREASE,	/* spindle faster */
@@ -251,7 +251,7 @@ extern "C" {
 	double maxFerror;	/* max following error */
 	int wdWait;		/* cycle to wait before toggling wd */
 	int debug;		/* debug level, from DEBUG in .ini file */
-	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=wether now or synched, out = which gets set, start=start value, end=end value */
+	unsigned char now, out, start, end;	/* these are related to synched AOUT/DOUT. now=whether now or synched, out = which gets set, start=start value, end=end value */
 	unsigned char mode;	/* used for turning overrides etc. on/off */
 	double comp_nominal, comp_forward, comp_reverse; /* compensation triplet, nominal, forward, reverse */
     unsigned char probe_type; /* ~1 = error if probe operation is unsuccessful (ngc default)
@@ -616,7 +616,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose world_home;	/* cartesean coords of home position */
 	emcmot_joint_status_t joint_status[EMCMOT_MAX_JOINTS];	/* all joint status data */
     emcmot_axis_status_t axis_status[EMCMOT_MAX_AXIS];	/* all axis status data */
-    int spindleSync;    /* spindle used for syncronised moves. -1 = none */
+    int spindleSync;    /* spindle used for synchronised moves. -1 = none */
     spindle_status_t spindle_status[EMCMOT_MAX_SPINDLES]; /* all spindle data */
 
 
@@ -766,7 +766,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_internal_t;
 
-/* error structure - A ring buffer used to pass formatted printf stings to usr space */
+/* error structure - A ring buffer used to pass formatted printf strings to usr space */
     typedef struct emcmot_error_t {
 	unsigned char head;	/* flag count for mutex detect */
 	char error[EMCMOT_ERROR_NUM][EMCMOT_ERROR_LEN];

@@ -26,7 +26,7 @@ ver 3.1.3.6
   Thanks to hansu for reporting
 
 ver 3.1.3.5
-- wrong translation of "Follow System Theme" leaded to a wrong 
+- wrong translation of "Follow System Theme" led to a wrong 
   theme when loading the GUI.
   Will correct the translation files with a different commit
 
@@ -45,7 +45,7 @@ ver 3.1.3.3
   Thanks to hansu for reporting
 
 ver 3.1.3.2
-- change og gmoccapy hal pin gmoccapy.jog.jog-inc-N leaded to an
+- change og gmoccapy hal pin gmoccapy.jog.jog-inc-N led to an
   aboart() command, so changing that pin i.e. in AUTO mode stops
   Spindle and program execution. That is not the expected behavior.
 
@@ -64,7 +64,7 @@ ver 3.1.3.1
 
 ver 3.1.3
 - added a dialog asking the user to save changes
-- when in min screen resolution the editing page was wrong formated
+- when in min screen resolution the editing page was wrong formatted
   while using German language, because of too long strings
   Thanks to Hans470 for reporting this bugs
 
@@ -82,8 +82,8 @@ ver 3.1.2.2
 ver 3.1.2.1
 - still a bug in handling ignore limits solved
   issue #1000 reported by Hans470
-  solved by using new hal staus signal and deleted 
-  some unneded code
+  solved by using new hal status signal and deleted 
+  some unneeded code
 
 ver 3.1.2
 - connecting macro button to physical button did send
@@ -91,20 +91,20 @@ ver 3.1.2
   This bug has been reported from ulistermclame
 
 ver 3.1.1
-- setting analog-enable hal pins signal allways resetted
+- setting analog-enable hal pins signal always reset
   the jog vel of the slider. This has been reported from hans23
   solved with this update
 
 ver 3.1.0
 - added the ability to hide the tooltips to
-  make the use with touch monitors more usefull
+  make the use with touch monitors more useful
   Thanks to neilwhelcher for the code and pointing this out
 
 ver 3.0.10
 - bug in handling ignore limits solved
   issue #1000 reported by Hans470
-  solved by using new hal staus signal and deleted 
-  some unneded code
+  solved by using new hal status signal and deleted 
+  some unneeded code
 
 ver 3.0.9.1
 - bug in handling back tool lathe solved
@@ -120,7 +120,7 @@ ver 3.0.8.3
   that hold available axes to be in the same order as defined.
   in python 2.7 that is not the default behavior of dicts.
   So the function (with a XYZAB machine for example) gave two
-  sets of row/coloumn numbers for four buttons, leading to two
+  sets of row/column numbers for four buttons, leading to two
   buttons not being available.
   Thanks to Chris Morley for fixing this
 
@@ -193,7 +193,7 @@ ver 3.0.2
 - get rid of the screen2 stuff, as screens can be displayed using hal commands
 
 ver 3.0.1
-- bug being in full-size preview in auto mode and loading a file leaded to
+- bug being in full-size preview in auto mode and loading a file led to
   normal view as expected, but the full-size button stayed activated
 
 ver 3.0.0
@@ -242,7 +242,7 @@ ver 2.3.3.4
   Thanks to COlger81 and Chris Morley for reporting the bug
 
 ver 2.3.3.3
-- editing offsets, leaded to a error output in the console, due to missing
+- editing offsets, led to a error output in the console, due to missing
   widget btn_zero_x
 
 ver 2.3.3.2
@@ -273,12 +273,12 @@ ver 2.3.2.2
 - ongoing reformatting the code to new .format style
 
 ver 2.3.2.1
-- formating bug in Vc, when over 100, float can not be formated as int
+- formatting bug in Vc, when over 100, float can not be formatted as int
 
 ver 2.3.2
 - added a new label to toolinfo box, showing the cutting speed Vc
   it uses the tool diameter on mill and the x-relative value for lathe
-- first code updates to the new string formating (not % but .format),
+- first code updates to the new string formatting (not % but .format),
   as this will be needed to switch over to python 3
 
 ver 2.3.1.9
@@ -308,7 +308,7 @@ ver 2.3.1.6
 ver 2.3.1.5
 - some code clearance, as the tooleditor stuff was reparted on several places
   Now it is together in _init_tooleditor.
-  This is the begining of finding the bug of decimal separator handling
+  This is the beginning of finding the bug of decimal separator handling
   Push reload will replace the German "," with the "." Why = ?????
 
 ver 2.3.1.4
@@ -342,7 +342,7 @@ ver 2.3.0
 ver 2.2.5.2
 - if the GUI tries to reload a tool on restart and that tool was not found in 
   the tool table, the GUI remained in MDI mode, while it was showing the manual 
-  view. This leaded to the problem, that jogging was not possible, but users 
+  view. This led to the problem, that jogging was not possible, but users 
   thought they where in MANUAL mode, where jogging should be allowed.
 
 ver 2.2.5.1
@@ -380,7 +380,7 @@ ver 2.2.3.1
   homed the second time, unfortunately we will then
   not get out of MDI mode any more
   That happen, because the tool in spindle did not change, so the 
-  tool info is not updated and we self.change_tool will not be reseted
+  tool info is not updated and we self.change_tool will not be reset
   Thanks to timmert for reporting
 
 ver. 2.2.3
@@ -481,7 +481,7 @@ ver. 2.1.1
   possible to JOG_STOP with machine in OFF state
 
 ver. 2.1.0
-- reworked Combi_DRO to fit the needs of JA requierements
+- reworked Combi_DRO to fit the needs of JA requirements
 - some configs must be adapted to the new hal pin names, as they are
   put together in groups, so all stuff with jog is in that group
 - Hiding the jog button in world mode is possible with a command line argument
@@ -575,7 +575,7 @@ ver. 2.0.15
 - added a togglebutton to switch from joint to teleop, this button 
   will be hidden on identity kinematics machines
 - small bug in spc_spinlde handling 
-  (to many get and set leaded to jumping values)
+  (to many get and set led to jumping values)
 
 ver. 2.0.14
 - deleted adj_spinlde and changes the code to use directly the settings
@@ -635,7 +635,7 @@ ver. 2.0.2
 - added logo as command line argument
 
 ver. 2.0.1
-- when using hardware button to jog the axis, the 5th axis wath not 
+- when using hardware button to jog the axis, the 5th axis was not 
   recognized, resulting in a jog of the 4th axis. I solved this bug
   and introduced a new config to test this.
   Thanks to Ludwig for reporting the bug
@@ -697,10 +697,10 @@ ver. 1.5.6.8
   INI file a default value of 150 will be used.
 
 ver. 1.5.6.7
-- reading of subroutine paths did not take care of ":" separeted paths
+- reading of subroutine paths did not take care of ":" separated paths
   so it was not possible to use NativeCAM together with gmoccapy macros
   I corrected that misbehavior of gmoccapy. That change was used to
-  clear some macro code and I transfered some checking to get_ini_info
+  clear some macro code and I transferred some checking to get_ini_info
 
 ver. 1.5.6.6
 - check at start if there is a INI entry for DEFAULT_SPINDLE_SPEED
@@ -735,7 +735,7 @@ ver. 1.5.6.2.1
 - bug in initialize optional stops
 
 ver. 1.5.6.2
-- bugfix: run from line was trying to set an entry in the alarm page, whitch
+- bugfix: run from line was trying to set an entry in the alarm page, which
   I dropped in 1.5.6 
   I cleared the code from unneeded imports and comments
 
@@ -797,7 +797,7 @@ ver. 1.5.4.1
   to be the same place in auto and manual mode.
 
 ver. 1.5.4
-- changing in auto mode, being in full-size preview to edit page leaded
+- changing in auto mode, being in full-size preview to edit page led
   to blank screen, I corrected that bug.
 
 ver. 1.5.3.1
@@ -823,7 +823,7 @@ ver. 1.5.2
 - Some code clearance 
 
 ver. 1.5.1.4
-- Two missing self. leaded to errors if logging was active, 
+- Two missing self. led to errors if logging was active, 
   Thanks to Frans (franstrein) for reporting
 
 ver. 1.5.1.3
@@ -876,7 +876,7 @@ ver. 1.5.0
 
 - gmoccapy will now react to some halui pin as counts or direct value
   Be aware, that some of this may have side affects, it is strongly 
-  recomended to use the corresponding gmoccapy hal pin. 
+  recommended to use the corresponding gmoccapy hal pin. 
 
   * halui.spindle-override.counts
   * halui.feed-override.counts
@@ -912,7 +912,7 @@ ver. 1.5.0
 ver. 1.4.2
 - removed the save and run button from the edit page, 
   because of security reasons
-- removed the integrated terminal, as it was not real usefull
+- removed the integrated terminal, as it was not real useful
   and all terminal work can be done from normal terminal
 - translations for German and Spanish has been updated
 
@@ -954,7 +954,7 @@ ver. 1.3.5
 ver. 1.3.4
 - if no virtual keyboard was installed (nor onboard or matchbox),
   the checkboxes on the settings page has not been sensitized and the
-  settings has not been reseted correctly from the preference file
+  settings has not been reset correctly from the preference file
   Thanks to Roland (concierge) for finding this one
 
 ver. 1.3.3
@@ -1036,11 +1036,11 @@ ver. 1.1.5.8
 ver. 1.1.5.7
 - init dynamic tab now in try except to avoid python exception
   on user typos in ini file
-- loading a tool using remap, leaded to an error if no file has been 
+- loading a tool using remap, led to an error if no file has been 
   loaded before the change, we do check for that now to avoid the error
 
 ver. 1.1.5.6
-- introduced three new hal-pin to signal program progress informations
+- introduced three new hal-pin to signal program progress information
   gmoccapy.program.length = S32, OUT (total number of program lines)
   gmoccapy.program.current-line =S32, OUT (current executed line)
   gmoccapy.program.progress = FLOAT, OUT (progress in %)
@@ -1072,7 +1072,7 @@ ver. 1.1.5.2
   previous mode.
 
 ver. 1.1.5.1
-- solved a bug related to the gmoccapy error pin. This pin has not been reseted
+- solved a bug related to the gmoccapy error pin. This pin has not been reset
   if the user used the mouse or touch screen and erased the message by clicking
   the message button. It was only done right if the delete-message pin was used.
   I modified notification.py to emit a signal if a message has been deleted and 
@@ -1177,7 +1177,7 @@ ver. 1.0.7.1
   and the GUI changed state making several widgets sensitive, that behavior
   was wrong, solved that.
 - If you feed override has been changed and the machine went into estop, 
-  a estop reset also reseted feed override to 100 % , now it will remain with 
+  a estop reset also reset feed override to 100 % , now it will remain with 
   the value it had before estop.
 - If a user activate logging actions, the logging was lost after shutting
   down the GUI, now the content of alarm_history will be written to a 
@@ -1272,7 +1272,7 @@ ver. 0.9.9.9.16
 ver. 0.9.9.9.15
 - new hal pin gscreen.error as bit out, to show an error to the
   hardware, so a light can lit or even stop the machine. It will
-  reseted with the pin gscreen.delete-message. This command will
+  reset with the pin gscreen.delete-message. This command will
   delete the first error and reset the gscreen.error pin to False 
   after the last error has been cleared. Messages or user infos
   will not affect this pin!  
@@ -1645,7 +1645,7 @@ ver. 0.9.6
 ver. 0.9.5.1
 - bug in spindle switching while in LOG Mode
 - ESC and F1 keys will work now, even if use Keyboard shortcuts is not activated
-- solved a bug in run_from_line, the start line was not reseted after program stop, 
+- solved a bug in run_from_line, the start line was not reset after program stop, 
   and I missed to reset self.data.restart_dialog to None
 
 ver. 0.9.5
@@ -1659,7 +1659,7 @@ ver. 0.9.5
 - fixed a bug in tooledit, trying to touch of a tool not in spindle, I must check if this should be allowed
   or if it better only allowing touch off with the tool in spindle
 - changed gmoccapy keyboard to "onboard", if the layout is not correct, the following command will correct it
-  setxkbmap -layout <your contry letters>       
+  setxkbmap -layout <your country letters>       
   gb for Great Britan, de for germany, etc.
 - changes in gscreen broke gmoccapy cycle start seems that hal_action run is not any longer permitted,
   now hal toggle action is needed, corrected this
@@ -1679,7 +1679,7 @@ ver. 0.9.4
 - there was still an error in key handling with incremental jogging, hope I solved it now for final
 - changed the dialog "run_from_line" to use gscreens default, resulting in the need to rename
   "hal_sourceview" to "gcode_view"
-- renamed all pins and definitions from "overide" to "override" because of typo
+- renamed all pins and definitions from "override" to "override" because of typo
 - avoid getting to the touch off button, while the machine is not homed
 - hide Y touch off buttons in lathe mode
 - solved a bug executing a command constantly related with feed and periodic
@@ -1687,14 +1687,14 @@ ver. 0.9.4
 - the tool in spindle will be checked if you enter the tool editor.
 
 ver. 0.9.3.2
-- alligned the jog_button and jog_rates frame on the top (just cosmetic)
+- aligned the jog_button and jog_rates frame on the top (just cosmetic)
 - The Page-up and Page_Down keyboard keys moved the Z axis in opposite directions
 - Feed values will only be shown with digit if G95 is active
 - added classicladder button to the list of buttons to be able to handle it with hardware button
 - changed hardware button handling to fit also to lathe mode
 - included a test to avoid speeding the spindle over its limit using the spindle speed override
   i.e. max = 6000 but S = 5500 and override = 120 % would result in 6600, but only 6000 is possible
-- also check spindle speed if the commands are given trough MDI and override is to high will reduce
+- also check spindle speed if the commands are given through MDI and override is to high will reduce
   the override value to max allowed
 
 ver. 0.9.3.1
@@ -1761,7 +1761,7 @@ ver. 0.9.0
 - I forgot an letter in hal pin feed-override-counts
 - The button Rel/Abs changes its label according to the active coordinate system
   and its background color does change if G54 is not active
-- solved the estop error not showing the correct sate on start up
+- solved the estop error not showing the correct state on start up
 - solved a bug giving value 0 to macro, the entry widget checked this value as False
 - merged with new master and also with gscreen with new widget names
 - gscreen fired a error when there is no keyhandling in gmoccapy, 
@@ -1813,7 +1813,7 @@ ver. 0.8.8
   I fixed this, if you reduce max-vel lower than jog_vel, jog vel will be reduced too
 - spindle bar won't grow with negative values (spindle reverse); I know it worked already, why
   did I have to fix this again?
-- entering the MDI Mode sets the focus directly to the enty of hal_mdihistory
+- entering the MDI Mode sets the focus directly to the entty of hal_mdihistory
  
 ver. 0.8.7
 - changed the button to delete status bar messages from text to icon
@@ -1922,7 +1922,7 @@ ver. 0.7.08
  
 ver. 0.7.07
 - solved a problem switching main button list, wait on tool change has not
-  been reseted properly
+  been reset properly
 - now I hide the hbuttonbox of tooledit widget instead of every button,
   this saved 6 lines of code :-)
 
@@ -1951,7 +1951,7 @@ ver. 0.7.04
 
 ver. 0.7.03
 - added Release Number to title bar,
-  so it is easer for users to see if they got
+  so it is easier for users to see if they got
   the latest release
 
 ver. 0.7.02

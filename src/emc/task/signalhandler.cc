@@ -106,7 +106,7 @@ void setup_signal_handlers()
     // determine pathname of running program for gdb
     snprintf(path, sizeof(path),"/proc/%d/exe", getpid());
     if (readlink(path, exe, sizeof(exe)) < 0) {
-	fprintf(stderr, "signal_handler: cant readlink(%s): %s\n",path,strerror(errno));
+	fprintf(stderr, "signal_handler: can\'t readlink(%s): %s\n",path,strerror(errno));
 	return;
     }
     progname = strdup(exe);
@@ -138,7 +138,7 @@ int main(int argc, const char *argv[]) {
     sleep(10);  // during which a SIGUSR2 will generate a backtrace
 
     void *foo = 0;
-    memset(foo,0,47); // this segfault  whould warp us into the gdb window
+    memset(foo,0,47); // this segfault would warp us into the gdb window
 
     return 0;
 }

@@ -4165,7 +4165,7 @@ if os.path.exists(rcfile):
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
 
-# call an empty function that can be overidden
+# call an empty function that can be overridden
 # by an .axisrc user_hal_pins() function
 # then set HAL component ready if the .axisui didn't
 if hal_present == 1 :

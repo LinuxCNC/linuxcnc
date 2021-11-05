@@ -1620,13 +1620,13 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
  * Walk along the queue from the back to the front. Based on the "current"
  * segment's final velocity, calculate the previous segment's maximum allowable
  * final velocity. The depth we walk along the queue is controlled by the
- * TP_LOOKAHEAD_DEPTH constant for now. The process safetly aborts early due to
+ * TP_LOOKAHEAD_DEPTH constant for now. The process safely aborts early due to
  * a short queue or other conflicts.
  */
 STATIC int tpRunOptimization(TP_STRUCT * const tp) {
     // Pointers to the "current", previous, and 2nd previous trajectory
     // components. Current in this context means the segment being optimized,
-    // NOT the currently excecuting segment.
+    // NOT the currently executing segment.
 
     TC_STRUCT *tc;
     TC_STRUCT *prev1_tc;
@@ -2518,7 +2518,7 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
     EmcPose tc_pos;
     tcGetEndpoint(tc, &tc_pos);
 
-    tc_debug_print("tc id = %u canon_type = %u mot type = %u\n",
+    tc_debug_print("tc id = %u canon_type = %u motion_type = %u\n",
             tc->id, tc->canon_motion_type, tc->motion_type);
     tp->motionType = tc->canon_motion_type;
     tp->activeDepth = tc->active_depth;

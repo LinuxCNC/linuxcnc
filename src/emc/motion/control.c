@@ -276,7 +276,7 @@ void emcmotController(void *arg, long period)
 /***********************************************************************
 *                         LOCAL FUNCTION CODE                          *
 ************************************************************************/
-/* The protoypes and documentation for these functions are located
+/* The prototypes and documentation for these functions are located
    at the top of the file in the section called "local function
    prototypes"
 */
@@ -562,7 +562,7 @@ static void do_forward_kins(void)
    the cartesean coordinates of home, as stored in the global worldHome,
    and we set carte_fb_ok to 0 to indicate that the feedback is invalid.
 \todo  FIXME - maybe setting to home isn't the right thing to do.  We need
-   it to be set to home eventually, (right before the first attemt to
+   it to be set to home eventually, (right before the first attempt to
    run the kins), but that doesn't mean we should say we're at home
    when we're not.
 
@@ -1312,7 +1312,7 @@ static void get_pos_cmds(long period)
             joint->vel_cmd = joint->free_tp.curr_vel;
             //no acceleration output form simple_tp, but the pin will
             //still show the acceleration from the interpolation.
-            //its delayed, but thats ok during jogging or homing.
+            //it's delayed, but that's ok during jogging or homing.
             joint->acc_cmd = 0.0;
             joint->coarse_pos = joint->free_tp.curr_pos;
             /* update joint status flag and overall status flag */
@@ -1581,7 +1581,7 @@ static void get_pos_cmds(long period)
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
         /* Unexpectedly hit a joint soft limit.
-        ** Possibile causes:
+        ** Possible causes:
         **  1) a joint positional limit was reduced by an ini halpin
         **     (like ini.N.max_limit) -- undetected by trajectory planning
         **     including simple_tp
@@ -1804,10 +1804,10 @@ static void compute_screw_comp(void)
      *   
      * Limitations:
      *   Since the compensation adds up to the normal movement, total
-     *   accelleration and total velocity may exceed maximum settings!
+     *   acceleration and total velocity may exceed maximum settings!
      *   Currently this is limited to 150% by implementation.
      *   To fix this, the calculations in get_pos_cmd should include
-     *   information from the backlash corection. This makes things
+     *   information from the backlash correction. This makes things
      *   rather complicated and it might be better to implement the
      *   backlash compensation at another place to prevent this kind
      *   of interaction.
@@ -1817,7 +1817,7 @@ static void compute_screw_comp(void)
      *   movements and less following errors than the original code.
      */
 
-	/* Limit maximum accelleration and velocity 'overshoot'
+	/* Limit maximum acceleration and velocity 'overshoot'
 	 * to 150% of the maximum settings.
 	 * The TP and backlash shouldn't use more than 100%
 	 * (together) but this requires some interaction that

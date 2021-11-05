@@ -310,7 +310,7 @@ int emcTaskOnce(const char *filename)
 
     extern struct _inittab builtin_modules[];
     if (!PythonPlugin::instantiate(builtin_modules)) {
-	rcs_print("emcTaskOnce: cant instantiate Python plugin\n");
+	rcs_print("emcTaskOnce: can\'t instantiate Python plugin\n");
 	goto no_pytask;
     }
     if (python_plugin->configure(filename, "PYTHON") == PLUGIN_OK) {
@@ -329,13 +329,13 @@ int emcTaskOnce(const char *filename)
 	    if (typetest.check()) {
 		task_methods = bp::extract< Task * >(result);
 	    } else {
-		rcs_print("cant extract a Task instance out of '%s'\n", instance_name);
+		rcs_print("can\'t extract a Task instance out of '%s'\n", instance_name);
 		task_methods = NULL;
 	    }
 	} catch(bp::error_already_set &) {
 	    std::string msg = handle_pyerror();
 	    if (emc_debug & EMC_DEBUG_PYTHON_TASK) {
-		// this really just means the task python backend wasnt configured.
+		// this really just means the task python backend wasn't configured.
 		rcs_print("emcTaskOnce: extract(%s): %s\n", instance_name, msg.c_str());
 	    }
 	    PyErr_Clear();

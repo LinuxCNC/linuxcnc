@@ -1120,7 +1120,7 @@ void do_homing(void)
 	    case HOME_FINAL_MOVE_START:
 		/* This state is called once the joint coordinate system is
 		   set properly.  It moves to the actual 'home' position,
-		   which is not neccessarily the position of the home switch
+		   which is not necessarily the position of the home switch
 		   or index pulse. */
 		/* is the joint already moving? */
 		if (joint->free_tp.active) {
