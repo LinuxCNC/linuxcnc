@@ -7,6 +7,7 @@ Here are bits of ideas to put in the handler file. +
 == Preference file loading/saving
 Here is how to load and save at closing time a number and some text: +
 You must have included a preference file option in the screenoptions widget. +
+the preference file path is set in the INI. +
 
 under the 'def initialized__(self):' function add:
 [source,python]
@@ -25,6 +26,37 @@ under the 'def closing_cleanup__(self):' function add:
             self.w.PREFS_.putpref('Integer_value', self.integer_value, int, 'CUSTOM_FORM_ENTRIES')
             self.w.PREFS_.putpref('String_value', self.string_value, str, 'CUSTOM_FORM_ENTRIES')
 
+----
+
+== use QSettings to read/save variable
+
+Here is how to load and save varibles using Pyqt's QSettings functions: +
+The file is actually saved in ~/.config/QtVcp +
+You can set a Group name to help keep names organsized and unique. +
+When reading a setting, if there is no entry, it will return None. +
+You should set a default to cover the first time it is run. +
+In this example we added 'or 20' and 'or 2.5' as defaults. +
+The names 'MyGroupName', 'int_value', 'float_value', 'myInteger', and 'myFloat' +
+are user defined. +
+
+under the 'def initialized__(self):' function add:
+[source,python]
+----
+        # set recorded columns sort settings
+        self.SETTINGS_.beginGroup("MyGroupName")
+        self.int_value = self.SETTINGS_.value('myInteger', type = int) or 20
+        self.float_value = self.SETTINGS_.value('myFloat', type = float) or 2.5
+        self.SETTINGS_.endGroup()
+----
+
+under the 'def closing_cleanup__(self):' function add:
+[source,python]
+----
+        # save values with QSettings
+        self.SETTINGS_.beginGroup("MyGroupName")
+        self.SETTINGS_.setValue('myInteger', self.int_value)
+        self.SETTINGS_.setValue('myFloat', self.float_value)
+        self.SETTINGS_.endGroup()
 ----
 
 == Add a basic style editor
@@ -723,4 +755,47 @@ while True:
     topic, message = sock.recv_multipart()
     print '{} sent message:{}'.format(topic,json.loads(message))
 
+----
+
+== Sending messages to status bar or desktop notify dialogs
+There several ways to report information to the user. +
+A statusbar is used for short infomation to show the user. +
+ +
+Not all screens have a statusbar. This is how you would use it. +
+'timeout' is seconds. 'statusbar' is the designer set name. +
+
+[source,python]
+----
+self.w.statusbar.showMessage(message, timeout * 1000)
+----
+
+You can use the STATUS Library to send a message to the notify Library +
+if it is enabled (usually set in screen options widget). +
+This will send the message to the statusbar and the desktop notify dialog. +
+The messages are also recorded untill the user erases them using controls. +
+The users can recall any recorded messages. +
+ +
+There are several options. TEMPARAY will show the message for a short time only. +
+----
+STATUS.TEMPARARY_MESSAGE
+STATUS.OPERATOR_ERROR
+STATUS.OPERATOR_TEXT
+STATUS.NML_ERROR
+STATUS.NML_TEXT
+----
+
+Here is an example of sending an operator message:
+[source,python]
+----
+STATUS.emit('error', STATUS.OPERATOR_ERROR, 'message')
+----
+
+You can send messages thru linuxcnc's operator message functions. +
+This are usually caught by the notify system, so are equal to above. +
+They would be printed to the terminal as well. +
+
+[source,python]
+----
+ACTION.SET_DISPLAY_MESSAGE('MESSAGE')
+ACTION.SET_ERROR_MESSAGE('MESSAGE') 
 ----
