@@ -103,7 +103,6 @@ override_dh_auto_install:
 	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-manualpages.desktop
 
 ifneq "$(enable_build_documentation)" ""
-	find $(DESTDIR)/usr/share/applications -name linuxcnc-*.desktop -delete
 	# Only the English developer documentation goes to the -dev package
 	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev
 	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual.pdf
