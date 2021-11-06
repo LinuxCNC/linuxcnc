@@ -175,9 +175,8 @@ subst control.top.in > control
 echo >> control
 subst control.main-pkg.in >> control
 
-if [ -r linuxcnc-dev.install.in ]; then subst linuxcnc-dev.install.in > ${MAIN_PACKAGE_NAME}-dev.install; fi
-if [ -r linuxcnc.install.in ]; then subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install; fi
-if [ -r linuxcnc.lintian-overrides.in ]; then subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides; fi
+subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
+subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
 
 subst rules.in > rules
 chmod +x rules
