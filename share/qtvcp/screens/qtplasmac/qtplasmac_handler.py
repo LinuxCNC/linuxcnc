@@ -1,4 +1,4 @@
-VERSION = '1.216.115'
+VERSION = '1.216.116'
 
 '''
 qtplasmac_handler.py
@@ -237,7 +237,7 @@ class HandlerClass:
         self.pmx485FaultCode = 0.0
         self.pmx485ArcTime = 0.0
         self.pmx485LabelState = None
-        self.camCurrentX = self.camCurrentY = 0
+        self.currentX = self.currentY = 0
         self.degreeSymbol = u"\u00b0"
         self.cameraOn = False
         self.fTmp = '{}temp.ngc'.format(self.tmpPath)
@@ -4281,13 +4281,15 @@ class HandlerClass:
 
     def sheet_align(self, button_state, button, offsetX, offsetY):
         if button_state == 'markedge':
+            zAngle = self.w.camview.rotation = 0
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R0')
+            ACTION.SET_MANUAL_MODE()
+            self.w.gcodegraphics.logger.clear()
             self.w.cam_goto.setEnabled(False)
             button.setText(_translate('HandlerClass', 'SET\nORIGIN'))
             button_state = 'setorigin'
-            self.camCurrentX = STATUS.get_position()[0][0]
-            self.camCurrentY = STATUS.get_position()[0][1]
-            self.camCurrentY = STATUS.get_position()[0][1]
-            zAngle = 0
+            self.currentX = STATUS.get_position()[0][0]
+            self.currentY = STATUS.get_position()[0][1]
         else:
             if button == self.w.cam_mark:
                 button.setText(_translate('HandlerClass', 'MARK\nEDGE'))
@@ -4295,8 +4297,8 @@ class HandlerClass:
             else:
                 button.setText(_translate('HandlerClass', 'LASER'))
                 button_state = 'laser'
-            xDiff = STATUS.get_position()[0][0] - self.camCurrentX
-            yDiff = STATUS.get_position()[0][1] - self.camCurrentY
+            xDiff = STATUS.get_position()[0][0] - self.currentX
+            yDiff = STATUS.get_position()[0][1] - self.currentY
             if xDiff and yDiff:
                 zAngle = math.degrees(math.atan(yDiff / xDiff))
                 if xDiff > 0:
@@ -4318,8 +4320,8 @@ class HandlerClass:
             else:
                 zAngle = 0
             self.w.camview.rotation = zAngle
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle), 3)
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY), 3)
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle), 3)
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
