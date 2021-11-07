@@ -132,6 +132,7 @@ variables: +
         self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
         self.PATHS_ = The instance of QtVCP's path library
         self.PREFS_ = the instance of an optional preference file
+        self.SETTINGS_ = the Qsettings object
 ----
 
 When making a custom widget, import and sub class the +

@@ -46,6 +46,7 @@ Here is a description of the extra variables inject into HAL-ified widgets: +
         self.QTVCP_INSTANCE_ = The very toplevel Parent Of the screen
         self.PATHS_ = The instance of Qtvcp's path library
         self.PREFS_ = the instance of an optional preference file
+        self.SETTINGS_ = the Qsettings object
 ----
 
 === cleanup process
