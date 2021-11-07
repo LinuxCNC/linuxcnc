@@ -10,7 +10,6 @@ Build-Depends:
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
-    @DOC_DEPENDS@,
     autoconf,
     bwidget (>= 1.7),
     desktop-file-utils,
@@ -39,6 +38,7 @@ Build-Depends:
     tclx,
     tk@TCLTK_VERSION@-dev,
     yapps2
+Build-Depends-Indep: @DOC_DEPENDS@
 Standards-Version: 4.6.0
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/linuxcnc/linuxcnc.git
