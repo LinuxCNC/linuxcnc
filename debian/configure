@@ -10,6 +10,8 @@
 # When used to produce a debian package, this file is a script "used to
 # control compilation and installation of the executable"
 
+set -e
+
 usage () {
     P=${0##*/}
     cat <<EOF
