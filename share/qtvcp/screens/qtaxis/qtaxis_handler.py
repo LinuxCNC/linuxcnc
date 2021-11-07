@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
-from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.geditor import GEditor as GCODE
 from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
 from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
@@ -319,9 +319,10 @@ class HandlerClass:
         self.w.dro_label_g5x_r.update_rotation(None, STATUS.stat.rotation_xy)
 
     def editor_exit(self):
-        self.w.gcode_editor.exit()
-        self.w.actionEdit.setChecked(False)
-        self.edit(None,False)
+        r = self.w.gcode_editor.exit()
+        if r:
+            self.w.actionEdit.setChecked(False)
+            self.edit(None,False)
 
     def edit(self, widget, state):
         if state:
