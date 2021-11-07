@@ -155,6 +155,7 @@ class HandlerClass:
         if INFO.MACHINE_IS_LATHE:
             self.w.dro_relative_y.setVisible(False)
             self.w.dro_absolute_y.setVisible(False)
+        self.restoreSettings()
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -204,9 +205,6 @@ class HandlerClass:
         # KEYBINDING will call functions from handler file as
         # registered by KEYBIND.add_call(KEY,FUNCTION) above
         return KEYBIND.manage_function_calls(self,event,is_pressed,key,shift,cntrl)
-
-    def closing_cleanup__(self):
-        TOOLBAR.saveRecentPaths()
 
     ########################
     # callbacks from STATUS #
@@ -268,6 +266,28 @@ class HandlerClass:
     #####################
     # general functions #
     #####################
+
+    def saveSettings(self):
+        # Record the toolbar settings
+        win = self.w
+        self.w.settings.beginGroup("MainWindow-{}".format(win.objectName()))
+        self.w.settings.setValue('state', QtCore.QVariant(win.saveState().data()))
+        self.w.settings.endGroup()
+
+    def restoreSettings(self):
+        # set recorded toolbar settings
+        win = self.w
+        self.w.settings.beginGroup("MainWindow-{}".format(win.objectName()))
+        state = self.w.settings.value('state')
+        self.w.settings.endGroup()
+        if not state is None:
+            try:
+                win.restoreState(QtCore.QByteArray(state))
+            except Exception as e:
+                print(e)
+            else:
+                return True
+        return False
 
     def show_joints(self):
         for i in range(0,9):
@@ -338,79 +358,79 @@ class HandlerClass:
 
     def quick_reference(self):
         help1 = [
-    ("F1", _("Emergency stop")),
-    ("F2", _("Turn machine on")),
+    ("F1",("Emergency stop")),
+    ("F2",("Turn machine on")),
     ("", ""),
-    ("X", _("Activate first axis")),
-    ("Y", _("Activate second axis")),
-    ("Z", _("Activate third axis")),
-    ("A", _("Activate fourth axis")),
-    ("` or 0,1..8", _("Activate first through ninth joint <br>if joints radiobuttons visible")),
-    ("", _("")),
-    ("`,1..9,0", _("Set Feed Override from 0% to 100%")),
-    ("", _("if axes radiobuttons visible")),
-    (_(", and ."), _("Select jog speed")),
-    (_("< and >"), _("Select angular jog speed")),
-    (_("I, Shift-I"), _("Select jog increment")),
-    ("C", _("Continuous jog")),
-    (_("Home"), _("Send active joint home")),
-    (_("Ctrl-Home"), _("Home all joints")),
-    (_("Shift-Home"), _("Zero G54 offset for active axis")),
-    (_("End"), _("Set G54 offset for active axis")),
-    (_("Ctrl-End"), _("Set tool offset for loaded tool")),
-    ("-, =", _("Jog active axis or joint")),
-    (";, '", _("Select Max velocity")),
+    ("X",("Activate first axis")),
+    ("Y",("Activate second axis")),
+    ("Z",("Activate third axis")),
+    ("A",("Activate fourth axis")),
+    ("` or 0,1..8",("Activate first through ninth joint <br>if joints radiobuttons visible")),
+    ("",("")),
+    ("`,1..9,0",("Set Feed Override from 0% to 100%")),
+    ("",("if axes radiobuttons visible")),
+    ((", and ."),("Select jog speed")),
+    (("< and >"),("Select angular jog speed")),
+    (("I, Shift-I"),("Select jog increment")),
+    ("C",("Continuous jog")),
+    (("Home"),("Send active joint home")),
+    (("Ctrl-Home"),("Home all joints")),
+    (("Shift-Home"),("Zero G54 offset for active axis")),
+    (("End"),("Set G54 offset for active axis")),
+    (("Ctrl-End"),("Set tool offset for loaded tool")),
+    ("-, =",("Jog active axis or joint")),
+    (";, '",("Select Max velocity")),
 
     ("", ""),
-    (_("Left, Right"), _("Jog first axis or joint")),
-    (_("Up, Down"), _("Jog second axis or joint")),
-    (_("Pg Up, Pg Dn"), _("Jog third axis or joint")),
-    (_("Shift+above jogs"), _("Jog at traverse speed")),
-    ("[, ]", _("Jog fourth axis or joint")),
+    (("Left, Right"),("Jog first axis or joint")),
+    (("Up, Down"),("Jog second axis or joint")),
+    (("Pg Up, Pg Dn"),("Jog third axis or joint")),
+    (("Shift+above jogs"),("Jog at traverse speed")),
+    ("[, ]",("Jog fourth axis or joint")),
 
     ("", ""),
-    ("D", _("Toggle between Drag and Rotate mode")),
-    (_("Left Button"), _("Pan, rotate or select line")),
-    (_("Shift+Left Button"), _("Rotate or pan")),
-    (_("Right Button"), _("Zoom view")),
-    (_("Wheel Button"), _("Rotate view")),
-    (_("Rotate Wheel"), _("Zoom view")),
-    (_("Control+Left Button"), _("Zoom view")),
+    ("D",("Toggle between Drag and Rotate mode")),
+    (("Left Button"),("Pan, rotate or select line")),
+    (("Shift+Left Button"),("Rotate or pan")),
+    (("Right Button"),("Zoom view")),
+    (("Wheel Button"),("Rotate view")),
+    (("Rotate Wheel"),("Zoom view")),
+    (("Control+Left Button"),("Zoom view")),
 ]
         help2 = [
-    ("F3", _("Manual control")),
-    ("F5", _("Code entry (MDI)")),
-    (_("Control-M"), _("Clear MDI history")),
-    (_("Control-H"), _("Copy selected MDI history elements")),
-    ("",          _("to clipboard")),
-    (_("Control-Shift-H"), _("Paste clipboard to MDI history")),
-    ("L", _("Override Limits")),
+    ("F3",("Manual control")),
+    ("F5",("Code entry (MDI)")),
+    (("Control-M"),("Clear MDI history")),
+    (("Control-H"),("Copy selected MDI history elements")),
+    ("",("to clipboard")),
+    (("Control-Shift-H"),("Paste clipboard to MDI history")),
+    ("L",("Override Limits")),
     ("", ""),
-    ("O", _("Open program")),
-    (_("Control-R"), _("Reload program")),
-    (_("Control-S"), _("Save g-code as")),
-    ("R", _("Run program")),
-    ("T", _("Step program")),
-    ("P", _("Pause program")),
-    ("S", _("Resume program")),
-    ("ESC", _("Stop running program, or")),
-    ("", _("stop loading program preview")),
+    ("O",("Open program")),
+    (("Control-R"),("Reload program")),
+    (("Control-S"),("Save g-code as")),
+    ("R",("Run program")),
+    ("T",("Step program")),
+    ("P",("Pause program")),
+    ("S",("Resume program")),
+    ("ESC",("Stop running program, or")),
+    ("",("stop loading program preview")),
     ("", ""),
-    ("F7", _("Toggle mist")),
-    ("F8", _("Toggle flood")),
-    ("B", _("Spindle brake off")),
-    (_("Shift-B"), _("Spindle brake on")),
-    ("F9", _("Turn spindle clockwise")),
-    ("F10", _("Turn spindle counterclockwise")),
-    ("F11", _("Turn spindle more slowly")),
-    ("F12", _("Turn spindle more quickly")),
-    (_("Control-K"), _("Clear live plot")),
-    ("V", _("Cycle among preset views")),
-    ("F4", _("Cycle among preview, DRO, and user tabs")),
-    ("@", _("toggle Actual/Commanded")),
-    ("#", _("toggle Relative/Machine")),
-    (_("Ctrl-Space"), _("Clear notifications")),
-    (_("Alt-F, M, V"), _("Open a Menu")),
+    ("F7",("Toggle mist")),
+    ("F8",("Toggle flood")),
+    ("B",("Spindle brake off")),
+    (("Shift-B"),("Spindle brake on")),
+    ("F9",("Turn spindle clockwise")),
+    ("F10",("Turn spindle counterclockwise")),
+    ("F11",("Turn spindle more slowly")),
+    ("F12",("Turn spindle more quickly")),
+    (("Control-K"),("Clear live plot")),
+    ("V",("Cycle among preset views")),
+    ("F4",("Cycle among preview, DRO, and user tabs")),
+    ("@",("toggle Actual/Commanded")),
+    ("#",("toggle Relative/Machine")),
+    (("Ctrl-Space"),("Clear notifications")),
+    (("Alt-F, M, V"),("Open a Menu")),
 ]
         help =  list(zip(help1,help2))
         msg = QtWidgets.QDialog()
@@ -592,6 +612,11 @@ class HandlerClass:
     ###########################
     # **** closing event **** #
     ###########################
+    def _hal_cleanup(self):
+        self.saveSettings()
+
+    def closing_cleanup__(self):
+        TOOLBAR.saveRecentPaths()
 
     ##############################
     # required class boiler code #
