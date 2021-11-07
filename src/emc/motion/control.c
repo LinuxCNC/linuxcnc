@@ -308,7 +308,7 @@ static void handle_kinematicsSwitch(void) {
         /* point to joint struct */
         jointKinsSwitch = &joints[joint_num];
         /* copy feedback */
-        joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_fb;
+        joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
       }
 
       if (kinematicsSwitch(switchkins_type)) {
