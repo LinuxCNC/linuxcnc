@@ -473,10 +473,6 @@ class Pages:
         else:
             self.w.qtplasmac_estop.set_active(True)
         # set the qtplasmac spinboxes
-        self.w.qtplasmac_cam_x.set_value(self.d.qtplasmacxcam)
-        self.w.qtplasmac_cam_y.set_value(self.d.qtplasmacycam)
-        self.w.qtplasmac_laser_x.set_value(self.d.qtplasmacxlaser)
-        self.w.qtplasmac_laser_y.set_value(self.d.qtplasmacylaser)
         self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
 
         for i in ("touchy","axis"):
@@ -526,10 +522,6 @@ class Pages:
         self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
         self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
         self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
-        self.d.qtplasmacxcam = self.w.qtplasmac_cam_x.get_value()
-        self.d.qtplasmacycam = self.w.qtplasmac_cam_y.get_value()
-        self.d.qtplasmacxlaser = self.w.qtplasmac_laser_x.get_value()
-        self.d.qtplasmacylaser = self.w.qtplasmac_laser_y.get_value()
         self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
         if self.d.units == self._p._IMPERIAL:
             self.d.increments_imperial_qtplasmac = self.w.increments_qtplasmac.get_text()
