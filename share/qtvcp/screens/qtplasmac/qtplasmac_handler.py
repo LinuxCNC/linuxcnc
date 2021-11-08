@@ -1,4 +1,4 @@
-VERSION = '1.216.116'
+VERSION = '1.216.117'
 
 '''
 qtplasmac_handler.py
@@ -39,7 +39,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.Qsci import QsciScintilla
 from qtvcp import logger
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Tool
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.widgets.file_manager import FileManager as FILE_MAN
@@ -67,6 +67,7 @@ from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
 from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_block as CONVBLCK
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
+from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 
 # **** TEMP FOR CONVERSATIONAL TESTING 1 of 3 ****
 from importlib import reload
@@ -76,7 +77,9 @@ KEYBIND = Keylookup()
 STATUS = Status()
 INFO = Info()
 ACTION = Action()
+TOOL = Tool()
 AUX_PRGM = Aux_program_loader()
+INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
 _translate = QCoreApplication.translate
 
@@ -128,7 +131,6 @@ class HandlerClass:
         self.w = widgets
         self.h.comp.setprefix('qtplasmac')
         self.PATHS = paths
-        INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.iniFile = linuxcnc.ini(INIPATH)
         self.foreColor = '#ffee06'
 # changes sim common folder to a link so sims keep up to date
@@ -345,6 +347,7 @@ class HandlerClass:
         STATUS.connect('jograte-changed', self.jog_rate_changed)
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
+        STATUS.connect('tool-in-spindle-changed', self.tool_changed)
         self.overlay.setText(self.get_overlay_text(False))
         self.overlayConv.setText(self.get_overlay_text(True))
         if not self.w.chk_overlay.isChecked():
@@ -771,13 +774,16 @@ class HandlerClass:
         self.w.kerfcross_enable.setChecked(self.w.PREFS_.getpref('Kerf cross enable', True, bool, 'ENABLE_OPTIONS'))
         self.w.use_auto_volts.setChecked(self.w.PREFS_.getpref('Use auto volts', True, bool, 'ENABLE_OPTIONS'))
         self.w.ohmic_probe_enable.setChecked(self.w.PREFS_.getpref('Ohmic probe enable', False, bool, 'ENABLE_OPTIONS'))
+        self.w.error_label = QLabel()
+        self.w.lbl_tool = STATLABEL()
         self.w.lbl_gcodes = STATLABEL()
         self.w.lbl_mcodes = STATLABEL()
-        self.w.error_label = QLabel()
         self.w.statusbar.addPermanentWidget(self.w.error_label, stretch=1)
-        self.w.statusbar.addPermanentWidget(VLine())    # <---
+        self.w.statusbar.addPermanentWidget(VLine())
+        self.w.statusbar.addPermanentWidget(self.w.lbl_tool)
+        self.w.statusbar.addPermanentWidget(VLine())
         self.w.statusbar.addPermanentWidget(self.w.lbl_gcodes)
-        self.w.statusbar.addPermanentWidget(VLine())    # <---
+        self.w.statusbar.addPermanentWidget(VLine())
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         text = _translate('HandlerClass', 'MOVE')
         self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text()))
@@ -842,17 +848,21 @@ class HandlerClass:
         return text
 
     def touchoff_buttons(self):
+        self.camOffsetX = 0.0
+        self.camOffsetY = 0.0
+        self.laserOffsetX = 0.0
+        self.laserOffsetY = 0.0
         head = _translate('HandlerClass', 'INI FILE ERROR')
-        cCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
+        inCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
         msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
-        if cCode == '0':
+        if inCode == '0':
             self.w.camera.hide()
         else:
             try:
-                parms = cCode.lower().split()
+                parms = inCode.lower().split()
                 if len(parms) == 2:
-                    self.cam_offsetX = float(parms[0].replace('x', ''))
-                    self.cam_offsetY = float(parms[1].replace('y', ''))
+                    self.camOffsetX = float(parms[0].replace('x', ''))
+                    self.camOffsetY = float(parms[1].replace('y', ''))
                     self.idleHomedList.append('camera')
                     self.w.camera.setEnabled(False)
                 else:
@@ -861,14 +871,13 @@ class HandlerClass:
             except:
                 self.w.camera.hide()
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
-
-        lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
+        inCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
         msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
-        if lCode == '0':
+        if inCode == '0':
             self.w.laser.hide()
         else:
             try:
-                parms = lCode.lower().split()
+                parms = inCode.lower().split()
                 if len(parms) == 2:
                     self.laserOffsetX = float(parms[0].replace('x', ''))
                     self.laserOffsetY = float(parms[1].replace('y', ''))
@@ -1053,7 +1062,7 @@ class HandlerClass:
                 ACTION.OPEN_PROGRAM(self.oldFile)
             self.w[self.scButton].setEnabled(True)
             if self.g91:
-                ACTION.CALL_MDI('G91')
+                ACTION.CALL_MDI_WAIT('G91')
         if not self.manualCut:
             self.set_buttons_state([self.idleList], True)
         if self.fileOpened == False:
@@ -1246,7 +1255,7 @@ class HandlerClass:
         hal.set_p('plasmac.homed', '1')
         self.interp_idle(None)
         if not self.firstHoming:
-            ACTION.CALL_MDI_WAIT('T0 M6', 0.5)
+            ACTION.CALL_MDI_WAIT('T0 M6')
             ACTION.SET_MANUAL_MODE()
             self.firstHoming = True
 
@@ -1278,6 +1287,14 @@ class HandlerClass:
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
+
+    def tool_changed(self, obj, tool):
+        if tool == 0:
+            self.w.lbl_tool.setText('Tool: TORCH')
+        elif tool == 1:
+            self.w.lbl_tool.setText('Tool: SCRIBE')
+        else:
+            self.w.lbl_tool.setText('')
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'inch' and STATUS.is_metric_mode():
@@ -1455,6 +1472,10 @@ class HandlerClass:
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
         self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
+
+    def set_offsets_clicked(self):
+        reload(OFFSETS)
+        OFFSETS.dialog_show(self, self.w, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
 
     def feed_label_pressed(self):
         self.w.feed_slider.setValue(100)
@@ -1708,7 +1729,7 @@ class HandlerClass:
         if wcs == 'get':
             self.currentRotation = STATUS.stat.rotation_xy
         elif wcs == 'set' and self.currentRotation != STATUS.stat.rotation_xy:
-            ACTION.CALL_MDI('G10 L2 P0 R{}'.format(self.currentRotation))
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(self.currentRotation))
             ACTION.SET_MANUAL_MODE()
             self.w.gcodegraphics.set_current_view()
 
@@ -1740,7 +1761,7 @@ class HandlerClass:
 
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
-            ACTION.CALL_MDI('G10 L20 P0 X{} Y{}'.format(x, y))
+            ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(x, y))
             if self.fileOpened == True:
                 self.file_reload_clicked()
             ACTION.SET_MANUAL_MODE()
@@ -1877,6 +1898,7 @@ class HandlerClass:
         self.w.save_plasma.clicked.connect(self.save_plasma_clicked)
         self.w.reload_plasma.clicked.connect(self.reload_plasma_clicked)
         self.w.backup.clicked.connect(self.backup_clicked)
+        self.w.set_offsets.clicked.connect(self.set_offsets_clicked)
         self.w.save_material.clicked.connect(self.save_materials_clicked)
         self.w.reload_material.clicked.connect(self.reload_materials_clicked)
         self.w.new_material.clicked.connect(lambda:self.new_material_clicked(0, 0))
@@ -2246,6 +2268,7 @@ class HandlerClass:
         msg = QMessageBox(self.w)
         buttonY = msg.addButton(QMessageBox.Yes)
         buttonY.setText(bText)
+        buttonY.setIcon(QIcon())
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
@@ -2257,8 +2280,10 @@ class HandlerClass:
         msg = QMessageBox(self.w)
         buttonY = msg.addButton(QMessageBox.Yes)
         buttonY.setText(bY)
+        buttonY.setIcon(QIcon())
         buttonN = msg.addButton(QMessageBox.No)
         buttonN.setText(bN)
+        buttonN.setIcon(QIcon())
         msg.setIcon(icon)
         msg.setWindowTitle(title)
         msg.setText(error)
@@ -2274,6 +2299,8 @@ class HandlerClass:
         input.setLabelText('{}'.format(text))
         input.setOkButtonText(ok)
         input.setCancelButtonText(cancel)
+        for button in input.findChildren(QPushButton):
+            button.setIcon(QIcon())
         valid = input.exec_()
         out = input.textValue()
         return valid, out
@@ -3457,22 +3484,7 @@ class HandlerClass:
         if self.gcodeProps and state:
             self.framing = True
             self.w.run.setEnabled(False)
-            lCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
-            if lCode == '0':
-                xOffset, yOffset = 0, 0
-            else:
-                try:
-                    parms = lCode.lower().split()
-                    if len(parms) == 2:
-                        xOffset = float(parms[0].replace('x', ''))
-                        yOffset = float(parms[1].replace('y', ''))
-                except:
-                    xOffset, yOffset = 0, 0
-                    head = _translate('HandlerClass', 'INI FILE ERROR')
-                    msg0 = _translate('HandlerClass', 'Invalid entry for laser offset,')
-                    msg1 = _translate('HandlerClass', 'offsets will be set to zero')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}{}'.format(head, msg0, msg1))
-            msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', xOffset, yOffset)
+            msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
             if self.boundsError['framing']:
                 head = _translate('HandlerClass', 'AXIS LIMIT ERROR')
                 msgs = ''
@@ -3495,7 +3507,7 @@ class HandlerClass:
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 self.laserOnPin.set(1)
-                ACTION.CALL_MDI('G64 P{:0.3}'.format(0.25 * self.unitsPerMm))
+                ACTION.CALL_MDI_WAIT('G64 P{:0.3}'.format(0.25 * self.unitsPerMm))
                 if self.defaultZ:
                     ACTION.CALL_MDI('G53 G0 Z{}'.format(zHeight))
                 ACTION.CALL_MDI('G53 G0 X{} Y{} F{}'.format(xMin, yMin, feed))
@@ -4282,7 +4294,7 @@ class HandlerClass:
     def sheet_align(self, button_state, button, offsetX, offsetY):
         if button_state == 'markedge':
             zAngle = self.w.camview.rotation = 0
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 R0')
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R0', 3)
             ACTION.SET_MANUAL_MODE()
             self.w.gcodegraphics.logger.clear()
             self.w.cam_goto.setEnabled(False)
@@ -4320,8 +4332,9 @@ class HandlerClass:
             else:
                 zAngle = 0
             self.w.camview.rotation = zAngle
-            ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY), 3)
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle), 3)
+            ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
+            ACTION.CALL_MDI('G0 X0 Y0')
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -4330,10 +4343,10 @@ class HandlerClass:
         return button_state
 
     def cam_mark_pressed(self):
-        self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.cam_offsetX, self.cam_offsetY)
+        self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.camOffsetX, self.camOffsetY)
 
     def cam_goto_pressed(self):
-        ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+        ACTION.CALL_MDI('G0 X0 Y0')
         ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):

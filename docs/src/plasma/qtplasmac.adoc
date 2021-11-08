@@ -333,6 +333,8 @@ If the machine is equipped with a float switch then the user will need to set th
 
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
 
+. If the table has a laser or camera for sheet alignment, or a scribe then the required offset needs to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+
 . CONGRATULATIONS! The user should now have a working QtPlasmaC Configuration.
 
 NOTE: If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing, the probing section>> for a possible solution.
@@ -387,30 +389,22 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
       2 - Estop is a button.|ESTOP:1
 |===
 
-*Optional Settings*
+*Optional Setting*
 
-Leave these blank if they are not used/required.
+This setting is not required unless the machine has a <<qt_laser, laser>> for sheet alignment.
+
+Leave thi blank if it is not used/required.
 
 [width="100%",cols="4,10,6"]
 |===
 |*Field*|*Description*|*Examples*
-|LASER ALIGNMENT X OFFSET|Required if using a laser crosshair for sheet alignment. +
-          Refers to the X axis offset from the torch center.|*Metric Example:*  54.7 +
-                                                             *Imperial Example:*  2.15
-|LASER ALIGNMENT Y OFFSET|Required if using a laser crosshair for sheet alignment. +
-          Refers to the Y axis offset from the torch center.|*Metric Example:*  26.3 +
-                                                             *Imperial Example:*  1.03
-|CAMERA ALIGNMENT X OFFSET:|Required if using a camera for sheet alignment. +
-           Refers to the X axis offset from the torch center.|*Metric Example:*  -54.7 +
-                                                             *Imperial Example:*  -2.15
-|CAMERA ALIGNMENT Y OFFSET:|Required if using a camera for sheet alignment. +
-           Refers to the Y axis offset from the torch center.|*Metric Example:*  -54.7 +
-                                                             *Imperial Example:*  -2.15
+|Laser On Hal Pin|Power on a laser crosshair for sheet alignment.|*Parallel Port Example:* parport.0.pin-16-out +
+                                                                  *Mesa 7i96 Example:* hm2_7i96.0.ssr.00.out-00
 |===
 
 After filling in the appropriate entries, press *CONVERT*.
 
-NOTE: This method will not change any existing debounce components to the new dbounce component.
+NOTE: This method will not change any existing debounce components to the new dbounce component. If the user wishes to change to the new dbounce component then the New Base Config method should be used for migration.
 
 === New Base Config Method
 
@@ -1174,6 +1168,18 @@ To return any of the color changes to their default values, see the <<qt_default
 
 [underline]*UTILITIES*
 
+Some standard LinuxCNC utilites are provided as an aid in the diagnosis of issues that may arise:
+
+- link:http://linuxcnc.org/docs/devel/html/hal/halshow.html#cha:halshow[Halshow]
+- link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halscope[Halscope]
+- link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halmeter[Halmeter]
+- link:http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[Calibration]
+- link:https://linuxcnc.org/docs//html/man/man1/linuxcnctop.1.html[Status]
+
+In addition the following two QtPlasmaC specific utilities are provided:
+
+The  **SET OFFSETS** button is used if the table has a laser or camera for sheet alignment, or a scribe. The required offsets for these peripherals need to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+
 [[qt_backup]]
 
 The **BACKUP CONFIG** button will create a complete machine configuration backup for archiving or to aid in fault diagnosis. A compressed backup of the machine configuration will be saved in the user's Linux home directory. The file name will be <machine_name>_<version>_<date>_<time>.tar.gz where <machine_name> is the machine name entered in the configuration wizard, <version> is the current QtPlasmaC version the user is on, <date> is the current date (YY-MM-DD), and <time> is the current time (HH-MM-SS).
@@ -1268,9 +1274,9 @@ image::images/qtplasmac_camview.png[width=800,align="center"]
 
 QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. The CAMERA button will be enabled after the machine is homed.
 
-To use this feature, the user must set the camera's offset from the torch center line in the <machine_name>.ini file. This offset may be set by using the appropriate <<configuring, configuration wizard>> or by manually editing the ini file, see <<qt_modify-config, modifying QtPlasmaC>>.
+To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
-To add or modify the offsets manually, the user would add or edit the following line in the [QTPLASMAC] section:
+To add or modify the offsets manually, the user could add or edit the following line in the [QTPLASMAC] section:
 
 ----
 CAMERA_TOUCHOFF = Xoffset Yoffset
@@ -1283,6 +1289,7 @@ CAMERA_TOUCHOFF = Xoffset Yoffset
 . Jog until the cross hairs are on top of the desired origin point.
 . Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
 . Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
+. The torch will now move to the X0 Y0 position.
 . The offset is now successful set.
 
 *To set the origin with rotation:*
@@ -1291,6 +1298,7 @@ CAMERA_TOUCHOFF = Xoffset Yoffset
 . Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN* and the *GOTO ORIGIN* button will be disabled.
 . Jog until the cross hairs are at the origin point of the material.
 . Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the *GOTO ORIGIN* button will be enabled.
+. The torch will now move to the X0 Y0 position.
 . The offset is now successfully set.
 
 In the CAMVIEW panel, the mouse can affect the cross hairs and the zoom level as follows:
@@ -1306,9 +1314,9 @@ In the CAMVIEW panel, the mouse can affect the cross hairs and the zoom level as
 
 QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. The LASER button will be enabled after the machine is homed.
 
-To use this feature, the user must set the laser's offset from the torch center line in the <machine_name>.ini file. This offset may be set by using the appropriate <<configuring, configuration wizard>> or by manually editing the ini file, see <<qt_modify-config, modifying QtPlasmaC>>.
+To use this feature, the user must set the laser's offset from the torch center by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
-To add or modify the offsets manually, the user would add or edit the following line in the [QTPLASMAC] section:
+To add or modify the offsets manually, the user could add or edit the following line in the [QTPLASMAC] section:
 
 ----
 LASER_TOUCHOFF = Xoffset Yoffset
@@ -1329,6 +1337,7 @@ qtplasmac.laser_on
 . Jog until the laser cross hairs are on top of the desired origin point.
 . Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN*.
 . Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned off.
+. The torch will now move to the X0 Y0 position.
 . The offset is now successful set.
 
 *To set the origin with rotation:*
@@ -1339,6 +1348,7 @@ qtplasmac.laser_on
 . Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN*.
 . Jog until the laser cross hairs are at the origin point of the material.
 . Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned off.
+. The torch will now move to the X0 Y0 position.
 . The offset is now successfully set.
 
 [[qt_path-tolerance]]
@@ -1415,7 +1425,7 @@ A LinuxCNC spindle number (designated by $n) is required to be in the starting c
 It is permissible to use *M5 $-1* in lieu of the M5 $n codes above to stop all tools.
 
 
-In order to use a scribe, it is necessary for the user to add the X and Y axis offsets to the LinuxCNC tool table. The tool.tbl file is found in the <machine_name> config folder. Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *Tn M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool. It is important to note that the LinuxCNC tool table and tool commands only come into play if the user is using a <<qt_scribe, scribe>> in addition to a plasma torch. For more information, see <<qt_scribe, scribe>>.
+In order to use a scribe, it is necessary for the user to add the X and Y axis offsets to the LinuxCNC tool table. Tool 0 is assigned to the Plasma Torch and Tool 1 is assigned to the scribe. Tools are selected with a *Tn M6* command, and then a *G43 H0* command is required to apply the offsets for the selected tool. It is important to note that the LinuxCNC tool table and tool commands only come into play if the user is using a <<qt_scribe, scribe>> in addition to a plasma torch. For more information, see <<qt_scribe, scribe>>.
 
 [[qt_velocity-reduction]]
 
@@ -2138,7 +2148,7 @@ There are two HAL output pins used to operate the scribe, the first pin is used 
 
 Using QtPlasmaC after enabling the scribe requires the selection of either the torch or the scribe in each G-Code file as a LinuxCNC tool.
 
-The next step is to open the tool table editor in the GUI or edit *tool.tbl* in the *<machine_name>* configuration directory and enter the X and Y axes offsets. These are the distances in X and Y the scribe is away from the torch as measured from the center of the torch nozzle. In most cases, if the user is standing at the front of the machine and the scribe is to the right of the torch, a positive X offset would be required. Similarly, if the scribe is to the rear of the torch, a positive Y offset would be required. The offsets for the torch should always be zero.
+The first step is to set the offsets for the scribe by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
 The final step is to set the <<qt_scribe-config, scribe delays>> required:
 
@@ -3085,6 +3095,30 @@ this allows the loading of the last modified file in a directory. The directory 
 ----
 BUTTON_n_CODE = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 ----
+
+[[peripheral-offsets]]
+
+=== Peripheral Offsets (Laser, Camera, Scribe)
+
+image::images/qtplasmac_peripheral_offsets.png[width=400,align="center"]
+
+Use the following sequence to set the offsets for a laser, camera, or scribe:
+
+. Place a piece of scrap material under the torch.
+. Click the X0Y0 button to set the torch position to zero.
+. Make a mark on the material by one of:
+.. jog the torch down to pierce height then pulse the torch on to make a dimple in the material.
+.. place marking dye on the torch shield then jog the torch down to mark the material.
+. Raise the Z axis so the torch and peripheral are clear of the material
+. Jog the X/Y axes so that the peripheral is centered in the mark from the torch.
+. Open the PARAMETERS tab (or SETTINGS tab for 4x3 GUI).
+. Click the SET OFFSETS button which opens the OFFSET dialog.
+. Click the appropriate peripheral button and a confirmation dialog will open.
+. Click CONTINUE and the offsets will now be saved.
+
+Cancelling may be done at any stage by pressing the CANCEL button which will close the dialog and no changes will be saved.
+
+NOTE: By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
 
 [[qt_ext-hal-pin]]
 
