@@ -1750,6 +1750,9 @@
                <height>32</height>
               </size>
              </property>
+             <property name="auto_show_mdi_status" stdset="0">
+              <bool>false</bool>
+             </property>
              <property name="show_editor" stdset="0">
               <bool>false</bool>
              </property>
