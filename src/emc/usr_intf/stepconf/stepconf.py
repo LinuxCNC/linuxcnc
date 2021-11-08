@@ -437,10 +437,6 @@ class Data:
         self.qtplasmacmode = 0
         self.qtplasmacscreen = 0
         self.qtplasmacestop = 0
-        self.qtplasmacxcam = 0.0
-        self.qtplasmacycam = 0.0
-        self.qtplasmacxlaser = 0.0
-        self.qtplasmacylaser = 0.0
         self.qtplasmacpmx = ""
         self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
                                  "","","","","","","","","","","","","",""]

@@ -116,163 +116,8 @@
     <child>
       <object class="GtkTable" id="qtplasmac_table">
         <property name="can_focus">False</property>
-        <property name="n_rows">6</property>
+        <property name="n_rows">4</property>
         <property name="n_columns">5</property>
-        <child>
-          <object class="GtkSpinButton" id="qtplasmac_cam_y">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">•</property>
-            <property name="text" translatable="yes">0.000</property>
-            <property name="primary_icon_activatable">False</property>
-            <property name="secondary_icon_activatable">False</property>
-            <property name="adjustment">qtplasmac_cam_y_adjust</property>
-            <property name="climb_rate">1</property>
-            <property name="digits">3</property>
-          </object>
-          <packing>
-            <property name="left_attach">4</property>
-            <property name="right_attach">5</property>
-            <property name="top_attach">3</property>
-            <property name="bottom_attach">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="qtplasmac_cam_y_lbl">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">  Y Offset</property>
-            <property name="xalign">1</property>
-          </object>
-          <packing>
-            <property name="left_attach">3</property>
-            <property name="right_attach">4</property>
-            <property name="top_attach">3</property>
-            <property name="bottom_attach">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkSpinButton" id="qtplasmac_cam_x">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">•</property>
-            <property name="text" translatable="yes">0.000</property>
-            <property name="primary_icon_activatable">False</property>
-            <property name="secondary_icon_activatable">False</property>
-            <property name="adjustment">qtplasmac_cam_x_adjust</property>
-            <property name="climb_rate">1</property>
-            <property name="digits">3</property>
-          </object>
-          <packing>
-            <property name="left_attach">2</property>
-            <property name="right_attach">3</property>
-            <property name="top_attach">3</property>
-            <property name="bottom_attach">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkSpinButton" id="qtplasmac_laser_y">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">•</property>
-            <property name="text" translatable="yes">0.000</property>
-            <property name="primary_icon_activatable">False</property>
-            <property name="secondary_icon_activatable">False</property>
-            <property name="adjustment">qtplasmac_laser_y_adjust</property>
-            <property name="climb_rate">1</property>
-            <property name="digits">3</property>
-          </object>
-          <packing>
-            <property name="left_attach">4</property>
-            <property name="right_attach">5</property>
-            <property name="top_attach">4</property>
-            <property name="bottom_attach">5</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="qtplasmac_cam_x_lbl">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes"> X Offset</property>
-            <property name="xalign">1</property>
-          </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="right_attach">2</property>
-            <property name="top_attach">2</property>
-            <property name="bottom_attach">5</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="qtplasmac_laser_x_lbl">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes"> X Offset</property>
-            <property name="xalign">1</property>
-          </object>
-          <packing>
-            <property name="left_attach">1</property>
-            <property name="right_attach">2</property>
-            <property name="top_attach">4</property>
-            <property name="bottom_attach">5</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkSpinButton" id="qtplasmac_laser_x">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">•</property>
-            <property name="text" translatable="yes">0.000</property>
-            <property name="primary_icon_activatable">False</property>
-            <property name="secondary_icon_activatable">False</property>
-            <property name="adjustment">qtplasmac_laser_x_adjust</property>
-            <property name="digits">3</property>
-          </object>
-          <packing>
-            <property name="left_attach">2</property>
-            <property name="right_attach">3</property>
-            <property name="top_attach">4</property>
-            <property name="bottom_attach">5</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="qtplasmac_laser_y_lbl">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">  Y Offset</property>
-            <property name="xalign">1</property>
-          </object>
-          <packing>
-            <property name="left_attach">3</property>
-            <property name="right_attach">4</property>
-            <property name="top_attach">4</property>
-            <property name="bottom_attach">5</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="qtplasmac_cam_lbl">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Alignment Camera:   </property>
-            <property name="xalign">0</property>
-          </object>
-          <packing>
-            <property name="top_attach">3</property>
-            <property name="bottom_attach">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="qtplasmac_laser_lbl">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">Alignment Laser:</property>
-            <property name="xalign">0</property>
-          </object>
-          <packing>
-            <property name="top_attach">4</property>
-            <property name="bottom_attach">5</property>
-          </packing>
-        </child>
         <child>
           <object class="GtkLabel" id="qtplasmac_screen_lbl">
             <property name="visible">True</property>
@@ -451,8 +296,8 @@
             <property name="xalign">0</property>
           </object>
           <packing>
-            <property name="top_attach">5</property>
-            <property name="bottom_attach">6</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
           </packing>
         </child>
         <child>
@@ -466,8 +311,8 @@
           <packing>
             <property name="left_attach">1</property>
             <property name="right_attach">5</property>
-            <property name="top_attach">5</property>
-            <property name="bottom_attach">6</property>
+            <property name="top_attach">3</property>
+            <property name="bottom_attach">4</property>
           </packing>
         </child>
         <child>
