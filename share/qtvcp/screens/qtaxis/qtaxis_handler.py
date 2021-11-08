@@ -15,7 +15,7 @@ from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.toolbar_actions import ToolBarActions
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Qhal
 
 # Set up logging
 from qtvcp import logger
@@ -34,6 +34,7 @@ ACTION = Action()
 INFO = Info()
 TOOLBAR = ToolBarActions()
 STYLEEDITOR  = SSE()
+QHAL = Qhal()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -49,11 +50,13 @@ class HandlerClass:
         self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
-
+        self.init_pins()
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
+        STATUS.connect('joint-selection-changed', lambda w, d: self.update_jog_pins(d))
+        STATUS.connect('axis-selection-changed', lambda w, d: self.update_jog_pins(d))
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -239,6 +242,21 @@ class HandlerClass:
         self.w.rpm_bar.setFormat('{0:d} RPM'.format(int(data)))
         self.w.rpm_bar.setValue(abs(data))
 
+    def update_jog_pins(self, data):
+        if type(data) == str:
+            for i in INFO.AVAILABLE_AXES:
+                if i == data:
+                    self['jog_axis_{}_pin'.format(i)].set(True)
+                else:
+                    self['jog_axis_{}_pin'.format(i)].set(False)
+
+        else:
+            for i in INFO.AVAILABLE_JOINTS:
+                if i == data:
+                    self['jog_joint_{}_pin'.format(i)].set(True)
+                else:
+                    self['jog_joint_{}_pin'.format(i)].set(False)
+
     #######################
     # callbacks from form #
     #######################
@@ -266,6 +284,15 @@ class HandlerClass:
     #####################
     # general functions #
     #####################
+
+    def init_pins(self):
+        # external jogging control pins
+        for  i in INFO.AVAILABLE_JOINTS:
+            self['jog_joint_{}_pin'.format(i)] = \
+                    QHAL.newpin("joint-{}-selected".format(i), QHAL.HAL_BIT, QHAL.HAL_OUT)
+        for i in INFO.AVAILABLE_AXES:
+            self['jog_axis_{}_pin'.format(i)] = \
+                    QHAL.newpin("axis-{}-selected".format(i.lower()), QHAL.HAL_BIT, QHAL.HAL_OUT)
 
     def saveSettings(self):
         # Record the toolbar settings
