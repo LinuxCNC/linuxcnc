@@ -50,6 +50,7 @@ class HandlerClass:
         self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
+        self._last_count = 0
         self.init_pins()
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
@@ -293,6 +294,10 @@ class HandlerClass:
         for i in INFO.AVAILABLE_AXES:
             self['jog_axis_{}_pin'.format(i)] = \
                     QHAL.newpin("axis-{}-selected".format(i.lower()), QHAL.HAL_BIT, QHAL.HAL_OUT)
+        # screen MPG controls
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
+        self.pin_mpg_enabled = QHAL.newpin('mpg-enable',QHAL.HAL_BIT, QHAL.HAL_IN)
 
     def saveSettings(self):
         # Record the toolbar settings
@@ -555,6 +560,12 @@ class HandlerClass:
     def launch_versa_probe(self, w):
         STATUS.emit('dialog-request',{'NAME':'VERSAPROBE'})
 
+    # MPG scrolling of program or MDI history
+    def external_mpg(self, count):
+        if self.pin_mpg_enabled.get():
+            diff = count - self._last_count
+            self.w.gcode_editor.jump_line(diff)
+        self._last_count = count
     #####################
     # KEY BINDING CALLS #
     #####################
