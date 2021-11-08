@@ -16,8 +16,9 @@
 #define SWITCHKINS_DEBUG
 #undef  SWITCHKINS_DEBUG
 
-#define SWITCHKINS_MESSAGE
-#undef  SWITCHKINS_MESSAGE
+#ifdef SWITCHKINS_DEBUG
+#include <stdio.h>  // rtpreempt only, consolidate to stderr
+#endif
 
 #include "posemath.h"
 #include "rtapi.h"
@@ -191,6 +192,7 @@ static void sync_carte_pos_to_teleop_tp(int);
 static void apply_ext_offsets_to_carte_pos(int);
 static int  update_coord_with_bound(void);
 static int  update_teleop_with_check(int,simple_tp_t*);
+static void handle_kinematicsSwitch(void);
 
 /***********************************************************************
 *                        PUBLIC FUNCTION CODE                          *
@@ -251,6 +253,7 @@ void emcmotController(void *arg, long period)
     /* here begins the core of the controller */
 
     read_homing_in_pins(ALL_JOINTS);
+    handle_kinematicsSwitch();
     process_inputs();
     do_forward_kins();
     process_probe_inputs();
@@ -284,63 +287,51 @@ void emcmotController(void *arg, long period)
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
-    if (kinematicsSwitchable()) {
-        hal_switchkins_type = (int)*emcmot_hal_data->switchkins_type;
-    }
-#ifdef SWITCHKINS_DEBUG
-    double j0b,j1b,j0a,j1a,xb,yb,xa,ya;
-    emcmot_joint_t *jj;
-#endif
-    if(   kinematicsSwitchable()
-       && switchkins_type != hal_switchkins_type) {
-      switchkins_type = hal_switchkins_type;
 
-      emcmot_joint_t *jointKinsSwitch;
-      double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
-#ifdef SWITCHKINS_DEBUG
-      jj = &joints[0]; j0b=jj->pos_cmd;
-      jj = &joints[1]; j1b=jj->pos_cmd;
-      xb  = emcmotStatus->carte_pos_cmd.tran.x;
-      yb  = emcmotStatus->carte_pos_cmd.tran.y;
-#endif
-      /* copy joint position feedback to local array */
-      for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    if (!kinematicsSwitchable()) return;
+    hal_switchkins_type = (int)*emcmot_hal_data->switchkins_type;
+    if (switchkins_type == hal_switchkins_type) return;
+
+    switchkins_type = hal_switchkins_type;
+
+    emcmot_joint_t *jointKinsSwitch;
+    double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
+    /* copy joint position feedback to local array */
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
         /* point to joint struct */
         jointKinsSwitch = &joints[joint_num];
         /* copy feedback */
         joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
-      }
-
-      if (kinematicsSwitch(switchkins_type)) {
-          rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
-                          *emcmot_hal_data->switchkins_type);
-          SET_MOTION_ERROR_FLAG(1);  // abort
-          return; // no updates for abort
-      }
-
-      KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
-      KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
-
-      kinematicsForward(joint_posKinsSwitch,
-                        &emcmotStatus->carte_pos_cmd,
-                        &tmpFFlags, &tmpIFlags);
-      tpSetPos(&emcmotDebug->coord_tp, &emcmotStatus->carte_pos_cmd);
-
-#ifdef SWITCHKINS_MESSAGE
-      // use MSG_ERR to force display in axis gui
-      rtapi_print_msg(RTAPI_MSG_ERR ,"switchkins:%d\n",switchkins_type);
-#endif
-#ifdef SWITCHKINS_DEBUG
-      xa  = emcmotStatus->carte_pos_cmd.tran.x;
-      ya  = emcmotStatus->carte_pos_cmd.tran.y;
-      j0a = joint_posKinsSwitch[0];
-      j1a = joint_posKinsSwitch[1];
-      rtapi_print("j0b=%7.3f j1b=%7.3f xb=%7.3f yb=%7.3f\n",j0b,j1b,xb,yb);
-      rtapi_print("j0a=%7.3f j1a=%7.3f xb=%7.3f yb=%7.3f\n",j0a,j1a,xa,ya);
-#endif
-      //emcmotStatus->carte_pos_fb_ok = 1;
     }
-}
+
+    if (kinematicsSwitch(switchkins_type)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
+                        *emcmot_hal_data->switchkins_type);
+        SET_MOTION_ERROR_FLAG(1);  // abort
+        return; // no updates for abort
+    }
+
+    KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
+    KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
+#ifdef SWITCHKINS_DEBUG
+    double beforePose[EMCMOT_MAX_AXIS];
+    int anum;
+    for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {
+        beforePose[anum] = *pcmd_p[anum];
+    }
+#endif
+    kinematicsForward(joint_posKinsSwitch,
+                      &emcmotStatus->carte_pos_cmd,
+                      &tmpFFlags, &tmpIFlags);
+#ifdef SWITCHKINS_DEBUG
+    fprintf(stderr,"kswitch type=%d (%s:%d)\n",switchkins_type,__FUNCTION__,__LINE__);
+    for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {
+        fprintf(stderr,"anum=%d before:%8.3g after:%8.3g delta=%8.3g\n"
+               ,anum,beforePose[anum],*pcmd_p[anum],*pcmd_p[anum]-beforePose[anum]);
+    }
+#endif
+    tpSetPos(&emcmotDebug->coord_tp, &emcmotStatus->carte_pos_cmd);
+} //handle_kinematicsSwitch()
 
 static void process_inputs(void)
 {
@@ -349,7 +340,6 @@ static void process_inputs(void)
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
-    handle_kinematicsSwitch();
     /* read spindle angle (for threading, etc) */
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		emcmotStatus->spindle_status[spindle_num].spindleRevs =
@@ -914,11 +904,11 @@ static void set_operating_mode(void)
 		if (joint_num < NO_OF_KINS_JOINTS) {
 		/* point to joint data */
 		    joint = &joints[joint_num];
-		if (coord_cubic_active && *(emcmot_hal_data->eoffset_active)) {
-		    //skip
-		} else {
-		    cubicDrain(&(joint->cubic));
-		}
+		    if (coord_cubic_active && *(emcmot_hal_data->eoffset_active)) {
+		        //skip
+		    } else {
+		        cubicDrain(&(joint->cubic));
+		    }
 		    positions[joint_num] = joint->coarse_pos;
 		} else {
 		    positions[joint_num] = 0;
