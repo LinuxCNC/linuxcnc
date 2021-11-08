@@ -141,6 +141,9 @@
                    <number>0</number>
                   </property>
                   <widget class="QWidget" name="tab_3">
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
                    <attribute name="title">
                     <string>Manual Control [F3]</string>
                    </attribute>
