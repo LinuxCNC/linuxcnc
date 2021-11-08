@@ -461,7 +461,7 @@ static hm2_eth_t boards[MAX_ETH_BOARDS];
 static int eth_socket_send(int sockfd, const void *buffer, int len, int flags);
 static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
-#define IPTABLES "env \"PATH=/usr/sbin:/sbin:$(PATH)\" iptables"
+#define IPTABLES "env \"PATH=/usr/sbin:/sbin:${PATH}\" iptables"
 #define CHAIN "hm2-eth-rules-output"
 
 static int shell(char *command) {
