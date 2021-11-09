@@ -54,6 +54,7 @@ use la opción \fB--personalities=\fR con halcompile. Por ejemplo, para establec
 de personalidad en 4:
    [sudo] \fBhalcompile --personalities=4\fR --install ...
 
+.PD
 .SH DESCRIPCION
 \fBhalcompile\fR realiza muchas funciones diferentes:
 .IP \(bu 4
@@ -75,10 +76,12 @@ Instala los archivos \fB.c\fR y \fB.py\fR en el directorio adecuado para los com
 .IP \(bu 4
 Extrae documentacion de los archivos \fB.comp\fR en los archivos de paginas de manual de \fB.9\fR en el directorio del sistema adecuado
 (bandera \fB\-\-install \fR), lo que puede requerir que \fIsudo\fR escriba en el sistema de directorios.
+.IP \(bu 4
+Preprocess \fB.comp\fR files into \fB.c\fR files (the \fB\-\-preprocess\fR flag)
+
 .SH "VER TAMBIEN"
 \fIHalcompile Generador de Componentes HAL\fR en la documentacion de LinuxCNC para obtener una descripcion completa de la sintaxis de
 archivos \fB.comp\fR, junto con ejemplos.
+
 \fBpydoc hal\fR y \fICreando Componentes Python de Espacio de Usuario\fR en la documentacion de LinuxCNC para obtener documentacion 
 sobre la interfaz de Python para los componentes HAL
-
-
