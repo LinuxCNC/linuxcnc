@@ -1,2 +1,2 @@
 #!/bin/sh
-! linuxcnc-python -mcanon error.ngc 2>&1
+! python3 -mcanon error.ngc 2>&1
