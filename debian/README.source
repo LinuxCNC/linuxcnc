@@ -14,7 +14,6 @@ required for Debian unstable.
 Steps
 -----
 
-
 1. Generate the source tarball, This will use the version as specified
    in the first line of tthe debian/changelog file. And maybe remove
    anything outdated, just to avoid confusions:
@@ -23,16 +22,23 @@ Steps
    then set the version in debian/changelog. For git checkout, the
    version stated in debian/changelog receives the suffix +gitYYYYMMDD.githash
 
-   rm -fi ../linuxcnc_*
-   debian/rules get-orig-source
-   unset WORKDIR
+   VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^\d://' )
+
+   If the current source tree is not the regular release but git checkout also
+   create the fitting tarball:
+
+   VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
+   echo $VERSION
+   foldername=$(basename $(pwd))
+   (cd .. && tar --exclude=.git -cJvf linuxcnc_${VERSION}.orig.tar.xz $foldername)
+   du -sh ../$foldername
 
 2. Prepare shell to work in temp directory
 
+   export VERSION
    export WORKDIR=$(mktemp -d)
-   mv linuxcnc_*.orig.tar.xz ${WORKDIR}/
-   bash
-   pushd $WORKDIR
+   mv "../linuxcnc_${VERSION}.orig.tar.xz" ${WORKDIR}/ && \
+   pushd $WORKDIR && bash
    echo -n "I: Now working in "; pwd
 
 3. Unpack
@@ -49,8 +55,7 @@ Steps
 
 5. Slightly adapt for upload to d/unstable
 
-   sed -i '/^Standards-Version: /s/ [0-9.]*/ 4.6.0/' debian/control
-   sed -i '1s/ stable;/ unstable;/' debian/changelog
+   sed -i '1s/ UNRELEASED;/ unstable;/' debian/changelog
 
    mkdir -p debian/source
    echo "3.0 (quilt)" > debian/source/format
@@ -81,7 +86,6 @@ Steps
 
    exit
    mv ${WORKDIR}/linuxcnc_* ..
-
 
 Above sketched differences are not impeding routine workflows of Debian
 packaging. For instance we found that the routine-update script (from the
