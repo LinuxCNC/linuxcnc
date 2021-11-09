@@ -771,7 +771,7 @@ install-python: install-dirs
 	$(EXE) ../bin/touchy $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gscreen $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtvcp $(DESTDIR)$(bindir)
-	$(EXE) ../lib/python/qtvcp/designer/install_script $(DESTDIR)$(SITEPY)/qtvcp/designer
+	$(EXE) ../lib/python/qtvcp/designer/install_script $(DESTDIR)$(SITEPY)/qtvcp/designer/
 	$(EXE) ../bin/qtplasmac-setup $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtplasmac-materials $(DESTDIR)$(bindir)
 	$(EXE) ../bin/qtplasmac-plasmac2qt $(DESTDIR)$(bindir)
