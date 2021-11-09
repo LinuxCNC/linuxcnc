@@ -393,7 +393,7 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 
 This setting is not required unless the machine has a <<qt_laser, laser>> for sheet alignment.
 
-Leave thi blank if it is not used/required.
+Leave this blank if it is not used/required.
 
 [width="100%",cols="4,10,6"]
 |===

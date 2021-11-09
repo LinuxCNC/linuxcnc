@@ -20,19 +20,21 @@ with this program; if not, write to the Free Software Foundation, Inc
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import os
 import linuxcnc
 import hal
 import time
 from subprocess import call as CALL
 from PyQt5 import QtCore
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QPalette, QColor, QIcon
 from PyQt5.QtWidgets import QMessageBox
 
 class HandlerClass:
 
-    def __init__(self, halcomp,widgets,paths):
+    def __init__(self, halcomp, widgets, paths):
         self.hal = halcomp
         self.w = widgets
+        self.PATHS = paths
         self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint | \
                               QtCore.Qt.WindowTitleHint | \
                               QtCore.Qt.WindowStaysOnTopHint )
@@ -42,6 +44,8 @@ class HandlerClass:
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
+        self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
+        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'linuxcncicon.png')))
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
