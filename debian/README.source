@@ -22,7 +22,7 @@ Steps
    then set the version in debian/changelog. For git checkout, the
    version stated in debian/changelog receives the suffix +gitYYYYMMDD.githash
 
-   VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^\d://' )
+   VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
 
    If the current source tree is not the regular release but git checkout also
    create the fitting tarball:
@@ -30,7 +30,7 @@ Steps
    VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
    echo $VERSION
    foldername=$(basename $(pwd))
-   (cd .. && tar --exclude=.git -cJvf linuxcnc_${VERSION}.orig.tar.xz $foldername)
+   (cd .. && tar --exclude=.git -cJvf "linuxcnc_${VERSION}.orig.tar.xz" "$foldername")
    du -sh ../$foldername
 
 2. Prepare shell to work in temp directory
@@ -61,9 +61,7 @@ Steps
    echo "3.0 (quilt)" > debian/source/format
 
    # debian version
-   if ! head -n 1 debian/changelog | grep -q -- "-1)"; then sed -i '1s/) /-1) /' debian/changelog; else echo "I: dversion already set"; fi
-   # no epoch
-   sed -i '1s/([0-9]:/(/' debian/changelog
+   sed -i "1s/^.*;/linuxcnc ($VERSION-1) unstable;/" debian/changelog
 
 6a. build Debian package if in doubt - optional
 
