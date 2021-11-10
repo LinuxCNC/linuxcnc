@@ -202,7 +202,7 @@ class PlasmaClass:
     def _on_destroy(self, obj, data = None):
         self.ini.save_state(self)
 
-    # What to do on button pres events?
+    # What to do on button press events?
     def on_btn_THC_speed_pressed(self, widget, dir):
         increment = self.thcspeedincr * dir
         self.thcspeedval = self.adj_THC_speed.get_value() + increment
