@@ -22,7 +22,7 @@ o<queuebuster> sub
 
     o<um66> if [#<use_m66> GT 0]
       (debug, m66 queuebuster follows)
-      m66p0l0   ;QB wait on input l0=imediate
+      m66p0l0   ;QB wait on input l0=immediate
     o<um66> endif
 
     o<um38> if [#<use_m38> GT 0]

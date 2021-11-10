@@ -1,13 +1,13 @@
 This is a small instruction to include macros in gmoccapy.
 
 In your INI File you need to introduce a section called [MACROS]
-and for every macro you wan't to include one line like so:
+and for every macro you'll need to include a one-liner like so:
 
 MACRO = jog_around
 or 
 MACRO = increment xinc yinc
 
-where xinc and yinc are place holders
+where xinc and yinc are placeholders
 
 During execution of the macro, you will be asked to enter the values. 
 
