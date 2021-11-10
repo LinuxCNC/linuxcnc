@@ -91,7 +91,7 @@ def change_prolog(self, userdata,**words):
 		self.set_errormsg("Cannot change tools with cutter radius compensation on")
 		return INTERP_ERROR
 
-	# bug in interp_convert.cc: WONT WORK - isnt valid anymore
+	# bug in interp_convert.cc: WONT WORK - isn't valid anymore
 	## 	    settings->selected_pocket);
 	## 	    settings->tool_table[0].toolno, <--- BROKEN
 	## 	    block->t_number,
