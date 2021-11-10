@@ -611,7 +611,7 @@ install: install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in DESTDIR='$(DESTDIR)' with prefix $(prefix)"
 
 install-dirs:
-	$(DIR) $(DESTDIR)$(initd_dir) $(DESTDIR)$(EMC2_RTLIB_DIR) \
+	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(libdir) $(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docsdir) $(DESTDIR)$(ncfilesdir) \
