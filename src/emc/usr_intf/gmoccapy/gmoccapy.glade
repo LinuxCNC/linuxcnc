@@ -3206,7 +3206,7 @@
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label">Manuell</property>
+                                    <property name="label">Manual</property>
                                   </object>
                                   <packing>
                                     <property name="tab_fill">False</property>
@@ -4665,7 +4665,7 @@
                     <property name="can_focus">True</property>
                     <property name="tab_pos">left</property>
                     <child>
-                      <object class="GtkHBox" id="hbox_setup_apear">
+                      <object class="GtkHBox" id="hbox_setup_appear">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>

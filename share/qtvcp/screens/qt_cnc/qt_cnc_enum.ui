@@ -2077,7 +2077,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="is_limits_overriden_status" stdset="0">
+     <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
     </widget>
@@ -2592,7 +2592,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       </rect>
      </property>
      <property name="text">
-      <string>Continous</string>
+      <string>Continuous</string>
      </property>
      <property name="indicator_option" stdset="0">
       <bool>true</bool>

@@ -1539,8 +1539,8 @@ class PyApp(Gtk.Window):
             brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
             for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
                 table = Gtk.Table(12, 3, False)
-                seperator = Gtk.VSeparator()
-                table.attach(seperator, 1, 2, 0, 12,True)
+                separator = Gtk.VSeparator()
+                table.attach(separator, 1, 2, 0, 12,True)
                 for pin in range (0,24):
                     if pin >11:
                         column = 2
