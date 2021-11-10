@@ -223,9 +223,7 @@ El primer paso es generar los scripts y metadatos del paquete Debian
 desde su clon del repositorio git ejecutando esto:
 
 -----
-> cd linuxcnc-dev/debian
-> ./configure uspace
-> cd ..
+> ./debian/configure uspace
 -----
 
 [NOTE]
@@ -242,7 +240,7 @@ paquete ejecutando `dpkg-buildpackage` (tenga en cuenta que debe ejecutarse desd
 el directorio `linuxcnc-dev`, *no* desde `linuxcnc-dev/debian`):
 
 -----
-> dpkg-buildpackage -b -uc
+> dpkg-buildpackage -rfakeroot -b -uc
 -----
 
 

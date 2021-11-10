@@ -229,9 +229,7 @@ The first step is generating the Debian package scripts and meta-data
 from the git repo by running this:
 
 -----
-> cd linuxcnc-dev/debian
-> ./configure uspace
-> cd ..
+> ./debian/configure uspace
 -----
 
 [NOTE]
@@ -249,7 +247,7 @@ package by running `dpkg-buildpackage` (note that it needs to run from
 the `linuxcnc-dev` directory, *not* from `linuxcnc-dev/debian`):
 
 -----
-> dpkg-buildpackage -b -uc
+> dpkg-buildpackage -rfakeroot -b -uc
 -----
 
 
@@ -265,7 +263,10 @@ platform to build for.  The normal values for this argument are:
 `uspace`::
 
     Configure the Debian package for Preempt-RT realtime or for
-    non-realtime (these two are compatible).
+    non-realtime (these two are compatible). uspace is the default if no
+    other realtime configuration is selected.
+
+    The Debian package created will be linuxcnc-uspace.
 
 `noauto`::
 `rtai`::
@@ -290,6 +291,14 @@ platform to build for.  The normal values for this argument are:
     Configure the Debian package for the currently running RTAI kernel.
     You must be running an RTAI kernel on your build machine for this
     to work!
+
+`--help`::
+
+    presets a very short summary of extra options
+
+`no-docs`::
+
+    skips building of documentation
 
 `$KERNEL_VERSION`::
 
@@ -326,9 +335,7 @@ Then ask your LinuxCNC git checkout to generate its Debian package
 meta-data:
 
 -----
-> cd linuxcnc-dev/debian
-> ./configure uspace
-> cd ..
+> ./debian/configure uspace
 -----
 
 Finally ask `dpkg-checkbuilddeps` to do its job (note that it needs to

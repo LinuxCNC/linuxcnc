@@ -62,7 +62,7 @@ Steps
 
 6a. build Debian package if in doubt - optional
 
-   dpkg-buildpackage
+   dpkg-buildpackage -rfakeroot
 
 6b. build Debian source package, which is what is uploaded to Debian upon acceptance and for updates
 
