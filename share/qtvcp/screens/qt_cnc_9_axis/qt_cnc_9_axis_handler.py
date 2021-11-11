@@ -9,7 +9,6 @@ from PyQt5 import QtCore, QtWidgets
 
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
-from qtvcp.widgets.dialog_widget import CamViewDialog as CAMVIEW
 from qtvcp.widgets.dialog_widget import MacroTabDialog as LATHEMACRO
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
@@ -177,7 +176,7 @@ class HandlerClass:
             self.w.originoffsetdialog.load_dialog()
     def on_keycall_F4(self,event,state,shift,cntrl):
         if state:
-            self.w.camviewdialog.load_dialog()
+            STATUS.emit('dialog-request',{'NAME':'CAMVIEW','NONBLOCKING':True})
     def on_keycall_F5(self,event,state,shift,cntrl):
         if state:
             self.w.macrotabdialog.load_dialog()
