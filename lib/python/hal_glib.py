@@ -582,7 +582,9 @@ class _GStat(GObject.GObject):
         max_velocity_or_old = old.get('max-velocity-or', None)
         max_velocity_or_new = self.old['max-velocity-or']
         if max_velocity_or_new != max_velocity_or_old:
-            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
+            # work around misconfigured config (missing MAX_LINEAR_VELOCITY in TRAJ)
+            if max_velocity_or_new != 1e99:
+                self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         # feed hold
         feed_hold_old = old.get('feed-hold', None)
         feed_hold_new = self.old['feed-hold']
@@ -746,7 +748,9 @@ class _GStat(GObject.GObject):
         rapid_or_new = self.old['rapid-or']
         self.emit('rapid-override-changed',rapid_or_new  * 100)
         max_velocity_or_new = self.old['max-velocity-or']
-        self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
+        # work around misconfigured config (missing MAX_LINEAR_VELOCITY in TRAJ)
+        if max_velocity_or_new != 1e99:
+            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         spindle_or_new = self.old['spindle-or']
         self.emit('spindle-override-changed',spindle_or_new  * 100)
 

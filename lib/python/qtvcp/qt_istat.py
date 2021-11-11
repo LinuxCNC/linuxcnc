@@ -322,9 +322,10 @@ class _IStat(object):
             self.MIN_SPINDLE_OVERRIDE = self.MIN_SPINDLE_0_OVERRIDE
 
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY", "MAX_FEED_OVERRIDE", 1.5)) * 100
+        if self.INI.find("TRAJ", "MAX_LINEAR_VELOCITY") is None:
+            log.critical('INI Parsing Error, No MAX_LINEAR_VELOCITY Entry in TRAJ')
         self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ", "MAX_LINEAR_VELOCITY",
-                                                                   self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY",
-                                                                                               5))) * 60
+                                            self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY", 5))) * 60
 
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
