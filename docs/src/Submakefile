@@ -436,6 +436,11 @@ DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
 .PHONY: svgs_made_from_dots
 svgs_made_from_dots: $(DOTFILES:.dot=.svg)
 
+%_fr.adoc: %.adoc %.fr.po
+	# for po4a 0.45 and newer (jessie)
+	po4a-translate --debug --verbose -f asciidoc --keep 15 -m $*.adoc -p $*.fr.po -l $*_fr.adoc
+
+
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
