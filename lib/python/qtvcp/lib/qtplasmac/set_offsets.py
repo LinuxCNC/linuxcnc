@@ -64,6 +64,7 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
             else:
                 W.camera.hide()
     elif choice == 3:
+        xOffset = yOffset = 0.000
         toolFile = os.path.join(os.path.dirname(iniPath), TOOL.toolfile)
         inFile = open('{}'.format(toolFile), 'r')
         tool = []
@@ -78,8 +79,6 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
                     xOffset = float(item.replace('X','').replace('+',''))
                 elif item.startswith('Y'):
                     yOffset = float(item.replace('Y','').replace('+',''))
-        else:
-            xOffset = yOffset = 0.000
         if get_reply(P, STATUS, xOffset, yOffset):
             xOffset = round(STATUS.get_position()[1][0], 4) + 0
             yOffset = round(STATUS.get_position()[1][1], 4) + 0
