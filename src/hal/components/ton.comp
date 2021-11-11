@@ -1,0 +1,57 @@
+/********************************************************************
+* Description: ton.comp
+*   IEC_61131-3 Time On timer for HAL bit signals.
+*
+*   This is a HAL component that can be used to delay rising edge signals
+*   for a certain amount of time.
+*
+*********************************************************************
+*
+* Author: Chad Woitas (aka satiowadahc)
+* License: GPL Version 2
+* Created on: 2021/06/10
+* System: Linux
+*
+* Copyright (c) 2021 All rights reserved.
+*
+* Last change: 2021-11-02 - Conversion to comp format
+*
+********************************************************************/
+component ton "IEC TON timer - delay rising edge on a signal";
+pin in bit in "Input signal";
+pin out bit q "Output signal";
+pin out float et "Elapsed time since rising edge in seconds";
+
+param rw float pt "Delay time in seconds";
+
+function _ fp "Update the timer";
+license "GPL";
+;;
+FUNCTION(_) {
+        if(pt < 0) {
+            pt = 0;
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                            "ton: Delay time must be positive, resetting to 0");
+        }
+        if(et < 0) {
+            et = 0;
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                            "ton: Elapsed time rolled over, resetting to 0");
+        }
+
+        // Check timers
+        if(in){
+            // Update outputs
+            if(et >= pt){
+                q = 1;
+            }
+            else{
+                et += fperiod;
+            }
+        }
+        else{
+            // Reset Variables
+            et = 0;
+            q = 0;
+        }
+}

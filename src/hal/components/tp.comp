@@ -1,0 +1,61 @@
+/********************************************************************
+* Description: tp.comp
+*   IEC_61131-3 Pulse Time timer for HAL bit signals.
+*
+*   This is a HAL component that can be used to send a pulse signal
+*   for a certain amount of time.
+*
+*********************************************************************
+*
+* Author: Chad Woitas (aka satiowadahc)
+* License: GPL Version 2
+* Created on: 2021/06/10
+* System: Linux
+*
+* Copyright (c) 2021 All rights reserved.
+*
+* Last change: 2021-11-02 - Conversion to comp format
+*
+********************************************************************/
+component tp "IEC TP timer - generate a high pulse of defined duration on rising edge";
+pin in bit in "Input signal";
+pin out bit q "Output signal";
+pin out float et "Elapsed time since start of pulse in seconds";
+
+param rw float pt "Pulse time in seconds";
+
+variable int in_old; // Value of in on last cycle, for rising edge detection
+
+function _ fp "Update the timer";
+license "GPL";
+;;
+FUNCTION(_) {
+        if(pt < 0) {
+            pt = 0;
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                            "tp: Pulse time must be positive, resetting to 0");
+        }
+        if(et < 0) {
+            et = 0;
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                            "tp: Elapsed time rolled over, resetting to 0");
+        }
+
+        // Check timers
+        if((in && !in_old) || q){
+            // Update outputs
+            if(et < pt){
+                q = 1;
+                et += fperiod;
+            }
+            else{
+                q = 0;
+            }
+        }
+        else{
+            // Reset Variables
+            et = 0;
+            q = 0;
+        }
+        in_old = in;
+}
