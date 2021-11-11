@@ -81,7 +81,7 @@
 /// as well as power and ground pins. Not all GPIO pins on the BCM 2835 are available on the
 /// IDE header.
 ///
-/// The functions in this librray are disgned to be passed the BCM 2835 GPIO pin number and _not_
+/// The functions in this librray are designed to be passed the BCM 2835 GPIO pin number and _not_
 /// the RPi pin number. There are symbolic definitions for each of the available pins
 /// that you should use for convenience. See \ref RPiGPIOPin.
 ///
@@ -91,7 +91,7 @@
 /// allowing you to send and received data by SPI (Serial Peripheral Interface).
 /// For more information about SPI, see http://en.wikipedia.org/wiki/Serial_Peripheral_Interface_Bus
 ///
-/// When bcm2835_spi_begin() is called it changes the bahaviour of the SPI interface pins from their
+/// When bcm2835_spi_begin() is called it changes the behaviour of the SPI interface pins from their
 /// default GPIO behaviour in order to support SPI. While SPI is in use, you will not be able
 /// to control the state of the SPI pins through the usual bcm2835_spi_gpio_write().
 /// When bcm2835_spi_end() is called, the SPI pins will all revert to inputs, and can then be
@@ -156,7 +156,7 @@
 ///              Macros to map delayMicroseconds()-> bcm2835_delayMicroseconds(), which
 ///              can be disabled by defining BCM2835_NO_DELAY_COMPATIBILITY
 /// \version 1.11 Fixed incorrect link to download file
-/// \version 1.12 New GPIO pin definitions for RPi version 2 (which has a diffrent GPIO mapping)
+/// \version 1.12 New GPIO pin definitions for RPi version 2 (which has a different GPIO mapping)
 ///
 /// \author  Mike McCauley (mikem@open.com.au)
 
@@ -178,7 +178,7 @@
 /// This means pin LOW, false, 0volts on a pin.
 #define LOW  0x0
 
-// Physical addresses for various peripheral regiser sets
+// Physical addresses for various peripheral register sets
 /// Base Physical Address of the BCM 2835 peripheral registers
 #define BCM2835_PERI_BASE               0x20000000
 /// Base Physical Address of the Pads registers
@@ -440,7 +440,7 @@ typedef enum
 #define BCM2835_PWM1_MS_MODE    0x8000  /// Run in MS mode
 #define BCM2835_PWM1_USEFIFO    0x2000  /// Data from FIFO
 #define BCM2835_PWM1_REVPOLAR   0x1000  /// Reverse polarity
-#define BCM2835_PWM1_OFFSTATE   0x0800  /// Ouput Off state
+#define BCM2835_PWM1_OFFSTATE   0x0800  /// Output Off state
 #define BCM2835_PWM1_REPEATFF   0x0400  /// Repeat last value if FIFO empty
 #define BCM2835_PWM1_SERIAL     0x0200  /// Run in serial mode
 #define BCM2835_PWM1_ENABLE     0x0100  /// Channel Enable
@@ -448,7 +448,7 @@ typedef enum
 #define BCM2835_PWM0_MS_MODE    0x0080  /// Run in MS mode
 #define BCM2835_PWM0_USEFIFO    0x0020  /// Data from FIFO
 #define BCM2835_PWM0_REVPOLAR   0x0010  /// Reverse polarity
-#define BCM2835_PWM0_OFFSTATE   0x0008  /// Ouput Off state
+#define BCM2835_PWM0_OFFSTATE   0x0008  /// Output Off state
 #define BCM2835_PWM0_REPEATFF   0x0004  /// Repeat last value if FIFO empty
 #define BCM2835_PWM0_SERIAL     0x0002  /// Run in serial mode
 #define BCM2835_PWM0_ENABLE     0x0001  /// Channel Enable
@@ -465,7 +465,7 @@ extern "C" {
 #endif
 
     /// \defgroup init Library initialisation and management
-    /// These functions allow you to intialise and control the bcm2835 library
+    /// These functions allow you to initialise and control the bcm2835 library
     /// @{
 
     /// Initialise the library by opening /dev/mem and getting pointers to the
@@ -532,8 +532,8 @@ extern "C" {
     /// \sa Physical Addresses
     extern void bcm2835_peri_write_nb(volatile uint32_t* paddr, uint32_t value);
 
-    /// Alters a number of bits in a 32 peripheral regsiter.
-    /// It reads the current valu and then alters the bits deines as 1 in mask,
+    /// Alters a number of bits in a 32 peripheral register.
+    /// It reads the current value and then alters the bits defined as 1 in mask,
     /// according to the bit value in value.
     /// All other bits that are 0 in the mask are unaffected.
     /// Use this to alter a subset of the bits in a register.
@@ -586,7 +586,7 @@ extern "C" {
     extern uint8_t bcm2835_gpio_eds(uint8_t pin);
 
     /// Sets the Event Detect Status register for a given pin to 1,
-    /// which has the effect of clearing the flag. Use this afer seeing
+    /// which has the effect of clearing the flag. Use this after seeing
     /// an Event Detect Status on the pin.
     /// \param[in] pin GPIO number, or one of RPI_GPIO_P1_* from \ref RPiGPIOPin.
     extern void bcm2835_gpio_set_eds(uint8_t pin);
@@ -721,7 +721,7 @@ extern "C" {
     /// Start SPI operations.
     /// Forces RPi SPI0 pins P1-19 (MOSI), P1-21 (MISO), P1-23 (CLK), P1-24 (CE0) and P1-26 (CE1)
     /// to alternate function ALT0, which enables those pins for SPI interface.
-    /// You should call bcm2835_spi_end() when all SPI funcitons are complete to return the pins to
+    /// You should call bcm2835_spi_end() when all SPI functions are complete to return the pins to
     /// their default functions
     /// \sa  bcm2835_spi_end()
     extern void bcm2835_spi_begin(void);
@@ -745,7 +745,7 @@ extern "C" {
     extern void bcm2835_spi_setClockDivider(uint16_t divider);
 
     /// Sets the SPI data mode
-    /// Sets the clock polariy and phase
+    /// Sets the clock polarity and phase
     /// \param[in] mode The desired data mode, one of BCM2835_SPI_MODE*,
   /// see \ref bcm2835SPIMode
     extern void bcm2835_spi_setDataMode(uint8_t mode);

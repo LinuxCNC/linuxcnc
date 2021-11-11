@@ -246,7 +246,7 @@ static void make_pulses(void *arg, long period)
 
 	case PWM_PURE:
 	    if ( pwmgen->curr_output ) {
-		/* current state is high, update cumlative high time */
+		/* current state is high, update cumulative high time */
 		pwmgen->high_timer += periodns;
 		/* have we been high long enough? */
 		if ( pwmgen->high_timer >= pwmgen->high_time ) {
@@ -269,7 +269,7 @@ static void make_pulses(void *arg, long period)
 	    break;
 	case PWM_DITHER:
 	    if ( pwmgen->curr_output ) {
-		/* current state is high, update cumlative high time */
+		/* current state is high, update cumulative high time */
 		pwmgen->high_timer -= periodns;
 		/* have we been high long enough? */
 		if ( pwmgen->high_timer <= 0 ) {

@@ -20,7 +20,7 @@
  which is also a good starting point for new drivers.
 
  This driver supports only for demonstration how to write a byte (char)
- to a hardware adress, here we use the parallel port (0x378).
+ to a hardware address, here we use the parallel port (0x378).
 
  This driver support no configuration strings so installing is easy:
  realtime: halcmd loadrt hal_skeleton

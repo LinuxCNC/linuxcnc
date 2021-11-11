@@ -21,7 +21,7 @@
 #
 debug 0
 #
-# if the VFD isnt faulted, this seems a no-op
+# if the VFD isn't faulted, this seems a no-op
 # if it is faulted, it goes through the startup sequence
 preset_single_register 0xfa00 0x2000
 #
@@ -85,7 +85,7 @@ read_holding_registers 0x0814
 #
 # mucho importante: select protocol to modbus
 # so expect to definitely, positively see 0001
-# (otherwise this program wouldnt work in the first place..)
+# (otherwise this program wouldn't work in the first place..)
 read_holding_registers 0x0829
 #
 # I also set shorter acceleration and deceleration times, 

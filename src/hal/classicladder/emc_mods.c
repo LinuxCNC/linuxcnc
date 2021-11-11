@@ -294,7 +294,7 @@ void SymbolsAutoAssign (void)
 	                // scan all symbol variables
 		        while ( scansymb<NBR_SYMBOLS  ) 
 		                { 
-	                        // check for exsisting variable/symbol name
+	                        // check for existing variable/symbol name
 		                if (strcmp(SymbolArray[ scansymb ].VarName, Buffer) == FALSE)
 			                {
 				                found = TRUE ; // already a symbol for this variable

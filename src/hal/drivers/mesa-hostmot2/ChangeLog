@@ -34,7 +34,7 @@ released 2008-10-27
     Added support for the 5i22.  hm2_pci replaces hm2_5i20.
 
     The 5i22-1.0 board is tested and seems to be working fine.  The 5i22-1.5
-    hasnt been tested yet.
+    hasn't been tested yet.
 
 
 released 2008-10-05

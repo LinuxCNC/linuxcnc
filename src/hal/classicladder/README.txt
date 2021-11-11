@@ -48,8 +48,8 @@ In the actual version, the following elements are implemented :
    * Booleans elements
    * Rising / falling edges
    * New IEC Timers (since v0.7.120)
-   * Timers (for compatibility, no more really usefull)
-   * Monostables (for compatibility, no more really usefull)
+   * Timers (for compatibility, not really useful anymore)
+   * Monostables (for compatibility, not really useful anymore)
    * Counters (since v0.7.80)
    * Compare of arithmetic expressions (since v0.4)
 
@@ -145,12 +145,12 @@ I personnaly used the following distribution : Mandriva 2006.
 In a console :
 type make if you want to recompile the sources.
 type ./classicladder to launch this project.
-or ./classicladder xxxxxxxx to start with using project datas xxxxxxxx.
+or ./classicladder xxxxxxxx to start with using project data xxxxxxxx.
 
 Ensure you've the package libgtk+1.2-devel installed before to compile
 (no more necessary since v0.7.60 using GTK2).
 
-To compile on PowerPC processor, in the Makefile, add the caracter '#' to comment
+To compile on PowerPC processor, in the Makefile, add the character '#' to comment
 the line MAKE_IO_ACCESS.
 
 A Windows port is available, but not with all the i/o features, and in an older
@@ -230,12 +230,12 @@ on a Debian (Sid) system.
 
 HARDWARE (LOCAL INPUTS/OUTPUTS)...
 ----------------------------------
-Since v0.6.5, hardware interface has been completly rewritten (before limited
+Since v0.6.5, hardware interface has been completely rewritten (before limited
 to the parallels ports only).
 First, if you use ClassicLadder to drive real things, it can crash, and I
 will not be responsible if it produces any damages !
 
-You can configure any logical inputs/ouputs with any addresses ports or a
+You can configure any logical inputs/outputs with any address ports or a
 Comedi device (see www.comedi.org). Comedi is a collection of drivers
 for many data acquisition boards.
 You configure the mapping in the config window : tabs "Inputs" and "Outputs".
@@ -316,7 +316,7 @@ If you want to make an embedded version of classicladder without the GTK interfa
 comment the GTK_INTERFACE line in the Makefile.
 Type 'CRTL-C' if you want to exit the Linux application.
 
-Since v0.6.4 it is possible to define maximum sizes for the differents arrays to save
+Since v0.6.4 it is possible to define maximum sizes for the different arrays to save
 a lot of memory if you're short on it on your target.
 You must give a config file at startup... Well, no since v0.7.110, the sizes defined
 are saved in the project file, and are used for the first project file loaded (in the
@@ -338,9 +338,9 @@ Comedi project at www.comedi.org
 KNOWN LIMITATIONS /  BUGS...
 ----------------------------
 * Scan of physical inputs are not filtered.
-* Modbus master for distributed I/O recently developped, should be use with caution...
+* Modbus master for distributed I/O recently developed, should be use with caution...
   Generally, the logic used on a PLC is: get inputs, apply logic (rungs/grafcet), and then
-  set ouputs, but it is absolutely not the case with distributed I/O. Perhaps it could cause
+  set outputs, but it is absolutely not the case with distributed I/O. Perhaps it could cause
   some troubles...?
 
 

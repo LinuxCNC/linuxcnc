@@ -55,7 +55,7 @@ typedef enum { mbtxERR,
 typedef enum { debugSILENT, debugERR, debugOK, debugDEBUG, debugMAX
              } DEBUG_TYPE; //message levels
 typedef enum { retOK, retOKwithWarning, retERR
-             } retCode; //funtions return codes
+             } retCode; //functions return codes
 
 #define ERR(debug, fmt, args...) if(debug >= debugERR) {fprintf(stderr, "%s %s ERR: "fmt"\n", gbl.hal_mod_name, fnct_name, ## args);}
 #define OK(debug, fmt, args...) if(debug >= debugOK) {fprintf(stdout, "%s %s OK: "fmt"\n", gbl.hal_mod_name, fnct_name, ## args);}

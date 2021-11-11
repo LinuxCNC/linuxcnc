@@ -923,7 +923,7 @@ PyObject *set_p(PyObject *self, PyObject *args) {
 		"Cannot call before creating component");
 	return NULL;
     }
-    //printf("INFO HALMODULE -- settting pin / param - name:%s value:%s\n",name,value);
+    //printf("INFO HALMODULE -- setting pin / param - name:%s value:%s\n",name,value);
     // get mutex before accessing shared data 
     rtapi_mutex_get(&(hal_data->mutex));
     // search param list for name 

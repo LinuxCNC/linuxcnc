@@ -156,7 +156,7 @@ pin out bit Vmaxsw_homesw_out;
 pin out bit Vminsw_homesw_out;
 pin out bit Vbothsw_homesw_out;
 
-pin in float limit_offset =.01 "how much the limit switches are offset from inputed position. added to max, subracted from min";
+pin in float limit_offset =.01 "how much the limit switches are offset from inputted position. added to max, subtracted from min";
 
 function update fp;
 license "GPL";

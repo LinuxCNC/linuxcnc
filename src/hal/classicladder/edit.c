@@ -544,7 +544,7 @@ void SaveElementProperties()
 
 /* For editing, we do not touch directly the current arithm
 expressions. We work on the edit ones. It is only when the
-edited rung is applyed that we copy the expressions edited */
+edited rung is applied that we copy the expressions edited */
 void CopyCurrentArithmExpr()
 {
 	int NumExpr;

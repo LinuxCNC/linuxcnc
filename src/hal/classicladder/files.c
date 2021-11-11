@@ -876,7 +876,7 @@ char LoadIOConfParams(char * FileName)
 			{
 				if (Line[0]!=';' && Line[0]!='#')
 				{
-					/* input/output depending of the first caracter */
+					/* input/output depending of the first character */
 					if ( Line[0]=='0' )
 						ConvRawLineOfNumbers(Line+2,6,(int*)pConfInput++);
 					if ( Line[0]=='1' )
@@ -1308,7 +1308,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	// and annoying if the section (with internal number 0) has been deleted in this project !
 	DeleteTheDefaultSection( );
 
-	//printf("Loading datas from %s...\n", DatasDirectory);
+	//printf("Loading data from %s...\n", DatasDirectory);
 // this function call is not wanted because in EMC parameters are loaded with the realtime module
 //	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"general.txt",DatasDirectory);
 //	LoadGeneralParameters( FileName );
@@ -1317,14 +1317,14 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	LoadComParameters( FileName );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers.csv",DatasDirectory);
-//	printf("Loading timers datas from %s\n",FileName);
+//	printf("Loading timers data from %s\n",FileName);
 	LoadTimersParams(FileName,TimerArray);
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"monostables.csv",DatasDirectory);
-//	printf("Loading monostables datas from %s\n",FileName);
+//	printf("Loading monostables data from %s\n",FileName);
 	LoadMonostablesParams(FileName,MonostableArray);
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"counters.csv",DatasDirectory);
-//	printf("Loading counters datas from %s\n",FileName);
+//	printf("Loading counters data from %s\n",FileName);
 	LoadCountersParams(FileName);
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"timers_iec.csv",DatasDirectory);
 	LoadNewTimersParams(FileName);
@@ -1337,7 +1337,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	// before the prev/next rungs were not saved in each rung...
 	// and the nmber of rungs changed when saved...
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
-//	printf("Loading sections datas from %s\n",FileName);
+//	printf("Loading sections data from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )
 	{
 		snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
@@ -1348,29 +1348,29 @@ void LoadAllLadderDatas(char * DatasDirectory)
 		//printf("Rungs with old format found (no sections)\n");
 		snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"rung_",DatasDirectory);
 		LoadAllRungs_V1(FileName,RungArray,&InfosGene->FirstRung,&InfosGene->LastRung,&InfosGene->CurrentRung);
-		// if we load old format files, sections wasn't created, so we must write theses infos...
+		// if we load old format files, sections wasn't created, so we must write this info...
 		SectionArray[ 0 ].FirstRung = InfosGene->FirstRung;
 		SectionArray[ 0 ].LastRung = InfosGene->LastRung;
 	}
 #ifdef SEQUENTIAL_SUPPORT
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sequential.csv",DatasDirectory);
-//	printf("Loading sequential datas from %s\n",FileName);
+//	printf("Loading sequential data from %s\n",FileName);
 	LoadSequential( FileName );
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"ioconf.csv",DatasDirectory);
-//	printf("Loading I/O configuration datas from %s\n",FileName);
+//	printf("Loading I/O configuration data from %s\n",FileName);
 	LoadIOConfParams( FileName );
 #ifdef MODBUS_IO_MASTER
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
-//	printf("Loading modbus distributed I/O configuration datas from %s\n",FileName);
+//	printf("Loading modbus distributed I/O configuration data from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
         if (modmaster) {    PrepareModbusMaster( );    }
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
-//	printf("Loading symbols datas from %s\n",FileName);
+//	printf("Loading symbols data from %s\n",FileName);
 	LoadSymbols(FileName);
 
-//printf("Prepare all datas before run...\n");
+//printf("Prepare all data before run...\n");
 	PrepareAllDatasBeforeRun( );
 }
 

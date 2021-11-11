@@ -889,7 +889,7 @@ Device_AdcRead(void *arg, long period)
 	}
 	break;
 
-    // Wait for second conversion, start conversion on fisrt 4 channels.
+    // Wait for second conversion, start conversion on first 4 channels.
     case 2:
 	if(Device_AdcRead4(this, 4)){
 	    this->adcState = 1;

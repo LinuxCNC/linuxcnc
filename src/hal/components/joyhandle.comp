@@ -30,7 +30,7 @@ The component \\fBjoyhandle\\fR uses the following formula for a non linear joyp
 
 The parameters a and b are adjusted in such a way, that the function starts at (deadband,offset) and ends at (1,scale+offset).
 
-Negative values will be treated point symetrically to origin. Values \-deadband < x < +deadband will be set to zero.
+Negative values will be treated point symmetrically to origin. Values \-deadband < x < +deadband will be set to zero.
 
 Values x > 1 and x < \-1 will be skipped to \\(+-(scale+offset). Invert transforms the function to a progressive movement.
 

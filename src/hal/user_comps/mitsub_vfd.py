@@ -23,7 +23,7 @@
 # I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.
 # 'Fr-A700 F700 E700 D700 technical manual' for the 700 series
 #
-# The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modifcation )
+# The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modification )
 # must power cycle the inverter for some of these to register eg 79
 # PR 79 - 1 or 0
 # PR 117 station number - 1               (can be optionally set 0 - 31) if component is also set
@@ -244,7 +244,7 @@ class mitsubishi_serial:
                 # it expects a 2 character hex representing a 8 bit (b0 - b7) binary number
                 # bit 1 sets forward, 4 sets reverse, 0 stop
                 # depending on the inverter and options other bits are possible,
-                # but these three are consistant
+                # but these three are consistent
                 if not self['last_run%d'%index] == self.h[index]['run'] or not self['last_fwd%d'%index] == self.h[index]['fwd']:
                     if self.h[index]['run']:
                         if self.h[index]['fwd']:
@@ -368,7 +368,7 @@ if __name__ == "__main__":
         print(''' I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.''')
         print(''' 'Fr-A700 F700 E700 D700 technical manual' for the 700 series''')
         print() 
-        print(' The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modifcation )')
+        print(' The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modification )')
         print(' You must power cycle the inverter for some of these to register eg 79')
         print(' PR 79 - 1 or 0                          sets the inverter to respond to the PU/computer-link')
         print(' PR 117 station number (slave) - 1       can be optionally set 0 - 31 if component is also set')

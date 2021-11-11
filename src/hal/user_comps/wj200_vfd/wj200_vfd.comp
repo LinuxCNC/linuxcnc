@@ -190,7 +190,7 @@ void userinit(int argc, char **argv)
 				if(baud == 0)
 				{
 					fprintf(stderr, 
-						"Invalid argument: buad must be a number. Given '%s'\n", 
+						"Invalid argument: baud must be a number. Given '%s'\n", 
 						optarg);
 					exit(1);
 				}
