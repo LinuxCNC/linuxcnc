@@ -364,6 +364,7 @@ Pressing cancel will close linuxcnc.""" % target)
         window.show()
         if INIPATH:
             self.postgui()
+            self.postgui_cmd()
 
         # catch control c and terminate signals
         signal.signal(signal.SIGTERM, self.shutdown)
@@ -390,6 +391,14 @@ Pressing cancel will close linuxcnc.""" % target)
                     res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i",self.inipath, f])
                 else:
                     res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i",self.inipath,"-f", f])
+                if res: raise SystemExit(res)
+
+    def postgui_cmd(self):
+        postgui_commands = INFO.POSTGUI_HAL_COMMANDS
+        LOG.info("postgui commands: yellow<{}>".format(postgui_commands))
+        if postgui_commands is not None:
+            for f in postgui_commands:
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
                 if res: raise SystemExit(res)
 
     # This can be called normally or by control c
