@@ -1,4 +1,4 @@
-VERSION = '1.216.118'
+VERSION = '1.217.119'
 
 '''
 qtplasmac_handler.py
@@ -70,7 +70,8 @@ from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 
 # **** TEMP FOR CONVERSATIONAL TESTING 1 of 3 ****
-from importlib import reload
+# **** TEMP FOR OFFSET TESTING 1 of 2 ****
+#from importlib import reload
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -322,7 +323,10 @@ class HandlerClass:
         self.check_material_file()
         self.load_materials()
         self.pmx485_check()
-        self.touchoff_buttons()
+#        if self.firstRun is True:
+#            self.firstRun = False
+        self.offset_peripherals()
+        self.set_probe_offset_pins()
         self.wcs_rotation('get')
         self.widgetsLoaded = 1
         STATUS.connect('state-on', lambda w:self.power_state(True))
@@ -705,8 +709,12 @@ class HandlerClass:
         #override
         CALL(['halcmd', 'net', 'plasmac:height-override','qtplasmac.height_override','plasmac.height-override'])
         #ini
-        CALL(['halcmd', 'net', 'plasmac:axis-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
-        CALL(['halcmd', 'net', 'plasmac:axis-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-x-max-limit', 'ini.x.max_limit', 'plasmac.axis-x-max-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-x-min-limit', 'ini.x.min_limit', 'plasmac.axis-x-min-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-y-max-limit', 'ini.y.max_limit', 'plasmac.axis-y-max-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-y-min-limit', 'ini.y.min_limit', 'plasmac.axis-y-min-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-z-max-limit', 'ini.z.max_limit', 'plasmac.axis-z-max-limit'])
+        CALL(['halcmd', 'net', 'plasmac:axis-z-min-limit', 'ini.z.min_limit', 'plasmac.axis-z-min-limit'])
         # statistics
         CALL(['halcmd', 'net', 'plasmac:cut-length', 'plasmac.cut-length', 'qtplasmac.cut_length'])
         CALL(['halcmd', 'net', 'plasmac:cut-time', 'plasmac.cut-time', 'qtplasmac.cut_time'])
@@ -847,30 +855,15 @@ class HandlerClass:
             text += ('\nCA: {}'.format(self.w.cut_amps.text()))
         return text
 
-    def touchoff_buttons(self):
+    def offset_peripherals(self):
         self.camOffsetX = 0.0
         self.camOffsetY = 0.0
         self.laserOffsetX = 0.0
         self.laserOffsetY = 0.0
+        self.probeOffsetX = 0.0
+        self.probeOffsetY = 0.0
+        self.probeDelay = 0.0
         head = _translate('HandlerClass', 'INI FILE ERROR')
-        inCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
-        msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
-        if inCode == '0':
-            self.w.camera.hide()
-        else:
-            try:
-                parms = inCode.lower().split()
-                if len(parms) == 2:
-                    self.camOffsetX = float(parms[0].replace('x', ''))
-                    self.camOffsetY = float(parms[1].replace('y', ''))
-                    self.idleHomedList.append('camera')
-                    self.w.camera.setEnabled(False)
-                else:
-                    self.w.camera.hide()
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
-            except:
-                self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
         inCode = self.iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or '0'
         msg0 = _translate('HandlerClass', 'Invalid entry for laser offset')
         if inCode == '0':
@@ -878,16 +871,57 @@ class HandlerClass:
         else:
             try:
                 parms = inCode.lower().split()
-                if len(parms) == 2:
-                    self.laserOffsetX = float(parms[0].replace('x', ''))
-                    self.laserOffsetY = float(parms[1].replace('y', ''))
-                    self.idleHomedList.append('laser')
-                    self.w.laser.setEnabled(False)
-                else:
-                    self.w.laser.hide()
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                for parm in parms:
+                    if parm.startswith('x'):
+                        self.laserOffsetX = float(parms[0].replace('x', ''))
+                    elif parm.startswith('y'):
+                        self.laserOffsetY = float(parms[1].replace('y', ''))
             except:
                 self.w.laser.hide()
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+            if self.laserOffsetX or self.laserOffsetY:
+                self.idleHomedList.append('laser')
+                self.w.laser.setEnabled(False)
+            else:
+                self.w.laser.hide()
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+        inCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
+        msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
+        if inCode == '0':
+            self.w.camera.hide()
+        else:
+            try:
+                parms = inCode.lower().split()
+                for parm in parms:
+                    if parm.startswith('x'):
+                        self.camOffsetX = float(parms[0].replace('x', ''))
+                    elif parm.startswith('y'):
+                        self.camOffsetY = float(parms[1].replace('y', ''))
+            except:
+                self.w.camera.hide()
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+            if self.camOffsetX or self.camOffsetY:
+                self.idleHomedList.append('camera')
+                self.w.camera.setEnabled(False)
+            else:
+                self.w.camera.hide()
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+        inCode = self.iniFile.find('QTPLASMAC', 'OFFSET_PROBING') or '0'
+        msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
+        if inCode != '0':
+            try:
+                parms = inCode.lower().split()
+                if len(parms) > 3:
+                    raise Exception()
+                for parm in parms:
+                    if parm.startswith('x'):
+                        self.probeOffsetX = float(parm.replace('x', ''))
+                    elif parm.startswith('y'):
+                        self.probeOffsetY = float(parm.replace('y', ''))
+                    else:
+                        self.probeDelay = float(parm)
+            except:
+                self.w.camera.hide()
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
 
     def closing_cleanup__(self):
@@ -1474,7 +1508,8 @@ class HandlerClass:
         self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
 
     def set_offsets_clicked(self):
-        reload(OFFSETS)
+# **** TEMP FOR OFFSET TESTING ****
+#        reload(OFFSETS)
         OFFSETS.dialog_show(self, self.w, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
 
     def feed_label_pressed(self):
@@ -2193,6 +2228,11 @@ class HandlerClass:
             self.w.probe_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.probe_start_height.setMaximum(int(self.maxHeight))
 
+    def set_probe_offset_pins(self):
+        hal.set_p('plasmac.offset-probe-x', '{}'.format(self.probeOffsetX))
+        hal.set_p('plasmac.offset-probe-y', '{}'.format(self.probeOffsetY))
+        hal.set_p('plasmac.offset-probe-delay', '{}'.format(self.probeDelay))
+
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
         if self.jogInhibit and state and (joint != 2 or direction != 1):
             head = _translate('HandlerClass', 'JOG ERROR')
@@ -2294,12 +2334,17 @@ class HandlerClass:
         else:
             return False
 
-    def dialog_input(self, title, text, ok=_translate('HandlerClass', 'OK'), cancel=_translate('HandlerClass', 'CANCEL')):
+    def dialog_input(self, title, text, btn1, btn2, delay=None):
         input = QInputDialog(self.w)
         input.setWindowTitle(title)
         input.setLabelText('{}'.format(text))
-        input.setOkButtonText(ok)
-        input.setCancelButtonText(cancel)
+        if btn1:
+            input.setOkButtonText(btn1)
+        if btn2:
+            input.setCancelButtonText(btn2)
+        if delay is not None:
+            print("DELAY:", delay)
+            input.setTextValue('{:0.2f}'.format(delay))
         for button in input.findChildren(QPushButton):
             button.setIcon(QIcon())
         valid = input.exec_()
@@ -3695,8 +3740,9 @@ class HandlerClass:
         msg1 = _translate('HandlerClass', 'Enter New Material Number')
         msgs = msg1
         btn1 = _translate('HandlerClass', 'ADD')
+        btn2 = _translate('HandlerClass', 'CANCEL')
         while(1):
-            valid, num = self.dialog_input(head, '{}:'.format(msgs))
+            valid, num = self.dialog_input(head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
@@ -3721,7 +3767,7 @@ class HandlerClass:
             break
         msg1 = 'Enter New Material Name'
         while(1):
-            valid, nam = self.dialog_input(head, msg1, btn1)
+            valid, nam = self.dialog_input(head, msg1, btn1, btn2)
             if not valid:
                 return
             if not nam:
@@ -3780,9 +3826,10 @@ class HandlerClass:
         head = _translate('HandlerClass', 'Delete Material')
         msg1 = _translate('HandlerClass', 'Enter Material Number To Delete')
         btn1 = _translate('HandlerClass', 'DELETE')
+        btn2 = _translate('HandlerClass', 'CANCEL')
         msgs = msg1
         while(1):
-            valid, num = self.dialog_input(head, '{}:'.format(msgs), btn1)
+            valid, num = self.dialog_input(head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             try:
@@ -4461,7 +4508,7 @@ class HandlerClass:
         if state == self.PROBE_HEIGHT and self.oldState == self.IDLE:
             self.probeStart = time.time()
             self.probeOn = True
-        elif (state > self.ZERO_HEIGHT or state == self.IDLE) and self.probeOn:
+        elif (state > self.ZERO_HEIGHT or state == self.IDLE) and not hal.get_value('plasmac.x-offset-counts') and not hal.get_value('plasmac.y-offset-counts') and self.probeOn:
             if self.w.torch_enable.isChecked():
                 self.PROBE_TIME += (time.time() - self.probeStart)
             self.probe_time += (time.time() - self.probeStart)

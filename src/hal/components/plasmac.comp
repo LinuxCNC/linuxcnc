@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.216
+1.217
 
 .I SUMMARY:
 .br
@@ -34,10 +34,14 @@ pin in  s32     arc_max_starts              "maximum attempts at starting the ar
 pin in  float   arc_voltage_in              "arc voltage input [mode 0 & mode 1] see Notes above";
 pin in  float   arc_voltage_offset          "offset to set arc voltage to 0 at 0 volts";
 pin in  float   arc_voltage_scale           "scale to convert arc_voltage input to actual volts";
+pin in  float   axis_x_max_limit            "axis x maximum limit, connect to ini.x.max-limit";
+pin in  float   axis_x_min_limit            "axis x minimum limit, connect to ini.x.min-limit";
 pin in  float   axis_x_position             "current x axis position, connect to axis.x.pos-cmd";
+pin in  float   axis_y_max_limit            "axis y maximum limit, connect to ini.y.max-limit";
+pin in  float   axis_y_min_limit            "axis y minimum limit, connect to ini.y.min-limit";
 pin in  float   axis_y_position             "current y axis position, connect to axis.y.pos-cmd";
-pin in  float   axis_z_min_limit            "axis z minimum limit, connect to ini.z.min-limit";
 pin in  float   axis_z_max_limit            "axis z maximum limit, connect to ini.z.max-limit";
+pin in  float   axis_z_min_limit            "axis z minimum limit, connect to ini.z.min-limit";
 pin in  float   axis_z_position             "current z axis position, connect to joint.N.pos-fb";
 pin in  bit     breakaway                   "torch breakaway switch (optional, see float_switch)";
 pin in  bit     consumable_change           "change consumables in torch";
@@ -73,6 +77,9 @@ pin in  s32     motion_type                 "motion type, connect to motion.moti
 pin in  bit     move_down                   "external thc down switch [mode 2])";
 pin in  bit     move_up                     "external thc up switch [mode 2]";
 pin in  bit     multi_tool = 1              "allows the use of multiple tools";
+pin in  float   offset_probe_delay          "wait for probe to deploy (seconds)";
+pin in  float   offset_probe_x              "X axis offset for offset probe (machine units)";
+pin in  float   offset_probe_y              "Y axis offset for offset probe (machine units)";
 pin in  bit     offsets_active              "offsets are active, connect to motion.eoffsets-active";
 pin in  s32     ohmic_sense_on_delay = 3    "debounce cycles for ohmic sense on";
 pin in  s32     ohmic_sense_off_delay = 3   "debounce cycles for ohmic sense off";
@@ -206,11 +213,19 @@ variable bool   manual_cut;                 /* manual cut mode is active */
 variable int    offset_datum;               /* datum for safe height calcs */
 variable int    offset_max;                 /* maximum allowed offset */
 variable int    offset_min;                 /* minimum allowed offset */
+variable float  offset_probe_timer;         /* offset probe deployment delay time */
 variable int    offset_res;                 /* resolution for comparing offset move to target*/
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    ohmic_sense_counts;         /* ohmic sense debounce counter */
 variable int    old_resolution;             /* previous resolution value */
+variable int    op_x_start;                 /* x offset when offset probing started */
+variable int    op_x_target;                /* target offset for x probe offset */
+variable int    op_x_velocity;              /* velocity for x probe offset */
+variable double op_xy_angle;                /* angle for x/y probe offset calcs in radians*/
+variable int    op_y_start;                 /* y offset when offset probing started */
+variable int    op_y_target;                /* target offset for y probe offset */
+variable int    op_y_velocity;              /* velocity for y probe offset */
 variable float  pause_at_end_timer;         /* pause at end of cut timer */
 variable bool   paused_motion;              /* paused motion flag */
 variable float  paused_motion_timer;        /* minimum run timer for paused motion */
@@ -658,10 +673,17 @@ FUNCTION(_) {
         ohmic_sense_counts = 0;
     }
 
-    /* set arc ok from either arc ok input or from actual arc voltage
-       if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
+    /* offset probing deployment timer*/
+    if(ohmic_probe_enable && (offset_probe_x || offset_probe_y) && (ohmic_enable || state == PIERCE_HEIGHT)){
+        if(offset_probe_timer < offset_probe_delay){
+            offset_probe_timer += fperiod;
+        }
+    }else{
+        offset_probe_timer = 0;
+    }
 
-    /* arc ok setting */
+    /* set arc ok from either arc ok input of from actual arc voltage
+     * if using arc ok input, set arc_ok_low_in and/or arc_ok_high_in to 0 */
     if(torch_on){
         /* set from arc ok input */
         if(mode > 0){
@@ -848,6 +870,44 @@ FUNCTION(_) {
                                     }
                                 }
                                 cut_offset = 0;
+                                /* offset probing setup if required */
+                                if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                                    op_xy_angle = atan2(-offset_probe_y, -offset_probe_x);
+                                    op_x_velocity = fabs(setup_velocity * cos(op_xy_angle));
+                                    op_y_velocity = fabs(setup_velocity * sin(op_xy_angle));
+                                    op_x_target = x_offset_counts + (offset_probe_x / offset_scale);
+                                    op_y_target = y_offset_counts + (offset_probe_y / offset_scale);
+                                    op_x_start = x_offset_counts;
+                                    op_y_start = y_offset_counts;
+                                    if(axis_x_position + (op_x_target * offset_scale) <= axis_x_min_limit){
+                                        rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis X minimum limit.\n"
+                                                                      "program is paused.\n");
+                                        stop_type = PAUSE;
+                                        program_pause = TRUE;
+                                        break;
+                                    }
+                                    if(axis_y_position + (op_y_target * offset_scale) <= axis_y_min_limit){
+                                        rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis Y minimum limit.\n"
+                                                                      "program is paused.\n");
+                                        stop_type = PAUSE;
+                                        program_pause = TRUE;
+                                        break;
+                                    }
+                                    if(axis_x_position + (op_x_target * offset_scale) >= axis_x_max_limit){
+                                        rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis X maximum limit.\n"
+                                                                      "program is paused.\n");
+                                        stop_type = PAUSE;
+                                        program_pause = TRUE;
+                                        break;
+                                    }
+                                    if(axis_y_position + (op_y_target * offset_scale) >= axis_y_max_limit){
+                                        rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis Y maximum limit.\n"
+                                                                      "program is paused.\n");
+                                        stop_type = PAUSE;
+                                        program_pause = TRUE;
+                                        break;
+                                    }
+                                }
                                 state = PROBE_HEIGHT;
                             }
                         }
@@ -896,6 +956,18 @@ FUNCTION(_) {
                     state = PROBE_TEST;
                     break;
                 }
+                /* move probe to x/y offsets if required */
+                if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                    xy_offset_enable = TRUE;
+                    if(x_offset_counts != op_x_target || y_offset_counts != op_y_target){
+                        if(x_offset_counts != op_x_target){
+                            x_offset_counts = offset_move(x_offset_counts, op_x_velocity, op_x_target);
+                        }
+                        if(y_offset_counts != op_y_target){
+                            y_offset_counts = offset_move(y_offset_counts, op_y_velocity, op_y_target);
+                        }
+                    }
+                }
                 if((float_switch && !float_detected) || ohmic_detected){
                     z_pierce = z_offset_counts + probe_offset + ((pierce_height + (1 * units_per_mm))/ offset_scale);
                     z_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
@@ -923,6 +995,13 @@ FUNCTION(_) {
                           }
                         }
                         break;
+                    }else if(ohmic_probe_enable && (x_offset_counts != op_x_target || y_offset_counts != op_y_target)){
+                        stop_type = PAUSE;
+                        program_pause = TRUE;
+                        rtapi_print_msg(RTAPI_MSG_ERR,"probe contact detected before probe offset reached\n"
+                                                      "try increasing PROBE HEIGHT parameter\n");
+                        state = MAX_HEIGHT;
+                        break;
                     }
                     probe_retry = TRUE;
                     state = PROBE_UP;
@@ -935,7 +1014,15 @@ FUNCTION(_) {
                             float_detected = FALSE;
                         }
                     }else{
-                        state = PROBE_DOWN;
+                        /* test if probing offset is reached */
+                        if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                            if(x_offset_counts == op_x_target && y_offset_counts == op_y_target &&
+                               z_offset_current - probe_start_target * offset_scale < 0.001){
+                                state = PROBE_DOWN;
+                            }
+                        }else{
+                            state = PROBE_DOWN;
+                        }
                     }
                 }
                 break;
@@ -954,6 +1041,9 @@ FUNCTION(_) {
                     rtapi_print_msg(RTAPI_MSG_ERR,"breakaway switch detected during probe test\n");
                     probe_test_error = TRUE;
                     state = PROBE_TEST;
+                    break;
+                }
+                if(ohmic_probe_enable && ohmic_probe_enable && offset_probe_timer < offset_probe_delay){
                     break;
                 }
                 if(float_switch && !float_detected){
@@ -1017,6 +1107,7 @@ FUNCTION(_) {
             case PROBE_UP:
                 z_offset_enable = TRUE;
                 stop_type = NONE;
+                offset_probe_timer = 0;
                 if(probe_testing && !probe_test){
                     state = PROBE_TEST;
                     break;
@@ -1098,17 +1189,34 @@ FUNCTION(_) {
                     state = PROBE_TEST;
                     break;
                 }
+                /* clear x/y probe offsets if required */
+                if(offset_probe_x || offset_probe_y){
+                    xy_offset_enable = TRUE;
+                    if(x_offset_counts != 0){
+                        x_offset_counts = offset_move(x_offset_counts, op_x_velocity, op_x_start);
+                    }
+                    if(y_offset_counts != 0){
+                        y_offset_counts = offset_move(y_offset_counts, op_y_velocity, op_y_start);
+                    }
+
+                    if(ohmic_probe_enable && offset_probe_timer < offset_probe_delay){
+                        break;
+                    }
+                }
                 if(pierce_height && cut_height && (use_auto_volts || (!use_auto_volts && cut_volts))){
                     feed_hold = TRUE;
                     if(z_offset_counts == pierce_target){
-                        if((int)(z_offset_current * offset_res) == (int)(pierce_target * offset_scale * offset_res)){
+                        if((int)(z_offset_current * offset_res) == (int)(pierce_target * offset_scale * offset_res) &&
+                           x_offset_counts == op_x_start && y_offset_counts == op_y_start){
                             arc_starts = 0;
                             if(probe_testing){
                                 state = PROBE_TEST;
                             }else if(!torch_enable){
                                 pierce_timer = pierce_delay;
                                 state = PIERCE_DELAY;
-                            }else if(tool == CUTTING || tool == SPOTTING){
+                            }else if((tool == CUTTING || tool == SPOTTING) &&
+                                     (int)(x_offset_current * 10 * res) == 0 &&
+                                     (int)(y_offset_current * 10 * res) == 0){
                                 state = TORCH_ON;
                             }
                         }
@@ -1232,7 +1340,7 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 stop_type = NONE;
                 if(!cut_recovering){
-                    feed_hold = FALSE;
+//                    feed_hold = FALSE;
                 }
                 if(z_offset_counts == cut_target){
                     if((int)(z_offset_current * offset_res) == (int)(cut_target * offset_scale * offset_res)){
@@ -1535,6 +1643,14 @@ FUNCTION(_) {
                                 state = CONSUMABLE_CHANGE_ON;
                             }else if(cut_recovery && stop_type != STOP){
                                 state = CUT_RECOVERY_ON;
+                            /* clear x/y probe offsets if required */
+                            }else if((offset_probe_x || offset_probe_y) && (x_offset_counts || y_offset_counts)){
+                                if(x_offset_counts != 0){
+                                    x_offset_counts = offset_move(x_offset_counts, op_x_velocity, 0);
+                                }
+                                if(y_offset_counts != 0){
+                                    y_offset_counts = offset_move(y_offset_counts, op_y_velocity, 0);
+                                }
                             }else{
                                     state = END_CUT;
                             }
@@ -1661,7 +1777,11 @@ FUNCTION(_) {
                 if(!probe_test){
                     /* clear z offset at setup velocity */
                     z_offset_counts = offset_move(z_offset_counts, setup_velocity, 0);
-                    if(!z_offset_counts){
+                    if((offset_probe_x || offset_probe_y) && (x_offset_counts || y_offset_counts)){
+                        x_offset_counts = offset_move(x_offset_counts, op_x_velocity, 0);
+                        y_offset_counts = offset_move(y_offset_counts, op_y_velocity, 0);
+                    }
+                    if(!x_offset_counts && !y_offset_counts && !z_offset_counts){
                         probe_inhibit = FALSE;
                         probe_testing = FALSE;
                         state = END_CUT;

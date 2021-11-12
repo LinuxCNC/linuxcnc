@@ -41,6 +41,7 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
     buttonLaser = msg.addButton('LASER', QMessageBox.ActionRole)
     buttonCamera = msg.addButton('CAMERA', QMessageBox.ActionRole)
     buttonScribe = msg.addButton('SCRIBE', QMessageBox.ActionRole)
+    buttonProbe = msg.addButton('PROBE', QMessageBox.ActionRole)
     msg.setStyleSheet( '* {{ color: {0}; background: {1} }} \
                         QPushButton {{ background: {1}; height: 40px; font: 12pt; border: 1px solid {0}; border-radius: 4px }} \
                         QPushButton:pressed {{ color: {1} ; background: {0} }}'.format(foreColor, backColor))
@@ -49,7 +50,7 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
         if get_reply(P, STATUS, P.laserOffsetX, P.laserOffsetY):
             P.laserOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.laserOffsetY = round(STATUS.get_position()[1][1], 4) + 0
-            do_ini_file(P, W, iniPath, P.laserOffsetX, P.laserOffsetY, 'LASER_TOUCHOFF', '# laser touchoff')
+            do_ini_file(P, W, iniPath, P.laserOffsetX, P.laserOffsetY, None, 'LASER_TOUCHOFF', '# laser touchoff')
             if P.laserOffsetX or P.laserOffsetY:
                 W.laser.show()
             else:
@@ -58,7 +59,7 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
         if get_reply(P, STATUS, P.camOffsetX, P.camOffsetY):
             P.camOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.camOffsetY = round(STATUS.get_position()[1][1], 4) + 0
-            do_ini_file(P, W, iniPath, P.camOffsetX, P.camOffsetY, 'CAMERA_TOUCHOFF', '# camera touchoff')
+            do_ini_file(P, W, iniPath, P.camOffsetX, P.camOffsetY, None, 'CAMERA_TOUCHOFF', '# camera touchoff')
             if P.camOffsetX or P.camOffsetY:
                 W.camera.show()
             else:
@@ -84,16 +85,49 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
             yOffset = round(STATUS.get_position()[1][1], 4) + 0
             do_tool_file(P, W, toolFile, xOffset, yOffset)
             ACTION.RELOAD_TOOLTABLE()
+    elif choice == 4:
+        new = 0.0
+        btn1 = _translate('HandlerClass', 'OK')
+        btn2 = _translate('HandlerClass', 'CANCEL')
+        valid, value = (P.dialog_input('Offset Probe Delay', 'Delay (Seconds)', btn1, btn2, P.probeDelay))
+        if valid:
+            try:
+                new = float(value)
+            except:
+                head = _translate('HandlerClass', 'Entry Error')
+                msg0 = _translate('HandlerClass', 'is not a valid number')
+                P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\'{}\' {}\n'.format(value, msg0))
+                return
+        else:
+            return
+        if get_reply(P, STATUS, P.probeOffsetX, P.probeOffsetY, True, P.probeDelay, new):
+            print(round(STATUS.get_position()[1][0], 4) + 0)
+            print(round(STATUS.get_position()[1][1], 4) + 0)
+            print(new)
+            P.probeOffsetX = round(STATUS.get_position()[1][0], 4) + 0
+            P.probeOffsetY = round(STATUS.get_position()[1][1], 4) + 0
+            P.probeDelay = new
+            do_ini_file(P, W, iniPath, P.probeOffsetX, P.probeOffsetY, P.probeDelay, 'OFFSET_PROBING', '# offset probing')
+            P.set_probe_offset_pins()
 
-def get_reply(P, STATUS, xOffset, yOffset):
+def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
     head = _translate('HandlerClass', 'Offset Change')
     btn1 = _translate('HandlerClass', 'CONTINUE')
     btn2 = _translate('HandlerClass', 'CANCEL')
     msg0  = _translate('HandlerClass', 'Change offsets from')
-    msg0 += ':\nX:{:0.3f}   Y:{:0.3f}\n\n'.format(xOffset, yOffset)
+    if probe:
+        msg0 += ':\nX:{:0.3f}   Y:{:0.3f}   Delay:{:0.2f}\n\n'.format(xOffset, yOffset, delay)
+    else:
+        msg0 += ':\nX:{:0.3f}   Y:{:0.3f}\n\n'.format(xOffset, yOffset)
     msg0 += _translate('HandlerClass', 'To')
-    msg0 += ':\nX:{:0.3f}   Y:{:0.3f}\n'.format(round(STATUS.get_position()[1][0], 4) + 0, 
-                                                round(STATUS.get_position()[1][1], 4) + 0)
+    if probe:
+        msg0 += ':\nX:{:0.3f}   Y:{:0.3f}   Delay:{:0.2f}\n' \
+                .format(round(STATUS.get_position()[1][0], 4) + 0,
+                        round(STATUS.get_position()[1][1], 4) + 0,
+                        new)
+    else:
+        msg0 += ':\nX:{:0.3f}   Y:{:0.3f}\n'.format(round(STATUS.get_position()[1][0], 4) + 0,
+                                                    round(STATUS.get_position()[1][1], 4) + 0)
     if P.dialog_show_yesno(QMessageBox.Warning, 
                               '{}'.format(head), 
                               '\n{}'.format(msg0), 
@@ -103,7 +137,7 @@ def get_reply(P, STATUS, xOffset, yOffset):
     else:
         return False
 
-def do_ini_file(P, W, iniPath, xOffset, yOffset, param, comment):
+def do_ini_file(P, W, iniPath, xOffset, yOffset, pDelay, param, comment):
     written = False
     COPY(iniPath, '{}~'.format(iniPath))
     inFile = open('{}~'.format(iniPath), 'r')
@@ -123,22 +157,22 @@ def do_ini_file(P, W, iniPath, xOffset, yOffset, param, comment):
             if not written:
                 outFile.write('{}\n'.format(comment))
                 if xOffset or yOffset:
-                    outFile.write('{} = X{:0.3f} Y{:0.3f}\n'.format(param, xOffset, yOffset))
+                    outFile.write('{} = X{:0.3f} Y{:0.3f} {}\n\n'.format(param, xOffset, yOffset, pDelay))
                 else:
-                    outFile.write('#{} = X0.000 Y0.000\n'.format(param))
+                    outFile.write('#{} = X0.000 Y0.000\n\n'.format(param))
             break
         elif line.startswith('['):
             if not written:
                 outFile.write('{}\n'.format(comment))
                 if xOffset or yOffset:
-                    outFile.write('{} = X{:0.3f} Y{:0.3f}\n'.format(param, xOffset, yOffset))
+                    outFile.write('{} = X{:0.3f} Y{:0.3f} {}\n\n'.format(param, xOffset, yOffset, pDelay))
                 else:
-                    outFile.write('#{} = X0.000 Y0.000\n'.format(param))
+                    outFile.write('#{} = X0.000 Y0.000\n\n'.format(param))
             outFile.write(line)
             break
         elif line.startswith('{}'.format(param)) or line.startswith('#{}'.format(param)):
             if xOffset or yOffset:
-                outFile.write('{} = X{:0.3f} Y{:0.3f}\n'.format(param, xOffset, yOffset))
+                outFile.write('{} = X{:0.3f} Y{:0.3f} {}\n'.format(param, xOffset, yOffset, pDelay))
             else:
                 outFile.write('#{} = X0.000 Y0.000\n'.format(param))
             written = True

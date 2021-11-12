@@ -333,7 +333,7 @@ If the machine is equipped with a float switch then the user will need to set th
 
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
 
-. If the table has a laser or camera for sheet alignment, or a scribe then the required offset needs to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+. If the table has a laser or camera for sheet alignment, a scribe, or uses offset probing then the required offsets need to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
 . CONGRATULATIONS! The user should now have a working QtPlasmaC Configuration.
 
@@ -632,6 +632,8 @@ HIDE_PAUSE          = 1 (hide the cycle pause button)
 HIDE_ABORT          = 1 (hide the cycle stop button)
                     (the default is don't hide if not specified)
 
+OFFSET_PROBING      = X25.21 Y8.07 0.5
+                      (X offset, Y offset, and deployment delay of probe if offset probing is required)
 ----
 
 NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
@@ -1178,7 +1180,7 @@ Some standard LinuxCNC utilites are provided as an aid in the diagnosis of issue
 
 In addition the following two QtPlasmaC specific utilities are provided:
 
-The  **SET OFFSETS** button is used if the table has a laser or camera for sheet alignment, or a scribe. The required offsets for these peripherals need to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+The  **SET OFFSETS** button is used if the table has a laser or camera for sheet alignment, a scribe, or uses offset probing. The required offsets for these peripherals need to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
 [[qt_backup]]
 
@@ -1780,11 +1782,11 @@ Any errors encountered during a cut will disable IHS skipping for the next cut i
 
 === Probing
 
-Probing may be done with either ohmic sensing or a float switch. It is also possible to combine the two methods, in which case the float switch will provide a fallback to ohmic probing.
+Probing may be done with either ohmic sensing or a float switch. It is also possible to combine the two methods, in which case the float switch will provide a fallback to ohmic probing. An alternative to ohmic probing is <<qt_offset_probing, Offset Probing>>
 
 If the machine's torch does not support ohmic probing, the user could have a separate probe next to the torch. In this case the user would extend the probe below the torch. The probe must NOT extend more than the minimum Cut Height below the torch and the Z axis offset distance needs to be entered as the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
-Probing setup is done in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>. Probing speed is controlled of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>.
+Probing setup is done in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 QtPlasmaC can probe at the full Z axis velocity so long as the machine has enough movement in the float switch to absorb any overrun. If the machine's float switch travel is suitable, the user could set the Probe Height to near the Z axis MINIMUM_LIMIT and do all probing at full speed.
 
@@ -1807,6 +1809,32 @@ This speed value affects ALL probing so if the user uses ohmic probing and the u
 The reliability of this feature will only be as good as the repeatability of the float switch.
 
 NOTE: Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
+
+[[qt_offset_probing]]
+
+=== Offset Probing
+
+Offset Probing is the use of a probe that is offset from the torch. This method is an alternative to Ohmic Probing and uses the plasmac.ohmic-enable output pin to operate a solenoid for extending and retracting the probe. The plasmac.ohmic-probe input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>> is used to set the correct measured height.
+
+The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5mm below the torch tip. If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
+
+To use this feature, the user must set the probes's offset from the torch center by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+
+To add or modify the offsets manually, the user could add or edit the following line in the [QTPLASMAC] section:
+
+----
+OFFSET_PROBING = Xn.n  Yn.n t.t
+----
+
+where n.n is the offset of the probe from the torch center in machine units for the X and Y axes and t.t is the time in seconds to allow for any mechanical deployment of the probe if required.
+
+Each of these parameters is optional and also may appear in any order. If a parameter is not detected then the default is 0.0. There can be no space after the X or Z, lower case is permissable.
+
+When this variable appears in the INI file with either X or Y not equal to zero then QtPlasmaC will do *all* Ohmic Probing as Offset Probing. When a probe sequence has begun, the plasmac.ohmic-enable pin will be set True causing the probe to extend. When the material is detected the plasmac.ohmic-enable pin will be reset to false causing the probe to retract.
+
+The probe will begin moving to the offset positon simultaneously with the Z axis moving down to the Probe Height, probing will not commence unless the deployment timer has completed. It is required that the *Probe Height* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>> is above the top of the material to ensure that the probe is fully offset to the correct X/Y position before the final vertical probe down movement.
+
+IMPORTANT: PROBE HEIGHT NEEDS TO BE SET ABOVE THE TOP OF THE MATERIAL FOR OFFSET PROBING
 
 [[qt_cut-types]]
 
@@ -3098,7 +3126,7 @@ BUTTON_n_CODE = latest-file /home/me/linuxcnc/nc_files/qtplasmac-test
 
 [[peripheral-offsets]]
 
-=== Peripheral Offsets (Laser, Camera, Scribe)
+=== Peripheral Offsets (Laser, Camera, Scribe, Offset Probing)
 
 image::images/qtplasmac_peripheral_offsets.png[width=400,align="center"]
 
