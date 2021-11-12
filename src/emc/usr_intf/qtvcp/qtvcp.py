@@ -66,6 +66,37 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='pass USEROPTS strings to handler under self.w.USEROPTIONS_ list varible')
           ]
 
+
+
+from PyQt5.QtCore import QObject, QEvent, pyqtSignal
+
+
+class inputFocusFilter(QObject):
+    focusIn = pyqtSignal(object)
+
+    def eventFilter(self, widget, event):
+        if event.type() == QEvent.FocusIn and not isinstance(widget,QtWidgets.QCommonStyle):
+            # emit a `focusIn` signal, with the widget as its argument:
+            self.focusIn.emit(widget)
+        return super(inputFocusFilter, self).eventFilter(widget, event)
+
+class MyApplication(QtWidgets.QApplication):
+    def __init__(self, *arg, **kwarg):
+        super(MyApplication, self).__init__(*arg, **kwarg)
+
+        self._input_focus_widget = None
+
+        self.event_filter = inputFocusFilter()
+        self.event_filter.focusIn.connect(self.setInputFocusWidget)
+        self.installEventFilter(self.event_filter)
+
+    def setInputFocusWidget(self, widget):
+        self._input_focus_widget = widget
+
+    def inputFocusWidget(self):
+        return self._input_focus_widget
+
+
 class QTVCP: 
     def __init__(self):
         sys.excepthook = self.excepthook
@@ -90,7 +121,7 @@ class QTVCP:
         sys.argv.append("--disable-web-security")
 
         # initialize QApp so we can pop up dialogs now. 
-        self.app = QtWidgets.QApplication(sys.argv)
+        self.app = MyApplication(sys.argv)
 
         # we import here so that the QApp is initialized before
         # the Notify library is loaded because it uses DBusQtMainLoop
