@@ -2218,9 +2218,10 @@ class HandlerClass:
             self.isJogging[joint] = True
             self.w.grabKeyboard()
         else:
-            ACTION.JOG(joint, 0, 0, 0)
-            self.isJogging[joint] = False
             self.w.releaseKeyboard()
+            if not STATUS.get_jog_increment():
+                ACTION.JOG(joint, 0, 0, 0)
+                self.isJogging[joint] = False
 
     def keyboard_shortcuts(self):
         if self.w.chk_keyboard_shortcuts.isChecked():
