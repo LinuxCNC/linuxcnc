@@ -2889,7 +2889,7 @@ The button colors will follow the state of the hal pin.
 
 After setting the code, upon clicking, the button will invert colors and the HAL pin will invert pin state. The button will stay "latched" until the button is clicked again, which will return the button to the original colors and the HAL pin to the original pin state.
 
-There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to toggle as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the Hal pins are not available until the QtPlasmac GUI has loaded.
 
 It is possible for the user to mark a toggle-halpin button's associated hal pin as being required to be turned "ON" before *CYCLE START* can be pressed by adding "runcritical" after the hal pin in the button code.
 
@@ -2917,7 +2917,7 @@ After setting the code, upon clicking the button, the button will invert colors,
 
 An active pulse can be canceled by clicking the button again.
 
-There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2.
+There are three <<qt_ext-hal-pin, External HAL Pins>> that are available to pulse as an output, the pin names are qtplasmac.ext_out_0, qtplasmac.ext_out_1, and qtplasmac.ext_out_2. HAL connections to these HAL pins need to be specified in a postgui HAL file as the Hal pins are not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-probe]]
 
@@ -2931,7 +2931,7 @@ QtPlasmaC will then wait in this state for the time specified (rounded to no dec
 BUTTON_n_CODE = probe-test 6
 ----
 
-NOTE: Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-ohmic]]
 
@@ -2943,7 +2943,7 @@ QtPlasmaC will enable the Ohmic Probe Enable output signal and if the Ohmic Prob
 BUTTON_n_CODE = ohmic-test
 ----
 
-NOTE: Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-cut]]
 
@@ -2975,7 +2975,7 @@ There are three methods to return to the previous coordinates:
 BUTTON_n_CODE = change-consumables X10 Y10 F1000
 ----
 
-NOTE: Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-load]]
 
@@ -3009,7 +3009,7 @@ If the button is released before the countdown is complete then the torch will t
 BUTTON_n_CODE = torch-pulse 0.5
 ----
 
-NOTE: Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+NOTE: Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-single]]
 
@@ -3064,7 +3064,7 @@ or:
 BUTTON_n_CODE = framing usecurrentzheight F100
 ----
 
-Enabling a user button as a Framing button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc.
+Enabling a user button as a Framing button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-mancut]]
 
@@ -3125,6 +3125,8 @@ NOTE: By following the above procedure the offsets are available for use immedia
 === External HAL Pins
 
 QtPlasmaC creates some HAL pins that may be used to connect a momentary external button or pendant etc.
+
+HAL connections to these HAL pins need to be specified in a postgui HAL file as the Hal pins are not available until the QtPlasmac GUI has loaded.
 
 The following HAL bit pins are always created. The HAL pin has the identical behaviour of the related QtPlasmaC GUI button.
 
