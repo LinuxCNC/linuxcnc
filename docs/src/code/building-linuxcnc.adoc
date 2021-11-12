@@ -294,11 +294,11 @@ platform to build for.  The normal values for this argument are:
 
 `--help`::
 
-    presents a very short summary of extra options
+    Presents a very short summary of extra options
 
 `no-docs`::
 
-    skips building of documentation
+    Skips building of documentation
 
 `$KERNEL_VERSION`::
 
