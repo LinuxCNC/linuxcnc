@@ -49,6 +49,12 @@ class EMC_OPERATOR_ERROR:public RCS_CMD_MSG {
     char error[LINELEN];
 };
 
+
+#define EMC_OPERATOR_TEXT_ID_TEXT       0
+#define EMC_OPERATOR_TEXT_ID_LOGOPEN    1
+#define EMC_OPERATOR_TEXT_ID_LOGAPPEND  2
+#define EMC_OPERATOR_TEXT_ID_LOGCLOSE   3
+#define EMC_OPERATOR_TEXT_ID_LOGWRITE   4
 /**
  * Send a textual information message to the operator.
  * This is similar to EMC_OPERATOR_ERROR message except that the messages are

@@ -334,6 +334,9 @@ extern int emcOperatorText(int id, const char *fmt, ...) __attribute__((format(p
 // print note to operator
 extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
 
+// log text to file
+extern int emcLogCmd(int id, const char *text);
+
 // implementation functions for EMC_AXIS types
 
 extern int emcAxisSetUnits(int axis, double units);

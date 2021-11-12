@@ -2373,29 +2373,43 @@ void MESSAGE(char *s)
 static FILE *logfile = NULL;
 
 void LOG(char *s) {
-    flush_segments();
-    if(logfile) { fprintf(logfile, "%s\n", s); fflush(logfile); }
-    fprintf(stderr, "LOG(%s)\n", s);
+    EMC_OPERATOR_TEXT log_msg;
 
+    flush_segments();
+    log_msg.id = EMC_OPERATOR_TEXT_ID_LOGWRITE;
+    strncpy(log_msg.text, s, LINELEN);
+    log_msg.text[LINELEN - 1] = 0;
+    interp_list.append(log_msg);
 }
 
 void LOGOPEN(char *name) {
-    if(logfile) fclose(logfile);
-    logfile = fopen(name, "wt");
-    fprintf(stderr, "LOGOPEN(%s) -> %p\n", name, logfile);
+    EMC_OPERATOR_TEXT log_msg;
+
+    flush_segments();
+    log_msg.id = EMC_OPERATOR_TEXT_ID_LOGOPEN;
+    strncpy(log_msg.text, name, LINELEN);
+    log_msg.text[LINELEN - 1] = 0;
+    interp_list.append(log_msg);
 }
 
 void LOGAPPEND(char *name) {
-    if(logfile) fclose(logfile);
-    logfile = fopen(name, "at");
-    fprintf(stderr, "LOGAPPEND(%s) -> %p\n", name, logfile);
+    EMC_OPERATOR_TEXT log_msg;
+
+    flush_segments();
+    log_msg.id = EMC_OPERATOR_TEXT_ID_LOGAPPEND;
+    strncpy(log_msg.text, name, LINELEN);
+    log_msg.text[LINELEN - 1] = 0;
+    interp_list.append(log_msg);
 }
 
 
 void LOGCLOSE() {
-    if(logfile) fclose(logfile);
-    logfile = NULL;
-    fprintf(stderr, "LOGCLOSE()\n");
+    EMC_OPERATOR_TEXT log_msg;
+
+    flush_segments();
+    log_msg.id = EMC_OPERATOR_TEXT_ID_LOGCLOSE;
+    log_msg.text[0] = 0;
+    interp_list.append(log_msg);
 }
 
 void MIST_OFF()

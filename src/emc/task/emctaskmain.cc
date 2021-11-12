@@ -61,6 +61,7 @@
 #include "usrmotintf.h"
 #include <rtapi_string.h>
 #include "tooldata.hh"
+#include <time.h>
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -141,6 +142,9 @@ int _task = 1; // control preview behaviour when remapping
 // for operator display on iocontrol signalling a toolchanger fault if io.fault is set
 // %d receives io.reason
 static const char *io_error = "toolchanger error %d";
+
+// file handle for logging from g-code
+FILE* logfile = 0;
 
 extern void setup_signal_handlers(); // backtrace, gdb-in-new-window supportx
 
@@ -236,9 +240,6 @@ int emcOperatorText(int id, const char *fmt, ...)
     EMC_OPERATOR_TEXT text_msg;
     va_list ap;
 
-    if ( emcErrorBufferOKtoWrite(sizeof(text_msg) * 2, "emcOperatorText"))
-	return -1;
-
     // write args to NML message (ignore int text code)
     va_start(ap, fmt);
     vsnprintf(text_msg.text, sizeof(text_msg.text), fmt, ap);
@@ -246,6 +247,20 @@ int emcOperatorText(int id, const char *fmt, ...)
 
     // force a NULL at the end for safety
     text_msg.text[LINELEN - 1] = 0;
+
+    // handle log messages that are not sent to the GUI
+    if (EMC_OPERATOR_TEXT_ID_LOGOPEN <= id && id <= EMC_OPERATOR_TEXT_ID_LOGWRITE) {
+        if (emcLogCmd(id, text_msg.text) == 0) {
+            return 0;
+        } else {
+            emcOperatorError(0, "Log command failed.");
+            return -1;
+        };
+    }
+
+
+    if ( emcErrorBufferOKtoWrite(sizeof(text_msg) * 2, "emcOperatorText"))
+        return -1;
 
     // write it
     return emcErrorBuffer->write(text_msg);
@@ -257,7 +272,7 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
     va_list ap;
 
     if ( emcErrorBufferOKtoWrite(sizeof(display_msg) * 2, "emcOperatorDisplay"))
-	return -1;
+        return -1;
 
     // write args to NML message (ignore int display code)
     va_start(ap, fmt);
@@ -269,6 +284,52 @@ int emcOperatorDisplay(int id, const char *fmt, ...)
 
     // write it
     return emcErrorBuffer->write(display_msg);
+}
+
+int emcLogCmd(int id, const char *text)
+{
+    time_t seconds;
+    struct tm *lt;
+    int nbytes;
+
+    switch (id) {
+    case EMC_OPERATOR_TEXT_ID_LOGOPEN:
+    case EMC_OPERATOR_TEXT_ID_LOGAPPEND:
+        if (logfile != 0) {
+            fclose(logfile); // close the currently open file before opening a new one
+        }
+        logfile = fopen(text, id == EMC_OPERATOR_TEXT_ID_LOGOPEN ? "wt" : "at");
+        return 0;
+
+    case EMC_OPERATOR_TEXT_ID_LOGCLOSE:
+        if (logfile == NULL || fclose(logfile) != 0) {
+            return -1; // error closing file
+        }
+        logfile = NULL;
+        return 0;
+
+    case EMC_OPERATOR_TEXT_ID_LOGWRITE:
+        if (logfile == NULL) {
+            return -1; // log file is not open, error
+        }
+
+        // write timestamp and log line to file
+        seconds = time(NULL);
+        lt = localtime(&seconds);
+        nbytes = fprintf(logfile, "%d-%02d-%02d %02d:%02d:%02d\t%s\n",
+                         lt->tm_year + 1900, lt->tm_mon + 1, lt->tm_mday,
+                         lt->tm_hour, lt->tm_min, lt->tm_sec, text);
+        if (nbytes < 0) {
+            return -1; // error while writing to file
+        }
+        if (fflush(logfile) != 0) {
+            return -1;
+        }
+        return 0; // success
+
+    default:
+        return -1;
+    }
 }
 
 /*
