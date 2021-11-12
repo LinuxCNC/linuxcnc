@@ -53,6 +53,9 @@ man9/conv_s8_float.9
 man9/conv_s8_s32.9
 man9/conv_s8_u32.9
 man9/conv_s8_u8.9
+man9/tof.9
+man9/ton.9
+man9/tp.9
 man9/conv_u32_bit.9
 man9/conv_u32_float.9
 man9/conv_u32_s32.9
