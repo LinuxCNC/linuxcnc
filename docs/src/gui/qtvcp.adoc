@@ -355,6 +355,13 @@ pins are available. +
 You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
 Each will be run one after the other in the order they appear. +
  +
+Qtvcp also looks in the INI file, under the heading '[HAL]' for the entry 'POSTGUI_HALCMD=<command>' +
+'<command>' would be any valid HAL command. +
+These commands are executed after the screen is built, after all the POSTGUI_HALFILEs are run, +
+guaranteeing the widget HAL pins are available. +
+You can have multiple line of 'POSTGUI_HALCMD=<command>' in the INI. +
+Each will be run one after the other in the order they appear. +
+ +
 In our example there are no HAl pins to connect. +
 
 == Handler file in detail
