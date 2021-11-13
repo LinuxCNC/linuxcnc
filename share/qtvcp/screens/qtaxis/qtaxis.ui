@@ -1704,6 +1704,9 @@
                    </property>
                    <item>
                     <widget class="GCodeGraphics" name="gcodegraphics">
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="_view" stdset="0">
                       <string>p</string>
                      </property>

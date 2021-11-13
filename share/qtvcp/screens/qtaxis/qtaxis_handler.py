@@ -160,6 +160,7 @@ class HandlerClass:
             self.w.dro_relative_y.setVisible(False)
             self.w.dro_absolute_y.setVisible(False)
         self.restoreSettings()
+        #QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -285,6 +286,22 @@ class HandlerClass:
     #####################
     # general functions #
     #####################
+
+    def focusInChanged(self, widget):
+        print ('parent:',widget.parent())
+        print (widget, widget.__class__ )
+        print (self.w.gcode_editor, self.w.gcode_editor.__class__,'\n')
+        if isinstance(widget,type(self.w.gcode_editor.editor)):
+            print('Scroll Editor')
+        if isinstance(widget,type(self.w.gcodegraphics)):
+            print('Scroll Gcode Display')
+        if isinstance(widget.parent(),type(self.w.mdihistory) ):
+            print('Scroll MDI')
+        fwidget = QtWidgets.QApplication.focusWidget()
+        if fwidget is not None:
+            print("focus widget name ", fwidget, fwidget.objectName())
+
+
 
     def init_pins(self):
         # external jogging control pins
@@ -562,10 +579,27 @@ class HandlerClass:
 
     # MPG scrolling of program or MDI history
     def external_mpg(self, count):
-        if self.pin_mpg_enabled.get():
+        widget = QtWidgets.QApplication.focusWidget()
+        if self.pin_mpg_enabled.get() and not widget is None:
             diff = count - self._last_count
-            self.w.gcode_editor.jump_line(diff)
+
+            if isinstance(widget,type(self.w.gcodegraphics)):
+                if diff <0:
+                    ACTION.SET_GRAPHICS_VIEW('zoom-in')
+                else:
+                    ACTION.SET_GRAPHICS_VIEW('zoom-OUT')
+
+            elif isinstance(widget.parent(),type(self.w.mdihistory) ):
+                if diff <0:
+                    self.w.mdihistory.line_up()
+                else:
+                    self.w.mdihistory.line_down()
+
+            else:
+            #if isinstance(widget.parent(),type(self.w.gcode_editor)):
+                self.w.gcode_editor.jump_line(diff)
         self._last_count = count
+
     #####################
     # KEY BINDING CALLS #
     #####################
