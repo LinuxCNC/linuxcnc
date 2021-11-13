@@ -799,3 +799,46 @@ They would be printed to the terminal as well. +
 ACTION.SET_DISPLAY_MESSAGE('MESSAGE')
 ACTION.SET_ERROR_MESSAGE('MESSAGE') 
 ----
+
+== Catch Focus Changes
+
+Focus is used to direct user action such as keyboard entry to the proper widget. +
+We may want to know what widget currently has focus: +
+
+[source,python]
+----
+        fwidget = QtWidgets.QApplication.focusWidget()
+        if fwidget is not None:
+            print("focus widget class: {} name: {} ".format( fwidget, fwidget.objectName()))
+----
+
+Or we may want to know what widget has focus right when focus changes:
+
+[source,python]
+----
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
+
+    #####################
+    # general functions #
+    #####################
+
+    def focusInChanged(self, widget):
+        if isinstance(widget.parent(),type(self.w.gcode_editor.editor)):
+            print('Gcode Editor')
+        elif isinstance(widget,type(self.w.gcodegraphics)):
+            print('Gcode Display')
+        elif isinstance(widget.parent(),type(self.w.mdihistory) ):
+            print('MDI History')
+----
+
+Notice we sometimes compare to 'widget', sometimes 'widget.parent()'. +
+This is because some Qtvcp widgets are built from multiple sub-widgets and +
+the sub-widgets actually get the focus; so we need to check the parent of those sub-widgets. +
+Other times the main widget is what gets the focus; ie Gcode display widget can be set to +
+accept focus and in that case there are no sub-widgets in it so comparing to the widget.parent() +
+would get you the container that holds the gcode widget. +
+
