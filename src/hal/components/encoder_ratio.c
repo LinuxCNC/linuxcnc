@@ -149,7 +149,7 @@ static encoder_pair_t *encoder_pair_array;
    down 1 after glitch), and on both inputs simultaneously (no count
    at all)  In theory, it can count once per cycle, in practice the
    maximum count rate should be at _least_ 10% below the sample rate,
-   and preferrable around half the sample rate.  It counts every
+   and preferable around half the sample rate.  It counts every
    edge of the quadrature waveform, 4 counts per complete cycle.
 */
 static const unsigned char lut[16] = {

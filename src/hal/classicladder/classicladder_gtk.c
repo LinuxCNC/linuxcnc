@@ -529,7 +529,7 @@ void DoNewProject( void )
 
 void ButtonNew_click()
 {
-	ShowConfirmationBox(_("New"),_("Do you really want to clear all datas ?"),DoNewProject);
+	ShowConfirmationBox(_("New"),_("Do you really want to clear all data ?"),DoNewProject);
 }
 void DoLoadProject()
 {

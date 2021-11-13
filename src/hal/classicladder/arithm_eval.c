@@ -211,7 +211,7 @@ int IdentifyVarIndexedOrNot(char *StartExpr,int * ResType,int * ResOffset, int *
 	return FALSE;
 }
 
-/* Give final variable (taking into acount the value of an index if present) */
+/* Give final variable (taking into account the value of an index if present) */
 int IdentifyFinalVar( char *StartExpr, int * ResType,int * ResOffset )
 {
 	int IndexVarType,IndexVarOffset;

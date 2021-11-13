@@ -30,7 +30,7 @@ gbl_t gbl;
 
 /*
  * Main: init global params, parse args, open ini file, parse ini file
- * (transaction strcutures), init links (links structures), init and
+ * (transaction structures), init links (links structures), init and
  * create hal pins, create a thread for each link , and wait forever
  */
 

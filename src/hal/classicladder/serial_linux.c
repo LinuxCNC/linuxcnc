@@ -60,7 +60,7 @@ char SerialOpen( char * SerialPortName, int Speed )
 	if ( PortIsOpened )
 		SerialClose( );
 
-	/* open the device to be non-blocking (read will return immediatly) */
+	/* open the device to be non-blocking (read will return immediately) */
 	fd = open( SerialPortName, O_RDWR | O_NOCTTY | O_NDELAY/*don't wait DTR*/ );
         //fd = open( SerialPortName, O_RDWR | O_NOCTTY | O_NONBLOCK);
 	if (fd >=0)

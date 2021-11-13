@@ -351,7 +351,7 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
 
         scale = res->hal.param.scale;
         
-        if (res->hal.param.use_abs){ // pseudo-absolute behviour enabled but not initialised
+        if (res->hal.param.use_abs){ // pseudo-absolute behaviour enabled but not initialised
             double new_pos;
             int turns;
 

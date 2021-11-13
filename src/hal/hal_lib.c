@@ -109,7 +109,7 @@ static int init_hal_data(void);
     is used to allocate data that will be accessed by realtime
     code, while 'shmalloc_dn()' is used to allocate the much
     larger structures that are accessed only occaisionally during
-    init.  This groups all the realtime data together, inproving
+    init.  This groups all the realtime data together, improving
     cache performance.
 */
 static void *shmalloc_up(long int size);
@@ -3641,7 +3641,7 @@ static bool hal_port_compute_copy(unsigned read,
             *beg_bytes_to_read = 0;
             *final_pos = read + count;
         } else {
-            //read porition of buffer with wrap around to beginnning of buffer
+            //read porition of buffer with wrap around to beginning of buffer
             *end_bytes_to_read = end_bytes_avail;
             *beg_bytes_to_read = count - end_bytes_avail;
             *final_pos = *beg_bytes_to_read;

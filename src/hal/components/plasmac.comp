@@ -1504,7 +1504,7 @@ FUNCTION(_) {
                         led_up = FALSE;
                     }
                     pid_output = 0;
-                    /* check if safe height is below maximium offset */
+                    /* check if safe height is below maximum offset */
                     if(z_offset_counts > offset_datum){
                         safe_target += z_offset_counts - offset_datum;
                         offset_datum = z_offset_counts;
@@ -1572,7 +1572,7 @@ FUNCTION(_) {
                             led_up = FALSE;
                         }
                     }
-                    /* check if safe height is below maximium offset */
+                    /* check if safe height is below maximum offset */
                     if(z_offset_counts > offset_datum){
                         safe_target += z_offset_counts - offset_datum;
                         offset_datum = z_offset_counts;

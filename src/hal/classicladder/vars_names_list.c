@@ -23,7 +23,7 @@
 
 
 // for link with another project where all variables IDs are only an offset in
-// a giant array (absolutely no type part existance)...
+// a giant array (absolutely no type part existence)...
 #define IDVAR_IS_TYPE_AND_OFFSET
 
 typedef struct StrConvIdVarName
@@ -31,7 +31,7 @@ typedef struct StrConvIdVarName
 	char * StringBaseVarName;
 	int iTypeVar;
 	int iIdVar;
-	/* differents depths sizes */
+	/* different depths sizes */
 	int iSize1;			/* for depth 1 */
 	int iSize2;			/* pour profondeur 2 */
 	int iSize3;			/* pour profondeur 3 */
