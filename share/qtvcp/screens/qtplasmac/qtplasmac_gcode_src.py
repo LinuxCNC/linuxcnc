@@ -308,22 +308,12 @@ def do_material_change():
             m += mNum
     material[0] = int(m)
     material[1] = True
-    if material[0] not in materialDict:
+    if material[0] not in materialDict and material[0] < 1000000:
         codeError = True
-        if material[0] < 1000000:
-            dlg  = '\nMaterial #{} is missing from the material file.\n'.format(material[0])
-            dlg += '\nError near line #{}.\n'.format(lineNum)
-            dlg += '\nAdd a new material or edit the G-Code file to suit.\n'
-        else:
-            dlg  = '\nThe G-Code file contains a reference to a temporary material near line #{}.\n'.format(lineNum)
-            dlg += '\nEdit the G-Code file outside of QtPlasmaC to reference an existing material and then reload the G-Code file.\n'
+        dlg  = '\nMaterial #{} is missing from the material file.\n'.format(material[0])
+        dlg += '\nError near line #{}.\n'.format(lineNum)
+        dlg += '\nAdd a new material or edit the G-Code file to suit.\n'
         dialog_box('ERROR', dlg)
-
-#        gcodeList.append(line)
-#        gcodeList.append('m5\nm2')
-#        quit()
-
-
     hal.set_p('qtplasmac.material_change_number', '{}'.format(material[0]))
     if not firstMaterial:
         firstMaterial = material[0]
@@ -603,6 +593,7 @@ with open(inCode, 'r') as fRead:
                 gcodeList.append('m190 p{} ({})'.format(tmpMatNum, tmpMatNam))
                 gcodeList.append('m66 p3 l3 q1')
                 tmpMatNum += 1
+            gcodeList.append(line)
             continue
         # if line is a comment then gcodeList.append it and get next line
         if line.startswith(';') or line.startswith('('):

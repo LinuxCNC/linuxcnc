@@ -1,4 +1,4 @@
-VERSION = '1.217.119'
+VERSION = '1.217.120'
 
 '''
 qtplasmac_handler.py
@@ -2356,23 +2356,42 @@ class HandlerClass:
         g2,g4,g6,g9,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','',''
         oSub = False
         count = 0
+        tmpMat = False
         head = _translate('HandlerClass', 'GCODE ERROR')
         with open(self.lastLoadedProgram, 'r') as inFile:
             for line in inFile:
                 if count < self.startLine:
                     inData.append(line.lower())
                 else:
+                    if count == self.startLine:
+                        if 'g21' in line:
+                            newFile.append('g21')
+                        elif 'g20' in line:
+                            newFile.append('g20')
                     outData.append(line.lower())
                 count += 1
         cutComp = False
         for line in inData:
             if line.startswith('('):
+                if line.startswith('(o='):
+                    material = line.strip()
                 continue
             if line.startswith('#'):
                 params.append(line.strip())
                 continue
-            if 'm190' in line:
-                material = line.strip()
+            if line.startswith('m190'):
+               mat = line.split('p')[1]
+               if '(' in mat:
+                   num = int(mat.split('(')[0])
+               else:
+                   num = int(mat)
+               if num >= 1000000:
+                   tmpMat = True
+               else:
+                   material = line.strip()
+               continue
+            if line.replace(' ','').startswith('m66p3') and tmpMat:
+                tmpMat = False
                 continue
             for t1 in ['g20','g21','g40','g41.1','g42.1','g61', 'g61.1', 'g64', 'g90','g91']:
                 if t1 in line:
@@ -2483,6 +2502,7 @@ class HandlerClass:
             self.set_run_button_state()
             self.startLine = 0
             return
+        # show the dialog
         rFl = QDialog(self.w)
         rFl.setWindowTitle(_translate('HandlerClass', 'RUN FROM LINE'))
         l1 = QLabel(_translate('HandlerClass', 'USE LEADIN:'))
@@ -2529,12 +2549,14 @@ class HandlerClass:
         ang.setRange(-359, 359)
         ang.setWrapping(True)
         result = rFl.exec_()
+        # cancel from dialog
         if not result:
             self.rflActive = False
             self.set_run_button_state()
             self.startLine = 0
             self.w.gcode_display.setCursorPosition(0, 0)
             return
+        # run from dialog
         for param in params:
             if param:
                 newFile.append(param)
@@ -2571,7 +2593,8 @@ class HandlerClass:
             newFile.append(zMax)
         if material:
             newFile.append(material)
-            newFile.append('m66p3l3q1')
+            if not '(o=' in material:
+                newFile.append('m66p3l3q1')
         # don't scale feedrate, parameters should be set correctly in material file
         newFile.append('f#<_hal[plasmac.cut-feed-rate]>')
         xL = x
@@ -2606,6 +2629,18 @@ class HandlerClass:
         for line in outData:
             if outData.index(line) == 0 and (line.startswith('x') or line.startswith('y')):
                 line = '{}{}'.format(code, line)
+            elif line.startswith('m190'):
+                mat = line.split('p')[1]
+                if '(' in mat:
+                    num = int(mat.split('(')[0])
+                else:
+                    num = int(mat)
+                if num >= 1000000:
+                    tmpMat = True
+                    continue
+            elif line.replace(' ','').startswith('m66p3') and tmpMat:
+                tmpMat = False
+                continue
             newFile.append(line.strip())
         rflFile = '{}rfl.ngc'.format(self.tmpPath)
         with open(rflFile, 'w') as outFile:
