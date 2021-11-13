@@ -1966,15 +1966,15 @@ RS485(void *arg, long period)
 	  
 		switch (device-> RS485_mgr.ID[i])
 		{
-		    case RS485MODULe_ID_8OUTPUT:   
-		      RS485DataIn8[0]=((*(device->RS485_8output[i].out_7) ^ (device->RS485_8output[i].invertOut_7)) << 7) | 
+		    case RS485MODUL_ID_8OUTPUT:
+		      RS485DataIn8[0]=((*(device->RS485_8output[i].out_7) ^ (device->RS485_8output[i].invertOut_7)) << 7) |
 				      ((*(device->RS485_8output[i].out_6) ^ (device->RS485_8output[i].invertOut_6)) << 6) |
 				      ((*(device->RS485_8output[i].out_5) ^ (device->RS485_8output[i].invertOut_5)) << 5) |
 				      ((*(device->RS485_8output[i].out_4) ^ (device->RS485_8output[i].invertOut_4)) << 4) |
 				      ((*(device->RS485_8output[i].out_3) ^ (device->RS485_8output[i].invertOut_3)) << 3) |
 				      ((*(device->RS485_8output[i].out_2) ^ (device->RS485_8output[i].invertOut_2)) << 2) |
 				      ((*(device->RS485_8output[i].out_1) ^ (device->RS485_8output[i].invertOut_1)) << 1) |
-				      ((*(device->RS485_8output[i].out_0) ^ (device->RS485_8output[i].invertOut_0)) << 0);	      		      
+				      ((*(device->RS485_8output[i].out_0) ^ (device->RS485_8output[i].invertOut_0)) << 0);
 		    break;
 
 		    case RS485MODUL_ID_DACADC:
