@@ -1,4 +1,4 @@
-VERSION = '1.217.120'
+VERSION = '1.217.121'
 
 '''
 qtplasmac_handler.py
@@ -1508,7 +1508,7 @@ class HandlerClass:
         self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
 
     def set_offsets_clicked(self):
-# **** TEMP FOR OFFSET TESTING ****
+# **** TEMP FOR OFFSET TESTING 2 of 2 ****
 #        reload(OFFSETS)
         OFFSETS.dialog_show(self, self.w, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
 
@@ -5169,7 +5169,7 @@ class HandlerClass:
 
     def conv_settings_pressed(self):
 # **** TEMP FOR CONVERSATIONAL TESTING 2 of 3 ****
-        reload(CONVSET)
+#        reload(CONVSET)
         self.color_button_image(self.oldConvButton, self.foreColor)
         self.w[self.oldConvButton].setStyleSheet(\
                 'QPushButton {{ background: {0} }} \
@@ -5213,7 +5213,7 @@ class HandlerClass:
 
     def conv_shape_request(self, shape, module, material):
 # **** TEMP FOR CONVERSATIONAL TESTING 3 of 3****
-        reload(module)
+#        reload(module)
         if not self.convSettingsChanged:
             if self.convPreviewActive and not self.conv_active_shape():
                 return
