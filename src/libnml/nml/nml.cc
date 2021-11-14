@@ -116,7 +116,7 @@ void *NML::operator new(size_t size)
 	cptr += sizeof(int) - (((size_t) cptr) % sizeof(int));
 	*((int *) cptr) = dynamic_list_id;
     }
-    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operater new(%zd)\n",
+    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "%p = NML::operator new(%zd)\n",
 	nml_space, size);
     return nml_space;
 }
@@ -126,7 +126,7 @@ void NML::operator delete(void *nml_space)
     int dynamic_list_id = 0;
     char *cptr = (char *) NULL;
 
-    rcs_print_debug(PRINT_NML_DESTRUCTORS, "NML::operater delete(%p)\n",
+    rcs_print_debug(PRINT_NML_DESTRUCTORS, "NML::operator delete(%p)\n",
 	nml_space);
 
     if (NULL == nml_space) {
