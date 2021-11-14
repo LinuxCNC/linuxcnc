@@ -727,7 +727,7 @@ extern "C" {
 /* how close r.s is for a rotation vector to be considered 0 */
 
 #define QSIN_FUZZ (1.0e-6)
-/* how close sin(a/2) is to 0 to be zero rotat */
+/* how close sin(a/2) is to 0 to be zero rotation */
 
 #define V_FUZZ (1.0e-8)
 /* how close elements of a V must be to be equal */

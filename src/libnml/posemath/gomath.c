@@ -329,7 +329,7 @@ int go_mat_rvec_convert(const go_mat * m, go_rvec * r)
   3) else if e2 is largest then
   if c21 < 0 then take the negative for e1
   if c32 < 0 then take the negative for e3
-  4) else if e3 is larget then
+  4) else if e3 is larger then
   if c31 < 0 then take the negative for e1
   if c32 < 0 then take the negative for e2
 
