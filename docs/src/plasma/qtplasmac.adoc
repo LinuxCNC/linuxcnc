@@ -1628,19 +1628,7 @@ NOTE: If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the
 
 [[qt_magic-comments]]
 
-=== Magic G-Code Comments
-
-* *Keep Z Motion*
-
-By default, QtPlasmaC will remove all Z motion from a loaded G-Code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file. If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder, QtPlasmaC has the ability to retain the Z movements in a G-Code file via the following magic comment:
-
-----
-  #<keep-z-motion> = 1
-----
-
-Omitting this magic comment, or setting this value to anything but 1 will cause QtPlasmaC to revert to the default behavior of stripping all Z motion from a loaded G-Code file and making an initial Z movement to bring the torch near the top of travel at the beginning of the file.
-
-* *Materials Adding And Editing Via G-Code*
+=== Material Addition Via Magic Comments In G-Code
 
 By using "magic comments" in a G-Code file it is possible to do the following:
 
@@ -3147,6 +3135,16 @@ Use the following sequence to set the offsets for a laser, camera, or scribe:
 Cancelling may be done at any stage by pressing the CANCEL button which will close the dialog and no changes will be saved.
 
 NOTE: By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
+
+=== Keep Z Motion
+
+By default, QtPlasmaC will remove all Z motion from a loaded G-Code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file. If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder, QtPlasmaC has the ability to retain the Z movements when executing a program by adding the following command in a G-Code file:
+
+----
+  #<keep-z-motion> = 1
+----
+
+Omitting this command, or setting this value to anything but 1 will cause QtPlasmaC to revert to the default behavior of stripping all Z motion from a loaded G-Code file and making an initial Z movement to bring the torch near the top of travel at the beginning of the file.
 
 [[qt_ext-hal-pin]]
 
