@@ -135,6 +135,7 @@ class QTVCP:
         if opts.verbose:
             # Log level defaults to INFO, so set lowest if in verbose mode
             logger.setGlobalLevel(logger.VERBOSE)
+            LOG.verbose('VERBOSE DEBUGGING ON')
 
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or

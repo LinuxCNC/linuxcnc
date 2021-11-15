@@ -27,13 +27,15 @@ from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # add a new verbose level
 VERBOSE = 5
-logging.addLevelName(VERBOSE, "VERBOSe")
+logging.VERBOSE = 5
+logging.addLevelName(logging.VERBOSE, "VERBOSE")
 
 
 def verbose(self, message, *args, **kws):
     if self.isEnabledFor(VERBOSE):
         # Yes, logger takes its '*args' as 'args'.
-        self._log('VERBOSE', message, args, **kws)
+        # cant get 'VERBOSE' to work in this function
+        self._log(logging.DEBUG, message, args, **kws)
 
 logging.Logger.verbose = verbose
 
