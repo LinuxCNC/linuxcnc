@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: cms.cc
-*   C++ file for the  Communication Management System (CMS).
+*   C++ file for the Communication Management System (CMS).
 *   Includes member functions for class CMS.
 *   See cms_in.cc for the internal interface member functions and
 *   cms_up.cc for the update functions.
@@ -10,10 +10,10 @@
 * Author:
 * License: LGPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #include "rcsversion.h"
@@ -151,7 +151,7 @@ CMS::CMS(long s)
     disable_diag_store = 0;
     diag_offset = 0;
 
-    /* Initailize some variables. */
+    /* Initialize some variables. */
     read_permission_flag = 0;	/* Allow both read and write by default.  */
     write_permission_flag = 0;
     queuing_enabled = 0;
@@ -304,7 +304,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     buffer_type_name = word[2];
 
     /* strtol should allow us to use the C syntax for specifying the radix of 
-       the numbers in the configuration file. (i.e. 0x???? for hexidecimal,
+       the numbers in the configuration file. (i.e. 0x???? for hexadecimal,
        0??? for octal and ???? for decimal.) */
     size = (long) strtol(word[4], (char **) NULL, 0);
     neutral = (int) strtol(word[5], (char **) NULL, 0);
@@ -313,7 +313,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     total_connections = strtol(word[8], (char **) NULL, 0);
     free_space = size;
 
-    /* Check errno to see if all of the strtol's were sucessful. */
+    /* Check errno to see if all of the strtol's were successful. */
     if (ERANGE == errno) {
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
@@ -504,7 +504,7 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	    return;
 	}
     }
-    /* Check errno to see if all of the strtol's were sucessful. */
+    /* Check errno to see if all of the strtol's were successful. */
     if (ERANGE == errno) {
 	rcs_print_error("CMS: Error in proc line from config file.\n");
 	rcs_print_error("%s\n", procline);
@@ -732,7 +732,7 @@ void CMS::open(void)
 	nfactor = updater->neutral_size_factor;
     }
 
-    /* Set some varaibles to let the user know how much space is left. */
+    /* Set some variables to let the user know how much space is left. */
     size_without_diagnostics = size;
     diag_offset = 0;
     if (enable_diagnostics) {
@@ -1522,7 +1522,7 @@ const char *CMS::status_string(int status_type)
 
     case CMS_NO_MASTER_ERROR:
 	return
-	    ("CMS_NO_MASTER_ERROR: An error occurred becouse the master was not started.");
+	    ("CMS_NO_MASTER_ERROR: An error occurred because the master was not started.");
 
     case CMS_CONFIG_ERROR:
 	return ("CMS_CONFIG_ERROR: There was an error in the configuration.");

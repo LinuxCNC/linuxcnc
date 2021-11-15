@@ -1317,7 +1317,7 @@ PM_QUATERNION operator /(const PM_QUATERNION &q, double s)
 #if 0
 	// g++/gcc versions 2.8.x and 2.9.x
 	// will complain that the call to PM_QUATERNION(PM_QUATERNION) is
-	// ambigous. (2.7.x and some others allow it)
+	// ambiguous. (2.7.x and some others allow it)
 	return qout =
 	    PM_QUATERNION((double) 0, (double) 0, (double) 0, (double) 0);
 #else

@@ -444,7 +444,7 @@ int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
        and leave it pos. 2) if e1 is largest then if c21 < 0 then take the
        negative for e2 if c31 < 0 then take the negative for e3 3) else if e2 
        is largest then if c21 < 0 then take the negative for e1 if c32 < 0
-       then take the negative for e3 4) else if e3 is larget then if c31 < 0
+       then take the negative for e3 4) else if e3 is larger then if c31 < 0
        then take the negative for e1 if c32 < 0 then take the negative for e2
 
        Note: c21 in the space book is m->x.y in this C code */
@@ -1750,7 +1750,7 @@ int pmCircleInit(PmCircle * const circle,
 #ifdef PM_DEBUG
     if (0 == circle) {
 #ifdef PM_PRINT_ERROR
-        pmPrintError("error: pmCircleInit cirle pointer is null\n");
+        pmPrintError("error: pmCircleInit circle pointer is null\n");
 #endif
         return pmErrno = PM_ERR;
     }
