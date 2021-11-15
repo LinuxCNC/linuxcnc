@@ -11,19 +11,60 @@ Comment:
  (L)GPL must locate the original EMC1 code - they may NOT use LinuxCNC.
 
 Files: *
-Copyright: The LinuxCNC Developers and notably
- HAL:
-           2007 Jeff Epler <jepler@unpythonic.net>
-           2003 John Kasunich <jmkasunich AT users DOT sourceforge DOT net>
-           Martin Kuhnle <mkuhnle AT users DOT sourceforge DOT net>
-           Alex Joni <alex_joni AT users DOT sourceforge DOT net>
-           Benn Lipkowitz <fenn AT users DOT sourceforge DOT net>
-           Stephen Wille Padnos <swpadnos AT users DOT sourceforge DOT net>
+Copyright: 2004-2021 The LinuxCNC Developers and notably
 
- lib/python/qtvcp/widgets:
+ EMC: Derived from a work by Fred Proctor & Will Shackleford
+           2004-2014 Jeff Epler <jepler@unpythonic.net>
+           2004-2019 Robert W. Ellenberg <rwe24g@gmail.com>
+                2005 proctor
+                2006 Alex Joni <alex_joni AT users DOT sourceforge DOT net>
+           2006-2009 Eric H. Johnson
+           2006-2013 Chris Radek <chris@timeguy.com>
+                2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
+                2008 Chris Radek <chris@timeguy.com>
+           2009-2012 Pavel Shramov <psha@kamba.psha.org.ru>,
+           2009-2014 Chris Morley <chrisinnanaimo@hotmail.com>
+           2011-2013 Michael Haberler <git@mah.priv.at>
+           2011-2016 Sebastian Kuzminsky <seb@highlab.com>
+           2012-2017 Norbert Schechner <nieson@web.de>
+           2013-2021 Dewey Garrett <dgarrett@panix.com>
+                2015 John Thornton <jt@gnipsel.com>
+                2016 Andrew Kyrychenko with derivative work from R. Brian Register on the Hexapod
+                2016 Rudy du Preez <rudy@asmsa.co.za>
+           2020-2021 Phillip A Carter
+           2020-2021 Gregory D Carl
+
+       and work derived from
+                2001 Joris Robijn
+                2003 Sagar Behere
+                2003 Rene Wagner
+                2004 Thomas Kramer
+
+ HAL:
+                2003 John Kasunich <jmkasunich AT users DOT sourceforge DOT net>
+           2005-2007 Jeff Epler <jepler@unpythonic.net>
+           2006-2008 Eric H. Johnson
+                2009 Chris Morley
+                     Martin Kuhnle <mkuhnle AT users DOT sourceforge DOT net>
+                     Alex Joni <alex_joni AT users DOT sourceforge DOT net>
+                     Benn Lipkowitz <fenn AT users DOT sourceforge DOT net>
+                     Stephen Wille Padnos <swpadnos AT users DOT sourceforge DOT net>
+
+ UI: Derived from a work by Fred Proctor & Will Shackleford
+           2006-2009 Jeff Epler <jepler@unpythonic.net>
+           2009-2012 Dewey Garrett <dgarrett@panix.com>
            2007-2021 Chris Morley <chrisinnanaimo@hotmail.com>
                 2021 Jim Sloot <persei802@gmail.com>
 License: GPL-2+
+
+Files: src/hal/hal_lib.c
+       src/hal/hal_priv.h
+Copyright: 2003 John Kasunich
+License: LGPL-2
+
+Files: src/emc/linuxcnc.h
+Copyright: 2021 Petter Reinholdtsen
+License: LGPL-2
 
 Files: src/hal/classicladder/*
 Copyright: 2001-2007 Marc Le Douarain <marc.le-douarain@laposte.net>
@@ -92,6 +133,11 @@ License: GPL-3+
 
 Files: unit_tests/catch.hpp
 Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
+License: Boost-1.0
+
+Files: src/emc/rs274ngc/array1.hh
+Copyright: 2004 Roman Yakovenko.
+
 License: Boost-1.0
 
 Files: debian/linuxcnc-uspace.metainfo.xml
