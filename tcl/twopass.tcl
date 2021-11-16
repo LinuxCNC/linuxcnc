@@ -114,7 +114,7 @@ proc ::tp::loadusr_substitute {args} {
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
     # do loadusr in pass 0 only
-    # determine executeable prog:
+    # determine executable prog:
     set prog "_unspecified_"
     foreach arg $args {
       if [info exists skipnextarg] {
@@ -499,7 +499,7 @@ proc ::tp::hal_to_tcl {ifile ofile} {
 
   set ::TP(conflictwords) {list gets}
   # 1) list: in the created .tcl file, use "hal list"
-  # 2) gets: is not epected in a conventional (so err exit)
+  # 2) gets: is not expected in a conventional (so err exit)
 
   if [catch {set fdin  [open $ifile r]
              set fdout [open $ofile w]

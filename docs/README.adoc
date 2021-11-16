@@ -48,7 +48,7 @@ Because the original EPS files with filled lines and circles, wide lines,
 and dashed lines look so much nicer, they will remain in Git and should
 probably be used for the documents, however if they become inaccurate
 because of changes in the software, we will have to edit the DXF files,
-generate PostScript, and use the less pretty, but factually corrrect 
+generate PostScript, and use the less pretty, but factually correct 
 images.
 
 Since QCAD itself is a GUI application, the DXF to PostScript conversion

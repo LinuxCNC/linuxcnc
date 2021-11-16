@@ -376,7 +376,7 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 
 ##############################################################################
 # Section 3                                                                  #
-# aditional checking                                                         #
+# additional checking                                                        #
 # Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -1420,7 +1420,7 @@ AC_SUBST([WISH])
 AC_SUBST([TCLSH])
 
 ##############################################################################
-# Section 6 - Miscelaneous support                                           #
+# Section 6 - Miscellaneous support                                          #
 #                                                                            #
 # Subsection 6.1. - provides DATE to output it to the generated files        #
 # Subsection 6.2. - user option to convince make to be quiet during make     #
@@ -1663,7 +1663,7 @@ AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
 
 ##############################################################################
-# message to the user what to do next, after a succesfull ./configure        #
+# message to the user what to do next, after a successful ./configure        #
 ##############################################################################
 bold () {
     if tty > /dev/null 2>&1 && type -path tput > /dev/null 2>&1;

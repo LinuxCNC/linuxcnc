@@ -216,7 +216,7 @@ static char *fnumber(char *buf, char *end, double num)
 
     if(mantissa) { buf = ch(buf, end, '.'); }
     while(mantissa) {
-        /* remaning digits, if any */
+        /* remaining digits, if any */
         i = next_digit(&mantissa);
         buf = ch(buf, end, large_digits[i]);
     }
@@ -247,7 +247,7 @@ static char *fnumber(char *buf, char *end, double num)
     /* radix point if any fractional digits */
     if(mantissa) { buf = ch(buf, end, '.'); }
     while(mantissa) {
-        /* remaning digits, if any */
+        /* remaining digits, if any */
         i = (int)floor(mantissa);
         buf = ch(buf, end, large_digits[i]);
         mantissa = 16 * (mantissa - i);

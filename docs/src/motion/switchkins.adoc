@@ -92,7 +92,7 @@ are used for the transverse axis.
 
 === Backwards compatibility
 
-Switchable kinematics initalize with motion.switchkins-type==0
+Switchable kinematics initialize with motion.switchkins-type==0
 implementing their eponymous kinematics method.  If the the
 motion.switchkins-type pin is not connected -- as in legacy
 configurations -- only the default kinematics type is available.
@@ -273,7 +273,7 @@ Mcode scripts can be designed as follows:
 according to the 'identity-referenced' joint number ini file
 setting ([JOINT_N])
 . hal: setp motion.switchkins-type 1
-. mdi: execute a synching gcode (M66E0L0)
+. mdi: execute a syncing gcode (M66E0L0)
 
 *M128* (restore robot default kinematics type 0)
 
@@ -281,7 +281,7 @@ setting ([JOINT_N])
 . hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
 according to the appropriate inifile setting ([AXIS_L])
 . hal: setp motion.switchkins-type 0
-. mdi: execute a synching gcode (M66E0L0)
+. mdi: execute a syncing gcode (M66E0L0)
 
 [NOTE]
 The vismach simulation configurations for a puma robot demonstrate

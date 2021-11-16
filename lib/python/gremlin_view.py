@@ -179,7 +179,7 @@ class GremlinView():
         for vletter in select_view_letters:
             try:
                 obj = bldr.get_object('select_' + vletter + '_view')
-                self.my_view = vletter # first letter found is inital view
+                self.my_view = vletter # first letter found is initial view
                 break
             except:
                 continue

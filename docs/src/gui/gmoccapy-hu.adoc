@@ -1028,7 +1028,7 @@ Please check <<sub:Auto_Tool_Measurement, Auto Tool Measurement>>
 the result will be stored in the tool table and an G43 will be executed after the change.
 
 *Probe information* +
-The following informations are taken from your INI file and must be given in absolute coordinates
+The following information is taken from your INI file and must be given in absolute coordinates
 
  * X Pos. = The X position of the tool switch
  * Y Pos. = The Y position of the tool switch

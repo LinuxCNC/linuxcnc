@@ -230,7 +230,7 @@ RTAPI_BEGIN_DECLS
     max delay permitted (usually approximately 1/4 of the clock period).
     Any call to 'rtapi_delay()' requesting a delay longer than the max
     will delay for the max time only.  'rtapi_delay_max()' should be
-    called befure using 'rtapi_delay()' to make sure the required delays
+    called before using 'rtapi_delay()' to make sure the required delays
     can be achieved.  The actual resolution of the delay may be as good
     as one nano-second, or as bad as a several microseconds.  May be
     called from init/cleanup code, and from within realtime tasks.
@@ -634,7 +634,7 @@ RTAPI_BEGIN_DECLS
 
 /** 'rtapi_assign_interrupt_handler()' is used to set up a handler for
     a hardware interrupt.  'irq' is the interrupt number, and 'handler'
-    is a pointer to a function taking no arguements and returning void.
+    is a pointer to a function taking no arguments and returning void.
     'handler will be called when the interrupt occurs.  'owner' is the
     ID of the calling module (see rtapi_init).  Returns a status
     code.  Note:  The simulated RTOS does not support interrupts.

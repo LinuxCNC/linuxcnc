@@ -111,7 +111,7 @@ This is the maximum expected value of the value input signal. In other words, it
 * 'num_ticks' -
 This is the number of ticks, or gauge readings that will be displayed on the gauge face.
 It should be set to a number that ensures the text readings around the gauge face are readable.
-The minumum allowed value is 2.
+The minimum allowed value is 2.
 
 * 'zone1_color' -
 Zone1 extends from the maximum reading to the threshold point. It can be set to any RGB color.
@@ -961,8 +961,8 @@ Shows the current QTvcp based Jog increment
 * 'jogincr_angular_status' +
 Shows the current QTvcp based Angular Jog increment
 * 'machine state_status' +
-Shows the current machine interpeter state using the text described from the state_list. +
-The interpeter states are: Estopped, Running, Stopped, Paused, Waiting, Reading
+Shows the current machine interpreter state using the text described from the state_list. +
+The interpreter states are: Estopped, Running, Stopped, Paused, Waiting, Reading
 * 'max_velocity_override_status' +
 Shows the current max axis velocity override setting
 * 'mcode_status' +
@@ -2153,7 +2153,7 @@ Font selection for the button text. +
 ===== StyleSheets
 
 The above properties could be set in styles sheets.
-You would usally use the designer widget name with '#' to set individual +
+You would usually use the designer widget name with '#' to set individual +
 widget properties, other wise you the class name 'JoyPad' to set all +
 JoyPad widgets the same. +
 

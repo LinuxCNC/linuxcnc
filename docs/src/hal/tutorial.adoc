@@ -815,7 +815,7 @@ halcmd loadusr halscope
 ----
 
 If LinuxCNC is not running or the autosave.halscope file does not match
-the pins avaiable in the current running LinuxCNC the scope GUI window
+the pins available in the current running LinuxCNC the scope GUI window
 will open, immediately followed by a 'Realtime function not linked'
 dialog that looks like the following figure. To change the sample rate
 left click on the samples box.
