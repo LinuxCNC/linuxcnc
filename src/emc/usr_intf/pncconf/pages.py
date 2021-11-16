@@ -1303,6 +1303,17 @@ class Pages:
 #************
     def x_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        if self.d.units: # metric
+            temp = self.w.xbacklash.get_adjustment()
+            temp.set_upper(1.0)
+            temp.set_lower(-1.0)
+            temp.set_step_increment(.05)
+        else:
+            temp = self.w.xbacklash.get_adjustment()
+            temp.set_upper(.05)
+            temp.set_lower(-.05)
+            temp.set_step_increment(.001)
+
     def x_axis_finish(self):
         self.a.axis_done('x')
 #************
@@ -1327,6 +1338,16 @@ class Pages:
 #************
     def y_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        if self.d.units: # metric
+            temp = self.w.ybacklash.get_adjustment()
+            temp.set_upper(1.0)
+            temp.set_lower(-1.0)
+            temp.set_step_increment(.05)
+        else:
+            temp = self.w.ybacklash.get_adjustment()
+            temp.set_upper(.05)
+            temp.set_lower(-.05)
+            temp.set_step_increment(.001)
     def y_axis_finish(self):
         self.a.axis_done('y')
 #************
@@ -1351,6 +1372,16 @@ class Pages:
 #************
     def z_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        if self.d.units: # metric
+            temp = self.w.zbacklash.get_adjustment()
+            temp.set_upper(1.0)
+            temp.set_lower(-1.0)
+            temp.set_step_increment(.05)
+        else:
+            temp = self.w.zbacklash.get_adjustment()
+            temp.set_upper(.05)
+            temp.set_lower(-.05)
+            temp.set_step_increment(.001)
         self.savable_flag = True
     def z_axis_finish(self):
         self.a.axis_done('z')
@@ -1376,6 +1407,10 @@ class Pages:
 #************
     def a_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        temp = self.w.abacklash.get_adjustment()
+        temp.set_upper(1.0)
+        temp.set_lower(-1.0)
+        temp.set_step_increment(.05)
         self.savable_flag = True
     def a_axis_finish(self):
         self.a.axis_done('a')
