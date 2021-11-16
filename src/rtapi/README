@@ -10,7 +10,7 @@ README          : this file
 rtapi.h         : decls for the generic RTAPI functions.
 rtapi_app.h     : decls for the kernel modules
 rtapi_common.h  : Collection of typedefs, etc,  used internally by RTAPI.
-procfs_macros.h : Macros used to impliment the /proc interface
+procfs_macros.h : Macros used to implement the /proc interface
 rtapi_proc.h    : more stuff implementing the /proc interface
 rtai_rtapi.c    : implementation of real-time API, for RTAI
 rtai_ulapi.c    : implementation of user-level API, for RTAI

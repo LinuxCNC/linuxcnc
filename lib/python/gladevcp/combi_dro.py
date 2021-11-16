@@ -622,7 +622,7 @@ class Combi_DRO(Gtk.VBox):
 
         returns the position of the DRO as a list of floats
         the order is independent of the order shown on the DRO
-        and will be givven as [Absolute , relative , DTG]
+        and will be given as [Absolute , relative , DTG]
 
         Absolute = the machine coordinates, depends on the actual property
                    will give actual or commanded position

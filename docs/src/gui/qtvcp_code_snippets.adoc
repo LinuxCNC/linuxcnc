@@ -30,7 +30,7 @@ under the 'def closing_cleanup__(self):' function add:
 
 == use QSettings to read/save variable
 
-Here is how to load and save varibles using Pyqt's QSettings functions: +
+Here is how to load and save variables using Pyqt's QSettings functions: +
 The file is actually saved in ~/.config/QtVcp +
 You can set a Group name to help keep names organsized and unique. +
 When reading a setting, if there is no entry, it will return None. +
@@ -759,7 +759,7 @@ while True:
 
 == Sending messages to status bar or desktop notify dialogs
 There several ways to report information to the user. +
-A statusbar is used for short infomation to show the user. +
+A statusbar is used for short information to show the user. +
  +
 Not all screens have a statusbar. This is how you would use it. +
 'timeout' is seconds. 'statusbar' is the designer set name. +
@@ -772,7 +772,7 @@ self.w.statusbar.showMessage(message, timeout * 1000)
 You can use the STATUS Library to send a message to the notify Library +
 if it is enabled (usually set in screen options widget). +
 This will send the message to the statusbar and the desktop notify dialog. +
-The messages are also recorded untill the user erases them using controls. +
+The messages are also recorded until the user erases them using controls. +
 The users can recall any recorded messages. +
  +
 There are several options. TEMPARAY will show the message for a short time only. +

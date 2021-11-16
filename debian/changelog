@@ -72,7 +72,7 @@ linuxcnc (1:2.8.1) buster; urgency=low
   * pncconf -allow different home switch offsets on tandem axes
   * added hal pin to allow preview refresh
   * pncconf -raise spinbox limits in tune test
-  * pncconf -fix PID maxerror setting in the tune test fo rmetric machines
+  * pncconf -fix PID maxerror setting in the tune test for metric machines
   * Docs: Pi links should be http not https
   * Docs: Add links to the Raspberry Pi SD card image to the install docs
   * dbounce.comp (new) alternative debounce component
@@ -170,7 +170,7 @@ linuxcnc (1:2.8.0) buster; urgency=low
   * halcompile: MAX_PERSONALITIES=64, docs update
   * Module to send notifications over DBus to the system notification server
   * mux_generic: Fix some long-standing bugs
-  * Add spindle.N.amp-fault-in pins to motion, to report spindle amplifer
+  * Add spindle.N.amp-fault-in pins to motion, to report spindle amplifier
       faults
   * pid: use command-deriv when supplied
   * Hostmot2 / resolver.c Add the option to fake absolute encoders with
@@ -207,7 +207,7 @@ linuxcnc (1:2.8.0~pre1) rosa; urgency=low
   * New support for multiple spindles up to 9
   * G33.1 Rigid Tapping speedup, with optional faster return move
   * Back tool lathe support in axis and gmoccapy
-  * Seperate joint and axis limits for non trivial kins machines
+  * Separate joint and axis limits for non trivial kins machines
   * bldc_hall removed: use bldc
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 26 Oct 2014 23:18:24 -0600
@@ -271,7 +271,7 @@ linuxcnc (1:2.7.15) unstable; urgency=medium
   * docs: fix #<_coord_system> values
   * docs: fix indentation in remap docs example
   * docs: fix broken link in comments of comp311.ngc example program
-  * docs: add missing info about motion.motion-type to Core Componens
+  * docs: add missing info about motion.motion-type to Core Components
   * docs: clarify o-word subroutine effects
   * docs: update links to point at new Wheezy ISO
   * docs: fix a broken link in French docs
@@ -438,7 +438,7 @@ linuxcnc (1:2.7.12) unstable; urgency=medium
   * packaging: validate desktop files
   * packaging: update debian/copyright to conform to DEP-5
   * packaging: improve short descriptions
-  * packaging: build-depend on intltool (for buiding gmoccapy.pot)
+  * packaging: build-depend on intltool (for building gmoccapy.pot)
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 24 Jan 2018 21:59:53 -0700
 
@@ -644,7 +644,7 @@ linuxcnc (1:2.7.8) unstable; urgency=medium
 
   * interp: fix bug 160, surprise motion after g41/no move/g40
   * interp: revert "move end-of-program cleanup code to its own function"
-  * interp: after synching settings from canon, update all copies of the info
+  * interp: after syncing settings from canon, update all copies of the info
   * interp: fix incorrect `_setup.sequence_number` after remaps
 
   * task: fix race condition queueing MDI queue busters
@@ -835,7 +835,7 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * docs: update pyvcp docs (labels, leds, buttons)
   * docs: improve info on installing preempt-rt kernel
   * docs: add warning about entering a root password during install
-  * docs: improve contributing intructions
+  * docs: improve contributing instructions
   * docs: add a bit more info on ngcgui
   * docs: update max AIO from 16 to 64 in motion manpage
   * docs: update homing diagram (dxf and image)
@@ -857,7 +857,7 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * docs: fix incorrect example syntax and typo
   * docs: fix manpage markup bug in rtapi_app_{main,exit}.3rtapi
   * docs: describe the new gladevcp iconview signal "sensitive"
-  * docs: add info about the rs274 stand alone interperter
+  * docs: add info about the rs274 stand alone interpreter
   * docs: fix level offset in pdf docs
   * docs: remove jessie rt-preempt kernel instructions
   * docs: use a longer GPG keyy fingerprint
@@ -868,14 +868,14 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * gmoccapy: fix dangerous bug in jogging with keyboard
   * gmoccapy: deleted alarm entry and added new settings for combi_dro
   * gmoccapy: small bug fix in hal jogging and fixed a typo
-  * gmoccapy: stay syncronized with iconview widget button states
+  * gmoccapy: stay synchronized with iconview widget button states
   * gscreen: fix industrial skin's A axis DTO readout
   * Mini GUI: remove duplicate geo mgmt of widget
   * keystick UI: fix signal handler a second time
   * gladevcp: fix hal_dial for wheezy
   * gladevcp: hide error message from hal_lightbutton
   * gladevcp: iconview could create exception in some circumstances
-  * gladevcp: offset_widget: fix rare error of non-existant var file
+  * gladevcp: offset_widget: fix rare error of non-existent var file
 
   * add gantry.comp from Charles Steinkuehler
   * xhc-hb04: fix negative jogs on non-x86 architectures
@@ -1268,7 +1268,7 @@ linuxcnc (1:2.7.0~pre3) wheezy; urgency=low
 
   * pncconf: fix icon/image path error
   * pncconf: lower default watchdog timeout
-  * pncconf: fix double POSITION_OFFSET/FEEBACK INI entry
+  * pncconf: fix double POSITION_OFFSET/FEEDBACK INI entry
   * pncconf: fix a kernal/kernel misspelling
 
   * stepconf & pncconf: remove probe_parport command
@@ -1290,7 +1290,7 @@ linuxcnc (1:2.7.0~pre3) wheezy; urgency=low
   * encoder: document the surprising encoder num_chan=0 behavior in manpage
 
   * gladevcp: jogwheel improvements
-  * gladevcp: fix a bug forground color of combi_dro
+  * gladevcp: fix a bug foreground color of combi_dro
   * gladevcp: add hiny versions of the hal_bar and led widgets
 
   * pyvcp: fix a bug in radio button widget
@@ -1432,7 +1432,7 @@ linuxcnc (1:2.6.13) unstable; urgency=medium
   * docs: clean up shuttlexpress manpage & asciidocs
   * docs: remove note about defunct weblate service
   * docs: fix link to the install ISO files
-  * docs: improve contributing intructions
+  * docs: improve contributing instructions
   * docs: change max AIOs in motion manpage from 16 to 64
 
   * sample configs: improved comments in Pico configs
@@ -1464,7 +1464,7 @@ linuxcnc (1:2.6.13) unstable; urgency=medium
 
   * linuxcnc python module: add doc string for stat.settings
 
-  * interp: after synching settings from canon, update all copies
+  * interp: after syncing settings from canon, update all copies
   * interp: Fix subs breaking when placed after main program
   * interp: don't drop remap level at prog exit
   * interp: Fix incorrect `_setup.sequence_number` after remaps
@@ -1529,8 +1529,8 @@ linuxcnc (1:2.6.12) unstable; urgency=low
   * mini.tcl: remove duplicate geo mgmt of widget
   * keystick: fix signal handler a second time
   * gladevcp: iconview could create exception in some circumstances
-  * gmoccapy: stay syncronized with iconview widget button states
-  * gladevcp/offset_widget: fix rare error of non-existant var file
+  * gmoccapy: stay synchronized with iconview widget button states
+  * gladevcp/offset_widget: fix rare error of non-existent var file
   * gscreen: fix industrial skin's A axis DRO readout
   * tooledit_widget.py: tool diameter sorting fix
   * halui: fix some jogging bugs
@@ -1687,7 +1687,7 @@ linuxcnc (1:2.6.6) precise; urgency=low
   * gmoccapy: report about gcode errors
 
   * pncconf: lower default watchdog limit
-  * pncconf: fix double POSITION_OFFSET/FEEBACK INI entry
+  * pncconf: fix double POSITION_OFFSET/FEEDBACK INI entry
 
   * halui: don't forget the Task mode when queueing MDI commands
 

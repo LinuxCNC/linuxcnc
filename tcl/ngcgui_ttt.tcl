@@ -24,7 +24,7 @@
 # v3: [-?] [-u] [-s subdist] [-f font.ttf] 'Text to trace'
 # v4: [-?] [-s subdiv] [-u] [-c scale] [-l linescale] [-f /some/file.ttf] 'The Text'
 
-# ttt.c -l 0 or if speciied, 24 min
+# ttt.c -l 0 or if specified, 24 min
 # ttt.c -s --> dsteps default: 200
 
 #note: to use quotes in text, express as \" seems to work
@@ -53,7 +53,7 @@ proc ::ttt::setfont {} {
 } ;# setfont
 
 proc ::ttt::checkttt {} {
-  # 101127 ttt.c doesn't hava a --version option and returns 99 for -?
+  # 101127 ttt.c doesn't have a --version option and returns 99 for -?
   #future: set ans -1
   #future: if [catch {set ans [eval exec -ignorestderr $::ttt(exe) -v]} msg] {
   #future:   puts check:<$msg>

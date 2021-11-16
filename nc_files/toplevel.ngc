@@ -1,6 +1,6 @@
 ; using M70/M71/M72 at the top level
-; note that the 'Active G-codes' window in Axis isnt properly updated
-; when single stepping
+; note that the 'Active G-codes' window in Axis isn't properly
+; updated when single stepping
 
 F200
 S1200

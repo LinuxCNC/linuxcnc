@@ -339,7 +339,7 @@ if [ $1 = scope ] ; then
     echo "for a trigger.  Currently the only working trigger source"
     echo "is the manual one, so click the 'Force' button to cause"
     echo "a trigger. You can also click on 'Auto', which causes"
-    echo "the scope to trigger automaticlly after a delay.  Fully"
+    echo "the scope to trigger automatically after a delay.  Fully"
     echo "functional triggering is under construction.  When the"
     echo "scope triggers, the state will change to TRIGGERED and"
     echo "the bar will show progress as it acquires post-trigger"
@@ -396,7 +396,7 @@ if [ $1 = scope ] ; then
 fi
 #
 #
-# if we get here, the user asked for a non-existant demo
+# if we get here, the user asked for a non-existent demo
 #
 echo "Sorry, there is no demo called '$1'"
 scripts/hal_demo

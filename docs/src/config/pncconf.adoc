@@ -185,7 +185,7 @@ TOUCHY
 QtPlasmaC
 
 * fully featured plasmac configuration based on the QtVCP infrastructure.
-* mouse/keybord operation or touchscreen operation
+* mouse/keyboard operation or touchscreen operation
 * no VCP integration
 
 == External Configuration

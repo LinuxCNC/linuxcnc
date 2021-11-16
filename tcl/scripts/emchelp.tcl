@@ -1,7 +1,7 @@
 #********************************************************************
 # Description:  emchelp.tcl
-#               This file, 'emchelp.tcl', implements messages for tkemc 
-#               baloon help.
+#               This file, 'emchelp.tcl', implements messages for
+#               tkemc balloon help.
 #
 # Author: 
 # License: GPL Version 2

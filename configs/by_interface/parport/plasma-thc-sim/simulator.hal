@@ -1,4 +1,4 @@
-# A simulator to simulate all compnents of a gantry based plasma cutting table with THC
+# A simulator to simulate all components of a gantry based plasma cutting table with THC
 
 # Load realtime wcomp components
 loadrt wcomp count=6
