@@ -76,7 +76,7 @@ set yzbotz 500
 
 set size 40
 
-#These variables set the defalut angles used for the 3d plot.  in this release,
+#These variables set the default angles used for the 3d plot.  in this release,
 #only the xyangle is used though the others are also shown on the setup screen
 
 # These three can go.

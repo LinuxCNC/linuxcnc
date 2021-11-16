@@ -770,7 +770,7 @@ class Gscreen:
             self.initialize_keybindings()
 
         # TODO the user should be able to invoke this so they know what methods are available
-        # and what handers are registered
+        # and what handlers are registered
         #print handlers
         if "initialize_pins" in dir(self.handler_instance):
             self.handler_instance.initialize_pins()

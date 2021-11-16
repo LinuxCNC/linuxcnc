@@ -117,7 +117,7 @@ Options:
                   ini directory and system library:
                   $HALLIB_DIR
 Note:
-    The -H "dirname" option may be specifed multiple times
+    The -H "dirname" option may be specified multiple times
 EOF
 
 }

@@ -175,7 +175,7 @@ readers only. The comment must be preceded by a semicolon.
 
 The userspace program specified by *[EMCIO]EMCIO = io* is conventionally
 used for tool changer management (and other io functions for enabling
-LinuxCNC and the conrol of coolant/lube hardware).  The hal pins used for
+LinuxCNC and the control of coolant/lube hardware).  The hal pins used for
 tool management are prefixed with *iocontrol.0.*
 
 A gcode *TN* command asserts the hal output pin *iocontrol.0.tool-prepare*.
@@ -195,7 +195,7 @@ type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
 toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
 
 . For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
-for the toolnumber specifed by the gcode select tool command *Tn*.
+for the toolnumber specified by the gcode select tool command *Tn*.
 
 The io program provides hal output pins to facilitate toolchanger management:
 

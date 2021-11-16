@@ -15,7 +15,7 @@ Steps
 -----
 
 1. Generate the source tarball, This will use the version as specified
-   in the first line of tthe debian/changelog file. And maybe remove
+   in the first line of the debian/changelog file. And maybe remove
    anything outdated, just to avoid confusions:
 
    If this is not the original tarball but an interim git tag/snapshot,

@@ -25,13 +25,13 @@ proc usage {} {
 
          Hal item types bit,s32,u32,float are supported
 
-         When a bit item is specifed, a pushbutton is created
+         When a bit item is specified, a pushbutton is created
          to manage the item in one of three manners specified
          by radio buttons:
              toggle: Toggle value when button pressed
              pulse:  Pulse item to 1 once when button pressed
              hold:   Set to 1 while button pressed
-         The bit pushbutton mode can be specifed on the command
+         The bit pushbutton mode can be specified on the command
          line by formatting the item name:
              namei/mode=\[toggle | pulse | hold\]
          If the bit item mode begins with an uppercase letter,

@@ -428,7 +428,7 @@ def index_lathe_tool_with_wear(self,**words):
             yield INTERP_ERROR
         tool_raw = int(cblock.t_number)
 
-        # interpet the raw tool number into tool and wear number
+        # interpret the raw tool number into tool and wear number
         # If it's less then 100 someone forgot to add the wear #, so we added it automatically
         # separate out tool number (tool) and wear number (wear), add 10000 to wear number
         if tool_raw <100:
@@ -504,7 +504,7 @@ def index_lathe_tool_with_wear(self,**words):
 #
 # auto tool probe on m6
 # move to tool change position for toolchange
-# wait for acknoledge of tool change
+# wait for acknowledge of tool change
 # move to tool setter probe position
 # probe tool on tool setter
 # move back to tool change position

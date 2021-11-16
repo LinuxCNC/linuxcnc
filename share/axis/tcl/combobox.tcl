@@ -1077,7 +1077,7 @@ proc ::combobox::ComputeGeometry {w} {
     set bottomEdge [expr {$y + $height}]
 
     if {$bottomEdge >= $screenHeight} {
-	# ok. Fine. Pop it up above the entry widget isntead of
+	# ok. Fine. Pop it up above the entry widget instead of
 	# below.
 	set y [expr {($rooty - $height - 1) + $vrooty}]
 
