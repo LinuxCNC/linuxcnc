@@ -466,7 +466,7 @@ checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/gcode_es.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
-checkref_cn: $(DOC_TARGETS_HTML_ZH) .htmldoc-stamp
+checkref_zh: $(DOC_TARGETS_HTML_ZH) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Chinese $^
 
 checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/gcode_vi.html .htmldoc-stamp
@@ -701,7 +701,7 @@ $(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_S
 
 $(DOC_DIR)/html/xref_cb.html: objects/xref_zh.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_cn" --stringparam language cjinese --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	@xsltproc --stringparam docname "xref_zh" --stringparam language cjinese --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 default: docs
 
