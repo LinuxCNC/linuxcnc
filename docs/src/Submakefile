@@ -1,4 +1,4 @@
-.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_cn
+.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_zh
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 # To make linuxcnc-checklink widely available
@@ -455,7 +455,7 @@ copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
-checkref: checkref_en checkref_fr checkref_es checkref_vi checkref_cn
+checkref: checkref_en checkref_fr checkref_es checkref_vi checkref_zh
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
