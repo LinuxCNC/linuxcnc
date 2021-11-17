@@ -206,21 +206,28 @@ to update the .po files:
 How to add a new translation language
 -------------------------------------
 
+Determine the ISO 639-1 code for your new language (for example:
+English -> "en", Vietnamese -> "vi", etc).  This becomes the "NEWLANG"
+variable in the examples below.  There is a list of codes here:
+<https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes>
+
+Add the asciidoc source files containing your new translation.  Usually
+that means copying the language files from one of the existing languages,
+probably English since that's usually the most up-to-date.
+
 Copy the docs/po/Documentation.pot todocs/po/Documentation.$LANG.po.
 where $LANG is a two letter language code according to ISO 639-1, or
 three letter code according to ISO 639-2 if no two letter code exist.
-
 Add the new language code to the proper place in docs/po4a.conf.
 
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.
 Add the new doc package to the or-list of the "Recommends" line of the
-linuxcnc/linuxcnc-sim package.
+linuxcnc main package.
 
-Add the new language to the DOCS_PACKAGES variable in debian/configure.
 If there is a texlive-lang-$NEWLANGUAGE package for your new language,
-add it to all the appropriate EXTRA_BUILD lines in debian/configure.
+add it to the DOC_DEPENDS variable in debian/configure.
 
-Add the 'linuxcnc-doc-$NEWLANG.files.in' file for the new package, probably
-by copying and editing "debian/linuxcnc-doc-en.files.in".
+Add the appropriate 'linuxcnc-doc-$NEWLANG.*' files for the new package,
+probably by copying and editing 'debian/linuxcnc-doc-en.*'.
 
 Test build the packages and verify!
