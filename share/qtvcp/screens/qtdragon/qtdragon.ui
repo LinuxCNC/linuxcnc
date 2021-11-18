@@ -4451,7 +4451,7 @@ TO FILE</string>
                      <item>
                       <layout class="QVBoxLayout" name="probe_layout">
                        <property name="spacing">
-                        <number>4</number>
+                        <number>0</number>
                        </property>
                       </layout>
                      </item>
@@ -13848,7 +13848,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>01:59:44 PM</string>
+            <string>05:15:10 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14794,7 +14794,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
