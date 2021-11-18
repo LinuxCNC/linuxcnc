@@ -12,7 +12,7 @@ Comment:
 
 Files: *
 Copyright: 2004-2021 The LinuxCNC Developers and notably
-
+ .
  EMC: Derived from a work by Fred Proctor & Will Shackleford
            2004-2014 Jeff Epler <jepler@unpythonic.net>
            2004-2019 Robert W. Ellenberg <rwe24g@gmail.com>
@@ -33,13 +33,13 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                 2016 Rudy du Preez <rudy@asmsa.co.za>
            2020-2021 Phillip A Carter
            2020-2021 Gregory D Carl
-
+ .
        and work derived from
                 2001 Joris Robijn
                 2003 Sagar Behere
                 2003 Rene Wagner
                 2004 Thomas Kramer
-
+ .
  HAL:
                 2003 John Kasunich <jmkasunich AT users DOT sourceforge DOT net>
            2005-2007 Jeff Epler <jepler@unpythonic.net>
@@ -49,12 +49,262 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                      Alex Joni <alex_joni AT users DOT sourceforge DOT net>
                      Benn Lipkowitz <fenn AT users DOT sourceforge DOT net>
                      Stephen Wille Padnos <swpadnos AT users DOT sourceforge DOT net>
-
+ .
  UI: Derived from a work by Fred Proctor & Will Shackleford
            2006-2009 Jeff Epler <jepler@unpythonic.net>
            2009-2012 Dewey Garrett <dgarrett@panix.com>
            2007-2021 Chris Morley <chrisinnanaimo@hotmail.com>
                 2021 Jim Sloot <persei802@gmail.com>
+ .
+ tests:
+           2011-2013 Michael Haberler <git@mah.priv.at>
+           2013-2016 Jeff Epler <jepler@unpythonic.net>
+                2014 Robert W. Ellenberg
+                2020 Rab Gordon, Gary Drew, and Paul Corner
+ .
+ and commits over the years (stand 11/2021) as generated from "git log"
+ .
+ number commits	name
+	      4	ALatSMT
+	      8 Alec Ari
+	      1 Alexander Brock
+	      1 Alexey Dobriyan
+	      3 Alexey Starikovskiy
+	    988 Alex Joni
+	      1 Alex Lait
+	      3 Alex Wigen
+	      3 Alfred Smart
+	     30 alkabal
+	      4 Allan Nordhøy
+	      5 Al Smart
+	     90 Anders Wallin
+	      1 Andrea Ricchi
+	      1 André Litfin
+	      2 Andrew Downing
+	     15 Andrew Kyrychenko
+	      1 Andrii Podanenko
+	      5 Andy
+	     67 andy pugh
+	    466 andypugh
+	    128 Andy Pugh
+	      1 Anthony Barney
+	      2 Anton Midyukov
+	      1 ArcEye
+	      3 Arvid Brodin
+	      4 ascurtis
+	      1 aw@aw-VirtualBox
+	      1 Balestrino
+	      2 Bas Laarhoven
+	      2 bdebruijn
+	      1 bebro
+	     13 Bence Kovacs
+	      2 Ben Jackson
+	      6 Benjamin Brockhaus
+	      1 Benjamin Weis
+	     68 Ben Lipkowitz
+	      1 Bernhard M. Wiedemann
+	     12 Bertho Stultiens
+	      1 blazini36
+	      1 Bob Bond
+	      3 Boris Skegin
+	      1 Brian Hicks
+	      2 cascade256
+	      2 Chad A. Woitas
+	     43 Chad Woitas
+	      1 Charles-Xavier Roy
+	     22 chris
+	      7 Chris Edwards
+	     23 ChrisM
+	     45 chris morley
+	   3150 Chris Morley
+	      4 Chris Nisbet
+	   1625 Chris Radek
+	     18 Chris S Morley
+	      1 Cliff Blackburn
+	     31 c-morley
+	    208 cmorley
+	      1 Cmorley
+	    168 CMorley
+	      5 cnc
+	      2 Colten Edwards
+	      4 Curtis Dutton
+	      1 Dambacher, Ulf
+	     82 Damian Wrobel
+	      2 damiodj
+	      2 Daniel Nilsson
+	      6 Daniel Rogge
+	      3 david
+	      1 David Shore
+	   1214 Dewey Garrett
+	      3 D. Mueller
+	      1 Eduard Kachur
+	     29 Edward Tomasz Napierala
+	      3 elovalvo
+	     62 elson
+	      6 end
+	     27 Eric H. Johnson
+	      2 Eric Johnson
+	      6 Erkka Koski
+	      4 Ernesto Lo Valvo
+	     51 Florian Hahn
+	      3 Florian Kerle
+	    417 Francis Tisserant
+	     10 Frank Jungclaus
+	      1 Frank Tkalcevic
+	      1 freddii
+	      3 Frederic Rible
+	     16 Fred Proctor
+	      1 Gergely Nagymate
+	      1 Gerhard Gleixner
+	     12 gmoccapy
+	    114 Greg Carl
+	      1 Greg KH
+	      8 Hannah Lau
+	      2 Hans
+	     19 Hans Unzner
+	     67 Håvard Flaget Aasen
+	      1 htasta
+	      4 issyvarsano
+	      3 itai
+	      1 itaib
+	      4 James Waples
+	      1 Jan Mrázek
+	     64 Janos Bujtar
+	      2 Jan Roters
+	      8 Jarl Stefansson
+	      4 jasen
+	   4589 Jeff Epler
+	     28 jepler
+	     16 jethornton
+	      5 Jim Craig
+	      1 Jim Meyering
+	      1 Jin
+	     25 j.m. garcia
+	     33 J.M.Garcia
+	      1 joe9
+	      4 Joe Hildreth
+	      4 Jofey Jian
+	     17 john
+	     10 John
+	      1 John David
+	    834 John Kasunich
+	    101 John Morris
+	   1734 John Thornton
+	     50 Jon Elson
+	     11 joseph calderon
+	      1 Junio C Hamano
+	      1 Keith Rumley
+	     24 Kenneth Lerman
+	      2 Kiall Mac Innes
+	    193 Kim Kirwan
+	      2 Klaus Naumann
+	    109 k.t. chan
+	     37 Kurt Jacobson
+	      4 Lars Bensmann
+	      1 Lawrence Glaister
+	      2 Les
+	      5 Les Newell
+	      2 Linus Torvalds
+	      1 Lisandro Massera
+	      1 loopsun
+	      3 Lorenz Neureuter
+	      1 Lubomir Rintel
+	      1 Luke Peterson
+	     12 luz paz
+	      1 Marco Paolini
+	     51 Mark
+	      2 Mark Andrew Gerads
+	      2 Markus
+	      4 Mark van Doesburg
+	      3 Martin Kaplan
+	      4 Martin Kuhnle
+	      2 Mateusz Konieczny
+	      1 Matheus Degiovani
+	      9 Matsche
+	    121 Matt Shaver
+	      3 Maximilian H
+	      1 McCodie
+	      2 Michael Buesch
+	    232 Michael Geszkiewicz
+	   1123 Michael Haberler
+	      1 Michael Langer
+	     20 Michał Geszkiewicz
+	      1 Mick
+	      1 Miklos Vajna
+	     51 Moses McKnight
+	      2 mozmck
+	      1 MrFouFou
+	      1 mwork
+	      3 NhanPham
+	      3 nicokid
+	     15 Nicola Quargentan
+	    711 Norbert Schechner
+	      1 Norman Yarvin
+	      1 Oleg Pryadko
+	      3 oMtQB4
+	      6 Oscar Chaides
+	      1 Paolo Ciarrocchi
+	    216 Paul Corner
+	    175 Pavel Shramov
+	    202 Peter Blodow
+	      2 Peter C Wallace
+	      1 Peter C. Wallace
+	    107 Peter G. Vavaroutsos
+	      2 peter wallace
+	     30 Peter Wallace
+	      1 Petr Ledvina
+	      2 Petr Menšík
+	      7 Petter Reinholdtsen
+	      5 Phillip A Carter
+	   1055 Phillip Carter
+	      3 pippin88
+	      1 Ramkumar Ramachandra
+	    124 Ray Henry
+	    399 Rene Hopf
+	      2 Rick M
+	      2 Rob Clegg
+	    749 Robert W. Ellenberg
+	      1 rolf
+	      1 root
+	      1 rpm-build
+	      1 Rudy du Preez
+	      6 Ruoxi Wang
+	      1 Rushabh Loladia
+	      2 Russell Brown
+	      2 R. van Twisk
+	      1 sam sokolik
+	      1 Sam Sokolik
+	      5 Sascha Ittner
+	   2363 Sebastian Kuzminsky
+	      1 Sergey Alirzaev
+	      3 simaoamorim
+	      1 Slavko Kocjancic
+	      1 snowgoer540
+	     15 Solitarily
+	      3 sphasse
+	      1 spike
+	     14 Steffen
+	     23 Steffen Moeller
+	    129 Stephen Wille Padnos
+	      1 Steve Stallings
+	      4 sync
+	      2 Sync
+	      1 Tero Kaarlela
+	      3 Thomas Burkhard
+	      1 Tim Blume
+	      2 Tinic Uro
+	      2 Tom Schneider
+	      2 Trần Ngọc Quân
+	     91 tseufl
+	      2 TurBoss
+	      5 Victor Rocco
+	      1 Will Glynn
+	      1 Willy Tarreau
+	      6 W. Trevor King
+	      3 Yishin Li
+	      1 yohsuke
+	      1 Zac Storer
+ .
 License: GPL-2+
 
 Files: src/hal/hal_lib.c
