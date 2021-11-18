@@ -69,8 +69,9 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
            2013-2014 Kim Kirwan
                 2013 Matsche <tinker@play-pla.net>
            2013-2014 Michael Geszkiewicz <micges@wp.pl>
-                2014 Charles Steinkuehler (charles AT steinkuehler
+                2014 Charles Steinkuehler <charles AT steinkuehler DOT net>
                 2014 Chris Morley <chrisinnanaimo@hotmail.com>
+                2014 Marius Alksnys <marius.alksnys@gmail.com>
                 2016 Boris Skegin
                 2017 B.Stultiens <lcnc@vagrearg.org>
                 2020 Damian Wrobel <dwrobel@ertelnet.rybnik.pl>
@@ -87,6 +88,16 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                      Moses McKnight
                      Phillip A Carter
                      Rod Webster
+ .
+ configs
+                2009 Alex Joni
+                2010 Michael Haberler
+           2011-2014 Dewey Garrett <dgarrett@panix.com>,
+                2011 Michael Haberler
+                2013 Andy Pugh
+                2013 Frederic Rible <frible@teaser.fr>
+           2013-2014 Norbert Schechner
+                2020 Chris Morley
  .
  UI: Derived from a work by Fred Proctor & Will Shackleford
            2006-2009 Jeff Epler <jepler@unpythonic.net>
@@ -151,6 +162,14 @@ License: LGPL-2.1+
 Comment: The origin of this subtree is the Classic Ladder Project
  http://membres.lycos.fr/mavati/classicladder/ 
  http://www.sourceforge.net/projects/classicladder
+
+Files: ./qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js
+Copyright:       2002 Mihai Bazon
+ modified by
+                 2006 Troy D. Hanson
+           2006, 2009 Stuart Rackham
+License: GPL
+
 
 Files: src/libnml/*
        src/libnml/linklist/* License: LGPL Version 2
@@ -667,3 +686,6 @@ License
     such additional rights are deemed to be included in the License;
     this License is not intended to restrict the license of any rights
     under applicable law.
+    announcement including an appropriate copyright notice and a
+a notice placed by the copyright holder saying it may be distributed
+certain countries either by patents or by copyrighted interfaces, the
