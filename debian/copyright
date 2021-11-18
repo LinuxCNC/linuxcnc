@@ -20,7 +20,7 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                 2006 Alex Joni <alex_joni AT users DOT sourceforge DOT net>
            2006-2009 Eric H. Johnson
            2006-2013 Chris Radek <chris@timeguy.com>
-                2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
+           2005-2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
                 2008 Chris Radek <chris@timeguy.com>
            2009-2012 Pavel Shramov <psha@kamba.psha.org.ru>,
            2009-2014 Chris Morley <chrisinnanaimo@hotmail.com>
@@ -31,7 +31,7 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                 2015 John Thornton <jt@gnipsel.com>
                 2016 Andrew Kyrychenko with derivative work from R. Brian Register on the Hexapod
                 2016 Rudy du Preez <rudy@asmsa.co.za>
-           2020-2021 Phillip A Carter
+           2019-2021 Phillip A Carter
            2020-2021 Gregory D Carl
  .
        and work derived from
@@ -41,14 +41,51 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                 2004 Thomas Kramer
  .
  HAL:
-                2003 John Kasunich <jmkasunich AT users DOT sourceforge DOT net>
-           2005-2007 Jeff Epler <jepler@unpythonic.net>
+           1991-2006 Altera Corporation # for firmware description
+           2001-2008 Marc Le Douarain <nmarc . le - douarain /At\\ laposte \\DoT/ net>
+           2003-2007 John Kasunich <jmkasunich at fastmail dot fm>
+                2003 Martin Kuhnle
+           2004-2005 Alex Joni 
+                2005 Jon Elson
+           2005-2008 Stephen Wille Padnos
+                2007 Peter G. Vavaroutsos <pete@vavaroutsos.com>
+           2005-2015 Jeff Epler <jepler@unpythonic.net>
            2006-2008 Eric H. Johnson
-                2009 Chris Morley
-                     Martin Kuhnle <mkuhnle AT users DOT sourceforge DOT net>
-                     Alex Joni <alex_joni AT users DOT sourceforge DOT net>
+           2007-2018 Sebastian Kuzminsky
+           2008-2009 Chris Morley
+                2008 Eric H. Johnson
+                2008 Paul Willutzki <paul[at]willutzki[dot]de>
+           2009-2012 Les Newell <les at sheetcam dot com>
+           2010-2019 Andy Pugh
+                2012 Ben Croston - cpuinfo.*
+                2012 Victor Rocco <victor_rocco AT hotmail DOT com>
+                2011 ArcEye <schooner30@tiscali.co.uk>
+                2011 Mike McCauley <mikem do-not-contact-except-for-commercial-interests open.com.au> 
+                2012 Ben Croston
+                2012 Curtis Dutton, OK Computers LLC
+           2012-2015 Peter C. Wallace <pcw@mesanet.com>
+                2013 Ian McMahon <imcmahon@prototechnical.com>
+           2013-2014 Kim Kirwan
+                2013 Matsche <tinker@play-pla.net>
+           2013-2014 Michael Geszkiewicz <micges@wp.pl>
+                2014 Charles Steinkuehler (charles AT steinkuehler
+                2014 Chris Morley <chrisinnanaimo@hotmail.com>
+                2016 Boris Skegin
+                2017 B.Stultiens <lcnc@vagrearg.org>
+                2020 Damian Wrobel <dwrobel@ertelnet.rybnik.pl>
+                2021 Chad Woitas (aka satiowadahc)
+                2021 Jan Roters
                      Benn Lipkowitz <fenn AT users DOT sourceforge DOT net>
-                     Stephen Wille Padnos <swpadnos AT users DOT sourceforge DOT net>
+                     Boris Skegin
+                     Cliff Blackburn
+                     Gregory D Carl
+                     itaib
+                     John Thornton
+                     Joseph Calderon
+                     Michael Haberler
+                     Moses McKnight
+                     Phillip A Carter
+                     Rod Webster
  .
  UI: Derived from a work by Fred Proctor & Will Shackleford
            2006-2009 Jeff Epler <jepler@unpythonic.net>
@@ -89,13 +126,13 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
       rayhenry       Ray Henry 
       seb_kuzminsky  Sebastian Kuzminsky 
       snowgoer540    Gregory D Carl 
-      swpadnos       Stephen W. Padnos 
+      swpadnos       Stephen Wille Padnos 
       tissf          Francis Tisserant 
       yabosukz       Yabo Sukz 
       zwisk          J. Stark 
+                     Victor Rocco <victor_rocco AT hotmail DOT com>
  .
- Please inspect the logs of the git repository to learn about the >230 (stand 11/2021) contributors
- of fixes and helped the documentation.
+ Please inspect the logs of the git repository to learn about the >230 (11/2021) committers.
 License: GPL-2+
 
 Files: src/hal/hal_lib.c
