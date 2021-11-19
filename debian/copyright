@@ -14,21 +14,26 @@ Files: *
 Copyright: 2004-2021 The LinuxCNC Developers and notably
  .
  EMC: Derived from a work by Fred Proctor & Will Shackleford
+           1996-2002 Ben Bederson
+           1996-2002 Brian Paul <brian@mesa3d.org>
            2004-2014 Jeff Epler <jepler@unpythonic.net>
            2004-2019 Robert W. Ellenberg <rwe24g@gmail.com>
+                2004 Kenneth Lerman
                 2005 proctor
                 2006 Alex Joni <alex_joni AT users DOT sourceforge DOT net>
            2006-2009 Eric H. Johnson
-           2006-2013 Chris Radek <chris@timeguy.com>
+           2006-2015 Chris Radek <chris@timeguy.com>
            2005-2007 Peter G. Vavaroutsos <pete AT vavaroutsos DOT com>
                 2008 Chris Radek <chris@timeguy.com>
+                2009 Manfredi Leto (Xemet)
            2009-2012 Pavel Shramov <psha@kamba.psha.org.ru>,
            2009-2014 Chris Morley <chrisinnanaimo@hotmail.com>
-           2011-2013 Michael Haberler <git@mah.priv.at>
+           2010-2013 Michael Haberler <git@mah.priv.at>
            2011-2016 Sebastian Kuzminsky <seb@highlab.com>
            2012-2017 Norbert Schechner <nieson@web.de>
            2013-2021 Dewey Garrett <dgarrett@panix.com>
                 2015 John Thornton <jt@gnipsel.com>
+                2015 Moses McKnight
                 2016 Andrew Kyrychenko with derivative work from R. Brian Register on the Hexapod
                 2016 Rudy du Preez <rudy@asmsa.co.za>
            2019-2021 Phillip A Carter
@@ -42,41 +47,49 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
  .
  HAL:
            1991-2006 Altera Corporation # for firmware description
+                1996 Servo To Go, Inc.
+           2001-2005 Stéphane Raimbault <stephane.raimbault@free.fr>
            2001-2008 Marc Le Douarain <nmarc . le - douarain /At\\ laposte \\DoT/ net>
            2003-2007 John Kasunich <jmkasunich at fastmail dot fm>
                 2003 Martin Kuhnle
+                2004 Matt Shaver
            2004-2005 Alex Joni 
+           2005-2015 Jeff Epler <jepler@unpythonic.net>
                 2005 Jon Elson
            2005-2008 Stephen Wille Padnos
                 2007 Peter G. Vavaroutsos <pete@vavaroutsos.com>
-           2005-2015 Jeff Epler <jepler@unpythonic.net>
            2006-2008 Eric H. Johnson
            2007-2018 Sebastian Kuzminsky
            2008-2009 Chris Morley
-                2008 Eric H. Johnson
                 2008 Paul Willutzki <paul[at]willutzki[dot]de>
            2009-2012 Les Newell <les at sheetcam dot com>
+                2009 scotta at CNCZone.com
+                2009 alan_3301 at CNCZone.com
            2010-2019 Andy Pugh
-                2012 Ben Croston - cpuinfo.*
-                2012 Victor Rocco <victor_rocco AT hotmail DOT com>
                 2011 ArcEye <schooner30@tiscali.co.uk>
+           2011-2014 Kim Kirwan
                 2011 Mike McCauley <mikem do-not-contact-except-for-commercial-interests open.com.au> 
-                2012 Ben Croston
+                2012 Ben Croston - cpuinfo.*
                 2012 Curtis Dutton, OK Computers LLC
-                2013 Rene Hopf <renehopf@mac.com>
+                2012 Victor Rocco <victor_rocco AT hotmail DOT com>
            2012-2015 Peter C. Wallace <pcw@mesanet.com>
                 2013 Ian McMahon <imcmahon@prototechnical.com>
-           2013-2014 Kim Kirwan
-                2013 Matsche <tinker@play-pla.net>
+           2013-2016 Matsche <tinker@play-pla.net>
            2013-2014 Michael Geszkiewicz <micges@wp.pl>
+                2013 Rene Hopf <renehopf@mac.com>
+                2013 Yishin Li
                 2014 Charles Steinkuehler <charles AT steinkuehler DOT net>
                 2014 Chris Morley <chrisinnanaimo@hotmail.com>
                 2014 Marius Alksnys <marius.alksnys@gmail.com>
                 2016 Boris Skegin
-                2017 B.Stultiens <lcnc@vagrearg.org>
+                2017 Bertho Stultiens <lcnc@vagrearg.org>
+                2018 Raoul Rubien (github.com/rubienr) 
+                2020 Tinic Uro
                 2020 Damian Wrobel <dwrobel@ertelnet.rybnik.pl>
                 2021 Chad Woitas (aka satiowadahc)
+                2021 Ernesto Lo Valvo <ernesto.lovalvo@unipa.it>
                 2021 Jan Roters
+                     Bence Kovacs
                      Benn Lipkowitz <fenn AT users DOT sourceforge DOT net>
                      Boris Skegin
                      Cliff Blackburn
@@ -84,32 +97,56 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
                      itaib
                      John Thornton
                      Joseph Calderon
-                     Michael Haberler
+                     Michael Haberler <git@mah.priv.at>
                      Moses McKnight
                      Phillip A Carter
                      Rod Webster
  .
  configs
                 2009 Alex Joni
-                2010 Michael Haberler
+           2010-2011 Michael Haberler <git@mah.priv.at>
            2011-2014 Dewey Garrett <dgarrett@panix.com>,
-                2011 Michael Haberler
                 2013 Andy Pugh
                 2013 Frederic Rible <frible@teaser.fr>
-           2013-2014 Norbert Schechner
+           2013-2014 Norbert Schechner <nieson@web.de>
                 2020 Chris Morley
  .
+ nc_files
+                2013 Alan Battersby <alan.battersby@virginmedia.com>
+                2013 Bertho Stultiens <bertho@vagrearg.org>
+                2003 Chester.Rose@sun.com (implementation erwann.chenede@sun.com) and Sun Microsystems, Inc.
+ .
  UI: Derived from a work by Fred Proctor & Will Shackleford
+           1998-2002 Bryan Oakley
            2006-2009 Jeff Epler <jepler@unpythonic.net>
+           2006-2009 Raymond E. Henry
            2009-2012 Dewey Garrett <dgarrett@panix.com>
            2007-2021 Chris Morley <chrisinnanaimo@hotmail.com>
+                2012 Norbert Schechner <nieson@web.de>
+                2015 Moses McKnight
+                2015 Serguei Glavatski < verser  from cnc-club.ru >
+           2017-2018 Kurt Jacobson <kurtcjacobson@gmail.com>
                 2021 Jim Sloot <persei802@gmail.com>
+     with external input like a tutorial by
+                1994 X Consortium 
+           1996-1997 Stewart Allen
+                2005 Lawrence Oluyede <l.oluyede@gmail.com>
+ .
+ share:
+           1992-1993 The Regents of the University of California
+           1994-1997 Sun Microsystems, Inc.
+                2009 Nick Drobchenko <nick@cnc-club.ru>
+                2013 Sudhanshu Yadav
  .
  tests:
+                2004 Paul Corner <paul_c@users.sourceforge.net> - Derived from a file by Fred Proctor.
            2011-2013 Michael Haberler <git@mah.priv.at>
            2013-2016 Jeff Epler <jepler@unpythonic.net>
                 2014 Robert W. Ellenberg
                 2020 Rab Gordon, Gary Drew, and Paul Corner
+ .
+ rtapi:
+           2009-2013 Michael Büsch <m AT bues DOT CH>
  .
  docs:
   A list of authors that worked on the project Ordered alphabetically
@@ -136,16 +173,49 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
       petev          Pete Vavaroutsos)
       proctor        Fred Proctor 
       rayhenry       Ray Henry 
+      rubienr        Raoul Rubien (github.com/rubienr) 
       seb_kuzminsky  Sebastian Kuzminsky 
       snowgoer540    Gregory D Carl 
       swpadnos       Stephen Wille Padnos 
       tissf          Francis Tisserant 
+      victor_rocco   Victor Rocco
       yabosukz       Yabo Sukz 
       zwisk          J. Stark 
-      ?              Victor Rocco <victor_rocco AT hotmail DOT com>
- .
+                     B. Stultiens
+                     W. Martinjak
+                     Trần Ngọc Quân
  Please inspect the logs of the git repository to learn about the >230 (11/2021) committers.
 License: GPL-2+
+
+Files: src/m4/ax_python_devel.m4
+Copyright: 2009 Sebastian Huber <sebastian-huber@web.de>
+           2009 Alan W. Irwin
+           2009 Rafael Laboissiere <rafael@laboissiere.net>
+           2009 Andrew Collier
+           2009 Matteo Settenvini <matteo@member.fsf.org>
+           2009 Horst Knorr <hk_classes@knoda.org>
+           2013 Daniel Mullner <muellner@math.stanford.edu>
+License: GPL-3+
+
+Files: ./src/m4/ax_boost_python.m4
+Copyright: 2008 Michael Tindal
+           2013 Daniel Müllner <daniel@danifold.net>
+License: GPL-2+
+
+
+Files: src/m4/ax_boost_base.m4
+       src/m4/ax_cxx_compile_stdcxx_11.m4
+Copyright: 2008 Thomas Porschberg <thomas@randspringer.de>
+           2009 Peter Adolphs
+           2008 Benjamin Kosnik <bkoz@redhat.com>
+           2012 Zack Weinberg <zackw@panix.com>
+           2013 Roy Stogner <roystgnr@ices.utexas.edu>
+License: custom
+ Copying and distribution of this file, with or without modification, are
+ permitted in any medium without royalty provided the copyright notice
+ and this notice are preserved. This file is offered as-is, without any
+ warranty.
+
 
 Files: src/hal/hal_lib.c
        src/hal/hal_priv.h
@@ -168,8 +238,7 @@ Copyright:       2002 Mihai Bazon
  modified by
                  2006 Troy D. Hanson
            2006, 2009 Stuart Rackham
-License: GPL
-
+License: GPL-2
 
 Files: src/libnml/*
        src/libnml/linklist/* License: LGPL Version 2
