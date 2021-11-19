@@ -1437,6 +1437,12 @@ The state of this SSR instance's NNth output.  Set to 0 to make
 the output pins act like an open switch (no connection), set to 1 to
 make them act like a closed switch.
 
+.TP
+(bit in) invert-NN
+Inverts the state of the this SSR instance's NNth output, defaults to 0. 
+When invert-NN is set to 1, SSR output NN is closed when the out-NN 
+pin is 0 and open when the out-NN pin is 1
+
 .SH xy2mod
 
 The xy2mod is a xy2-100 galvanometer interface. It supports 16 and 18 bit 

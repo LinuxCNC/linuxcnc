@@ -1361,6 +1361,7 @@ typedef struct {
         struct {
             hal_u32_t *rate;
             hal_bit_t *out[32];
+            hal_bit_t *invert[32];
         } pin;
 
     } hal;
