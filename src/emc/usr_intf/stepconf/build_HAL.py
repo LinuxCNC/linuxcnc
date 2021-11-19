@@ -810,7 +810,7 @@ class HAL:
         print("net plasmac:program-is-idle      halui.program.is-idle       =>  plasmac.program-is-idle", file=file)
         print("net plasmac:program-is-paused    halui.program.is-paused     =>  plasmac.program-is-paused", file=file)
         print("net plasmac:program-is-running   halui.program.is-running    =>  plasmac.program-is-running", file=file)
-        print("net plasmac:requested-velocity   motion.requested-vel        =>  plasmac.requested-velocity", file=file)
+        print("net plasmac:feed-upm             motion.feed-upm             =>  plasmac.feed-upm", file=file)
         print("net plasmac:scribe-start         spindle.1.on                =>  plasmac.scribe-start", file=file)
         print("net plasmac:spotting-start       spindle.2.on                =>  plasmac.spotting-start", file=file)
         print("net plasmac:thc-disable          motion.digital-out-02       =>  plasmac.thc-disable", file=file)

@@ -64,7 +64,7 @@
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>360</height>
+          <height>350</height>
          </size>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -3821,24 +3821,11 @@ TOOL</string>
        </widget>
       </item>
       <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QWidget" name="widget_settings" native="true">
         <property name="minimumSize">
          <size>
           <width>0</width>
-          <height>160</height>
+          <height>100</height>
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout_5">
@@ -3854,8 +3841,11 @@ TOOL</string>
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="spacing">
+         <property name="horizontalSpacing">
           <number>4</number>
+         </property>
+         <property name="verticalSpacing">
+          <number>2</number>
          </property>
          <item row="1" column="3">
           <widget class="QLabel" name="lab_rates">
@@ -4693,14 +4683,19 @@ TOOL</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
+   <class>IndicatedPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>QPushButton</extends>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -4769,22 +4764,22 @@ TOOL</string>
   <slot>help_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="inside_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="length_buttonGroup">
+  <buttongroup name="inside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
   <buttongroup name="outside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="length_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

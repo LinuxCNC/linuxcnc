@@ -1,4 +1,4 @@
-VERSION = '1.217.122'
+VERSION = '1.217.123'
 
 '''
 qtplasmac_handler.py
@@ -559,8 +559,9 @@ class HandlerClass:
 # SPECIAL FUNCTIONS SECTION #
 #########################################################################################################################
     def make_hal_pins(self):
-        self.colorBgPin = self.h.newpin('color_bg', hal.HAL_S32, hal.HAL_OUT)
         self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
+        self.colorBgPin = self.h.newpin('color_bg', hal.HAL_S32, hal.HAL_OUT)
+        self.colorBgAltPin = self.h.newpin('color_bgalt', hal.HAL_S32, hal.HAL_OUT)
         self.cutTypePin = self.h.newpin('cut_type', hal.HAL_S32, hal.HAL_IN)
         self.heightOverridePin = self.h.newpin('height_override', hal.HAL_FLOAT, hal.HAL_OUT)
         self.laserOnPin = self.h.newpin('laser_on', hal.HAL_BIT, hal.HAL_OUT)
@@ -723,6 +724,10 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.torch_on'])
         # misc
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
+# *** add system hal pin changes here that may affect existing configs ***
+        if not hal.pin_has_writer('plasmac.feed-upm'): # if feed-upm is not yet connected in hal
+            CALL(['halcmd', 'net', 'plasmac:feed-upm', 'motion.feed-upm', 'plasmac.feed-upm'])
+
 
     def init_preferences(self):
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
@@ -5495,6 +5500,7 @@ class HandlerClass:
                         self.colorBgPin.set(int(self.w.color_backgrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
                     elif 'backalt' in line:
                         outFile.write(line.replace('backalt', self.w.color_backgalt.styleSheet().split(':')[1].strip()))
+                        self.colorBgAltPin.set(int(self.w.color_backgalt.styleSheet().split(':')[1].strip().lstrip('#'), 16))
                     elif 'frames' in line:
                         outFile.write(line.replace('frames', self.w.color_frams.styleSheet().split(':')[1].strip()))
                     elif 'e-stop' in line:
@@ -5533,6 +5539,7 @@ class HandlerClass:
                     elif line.startswith('color4'):
                         colors[3] += 1
                         self.back1Color = QColor(line.split('=')[1].strip()).name()
+                        self.colorBgAltPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color5'):
                         colors[4] += 1
                         self.disabledColor = QColor(line.split('=')[1].strip()).name()

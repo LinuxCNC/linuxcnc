@@ -27,8 +27,11 @@ import shutil
 import time
 import hal
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication, QMessageBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLayout, QLabel, QPushButton, QStyle
 
+app = QApplication(sys.argv)
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
 try:
@@ -46,6 +49,7 @@ cutType = hal.get_value('qtplasmac.cut_type')
 currentMat = hal.get_value('qtplasmac.material_change_number')
 fgColor = str(hex(hal.get_value('qtplasmac.color_fg'))).replace('0x', '#')
 bgColor = str(hex(hal.get_value('qtplasmac.color_bg'))).replace('0x', '#')
+bgAltColor = str(hex(hal.get_value('qtplasmac.color_bgalt'))).replace('0x', '#')
 zMaxOffset = hal.get_value('plasmac.max-offset')
 metric = ['mm', 4]
 imperial = ['in', 6]
@@ -103,34 +107,58 @@ errorReadMat = []
 errorCompMat = []
 errorG90 = []
 errorG91 = []
-errors  = 'The following error will affect the process.\n'
-errors += 'Errors must fixed before reloading this file.\n'
+errors  = 'The following errors will affect the process.\n'
+errors += 'Errors must be fixed before reloading this file.\n'
 
 # feedback dialog
-def dialog_box(title, text):
-    app = QApplication(sys.argv)
-    msg = QMessageBox()
-    if title == 'ERROR':
-        icon = QMessageBox.Critical
+def dialog_box(title, text, align):
+    if align == Qt.AlignCenter:
+        icon = QStyle.SP_MessageBoxCritical
     else:
-        icon = QMessageBox.Warning
-    msg.setStyleSheet(' \
+        icon = QStyle.SP_MessageBoxWarning
+    dlg = QDialog()
+    scroll = QScrollArea(dlg)
+    widget = QWidget()
+    vbox = QVBoxLayout()
+    label = QLabel()
+    vbox.addWidget(label)
+    widget.setLayout(vbox)
+    btn = QPushButton('OK', dlg)
+    dlg.setWindowTitle(title)
+    dlg.setWindowIcon(QIcon(dlg.style().standardIcon(icon)))
+    dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
+    dlg.setModal(False)
+    dlg.setFixedWidth(600)
+    dlg.setFixedHeight(310)
+    dlg.setStyleSheet(' \
                       QWidget {{ color: {0}; background: {1} }} \
-                      QLabel {{ border: 1px solid {0}; border-radius: 4px; font: 12pt }} \
+                      QScrollArea {{ color: {0}; background: {1}; border: 1px solid {0}; border-radius: 4px; padding: 4px }} \
                       QPushButton {{ border: 2px solid {0}; border-radius: 4px; \
                                      font: 12pt; width: 60px; height: 40px }} \
-                      QPushButton:pressed {{ border: 1px solid {0} }}'.format(fgColor, bgColor))
-    msg.setWindowTitle(title)
-    msg.setIcon(icon)
-    msg.setText(text)
-    msg.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-    msg.exec_()
+                      QPushButton:pressed {{ border: 1px solid {0} }} \
+                      QScrollBar:vertical {{background: {2}; border: 0px; border-radius: 4px; margin: 0px; width: 20px }} \
+                      QScrollBar::handle:vertical {{ background: {0}; border: 2px solid {0}; border-radius: 4px; margin: 2px; min-height: 40px }} \
+                      QScrollBar::add-line:vertical {{ height: 0px }} \
+                      QScrollBar::sub-line:vertical {{ height: 0px }}'.format(fgColor, bgColor, bgAltColor))
+    scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+    scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+    scroll.setWidgetResizable(True)
+    scroll.setWidget(widget)
+    scroll.setGeometry(5, 5, 590, 250)
+    btn.move(270,260)
+    btn.clicked.connect(lambda w: dlg_ok_clicked(dlg))
+    label.setAlignment(align)
+    label.setText(text)
+    dlg.exec()
+
+def dlg_ok_clicked(dlg):
+    dlg.accept()
 
 if hError:
-    title = 'ERROR MESSAGES'
+    title = 'ERROR DIALOG'
     msg0 = 'Multiple error message dialogs are displayed'
     msg1 = 'Please close all message dialogs'
-    dialog_box(title, ('\n{}:\n\n{}.\n'.format(msg0, msg1)))
+    dialog_box(title, ('{}.\n\n{}.\n'.format(msg0, msg1)), Qt.AlignCenter)
 
 # set hole type
 def set_hole_type(h):
@@ -399,7 +427,7 @@ def check_material_edit():
                 for i in [nu,na,kw,th,ph,pd,jh,jd,ch,fr,ca,cv,pe,gp,cm]:
                     newMaterial.append(i)
                 if newMaterial[0] == 0:
-                    write_temp_default_material(newMaterial)
+                    write_temporary_material(newMaterial)
                 elif nu in materialDict and newMaterial[0] == 1:
                     errorNewMat.append(lineNum)
                 else:
@@ -412,8 +440,8 @@ def check_material_edit():
         errorEditMat.append(lineNum)
 
 # write temporary materials file
-def write_temp_default_material(data):
-    global lineNum, warnMatLoad
+def write_temporary_material(data):
+    global lineNum, warnMatLoad, material
     try:
         with open(tmpMaterialFile, 'w') as fWrite:
             fWrite.write('#plasmac temporary material file\n')
@@ -436,7 +464,9 @@ def write_temp_default_material(data):
     except:
         codeError = True
         errorTempMat.append(lineNum)
+    materialDict[tmpMatNum] = [data[10], data[3]]
     hal.set_p('qtplasmac.material_temp', '{}'.format(tmpMatNum))
+    material[0] = tmpMatNum
     matDelay = time.time()
     while 1:
         if time.time() > matDelay + 3:
@@ -550,20 +580,28 @@ def get_materials():
         codeError = True
         errorReadMat = True
 
-def check_f_word(inFeed):
-    global lineNum, codeWarn, warnFeed
-    if not material[1]:
-        material[0] = currentMat
+def check_f_word(line):
+    global lineNum, materialDict, codeWarn, warnFeed
+    begin, inFeed = line.split('f', 1)
     rawFeed = ''
     codeFeed = 0.0
+    # get feed rate if it is digits
     while len(inFeed) and (inFeed[0].isdigit() or inFeed[0] == '.'):
         rawFeed = rawFeed + inFeed[0]
         inFeed = inFeed[1:].lstrip()
     if rawFeed:
         codeFeed = float(rawFeed)
-        if codeFeed != float(materialDict[material[0]][0]):
-            codeWarn = True
-            warnFeed.append(lineNum)
+    else:
+        return line
+    if inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
+        # change feed rate if gcode file not in same units as machine units
+        if unitMultiplier != 1:
+            line = begin + '{}f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(begin, unitMultiplier)
+    # warn if F word is not equal to the selected materials cut feed rate
+    if codeFeed != float(materialDict[material[0]][0]):
+        codeWarn = True
+        warnFeed.append([lineNum, rawFeed, material[0], materialDict[material[0]][0]])
+    return line
 
 def message_set(msgType, msg):
     if len(msgType) > 1:
@@ -582,6 +620,7 @@ def message_set(msgType, msg):
     msg += '\n'
     return msg
 
+# get a dict of materials
 get_materials()
 
 # start processing the gcode file
@@ -600,13 +639,17 @@ with open(inCode, 'r') as fRead:
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
+            # add comment for temporary material
+            if line.startswith('(o=0'):
+                lineNum += 1
+                gcodeList.append(';temporay material #{}'.format(tmpMatNum))
+            gcodeList.append(line)
             # add material change for temporary material
             if line.startswith('(o=0'):
                 lineNum += 2
-                gcodeList.append('m190 p{} ({})'.format(tmpMatNum, tmpMatNam))
+                gcodeList.append('m190 p{}'.format(tmpMatNum))
                 gcodeList.append('m66 p3 l3 q1')
                 tmpMatNum += 1
-            gcodeList.append(line)
             continue
         # if line is a comment then gcodeList.append it and get next line
         if line.startswith(';') or line.startswith('('):
@@ -765,7 +808,7 @@ with open(inCode, 'r') as fRead:
             if '(' in line:
                 holeVelocity = float(line.split('=')[1].split('(')[0])
             else:
-                holeVelocity = float(hVel.split('=')[1])
+                holeVelocity = float(line.split('=')[1])
             gcodeList.append(line)
             continue
         # if material change
@@ -870,12 +913,7 @@ with open(inCode, 'r') as fRead:
             continue
         # check feed rate
         if 'f' in line:
-            begin, inFeed = line.split('f', 1)
-            if inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
-                if unitMultiplier != 1:
-                    line = begin + '{}f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(begin, unitMultiplier)
-            else:
-                check_f_word(inFeed)
+            line = check_f_word(line)
         # restore velocity if required
         if holeActive:
             lineNum += 1
@@ -915,11 +953,16 @@ if codeWarn:
         warnings += message_set(warnCompTorch, msg)
     if warnCompVel:
         msg  = '\nCannot reduce velocity with cutter compensation active.\n'
-        warnings += message_set(warnUnitsDep, msg)
+        warnings += message_set(warnCompVel, msg)
     if warnFeed:
-        msg  = '\nThe "F" word value does not match the cut feed rate of the selected material.\n'
-        warnings += message_set(warnFeed, msg)
-    dialog_box('G-CODE WARNING', warnings)
+        msg0  = 'does not match the selected material cut feed of\n'
+        warnings += '\n'
+        for n in range(0, len(warnFeed)):
+            msg0 = 'Line'
+            msg1 = 'does not match Material'
+            msg2 = 'feed rate '
+            warnings += '{} {:0.0f}: F{} {}_{} {} {:0.0f}\n'.format(msg0, warnFeed[n][0], warnFeed[n][1], msg1, warnFeed[n][2], msg2, warnFeed[n][3])
+    dialog_box('G-CODE WARNING', warnings, Qt.AlignLeft)
 
 # error notification
 if codeError:
@@ -953,7 +996,7 @@ if codeError:
     if errorG91:
         msg  = '\nQtPlasmaC G-Code parser only supports Arc Distance Mode G91.1.\n'
         errors += message_set(errorG91, msg)
-    dialog_box('G-CODE ERROR', errors)
+    dialog_box('G-CODE ERROR', errors, Qt.AlignLeft)
     print('M2 (end program)')
 
 # output the finalised g-code
