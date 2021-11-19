@@ -1447,7 +1447,7 @@ class HAL:
                 print(file=file)
                 print("net %s-pos-cmd    <= joint.%d.motor-pos-cmd" % (let, jnum ), file=file)
                 print("net %s-vel-cmd    <= joint.%d.vel-cmd" % (let, jnum ), file=file)
-                print("net %s-output     <= "% (let) + steppinname + ".velocity-cmd", file=file)
+                print("net %s-output     => "% (let) + steppinname + ".velocity-cmd", file=file)
                 print("net %s-pos-fb     <= "% (let) + steppinname + ".position-fb", file=file)
                 print("net %s-pos-fb     => joint.%d.motor-pos-fb" % (let, jnum ), file=file)
                 print("net %s-enable     <= joint.%d.amp-enable-out"% (let,jnum), file=file)
