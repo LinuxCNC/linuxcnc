@@ -1,4 +1,4 @@
-VERSION = '1.217.123'
+VERSION = '1.217.124'
 
 '''
 qtplasmac_handler.py
@@ -197,7 +197,7 @@ class HandlerClass:
         self.jogSlow = False
         self.lastLoadedProgram = 'None'
         self.estopOnList = []
-        self.idleList = ['file_open', 'file_reload', 'file_edit']
+        self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button']
@@ -255,6 +255,7 @@ class HandlerClass:
         self.old_ovr_counts = 0
         self.startLine = 0
         self.preRflFile = ''
+        self.preClearFile = ''
         self.rflActive = False
         self.jogInhibit = ''
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
@@ -398,12 +399,12 @@ class HandlerClass:
         saved = ACTION.SAVE_PROGRAM(self.w.gcode_editor.editor.text(), filename)
         if saved is not None:
             self.w.gcode_editor.editor.setModified(False)
-            if saved[-3:] in ['ngc', '.nc', '.tap']:
+            if saved[-3:] in ['ngc', '.nc', 'tap']:
                 ACTION.OPEN_PROGRAM(saved)
 
     # open a non gcode file and don't load it into linuxcnc
     def new_openReturn(self, filename):
-        if filename[-3:] in ['ngc', '.nc', '.tap']:
+        if filename[-3:] in ['ngc', '.nc', 'tap']:
             ACTION.OPEN_PROGRAM(filename)
         else:
             self.w.gcode_editor.editor.load_text(filename)
@@ -417,9 +418,9 @@ class HandlerClass:
             msg1 = _translate('HandlerClass', 'Do you want to exit')
             if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
                 return
-        if self.fileOpened == True:
+        if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
             self.file_reload_clicked()
-        else:
+        elif self.fileOpened == False:
             self.w.gcode_editor.editor.new_text()
             self.w.gcode_editor.editor.setModified(False)
         self.w.gcode_editor.editMode()
@@ -527,9 +528,8 @@ class HandlerClass:
             ACTION.CALL_MDI(intext + '\n')
             try:
                 fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
-                fp = open(fp, 'a')
-                fp.write(intext + '\n')
-                fp.close()
+                with open(fp, 'w') as fp:
+                    fp.write(intext + '\n')
             except:
                 pass
             STATUS.emit('mdi-history-changed')
@@ -843,6 +843,7 @@ class HandlerClass:
         self.torchPulse = False
         self.rflSelected = False
         self.fileOpened = False
+        self.fileClear = False
         self.laserButtonState = 'laser'
         self.camButtonState = 'markedge'
 
@@ -1097,8 +1098,11 @@ class HandlerClass:
         hal.set_p('plasmac.consumable-change', '0')
         if self.single_cut_request:
             self.single_cut_request = False
-            if self.oldFile:
+            if self.oldFile and self.fileOpened:
                 ACTION.OPEN_PROGRAM(self.oldFile)
+            else:
+                self.fileOpened = True
+                self.file_clear_clicked()
             self.w[self.scButton].setEnabled(True)
             if self.g91:
                 ACTION.CALL_MDI_WAIT('G91')
@@ -1133,7 +1137,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded']:
+           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
             if int(self.w.materials_box.currentText().split(': ', 1)[0]) >= 1000000:
                 self.w.materials_box.setCurrentIndex(0)
             if self.w.gcode_display.lines() > 1:
@@ -1250,7 +1254,8 @@ class HandlerClass:
                 if self.w.chk_overlay.isChecked():
                     self.overlay.show()
             self.w.file_open.setText(os.path.basename(filename))
-            self.fileOpened = True
+            if not self.single_cut_request:
+                self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText('{}: {}'.format(text, filename))
             if self.w.gcode_stack.currentIndex() != 0:
@@ -1285,6 +1290,18 @@ class HandlerClass:
             if self.single_cut_request:
                 ACTION.RUN()
             self.set_run_button_state()
+            if self.fileClear:
+                self.fileClear = False
+                self.fileOpened = False
+                text = _translate('HandlerClass', 'OPEN')
+                self.w.file_open.setText(text)
+                text = _translate('HandlerClass', 'EDIT')
+                self.w.edit_label.setText('{}'.format(text))
+                self.w.gcode_editor.editor.new_text()
+                self.w.gcode_editor.editor.setModified(False)
+                self.w.gcode_display.new_text()
+                self.w.gcode_display.set_margin_width(3)
+                self.w.gcode_editor.set_margin_width(3)
         ACTION.SET_MANUAL_MODE()
         self.w.gcodegraphics.load(filename)
         if self.w.main_tab_widget.currentIndex():
@@ -1568,6 +1585,31 @@ class HandlerClass:
         gcodeLines = len(str(self.w.gcode_display.lines()))
         self.w.gcode_display.set_margin_width(gcodeLines)
         self.w.gcode_editor.set_margin_width(gcodeLines)
+
+    def file_clear_clicked(self):
+        if self.fileOpened:
+            self.fileClear = True
+            self.startLine = 0
+            self.rflSelected = False
+            self.rflActive = False
+            self.startLine = 0
+            self.preRflFile = ''
+            clearFile = '{}qtplasmac_program_clear.ngc'.format(self.tmpPath)
+            with open(clearFile, 'w') as outFile:
+                outFile.write('m2')
+            if 'single_cut' in ACTION.prefilter_path:
+                self.preClearFile = self.oldFile
+            else:
+                if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+                    self.preClearFile = ACTION.prefilter_path or self.lastLoadedProgram
+            ACTION.OPEN_PROGRAM(clearFile)
+            ACTION.prefilter_path = self.preClearFile
+            self.w.material_selector.setCurrentIndex(0)
+            self.w.conv_material.setCurrentIndex(0)
+            if self.w.lbl_tool.text() != 'Tool: TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                ACTION.CALL_MDI_WAIT('T0 M6')
+                ACTION.CALL_MDI_WAIT('G43 H0')
+                ACTION.SET_MANUAL_MODE()
 
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
@@ -1922,6 +1964,7 @@ class HandlerClass:
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
         self.w.grid_size.valueChanged.connect(self.grid_size_changed)
         self.w.gcode_display.linesChanged.connect(self.gcode_display_loaded)
+        self.w.file_clear.clicked.connect(self.file_clear_clicked)
         self.w.file_open.clicked.connect(self.file_open_clicked)
         self.w.file_edit.clicked.connect(self.file_edit_clicked)
         self.w.mdi_show.clicked.connect(self.mdi_show_clicked)
@@ -2748,15 +2791,17 @@ class HandlerClass:
             text0 = _translate('HandlerClass', 'EDIT')
             text1 = _translate('HandlerClass', 'CLOSE')
             self.w.file_edit.setText('{}\n{}'.format(text0, text1))
-            self.w.file_reload.setEnabled(False)
+            self.w.file_clear.setEnabled(False)
             self.w.file_open.setEnabled(False)
+            self.w.file_reload.setEnabled(False)
             self.autorepeat_keys(True)
             self.w.jog_frame.setEnabled(False)
         else:
             self.button_normal(self.w.file_edit.objectName())
             self.w.file_edit.setText(_translate('HandlerClass', 'EDIT'))
-            self.w.file_reload.setEnabled(True)
+            self.w.file_clear.setEnabled(True)
             self.w.file_open.setEnabled(True)
+            self.w.file_reload.setEnabled(True)
             if self.w.gcode_stack.currentIndex() != 1:
                 self.autorepeat_keys(False)
                 self.w.jog_frame.setEnabled(True)
@@ -3820,41 +3865,39 @@ class HandlerClass:
         material = self.w.materials_box.currentText().split(': ', 1)[0].lstrip('0')
         material = int(material) if material else 0
         COPY(self.materialFile, self.tmpMaterialFile)
-        inFile = open(self.tmpMaterialFile, 'r')
-        outFile = open('{}'.format(self.materialFile), 'w')
-        written = False
-        while 1:
-            line = inFile.readline()
-            if not written:
-                if not line or \
-                   (line.startswith('[MATERIAL_NUMBER_') and \
-                   num < int(line.strip().split('NUMBER_')[1].rstrip(']'))):
-                    outFile.write('[MATERIAL_NUMBER_{}]  \n'.format(num))
-                    outFile.write('NAME               = {}\n'.format(nam))
-                    outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[material][1]))
-                    outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[material][2]))
-                    outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[material][3]))
-                    outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[material][4]))
-                    outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[material][5]))
-                    outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[material][6]))
-                    outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[material][7]))
-                    outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[material][8]))
-                    outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[material][9]))
-                    outFile.write('PAUSE_AT_END       = {}\n'.format(self.materialFileDict[material][10]))
-                    outFile.write('GAS_PRESSURE       = {}\n'.format(self.materialFileDict[material][11]))
-                    outFile.write('CUT_MODE           = {}\n\n'.format(self.materialFileDict[material][12]))
-                    outFile.write(line)
-                    written = True
-                elif not line:
-                    break
-                else:
-                    outFile.write(line)
-            elif not line:
-                break
-            else:
-                outFile.write(line)
-        inFile.close()
-        outFile.close()
+        with open(self.tmpMaterialFile, 'r') as inFile:
+            with open(self.materialFile, 'w') as outFile:
+                written = False
+                while 1:
+                    line = inFile.readline()
+                    if not written:
+                        if not line or \
+                           (line.startswith('[MATERIAL_NUMBER_') and \
+                           num < int(line.strip().split('NUMBER_')[1].rstrip(']'))):
+                            outFile.write('[MATERIAL_NUMBER_{}]\n'.format(num))
+                            outFile.write('NAME               = {}\n'.format(nam))
+                            outFile.write('KERF_WIDTH         = {}\n'.format(self.materialFileDict[material][1]))
+                            outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.materialFileDict[material][2]))
+                            outFile.write('PIERCE_DELAY       = {}\n'.format(self.materialFileDict[material][3]))
+                            outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.materialFileDict[material][4]))
+                            outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.materialFileDict[material][5]))
+                            outFile.write('CUT_HEIGHT         = {}\n'.format(self.materialFileDict[material][6]))
+                            outFile.write('CUT_SPEED          = {}\n'.format(self.materialFileDict[material][7]))
+                            outFile.write('CUT_AMPS           = {}\n'.format(self.materialFileDict[material][8]))
+                            outFile.write('CUT_VOLTS          = {}\n'.format(self.materialFileDict[material][9]))
+                            outFile.write('PAUSE_AT_END       = {}\n'.format(self.materialFileDict[material][10]))
+                            outFile.write('GAS_PRESSURE       = {}\n'.format(self.materialFileDict[material][11]))
+                            outFile.write('CUT_MODE           = {}\n\n'.format(self.materialFileDict[material][12]))
+                            outFile.write(line)
+                            written = True
+                        elif not line:
+                            break
+                        else:
+                            outFile.write(line)
+                    elif not line:
+                        break
+                    else:
+                        outFile.write(line)
         self.materialUpdate = True
         self.materialFileDict = {}
         self.materialNumList = []
@@ -3897,28 +3940,27 @@ class HandlerClass:
         if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '{} #{}?\n'.format(msg0, num)):
             return
         COPY(self.materialFile, self.tmpMaterialFile)
-        inFile = open(self.tmpMaterialFile, 'r')
-        outFile = open('{}'.format(self.materialFile), 'w')
-        while 1:
-            line = inFile.readline()
-            if not line: break
-            elif line.startswith('[MATERIAL_NUMBER_') and \
-                 int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]) == num:
-                break
-            else:
-                outFile.write(line)
-        while 1:
-            line = inFile.readline()
-            if not line: break
-            elif line.startswith('[MATERIAL_NUMBER_'):
-                outFile.write(line)
-                break
-        while 1:
-            line = inFile.readline()
-            if not line: break
-            else:
-                outFile.write(line)
-        outFile.close()
+        with open(self.tmpMaterialFile, 'r') as inFile:
+            with open(self.materialFile, 'w') as outFile:
+                while 1:
+                    line = inFile.readline()
+                    if not line: break
+                    elif line.startswith('[MATERIAL_NUMBER_') and \
+                         int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]) == num:
+                        break
+                    else:
+                        outFile.write(line)
+                while 1:
+                    line = inFile.readline()
+                    if not line: break
+                    elif line.startswith('[MATERIAL_NUMBER_'):
+                        outFile.write(line)
+                        break
+                while 1:
+                    line = inFile.readline()
+                    if not line: break
+                    else:
+                        outFile.write(line)
         self.materialUpdate = True
         self.materialFileDict = {}
         self.materialNumList = []
@@ -4075,57 +4117,55 @@ class HandlerClass:
 
     def save_material_file(self, material, index):
         COPY(self.materialFile, self.tmpMaterialFile)
-        inFile = open(self.tmpMaterialFile, 'r')
-        outFile = open('{}'.format(self.materialFile), 'w')
-        while 1:
-            line = inFile.readline()
-            if not line: break
-            elif line.startswith('[MATERIAL_NUMBER_') and \
-                 material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
-                outFile.write(line)
-                break
-            else:
-                outFile.write(line)
-        while 1:
-            line = inFile.readline()
-            if not line: break
-            elif line.startswith('[MATERIAL_NUMBER_'):
-                outFile.write(line)
-                break
-            elif line.startswith('NAME'):
-                outFile.write(line)
-            elif line.startswith('KERF_WIDTH'):
-                outFile.write('KERF_WIDTH         = {}\n'.format(self.w.kerf_width.value()))
-            elif line.startswith('PIERCE_HEIGHT'):
-                outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.w.pierce_height.value()))
-            elif line.startswith('PIERCE_DELAY'):
-                outFile.write('PIERCE_DELAY       = {}\n'.format(self.w.pierce_delay.value()))
-            elif line.startswith('PUDDLE_JUMP_HEIGHT'):
-                outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.w.puddle_jump_height.value()))
-            elif line.startswith('PUDDLE_JUMP_DELAY'):
-                outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.w.puddle_jump_delay.value()))
-            elif line.startswith('CUT_HEIGHT'):
-                outFile.write('CUT_HEIGHT         = {}\n'.format(self.w.cut_height.value()))
-            elif line.startswith('CUT_SPEED'):
-                outFile.write('CUT_SPEED          = {}\n'.format(self.w.cut_feed_rate.value()))
-            elif line.startswith('CUT_AMPS'):
-                outFile.write('CUT_AMPS           = {}\n'.format(self.w.cut_amps.value()))
-            elif line.startswith('CUT_VOLTS'):
-                outFile.write('CUT_VOLTS          = {}\n'.format(self.w.cut_volts.value()))
-            elif line.startswith('PAUSE_AT_END'):
-                outFile.write('PAUSE_AT_END       = {}\n'.format(self.w.pause_at_end.value()))
-            elif line.startswith('GAS_PRESSURE'):
-                outFile.write('GAS_PRESSURE       = {}\n'.format(self.w.gas_pressure.value()))
-            elif line.startswith('CUT_MODE'):
-                outFile.write('CUT_MODE           = {}\n'.format(self.w.cut_mode.value()))
-            else:
-                 outFile.write(line)
-        while 1:
-            line = inFile.readline()
-            if not line: break
-            outFile.write(line)
-        inFile.close()
-        outFile.close()
+        with open(self.tmpMaterialFile, 'r') as inFile:
+            with open(self.materialFile, 'w') as outFile:
+                while 1:
+                    line = inFile.readline()
+                    if not line: break
+                    elif line.startswith('[MATERIAL_NUMBER_') and \
+                         material == int(line.strip().strip(']').split('[MATERIAL_NUMBER_')[1]):
+                        outFile.write(line)
+                        break
+                    else:
+                        outFile.write(line)
+                while 1:
+                    line = inFile.readline()
+                    if not line: break
+                    elif line.startswith('[MATERIAL_NUMBER_'):
+                        outFile.write(line)
+                        break
+                    elif line.startswith('NAME'):
+                        outFile.write(line)
+                    elif line.startswith('KERF_WIDTH'):
+                        outFile.write('KERF_WIDTH         = {}\n'.format(self.w.kerf_width.value()))
+                    elif line.startswith('PIERCE_HEIGHT'):
+                        outFile.write('PIERCE_HEIGHT      = {}\n'.format(self.w.pierce_height.value()))
+                    elif line.startswith('PIERCE_DELAY'):
+                        outFile.write('PIERCE_DELAY       = {}\n'.format(self.w.pierce_delay.value()))
+                    elif line.startswith('PUDDLE_JUMP_HEIGHT'):
+                        outFile.write('PUDDLE_JUMP_HEIGHT = {}\n'.format(self.w.puddle_jump_height.value()))
+                    elif line.startswith('PUDDLE_JUMP_DELAY'):
+                        outFile.write('PUDDLE_JUMP_DELAY  = {}\n'.format(self.w.puddle_jump_delay.value()))
+                    elif line.startswith('CUT_HEIGHT'):
+                        outFile.write('CUT_HEIGHT         = {}\n'.format(self.w.cut_height.value()))
+                    elif line.startswith('CUT_SPEED'):
+                        outFile.write('CUT_SPEED          = {}\n'.format(self.w.cut_feed_rate.value()))
+                    elif line.startswith('CUT_AMPS'):
+                        outFile.write('CUT_AMPS           = {}\n'.format(self.w.cut_amps.value()))
+                    elif line.startswith('CUT_VOLTS'):
+                        outFile.write('CUT_VOLTS          = {}\n'.format(self.w.cut_volts.value()))
+                    elif line.startswith('PAUSE_AT_END'):
+                        outFile.write('PAUSE_AT_END       = {}\n'.format(self.w.pause_at_end.value()))
+                    elif line.startswith('GAS_PRESSURE'):
+                        outFile.write('GAS_PRESSURE       = {}\n'.format(self.w.gas_pressure.value()))
+                    elif line.startswith('CUT_MODE'):
+                        outFile.write('CUT_MODE           = {}\n'.format(self.w.cut_mode.value()))
+                    else:
+                         outFile.write(line)
+                while 1:
+                    line = inFile.readline()
+                    if not line: break
+                    outFile.write(line)
         self.materialUpdate = True
         self.materialFileDict = {}
         self.load_materials()
@@ -4286,7 +4326,7 @@ class HandlerClass:
                     '# example only, may be deleted\n'\
                     '# items marked * are mandatory\n'\
                     '# other items are optional and will default to 0\n'\
-                    '#[MATERIAL_NUMBER_1]  \n'\
+                    '#[MATERIAL_NUMBER_1]\n'\
                     '#NAME               = \n'\
                     '#KERF_WIDTH         = \n'\
                     '#PIERCE_HEIGHT      = *\n'\
@@ -5094,7 +5134,7 @@ class HandlerClass:
         self.w.conv_save.setEnabled(False)
         self.w.conv_send.setEnabled(False)
         self.w.conv_settings.setEnabled(True)
-        if ACTION.prefilter_path:
+        if ACTION.prefilter_path and self.fileOpened:
 #            try:
             if ACTION.prefilter_path != self.fNgc:
                 COPY(ACTION.prefilter_path, self.fNgc)
@@ -5136,9 +5176,8 @@ class HandlerClass:
                 CONVLINE.set_arc_2_points_radius(self, self.w, False)
             elif self.lAlias == 'ALAR':
                 CONVLINE.set_arc_by_angle_radius(self, self.w, False)
-        outNgc = open(self.fNgc, 'w')
-        outNgc.write('(new conversational file)\nM2\n')
-        outNgc.close()
+        with open(self.fNgc, 'w') as outFile:
+            outNgc.write('(new conversational file)\nM2\n')
         COPY(self.fNgc, self.fTmp)
         COPY(self.fNgc, self.fNgcBkp)
         self.w.conv_preview.load(self.fNgc)
@@ -5150,7 +5189,7 @@ class HandlerClass:
 
     def conv_save_pressed(self):
         head = _translate('HandlerClass', 'Save Error')
-        with open(self.fNgc) as inFile:
+        with open(self.fNgc, 'r') as inFile:
             for line in inFile:
                 if '(new conversational file)' in line:
                     msg0 = _translate('HandlerClass', 'An empty file cannot be saved')
@@ -5204,7 +5243,6 @@ class HandlerClass:
                     if '(new conversational file)' in line:
                         msg0 = _translate('HandlerClass', 'An empty file cannot be arrayed, rotated, or scaled')
                         self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
-                        inFile.close()
                         return
                     # see if we can do something about NURBS blocks down the track
                     # elif 'g5.2' in line.lower() or 'g5.3' in line.lower():
@@ -5353,9 +5391,8 @@ class HandlerClass:
             if ACTION.prefilter_path:
                 COPY(ACTION.prefilter_path, self.fNgcBkp)
             else:
-                outNgc = open(self.fNgcBkp, 'w')
-                outNgc.write('(new conversational file)\nM2\n')
-                outNgc.close()
+                with open(self.fNgcBkp, 'w') as outNgc:
+                    outNgc.write('(new conversational file)\nM2\n')
             self.validShape = False
             self.w.preview.setEnabled(True)
             self.w.undo.setEnabled(False)
