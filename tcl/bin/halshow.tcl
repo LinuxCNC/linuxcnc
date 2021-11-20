@@ -281,7 +281,7 @@ proc makeShow {} {
     pack [scrollbar $f1.top.sc -orient vert -command "$::disp yview"]\
          -side left -fill y
 
-    set f2 [frame $::showhal.f2 -relief ridge -borderwidth 5]
+    set f2 [frame .f2 -borderwidth 5]
     pack $f2 -fill x -expand 0
     pack [frame $f2.b] \
          -side top -fill x -anchor w
