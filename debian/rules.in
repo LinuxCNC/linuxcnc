@@ -40,7 +40,7 @@ DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
-	cd src && ./configure \
+	cd src && PYTHON=/usr/bin/python3 ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
