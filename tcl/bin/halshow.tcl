@@ -302,6 +302,17 @@ proc makeShow {} {
                  -width 0 -height 1  \
                  -borderwidth 2 -relief groove ]
     pack $::showtext -side left -fill both -anchor w -expand 1
+
+    bind $::disp <Button-3> {copySelection 1}
+    bind . <Control-KeyPress-c> {copySelection 0}
+}
+
+proc copySelection {clear} {
+    clipboard clear
+    catch {clipboard append [selection get]}
+    if {$clear} {
+        selection clear
+    }
 }
 
 proc makeWatch {} {
