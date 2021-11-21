@@ -189,6 +189,70 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
  Please inspect the logs of the git repository to learn about the >230 (11/2021) committers.
 License: GPL-2+
 
+Files:
+ ./src/rtapi/rtapi_list.h
+ ./src/rtapi/rtai_rtapi.c
+ ./src/rtapi/rtapi.h
+ ./src/rtapi/rtapi_vsnprintf.h
+ ./src/rtapi/rtapi_proc.h
+ ./src/rtapi/rtapi_common.h
+ ./src/rtapi/rtai_ulapi.c
+ ./src/emc/ini/emcIniFile.cc
+ ./src/emc/ini/emcIniFile.hh
+ ./src/hal/classicladder/README.txt
+ ./src/hal/hal.h
+ ./src/hal/hal_lib.c
+ ./src/hal/hal_priv.h
+ ./src/hal/utils/bitfile.c
+ ./src/hal/utils/scope_disp.c
+ ./src/hal/utils/miscgtk.h
+ ./src/hal/utils/halcmd_commands.h
+ ./src/hal/utils/halcmd_completion.c
+ ./src/hal/utils/halcmd_completion.h
+ ./src/hal/utils/halcmd.h
+ ./src/hal/utils/scope_shm.h
+ ./src/hal/utils/miscgtk.c
+ ./src/hal/utils/halcmd_main.c
+ ./src/hal/utils/halcmd_commands.c
+ ./src/hal/utils/pci_write.c
+ ./src/hal/utils/scope_vert.c
+ ./src/hal/utils/scope_trig.c
+ ./src/hal/utils/upci.h
+ ./src/hal/utils/scope.c
+ ./src/hal/utils/bitfile.h
+ ./src/hal/utils/halcmd.c
+ ./src/hal/utils/meter.c
+ ./src/hal/utils/scope_usr.h
+ ./src/hal/utils/scope_rt.c
+ ./src/hal/utils/scope_horiz.c
+ ./src/hal/utils/upci.c
+ ./src/hal/utils/pci_read.c
+ ./src/hal/utils/scope_files.c
+ ./src/hal/utils/scope_rt.h
+ ./src/hal/drivers/bcm2835.h
+ ./src/hal/drivers/bcm2835.h
+ ./src/hal/drivers/hal_evoreg.c
+ ./src/hal/drivers/hal_skeleton.c
+ ./src/hal/drivers/hal_stg.c
+ ./src/hal/drivers/hal_motenc.c
+ ./src/hal/drivers/motenc.h
+ ./src/hal/drivers/hal_ax5214h.c
+ ./src/hal/drivers/hal_vti.c
+ ./src/hal/drivers/hal_speaker.c
+ ./src/hal/drivers/hal_vti.h
+ ./src/hal/drivers/hal_stg.h
+ ./src/hal/drivers/hal_tiro.c
+ ./src/hal/drivers/hal_ppmc.c
+ ./src/hal/user_comps/vfs11_vfd/vfs11_vfd.c
+ ./src/hal/user_comps/wj200_vfd/wj200_vfd.comp
+ ./src/hal/user_comps/gs2_vfd.c
+ ./src/hal/user_comps/pi500_vfd/pi500_vfd.comp
+ ./src/hal/user_comps/svd-ps_vfd.c
+ ./src/hal/user_comps/hy_gt_vfd.c
+ ./src/hal/user_comps/vfdb_vfd/vfdb_vfd.c
+Copyright: same flock of LinuxCNC devs as above
+License: GPL-2
+
 Files: src/m4/ax_python_devel.m4
 Copyright: 2009 Sebastian Huber <sebastian-huber@web.de>
            2009 Alan W. Irwin
@@ -197,6 +261,23 @@ Copyright: 2009 Sebastian Huber <sebastian-huber@web.de>
            2009 Matteo Settenvini <matteo@member.fsf.org>
            2009 Horst Knorr <hk_classes@knoda.org>
            2013 Daniel Mullner <muellner@math.stanford.edu>
+License: GPL-3+
+
+Files: nc_files/gcmc_lib/involute-gear.gcmc
+       nc_files/gcmc_lib/trochoid-path.gcmc
+       nc_files/gcmc_lib/cpocket.gcmc
+Copyright: 2014  B. Stultiens
+License: GPL-3+
+
+Files: tests/trajectory-planner/circular-arcs/octave/make_peak_img.m
+Copyright: 2014 Robert W. Ellenberg <rob@carbidelabs.com>
+License: GPL-3+
+
+Files: share/qtvcp/images/qtplasmac/numpad.svg
+       share/qtvcp/images/qtplasmac/keyboard.svg
+Copyright: 2013, 2016 Francesco Fumanti <francesco.fumanti@gmx.net>
+           2011-2014  marmuta <marmvta@gmail.com>
+           Onboard Devel Team
 License: GPL-3+
 
 Files: ./src/m4/ax_boost_python.m4
@@ -292,13 +373,6 @@ License: LGPL-2.1+
 Files: share/qtvcp/images/widgets/writer/icons
 Copyright: 2013 Yusuke Kamiyamane
 License: CC-3.0
-
-Files: share/qtvcp/images/qtplasmac/numpad.svg
-       share/qtvcp/images/qtplasmac/keyboard.svg
-Copyright: 2013, 2016 Francesco Fumanti <francesco.fumanti@gmx.net>
-           2011-2014  marmuta <marmvta@gmail.com>
-           Onboard Devel Team
-License: GPL-3+
 
 Files: unit_tests/catch.hpp
 Copyright: 2019 Two Blue Cubes Ltd. All rights reserved.
