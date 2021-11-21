@@ -503,8 +503,10 @@ proc watchReset {del} {
         default {
             set place [lsearch $::watchlist $del]
             if {$place != -1 } {
-            set ::watchlist [lreplace $::watchlist $place]
-                foreach var $::watchlist {
+                set ::watchlist [lreplace $::watchlist $place $place]
+                set watchlist_copy $::watchlist
+                set ::watchlist ""
+                foreach var $watchlist_copy {
                     watchHAL $var
                 }
             } else {            
