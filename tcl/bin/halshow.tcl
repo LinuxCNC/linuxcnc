@@ -522,7 +522,11 @@ proc copy_name {label} {
 }
 
 proc set_value {label} {
-    tk_messageBox -message "No function yet"
+    set val [eval hal "getp $label"]
+    set val [entrybox $val "Set" $label]
+    if {$val != "cancel"} {
+        eval hal "setp $label $val"
+    }
 }
 
 proc unlinkp {label i} {
@@ -534,6 +538,28 @@ proc unlinkp {label i} {
     }
 }
 
+proc entrybox {defVal buttonText label} {
+    set wn [toplevel .top]
+    wm title $wn "Set value"
+    set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
+    set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
+    wm geometry $wn "+$xpos+$ypos"
+    variable entryVal
+    set entryVal $defVal
+    label .top.lbl -text $label
+    entry .top.en -textvariable entryVal
+    .top.en icursor end
+    button .top.but -command {set ret $entryVal} -text $buttonText
+    bind .top.en <Return> {set ret $entryVal}
+    wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
+    pack {*}[winfo children .top]
+    focus .top.en
+    vwait ret
+    unset -nocomplain ret
+    unset -nocomplain entryVal
+    destroy .top
+    return $::ret
+}
 
 # watchHAL prepares a string of {i HALtype name} sets
 # watchLoop submits these to halcmd and sets canvas
