@@ -505,7 +505,7 @@ proc popupmenu {label index writable which x y} {
     if {$writable == -1} {
         $m add command -label "unlink pin" -command [list unlinkp $label $index]
     }
-    $m add command -label "remove" -command [list watchReset $which]
+    $m add command -label "remove" -command [list watchReset $label]
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
@@ -615,7 +615,8 @@ proc watchReset {del} {
             return
         }
         default {
-            set place [lsearch $::watchlist $del]
+            set item [string map {+ "\\+"} $del]; # escape '+' for regexp
+            set place [lsearch -regexp $::watchlist $item]
             if {$place != -1 } {
                 set ::watchlist [lreplace $::watchlist $place $place]
                 set watchlist_copy $::watchlist
