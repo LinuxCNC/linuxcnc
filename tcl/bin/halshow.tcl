@@ -18,6 +18,8 @@ exec $LINUXCNC_EMCSH "$0" "$@"
 
 # Load the linuxcnc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. linuxcnc.tcl]
+# Load file for canvasbuttons
+source [file join [file dirname [info script]] cbutton.tcl]
 
 package require BWidget
 
@@ -281,7 +283,7 @@ proc makeShow {} {
     pack [scrollbar $f1.top.sc -orient vert -command "$::disp yview"]\
          -side left -fill y
 
-    set f2 [frame $::showhal.f2 -relief ridge -borderwidth 5]
+    set f2 [frame .f2 -borderwidth 5]
     pack $f2 -fill x -expand 0
     pack [frame $f2.b] \
          -side top -fill x -anchor w
@@ -293,6 +295,8 @@ proc makeShow {} {
     set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
     pack $ex -side left -padx 5 -pady 3
+    bind $com <Up> {hist_move %W -1}
+    bind $com <Down> {hist_move %W 1} 
 
     pack [frame $f2.show -height 5] \
          -side top -fill both -expand 1
@@ -300,6 +304,17 @@ proc makeShow {} {
                  -width 0 -height 1  \
                  -borderwidth 2 -relief groove ]
     pack $::showtext -side left -fill both -anchor w -expand 1
+
+    bind $::disp <Button-3> {copySelection 1}
+    bind . <Control-KeyPress-c> {copySelection 0}
+}
+
+proc copySelection {clear} {
+    clipboard clear
+    catch {clipboard append [selection get]}
+    if {$clear} {
+        selection clear
+    }
 }
 
 proc makeWatch {} {
@@ -353,11 +368,32 @@ proc showHAL {which} {
 }
 
 proc showEx {what} {
+    hist_add $what
     set str [eval hal $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
     $::disp insert end $str
     $::disp configure -state disabled
+}
+
+set ::hist ""
+set ::i_hist 0
+proc hist_add {s} {
+    if {$s == ""} return
+    if [string compare $s [lindex $::hist end]] {
+        lappend ::hist $s
+        set ::i_hist [expr [llength $::hist]-1]
+    }
+}
+
+proc hist_move {w where} {
+    incr ::i_hist $where
+    if {[set ::i_hist]<0} {set ::i_hist 0}
+    if {[set ::i_hist]>=[llength $::hist]+1} {
+        set ::i_hist [llength $::hist]
+    }
+    set ::[$w cget -textvariable] [lindex $::hist [set ::i_hist]]
+    $w icursor end
 }
 
 set ::last_watchfile_tail my.halshow
@@ -386,35 +422,68 @@ proc watchHAL {which} {
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
-	# cannot watch components, functions, or threads
-	return
+        # cannot watch components, functions, or threads
+        return
     }
     set varname [lindex $tmplist end]
     if {$vartype == "sig"} {
-	# stype (and gets) fail when the item clicked is not a leaf
-	# e.g., clicking "Signals / X"
-	if {[catch {hal stype $varname} type]} { return }
+        # stype (and gets) fail when the item clicked is not a leaf
+        # e.g., clicking "Signals / X"
+        if {[catch {hal stype $varname} type]} { return }
     } else {
-	# ptype (and getp) fail when the item clicked is not a leaf
-	# e.g., clicking "Pins / axis / 0"
-	if {[catch {hal ptype $varname} type]} { return }
+        # ptype (and getp) fail when the item clicked is not a leaf
+        # e.g., clicking "Pins / axis / 0"
+        if {[catch {hal ptype $varname} type]} { return }
     }
 
     lappend ::watchlist $which
     set i [llength $::watchlist]
     set label [lindex [split $which +] end]
+
+     # check if pin or param is writable
+    set writable 0
+    set showret [join [hal show $vartype $label] " "]
+    if {$vartype == "pin"} {
+        if {[string index [lindex $showret 9] 0] == "I"} {
+            # check if signals are connected to pin
+            if {[string first "==" [lindex $showret 12] 0] < 0} {
+                set writable 1
+            } else {
+                set writable -1
+            }
+        }
+    } elseif {$vartype == "param"} {
+        if {[lindex $showret 8] == "RW"} {
+            set writable 1
+        }
+    }
+
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
-            -fill firebrick4 -tag oval$i
+            -fill lightgray -tag oval$i
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
+
+        if {$writable == 1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 1
+        } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 0
+        }
     } else {
-        # other gets a text display for value
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
+        if {$writable == 1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 1
+        } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 0
+        }
     }
+
+    $::cisp bind $label <Button-3> [list popupmenu $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
     set tmplist [split $which +]
@@ -422,6 +491,73 @@ proc watchHAL {which} {
     set varname [lindex $tmplist end]
     lappend ::watchstring "$i $vartype $varname "
     if {$::watching == 0} {watchLoop}
+}
+
+proc popupmenu {label index writable which x y} {
+    # create menu
+    set m [menu .popupMenu$index -tearoff false]
+    # add entries
+    $m add command -label "copy" -command [list copy_name $label]
+    if {$writable} {
+        $m add command -label "set to .." -command [list set_value $label]
+    }
+    if {$writable == -1} {
+        $m add command -label "unlink pin" -command [list unlinkp $label $index]
+    }
+    $m add command -label "remove" -command [list watchReset $label]
+    # show menu
+    tk_popup $m $x $y
+    bind $m <FocusOut> [list destroy $m]
+}
+
+proc hal_setp {label val} {
+    puts stderr "send hal command: setp $label $val"
+    eval hal "setp $label $val"
+}
+
+proc copy_name {label} {
+    clipboard clear
+    clipboard append $label
+}
+
+proc set_value {label} {
+    set val [eval hal "getp $label"]
+    set val [entrybox $val "Set" $label]
+    if {$val != "cancel"} {
+        eval hal "setp $label $val"
+    }
+}
+
+proc unlinkp {label i} {
+    # when unlink command successful --> rebuild list
+     if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
+        set watchlist_copy $::watchlist
+        watchReset all
+        foreach item $watchlist_copy { watchHAL $item }
+    }
+}
+
+proc entrybox {defVal buttonText label} {
+    set wn [toplevel .top]
+    wm title $wn "Set value"
+    set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
+    set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
+    wm geometry $wn "+$xpos+$ypos"
+    variable entryVal
+    set entryVal $defVal
+    label .top.lbl -text $label
+    entry .top.en -textvariable entryVal
+    .top.en icursor end
+    button .top.but -command {set ret $entryVal} -text $buttonText
+    bind .top.en <Return> {set ret $entryVal}
+    wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
+    pack {*}[winfo children .top]
+    focus .top.en
+    vwait ret
+    unset -nocomplain ret
+    unset -nocomplain entryVal
+    destroy .top
+    return $::ret
 }
 
 # watchHAL prepares a string of {i HALtype name} sets
@@ -478,10 +614,13 @@ proc watchReset {del} {
             return
         }
         default {
-            set place [lsearch $::watchlist $del]
+            set item [string map {+ "\\+"} $del]; # escape '+' for regexp
+            set place [lsearch -regexp $::watchlist $item]
             if {$place != -1 } {
-            set ::watchlist [lreplace $::watchlist $place]
-                foreach var $::watchlist {
+                set ::watchlist [lreplace $::watchlist $place $place]
+                set watchlist_copy $::watchlist
+                set ::watchlist ""
+                foreach var $watchlist_copy {
                     watchHAL $var
                 }
             } else {            

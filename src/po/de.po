@@ -4983,11 +4983,11 @@ msgstr "Pins aufklappen"
 
 #: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:116
 msgid "Expand Parameters"
-msgstr "Parameters aufklappen"
+msgstr "Parameter aufklappen"
 
 #: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:118
 msgid "Expand Signals"
-msgstr "Signals aufklappen"
+msgstr "Signale aufklappen"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:121
 msgid "Erase Watch"
@@ -5064,13 +5064,12 @@ msgid " WATCH "
 msgstr " BEOBACHTEN "
 
 #: tcl/bin/halshow.tcl:87
-#, fuzzy
 msgid "Save Watch List"
-msgstr "Beobachtungsliste laden"
+msgstr "Beobachtungsliste speichern"
 
 #: tcl/bin/halshow.tcl:88
 msgid "Save Watch List (multiline)"
-msgstr ""
+msgstr "Beobachtungsliste speichern (mehrzeilig)"
 
 #: tcl/bin/halshow.tcl:93
 msgid "Load Watch List"
