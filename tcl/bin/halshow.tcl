@@ -441,30 +441,37 @@ proc watchHAL {which} {
     set label [lindex [split $which +] end]
 
      # check if pin or param is writable
-    set writable false
+    set writable 0
     set showret [join [hal show $vartype $label] " "]
     if {$vartype == "pin"} {
         if {[string index [lindex $showret 9] 0] == "I"} {
             # check if signals are connected to pin
             if {[string first "==" [lindex $showret 12] 0] < 0} {
-                set writable true
-            }            
+                set writable 1
+            } else {
+                set writable -1
+            }
         }
     } elseif {$vartype == "param"} {
         if {[lindex $showret 8] == "RW"} {
-            set writable true
+            set writable 1
         }
     }
 
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
-            -fill firebrick4 -tag oval$i
+            -fill lightgray -tag oval$i
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
 
         if {$writable} {
             canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1]
             canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0]
+        } 
+        if {$writable == -1} {
+            # @todo: gray out text (and border)
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] " " [list hal_setp $label 1]
+            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] " " [list hal_setp $label 0]
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
@@ -476,11 +483,7 @@ proc watchHAL {which} {
         }
     }
 
-    # Create a menu and bind to right click
-    set m [menu .popupMenu$i -tearoff false]
-    $m add command -label "copy" -command [list copy_name $label]
-    $m add command -label "change" -command bell
-    $::cisp bind $label <Button-3> [list popupmenu $label $i %X %Y]
+    $::cisp bind $label <Button-3> [list popupmenu $label $i $writable $which %X %Y]
 
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
@@ -491,13 +494,26 @@ proc watchHAL {which} {
     if {$::watching == 0} {watchLoop}
 }
 
-proc popupmenu {label index x y} {
-    tk_popup .popupMenu$index $x $y
+proc popupmenu {label index writable which x y} {
+    # create menu
+    set m [menu .popupMenu$index -tearoff false]
+    # add entries
+    $m add command -label "copy" -command [list copy_name $label]
+    if {$writable} {
+        $m add command -label "change" -command [list set_value $label]
+    }
+    if {$writable == -1} {
+        $m add command -label "unlink pin" -command [list unlinkp $label $index]
+    }
+    $m add command -label "remove" -command [list watchReset $which]
+    # show menu
+    tk_popup $m $x $y
+    bind $m <FocusOut> [list destroy $m]
 }
 
 proc hal_setp {label val} {
     puts stderr "send hal command: setp $label $val"
-    showEx "setp $label $val"
+    eval hal "setp $label $val"
 }
 
 proc copy_name {label} {
@@ -507,6 +523,15 @@ proc copy_name {label} {
 
 proc set_value {label} {
     tk_messageBox -message "No function yet"
+}
+
+proc unlinkp {label i} {
+    # when unlink command succesful --> refresh list
+     if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
+        set watchlist_copy $::watchlist
+        watchReset all
+        foreach item $watchlist_copy { watchHAL $item }
+    }
 }
 
 
