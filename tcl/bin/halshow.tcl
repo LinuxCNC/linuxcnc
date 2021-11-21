@@ -18,6 +18,8 @@ exec $LINUXCNC_EMCSH "$0" "$@"
 
 # Load the linuxcnc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. linuxcnc.tcl]
+# Load file for canvasbuttons
+source [file join [file dirname [info script]] cbutton.tcl]
 
 package require BWidget
 
@@ -420,35 +422,66 @@ proc watchHAL {which} {
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
-	# cannot watch components, functions, or threads
-	return
+        # cannot watch components, functions, or threads
+        return
     }
     set varname [lindex $tmplist end]
     if {$vartype == "sig"} {
-	# stype (and gets) fail when the item clicked is not a leaf
-	# e.g., clicking "Signals / X"
-	if {[catch {hal stype $varname} type]} { return }
+        # stype (and gets) fail when the item clicked is not a leaf
+        # e.g., clicking "Signals / X"
+        if {[catch {hal stype $varname} type]} { return }
     } else {
-	# ptype (and getp) fail when the item clicked is not a leaf
-	# e.g., clicking "Pins / axis / 0"
-	if {[catch {hal ptype $varname} type]} { return }
+        # ptype (and getp) fail when the item clicked is not a leaf
+        # e.g., clicking "Pins / axis / 0"
+        if {[catch {hal ptype $varname} type]} { return }
     }
 
     lappend ::watchlist $which
     set i [llength $::watchlist]
     set label [lindex [split $which +] end]
+
+     # check if pin or param is writable
+    set writable false
+    set showret [join [hal show $vartype $label] " "]
+    if {$vartype == "pin"} {
+        if {[string index [lindex $showret 9] 0] == "I"} {
+            # check if signals are connected to pin
+            if {[string first "==" [lindex $showret 12] 0] < 0} {
+                set writable true
+            }            
+        }
+    } elseif {$vartype == "param"} {
+        if {[lindex $showret 8] == "RW"} {
+            set writable true
+        }
+    }
+
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill firebrick4 -tag oval$i
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
+
+        if {$writable} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1]
+            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0]
+        }
     } else {
-        # other gets a text display for value
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
+        if {$writable} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label]
+        }
     }
+
+    # Create a menu and bind to right click
+    set m [menu .popupMenu$i -tearoff false]
+    $m add command -label "copy" -command [list copy_name $label]
+    $m add command -label "change" -command bell
+    $::cisp bind $label <Button-3> [list popupmenu $label $i %X %Y]
+
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
     set tmplist [split $which +]
@@ -457,6 +490,25 @@ proc watchHAL {which} {
     lappend ::watchstring "$i $vartype $varname "
     if {$::watching == 0} {watchLoop}
 }
+
+proc popupmenu {label index x y} {
+    tk_popup .popupMenu$index $x $y
+}
+
+proc hal_setp {label val} {
+    puts stderr "send hal command: setp $label $val"
+    showEx "setp $label $val"
+}
+
+proc copy_name {label} {
+    clipboard clear
+    clipboard append $label
+}
+
+proc set_value {label} {
+    tk_messageBox -message "No function yet"
+}
+
 
 # watchHAL prepares a string of {i HALtype name} sets
 # watchLoop submits these to halcmd and sets canvas
