@@ -69,7 +69,7 @@
  #
  #----------------------------------------------------------------------
  
- proc canvasbutton::canvasbutton {w x0 y0 x1 y1 text cmd} {
+ proc canvasbutton::canvasbutton {w x0 y0 x1 y1 text cmd state} {
      variable nexttag
      variable command
  
@@ -77,23 +77,33 @@
  
      set command($btag) $cmd
  
-     $w create rectangle $x0 $y0 $x1 $y1 \
-             -fill lightgray -outline black -width 1 \
-             -tags [list canvasb $btag [linsert $btag end frame]]
+
  
      set x [expr { ($x0+$x1) / 2 }]
      set y [expr { ($y0+$y1) / 2 }]
-     
-     $w create text $x $y -anchor center -justify center \
-             -text $text \
-             -tags [list canvasb $btag [linsert $btag end text]]
- 
-     $w bind canvasb <Enter> [list [namespace current]::enter %W]
-     $w bind canvasb <Leave> [list [namespace current]::leave %W]
-     $w bind canvasb <ButtonPress-1> \
-             [list [namespace current]::press %W]
-     $w bind canvasb <ButtonRelease-1> \
-             [list [namespace current]::release %W]
+
+    if {$state} {
+
+        $w create rectangle $x0 $y0 $x1 $y1 \
+                -fill lightgray -outline black -width 1 \
+                -tags [list canvasb $btag [linsert $btag end frame]]
+
+        $w create text $x $y -anchor center -justify center \
+                -text $text \
+                -tags [list canvasb $btag [linsert $btag end text]]
+    
+        $w bind canvasb <Enter> [list [namespace current]::enter %W]
+        $w bind canvasb <Leave> [list [namespace current]::leave %W]
+        $w bind canvasb <ButtonPress-1> \
+                [list [namespace current]::press %W]
+        $w bind canvasb <ButtonRelease-1> \
+                [list [namespace current]::release %W]
+    } else {
+        $w create rectangle $x0 $y0 $x1 $y1 \
+                -fill lightgray -outline grey65 -width 1 
+        $w create text $x $y -anchor center -justify center \
+                -text $text -fill grey65
+    }
  
      return $btag
  }
@@ -128,9 +138,9 @@
      set cursor($w) [$w cget -cursor]
      $w configure -cursor arrow
      #$w itemconfigure $frame -width 3
-     $w itemconfigure $frame -fill {white smoke}
+     $w itemconfigure $frame -fill grey93
      if {![string compare $enteredButton $pressedButton]} {
-         $w itemconfigure $frame -fill gray
+         $w itemconfigure $frame -fill grey60
      }
  }
  
@@ -192,7 +202,7 @@
      variable pressedButton
      set pressedButton [findBtag $w]
      $w itemconfigure [linsert $pressedButton end frame] \
-             -fill gray
+             -fill grey60
      return
  }
  
@@ -224,7 +234,7 @@
      set pressedButton {}
  
      $w itemconfigure [linsert $pressedButtonWas end frame] \
-             -fill {white smoke}
+             -fill grey93
  
      if {![string compare $enteredButton $pressedButtonWas]} {
          uplevel #0 $command($pressedButtonWas)

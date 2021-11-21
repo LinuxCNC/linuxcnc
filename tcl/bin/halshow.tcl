@@ -464,27 +464,26 @@ proc watchHAL {which} {
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
 
-        if {$writable} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1]
-            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0]
-        } 
-        if {$writable == -1} {
-            # @todo: gray out text (and border)
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] " " [list hal_setp $label 1]
-            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] " " [list hal_setp $label 0]
+        if {$writable == 1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 1
+        } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
-        if {$writable} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label]
+        if {$writable == 1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 1
+        } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 0
         }
     }
 
     $::cisp bind $label <Button-3> [list popupmenu $label $i $writable $which %X %Y]
-
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
     set tmplist [split $which +]
@@ -500,7 +499,7 @@ proc popupmenu {label index writable which x y} {
     # add entries
     $m add command -label "copy" -command [list copy_name $label]
     if {$writable} {
-        $m add command -label "change" -command [list set_value $label]
+        $m add command -label "set to .." -command [list set_value $label]
     }
     if {$writable == -1} {
         $m add command -label "unlink pin" -command [list unlinkp $label $index]
@@ -530,7 +529,7 @@ proc set_value {label} {
 }
 
 proc unlinkp {label i} {
-    # when unlink command succesful --> refresh list
+    # when unlink command successful --> rebuild list
      if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
         set watchlist_copy $::watchlist
         watchReset all
