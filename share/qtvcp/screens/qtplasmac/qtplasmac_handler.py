@@ -1,4 +1,4 @@
-VERSION = '1.217.124'
+VERSION = '1.217.125'
 
 '''
 qtplasmac_handler.py
@@ -5176,7 +5176,7 @@ class HandlerClass:
                 CONVLINE.set_arc_2_points_radius(self, self.w, False)
             elif self.lAlias == 'ALAR':
                 CONVLINE.set_arc_by_angle_radius(self, self.w, False)
-        with open(self.fNgc, 'w') as outFile:
+        with open(self.fNgc, 'w') as outNgc:
             outNgc.write('(new conversational file)\nM2\n')
         COPY(self.fNgc, self.fTmp)
         COPY(self.fNgc, self.fNgcBkp)
