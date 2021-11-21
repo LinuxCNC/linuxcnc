@@ -293,6 +293,8 @@ proc makeShow {} {
     set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
     pack $ex -side left -padx 5 -pady 3
+    bind $com <Up> {hist_move %W -1}
+    bind $com <Down> {hist_move %W 1} 
 
     pack [frame $f2.show -height 5] \
          -side top -fill both -expand 1
@@ -353,11 +355,32 @@ proc showHAL {which} {
 }
 
 proc showEx {what} {
+    hist_add $what
     set str [eval hal $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
     $::disp insert end $str
     $::disp configure -state disabled
+}
+
+set ::hist ""
+set ::i_hist 0
+proc hist_add {s} {
+    if {$s == ""} return
+    if [string compare $s [lindex $::hist end]] {
+        lappend ::hist $s
+        set ::i_hist [expr [llength $::hist]-1]
+    }
+}
+
+proc hist_move {w where} {
+    incr ::i_hist $where
+    if {[set ::i_hist]<0} {set ::i_hist 0}
+    if {[set ::i_hist]>=[llength $::hist]+1} {
+        set ::i_hist [llength $::hist]
+    }
+    set ::[$w cget -textvariable] [lindex $::hist [set ::i_hist]]
+    $w icursor end
 }
 
 set ::last_watchfile_tail my.halshow
