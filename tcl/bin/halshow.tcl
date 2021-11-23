@@ -292,12 +292,14 @@ proc makeShow {} {
     set com [entry $f2.b.entry -textvariable halcommand]
     pack $com -side left -fill x -expand 1 -pady 3
     bind $com <KeyPress-Return> {showEx $halcommand}
+    bind $com <Control-KeyPress-v> {
+        if {[%W selection present]} {%W delete sel.first sel.last}
+    }
+    bind $com <Up> {hist_move %W -1}
+    bind $com <Down> {hist_move %W 1}  
     set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
     pack $ex -side left -padx 5 -pady 3
-    bind $com <Up> {hist_move %W -1}
-    bind $com <Down> {hist_move %W 1} 
-
     pack [frame $f2.show -height 5] \
          -side top -fill both -expand 1
     set ::showtext [text $f2.show.txt \
@@ -369,7 +371,7 @@ proc showHAL {which} {
 
 proc showEx {what} {
     hist_add $what
-    set str [eval hal $what]
+    set str [eval exec halcmd $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
     $::disp insert end $str
