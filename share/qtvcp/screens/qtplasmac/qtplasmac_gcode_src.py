@@ -25,7 +25,7 @@ import linuxcnc
 import math
 import shutil
 import time
-import hal
+from subprocess import run as RUN
 from PyQt5 import QtCore
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
@@ -34,23 +34,24 @@ from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLa
 app = QApplication(sys.argv)
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
-try:
-    h = hal.component('dummy')
-    hError = False
-except:
-    hError = True
 inCode = sys.argv[1]
 materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
 tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
 tmpMatNum = 1000000
 tmpMatNam = ''
 prefsFile = 'qtplasmac.prefs'
-cutType = hal.get_value('qtplasmac.cut_type')
-currentMat = hal.get_value('qtplasmac.material_change_number')
-fgColor = str(hex(hal.get_value('qtplasmac.color_fg'))).replace('0x', '#')
-bgColor = str(hex(hal.get_value('qtplasmac.color_bg'))).replace('0x', '#')
-bgAltColor = str(hex(hal.get_value('qtplasmac.color_bgalt'))).replace('0x', '#')
-zMaxOffset = hal.get_value('plasmac.max-offset')
+response = RUN(['halcmd', 'getp', 'qtplasmac.cut_type'], capture_output = True)
+cutType = int(response.stdout.decode())
+response = RUN(['halcmd', 'getp', 'qtplasmac.material_change_number'], capture_output = True)
+currentMat = int(response.stdout.decode())
+response = RUN(['halcmd', 'getp', 'qtplasmac.color_fg'], capture_output = True)
+fgColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
+response = RUN(['halcmd', 'getp', 'qtplasmac.color_bg'], capture_output = True)
+bgColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
+response = RUN(['halcmd', 'getp', 'qtplasmac.color_bgalt'], capture_output = True)
+bgAltColor = str(hex(int(response.stdout.decode()))).replace('0x', '#')
+response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
+zMaxOffset = float(response.stdout.decode())
 metric = ['mm', 4]
 imperial = ['in', 6]
 units, precision = imperial if ini.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else metric
@@ -70,7 +71,11 @@ line = ''
 rapidLine = ''
 lastX = 0
 lastY = 0
+oBurnX = 0
+oBurnY = 0
 lineNum = 0
+distMode = 90 # absolute
+arcDistMode = 91.1 # incremental
 holeVelocity = 60
 material = [0, False]
 overCut = False
@@ -105,8 +110,6 @@ errorEditMat = []
 errorWriteMat = []
 errorReadMat = []
 errorCompMat = []
-errorG90 = []
-errorG91 = []
 errors  = 'The following errors will affect the process.\n'
 errors += 'Errors must be fixed before reloading this file.\n'
 
@@ -154,69 +157,76 @@ def dialog_box(title, text, align):
 def dlg_ok_clicked(dlg):
     dlg.accept()
 
-if hError:
-    title = 'ERROR DIALOG'
-    msg0 = 'Multiple error message dialogs are displayed'
-    msg1 = 'Please close all message dialogs'
-    dialog_box(title, ('{}.\n\n{}.\n'.format(msg0, msg1)), Qt.AlignCenter)
-
 # set hole type
 def set_hole_type(h):
     global lineNum, holeEnable, overCut, arcEnable
     if h == 1:
         holeEnable = True
+        arcEnable = False
         overCut = False
-        arcEnable = False
     elif h == 2:
-        holeEnable = overCut = True
+        holeEnable = True
         arcEnable = False
-        lineNum += 1
+        overCut = True
     elif h == 3:
-        holeEnable = arcEnable = True
+        holeEnable = True
+        arcEnable = True
         overCut = False
     elif h == 4:
-        holeEnable = arcEnable = overCut = True
-        lineNum += 1
+        holeEnable = True
+        arcEnable = True
+        overCut = True
     else:
-        holeEnable = arcEnable = overCut = False
+        holeEnable = False
+        arcEnable = False
+        overCut = False
 
 # check if arc is a hole
 def check_if_hole():
     global lineNum, lastX, lastY, minDiameter
-    endX = get_position('x') if 'x' in line else lastX
-    endY = get_position('y') if 'y' in line else lastY
-    I = J = isHole = 0
-    if 'i' in line: I = get_position('i')
-    if 'j' in line: J = get_position('j')
-    if lastX == endX and lastY == endY:
+    I, J, isHole = 0, 0, 0
+    if distMode == 91: # get absolute X & Y from incremental coordinates
+        endX = lastX + get_axis_value('x') if 'x' in line else lastX
+        endY = lastY + get_axis_value('y') if 'y' in line else lastY
+    else: # get absolute X & Y
+        endX = get_axis_value('x') if 'x' in line else lastX
+        endY = get_axis_value('y') if 'y' in line else lastY
+    if arcDistMode == 90.1: # convert I & J to incremental to make diameter calculations easier
+        if 'i' in line: I = get_axis_value('i') - lastX
+        if 'j' in line: J = get_axis_value('j') - lastY
+    else: # get incremental I & J
+        if 'i' in line: I = get_axis_value('i')
+        if 'j' in line: J = get_axis_value('j')
+    if lastX and lastY and lastX == endX and lastY == endY:
         isHole = True
-    radius = get_hole_radius(I, J, isHole)
+    diameter = get_hole_diameter(I, J, isHole)
     gcodeList.append(line)
-    if isHole and overCut and radius <= (minDiameter / 2):
-        overburn(I, J, radius)
+    if isHole and overCut and diameter <= minDiameter:
+        overburn(I, J, diameter / 2)
         return
     else:
         lastX = endX
         lastY = endY
 
-# get hole radius and set velocity percentage
-def get_hole_radius(I, J, isHole):
+# get hole diameter and set velocity percentage
+def get_hole_diameter(I, J, isHole):
     global lineNum, holeActive, codeWarn, warnCompVel, warnHoleDir
     if offsetG4x:
-        radius = math.sqrt((I ** 2) + (J ** 2))
+        diameter = math.sqrt((I ** 2) + (J ** 2)) * 2
     else:
-        #radius = math.sqrt((I ** 2) + (J ** 2)) + (materialDict[material[0]][1] / 2)
-        radius = math.sqrt((I ** 2) + (J ** 2))
-    # velocity reduction required
-    if radius <= (minDiameter / 2) and (isHole or arcEnable):
+        kerfWidth = materialDict[material[0]][1] / 2 * unitMultiplier
+        diameter = (math.sqrt((I ** 2) + (J ** 2)) * 2) + kerfWidth
+    # velocity reduction is required
+    if diameter <= minDiameter and (isHole or arcEnable):
         if offsetG4x:
             lineNum += 1
-            codeWarn = True
             gcodeList.append(';m67 e3 q0 (inactive due to g41)')
+            codeWarn = True
             warnCompVel.append(lineNum)
         elif not holeActive:
-            lineNum += 1
-            gcodeList.append('m67 e3 q{0} (diameter:{1:0.3f}, velocity:{0}%)'.format(holeVelocity, radius * 2))
+            if diameter <= minDiameter:
+                lineNum += 1
+                gcodeList.append('m67 e3 q{0} (diameter:{1:0.3f}, velocity:{0}%)'.format(holeVelocity, diameter))
             holeActive = True
         if line.startswith('g2') and isHole:
             codeWarn = True
@@ -227,11 +237,11 @@ def get_hole_radius(I, J, isHole):
             lineNum += 1
             gcodeList.append('m67 e3 q0 (arc complete, velocity 100%)')
             holeActive = False
-    return radius
+    return diameter
 
 # turn torch off and move 4mm (0.157) past hole end
 def overburn(I, J, radius):
-    global lineNum, lastX, lastY, torchEnable, ocLength, warnCompTorch
+    global lineNum, lastX, lastY, torchEnable, ocLength, warnCompTorch, arcDistMode, oBurnX, oBurnY
     centerX = lastX + I
     centerY = lastY + J
     cosA = math.cos(ocLength / radius)
@@ -240,8 +250,8 @@ def overburn(I, J, radius):
     sinB = ((lastY - centerY) / radius)
     lineNum += 1
     if offsetG4x:
-        codeWarn = True
         gcodeList.append(';m62 p3 (inactive due to g41)')
+        codeWarn = True
         warnCompTorch.append(lineNum)
     else:
         gcodeList.append('m62 p3 (disable torch)')
@@ -257,12 +267,43 @@ def overburn(I, J, radius):
         endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
         dir = '3'
     lineNum += 1
-    gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX, endY, I, J, precision))
-    lastX = endX
-    lastY = endY
+    # restore I & J back to absolute from incremental conversion in check_if_hole
+    if arcDistMode == 90.1:
+        I += lastX
+        J += lastY
+    if distMode == 91: # output incremental X & Y
+        gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX - lastX, endY - lastY, I, J, precision))
+    else: # output absolute X & Y
+        gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX, endY, I, J, precision))
+    oBurnX = endX - lastX
+    oBurnY = endY - lastY
 
-# get axis position
-def get_position(axis):
+# fix incremental coordinates after overburn
+def fix_overburn_incremental_coordinates(line):
+    newLine = line[:2]
+    if 'x' in line and 'y' in line:
+        x = get_axis_value('x')
+        if x is not None:
+            newLine += 'x{:0.4f}'.format(x - oBurnX)
+        y = get_axis_value('y')
+        if y is not None:
+            newLine += 'y{:0.4f}'.format(y - oBurnY)
+        return newLine
+    elif 'x in line':
+        x = get_axis_value('x')
+        if x is not None:
+            newLine += 'x{:0.4f}y{:0.4f}'.format(x - oBurnX, oBurnY)
+        return newLine
+    elif 'y' in line:
+        y = get_axis_value('y')
+        if y is not None:
+            newLine += 'x{:0.4f}y{:0.4f}'.format(oBurnX, y - oBurnY)
+        return newLine
+    else:
+        return line
+
+# get axis value
+def get_axis_value(axis):
     tmp1 = line.split(axis)[1].replace(' ','')
     if not tmp1[0].isdigit() and not tmp1[0] == '.' and not tmp1[0] == '-':
         return None
@@ -278,15 +319,21 @@ def get_position(axis):
             break
     return float(tmp2)
 
-# set the last X and Y positions
-def set_last_position(Xpos, Ypos):
+# set the last X and Y coordinates
+def set_last_coordinates(Xpos, Ypos):
     if line[0] in ['g','x','y']:
         if 'x' in line:
-            if get_position('x') is not None:
-                Xpos = get_position('x')
+            if get_axis_value('x') is not None:
+                if distMode == 91: # get absolute X from incremental position
+                    Xpos += get_axis_value('x')
+                else: # get absolute X
+                    Xpos = get_axis_value('x')
         if 'y' in line:
-            if get_position('y') is not None:
-                Ypos = get_position('y')
+            if get_axis_value('y') is not None:
+                if distMode == 91: # get absolute X from incremental position
+                    Ypos += get_axis_value('y')
+                else: # get absolute X
+                    Ypos = get_axis_value('y')
     return Xpos, Ypos
 
 # comment out all Z commands
@@ -352,14 +399,14 @@ def do_material_change():
     if material[0] not in materialDict and material[0] < 1000000:
         codeError = True
         errorMissMat.append(lineNum)
-    hal.set_p('qtplasmac.material_change_number', '{}'.format(material[0]))
+    RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(material[0])])
     if not firstMaterial:
         firstMaterial = material[0]
     gcodeList.append(line)
 
 # check if material edit required
 def check_material_edit():
-    global lineNum, tmpMatNum, tmpMatNam
+    global lineNum, tmpMatNum, tmpMatNam, codeError
     tmpMaterial = False
     newMaterial = []
     th = 0
@@ -429,6 +476,7 @@ def check_material_edit():
                 if newMaterial[0] == 0:
                     write_temporary_material(newMaterial)
                 elif nu in materialDict and newMaterial[0] == 1:
+                    codeError = True
                     errorNewMat.append(lineNum)
                 else:
                     rewrite_material_file(newMaterial)
@@ -441,7 +489,7 @@ def check_material_edit():
 
 # write temporary materials file
 def write_temporary_material(data):
-    global lineNum, warnMatLoad, material
+    global lineNum, warnMatLoad, material, codeError
     try:
         with open(tmpMaterialFile, 'w') as fWrite:
             fWrite.write('#plasmac temporary material file\n')
@@ -465,7 +513,7 @@ def write_temporary_material(data):
         codeError = True
         errorTempMat.append(lineNum)
     materialDict[tmpMatNum] = [data[10], data[3]]
-    hal.set_p('qtplasmac.material_temp', '{}'.format(tmpMatNum))
+    RUN(['halcmd', 'setp', 'qtplasmac.material_temp', '{}'.format(tmpMatNum)])
     material[0] = tmpMatNum
     matDelay = time.time()
     while 1:
@@ -473,7 +521,8 @@ def write_temporary_material(data):
             codeWarn = True
             warnMatLoad.append(lineNum)
             break
-        if not hal.get_value('qtplasmac.material_temp'):
+        response = RUN(['halcmd', 'getp', 'qtplasmac.material_temp'], capture_output = True)
+        if not int(response.stdout.decode()):
             break
 
 # rewrite the material file
@@ -508,7 +557,7 @@ def rewrite_material_file(newMaterial):
         add_edit_material(newMaterial, outFile)
     inFile.close()
     outFile.close()
-    hal.set_p('qtplasmac.material_reload', '1')
+    RUN(['halcmd', 'setp', 'qtplasmac.material_reload', 1])
     get_materials()
     matDelay = time.time()
     while 1:
@@ -516,7 +565,8 @@ def rewrite_material_file(newMaterial):
             codeWarn = True
             warnMatLoad.append(lineNum)
             break
-        if not hal.get_value('qtplasmac.material_reload'):
+        response = RUN(['halcmd', 'getp', 'qtplasmac.material_reload'], capture_output = True)
+        if not int(response.stdout.decode()):
             break
 
 # add a new material or or edit an existing material
@@ -541,7 +591,7 @@ def add_edit_material(material, outFile):
         outFile.write('\n')
     except:
         codeError = True
-        errorWriteMat = True
+        errorWriteMat.append(lineNum)
 
 # create a dict of material numbers and kerf widths
 def get_materials():
@@ -578,7 +628,7 @@ def get_materials():
                     kWidth = float(line.split('=')[1].strip())
     except:
         codeError = True
-        errorReadMat = True
+        errorReadMat.append(lineNum)
 
 def check_f_word(line):
     global lineNum, materialDict, codeWarn, warnFeed
@@ -646,8 +696,9 @@ with open(inCode, 'r') as fRead:
             gcodeList.append(line)
             # add material change for temporary material
             if line.startswith('(o=0'):
-                lineNum += 2
+                lineNum += 1
                 gcodeList.append('m190 p{}'.format(tmpMatNum))
+                lineNum += 1
                 gcodeList.append('m66 p3 l3 q1')
                 tmpMatNum += 1
             continue
@@ -675,6 +726,9 @@ with open(inCode, 'r') as fRead:
                     line = line[:1] + line[2:]
                 else:
                     break
+        # if incremental distance mode fix overburn coordinates
+        if line[:2] in ['g0', 'g1'] and distMode == 91 and (oBurnX or oBurnY):
+            line = fix_overburn_incremental_coordinates(line)
         # if z motion is to be kept
         if line.startswith('#<keep-z-motion>'):
             if '(' in line:
@@ -695,8 +749,8 @@ with open(inCode, 'r') as fRead:
             offsetTopZ = (zMaxOffset * unitsPerMm * unitMultiplier)
             moveTopZ = 'g53 g0 z[#<_ini[axis_z]max_limit> * {} - {:.3f}] (Z just below max height)'.format(unitMultiplier, offsetTopZ)
             if not '[#<_ini[axis_z]max_limit>' in line:
-                gcodeList.append(moveTopZ)
                 lineNum += 1
+                gcodeList.append(moveTopZ)
             else:
                 line = moveTopZ
             zSetup = True
@@ -823,20 +877,15 @@ with open(inCode, 'r') as fRead:
                 errorCompMat.append(lineNum)
             gcodeList.append(line)
             continue
-        # check if unsupported distance mode
-        if holeEnable and 'g91' in line and not 'g91.1' in line:
-            codeError = True
-            errorG90.append(lineNum)
-        # check if unsupported arc distance mode
-        elif holeEnable and 'g90.1' in line:
-                codeError = True
-                errorG91.append(lineNum)
-        # check if we can read the values correctly
-        if holeEnable and 'x' in line: check_math('x')
-        if holeEnable and 'y' in line: check_math('y')
-        if holeEnable and 'i' in line: check_math('i')
-        if holeEnable and 'j' in line: check_math('j')
-        # check for z axis command
+        # set arc modes
+        if 'g90' in line and not 'g90.' in line:
+            distMode = 90 # absolute distance mode
+        if 'g91' in line and not 'g91.' in line:
+            distMode = 91 # incremental distance mode
+        if 'g90.1' in line:
+            arcDistMode = 90.1 # absolute arc distance mode
+        if 'g91.1' in line:
+            arcDistMode = 91.1 # incremental arc distance mode
         if not zBypass:
             # if z axis in line
             if 'z' in line and line.split('z')[1][0] in '0123456789.- ':
@@ -851,14 +900,19 @@ with open(inCode, 'r') as fRead:
                     continue
                 # other axes in line, comment out the Z axis
                 if not '(z' in line:
-                    if holeEnable:
-                        lastX, lastY = set_last_position(lastX, lastY)
+                    if holeEnable and ('x' in line or 'y' in line):
+                        lastX, lastY = set_last_coordinates(lastX, lastY)
                     result = comment_out_z_commands()
                     gcodeList.append(result)
                     continue
         # if an arc command
         if (line.startswith('g2') or line.startswith('g3')) and line[2].isalpha():
             if holeEnable:
+                # check if we can read the values correctly
+                if 'x' in line: check_math('x')
+                if 'y' in line: check_math('y')
+                if 'i' in line: check_math('i')
+                if 'j' in line: check_math('j')
                 check_if_hole()
             else:
                 gcodeList.append(line)
@@ -908,7 +962,7 @@ with open(inCode, 'r') as fRead:
                 gcodeList.append('(disable hole sensing)')
                 holeEnable = False
             if firstMaterial:
-                hal.set_p('qtplasmac.material_change_number', '{}'.format(firstMaterial))
+                RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(firstMaterial)])
             gcodeList.append(line)
             continue
         # check feed rate
@@ -920,8 +974,8 @@ with open(inCode, 'r') as fRead:
             gcodeList.append('m67 e3 q0 (arc complete, velocity 100%)')
             holeActive = False
         # set last X/Y position
-        if holeEnable and len(line):
-            lastX, lastY = set_last_position(lastX, lastY)
+        if holeEnable and len(line) and ('x' in line or 'y' in line):
+            lastX, lastY = set_last_coordinates(lastX, lastY)
         gcodeList.append(line)
 
 # for pierce only mode
@@ -945,29 +999,27 @@ if codeWarn:
         msg  = 'Try reloading the G-Code file.\n'
         warnings += message_set(warnMatLoad, msg)
     if warnHoleDir:
-        msg  = '\nThis cut appears to be a hole.\n'
-        msg += 'Did you mean to cut clockwise?\n'
+        msg  = '\nThis cut appears to be a hole ,did you mean to cut it clockwise?\n'
         warnings += message_set(warnHoleDir, msg)
     if warnCompTorch:
-        msg  = '\nCannot enable/disable torch with cutter compensation active.\n'
+        msg  = '\nCannot enable/disable torch with G41/G42 compensation active.\n'
         warnings += message_set(warnCompTorch, msg)
     if warnCompVel:
-        msg  = '\nCannot reduce velocity with cutter compensation active.\n'
+        msg  = '\nCannot reduce velocity with G41/G42 compensation active.\n'
         warnings += message_set(warnCompVel, msg)
     if warnFeed:
-        msg0  = 'does not match the selected material cut feed of\n'
         warnings += '\n'
         for n in range(0, len(warnFeed)):
             msg0 = 'Line'
             msg1 = 'does not match Material'
-            msg2 = 'feed rate '
-            warnings += '{} {:0.0f}: F{} {}_{} {} {:0.0f}\n'.format(msg0, warnFeed[n][0], warnFeed[n][1], msg1, warnFeed[n][2], msg2, warnFeed[n][3])
+            msg2 = 'feed rate of '
+            warnings += '{} {:0.0f}: F{} {}_{}\'s {} {:0.0f}\n'.format(msg0, warnFeed[n][0], warnFeed[n][1], msg1, warnFeed[n][2], msg2, warnFeed[n][3])
     dialog_box('G-CODE WARNING', warnings, Qt.AlignLeft)
 
 # error notification
 if codeError:
     if errorMath:
-        msg  = '\nQtPlasmaC G-Code parser requires explicit values if hole sensing is enabled.\n'
+        msg  = '\nG2 and G3 moves require explicit values if hole sensing is enabled.\n'
         errors += message_set(errorMath, msg)
     if errorMissMat:
         msg  = '\nThe Material selected is missing from the material file.\n'
@@ -990,12 +1042,6 @@ if codeError:
     if errorCompMat:
         msg  = '\nCannot validate a material change with cutter compensation active.\n'
         errors += message_set(errorCompMat, msg)
-    if errorG90:
-        msg  = '\nQtPlasmaC G-Code parser only supports Distance Mode G90.\n'
-        errors += message_set(errorG90, msg)
-    if errorG91:
-        msg  = '\nQtPlasmaC G-Code parser only supports Arc Distance Mode G91.1.\n'
-        errors += message_set(errorG91, msg)
     dialog_box('G-CODE ERROR', errors, Qt.AlignLeft)
     print('M2 (end program)')
 

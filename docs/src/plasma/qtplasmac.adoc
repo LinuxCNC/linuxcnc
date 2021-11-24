@@ -1960,13 +1960,7 @@ M2 (end job)
 
 QtPlasmaC has the ability to automatically modify the G-Code to reduce the velocity and/or apply *Overcut* which can be useful when cutting holes.
 
-The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-Code file:
-
-* *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-Code file.
-
-The default velocity for QtPlasmaC small holes is 60% of the current feed rate. It is possible to change this value with the following command in a G-Code file:
-
-* *#<h_velocity> = nn* - to set the percentage (nn) of the current feed rate required.
+For valid hole sensing it is required that all values in the G2 or G3 G-Code line are explicit, an error dialog will be dispalyed if any values are mathematically calculated.
 
 QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by using the following G-Code parameters to select the desired hole sensing mode:
 
@@ -1976,9 +1970,13 @@ QtPlasmaC Hole Sensing is disabled by default. It can be enabled/disabled by usi
 * *#<holes> = 3* - Causes QtPlasmaC to reduce the speed of holes less than 32mm (1.26") and arcs less than 16mm (0.63") to 60% of *CutFeedRate*.
 * *#<holes> = 4* - Causes QtPlasmaC to <<qt_overcut, Overcut>> the hole in addition to the velocity change in setting 3.
 
-[underline]*Arc Dwell (Pause At End)*
+The default hole size for QtPlasmaC hole sensing is 32mm (1.26"). It is possible to change this value with the following command in a G-Code file:
 
-This feature can be used in addition to setting the desired hole sensing mode via the appropriate G-Code parameter by setting the <<qt_pause-at-end, Pause At End>> parameter in the MATERIAL frame of the <<qt_parameters-tab, PARAMETERS Tab>>.
+* *#<h_diameter> = nn* - To set a diameter (nn) in the same units system as the rest of the G-Code file.
+
+The default velocity for QtPlasmaC small holes is 60% of the current feed rate. It is possible to change this value with the following command in a G-Code file:
+
+* *#<h_velocity> = nn* - to set the percentage (nn) of the current feed rate required.
 
 [underline]*Overcut*
 
@@ -1987,6 +1985,10 @@ If Hole Sensing modes 2 or 4 are active, QtPlasmaC will overcut the hole in addi
 The default overcut length for QtPlasmaC hole sensing is 4mm (0.157"). It is possible to change this value with the following command in a G-Code file:
 
 * *#<oclength> = nn* to specify an overcut length (nn) in the same units system as the rest of the G-Code file.
+
+[underline]*Arc Dwell (Pause At End)*
+
+This feature can be used in addition to setting the desired hole sensing mode via the appropriate G-Code parameter by setting the <<qt_pause-at-end, Pause At End>> parameter in the MATERIAL frame of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 Sample code:
 
