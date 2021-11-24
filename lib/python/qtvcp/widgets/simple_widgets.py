@@ -1102,17 +1102,6 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
 
         def _update(state):
             self.hal_pin.set(state)
-            self.setChecked(state)
-            if self._HAL_pin is False:
-                self.indicator_update(state)
-            # if using state labels option update the labels
-            if self._state_text:
-                self.setText(None)
-            # if python commands call them 
-            if self._python_command:
-                if state == None:
-                    state = self._indicator_state
-                self.python_command(state)
 
         if self.isCheckable():
             self.toggled[bool].connect(_update)
