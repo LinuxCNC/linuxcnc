@@ -70,18 +70,28 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.inhibit_selection = False
         self._block_line_selected = False
 
+        # stop respons to external STATUS signals
+        self._disable_STATUS_signals = False
+        self._block_autoLoad = None
+        self._block_reLoad = None
+        self._block_viewChanged = None
+        self._block_lineSelect = None
+
     def addTimer(self):
         self.timer = QTimer()
         self.timer.timeout.connect(self.poll)
         self.timer.start(INFO.GRAPHICS_CYCLE_TIME)
 
     def _hal_init(self):
-        STATUS.connect('file-loaded', self.load_program)
-        STATUS.connect('reload-display', self.reloadfile)
+        self._block_autoLoad = STATUS.connect('file-loaded', self.load_program)
+        self._block_reLoad = STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
-        STATUS.connect('graphics-view-changed', lambda w, v, a: self.set_view_signal(v, a))
-        STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
+        self._block_viewChanged = STATUS.connect('graphics-view-changed', lambda w, v, a: self.set_view_signal(v, a))
+        self._block_lineSelect = STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
+        # we do this in this function because the property InhibitControls
+        # is set before the STATUS (GObject) signal ids can be recorded
+        self.updateSignals(self._disable_STATUS_signals)
 
         # If there is a preference file object use it to load the user view position data
         if self.PREFS_:
@@ -93,6 +103,18 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             lat = self.PREFS_.getpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
             lon = self.PREFS_.getpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.presetViewSettings(v,z,x,y,lat,lon)
+
+    # when qtvcp closes this gets called
+    def _hal_cleanup(self):
+        if self.PREFS_:
+            v,z,x,y,lat,lon = self.getRecordedViewSettings()
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-view', v, str, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-zoom', z, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-panx', x, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
 
     # external source asked for highlight,
     # make sure we block the propagation
@@ -205,17 +227,19 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             print('error', self._reload_filename)
             pass
 
-    # when qtvcp closes this gets called
-    def _hal_cleanup(self):
-        if self.PREFS_:
-            v,z,x,y,lat,lon = self.getRecordedViewSettings()
-            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            self.PREFS_.putpref(self.HAL_NAME_+'-user-view', v, str, 'SCREEN_CONTROL_LAST_SETTING')
-            self.PREFS_.putpref(self.HAL_NAME_+'-user-zoom', z, float, 'SCREEN_CONTROL_LAST_SETTING')
-            self.PREFS_.putpref(self.HAL_NAME_+'-user-panx', x, float, 'SCREEN_CONTROL_LAST_SETTING')
-            self.PREFS_.putpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
-            self.PREFS_.putpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
-            self.PREFS_.putpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
+    def updateSignals(self, state):
+        if self._block_autoLoad == None:
+            return
+        if state:
+            STATUS.handler_block(self._block_autoLoad)
+            STATUS.handler_block(self._block_reLoad)
+            STATUS.handler_block(self._block_viewChanged)
+            STATUS.handler_block(self._block_lineSelect)
+        else:
+            STATUS.handler_unblock(self._block_autoLoad)
+            STATUS.handler_unblock(self._block_reLoad)
+            STATUS.handler_unblock(self._block_viewChanged)
+            STATUS.handler_unblock(self._block_lineSelect)
 
     ####################################################
     # functions that override qt5_graphics
@@ -389,6 +413,17 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._rapidColor = QColor(0, 0, 0, 0)
 
     Rapid_color = pyqtProperty(QColor, getRapidColor, setRapidColor, resetRapidColor)
+
+    # Inhibit external controls
+    def setInhibitControls(self, state):
+        self._disable_STATUS_signals = state
+        self.updateSignals(state)
+    def getInhibitControls(self):
+        return self._disable_STATUS_signals
+    def resetInhibitControls(self):
+        self._disable_STATUS_signals = False
+        self.updateSignals(False)
+    InhibitControls = pyqtProperty(bool, getInhibitControls, setInhibitControls,resetInhibitControls)
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
