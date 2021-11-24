@@ -2458,6 +2458,14 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         self.set_mesa_options(boardnum,title,firmware,numofpwmgens,numoftppwmgens,numofstepgens,numofencoders,numofsserialports,numofsserialchannels)
         return True
 
+    def get_ppc(self, boardnum: int) -> int:
+        """ Returns the number of pins per connector for a given 'boardnum' """
+        currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
+        meta = self.get_board_meta(currentboard, boardnum)
+        ppc = meta.get('PINS_PER_CONNECTOR')
+        return ppc
+
+
     # This method sets up the mesa GUI page and is used when changing component values / firmware or boards from config page.
     # it changes the component comboboxes according to the firmware max and user requested amounts
     # it adds signal names to the signal name combo boxes according to component type and in the
@@ -2511,18 +2519,15 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             except:
                 pass
 
-        currentboard = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-        meta = self.get_board_meta(currentboard, boardnum)
-        ppc = meta.get('PINS_PER_CONNECTOR')
-
+        ppc = self.get_ppc(boardnum)
         self.pbar.set_text("Setting up Mesa tabs")
         self.window.show()
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
-            for pin in range (0,24):
-                self.pbar.set_fraction((pin+1)/24.0)
+            for pin in range (0,ppc):
+                self.pbar.set_fraction((pin+1)/ppc)
                 while Gtk.events_pending():
                     Gtk.main_iteration()
-                firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*24)]
+                firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*ppc)]
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 #print("**** INFO set-mesa-options DATA:",self.d[p],p,self.d[ptype])
@@ -2553,8 +2558,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         self.d["_mesa%d_configured"% boardnum] = True
         # unblock all the widget signals again
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
-            for pin in range (0,24):
-                self.pbar.set_fraction((pin+1)/24.0)
+            for pin in range (0,ppc):
+                self.pbar.set_fraction((pin+1)/ppc)
                 while Gtk.events_pending():
                     Gtk.main_iteration()
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
@@ -3095,9 +3100,11 @@ Clicking 'existing custom program' will avoid this warning. "),False):
 
 
     def mesa_mainboard_data_to_widgets(self,boardnum):
+        ppc = self.get_ppc(boardnum)
+
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
-            for pin in range (0,24):
-                firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*24)]
+            for pin in range (0,ppc):
+                firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*ppc)]
                 p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                 ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                 pinv = 'mesa%dc%dpin%dinv' % (boardnum, connector , pin)
@@ -3556,9 +3563,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 elif widgetptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,_PD.SS7I76M0,_PD.SS7I76M3,
                                      _PD.SS7I76M2,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                     portnum = 0 #TODO support more ports
+                    ppc = self.get_ppc(boardnum)
                     for count,temp in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
                         if connector == temp:
-                            firmptype,portnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(count*24)]
+                            firmptype,portnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(count*ppc)]
                             if widgetptype in (_PD.TXDATA0,_PD.SS7I76M0,_PD.SS7I77M0): channelnum = 0
                             elif widgetptype in (_PD.TXDATA1,_PD.SS7I77M1): channelnum = 1
                             elif widgetptype in (_PD.TXDATA2,_PD.SS7I76M2): channelnum = 2
@@ -4823,10 +4831,11 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             # if the current firmware supports sserial better check for used channels
             # and make a 'keeplist'. we don't want to clear them
             if self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALPORTS]:
+                ppc = self.get_ppc(boardnum)
                 #search all pins for sserial port
                 for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
-                    for pin in range (0,24):
-                        firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*24)]
+                    for pin in range (0,ppc):
+                        firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*ppc)]
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
                         if self.d[ptype] in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
@@ -5247,12 +5256,13 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 pinlist.append(tochange)
 
         else:
+            ppc = self.get_ppc(boardnum)
             for concount,i in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
                 if i == connector:
-                    currentptype,currentcompnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pin+(concount*24)]
+                    currentptype,currentcompnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pin+(concount*ppc)]
                     for t_concount,t_connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
-                        for t_pin in range (0,24):
-                            comptype,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+t_pin+(t_concount*24)]
+                        for t_pin in range (0,ppc):
+                            comptype,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+t_pin+(t_concount*ppc)]
                             if compnum != currentcompnum: continue
                             if comptype not in (relatedsearch): continue
                             if style == 0:
@@ -5296,8 +5306,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 _PD.POTE:"spinena",_PD.POTD:"spindir",_PD.ANALOGIN:"analog","Error":"None" }
             boardnum = int(test[4:5])
             boardname = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]
-            meta = self.get_board_meta(boardname, boardnum)
-            num_of_pins = meta.get('PINS_PER_CONNECTOR')
+            ppc = self.get_ppc(boardnum)
 
             ptype = self.d[pin+"type"]
             if boardnum == 1 and self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME] == self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME]:
@@ -5381,7 +5390,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 # we need concount (connector designations are not in numerical order, pin names are) and comnum from this
                 for concount,i in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]):
                         if i == connum:
-                            dummy,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pinnum+(concount*24)]
+                            dummy,compnum = self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._STARTOFDATA+pinnum+(concount*ppc)]
                             break
                 for key,value in type_name.items():
                     if key == ptype: comptype = value
@@ -5395,7 +5404,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         compnum -= 100
                         return "%s."% (make_name(boardname,halboardnum)) + "ssr.00.out-%02d"% (compnum)
                     else:
-                        compnum = int(pinnum)+(concount* num_of_pins )
+                        compnum = int(pinnum)+(concount* ppc )
                         return "%s."% (make_name(boardname,halboardnum)) + "gpio.%03d"% (compnum)
                 elif ptype in (_PD.ENCA,_PD.ENCB,_PD.ENCI,_PD.ENCM,_PD.PWMP,_PD.PWMD,_PD.PWME,_PD.PDMP,_PD.PDMD,_PD.PDME,_PD.UDMU,_PD.UDMD,_PD.UDME,
                     _PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF,
