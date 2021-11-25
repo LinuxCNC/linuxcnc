@@ -31,8 +31,8 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 
 #----------start toplevel----------
 #
-
-wm title . [msgcat::mc "HAL Configuration"]
+set ::titlename [msgcat::mc "HAL Configuration"]
+wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
 set masterwidth 700
 set masterheight 475
@@ -695,7 +695,7 @@ proc loadwatchlist {filename} {
   close $f
   set ::last_watchfile_tail [file tail    $filename]
   set ::last_watchfile_dir  [file dirname $filename]
-  wm title . $::last_watchfile_tail
+  wm title . "$::last_watchfile_tail - $::titlename"
   if {"$wl" == ""} return
   watchReset all
   $::top raise pw
