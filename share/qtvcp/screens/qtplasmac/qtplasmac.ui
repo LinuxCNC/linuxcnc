@@ -955,7 +955,7 @@
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="PushButton" name="file_select">
+                         <widget class="IndicatedPushButton" name="file_select">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -981,7 +981,7 @@
                            <bool>true</bool>
                           </property>
                           <property name="true_python_cmd_string" stdset="0">
-                           <string notr="true">INSTANCE.filemanager.load()</string>
+                           <string>INSTANCE.filemanager.load()</string>
                           </property>
                           <property name="false_python_cmd_string" stdset="0">
                            <string/>
@@ -989,7 +989,7 @@
                          </widget>
                         </item>
                         <item>
-                         <widget class="PushButton" name="file_next">
+                         <widget class="IndicatedPushButton" name="file_next">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -1018,7 +1018,7 @@
                            <bool>true</bool>
                           </property>
                           <property name="true_python_cmd_string" stdset="0">
-                           <string notr="true">INSTANCE.filemanager.down()</string>
+                           <string>INSTANCE.filemanager.down()</string>
                           </property>
                           <property name="false_python_cmd_string" stdset="0">
                            <string/>
@@ -1026,7 +1026,7 @@
                          </widget>
                         </item>
                         <item>
-                         <widget class="PushButton" name="file_prev">
+                         <widget class="IndicatedPushButton" name="file_prev">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -1055,7 +1055,7 @@
                            <bool>true</bool>
                           </property>
                           <property name="true_python_cmd_string" stdset="0">
-                           <string notr="true">INSTANCE.filemanager.up()</string>
+                           <string>INSTANCE.filemanager.up()</string>
                           </property>
                           <property name="false_python_cmd_string" stdset="0">
                            <string/>

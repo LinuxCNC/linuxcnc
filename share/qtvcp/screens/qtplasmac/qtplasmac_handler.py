@@ -1,4 +1,4 @@
-VERSION = '1.217.125'
+VERSION = '1.217.126'
 
 '''
 qtplasmac_handler.py
@@ -824,6 +824,7 @@ class HandlerClass:
         self.w.conv_preview.setdro(False)
         self.w.conv_preview.inhibit_selection = True
         self.w.conv_preview.updateGL()
+        self.w.conv_preview.setInhibitControls(True)
         self.w.estopButton = int(self.iniFile.find('QTPLASMAC', 'ESTOP_TYPE') or 0)
         if self.w.estopButton == 0:
             self.w.estop.setEnabled(False)
@@ -1229,7 +1230,6 @@ class HandlerClass:
             self.w.gcode_progress.setValue(0)
             self.w.gcode_progress.setFormat('LOADING COMPLETE')
             self.w.gcode_progress.hide()
-            self.w.mdi_frame.show()
         else:
             self.w.gcode_progress.setValue(percent)
             self.w.gcode_progress.setFormat('Loading: {}%'.format(percent))
@@ -1303,7 +1303,6 @@ class HandlerClass:
                 self.w.gcode_display.set_margin_width(3)
                 self.w.gcode_editor.set_margin_width(3)
         ACTION.SET_MANUAL_MODE()
-        self.w.gcodegraphics.load(filename)
         if self.w.main_tab_widget.currentIndex():
             self.w.main_tab_widget.setCurrentIndex(0)
 
