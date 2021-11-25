@@ -119,11 +119,23 @@ set viewmenu [menu $menubar.view -tearoff 0]
             -command {showNode {param}}
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
-        $viewmenu add separator
-        $viewmenu add command -label [msgcat::mc "Reload Watch"] \
+
+set watchmenu [menu $menubar.watch -tearoff 0]
+    $menubar add cascade -label [msgcat::mc "Watch"] \
+            -menu $watchmenu
+        $watchmenu add command -label [msgcat::mc "Add pin"] \
+            -command {watchHAL pin+[entrybox "" [msgcat::mc "Add to watch"] "Pin"]}
+        $watchmenu add command -label [msgcat::mc "Add signal"] \
+            -command {watchHAL sig+[entrybox "" [msgcat::mc "Add to watch"] "Signal"]}
+        $watchmenu add command -label [msgcat::mc "Add parameter"] \
+            -command {watchHAL param+[entrybox "" [msgcat::mc "Add to watch"] "Parameter"]}
+        $watchmenu add separator
+
+        $watchmenu add command -label [msgcat::mc "Reload Watch"] \
             -command {reloadWatch}
-        $viewmenu add command -label [msgcat::mc "Erase Watch"] \
+        $watchmenu add command -label [msgcat::mc "Erase Watch"] \
             -command {watchReset all}
+
 . configure -menu $menubar
 
 # build the tree widgets left side
@@ -544,26 +556,32 @@ proc unlinkp {label i} {
 }
 
 proc entrybox {defVal buttonText label} {
-    set wn [toplevel .top]
-    wm title $wn "Set value"
-    set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
-    set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
-    wm geometry $wn "+$xpos+$ypos"
-    variable entryVal
-    set entryVal $defVal
-    label .top.lbl -text $label
-    entry .top.en -textvariable entryVal
-    .top.en icursor end
-    button .top.but -command {set ret $entryVal} -text $buttonText
-    bind .top.en <Return> {set ret $entryVal}
-    wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
-    pack {*}[winfo children .top]
-    focus .top.en
-    vwait ret
-    unset -nocomplain ret
-    unset -nocomplain entryVal
-    destroy .top
-    return $::ret
+    if {[winfo exists .top]} {
+        raise .top
+        focus .top
+        return "cancel"
+    } else {
+        set wn [toplevel .top]
+        wm title $wn [msgcat::mc "User input"]
+        set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
+        set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
+        wm geometry $wn "+$xpos+$ypos"
+        variable entryVal
+        set entryVal $defVal
+        label .top.lbl -text $label
+        entry .top.en -textvariable entryVal
+        .top.en icursor end
+        button .top.but -command {set ret $entryVal} -text $buttonText
+        bind .top.en <Return> {set ret $entryVal}
+        wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
+        pack {*}[winfo children .top]
+        focus .top.en
+        vwait ret
+        unset -nocomplain ret
+        unset -nocomplain entryVal
+        destroy .top
+        return $::ret
+    }
 }
 
 # watchHAL prepares a string of {i HALtype name} sets

@@ -5081,7 +5081,7 @@ msgstr "Beobachtungsliste laden"
 
 #: tcl/bin/halshow.tcl:107
 msgid "Tree View"
-msgstr "Ansicht"
+msgstr "Menübaum"
 
 #: tcl/bin/halshow.tcl:288
 msgid "Test HAL command :"
@@ -21237,3 +21237,23 @@ msgstr "Setzen"
 #: tcl/bin/halshow.tcl
 msgid "Remove"
 msgstr "Entfernen"
+
+#: tcl/bin/halshow.tcl
+msgid "Add to watch"
+msgstr "Hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Input value"
+msgstr "Eingabe"
+
+#: tcl/bin/halshow.tcl
+msgid "Add pin"
+msgstr "Pin hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Add signal"
+msgstr "Signal hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Add parameter"
+msgstr "Parameter hinzufügen"
