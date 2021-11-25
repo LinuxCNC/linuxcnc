@@ -120,6 +120,8 @@ set viewmenu [menu $menubar.view -tearoff 0]
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
         $viewmenu add separator
+        $viewmenu add command -label [msgcat::mc "Reload Watch"] \
+            -command {reloadWatch}
         $viewmenu add command -label [msgcat::mc "Erase Watch"] \
             -command {watchReset all}
 . configure -menu $menubar
@@ -295,8 +297,8 @@ proc makeShow {} {
     bind $com <Control-KeyPress-v> {
         if {[%W selection present]} {%W delete sel.first sel.last}
     }
-    bind $com <Up> {hist_move %W -1}
-    bind $com <Down> {hist_move %W 1}  
+    bind $com <Up> {moveHist %W -1}
+    bind $com <Down> {moveHist %W 1}  
     set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
     pack $ex -side left -padx 5 -pady 3
@@ -326,9 +328,7 @@ proc makeWatch {} {
     pack $::watchhal.s -side left -fill y -expand no
     bind $::cisp <Configure> {
         set ::canvaswidth %w
-        set watchlist_copy $::watchlist
-        watchReset all
-        foreach item $watchlist_copy { watchHAL $item }
+        reloadWatch
     }
 }
 
@@ -376,7 +376,7 @@ proc showHAL {which} {
 }
 
 proc showEx {what} {
-    hist_add $what
+    addToHist $what
     set str [eval exec halcmd $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
@@ -386,7 +386,7 @@ proc showEx {what} {
 
 set ::hist ""
 set ::i_hist 0
-proc hist_add {s} {
+proc addToHist {s} {
     if {$s == ""} return
     if [string compare $s [lindex $::hist end]] {
         lappend ::hist $s
@@ -394,7 +394,7 @@ proc hist_add {s} {
     }
 }
 
-proc hist_move {w where} {
+proc moveHist {w where} {
     incr ::i_hist $where
     if {[set ::i_hist]<0} {set ::i_hist 0}
     if {[set ::i_hist]>=[llength $::hist]+1} {
@@ -474,11 +474,11 @@ proc watchHAL {which} {
             -anchor w -tag $label
 
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "clr" [list hal_setp $label 0] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "set" [list hal_setp $label 1] 0
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "clr" [list hal_setp $label 0] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
@@ -486,9 +486,9 @@ proc watchHAL {which} {
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "set val" [list set_value $label] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "set val" [list set_value $label] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
         }
     }
 
@@ -506,14 +506,14 @@ proc popupmenu {label index writable which x y} {
     # create menu
     set m [menu .popupMenu$index -tearoff false]
     # add entries
-    $m add command -label "copy" -command [list copy_name $label]
+    $m add command -label [msgcat::mc "Copy"] -command [list copyName $label]
     if {$writable} {
-        $m add command -label "set to .." -command [list set_value $label]
+        $m add command -label [msgcat::mc "Set to .."] -command [list setValue $label]
     }
     if {$writable == -1} {
-        $m add command -label "unlink pin" -command [list unlinkp $label $index]
+        $m add command -label [msgcat::mc "Unlink pin"] -command [list unlinkp $label $index]
     }
-    $m add command -label "remove" -command [list watchReset $label]
+    $m add command -label [msgcat::mc "Remove"] -command [list watchReset $label]
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
@@ -523,14 +523,14 @@ proc hal_setp {label val} {
     eval hal "setp $label $val"
 }
 
-proc copy_name {label} {
+proc copyName {label} {
     clipboard clear
     clipboard append $label
 }
 
-proc set_value {label} {
+proc setValue {label} {
     set val [eval hal "getp $label"]
-    set val [entrybox $val "Set" $label]
+    set val [entrybox $val [msgcat::mc "Set"] $label]
     if {$val != "cancel"} {
         eval hal "setp $label $val"
     }
@@ -538,10 +538,8 @@ proc set_value {label} {
 
 proc unlinkp {label i} {
     # when unlink command successful --> rebuild list
-     if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
-        set watchlist_copy $::watchlist
-        watchReset all
-        foreach item $watchlist_copy { watchHAL $item }
+    if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
+        reloadWatch       
     }
 }
 
@@ -636,6 +634,12 @@ proc watchReset {del} {
             }
         }
     }
+}
+
+proc reloadWatch {} {
+    set watchlist_copy $::watchlist
+    watchReset all
+    foreach item $watchlist_copy { watchHAL $item }
 }
 
 # proc switches the insert and removal of upper right text

@@ -4768,7 +4768,7 @@ msgstr "Bearbeiten"
 msgid "Cut"
 msgstr "Ausschneiden"
 
-#: tcl/bin/genedit.tcl:94
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl
 msgid "Copy"
 msgstr "Kopieren"
 
@@ -4988,6 +4988,10 @@ msgstr "Parameter aufklappen"
 #: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:118
 msgid "Expand Signals"
 msgstr "Signale aufklappen"
+
+#: tcl/bin/halshow.tcl:123
+msgid "Reload Watch"
+msgstr "Ansicht neu laden"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:121
 msgid "Erase Watch"
@@ -6304,7 +6308,7 @@ msgstr "neu"
 msgid "Open a new Subfile"
 msgstr "Eine neue Unterdatei öffnen"
 
-#: tcl/ngcgui.tcl:3580
+#: tcl/ngcgui.tcl:3580 tcl/bin/halshow.tcl
 msgid "remove"
 msgstr "entfernen"
 
@@ -21221,3 +21225,15 @@ msgstr "Werkzeugoffset"
 
 #~ msgid "No error"
 #~ msgstr "Kein Fehler"
+
+#: tcl/bin/halshow.tcl
+msgid "Set to .."
+msgstr "Setzen auf .."
+
+#: tcl/bin/halshow.tcl
+msgid "Set"
+msgstr "Setzen"
+
+#: tcl/bin/halshow.tcl
+msgid "Remove"
+msgstr "Entfernen"
