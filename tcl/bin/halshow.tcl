@@ -511,7 +511,7 @@ proc watchHAL {which} {
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
     lappend ::watchstring "$i $vartype $varname "
-    if {$::watching == 0} {watchLoop}
+    refreshItem $i $vartype $label
 }
 
 proc popupmenu {label index writable which x y} {
@@ -593,40 +593,44 @@ proc watchLoop {} {
     set which $::watchstring
     foreach var $which {
         scan $var {%i %s %s} cnum vartype varname
-        if {$vartype == "sig" } {
-            set ret [hal gets $varname]
-            set varnumtype [hal stype $varname]
-        } else {
-            set ret [hal getp $varname]
-            set varnumtype [hal ptype $varname]
-        }
-        if {$ret == "TRUE"} {
-            $::cisp itemconfigure oval$cnum -fill yellow
-        } elseif {$ret == "FALSE"} {
-            $::cisp itemconfigure oval$cnum -fill firebrick4
-        } else {
-            switch $varnumtype {
-              u32 - s32  {set varnumtype int}
-              float      {set varnumtype float}
-            }
-            if [catch { set value [expr $ret] } ] {
-               set value $ret ;# allow display of a nan
-            } else {
-               # use format if provided
-               if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
-                  set value [format "$::ffmt" $ret]
-               }
-               if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
-                  set value [format "$::ifmt" $ret]
-               }
-            }
-            $::cisp itemconfigure text$cnum -text $value
-        }
+        refreshItem $cnum $vartype $varname
     }
     if {$::workmode == "watchhal"} {
         after 250 watchLoop
     } else {
         set ::watching 0
+    }
+}
+
+proc refreshItem {cnum vartype varname} {
+    if {$vartype == "sig" } {
+        set ret [hal gets $varname]
+        set varnumtype [hal stype $varname]
+    } else {
+        set ret [hal getp $varname]
+        set varnumtype [hal ptype $varname]
+    }
+    if {$ret == "TRUE"} {
+        $::cisp itemconfigure oval$cnum -fill yellow
+    } elseif {$ret == "FALSE"} {
+        $::cisp itemconfigure oval$cnum -fill firebrick4
+    } else {
+        switch $varnumtype {
+            u32 - s32  {set varnumtype int}
+            float      {set varnumtype float}
+        }
+        if [catch { set value [expr $ret] } ] {
+            set value $ret ;# allow display of a nan
+        } else {
+            # use format if provided
+            if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
+                set value [format "$::ffmt" $ret]
+            }
+            if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
+                set value [format "$::ifmt" $ret]
+            }
+        }
+        $::cisp itemconfigure text$cnum -text $value
     }
 }
 
