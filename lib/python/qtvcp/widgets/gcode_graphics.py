@@ -91,7 +91,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._block_lineSelect = STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
         # we do this in this function because the property InhibitControls
         # is set before the STATUS (GObject) signal ids can be recorded
-        self.updateSignals(self._disable_STATUS_signals)
+        if self._disable_STATUS_signals:
+            self.updateSignals(True)
 
         # If there is a preference file object use it to load the user view position data
         if self.PREFS_:
