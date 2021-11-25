@@ -324,6 +324,12 @@ proc makeWatch {} {
     scrollbar $::watchhal.s -command [list $::cisp yview] -orient v
     pack $::cisp -side left -fill both -expand yes
     pack $::watchhal.s -side left -fill y -expand no
+    bind $::cisp <Configure> {
+        set ::canvaswidth %w
+        set watchlist_copy $::watchlist
+        watchReset all
+        foreach item $watchlist_copy { watchHAL $item }
+    }
 }
 
 # showmode handles the tab selection of mode
@@ -407,6 +413,7 @@ set ::filetypes { {{HALSHOW} {.halshow}}\
 
 set ::watchlist ""
 set ::watchstring ""
+set ::canvaswidth 438 
 proc watchHAL {which} {
     if {$which == "zzz"} {
         $::cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
@@ -467,11 +474,11 @@ proc watchHAL {which} {
             -anchor w -tag $label
 
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "clr" [list hal_setp $label 0] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 0
-            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "clr" [list hal_setp $label 0] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
@@ -479,9 +486,9 @@ proc watchHAL {which} {
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "set val" [list set_value $label] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "set val" [list set_value $label] 0
         }
     }
 
@@ -513,7 +520,6 @@ proc popupmenu {label index writable which x y} {
 }
 
 proc hal_setp {label val} {
-    puts stderr "send hal command: setp $label $val"
     eval hal "setp $label $val"
 }
 
