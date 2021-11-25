@@ -1,4 +1,4 @@
-VERSION = '1.217.126'
+VERSION = '1.217.127'
 
 '''
 qtplasmac_handler.py
@@ -519,11 +519,11 @@ class HandlerClass:
             head = _translate('HandlerClass', 'MDI ERROR')
             if 'm3' in intext.lower().replace(' ',''):
                 msg0 = _translate('HandlerClass', 'M3 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
             elif 'm5' in intext.lower().replace(' ',''):
                 msg0 = _translate('HandlerClass', 'M5 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
             ACTION.CALL_MDI(intext + '\n')
             try:
@@ -885,13 +885,13 @@ class HandlerClass:
                         self.laserOffsetY = float(parms[1].replace('y', ''))
             except:
                 self.w.laser.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
             if self.laserOffsetX or self.laserOffsetY:
                 self.idleHomedList.append('laser')
                 self.w.laser.setEnabled(False)
             else:
                 self.w.laser.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
         inCode = self.iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or '0'
         msg0 = _translate('HandlerClass', 'Invalid entry for camera offset')
         if inCode == '0':
@@ -906,13 +906,13 @@ class HandlerClass:
                         self.camOffsetY = float(parms[1].replace('y', ''))
             except:
                 self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
             if self.camOffsetX or self.camOffsetY:
                 self.idleHomedList.append('camera')
                 self.w.camera.setEnabled(False)
             else:
                 self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
         inCode = self.iniFile.find('QTPLASMAC', 'OFFSET_PROBING') or '0'
         msg0 = _translate('HandlerClass', 'Invalid entry for probe offset')
         if inCode != '0':
@@ -929,7 +929,7 @@ class HandlerClass:
                         self.probeDelay = float(parm)
             except:
                 self.w.camera.hide()
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
 
     def closing_cleanup__(self):
         # disconnect powermax
@@ -1277,7 +1277,7 @@ class HandlerClass:
                 else:
                     msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
                 msgs += '{} {} {}{}\n'.format(msgList[n], msg0, msgList[n + 2], units)
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msgs))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msgs))
             self.set_run_button_state()
             if self.single_cut_request:
                 self.single_cut_request = False
@@ -1736,7 +1736,7 @@ class HandlerClass:
             else:
                 head = _translate('HandlerClass', 'FILE ERROR')
                 msg0 = _translate('HandlerClass', 'does not exist')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}'.format(head, file, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n'.format(head, file, msg0))
 
     def jog_inhibit_changed(self, state, switch):
         if state and not self.jogInhibit:
@@ -1746,7 +1746,7 @@ class HandlerClass:
                     head = _translate('HandlerClass', 'JOG ERROR')
                     msg0 = _translate('HandlerClass', 'Jogging stopped')
                     msg1 = _translate('HandlerClass', 'tripped')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{} {}'.format(head, msg0, switch, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{} {}\n'.format(head, msg0, switch, msg1))
                     self.isJogging[axis] = False
             self.jogInhibit = switch
             self.jogInhibitPin.set(True)
@@ -2187,7 +2187,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'INI FILE ERROR')
             msg0  = _translate('HandlerClass', 'Error in [KINS]KINEMATICS in the ini file')
             msg1 = _translate('HandlerClass', 'reverting to default coordinates of xyz')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
         # hide axis a if not being used
         if 'a' not in self.axisList:
             for i in self.axisAList:
@@ -2285,7 +2285,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'JOG ERROR')
             msg0 = _translate('HandlerClass', 'Cannot jog')
             msg1 = _translate('HandlerClass', 'tripped')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{} {}'.format(head, msg0, self.jogInhibit, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{} {}\n'.format(head, msg0, self.jogInhibit, msg1))
             return
         if linear:
             distance = STATUS.get_jog_increment()
@@ -2544,7 +2544,7 @@ class HandlerClass:
             elif oSub:
                 msg0 = _translate('HandlerClass', 'Cannot do run from line')
                 msg1 = _translate('HandlerClass', 'inside a subroutine')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
             self.rflActive = False
             self.set_run_button_state()
             self.startLine = 0
@@ -2657,7 +2657,7 @@ class HandlerClass:
         except:
             msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
             msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
         if xL != x and yL != y:
             newFile.append('G0 X{} Y{}'.format(xL, yL))
             rflLead = [x, y]
@@ -3028,11 +3028,11 @@ class HandlerClass:
             if bNameDup or bCodeDup:
                 msg0 = _translate('HandlerClass', 'is already assigned')
                 msg1 = _translate('HandlerClass', 'Using first instance only of')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nBUTTON_{} {}\n{} BUTTON_{}'.format(head, bNum, msg0, msg1, bNum))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nBUTTON_{} {}\n{} BUTTON_{}\n'.format(head, bNum, msg0, msg1, bNum))
             if (bCode and not bName) or (not bCode and bName):
                 msg0 = _translate('HandlerClass', 'are both required')
                 msg1 = _translate('HandlerClass', 'only one has been specified for')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nCODE + NAME {}\n{} BUTTON_{}'.format(head, msg0, msg1, bNum))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\nCODE + NAME {}\n{} BUTTON_{}\n'.format(head, msg0, msg1, bNum))
                 self.w['button_{}'.format(str(bNum))].setText('')
                 self.iniButtonCodes.append('')
                 continue
@@ -3044,7 +3044,7 @@ class HandlerClass:
             if code in singleCodes and code in iniButtonCodes:
                 msg1 = _translate('HandlerClass', 'Duplicate code entry for')
                 msg2 = _translate('HandlerClass', 'Using first instance only of')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} BUTTON_{} + BUTTON_{}\n{} {}'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} BUTTON_{} + BUTTON_{}\n{} {}\n'
                         .format(head, msg1, iniButtonCodes.index(code), bNum, msg2, bCode.split()[0]))
                 self.w['button_{}'.format(str(bNum))].setText('')
                 self.iniButtonCodes.append('')
@@ -3068,7 +3068,7 @@ class HandlerClass:
                     self.extChangeConsPin.value_changed.connect(lambda v:self.ext_change_consumables(v))
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid or missing arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
             elif 'probe-test' in bCode:
                 if len(bCode.split()) < 3:
@@ -3077,7 +3077,7 @@ class HandlerClass:
                             self.ptTime = round(float(bCode.lower().replace('probe-test','').strip()))
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                             continue
                     else:
                         self.ptTime = 10
@@ -3088,7 +3088,7 @@ class HandlerClass:
                     self.extProbePin.value_changed.connect(lambda v:self.ext_probe_test(v))
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
             elif 'torch-pulse' in bCode:
                 if len(bCode.split()) < 3:
@@ -3097,7 +3097,7 @@ class HandlerClass:
                             self.tpTime = round(float(bCode.lower().replace('torch-pulse','').strip()), 1)
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                             continue
                         self.tpTime = 3.0 if self.torchTime > 3.0 else self.tpTime
                     else:
@@ -3110,7 +3110,7 @@ class HandlerClass:
                     self.extPulsePin.value_changed.connect(lambda v:self.ext_torch_pulse(v))
                 else:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
             elif 'ohmic-test' in bCode:
                 self.otButton = 'button_{}'.format(str(bNum))
@@ -3132,12 +3132,12 @@ class HandlerClass:
                             self.frFeed = float(bCode.replace('f', ''))
                         except:
                             msg1 = _translate('HandlerClass', 'Check button code for invalid feed argument')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                             frButton = False
                             continue
                     else:
                         msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                         continue
                 if frButton:
                     self.frButton = 'button_{}'.format(str(bNum))
@@ -3164,7 +3164,7 @@ class HandlerClass:
                 else:
                     head = _translate('HandlerClass', 'USER BUTTON ERROR')
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
                 halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
                 excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
@@ -3173,7 +3173,7 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'HAL pin')
                     msg2 = _translate('HandlerClass', 'must be toggled')
                     msg3 = _translate('HandlerClass', 'using standard button code')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}\n'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
                     continue
                 else:
                     try:
@@ -3182,7 +3182,7 @@ class HandlerClass:
                     except:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'does not exist')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}'.format(head, msg0, bNum, msg1, halpin, msg2))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
                         continue
                 # halTogglePins format is: button name, run critical flag, button text
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
@@ -3198,7 +3198,7 @@ class HandlerClass:
                             head = _translate('HandlerClass', 'USER BUTTON ERROR')
                             msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                             code = halpin = delay = ''
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                             continue
                     excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test', \
                                     'plasmac.probe-test', 'plasmac.consumable-change')
@@ -3207,7 +3207,7 @@ class HandlerClass:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'must be pulsed')
                         msg3 = _translate('HandlerClass', 'using standard button code')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n{}\n'.format(head, msg0, bNum, msg1, halpin, msg1, msg3))
                         continue
                     else:
                         try:
@@ -3216,7 +3216,7 @@ class HandlerClass:
                         except:
                             msg1 = _translate('HandlerClass', 'HAL pin')
                             msg2 = _translate('HandlerClass', 'does not exist')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}'.format(head, msg0, bNum, msg1, halpin, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
                             continue
                     # halPulsePins format is: button name, pulse time, button text, remaining time
                     try:
@@ -3224,12 +3224,12 @@ class HandlerClass:
                     except:
                         head = _translate('HandlerClass', 'USER BUTTON ERROR')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                         continue
                 else:
                     head = _translate('HandlerClass', 'USER BUTTON ERROR')
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}'.format(head, msg0, bNum, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n'.format(head, msg0, bNum, msg1))
                     continue
             elif 'offsets-view' in bCode:
                 self.ovButton = 'button_{}'.format(str(bNum))
@@ -3250,13 +3250,13 @@ class HandlerClass:
                             head = _translate('HandlerClass', 'EXTERNAL CODE ERROR')
                             msg1 = _translate('HandlerClass', 'External command')
                             msg2 = _translate('HandlerClass', 'does not exist')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}'.format(head, msg0, bNum, msg1, cmd, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, cmd, msg2))
                         else:
                             self.estopOnList.append('button_{}'.format(str(bNum)))
                     else:
                         head = _translate('HandlerClass', 'CODE ERROR')
                         msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"'.format(head, msg0, bNum, msg1, command))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}\n"'.format(head, msg0, bNum, msg1, command))
                         if 'button_{}'.format(str(bNum)) in self.idleHomedList:
                             self.idleHomedList.remove('button_{}'.format(str(bNum)))
                         break
@@ -3304,7 +3304,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'HAL PIN ERROR')
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"'.format(head, msg0, bNum, msg1, halpin))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL PIN ERROR')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3316,7 +3316,7 @@ class HandlerClass:
                     delay = '1.0'
                 except:
                     msg0 = _translate('HandlerClass', 'Unknown error for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"'.format(head, msg0, bNum, msg1, halpin))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
                     return
             # halPulsePins format is: button name, pulse time, button text, remaining time
             try:
@@ -3329,7 +3329,7 @@ class HandlerClass:
                         self.pulseTimer.start(100)
             except:
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"'.format(head, msg0, bNum, msg1, halpin))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
         elif 'single-cut' in commands.lower():
             self.single_cut()
         elif 'manual-cut' in commands.lower():
@@ -3363,7 +3363,7 @@ class HandlerClass:
             except:
                 head = _translate('HandlerClass', 'FILE ERROR')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, bNum))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
         else:
             for command in commands.split('\\'):
                 command = command.strip()
@@ -3392,7 +3392,7 @@ class HandlerClass:
                     head = _translate('HandlerClass', 'CODE ERROR')
                     msg0 = _translate('HandlerClass', 'Invalid code for user button')
                     msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"'.format(head, msg0, bNum, msg1, command))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
 
     def user_button_up(self, bNum):
         commands = self.iniButtonCodes[bNum]
@@ -3495,7 +3495,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'USER BUTTON ERROR')
                 msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
                 msg1 = _translate('HandlerClass', 'check .ini file settings')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\nBUTTON_{}_CODE'.format(head, msg0, msg1, str(button)))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\nBUTTON_{}_CODE\n'.format(head, msg0, msg1, str(button)))
                 return
             else:
                 hal.set_p('plasmac.xy-feed-rate', str(float(self.ccFeed)))
@@ -3625,7 +3625,7 @@ class HandlerClass:
                     else:
                         msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
                     msgs += '{} {} {}{} {}\n'.format(msgList[n], msg0, msgList[n + 2], units, msg1)
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msgs))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msgs))
                 self.framing = False
                 self.w.run.setEnabled(True)
                 self.boundsError['framing'] = False
@@ -3745,7 +3745,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'VIRTUAL KB ERROR')
             msg0  = _translate('HandlerClass', '"onboard" virtual keyboard is not installed')
             msg1 = _translate('HandlerClass', 'some keyboard functions are not available')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
             return
         try:
             cmd = 'gsettings get org.onboard.window.landscape width'
@@ -4227,7 +4227,7 @@ class HandlerClass:
                                 for item in required:
                                     if item not in received:
                                         msg0 = _translate('HandlerClass', 'is missing from Material')
-                                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}'.format(head, item, msg0, t_number))
+                                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}\n'.format(head, item, msg0, t_number))
                             firstpass = False
                             t_number = int(line.rsplit('_', 1)[1].strip().strip(']'))
                             self.materialNumList.append(t_number)
@@ -4238,7 +4238,7 @@ class HandlerClass:
                             msg0 = _translate('HandlerClass', 'Material number')
                             msg1 = _translate('HandlerClass', 'is invalid')
                             msg2 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}{}'.format(head, msg0, msg1, matnum, msg2))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}{}\n'.format(head, msg0, msg1, matnum, msg2))
                             continue
                     elif line.startswith('NAME'):
                         if line.split('=')[1].strip():
@@ -4252,14 +4252,14 @@ class HandlerClass:
                             p_height = float(line.split('=')[1].strip())
                         elif t_number:
                             msg0 = _translate('HandlerClass', 'No value for PIERCE_HEIGHT in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, t_number))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
                     elif line.startswith('PIERCE_DELAY'):
                         received.append('PIERCE_DELAY')
                         if line.split('=')[1].strip():
                             p_delay = float(line.split('=')[1].strip())
                         else:
                             msg0 = _translate('HandlerClass', 'No value for PIERCE_DELAY in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, t_number))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
                     elif line.startswith('PUDDLE_JUMP_HEIGHT'):
                         if line.split('=')[1].strip():
                             pj_height = float(line.split('=')[1].strip())
@@ -4272,14 +4272,14 @@ class HandlerClass:
                             c_height = float(line.split('=')[1].strip())
                         else:
                             msg0 = _translate('HandlerClass', 'No value for CUT_HEIGHT in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, t_number))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
                     elif line.startswith('CUT_SPEED'):
                         received.append('CUT_SPEED')
                         if line.split('=')[1].strip():
                             c_speed = float(line.split('=')[1].strip())
                         else:
                             msg0 = _translate('HandlerClass', 'No value for CUT_SPEED in Material')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}'.format(head, msg0, t_number))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, t_number))
                     elif line.startswith('CUT_AMPS'):
                         if line.split('=')[1].strip():
                             c_amps = float(line.split('=')[1].strip().replace(' ',''))
@@ -4300,7 +4300,7 @@ class HandlerClass:
                     msg1 += _translate('The following line in the material file')
                     msg2 += _translate('contains an erroneous character')
                     msg3 += _translate('Fix the line and reload the material file')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}'.format(head, msg0, msg1, msg2, line, msg3))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}\n'.format(head, msg0, msg1, msg2, line, msg3))
                     material_error = True
                     break
             if not firstpass and not material_error:
@@ -4308,7 +4308,7 @@ class HandlerClass:
                 for item in required:
                     if item not in received:
                         msg0 = _translate('HandlerClass', 'is missing from Material')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}'.format(head, item, msg0, t_number))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {} #{}\n'.format(head, item, msg0, t_number))
         self.display_materials()
         self.change_material(0)
         self.getMaterialBusy = 0
@@ -4342,7 +4342,7 @@ class HandlerClass:
                     '\n')
             head = _translate('HandlerClass', 'MATERIALS SETUP')
             msg0 = _translate('HandlerClass', 'Creating New Material File')
-            STATUS.emit('error', linuxcnc.OPERATOR_DISPLAY, '{}:\n{}: {}'.format(head, msg0, self.materialFile))
+            STATUS.emit('error', linuxcnc.OPERATOR_DISPLAY, '{}:\n{}: {}\n'.format(head, msg0, self.materialFile))
 
     def material_exists(self, material):
         if int(material) in self.materialList:
@@ -4354,7 +4354,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'MATERIALS ERROR')
                 msg0 = _translate('HandlerClass', 'Material #')
                 msg1 = _translate('HandlerClass', 'not in material list')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}'.format(head, msg0, int(material),msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{} {}\n'.format(head, msg0, int(material),msg1))
             return False
 
     def save_default_material(self):
@@ -4747,7 +4747,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'COMMS ERROR')
                 msg0 = _translate('HandlerClass', 'PMX485 component is not loaded,')
                 msg1 = _translate('HandlerClass', 'Powermax communications are not available')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
                 return
             self.w.pmx485Status = False
             self.w.pmx485_enable.stateChanged.connect(lambda w:self.pmx485_enable_changed(self.w.pmx485_enable.isChecked()))
@@ -4789,7 +4789,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'INI FILE ERROR')
                 msg0 = _translate('HandlerClass', 'Powermax comms not specified in ini file,')
                 msg1 = _translate('HandlerClass', 'unloading pmx485 component')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
             self.w.gas_pressure.hide()
             self.w.gas_pressure_label.hide()
             self.w.cut_mode.hide()
@@ -4816,14 +4816,14 @@ class HandlerClass:
                             self.w.pmx485_label.setToolTip(_translate('HandlerClass', 'Status of PMX485 communications'))
                             msg0 = _translate('HandlerClass', 'Timeout while reconnecting,')
                             msg1 = _translate('HandlerClass', 'check cables and connections then re-enable')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
                             return
                         if hal.component_exists('pmx485'):
                             break
                 except:
                     msg0 = _translate('HandlerClass', 'PMX485 component is not loaded,')
                     msg1 = _translate('HandlerClass', 'Powermax communications are not available')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
                     return
             # if pins not connected then connect them
             if not hal.pin_has_writer('pmx485.enable'):
@@ -4834,7 +4834,7 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'MATERIALS ERROR')
                 msg0 = _translate('HandlerClass', 'Invalid Cut Mode or Cut Amps,')
                 msg1 = _translate('HandlerClass', 'cannot connect to Powermax')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}'.format(head, msg0, msg1))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
                 self.w.pmx485_enable.setChecked(False)
                 return
             # good to go
@@ -4938,13 +4938,13 @@ class HandlerClass:
                 self.pmx485LabelState = None
                 self.w.pmx485_label.setStatusTip('{} ({}) {}'.format(text, self.pmx485FaultCode, faultMsg))
                 msg0 = _translate('HandlerClass', 'CODE')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}: {}\n{}'.format(head, msg0, self.pmx485FaultCode, faultMsg))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}: {}\n{}\n'.format(head, msg0, self.pmx485FaultCode, faultMsg))
             else:
                 self.w.pmx485_label.setText('{}: {}'.format(code, faultRaw))
                 self.pmx485LabelState = None
                 msg0 = _translate('HandlerClass', 'Unknown Powermax fault code')
                 self.w.pmx485_label.setStatusTip('{} ({})'.format(msg0, faultRaw))
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}: {}'.format(head, msg0, faultRaw))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}: {}\n'.format(head, msg0, faultRaw))
 
     def pmx485_mesh_enable_changed(self, state):
         if state and not self.meshMode:
@@ -5060,13 +5060,13 @@ class HandlerClass:
             if hal.get_value('plasmac.axis-x-position') + \
                 hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
                 msg0 = _translate('HandlerClass', 'X axis motion would trip X maximum limit')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
             moveX = int(distX / self.oScale)
             if hal.get_value('plasmac.axis-y-position') + \
                 hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
                 msg0 = _translate('HandlerClass', 'Y axis motion would trip Y maximum limit')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}'.format(head, msg0))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
             moveY = int(distY / self.oScale)
             hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
