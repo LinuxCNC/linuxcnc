@@ -18,6 +18,9 @@ hal_pin_new \- Crea un pin HAL
  int hal_pin_s32_new(const char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_s32_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
 
 .HP
+ int hal_pin_port_new(const char *\fIname\fR, hal_pin_dir_t \fIdir\fR, hal_port_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR)
+
+.HP
  int hal_pin_bit_newf(hal_pin_dir_t \fIdir\fR, hal_bit_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
 
 .HP
@@ -30,6 +33,9 @@ hal_pin_new \- Crea un pin HAL
  int hal_pin_s32_newf(hal_pin_dir_t \fIdir\fR, hal_s32_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
 
 .HP
+ int hal_pin_port_newf(hal_pin_dir_t \fIdir\fR, hal_port_t ** \fIdata_ptr_addr\fR, int \fIcomp_id\fR, const char *\fIfmt\fR, \fI...\fR)
+
+.HP
  int hal_pin_new(const char *\fIname\fR, hal_type_t \fItype\fR, hal_pin_dir_t \fIdir\fR, void **\fIdata_ptr_addr\fR, int \fIcomp_id\fR)
 
 .SH ARGUMENTOS
@@ -37,11 +43,12 @@ hal_pin_new \- Crea un pin HAL
 El nombre del pin
 .IP \fIdir\fR
 
-La dirección del pin, desde el punto de vista del componente. Puede ser \fBHAL_IN\fR, \fBHAL_OUT\fR o \fBHAL_IO\fR. 
-Cualquier número de pines \fBHAL_IN\fR o \fBHAL_IO\fR pueden estar conectados a la misma señal, pero no está permitido
-mas de un pin \fBHAL_OUT\fR . Un componente puede asignar un valor a un pin que
-sea \fBHAL_OUT\fR o \fBHAL_IO\fR, pero no puede asignar un valor a un pin que sea
-\fBHAL_IN\fR.
+La dirección del pin, desde el punto de vista del componente. Puede ser
+\fBHAL_IN\fR, \fBHAL_OUT\fR o \fBHAL_IO\fR.  Cualquier número de pines
+\fBHAL_IN\fR o \fBHAL_IO\fR pueden estar conectados a la misma señal,
+pero no está permitido mas de un pin \fBHAL_OUT\fR . Un componente
+puede asignar un valor a un pin que sea \fBHAL_OUT\fR o \fBHAL_IO\fR,
+pero no puede asignar un valor a un pin que sea \fBHAL_IN\fR.
 
 .IP \fIdata_ptr_addr\fR
 La dirección del puntero a datos, que debe estar dentro de la memoria asignada por

@@ -56,7 +56,7 @@ otros detalles.
 
 HAL utiliza la interfaz RTAPI/ULAPI. Si RTAPI está definido en hal_lib.c hará
 generar un módulo kernel hal_lib.o que se "insmoded" y proporciona las funciones
-para todos los componentes basados ​​en módulos del núcleo. El mismo archivo fuente compilado con
+para todos los componentes basados en módulos del núcleo. El mismo archivo fuente compilado con
 #define ULAPI lo haría en espacio de usuario hal_lib.o que está vinculado estáticamente al
 código de espacio de usuario para hacer ejecutables de espacio de usuario. Las listas de variables y la informacion
 de enlaces se almacena en un bloque de memoria compartida y se protege con mutexes,
