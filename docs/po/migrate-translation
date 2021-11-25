@@ -49,10 +49,14 @@ match_translation() {
     fi
 }
 
-for l in es fr cn vi; do
+for l in es ; do
     if $do_man ; then
 	if [ -d man/$l ] ; then
 	    for t in man/$l/man?/*; do
+		if grep -q $t po/ignore_${l}.txt; then
+		    echo "I: skipping $t as requested"
+		    continue
+		fi
 		f="man/$(echo $t|cut -d/ -f3-)"
 		match_translation man "$f" "$t"
 	    done
@@ -60,6 +64,10 @@ for l in es fr cn vi; do
     fi
     if $do_adoc ; then
 	for t in $(find src/ -name "*_$l.adoc"); do
+	    if grep -q $t po/ignore_${l}.txt; then
+	        echo "I: skipping $t as requested"
+	        continue
+	    fi
 	    f=$(echo $t | sed s/_$l//)
 	    echo $f $t
 	    match_translation AsciiDoc "$f" "$t"

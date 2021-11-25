@@ -1,0 +1,2 @@
+# Files to skip since these have content that is not in the original
+man/es/man1/iocontrol.1
