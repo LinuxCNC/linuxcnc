@@ -31,8 +31,8 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 
 #----------start toplevel----------
 #
-
-wm title . [msgcat::mc "HAL Configuration"]
+set ::titlename [msgcat::mc "HAL Configuration"]
+wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
 set masterwidth 700
 set masterheight 475
@@ -119,9 +119,23 @@ set viewmenu [menu $menubar.view -tearoff 0]
             -command {showNode {param}}
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
-        $viewmenu add separator
-        $viewmenu add command -label [msgcat::mc "Erase Watch"] \
+
+set watchmenu [menu $menubar.watch -tearoff 0]
+    $menubar add cascade -label [msgcat::mc "Watch"] \
+            -menu $watchmenu
+        $watchmenu add command -label [msgcat::mc "Add pin"] \
+            -command {watchHAL pin+[entrybox "" [msgcat::mc "Add to watch"] "Pin"]}
+        $watchmenu add command -label [msgcat::mc "Add signal"] \
+            -command {watchHAL sig+[entrybox "" [msgcat::mc "Add to watch"] "Signal"]}
+        $watchmenu add command -label [msgcat::mc "Add parameter"] \
+            -command {watchHAL param+[entrybox "" [msgcat::mc "Add to watch"] "Parameter"]}
+        $watchmenu add separator
+
+        $watchmenu add command -label [msgcat::mc "Reload Watch"] \
+            -command {reloadWatch}
+        $watchmenu add command -label [msgcat::mc "Erase Watch"] \
             -command {watchReset all}
+
 . configure -menu $menubar
 
 # build the tree widgets left side
@@ -292,12 +306,14 @@ proc makeShow {} {
     set com [entry $f2.b.entry -textvariable halcommand]
     pack $com -side left -fill x -expand 1 -pady 3
     bind $com <KeyPress-Return> {showEx $halcommand}
+    bind $com <Control-KeyPress-v> {
+        if {[%W selection present]} {%W delete sel.first sel.last}
+    }
+    bind $com <Up> {moveHist %W -1}
+    bind $com <Down> {moveHist %W 1}  
     set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
     pack $ex -side left -padx 5 -pady 3
-    bind $com <Up> {hist_move %W -1}
-    bind $com <Down> {hist_move %W 1} 
-
     pack [frame $f2.show -height 5] \
          -side top -fill both -expand 1
     set ::showtext [text $f2.show.txt \
@@ -322,6 +338,10 @@ proc makeWatch {} {
     scrollbar $::watchhal.s -command [list $::cisp yview] -orient v
     pack $::cisp -side left -fill both -expand yes
     pack $::watchhal.s -side left -fill y -expand no
+    bind $::cisp <Configure> {
+        set ::canvaswidth %w
+        reloadWatch
+    }
 }
 
 # showmode handles the tab selection of mode
@@ -368,8 +388,8 @@ proc showHAL {which} {
 }
 
 proc showEx {what} {
-    hist_add $what
-    set str [eval hal $what]
+    addToHist $what
+    set str [eval exec halcmd $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
     $::disp insert end $str
@@ -378,7 +398,7 @@ proc showEx {what} {
 
 set ::hist ""
 set ::i_hist 0
-proc hist_add {s} {
+proc addToHist {s} {
     if {$s == ""} return
     if [string compare $s [lindex $::hist end]] {
         lappend ::hist $s
@@ -386,7 +406,7 @@ proc hist_add {s} {
     }
 }
 
-proc hist_move {w where} {
+proc moveHist {w where} {
     incr ::i_hist $where
     if {[set ::i_hist]<0} {set ::i_hist 0}
     if {[set ::i_hist]>=[llength $::hist]+1} {
@@ -405,6 +425,7 @@ set ::filetypes { {{HALSHOW} {.halshow}}\
 
 set ::watchlist ""
 set ::watchstring ""
+set ::canvaswidth 438 
 proc watchHAL {which} {
     if {$which == "zzz"} {
         $::cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
@@ -465,11 +486,11 @@ proc watchHAL {which} {
             -anchor w -tag $label
 
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 414 [expr $i * 20 + 21] "set" [list hal_setp $label 1] 0
-            canvasbutton::canvasbutton $::cisp  417 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "clr" [list hal_setp $label 0] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
@@ -477,9 +498,9 @@ proc watchHAL {which} {
         $::cisp create text 100 [expr $i * 20 + 12] -text $label \
             -anchor w -tag $label
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp  390 [expr $i * 20 + 4] 441 [expr $i * 20 + 21] "set val" [list set_value $label] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
         }
     }
 
@@ -490,39 +511,38 @@ proc watchHAL {which} {
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
     lappend ::watchstring "$i $vartype $varname "
-    if {$::watching == 0} {watchLoop}
+    refreshItem $i $vartype $label
 }
 
 proc popupmenu {label index writable which x y} {
     # create menu
     set m [menu .popupMenu$index -tearoff false]
     # add entries
-    $m add command -label "copy" -command [list copy_name $label]
+    $m add command -label [msgcat::mc "Copy"] -command [list copyName $label]
     if {$writable} {
-        $m add command -label "set to .." -command [list set_value $label]
+        $m add command -label [msgcat::mc "Set to .."] -command [list setValue $label]
     }
     if {$writable == -1} {
-        $m add command -label "unlink pin" -command [list unlinkp $label $index]
+        $m add command -label [msgcat::mc "Unlink pin"] -command [list unlinkp $label $index]
     }
-    $m add command -label "remove" -command [list watchReset $label]
+    $m add command -label [msgcat::mc "Remove"] -command [list watchReset $label]
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
 }
 
 proc hal_setp {label val} {
-    puts stderr "send hal command: setp $label $val"
     eval hal "setp $label $val"
 }
 
-proc copy_name {label} {
+proc copyName {label} {
     clipboard clear
     clipboard append $label
 }
 
-proc set_value {label} {
+proc setValue {label} {
     set val [eval hal "getp $label"]
-    set val [entrybox $val "Set" $label]
+    set val [entrybox $val [msgcat::mc "Set"] $label]
     if {$val != "cancel"} {
         eval hal "setp $label $val"
     }
@@ -530,34 +550,38 @@ proc set_value {label} {
 
 proc unlinkp {label i} {
     # when unlink command successful --> rebuild list
-     if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
-        set watchlist_copy $::watchlist
-        watchReset all
-        foreach item $watchlist_copy { watchHAL $item }
+    if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
+        reloadWatch       
     }
 }
 
 proc entrybox {defVal buttonText label} {
-    set wn [toplevel .top]
-    wm title $wn "Set value"
-    set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
-    set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
-    wm geometry $wn "+$xpos+$ypos"
-    variable entryVal
-    set entryVal $defVal
-    label .top.lbl -text $label
-    entry .top.en -textvariable entryVal
-    .top.en icursor end
-    button .top.but -command {set ret $entryVal} -text $buttonText
-    bind .top.en <Return> {set ret $entryVal}
-    wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
-    pack {*}[winfo children .top]
-    focus .top.en
-    vwait ret
-    unset -nocomplain ret
-    unset -nocomplain entryVal
-    destroy .top
-    return $::ret
+    if {[winfo exists .top]} {
+        raise .top
+        focus .top
+        return "cancel"
+    } else {
+        set wn [toplevel .top]
+        wm title $wn [msgcat::mc "User input"]
+        set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
+        set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
+        wm geometry $wn "+$xpos+$ypos"
+        variable entryVal
+        set entryVal $defVal
+        label .top.lbl -text $label
+        entry .top.en -textvariable entryVal
+        .top.en icursor end
+        button .top.but -command {set ret $entryVal} -text $buttonText
+        bind .top.en <Return> {set ret $entryVal}
+        wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
+        pack {*}[winfo children .top]
+        focus .top.en
+        vwait ret
+        unset -nocomplain ret
+        unset -nocomplain entryVal
+        destroy .top
+        return $::ret
+    }
 }
 
 # watchHAL prepares a string of {i HALtype name} sets
@@ -569,40 +593,44 @@ proc watchLoop {} {
     set which $::watchstring
     foreach var $which {
         scan $var {%i %s %s} cnum vartype varname
-        if {$vartype == "sig" } {
-            set ret [hal gets $varname]
-            set varnumtype [hal stype $varname]
-        } else {
-            set ret [hal getp $varname]
-            set varnumtype [hal ptype $varname]
-        }
-        if {$ret == "TRUE"} {
-            $::cisp itemconfigure oval$cnum -fill yellow
-        } elseif {$ret == "FALSE"} {
-            $::cisp itemconfigure oval$cnum -fill firebrick4
-        } else {
-            switch $varnumtype {
-              u32 - s32  {set varnumtype int}
-              float      {set varnumtype float}
-            }
-            if [catch { set value [expr $ret] } ] {
-               set value $ret ;# allow display of a nan
-            } else {
-               # use format if provided
-               if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
-                  set value [format "$::ffmt" $ret]
-               }
-               if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
-                  set value [format "$::ifmt" $ret]
-               }
-            }
-            $::cisp itemconfigure text$cnum -text $value
-        }
+        refreshItem $cnum $vartype $varname
     }
     if {$::workmode == "watchhal"} {
         after 250 watchLoop
     } else {
         set ::watching 0
+    }
+}
+
+proc refreshItem {cnum vartype varname} {
+    if {$vartype == "sig" } {
+        set ret [hal gets $varname]
+        set varnumtype [hal stype $varname]
+    } else {
+        set ret [hal getp $varname]
+        set varnumtype [hal ptype $varname]
+    }
+    if {$ret == "TRUE"} {
+        $::cisp itemconfigure oval$cnum -fill yellow
+    } elseif {$ret == "FALSE"} {
+        $::cisp itemconfigure oval$cnum -fill firebrick4
+    } else {
+        switch $varnumtype {
+            u32 - s32  {set varnumtype int}
+            float      {set varnumtype float}
+        }
+        if [catch { set value [expr $ret] } ] {
+            set value $ret ;# allow display of a nan
+        } else {
+            # use format if provided
+            if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
+                set value [format "$::ffmt" $ret]
+            }
+            if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
+                set value [format "$::ifmt" $ret]
+            }
+        }
+        $::cisp itemconfigure text$cnum -text $value
     }
 }
 
@@ -628,6 +656,12 @@ proc watchReset {del} {
             }
         }
     }
+}
+
+proc reloadWatch {} {
+    set watchlist_copy $::watchlist
+    watchReset all
+    foreach item $watchlist_copy { watchHAL $item }
 }
 
 # proc switches the insert and removal of upper right text
@@ -661,7 +695,7 @@ proc loadwatchlist {filename} {
   close $f
   set ::last_watchfile_tail [file tail    $filename]
   set ::last_watchfile_dir  [file dirname $filename]
-  wm title . $::last_watchfile_tail
+  wm title . "$::last_watchfile_tail - $::titlename"
   if {"$wl" == ""} return
   watchReset all
   $::top raise pw

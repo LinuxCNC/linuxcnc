@@ -69,7 +69,7 @@
  #
  #----------------------------------------------------------------------
  
- proc canvasbutton::canvasbutton {w x0 y0 x1 y1 text cmd state} {
+ proc canvasbutton::canvasbutton {w x0 y0 wd h text cmd state} {
      variable nexttag
      variable command
  
@@ -79,12 +79,12 @@
  
 
  
-     set x [expr { ($x0+$x1) / 2 }]
-     set y [expr { ($y0+$y1) / 2 }]
+     set x [expr { $x0 + ($wd / 2) }]
+     set y [expr { $y0 + ($h / 2) }]
 
     if {$state} {
 
-        $w create rectangle $x0 $y0 $x1 $y1 \
+        $w create rectangle $x0 $y0 [expr {$x0 + $wd}] [expr {$y0 + $h}] \
                 -fill lightgray -outline black -width 1 \
                 -tags [list canvasb $btag [linsert $btag end frame]]
 
@@ -99,7 +99,7 @@
         $w bind canvasb <ButtonRelease-1> \
                 [list [namespace current]::release %W]
     } else {
-        $w create rectangle $x0 $y0 $x1 $y1 \
+        $w create rectangle $x0 $y0 [expr {$x0 + $wd}] [expr {$y0 + $h}] \
                 -fill lightgray -outline grey65 -width 1 
         $w create text $x $y -anchor center -justify center \
                 -text $text -fill grey65
