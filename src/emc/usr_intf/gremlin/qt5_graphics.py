@@ -288,6 +288,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.dro_vel = "   Vel:% 9.2F"
         self._font = 'monospace bold 16'
         self.addTimer()
+        self._buttonList = [Qt.LeftButton,
+                            Qt.MiddleButton,
+                            Qt.RightButton]
 
     # add a 100ms timer to poll linuxcnc stats
     # this may be overridden in sub widgets
@@ -958,7 +961,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         _event.accept()
 
     def mousePressEvent(self, event):
-        if (event.buttons() & Qt.LeftButton):
+        if (event.buttons() & self._buttonList[0]):
             self.select_prime(event.pos().x(), event.pos().y())
             #print self.winfo_width()/2 - event.pos().x(), self.winfo_height()/2 - event.pos().y()
         self.recordMouse(event.pos().x(), event.pos().y())
@@ -967,24 +970,24 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # event.buttons = current button state
     # event_button  = event causing button
     def mouseReleaseEvent(self, event):
-        if event.button() & Qt.LeftButton:
+        if event.button() & self._buttonList[0]:
             self.select_fire()
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() & Qt.RightButton:
+        if event.button() & self._buttonList[2]:
             self.logger.clear()
 
     def mouseMoveEvent(self, event):
         # move
-        if event.buttons() & Qt.LeftButton:
+        if event.buttons() & self._buttonList[0]:
             self.translateOrRotate(event.pos().x(), event.pos().y())
         # rotate
-        elif event.buttons() & Qt.RightButton:
+        elif event.buttons() & self._buttonList[2]:
             if not self.cancel_rotate:
                 self.set_prime(event.pos().x(), event.pos().y())
                 self.rotateOrTranslate(event.pos().x(), event.pos().y())
         # zoom
-        elif event.buttons() & Qt.MiddleButton:
+        elif event.buttons() & self._buttonList[1]:
             self.continueZoom(event.pos().y())
 
     def user_plot(self):

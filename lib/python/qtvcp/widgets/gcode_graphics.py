@@ -23,7 +23,7 @@ PyQt5 widget for plotting gcode.
 import sys
 import os
 import gcode
-from PyQt5.QtCore import pyqtProperty, QTimer
+from PyQt5.QtCore import pyqtProperty, QTimer, Qt
 from PyQt5.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
@@ -76,6 +76,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._block_reLoad = None
         self._block_viewChanged = None
         self._block_lineSelect = None
+
+        self._mouseMode = 0
 
     def addTimer(self):
         self.timer = QTimer()
@@ -241,6 +243,24 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             STATUS.handler_unblock(self._block_reLoad)
             STATUS.handler_unblock(self._block_viewChanged)
             STATUS.handler_unblock(self._block_lineSelect)
+
+    def updateMouseMode(self, value):
+        if value == 0:
+            m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
+        elif value == 1:
+            r = Qt.LeftButton; m = Qt.MiddleButton; z = Qt.RightButton
+        elif value == 2:
+            z = Qt.LeftButton; m = Qt.MiddleButton; r = Qt.RightButton
+        elif value == 3:
+            m = Qt.LeftButton; r = Qt.MiddleButton; z = Qt.RightButton
+        elif value == 5:
+            m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
+        elif value == 6:
+            r = Qt.LeftButton; z = Qt.MiddleButton; m = Qt.RightButton
+        else:
+            return
+        self._buttonList =[m,z,r]
+
 
     ####################################################
     # functions that override qt5_graphics
@@ -425,6 +445,17 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._disable_STATUS_signals = False
         self.updateSignals(False)
     InhibitControls = pyqtProperty(bool, getInhibitControls, setInhibitControls,resetInhibitControls)
+
+    # set Mouse button controls
+    def setMouseButtonMode(self, value):
+        self._mouseMode = value
+        self.updateMouseMode(value)
+    def getMouseButtonMode(self):
+        return self._mouseMode
+    def resetMouseButtonMode(self):
+        self._mouseMode = 0
+        self.updateMouseMode(0)
+    MouseButtonMode = pyqtProperty(int, getMouseButtonMode, setMouseButtonMode,resetMouseButtonMode)
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.
