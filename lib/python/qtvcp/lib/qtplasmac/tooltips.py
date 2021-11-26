@@ -72,7 +72,7 @@ def clear_tool_tips(W):
     'cut_rec_n','cut_rec_ne','cut_rec_move_label']
 
     main_gcode_widgets = [
-    'file_open','file_reload','gcode_progress']
+    'file_open','file_reload']
 
     main_dro_widgets = [
     'dro_a','dro_b','dro_x','dro_y','dro_z','home_a','home_b','home_x','home_y',
@@ -279,7 +279,6 @@ def set_tool_tips(W):
     # main gcode widgets
     W.file_open.setToolTip(_translate('ToolTips', 'Opens the file selector'))
     W.file_reload.setToolTip(_translate('ToolTips', 'Reloads the current G-Code file'))
-    W.gcode_progress.setToolTip(_translate('ToolTips', 'Shows the progress of opening a G-Code file'))
 
     # main dro widgets
     text0 = _translate('ToolTips', 'Shows the current')

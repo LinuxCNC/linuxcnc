@@ -1,4 +1,4 @@
-VERSION = '1.217.128'
+VERSION = '1.217.129'
 
 '''
 qtplasmac_handler.py
@@ -89,15 +89,6 @@ class VLine(QFrame):
     def __init__(self):
         super(VLine, self).__init__()
         self.setFrameShape(self.VLine|self.Plain)
-
-# overlays some parameters on the preview screen
-class OverlayMaterial(QLabel):
-    def __init__(self, parent=None):
-        super(OverlayMaterial, self).__init__(parent)
-        self.setStyleSheet('font: 12pt "Courier";\
-                            color: #cccccc;\
-                            background: rgba(1,0,0,255)')
-        self.setAlignment(Qt.AlignTop|Qt.AlignLeft)
 
 # dummy class to raise an exception for style issues
 class ColorError(Exception):
@@ -353,10 +344,10 @@ class HandlerClass:
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
-        self.overlay.setText(self.get_overlay_text(False))
+        self.overlayPreview.setText(self.get_overlay_text(False))
         self.overlayConv.setText(self.get_overlay_text(True))
         if not self.w.chk_overlay.isChecked():
-            self.overlay.hide()
+            self.overlayPreview.hide()
             self.overlayConv.hide()
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.startupTimer = QTimer()
@@ -427,7 +418,7 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
-            self.overlay.show()
+            self.overlayPreview.show()
         ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
@@ -777,8 +768,6 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         self.w.gcode_stack.setCurrentIndex(0)
         self.w.jog_stack.setCurrentIndex(0)
-        self.w.gcode_progress.setFormat('')
-        self.w.gcode_progress.hide()
         self.w.jog_slider.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
         self.w.chk_override_limits.setChecked(False)
@@ -793,12 +782,16 @@ class HandlerClass:
         self.w.lbl_gcodes = STATLABEL()
         self.w.lbl_mcodes = STATLABEL()
         self.w.statusbar.addPermanentWidget(self.w.error_label, stretch=1)
+        self.w.error_label.setObjectName('error_label')
         self.w.statusbar.addPermanentWidget(VLine())
         self.w.statusbar.addPermanentWidget(self.w.lbl_tool)
+        self.w.lbl_tool.setObjectName('lbl_tool')
         self.w.statusbar.addPermanentWidget(VLine())
         self.w.statusbar.addPermanentWidget(self.w.lbl_gcodes)
+        self.w.lbl_gcodes.setObjectName('lbl_gcodes')
         self.w.statusbar.addPermanentWidget(VLine())
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
+        self.w.lbl_mcodes.setObjectName('lbl_mcodes')
         text = _translate('HandlerClass', 'MOVE')
         self.w.cut_rec_move_label.setText('{}\n{}'.format(text, self.w.kerf_width.text()))
         self.w.filemanager.button2.setText(_translate('HandlerClass', 'USER'))
@@ -834,8 +827,6 @@ class HandlerClass:
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont('arial,helvetica', 16)
-        self.overlay = OverlayMaterial(self.w.gcodegraphics)
-        self.overlayConv = OverlayMaterial(self.w.conv_preview)
         self.flasher = QTimer()
         self.flasher.timeout.connect(self.flasher_timeout)
         self.flasher.start(500)
@@ -848,6 +839,15 @@ class HandlerClass:
         self.fileClear = False
         self.laserButtonState = 'laser'
         self.camButtonState = 'markedge'
+        self.overlayPreview = QLabel(self.w.gcodegraphics)
+        self.overlayPreview.setStyleSheet('font: 12pt "Courier"; color: #cccccc; background: rgba(1,0,0,255)')
+        self.overlayPreview.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+        self.overlayConv = QLabel(self.w.conv_preview)
+        self.overlayConv.setStyleSheet('font: 12pt "Courier"; color: #cccccc; background: rgba(1,0,0,255)')
+        self.overlayConv.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+        self.overlayProgress = QProgressBar(self.w.gcode_display)
+        self.overlayProgress.setFormat('')
+        self.overlayProgress.hide()
 
     def get_overlay_text(self, kerf):
         if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
@@ -1228,11 +1228,16 @@ class HandlerClass:
 
     def percent_loaded(self, object, percent):
         if percent < 1:
-            self.w.gcode_progress.setValue(0)
-            self.w.gcode_progress.hide()
+            self.overlayProgress.setValue(0)
+            self.overlayProgress.hide()
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         else:
-            self.w.gcode_progress.setValue(percent)
-            self.w.gcode_progress.show()
+            self.overlayProgress.setValue(percent)
+            self.overlayProgress.show()
+            self.overlayProgress.setFixedWidth(self.w.gcode_display.geometry().width() - 20)
+            self.overlayProgress.move(0, self.w.gcode_display.geometry().height() - 20)
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def user_system_changed(self, obj, data):
         sys = self.systemList[int(data)]
@@ -1245,13 +1250,13 @@ class HandlerClass:
             self.lastLoadedProgram = ''
             return
         if filename is not None:
-            self.w.gcode_progress.setValue(0)
+            self.overlayProgress.setValue(0)
             self.lastLoadedProgram = filename
             if not self.cameraOn and self.w.preview_stack.currentIndex() != 4:
                 self.w.preview_stack.setCurrentIndex(0)
                 self.vkb_hide()
                 if self.w.chk_overlay.isChecked():
-                    self.overlay.show()
+                    self.overlayPreview.show()
             self.w.file_open.setText(os.path.basename(filename))
             if not self.single_cut_request:
                 self.fileOpened = True
@@ -1612,13 +1617,13 @@ class HandlerClass:
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
         self.vkb_hide()
-        self.overlay.hide()
+        self.overlayPreview.hide()
         self.w.filemanager.table.setFocus()
 
     def file_edit_clicked(self):
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != 2:
             self.w.preview_stack.setCurrentIndex(2)
-            self.overlay.hide()
+            self.overlayPreview.hide()
             self.w.gcode_editor.editor.setFocus()
             self.vkb_show()
         else:
@@ -1635,7 +1640,7 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
-            self.overlay.show()
+            self.overlayPreview.show()
         ACTION.SET_MANUAL_MODE()
 
     def cone_size_changed(self, data):
@@ -1730,7 +1735,7 @@ class HandlerClass:
         if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
             file = ACTION.prefilter_path or self.lastLoadedProgram
             if os.path.exists(file):
-                self.w.gcode_progress.setValue(0)
+                self.overlayProgress.setValue(0)
                 ACTION.OPEN_PROGRAM(file)
             else:
                 head = _translate('HandlerClass', 'FILE ERROR')
@@ -2345,10 +2350,10 @@ class HandlerClass:
 
     def overlay_changed(self, state):
         if self.w.chk_overlay.isChecked():
-            self.overlay.show()
+            self.overlayPreview.show()
             self.overlayConv.show()
         else:
-            self.overlay.hide()
+            self.overlayPreview.hide()
             self.overlayConv.hide()
 
     def dialog_show_ok(self, icon, title, error, bText=_translate('HandlerClass', 'OK')):
@@ -3306,12 +3311,12 @@ class HandlerClass:
                 self.cutTypePin.set(0)
                 self.button_normal(self.ctButton)
                 self.w[self.ctButton].setText(self.cutTypeText)
-            self.w.gcode_progress.setValue(0)
+            self.overlayProgress.setValue(0)
             if self.fileOpened == True:
                 self.file_reload_clicked()
         elif 'load' in commands.lower():
             lFile = '{}/{}'.format(self.programPrefix, commands.split('load', 1)[1].strip())
-            self.w.gcode_progress.setValue(0)
+            self.overlayProgress.setValue(0)
             ACTION.OPEN_PROGRAM(lFile)
         elif 'toggle-halpin' in commands.lower():
             halpin = commands.lower().split('toggle-halpin')[1].split(' ')[1].strip()
@@ -3378,7 +3383,7 @@ class HandlerClass:
                     dir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
                 files = glob.glob('{}/*.ngc'.format(dir))
                 latest = max(files, key = os.path.getctime)
-                self.w.gcode_progress.setValue(0)
+                self.overlayProgress.setValue(0)
                 ACTION.OPEN_PROGRAM(latest)
             except:
                 head = _translate('HandlerClass', 'FILE ERROR')
@@ -4017,7 +4022,7 @@ class HandlerClass:
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
             self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
-        self.overlay.setText(self.get_overlay_text(False))
+        self.overlayPreview.setText(self.get_overlay_text(False))
         self.overlayConv.setText(self.get_overlay_text(True))
 
     def material_change_pin_changed(self, halpin):
@@ -4416,13 +4421,13 @@ class HandlerClass:
         self.w.camview.rotation = STATUS.stat.rotation_xy
         if self.w.preview_stack.currentIndex() != 3:
             self.w.preview_stack.setCurrentIndex(3)
-            self.overlay.hide()
+            self.overlayPreview.hide()
             self.button_active('camera')
             self.cameraOn = True
         else:
             self.w.preview_stack.setCurrentIndex(0)
             if self.w.chk_overlay.isChecked():
-                self.overlay.show()
+                self.overlayPreview.show()
             self.button_normal('camera')
             self.cameraOn = False
             ACTION.SET_MANUAL_MODE()

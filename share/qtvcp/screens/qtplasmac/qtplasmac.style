@@ -687,11 +687,15 @@ QStatusBar::item {
 
 QProgressBar {
     color: foregnd;
-    border: 1px solid foregnd;
-    border-radius: 4px }
+    background: backalt;
+    border: 0px;
+    border-radius: 4px;
+    max-height: 20px; }
 
 QProgressBar::chunk {
-    background-color: foregnd }
+    background-color: foregnd;
+    width: 5px;
+    margin: 0.5px }
 
 /****** LED ************/
 LED {
