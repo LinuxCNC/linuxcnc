@@ -1,4 +1,4 @@
-VERSION = '1.217.127'
+VERSION = '1.217.128'
 
 '''
 qtplasmac_handler.py
@@ -777,6 +777,7 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         self.w.gcode_stack.setCurrentIndex(0)
         self.w.jog_stack.setCurrentIndex(0)
+        self.w.gcode_progress.setFormat('')
         self.w.gcode_progress.hide()
         self.w.jog_slider.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
         self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
@@ -1228,11 +1229,9 @@ class HandlerClass:
     def percent_loaded(self, object, percent):
         if percent < 1:
             self.w.gcode_progress.setValue(0)
-            self.w.gcode_progress.setFormat('LOADING COMPLETE')
             self.w.gcode_progress.hide()
         else:
             self.w.gcode_progress.setValue(percent)
-            self.w.gcode_progress.setFormat('Loading: {}%'.format(percent))
             self.w.gcode_progress.show()
 
     def user_system_changed(self, obj, data):
@@ -2400,7 +2399,7 @@ class HandlerClass:
 
     def run_from_line(self):
         inData,outData,newFile,params = [],[],[],[]
-        g2,g4,g6,g9,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','',''
+        g2,g4,g6,g9,g9arc,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','','',''
         oSub = False
         count = 0
         tmpMat = False
@@ -2427,20 +2426,29 @@ class HandlerClass:
                 params.append(line.strip())
                 continue
             if line.startswith('m190'):
-               mat = line.split('p')[1]
-               if '(' in mat:
-                   num = int(mat.split('(')[0])
-               else:
-                   num = int(mat)
-               if num >= 1000000:
-                   tmpMat = True
-               else:
-                   material = line.strip()
-               continue
+                mat = line.split('p')[1]
+                try:
+                    if '(' in mat:
+                        num = int(mat.split('(')[0])
+                    else:
+                        num = int(mat)
+                except:
+                    head = _translate('HandlerClass', 'G-CODE ERROR')
+                    msg0 = _translate('HandlerClass', 'is an invalid material number')
+                    msg1 = _translate('HandlerClass', 'Material #0 will be selected')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n"{}" {}\n{}\n'.format(head, mat, msg0, msg1))
+                    num = 0
+                if num >= 1000000:
+                    tmpMat = True
+                else:
+                    material = line.strip()
+                continue
             if line.replace(' ','').startswith('m66p3') and tmpMat:
                 tmpMat = False
                 continue
-            for t1 in ['g20','g21','g40','g41.1','g42.1','g61', 'g61.1', 'g64', 'g90','g91']:
+            if line.replace(' ','').startswith('m67e3'):
+                continue
+            for t1 in ['g20','g21','g40','g41.1','g42.1','g61','g61.1','g64','g90','g90.1','g91','g91.1']:
                 if t1 in line:
                     if t1[1] == '2':
                         g2 = t1
@@ -2464,8 +2472,14 @@ class HandlerClass:
                                     else:
                                         break
                                 g6 = 'g64p{}'.format(p)
-                    elif t1[1] == '9':
-                        g9 = t1
+                    elif t1 == 'g90' and not 'g90.1' in line:
+                        g9 = 'g90'
+                    elif t1 == 'g91' and not 'g91.1' in line:
+                        g9 = 'g91'
+                    elif t1 == 'g90.1' in line:
+                        g9arc = 'g90.1'
+                    elif t1 == 'g91.1' in line:
+                        g9arc = 'g91.1'
             if 'g0' in line:
                 code = 'g0'
             if 'g1' in line:
@@ -2629,6 +2643,8 @@ class HandlerClass:
             newFile.append(g6)
         if g9:
             newFile.append(g9)
+        if g9arc:
+            newFile.append(g9arc)
         newFile.append('M52 P1')
         if d3:
             newFile.append(d3)
@@ -2687,6 +2703,10 @@ class HandlerClass:
                     continue
             elif line.replace(' ','').startswith('m66p3') and tmpMat:
                 tmpMat = False
+                continue
+            elif line.replace(' ','').startswith('m67e3'):
+                continue
+            elif line.replace(' ','').startswith('m68e3'):
                 continue
             newFile.append(line.strip())
         rflFile = '{}rfl.ngc'.format(self.tmpPath)

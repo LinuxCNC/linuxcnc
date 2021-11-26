@@ -677,8 +677,8 @@ get_materials()
 with open(inCode, 'r') as fRead:
     for line in fRead:
         lineNum += 1
-        # remove whitespace
-        line = line.strip()
+        # remove whitespace and trailing periods
+        line = line.strip().rstrip('.')
         # remove line numbers
         if line.lower().startswith('n'):
             line = line[1:]
@@ -959,7 +959,7 @@ with open(inCode, 'r') as fRead:
             # restore hole sensing to default
             if holeEnable:
                 lineNum += 1
-                gcodeList.append('(disable hole sensing)')
+                gcodeList.append('#<holes>=0 (disable hole sensing)')
                 holeEnable = False
             if firstMaterial:
                 RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(firstMaterial)])
