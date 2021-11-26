@@ -218,13 +218,17 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     color: backgnd;
     background: frames;
     border: none;
-    border-top-left-radius: 2px;
+    border-top-left-radius: 0px;
     border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px }
 
 #file_open:disabled {
     background: inactive }
+
+#file_open:pressed {
+    color: frames;
+    background: backgnd }
 
 /****** RELOAD BUTTON<<<<<<<<<<<<*/
 #file_reload {
@@ -238,6 +242,27 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 
 #file_reload:disabled {
     background: inactive }
+
+#file_reload:pressed {
+    color: frames;
+    background: backgnd }
+
+/****** CLEAR BUTTON<<<<<<<<<<<<*/
+#file_clear {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#file_clear:disabled {
+    background: inactive }
+
+#file_clear:pressed {
+    color: frames;
+    background: backgnd }
 
 /****** DRO DISPLAY<<<<<<<<<<<<*/
 DROLabel {
@@ -710,7 +735,6 @@ EditorBase {
     qproperty-styleFont5: 'Lato,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFont6: 'Lato,11,-1,0,60,0,0,0,0,0';
     qproperty-styleFont7: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFontMargin: 'Lato,11,-1,0,20,00,0,0,0,0';
     qproperty-styleColorSelectionText: backgnd;
     qproperty-styleColorSelectionBackground: foregnd }
 

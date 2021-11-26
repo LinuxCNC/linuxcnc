@@ -48,7 +48,7 @@ pin in  bit     consumable_change           "change consumables in torch";
 pin in  bit     cornerlock_enable           "enable corner lock";
 pin in  float   cornerlock_threshold        "corner lock threshold (% of requested feed rate), speeds below this disable THC";
 pin in  float   current_velocity            "current machine velocity , connect to motion.current-vel";
-pin in  float   cut_feed_rate               "cut feed rate, set to 0 to use feed rate from gcode file (machine units per minute)";
+pin in  float   cut_feed_rate               "cut feed rate from current material (machine units per minute)";
 pin in  float   cut_height                  "cut height (machine units)";
 pin in  bit     cut_recovery                "recover from cut error";
 pin in  float   cut_volts                   "cut voltage (volts)";
@@ -105,7 +105,9 @@ pin in  bit     program_is_paused           "program is paused, connect to halui
 pin in  bit     program_is_running          "program is running, connect to halui.program.is-running";
 pin in  float   puddle_jump_delay           "delay move from pierce height to cut height (seconds), leave disconnected if not required";
 pin in  float   puddle_jump_height          "puddle jump height (percentage of pierce height), leave disconnected if not required";
-pin in  float   requested_velocity          "requested velocity, set by a known requested velocity or connect to motion.requested-vel";
+/* requested_velocity is deprecated in favour of feed_upm, the pin is kept so as not to break existing configs */
+pin in  float   requested_velocity          "deprecated, requested velocity, connect to motion.requested-vel";
+pin in  float   feed_upm                    "requested feed_rate, connect to motion.feed-upm to use as the default (machine units per minute)";
 pin in  s32     resolution = 100            "multiplier for resolution of the offset counts";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
@@ -246,7 +248,8 @@ variable int    puddle_jump_percent;        /* puddle jump height as percentage 
 variable int    puddle_jump_target;         /* puddle jump height target offset */
 variable float  puddle_jump_timer;          /* puddle jump delay timer */
 variable float  recovery_velocity;          /* cut recovery step velocity */
-variable float  requested_feed_rate;        /* requested feed rate */
+//variable float  requested_feed_rate;        /* requested feed rate */
+pin out float  requested_feed_rate          "requested feed rate";
 variable int    res;                        /* resolution of offset move*/
 variable float  restart_timer;              /* time between torch on attempts*/
 variable int    safe_min;                   /* minimum safe height allowed */
@@ -1339,18 +1342,13 @@ FUNCTION(_) {
             case CUT_HEIGHT:
                 z_offset_enable = TRUE;
                 stop_type = NONE;
-                if(!cut_recovering){
+//                /* hold x/y motion until cut height reached */
+//                if(!cut_recovering){
 //                    feed_hold = FALSE;
-                }
+//                }
                 if(z_offset_counts == cut_target){
                     if((int)(z_offset_current * offset_res) == (int)(cut_target * offset_scale * offset_res)){
                         count = 0;
-                        /* set feed rate for this cut */
-                        if(cut_feed_rate > 0){
-                            requested_feed_rate = cut_feed_rate;
-                        }else{
-                            requested_feed_rate = requested_velocity * 60;
-                        }
                         if(cut_recovering){
                             angle_x_y = atan2(-y_offset_counts, -x_offset_counts);
                             x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
@@ -1378,6 +1376,12 @@ FUNCTION(_) {
                     state = IDLE;
                 }
                 z_offset_enable = TRUE;
+                /* use feed_upm if it has a value */
+                if(feed_upm){
+                    requested_feed_rate = feed_upm;
+                }else{
+                    requested_feed_rate = cut_feed_rate * feed_override;
+                }
                 /* while cutting and it is not a dry run and mesh mode is not enabled:
                  * if thc is enabled then vary the torch height to keep the arc voltage constant
                  * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity
@@ -1387,7 +1391,7 @@ FUNCTION(_) {
                     if(target_volts == 0){
                         cornerlock_is_locked = TRUE;
                         /* wait until velocity reaches 99.9% of requested velocity */
-                        if(current_velocity * 60 > requested_feed_rate * feed_override * 0.999){
+                        if(current_velocity * 60 > requested_feed_rate * 0.999){
                             /* wait until thc delay is completed before setting target voltage */
                             if(thc_delay_timer <= 0){
                                 if(use_auto_volts){
@@ -1423,9 +1427,9 @@ FUNCTION(_) {
                     }else if(thc_enabled){
                         /* lock thc if velocity < requested velocity * cornerlock threshold percentage */
                         if(cornerlock_enable){
-                            if(current_velocity * 60 < requested_feed_rate * feed_override * cornerlock_threshold * 0.01){
+                            if(current_velocity * 60 < requested_feed_rate * cornerlock_threshold * 0.01){
                                 cornerlock_is_locked = TRUE;
-                            }else if(cornerlock_is_locked && current_velocity * 60 > requested_feed_rate * feed_override * 0.99){
+                            }else if(cornerlock_is_locked && current_velocity * 60 > requested_feed_rate * 0.99){
                                 cornerlock_is_locked = FALSE;
                             }
                         }else{
@@ -1528,6 +1532,12 @@ FUNCTION(_) {
                     state = IDLE;
                 }
                 z_offset_enable = TRUE;
+                /* use feed_upm if it has a value */
+                if(feed_upm){
+                    requested_feed_rate = feed_upm;
+                }else{
+                    requested_feed_rate = cut_feed_rate * feed_override;
+                }
                 /* while cutting and it is not a dry run and mesh mode is not enabled:
                  * if thc is enabled then vary the torch height to keep the arc voltage constant
                  * if corner lock enabled, only allow THC if current velocity is greater than the threshold percentage of requested velocity */
@@ -1535,9 +1545,9 @@ FUNCTION(_) {
                     if(thc_enabled){
                         /* lock thc if velocity < requested velocity * cornerlock threshold percentage */
                         if(cornerlock_enable){
-                            if(current_velocity * 60 < requested_feed_rate * feed_override * cornerlock_threshold * 0.01){
+                            if(current_velocity * 60 < requested_feed_rate * cornerlock_threshold * 0.01){
                                 cornerlock_is_locked = TRUE;
-                            }else if(cornerlock_is_locked && current_velocity * 60 > requested_feed_rate * feed_override * 0.99){
+                            }else if(cornerlock_is_locked && current_velocity * 60 > requested_feed_rate * 0.99){
                                 cornerlock_is_locked = FALSE;
                             }
                         }else{

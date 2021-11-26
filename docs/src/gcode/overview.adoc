@@ -625,7 +625,7 @@ can be added easily without changes to the source code.
     Return the current value of S, not the actual spindle speed.
 
 * '#<_x>' -
-    Return current relative X coordinate including all offsets. Same as #5420.
+    Return current relative X coordinate including all offsets. In a lathe configuration, it always returns radius. Same as #5420.
 
 * '#<_y>' -
     Return current relative Y coordinate including all offsets. Same as #5421.

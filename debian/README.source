@@ -1,6 +1,17 @@
 Debian packaging of LinuxCNC
 ============================
 
+debian/copyright
+----------------
+
+Automated tools to check licenses within the source tree will likely find
+CC-2.5 referenced. But this refers only to some image files that were
+not adopted by the source tree, only the README describing them was 
+intentionally left unchanged.
+
+Steps
+-----
+
 The following steps were performed to transform Upstream's git repository
 into
  - a source tarball and
@@ -10,9 +21,6 @@ for Debian's main distribution.
 LinuxCNC is used across a wide span of releases, now supporting from
 Squeeze up to the latest version of Ubuntu. Not too many changes are
 required for Debian unstable.
-
-Steps
------
 
 1. Generate the source tarball, This will use the version as specified
    in the first line of the debian/changelog file. And maybe remove

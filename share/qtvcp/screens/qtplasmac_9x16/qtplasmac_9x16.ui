@@ -1383,7 +1383,7 @@
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="PushButton" name="file_select">
+                         <widget class="IndicatedPushButton" name="file_select">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -1417,7 +1417,7 @@
                          </widget>
                         </item>
                         <item>
-                         <widget class="PushButton" name="file_next">
+                         <widget class="IndicatedPushButton" name="file_next">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -1454,7 +1454,7 @@
                          </widget>
                         </item>
                         <item>
-                         <widget class="PushButton" name="file_prev">
+                         <widget class="IndicatedPushButton" name="file_prev">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                             <horstretch>0</horstretch>
@@ -4565,6 +4565,40 @@ HOME</string>
                                  <property name="bottomMargin">
                                   <number>0</number>
                                  </property>
+                                 <item>
+                                  <widget class="PushButton" name="file_clear">
+                                   <property name="sizePolicy">
+                                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                                     <horstretch>0</horstretch>
+                                     <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                   </property>
+                                   <property name="minimumSize">
+                                    <size>
+                                     <width>60</width>
+                                     <height>16</height>
+                                    </size>
+                                   </property>
+                                   <property name="maximumSize">
+                                    <size>
+                                     <width>60</width>
+                                     <height>16</height>
+                                    </size>
+                                   </property>
+                                   <property name="text">
+                                    <string>CLEAR</string>
+                                   </property>
+                                   <property name="python_command_option" stdset="0">
+                                    <bool>false</bool>
+                                   </property>
+                                   <property name="true_python_cmd_string" stdset="0">
+                                    <string/>
+                                   </property>
+                                   <property name="false_python_cmd_string" stdset="0">
+                                    <string/>
+                                   </property>
+                                  </widget>
+                                 </item>
                                  <item>
                                   <widget class="QPushButton" name="file_open">
                                    <property name="sizePolicy">

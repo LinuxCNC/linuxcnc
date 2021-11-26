@@ -4768,7 +4768,7 @@ msgstr "Bearbeiten"
 msgid "Cut"
 msgstr "Ausschneiden"
 
-#: tcl/bin/genedit.tcl:94
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl
 msgid "Copy"
 msgstr "Kopieren"
 
@@ -4983,11 +4983,15 @@ msgstr "Pins aufklappen"
 
 #: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:116
 msgid "Expand Parameters"
-msgstr "Parameters aufklappen"
+msgstr "Parameter aufklappen"
 
 #: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:118
 msgid "Expand Signals"
-msgstr "Signals aufklappen"
+msgstr "Signale aufklappen"
+
+#: tcl/bin/halshow.tcl:123
+msgid "Reload Watch"
+msgstr "Ansicht neu laden"
 
 #: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:121
 msgid "Erase Watch"
@@ -5064,13 +5068,12 @@ msgid " WATCH "
 msgstr " BEOBACHTEN "
 
 #: tcl/bin/halshow.tcl:87
-#, fuzzy
 msgid "Save Watch List"
-msgstr "Beobachtungsliste laden"
+msgstr "Beobachtungsliste speichern"
 
 #: tcl/bin/halshow.tcl:88
 msgid "Save Watch List (multiline)"
-msgstr ""
+msgstr "Beobachtungsliste speichern (mehrzeilig)"
 
 #: tcl/bin/halshow.tcl:93
 msgid "Load Watch List"
@@ -5078,7 +5081,7 @@ msgstr "Beobachtungsliste laden"
 
 #: tcl/bin/halshow.tcl:107
 msgid "Tree View"
-msgstr "Ansicht"
+msgstr "Menübaum"
 
 #: tcl/bin/halshow.tcl:288
 msgid "Test HAL command :"
@@ -6305,7 +6308,7 @@ msgstr "neu"
 msgid "Open a new Subfile"
 msgstr "Eine neue Unterdatei öffnen"
 
-#: tcl/ngcgui.tcl:3580
+#: tcl/ngcgui.tcl:3580 tcl/bin/halshow.tcl
 msgid "remove"
 msgstr "entfernen"
 
@@ -21222,3 +21225,35 @@ msgstr "Werkzeugoffset"
 
 #~ msgid "No error"
 #~ msgstr "Kein Fehler"
+
+#: tcl/bin/halshow.tcl
+msgid "Set to .."
+msgstr "Setzen auf .."
+
+#: tcl/bin/halshow.tcl
+msgid "Set"
+msgstr "Setzen"
+
+#: tcl/bin/halshow.tcl
+msgid "Remove"
+msgstr "Entfernen"
+
+#: tcl/bin/halshow.tcl
+msgid "Add to watch"
+msgstr "Hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Input value"
+msgstr "Eingabe"
+
+#: tcl/bin/halshow.tcl
+msgid "Add pin"
+msgstr "Pin hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Add signal"
+msgstr "Signal hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Add parameter"
+msgstr "Parameter hinzufügen"
