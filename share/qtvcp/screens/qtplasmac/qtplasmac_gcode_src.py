@@ -999,7 +999,7 @@ if codeWarn:
         msg  = 'Try reloading the G-Code file.\n'
         warnings += message_set(warnMatLoad, msg)
     if warnHoleDir:
-        msg  = '\nThis cut appears to be a hole ,did you mean to cut it clockwise?\n'
+        msg  = '\nThis cut appears to be a hole, did you mean to cut it clockwise?\n'
         warnings += message_set(warnHoleDir, msg)
     if warnCompTorch:
         msg  = '\nCannot enable/disable torch with G41/G42 compensation active.\n'
