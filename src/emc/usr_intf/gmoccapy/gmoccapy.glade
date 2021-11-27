@@ -261,12 +261,12 @@
   <object class="GtkImage" id="img_home">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-home</property>
+    <property name="icon_name">go-home</property>
   </object>
   <object class="GtkImage" id="img_jump_to">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-jump-to</property>
+    <property name="icon_name">go_jump</property>
   </object>
   <object class="GtkImage" id="img_machine_on">
     <property name="visible">True</property>
@@ -296,7 +296,7 @@
   <object class="GtkImage" id="img_open">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-open</property>
+    <property name="icon_name">document-open</property>
   </object>
   <object class="GtkImage" id="img_ref_all">
     <property name="visible">True</property>
@@ -324,32 +324,32 @@
   <object class="GtkImage" id="img_sel_next">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-forward</property>
+    <property name="icon_name">go-next</property>
   </object>
   <object class="GtkImage" id="img_sel_next1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-forward</property>
+    <property name="icon_name">go-next</property>
   </object>
   <object class="GtkImage" id="img_sel_prev">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
+    <property name="icon_name">go-previous</property>
   </object>
   <object class="GtkImage" id="img_sel_prev1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
+    <property name="icon_name">go-previous</property>
   </object>
   <object class="GtkImage" id="img_sel_prev2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-go-back</property>
+    <property name="icon_name">go-previous</property>
   </object>
   <object class="GtkImage" id="img_select">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-ok</property>
+    <property name="icon_name">document-open</property>
   </object>
   <object class="GtkImage" id="img_sstop">
     <property name="width_request">48</property>
@@ -7951,6 +7951,8 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_reload">
+                    <property name="width_request">85</property>
+                    <property name="height_request">56</property>
                     <property name="related_action">hal_action_reload</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -8570,7 +8572,7 @@ F12 or $ key does the same</property>
                         <property name="height_request">48</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="stock">gtk-new</property>
+                        <property name="icon_name">document-new</property>
                       </object>
                     </child>
                   </object>
