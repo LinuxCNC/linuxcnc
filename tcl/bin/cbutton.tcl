@@ -80,7 +80,7 @@
 
  
      set x [expr { $x0 + ($wd / 2) }]
-     set y [expr { $y0 + ($h / 2) }]
+     set y [expr { $y0 + ($h / 2) + 1}]
 
     if {$state} {
 

@@ -390,7 +390,7 @@ proc showHAL {which} {
 
 proc showEx {what} {
     addToHist $what
-    set str [eval exec halcmd $what]
+    set str [eval hal $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
     $::disp insert end $str
@@ -480,31 +480,36 @@ proc watchHAL {which} {
         }
     }
 
+    $::cisp create text 100 [expr $i * 20 + 13] -text $label \
+            -anchor w -tag $label
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
             -fill lightgray -tag oval$i
-        $::cisp create text 100 [expr $i * 20 + 12] -text $label \
-            -anchor w -tag $label
-
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 1
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
+                [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
+                [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
         }
     } else {
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
-        $::cisp create text 100 [expr $i * 20 + 12] -text $label \
-            -anchor w -tag $label
+       
         if {$writable == 1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
         } elseif {$writable == -1} {
-            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
         }
     }
-
+    if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $::canvaswidth - 52] \
+        [expr $i * 20 + 3] -fill grey75}
     $::cisp bind $label <Button-3> [list popupmenu $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
@@ -564,13 +569,16 @@ proc entrybox {defVal buttonText label} {
     } else {
         set wn [toplevel .top]
         wm title $wn [msgcat::mc "User input"]
-        set xpos "[ expr {[winfo rootx [winfo parent $wn]]+([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
-        set ypos "[ expr {[winfo rooty [winfo parent $wn]]+([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
+        set xpos "[ expr {[winfo rootx [winfo parent $wn]]+ \
+            ([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
+        set ypos "[ expr {[winfo rooty [winfo parent $wn]]+ \
+            ([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
         wm geometry $wn "+$xpos+$ypos"
         variable entryVal
         set entryVal $defVal
         label .top.lbl -text $label
         entry .top.en -textvariable entryVal
+        # -validate all-validatecommand {expr {[string is double %P] || [string is bool %P]}}
         .top.en icursor end
         button .top.but -command {set ret $entryVal} -text $buttonText
         bind .top.en <Return> {set ret $entryVal}
