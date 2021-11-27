@@ -4917,9 +4917,9 @@ msgstr "Nächste Nummer:"
 msgid "Renumber"
 msgstr "Anwenden"
 
-#: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:33
-msgid "HAL Configuration"
-msgstr "HAL-Konfiguration"
+#: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:33 tcl/tklinuxcnc.tcl:814
+msgid "HAL Show"
+msgstr "HAL Show"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
@@ -5435,14 +5435,9 @@ msgstr "HAL-Scope"
 msgid "Set Coordinates"
 msgstr "EMC2 Koordinaten-Setup"
 
-#: tcl/tklinuxcnc.tcl:814
-msgid "HAL Show"
-msgstr "HAL anzeigen..."
-
 #: tcl/tklinuxcnc.tcl:815
-#, fuzzy
 msgid "HAL Config"
-msgstr "HAL konfigurieren"
+msgstr "HAL Config"
 
 #: tcl/tklinuxcnc.tcl:820
 msgid "Help..."

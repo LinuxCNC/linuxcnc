@@ -31,7 +31,7 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 
 #----------start toplevel----------
 #
-set ::titlename [msgcat::mc "HAL Configuration"]
+set ::titlename [msgcat::mc "HAL Show"]
 wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
 set masterwidth 700
