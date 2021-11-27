@@ -5029,7 +5029,7 @@ msgstr "Bitte Variable zum Anzeigen auswählen."
 
 #: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:375
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "Bitte Variable zum Anzeigen auswählen."
+msgstr "<-- Bitte Variable zum Anzeigen auswählen."
 
 #: tcl/bin/halconfig.tcl:1085 tcl/bin/halconfig.tcl:1095
 #: tcl/bin/halconfig.tcl:1102 tcl/bin/halconfig.tcl:1109
@@ -21252,3 +21252,15 @@ msgstr "Signal hinzufügen"
 #: tcl/bin/halshow.tcl
 msgid "Add parameter"
 msgstr "Parameter hinzufügen"
+
+#: tcl/bin/halshow.tcl
+msgid "Set Watch interval"
+msgstr "Aktualisierungsintervall setzen"
+
+#: tcl/bin/halshow.tcl
+msgid "Update interval for this session (ms)"
+msgstr "Aktualisierungsintervall für diese Session (ms)"
+
+#: tcl/bin/halshow.tcl
+msgid "Value out of range"
+msgstr "Wert ausserhalb des gültigen Bereichs"

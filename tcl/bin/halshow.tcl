@@ -130,7 +130,8 @@ set watchmenu [menu $menubar.watch -tearoff 0]
         $watchmenu add command -label [msgcat::mc "Add parameter"] \
             -command {watchHAL param+[entrybox "" [msgcat::mc "Add to watch"] "Parameter"]}
         $watchmenu add separator
-
+        $watchmenu add command -label [msgcat::mc "Set Watch interval"] \
+            -command {setWatchInterval}
         $watchmenu add command -label [msgcat::mc "Reload Watch"] \
             -command {reloadWatch}
         $watchmenu add command -label [msgcat::mc "Erase Watch"] \
@@ -588,6 +589,7 @@ proc entrybox {defVal buttonText label} {
 # watchLoop submits these to halcmd and sets canvas
 # color or value based on reply
 set ::watching 0
+set ::watchInterval 100
 proc watchLoop {} {
     set ::watching 1
     set which $::watchstring
@@ -596,9 +598,24 @@ proc watchLoop {} {
         refreshItem $cnum $vartype $varname
     }
     if {$::workmode == "watchhal"} {
-        after 250 watchLoop
+        after $::watchInterval watchLoop
     } else {
         set ::watching 0
+    }
+}
+
+proc setWatchInterval {} {
+    while {true} {
+        set interval [entrybox $::watchInterval [msgcat::mc "Set"] \
+            [msgcat::mc "Update interval for this session (ms)"]]
+        if {$interval < 1} {
+            tk_messageBox -message [msgcat::mc "Value out of range"] -type ok -icon warning
+        } elseif {$interval == "cancel"} {
+            break;
+        } else {
+            set ::watchInterval $interval
+            break
+        }
     }
 }
 
