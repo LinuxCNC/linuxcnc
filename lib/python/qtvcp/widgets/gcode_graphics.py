@@ -253,9 +253,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             z = Qt.LeftButton; m = Qt.MiddleButton; r = Qt.RightButton
         elif value == 3:
             m = Qt.LeftButton; r = Qt.MiddleButton; z = Qt.RightButton
-        elif value == 5:
+        elif value == 4:
             m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
-        elif value == 6:
+        elif value == 5:
             r = Qt.LeftButton; z = Qt.MiddleButton; m = Qt.RightButton
         else:
             return
