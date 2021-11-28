@@ -358,13 +358,22 @@ def comment_out_z_commands():
     newz = ''
     removing = 0
     comment = 0
+    maths = 0
     for bit in line:
         if comment:
             if bit == ')':
                 comment = 0
             newline += bit
         elif removing:
-            if bit in '0123456789.- ':
+            if bit == '[':
+                newz += bit
+                maths += 1
+            elif bit == ']':
+                newz += bit
+                maths -= 1
+            elif maths:
+                newz += bit
+            elif bit in '0123456789.- ':
                 newz += bit
             else:
                 removing = 0
@@ -914,7 +923,7 @@ with open(inFile, 'r') as inCode:
             arcDistMode = 91.1 # incremental arc distance mode
         if not zBypass:
             # if z axis in line
-            if 'z' in line and line.split('z')[1][0] in '0123456789.- ':
+            if 'z' in line and line.split('z')[1][0] in '0123456789.- [':
                 # if no other axes comment it
                 if 1 not in [c in line for c in 'xybcuvw']:
                     if '(' in line:

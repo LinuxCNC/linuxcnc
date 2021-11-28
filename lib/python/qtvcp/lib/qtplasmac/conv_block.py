@@ -179,7 +179,7 @@ def preview(P, W, Conv):
                         else:
                             break
                 # scale the shape
-                if len(line) and line[0] in 'gxy':
+                if len(line) and line[0] in 'gxyz':
                     started = True
                     rLine = scale_shape(P, W, line)
                     if rLine is not None:
@@ -234,13 +234,10 @@ def preview(P, W, Conv):
 def scale_shape(P, W, line):
     if line[0] == 'g' and (line[1] not in '0123' or (line[1] in '0123' and len(line) > 2 and line[2] in '0123456789')):
         return '{}'.format(line)
-    if line[0] == 'g' and line[1] in '0123' and line[2] == 'z':
-        return '{}'.format(line)
     newLine = ''
     multiAxis = False
     numParam = False
     namParam = False
-    zAxis = False
     fWord = False
     lastAxis = ''
     offset = ''
@@ -250,7 +247,7 @@ def scale_shape(P, W, line):
             line = line[1:]
         # if beginning of comment
         if line[0] == '(' or line[0] == ';':
-            if multiAxis and not zAxis and not fWord:
+            if multiAxis and not fWord:
                 if lastAxis == 'x':
                     newLine += '*#<blk_scale>*#<shape_mirror>]'
                 elif lastAxis == 'i':
@@ -266,7 +263,7 @@ def scale_shape(P, W, line):
         # if beginning of parameter
         elif line[0] == 'p':
             if not numParam and not namParam:
-                if multiAxis and not zAxis and not fWord:
+                if multiAxis and not fWord:
                     if lastAxis == 'x':
                         newLine += '*#<blk_scale>*#<shape_mirror>]'
                     elif lastAxis == 'i':
@@ -283,7 +280,7 @@ def scale_shape(P, W, line):
         # if alpha character
         elif line[0].isalpha():
             if not numParam and not namParam:
-                if multiAxis and not zAxis and not fWord:
+                if multiAxis and not fWord:
                     if lastAxis == 'x':
                         newLine += '*#<blk_scale>*#<shape_mirror>]'
                     elif lastAxis == 'i':
@@ -296,14 +293,9 @@ def scale_shape(P, W, line):
 #                    elif lastAxis not in 'p':
                         newLine += '*#<blk_scale>]'
                 lastAxis = line[0]
-                if line[0] == 'z':
-                    zAxis = True
-                else:
-                    zAxis = False
                 if line[0] == 'f':
                     fWord = True
-            if not zAxis:
-                newLine += line[0]
+            newLine += line[0]
             line = line[1:]
         # if beginning of parameter
         elif line[0] == '#':
@@ -326,19 +318,18 @@ def scale_shape(P, W, line):
             namParam = False
             newLine += line[0]
             line = line[1:]
-        #if last axis was x, y, i, j, or r
-        elif newLine[-1] in 'xyijr' and not numParam and not namParam:
+        #if last axis was x, y, z, i, j, or r
+        elif newLine[-1] in 'xyzijr' and not numParam and not namParam:
             multiAxis = True
             newLine += '[{}'.format(line[0])
             line = line[1:]
         # everything else
         else:
-            if not zAxis:
-                newLine += line[0]
+            newLine += line[0]
             line = line[1:]
         # empty line, must be finished
         if not line:
-            if not zAxis and not fWord:
+            if not fWord:
                 if lastAxis == 'x':
                     newLine += '*#<blk_scale>*#<shape_mirror>]'
                 elif lastAxis == 'i':

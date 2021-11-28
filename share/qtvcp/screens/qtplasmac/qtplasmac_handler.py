@@ -1,4 +1,4 @@
-VERSION = '1.217.130'
+VERSION = '1.217.131'
 
 '''
 qtplasmac_handler.py
