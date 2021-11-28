@@ -4917,6 +4917,10 @@ msgstr "Nächste Nummer:"
 msgid "Renumber"
 msgstr "Anwenden"
 
+#: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:34
+msgid "HAL Configuration"
+msgstr "HAL-Konfiguration"
+
 #: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:33 tcl/tklinuxcnc.tcl:814
 msgid "HAL Show"
 msgstr "HAL Show"
@@ -21221,6 +21225,9 @@ msgstr "Werkzeugoffset"
 #~ msgid "No error"
 #~ msgstr "Kein Fehler"
 
+#~ msgid "Input value"
+#~ msgstr "Eingabe"
+
 #: tcl/bin/halshow.tcl
 msgid "Set to .."
 msgstr "Setzen auf .."
@@ -21264,3 +21271,15 @@ msgstr "Aktualisierungsintervall für diese Session (ms)"
 #: tcl/bin/halshow.tcl
 msgid "Value out of range"
 msgstr "Wert ausserhalb des gültigen Bereichs"
+
+#: tcl/bin/halshow.tcl
+msgid "Expand All"
+msgstr "Alle aufklappen"
+
+#: tcl/bin/halshow.tcl
+msgid "Collapse All"
+msgstr "Alle zuklappen"
+
+#: tcl/bin/halshow.tcl
+msgid "Unlink pin"
+msgstr "Pin trennen"

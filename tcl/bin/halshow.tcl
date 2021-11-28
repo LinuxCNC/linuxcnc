@@ -86,14 +86,14 @@ set menubar [menu $top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
+        $filemenu add command -label [msgcat::mc "Load Watch List"] \
+            -command {getwatchlist}            
         set ::savelabel1 [msgcat::mc "Save Watch List"] ;# identifier for entryconfigure
         set ::savelabel2 [msgcat::mc "Save Watch List (multiline)"] ;# identifier for entryconfigure
         $filemenu add command -label [msgcat::mc $::savelabel1] \
             -command savewatchlist
         $filemenu add command -label [msgcat::mc $::savelabel2] \
             -command [list savewatchlist multiline]
-        $filemenu add command -label [msgcat::mc "Load Watch List"] \
-            -command {getwatchlist}
         $filemenu add command -label [msgcat::mc "Exit"] \
             -command {destroy .; exit}
         $filemenu configure -postcommand {
@@ -108,9 +108,9 @@ set filemenu [menu $menubar.file -tearoff 1]
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Tree View"] \
             -menu $viewmenu
-        $viewmenu add command -label [msgcat::mc "Expand Tree"] \
+        $viewmenu add command -label [msgcat::mc "Expand All"] \
             -command {showNode {open}}
-        $viewmenu add command -label [msgcat::mc "Collapse Tree"] \
+        $viewmenu add command -label [msgcat::mc "Collapse All"] \
             -command {showNode {close}}
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Expand Pins"] \
@@ -120,7 +120,7 @@ set viewmenu [menu $menubar.view -tearoff 0]
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
 
-set watchmenu [menu $menubar.watch -tearoff 0]
+set watchmenu [menu $menubar.watch -tearoff 1]
     $menubar add cascade -label [msgcat::mc "Watch"] \
             -menu $watchmenu
         $watchmenu add command -label [msgcat::mc "Add pin"] \
@@ -302,7 +302,7 @@ proc makeShow {} {
     pack $f2 -fill x -expand 0
     pack [frame $f2.b] \
          -side top -fill x -anchor w
-    pack [label $f2.b.label -text [msgcat::mc "Test HAL command :"] ]\
+    pack [label $f2.b.label -text [msgcat::mc "HAL command :"] ]\
          -side left -padx 5 -pady 3
     set com [entry $f2.b.entry -textvariable halcommand]
     pack $com -side left -fill x -expand 1 -pady 3
