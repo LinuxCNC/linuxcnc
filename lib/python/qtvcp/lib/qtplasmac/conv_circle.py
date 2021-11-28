@@ -26,7 +26,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError: return
     try:
         if W.dEntry.text():
@@ -126,7 +126,7 @@ def preview(P, W):
             elif '(postamble)' in line:
                 break
             elif 'm2' in line.lower() or 'm30' in line.lower():
-                break
+                continue
             outNgc.write(line)
         outTmp.write('\n(conversational circle)\n')
         outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
@@ -191,7 +191,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
-        P.conv_preview_button(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg0 = _translate('Conversational', 'DIAMETER is required')
         error_set(P, '{}.\n'.format(msg0))
@@ -226,7 +226,7 @@ def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
         dir = '3'
     outTmp.write('g{0} x{1:.6f} y{2:.6f} i{3:.6f} j{3:.6f}\n'.format(dir, endX, endY, IJ))
 
-def cut_type_toggled(P, W):
+def cut_type_toggled(P, W, Conv):
     if W.cExt.isChecked():
         W.overcut.setChecked(False)
         W.overcut.setEnabled(False)
@@ -239,9 +239,9 @@ def cut_type_toggled(P, W):
         if dia <= P.holeDiameter and dia != 0:
             W.overcut.setEnabled(True)
             W.ocEntry.setEnabled(True)
-    auto_preview(P, W)
+    auto_preview(P, W, Conv)
 
-def overcut_toggled(P, W):
+def overcut_toggled(P, W, Conv):
     if W.overcut.isChecked():
         try:
             lolen = float(W.loEntry.text())
@@ -253,10 +253,10 @@ def overcut_toggled(P, W):
             dia = 0
         if (W.cExt.isChecked() and lolen) or not dia or dia > P.holeDiameter:
             W.overcut.setChecked(False)
-    auto_preview(P, W)
+    auto_preview(P, W, Conv)
 
-def entry_changed(P, W, widget):
-    P.conv_entry_changed(widget)
+def entry_changed(P, W, Conv, widget):
+    Conv.conv_entry_changed(P, W, widget)
     try:
         dia = float(W.dEntry.text())
     except:
@@ -270,11 +270,11 @@ def entry_changed(P, W, widget):
             W.overcut.setEnabled(True)
             W.ocEntry.setEnabled(True)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and W.dEntry.text():
-        preview(P, W)
+        preview(P, W, Conv)
 
-def widgets(P, W):
+def widgets(P, W, Conv):
     W.spGroup = QButtonGroup(W)
     W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
@@ -344,20 +344,18 @@ def widgets(P, W):
     else:
         W.bLeft.setChecked(True)
     #connections
-    W.preview.pressed.disconnect()
-    W.undo.pressed.disconnect()
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.cExt.toggled.connect(lambda:cut_type_toggled(P, W))
-    W.kOffset.toggled.connect(lambda:auto_preview(P, W))
-    W.center.toggled.connect(lambda:auto_preview(P, W))
-    W.overcut.toggled.connect(lambda:overcut_toggled(P, W))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:P.conv_add_shape_to_file())
-    W.undo.pressed.connect(lambda:P.conv_undo_shape())
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.cExt.toggled.connect(lambda:cut_type_toggled(P, W, Conv))
+    W.kOffset.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.center.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.overcut.toggled.connect(lambda:overcut_toggled(P, W, Conv))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'dEntry', 'ocEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
+        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

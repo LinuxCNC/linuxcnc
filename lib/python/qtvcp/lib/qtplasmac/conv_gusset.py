@@ -26,7 +26,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError: return
     width = height = 0
     msg = []
@@ -151,7 +151,7 @@ def preview(P, W):
             elif '(postamble)' in line:
                 break
             elif 'm2' in line.lower() or 'm30' in line.lower():
-                break
+                continue
             outNgc.write(line)
         outTmp.write('\n(conversational gusset)\n')
         outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
@@ -240,7 +240,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
-        P.conv_preview_button(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg = []
         if width <= 0:
@@ -259,21 +259,21 @@ def error_set(P, msg):
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Gusset Error'), msg)
 
-def rad_button_pressed(P, W, widget):
+def rad_button_pressed(P, W, Conv, widget):
 #    if widget.text()[:3] == _translate('Conversational', 'RAD'):
     if widget.text() == _translate('Conversational', 'RADIUS'):
         widget.setText(_translate('Conversational', 'CHAMFER'))
     else:
         widget.setText(_translate('Conversational', 'RADIUS'))
-    auto_preview(P, W)
+    auto_preview(P, W, Conv)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.wEntry.text() and W.hEntry.text():
-        preview(P, W)
+        preview(P, W, Conv)
 
-def entry_changed(P, W, widget):
-    char = P.conv_entry_changed(widget)
+def entry_changed(P, W, Conv, widget):
+    char = Conv.conv_entry_changed(P, W, widget)
     msg = []
     try:
         li = float(W.liEntry.text())
@@ -296,7 +296,7 @@ def entry_changed(P, W, widget):
     else:
         W.kOffset.setEnabled(True)
 
-def widgets(P, W):
+def widgets(P, W, Conv):
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
@@ -358,19 +358,23 @@ def widgets(P, W):
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     #connections
-    W.preview.pressed.disconnect()
-    W.undo.pressed.disconnect()
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.cExt.toggled.connect(lambda:auto_preview(P, W))
-    W.kOffset.toggled.connect(lambda:auto_preview(P, W))
-    W.rButton.pressed.connect(lambda:rad_button_pressed(P, W, W.sender()))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:P.conv_add_shape_to_file())
-    W.undo.pressed.connect(lambda:P.conv_undo_shape())
+    # we need an exception handler here as there is no signal connected if it is the first instance
+    try:
+        W.preview.pressed.disconnect()
+        W.undo.pressed.disconnect()
+    except:
+        pass
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.cExt.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.kOffset.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.rButton.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender()))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'wEntry', 'hEntry', 'rEntry', 'aEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
+        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

@@ -26,7 +26,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError: return
     xLB = yLR = xLT = yLL = 0
     if W.r1Button.text().split()[0] == _translate('Conversational', 'RADIUS'):
@@ -198,7 +198,7 @@ def preview(P, W):
                 elif '(postamble)' in line:
                     break
                 elif 'm2' in line.lower() or 'm30' in line.lower():
-                    break
+                    continue
                 outNgc.write(line)
             outTmp.write('\n(conversational rectangle)\n')
             outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
@@ -429,7 +429,7 @@ def preview(P, W):
             W.conv_preview.set_current_view()
             W.add.setEnabled(True)
         W.undo.setEnabled(True)
-        P.conv_preview_button(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg0 = _translate('Conversational', 'A positive value is required for')
         msg1 = _translate('Conversational', 'LENGTH')
@@ -439,8 +439,7 @@ def error_set(P, msg):
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Rectangle Error'), msg)
 
-def rad_button_pressed(P, W, button, value):
-
+def rad_button_pressed(P, W, Conv, button, value):
     if button.text().split()[0] == _translate('Conversational', 'RADIUS'):
         text = _translate('Conversational', 'CHAMFER')
         button.setText('{} {}'.format(text, value))
@@ -452,10 +451,10 @@ def rad_button_pressed(P, W, button, value):
     else:
         text = _translate('Conversational', 'RADIUS')
         button.setText('{} {}'.format(text, value))
-    auto_preview(P, W)
+    auto_preview(P, W, Conv)
 
-def entry_changed(P, W, widget):
-    char = P.conv_entry_changed(widget)
+def entry_changed(P, W, Conv, widget):
+    char = Conv.conv_entry_changed(P, W, widget)
     msg = []
     try:
         li = float(W.liEntry.text())
@@ -478,12 +477,12 @@ def entry_changed(P, W, widget):
     else:
         W.kOffset.setEnabled(True)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.xlEntry.text() and W.ylEntry.text():
-        preview(P, W)
+        preview(P, W, Conv)
 
-def widgets(P, W):
+def widgets(P, W, Conv):
     W.spGroup = QButtonGroup(W)
     W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
@@ -565,24 +564,22 @@ def widgets(P, W):
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
     #connections
-    W.preview.pressed.disconnect()
-    W.undo.pressed.disconnect()
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.cExt.toggled.connect(lambda:auto_preview(P, W))
-    W.kOffset.toggled.connect(lambda:auto_preview(P, W))
-    W.center.toggled.connect(lambda:auto_preview(P, W))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:P.conv_add_shape_to_file())
-    W.undo.pressed.connect(lambda:P.conv_undo_shape())
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.cExt.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.kOffset.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.center.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'xlEntry', 'ylEntry', \
                'angEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
-    W.r1Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '1'))
-    W.r2Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '2'))
-    W.r3Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '3'))
-    W.r4Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '4'))
+        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
+    W.r1Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '1'))
+    W.r2Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '2'))
+    W.r3Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '3'))
+    W.r4Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '4'))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)

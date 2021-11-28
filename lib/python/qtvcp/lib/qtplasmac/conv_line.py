@@ -28,7 +28,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     invalidLine = False
     # check all entries are valid
 #    try:
@@ -149,7 +149,7 @@ def preview(P, W):
     if invalidLine:
         return
     #do next segment
-    if P.conv_add_segment == 1:
+    if P.convAddSegment == 1:
         inTmp = open(P.fNgc, 'r')
         outTmp = open(P.fTmp, 'w')
         while(1):
@@ -173,7 +173,7 @@ def preview(P, W):
             elif '(postamble)' in line:
                 break
             elif 'm2' in line.lower() or 'm30' in line.lower():
-                break
+                continue
             outNgc.write(line)
         outTmp.write('\n(conversational {})\n'.format(W.lType.currentText()))
         outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
@@ -192,13 +192,13 @@ def preview(P, W):
     outNgc.write('\n{} (postamble)\n'.format(P.postAmble))
     outNgc.write('m2\n')
     outNgc.close()
-    P.conv_preview_button(True)
+    Conv.conv_preview_button(P, W, True)
     W.conv_preview.load(P.fNgc)
     W.conv_preview.set_current_view()
     W.add.setEnabled(True)
     W.undo.setEnabled(True)
-    if P.conv_add_segment == 1:
-        P.conv_add_segment = 2
+    if P.convAddSegment == 1:
+        P.convAddSegment = 2
     P.previewActive = True
 
 def entry_check(P, W, widget, coord):
@@ -488,7 +488,7 @@ def line_type_changed(P, W, refresh):
         P.lAlias = 'ALAR'
         set_arc_by_angle_radius(P, W, refresh)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and W.entry1.text() and W.entry2.text():
         if P.landscape:
             if (P.lAlias == 'LP2P' and W.entry4.text() and W.entry5.text()) or \
@@ -496,37 +496,37 @@ def auto_preview(P, W):
                (P.lAlias == 'A3Pt' and W.entry4.text() and W.entry5.text() and W.entry7.text() and W.entry8.text()) or \
                (P.lAlias == 'A2PR' and W.entry4.text() and W.entry5.text() and W.entry7.text()) or \
                (P.lAlias == 'ALAR' and W.entry4.text() and W.entry5.text() and W.entry7.text()):
-                preview(P, W)
+                preview(P, W, Conv)
         else:
             if (P.lAlias == 'LP2P' and W.entry3.text() and W.entry4.text()) or \
                (P.lAlias == 'LBLA' and W.entry3.text() and W.entry5.text()) or \
                (P.lAlias == 'A3Pt' and W.entry3.text() and W.entry4.text() and W.entry5.text() and W.entry6.text()) or \
                (P.lAlias == 'A2PR' and W.entry3.text() and W.entry4.text() and W.entry5.text()) or \
                (P.lAlias == 'ALAR' and W.entry3.text() and W.entry4.text() and W.entry5.text()):
-                preview(P, W)
+                preview(P, W, Conv)
 
-def add_shape_to_file(P, W):
+def add_shape_to_file(P, W, Conv):
     P.conv_gcodeSave = P.conv_gcodeLine
-    P.conv_add_shape_to_file()
+    Conv.conv_add_shape_to_file(P, W)
     P.xLineStart = P.xLineEnd
     P.yLineStart = P.yLineEnd
     W.entry1.setText('{:0.3f}'.format(P.xLineEnd))
     W.entry2.setText('{:0.3f}'.format(P.yLineEnd))
-    P.conv_add_segment = 1
+    P.convAddSegment = 1
     line_type_changed(P, W, True)
     W.add.setEnabled(False)
     P.previewActive = False
 
-def undo_shape(P, W):
-    cancel = P.conv_undo_shape()
+def undo_shape(P, W, Conv):
+    cancel = Conv.conv_undo_shape(P, W)
     if cancel:
         return
     if P.previewActive:
-        if P.conv_add_segment > 1:
-            P.conv_add_segment = 1
+        if P.convAddSegment > 1:
+            P.convAddSegment = 1
         line_type_changed(P, W, True) # undo
     else:
-        P.conv_add_segment = 0
+        P.convAddSegment = 0
         P.xLineStart = 0.000
         P.yLineStart = 0.000
         line_type_changed(P, W, False)
@@ -536,7 +536,7 @@ def undo_shape(P, W):
         P.conv_gcodeLine = P.conv_gcodeSave
     P.previewActive = False
 
-def entry_changed(P, W, widget, entry):
+def entry_changed(P, W, Conv, widget, entry):
     if (P.lAlias == 'LBLA' and P.landscape and widget == W.entry4) or \
        (P.lAlias == 'LBLA' and not P.landscape and widget == W.entry3) or \
        (P.lAlias == 'ALAR' and P.landscape and widget == W.entry4) or \
@@ -544,10 +544,9 @@ def entry_changed(P, W, widget, entry):
         widget.setObjectName(None)
     else:
         widget.setObjectName('aEntry')
-    P.conv_entry_changed(widget)
+    Conv.conv_entry_changed(P, W, widget)
 
-def widgets(P, W):
-    P.lAlias = 'LP2P'
+def widgets(P, W, Conv):
     P.previewActive = False
     if not P.convSettingsChanged:
         #widgets
@@ -605,12 +604,24 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
-    W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
-    W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
-    W.lType.addItem(_translate('Conversational', 'ARC 3P'))
-    W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
-    W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
-    P.conv_add_segment = 0
+    if not P.convSettingsChanged:
+        W.lType.addItem(_translate('Conversational', 'LINE POINT ~ POINT'))
+        W.lType.addItem(_translate('Conversational', 'LINE BY ANGLE'))
+        W.lType.addItem(_translate('Conversational', 'ARC 3P'))
+        W.lType.addItem(_translate('Conversational', 'ARC 2P +RADIUS'))
+        W.lType.addItem(_translate('Conversational', 'ARC ANGLE +RADIUS'))
+    else:
+        if P.lAlias == 'LBLA':
+            W.iLabel.setPixmap(P.pixLineAngle)
+        elif P.lAlias == 'A3Pt':
+            W.iLabel.setPixmap(P.pixArc3p)
+        elif P.lAlias == 'A2PR':
+            W.iLabel.setPixmap(P.pixArc2pr)
+        elif P.lAlias == 'ALAR':
+            W.iLabel.setPixmap(P.pixArcAngle)
+        else:
+            W.iLabel.setPixmap(P.pixLinePoint)
+    P.convAddSegment = 0
     P.conv_gcodeLine = ''
     P.conv_gcodeSave = ''
     P.xLineStart = 0.000
@@ -618,23 +629,17 @@ def widgets(P, W):
     if not W.g2Arc.isChecked() and not W.g3Arc.isChecked():
         W.g2Arc.setChecked(True)
     #connections
-    # we need an exception handler here as there is no signal connected in the first instance
-    try:
-        W.preview.pressed.disconnect()
-        W.undo.pressed.disconnect()
-    except:
-        pass
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:undo_shape(P, W))
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:add_shape_to_file(P, W, Conv))
+    W.undo.pressed.connect(lambda:undo_shape(P, W, Conv))
     W.lType.currentTextChanged.connect(lambda:line_type_changed(P, W, False))
-    W.g2Arc.toggled.connect(lambda:auto_preview(P, W))
+    W.g2Arc.toggled.connect(lambda:auto_preview(P, W, Conv))
     entries = ['entry1', 'entry2', 'entry3', 'entry4',
                'entry5', 'entry6', 'entry7', 'entry8']
     for entry in entries:
-        W[entry].textChanged.connect(lambda w:entry_changed(P, W, W.sender(), w))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
+        W[entry].textChanged.connect(lambda w:entry_changed(P, W, Conv, W.sender(), w))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:
 #        for row in range (14):

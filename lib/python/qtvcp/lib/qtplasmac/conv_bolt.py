@@ -26,7 +26,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError: return
     msg = []
     try:
@@ -138,7 +138,7 @@ def preview(P, W):
             elif '(postamble)' in line:
                 break
             elif 'm2' in line.lower() or 'm30' in line.lower():
-                break
+                continue
             outNgc.write(line)
         for hole in range(holes):
             outTmp.write('\n(conversational bolt circle, hole #{})\n'.format(hole + 1))
@@ -189,7 +189,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
-        P.conv_preview_button(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg = []
         if cRadius == 0:
@@ -228,8 +228,8 @@ def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
     outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{3:.6f}\n'.format(endX, endY, IJ, 0))
 
-def entry_changed(P, W, widget):
-    P.conv_entry_changed(widget)
+def entry_changed(P, W, Conv, widget):
+    Conv.conv_entry_changed(P, W, widget)
     # check if small hole valid
     try:
         dia = float(W.hdEntry.text())
@@ -243,12 +243,12 @@ def entry_changed(P, W, widget):
         W.overcut.setEnabled(True)
         W.ocEntry.setEnabled(True)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.dEntry.text() and W.hdEntry.text() and W.hEntry.text():
-        preview(P, W)
+        preview(P, W, Conv)
 
-def widgets(P, W):
+def widgets(P, W, Conv):
     W.spGroup = QButtonGroup(W)
     W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
@@ -318,20 +318,18 @@ def widgets(P, W):
     else:
         W.bLeft.setChecked(True)
     #connections
-    W.preview.pressed.disconnect()
-    W.undo.pressed.disconnect()
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.kOffset.toggled.connect(lambda:auto_preview(P, W))
-    W.center.toggled.connect(lambda:auto_preview(P, W))
-    W.overcut.toggled.connect(lambda:auto_preview(P, W))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:P.conv_add_shape_to_file())
-    W.undo.pressed.connect(lambda:P.conv_undo_shape())
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.kOffset.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.center.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.overcut.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['ocEntry', 'xsEntry', 'ysEntry', 'liEntry', 'dEntry', \
                'hdEntry', 'hEntry', 'aEntry', 'caEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
+        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.overcut, 0, 0)

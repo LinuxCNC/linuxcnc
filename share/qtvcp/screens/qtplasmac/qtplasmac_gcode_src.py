@@ -34,7 +34,8 @@ from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLa
 app = QApplication(sys.argv)
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
-inCode = sys.argv[1]
+inFile = sys.argv[1]
+filteredBkp = '/tmp/qtplasmac/filtered_bkp.ngc'
 materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
 tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
 tmpMatNum = 1000000
@@ -91,6 +92,8 @@ spotting = False
 offsetG4x = False
 zSetup = False
 zBypass = False
+convBlock = False
+filtered = False
 codeWarn = False
 warnUnitsDep = []
 warnPierceScribe = []
@@ -210,6 +213,18 @@ def check_if_hole():
 
 # get hole diameter and set velocity percentage
 def get_hole_diameter(I, J, isHole):
+
+
+    # experimenting here, WIP
+    try:
+        if not I:
+            I = 0
+        if not J:
+            J = 0
+    except:
+        print(";Hmm, that didn't go well...")
+
+
     global lineNum, holeActive, codeWarn, warnCompVel, warnHoleDir
     if offsetG4x:
         diameter = math.sqrt((I ** 2) + (J ** 2)) * 2
@@ -674,9 +689,17 @@ def message_set(msgType, msg):
 get_materials()
 
 # start processing the gcode file
-with open(inCode, 'r') as fRead:
-    for line in fRead:
+with open(inFile, 'r') as inCode:
+    if ';qtplasmac filtered g-code file' in inCode.read():
+        filtered = True
+    inCode.seek(0)
+    for line in inCode:
         lineNum += 1
+        # if original is already filtered there is no need to process the line
+        if filtered:
+            if not ';qtplasmac filtered g-code file' in line:
+                gcodeList.append(line.rstrip())
+            continue
         # remove whitespace and trailing periods
         line = line.strip().rstrip('.')
         # remove line numbers
@@ -686,6 +709,9 @@ with open(inCode, 'r') as fRead:
                 line = line[1:].lstrip()
                 if not line:
                     break
+        # check if original is a conversational block
+        if line.startswith(';conversational block'):
+            convBlock = True
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
@@ -907,7 +933,7 @@ with open(inCode, 'r') as fRead:
                     continue
         # if an arc command
         if (line.startswith('g2') or line.startswith('g3')) and line[2].isalpha():
-            if holeEnable:
+            if holeEnable and not convBlock:
                 # check if we can read the values correctly
                 if 'x' in line: check_math('x')
                 if 'y' in line: check_math('y')
@@ -1046,5 +1072,9 @@ if codeError:
     print('M2 (end program)')
 
 # output the finalised g-code
-for line in gcodeList:
-    print(line)
+with open(filteredBkp, 'w') as outFile:
+    for line in gcodeList:
+        print(line)
+        outFile.write('{}\n'.format(line))
+    print(';qtplasmac filtered g-code file')
+    outFile.write(';qtplasmac filtered g-code file')

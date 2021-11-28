@@ -32,7 +32,7 @@ _translate = QCoreApplication.translate
 ACTION = Action()
 STATUS = Status()
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError or not W.preview.isEnabled():
         return
     msg = []
@@ -210,7 +210,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
-        P.conv_preview_button(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg = []
         if columns <= 0:
@@ -357,28 +357,28 @@ def scale_shape(P, W, line):
             newLine = newLine.replace('g3', 'g2')
     return ('{}'.format(newLine))
 
-def mirror_shape(P, W):
+def mirror_shape(P, W, Conv):
     if P.convMirror == 1:
         P.convMirror = -1
     else:
         P.convMirror = 1
     P.convMirrorToggle = True
-    preview(P, W)
+    preview(P, W, Conv)
 
-def flip_shape(P, W):
+def flip_shape(P, W, Conv):
     if P.convFlip == 1:
         P.convFlip = -1
     else:
         P.convFlip = 1
     P.convFlipToggle = True
-    preview(P, W)
+    preview(P, W, Conv)
 
-def undo_shape(P, W):
+def undo_shape(P, W, Conv):
     P.convMirror = 1
     P.convMirrorToggle = False
     P.convFlip = 1
     P.convFlipToggle = False
-    P.conv_undo_shape()
+    Conv.conv_undo_shape(P, W)
 
 def get_parameters(P, W):
     P.wcs_rotation('get')
@@ -434,7 +434,7 @@ def error_set(P, W, msg):
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Array Error'), msg)
 
-def widgets(P, W):
+def widgets(P, W, Conv):
     if not P.convSettingsChanged:
         #widgets
         W.cLabel = QLabel(_translate('Conversational', 'COLUMNS'))
@@ -494,18 +494,16 @@ def widgets(P, W):
         #starting parameters
         W.add.setEnabled(False)
     #connections
-    W.preview.pressed.disconnect()
-    W.undo.pressed.disconnect()
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:P.conv_accept())
-    W.undo.pressed.connect(lambda:undo_shape(P, W))
-    W.mirror.clicked.connect(lambda:mirror_shape(P, W, ))
-    W.flip.clicked.connect(lambda:flip_shape(P, W))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_accept(P, W))
+    W.undo.pressed.connect(lambda:undo_shape(P, W, Conv))
+    W.mirror.clicked.connect(lambda:mirror_shape(P, W, Conv))
+    W.flip.clicked.connect(lambda:flip_shape(P, W, Conv))
     entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'oxEntry',
                'oyEntry', 'scEntry', 'aEntry', 'rtEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
+        W[entry].textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:
         W.s0 = QLabel('')

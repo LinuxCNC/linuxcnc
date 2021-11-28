@@ -27,6 +27,7 @@ from shutil import move as MOVE
 from subprocess import Popen, PIPE
 from subprocess import call as CALL
 from subprocess import check_output as CHKOP
+from importlib import reload
 import time
 import tarfile
 import math
@@ -53,28 +54,9 @@ from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSETVIEW
 from qtvcp.widgets.origin_offsetview import MyTableModel as OFFSET_TABLE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
-from qtvcp.lib.qtplasmac import conv_settings as CONVSET
-from qtvcp.lib.qtplasmac import conv_line as CONVLINE
-from qtvcp.lib.qtplasmac import conv_circle as CONVCIRC
-from qtvcp.lib.qtplasmac import conv_ellipse as CONVELLI
-from qtvcp.lib.qtplasmac import conv_triangle as CONVTRIA
-from qtvcp.lib.qtplasmac import conv_rectangle as CONVRECT
-from qtvcp.lib.qtplasmac import conv_polygon as CONVPOLY
-from qtvcp.lib.qtplasmac import conv_bolt as CONVBOLT
-from qtvcp.lib.qtplasmac import conv_slot as CONVSLOT
-from qtvcp.lib.qtplasmac import conv_star as CONVSTAR
-from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
-from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
-from qtvcp.lib.qtplasmac import conv_block as CONVBLCK
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 from qtvcp.lib.qtplasmac import run_from_line as RFL
-
-''' TEMPORARY IMPORT FOR:
-CONVERSATIONAL TESTING (1 of 3)
-        OFFSET TESTING (1 of 2)
- RUN FROM LINE TESTING (1 of 2) '''
-#from importlib import reload
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -114,6 +96,7 @@ def click_signal(widget):
 
   # the main handler
 class HandlerClass:
+    from qtvcp.lib.qtplasmac import conversational as CONV
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
         if (event.type() == QtCore.QEvent.Resize):
@@ -240,7 +223,9 @@ class HandlerClass:
         self.fTmp = '{}temp.ngc'.format(self.tmpPath)
         self.fNgc = '{}shape.ngc'.format(self.tmpPath)
         self.fNgcBkp = '{}backup.ngc'.format(self.tmpPath)
-        self.oldConvButton = ''
+        self.fNgcSent = '{}sent_shape.ngc'.format(self.tmpPath)
+        self.filteredBkp = '{}filtered_bkp.ngc'.format(self.tmpPath)
+        self.oldConvButton = False
         self.programPrefix = self.iniFile.find('DISPLAY', 'PROGRAM_PREFIX') or os.environ['LINUXCNC_NCFILES_DIR']
         self.dialogError = False
         self.cutTypeText = ''
@@ -625,6 +610,7 @@ class HandlerClass:
         self.out1Pin = self.h.newpin('ext_out_1', hal.HAL_BIT, hal.HAL_OUT)
         self.out2Pin = self.h.newpin('ext_out_2', hal.HAL_BIT, hal.HAL_OUT)
         self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
@@ -1453,8 +1439,8 @@ class HandlerClass:
                 self.w[self.frButton].setEnabled(False)
             self.rflActive = True
             self.rflSelected = False
-# **** TEMP FOR RUN FROM LINE TESTING 2 of 2 ****
-#            reload(RFL)
+            if self.developmentPin:
+                reload(RFL)
             RFL.run_from_line(self, self.w, ACTION, STATUS, linuxcnc)
         elif not self.run_critical_check():
             ACTION.RUN(0)
@@ -1538,8 +1524,8 @@ class HandlerClass:
         self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
 
     def set_offsets_clicked(self):
-# **** TEMP FOR OFFSET TESTING 2 of 2 ****
-#        reload(OFFSETS)
+        if self.developmentPin:
+            reload(OFFSETS)
         OFFSETS.dialog_show(self, self.w, INIPATH, STATUS, ACTION, TOOL, self.foreColor, self.backColor)
 
     def feed_label_pressed(self):
@@ -1671,9 +1657,9 @@ class HandlerClass:
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
-            self.conv_button_color('conv_line')
-            self.oldConvButton = False
-            self.conv_setup()
+            if self.developmentPin:
+                reload(self.CONV)
+            self.CONV.conv_setup(self, self.w)
             self.vkb_show(True)
             self.autorepeat_keys(True)
         elif tab == 2:
@@ -2092,22 +2078,6 @@ class HandlerClass:
         self.w.cam_zoom_minus.pressed.connect(self.cam_zoom_minus_pressed)
         self.w.cam_dia_plus.pressed.connect(self.cam_dia_plus_pressed)
         self.w.cam_dia_minus.pressed.connect(self.cam_dia_minus_pressed)
-        self.w.conv_line.pressed.connect(lambda:self.conv_shape_request('conv_line', CONVLINE, True))
-        self.w.conv_circle.pressed.connect(lambda:self.conv_shape_request('conv_circle', CONVCIRC, True))
-        self.w.conv_ellipse.pressed.connect(lambda:self.conv_shape_request('conv_ellipse', CONVELLI, True))
-        self.w.conv_triangle.pressed.connect(lambda:self.conv_shape_request('conv_triangle', CONVTRIA, True))
-        self.w.conv_rectangle.pressed.connect(lambda:self.conv_shape_request('conv_rectangle', CONVRECT, True))
-        self.w.conv_polygon.pressed.connect(lambda:self.conv_shape_request('conv_polygon', CONVPOLY, True))
-        self.w.conv_bolt.pressed.connect(lambda:self.conv_shape_request('conv_bolt', CONVBOLT, True))
-        self.w.conv_slot.pressed.connect(lambda:self.conv_shape_request('conv_slot', CONVSLOT, True))
-        self.w.conv_star.pressed.connect(lambda:self.conv_shape_request('conv_star', CONVSTAR, True))
-        self.w.conv_gusset.pressed.connect(lambda:self.conv_shape_request('conv_gusset', CONVGUST, True))
-        self.w.conv_sector.pressed.connect(lambda:self.conv_shape_request('conv_sector', CONVSECT, True))
-        self.w.conv_block.pressed.connect(self.conv_block_pressed)
-        self.w.conv_new.pressed.connect(lambda:self.conv_new_pressed('button'))
-        self.w.conv_save.pressed.connect(self.conv_save_pressed)
-        self.w.conv_settings.pressed.connect(self.conv_settings_pressed)
-        self.w.conv_send.pressed.connect(self.conv_send_pressed)
         self.w.view_p.pressed.connect(self.view_p_pressed)
         self.w.view_z.pressed.connect(self.view_z_pressed)
         self.w.view_clear.pressed.connect(self.view_clear_pressed)
@@ -2180,6 +2150,38 @@ class HandlerClass:
         click_signal(self.w.material_label).connect(self.show_material_selector)
         click_signal(self.w.velocity_label).connect(self.show_material_selector)
         click_signal(self.w.velocity_show).connect(self.show_material_selector)
+        self.w.conv_line.pressed.connect(lambda:self.conv_call('line'))
+        self.w.conv_circle.pressed.connect(lambda:self.conv_call('circle'))
+        self.w.conv_ellipse.pressed.connect(lambda:self.conv_call('ellipse'))
+        self.w.conv_triangle.pressed.connect(lambda:self.conv_call('triangle'))
+        self.w.conv_rectangle.pressed.connect(lambda:self.conv_call('rectangle'))
+        self.w.conv_polygon.pressed.connect(lambda:self.conv_call('polygon'))
+        self.w.conv_bolt.pressed.connect(lambda:self.conv_call('bolt'))
+        self.w.conv_slot.pressed.connect(lambda:self.conv_call('slot'))
+        self.w.conv_star.pressed.connect(lambda:self.conv_call('star'))
+        self.w.conv_gusset.pressed.connect(lambda:self.conv_call('gusset'))
+        self.w.conv_sector.pressed.connect(lambda:self.conv_call('sector'))
+        self.w.conv_block.pressed.connect(lambda:self.conv_call('block'))
+        self.w.conv_new.pressed.connect(lambda:self.conv_call('new'))
+        self.w.conv_save.pressed.connect(lambda:self.conv_call('save'))
+        self.w.conv_settings.pressed.connect(lambda:self.conv_call('settings'))
+        self.w.conv_send.pressed.connect(lambda:self.conv_call('send'))
+
+    def conv_call(self, operation):
+        if self.developmentPin:
+            reload(self.CONV)
+        if operation == 'block':
+            self.CONV.conv_block_pressed(self, self.w)
+        elif operation == 'new':
+            self.CONV.conv_new_pressed(self, self.w, 'button')
+        elif operation == 'save':
+            self.CONV.conv_save_pressed(self, self.w)
+        elif operation == 'settings':
+            self.CONV.conv_settings_pressed(self, self.w)
+        elif operation == 'send':
+            self.CONV.conv_send_pressed(self, self.w)
+        else:
+            self.CONV.conv_shape_request(self, self.w, 'conv_{}'.format(operation), True)
 
     def set_axes_and_joints(self):
         kinematics = self.iniFile.find('KINS', 'KINEMATICS').lower().replace('=','').replace('trivkins','').replace(' ','') or None
@@ -2399,7 +2401,6 @@ class HandlerClass:
         if btn2:
             input.setCancelButtonText(btn2)
         if delay is not None:
-            print("DELAY:", delay)
             input.setTextValue('{:0.2f}'.format(delay))
         for button in input.findChildren(QPushButton):
             button.setIcon(QIcon())
@@ -4772,351 +4773,6 @@ class HandlerClass:
     def cutrec_buttons_enable(self, state):
         for widget in ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw', 'cancel', 'feed', 'move_label']:
             self.w['cut_rec_{}'.format(widget)].setEnabled(state)
-
-
-#########################################################################################################################
-# CONVERSATIONAL FUNCTIONS #
-#########################################################################################################################
-    def conv_setup(self):
-        self.convSettingsChanged = False
-        self.validShape = False
-        self.w.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
-        self.w.undo = QPushButton(_translate('Conversational', 'RELOAD'))
-        if not ACTION.prefilter_path:
-            self.w.undo.setEnabled(False)
-        self.conv_preview_button(False)
-        self.convButtonState = {}
-        self.convCommonButtons = ['new', 'save', 'send', 'settings']
-        for w in self.convCommonButtons:
-            self.convButtonState[w] = False
-        if self.unitsPerMm == 1:
-            self.unitCode = ['21', '0.25', 32]
-        else:
-            self.unitCode = ['20', '0.004', 1.26]
-        self.ambles = 'G{} G64P{} G40 G49 G80 G90 G92.1 G94 G97'.format(self.unitCode[0], self.unitCode[1])
-        CONVSET.load(self, self.w)
-        # grid size is in inches
-        self.w.conv_preview.grid_size = self.gridSize / self.unitsPerMm / 25.4
-        self.w.conv_preview.set_current_view()
-        self.w.conv_save.setEnabled(False)
-        self.w.conv_send.setEnabled(False)
-        self.w.conv_settings.setEnabled(True)
-        if ACTION.prefilter_path and self.fileOpened:
-#            try:
-            if ACTION.prefilter_path != self.fNgc:
-                COPY(ACTION.prefilter_path, self.fNgc)
-            COPY(ACTION.prefilter_path, self.fNgcBkp)
-            self.w.conv_preview.load(ACTION.prefilter_path)
-            self.w.conv_preview.set_current_view()
-#            except:
-#                print('EXCEPTION')
-#                self.conv_new_pressed()
-            self.conv_enable_tabs()
-        else:
-            self.conv_new_pressed(None)
-        self.xOrigin = STATUS.get_position()[0][0]
-        self.yOrigin = STATUS.get_position()[0][1]
-        self.xSaved = '0.000'
-        self.ySaved = '0.000'
-        self.oSaved = self.origin
-        self.convBlock = [False, False]
-        if not self.oldConvButton:
-            self.conv_shape_request('conv_line', CONVLINE, True)
-
-    def conv_new_pressed(self, button):
-        if button and (self.w.conv_save.isEnabled() or self.w.conv_send.isEnabled() or self.convPreviewActive):
-            head = _translate('HandlerClass', 'Unsaved Shape')
-            btn1 = _translate('HandlerClass', 'CONTINUE')
-            btn2 = _translate('HandlerClass', 'CANCEL')
-            msg0 = _translate('HandlerClass', 'You have an unsaved, unsent, or active previewed shape')
-            msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
-            if not self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
-                return
-        if self.oldConvButton == 'conv_line':
-            if self.lAlias == 'LP2P':
-                CONVLINE.set_line_point_to_point(self, self.w, False)
-            elif self.lAlias == 'LBLA':
-                CONVLINE.set_line_by_angle(self, self.w, False)
-            elif self.lAlias == 'A3Pt':
-                CONVLINE.set_arc_3_points(self, self.w, False)
-            elif self.lAlias == 'A2PR':
-                CONVLINE.set_arc_2_points_radius(self, self.w, False)
-            elif self.lAlias == 'ALAR':
-                CONVLINE.set_arc_by_angle_radius(self, self.w, False)
-        with open(self.fNgc, 'w') as outNgc:
-            outNgc.write('(new conversational file)\nM2\n')
-        COPY(self.fNgc, self.fTmp)
-        COPY(self.fNgc, self.fNgcBkp)
-        self.w.conv_preview.load(self.fNgc)
-        self.w.conv_save.setEnabled(False)
-        self.w.conv_send.setEnabled(False)
-        self.validShape = False
-        self.conv_preview_button(False)
-        self.conv_enable_tabs()
-
-    def conv_save_pressed(self):
-        head = _translate('HandlerClass', 'Save Error')
-        with open(self.fNgc, 'r') as inFile:
-            for line in inFile:
-                if '(new conversational file)' in line:
-                    msg0 = _translate('HandlerClass', 'An empty file cannot be saved')
-                    self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
-                    return
-        self.vkb_show()
-        dlg = QFileDialog(self.w)
-        dlg.setOptions(QFileDialog.DontUseNativeDialog)
-        dlg.setAcceptMode(QFileDialog.AcceptSave)
-        dlg.setNameFilters(['G-Code Files (*.ngc *.nc *.tap)', 'All Files (*)'])
-        dlg.setDefaultSuffix('ngc')
-        dlg.setDirectory(self.programPrefix)
-        name = ''
-        if dlg.exec_():
-            name = dlg.selectedFiles()[0]
-        if name:
-            COPY(self.fNgc, name)
-            self.w.conv_save.setEnabled(False)
-            self.conv_enable_tabs()
-        self.vkb_show(True)
-
-    def conv_settings_pressed(self):
-# **** TEMP FOR CONVERSATIONAL TESTING 2 of 3 ****
-#        reload(CONVSET)
-        self.color_button_image(self.oldConvButton, self.foreColor)
-        self.w[self.oldConvButton].setStyleSheet(\
-                'QPushButton {{ background: {0} }} \
-                 QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
-        for w in self.convCommonButtons:
-            self.convButtonState[w] = self.w['conv_{}'.format(w)].isEnabled()
-            self.w['conv_{}'.format(w)].setEnabled(False)
-        self.conv_clear_widgets()
-        CONVSET.widgets(self, self.w)
-        CONVSET.show(self, self.w)
-
-    def conv_send_pressed(self):
-        COPY(self.fNgcBkp, self.fNgc.replace('shape','sent_shape'))
-        self.w.conv_send.setEnabled(False)
-        self.w.conv_save.setEnabled(False)
-        self.conv_enable_tabs()
-        self.vkb_hide()
-        ACTION.OPEN_PROGRAM(self.fNgc.replace('shape','sent_shape'))
-
-    def conv_block_pressed(self):
-        if not self.convSettingsChanged:
-            if self.convPreviewActive and not self.conv_active_shape():
-                return
-            head = _translate('HandlerClass', 'Array Error')
-            with open(self.fNgc) as inFile:
-                for line in inFile:
-                    if '(new conversational file)' in line:
-                        msg0 = _translate('HandlerClass', 'An empty file cannot be arrayed, rotated, or scaled')
-                        self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
-                        return
-                    # see if we can do something about NURBS blocks down the track
-                    # elif 'g5.2' in line.lower() or 'g5.3' in line.lower():
-                    #     head = _translate('HandlerClass', 'Scale Error')
-                    #     msg0 = _translate('HandlerClass', 'Cannot scale a GCode NURBS block')
-                    #     self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}'.format(msg0, line))
-                    #     return
-                    elif 'M3' in line or 'm3' in line:
-                        break
-        self.conv_shape_request(self.w.sender().objectName(), CONVBLCK, False)
-
-    def conv_shape_request(self, shape, module, material):
-# **** TEMP FOR CONVERSATIONAL TESTING 3 of 3****
-#        reload(module)
-        if not self.convSettingsChanged:
-            if self.convPreviewActive and not self.conv_active_shape():
-                return
-            self.conv_preview_button(False)
-        if material:
-            self.w.conv_material.show()
-        else:
-            self.w.conv_material.hide()
-        try:
-            self.w.conv_material.currentTextChanged.disconnect()
-        except:
-            pass
-        self.conv_button_color(shape)
-        self.w.conv_settings.setEnabled(True)
-        self.w.preview.setEnabled(True)
-        if self.validShape:
-            self.w.undo.setEnabled(True)
-        self.conv_clear_widgets()
-        module.widgets(self, self.w)
-
-    def conv_preview_button(self, state):
-        self.convPreviewActive = state
-        self.conv_enable_tabs()
-        if state:
-            self.w.preview.setStyleSheet('QPushButton {{ color: {} }} \
-                                          QPushButton:disabled {{ color: {} }}' \
-                                          .format(self.estopColor, self.disabledColor))
-            self.w.conv_save.setEnabled(False)
-            self.w.conv_send.setEnabled(False)
-            self.w.undo.setText(_translate('HandlerClass', 'UNDO'))
-        else:
-            self.w.preview.setStyleSheet('QPushButton {{ color: {} }} \
-                                          QPushButton:disabled {{ color: {} }}' \
-                                          .format(self.foreColor, self.disabledColor))
-            if self.validShape:
-                self.w.conv_save.setEnabled(True)
-                self.w.conv_send.setEnabled(True)
-            self.w.undo.setText(_translate('HandlerClass', 'RELOAD'))
-
-    def conv_active_shape(self):
-        btn1 = _translate('HandlerClass', 'CONTINUE')
-        btn2 = _translate('HandlerClass', 'CANCEL')
-        head = _translate('HandlerClass', 'Active Preview')
-        msg0 = _translate('HandlerClass', 'You have an active previewed shape')
-        msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
-        response = self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2))
-        if response:
-            self.conv_undo_shape()
-            self.conv_preview_button(False)
-        return response
-
-    def conv_button_color(self, button):
-        if self.oldConvButton:
-            self.color_button_image(self.oldConvButton, self.foreColor)
-            self.w[self.oldConvButton].setStyleSheet(\
-                    'QPushButton {{ background: {0} }} \
-                     QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
-        self.oldConvButton = button
-        self.color_button_image(button, self.backColor)
-        self.w[button].setStyleSheet(\
-                'QPushButton {{ background: {0} }} \
-                 QPushButton:pressed {{ background: {0} }}'.format(self.foreColor))
-
-    def conv_enable_buttons(self, state):
-        for button in ['new', 'save', 'settings', 'send']:
-            self.w['conv_{}'.format(button)].setEnabled(state)
-
-    def conv_restore_buttons(self):
-        for button in self.convCommonButtons:
-            self.w['conv_{}'.format(button)].setEnabled(self.convButtonState[button])
-
-    def conv_enable_tabs(self):
-        if self.w.conv_save.isEnabled() or self.convPreviewActive:
-            for n in range(self.w.main_tab_widget.count()):
-                if n != 1:
-                    self.w.main_tab_widget.setTabEnabled(n, False)
-        else:
-            for n in range(self.w.main_tab_widget.count()):
-                self.w.main_tab_widget.setTabEnabled(n, True)
-                # enabling tabs causes issues with the gcode widgets margin styles
-                # so we refresh the style here as a workaround
-                self.w.gcode_editor.setStyleSheet( \
-                        'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(self.foreColor))
-                self.w.gcode_display.setStyleSheet( \
-                        'EditorBase{{ qproperty-styleColorMarginText: {} }}'.format(self.foreColor))
-
-    def conv_entry_changed(self, widget):
-        name = widget.objectName()
-        if widget.text():
-            if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
-                good = '0123456789'
-            elif name in ['xsEntry', 'ysEntry', 'aEntry']:
-                good = '-.0123456789'
-            else:
-                good = '.0123456789'
-            out = ''
-            for t in widget.text():
-                if t in good and not(t == '-' and len(out) > 0) and not(t == '.' and t in out):
-                    out += t
-            widget.setText(out)
-            if widget.text() in '-.' or widget.text() == '-.':
-                return 'operator'
-            try:
-                a = float(widget.text())
-            except:
-                head = _translate('HandlerClass', 'Numeric Entry Error')
-                msg0 = _translate('HandlerClass', 'An invalid entry has been detected')
-                self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n'.format(msg0))
-                widget.setText('0')
-        if name == 'gsEntry':
-            # grid size is in inches
-            self.w.conv_preview.grid_size = float(widget.text()) / self.unitsPerMm / 25.4
-            self.w.conv_preview.set_current_view()
-
-    def conv_undo_shape(self):
-        # setup for a reload if required
-        if not self.convPreviewActive:
-            head = _translate('HandlerClass', 'Reload Request')
-            btn1 = _translate('HandlerClass', 'CONTINUE')
-            btn2 = _translate('HandlerClass', 'CANCEL')
-            if ACTION.prefilter_path:
-                name = os.path.basename(ACTION.prefilter_path)
-                msg0 = _translate('HandlerClass', 'The original file will be loaded')
-                msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
-                if not self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}:\n\n{}\n\n{}\n'.format(msg0, name, msg1), '{}'.format(btn1), '{}'.format(btn2)):
-                    return(True)
-            else:
-                msg0 = _translate('HandlerClass', 'An empty file will be loaded')
-                msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
-                if not self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1), '{}'.format(btn1), '{}'.format(btn2)):
-                    return(True)
-            if ACTION.prefilter_path:
-                COPY(ACTION.prefilter_path, self.fNgcBkp)
-            else:
-                with open(self.fNgcBkp, 'w') as outNgc:
-                    outNgc.write('(new conversational file)\nM2\n')
-            self.validShape = False
-            self.w.preview.setEnabled(True)
-            self.w.undo.setEnabled(False)
-            self.w.conv_save.setEnabled(False)
-            self.w.conv_send.setEnabled(False)
-        # undo the shape
-        if os.path.exists(self.fNgcBkp):
-            COPY(self.fNgcBkp, self.fNgc)
-            self.w.conv_preview.load(self.fNgc)
-            self.w.conv_preview.set_current_view()
-            self.w.add.setEnabled(False)
-            if not self.validShape:
-                self.w.undo.setEnabled(False)
-            if not self.convBlock[1]:
-                self.convBlock[0] = False
-            self.conv_preview_button(False)
-            self.conv_enable_tabs()
-
-    def conv_add_shape_to_file(self):
-        COPY(self.fNgc, self.fNgcBkp)
-        try:
-            if self.w.xsEntry.text():
-                self.xSaved = self.w.xsEntry.text()
-        except:
-            pass
-        try:
-            if self.w.ysEntry.text():
-                self.ySaved = self.w.ysEntry.text()
-        except:
-            pass
-        try:
-            self.oSaved = self.w.center.isChecked()
-        except:
-            pass
-        self.validShape = True
-        self.w.add.setEnabled(False)
-        self.w.conv_save.setEnabled(True)
-        self.w.conv_send.setEnabled(True)
-        self.conv_preview_button(False)
-        self.conv_enable_tabs()
-
-    def conv_accept(self):
-        self.validShape = True
-        self.conv_preview_button(False)
-        COPY(self.fNgc, self.fNgcBkp)
-        self.w.conv_preview.load(self.fNgc)
-        self.w.add.setEnabled(False)
-        self.w.conv_save.setEnabled(True)
-        self.w.conv_send.setEnabled(True)
-        self.conv_enable_tabs()
-
-    def conv_clear_widgets(self):
-        for i in reversed(range(self.w.entries.count())):
-            widgetToRemove = self.w.entries.itemAt(i).widget()
-            if widgetToRemove:
-                self.w.entries.removeWidget(widgetToRemove)
-                widgetToRemove.setParent(None)
 
 
 #########################################################################################################################
