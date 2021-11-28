@@ -840,13 +840,32 @@ image::images/qtvcp_gcodeGraphics.png["QTvcp Gcode Graphics",scale="25%"]
 
 This Displays the current Gcode in a graphical form. +
 
-_view
-_dro
-_dtg
-_metric
-overlay
-_offsets
-background_color
+Properties: +
+
+* '_view'
+* '_dro'
+* '_dtg'
+* '_metric'
+* 'overlay'
+* '_offsets'
+* 'background_color'
+* 'MouseButtonMode' +
+Changes the button behavior of the mouse to rotate, move or zoom within the preview.
+Can be set 0-5 +
+0 -left move, middle zoom, right rotate.
+1 -left rotate, middle move, right zoom
+2 -left zoom, middle move, right rotate
+3 -left move, middle rotate, right zoom
+4 -left move, middle zoom, right rotate
+5 -left rotate, middle zoom, right move
+
+StyleSheets: +
+
+MouseButtonMode can be set in stylesheets:
+----
+#gcodegraphics{
+qproperty-MouseButtonMode:1;
+----
 
 ==== ACTION functions
 The ACTION library can control the gcode graphics widget. +
