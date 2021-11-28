@@ -297,6 +297,16 @@ qtdragon.slider-override-rapid
 qtdragon.slider-override-spindle
 ----
 
+These pins are available when setting the Versa Probe INI option. +
+They can be used for auto-tool-length-probe at tool change - with added remap cpde. +
+[source,{hal}]
+----
+qtdragon.versaprobe-blockheight
+qtdragon.versaprobe-probeheight
+qtdragon.versaprobe-probevel
+qtdragon.versaprobe-searchvel
+----
+
 == HAL files
 
 The HAL files supplied are for simulation only. A real machine needs its own custom HAL files. The Qtdragon screen
