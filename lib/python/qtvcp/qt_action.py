@@ -227,7 +227,6 @@ class _Lcnc_Action(object):
 
     def OPEN_PROGRAM(self, fname):
         self.prefilter_path = str(fname)
-        self.ensure_mode(linuxcnc.MODE_AUTO)
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
