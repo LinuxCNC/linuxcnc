@@ -176,6 +176,11 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     background: e-stop;
     border-color: e-stop }
 
+/****** ERROR LABEL ************/
+#error_label {
+    color: e-stop;
+}
+
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
 #touch_x, #touch_y, #touch_z, #touch_a, #touch_b {
     font: 20pt 'Lato' }

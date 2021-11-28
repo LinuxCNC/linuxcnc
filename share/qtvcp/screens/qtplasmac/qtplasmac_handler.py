@@ -1,4 +1,4 @@
-VERSION = '1.217.131'
+VERSION = '1.217.132'
 
 '''
 qtplasmac_handler.py
@@ -767,18 +767,30 @@ class HandlerClass:
         self.w.use_auto_volts.setChecked(self.w.PREFS_.getpref('Use auto volts', True, bool, 'ENABLE_OPTIONS'))
         self.w.ohmic_probe_enable.setChecked(self.w.PREFS_.getpref('Ohmic probe enable', False, bool, 'ENABLE_OPTIONS'))
         self.w.error_label = QLabel()
+        self.w.tool_label = STATLABEL()
+        self.w.gcodes_label = STATLABEL()
+        self.w.mcodes_label = STATLABEL()
         self.w.lbl_tool = STATLABEL()
         self.w.lbl_gcodes = STATLABEL()
         self.w.lbl_mcodes = STATLABEL()
         self.w.statusbar.addPermanentWidget(self.w.error_label, stretch=1)
         self.w.error_label.setObjectName('error_label')
         self.w.statusbar.addPermanentWidget(VLine())
+        self.w.statusbar.addPermanentWidget(self.w.tool_label)
+        self.w.tool_label.setObjectName('tool_label')
+        self.w.tool_label.setText('TOOL: ')
         self.w.statusbar.addPermanentWidget(self.w.lbl_tool)
         self.w.lbl_tool.setObjectName('lbl_tool')
         self.w.statusbar.addPermanentWidget(VLine())
+        self.w.statusbar.addPermanentWidget(self.w.gcodes_label)
+        self.w.gcodes_label.setObjectName('gcodes_label')
+        self.w.gcodes_label.setText('G-CODES: ')
         self.w.statusbar.addPermanentWidget(self.w.lbl_gcodes)
         self.w.lbl_gcodes.setObjectName('lbl_gcodes')
         self.w.statusbar.addPermanentWidget(VLine())
+        self.w.statusbar.addPermanentWidget(self.w.mcodes_label)
+        self.w.mcodes_label.setObjectName('mcodes_label')
+        self.w.mcodes_label.setText('M-CODES: ')
         self.w.statusbar.addPermanentWidget(self.w.lbl_mcodes)
         self.w.lbl_mcodes.setObjectName('lbl_mcodes')
         text = _translate('HandlerClass', 'MOVE')
@@ -1338,11 +1350,11 @@ class HandlerClass:
 
     def tool_changed(self, obj, tool):
         if tool == 0:
-            self.w.lbl_tool.setText('Tool: TORCH')
+            self.w.lbl_tool.setText('TORCH')
         elif tool == 1:
-            self.w.lbl_tool.setText('Tool: SCRIBE')
+            self.w.lbl_tool.setText('SCRIBE')
         else:
-            self.w.lbl_tool.setText('')
+            self.w.lbl_tool.setText('UNKNOWN')
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'inch' and STATUS.is_metric_mode():
@@ -1351,10 +1363,10 @@ class HandlerClass:
             self.droScale = 1 / 25.4
         else:
             self.droScale = 1
-        self.w.lbl_gcodes.setText('G-Codes: {}'.format(cod))
+        self.w.lbl_gcodes.setText('{}'.format(cod))
 
     def mcodes_changed(self, obj, cod):
-        self.w.lbl_mcodes.setText('M-Codes: {}'.format(cod))
+        self.w.lbl_mcodes.setText('{}'.format(cod))
 
     def set_start_line(self, line):
         if self.w.chk_run_from_line.isChecked():
@@ -1600,7 +1612,7 @@ class HandlerClass:
             ACTION.prefilter_path = self.preClearFile
             self.w.material_selector.setCurrentIndex(0)
             self.w.conv_material.setCurrentIndex(0)
-            if self.w.lbl_tool.text() != 'Tool: TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+            if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
                 ACTION.CALL_MDI_WAIT('T0 M6')
                 ACTION.CALL_MDI_WAIT('G43 H0')
                 ACTION.SET_MANUAL_MODE()
@@ -1830,7 +1842,7 @@ class HandlerClass:
 
     def error_status(self, state):
         if state:
-            text = _translate('HandlerClass', 'Error sent to machine log')
+            text = _translate('HandlerClass', 'ERROR SENT TO MACHINE LOG')
         else:
             text = ''
         self.w.error_label.setText("{}".format(text))
@@ -4829,8 +4841,6 @@ class HandlerClass:
             self.w[button].setStyleSheet(\
                     'QPushButton {{ background: {0} }} \
                      QPushButton:pressed {{ background: {0} }}'.format(self.backColor))
-        # the error message label on the status bar
-        self.w.error_label.setStyleSheet('QLabel {{ color: {} }}'.format(self.estopColor))
         # some gcode display/editor colors cannot use .qss file
         # gcode display current gcode line
         self.w.gcode_display.setMarkerBackgroundColor(QColor(self.back1Color))
