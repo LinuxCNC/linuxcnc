@@ -705,6 +705,8 @@ QProgressBar::chunk {
 /****** LED ************/
 LED {
     qproperty-color: l-e-d;
+    qproperty-off_color: backgnd;
+    qproperty-border_color: backgnd;
     qproperty-diameter: 20 }
 
 /****** TEXT ENTRY ************/
