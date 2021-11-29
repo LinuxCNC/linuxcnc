@@ -2,7 +2,8 @@
 * {
     color: foregnd;
     background: backgnd;
-    font: 10pt Lato }
+    font: 10pt Lato;
+    outline: none }
 
 *:disabled {
     color: inactive;
@@ -699,7 +700,7 @@ QProgressBar {
 
 QProgressBar::chunk {
     background-color: foregnd;
-    width: 5px;
+    width: 1px;
     margin: 0.5px }
 
 /****** LED ************/

@@ -36,6 +36,8 @@ ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
 inFile = sys.argv[1]
 filteredBkp = '/tmp/qtplasmac/filtered_bkp.ngc'
+warningFile = '/tmp/qtplasmac/gcode_warnings.txt'
+errorFile = '/tmp/qtplasmac/gcode_errors.txt'
 materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
 tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
 tmpMatNum = 1000000
@@ -75,6 +77,7 @@ lastY = 0
 oBurnX = 0
 oBurnY = 0
 lineNum = 0
+lineNumOrg = 0
 distMode = 90 # absolute
 arcDistMode = 91.1 # incremental
 holeVelocity = 60
@@ -96,32 +99,43 @@ convBlock = False
 filtered = False
 codeWarn = False
 warnUnitsDep = []
+warnUnitsDepOrg = []
 warnPierceScribe = []
+warnPierceScribeOrg = []
 warnMatLoad = []
+warnMatLoadOrg = []
 warnHoleDir = []
+warnHoleDirOrg = []
 warnCompTorch = []
+warnCompTorchOrg = []
 warnCompVel = []
+warnCompVelOrg = []
 warnFeed = []
+warnFeedOrg = []
 warnings  = 'The following warnings may affect the quality of the process.\n'
 warnings += 'It is recommended that all warnings are fixed before running this file.\n'
 codeError = False
 errorMath = []
+errorMath = []
 errorMissMat = []
+errorMissMatOrg = []
 errorTempMat = []
+errorTempMatOrg = []
 errorNewMat = []
+errorNewMatOrg = []
 errorEditMat = []
+errorEditMatOrg = []
 errorWriteMat = []
+errorWriteMatOrg = []
 errorReadMat = []
+errorReadMatOrg = []
 errorCompMat = []
+errorCompMatOrg = []
 errors  = 'The following errors will affect the process.\n'
 errors += 'Errors must be fixed before reloading this file.\n'
 
 # feedback dialog
-def dialog_box(title, text, align):
-    if align == Qt.AlignCenter:
-        icon = QStyle.SP_MessageBoxCritical
-    else:
-        icon = QStyle.SP_MessageBoxWarning
+def dialog_box(title, icon, text):
     dlg = QDialog()
     scroll = QScrollArea(dlg)
     widget = QWidget()
@@ -153,7 +167,6 @@ def dialog_box(title, text, align):
     scroll.setGeometry(5, 5, 590, 250)
     btn.move(270,260)
     btn.clicked.connect(lambda w: dlg_ok_clicked(dlg))
-    label.setAlignment(align)
     label.setText(text)
     dlg.exec()
 
@@ -162,7 +175,7 @@ def dlg_ok_clicked(dlg):
 
 # set hole type
 def set_hole_type(h):
-    global lineNum, holeEnable, overCut, arcEnable
+    global holeEnable, overCut, arcEnable
     if h == 1:
         holeEnable = True
         arcEnable = False
@@ -186,7 +199,7 @@ def set_hole_type(h):
 
 # check if arc is a hole
 def check_if_hole():
-    global lineNum, lastX, lastY, minDiameter
+    global lastX, lastY, minDiameter
     I, J, isHole = 0, 0, 0
     if distMode == 91: # get absolute X & Y from incremental coordinates
         endX = lastX + get_axis_value('x') if 'x' in line else lastX
@@ -225,7 +238,7 @@ def get_hole_diameter(I, J, isHole):
         print(";Hmm, that didn't go well...")
 
 
-    global lineNum, holeActive, codeWarn, warnCompVel, warnHoleDir
+    global lineNum, lineNumOrg, holeActive, codeWarn, warnCompVel, warnCompVelOrg, warnHoleDir
     if offsetG4x:
         diameter = math.sqrt((I ** 2) + (J ** 2)) * 2
     else:
@@ -238,6 +251,7 @@ def get_hole_diameter(I, J, isHole):
             gcodeList.append(';m67 e3 q0 (inactive due to g41)')
             codeWarn = True
             warnCompVel.append(lineNum)
+            warnCompVelOrg.append(lineNumOrg)
         elif not holeActive:
             if diameter <= minDiameter:
                 lineNum += 1
@@ -246,6 +260,7 @@ def get_hole_diameter(I, J, isHole):
         if line.startswith('g2') and isHole:
             codeWarn = True
             warnHoleDir.append(lineNum)
+            warnHoleDirOrg.append(lineNumOrg)
     # no velocity reduction required
     else:
         if holeActive:
@@ -256,7 +271,7 @@ def get_hole_diameter(I, J, isHole):
 
 # turn torch off and move 4mm (0.157) past hole end
 def overburn(I, J, radius):
-    global lineNum, lastX, lastY, torchEnable, ocLength, warnCompTorch, arcDistMode, oBurnX, oBurnY
+    global lineNum, lineNumOrg, lastX, lastY, torchEnable, ocLength, warnCompTorch, warnCompTorchOrg, arcDistMode, oBurnX, oBurnY
     centerX = lastX + I
     centerY = lastY + J
     cosA = math.cos(ocLength / radius)
@@ -268,6 +283,7 @@ def overburn(I, J, radius):
         gcodeList.append(';m62 p3 (inactive due to g41)')
         codeWarn = True
         warnCompTorch.append(lineNum)
+        warnCompTorchOrg.append(lineNumOrg)
     else:
         gcodeList.append('m62 p3 (disable torch)')
         torchEnable = False
@@ -396,16 +412,17 @@ def comment_out_z_commands():
 
 # check if math used or explicit values
 def check_math(axis):
-    global lineNum, codeError
+    global lineNum, lineNumOrg, codeError, errorMath, errorMathOrg
     tmp1 = line.split(axis)[1]
     if tmp1.startswith('[') or tmp1.startswith('#'):
         codeError = True
         if lineNum not in errorMath:
             errorMath.append(lineNum)
+            errorMathOrg.append(lineNumOrg)
 
 # do material change
 def do_material_change():
-    global lineNum, firstMaterial, codeError
+    global lineNum, lineNumOrg, firstMaterial, codeError, errorMissMat, errorMissMatOrg
     if '(' in line:
         c = line.split('(', 1)[0]
     elif ';' in line:
@@ -423,6 +440,7 @@ def do_material_change():
     if material[0] not in materialDict and material[0] < 1000000:
         codeError = True
         errorMissMat.append(lineNum)
+        errorMissMatOrg.append(lineNumOrg)
     RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(material[0])])
     if not firstMaterial:
         firstMaterial = material[0]
@@ -430,7 +448,7 @@ def do_material_change():
 
 # check if material edit required
 def check_material_edit():
-    global lineNum, tmpMatNum, tmpMatNam, codeError
+    global lineNum, lineNumOrg, tmpMatNum, tmpMatNam, codeError, errorNewMat, errorNewMatOrg, errorEditMat, errorEditMatOrg
     tmpMaterial = False
     newMaterial = []
     th = 0
@@ -502,18 +520,20 @@ def check_material_edit():
                 elif nu in materialDict and newMaterial[0] == 1:
                     codeError = True
                     errorNewMat.append(lineNum)
+                    errorNewMatOrg.append(lineNumOrg)
                 else:
                     rewrite_material_file(newMaterial)
             else:
                 codeError = True
                 errorEditMat.append(lineNum)
+                errorEditMatOrg.append(lineNumOrg)
     except:
         codeError = True
-        errorEditMat.append(lineNum)
+        errorEditMatOrg.append(lineNumOrg)
 
 # write temporary materials file
 def write_temporary_material(data):
-    global lineNum, warnMatLoad, material, codeError
+    global lineNum, lineNumOrg, errorTempMat, errorTempMatOrg, warnMatLoad, warnMatLoadOrg, material, codeError
     try:
         with open(tmpMaterialFile, 'w') as fWrite:
             fWrite.write('#plasmac temporary material file\n')
@@ -536,6 +556,7 @@ def write_temporary_material(data):
     except:
         codeError = True
         errorTempMat.append(lineNum)
+        errorTempMatOrg.append(lineNumOrg)
     materialDict[tmpMatNum] = [data[10], data[3]]
     RUN(['halcmd', 'setp', 'qtplasmac.material_temp', '{}'.format(tmpMatNum)])
     material[0] = tmpMatNum
@@ -544,6 +565,7 @@ def write_temporary_material(data):
         if time.time() > matDelay + 3:
             codeWarn = True
             warnMatLoad.append(lineNum)
+            warnMatLoadOrg.append(lineNumOrg)
             break
         response = RUN(['halcmd', 'getp', 'qtplasmac.material_temp'], capture_output = True)
         if not int(response.stdout.decode()):
@@ -551,7 +573,7 @@ def write_temporary_material(data):
 
 # rewrite the material file
 def rewrite_material_file(newMaterial):
-    global lineNum, warnMatLoad
+    global lineNum, warnMatLoad, warnMatLoadOrg
     copyFile = '{}.bkp'.format(materialFile)
     shutil.copy(materialFile, copyFile)
     inFile = open(copyFile, 'r')
@@ -588,6 +610,7 @@ def rewrite_material_file(newMaterial):
         if time.time() > matDelay + 3:
             codeWarn = True
             warnMatLoad.append(lineNum)
+            warnMatLoadOrg.append(lineNumOrg)
             break
         response = RUN(['halcmd', 'getp', 'qtplasmac.material_reload'], capture_output = True)
         if not int(response.stdout.decode()):
@@ -595,7 +618,7 @@ def rewrite_material_file(newMaterial):
 
 # add a new material or or edit an existing material
 def add_edit_material(material, outFile):
-    global lineNum, codeError, ErrorWriteMat
+    global lineNum, lineNumOrg, codeError, ErrorWriteMat, errorWriteMatOrg
     try:
         outFile.write('[MATERIAL_NUMBER_{}]\n'.format(material[1]))
         outFile.write('NAME               = {}\n'.format(material[2]))
@@ -616,10 +639,11 @@ def add_edit_material(material, outFile):
     except:
         codeError = True
         errorWriteMat.append(lineNum)
+        errorWriteMatOrg.append(lineNumOrg)
 
 # create a dict of material numbers and kerf widths
 def get_materials():
-    global lineNum, materialDict, codeError, errorReadMat
+    global lineNum, lineNumOrg, materialDict, codeError, errorReadMat, errorReadMatOrg
     try:
         with open(prefsFile, 'r') as rFile:
             fRate = kWidth = 0.0
@@ -653,9 +677,10 @@ def get_materials():
     except:
         codeError = True
         errorReadMat.append(lineNum)
+        errorReadMatOrg.append(lineNumOrg)
 
 def check_f_word(line):
-    global lineNum, materialDict, codeWarn, warnFeed
+    global lineNum, materialDict, codeWarn, warnFeed, warnFeedOrg
     begin, inFeed = line.split('f', 1)
     rawFeed = ''
     codeFeed = 0.0
@@ -675,6 +700,7 @@ def check_f_word(line):
     if codeFeed != float(materialDict[material[0]][0]):
         codeWarn = True
         warnFeed.append([lineNum, rawFeed, material[0], materialDict[material[0]][0]])
+        warnFeedOrg.append([lineNumOrg, rawFeed, material[0], materialDict[material[0]][0]])
     return line
 
 def message_set(msgType, msg):
@@ -704,6 +730,7 @@ with open(inFile, 'r') as inCode:
     inCode.seek(0)
     for line in inCode:
         lineNum += 1
+        lineNumOrg += 1
         # if original is already filtered there is no need to process the line
         if filtered:
             if not ';qtplasmac filtered g-code file' in line:
@@ -818,6 +845,7 @@ with open(inFile, 'r') as inCode:
             if pierceOnly:
                 codeWarn = True
                 warnPierceScribe.append(lineNum)
+                warnPierceScribeOrg.append(lineNumorg)
                 scribing = False
             else:
                 scribing = True
@@ -856,6 +884,7 @@ with open(inFile, 'r') as inCode:
             if scribing:
                 codeWarn = True
                 warnPierceScribe.append(lineNum)
+                warnPierceScribeOrg.append(lineNumOrg)
             else:
                 pierceOnly = True
                 pierces = 0
@@ -891,6 +920,7 @@ with open(inFile, 'r') as inCode:
             if '#<m_d' in line or '#<i_d' in line:
                 codeWarn = True
                 warnUnitsDep.append(lineNum)
+                warnUnitsDepOrg.append(lineNumOrg)
             continue
         # if hole velocity command
         if line.startswith('#<h_velocity>'):
@@ -910,6 +940,7 @@ with open(inFile, 'r') as inCode:
             if offsetG4x:
                 codeError = True
                 errorCompMat.append(lineNum)
+                errorCompMatOrg.append(lineNumOrg)
             gcodeList.append(line)
             continue
         # set arc modes
@@ -1020,65 +1051,88 @@ if pierceOnly:
         gcodeList.append('{}'.format(rapidLine))
     gcodeList.append('M2 (END)')
 
-# warning notification
-if codeWarn:
-    if warnUnitsDep:
-        msg  = '\n<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
-        msg += 'The diameter will be set in the current units of the G-Code file.\n'
-        warnings += message_set(warnUnitsDep, msg)
-    if warnPierceScribe:
-        msg  = '\nPierce only mode is invalid while scribing.\n'
-        warnings += message_set(warnPierceScribe, msg)
-    if warnMatLoad:
-        msg  = '\nMaterials were not reloaded in a timely manner.\n'
-        msg  = 'Try reloading the G-Code file.\n'
-        warnings += message_set(warnMatLoad, msg)
-    if warnHoleDir:
-        msg  = '\nThis cut appears to be a hole, did you mean to cut it clockwise?\n'
-        warnings += message_set(warnHoleDir, msg)
-    if warnCompTorch:
-        msg  = '\nCannot enable/disable torch with G41/G42 compensation active.\n'
-        warnings += message_set(warnCompTorch, msg)
-    if warnCompVel:
-        msg  = '\nCannot reduce velocity with G41/G42 compensation active.\n'
-        warnings += message_set(warnCompVel, msg)
-    if warnFeed:
-        warnings += '\n'
-        for n in range(0, len(warnFeed)):
-            msg0 = 'Line'
-            msg1 = 'does not match Material'
-            msg2 = 'feed rate of '
-            warnings += '{} {:0.0f}: F{} {}_{}\'s {} {:0.0f}\n'.format(msg0, warnFeed[n][0], warnFeed[n][1], msg1, warnFeed[n][2], msg2, warnFeed[n][3])
-    dialog_box('G-CODE WARNING', warnings, Qt.AlignLeft)
+# warning notifications
+with open(warningFile, 'w') as warnFile:
+    if codeWarn:
+        if warnUnitsDep or warnPierceScribe or warnMatLoad or warnHoleDir or warnCompTorch or warnCompVel or warnFeed:
+            warnFile.write(warnings)
+        if warnUnitsDep:
+            msg  = '\n<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
+            msg += 'The diameter will be set in the current units of the G-Code file.\n'
+            warnings += message_set(warnUnitsDep, msg)
+            warnFile.write(message_set(warnUnitsDepOrg, msg))
+        if warnPierceScribe:
+            msg  = '\nPierce only mode is invalid while scribing.\n'
+            warnings += message_set(warnPierceScribe, msg)
+            warnFile.write(message_set(warnPierceScribeOrg, msg))
+        if warnMatLoad:
+            msg  = '\nMaterials were not reloaded in a timely manner.\n'
+            msg  = 'Try reloading the G-Code file.\n'
+            warnings += message_set(warnMatLoad, msg)
+            warnFile.write(message_set(warnMatLoadOrg, msg))
+        if warnHoleDir:
+            msg  = '\nThis cut appears to be a hole, did you mean to cut it clockwise?\n'
+            warnings += message_set(warnHoleDir, msg)
+            warnFile.write(message_set(warnHoleDirOrg, msg))
+        if warnCompTorch:
+            msg  = '\nCannot enable/disable torch with G41/G42 compensation active.\n'
+            warnings += message_set(warnCompTorch, msg)
+            warnFile.write(message_set(warnCompTorchOrg, msg))
+        if warnCompVel:
+            msg  = '\nCannot reduce velocity with G41/G42 compensation active.\n'
+            warnings += message_set(warnCompVel, msg)
+            warnFile.write(message_set(warnCompVelOrg, msg))
+        if warnFeed:
+            warnings += '\n'
+            for n in range(0, len(warnFeed)):
+                msg0 = 'Line'
+                msg1 = 'does not match Material'
+                msg2 = 'feed rate of '
+                warnings += '{} {:0.0f}: F{} {}_{}\'s {} {:0.0f}\n'.format(msg0, warnFeed[n][0], warnFeed[n][1], msg1, warnFeed[n][2], msg2, warnFeed[n][3])
+                warnFile.write('\n{} {:0.0f}: F{} {}_{}\'s {} {:0.0f}\n'.format(msg0, warnFeedOrg[n][0], warnFeedOrg[n][1], msg1, warnFeedOrg[n][2], msg2, warnFeedOrg[n][3]))
+        warnFile.close()
+        dialog_box('G-CODE WARNING', QStyle.SP_MessageBoxWarning, warnings)
 
-# error notification
-if codeError:
-    if errorMath:
-        msg  = '\nG2 and G3 moves require explicit values if hole sensing is enabled.\n'
-        errors += message_set(errorMath, msg)
-    if errorMissMat:
-        msg  = '\nThe Material selected is missing from the material file.\n'
-        errors += message_set(errorMissMat, msg)
-    if errorTempMat:
-        msg  = '\nError attempting to add a temporary material.\n'
-        errors += message_set(errorTempMat, msg)
-    if errorNewMat:
-        msg  = '\nCannot add new material, number is in use.\n'
-        errors += message_set(errorNewMat, msg)
-    if errorEditMat:
-        msg  = '\nCannot add or edit material from G-Code file with invalid parameter or value.\n'
-        errors += message_set(errorEditMat, msg)
-    if errorWriteMat:
-        msg  = '\nError attempting to write to the material file.\n'
-        errors += message_set(errorWriteMat, msg)
-    if errorReadMat:
-        msg  = '\nError attempting to read from the material file.\n'
-        errors += message_set(errorReadMat, msg)
-    if errorCompMat:
-        msg  = '\nCannot validate a material change with cutter compensation active.\n'
-        errors += message_set(errorCompMat, msg)
-    dialog_box('G-CODE ERROR', errors, Qt.AlignLeft)
-    print('M2 (end program)')
+# error notifications
+with open(errorFile, 'w') as errFile:
+    if codeError:
+        if errorMath or errorMissMat or errorTempMat or errorNewMat or errorEditMat or errorWriteMat or errorReadMat or errorCompMat:
+            warnFile.write(errors)
+        if errorMath:
+            msg  = '\nG2 and G3 moves require explicit values if hole sensing is enabled.\n'
+            errors += message_set(errorMath, msg)
+            errFile.write(message_set(errorMathOrg, msg))
+        if errorMissMat:
+            msg  = '\nThe Material selected is missing from the material file.\n'
+            errors += message_set(errorMissMat, msg)
+            errFile.write(message_set(errorMissMatOrg, msg))
+        if errorTempMat:
+            msg  = '\nError attempting to add a temporary material.\n'
+            errors += message_set(errorTempMat, msg)
+            errFile.write(message_set(errorTempMatOrg, msg))
+        if errorNewMat:
+            msg  = '\nCannot add new material, number is in use.\n'
+            errors += message_set(errorNewMat, msg)
+            errFile.write(message_set(errorNewMatOrg, msg))
+        if errorEditMat:
+            msg  = '\nCannot add or edit material from G-Code file with invalid parameter or value.\n'
+            errors += message_set(errorEditMat, msg)
+            errFile.write(message_set(errorEditMatOrg, msg))
+        if errorWriteMat:
+            msg  = '\nError attempting to write to the material file.\n'
+            errors += message_set(errorWriteMat, msg)
+            errFile.write(message_set(errorWriteMatOrg, msg))
+        if errorReadMat:
+            msg  = '\nError attempting to read from the material file.\n'
+            errors += message_set(errorReadMat, msg)
+            errFile.write(message_set(errorReadMatOrg, msg))
+        if errorCompMat:
+            msg  = '\nCannot validate a material change with cutter compensation active.\n'
+            errors += message_set(errorCompMat, msg)
+            errFile.write(message_set(errorCompMatOrg, msg))
+        errFile.close()
+        dialog_box('G-CODE ERROR', QStyle.SP_MessageBoxCritical, errors)
+        print('M2 (end program)')
 
 # output the finalised g-code
 with open(filteredBkp, 'w') as outFile:

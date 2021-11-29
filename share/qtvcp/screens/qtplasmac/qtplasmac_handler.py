@@ -1,4 +1,4 @@
-VERSION = '1.217.134'
+VERSION = '1.217.135'
 
 '''
 qtplasmac_handler.py
@@ -206,6 +206,8 @@ class HandlerClass:
         self.materialFile = '{}_material.cfg'.format(self.machineName)
         self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
         self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
+        self.gcodeWarningFile = '{}gcode_warnings.txt'.format(self.tmpPath)
+        self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
         self.materialFileDict = {}
         self.materialDict = {}
         self.materialNumList = []
@@ -1629,8 +1631,25 @@ class HandlerClass:
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != 2:
             self.w.preview_stack.setCurrentIndex(2)
             self.overlayPreview.hide()
-            self.w.gcode_editor.editor.setFocus()
             self.w.run.setEnabled(False)
+            self.w.gcode_editor.editor.setFocus()
+            self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
+            text = _translate('HandlerClass', 'EDIT')
+            self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
+            self.w.gcode_editor.editor.setModified(False)
+            try:
+                if os.path.getsize(self.gcodeWarningFile):
+                    with open(self.gcodeWarningFile, 'r') as inFile:
+                        self.dialog_gcode('G-CODE WARNING', QStyle.SP_MessageBoxWarning, inFile.read())
+            except:
+                pass
+            try:
+                if os.path.getsize(self.gcodeErrorFile):
+                    with open(self.gcodeErrorFile, 'r') as inFile:
+                        print("ERROR DIALOG")
+                        self.dialog_gcode('G-CODE ERROR', QStyle.SP_MessageBoxCritical, inFile.read())
+            except:
+                pass
             self.vkb_show()
         else:
             self.new_exitCall()
@@ -2422,6 +2441,44 @@ class HandlerClass:
         valid = input.exec_()
         out = input.textValue()
         return valid, out
+
+    def dialog_gcode(self, title, icon, text):
+        self.dlg = QDialog()
+        scroll = QScrollArea(self.dlg)
+        widget = QWidget()
+        vbox = QVBoxLayout()
+        label = QLabel()
+        vbox.addWidget(label)
+        widget.setLayout(vbox)
+        btn = QPushButton('OK', self.dlg)
+        self.dlg.setWindowTitle(title)
+        self.dlg.setWindowIcon(QIcon(self.dlg.style().standardIcon(icon)))
+        self.dlg.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.dlg.setModal(False)
+        self.dlg.setFixedWidth(600)
+        self.dlg.setFixedHeight(310)
+        self.dlg.setStyleSheet(' \
+                          QWidget {{ color: {0}; background: {1} }} \
+                          QScrollArea {{ color: {0}; background: {1}; border: 1px solid {0}; border-radius: 4px; padding: 4px }} \
+                          QPushButton {{ border: 2px solid {0}; border-radius: 4px; \
+                                         font: 12pt; width: 60px; height: 40px }} \
+                          QPushButton:pressed {{ border: 1px solid {0} }} \
+                          QScrollBar:vertical {{background: {2}; border: 0px; border-radius: 4px; margin: 0px; width: 20px }} \
+                          QScrollBar::handle:vertical {{ background: {0}; border: 2px solid {0}; border-radius: 4px; margin: 2px; min-height: 40px }} \
+                          QScrollBar::add-line:vertical {{ height: 0px }} \
+                          QScrollBar::sub-line:vertical {{ height: 0px }}'.format(self.foreColor, self.backColor, self.back1Color))
+        scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(widget)
+        scroll.setGeometry(5, 5, 590, 250)
+        btn.move(270,260)
+        btn.clicked.connect(self.dlg_ok_clicked)
+        label.setText(text)
+        self.dlg.exec()
+
+    def dlg_ok_clicked(self):
+        self.dlg.accept()
 
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
