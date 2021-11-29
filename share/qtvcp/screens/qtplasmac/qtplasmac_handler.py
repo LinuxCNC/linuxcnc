@@ -1,4 +1,4 @@
-VERSION = '1.217.133'
+VERSION = '1.217.134'
 
 '''
 qtplasmac_handler.py
@@ -399,6 +399,8 @@ class HandlerClass:
                 return
         if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
             self.file_reload_clicked()
+        elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
+            self.set_run_button_state()
         elif self.fileOpened == False:
             self.w.gcode_editor.editor.new_text()
             self.w.gcode_editor.editor.setModified(False)
@@ -1628,6 +1630,7 @@ class HandlerClass:
             self.w.preview_stack.setCurrentIndex(2)
             self.overlayPreview.hide()
             self.w.gcode_editor.editor.setFocus()
+            self.w.run.setEnabled(False)
             self.vkb_show()
         else:
             self.new_exitCall()
