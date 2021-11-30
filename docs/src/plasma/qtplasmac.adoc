@@ -633,7 +633,11 @@ HIDE_ABORT          = 1 (hide the cycle stop button)
                     (the default is don't hide if not specified)
 
 OFFSET_PROBING      = X25.21 Y8.07 0.5
-                      (X offset, Y offset, and deployment delay of probe if offset probing is required)
+                    (X offset, Y offset, and deployment delay of probe if offset probing is required)
+
+FLASH_ERROR         = 0 (status bar error message will not flash)
+                    = 1 (status bar error message will flash)
+                    (0 is the default if not specified)
 ----
 
 NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
@@ -751,11 +755,11 @@ Some functions/features are only used for particular modes and are not displayed
 |*Name*|*Description*
 |Material|The top header is clickable in this area to reveal a drop down menu. It is used to manually select the current material cut parameters. If there are no materials in the material file then only the default material will be displayed.
 |VEL:|This displays the actual cut feed rate the table is moving at.
-|FR:|If "View Material" is selected on the PARAMETERS tab, this displays the currently selected material's Feed Rate.
-|PH:|If "View Material" is selected on the PARAMETERS tab, this displays the currently selected material's Pierce Height.
-|PD:|If "View Material" is selected on the PARAMETERS tab, this displays the currently selected material's Pierce Delay.
-|CH:|If "View Material" is selected on the PARAMETERS tab, this displays the currently selected material's Cut Height.
-|CA:|If "View Material" is selected on the PARAMETERS tab, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
+|FR:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Feed Rate.
+|PH:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Pierce Height.
+|PD:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Pierce Delay.
+|CH:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Cut Height.
+|CA:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
 |P|This button changes the preview to an isometric view.
 |Z|This button changes the preview to a top down view.
 |→|This button pans the preview right.
@@ -845,7 +849,7 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 This box defaults to unfilled (disabled) when QtPlasmaC is first run. +
 This box must be filled to change it to "Torch Enabled" before material cutting can commence. +
 If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
-|VELOCITY A/DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the VAD Threshold percentage set on the PARAMETERS tab.
+|VELOCITY A/DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the VAD Threshold percentage set on the <<qt_parameters-tab, PARAMETERS Tab>>.
 |VELOCITY A/DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY A/DIVE.
 |VOID A/DIVE|0, 1|Indicates that the THC is locked due to a void being sensed.
 |VOID A/DIVE ENABLE|0, 1|This box toggles between Enabling and Disabling VOID A/DIVE.
@@ -962,11 +966,11 @@ The torch (T0) will be selected if it was not the active tool.
 
 === CONVERSATIONAL Tab
 
-Screenshot example of the QtPlasmaC CONVERSATIONAL tab in *16:9* aspect ratio:
+Screenshot example of the QtPlasmaC <<qt_conversational-tab, CONVERSATIONAL Tab>> in *16:9* aspect ratio:
 
 image::images/qtplasmac_conversational.png[width=800,align="center"]
 
-The Conversational tab enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
+The <<qt_conversational-tab, CONVERSATIONAL Tab>> enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
 
 See <<qt_shape-library, Conversational Shape Library>> for detailed information on the Conversational feature.
 
@@ -980,13 +984,13 @@ setp qtplasmac.conv_disable 1
 
 === PARAMETERS Tab
 
-Screenshot example of the QtPlasmaC PARAMETERS tab in *16:9* aspect ratio:
+Screenshot example of the QtPlasmaC <<qt_parameters-tab, PARAMETERS Tab>> in *16:9* aspect ratio:
 
 image::images/qtplasmac_parameters.png[width=800,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
-Due to space constraints, the 4x3 GUI's PARAMETERS tab will be spread across two tabs, PARAMETERS and SETTINGS.
+Due to space constraints, the 4x3 GUI's <<qt_parameters-tab, PARAMETERS Tab>> will be spread across two tabs, PARAMETERS and SETTINGS.
 
 This tab is used to display configuration parameters that are modified infrequently.
 
@@ -1196,7 +1200,7 @@ These files are not required by QtPlasmaC and are safe to delete at any time.
 
 === STATISTICS Tab
 
-The statistics tab provides statistics to allow for the tracking of consumable wear and job run times.
+The <<qt_statistics-tab, STATISTICS Tab>> provides statistics to allow for the tracking of consumable wear and job run times.
 
 These statistics are shown for the current job as well as the running total.
 
@@ -1206,7 +1210,7 @@ The total values may be reset either individually by clicking the corresponding 
 
 The *RS485 PMX STATISTICS* panel will be only be displayed if the user has Hypertherm PowerMax communications and a valid RS485 connection to the PowerMax is established. This panel will show the *ARC ON TIME* for the PowerMax in hh:mm:ss format.
 
-The *MACHINE LOG* is also displayed on the statistics tab, this log will display any errors and/or important information that occurs during the current LinuxCNC session. If the user makes a backup of the configuration from the <<qt_parameters-tab, PARAMETERS Tab>> then the machine log is also included in the backup.
+The *MACHINE LOG* is also displayed on the <<qt_statistics-tab, STATISTICS Tab>>, this log will display any errors and/or important information that occurs during the current LinuxCNC session. If the user makes a backup of the configuration from the <<qt_parameters-tab, PARAMETERS Tab>> then the machine log is also included in the backup.
 
 image::images/qtplasmac_stats.png[width=800,align="center"]
 
@@ -2027,7 +2031,7 @@ This is the preferred method. The parameters for this method are entered in the 
 image::images/qtplasmac_single_cut.png[width=300,align="center"]
 
 . Jog to the required X/Y start position. +
-. Set required appropriate material, or edit the Feed Rate for the default material in the PARAMETERS tab. +
+. Set required appropriate material, or edit the Feed Rate for the default material in the <<qt_parameters-tab, PARAMETERS Tab>>. +
 . Press the assigned single cut user button. +
 . Enter the length of the cut along the X and/or Y axes. +
 . Press the *CUT* button and the cut will commence.
@@ -2048,7 +2052,7 @@ If the machine is equipped with a pendant that can start and stop the spindle pl
 
 [underline]*Manual Single Cut*
 
-Manual single cut requires that either <<qt_keyboard-shortcuts, keyboard shortcuts>> are enabled in the GUI SETTINGS section of the PARAMETERS Tab, or a custom user button is specified as a <<qt_button-mancut, manual cut>> button.
+Manual single cut requires that either <<qt_keyboard-shortcuts, keyboard shortcuts>> are enabled in the GUI SETTINGS section of the <<qt_parameters-tab, PARAMETERS Tab>>, or a custom user button is specified as a <<qt_button-mancut, manual cut>> button.
 
 If the user is using a custom user button then substitute *F9* with *User Button* in the following description.
 
@@ -2287,7 +2291,7 @@ Below is a list of all available keyboard shortcuts in QtPlasmaC.
 
 NOTE: All keyboard shortcuts are disabled by default.
 
-In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the *PARAMETERS Tab*.
+In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 [width="100%",cols="4,16"]
 |===
@@ -2389,7 +2393,7 @@ The general functions are as follows:
 |RELOAD|Reloads the original G-Code file or a blank file if none was loaded.
 |===
 
-If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the CONVERSATIONAL Tab is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
+If there is a G-Code file loaded in LinuxCNC (QtPlasmaC) when the <<qt_conversational-tab, CONVERSATIONAL Tab>> is selected, that code will be imported into the conversational as the first shape of the job. If this code is not required then it can be removed by pressing the *NEW* button.
 
 If there is an added shape that is unsaved or unsent then it is not possible to switch tabs in the GUI. To re-enable switching tabs it is necessary to either *SAVE* the shape, *SEND* the shape, or press *NEW* to remove the shape.
 
@@ -2399,7 +2403,7 @@ NOTE: All distances are in machine units relative to the current User Coordinate
 
 === Conversational Settings
 
-Global settings for the shape library can be set by pressing the *SETTINGS* button in the CONVERSATIONAL Tab. This will display all of the available settings parameters that are used for G-Code program creation. These include:
+Global settings for the shape library can be set by pressing the *SETTINGS* button in the <<qt_conversational-tab, CONVERSATIONAL Tab>>. This will display all of the available settings parameters that are used for G-Code program creation. These include:
 
 * *Preamble*
 * *Postamble*
@@ -2537,13 +2541,31 @@ If the result is an array of shapes then the cut order of the result is from the
 
 === Conversational Saving A Job
 
-The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the user has left the CONVERSATIONAL Tab, the user may still save the G-Code file from the GUI. Alternatively, the user could click the CONVERSATIONAL Tab which will reload the job, at which time they can press the *SAVE* button.
+The current job displayed in the Preview Panel may be saved at any time by using the bottom *SAVE* button. If the G-Code has been sent to LinuxCNC (QtPlasmaC) and the user has left the <<qt_conversational-tab, CONVERSATIONAL Tab>>, the user may still save the G-Code file from the GUI. Alternatively, the user could click the <<qt_conversational-tab, CONVERSATIONAL Tab>> which will reload the job, at which time they can press the *SAVE* button.
 
 == Error Messages
 
 === Error Logging
 
-All errors are logged into the machine log which is able to be viewed in the STATISTICS tab. The log file is saved into the configuration directory when QtPlasmaC is shutdown. The five last logfiles are kept, after which the oldest logfile is deleted each time a new log file is created. These saved log files may be viewed with any text editor.
+All errors are logged into the machine log which is able to be viewed in the <<qt_statistics-tab, STATISTICS Tab>>. The log file is saved into the configuration directory when QtPlasmaC is shutdown. The five last logfiles are kept, after which the oldest logfile is deleted each time a new log file is created. These saved log files may be viewed with any text editor.
+
+=== Error Message Display
+
+By default, QtPlasmaC will display error messages via a Operator Error popup window. In addition, QtPlasmaC will alert the user that an error has been sent to the machine log by displaying the message *"ERROR SENT TO MACHINE LOG"* in the lower left portion of the status bar.
+
+The user may opt to disable the Operator Error popup window, and view the error messages by going to the <<qt_statistics-tab, STATISTICS Tab>> by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the qtplasmac.prefs file in the <machine_name> folder:
+
+----
+desktop_notify
+----
+
+NOTE: qtplasmac.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
+
+Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the [QTPLASMAC] section of the <machine_name>.ini file:
+
+----
+FLASH_ERROR = 1
+----
 
 === Critical Errors
 
@@ -2751,7 +2773,7 @@ color5 = #808080
 
 The colors may be expressed in any valid stylesheet format.
 
-The above colors are used for the following widgets. So any custom styling will need to take these into account. The colors shown below are the defaults used in QtPlasmaC along with the color name from the PARAMETERS tab.
+The above colors are used for the following widgets. So any custom styling will need to take these into account. The colors shown below are the defaults used in QtPlasmaC along with the color name from the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 [width="100%",cols="1,1,2"]
 |===
@@ -3033,7 +3055,7 @@ Note that the first "/" is not necessary as it will be added automatically.
 
 Pulse the torch on for a predetermined time. The time must be specified in seconds using up to one decimal place. The maximum allowable time is 3 seconds, anything specified above that value will be limited to 3 seconds. An example of a 0.5 second pulse is below. It there is no time specified then it will default to 1 second. Pulse times with more than one decimal place will be rounded to one decimal place.
 
-Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the PARAMETERS tab.
+Pressing the button again during the countdown will cause the torch to be turned off, as will pressing Esc if keyboard shortcuts are enabled in the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 If the button is released before the countdown is complete then the torch will turn off at countdown completion, holding the button on until after the countdown has completed will cause the torch to remain on until the button has been released.
 
@@ -3143,7 +3165,7 @@ Use the following sequence to set the offsets for a laser, camera, or scribe:
 .. place marking dye on the torch shield then jog the torch down to mark the material.
 . Raise the Z axis so the torch and peripheral are clear of the material
 . Jog the X/Y axes so that the peripheral is centered in the mark from the torch.
-. Open the PARAMETERS tab (or SETTINGS tab for 4x3 GUI).
+. Open the <<qt_parameters-tab, PARAMETERS Tab>> (or SETTINGS tab for 4x3 GUI).
 . Click the SET OFFSETS button which opens the OFFSET dialog.
 . Click the appropriate peripheral button and a confirmation dialog will open.
 . Click CONTINUE and the offsets will now be saved.

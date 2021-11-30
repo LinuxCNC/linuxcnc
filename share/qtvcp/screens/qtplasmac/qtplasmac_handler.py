@@ -1,4 +1,4 @@
-VERSION = '1.217.135'
+VERSION = '1.217.136'
 
 '''
 qtplasmac_handler.py
@@ -842,6 +842,8 @@ class HandlerClass:
         self.rflSelected = False
         self.fileOpened = False
         self.fileClear = False
+        self.flash_error = int(self.iniFile.find('QTPLASMAC', 'FLASH_ERROR') or 0)
+        self.error_present = False
         self.laserButtonState = 'laser'
         self.camButtonState = 'markedge'
         self.overlayPreview = QLabel(self.w.gcodegraphics)
@@ -1285,7 +1287,8 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
                 else:
                     msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                msgs += '{} {} {}{}\n'.format(msgList[n], msg0, msgList[n + 2], units)
+                fmt = '\n{} {} {}{}' if msgs else '{} {} {}{}'
+                msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msgs))
             self.set_run_button_state()
             if self.single_cut_request:
@@ -1863,6 +1866,7 @@ class HandlerClass:
             self.error_status(False)
 
     def error_status(self, state):
+        self.error_present = state
         if state:
             text = _translate('HandlerClass', 'ERROR SENT TO MACHINE LOG')
         else:
@@ -2660,6 +2664,11 @@ class HandlerClass:
                 self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
             else:
                 self.w.run.setText('')
+        if self.flash_error and self.error_present:
+            if self.w.error_label.text().startswith(_translate('HandlerClass', 'ERROR')):
+                self.w.error_label.setText('')
+            else:
+                self.w.error_label.setText(_translate('HandlerClass', 'ERROR SENT TO MACHINE LOG'))
         if self.startLine > 0:
             if not self.w.run.text().startswith(_translate('HandlerClass', 'RUN')):
                 if self.w.run.text() == (''):
@@ -2997,7 +3006,7 @@ class HandlerClass:
                     else:
                         head = _translate('HandlerClass', 'CODE ERROR')
                         msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}\n"'.format(head, msg0, bNum, msg1, command))
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
                         if 'button_{}'.format(str(bNum)) in self.idleHomedList:
                             self.idleHomedList.remove('button_{}'.format(str(bNum)))
                         break
@@ -3365,7 +3374,8 @@ class HandlerClass:
                         msg0 = _translate('HandlerClass', 'move would exceed the maximum limit by')
                     else:
                         msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
-                    msgs += '{} {} {}{} {}\n'.format(msgList[n], msg0, msgList[n + 2], units, msg1)
+                    fmt = '\n{} {} {}{} {}' if msgs else '{} {} {}{} {}'
+                    msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units, msg1)
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msgs))
                 self.framing = False
                 self.w.run.setEnabled(True)
