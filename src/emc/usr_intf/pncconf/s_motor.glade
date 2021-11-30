@@ -1263,7 +1263,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="sbldc_absolute_feedback">
-                                    <property name="label" translatable="yes">sbsolute Feedback</property>
+                                    <property name="label" translatable="yes">Absolute Feedback</property>
                                     <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -1627,7 +1627,7 @@
                                   <object class="GtkLabel" id="label389">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label" translatable="yes">slignment current</property>
+                                    <property name="label" translatable="yes">alignment current</property>
                                   </object>
                                   <packing>
                                     <property name="top_attach">6</property>
