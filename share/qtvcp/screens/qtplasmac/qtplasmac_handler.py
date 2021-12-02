@@ -1,4 +1,4 @@
-VERSION = '1.217.136'
+VERSION = '1.217.137'
 
 '''
 qtplasmac_handler.py
@@ -206,7 +206,7 @@ class HandlerClass:
         self.materialFile = '{}_material.cfg'.format(self.machineName)
         self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
         self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
-        self.gcodeWarningFile = '{}gcode_warnings.txt'.format(self.tmpPath)
+        self.gcodeErrorFile = '{}gcode_warnings.txt'.format(self.tmpPath)
         self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
         self.materialFileDict = {}
         self.materialDict = {}
@@ -1641,16 +1641,13 @@ class HandlerClass:
             self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
             self.w.gcode_editor.editor.setModified(False)
             try:
-                if os.path.getsize(self.gcodeWarningFile):
-                    with open(self.gcodeWarningFile, 'r') as inFile:
-                        self.dialog_gcode('G-CODE WARNING', QStyle.SP_MessageBoxWarning, inFile.read())
-            except:
-                pass
-            try:
                 if os.path.getsize(self.gcodeErrorFile):
                     with open(self.gcodeErrorFile, 'r') as inFile:
-                        print("ERROR DIALOG")
-                        self.dialog_gcode('G-CODE ERROR', QStyle.SP_MessageBoxCritical, inFile.read())
+                        self.w.gcode_editor.select_line(int(inFile.readline().rstrip()) - 1)
+                        inFile.seek(0)
+                        for line in inFile:
+                            self.w.gcode_editor.editor.userHandle = \
+                            self.w.gcode_editor.editor.markerAdd(int(line) - 1, self.w.gcode_editor.editor.USER_MARKER_NUM)
             except:
                 pass
             self.vkb_show()
