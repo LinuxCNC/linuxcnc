@@ -7,10 +7,20 @@
 = QtDragon GUI
 
 == Introduction
-QtDragon and QtDragon_hd are built with the QTVCP framework.
-Much of it is based on the excellent work of others in the LinuxCNC community.
+QtDragon and QtDragon_hd are built with the QTVCP framework. +
+It is the creative vision of forum personality Persei8. +
+Much of it is based on the excellent work of others in the LinuxCNC community. +
+linuxcnc's version is adapted from Persei8's Github versions. +
+It is primarily meant for 3/4 axes machines such as mills or routers. +
+It works well with a touchscreen and/or mouse. +
+QtDragon supports multiple ways to touch off tools and probing work pieces. +
+You can use linuxcnc's external offsets capability to automatically raise the spindle +
+during a pause.
+If you the VersaProbe option and remap code you can add auto tool length probing +
+at tool changes.
+
 [NOTE]
-QtDragon and QtVcp are new programs added into linuxcnc.
+QtDragon and QtVcp are relatively new programs added into linuxcnc.
 Bugs and oddities are possible. Please test carefully when using a 
 dangerous machine. Please forward reports to the forum or maillist.
 
