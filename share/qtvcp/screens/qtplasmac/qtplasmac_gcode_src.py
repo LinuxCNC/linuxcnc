@@ -75,8 +75,8 @@ lastX = 0
 lastY = 0
 oBurnX = 0
 oBurnY = 0
-lineEum = 0
-lineEumOrg = 0
+lineNum = 0
+lineNumOrg = 0
 distMode = 90 # absolute
 arcDistMode = 91.1 # incremental
 holeVelocity = 60
@@ -96,19 +96,11 @@ zSetup = False
 zBypass = False
 convBlock = False
 filtered = False
-codeWarn = False
-warnUnitsDep = []
-warnPierceScribe = []
-warnMatLoad = []
-warnHoleDir = []
-warnCompTorch = []
-warnCompVel = []
 notice  = 'If the g-code editor is used to resolve the following issues, the lines with errors\n'
 notice += 'will be highlighted. The line numbers may differ from what is shown below.\n\n'
-warnFeed = []
-warnings  = 'The following warnings may affect the quality of the process.\n'
-warnings += 'It is recommended that all warnings are fixed before running this file.\n'
 codeError = False
+errors  = 'The following errors will affect the process.\n'
+errors += 'Errors must be fixed before reloading this file.\n'
 errorMath = []
 errorMissMat = []
 errorTempMat = []
@@ -117,9 +109,19 @@ errorEditMat = []
 errorWriteMat = []
 errorReadMat = []
 errorCompMat = []
-errors  = 'The following errors will affect the process.\n'
-errors += 'Errors must be fixed before reloading this file.\n'
 errorLines = []
+codeWarn = False
+warnings  = 'The following warnings may affect the quality of the process.\n'
+warnings += 'It is recommended that all warnings are fixed before running this file.\n'
+warnUnitsDep = []
+warnPierceScribe = []
+warnMatLoad = []
+warnHoleDir = []
+warnCompTorch = []
+warnCompVel = []
+warnFeed = []
+warnChar = []
+
 # feedback dialog
 def dialog_box(title, icon, errorText, warningText):
     dlg = QDialog()
@@ -242,7 +244,7 @@ def check_if_hole():
 
 # get hole diameter and set velocity percentage
 def get_hole_diameter(I, J, isHole):
-    global lineEum, lineEumOrg, errorLines, holeActive, codeWarn, warnCompVel, warnHoleDir
+    global lineNum, lineNumOrg, errorLines, holeActive, codeWarn, warnCompVel, warnHoleDir
     if offsetG4x:
         diameter = math.sqrt((I ** 2) + (J ** 2)) * 2
     else:
@@ -254,43 +256,43 @@ def get_hole_diameter(I, J, isHole):
     # velocity reduction is required
     if diameter <= minDiameter and (isHole or arcEnable):
         if offsetG4x:
-            lineEum += 1
+            lineNum += 1
             gcodeList.append(';m67 e3 q0 (inactive due to g41)')
             codeWarn = True
-            warnCompVel.append(lineEum)
-            errorLines.append(lineEumOrg)
+            warnCompVel.append(lineNum)
+            errorLines.append(lineNumOrg)
         elif not holeActive:
             if diameter <= minDiameter:
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append('m67 e3 q{0} (diameter:{1:0.3f}, velocity:{0}%)'.format(holeVelocity, diameter))
             holeActive = True
         if line.startswith('g2') and isHole:
             codeWarn = True
-            warnHoleDir.append(lineEum)
-            errorLines.append(lineEumOrg)
+            warnHoleDir.append(lineNum)
+            errorLines.append(lineNumOrg)
     # no velocity reduction required
     else:
         if holeActive:
-            lineEum += 1
+            lineNum += 1
             gcodeList.append('m67 e3 q0 (arc complete, velocity 100%)')
             holeActive = False
     return diameter
 
 # turn torch off and move 4mm (0.157) past hole end
 def overburn(I, J, radius):
-    global lineEum, lineEumOrg, errorLines, lastX, lastY, torchEnable, ocLength, warnCompTorch, arcDistMode, oBurnX, oBurnY
+    global lineNum, lineNumOrg, errorLines, lastX, lastY, torchEnable, ocLength, warnCompTorch, arcDistMode, oBurnX, oBurnY
     centerX = lastX + I
     centerY = lastY + J
     cosA = math.cos(ocLength / radius)
     sinA = math.sin(ocLength / radius)
     cosB = ((lastX - centerX) / radius)
     sinB = ((lastY - centerY) / radius)
-    lineEum += 1
+    lineNum += 1
     if offsetG4x:
         gcodeList.append(';m62 p3 (inactive due to g41)')
         codeWarn = True
-        warnCompTorch.append(lineEum)
-        errorLines.append(lineEumOrg)
+        warnCompTorch.append(lineNum)
+        errorLines.append(lineNumOrg)
     else:
         gcodeList.append('m62 p3 (disable torch)')
         torchEnable = False
@@ -304,7 +306,7 @@ def overburn(I, J, radius):
         endX = centerX + radius * ((cosB * cosA) - (sinB * sinA))
         endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
         dir = '3'
-    lineEum += 1
+    lineNum += 1
     # restore I & J back to absolute from incremental conversion in check_if_hole
     if arcDistMode == 90.1:
         I += lastX
@@ -376,7 +378,7 @@ def set_last_coordinates(Xpos, Ypos):
 
 # comment out all Z commands
 def comment_out_z_commands():
-    global lineEum, holeActive
+    global lineNum, holeActive
     newline = ''
     newz = ''
     removing = 0
@@ -412,25 +414,25 @@ def comment_out_z_commands():
         else:
             newline += bit
     if holeActive:
-        lineEum += 1
+        lineNum += 1
         gcodeList.append('m67 e3 q0 (arc complete, velocity 100%)')
         holeActive = False
     return '{} {})'.format(newline, newz)
 
 # check if math used or explicit values
 def check_math(axis):
-    global lineEum, lineEumOrg, errorLines, codeError, errorMath
+    global lineNum, lineNumOrg, errorLines, codeError, errorMath
     tmp1 = line.split(axis)[1]
     if tmp1.startswith('[') or tmp1.startswith('#'):
         codeError = True
-        if lineEum not in errorMath:
-            errorMath.append(lineEum)
-            errorLines.append(lineEumOrg)
+        if lineNum not in errorMath:
+            errorMath.append(lineNum)
+            errorLines.append(lineNumOrg)
         return True
     return False
 # do material change
 def do_material_change():
-    global lineEum, lineEumOrg, errorLines, firstMaterial, codeError, errorMissMat
+    global lineNum, lineNumOrg, errorLines, firstMaterial, codeError, errorMissMat
     if '(' in line:
         c = line.split('(', 1)[0]
     elif ';' in line:
@@ -447,8 +449,8 @@ def do_material_change():
     material[1] = True
     if material[0] not in materialDict and material[0] < 1000000:
         codeError = True
-        errorMissMat.append(lineEum)
-        errorLines.append(lineEumOrg)
+        errorMissMat.append(lineNum)
+        errorLines.append(lineNumOrg)
     RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(material[0])])
     if not firstMaterial:
         firstMaterial = material[0]
@@ -456,7 +458,7 @@ def do_material_change():
 
 # check if material edit required
 def check_material_edit():
-    global lineEum, lineEumOrg, errorLines, tmpMatNum, tmpMatNam, codeError, errorNewMat, errorEditMat
+    global lineNum, lineNumOrg, errorLines, tmpMatNum, tmpMatNam, codeError, errorNewMat, errorEditMat
     tmpMaterial = False
     newMaterial = []
     th = 0
@@ -527,21 +529,21 @@ def check_material_edit():
                     write_temporary_material(newMaterial)
                 elif nu in materialDict and newMaterial[0] == 1:
                     codeError = True
-                    errorNewMat.append(lineEum)
-                    errorLines.append(lineEumOrg)
+                    errorNewMat.append(lineNum)
+                    errorLines.append(lineNumOrg)
                 else:
                     rewrite_material_file(newMaterial)
             else:
                 codeError = True
-                errorEditMat.append(lineEum)
-                errorLines.append(lineEumOrg)
+                errorEditMat.append(lineNum)
+                errorLines.append(lineNumOrg)
     except:
         codeError = True
-        errorLines.append(lineEumOrg)
+        errorLines.append(lineNumOrg)
 
 # write temporary materials file
 def write_temporary_material(data):
-    global lineEum, lineEumOrg, errorLines, errorTempMat, warnMatLoad, material, codeError
+    global lineNum, lineNumOrg, errorLines, errorTempMat, warnMatLoad, material, codeError
     try:
         with open(tmpMaterialFile, 'w') as fWrite:
             fWrite.write('#plasmac temporary material file\n')
@@ -563,8 +565,8 @@ def write_temporary_material(data):
             fWrite.write('\n')
     except:
         codeError = True
-        errorTempMat.append(lineEum)
-        errorLines.append(lineEumOrg)
+        errorTempMat.append(lineNum)
+        errorLines.append(lineNumOrg)
     materialDict[tmpMatNum] = [data[10], data[3]]
     RUN(['halcmd', 'setp', 'qtplasmac.material_temp', '{}'.format(tmpMatNum)])
     material[0] = tmpMatNum
@@ -572,8 +574,8 @@ def write_temporary_material(data):
     while 1:
         if time.time() > matDelay + 3:
             codeWarn = True
-            warnMatLoad.append(lineEum)
-            errorLines.append(lineEumOrg)
+            warnMatLoad.append(lineNum)
+            errorLines.append(lineNumOrg)
             break
         response = RUN(['halcmd', 'getp', 'qtplasmac.material_temp'], capture_output = True)
         if not int(response.stdout.decode()):
@@ -581,7 +583,7 @@ def write_temporary_material(data):
 
 # rewrite the material file
 def rewrite_material_file(newMaterial):
-    global lineEum, warnMatLoad, errorLines
+    global lineNum, warnMatLoad, errorLines
     copyFile = '{}.bkp'.format(materialFile)
     shutil.copy(materialFile, copyFile)
     inFile = open(copyFile, 'r')
@@ -617,8 +619,8 @@ def rewrite_material_file(newMaterial):
     while 1:
         if time.time() > matDelay + 3:
             codeWarn = True
-            warnMatLoad.append(lineEum)
-            errorLines.append(lineEumOrg)
+            warnMatLoad.append(lineNum)
+            errorLines.append(lineNumOrg)
             break
         response = RUN(['halcmd', 'getp', 'qtplasmac.material_reload'], capture_output = True)
         if not int(response.stdout.decode()):
@@ -626,7 +628,7 @@ def rewrite_material_file(newMaterial):
 
 # add a new material or or edit an existing material
 def add_edit_material(material, outFile):
-    global lineEum, lineEumOrg, errorLines, codeError, ErrorWriteMat
+    global lineNum, lineNumOrg, errorLines, codeError, ErrorWriteMat
     try:
         outFile.write('[MATERIAL_NUMBER_{}]\n'.format(material[1]))
         outFile.write('NAME               = {}\n'.format(material[2]))
@@ -646,12 +648,12 @@ def add_edit_material(material, outFile):
         outFile.write('\n')
     except:
         codeError = True
-        errorWriteMat.append(lineEum)
-        errorLines.append(lineEumOrg)
+        errorWriteMat.append(lineNum)
+        errorLines.append(lineNumOrg)
 
 # create a dict of material numbers and kerf widths
 def get_materials():
-    global lineEum, lineEumOrg, errorLines, materialDict, codeError, errorReadMat
+    global lineNum, lineNumOrg, errorLines, materialDict, codeError, errorReadMat
     try:
         with open(prefsFile, 'r') as rFile:
             fRate = kWidth = 0.0
@@ -684,11 +686,11 @@ def get_materials():
                     kWidth = float(line.split('=')[1].strip())
     except:
         codeError = True
-        errorReadMat.append(lineEum)
-        errorLines.append(lineEumOrg)
+        errorReadMat.append(lineNum)
+        errorLines.append(lineNumOrg)
 
 def check_f_word(line):
-    global lineEum, lineEumOrg, errorLines, materialDict, codeWarn, warnFeed
+    global lineNum, lineNumOrg, errorLines, materialDict, codeWarn, warnFeed
     begin, inFeed = line.split('f', 1)
     rawFeed = ''
     codeFeed = 0.0
@@ -707,9 +709,19 @@ def check_f_word(line):
     # warn if F word is not equal to the selected materials cut feed rate
     if codeFeed != float(materialDict[material[0]][0]):
         codeWarn = True
-        warnFeed.append([lineEum, rawFeed, material[0], materialDict[material[0]][0]])
-        errorLines.append(lineEumOrg)
+        warnFeed.append([lineNum, rawFeed, material[0], materialDict[material[0]][0]])
+        errorLines.append(lineNumOrg)
     return line
+
+# *** we need a lot more work done here ***
+def illegal_character(line):
+    global lineNum, lineNumOrg, errorLines, codeWarn, warnChar
+    if len(line) == 1 or (len(line) > 1 and line[0].isalpha() and line[1].isalpha()):
+        codeWarn = True
+        warnChar.append(lineNum)
+        errorLines.append(lineNumOrg)
+        return 1
+    return 0
 
 def message_set(msgType, msg):
     if len(msgType) > 1:
@@ -737,8 +749,8 @@ with open(inFile, 'r') as inCode:
         filtered = True
     inCode.seek(0)
     for line in inCode:
-        lineEum += 1
-        lineEumOrg += 1
+        lineNum += 1
+        lineNumOrg += 1
         # if original is already filtered there is no need to process the line
         if filtered:
             if not ';qtplasmac filtered g-code file' in line:
@@ -753,6 +765,10 @@ with open(inFile, 'r') as inCode:
                 line = line[1:].lstrip()
                 if not line:
                     break
+        # if any illegal characters comment the line
+        if illegal_character(line):
+            gcodeList.append(';{}'.format(line))
+            continue
         # check if original is a conversational block
         if line.startswith(';conversational block'):
             convBlock = True
@@ -761,14 +777,14 @@ with open(inFile, 'r') as inCode:
             check_material_edit()
             # add comment for temporary material
             if line.startswith('(o=0'):
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append(';temporay material #{}'.format(tmpMatNum))
             gcodeList.append(line)
             # add material change for temporary material
             if line.startswith('(o=0'):
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append('m190 p{}'.format(tmpMatNum))
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append('m66 p3 l3 q1')
                 tmpMatNum += 1
             continue
@@ -819,7 +835,7 @@ with open(inFile, 'r') as inCode:
             offsetTopZ = (zMaxOffset * unitsPerMm * unitMultiplier)
             moveTopZ = 'g53 g0 z[#<_ini[axis_z]max_limit> * {} - {:.3f}] (Z just below max height)'.format(unitMultiplier, offsetTopZ)
             if not '[#<_ini[axis_z]max_limit>' in line:
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append(moveTopZ)
             else:
                 line = moveTopZ
@@ -852,8 +868,8 @@ with open(inFile, 'r') as inCode:
         if line.startswith('m3$1s'):
             if pierceOnly:
                 codeWarn = True
-                warnPierceScribe.append(lineEum)
-                errorLines.append(lineEumorg)
+                warnPierceScribe.append(lineNum)
+                errorLines.append(lineNumOrg)
                 scribing = False
             else:
                 scribing = True
@@ -891,8 +907,8 @@ with open(inFile, 'r') as inCode:
         if (line.startswith('#<pierce-only>') and line.split('=')[1][0] == '1') or (not pierceOnly and cutType == 1):
             if scribing:
                 codeWarn = True
-                warnPierceScribe.append(lineEum)
-                errorLines.append(lineEumOrg)
+                warnPierceScribe.append(lineNum)
+                errorLines.append(lineNumOrg)
             else:
                 pierceOnly = True
                 pierces = 0
@@ -927,8 +943,8 @@ with open(inFile, 'r') as inCode:
             gcodeList.append(line)
             if '#<m_d' in line or '#<i_d' in line:
                 codeWarn = True
-                warnUnitsDep.append(lineEum)
-                errorLines.append(lineEumOrg)
+                warnUnitsDep.append(lineNum)
+                errorLines.append(lineNumOrg)
             continue
         # if hole velocity command
         if line.startswith('#<h_velocity>'):
@@ -947,8 +963,8 @@ with open(inFile, 'r') as inCode:
         if 'm66' in line:
             if offsetG4x:
                 codeError = True
-                errorCompMat.append(lineEum)
-                errorLines.append(lineEumOrg)
+                errorCompMat.append(lineNum)
+                errorLines.append(lineNumOrg)
             gcodeList.append(line)
             continue
         # set arc modes
@@ -1009,12 +1025,12 @@ with open(inFile, 'r') as inCode:
                 gcodeList.append(line)
                 # restore velocity if required
                 if holeActive:
-                    lineEum += 1
+                    lineNum += 1
                     gcodeList.append('m68 e3 q0 (arc complete, velocity 100%)')
                     holeActive = False
                 # if torch off, allow torch on
                 if not torchEnable:
-                    lineEum += 1
+                    lineNum += 1
                     gcodeList.append('m65 p3 (enable torch)')
                     torchEnable = True
             else:
@@ -1024,17 +1040,17 @@ with open(inFile, 'r') as inCode:
         if line.startswith('m2') or line.startswith('m30') or line.startswith('%'):
             # restore velocity if required
             if holeActive:
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append('m68 e3 q0 (arc complete, velocity 100%)')
                 holeActive = False
             # if torch off, allow torch on
             if not torchEnable:
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append('m65 p3 (enable torch)')
                 torchEnable = True
             # restore hole sensing to default
             if holeEnable:
-                lineEum += 1
+                lineNum += 1
                 gcodeList.append('#<holes>=0 (disable hole sensing)')
                 holeEnable = False
             if firstMaterial:
@@ -1046,7 +1062,7 @@ with open(inFile, 'r') as inCode:
             line = check_f_word(line)
         # restore velocity if required
         if holeActive:
-            lineEum += 1
+            lineNum += 1
             gcodeList.append('m67 e3 q0 (arc complete, velocity 100%)')
             holeActive = False
         # set last X/Y position
@@ -1121,6 +1137,9 @@ if codeError or codeWarn:
                 msg1 = 'does not match Material'
                 msg2 = 'feed rate of '
                 warnText += '{} {:0.0f}: F{} {}_{}\'s {} {:0.0f}\n'.format(msg0, warnFeed[n][0], warnFeed[n][1], msg1, warnFeed[n][2], msg2, warnFeed[n][3])
+        if warnChar:
+            msg  = 'Invalid characters, line has been commented out.\n'
+            warnText += message_set(warnChar, msg)
     dialog_box('G-CODE ERRORS & WARNINGS', QStyle.SP_MessageBoxCritical, errorText, warnText)
 # create empty error file if no errors
 else:
