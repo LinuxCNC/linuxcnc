@@ -86,8 +86,9 @@ override_dh_auto_install:
 	cp docs/html/gcode*.html $(DESTDIR)/usr/share/doc/linuxcnc/
 
 	#  Moving all language-specific .desktop files to the respective -doc-$$lang package
-	for lang in cn es fr; do \
-		d=debian/linuxcnc-doc-$$lang/usr/share/applications/ ; \
+	for lang in zh_CN es fr; do \
+		p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
+		d=debian/linuxcnc-doc-$$p/usr/share/applications/ ; \
 		mkdir -p $$d ; \
 		mv -t $$d $(DESTDIR)/usr/share/applications/*_$${lang}.desktop ; \
 	done
@@ -106,8 +107,9 @@ ifneq "$(enable_build_documentation)" ""
 	# The Spanish developer documentation goes to the spanish -doc package
 	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_Manual_es.pdf
 
-	for lang in cn es fr; do \
-		d=debian/linuxcnc-doc-$$lang/usr/share/doc/linuxcnc ; \
+	for lang in zh_CN es fr; do \
+		p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
+		d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
 		mkdir -p $$d ; \
 		find $(DESTDIR)/usr/share/doc/linuxcnc -name "*_$${lang}.pdf" | xargs -r mv -t $$d ; \
 	done
