@@ -96,6 +96,7 @@ zSetup = False
 zBypass = False
 convBlock = False
 filtered = False
+firstMove = False
 notice  = 'If the g-code editor is used to resolve the following issues, the lines with errors\n'
 notice += 'will be highlighted. The line numbers may differ from what is shown below.\n\n'
 codeError = False
@@ -109,6 +110,7 @@ errorEditMat = []
 errorWriteMat = []
 errorReadMat = []
 errorCompMat = []
+errorFirstMove = []
 errorLines = []
 codeWarn = False
 warnings  = 'The following warnings may affect the quality of the process.\n'
@@ -716,7 +718,7 @@ def check_f_word(line):
 # *** we need a lot more work done here ***
 def illegal_character(line):
     global lineNum, lineNumOrg, errorLines, codeWarn, warnChar
-    if len(line) == 1 or (len(line) > 1 and line[0].isalpha() and line[1].isalpha()):
+    if (len(line) == 1  and line[0] != ';') or (len(line) > 1 and line[0].isalpha() and line[1].isalpha()):
         codeWarn = True
         warnChar.append(lineNum)
         errorLines.append(lineNumOrg)
@@ -864,6 +866,13 @@ with open(inFile, 'r') as inCode:
         # check for g4x offset cleared
         elif 'g40' in line:
             offsetG4x = False
+        # is there an m3 before we've made a movement
+        if line[:2] in ['g0', 'g1']:
+            firstMove = True
+        if 'm3' in line and not firstMove:
+            codeError = True
+            errorFirstMove.append(lineNum)
+            errorLines.append(lineNumOrg)
         # are we scribing
         if line.startswith('m3$1s'):
             if pierceOnly:
@@ -1110,6 +1119,9 @@ if codeError or codeWarn:
         if errorCompMat:
             msg  = 'Cannot validate a material change with cutter compensation active.\n'
             errorText += message_set(errorCompMat, msg)
+        if errorFirstMove:
+            msg  = 'M3 command detected before movement.\n'
+            errorText += message_set(errorFirstMove, msg)
     if codeWarn:
         if warnUnitsDep:
             msg  = '<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
