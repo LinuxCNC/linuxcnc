@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.218
+1.219
 
 .I SUMMARY:
 .br
@@ -216,6 +216,7 @@ variable int    offset_datum;               /* datum for safe height calcs */
 variable int    offset_max;                 /* maximum allowed offset */
 variable int    offset_min;                 /* minimum allowed offset */
 variable float  offset_probe_timer;         /* offset probe deployment delay time */
+variable bool   offset_probing;             /* offset probing is enabled */
 variable int    offset_res;                 /* resolution for comparing offset move to target*/
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
@@ -677,7 +678,12 @@ FUNCTION(_) {
     }
 
     /* offset probing deployment timer*/
-    if(ohmic_probe_enable && (offset_probe_x || offset_probe_y) && (ohmic_enable || state == PIERCE_HEIGHT)){
+    if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+        offset_probing = TRUE;
+    }else{
+        offset_probing = FALSE;
+    }
+    if(offset_probing && (ohmic_enable || state == PIERCE_HEIGHT)){
         if(offset_probe_timer < offset_probe_delay){
             offset_probe_timer += fperiod;
         }
@@ -874,7 +880,7 @@ FUNCTION(_) {
                                 }
                                 cut_offset = 0;
                                 /* offset probing setup if required */
-                                if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                                if(offset_probing){
                                     op_xy_angle = atan2(-offset_probe_y, -offset_probe_x);
                                     op_x_velocity = fabs(setup_velocity * cos(op_xy_angle));
                                     op_y_velocity = fabs(setup_velocity * sin(op_xy_angle));
@@ -960,7 +966,7 @@ FUNCTION(_) {
                     break;
                 }
                 /* move probe to x/y offsets if required */
-                if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                if(offset_probing){
                     xy_offset_enable = TRUE;
                     if(x_offset_counts != op_x_target || y_offset_counts != op_y_target){
                         if(x_offset_counts != op_x_target){
@@ -1018,7 +1024,7 @@ FUNCTION(_) {
                         }
                     }else{
                         /* test if probing offset is reached */
-                        if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                        if(offset_probing){
                             if(x_offset_counts == op_x_target && y_offset_counts == op_y_target &&
                                z_offset_current - probe_start_target * offset_scale < 0.001){
                                 state = PROBE_DOWN;
@@ -1193,15 +1199,14 @@ FUNCTION(_) {
                     break;
                 }
                 /* clear x/y probe offsets if required */
-                if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
+                if(offset_probing){
                     xy_offset_enable = TRUE;
-                    if(x_offset_counts != 0){
+                    if(x_offset_counts != op_x_start){
                         x_offset_counts = offset_move(x_offset_counts, op_x_velocity, op_x_start);
                     }
-                    if(y_offset_counts != 0){
+                    if(y_offset_counts != op_y_start){
                         y_offset_counts = offset_move(y_offset_counts, op_y_velocity, op_y_start);
                     }
-
                     if(ohmic_probe_enable && offset_probe_timer < offset_probe_delay){
                         break;
                     }
@@ -1210,7 +1215,7 @@ FUNCTION(_) {
                     feed_hold = TRUE;
                     if(z_offset_counts == pierce_target){
                         if((int)(z_offset_current * offset_res) == (int)(pierce_target * offset_scale * offset_res) &&
-                           ((x_offset_counts == op_x_start && y_offset_counts == op_y_start) || !ohmic_probe_enable)){
+                           (((offset_probing && x_offset_counts == op_x_start && y_offset_counts == op_y_start)) || !offset_probing)){
                             arc_starts = 0;
                             if(probe_testing){
                                 state = PROBE_TEST;
@@ -1218,8 +1223,9 @@ FUNCTION(_) {
                                 pierce_timer = pierce_delay;
                                 state = PIERCE_DELAY;
                             }else if((tool == CUTTING || tool == SPOTTING) &&
-                                     (int)(x_offset_current * 10 * res) == 0 &&
-                                     (int)(y_offset_current * 10 * res) == 0){
+                                     (!offset_probing || (offset_probing &&
+                                     (int)(x_offset_current * offset_res) == (int)(op_x_start * offset_scale * offset_res) &&
+                                     (int)(y_offset_current * offset_res) == (int)(op_y_start * offset_scale * offset_res)))){
                                 state = TORCH_ON;
                             }
                         }
