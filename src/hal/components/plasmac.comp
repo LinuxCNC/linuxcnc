@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.219
+1.220
 
 .I SUMMARY:
 .br
@@ -1384,7 +1384,7 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 /* use feed_upm if it has a value */
                 if(feed_upm){
-                    requested_feed_rate = feed_upm;
+                    requested_feed_rate = feed_upm / adaptive_feed;
                 }else{
                     requested_feed_rate = cut_feed_rate * feed_override;
                 }
@@ -1540,7 +1540,7 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 /* use feed_upm if it has a value */
                 if(feed_upm){
-                    requested_feed_rate = feed_upm;
+                    requested_feed_rate = feed_upm / adaptive_feed;
                 }else{
                     requested_feed_rate = cut_feed_rate * feed_override;
                 }
