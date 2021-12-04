@@ -392,9 +392,16 @@ PDF_TARGETS_ZH_CN := $(addprefix $(DOC_DIR)/, \
 	LinuxCNC_Getting_Started_zh_CN.pdf \
 	)
 
-# Chinese PDFs don't build with latex, they do with xetex but that is not on stretch
-#PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_ZH_CN)
+# Chinese PDFs only build with latex, which is missing in stretch
+ifneq (, $(shell command -v xetex))
+USING_XETEX = true
+endif
+ifdef USING_XETEX
+PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_ZH_CN)
+DBLATEX_OPTS=--backend xetex
+else
 PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
+endif
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
 
@@ -406,7 +413,6 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index_fr.html \
 	$(DOC_DIR)/html/index_zh_CN.html \
 
-# Add '--backend xetex' to the --dblatex-opts string to build Chinese PDF
 A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
@@ -417,7 +423,7 @@ A2X = a2x --xsltproc-opts "--nonet \
 	  --asciidoc-opts="-f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
 	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
 			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue \
-                          $(A2X_LATEX_ENCODING)"
+                          $(A2X_LATEX_ENCODING) $(DBLATEX_OPTS)"
 
 ifeq ($(TRIVIAL_BUILD),no)
 -include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS_TXT))
@@ -489,8 +495,7 @@ $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pd
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
-# Chinese PDFs do not build. They can be persuaded to build by using xetex
-# as the a2x backend. See line 403 but even then all characters display as boxes
+# Chinese PDFs only build when xetex is available.
 $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Started_zh_CN.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
