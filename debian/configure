@@ -72,6 +72,16 @@ if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
         texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
         texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, \
         asciidoc-dblatex'
+    case $DISTRIB_NAME in
+	Debian-9)
+	    ;; # No xetex in Debian 9 Stretch
+	*)
+	    # Not quite sure which packages is needed for xetex, but
+	    # texlive-xetex seem like a safe choice.  Need xetex to be
+	    # able to build Chinese PDF.
+	    DOC_DEPENDS="$DOC_DEPENDS,texlive-xetex"
+	    ;;
+    esac
 else
     DOC_DEPENDS=''
 fi

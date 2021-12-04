@@ -13,7 +13,7 @@
    height="7.7941823mm"
    width="11.935879mm"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="linuxcnc-cn.svg">
+   sodipodi:docname="linuxcnc_zh_CN.svg">
   <sodipodi:namedview
      pagecolor="#ffffff"
      bordercolor="#666666"
@@ -66,5 +66,5 @@
        id="tspan4520"
        x="0.78543705"
        y="6.474072"
-       style="fill:#ffde00;stroke:#000000;stroke-width:0.16020092;fill-opacity:1;stroke-opacity:1;">CN</tspan></text>
+       style="fill:#ffde00;stroke:#000000;stroke-width:0.16020092;fill-opacity:1;stroke-opacity:1;">zh_CN</tspan></text>
 </svg>
