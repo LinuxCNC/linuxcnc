@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.217
+1.218
 
 .I SUMMARY:
 .br
@@ -1193,7 +1193,7 @@ FUNCTION(_) {
                     break;
                 }
                 /* clear x/y probe offsets if required */
-                if(offset_probe_x || offset_probe_y){
+                if(ohmic_probe_enable && (offset_probe_x || offset_probe_y)){
                     xy_offset_enable = TRUE;
                     if(x_offset_counts != 0){
                         x_offset_counts = offset_move(x_offset_counts, op_x_velocity, op_x_start);
@@ -1210,7 +1210,7 @@ FUNCTION(_) {
                     feed_hold = TRUE;
                     if(z_offset_counts == pierce_target){
                         if((int)(z_offset_current * offset_res) == (int)(pierce_target * offset_scale * offset_res) &&
-                           x_offset_counts == op_x_start && y_offset_counts == op_y_start){
+                           ((x_offset_counts == op_x_start && y_offset_counts == op_y_start) || !ohmic_probe_enable)){
                             arc_starts = 0;
                             if(probe_testing){
                                 state = PROBE_TEST;
