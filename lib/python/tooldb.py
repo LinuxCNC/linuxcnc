@@ -9,28 +9,33 @@ import sys
 #-----------------------------------------------------------
 DB_VERSION = 'v1.0'
 
-# Required data functions to be provided by user:
-def tooldb_callbacks(tool_getter,tool_putter):
-    global get_tool, put_tool
-    get_tool = tool_getter
-    put_tool = tool_putter
-
-def tooldb_tools(tool_list):
-    global tools
-    tools = tool_list
-
 #-----------------------------------------------------------
-# Interface functions
+# functions for import by user
+# tooldb_callbacks
+# tooldb_tools
+# tooldb_loop
+#-----------------------------------------------------------
+
 def do_reply(msg):
     sys.stdout.write("%s\n"%msg)
     sys.stdout.flush()
 
-def nak_reply(msg):
+def saveline(line):
     global theline
+    theline = line
+
+def currentline():
+    global theline
+    return theline
+
+def nak_reply(msg):
+    theline = currentline()
     sys.stdout.write("NAK %s <%s>\n"%(msg,theline))
     sys.stdout.flush()
 
 def tool_cmd(cmd,params):
+    # debug usage: return info for tool
+    # parms is toolno
     if not len(params):
         nak_reply("no toolno")
         return
@@ -49,7 +54,11 @@ def tool_cmd(cmd,params):
 
 def get_cmd(cmd,params):
     for tno in tools:
-        try: do_reply(get_tool(tno))
+        try: msg = get_tool(tno)
+        except Exception as e:
+            nak_reply( "get_cmd():%s"%str(e))
+            return
+        try: do_reply(msg)
         except:
             if (tno==0):
                 if debug: sys.stderr.write("no tool in spindle\n")
@@ -74,11 +83,13 @@ def put_cmd(cmd,params):
         sys.stderr.write("put_cmd: %s:\n"%e)
         raise Exception("put_cmd: failed to parse <%s>"%params)
 
-    put_tool(toolno,toolline)
+    try: put_tool(toolno,toolline)
+    except Exception as e:
+        nak_reply( "put_cmd():%s"%str(e))
+        return
     do_reply("FINI (update recvd) %s"%params)
 
 def unknown_cmd(cmd,params):
-    global theline
     nak_reply("unknown cmd")
     return
     
@@ -89,6 +100,7 @@ def do_cmd(line):
     cmd = linelist[0]
     params = ""
     if len(linelist) > 1:
+        # params is everything after first " ":0
         params = line.strip()[line.index(" "):].strip()
     switcher = {
                "g": get_cmd,  # get (all tools)
@@ -105,17 +117,35 @@ def startup_ack():
     if (len(sys.argv)>1 and sys.argv[1] == 'debug'): debug = 1
 
 #-----------------------------------------------------------
-global get_tool
-global tools
-theline = ""
+# Begin functions that can be imported
+
+def tooldb_callbacks(tool_getter,tool_putter):
+    """Specify callback functions"""
+    global get_tool, put_tool
+    get_tool = tool_getter
+    put_tool = tool_putter
+
+def tooldb_tools(tool_list):
+    """Specify list = available toolnumers"""
+    global tools
+    tools = tool_list
 
 def tooldb_loop():
+    """Loop forever:
+       1) send startup acknowlegment
+       2) read line from stdino
+       3) parse line
+             execute command if valid
+             nak command     if invalid
+       4) repeat
+    """
     startup_ack()
-    global theline
     while True:
         try:
-            theline=sys.stdin.readline().strip()
-            if (theline == ""): nak_reply("empty line")
-            else:               do_cmd(theline)
+            line=sys.stdin.readline().strip()
+
+            saveline(line)
+            if (line == ""): nak_reply("empty line")
+            else:            do_cmd(line)
         except Exception as e:
             nak_reply("_exception=%s"%e)
