@@ -2212,7 +2212,7 @@ proc ::ngcgui::savesection_gcmc {hdl} {
       }
     }
     lappend ::ngc($hdl,data,section) \
-          "(gcmc: Variable substitions:)"
+          "(gcmc: Variable substitutions:)"
     for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
        set num02 [format %02d $i]
        set name  $::ngc($hdl,arg,name,$num02)
