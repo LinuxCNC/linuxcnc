@@ -221,14 +221,14 @@ void AddSectionWindowInit( )
 	GtkWidget * ButtonOk;
 	GtkWidget * hbox[ 3 ];
 	GtkWidget * Lbl[ 3 ];
-	GList *LangageItems = NULL;
+	GList *LanguageItems = NULL;
 	GList *SubRoutinesNbrItems = NULL;
 	int NumSub;
 	char * ArrayNumSub[ ] = { "SR0", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8", "SR9" };
 	int Line;
-	LangageItems = g_list_append( LangageItems, _("Ladder") );
+	LanguageItems = g_list_append( LanguageItems, _("Ladder") );
 #ifdef SEQUENTIAL_SUPPORT
-	LangageItems = g_list_append( LangageItems, _("Sequential") );
+	LanguageItems = g_list_append( LanguageItems, _("Sequential") );
 #endif
 
 	SubRoutinesNbrItems = g_list_append( SubRoutinesNbrItems, _("Main") );
@@ -272,7 +272,7 @@ void AddSectionWindowInit( )
 			case 1:
 				CycleLanguage = gtk_combo_new();
 				gtk_combo_set_value_in_list(GTK_COMBO(CycleLanguage), TRUE /*val*/, FALSE /*ok_if_empty*/);
-				gtk_combo_set_popdown_strings(GTK_COMBO(CycleLanguage),LangageItems);
+				gtk_combo_set_popdown_strings(GTK_COMBO(CycleLanguage),LanguageItems);
 				gtk_box_pack_start (GTK_BOX (hbox[Line]), CycleLanguage, TRUE, TRUE, 0);
 				gtk_widget_show( CycleLanguage );
 				break;
