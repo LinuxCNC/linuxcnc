@@ -52,7 +52,11 @@ void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);
 int    tooldata_last_index_get(void);
 int    tooldata_find_index_for_tool(int toolno);
+
+// ignore_zero_values:1 for file writes
+//                   :0 for use with tooldata_db_notify()
 void   tooldata_format_toolline (int idx,
+                                 bool ignore_zero_values,
                                  CANON_TOOL_TABLE tdata,
                                  char * ttcomments[],
                                  char formatted_line[CANON_TOOL_ENTRY_LEN]

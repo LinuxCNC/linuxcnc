@@ -303,7 +303,9 @@ int tooldata_db_notify(int toolno,int pocketno,CANON_TOOL_TABLE tdata)
     notifydata          = tdata;
     notifydata.toolno   = toolno;
     notifydata.pocketno = pocketno;
-    tooldata_format_toolline(pocketno, notifydata, ttcomments, buffer);
+    tooldata_format_toolline(pocketno,
+                             0, // do not ignore_zero_values
+                             notifydata, ttcomments, buffer);
     snprintf(msg,sizeof(msg),"p %s\n",buffer);
     if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
     send_and_verify(msg);
