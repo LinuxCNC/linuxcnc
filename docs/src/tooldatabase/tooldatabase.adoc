@@ -98,14 +98,17 @@ to the *db_program* with "'p'" (put) commands.
 By default, requests for tooldata are made at startup only.  A
 database may update tool data on a continuous basis so long-lived
 LinuxCNC applications may benefit by refreshing the tool data.  A
-reload operation is typically provided by the gui but on-demand
-reloads can be done with a USER_M command. Example:
+reload operation is typically provided by the gui and on-demand
+reloads can be requested using the python interface. Example:
 
 ----
 #!/usr/bin/env python3
 from  linuxcnc import command
 command().load_tool_table()
 ----
+
+The gcode command *G10 L0* can be used to request a tooldata
+reload from within gcode programs or by MDI.
 
 ==== Debug Environmental Variables
 

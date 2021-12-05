@@ -330,6 +330,10 @@ void CHANGE_TOOL_NUMBER(int pocket) {
     if(interp_error) return;
 }
 
+void RELOAD_TOOLDATA(void) {
+    return;
+}
+
 /* XXX: This needs to be re-thought.  Sometimes feed rate is not in linear
  * units--e.g., it could be inverse time feed mode.  in that case, it's wrong
  * to convert from mm to inch here.  but the gcode time estimate gets inverse

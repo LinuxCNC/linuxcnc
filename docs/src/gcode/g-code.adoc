@@ -64,6 +64,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g5.2-g5.3,G5.2,G5.3>>      |NURBS, add control point
 |<<gcode:g7,G7>>                    |Diameter Mode (lathe)
 |<<gcode:g8,G8>>                    |Radius Mode (lathe)
+|<<gcode:g10-l0,G10 L0>>            |Reload Tool Table Data
 |<<gcode:g10-l1,G10 L1>>            |Set Tool Table Entry
 |<<gcode:g10-l10,G10 L10>>          |Set Tool Table, Calculated, Workpiece
 |<<gcode:g10-l11,G10 L11>>          |Set Tool Table, Calculated, Fixture
@@ -632,6 +633,24 @@ Radius mode the X axis moves on a lathe will be the distance from the
 center. Thus a cut at X1 would result in a part that is 2" in diameter.
 G8 is default at power up.
 
+[[gcode:g10-l0]]
+== G10 L0 Reload Tool Table Data
+(((G10 L0 Reload Tool Table Data)))
+
+----
+G10 L0
+----
+
+G10 L0 reload all tool table data.
+
+[NOTE]
+
+When using G10 L0, tool parameters (#5401-#5413) will be
+updated immediately and any altered tool diameters will be
+used for subsequent G41,42 cutter radius compensation
+commands. Existing G43 tool length compensation values will
+remain in effect until updated by new G43 commands.
+
 [[gcode:g10-l1]]
 == G10 L1 Set Tool Table
 (((G10 L1 Tool Table)))
@@ -647,7 +666,7 @@ G10 L1 P- axes <R- I- J- Q->
 
 G10 L1 sets the tool table for the 'P' tool number to the values of the words.
 
-A valid G10 L1 rewrites and reloads the tool table.
+A valid G10 L1 rewrites and reloads the tool table for the specified tool.
 
 .G10 L1 Example Line
 ----

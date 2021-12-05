@@ -3616,6 +3616,16 @@ int Interp::convert_modal_0(int code,    //!< G code, must be from group 0
   if (code == G_10) {
       if(block->l_number == 1 || block->l_number == 10 || block->l_number == 11)
           CHP(convert_setup_tool(block, settings));
+      else if (block->l_number == 0) {
+#define ALWAYS_ALLOW_RELOAD_TOOLDATA
+#ifdef  ALWAYS_ALLOW_RELOAD_TOOLDATA
+          settings->toolchange_flag = true; //refresh actual pos, sync, etc.
+#else
+          int tno = settings->tool_table[0].toolno;
+          if (tno > 0) { ERS("G10 L0 not allowed with loaded tool <%d>\n",tno); }
+#endif
+          RELOAD_TOOLDATA(); // msg to io
+      }
       else
           CHP(convert_setup(block, settings));
   } else if ((code == G_28) || (code == G_30)) {

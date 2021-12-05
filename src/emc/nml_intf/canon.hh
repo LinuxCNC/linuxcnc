@@ -586,6 +586,7 @@ number of the selected tool. */
 extern void SELECT_TOOL(int tool);
 
 extern void CHANGE_TOOL_NUMBER(int number);
+extern void RELOAD_TOOLDATA(void);
 
 /* In extension to the comment above - for CHANGE_TOOL, sometimes on 
 startup one would want to tell emc2 what tool it has loaded. As the last

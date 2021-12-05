@@ -2155,6 +2155,11 @@ void CHANGE_TOOL_NUMBER(int pocket_number)
     interp_list.append(emc_tool_set_number_msg);
 }
 
+void RELOAD_TOOLDATA(void)
+{
+    EMC_TOOL_LOAD_TOOL_TABLE load_tool_table_msg;
+    interp_list.append(load_tool_table_msg);
+}
 
 /* Misc Functions */
 
