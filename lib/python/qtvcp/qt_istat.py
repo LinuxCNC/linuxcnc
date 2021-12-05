@@ -87,6 +87,13 @@ class _IStat(object):
         self.PROGRAM_PREFIX = self.get_error_safe_setting("DISPLAY", "PROGRAM_PREFIX", '~/linuxcnc/nc_files')
         if not os.path.exists(os.path.expanduser(self.PROGRAM_PREFIX)):
             log.warning('Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section')
+
+        temp = self.INI.find("DISPLAY", "USER_COMMAND_FILE")
+        if not temp is None:
+            self.USER_COMMAND_FILE = os.path.expanduser(temp)
+        else:
+            self.USER_COMMAND_FILE = None
+
         self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
         self.STARTUP_CODES = (self.INI.find('RS274NGC', 'RS274NGC_STARTUP_CODE') ) or None
         if self.SUB_PATH is not None:
