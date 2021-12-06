@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-04 08:33+0100\n"
 "PO-Revision-Date: 2021-12-06 22:35+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
 "Language: nb_NO\n"
@@ -30,7 +30,7 @@ msgstr "brukermodus valgt"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:243
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "logo-oppføring funnet = {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:248
 msgid "**** GMOCCAPY INI Entry Error **** \n"
@@ -199,11 +199,11 @@ msgstr ""
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1241
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr ""
+msgstr "Trykk for å kjøre makro {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1248
 msgid "Press to display next macro button"
-msgstr ""
+msgstr "Trykk for å vise neste makro-knapp"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1268
 msgid "Press to display the virtual keyboard"
