@@ -8,13 +8,16 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2021-12-06 22:35+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
+"linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -26,7 +29,7 @@ msgstr ""
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr ""
+msgstr "kan ikke gjøre det (%s:%d) i manuell modus"
 
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
@@ -59,13 +62,13 @@ msgstr ""
 
 #: src/emc/task/emctaskmain.cc:2180
 msgid "failed to close file"
-msgstr ""
+msgstr "klarte ikke lukke fil"
 
 #: src/emc/task/emctaskmain.cc:2194 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr ""
+msgstr "kan ikke åpne %s"
 
 #: src/emc/task/emctaskmain.cc:2206
 msgid "Can't issue MDI command when not homed"
@@ -96,11 +99,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 kan ikke brukes med G2 eller G3 da de begge bruker P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
-msgstr ""
+msgstr "Linje med G10 mangler L1, L10, L11, L2 eller L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -6977,7 +6980,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:3213 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
-msgstr ""
+msgstr "Kontinuerlig"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1719
 msgid "T    Tool Table"
@@ -10950,6 +10953,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
