@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2021-12-06 22:35+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
 "Language: nb_NO\n"
@@ -25,6 +25,7 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
+"Kommandoen (%s) kan ikke kjøres før maskinen er fri for E-stopp og påskrudd"
 
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
