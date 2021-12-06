@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-06 12:36+0000\n"
+"PO-Revision-Date: 2021-12-06 22:35+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -25,7 +25,7 @@ msgstr ""
 
 #: gmoccapy.py:232 gmoccapy.py:237
 msgid "**** GMOCCAPY INI Entry **** \n"
-msgstr "**** GMOCCAPY INI Entry ****\n"
+msgstr "**** GMOCCAPY INI Eintrag **** \n"
 
 #: gmoccapy.py:233
 msgid "user mode selected"
@@ -38,7 +38,7 @@ msgstr "Logo Eintrag gefunden = {0}"
 
 #: gmoccapy.py:243
 msgid "**** GMOCCAPY INI Entry Error **** \n"
-msgstr "**** GMOCCAPY INI Eintrag Fehler ****\n"
+msgstr "**** GMOCCAPY INI Eintrag Fehler **** \n"
 
 #: gmoccapy.py:244
 msgid "Logofile entry found, but could not be converted to path.\n"
@@ -55,7 +55,7 @@ msgstr "Drücken um alle Achsen zu referenzieren{0}"
 
 #: gmoccapy.py:641 gmoccapy.py:891
 msgid "Press to display previous homing button"
-msgstr "Drücken um vorherige Referenzbutton anzuzeigen"
+msgstr "Drücken um vorherigen Referenzbutton anzuzeigen"
 
 #: gmoccapy.py:659
 #, python-brace-format
@@ -64,7 +64,7 @@ msgstr "Drücken um {0} {1} zu referenzieren"
 
 #: gmoccapy.py:672 gmoccapy.py:915
 msgid "Press to display next homing button"
-msgstr "Drücken um die nächsten Referenzknöpfe zu zeigen"
+msgstr "Drücken um die nächsten Referenz-Button zu zeigen"
 
 #: gmoccapy.py:687
 #, python-brace-format
@@ -84,14 +84,14 @@ msgstr "**** GMOCCAPY FEHLER ****\n"
 msgid ""
 "**** could not resolv the image path '{0}' given for macro button '{1}' ****"
 msgstr ""
-"**** Konnte den Pfad für das Bild {0} des Makro {1} nicht auflösen ****"
+"**** Konnte den Pfad für das Bild '{0}' des Makros '{1}' nicht auflösen ****"
 
 #: gmoccapy.py:880
 msgid ""
 "  edit\n"
 "offsets"
 msgstr ""
-"Offsets\n"
+"  Offsets\n"
 "bearbeiten"
 
 #: gmoccapy.py:882
@@ -113,7 +113,7 @@ msgstr ""
 
 #: gmoccapy.py:930
 msgid "Press to reset all G92 offsets"
-msgstr "Alle G92 Offsets zurück setzen"
+msgstr "Alle G92 Offsets zurücksetzen"
 
 #: gmoccapy.py:936
 msgid ""
@@ -132,12 +132,12 @@ msgid ""
 "    set\n"
 "selected"
 msgstr ""
-"gewähltes\n"
-"  setzen"
+"    gewähltes\n"
+"   setzen"
 
 #: gmoccapy.py:945
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr "Setze das gewählte Koordinatensystem als aktives"
+msgstr "Aktiviere das gewählte Koordinatensystem"
 
 #: gmoccapy.py:966 gmoccapy.py:982 gmoccapy.py:1127 gmoccapy.py:1700
 #: gmoccapy.py:1858 gmoccapy.py:1871 gmoccapy.py:1881 gmoccapy.py:1952
@@ -274,11 +274,10 @@ msgid "**** No tabs will be added! ****"
 msgstr "**** Es werden keine externe Programme eingebunden ****"
 
 #: gmoccapy.py:1715
-#, fuzzy
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
-"FEHLER : Beim Versuch die User Tabs oder Teilprogramme zu initialisieren. "
-"Bitte auf Tippfehler achten."
+"FEHLER beim Versuch, die User Tabs oder Teilprogramme zu initialisieren. "
+"Bitte auf mögliche Tippfehler kontrollieren."
 
 #: gmoccapy.py:1797
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
@@ -292,7 +291,7 @@ msgstr "**** Audio Meldungen verfügbar ****"
 
 #: gmoccapy.py:1872
 msgid "**** no audio available! ****"
-msgstr "**** Keine Audio Meldung möglich **** "
+msgstr "**** Keine Audio Meldung möglich ****"
 
 #: gmoccapy.py:1873
 msgid "**** PYGST libray not installed? ****"
@@ -505,7 +504,7 @@ msgstr "Umwandlungsfehler in btn_set_value"
 
 #: gmoccapy.py:4073
 msgid "Conversion error in btn_set_value!"
-msgstr "Umwandlungsfehler in btn_set_value"
+msgstr "Umwandlungsfehler in btn_set_value!"
 
 #: gmoccapy.py:4074
 msgid "Please enter only numerical values. Values have not been applied"
@@ -634,7 +633,7 @@ msgstr ""
 #: gmoccapy.py:4490
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr "Bitte den für die {0} Achse zu setzenden Wert eingeben"
+msgstr "Bitte den für die {0} Achse zu setzenden Wert eingeben:"
 
 #: gmoccapy.py:4491
 #, python-brace-format
@@ -672,7 +671,6 @@ msgstr ""
 "erforderlich."
 
 #: gmoccapy.py:4538
-#, fuzzy
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
@@ -696,8 +694,8 @@ msgstr ""
 #: gmoccapy.py:4990
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr ""
-"Das verfahren von Achsen ist nur im Koordinatenmodus erlaubt, Sie sind im "
-"Gemeinsam-Modus"
+"Das verfahren von Achsen ist nur im Koordinatenmodus erlaubt, doch Sie sind "
+"im Gemeinsam-Modus!"
 
 #: gmoccapy.py:5026
 #, python-brace-format
@@ -742,11 +740,11 @@ msgstr "Bitte Entsperrcode eingeben"
 
 #: dialogs.py:72
 msgid "Enter value"
-msgstr "Wert eingeben:"
+msgstr "Wert eingeben"
 
 #: dialogs.py:72
 msgid "Enter the value to set"
-msgstr "Bitte den zu setzenden Wert angeben:"
+msgstr "Bitte den zu setzenden Wert angeben"
 
 #: dialogs.py:111 dialogs.py:126 dialogs.py:140
 msgid "Operator Message"
@@ -1029,7 +1027,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Ersetze\n"
-"  Text"
+"  Text:"
 
 #: gmoccapy.glade.h:57
 msgid ""
@@ -1044,7 +1042,7 @@ msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
-" Ignoriere\n"
+"Ignoriere\n"
 "Groß/Klein"
 
 #: gmoccapy.glade.h:61
@@ -1057,7 +1055,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Suche\n"
-" Text"
+" Text:"
 
 #: gmoccapy.glade.h:64
 msgid "Main"
@@ -1491,7 +1489,7 @@ msgid ""
 "Advanced\n"
 " Settings"
 msgstr ""
-"  Erweiterte\n"
+"Erweiterte\n"
 "Einstellungen"
 
 #: gmoccapy.glade.h:176
@@ -1618,9 +1616,8 @@ msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checed!"
 msgstr ""
-"Starte das geladene Programm von einer bestimmten Zeile aus. Achtung: dies "
-"ist gefährlich, da die Zeilen die vor der Startzeile stehen nicht "
-"ausgewertet werden."
+"Starte das geladene Programm von einer bestimmten Zeile aus. Achtung, dies "
+"ist gefährlich, da die Zeilen vor der Startzeile nicht ausgewertet werden!"
 
 #: gmoccapy.glade.h:206
 msgid ""
@@ -1860,7 +1857,7 @@ msgstr "Werkzeugliste / Datei nicht gefunden"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:277
 msgid "Tooledit widget int error"
-msgstr "Tolledit widget: Initialisierungsfehler"
+msgstr "Tolledit widget Fehler bei Ganzzahl-Konvertierung"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:282
 msgid "Tooledit_widget float error"
@@ -1868,7 +1865,7 @@ msgstr "Tooledit widget: Gleitkommazahlfehler"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:319
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr "Werkzeugtabelle neu laden ist fehlgeschlagen"
+msgstr "Werkzeugtabelle konnte nicht neu geladen werden"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:479
 msgid "Tool file was modified since it was last read"
