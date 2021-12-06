@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2021-12-06 20:38+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2021-12-06 22:35+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -39,44 +39,43 @@ msgstr ""
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
-"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
-"liest"
+"kann '%s' im automatischen Modus nicht ausführen werden während der "
+"Interpreter liest"
 
 #: src/emc/task/emctaskmain.cc:1263
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
-"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
+"kann '%s' im automatischen Modus nicht ausführen während der Interpreter "
 "Pause macht"
 
 #: src/emc/task/emctaskmain.cc:1334
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
-"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
-"wartet"
+"kann '%s' im automatischen Modus nicht führen während der Interpreter wartet"
 
 #: src/emc/task/emctaskmain.cc:1455
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "%s kann im MDI-Modus nicht ausgeführt werden"
+msgstr "kann '%s:%d' im MDI-Modus nicht ausführen"
 
 #: src/emc/task/emctaskmain.cc:2126
+#, fuzzy
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
 "Modus kann nicht gewechselt werden, solange er auf AUTO ist und der "
-"Interpreter stillsteht"
+"Interpreter nicht stillsteht"
 
 #: src/emc/task/emctaskmain.cc:2179
-#, fuzzy
 msgid "failed to close file"
-msgstr "Datei kann nicht geöffnet werden"
+msgstr "Datei kann nicht geschlossen werden"
 
 #: src/emc/task/emctaskmain.cc:2193 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr "%s kann nicht geöffnet werden"
+msgstr "'%s' kann nicht geöffnet werden"
 
 #: src/emc/task/emctaskmain.cc:2205
 msgid "Can't issue MDI command when not homed"
@@ -113,94 +112,103 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 is nicht zulässig mit G2 oder G3 denn beide nutzen P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 #, fuzzy
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
-msgstr "Zeile mit G10 enthält kein L2"
+msgstr "Zeile mit G10 enthält kein L1, L2, L10, L11 oder L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr ""
+msgstr "P Wert nicht ganzzahlig bei G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
-#, fuzzy, c-format
+#, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr "P-Wert ausserhalb des gültigen Bereichs bei G10 L2"
+msgstr "P-Wert ausserhalb des gültigen Bereichs (0-9) bei G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
-#, fuzzy, c-format
+#, c-format
 msgid "P value out of range with G10 L%d"
-msgstr "P-Wert ausserhalb des gültigen Bereichs bei G10 L2"
+msgstr "P-Wert außerhalb des gültigen Bereichs bei G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
+#, fuzzy
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr ""
+"Zwischen G5.2 und G5.3 Codes sind ausschließlich weitere G5.2 Codes "
+"gestattet."
 
 #: src/emc/rs274ngc/interp_check.cc:260
 #, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "E-Wort ohne zugehörige Angabe von G76 oder M66"
+msgstr ""
+"D-Wort ohne zugehörige Angabe von G41, G41.1, G42, G42.1, G71, G71.1, G71.2 "
+"oder G96"
 
 #: src/emc/rs274ngc/interp_check.cc:269
-#, fuzzy
 msgid ""
 "$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
 "use it"
-msgstr "E-Wort ohne zugehörige Angabe von G76 oder M66"
+msgstr ""
+"$ (spindle selection)-Wort ohne zugehörige Angabe von G41, G41.1, G42, "
+"G42.1, G76 G95 oder G96"
 
 #: src/emc/rs274ngc/interp_check.cc:277
-#, fuzzy
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
-msgstr "E-Wort ohne zugehörige Angabe von G76 oder M66"
+msgstr ""
+"E-Wort ohne zugehörige Angabe von G76, M3, M4, M5, M19, M51, M66, M67 oder "
+"M68"
 
 #: src/emc/rs274ngc/interp_check.cc:282
-#, fuzzy
 msgid "H word with no G43 or G76 to use it"
-msgstr "E-Wort ohne zugehörige Angabe von G76 oder M66"
+msgstr "H-Wort ohne zugehörige Angabe von G43 oder G76"
 
 #: src/emc/rs274ngc/interp_check.cc:290
-#, fuzzy
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
-"K-Wort ohne zugehörige Angabe von G2, G3, G33, G33.1, G76, G87, oder G43.1"
+"I-Wort ohne zugehörige Angabe von G2, G3, G5, G5.1, G10, G33.1, G76 oder G87"
 
 #: src/emc/rs274ngc/interp_check.cc:296
-#, fuzzy
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
-msgstr "J-Wörters ohne zugehörige Angabe von G2, G3 oder G87"
+msgstr "J-Wort ohne zugehörige Angabe von G2, G3, G5, G5.1, G10, G76 oder G87"
 
 #: src/emc/rs274ngc/interp_check.cc:302
-#, fuzzy
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
-msgstr ""
-"K-Wort ohne zugehörige Angabe von G2, G3, G33, G33.1, G76, G87, oder G43.1"
+msgstr "K-Wort ohne zugehörige Angabe von G2, G3, G33, G33.1, G76 oder G87"
 
 #: src/emc/rs274ngc/interp_check.cc:314
+#, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
+"I-Wort ohne G10, cutter Kompensierung, canned cycle, digital/analoger Input, "
+"M98 oder NURBS Code"
 
 #: src/emc/rs274ngc/interp_check.cc:330
+#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
+"P-Wort ohne G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 oder M50 M51 M52 "
+"M53 M62 M63 M64 M65 M66 M98 oder eines M Codes des Anwenders"
 
 #: src/emc/rs274ngc/interp_check.cc:336
+#, fuzzy
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "P-Wert bei Verwendung von M19 G2 oder G3 ist keine Ganzzahl"
+msgstr "P-Wert ist nicht ganzzahlig bei M19, G2 oder G3"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "P-Wert muss eine 0, 1 oder 2 sein bei M19"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value should be 1 or greater with G2 or G3"
-msgstr ""
+msgstr "P-Wert sollte 1 oder gräßer sein bei G2 oder G3"
 
 #: src/emc/rs274ngc/interp_check.cc:351
 msgid ""
@@ -1899,7 +1907,7 @@ msgstr "FEHLER: Kein Pin-, Signal- oder Parameter-Name mit -s\n"
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
-msgstr "HAL-Meter"
+msgstr "Hal Meter"
 
 #: src/hal/utils/meter.c:292
 msgid "_Select"
@@ -11490,6 +11498,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18284,7 +18293,7 @@ msgstr "Anwender Nachricht"
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 #: src/emc/usr_intf/gscreen/gscreen.py:3781
 msgid "Restart Entry"
-msgstr "Eingabe Neustart"
+msgstr "Neustart Eingabe"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 msgid "Up"
@@ -18528,16 +18537,16 @@ msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
-"Such-\n"
-"Text"
+"Suche\n"
+" Text:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
 msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
-"Ersetzen\n"
-"  mit:"
+"Ersetze\n"
+"  Text:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
 msgid ""
@@ -18552,8 +18561,8 @@ msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
-"Groß-/Klein\n"
-"ignorieren"
+"Ignoriere\n"
+"Groß/Klein"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 msgid "<b>Mode</b>"
@@ -19047,7 +19056,7 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:112
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Springe ins Home Verzeichnis"
 
 #: lib/python/gladevcp/iconview.py:120
 #, fuzzy
@@ -19060,9 +19069,8 @@ msgid "Select the previous file"
 msgstr "Element zum Anzeigen auswählen"
 
 #: lib/python/gladevcp/iconview.py:136
-#, fuzzy
 msgid "Select the next file"
-msgstr "Element zum Anzeigen auswählen"
+msgstr "Wähle die nächste Datei"
 
 #: lib/python/gladevcp/iconview.py:160
 msgid "Jump to user defined directory"
@@ -19112,16 +19120,15 @@ msgstr "Werkzeugdatei ist »%s«"
 
 #: lib/python/gladevcp/tooledit_widget.py:278
 msgid "Tooledit widget int error"
-msgstr ""
+msgstr "Tolledit widget Fehler bei Ganzzahl-Konvertierung"
 
 #: lib/python/gladevcp/tooledit_widget.py:283
 msgid "Tooledit_widget float error"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:320
-#, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr "We_rkzeugtabelle neu laden"
+msgstr "Werkzeugtabelle konnte nicht neu geladen werden"
 
 #: lib/python/gladevcp/tooledit_widget.py:480
 #, fuzzy
@@ -19175,7 +19182,7 @@ msgstr "Schwarz"
 #: lib/python/gladevcp/offsetpage.glade:57
 #: lib/python/gladevcp/offsetpage.glade:71
 msgid "G5x"
-msgstr ""
+msgstr "G5x"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
@@ -19188,14 +19195,13 @@ msgstr "XY-Drehung:"
 
 #: lib/python/gladevcp/offsetpage.glade:91
 #: lib/python/gladevcp/offsetpage.glade:105
-#, fuzzy
 msgid "G92"
-msgstr "_G92"
+msgstr "G92"
 
 #: lib/python/gladevcp/offsetpage.glade:125
 #: lib/python/gladevcp/offsetpage.glade:139
 msgid "G55"
-msgstr ""
+msgstr "G55"
 
 #: lib/python/gladevcp/offsetpage.glade:142
 #: lib/python/gladevcp/offsetpage.glade:156
@@ -19205,7 +19211,7 @@ msgstr ""
 #: lib/python/gladevcp/offsetpage.glade:159
 #: lib/python/gladevcp/offsetpage.glade:173
 msgid "G57"
-msgstr ""
+msgstr "G57"
 
 #: lib/python/gladevcp/offsetpage.glade:176
 #: lib/python/gladevcp/offsetpage.glade:190
@@ -19236,9 +19242,8 @@ msgid "G59.3"
 msgstr "P9  G59._3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
-#, fuzzy
 msgid "Offset"
-msgstr "Werkzeugoffset:"
+msgstr "Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
 #, fuzzy
@@ -19262,9 +19267,8 @@ msgstr "Horizontal"
 #: lib/python/gladevcp/tooledit_gtk.glade:80
 #: lib/python/gladevcp/tooledit_gtk.glade:391
 #: lib/python/gladevcp/tooledit_gtk.glade:613
-#, fuzzy
 msgid "Select"
-msgstr "_Auswahl ändern"
+msgstr "auswählen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
@@ -19321,7 +19325,7 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:446
 msgid "Z Wear"
-msgstr ""
+msgstr "Z Verschleiß"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
@@ -19335,9 +19339,8 @@ msgid "Lathe Wear Offsets"
 msgstr "Arbeitsoffset:"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
-#, fuzzy
 msgid "X Tool"
-msgstr "Werkzeug:"
+msgstr "X Werkzeug"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:668
 #, fuzzy
