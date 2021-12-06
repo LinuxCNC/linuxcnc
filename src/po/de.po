@@ -3,15 +3,16 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2020-02-09 13:45+0200\n"
-"Last-Translator: Benjamin Weis <benjamin.weis@gmx.com>\n"
-"Language-Team: German Translation Team <emc-developers@lists.sourceforge>\n"
+"PO-Revision-Date: 2021-12-06 20:38+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
+"de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 0.5\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/emc/task/emctaskmain.cc:870
 #, c-format
@@ -19,7 +20,7 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"%s kann nicht ausgeführt werden, solange der Notaus  aktiv ist und die "
+"%s kann nicht ausgeführt werden, solange der Notaus aktiv ist und die "
 "Maschine nicht eingeschaltet ist"
 
 #: src/emc/task/emctaskmain.cc:1000
@@ -11487,7 +11488,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2124
 #: src/emc/usr_intf/pncconf/dialogs.glade:2438
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
