@@ -730,7 +730,7 @@ show_counts::
     Set this to False, if you want to hide the counts display in the middle of the widget. +
     default = True
 label::
-    Set the content of the label witch may be shown over the counts value. +
+    Set the content of the label which may be shown over the counts value. +
     If the label given is longer than 15 Characters, it will be cut to 15 Characters. +
     default = blank
 center_color::
@@ -827,7 +827,7 @@ cpr::
 show_counts::
     Set this to False, if you want to hide the counts display in the middle of the widget.
 label::
-    Set the content of the label witch may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
+    Set the content of the label which may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
 
 
 Direct program control::
@@ -855,7 +855,7 @@ image::images/JogWheel.png[]
 
 SpeedControl is a widget specially made to control an adjustment 
 with a touch screen. It is a replacement to the normal scale widget
-witch is difficult to slide on a touch screen.
+which is difficult to slide on a touch screen.
 
 The value is controlled with two button to increase or decrease the value. 
 The Increment will change as long a button is pressed. The value of each increment 
@@ -1591,7 +1591,7 @@ The widget will emit the following signals:
                           G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3
                           or Rel if non has been selected at all, what will only happen in Glade with no linuxcnc running
 
-There are some information you can get through commands, witch may be of interest for you:
+There are some information you can get through commands, which may be of interest for you:
 
     [widget name].system
         The actual system, as mentioned in the system_changed signal
@@ -1629,7 +1629,7 @@ start_dir::
     default is "/"
 
 jump_to_dir::
-    Sets the directory "jump to" directory,  witch is selected by the corresponding
+    Sets the directory "jump to" directory,  which is selected by the corresponding
     button in the bottom button list, the 5th button counting from the left, +
     must be a string, containing a valid directory path, +
     default is "~"
