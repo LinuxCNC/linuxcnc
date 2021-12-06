@@ -149,8 +149,48 @@ QTVCP will look for a folder name MYNAME (in the launched configuration folder t
 In that folder QTVCP will load any of the available files; MYNAME.ui, MYNAME_handler.py and MYNAME.qss. +
 
 === Modifying Stock Screens
+Ther are three ways to customize a screen/panel. +
 
-If you wish to modify a stock screen, copy it's UI and handler file to your configuration folder. +
+.Minor StyleSheet changes: +
+StyleSheets can be used to set Qt properties. +
+If a widget uses properties they usually can be modified by stylesheets. +
+ie: +
+----
+State_LED #name_0f_led{
+qproperty-color: red;
+qproperty-diameter: 20;
+qproperty-flashRate: 150;
+}
+----
+
+.Minor python code changes: +
+A file can be added to add commands to the screen, after the handlerfile is parsed. +
+In the INI file under the [DISPLAY] heading add USER_COMMAND_FILE = _PATH_ +
+_PATH_ can be any valid path, it can use '~' for home directory or 'WORKINGDIRECTORY' or +
+'CONFIGDIRECTORY' to represent Qtvcp's idea of those directories. +
+ie: +
+----
+[DISPLAY]
+USER_COMMAND_FILE = CONFIGDIRECTORY/qtdragon_added_commands
+----
+If no entry is found in the INI, Qtvcp will look in the default path. +
+The default path is in the configuration directory as a hidden file using the screen basename and rc. +
+ie: CONFIGDIRECTORY/.qtdragonrc
+
+This file will be read and executed as python code in context of the handler file. +
+Only local functions and local attributes can be referenced. +
+Global libraries can not be referenced. (usual seen as all capital words with no preceding self.) +
+What can be used can vary by screen and development cycle. +
+
+valid example: +
+[source,python]
+----
+self.w.setWindowTitle('My Title Test')
+----
+
+
+.Full creative control:
+If you wish to modify a stock screen with full control, copy it's UI and handler file to your configuration folder. +
 There is a QtVCP panel to help with this. +
 Open a terminal and type 'qtvcp copy_dialog' and a dialog will show to select the screen and +
 destination folder. This will copy all the file - delete the ones you don't wish to modify so +
