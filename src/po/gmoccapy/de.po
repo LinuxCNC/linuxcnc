@@ -9,17 +9,19 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-05-14 10:24+0200\n"
-"Last-Translator: Norbert Schechner <gmoccapy@web.de>\n"
-"Language-Team: N. Schechner <gmoccapy@web.de>\n"
+"PO-Revision-Date: 2021-12-06 12:36+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
+"de/>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Gtranslator 2.91.7\n"
 
 #: gmoccapy.py:232 gmoccapy.py:237
 msgid "**** GMOCCAPY INI Entry **** \n"
@@ -118,7 +120,7 @@ msgid ""
 " Block\n"
 "Height"
 msgstr ""
-"Werkst.\n"
+" Werkst.\n"
 " Höhe"
 
 #: gmoccapy.py:938
@@ -260,7 +262,7 @@ msgstr "mm/min"
 
 #: gmoccapy.py:1676 gmoccapy.py:2710
 msgid "inch/min"
-msgstr "inch/min"
+msgstr "Zoll/min"
 
 #: gmoccapy.py:1701
 msgid "**** Invalid embedded tab configuration ****"
@@ -272,10 +274,11 @@ msgid "**** No tabs will be added! ****"
 msgstr "**** Es werden keine externe Programme eingebunden ****"
 
 #: gmoccapy.py:1715
+#, fuzzy
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "FEHLER : Beim Versuch die User Tabs oder Teilprogramme zu initialisieren. "
-"Bitte auf Rechtschreibfehler achten."
+"Bitte auf Tippfehler achten."
 
 #: gmoccapy.py:1797
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
@@ -333,7 +336,7 @@ msgstr "**** GMOCCAPY FEHLER ****"
 
 #: gmoccapy.py:1975
 msgid "**** Error with launching virtual keyboard,"
-msgstr "**** Fehler beim Aktivieren der virtuellen Bildschirmtastatur."
+msgstr "**** Fehler beim Aktivieren der Bildschirmtastatur,"
 
 #: gmoccapy.py:1976
 msgid "**** is onboard or matchbox-keyboard installed? ****"
@@ -350,7 +353,7 @@ msgstr ""
 
 #: gmoccapy.py:2108
 msgid "Select the file you want to be loaded at program start"
-msgstr "Bitte die Datei auswählen, die zum Start geladen werden soll."
+msgstr "Bitte die Datei auswählen, die zum Start geladen werden soll"
 
 #: gmoccapy.py:2142 gmoccapy.py:2166
 #, python-brace-format
@@ -408,7 +411,7 @@ msgstr "Dieser Knopf wird das Keyboard anzeigen oder verbergen"
 
 #: gmoccapy.py:2937
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr "Moduswechsel ist nur bei inaktivem Interpreter möglich"
+msgstr "Moduswechsel ist nur bei inaktivem Interpreter möglich!"
 
 #: gmoccapy.py:3152
 #, python-brace-format
@@ -427,7 +430,7 @@ msgstr "Keine Werkzeugbeschreibung verfügbar"
 #: gmoccapy.py:3465
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr "Hallo, dies ist die {0}. Testnachricht."
+msgstr "Hallo, willkommen zur Testnachricht {0}"
 
 #: gmoccapy.py:3561
 msgid "Hal Pin is low, Access denied"
@@ -543,7 +546,7 @@ msgstr ""
 
 #: gmoccapy.py:4418
 msgid "Please remove the mounted tool and press OK when done"
-msgstr "Bitte das Werkzeug entnehmen und dann OK klicken."
+msgstr "Bitte das Werkzeug entnehmen und dann OK klicken"
 
 #: gmoccapy.py:4421
 #, python-brace-format
@@ -558,7 +561,7 @@ msgstr ""
 "\n"
 "# {0:d}     {1}\n"
 "\n"
-"ein und klicken dann auf OK"
+"ein und klicken dann auf OK."
 
 #: gmoccapy.py:4422
 msgid "Manual Tool change"
@@ -584,7 +587,7 @@ msgstr ""
 
 #: gmoccapy.py:4442
 msgid "Warning Tool can not be deleted!"
-msgstr "Warnung: Werkzeug kann nicht gelöscht werden"
+msgstr "Warnung: Werkzeug kann nicht gelöscht werden!"
 
 #: gmoccapy.py:4461
 msgid "No or more than one tool selected in tool table"
@@ -596,15 +599,15 @@ msgstr "Bitte nur ein Werkzeug auswählen"
 
 #: gmoccapy.py:4463 gmoccapy.py:4469 gmoccapy.py:4477
 msgid "Warning Tool Touch off not possible!"
-msgstr "Warnung: Werkzeug Antastung nicht möglich"
+msgstr "Warnung: Werkzeug Antastung nicht möglich!"
 
 #: gmoccapy.py:4467
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
-msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist!"
+msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist"
 
 #: gmoccapy.py:4468
 msgid "your selection has been reseted to the tool in spindle"
-msgstr "Ihre Auswahl wurde zurück gesetzt auf das Werkzeug in der Spindel."
+msgstr "Ihre Auswahl wurde zurückgesetzt auf das Werkzeug in der Spindel"
 
 #: gmoccapy.py:4475
 msgid ""
@@ -615,7 +618,7 @@ msgstr ""
 
 #: gmoccapy.py:4476
 msgid "Please emit an G40 before tool touch off"
-msgstr "Bitte G40 vor dem Antasten setzen "
+msgstr "Bitte G40 vor dem Antasten setzen"
 
 #: gmoccapy.py:4485
 msgid "Real big error!"
@@ -647,7 +650,7 @@ msgstr ""
 
 #: gmoccapy.py:4514
 msgid "Enter the tool number as integer "
-msgstr "Bitte die Werkzeugnummer eingeben"
+msgstr "Bitte die Werkzeugnummer eingeben "
 
 #: gmoccapy.py:4515
 msgid "Select the tool to change"
@@ -669,6 +672,7 @@ msgstr ""
 "erforderlich."
 
 #: gmoccapy.py:4538
+#, fuzzy
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr ""
