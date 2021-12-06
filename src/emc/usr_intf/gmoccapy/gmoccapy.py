@@ -4594,7 +4594,7 @@ class gmoccapy(object):
                 command = "M61 Q{0}".format(tool)
             self.command.mdi(command)
         else:
-            message = _("Could not understand the entered tool number. Will not change anything")
+            message = _("Could not understand the entered tool number. Will not change anything!")
             self.dialogs.warning_dialog(self, _("Important Warning!"), message)
 
 # =========================================================
