@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-04 08:33+0100\n"
-"PO-Revision-Date: 2021-12-07 07:52+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2021-12-09 03:53+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
 "Language: nb_NO\n"
@@ -830,15 +830,15 @@ msgstr "vis perspektiv"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:13
 msgid "view along the X axis from positive to negative"
-msgstr ""
+msgstr "se langs X-aksen fra positiv mot negativ"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:14
 msgid "view along the Y axis from positive to negative"
-msgstr ""
+msgstr "se langs Y-aksen fra positiv mot negativ"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:15
 msgid "view along the Z axis from positive to negative"
-msgstr ""
+msgstr "se langs Z-aksen fra positiv mot negativ"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:16
 msgid "Show or hide tool path"
@@ -884,7 +884,7 @@ msgstr "Logo"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "Ignore limits"
-msgstr ""
+msgstr "ignorer grenser"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "<b>Jogging</b>"
@@ -896,7 +896,7 @@ msgstr "Viser koden å kjøre"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "Information over the tool in spindle"
-msgstr ""
+msgstr "informasjon om verktøyet i spindel"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Tool no."
