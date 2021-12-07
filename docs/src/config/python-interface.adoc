@@ -119,6 +119,9 @@ V=128, W=256.
 *block_delete*:: '(returns boolean)' -
 block delete current status.
 
+*call_level*:: '(returns integer)'` -
+current subroutine depth. - 0 If not in a subroutine, Depth if not otherwise specified
+
 *command*:: '(returns string)' -
 currently executing command.
 
