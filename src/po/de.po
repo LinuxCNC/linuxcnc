@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2021-12-06 22:35+0000\n"
+"PO-Revision-Date: 2021-12-09 03:52+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -24,9 +24,9 @@ msgstr ""
 "Maschine nicht eingeschaltet ist"
 
 #: src/emc/task/emctaskmain.cc:1000
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "%s kann im manuellen Modus nicht ausgeführt werden"
+msgstr "(%s:%d) kann im manuellen Modus nicht ausgeführt werden"
 
 #: src/emc/task/emctaskmain.cc:1107
 #, c-format
@@ -61,11 +61,8 @@ msgid "can't do that (%s:%d) in MDI mode"
 msgstr "kann '%s:%d' im MDI-Modus nicht ausführen"
 
 #: src/emc/task/emctaskmain.cc:2126
-#, fuzzy
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
-msgstr ""
-"Modus kann nicht gewechselt werden, solange er auf AUTO ist und der "
-"Interpreter nicht stillsteht"
+msgstr "Kann AUTO-Modus nicht wechseln solange der Interpreter nicht stillsteht"
 
 #: src/emc/task/emctaskmain.cc:2179
 msgid "failed to close file"
@@ -883,45 +880,44 @@ msgstr "Fehlende linke Klammer nach Schrägstrich bei atan"
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: src/emc/rs274ngc/interp_read.cc:1852
-#, fuzzy
 msgid "Left bracket missing after 'elseif'"
-msgstr "Fehlende linke Klammer nach Schrägstrich bei atan"
+msgstr "Fehlende linke Klammer nach 'elseif'"
 
 #: src/emc/rs274ngc/interp_read.cc:2056
-#, fuzzy
 msgid "Cannot read current position with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr "Kann aktuelle Position nicht bei aktiver Werkzeugradiuskorrektur lesen"
 
 #: src/emc/rs274ngc/interp_read.cc:2071
 msgid "Expected # reading parameter"
-msgstr ""
+msgstr "Erwartete # beim Lesen des Parameters"
 
 #: src/emc/rs274ngc/interp_read.cc:2073
 msgid "Expected ] reading bracketed parameter"
-msgstr ""
+msgstr "Erwartete ] beim lesen eines Parameters in Klammern"
 
 #: src/emc/rs274ngc/interp_read.cc:2745
 #, c-format
 msgid "bad number format (conversion failed) parsing '%s'"
-msgstr ""
+msgstr "Konnte keine Zahl erkennen in '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:2746
 #, c-format
 msgid "bad number format (trailing characters) parsing '%s'"
-msgstr ""
+msgstr "Die in '%s' erwartete Zahl endet mit Leerzeichen"
 
 #: src/emc/rs274ngc/interp_read.cc:2836
 msgid "Calculation resulted in 'not a number'"
-msgstr ""
+msgstr "Berechnungsfehler"
 
 #: src/emc/rs274ngc/interp_read.cc:2838
 msgid "Calculation resulted in 'infinity'"
-msgstr ""
+msgstr "Berechnung ergab 'unendlich'"
 
 #: src/emc/rs274ngc/interp_read.cc:3131
 #, c-format
 msgid "EOF in file:%s seeking o-word: o<%s> from line: %d"
 msgstr ""
+"Plötzliches Dateiende in Datei:%s das o-word: o<%s> suchend nach Zeile: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3243
 msgid "Multiple U words on one line"
@@ -936,9 +932,9 @@ msgid "Multiple W words on one line"
 msgstr "Mehrere W-Wörter in einem Satz"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
-#, c-format
+#, c-format, fuzzy
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr ""
+msgstr "Datei: %s Zeile: %d sub: o|%s| gefunden in ungültiger Lage"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
@@ -18960,7 +18956,9 @@ msgstr "Suchpfad"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3550
 msgid "Undo"
-msgstr "Rückgängig"
+msgstr ""
+"Rück-\n"
+"gängig"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
@@ -19091,7 +19089,7 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage_widget.py:342
 msgid "offsetpage widget error: unrecognized float input"
-msgstr ""
+msgstr "offsetpage widget Fehler: erkenne Gleitkommazahl nicht"
 
 #: lib/python/gladevcp/offsetpage_widget.py:379
 msgid "offsetpage widget error: MDI call error"
@@ -19120,7 +19118,7 @@ msgstr "Werkzeugdatei ist »%s«"
 
 #: lib/python/gladevcp/tooledit_widget.py:278
 msgid "Tooledit widget int error"
-msgstr "Tolledit widget Fehler bei Ganzzahl-Konvertierung"
+msgstr "Tolledit Fehler bei Ganzzahl-Konvertierung"
 
 #: lib/python/gladevcp/tooledit_widget.py:283
 msgid "Tooledit_widget float error"
@@ -19186,7 +19184,7 @@ msgstr "G5x"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
-msgstr ""
+msgstr "Rot"
 
 #: lib/python/gladevcp/offsetpage.glade:88
 #, fuzzy
@@ -19268,14 +19266,13 @@ msgstr "Horizontal"
 #: lib/python/gladevcp/tooledit_gtk.glade:391
 #: lib/python/gladevcp/tooledit_gtk.glade:613
 msgid "Select"
-msgstr "auswählen"
+msgstr "Auswählen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
 #: lib/python/gladevcp/tooledit_gtk.glade:624
-#, fuzzy
 msgid "Tool#"
-msgstr "Werkzeug:"
+msgstr "Werkzeug-Nr."
 
 #: lib/python/gladevcp/tooledit_gtk.glade:109
 #: lib/python/gladevcp/tooledit_gtk.glade:413
@@ -19284,9 +19281,8 @@ msgid "Pocket"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:222
-#, fuzzy
 msgid "Diameter"
-msgstr "Durchmesser:"
+msgstr "Durchmesser"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
