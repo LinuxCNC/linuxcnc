@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-06 22:35+0000\n"
+"PO-Revision-Date: 2021-12-09 03:53+0000\n"
 "Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -3069,7 +3069,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
-msgstr ""
+msgstr "Forhåndsvis"
 
 #: src/hal/classicladder/classicladder_gtk.c:888
 msgid "Print"
@@ -3503,7 +3503,7 @@ msgstr ""
 #: src/hal/classicladder/edit_gtk.c:350
 #: lib/python/gladevcp/tooledit_gtk.glade:310
 msgid "Add"
-msgstr ""
+msgstr "Legg til"
 
 #: src/hal/classicladder/edit_gtk.c:355
 msgid "Insert"
@@ -3715,7 +3715,7 @@ msgstr ""
 #: src/hal/classicladder/editproperties_gtk.c:213
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
-msgstr ""
+msgstr "Bruk"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
@@ -4542,7 +4542,7 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:140 tcl/tklinuxcnc.tcl:775
 msgid "Settings"
-msgstr ""
+msgstr "Innstillinger"
 
 #: tcl/bin/genedit.tcl:141
 msgid "No Numbering"
@@ -5383,11 +5383,11 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1954 tcl/ngcgui_ttt.tcl:284
 msgid "Font"
-msgstr ""
+msgstr "Skrift"
 
 #: tcl/tklinuxcnc.tcl:1961
 msgid "Size"
-msgstr ""
+msgstr "Størrelse"
 
 #: tcl/tklinuxcnc.tcl:1968
 msgid "Style"
@@ -6191,7 +6191,7 @@ msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:178
 msgid "none"
-msgstr ""
+msgstr "ingen"
 
 #: tcl/ngcgui_ttt.tcl:193
 msgid "Subdiv"
@@ -7949,11 +7949,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:586
 msgid "Zoom in"
-msgstr ""
+msgstr "Forstørr"
 
 #: share/axis/tcl/axis.tcl:594
 msgid "Zoom out"
-msgstr ""
+msgstr "Forminsk"
 
 #: share/axis/tcl/axis.tcl:602
 msgid "Top view"
@@ -8941,7 +8941,7 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2979
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3007
 msgid "Control Font:"
@@ -17259,7 +17259,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4284
 #: src/emc/usr_intf/gscreen/gscreen.py:4287
 msgid "INFO:"
-msgstr ""
+msgstr "INFO:"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1938
 #: src/emc/usr_intf/gscreen/gscreen.py:1957
@@ -17411,7 +17411,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3756
 msgid "Operator Message"
-msgstr ""
+msgstr "Operatørmelding"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
@@ -17678,7 +17678,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1858
 msgid "Themes"
-msgstr ""
+msgstr "Drakter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1882
 msgid "Relative Text Color"
@@ -17690,11 +17690,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1951
 msgid "Warning Audio"
-msgstr ""
+msgstr "Lydadvarsel"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1961
 msgid "Alert Audio"
-msgstr ""
+msgstr "Advarselslyd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1982
 msgid "Grid Size"
@@ -17778,7 +17778,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2328
 msgid "Calibration"
-msgstr ""
+msgstr "Kalibrering"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2339
 msgid "Halmeter"
@@ -18114,19 +18114,19 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:121
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Flytt til din hjemmemappe"
 
 #: lib/python/gladevcp/iconview.py:130
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Flytt til inneholdende mappe"
 
 #: lib/python/gladevcp/iconview.py:139
 msgid "Select the previous file"
-msgstr ""
+msgstr "Velg forrige fil"
 
 #: lib/python/gladevcp/iconview.py:148
 msgid "Select the next file"
-msgstr ""
+msgstr "Velg neste fil"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
@@ -18137,8 +18137,9 @@ msgid "select the highlighted file and return the path"
 msgstr ""
 
 #: lib/python/gladevcp/iconview.py:191
+#, fuzzy
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Lukk uten å returnere en filsti"
 
 #: lib/python/gladevcp/offsetpage_widget.py:354
 msgid "offsetpage widget error: unrecognized float input"
@@ -18320,7 +18321,7 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:222
 msgid "Diameter"
-msgstr ""
+msgstr "Diameter"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
@@ -18342,7 +18343,7 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:325
 msgid "Reload"
-msgstr ""
+msgstr "Last inn igjen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:369
 msgid "All Offsets"
