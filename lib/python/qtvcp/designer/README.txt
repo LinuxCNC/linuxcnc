@@ -27,7 +27,7 @@ python3-cairo
 python3-gi-cairo
 
 Requirements for using designer:
-qttools5.dev
+qttools5-dev
 qttools5-dev-tools
 libpython3-dev
 pyqt5-dev-tools
