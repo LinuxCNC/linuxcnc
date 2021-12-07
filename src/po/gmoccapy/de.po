@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-06 22:35+0000\n"
+"PO-Revision-Date: 2021-12-07 12:10+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -42,7 +42,7 @@ msgstr "**** GMOCCAPY INI Eintrag Fehler **** \n"
 
 #: gmoccapy.py:244
 msgid "Logofile entry found, but could not be converted to path.\n"
-msgstr "Logo Eintrag gefunden, konnte aber den Pfad nicht auflösen\n"
+msgstr "Logo Eintrag gefunden, konnte aber den Pfad nicht auflösen.\n"
 
 #: gmoccapy.py:245
 msgid "The file path should not contain any spaces"
@@ -1829,7 +1829,7 @@ msgstr "**** Offsetpage Fehler, LINEAR_UNITS nicht in der INI datei gefunden"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:342
 msgid "offsetpage widget error: unrecognized float input"
-msgstr "offsetpage widget Fehler: unbekannte Gleitkommazahleingabe"
+msgstr "offsetpage widget Fehler: erkenne Gleitkommazahl nicht"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:379
 msgid "offsetpage widget error: MDI call error"
@@ -2001,7 +2001,7 @@ msgstr "Bearbeiten"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:1
 msgid "Select"
-msgstr "auswählen"
+msgstr "Auswählen"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:2
 msgid "Tool#"
