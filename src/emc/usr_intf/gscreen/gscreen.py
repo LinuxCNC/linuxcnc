@@ -653,12 +653,12 @@ class Gscreen:
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
-            if not "continuous" in increments:
-                increments +=",continuous"
             if "," in increments:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.jog_increments = increments.split()
+            if not "continuous" in increments.lower():
+                self.data.jog_increments += ["continuous"]
         else:
             if self.machine_units_mm ==self.data._MM:
                 self.data.jog_increments = [".001 mm",".01 mm",".1 mm","1 mm","continuous"]
@@ -669,12 +669,12 @@ class Gscreen:
         # angular jogging increments
         increments = self.inifile.find("DISPLAY", "ANGULAR_INCREMENTS")
         if increments:
-            if not "continuous" in increments:
-                increments +=",continuous"
             if "," in increments:
                 self.data.angular_jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.angular_jog_increments = increments.split()
+            if not "continuous" in increments.lower():
+                self.data.angular_jog_increments += ["continuous"]
         else:
             self.data.angular_jog_increments = ["1","45","180","360","continuous"]
             self.add_alarm_entry(_("No default angular jog increments entry found in [DISPLAY] of INI file"))
