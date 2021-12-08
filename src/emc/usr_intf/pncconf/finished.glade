@@ -3,20 +3,20 @@
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <object class="GtkTextBuffer" id="textbuffer1">
-    <property name="text" translatable="yes">All the necessary information has now been gathered. 
+    <property name="text" translatable="yes">All the necessary info has now been gathered. 
 Click "Done" to write your configuration files to disk.
 
 If you experience lockups while running LinuxCNC:
--you will need to decrease the maximum velocity which will have the effect of increasing BASE_PERIOD.
+-Decrease the maximum velocity which will have the effect of increasing BASE_PERIOD.
 
 If you experience lost steps while running LinuxCNC:
--first verify that you entered the proper timings for your stepper drivers. 
--then run a more thorough latency test as described on the linuxcnc.org wiki.
- http;//wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting
+-First verify that you entered the proper timings for your stepper drivers. 
+-Then run a more thorough latency test as described on the linuxcnc.org wiki.
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting
 
 If you experience the "Unexpected Realtime Delay" message:
--run a more thorough latency test as described on the linuxcnc.org wiki: 
- http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting</property>
+-Run a more thorough latency test as described on the linuxcnc.org wiki: 
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting</property>
   </object>
   <object class="GtkTable" id="finished">
     <property name="visible">True</property>
