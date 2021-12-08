@@ -5,15 +5,16 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2014-07-14 20:06+0100\n"
-"Last-Translator: Francis Tisserant <tissf@free.fr>\n"
-"Language-Team: French translation team <tissf@free.fr>\n"
-"Language: \n"
+"PO-Revision-Date: 2021-12-09 03:52+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
+"fr/>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: fr\n"
-"X-Poedit-Country: France\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/emc/task/emctaskmain.cc:870
 #, c-format
@@ -1004,7 +1005,7 @@ msgstr "Paramètre nommé #<%s> non défini"
 #: src/emc/rs274ngc/interp_namedparams.cc:207
 #, fuzzy, c-format
 msgid "cant open ini file '%s'"
-msgstr "Le format pour le fichier ini est"
+msgstr "impossible d’ouvrir le fichier INI «%s»"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:224
 #, fuzzy, c-format
@@ -11477,7 +11478,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2124
 #: src/emc/usr_intf/pncconf/dialogs.glade:2438
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -14148,7 +14150,7 @@ msgstr ""
 "Fait pour des raisons techniques, ce panneau de test ne peut être chargé "
 "qu'une seule fois sans recharger pncconf. Vous ne serez pas en mesure de "
 "faire d'autres tests jusqu'à ce que vous ayez rechargé pncconf et très "
-"probablement ouvert un terminal et y taper 'halrun-U' J'hésite même à  "
+"probablement ouvert un terminal et y taper 'halrun-U' J'hésite même à "
 "permettre son utilisation, mais parfois il est très utile.\n"
 "Souhaitez-vous continuer le test ?"
 
