@@ -1,4 +1,4 @@
-VERSION = '1.220.139'
+VERSION = '1.220.140'
 
 '''
 qtplasmac_handler.py
@@ -25,6 +25,7 @@ import os, sys
 from shutil import copy as COPY
 from shutil import move as MOVE
 from subprocess import Popen, PIPE
+from subprocess import run as RUN
 from subprocess import call as CALL
 from subprocess import check_output as CHKOP
 from importlib import reload
@@ -303,9 +304,6 @@ class HandlerClass:
         self.set_buttons_state([self.estopOnList], True)
         self.check_material_file()
         self.load_materials()
-        self.pmx485_check()
-#        if self.firstRun is True:
-#            self.firstRun = False
         self.offset_peripherals()
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
@@ -344,10 +342,18 @@ class HandlerClass:
         self.startupTimer.setSingleShot(True)
         self.set_color_styles()
         self.autorepeat_keys(False)
-        # only set hal pins after initialized__ has begun
+        # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
         self.startupTimer.start(250)
+        if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
+            self.pmx485_startup(self.iniFile.find('QTPLASMAC', 'PM_PORT'))
+        else:
+            self.w.gas_pressure.hide()
+            self.w.gas_pressure_label.hide()
+            self.w.cut_mode.hide()
+            self.w.cut_mode_label.hide()
+            self.w.pmx485_frame.hide()
         if self.firstRun is True:
             self.firstRun = False
 
@@ -4477,105 +4483,72 @@ class HandlerClass:
 #########################################################################################################################
 # POWERMAX COMMUNICATIONS FUNCTIONS #
 #########################################################################################################################
-    def pmx485_timeout(self):
-        self.pmx485CommsTimer.stop()
-        self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
-        self.pmx485LabelState = None
-        self.w.pmx_stats_frame.hide()
-        self.pmx485CommsError = True
-        self.pmx485Connected = False
-        self.pmx485RetryTimer.start(3000)
+    def pmx485_startup(self, port):
+        self.pmx485CommsError = False
+        self.w.pmx485Status = False
+        self.meshMode = False
+        self.w.pmx485_enable.stateChanged.connect(lambda w:self.pmx485_enable_changed(self.w.pmx485_enable.isChecked()))
+        self.pmx485StatusPin.value_changed.connect(lambda w:self.pmx485_status_changed(w))
+        self.pmx485ModePin.value_changed.connect(self.pmx485_mode_changed)
+        self.pmx485FaultPin.value_changed.connect(lambda w:self.pmx485_fault_changed(w))
+        self.pmx485ArcTimePin.value_changed.connect(lambda w:self.pmx485_arc_time_changed(w))
+        self.w.gas_pressure.valueChanged.connect(self.pmx485_pressure_changed)
+        self.w.mesh_enable.stateChanged.connect(lambda w:self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked()))
+        self.pmx485CommsTimer = QTimer()
+        self.pmx485CommsTimer.timeout.connect(self.pmx485_timeout)
+        self.pmx485RetryTimer = QTimer()
+        self.pmx485RetryTimer.timeout.connect(lambda:self.pmx485_enable_changed(True))
+        self.oldCutMode = self.w.cut_mode.value()
+        self.pressure = self.w.gas_pressure.value()
+        if self.pmx485_load(port):
+            return
+        self.pmx485Exists = True
+        self.pmx485_setup()
+        self.w.pmx485_enable.setChecked(True)
 
-    def pmx485_check(self):
-        if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
-            self.pmx485Exists = True
-            self.pmx485CommsError = False
-            if not hal.component_exists('pmx485'):
-                head = _translate('HandlerClass', 'COMMS ERROR')
-                msg0 = _translate('HandlerClass', 'PMX485 component is not loaded,')
-                msg1 = _translate('HandlerClass', 'Powermax communications are not available')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-                return
-            self.w.pmx485Status = False
-            self.w.pmx485_enable.stateChanged.connect(lambda w:self.pmx485_enable_changed(self.w.pmx485_enable.isChecked()))
-            self.pmx485StatusPin.value_changed.connect(lambda w:self.pmx485_status_changed(w))
-            self.pmx485ModePin.value_changed.connect(self.pmx485_mode_changed)
-            self.pmx485FaultPin.value_changed.connect(lambda w:self.pmx485_fault_changed(w))
-            self.pmx485ArcTimePin.value_changed.connect(lambda w:self.pmx485_arc_time_changed(w))
-            self.w.gas_pressure.valueChanged.connect(self.pmx485_pressure_changed)
-            self.w.mesh_enable.stateChanged.connect(lambda w:self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked()))
-            self.pins485Comp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
-                        'pmx485.mode_set', 'pmx485.mode', \
-                        'pmx485.current_set', 'pmx485.current', 'pmx485.current_min', 'pmx485.current_max', \
-                        'pmx485.pressure_set', 'pmx485.pressure', 'pmx485.pressure_min', 'pmx485.pressure_max', 'pmx485.arcTime']
-            pinsSelf = ['pmx485_enable', 'pmx485_status', 'pmx485_fault', \
-                        'cut_mode-f', 'pmx485_mode', \
-                        'cut_amps-f', 'pmx485_current', 'pmx485_current_min', 'pmx485_current_max', \
-                        'gas_pressure-f', 'pmx485_pressure', 'pmx485_pressure_min', 'pmx485_pressure_max', 'pmx485_arc_time']
-            pinType = [hal.HAL_BIT, hal.HAL_BIT, hal.HAL_FLOAT, \
-                       hal.HAL_FLOAT, hal.HAL_FLOAT, \
-                       hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, \
-                       hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT]
-            for pin in self.pins485Comp:
-                hal.new_sig('plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')), pinType[self.pins485Comp.index(pin)])
-                hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
-                hal.connect('qtplasmac.{}'.format(pinsSelf[self.pins485Comp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
-            self.pressure = self.w.gas_pressure.value()
-            self.pmx485CommsTimer = QTimer()
-            self.pmx485CommsTimer.timeout.connect(self.pmx485_timeout)
-            self.pmx485RetryTimer = QTimer()
-            self.pmx485RetryTimer.timeout.connect(lambda:self.pmx485_enable_changed(True))
-            self.meshMode = False
-            self.oldCutMode = self.w.cut_mode.value()
-            self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked())
-            self.w.cut_amps.setToolTip(_translate('HandlerClass', 'Powermax cutting current'))
-            self.w.pmx485_enable.setChecked(True)
-        else:
-            if hal.component_exists('pmx485'):
-                Popen('halcmd unloadusr pmx485', stdout = PIPE, shell = True)
-                head = _translate('HandlerClass', 'INI FILE ERROR')
-                msg0 = _translate('HandlerClass', 'Powermax comms not specified in ini file,')
-                msg1 = _translate('HandlerClass', 'unloading pmx485 component')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-            self.w.gas_pressure.hide()
-            self.w.gas_pressure_label.hide()
-            self.w.cut_mode.hide()
-            self.w.cut_mode_label.hide()
-            self.w.pmx485_frame.hide()
+    def pmx485_load(self, port):
+        head = _translate('HandlerClass', 'COMMS ERROR')
+        msg0 = _translate('HandlerClass', 'PMX485 component is not able to be loaded,')
+        msg1 = _translate('HandlerClass', 'Powermax communications are not available')
+        err = '{}:\n{}\n{}\n'.format(head, msg0, msg1)
+        count = 0
+        while not hal.component_exists('pmx485'):
+            if count >= 3:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, err)
+                return 1
+            RUN(['halcmd', 'loadusr', '-Wn', 'pmx485', 'pmx485', '{}'.format(port)])
+            count += 1
+        return 0
+
+    def pmx485_setup(self):
+        self.pins485Comp = ['pmx485.enable', 'pmx485.status', 'pmx485.fault', \
+                    'pmx485.mode_set', 'pmx485.mode', \
+                    'pmx485.current_set', 'pmx485.current', 'pmx485.current_min', 'pmx485.current_max', \
+                    'pmx485.pressure_set', 'pmx485.pressure', 'pmx485.pressure_min', 'pmx485.pressure_max', 'pmx485.arcTime']
+        pinsSelf = ['pmx485_enable', 'pmx485_status', 'pmx485_fault', \
+                    'cut_mode-f', 'pmx485_mode', \
+                    'cut_amps-f', 'pmx485_current', 'pmx485_current_min', 'pmx485_current_max', \
+                    'gas_pressure-f', 'pmx485_pressure', 'pmx485_pressure_min', 'pmx485_pressure_max', 'pmx485_arc_time']
+        pinType = [hal.HAL_BIT, hal.HAL_BIT, hal.HAL_FLOAT, \
+                   hal.HAL_FLOAT, hal.HAL_FLOAT, \
+                   hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, \
+                   hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT, hal.HAL_FLOAT]
+        for pin in self.pins485Comp:
+            hal.new_sig('plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')), pinType[self.pins485Comp.index(pin)])
+            hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
+            hal.connect('qtplasmac.{}'.format(pinsSelf[self.pins485Comp.index(pin)]),'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
+        self.pmx485_mesh_enable_changed(self.w.mesh_enable.isChecked())
+        self.w.cut_amps.setToolTip(_translate('HandlerClass', 'Powermax cutting current'))
 
     def pmx485_enable_changed(self, state):
         if state:
             self.pmx485CommsError = False
             self.pmx485RetryTimer.stop()
-            # if component not loaded then load it and wait 3 secs for it to be loaded
-            if not hal.component_exists('pmx485'):
-                head = _translate('HandlerClass', 'COMMS ERROR')
-                port = self.iniFile.find('QTPLASMAC', 'PM_PORT')
-                try:
-                    Popen('halcmd loadusr -Wn pmx485 pmx485 {}'.format(port), stdout = PIPE, shell = True)
-                    timeout = time.time() + 3
-                    while 1:
-                        time.sleep(0.1)
-                        if time.time() > timeout:
-                            self.w.pmx485_enable.setChecked(False)
-                            self.w.pmx485_label.setText('')
-                            self.pmx485LabelState = None
-                            self.w.pmx485_label.setToolTip(_translate('HandlerClass', 'Status of PMX485 communications'))
-                            msg0 = _translate('HandlerClass', 'Timeout while reconnecting,')
-                            msg1 = _translate('HandlerClass', 'check cables and connections then re-enable')
-                            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-                            return
-                        if hal.component_exists('pmx485'):
-                            break
-                except:
-                    msg0 = _translate('HandlerClass', 'PMX485 component is not loaded,')
-                    msg1 = _translate('HandlerClass', 'Powermax communications are not available')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-                    return
+            if self.pmx485_load(self.iniFile.find('QTPLASMAC', 'PM_PORT')):
+                return
             # if pins not connected then connect them
             if not hal.pin_has_writer('pmx485.enable'):
-                for pin in self.pins485Comp:
-                    hal.connect(pin,'plasmac:{}'.format(pin.replace('pmx485.', 'pmx485_')))
+                self.pmx485_setup()
             # ensure valid parameters before trying to connect
             if self.w.cut_mode.value() == 0 or self.w.cut_amps.value() == 0:
                 head = _translate('HandlerClass', 'MATERIALS ERROR')
@@ -4703,6 +4676,15 @@ class HandlerClass:
             self.w.cut_mode.setValue(self.oldCutMode)
             self.w.cut_mode.setEnabled(True)
             self.meshMode = False
+
+    def pmx485_timeout(self):
+        self.pmx485CommsTimer.stop()
+        self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
+        self.pmx485LabelState = None
+        self.w.pmx_stats_frame.hide()
+        self.pmx485CommsError = True
+        self.pmx485Connected = False
+        self.pmx485RetryTimer.start(3000)
 
     pmx485FaultName = {
                 '0110': 'Remote controller mode invalid',
