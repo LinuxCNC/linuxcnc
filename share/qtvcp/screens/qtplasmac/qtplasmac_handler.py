@@ -206,7 +206,6 @@ class HandlerClass:
         self.materialFile = '{}_material.cfg'.format(self.machineName)
         self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
         self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
-        self.gcodeErrorFile = '{}gcode_warnings.txt'.format(self.tmpPath)
         self.gcodeErrorFile = '{}gcode_errors.txt'.format(self.tmpPath)
         self.materialFileDict = {}
         self.materialDict = {}

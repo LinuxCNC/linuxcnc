@@ -717,12 +717,33 @@ def check_f_word(line):
 
 # *** we need a lot more work done here ***
 def illegal_character(line):
-    global lineNum, lineNumOrg, errorLines, codeWarn, warnChar
-    if (len(line) == 1  and line[0] != ';') or (len(line) > 1 and line[0].isalpha() and line[1].isalpha()):
-        codeWarn = True
-        warnChar.append(lineNum)
-        errorLines.append(lineNumOrg)
-        return 1
+    line = line.replace(' ', '')
+    # single character line with invalid character
+    if len(line) == 1  and line not in '/;%': return 1
+    # comment is missing a parenthesis
+    elif ('(' in line and line[-1] != ')') or ((line[-1] == ')' and not '(' in line)): return 1
+    # process starting alpha
+    elif line[0].isalpha():
+        # line starts with two alpha characters (this could be refined)
+        if line[1].isalpha(): return 1
+    # process starting non-alpha
+    elif not line[0].isalpha():
+        # invalid first character
+        if line[0] not in '/;(#@^%': return 1
+    # process numbered and named parameters
+    if line[0] == '#' or line[:2] == '#<':
+        line = line.lstrip('#')
+        # remove trailing comment for further processing
+        if '(' in line:
+            line = line.split('(')[0].strip()
+        # parameter is missing equals sign
+        if not '=' in line: return 1
+        # left = parameter, right = value (we don't process right side yet)
+        left, right = line.split('=')
+        # named parameter is missing a chevron
+        if left[0] == '<' and not '>' in left: return 1
+        # numbered parameter is not a number
+        elif left[0] != '<' and not left.isdigit(): return 1
     return 0
 
 def message_set(msgType, msg):
@@ -767,8 +788,19 @@ with open(inFile, 'r') as inCode:
                 line = line[1:].lstrip()
                 if not line:
                     break
-        # if any illegal characters comment the line
+        # if empty line then no need to process
+        if not line:
+            gcodeList.append(line)
+            continue
+        # if line is a comment then gcodeList.append it and get next line
+        if line.startswith(';') or line.startswith('(') and not line.startswith('(o='):
+            gcodeList.append(line)
+            continue
+        # if illegal characters comment the line
         if illegal_character(line):
+            codeWarn = True
+            warnChar.append(lineNum)
+            errorLines.append(lineNumOrg)
             gcodeList.append(';{}'.format(line))
             continue
         # check if original is a conversational block
@@ -789,10 +821,6 @@ with open(inFile, 'r') as inCode:
                 lineNum += 1
                 gcodeList.append('m66 p3 l3 q1')
                 tmpMatNum += 1
-            continue
-        # if line is a comment then gcodeList.append it and get next line
-        if line.startswith(';') or line.startswith('('):
-            gcodeList.append(line)
             continue
         # if a ; comment at end of line, convert line to lower case and remove spaces, preserve comment as is
         elif ';' in line:
@@ -835,7 +863,7 @@ with open(inFile, 'r') as inCode:
         # set initial Z height
         if not zSetup and not zBypass and ('g0' in line or 'g1' in line or 'm3' in line):
             offsetTopZ = (zMaxOffset * unitsPerMm * unitMultiplier)
-            moveTopZ = 'g53 g0 z[#<_ini[axis_z]max_limit> * {} - {:.3f}] (Z just below max height)'.format(unitMultiplier, offsetTopZ)
+            moveTopZ = 'g53g0z[#<_ini[axis_z]max_limit>*{}-{:.3f}] (Z just below max height)'.format(unitMultiplier, offsetTopZ)
             if not '[#<_ini[axis_z]max_limit>' in line:
                 lineNum += 1
                 gcodeList.append(moveTopZ)
@@ -866,10 +894,11 @@ with open(inFile, 'r') as inCode:
         # check for g4x offset cleared
         elif 'g40' in line:
             offsetG4x = False
-        # is there an m3 before we've made a movement
-        if line[:2] in ['g0', 'g1']:
+        # set first movement flag
+        if line[:3] in ['g0x', 'g0y', 'g1x', 'g1y'] or line[:6] in ['g53g0x', 'g53g0y', 'g53g1x', 'g53g1y']:
             firstMove = True
-        if 'm3' in line and not firstMove:
+        # is there an m3 before we've made a movement
+        if 'm3' in line and not 'm30' in line and not firstMove:
             codeError = True
             errorFirstMove.append(lineNum)
             errorLines.append(lineNumOrg)
@@ -894,6 +923,7 @@ with open(inFile, 'r') as inCode:
             # Ignore spotting blocks when pierceOnly
             if spotting:
                 if line.startswith('m5$2'):
+                    firstMove = False
                     spotting = False
                 continue
             if line.startswith('g0'):
@@ -987,7 +1017,7 @@ with open(inFile, 'r') as inCode:
             arcDistMode = 91.1 # incremental arc distance mode
         if not zBypass:
             # if z axis in line
-            if 'z' in line and line.split('z')[1][0] in '0123456789.- [':
+            if 'z' in line and line.split('z')[1][0] in '0123456789.- [' and not '[axis_z]max_limit' in line:
                 # if no other axes comment it
                 if 1 not in [c in line for c in 'xybcuvw']:
                     if '(' in line:
@@ -1031,6 +1061,7 @@ with open(inFile, 'r') as inCode:
         # if spindle off
         if line.startswith('m5'):
             if len(line) == 2 or (len(line) > 2 and not line[2].isdigit()):
+                firstMove = False
                 gcodeList.append(line)
                 # restore velocity if required
                 if holeActive:
