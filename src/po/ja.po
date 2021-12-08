@@ -2,8 +2,15 @@ msgid ""
 msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
+"PO-Revision-Date: 2021-12-09 03:52+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Japanese <https://hosted.weblate.org/projects/linuxcnc/"
+"linuxcnc/ja/>\n"
+"Language: ja\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/emc/task/emctaskmain.cc:870
 #, c-format
@@ -897,7 +904,7 @@ msgstr "パラムのファイルを読む"
 #: src/emc/rs274ngc/interp_namedparams.cc:207
 #, fuzzy, c-format
 msgid "cant open ini file '%s'"
-msgstr "開けません"
+msgstr "INI ファイル '%s' を開く"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:224
 #, fuzzy, c-format
@@ -11189,7 +11196,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2124
 #: src/emc/usr_intf/pncconf/dialogs.glade:2438
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
