@@ -349,8 +349,10 @@ class HandlerClass:
                     self.builder.get_object(key).update()
 
     def __init__(self, halcomp,builder,useropts):
-
-        self.plasmacVersion = 'PlasmaC v0.189'
+        # *** set VERSION in plasmac.comp                         ***
+        # *** update versions.html                                ***
+        # *** for major updates see check_version function in plasmac_config.py
+        self.plasmacVersion = 'PlasmaC v0.190'
 
         self.W = gtk.Window()
         self.halcomp = halcomp

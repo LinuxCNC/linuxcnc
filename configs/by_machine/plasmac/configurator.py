@@ -1865,7 +1865,7 @@ class configurator:
                         outFile.write(line)
                     else:
                         outFile.write('# {}'.format(line))
-                elif 'breakaway' in line:
+                elif ':breakaway' in line:
                     if self.breakPin.get_text():
                         if self.oldBreakPin != self.breakPin.get_text():
                             a, b = line.strip('#').strip().split(self.oldBreakPin)
@@ -2016,7 +2016,7 @@ class configurator:
                         self.oldFloatPin = (line.split('-switch', 1)[1].strip().split(' ', 1)[0].strip())
                         if not line.strip().startswith('#'):
                             self.floatPin.set_text(self.oldFloatPin)
-                    elif 'breakaway' in line:
+                    elif ':breakaway' in line:
                         self.oldBreakPin = (line.split('breakaway', 1)[1].strip().split(' ', 1)[0].strip())
                         if not line.strip().startswith('#'):
                             self.breakPin.set_text(self.oldBreakPin)
