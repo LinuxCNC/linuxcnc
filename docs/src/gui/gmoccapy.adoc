@@ -15,8 +15,7 @@ gmoccapy supports embedded tabs and side panels.
 As a good example for that see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
 
-[NOTE:]
-gmoccapy 3 does support up to 9 axis and 9 joints. As gmoccapy 3 has been
+NOTE: gmoccapy 3 does support up to 9 axis and 9 joints. As gmoccapy 3 has been
 changed in code to support the joint / axis changes in LinuxCNC it does not 
 work on 2.7 or 2.6 branch!
 
