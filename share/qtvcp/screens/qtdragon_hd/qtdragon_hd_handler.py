@@ -530,6 +530,8 @@ class HandlerClass:
     # main button bar
     def main_tab_changed(self, btn):
         index = btn.property("index")
+        if index == self.w.main_tab_widget.currentIndex():
+            self.w.stackedWidget_dro.setCurrentIndex(0)
         if index is None: return
         # if in automode still allow settings to show so override linits can be used
         if STATUS.is_auto_mode() and index != 8:
