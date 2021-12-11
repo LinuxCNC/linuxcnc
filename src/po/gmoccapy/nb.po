@@ -8,11 +8,11 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-04 08:33+0100\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
+"PO-Revision-Date: 2021-12-11 06:16+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
-"Language: nb_NO\n"
+"Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -21,7 +21,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:237 emc/usr_intf/gmoccapy/gmoccapy.py:242
 msgid "**** GMOCCAPY INI Entry **** \n"
-msgstr ""
+msgstr "**** GMOCCAPY INI-oppføring **** \n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:238
 msgid "user mode selected"
@@ -34,11 +34,11 @@ msgstr "logo-oppføring funnet = {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:248
 msgid "**** GMOCCAPY INI Entry Error **** \n"
-msgstr ""
+msgstr "**** GMOCCAPY feil i INI-oppføring **** \n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:249
 msgid "Logofile entry found, but could not be converted to path.\n"
-msgstr ""
+msgstr "Fant logofiloppføring, men kunne ikke omforme den til sti.\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:250
 msgid "The file path should not contain any spaces"
@@ -79,7 +79,7 @@ msgstr "**** GMOCCAPY-FEIL ****\n"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:740
 #, python-brace-format
 msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
-msgstr ""
+msgstr "**** klarte ikke forstå bildestien '{0}' oppgitt for knapp '{1}' ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:896
 msgid ""
@@ -96,13 +96,15 @@ msgstr "Trykk for å redigere forskyvningene"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:918
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr ""
+msgstr "Trykk for å sette berøringsverdi for akse {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:944
 msgid ""
 "zero\n"
 " G92"
 msgstr ""
+"null\n"
+" G92"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:946
 msgid "Press to reset all G92 offsets"
@@ -118,7 +120,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:954
 msgid "Press to enter new value for block height"
-msgstr ""
+msgstr "Trykk for å skrive inn ny verdi for blokkhøyde"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:959
 msgid ""
@@ -1718,9 +1720,8 @@ msgid "select the highlighted file and return the path"
 msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
-#, fuzzy
 msgid "Close without returning a file path"
-msgstr "Lukk uten å returnere en filsti"
+msgstr "Lukk uten å returnere en filbane"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Load File"
