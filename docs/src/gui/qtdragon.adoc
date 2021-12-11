@@ -308,7 +308,7 @@ qtdragon.slider-override-spindle
 ----
 
 These pins are available when setting the Versa Probe INI option. +
-They can be used for auto-tool-length-probe at tool change - with added remap cpde. +
+They can be used for auto-tool-length-probe at tool change - with added remap code. +
 [source,{hal}]
 ----
 qtdragon.versaprobe-blockheight
@@ -394,8 +394,21 @@ image::images/qtdragon_touchplate.png["QtDragon Touch Plate",scale="25%"]
 
 You can use a conductive touch plate or equivalent to auto touch off (zero the user coordinate) for the Z position of a tool. +
 There must be a tool loaded prior to probing. +
-In the tool tab set the touch plate height then press the 'Touch Plate' button. +
+In the tool tab or settings tab, set the touch plate height, search and probe velocity and Max probing distance. +
+
+[NOTE]
+When using a conductive plate the search and probe velocity should be the same and slow. +
+If using a tool setter that has spring loaded travel then you can set search velocity faster. +
+Linuxcnc ramps speed down at the maximum acceleration rate, so there can be travel after the probe trip +
+if the speed is set to high.
+
+Place the plate on top of the surface you wish to zero Z on. +
+Connect the probe input wire to the tool (if using a conductive plate) +
 There is a LED to confirm the probe connection is reliable prior to probing. +
+Move the tool manually within the max probe distance. +
+Press the 'Touch Plate' button. +
+The machine will probe down twice and the current user offset (G5X) will be zeroed at the bottom of the +
+plate by calculation from the touchplate height setting. +
 
 == Run from Line
 
