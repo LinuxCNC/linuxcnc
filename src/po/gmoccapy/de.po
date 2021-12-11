@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
+"PO-Revision-Date: 2021-12-11 04:06+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -1954,7 +1954,7 @@ msgstr "G59"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:23
 msgid "G59.1"
-msgstr "G59.1"
+msgstr "G59._1"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:24
 msgid "G59.2"
