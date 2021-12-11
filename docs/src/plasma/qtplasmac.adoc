@@ -926,7 +926,7 @@ This slider's range is from 1%-100% of the Cut Feed Rate for the currently selec
 |FEED|This displays the paused motion feed rate.
 |REV|In the event of a paused program, this button will move the machine in reverse along the programmed path until it reaches the last M3 command that was either executed or that QtPlasmaC was attempting to execute before the program became paused.
 |FWD|In the event of a paused program, this button will move the machine forward along the programmed path indefinitely until the program's end, skipping over M3 commands.
-|CANCEL|This button will cancel any Cut Recovery movement that was made, and return the torch to the position the Cut Recovery movement was initiated. +
+|CANCEL MOVE|This button will cancel any Cut Recovery movement that was made, and return the torch to the position the Cut Recovery movement was initiated. +
 Note that if FWD or REV were used to move the torch, CANCEL will not return to the position of the torch when the pause occurred.
 |MOVE x.xxx|This displays the amount of travel that will be incurred with each press of an arrow key, in the direction the arrow key was pressed. +
 This value displayed below MOVE represents the Kerf Width of the currently selected material.
@@ -2120,7 +2120,9 @@ The moment the torch has been moved off the cut path, the paused motion controls
 
 Once the torch position is satisfactory, press *CYCLE RESUME* and the cut will resume from the new position and travel the shortest distance to the original paused motion location. The CUT RECOVERY panel will close and the JOGGING panel will display when the torch returns to the original paused motion location.
 
-Pressing *CANCEL* (or *CYCLE STOP*) will cause the torch to move back to where it was positioned when the motion became paused and the CUT RECOVERY panel overlay will return to the JOGGING panel.
+Pressing *CANCEL MOVE* (or *CYCLE STOP*) will cause the torch to move back to where it was positioned when the motion became paused and the CUT RECOVERY panel overlay will return to the JOGGING panel.
+
+NOTE: Cut recovery movements will be limited to a radius of 10mm (0.4") from either the point the program was paused, or from the last point on the cut path if paused motion was used.
 
 [[qt_run-from-line]]
 
@@ -3218,7 +3220,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Toggle arc ignore OK |qtplasmac.ext_ignore_arc_ok|IGNORE OK
 |Forward along the programmed path |qtplasmac.ext_cutrec_fwd|CUT RECOVERY FWD
 |Reverse along the programmed path |qtplasmac.ext_cutrec_rev|CUT RECOVERY REV
-|Cancel any Cut Recovery movement |qtplasmac.ext_cutrec_cancel| CUT RECOVERY CANCEL
+|Cancel any Cut Recovery movement |qtplasmac.ext_cutrec_cancel| CUT RECOVERY CANCEL MOVE
 |Move up |qtplasmac.ext_cutrec_n| CUT RECOVERY arrow up
 |Move down |qtplasmac.ext_cutrec_s| CUT RECOVERY arrow down
 |Move right |qtplasmac.ext_cutrec_e| CUT RECOVERY arrow right

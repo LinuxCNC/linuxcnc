@@ -1,4 +1,4 @@
-VERSION = '1.220.140'
+VERSION = '1.220.141'
 
 '''
 qtplasmac_handler.py
@@ -1220,7 +1220,7 @@ class HandlerClass:
             if self.otButton and self.w.ohmic_probe_enable.isChecked():
                 self.w[self.otButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
-            if hal.get_value('plasmac.stop-type-out'):
+            if hal.get_value('plasmac.stop-type-out') or hal.get_value('plasmac.cut-recovering'):
                 self.w.set_cut_recovery()
             self.set_tab_jog_states(True)
         elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
@@ -4753,10 +4753,11 @@ class HandlerClass:
     def set_cut_recovery(self):
         if hal.get_value('plasmac.cut-recovering'):
             self.w.jog_stack.setCurrentIndex(1)
-            self.w.dro_z.setProperty('Qreference_type', 1)
+            self.cancelWait = True
             return
         self.w.jog_stack.setCurrentIndex(1)
         self.cancelWait = False
+        self.w.cut_rec_cancel.setEnabled(False)
         self.cutrec_speed_changed(self.w.cut_rec_speed.value())
         hal.set_p('plasmac.cut-recovery', '0')
         self.xOrig = hal.get_value('axis.x.eoffset-counts')
@@ -4783,20 +4784,28 @@ class HandlerClass:
 
     def cutrec_move(self, state, x, y):
         if state:
-            head = _translate('HandlerClass', 'CUT RECOVERY ERROR')
+            maxMove = 10
+            if self.units == 'inch':
+                maxMove = 0.4
             distX = hal.get_value('qtplasmac.kerf_width-f') * x
             distY = hal.get_value('qtplasmac.kerf_width-f') * y
-            if hal.get_value('plasmac.axis-x-position') + \
-                hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax:
-                msg0 = _translate('HandlerClass', 'X axis motion would trip X maximum limit')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            if (hal.get_value('plasmac.axis-x-position') + \
+                hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax) or \
+                (hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > maxMove):
+                return
+            if (hal.get_value('plasmac.axis-x-position') + \
+                hal.get_value('axis.x.eoffset-counts') * self.oScale + distX < self.xMin) or \
+                (hal.get_value('axis.x.eoffset-counts') * self.oScale + distX < -maxMove):
+                return
+            if (hal.get_value('plasmac.axis-y-position') + \
+                hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax) or \
+                (hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > maxMove):
+                return
+            if (hal.get_value('plasmac.axis-y-position') + \
+                hal.get_value('axis.y.eoffset-counts') * self.oScale + distY < self.yMin) or \
+                (hal.get_value('axis.y.eoffset-counts') * self.oScale + distY < -maxMove):
                 return
             moveX = int(distX / self.oScale)
-            if hal.get_value('plasmac.axis-y-position') + \
-                hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax:
-                msg0 = _translate('HandlerClass', 'Y axis motion would trip Y maximum limit')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-                return
             moveY = int(distY / self.oScale)
             hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
             hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('axis.y.eoffset-counts') + moveY)))
@@ -4808,6 +4817,7 @@ class HandlerClass:
         if self.xOffsetPin.get() > 0.001 * self.unitsPerMm or self.xOffsetPin.get() < -0.001 * self.unitsPerMm or \
            self.yOffsetPin.get() > 0.001 * self.unitsPerMm or self.yOffsetPin.get() < -0.001 * self.unitsPerMm:
             self.cutrec_motion_enable(False)
+            self.w.cut_rec_cancel.setEnabled(True)
             if self.cancelWait:
                 self.cutrec_buttons_enable(False)
             if self.ccButton:
@@ -4816,6 +4826,7 @@ class HandlerClass:
             self.cancelWait = False
             self.cutrec_motion_enable(True)
             self.cutrec_buttons_enable(True)
+            self.w.cut_rec_cancel.setEnabled(False)
             hal.set_p('plasmac.cut-recovery', '0')
             if self.ccButton and STATUS.is_interp_paused():
                 self.w[self.ccButton].setEnabled(True)
