@@ -12,13 +12,16 @@ msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2006-01-18 21:22-0000\n"
-"Last-Translator: Dani Zsolt <dzsolt@gmail.com>\n"
-"Language-Team: Hungarian <LL@li.org>\n"
+"PO-Revision-Date: 2021-12-11 21:44+0000\n"
+"Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
+"Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
+"linuxcnc/hu/>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 "X-Poedit-Language: Hungarian\n"
 "X-Poedit-Country: HUNGARY\n"
 
@@ -65,25 +68,25 @@ msgstr ""
 
 #: src/emc/task/emctaskmain.cc:2179
 msgid "failed to close file"
-msgstr ""
+msgstr "nem sikerült bezárni a fájlt"
 
 #: src/emc/task/emctaskmain.cc:2193 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr ""
+msgstr "nem sikerült megnyitni %s"
 
 #: src/emc/task/emctaskmain.cc:2205
 msgid "Can't issue MDI command when not homed"
-msgstr ""
+msgstr "Nem adható ki MDI parancs, ha nincs referencia felvéve"
 
 #: src/emc/task/emctaskmain.cc:2210
 msgid "Must be in MDI mode to issue MDI command"
-msgstr ""
+msgstr "MDI módban kell lennie az MDI parancs kiadásához"
 
 #: src/emc/task/emctaskmain.cc:2292
 msgid "Can't run a program when not homed"
-msgstr ""
+msgstr "Nem futtatható a program, ha nincs referencia felvéve"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -110,21 +113,21 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr ""
+msgstr "P értéke nem egész szám G10-nél"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr ""
+msgstr "P érték a tartományon kívül esik (0-9) G10 L%d esetén"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr ""
+msgstr "P érték a tartományon kívül esik G10 L%d esetén"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr ""
+msgstr "A G5.2 és G5.3 kódok között csak további G5.2 kódok engedélyezettek"
 
 #: src/emc/rs274ngc/interp_check.cc:260
 msgid ""
@@ -641,18 +644,17 @@ msgid ""
 msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
-#, fuzzy, c-format
+#, c-format
 msgid "Spindle not turning in %s"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó nem forog %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
 msgid "Spindle turning clockwise in G74"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
-#, fuzzy
 msgid "Spindle turning counterclockwise in G84"
-msgstr "Fő orsó balra fordul"
+msgstr "Fő orsó balra fordul G84-ben"
 
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
@@ -1156,9 +1158,8 @@ msgid "Cannot use two g codes that both use axis values"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:70
-#, fuzzy
 msgid "Command too long"
-msgstr "Mutasd a programozott pozíciót"
+msgstr "Túl hosszú parancs"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:71
 msgid "Current point same as end point of arc"
@@ -1370,9 +1371,8 @@ msgid "Negative p word used"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:123
-#, fuzzy
 msgid "Negative spindle speed used"
-msgstr "Túlhajtás (%):"
+msgstr "Negatív főorsó sebességet használ"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
 msgid "Negative tool id (tool not found)"
@@ -1500,19 +1500,17 @@ msgid "Unclosed expression"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:155
-#, fuzzy
 msgid "Unknown g code used"
-msgstr "Szerszám %d ismeretlen"
+msgstr "Ismeretlen g kódot használ"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:156
-#, fuzzy, c-format
+#, c-format
 msgid "Unknown m code used: M%d"
-msgstr "Szerszám %d ismeretlen"
+msgstr "Ismeretlen m kódot használ: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:157
-#, fuzzy
 msgid "Unknown operation"
-msgstr "Ismeretlen hiba %s"
+msgstr "Ismeretlen művelet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:158
 msgid "Unknown operation name starting with a"
@@ -1643,9 +1641,8 @@ msgid "Too many oword labels"
 msgstr ""
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:190
-#, fuzzy
 msgid "Unknown oword number"
-msgstr "Szerszám %d ismeretlen"
+msgstr "Ismeretlen oword szám"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:191
 msgid "Nested subroutine definition"
@@ -1779,7 +1776,7 @@ msgstr ""
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
-msgstr ""
+msgstr "HAL meter"
 
 #: src/hal/utils/meter.c:292
 msgid "_Select"
@@ -1810,7 +1807,6 @@ msgid "_Close"
 msgstr "_Bezárás"
 
 #: src/hal/utils/scope.c:126
-#, fuzzy
 msgid ""
 "Usage:\n"
 "  halscope [-h] [-i infile] [-o outfile] [num_samples]\n"
@@ -1835,14 +1831,12 @@ msgid "_Open"
 msgstr "_Megnyitás"
 
 #: src/hal/utils/scope.c:491
-#, fuzzy
 msgid "Save Configuration File:"
-msgstr "Konfigurációs fájl megnyitása:"
+msgstr "Konfigurációs fájl mentése:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:781
-#, fuzzy
 msgid "_Save"
-msgstr "_Fájl"
+msgstr "_Mentés"
 
 #: src/hal/utils/scope.c:525
 msgid "_Open Configuration..."
@@ -1983,9 +1977,8 @@ msgstr "OK"
 #: src/hal/classicladder/classicladder_gtk.c:899 tcl/bin/emccalib.tcl:104
 #: tcl/bin/halconfig.tcl:103 tcl/tooledit.tcl:468
 #: src/emc/usr_intf/pncconf/dialogs.glade:600
-#, fuzzy
 msgid "Quit"
-msgstr "_Kilépés"
+msgstr "Kilépés"
 
 #: src/hal/utils/scope_horiz.c:518
 msgid "Realtime function not linked"
@@ -2016,9 +2009,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope_horiz.c:534 src/hal/utils/scope_vert.c:712
-#, fuzzy
 msgid "_OK"
-msgstr "OK"
+msgstr "_OK"
 
 #: src/hal/utils/scope_horiz.c:554
 msgid "Thread:"
@@ -2174,11 +2166,13 @@ msgid "MHz"
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1127
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Offset\n"
 "%s"
-msgstr "Eltolás"
+msgstr ""
+"Eltolás\n"
+"%s"
 
 #: src/hal/utils/scope_vert.c:607
 msgid "Gain"
@@ -2199,11 +2193,12 @@ msgid "Scale"
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:640
-#, fuzzy
 msgid ""
 "Offset\n"
 "----"
-msgstr "Eltolás"
+msgstr ""
+"Eltolás\n"
+"----"
 
 #: src/hal/utils/scope_vert.c:648
 msgid "Chan Off"
@@ -2217,9 +2212,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/utils/scope_vert.c:710
-#, fuzzy
 msgid "Set Offset"
-msgstr "Eltolás"
+msgstr "Eltolás beállítása"
 
 #: src/hal/utils/scope_vert.c:729
 msgid "AC Coupled"
@@ -2423,14 +2417,12 @@ msgid "%s move on line %d would exceed %c's %s limit"
 msgstr ""
 
 #: src/emc/motion/command.c:211
-#, fuzzy
 msgid "negative"
-msgstr "Relatív"
+msgstr "negatív"
 
 #: src/emc/motion/command.c:217
-#, fuzzy
 msgid "positive"
-msgstr "Pozíció:"
+msgstr "pozitív"
 
 #: src/emc/motion/command.c:263
 #, c-format
@@ -2914,9 +2906,8 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
-#, fuzzy
 msgid "Save Error"
-msgstr "AXIS hiba"
+msgstr "Hiba mentése"
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3042,14 +3033,12 @@ msgid "Comment of the current selected rung"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:762
-#, fuzzy
 msgid "Display symbols"
-msgstr "Mértékegység: _Inch"
+msgstr "Kijező szimbólumok"
 
 #: src/hal/classicladder/classicladder_gtk.c:816
-#, fuzzy
 msgid "Statusbar"
-msgstr "Mutasd a _határokat"
+msgstr "Állapotsor"
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
@@ -3066,9 +3055,8 @@ msgid "Save As"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:851 tcl/tklinuxcnc.tcl:761
-#, fuzzy
 msgid "Reset"
-msgstr "Folytatás"
+msgstr "Visszaállítás"
 
 #: src/hal/classicladder/classicladder_gtk.c:861
 msgid "Vars"
@@ -3077,9 +3065,8 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:867
 #: src/hal/classicladder/edit_gtk.c:344
 #: src/emc/usr_intf/pncconf/screen.glade:855
-#, fuzzy
 msgid "Editor"
-msgstr "Sz_erkesztés"
+msgstr "Szerkesztő"
 
 #: src/hal/classicladder/classicladder_gtk.c:872
 msgid "Symbols"
@@ -3091,9 +3078,8 @@ msgid "Config"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
-#, fuzzy
 msgid "Preview"
-msgstr "Oldal nézet"
+msgstr "Előnézet"
 
 #: src/hal/classicladder/classicladder_gtk.c:888
 msgid "Print"
@@ -3291,9 +3277,9 @@ msgid "Serial port (blank = IP mode)"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:636
-#, fuzzy, c-format
+#, c-format
 msgid "Serial baud rate"
-msgstr "Program szünet"
+msgstr "Sorosport baud érték"
 
 #: src/hal/classicladder/config_gtk.c:641
 #, c-format
@@ -3374,9 +3360,8 @@ msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:972
-#, fuzzy
 msgid "Updated Modbus configuration"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Modbus konfiguráció frissítve"
 
 #: src/hal/classicladder/config_gtk.c:995
 msgid "Opened Configuration window. Press again to update changes and close"
@@ -3419,9 +3404,8 @@ msgstr ""
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
 #: src/emc/usr_intf/stepconf/pport1.glade:1303
-#, fuzzy
 msgid "Preset"
-msgstr "Folytatás"
+msgstr "Beállított"
 
 #: src/hal/classicladder/edit.c:169
 msgid "MonostNbr"
@@ -3489,9 +3473,8 @@ msgid "New expr=%s\n"
 msgstr ""
 
 #: src/hal/classicladder/edit.c:393
-#, fuzzy
 msgid "Expression too long"
-msgstr "Mutasd a programozott pozíciót"
+msgstr "A kifejezés túl hosszú"
 
 #: src/hal/classicladder/edit.c:460
 msgid "You must select a boolean variable !"
@@ -3516,9 +3499,8 @@ msgid "Current rung in edit mode..."
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:128
-#, fuzzy
 msgid "Edit mode..."
-msgstr "Sz_erkesztés"
+msgstr "Szerkesztés…"
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
 #: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
@@ -3561,14 +3543,12 @@ msgid "Cancel"
 msgstr "Mégsem"
 
 #: src/hal/classicladder/edit_sequential.c:68
-#, fuzzy
 msgid "Step Nbr"
-msgstr "Lépé_s"
+msgstr "Lépés Nbr"
 
 #: src/hal/classicladder/edit_sequential.c:76
-#, fuzzy
 msgid "Comment"
-msgstr "Irányított"
+msgstr "Megjegyzés"
 
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
@@ -3700,9 +3680,8 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
-#, fuzzy
 msgid "top"
-msgstr "Stop"
+msgstr "Felső"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
@@ -3737,14 +3716,12 @@ msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:168
-#, fuzzy
 msgid "Properties"
-msgstr "G-kód hiba %s -ben"
+msgstr "Jellemzők"
 
 #: src/hal/classicladder/editproperties_gtk.c:180
-#, fuzzy
 msgid "Parameter"
-msgstr " Para_méterek "
+msgstr "Paraméter"
 
 #: src/hal/classicladder/editproperties_gtk.c:213
 #: lib/python/gladevcp/tooledit_gtk.glade:340
@@ -3780,9 +3757,8 @@ msgid "None"
 msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:130
-#, fuzzy
 msgid "error"
-msgstr "AXIS hiba"
+msgstr "hiba"
 
 #: src/hal/classicladder/emc_mods.c:151
 msgid "no signal connected"
@@ -3810,9 +3786,8 @@ msgid "Old Timer"
 msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:262
-#, fuzzy
 msgid "New Timer"
-msgstr "Program léptetés"
+msgstr "Új időzítő"
 
 #: src/hal/classicladder/emc_mods.c:267
 msgid "One-shot"
@@ -3836,9 +3811,9 @@ msgid "Rung version not supported...\n"
 msgstr ""
 
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
-#, fuzzy, c-format
+#, c-format
 msgid "Loading file : %s"
-msgstr "Program_szűrő %r sikertelen"
+msgstr "Fájl betöltése: %s"
 
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
@@ -3934,9 +3909,8 @@ msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:72
 #: src/hal/classicladder/manager_gtk.c:234 tcl/bin/halconfig.tcl:196
-#, fuzzy
 msgid "Main"
-msgstr "Gép"
+msgstr "Fő"
 
 #: src/hal/classicladder/manager_gtk.c:76
 #: src/hal/classicladder/manager_gtk.c:231
@@ -4004,14 +3978,12 @@ msgid "Sections Manager"
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:335
-#, fuzzy
 msgid "Add section"
-msgstr "2. tengely léptetés"
+msgstr "Szakasz hozzáadása"
 
 #: src/hal/classicladder/manager_gtk.c:340
-#, fuzzy
 msgid "Delete section"
-msgstr "Mutasd a relatív pozíciót"
+msgstr "Szakasz törlése"
 
 #: src/hal/classicladder/manager_gtk.c:345
 #: src/emc/usr_intf/pncconf/private_data.py:461
@@ -4424,9 +4396,8 @@ msgid "Unknown variable (global error)"
 msgstr ""
 
 #: tcl/bin/emccalib.tcl:95
-#, fuzzy
 msgid "LinuxCNC Calibration"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "LinuxCNC kalibráció"
 
 #: tcl/bin/emccalib.tcl:103
 msgid "Save To File"
@@ -4434,9 +4405,8 @@ msgstr ""
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
 #: tcl/bin/halshow.tcl:85 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
-#, fuzzy
 msgid "File"
-msgstr "_Fájl"
+msgstr "Fájl"
 
 #: tcl/bin/emccalib.tcl:121 tcl/bin/emccalib.tcl:280 tcl/bin/halconfig.tcl:153
 #: src/emc/usr_intf/touchy/touchy.glade:2420
@@ -4526,9 +4496,8 @@ msgid "Interpreter list"
 msgstr ""
 
 #: tcl/bin/genedit.tcl:80 tcl/tklinuxcnc.tcl:749 tcl/tklinuxcnc.tcl:1546
-#, fuzzy
 msgid "Open..."
-msgstr "_Megnyitás"
+msgstr "Megnyitás…"
 
 #: tcl/bin/genedit.tcl:84
 msgid "Save As..."
@@ -4536,29 +4505,25 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:95
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1326 tcl/ngcgui.tcl:3844
-#, fuzzy
 msgid "Exit"
-msgstr "Sz_erkesztés"
+msgstr "Kilépés"
 
 #: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:2720
 #: lib/python/gladevcp/offsetpage.glade:476
-#, fuzzy
 msgid "Edit"
-msgstr "Sz_erkesztés"
+msgstr "Szerkesztés"
 
 #: tcl/bin/genedit.tcl:92
 msgid "Cut"
 msgstr ""
 
 #: tcl/bin/genedit.tcl:94
-#, fuzzy
 msgid "Copy"
-msgstr "Máso_lás"
+msgstr "Másolás"
 
 #: tcl/bin/genedit.tcl:96
-#, fuzzy
 msgid "Paste"
-msgstr "Szü_net"
+msgstr "Beillesztés"
 
 #: tcl/bin/genedit.tcl:99
 msgid "Select All"
@@ -4567,9 +4532,8 @@ msgstr ""
 #: tcl/bin/genedit.tcl:104 tcl/bin/halconfig.tcl:192 tcl/tklinuxcnc.tcl:819
 #: src/emc/usr_intf/stepconf/main_page.glade:452
 #: src/emc/usr_intf/pncconf/main_page.glade:75
-#, fuzzy
 msgid "Help"
-msgstr "_Segítség"
+msgstr "Segítség"
 
 #: tcl/bin/genedit.tcl:105 tcl/tklinuxcnc.tcl:825
 msgid "About..."
@@ -4589,7 +4553,7 @@ msgstr ""
 
 #: tcl/bin/genedit.tcl:140 tcl/tklinuxcnc.tcl:775
 msgid "Settings"
-msgstr ""
+msgstr "Beállítások"
 
 #: tcl/bin/genedit.tcl:141
 msgid "No Numbering"
@@ -4621,14 +4585,12 @@ msgid "Find"
 msgstr ""
 
 #: tcl/bin/genedit.tcl:270
-#, fuzzy
 msgid "Find:"
-msgstr "Fő orsó:"
+msgstr "Keres:"
 
 #: tcl/bin/genedit.tcl:276
-#, fuzzy
 msgid "Replace:"
-msgstr "Relatív"
+msgstr "Csere:"
 
 #: tcl/bin/genedit.tcl:282
 msgid "Find All"
@@ -4667,9 +4629,8 @@ msgid "Two"
 msgstr ""
 
 #: tcl/bin/genedit.tcl:432
-#, fuzzy
 msgid "Five"
-msgstr "_Fájl"
+msgstr "Öt"
 
 #: tcl/bin/genedit.tcl:435
 msgid "Ten"
@@ -4696,9 +4657,8 @@ msgid "Next Number:"
 msgstr ""
 
 #: tcl/bin/genedit.tcl:474
-#, fuzzy
 msgid "Renumber"
-msgstr "Folytatás"
+msgstr "Újraszámozás"
 
 #: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:33
 msgid "HAL Configuration"
@@ -4721,9 +4681,8 @@ msgid "Save as Netlist"
 msgstr ""
 
 #: tcl/bin/halconfig.tcl:103
-#, fuzzy
 msgid "Don't Save"
-msgstr "Elől nézet"
+msgstr "Ne mentse"
 
 #: tcl/bin/halconfig.tcl:132
 msgid "Show"
@@ -4750,9 +4709,8 @@ msgid "Save and Exit"
 msgstr ""
 
 #: tcl/bin/halconfig.tcl:168 tcl/tklinuxcnc.tcl:768
-#, fuzzy
 msgid "View"
-msgstr "_Nézet"
+msgstr "Nézet"
 
 #: tcl/bin/halconfig.tcl:170 tcl/bin/halshow.tcl:109
 msgid "Expand Tree"
@@ -4884,9 +4842,8 @@ msgid ""
 msgstr ""
 
 #: tcl/bin/pickconfig.tcl:158
-#, fuzzy
 msgid "LinuxCNC Configuration Selector"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "LinuxCNC konfiguráció választó"
 
 #: tcl/bin/pickconfig.tcl:308
 msgid "No details available."
@@ -4956,14 +4913,12 @@ msgid "TkLinuxCNC BackPlot"
 msgstr ""
 
 #: tcl/bin/tkbackplot.tcl:125
-#, fuzzy
 msgid "SETUP"
-msgstr "ESTOP"
+msgstr "Beállítás"
 
 #: tcl/bin/tkbackplot.tcl:127
-#, fuzzy
 msgid "RESET"
-msgstr "ESTOP RESET"
+msgstr "Visszaállítás"
 
 #: tcl/bin/tkbackplot.tcl:129
 msgid "CANCEL"
@@ -5037,14 +4992,12 @@ msgid "Heartbeat:"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:269 tcl/tklinuxcnc.tcl:292 tcl/tklinuxcnc.tcl:315
-#, fuzzy
 msgid "Command:"
-msgstr "Irányított"
+msgstr "Parancs:"
 
 #: tcl/tklinuxcnc.tcl:272 tcl/tklinuxcnc.tcl:295 tcl/tklinuxcnc.tcl:318
-#, fuzzy
 msgid "Command #:"
-msgstr "Irányított"
+msgstr "Parancs #:"
 
 #: tcl/tklinuxcnc.tcl:275 tcl/tklinuxcnc.tcl:298 tcl/tklinuxcnc.tcl:321
 msgid "Status:"
@@ -5055,9 +5008,8 @@ msgid "Io"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:310
-#, fuzzy
 msgid "Motion"
-msgstr "Pozíció:"
+msgstr "Mozgás"
 
 #: tcl/tklinuxcnc.tcl:351
 msgid "About TkLinuxCNC"
@@ -5077,9 +5029,8 @@ msgid "Set Tool Offset"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:405 tcl/tklinuxcnc.tcl:934
-#, fuzzy
 msgid "Tool:"
-msgstr "Hűtés:"
+msgstr "Szerszám:"
 
 #: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2203
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:774
@@ -5097,14 +5048,12 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:630 tcl/tklinuxcnc.tcl:1152 tcl/tklinuxcnc.tcl:1156
 #: src/emc/usr_intf/gscreen/gscreen.glade:1574
 #: src/emc/usr_intf/gscreen/gscreen.glade:1586
-#, fuzzy
 msgid "continuous"
-msgstr "Folytonos"
+msgstr "folytonos"
 
 #: tcl/tklinuxcnc.tcl:751
-#, fuzzy
 msgid "Edit..."
-msgstr "Sz_erkesztés"
+msgstr "Szerkesztés…"
 
 #: tcl/tklinuxcnc.tcl:756
 msgid "Tool Table Editor..."
@@ -5202,9 +5151,8 @@ msgid "HAL Config"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:820
-#, fuzzy
 msgid "Help..."
-msgstr "_Segítség"
+msgstr "Segítség…"
 
 #: tcl/tklinuxcnc.tcl:821
 msgid "Balloon help"
@@ -5219,14 +5167,12 @@ msgid "Estop off"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:847
-#, fuzzy
 msgid "Machine on"
-msgstr "Gép"
+msgstr "Gép BE"
 
 #: tcl/tklinuxcnc.tcl:848 src/emc/usr_intf/gscreen/gscreen.glade:2487
-#, fuzzy
 msgid "Machine off"
-msgstr "Gép"
+msgstr "Gép KI"
 
 #: tcl/tklinuxcnc.tcl:855 src/emc/usr_intf/touchy/touchy.glade:1561
 #, fuzzy
@@ -5239,24 +5185,20 @@ msgid "MDI"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:864
-#, fuzzy
 msgid "Mist on"
-msgstr "Elszívás"
+msgstr "Permet BE"
 
 #: tcl/tklinuxcnc.tcl:865
-#, fuzzy
 msgid "Mist off"
-msgstr "Elszívás"
+msgstr "Permet KI"
 
 #: tcl/tklinuxcnc.tcl:872
-#, fuzzy
 msgid "Flood on"
-msgstr "Folyadék"
+msgstr "Folyadék BE"
 
 #: tcl/tklinuxcnc.tcl:873
-#, fuzzy
 msgid "Flood off"
-msgstr "Folyadék"
+msgstr "Folyadék KI"
 
 #: tcl/tklinuxcnc.tcl:880
 msgid "Lube on"
@@ -5267,43 +5209,36 @@ msgid "Lube off"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:898
-#, fuzzy
 msgid "Spindle forward"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó előre"
 
 #: tcl/tklinuxcnc.tcl:899
-#, fuzzy
 msgid "Spindle reverse"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorső hátra"
 
 #: tcl/tklinuxcnc.tcl:900
-#, fuzzy
 msgid "Spindle off"
-msgstr "Fő orsó fék kikapcsolva"
+msgstr "Főorsó KI"
 
 #: tcl/tklinuxcnc.tcl:914
-#, fuzzy
 msgid "Brake on"
-msgstr "Fék"
+msgstr "Fék BE"
 
 #: tcl/tklinuxcnc.tcl:915
-#, fuzzy
 msgid "Brake off"
-msgstr "Fék"
+msgstr "Fék KI"
 
 #: tcl/tklinuxcnc.tcl:919
 msgid "ABORT"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:936
-#, fuzzy
 msgid "Offset:"
-msgstr "Eltolás"
+msgstr "Eltolás:"
 
 #: tcl/tklinuxcnc.tcl:942
-#, fuzzy
 msgid "Work Offsets:"
-msgstr "Eltolás"
+msgstr "Work Eltolás:"
 
 #: tcl/tklinuxcnc.tcl:1126
 #, fuzzy
@@ -5356,14 +5291,12 @@ msgid "Set jog speed:"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1318
-#, fuzzy
 msgid "Set Feed Override"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás beállítás"
 
 #: tcl/tklinuxcnc.tcl:1324
-#, fuzzy
 msgid "Set feed override:"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás beállítás (%):"
 
 #: tcl/tklinuxcnc.tcl:1349
 msgid "Set Spindle Override"
@@ -5382,23 +5315,20 @@ msgid "Angular Jog Speed (deg)/min:"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
-#, fuzzy
 msgid "Feed Override:"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás (%):"
 
 #: tcl/tklinuxcnc.tcl:1485
-#, fuzzy
 msgid "Spindle speed Override:"
-msgstr "Túlhajtás (%):"
+msgstr "Főorső sebesség túlhajtás (%):"
 
 #: tcl/tklinuxcnc.tcl:1509
 msgid "MDI:"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1531
-#, fuzzy
 msgid "Program: "
-msgstr "_Program"
+msgstr "Program: "
 
 #: tcl/tklinuxcnc.tcl:1536
 msgid "  -  Status: "
@@ -5406,9 +5336,8 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1548 src/emc/usr_intf/pncconf/dialogs.glade:3657
 #: src/emc/usr_intf/gscreen/gscreen.glade:2673
-#, fuzzy
 msgid "Pause"
-msgstr "Szü_net"
+msgstr "Szünet"
 
 #: tcl/tklinuxcnc.tcl:1549
 #, fuzzy
@@ -5416,9 +5345,8 @@ msgid "Resume"
 msgstr "Folytatás"
 
 #: tcl/tklinuxcnc.tcl:1550
-#, fuzzy
 msgid "Step"
-msgstr "Lépé_s"
+msgstr "Lépés"
 
 #: tcl/tklinuxcnc.tcl:1551
 msgid "Verify"
@@ -5434,16 +5362,15 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1954 tcl/ngcgui_ttt.tcl:284
 msgid "Font"
-msgstr ""
+msgstr "Karkter"
 
 #: tcl/tklinuxcnc.tcl:1961
 msgid "Size"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1968
-#, fuzzy
 msgid "Style"
-msgstr "Lépé_s"
+msgstr "Stílus"
 
 #: tcl/tklinuxcnc.tcl:2016 tcl/tklinuxcnc.tcl:2115
 msgid "MANUAL"
@@ -5547,18 +5474,16 @@ msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:83
 #: src/emc/usr_intf/axis/scripts/axis.py:3616
-#, fuzzy
 msgid "Axis "
-msgstr "Tengely:"
+msgstr "Tengely "
 
 #: tcl/scripts/Set_Coordinates.tcl:84
 msgid "Var # "
 msgstr ""
 
 #: tcl/scripts/Set_Coordinates.tcl:85
-#, fuzzy
 msgid "Offset Value "
-msgstr "Eltolás"
+msgstr "Eltolás érték "
 
 #: tcl/scripts/Set_Coordinates.tcl:86
 msgid "What to Teach"
@@ -5664,9 +5589,8 @@ msgid "Choose Files"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1182
-#, fuzzy
 msgid "Controls"
-msgstr "Folytonos"
+msgstr "Vezérlések"
 
 #: tcl/ngcgui.tcl:1191
 msgid "Preamble"
@@ -5702,9 +5626,8 @@ msgid "Create Feature"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1277 tcl/ngcgui.tcl:3070
-#, fuzzy
 msgid "MakeFile"
-msgstr "_Fájl"
+msgstr "Fájl létrehozása"
 
 #: tcl/ngcgui.tcl:1278 tcl/ngcgui.tcl:3067
 msgid "Finalize"
@@ -5815,9 +5738,8 @@ msgid "activated"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1946
-#, fuzzy
 msgid "restores"
-msgstr "Stop"
+msgstr "helyreállítások"
 
 #: tcl/ngcgui.tcl:1985
 msgid "NOTREACHED mode"
@@ -5864,9 +5786,8 @@ msgid "Created feature "
 msgstr ""
 
 #: tcl/ngcgui.tcl:2485
-#, fuzzy
 msgid "option"
-msgstr "Pozíció:"
+msgstr "opció"
 
 #: tcl/ngcgui.tcl:2496
 msgid "Missing parameters"
@@ -5926,9 +5847,8 @@ msgid "Sent"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2564
-#, fuzzy
 msgid "SendFileToAxis failed"
-msgstr "Program_szűrő %r sikertelen"
+msgstr "Fájlküldés a tengelyhez sikertelen"
 
 #: tcl/ngcgui.tcl:2568
 msgid "Ctrl-k for Key bindings"
@@ -5975,9 +5895,8 @@ msgid "OFF"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2993
-#, fuzzy
 msgid "Toggle autosend"
-msgstr "Hűtés Ki/Be"
+msgstr "Vált az Autoküldés"
 
 #: tcl/ngcgui.tcl:2994 tcl/ngcgui.tcl:3201
 msgid "Clear entries"
@@ -6036,18 +5955,16 @@ msgid "toggle output file verbosity"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3008
-#, fuzzy
 msgid "Show status"
-msgstr "Mutasd a _határokat"
+msgstr "Mutasd az állapotokat"
 
 #: tcl/ngcgui.tcl:3009
 msgid "Show full status (debug info)"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3011
-#, fuzzy
 msgid "on current subfile"
-msgstr "Újratöltés [Control-R]"
+msgstr "aktuális alfájl"
 
 #: tcl/ngcgui.tcl:3013
 msgid "on current preamble"
@@ -6173,18 +6090,16 @@ msgid "Check setting for"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3828
-#, fuzzy
 msgid "in ini file"
-msgstr "AXIS (Nincs fájl)"
+msgstr "az ini fájlban"
 
 #: tcl/ngcgui.tcl:3829
 msgid "(Restart required after fixing ini file)"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3844
-#, fuzzy
 msgid "Try to Continue"
-msgstr "Folytonos"
+msgstr "Próbáld folytatni"
 
 #: tcl/ngcgui.tcl:3849
 msgid "Ngcgui Configuration File Not Found"
@@ -6199,9 +6114,8 @@ msgid "Please install Img"
 msgstr ""
 
 #: tcl/ngcgui.tcl:4134
-#, fuzzy
 msgid "ini file"
-msgstr "AXIS (Nincs fájl)"
+msgstr "ini fájl"
 
 #: tcl/ngcgui.tcl:4143
 msgid "not found"
@@ -6308,9 +6222,8 @@ msgid "Using truetype-tracer default font"
 msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:389
-#, fuzzy
 msgid "no such file"
-msgstr "AXIS (Nincs fájl)"
+msgstr "nincs ilyen fájl"
 
 #: tcl/ngcgui_ttt.tcl:394
 msgid "file not readable"
@@ -6360,9 +6273,9 @@ msgid "Note: Ignoring duplicate column name: %s"
 msgstr ""
 
 #: tcl/tooledit.tcl:93
-#, fuzzy, tcl-format
+#, tcl-format
 msgid "Unknown column: %s"
-msgstr "Szerszám %d ismeretlen"
+msgstr "Ismeretlen oszlop: %s"
 
 #: tcl/tooledit.tcl:210 tcl/tooledit.tcl:213 tcl/tooledit.tcl:598
 #: tcl/tooledit.tcl:599 tcl/tooledit.tcl:1032
@@ -6410,9 +6323,8 @@ msgid "%s: Column sorting not available with tcl_version==%s"
 msgstr ""
 
 #: tcl/tooledit.tcl:408
-#, fuzzy
 msgid "tool"
-msgstr "Nincs szerszám"
+msgstr "szerszám"
 
 #: tcl/tooledit.tcl:409
 msgid "poc"
@@ -6435,9 +6347,8 @@ msgid "orien"
 msgstr ""
 
 #: tcl/tooledit.tcl:414
-#, fuzzy
 msgid "comment"
-msgstr "Lépes növelése"
+msgstr "megjegyzés"
 
 #: tcl/tooledit.tcl:444
 msgid "Del"
@@ -6448,18 +6359,16 @@ msgid "ReLoadTable"
 msgstr ""
 
 #: tcl/tooledit.tcl:478
-#, fuzzy
 msgid "SaveFile"
-msgstr "_Fájl"
+msgstr "Fájl mentése"
 
 #: tcl/tooledit.tcl:483
 msgid "ReRead"
 msgstr ""
 
 #: tcl/tooledit.tcl:485
-#, fuzzy
 msgid "AddTool"
-msgstr "Hűtés:"
+msgstr "Szerszám hozzáadása"
 
 #: tcl/tooledit.tcl:535
 #, tcl-format
@@ -6508,9 +6417,8 @@ msgid "Warning: File deleted by another process"
 msgstr ""
 
 #: tcl/tooledit.tcl:546
-#, fuzzy
 msgid "Added Tool"
-msgstr "Nincs szerszám"
+msgstr "Hozzáadott szerszám"
 
 #: tcl/tooledit.tcl:550
 #, tcl-format
@@ -6669,9 +6577,8 @@ msgid "Activate fourth axis"
 msgstr "4. tengely beindítva"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
-#, fuzzy
 msgid "Activate first through ninth joint"
-msgstr "5. tengely beindítva"
+msgstr "Aktiválja az elsőt a kilencedik tengelyen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:195
 msgid "if joints radiobuttons visible"
@@ -6690,9 +6597,8 @@ msgid ", and ."
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:198
-#, fuzzy
 msgid "Select jog speed"
-msgstr "Lépes növelése"
+msgstr "Kézi sebesség kiválasztás"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "< and >"
@@ -6724,14 +6630,12 @@ msgid "Send active joint home"
 msgstr "Aktuális tengely kiinduló pozicióba"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:203
-#, fuzzy
 msgid "Ctrl-Home"
-msgstr "Nullpont"
+msgstr "Ctrl-Home"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:203
-#, fuzzy
 msgid "Home all joints"
-msgstr "Nullpont"
+msgstr "Nullpontra az összes tengelyt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:204
 msgid "Shift-Home"
@@ -6751,24 +6655,20 @@ msgid "Set G54 offset for active axis"
 msgstr "A G54 offszet beállítása az aktiv tengelyen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
-#, fuzzy
 msgid "Ctrl-End"
-msgstr "Nullpont"
+msgstr "Ctrl-End"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
-#, fuzzy
 msgid "Set tool offset for loaded tool"
-msgstr "A G54 offszet beállítása az aktiv tengelyen"
+msgstr "Szerzsám eltolás beállítása a betöltött szerszámon"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
-#, fuzzy
 msgid "Jog active axis or joint"
-msgstr "3. tengely léptetés"
+msgstr "Kézi vezérlés aktív tengely vagy joint"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:208
-#, fuzzy
 msgid "Select Max velocity"
-msgstr "Mutas_d a grafikus szimulációt"
+msgstr "Max sebesség kiválasztása"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:211
 msgid "Left, Right"
@@ -6819,9 +6719,8 @@ msgid "Left Button"
 msgstr "Bal egér gomb"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:219
-#, fuzzy
 msgid "Pan, rotate or select line"
-msgstr "Nézet mozgatás vagy sor kijelölés"
+msgstr "Nézet forgatás vagy sor kijelölés"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:220
 msgid "Shift+Left Button"
@@ -6909,9 +6808,8 @@ msgid "Control-R"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:236
-#, fuzzy
 msgid "Reload program"
-msgstr "Program indítás"
+msgstr "Program újratöltés"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "Control-S"
@@ -6938,9 +6836,8 @@ msgid "Resume program"
 msgstr "Program folytatása"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:242
-#, fuzzy
 msgid "Stop running program, or"
-msgstr "Program megszakítása"
+msgstr "Program megszakítása, vagy"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "stop loading program preview"
@@ -7033,9 +6930,9 @@ msgid "No tool"
 msgstr "Nincs szerszám"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:919
-#, fuzzy, python-format
+#, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
-msgstr "Szerszám %d, eltolás %g, atmerő %g"
+msgstr "Szerszám %(tool)d, eltolás %(zo)g, atmerő %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:921
 #, python-format
@@ -7047,9 +6944,8 @@ msgid "Filtering..."
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1169
-#, fuzzy
 msgid "Filter failed"
-msgstr "Program_szűrő %r sikertelen"
+msgstr "Szűrő sikertelen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1170
 #, python-format
@@ -7064,13 +6960,13 @@ msgid "G-Code error in %s"
 msgstr "G-kód hiba %s -ben"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1273
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
-"Közel a %d sorhoz, %s -ból:\n"
-"%s"
+"Közel a %(seq)d sorhoz, %(f)s -ból:\n"
+"%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1462
 #: src/emc/usr_intf/axis/scripts/axis.py:3220 share/axis/tcl/axis.tcl:922
@@ -7119,9 +7015,8 @@ msgid "Name:"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1791
-#, fuzzy
 msgid "Size:"
-msgstr "Fő orsó:"
+msgstr "Méret:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1792
 msgid "Tool order:"
@@ -7187,7 +7082,7 @@ msgstr "Program folytatás"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2002
 msgid "No file loaded"
-msgstr ""
+msgstr "Nincs betöltött fájl"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2010
 #, python-format
@@ -7207,9 +7102,9 @@ msgid "%.1f minutes"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2044
-#, fuzzy, python-format
+#, python-format
 msgid "%d seconds"
-msgstr "2. tengely léptetés"
+msgstr "%d másodperc"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2052
 #, python-format
@@ -7217,9 +7112,8 @@ msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2053
-#, fuzzy
 msgid "G-Code Properties"
-msgstr "G-kód hiba %s -ben"
+msgstr "G-kód jellemzők"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2201
 msgid "All machinable files"
@@ -7332,16 +7226,14 @@ msgid "Axes"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3535
-#, fuzzy
 msgid "Joints"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Tengelyek"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3537
 #: src/emc/usr_intf/touchy/touchy.glade:577
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
-#, fuzzy
 msgid "Home All"
-msgstr "Nullpont"
+msgstr "Minden nullpontra"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3539
 #, python-format
@@ -7349,14 +7241,14 @@ msgid "Home all %s [Ctrl-Home]"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3542
-#, fuzzy, python-format
+#, python-format
 msgid "Home All %s"
-msgstr "Nullpont"
+msgstr "Mindent nullpontra %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3544
-#, fuzzy, python-format
+#, python-format
 msgid "Unhome All %s"
-msgstr "Nullpont"
+msgstr "Minden nullpont törlése %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3585
 #, python-format
@@ -7385,9 +7277,8 @@ msgid "Joint"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3635
-#, fuzzy
 msgid "Home Joint"
-msgstr "Nullpont"
+msgstr "Tengely nullpontra"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3643
 #, python-format
@@ -7420,9 +7311,8 @@ msgid "LinuxCNC Status"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:149
-#, fuzzy
 msgid "Copy All"
-msgstr "Máso_lás"
+msgstr "Mindent másol"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:41
 #, python-format
@@ -7483,9 +7373,8 @@ msgid "White"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
-#, fuzzy
 msgid "Black"
-msgstr "Fék"
+msgstr "Fekete"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:631
 msgid "Rows"
@@ -7504,14 +7393,12 @@ msgid "Columns then Rows"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:632
-#, fuzzy
 msgid "Positive"
-msgstr "Pozíció:"
+msgstr "Pozitív"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:632
-#, fuzzy
 msgid "Negative"
-msgstr "Relatív"
+msgstr "Negatív"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:632
 msgid "Alternating"
@@ -7689,46 +7576,40 @@ msgid "  * This option can only be enabled in the inifile"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:58
-#, fuzzy
 msgid "_Open..."
-msgstr "_Megnyitás"
+msgstr "_Megnyitás…"
 
 #: share/axis/tcl/axis.tcl:62
 msgid "Recent _Files"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:66
-#, fuzzy
 msgid "_Edit..."
-msgstr "Sz_erkesztés"
+msgstr "_Szerkesztés…"
 
 #: share/axis/tcl/axis.tcl:69
-#, fuzzy
 msgid "Ctrl-R"
-msgstr "Nullpont"
+msgstr "Ctrl-R"
 
 #: share/axis/tcl/axis.tcl:71
 msgid "_Reload"
 msgstr "Ú_jratöltés"
 
 #: share/axis/tcl/axis.tcl:74
-#, fuzzy
 msgid "Ctrl-S"
-msgstr "Nullpont"
+msgstr "Ctrl-S"
 
 #: share/axis/tcl/axis.tcl:76
 msgid "_Save gcode as..."
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:80
-#, fuzzy
 msgid "_Properties..."
-msgstr "G-kód hiba %s -ben"
+msgstr "_Tulajdonságok…"
 
 #: share/axis/tcl/axis.tcl:86
-#, fuzzy
 msgid "Edit _tool data..."
-msgstr "Sz_erkesztés"
+msgstr "Szerszámadatok szerkesztése…"
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
@@ -7751,19 +7632,16 @@ msgid "_Run program"
 msgstr "P_rogram indítás"
 
 #: share/axis/tcl/axis.tcl:124
-#, fuzzy
 msgid "Ru_n from selected line"
-msgstr "Nézet mozgatás vagy sor kijelölés"
+msgstr "Futtatás a kiválasztott sortól"
 
 #: share/axis/tcl/axis.tcl:129
-#, fuzzy
 msgid "S_tep"
-msgstr "Lépé_s"
+msgstr "Lépés"
 
 #: share/axis/tcl/axis.tcl:134
-#, fuzzy
 msgid "_Pause"
-msgstr "Szü_net"
+msgstr "_Szünet"
 
 #: share/axis/tcl/axis.tcl:139
 #, fuzzy
@@ -7779,18 +7657,16 @@ msgid "Skip lines with '_/'"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:159
-#, fuzzy
 msgid "Ctrl-M"
-msgstr "Nullpont"
+msgstr "Ctrl-M"
 
 #: share/axis/tcl/axis.tcl:161
 msgid "Clear MDI h_istory"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:163
-#, fuzzy
 msgid "Ctrl-H"
-msgstr "Nullpont"
+msgstr "Ctrl-H"
 
 #: share/axis/tcl/axis.tcl:165
 msgid "Copy from MDI hist_ory"
@@ -7809,9 +7685,8 @@ msgid "_Calibration"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:179
-#, fuzzy
 msgid "Show _Hal Configuration"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Mutasd a HAL beállításokat"
 
 #: share/axis/tcl/axis.tcl:183
 msgid "H_al Meter"
@@ -7923,14 +7798,12 @@ msgid "S_how program"
 msgstr "Muta_sd a programot"
 
 #: share/axis/tcl/axis.tcl:327
-#, fuzzy
 msgid "Show program r_apids"
-msgstr "Muta_sd a programot"
+msgstr "Mutasd a gyors mozgásokat"
 
 #: share/axis/tcl/axis.tcl:332
-#, fuzzy
 msgid "Alpha-_blend program"
-msgstr "Program betöltés"
+msgstr "Alpha-_blend program"
 
 #: share/axis/tcl/axis.tcl:337
 msgid "Sho_w live plot"
@@ -7941,28 +7814,24 @@ msgid "Show too_l"
 msgstr "Mu_tasd a szerszámot"
 
 #: share/axis/tcl/axis.tcl:347
-#, fuzzy
 msgid "Show e_xtents"
-msgstr "Mutasd a _határokat"
+msgstr "Mutasd a kiterjedést"
 
 #: share/axis/tcl/axis.tcl:351
 msgid "_Grid"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:356
-#, fuzzy
 msgid "Show o_ffsets"
-msgstr "Mutasd a _határokat"
+msgstr "Mutasd az eltolásokat"
 
 #: share/axis/tcl/axis.tcl:361
-#, fuzzy
 msgid "Sh_ow machine limits"
-msgstr "A program túllép a gép korlátain"
+msgstr "Mutasd a gép korlátait"
 
 #: share/axis/tcl/axis.tcl:366
-#, fuzzy
 msgid "Show v_elocity"
-msgstr "Mutas_d a grafikus szimulációt"
+msgstr "Mutasd a sebességet"
 
 #: share/axis/tcl/axis.tcl:371
 msgid "Show _distance to go"
@@ -7973,9 +7842,8 @@ msgid "Large coordinate fo_nt"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:379
-#, fuzzy
 msgid "Ctrl-K"
-msgstr "Nullpont"
+msgstr "Ctrl-K"
 
 #: share/axis/tcl/axis.tcl:381
 #, fuzzy
@@ -7983,9 +7851,8 @@ msgid "_Clear live plot"
 msgstr "Grafikus szimuláció törlése"
 
 #: share/axis/tcl/axis.tcl:385
-#, fuzzy
 msgid "Ctrl-E"
-msgstr "Nullpont"
+msgstr "Ctrl-E"
 
 #: share/axis/tcl/axis.tcl:396
 #, fuzzy
@@ -8083,37 +7950,32 @@ msgid "Toggle optional pause [Alt-M 1]"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:586
-#, fuzzy
 msgid "Zoom in"
-msgstr "Közelítés [+]"
+msgstr "Nagyítás [+]"
 
 #: share/axis/tcl/axis.tcl:594
-#, fuzzy
 msgid "Zoom out"
-msgstr "Távolítás [-]"
+msgstr "Kicsinyítés [-]"
 
 #: share/axis/tcl/axis.tcl:602
 msgid "Top view"
 msgstr "Felül nézet"
 
 #: share/axis/tcl/axis.tcl:610
-#, fuzzy
 msgid "Rotated top view"
-msgstr "Fo_rgatott felül nézet"
+msgstr "Forgatott felül nézet"
 
 #: share/axis/tcl/axis.tcl:618
 msgid "Side view"
 msgstr "Oldal nézet"
 
 #: share/axis/tcl/axis.tcl:626
-#, fuzzy
 msgid "Front view"
-msgstr "_Elől nézet"
+msgstr "Elől nézet"
 
 #: share/axis/tcl/axis.tcl:634
-#, fuzzy
 msgid "Inverted Front view"
-msgstr "_Elől nézet"
+msgstr "Fordított elől nézet"
 
 #: share/axis/tcl/axis.tcl:642
 msgid "Perspective view"
@@ -8142,9 +8004,8 @@ msgid "Axis:"
 msgstr "Tengely:"
 
 #: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
-#, fuzzy
 msgid "Home Axis"
-msgstr "Nullpont"
+msgstr "Tengely nullpont"
 
 #: share/axis/tcl/axis.tcl:938
 msgid "Touch Off"
@@ -8155,9 +8016,8 @@ msgid "Tool Touch Off"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1021
-#, fuzzy
 msgid "Spindle:"
-msgstr "Fő orsó:"
+msgstr "Főorsó:"
 
 #: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:946
 #: src/emc/usr_intf/stepconf/main_page.glade:29
@@ -8185,9 +8045,8 @@ msgid "Coolant:"
 msgstr "Hűtés:"
 
 #: share/axis/tcl/axis.tcl:1139
-#, fuzzy
 msgid "Mist"
-msgstr "Elszívás"
+msgstr "Permet"
 
 #: share/axis/tcl/axis.tcl:1144
 #, fuzzy
@@ -8199,9 +8058,8 @@ msgid "History:"
 msgstr "Előzmények:"
 
 #: share/axis/tcl/axis.tcl:1239
-#, fuzzy
 msgid "MDI Command:"
-msgstr "Irányított"
+msgstr "MDI parancs:"
 
 #: share/axis/tcl/axis.tcl:1248
 msgid "Go"
@@ -8225,9 +8083,8 @@ msgid "Max Velocity:"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1451
-#, fuzzy
 msgid "Spindle Override:"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás (%):"
 
 #: share/axis/tcl/axis.tcl:1453 share/axis/tcl/axis.tcl:1493
 #: share/axis/tcl/axis.tcl:1531 src/emc/usr_intf/pncconf/external.glade:2715
@@ -8286,9 +8143,8 @@ msgid "%"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1529
-#, fuzzy
 msgid "Rapid Override:"
-msgstr "Túlhajtás (%):"
+msgstr "Gyorsjárat túlhajtás (%):"
 
 #: share/axis/tcl/axis.tcl:1571
 #, fuzzy
@@ -8381,14 +8237,12 @@ msgid "Stop spindle [F9/F10]"
 msgstr "Fő orsó leállítása [F9/F10]"
 
 #: share/axis/tcl/axis.tcl:2253
-#, fuzzy
 msgid "Turn spindle Faster [F12]"
-msgstr "Fő orsó jobbra forgatása [F9]"
+msgstr "Főorsó gyorsítás [F12]"
 
 #: share/axis/tcl/axis.tcl:2254
-#, fuzzy
 msgid "Turn spindle Slower [F11]"
-msgstr "Fő orsó jobbra forgatása [F9]"
+msgstr "Főorsó lassítás [F11]"
 
 #: share/axis/tcl/axis.tcl:2255
 msgid "Turn spindle brake on [Shift-B] or off [B]"
@@ -8407,14 +8261,12 @@ msgid "Send active axis home [Home]"
 msgstr "Aktív tengely nullpontra [Home]"
 
 #: share/axis/tcl/axis.tcl:2259
-#, fuzzy
 msgid "Set G54 offset for active axis [End]"
-msgstr "A G54 offszet beállítása az aktiv tengelyen"
+msgstr "A G54 offszet beállítása az aktiv tengelyen [End]"
 
 #: share/axis/tcl/axis.tcl:2260
-#, fuzzy
 msgid "Set tool offset for loaded tool [Control-End]"
-msgstr "A G54 offszet beállítása az aktiv tengelyen"
+msgstr "Állítsa be a szerszámeltolást a betöltendő szerszámhoz [Control-End]"
 
 #: share/axis/tcl/axis.tcl:2261
 msgid "Activate axis [X]"
@@ -8458,26 +8310,22 @@ msgstr ""
 #: src/emc/usr_intf/touchy/mdi.py:47 src/emc/usr_intf/stepconf/stepconf.py:233
 #: src/emc/usr_intf/pncconf/private_data.py:509
 #: src/emc/usr_intf/gscreen/mdi.py:47
-#, fuzzy
 msgid "Spindle CW"
-msgstr "Fő orsó:"
+msgstr "Főorsó CW"
 
 #: src/emc/usr_intf/touchy/mdi.py:48 src/emc/usr_intf/stepconf/stepconf.py:233
 #: src/emc/usr_intf/pncconf/private_data.py:509
 #: src/emc/usr_intf/gscreen/mdi.py:48
-#, fuzzy
 msgid "Spindle CCW"
-msgstr "Fő orsó:"
+msgstr "Főorsó CCW"
 
 #: src/emc/usr_intf/touchy/mdi.py:50
-#, fuzzy
 msgid "Set tool number"
-msgstr "Folytatás"
+msgstr "Szerszámsorszám beállítás"
 
 #: src/emc/usr_intf/touchy/mdi.py:51 src/emc/usr_intf/gscreen/mdi.py:50
-#, fuzzy
 msgid "Input control"
-msgstr "Kézi vezérlés"
+msgstr "Bemenet vezérlés"
 
 #: src/emc/usr_intf/touchy/mdi.py:54 src/emc/usr_intf/touchy/mdi.py:55
 #: src/emc/usr_intf/gscreen/mdi.py:53 src/emc/usr_intf/gscreen/mdi.py:54
@@ -8505,14 +8353,12 @@ msgid "Dwell"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/mdi.py:64 src/emc/usr_intf/gscreen/mdi.py:63
-#, fuzzy
 msgid "Setup"
-msgstr "EMC állapot mutatása"
+msgstr "Beállítás"
 
 #: src/emc/usr_intf/touchy/mdi.py:65 src/emc/usr_intf/gscreen/mdi.py:64
-#, fuzzy
 msgid "Spindle synchronized feed"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Szinkronizált főorsó előtolás"
 
 #: src/emc/usr_intf/touchy/mdi.py:66 src/emc/usr_intf/gscreen/mdi.py:65
 msgid "Rigid tap"
@@ -8599,9 +8445,8 @@ msgid "CCW"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/emc_interface.py:435
-#, fuzzy
 msgid "Stopped"
-msgstr "S_top"
+msgstr "Stop"
 
 #: src/emc/usr_intf/touchy/emc_interface.py:435
 msgid "CW"
@@ -8743,9 +8588,8 @@ msgid "wd"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:448
-#, fuzzy
 msgid "Estop Reset"
-msgstr "Folytatás"
+msgstr "Vészstop visszaállítás"
 
 #: src/emc/usr_intf/touchy/touchy.glade:459
 #: src/emc/usr_intf/stepconf/pport1.glade:21
@@ -8753,35 +8597,30 @@ msgstr "Folytatás"
 #: src/emc/usr_intf/pncconf/pport1.glade:26
 #: src/emc/usr_intf/pncconf/pport2.glade:26
 #: src/emc/usr_intf/gscreen/gscreen.glade:2477
-#, fuzzy
 msgid "Estop"
-msgstr "Stop"
+msgstr "Vészstop"
 
 #: src/emc/usr_intf/touchy/touchy.glade:475
 #: src/emc/usr_intf/gscreen/gscreen.py:2548
-#, fuzzy
 msgid "Machine On"
-msgstr "Gép"
+msgstr "Gép Be"
 
 #: src/emc/usr_intf/touchy/touchy.glade:490
 #: src/emc/usr_intf/gscreen/gscreen.py:2553
-#, fuzzy
 msgid "Machine Off"
-msgstr "Gép"
+msgstr "Gép Ki"
 
 #: src/emc/usr_intf/touchy/touchy.glade:531
 msgid "<b>Power</b>"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:562
-#, fuzzy
 msgid "Unhome All"
-msgstr "Nullpont"
+msgstr "Minden nullpont törlése"
 
 #: src/emc/usr_intf/touchy/touchy.glade:588
-#, fuzzy
 msgid "Home Selected"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Nullpont kiválasztva"
 
 #: src/emc/usr_intf/touchy/touchy.glade:603
 msgid "Unhome Selected"
@@ -8796,9 +8635,8 @@ msgid "Startup"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:660
-#, fuzzy
 msgid "Set Tool"
-msgstr "Hűtés:"
+msgstr "Szerszám beállítás"
 
 #: src/emc/usr_intf/touchy/touchy.glade:675
 msgid "Set Origin"
@@ -8809,9 +8647,8 @@ msgid "Macro"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:727
-#, fuzzy
 msgid "G"
-msgstr "Indulj"
+msgstr "G"
 
 #: src/emc/usr_intf/touchy/touchy.glade:929
 msgid "."
@@ -8849,7 +8686,7 @@ msgstr ""
 #: lib/python/gladevcp/offsetpage.glade:42
 #: lib/python/gladevcp/offsetpage.glade:59
 msgid "2"
-msgstr ""
+msgstr "2"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1014
 #: src/emc/usr_intf/stepconf/options.glade:412
@@ -8880,7 +8717,7 @@ msgstr ""
 #: lib/python/gladevcp/offsetpage.glade:45
 #: lib/python/gladevcp/offsetpage.glade:62
 msgid "5"
-msgstr ""
+msgstr "5"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1065
 #: src/emc/usr_intf/stepconf/ubuttons.glade:105
@@ -8888,7 +8725,7 @@ msgstr ""
 #: lib/python/gladevcp/offsetpage.glade:44
 #: lib/python/gladevcp/offsetpage.glade:61
 msgid "4"
-msgstr ""
+msgstr "4"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1082
 #: src/emc/usr_intf/stepconf/ubuttons.glade:165
@@ -8915,60 +8752,49 @@ msgid "7"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1297
-#, fuzzy
 msgid "Flood On"
-msgstr "Folyadék"
+msgstr "Folyadék Be"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1308
-#, fuzzy
 msgid "Flood Off"
-msgstr "Folyadék"
+msgstr "Folyadék Ki"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1324
-#, fuzzy
 msgid "Mist On"
-msgstr "Elszívás"
+msgstr "Permet BE"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1339
-#, fuzzy
 msgid "Mist Off"
-msgstr "Elszívás"
+msgstr "Permet Ki"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1362
-#, fuzzy
 msgid "<b>Coolant</b>"
-msgstr "Hűtés:"
+msgstr "<b>Hűtés:</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1422
-#, fuzzy
 msgid "Spindle Forward"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó előre"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1433
-#, fuzzy
 msgid "Spindle Reverse"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó hátra"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1448
-#, fuzzy
 msgid "Spindle Off"
-msgstr "Fő orsó fék kikapcsolva"
+msgstr "Főorsó Ki"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1464
-#, fuzzy
 msgid "Spindle Faster"
-msgstr "Fő orsó gyorsítása [F12]"
+msgstr "Főorsó gyorsítása"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1479
-#, fuzzy
 msgid "Spindle Slower"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Főorsó lassítása"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1501
 #: src/emc/usr_intf/touchy/touchy.glade:2578
-#, fuzzy
 msgid "Spindle speed:"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó sebesség:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1513
 #: src/emc/usr_intf/touchy/touchy.glade:2707
@@ -8976,9 +8802,8 @@ msgid "label26"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:1539
-#, fuzzy
 msgid "<b>Spindle</b>"
-msgstr "Fő orsó:"
+msgstr "<b>Főorsó</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1597
 msgid "file.ngc"
@@ -9037,14 +8862,12 @@ msgid "On limit switch:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2565
-#, fuzzy
 msgid "Spindle direction:"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó iránya:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2591
-#, fuzzy
 msgid "Loaded tool:"
-msgstr "Nincs szerszám"
+msgstr "Betöltött szerszám:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2604
 #: src/emc/usr_intf/touchy/touchy.glade:2955
@@ -9096,9 +8919,8 @@ msgid "Running line:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2794
-#, fuzzy
 msgid "XY Rotation:"
-msgstr "Pozíció:"
+msgstr "XY forgatás:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2823
 msgid "Tool length:"
@@ -9121,14 +8943,12 @@ msgid "Active codes:"
 msgstr "Aktuális G-kódok:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2883
-#, fuzzy
 msgid "G5x Offset:"
-msgstr "Eltolás"
+msgstr "G5x eltolás:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2898
-#, fuzzy
 msgid "G92 Offset:"
-msgstr "Eltolás"
+msgstr "G92 eltolás:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2942
 msgid "Loaded file lines:"
@@ -9150,9 +8970,8 @@ msgid "Status"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3038
-#, fuzzy
 msgid "Control Font:"
-msgstr "Bal egér gomb"
+msgstr "Vezérlő karakter:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3050
 msgid "DRO Font:"
@@ -9163,9 +8982,8 @@ msgid "Error Font:"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3081
-#, fuzzy
 msgid "ControlFont"
-msgstr "Bal egér gomb"
+msgstr "Vezérlő karakter"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3100
 msgid "DRO Font"
@@ -9188,9 +9006,8 @@ msgid "Hide pointer"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3187
-#, fuzzy
 msgid "Show pointer"
-msgstr "Muta_sd a programot"
+msgstr "Mutasd a mutatót"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3214
 msgid "Theme:"
@@ -9238,9 +9055,8 @@ msgid "Keep / lines"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3473
-#, fuzzy
 msgid "Pause on M1"
-msgstr "Szü_net"
+msgstr "Szünet M1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3484
 msgid "Ignore M1"
@@ -9337,9 +9153,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:153
-#, fuzzy
 msgid "Stepconf"
-msgstr "Lépé_s"
+msgstr "Lépéskonfig"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:153
 #: src/emc/usr_intf/stepconf/stepconf.py:274
@@ -9355,9 +9170,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:154
 #: src/emc/usr_intf/pncconf/private_data.py:40
-#, fuzzy
 msgid "Base Information"
-msgstr "Mutasd a gép pozícióját"
+msgstr "Alapinformációk"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
 msgid "Parallel Port 1"
@@ -9370,9 +9184,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:156
 #: src/emc/usr_intf/pncconf/private_data.py:59
-#, fuzzy
 msgid "Options"
-msgstr "Pozíció:"
+msgstr "Opció"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:156
 msgid "HALUI"
@@ -9380,51 +9193,43 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:157
 #: src/emc/usr_intf/pncconf/private_data.py:43
-#, fuzzy
 msgid "User Buttons"
-msgstr "Bal egér gomb"
+msgstr "Felhasználó gombok"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:158
 msgid "QtPlasmaC THCAD"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:159
-#, fuzzy
 msgid "Axis X"
-msgstr "Tengely:"
+msgstr "X tengely"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#, fuzzy
 msgid "Axis Y"
-msgstr "Tengely:"
+msgstr "Y tengely"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#, fuzzy
 msgid "Axis Z"
-msgstr "Tengely:"
+msgstr "Z tengely"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#, fuzzy
 msgid "Axis U"
-msgstr "Tengely:"
+msgstr "U tengely"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#, fuzzy
 msgid "Axis V"
-msgstr "Tengely:"
+msgstr "V tengely"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:162
-#, fuzzy
 msgid "Axis A"
-msgstr "Tengely:"
+msgstr "A tengely"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:163
 #: src/emc/usr_intf/pncconf/private_data.py:466
 #: src/emc/usr_intf/pncconf/private_data.py:527
 #: src/emc/usr_intf/pncconf/private_data.py:535
-#, fuzzy
 msgid "Spindle"
-msgstr "Fő orsó:"
+msgstr "Főorsó"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:163
 #: src/emc/usr_intf/pncconf/private_data.py:61
@@ -9508,115 +9313,97 @@ msgid "Keling 4030"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
-#, fuzzy
 msgid "X Step"
-msgstr "Lépé_s"
+msgstr "X lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 msgid "X Direction"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
-#, fuzzy
 msgid "Y Step"
-msgstr "Lépé_s"
+msgstr "Y lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 msgid "Y Direction"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:230
-#, fuzzy
 msgid "Z Step"
-msgstr "Lépé_s"
+msgstr "Z lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:230
 msgid "Z Direction"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:230
-#, fuzzy
 msgid "A Step"
-msgstr "Lépé_s"
+msgstr "A lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:230
 msgid "A Direction"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:231
-#, fuzzy
 msgid "U Step"
-msgstr "Lépé_s"
+msgstr "U lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:231
-#, fuzzy
 msgid "U Direction"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "U irány"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:231
-#, fuzzy
 msgid "V Step"
-msgstr "Lépé_s"
+msgstr "V lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:231
-#, fuzzy
 msgid "V Direction"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "V irány"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Tandem X Step"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Tandem X lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Tandem X Direction"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Tandem X irány"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Tandem Y Step"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Tandem Y lépés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:232
-#, fuzzy
 msgid "Tandem Y Direction"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Tandem Y irány"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:233
-#, fuzzy
 msgid "Spindle ON"
-msgstr "Fő orsó:"
+msgstr "Főorsó BE"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:233
 #: src/emc/usr_intf/pncconf/private_data.py:478
-#, fuzzy
 msgid "Spindle PWM"
-msgstr "Fő orsó:"
+msgstr "Főorsó PWM"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:233
 #: src/emc/usr_intf/pncconf/private_data.py:509
-#, fuzzy
 msgid "Spindle Brake"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó fék"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:234
 #: src/emc/usr_intf/pncconf/private_data.py:510
-#, fuzzy
 msgid "Coolant Mist"
-msgstr "Hűtés:"
+msgstr "Permet hűtés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:234
 #: src/emc/usr_intf/pncconf/private_data.py:510
-#, fuzzy
 msgid "Coolant Flood"
-msgstr "Hűtés:"
+msgstr "Folyadék hűtés"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:234
 #: src/emc/usr_intf/pncconf/private_data.py:511
-#, fuzzy
 msgid "ESTOP Out"
-msgstr "ESTOP"
+msgstr "ESTOP kimenet"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:234
 msgid "Amplifier Enable"
@@ -9681,9 +9468,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:240
 #: src/emc/usr_intf/pncconf/private_data.py:435
-#, fuzzy
 msgid "ESTOP In"
-msgstr "ESTOP"
+msgstr "ESTOP bemenet"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:240
 #: src/emc/usr_intf/pncconf/private_data.py:435
@@ -9691,59 +9477,48 @@ msgid "Probe In"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:241
-#, fuzzy
 msgid "Spindle Index"
-msgstr "Fő orsó:"
+msgstr "Főorsó index"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:241
-#, fuzzy
 msgid "Spindle Phase A"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó A fázis"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:241
-#, fuzzy
 msgid "Spindle Phase B"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó B fázis"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
-#, fuzzy
 msgid "Home X"
-msgstr "Nullpont"
+msgstr "Nullpont X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
-#, fuzzy
 msgid "Home Y"
-msgstr "Nullpont"
+msgstr "Nullpont Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
-#, fuzzy
 msgid "Home Z"
-msgstr "Nullpont"
+msgstr "Nullpont Z"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
-#, fuzzy
 msgid "Home A"
-msgstr "Nullpont"
+msgstr "Nullpont A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
-#, fuzzy
 msgid "Home U"
-msgstr "Nullpont"
+msgstr "Nullpont U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
-#, fuzzy
 msgid "Home V"
-msgstr "Nullpont"
+msgstr "Nullpont V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:243
-#, fuzzy
 msgid "Home Tandem X"
-msgstr "Nullpont"
+msgstr "Nullpont Tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:243
-#, fuzzy
 msgid "Home Tandem Y"
-msgstr "Nullpont"
+msgstr "Nullpont Tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
 msgid "Minimum Limit + Home X"
@@ -9834,14 +9609,12 @@ msgid "Both Limit + Home V"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:255
-#, fuzzy
 msgid "Both Limit + Home Tandem X"
-msgstr "Nullpont"
+msgstr "Mindkét végállás + Nullpont Tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:255
-#, fuzzy
 msgid "Both Limit + Home Tandem Y"
-msgstr "Nullpont"
+msgstr "Mindkét végállás + Nullpont Tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
 msgid "Minimum Limit X"
@@ -9997,9 +9770,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:275
 #: src/emc/usr_intf/pncconf/private_data.py:1067
-#, fuzzy
 msgid "Forward"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Előre"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:276
 #: src/emc/usr_intf/pncconf/private_data.py:1068
@@ -10086,9 +9858,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:668
 #: src/emc/usr_intf/pncconf/data.py:907
-#, fuzzy
 msgid "Continue? "
-msgstr "Folytonos"
+msgstr "Folytonos? "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:669
 #: src/emc/usr_intf/pncconf/data.py:908
@@ -10106,12 +9877,14 @@ msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:826
-#, fuzzy
 msgid ""
 "Loading configuration error:\n"
 "\n"
 "{}"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr ""
+"Konfiguráció betöltési hiba:\n"
+"\n"
+"{}"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:968
 #: src/emc/usr_intf/stepconf/pages.py:157
@@ -10351,9 +10124,8 @@ msgid "# Include your custom HAL commands here"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/import_mach.py:32
-#, fuzzy
 msgid "Mach configuration files"
-msgstr "Konfigurációs fájl megnyitása:"
+msgstr "Mach konfigurációs fájl"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
@@ -10386,9 +10158,8 @@ msgid "Acceleration:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:425
-#, fuzzy
 msgid "Stepconf -Stepper Configuration Wizard"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Stepconf - léptető konfigurációs varázsló"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:519
 #: src/emc/usr_intf/pncconf/main_page.glade:140
@@ -10429,9 +10200,8 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:248
 #: lib/python/gladevcp/tooledit_gtk.glade:549
 #: lib/python/gladevcp/tooledit_gtk.glade:771
-#, fuzzy
 msgid "Back"
-msgstr "Fék"
+msgstr "Vissza"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
 msgid ""
@@ -10525,9 +10295,8 @@ msgid "Max step rate:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:577
-#, fuzzy
 msgid "Machine _Name:"
-msgstr "Gép"
+msgstr "Gépnév:"
 
 #: src/emc/usr_intf/stepconf/base.glade:591
 #: src/emc/usr_intf/pncconf/base.glade:140
@@ -10539,9 +10308,8 @@ msgid "_Axis configuration:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:616
-#, fuzzy
 msgid "Reset Default machine _units:"
-msgstr "Gép"
+msgstr "Mérétkegység alapértékre állítása:"
 
 #: src/emc/usr_intf/stepconf/base.glade:641
 msgid ""
@@ -10569,9 +10337,8 @@ msgid "Modify a configuration already created with this program"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/start.glade:56
-#, fuzzy
 msgid "Import a Mach file"
-msgstr "AXIS (Nincs fájl)"
+msgstr "Importálja a Mach fájlt"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
@@ -10816,9 +10583,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:488
-#, fuzzy
 msgid "Axis"
-msgstr "Tengely:"
+msgstr "Tengely"
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
@@ -10848,17 +10614,15 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:242
 #: src/emc/usr_intf/pncconf/screen.glade:2546
 #: src/emc/usr_intf/pncconf/screen.glade:2647
-#, fuzzy
 msgid "  Y Offset"
-msgstr "Eltolás"
+msgstr "  Y Eltolás"
 
 #: src/emc/usr_intf/stepconf/options.glade:196
 #: src/emc/usr_intf/stepconf/options.glade:210
 #: src/emc/usr_intf/pncconf/screen.glade:2600
 #: src/emc/usr_intf/pncconf/screen.glade:2614
-#, fuzzy
 msgid " X Offset"
-msgstr "Eltolás"
+msgstr " X Eltolás"
 
 #: src/emc/usr_intf/stepconf/options.glade:256
 #: src/emc/usr_intf/pncconf/screen.glade:2661
@@ -10877,9 +10641,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:294
 #: src/emc/usr_intf/pncconf/screen.glade:2699
-#, fuzzy
 msgid "Estop Button:"
-msgstr "Bal egér gomb"
+msgstr "Vészstop gomb:"
 
 #: src/emc/usr_intf/stepconf/options.glade:310
 #: src/emc/usr_intf/pncconf/screen.glade:2714
@@ -10898,9 +10661,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:358
 #: src/emc/usr_intf/pncconf/screen.glade:2762
-#, fuzzy
 msgid "Button"
-msgstr "Bal egér gomb"
+msgstr "Gomb"
 
 #: src/emc/usr_intf/stepconf/options.glade:374
 #: src/emc/usr_intf/pncconf/screen.glade:2778
@@ -10919,9 +10681,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:478
 #: src/emc/usr_intf/pncconf/screen.glade:2887
-#, fuzzy
 msgid "Mode:"
-msgstr "Futási mód"
+msgstr "Mód:"
 
 #: src/emc/usr_intf/stepconf/options.glade:491
 msgid "_Onscreen prompt for manual tool change"
@@ -10934,15 +10695,13 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:565
 #: src/emc/usr_intf/pncconf/vcp.glade:79
-#, fuzzy
 msgid "Blank program"
-msgstr "Program indítás"
+msgstr "Üres program"
 
 #: src/emc/usr_intf/stepconf/options.glade:582
 #: src/emc/usr_intf/pncconf/vcp.glade:96
-#, fuzzy
 msgid "Spindle speed display  "
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó sebesség kijelzés:  "
 
 #: src/emc/usr_intf/stepconf/options.glade:599
 #: src/emc/usr_intf/stepconf/options.glade:1073
@@ -11016,21 +10775,18 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:1026
 #: src/emc/usr_intf/pncconf/options.glade:971
-#, fuzzy
 msgid "Blank ladder program"
-msgstr "Program szünet"
+msgstr "Üres létra program"
 
 #: src/emc/usr_intf/stepconf/options.glade:1040
 #: src/emc/usr_intf/pncconf/options.glade:984
-#, fuzzy
 msgid "Estop ladder program"
-msgstr "Program megszakítása"
+msgstr "Vészstop létra program"
 
 #: src/emc/usr_intf/stepconf/options.glade:1056
 #: src/emc/usr_intf/pncconf/options.glade:1017
-#, fuzzy
 msgid "Serial modbus program"
-msgstr "Program szünet"
+msgstr "Soros ModBus program"
 
 #: src/emc/usr_intf/stepconf/options.glade:1141
 #: src/emc/usr_intf/pncconf/options.glade:1103
@@ -11083,9 +10839,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/ubuttons.glade:187
 #: src/emc/usr_intf/pncconf/thcad.glade:59
 #: src/emc/usr_intf/pncconf/dialogs.glade:1443
-#, fuzzy
 msgid "10"
-msgstr "0"
+msgstr "10"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:189
 #: src/emc/usr_intf/pncconf/ubuttons.glade:200
@@ -11135,9 +10890,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:297
 #: src/emc/usr_intf/pncconf/ubuttons.glade:317
-#, fuzzy
 msgid "20"
-msgstr "0"
+msgstr "20"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:12
 #: src/emc/usr_intf/pncconf/thcad.glade:12
@@ -11194,9 +10948,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:171
-#, fuzzy
 msgid "Model"
-msgstr "Futási mód"
+msgstr "Model"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:308
@@ -11226,9 +10979,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:704
 #: src/emc/usr_intf/pncconf/z_axis.glade:704
 #: src/emc/usr_intf/pncconf/a_axis.glade:704
-#, fuzzy
 msgid "Opposite"
-msgstr "Pozíció:"
+msgstr "Szemben (átellenben)"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:166
 #: src/emc/usr_intf/stepconf/axisy.glade:166
@@ -11243,7 +10995,8 @@ msgstr "Pozíció:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2124
 #: src/emc/usr_intf/pncconf/dialogs.glade:2438
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11261,9 +11014,8 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:405
 #: src/emc/usr_intf/stepconf/axisv.glade:402
 #: src/emc/usr_intf/stepconf/axisa.glade:403
-#, fuzzy
 msgid "T_est this axis"
-msgstr "3. tengely léptetés"
+msgstr "Ezt a tengelyt tesztelni"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:441
 #: src/emc/usr_intf/stepconf/axisy.glade:440
@@ -11409,9 +11161,8 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:660
 #: src/emc/usr_intf/stepconf/axisv.glade:605
 #: src/emc/usr_intf/stepconf/axisa.glade:647
-#, fuzzy
 msgid "Axis SCALE:"
-msgstr "Tengely:"
+msgstr "Tengely SKÁLA:"
 
 #: src/emc/usr_intf/stepconf/finished.glade:6
 msgid ""
@@ -11695,14 +11446,12 @@ msgid " / sec²"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4034
-#, fuzzy
 msgid " / Step"
-msgstr "Lépé_s"
+msgstr " / Lépés"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4035
-#, fuzzy
 msgid "Steps / "
-msgstr "Lépé_s"
+msgstr "Lépés / "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4037
 msgid " / encoder pulse"
@@ -11713,14 +11462,12 @@ msgid "Encoder pulses / "
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4046
-#, fuzzy
 msgid "Resolver Scale:"
-msgstr "Program léptetés"
+msgstr "Rezolver skála:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4384
-#, fuzzy
 msgid "Spindle Scale Calculation"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Főorsó skála számítás"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4496
 msgid "Axis Scale Calculation"
@@ -11999,9 +11746,8 @@ msgid "VCP"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:44
-#, fuzzy
 msgid "External Controls"
-msgstr "Kézi vezérlés"
+msgstr "Külső vezérlés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:45
 msgid "Mesa Card 0"
@@ -12026,9 +11772,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:51
 #: src/emc/usr_intf/pncconf/private_data.py:534
-#, fuzzy
 msgid "X Axis"
-msgstr "Tengely:"
+msgstr "X tengely"
 
 #: src/emc/usr_intf/pncconf/private_data.py:52
 msgid "Y Motor"
@@ -12036,9 +11781,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:53
 #: src/emc/usr_intf/pncconf/private_data.py:534
-#, fuzzy
 msgid "Y Axis"
-msgstr "Tengely:"
+msgstr "Y tengely"
 
 #: src/emc/usr_intf/pncconf/private_data.py:54
 msgid "Z Motor"
@@ -12046,9 +11790,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:55
 #: src/emc/usr_intf/pncconf/private_data.py:534
-#, fuzzy
 msgid "Z Axis"
-msgstr "Tengely:"
+msgstr "Z tengely"
 
 #: src/emc/usr_intf/pncconf/private_data.py:56
 msgid "A Motor"
@@ -12056,14 +11799,12 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:57
 #: src/emc/usr_intf/pncconf/private_data.py:535
-#, fuzzy
 msgid "A Axis"
-msgstr "Tengely:"
+msgstr "A tengely"
 
 #: src/emc/usr_intf/pncconf/private_data.py:58
-#, fuzzy
 msgid "Spindle Motor"
-msgstr "Fő orsó fék kikapcsolva"
+msgstr "Főorsó motor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:60
 msgid "Realtime"
@@ -12092,9 +11833,8 @@ msgid "POT Enable"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
-#, fuzzy
 msgid "POT Dir"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "POT irány"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO Input"
@@ -12109,9 +11849,8 @@ msgid "GPIO O Drain"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:117
-#, fuzzy
 msgid "SSR Output"
-msgstr "Fő orsó:"
+msgstr "Szilárdtest relé kimenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
 msgid "Quad Enc-A"
@@ -12174,9 +11913,8 @@ msgid "Resolver 5 Encoder"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
-#, fuzzy
 msgid "Step Gen-A"
-msgstr "Program léptetés"
+msgstr "Lépés Gen-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Dir Gen-B"
@@ -12391,54 +12129,44 @@ msgid "7i77 Analog-SS4"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
-#, fuzzy
 msgid "Analog Input"
-msgstr "Kézi vezérlés"
+msgstr "Analóg bemenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:405
-#, fuzzy
 msgid "X Home"
-msgstr "Nullpont"
+msgstr "X Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:405
-#, fuzzy
 msgid "Y Home"
-msgstr "Nullpont"
+msgstr "Y Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:405
-#, fuzzy
 msgid "Z Home"
-msgstr "Nullpont"
+msgstr "Z Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:405
-#, fuzzy
 msgid "A Home"
-msgstr "Nullpont"
+msgstr "A Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:405
-#, fuzzy
 msgid "All Home"
-msgstr "Nullpont"
+msgstr "Minden nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "X2 Tandem Home"
-msgstr "Nullpont"
+msgstr "X2 Tandem Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "Y2 Tandem Home"
-msgstr "Nullpont"
+msgstr "Y2 Tandem Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "Z2 Tandem Home"
-msgstr "Nullpont"
+msgstr "Z2 Tandem Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "A2 Tandem Home"
-msgstr "Nullpont"
+msgstr "A2 Tandem Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
 msgid "X Minimum Limit + Home"
@@ -12489,9 +12217,8 @@ msgid "A Both Limit + Home"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:413
-#, fuzzy
 msgid "All Limits + Home"
-msgstr "Nullpont"
+msgstr "Minden végállás + Nullpont"
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
 msgid "X2 Minimum Limit + Home"
@@ -12542,24 +12269,20 @@ msgid "A2 Both Limit + Home"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:423
-#, fuzzy
 msgid "Joint select A"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kiválasztott tengely A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:423
-#, fuzzy
 msgid "Joint select B"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kiválasztott tengely B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
-#, fuzzy
 msgid "Joint select C"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kiválasztott tengely C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
-#, fuzzy
 msgid "Joint select D"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kiválasztott tengely D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:425
 msgid "Jog incr A"
@@ -12578,44 +12301,36 @@ msgid "Jog incr D"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
-#, fuzzy
 msgid "Feed Override incr A"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás növelése A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
-#, fuzzy
 msgid "Feed Override incr B"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás növelése B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
-#, fuzzy
 msgid "Feed Override incr C"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás növelése C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
-#, fuzzy
 msgid "Feed Override incr D"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás növelése D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
-#, fuzzy
 msgid "Spindle Override incr A"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás növelése A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
-#, fuzzy
 msgid "Spindle Override incr B"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás növelése B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
-#, fuzzy
 msgid "Spindle Override incr C"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás növelése C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
-#, fuzzy
 msgid "Spindle Override incr D"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás növelése D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:429
 msgid "Max Vel Override incr A"
@@ -12634,44 +12349,36 @@ msgid "Max Vel Override incr D"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:430
-#, fuzzy
 msgid "Feed Override enable"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás engedélyezve"
 
 #: src/emc/usr_intf/pncconf/private_data.py:430
-#, fuzzy
 msgid "Spindle Override enable"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás engedélyezve"
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
-#, fuzzy
 msgid "Max Vel Override enable"
-msgstr "Túlhajtás (%):"
+msgstr "Max sebesség túlhajtás engedélyezve"
 
 #: src/emc/usr_intf/pncconf/private_data.py:432
-#, fuzzy
 msgid "Manual Spindle CW"
-msgstr "Fő orsó:"
+msgstr "Kézi főorsó CW"
 
 #: src/emc/usr_intf/pncconf/private_data.py:432
-#, fuzzy
 msgid "Manual Spindle CCW"
-msgstr "Fő orsó:"
+msgstr "Kézi főorsó CCW"
 
 #: src/emc/usr_intf/pncconf/private_data.py:432
-#, fuzzy
 msgid "Manual Spindle Stop"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Kézi főorsó Stop"
 
 #: src/emc/usr_intf/pncconf/private_data.py:433
-#, fuzzy
 msgid "Spindle Up-To-Speed"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Főorsó felpörgetés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:433
-#, fuzzy
 msgid "Gear Select A"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Áttétel az A tengelyen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
 msgid "Cycle Start"
@@ -12682,9 +12389,8 @@ msgid "Abort"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
-#, fuzzy
 msgid "Single Step"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Egy lépés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:436
 msgid "Jog X +"
@@ -12719,14 +12425,12 @@ msgid "Jog A -"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
-#, fuzzy
 msgid "Jog button selected +"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kézi gomb kiválasztva +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
-#, fuzzy
 msgid "Jog button selected -"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kézi gomb kiválasztva -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 #: src/emc/usr_intf/pncconf/private_data.py:515
@@ -13009,9 +12713,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:476
 #: src/emc/usr_intf/pncconf/private_data.py:486
 #: src/emc/usr_intf/pncconf/private_data.py:502
-#, fuzzy
 msgid "Main Axis"
-msgstr "Tengely:"
+msgstr "Fő tengely"
 
 #: src/emc/usr_intf/pncconf/private_data.py:457
 #: src/emc/usr_intf/pncconf/private_data.py:458
@@ -13019,9 +12722,8 @@ msgstr "Tengely:"
 #: src/emc/usr_intf/pncconf/private_data.py:476
 #: src/emc/usr_intf/pncconf/private_data.py:486
 #: src/emc/usr_intf/pncconf/private_data.py:502
-#, fuzzy
 msgid "Tandem Axis"
-msgstr "Nullpont"
+msgstr "Tandem tengely"
 
 #: src/emc/usr_intf/pncconf/private_data.py:460
 msgid "Arc OK"
@@ -13067,19 +12769,16 @@ msgid "Overrides"
 msgstr "Határok módosítása"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
-#, fuzzy
 msgid "Operation"
-msgstr "Ismeretlen hiba %s"
+msgstr "Művelet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
-#, fuzzy
 msgid "External Control"
-msgstr "Kézi vezérlés"
+msgstr "Külső vezérlés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:467
-#, fuzzy
 msgid "Axis rapid"
-msgstr "Tengely:"
+msgstr "Tengely gyors"
 
 #: src/emc/usr_intf/pncconf/private_data.py:467
 #: src/emc/usr_intf/pncconf/private_data.py:529
@@ -13140,68 +12839,56 @@ msgid "A2 Tandem PWM"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
-#, fuzzy
 msgid "X Axis PWM"
-msgstr "Tengely:"
+msgstr "X tengely PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
-#, fuzzy
 msgid "Y Axis PWM"
-msgstr "Tengely:"
+msgstr "Y tengely PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
-#, fuzzy
 msgid "Z Axis PWM"
-msgstr "Tengely:"
+msgstr "Z tengely PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
-#, fuzzy
 msgid "A Axis PWM"
-msgstr "Tengely:"
+msgstr "A tengely PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "Unused PWM Gen"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
-#, fuzzy
 msgid "Axis PWM"
-msgstr "Tengely:"
+msgstr "Tengely PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:481
-#, fuzzy
 msgid "X Axis StepGen"
-msgstr "Tengely:"
+msgstr "X tengely StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:482
-#, fuzzy
 msgid "Y Axis StepGen"
-msgstr "Tengely:"
+msgstr "Y tengely StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:482
-#, fuzzy
 msgid "Z Axis StepGen"
-msgstr "Tengely:"
+msgstr "Z tengely StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:483
-#, fuzzy
 msgid "A Axis StepGen"
-msgstr "Tengely:"
+msgstr "A tengely StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:484
-#, fuzzy
 msgid "X2 Tandem StepGen"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "X2 Tandem StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:484
-#, fuzzy
 msgid "Y2 Tandem StepGen"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Y2 Tandem StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:485
-#, fuzzy
 msgid "Z2 Tandem StepGen"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Z2 Tandem StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:487
 msgid "Unused StepGen"
@@ -13212,9 +12899,8 @@ msgid "Charge Pump StepGen"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:489
-#, fuzzy
 msgid "Spindle StepGen"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Főorsó StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
 msgid "X Encoder"
@@ -13233,24 +12919,20 @@ msgid "A Encoder"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
 msgid "X2 Tandem Encoder"
-msgstr "Fő orsó:"
+msgstr "X2 tandem jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
-#, fuzzy
 msgid "Y2 Tandem Encoder"
-msgstr "Fő orsó:"
+msgstr "Y2 tandem jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
 msgid "Z2 Tandem Encoder"
-msgstr "Fő orsó:"
+msgstr "Z2 tandem jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
 msgid "A2 Tandem Encoder"
-msgstr "Fő orsó:"
+msgstr "A2 tandem jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
 msgid "X Hand Wheel"
@@ -13273,19 +12955,16 @@ msgid "Multi Hand Wheel"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
 msgid "Feed Override"
-msgstr "Túlhajtás (%):"
+msgstr "Előtolás túlhajtás"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
 msgid "spindle Override"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó túlhajtás"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
-#, fuzzy
 msgid "Max Vel Override"
-msgstr "Túlhajtás (%):"
+msgstr "Max sebesség túlhajtás"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 msgid "Arc Voltage"
@@ -13300,9 +12979,8 @@ msgid "Axis Encoder"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
-#, fuzzy
 msgid "Spindle Encoder"
-msgstr "Fő orsó:"
+msgstr "Főorsó jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "MPG Jog Controls"
@@ -13313,23 +12991,20 @@ msgid "Override MPG control"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
-#, fuzzy
 msgid "Plasma Encoder"
-msgstr "Fő orsó:"
+msgstr "Plazma jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:508
 msgid "Unused Unused"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
-#, fuzzy
 msgid "Spindle Enable"
-msgstr "Fő orsó:"
+msgstr "Főorsó engedélyezés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:511
-#, fuzzy
 msgid "Machine Is Enabled"
-msgstr "Gép"
+msgstr "Gép engedélyezve"
 
 #: src/emc/usr_intf/pncconf/private_data.py:511
 msgid "X Amplifier Enable"
@@ -13352,18 +13027,16 @@ msgid "Force Pin True"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
-#, fuzzy
 msgid "Ohmic Enable"
-msgstr "Fő orsó:"
+msgstr "Tapintó engedéyezés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Scribe Arm"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
-#, fuzzy
 msgid "Scribe On"
-msgstr "Gép"
+msgstr "Karctű BE"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Torch On"
@@ -13378,9 +13051,8 @@ msgid "Unused Output"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:528
-#, fuzzy
 msgid "Coolant"
-msgstr "Hűtés:"
+msgstr "Hűtés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:528
 msgid "Control"
@@ -13423,9 +13095,8 @@ msgid "Unused Analog Output"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:541
-#, fuzzy
 msgid "Spindle Output"
-msgstr "Fő orsó:"
+msgstr "Főorsó kimenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:545
 msgid "Unused TPPWM Gen"
@@ -13678,9 +13349,8 @@ msgid "degrees / second²"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:506
-#, fuzzy
 msgid "revolutions"
-msgstr "Pozíció:"
+msgstr "fordulatok"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "rpm"
@@ -13707,9 +13377,8 @@ msgid "mm / minute"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:513
-#, fuzzy
 msgid "mm / second²"
-msgstr "2. tengely léptetés"
+msgstr "mm / second²"
 
 #: src/emc/usr_intf/pncconf/tests.py:517
 msgid "inches / minute"
@@ -13746,9 +13415,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/data.py:116
-#, fuzzy
 msgid "my_LinuxCNC_machine"
-msgstr "Gép"
+msgstr "my_LinuxCNC_machine"
 
 #: src/emc/usr_intf/pncconf/data.py:879
 msgid ""
@@ -13904,9 +13572,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:110
-#, fuzzy
 msgid "Help Page"
-msgstr "_Segítség"
+msgstr "Segítség oldal"
 
 #: src/emc/usr_intf/pncconf/help.glade:172
 msgid "Mill"
@@ -15252,9 +14919,8 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/start.glade:129
-#, fuzzy
 msgid "Show Advanced Option Pages"
-msgstr "Mutasd a programozott pozíciót"
+msgstr "Mutasd a bővitett opciók oldalakat"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
 msgid "Use INI substitution for Mesa board names."
@@ -15285,9 +14951,8 @@ msgid "/dev/ttyS0"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:389
-#, fuzzy
 msgid "<b>Serial VFD</b>"
-msgstr "Fő orsó:"
+msgstr "<b>Soros frekvenciaváltó</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
@@ -15298,23 +14963,20 @@ msgid "<b>External MPG Jogging</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:477
-#, fuzzy
 msgid "<b>External Feed Override</b>"
-msgstr "Túlhajtás (%):"
+msgstr "<b>Külső előtolás túlhajtás</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:500
 msgid "<b>Max Velocity Override</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:523
-#, fuzzy
 msgid "<b>Spindle Override</b>"
-msgstr "Túlhajtás (%):"
+msgstr "<b>Főorsó túlhajtás</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
-#, fuzzy
 msgid "<b>USB Jogging</b>"
-msgstr "Fő orsó:"
+msgstr "<b>USB kézi</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:712
 msgid ""
@@ -15336,9 +14998,8 @@ msgid "Search for device rules"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:793
-#, fuzzy
 msgid "Device Name:"
-msgstr "Gép"
+msgstr "Eszköz név:"
 
 #: src/emc/usr_intf/pncconf/external.glade:871
 msgid "A +"
@@ -15417,21 +15078,18 @@ msgid "Speed A"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1334
-#, fuzzy
 msgid "Digital Control"
-msgstr "Kézi vezérlés"
+msgstr "Digitális vezérlés"
 
 #: src/emc/usr_intf/pncconf/external.glade:1449
 #: src/emc/usr_intf/gscreen/gscreen.glade:502
-#, fuzzy
 msgid "A"
-msgstr "_A"
+msgstr "A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1460
 #: src/emc/usr_intf/gscreen/gscreen.glade:374
-#, fuzzy
 msgid "Z"
-msgstr "_Z"
+msgstr "Z"
 
 #: src/emc/usr_intf/pncconf/external.glade:1471
 #: src/emc/usr_intf/pncconf/screen.glade:1081
@@ -15440,18 +15098,16 @@ msgstr "_Z"
 #: src/emc/usr_intf/pncconf/vcp.glade:201
 #: src/emc/usr_intf/pncconf/vcp.glade:644
 #: src/emc/usr_intf/gscreen/gscreen.glade:244
-#, fuzzy
 msgid "Y"
-msgstr "_Y"
+msgstr "Y"
 
 #: src/emc/usr_intf/pncconf/external.glade:1482
 msgid "X "
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1491
-#, fuzzy
 msgid "Analog Control"
-msgstr "Kézi vezérlés"
+msgstr "Analog vezérlés"
 
 #: src/emc/usr_intf/pncconf/external.glade:1510
 msgid "Joy Jog"
@@ -15462,9 +15118,8 @@ msgid "shared buttons for all axis"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1539
-#, fuzzy
 msgid "buttons for each axis"
-msgstr "4. tengely léptetés"
+msgstr "gombok minden tengelyhez"
 
 #: src/emc/usr_intf/pncconf/external.glade:1603
 msgid "B JOG"
@@ -15475,14 +15130,12 @@ msgid "Shared MPG / selectable axis"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1632
-#, fuzzy
 msgid "Mpg per axis"
-msgstr "1. tengely léptetés"
+msgstr "Mpg tengelyenként"
 
 #: src/emc/usr_intf/pncconf/external.glade:1647
-#, fuzzy
 msgid "selectable MPG increments"
-msgstr "Lépes növelése"
+msgstr "választható MPG lépések"
 
 #: src/emc/usr_intf/pncconf/external.glade:1723
 #: src/emc/usr_intf/pncconf/external.glade:3367
@@ -15594,9 +15247,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3447
 #: src/emc/usr_intf/pncconf/external.glade:4424
 #: src/emc/usr_intf/pncconf/external.glade:5401
-#, fuzzy
 msgid "Mux options"
-msgstr "Pozíció:"
+msgstr "Mux opció"
 
 #: src/emc/usr_intf/pncconf/external.glade:2562
 #: src/emc/usr_intf/pncconf/external.glade:3534
@@ -15606,9 +15258,8 @@ msgid "Sec"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:2586
-#, fuzzy
 msgid "increments"
-msgstr "Lépes növelése"
+msgstr "lépések"
 
 #: src/emc/usr_intf/pncconf/external.glade:2605
 msgid "MPG"
@@ -15641,9 +15292,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3563
 #: src/emc/usr_intf/pncconf/external.glade:4540
 #: src/emc/usr_intf/pncconf/external.glade:5517
-#, fuzzy
 msgid "Increments"
-msgstr "Lépes növelése"
+msgstr "lépések"
 
 #: src/emc/usr_intf/pncconf/external.glade:3582
 msgid "FO"
@@ -15666,9 +15316,8 @@ msgid "Mitsubishi FR Spindle VFD"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5574
-#, fuzzy
 msgid "GS2 Spindle VFD"
-msgstr "Fő orsó:"
+msgstr "GS2 főorsó frekvenciaváltó"
 
 #: src/emc/usr_intf/pncconf/external.glade:5602
 msgid "Deacceleration Time"
@@ -15679,18 +15328,16 @@ msgid "Acceleration Time"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5625
-#, fuzzy
 msgid "Slave number"
-msgstr "Folytatás"
+msgstr "Szolga sorszám"
 
 #: src/emc/usr_intf/pncconf/external.glade:5637
 msgid "Baud Rate"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5649
-#, fuzzy
 msgid "Device  Name"
-msgstr "Gép"
+msgstr "Eszköz  neve"
 
 #: src/emc/usr_intf/pncconf/external.glade:5756
 msgid "GS2"
@@ -15705,23 +15352,20 @@ msgid "XZ Lathe"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:98
-#, fuzzy
 msgid "Machine Name:"
-msgstr "Gép"
+msgstr "Gépnév:"
 
 #: src/emc/usr_intf/pncconf/base.glade:180
 msgid "Axis configuration:"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:191
-#, fuzzy
 msgid "Include Spindle"
-msgstr "Fő orsó:"
+msgstr "Főorsót tartalmaz"
 
 #: src/emc/usr_intf/pncconf/base.glade:247
-#, fuzzy
 msgid "Machine units:"
-msgstr "Gép"
+msgstr "Gép mértékegysége:"
 
 #: src/emc/usr_intf/pncconf/base.glade:305
 msgid "<b>Machine Basics</b>"
@@ -15798,30 +15442,25 @@ msgid "<b>GUI Screen list</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:399
-#, fuzzy
 msgid "Position_offset"
-msgstr "Pozíció:"
+msgstr "Pozíció_eltolás"
 
 #: src/emc/usr_intf/pncconf/screen.glade:407
-#, fuzzy
 msgid "Position_feedback"
-msgstr "Pozíció:"
+msgstr "Pozíció_visszacsatolás"
 
 #: src/emc/usr_intf/pncconf/screen.glade:419
-#, fuzzy
 msgid "Max Spindle Override "
-msgstr "Túlhajtás (%):"
+msgstr "Max főorsó túlhajtás "
 
 #: src/emc/usr_intf/pncconf/screen.glade:447
-#, fuzzy
 msgid "Min Spindle Override"
-msgstr "Túlhajtás (%):"
+msgstr "Min főorsó túlhajtás"
 
 #: src/emc/usr_intf/pncconf/screen.glade:515
 #: src/emc/usr_intf/pncconf/screen.glade:3082
-#, fuzzy
 msgid "Max Feed Override"
-msgstr "Túlhajtás (%):"
+msgstr "Max előtolás túlhajtás"
 
 #: src/emc/usr_intf/pncconf/screen.glade:596
 msgid "xyzabc"
@@ -15864,9 +15503,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:918
 #: src/emc/usr_intf/pncconf/screen.glade:2988
-#, fuzzy
 msgid "Increments "
-msgstr "Lépes növelése"
+msgstr "Lépes növelése "
 
 #: src/emc/usr_intf/pncconf/screen.glade:930
 msgid "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
@@ -15895,9 +15533,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:2264
 #: src/emc/usr_intf/pncconf/vcp.glade:185
 #: src/emc/usr_intf/pncconf/vcp.glade:655
-#, fuzzy
 msgid "Position"
-msgstr "Pozíció:"
+msgstr "Pozíció"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1112
 #: src/emc/usr_intf/pncconf/screen.glade:1467
@@ -15905,9 +15542,8 @@ msgstr "Pozíció:"
 #: src/emc/usr_intf/pncconf/vcp.glade:231
 #: src/emc/usr_intf/pncconf/vcp.glade:614
 #: src/emc/usr_intf/gscreen/gscreen.glade:116
-#, fuzzy
 msgid "X"
-msgstr "_X"
+msgstr "X"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1125
 #: src/emc/usr_intf/pncconf/screen.glade:1456
@@ -15954,9 +15590,8 @@ msgid "Absolute Textcolor"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1712
-#, fuzzy
 msgid "Relative Textcolor"
-msgstr "Mutasd a relatív pozíciót"
+msgstr "Relatív szövegszín"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1725
 msgid "DTG Textcolor"
@@ -15983,9 +15618,8 @@ msgid "10 1 .1 .01 .001"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:3126
-#, fuzzy
 msgid "QtPlasmaC Options"
-msgstr "Mértékegység: _Inch"
+msgstr "QtPlasmaC opciók"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:27
 msgid "<b>Virtual Control Panel</b>"
@@ -16024,43 +15658,36 @@ msgid "Force Maximize"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:789
-#, fuzzy
 msgid "Display Options"
-msgstr "Mértékegység: _Inch"
+msgstr "Kijelző opciók"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:848
 msgid "Max RPM"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:864
-#, fuzzy
 msgid "Spindle Speed Indicator"
-msgstr "Fő orsó:"
+msgstr "Főorsó sebesség indikátor"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:879
-#, fuzzy
 msgid "Spindle At Speed LED"
-msgstr "Túlhajtás (%):"
+msgstr "Sebesség elérve LED"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:894
-#, fuzzy
 msgid "Zero X Button"
-msgstr "Bal egér gomb"
+msgstr "Zéró X gomb"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:909
-#, fuzzy
 msgid "Zero Y Button"
-msgstr "Bal egér gomb"
+msgstr "Zéró Y gomb"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:924
-#, fuzzy
 msgid "Zero Z Button"
-msgstr "Bal egér gomb"
+msgstr "Zéró Z gomb"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:939
-#, fuzzy
 msgid "Zero A Button"
-msgstr "Bal egér gomb"
+msgstr "Zéró A gomb"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:954
 msgid "Auto Z Touch Off Button"
@@ -16091,9 +15718,8 @@ msgid "0V Frequency (kHz)"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/thcad.glade:272
-#, fuzzy
 msgid "Encoder"
-msgstr "Fő orsó:"
+msgstr "Jeladó"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:15
 #: src/emc/usr_intf/pncconf/y_axis.glade:15
@@ -16134,9 +15760,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:104
 #: src/emc/usr_intf/pncconf/z_axis.glade:104
 #: src/emc/usr_intf/pncconf/a_axis.glade:104
-#, fuzzy
 msgid "Use Compensation Filename:"
-msgstr "Konfigurációs fájl megnyitása:"
+msgstr "Hazsnálja a kompenzációs fájlnevet:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:120
 #: src/emc/usr_intf/pncconf/y_axis.glade:120
@@ -16227,9 +15852,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:48
 #: src/emc/usr_intf/pncconf/a_motor.glade:48
 #: src/emc/usr_intf/pncconf/s_motor.glade:216
-#, fuzzy
 msgid "Max Output"
-msgstr "Fő orsó:"
+msgstr "Max kimenet"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:116
 #: src/emc/usr_intf/pncconf/y_motor.glade:116
@@ -16341,17 +15965,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:473
 #: src/emc/usr_intf/pncconf/z_motor.glade:473
 #: src/emc/usr_intf/pncconf/a_motor.glade:473
-#, fuzzy
 msgid "Analog Min Limit:"
-msgstr "Fő orsó:"
+msgstr "Analóg min határ:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:487
 #: src/emc/usr_intf/pncconf/y_motor.glade:487
 #: src/emc/usr_intf/pncconf/z_motor.glade:487
 #: src/emc/usr_intf/pncconf/a_motor.glade:487
-#, fuzzy
 msgid "Analog Max limit:"
-msgstr "Fő orsó gyorsítása [F12]"
+msgstr "Analóg max korlátozás:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:501
 #: src/emc/usr_intf/pncconf/y_motor.glade:501
@@ -16364,9 +15986,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:616
 #: src/emc/usr_intf/pncconf/z_motor.glade:616
 #: src/emc/usr_intf/pncconf/a_motor.glade:616
-#, fuzzy
 msgid "Output Info"
-msgstr "Eltolás"
+msgstr "Kimenet infó"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:644
 #: src/emc/usr_intf/pncconf/y_motor.glade:644
@@ -16381,9 +16002,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:657
 #: src/emc/usr_intf/pncconf/a_motor.glade:657
 #: src/emc/usr_intf/pncconf/s_motor.glade:858
-#, fuzzy
 msgid "Step Space"
-msgstr "Program léptetés"
+msgstr "Lépés szünet"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:702
 #: src/emc/usr_intf/pncconf/y_motor.glade:702
@@ -16469,9 +16089,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:937
 #: src/emc/usr_intf/pncconf/a_motor.glade:937
 #: src/emc/usr_intf/pncconf/s_motor.glade:1442
-#, fuzzy
 msgid "Use encoder Index"
-msgstr "Fő orsó:"
+msgstr "Használja a jeladó index jelét"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:970
 #: src/emc/usr_intf/pncconf/y_motor.glade:970
@@ -16565,9 +16184,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1277
 #: src/emc/usr_intf/pncconf/a_motor.glade:1277
 #: src/emc/usr_intf/pncconf/s_motor.glade:1866
-#, fuzzy
 msgid "Reverse"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "Fordított"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1287
 #: src/emc/usr_intf/pncconf/y_motor.glade:1287
@@ -16614,9 +16232,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1347
 #: src/emc/usr_intf/pncconf/a_motor.glade:1347
 #: src/emc/usr_intf/pncconf/s_motor.glade:1943
-#, fuzzy
 msgid "<b>Configuration</b>"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "<b>Konfiguráció</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1361
 #: src/emc/usr_intf/pncconf/y_motor.glade:1361
@@ -16678,9 +16295,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:1523
 #: src/emc/usr_intf/pncconf/z_motor.glade:1523
 #: src/emc/usr_intf/pncconf/a_motor.glade:1523
-#, fuzzy
 msgid "Filter gain:"
-msgstr "Program_szűrő %r sikertelen"
+msgstr "Szűrő erősítés:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1559
 #: src/emc/usr_intf/pncconf/y_motor.glade:1559
@@ -16724,9 +16340,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1701
 #: src/emc/usr_intf/pncconf/a_motor.glade:1701
 #: src/emc/usr_intf/pncconf/s_motor.glade:2101
-#, fuzzy
 msgid "Single Input Encoder"
-msgstr "Fő orsó:"
+msgstr "Egy enkóder bemenet"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1834
 #: src/emc/usr_intf/pncconf/y_motor.glade:1834
@@ -16741,9 +16356,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1859
 #: src/emc/usr_intf/pncconf/a_motor.glade:1859
 #: src/emc/usr_intf/pncconf/s_motor.glade:2336
-#, fuzzy
 msgid "Stepper Scale:"
-msgstr "Program léptetés"
+msgstr "Lépés nagyság:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1886
 #: src/emc/usr_intf/pncconf/y_motor.glade:1886
@@ -16788,14 +16402,12 @@ msgid "Range 2 Max RPM"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:799
-#, fuzzy
 msgid "Output Voltage Info"
-msgstr "Eltolás"
+msgstr "Kimeneti feszültség info"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1283
-#, fuzzy
 msgid "Slave number:"
-msgstr "Folytatás"
+msgstr "Szolga sorszáma:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1305
 msgid "Serial Spindle VFD Info"
@@ -16814,18 +16426,16 @@ msgid "Use At-Speed Calculation"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2388
-#, fuzzy
 msgid "Spindle Display Filter:"
-msgstr "Túlhajtás (%):"
+msgstr "Főorsó kijelző szűrő:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2463
 msgid "Use Near Range"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2478
-#, fuzzy
 msgid "Use Near Scale"
-msgstr "Program léptetés"
+msgstr "Haszáld a közeli skálát"
 
 #: src/emc/usr_intf/pncconf/options.glade:96
 msgid "Cmd 15"
@@ -16952,18 +16562,16 @@ msgid "Servo Thread"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:379
-#, fuzzy
 msgid "Load Command "
-msgstr "Irányított"
+msgstr "Parancs betöltés "
 
 #: src/emc/usr_intf/pncconf/realtime.glade:427
 msgid "Thread Speed"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:437
-#, fuzzy
 msgid "Thread Command"
-msgstr "Irányított"
+msgstr "Parancs szál"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:467
 msgid "<b>Custom Components Commands</b>"
@@ -17109,9 +16717,8 @@ msgid "192.168.1.121"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:150
-#, fuzzy
 msgid "Card Name:"
-msgstr "Gép"
+msgstr "Kártya név:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:177
 msgid "Read hostmot2 PIN file From help's input tab"
@@ -17170,9 +16777,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:537
-#, fuzzy
 msgid "<b>frame2</b>"
-msgstr "Fő orsó fék bekapcsolva"
+msgstr "<b>keret2</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:587
 msgid "Save & Quit"
@@ -17200,9 +16806,8 @@ msgid "Fast Dac Speed"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:956
-#, fuzzy
 msgid "Dac Offset:"
-msgstr "Eltolás"
+msgstr "Dac eltolás:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:967
 msgid "Encoder Scale:"
@@ -17259,9 +16864,8 @@ msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1618
-#, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "Fő orsó:"
+msgstr "<b>Főorsó motor</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1660
 #: src/emc/usr_intf/pncconf/dialogs.glade:2481
@@ -17350,9 +16954,8 @@ msgid "mm / encoder pulse"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2871
-#, fuzzy
 msgid "Resolution:"
-msgstr "Pozíció:"
+msgstr "Felbontás:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2900
 msgid "Distance to acheave max speed:"
@@ -17367,9 +16970,8 @@ msgid "Khz"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3034
-#, fuzzy
 msgid "Calculated Axis SCALE:"
-msgstr "Tengely:"
+msgstr "Számított tengely SCALE:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3085
 msgid "Motor RPM at max speed:"
@@ -17426,14 +17028,12 @@ msgid "PID Tuning"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4668
-#, fuzzy
 msgid "Step Time:"
-msgstr "Program léptetés"
+msgstr "Lépés idő:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4679
-#, fuzzy
 msgid "Step Space:"
-msgstr "Program léptetés"
+msgstr "Lépés szünet:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4690
 msgid "Direction Hold:"
@@ -17479,9 +17079,8 @@ msgid "Manual Mode"
 msgstr "Kézi vezérlés"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:271
-#, fuzzy
 msgid "MDI Mode"
-msgstr "Futási mód"
+msgstr "MDI mód"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:271
 #, fuzzy
@@ -17712,9 +17311,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1978
 #: src/emc/usr_intf/gscreen/gscreen.py:1980
-#, fuzzy
 msgid "Spindle Speed Preset Entry"
-msgstr "Fő orsó:"
+msgstr "Főorsó sebesség beállításhoz belépés"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2014
 #: src/emc/usr_intf/gscreen/gscreen.py:2019
@@ -17726,28 +17324,24 @@ msgid "Entry dialog"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2354
-#, fuzzy
 msgid "Classicladder realtime component not detected"
-msgstr "Valós idejű komponens nincs betöltve"
+msgstr "Klasszikus létra valós idejű komponens nincs betöltve"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2355
 msgid "ladder not available - is the realtime component loaded?"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2505
-#, fuzzy
 msgid "Override Entry"
-msgstr "Határok módosítása"
+msgstr "Bejegyzés felülbírálása"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2549
-#, fuzzy
 msgid "Machine powered on"
-msgstr "Gép"
+msgstr "A gép bekapcsolva"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2554
-#, fuzzy
 msgid "Machine Estopped!"
-msgstr "Mutasd a gép pozícióját"
+msgstr "Gép vészstop!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2560
 msgid "Calculator"
@@ -17768,14 +17362,13 @@ msgid "There are unhomed axes: %s"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2822
-#, fuzzy, python-format
+#, python-format
 msgid "Program loaded: %s"
-msgstr "Program_szűrő %r sikertelen"
+msgstr "Program betöltés sikertelen: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2975
-#, fuzzy
 msgid "Manual Spindle Control"
-msgstr "Fő orsó lassítása [F11]"
+msgstr "Kézi főorsó vezérlés"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3053
 #: src/emc/usr_intf/gscreen/gscreen.py:3054
@@ -17814,9 +17407,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3684
 #: src/emc/usr_intf/gscreen/gscreen.glade:2573
-#, fuzzy
 msgid "Offset Origin"
-msgstr "Eltolás"
+msgstr "Eltolás nullpontja"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3699
 msgid ""
@@ -17847,9 +17439,8 @@ msgid "Dialog error - Is the dialog handler missing from the handler file?"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3741
-#, fuzzy
 msgid "Manual Toolchange"
-msgstr "Kézi vezérlés"
+msgstr "Kézi szerszámcsere"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3743
 msgid "Operator Message"
@@ -17858,7 +17449,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 #: src/emc/usr_intf/gscreen/gscreen.py:3781
 msgid "Restart Entry"
-msgstr ""
+msgstr "Belépés újra"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 msgid "Up"
@@ -18031,14 +17622,12 @@ msgid "ABS"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:630
-#, fuzzy
 msgid "B"
-msgstr "_B"
+msgstr "B"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:758
-#, fuzzy
 msgid "C"
-msgstr "_C"
+msgstr "C"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:886
 msgid "U"
@@ -18061,19 +17650,16 @@ msgid "MV:100%"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1470
-#, fuzzy
 msgid " Mist"
-msgstr "Elszívás"
+msgstr " Permet"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1481
-#, fuzzy
 msgid " Flood "
-msgstr "Folyadék"
+msgstr " Folyadék "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1533
-#, fuzzy
 msgid " At Speed "
-msgstr "Túlhajtás (%):"
+msgstr " Sebesség elérve "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1546
 msgid " Jog mode"
@@ -18088,40 +17674,44 @@ msgid "10 Ipm"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1690
-#, fuzzy
 msgid "<b>Status</b>"
-msgstr "Hűtés:"
+msgstr "<b>Állapot</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1715
 msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
+"Keresés\n"
+"  Szöveg:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text:"
-msgstr "Relatív"
+msgstr ""
+"Csere\n"
+"  Szöveg:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
-#, fuzzy
 msgid ""
 "Replace\n"
 "   All"
-msgstr "Relatív"
+msgstr ""
+"Csere\n"
+"  Mind"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1775
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
+"Kisbetű-nagybetű\n"
+" ignorálva"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
-#, fuzzy
 msgid "<b>Mode</b>"
-msgstr "Fő orsó:"
+msgstr "<b>Mód</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1817
 msgid "Main Level"
@@ -18132,9 +17722,8 @@ msgid "Themes"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1882
-#, fuzzy
 msgid "Relative Text Color"
-msgstr "Mutasd a relatív pozíciót"
+msgstr "Relatív szöveg szín"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1930
 msgid "DTG Text Color"
@@ -18174,11 +17763,12 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2097
 #: src/emc/usr_intf/gscreen/gscreen.glade:3131
-#, fuzzy
 msgid ""
 " Show\n"
 "Offsets"
-msgstr "Mutasd a _határokat"
+msgstr ""
+" Mutasd\n"
+"az eltolásokat"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2114
 msgid ""
@@ -18220,9 +17810,8 @@ msgid "Debug"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2298
-#, fuzzy
 msgid "Alarm History"
-msgstr "Előzmények:"
+msgstr "Figyelmeztetés előzmény"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2316
 msgid ""
@@ -18231,9 +17820,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2328
-#, fuzzy
 msgid "Calibration"
-msgstr "Ismeretlen hiba %s"
+msgstr "Kalibráció"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2339
 msgid "Halmeter"
@@ -18246,21 +17834,20 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2362
-#, fuzzy
 msgid "Halscope"
-msgstr "_Halszkóp névjegy"
+msgstr "Halszkóp"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2421
-#, fuzzy
 msgid "Tooleditor"
-msgstr "Sz_erkesztés"
+msgstr "Szerszám szerkesztő"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2439
-#, fuzzy
 msgid ""
 "Offset\n"
 " Page"
-msgstr "Eltolás"
+msgstr ""
+"Eltolás\n"
+" Lap"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2562
 msgid "Zero Origin"
@@ -18277,11 +17864,12 @@ msgid "Tool Setting"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2683
-#, fuzzy
 msgid ""
 "Single\n"
 " Step"
-msgstr "Fő orsó lassítása [F11]"
+msgstr ""
+"Egyes\n"
+" Lépés"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2696
 msgid ""
@@ -18306,11 +17894,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
-#, fuzzy
 msgid ""
 "    Set\n"
 "Override"
-msgstr "Túlhajtás (%):"
+msgstr ""
+"    …Beállít\n"
+"Túlhajtás"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
 msgid "Graphics\n"
@@ -18333,26 +17922,29 @@ msgid "<b>Select Buttons</b>"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2990
-#, fuzzy
 msgid ""
 "Unhome \n"
 "    All"
-msgstr "Nullpont"
+msgstr ""
+"Nullpont törlés\n"
+"    Összes"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3002
-#, fuzzy
 msgid ""
 "Unhome\n"
 "   Axis"
-msgstr "Nullpont"
+msgstr ""
+"Nullpont törlés\n"
+"    Tengely"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3014
 #: src/emc/usr_intf/gscreen/gscreen.glade:3119
-#, fuzzy
 msgid ""
 "Toggle\n"
 "Readout"
-msgstr "Hűtés Ki/Be"
+msgstr ""
+"Váltás\n"
+"Kiolvas"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3039
 msgid ""
@@ -18373,16 +17965,16 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3107
-#, fuzzy
 msgid ""
 "Spindle\n"
 "Controls"
-msgstr "Folytonos"
+msgstr ""
+"Főorsó\n"
+"Vezérlés"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3230
-#, fuzzy
 msgid "Open"
-msgstr "_Megnyitás"
+msgstr "Megnyitás"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3240
 msgid ""
@@ -18409,25 +18001,28 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3320
-#, fuzzy
 msgid ""
 "   Feed\n"
 "Override"
-msgstr "Túlhajtás (%):"
+msgstr ""
+"   Előtolás\n"
+"Túlhajtás"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3333
-#, fuzzy
 msgid ""
 "Spindle\n"
 "Override"
-msgstr "Túlhajtás (%):"
+msgstr ""
+"Főorsó\n"
+"Túlhajtás"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3346
-#, fuzzy
 msgid ""
 "  Rapid\n"
 "Override"
-msgstr "Túlhajtás (%):"
+msgstr ""
+"  Gyorsjárat\n"
+"Túlhajtás"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3367
 msgid ""
@@ -18436,11 +18031,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3380
-#, fuzzy
 msgid ""
 "      Jog\n"
 "Increments"
-msgstr "Lépes növelése"
+msgstr ""
+"      Lépes\n"
+"növelése"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3396
 msgid ""
@@ -18455,32 +18051,36 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3466
-#, fuzzy
 msgid ""
 "   Pan\n"
 "Vertical"
-msgstr "Vertikális"
+msgstr ""
+"   Pásztázás\n"
+"Függőlegesen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3479
-#, fuzzy
 msgid ""
 "     Pan\n"
 "Horizontal"
-msgstr "Horizontális"
+msgstr ""
+"     Pásztázás\n"
+"Vízszintesen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3492
-#, fuzzy
 msgid ""
 "  Rotate\n"
 "Horiontal"
-msgstr "Horizontális"
+msgstr ""
+"  Forgatás\n"
+"Vízszintesen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3505
-#, fuzzy
 msgid ""
 " Rotate\n"
 "Vertical"
-msgstr "Vertikális"
+msgstr ""
+" Forgatás\n"
+"Függőlegesen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3526
 msgid ""
@@ -18503,18 +18103,20 @@ msgid "Redo"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
-#, fuzzy
 msgid ""
 " Reload\n"
 "Program"
-msgstr "Program indítás"
+msgstr ""
+" Program\n"
+"újratöltése"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3609
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text"
-msgstr "Relatív"
+msgstr ""
+"Csere\n"
+"  Szöveg"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3648
 msgid ""
@@ -18545,14 +18147,12 @@ msgid "Data Entry"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3849
-#, fuzzy
 msgid "<b>Calculator Entry</b>"
-msgstr "Hűtés:"
+msgstr "<b>Számológép belépés</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3938
-#, fuzzy
 msgid "Program Restart"
-msgstr "Mutasd a _határokat"
+msgstr "Program újraindítás"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3953
 msgid ""
@@ -18591,21 +18191,19 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:112
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Ugrás a \"home\" mappába"
 
 #: lib/python/gladevcp/iconview.py:120
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Mozgatás a szülő könyvtárba"
 
 #: lib/python/gladevcp/iconview.py:128
-#, fuzzy
 msgid "Select the previous file"
-msgstr "Válaszd ki a vizsgálandó elemet"
+msgstr "Válassza ki az előző fájlt"
 
 #: lib/python/gladevcp/iconview.py:136
-#, fuzzy
 msgid "Select the next file"
-msgstr "Válaszd ki a vizsgálandó elemet"
+msgstr "Válaszd ki a következő fájlt"
 
 #: lib/python/gladevcp/iconview.py:160
 msgid "Jump to user defined directory"
@@ -18613,7 +18211,7 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:168
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "A megjelölt fájl kiválasztása és az elérési út visszaadása"
 
 #: lib/python/gladevcp/iconview.py:176
 msgid "Close without returning a file path"
@@ -18662,7 +18260,7 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:320
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr ""
+msgstr "A szerszámtábla újratöltése a linuxcnc-be nem sikerült"
 
 #: lib/python/gladevcp/tooledit_widget.py:480
 msgid "Tool file was modified since it was last read"
@@ -18674,25 +18272,21 @@ msgid "radiobutton"
 msgstr ""
 
 #: lib/python/gladevcp/gladevcp-test.glade:159
-#, fuzzy
 msgid "checkbutton"
-msgstr "Egér görgő gomb"
+msgstr "ellenörzőgomb"
 
 #: lib/python/gladevcp/gladevcp-test.glade:183
-#, fuzzy
 msgid "button"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "gomb"
 
 #: lib/python/gladevcp/gladevcp-test.glade:194
-#, fuzzy
 msgid "togglebutton"
-msgstr "Hűtés Ki/Be"
+msgstr "váltó gomb"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
-#, fuzzy
 msgid "Tool"
-msgstr "Hűtés:"
+msgstr "Szerszám"
 
 #: lib/python/gladevcp/offsetpage.glade:53
 #: lib/python/gladevcp/offsetpage.glade:70
@@ -18707,33 +18301,31 @@ msgstr "Hűtés:"
 #: lib/python/gladevcp/offsetpage.glade:223
 #: lib/python/gladevcp/offsetpage.glade:240
 #: lib/python/gladevcp/offsetpage.glade:257
-#, fuzzy
 msgid "black"
-msgstr "Fék"
+msgstr "fekete"
 
 #: lib/python/gladevcp/offsetpage.glade:57
 #: lib/python/gladevcp/offsetpage.glade:71
 msgid "G5x"
-msgstr ""
+msgstr "G5x"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
 msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:88
-#, fuzzy
 msgid "Rotation of Z"
-msgstr "Pozíció:"
+msgstr "Z forgása"
 
 #: lib/python/gladevcp/offsetpage.glade:91
 #: lib/python/gladevcp/offsetpage.glade:105
 msgid "G92"
-msgstr ""
+msgstr "G92"
 
 #: lib/python/gladevcp/offsetpage.glade:125
 #: lib/python/gladevcp/offsetpage.glade:139
 msgid "G55"
-msgstr ""
+msgstr "G55"
 
 #: lib/python/gladevcp/offsetpage.glade:142
 #: lib/python/gladevcp/offsetpage.glade:156
@@ -18743,7 +18335,7 @@ msgstr ""
 #: lib/python/gladevcp/offsetpage.glade:159
 #: lib/python/gladevcp/offsetpage.glade:173
 msgid "G57"
-msgstr ""
+msgstr "G57"
 
 #: lib/python/gladevcp/offsetpage.glade:176
 #: lib/python/gladevcp/offsetpage.glade:190
@@ -18771,14 +18363,12 @@ msgid "G59.3"
 msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:285
-#, fuzzy
 msgid "Offset"
 msgstr "Eltolás"
 
 #: lib/python/gladevcp/offsetpage.glade:416
-#, fuzzy
 msgid "Offset Name"
-msgstr "Eltolás"
+msgstr "Eltolás neve"
 
 #: lib/python/gladevcp/offsetpage.glade:442
 msgid ""
@@ -18787,25 +18377,24 @@ msgid ""
 msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:456
-#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
-msgstr "Horizontális"
+msgstr ""
+"    Nincs\n"
+"Forgatás"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
 #: lib/python/gladevcp/tooledit_gtk.glade:391
 #: lib/python/gladevcp/tooledit_gtk.glade:613
-#, fuzzy
 msgid "Select"
-msgstr "Lépés a kiválasztott tengelyen"
+msgstr "Kiválaszt"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
 #: lib/python/gladevcp/tooledit_gtk.glade:624
-#, fuzzy
 msgid "Tool#"
-msgstr "Hűtés:"
+msgstr "Szerszám#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:109
 #: lib/python/gladevcp/tooledit_gtk.glade:413
@@ -18820,33 +18409,28 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
 #: lib/python/gladevcp/tooledit_gtk.glade:760
-#, fuzzy
 msgid "Front"
-msgstr "_Elől nézet"
+msgstr "Elöl"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:259
 #: lib/python/gladevcp/tooledit_gtk.glade:560
 #: lib/python/gladevcp/tooledit_gtk.glade:782
-#, fuzzy
 msgid "Orientation"
-msgstr "Ismeretlen hiba %s"
+msgstr "Tájolás"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:270
 #: lib/python/gladevcp/tooledit_gtk.glade:571
 #: lib/python/gladevcp/tooledit_gtk.glade:793
-#, fuzzy
 msgid "Comments"
-msgstr "Irányított"
+msgstr "Megjegyzések"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:325
-#, fuzzy
 msgid "Reload"
-msgstr "Ú_jratöltés"
+msgstr "Újratöltés"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:369
-#, fuzzy
 msgid "All Offsets"
-msgstr "Eltolás"
+msgstr "Összes eltolás"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:424
 msgid "X Wear"
@@ -18858,29 +18442,24 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
-#, fuzzy
 msgid "DIameter"
-msgstr " Para_méterek "
+msgstr "Átmérő"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
-#, fuzzy
 msgid "Lathe Wear Offsets"
-msgstr "Eltolás"
+msgstr "Eszterga kopás eltolás (kompenzálás)"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
-#, fuzzy
 msgid "X Tool"
-msgstr "Hűtés:"
+msgstr "X szerszám"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:668
-#, fuzzy
 msgid "Z Tool"
-msgstr "Hűtés:"
+msgstr "Z szerszám"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:812
-#, fuzzy
 msgid "Lathe Tool Offsets"
-msgstr "Mutasd a _határokat"
+msgstr "Eszterga szerszám eltolások"
 
 #, fuzzy
 #~ msgid "user mode selected"
