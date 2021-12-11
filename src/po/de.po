@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2021-12-09 03:52+0000\n"
+"PO-Revision-Date: 2021-12-11 04:05+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -2842,12 +2842,15 @@ msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:230
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
-msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
+msgstr ""
+"\n"
+"MOTION: num_extrajoints ist %d, muss zwischen 1 und %d liegen\n"
+"\n"
 
 #: src/emc/motion/motion.c:235
 msgid ""
@@ -3404,9 +3407,9 @@ msgid "Number of Words                 "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:130
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Counters              "
-msgstr "Tatsächliche Servoperiode:             "
+msgstr "Anzahl an Zählern              "
 
 #: src/hal/classicladder/config_gtk.c:134
 #, fuzzy, c-format
@@ -3414,9 +3417,9 @@ msgid "Number of Timers IEC            "
 msgstr "Tatsächliche Servoperiode:             "
 
 #: src/hal/classicladder/config_gtk.c:138
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions "
-msgstr "Digitale Eingänge:"
+msgstr "Digitale Eingänge "
 
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
@@ -3459,14 +3462,14 @@ msgid "Number of S32out HAL pins            "
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:177
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins             "
-msgstr "Analoge Eingänge (float):"
+msgstr "Analoge Eingänge (float)             "
 
 #: src/hal/classicladder/config_gtk.c:181
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins            "
-msgstr "Analoge Ausgänge (float):"
+msgstr "Analoge Ausgänge (float)            "
 
 #: src/hal/classicladder/config_gtk.c:185
 #, c-format
@@ -4209,11 +4212,8 @@ msgid "Language    "
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:314
-#, fuzzy
 msgid "Type   "
-msgstr ""
-"Typ 1\n"
-"Typ 2"
+msgstr "Typ   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 #, fuzzy
@@ -4928,7 +4928,7 @@ msgstr "HAL-Konfiguration"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr "Möchten Sie Ihre Änderungen vor dem Beenden speichern? "
+msgstr "Möchten Sie Ihre Konfiguration vor dem Beenden speichern?"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save All"
@@ -7399,7 +7399,7 @@ msgstr "Keine Datei geladen"
 #: src/emc/usr_intf/axis/scripts/axis.py:2010
 #, python-format
 msgid "generated from %s"
-msgstr "Erstellt von »%«"
+msgstr "Erstellt durch %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2016
 #, python-format
@@ -7476,9 +7476,9 @@ msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2669
-#, fuzzy, python-format
+#, python-format
 msgid "home_joint <%s> Use joint mode for homing"
-msgstr "Referenzfahrt nur im Gelenk-Modus möglich"
+msgstr "home_joint <%s> Nutze Gelenk-Modus für Referenzfahrt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2672
 #, python-format
@@ -7503,9 +7503,9 @@ msgid "Enter %s coordinate relative to %%s:"
 msgstr "%s-Koordinate relativ zu %%s:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2760
-#, fuzzy, python-format
+#, python-format
 msgid "Tool %s TouchOff"
-msgstr "Antasten"
+msgstr "Werkzeug %s antasten"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2929
 msgid "Error saving file"
@@ -7554,19 +7554,19 @@ msgid "Home All"
 msgstr "Referenzfahrt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3539
-#, fuzzy, python-format
+#, python-format
 msgid "Home all %s [Ctrl-Home]"
-msgstr "Referenzfahrt mit allen Achsen [Strg-Pos1]"
+msgstr "Referenzfahrt mit allen %s Achsen [Strg-Pos1]"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3542
-#, fuzzy, python-format
+#, python-format
 msgid "Home All %s"
-msgstr "Referenzfahrt"
+msgstr "Referenzfahrt Alle %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3544
-#, fuzzy, python-format
+#, python-format
 msgid "Unhome All %s"
-msgstr "Referenzfahrt aufheben bei allen Achsen"
+msgstr "Referenzfahrt aufheben bei allen Achsen %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3585
 #, python-format
@@ -7606,9 +7606,9 @@ msgid "Home %(name)s _%(id)s"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3645
-#, fuzzy, python-format
+#, python-format
 msgid "Unhome %(name)s _%(id)s"
-msgstr "Referenzfahrt aufheben bei _%s-Achse"
+msgstr "Referenzfahrt %(name)s aufheben bei _%(id)s-Achse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3839
 msgid "Run from here"
@@ -8506,7 +8506,7 @@ msgstr "AXIS Tastaturbelegung"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr "AXIS $::version auf  $::machine"
+msgstr "AXIS $::version auf $::machine"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
@@ -9550,34 +9550,28 @@ msgid "QtPlasmaC THCAD"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:159
-#, fuzzy
 msgid "Axis X"
-msgstr "Achse "
+msgstr "X Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#, fuzzy
 msgid "Axis Y"
-msgstr "Achse "
+msgstr "Y Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#, fuzzy
 msgid "Axis Z"
-msgstr "Achse "
+msgstr "Z Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#, fuzzy
 msgid "Axis U"
-msgstr "Achse "
+msgstr "U Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#, fuzzy
 msgid "Axis V"
-msgstr "Achse "
+msgstr "V Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:162
-#, fuzzy
 msgid "Axis A"
-msgstr "Achse "
+msgstr "A Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:163
 #: src/emc/usr_intf/pncconf/private_data.py:466
@@ -10182,7 +10176,7 @@ msgid ""
 msgstr ""
 "Mit »OK« wird das bestehende benutzerdefinierte SPS-Programm ersetzt.\n"
 "Eine bestehende »Custom.clp«-Datei wird in custom_backup.clp« umbenannt.\n"
-"Eine bestehende »custom_backup.clp«-Dateien geht somit verloren."
+"Eine bestehende »custom_backup.clp«-Dateien geht somit verloren. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:278
 #: src/emc/usr_intf/pncconf/pages.py:1452
@@ -10198,7 +10192,7 @@ msgstr ""
 "übernehmen ausgewählt.\n"
 "Das geänderte Programm geht somit verloren.\n"
 "\n"
-"Sind Sie sicher?"
+"Sind Sie sicher?  "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:279
 #: src/emc/usr_intf/pncconf/private_data.py:1071
@@ -10445,7 +10439,7 @@ msgstr "# wird überschrieben, wenn Sie stepconf erneut ausführen"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:233
 msgid "# add halui MDI commands here (max 64) "
-msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64)"
+msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64) "
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:290
 #: src/emc/usr_intf/pncconf/build_HAL.py:747
@@ -10516,10 +10510,10 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:428
-#, fuzzy, python-format
+#, python-format
 msgid "# Include your %s HAL commands here"
 msgstr ""
-"# Benutzerdefinierte HAL-Anweisungen können nachfolgend angegeben werden"
+"# Benutzerdefinierte %s HAL-Anweisungen können nachfolgend angegeben werden"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:429
 #: src/emc/usr_intf/stepconf/build_HAL.py:715
@@ -10692,13 +10686,12 @@ msgid "Driver Timing Settings"
 msgstr "Treiber-Timing-Einstellungen"
 
 #: src/emc/usr_intf/stepconf/base.glade:283
-#, fuzzy
 msgid ""
 "_Test Base\n"
 "Period Jitter "
 msgstr ""
 "Systemtakt-Abweichung\n"
-"(Jitter) er_mitteln"
+"(Jitter) er_mitteln "
 
 #: src/emc/usr_intf/stepconf/base.glade:305
 msgid "D_river type:"
@@ -14418,7 +14411,7 @@ msgstr "Anzahl der PWM-Generatoren:"
 #: src/emc/usr_intf/pncconf/mesa0.glade:615
 #: src/emc/usr_intf/pncconf/mesa1.glade:615
 msgid "Num of step generators: "
-msgstr "Anzahl der Schrittgeneratoren:"
+msgstr "Anzahl der Schrittgeneratoren: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:627
 #: src/emc/usr_intf/pncconf/mesa1.glade:627
@@ -14467,9 +14460,8 @@ msgstr "Anzahl der Kanäle: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:808
 #: src/emc/usr_intf/pncconf/mesa1.glade:808
-#, fuzzy
 msgid "Num of resolvers:"
-msgstr "Anzahl der Kanäle: "
+msgstr "Anzahl der Kanäle:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:850
 #: src/emc/usr_intf/pncconf/mesa1.glade:850
@@ -15686,9 +15678,8 @@ msgid "<b>Max Velocity Override</b>"
 msgstr "<b>Max. Geschwindigkeitsübersteuerung</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:523
-#, fuzzy
 msgid "<b>Spindle Override</b>"
-msgstr "Spindelübersteuerung"
+msgstr "<b>Spindelübersteuerung</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
 #, fuzzy
@@ -17404,9 +17395,8 @@ msgstr "Pin _9:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1006
 #: src/emc/usr_intf/pncconf/pport2.glade:1009
-#, fuzzy
 msgid "Pin _1: "
-msgstr "Pin _1:"
+msgstr "Pin _1: "
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1066
 #: src/emc/usr_intf/pncconf/pport2.glade:1069
@@ -17557,9 +17547,8 @@ msgid "24"
 msgstr "2"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:451
-#, fuzzy
 msgid "Number of connectors:"
-msgstr "Anzahl der Kanäle: "
+msgstr "Anzahl der Kanäle:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:462
 #, fuzzy
@@ -17664,9 +17653,8 @@ msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1618
-#, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "Spindelencoder Index"
+msgstr "<b>Spindelencoder Index</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1660
 #: src/emc/usr_intf/pncconf/dialogs.glade:2481
@@ -18233,11 +18221,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3679
-#, fuzzy
 msgid ""
 "Set At\n"
 " "
-msgstr "Schrift auswählen"
+msgstr ""
+"Schrift auswählen\n"
+" "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3683
 msgid " Zero Origin"
@@ -18376,9 +18365,9 @@ msgid "Message"
 msgstr "Aufruf"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4451
-#, fuzzy, python-format
+#, python-format
 msgid "%d RPM"
-msgstr "Max. UPM"
+msgstr "%d UPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4566
 #, python-format
@@ -18386,9 +18375,9 @@ msgid "Tool %(t)s     %(l)s"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4598
-#, fuzzy, python-format
+#, python-format
 msgid "%4.2f mm/min"
-msgstr "mm/min "
+msgstr "%4.2f mm/min"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4600
 #, python-format
@@ -18503,7 +18492,7 @@ msgstr "Kühlnebel"
 #: src/emc/usr_intf/gscreen/gscreen.glade:1481
 #, fuzzy
 msgid " Flood "
-msgstr "Kühlmittel"
+msgstr " Kühlmittel "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1533
 #, fuzzy
@@ -19223,21 +19212,18 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:210
 #: lib/python/gladevcp/offsetpage.glade:224
-#, fuzzy
 msgid "G59.1"
-msgstr "P7  G59._1"
+msgstr "G59._1"
 
 #: lib/python/gladevcp/offsetpage.glade:227
 #: lib/python/gladevcp/offsetpage.glade:241
-#, fuzzy
 msgid "G59.2"
-msgstr "P8  G59._2"
+msgstr "G59.2"
 
 #: lib/python/gladevcp/offsetpage.glade:244
 #: lib/python/gladevcp/offsetpage.glade:258
-#, fuzzy
 msgid "G59.3"
-msgstr "P9  G59._3"
+msgstr "G59.3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 msgid "Offset"
