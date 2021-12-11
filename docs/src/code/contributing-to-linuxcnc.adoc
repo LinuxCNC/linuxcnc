@@ -14,7 +14,7 @@ programs and libraries, and the source text for the documentation.
 
 The two main ways that project developers communicate with each other are:
 
-* Via IRC, at #linuxcnc-devel on FreeNode.
+* Via IRC, at #linuxcnc-devel on Libera.chat.
 
 * Via email, on the developers' mailing list:
   https://lists.sourceforge.net/lists/listinfo/emc-developers
