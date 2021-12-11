@@ -22,7 +22,7 @@ BAD_LINKS=0
 for F in $FILES; do
     OUT=.checklink.$LANGUAGE.$(basename $F).tmp
     rm -f $OUT
-    linuxcnc-checklink --quiet --exclude "http(s?)://" $F | tee $OUT 2>&1
+    linuxcnc-checklink --quiet --exclude "(http|https|irc)://" $F  2>&1 | tee $OUT
     egrep -q 'List of (broken links and other issues|duplicate and empty anchors)' $OUT
     if [ $? -ne 1 ]; then
         BAD_LINKS=1
