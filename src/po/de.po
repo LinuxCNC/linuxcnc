@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2021-12-09 03:52+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2021-12-11 08:22+0000\n"
+"Last-Translator: Rainer Stelzer <r.stelzer@ibstelzer.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -212,33 +212,34 @@ msgid ""
 "Q word with no G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
+"Q-Wort ohne G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 oder "
+"anwendungsspezifischem M Code"
 
 #: src/emc/rs274ngc/interp_check.cc:364
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "M19 benötigt eine Winkelangabe R zwischen 0 und 360"
 
 #: src/emc/rs274ngc/interp_convert.cc:149
 msgid "You must specify both X and Y coordinates for Control Points"
-msgstr ""
+msgstr "NURBS: Stützpunkte müssen mit X und Y Koordinate angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:152
 msgid "Can specify P without X and Y only for the first control point"
 msgstr ""
+"NURBS: P kann nur für den ersten Stützpunkt ohne X und Y Koordinate "
+"angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:155
 msgid "Must specify positive weight P for every Control Point"
-msgstr ""
+msgstr "NURBS: jeder Stützpunkt muss positiv gewichtet sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:158
-#, fuzzy
 msgid "Cannot make a NURBS with 0 feedrate"
-msgstr ""
-"Ein Kreisbogen mit einer Vorschubgeschwindigkeit von 0 ist nicht möglich"
+msgstr "NURBS: Eine Bahn mit Vorschubgeschwindigkeit 0 ist nicht möglich"
 
 #: src/emc/rs274ngc/interp_convert.cc:195
-#, fuzzy
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr "G53 kann nicht mit aktiver Werkzeugbahnkorrektur verwendet werden"
+msgstr "NURBS: G5.3 kann nicht ohne vorangegangens G5.2 verwendet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:196
 #, c-format
@@ -246,41 +247,45 @@ msgid ""
 "You must specify a number of control points at least equal to the order L = "
 "%d"
 msgstr ""
+"NURBS: Die Anzahl der Stützpunkte muss mindestens der Ordnung der "
+"Interpolation entsprechen  L = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
-#, fuzzy
 msgid "Cannot convert spline with cutter radius compensation"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"NURBS: Bahn kann nicht bei aktiver Werkzeugradiuskorrektur erzeugt werden."
 
 #: src/emc/rs274ngc/interp_convert.cc:235
 msgid "Splines must be in the XY plane"
-msgstr ""
+msgstr "NURBS: Bahn muss in der XY Ebene liegen."
 
 #: src/emc/rs274ngc/interp_convert.cc:240
 msgid "Splines may not have motion in Z, A, B, or C"
-msgstr ""
+msgstr "NURBS: Bahn kann keine Bewegung in Z,A,B oder C ausführen"
 
 #: src/emc/rs274ngc/interp_convert.cc:244
 msgid "Must specify both I and J with G5.1"
-msgstr ""
+msgstr "NURBS: G5.1 benötigt die Angabe von I und J"
 
 #: src/emc/rs274ngc/interp_convert.cc:266
 msgid "Must specify both I and J, or neither"
-msgstr ""
+msgstr "NURBS: Es muss I und J angeben werden, oder keines von beiden"
 
 #: src/emc/rs274ngc/interp_convert.cc:277
 msgid "Must specify both P and Q with G5"
-msgstr ""
+msgstr "NURBS: P5 benötigt P und Q"
 
 #: src/emc/rs274ngc/interp_convert.cc:382
 msgid ""
 "The move just after exiting cutter compensation mode must be straight, not "
 "an arc"
 msgstr ""
+"Die erste Bahn nach Abschalten der Werkzeugkompensation muss eine Gerade "
+"sein, kein Kreis"
 
 #: src/emc/rs274ngc/interp_convert.cc:390
 msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
-msgstr ""
+msgstr "Eine Kreisbahn in den Ebenen G17.1, G18.1 oder G19.1 ist nicht möglich"
 
 #: src/emc/rs274ngc/interp_convert.cc:402
 #: src/emc/rs274ngc/interp_convert.cc:4701
@@ -295,32 +300,38 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:434
 #: src/emc/rs274ngc/interp_convert.cc:443
 #: src/emc/rs274ngc/interp_convert.cc:449
-#, fuzzy, c-format
+#, c-format
 msgid "%c word missing in absolute center arc"
-msgstr ""
-"Angabe eines F-Wörters zum Fahren eines Kreisbogens im zeitreziproken "
-"Vorschub-Modus fehlt"
+msgstr "%c Wort fehlt für Kreisbahn mit absoluten Mittelpunktskoordinaten"
 
 #: src/emc/rs274ngc/interp_convert.cc:676
 msgid ""
 "Radius of cutter compensation entry arc is not greater than the tool radius"
 msgstr ""
+"Bei Einfahrt in eine Kreisbahn mit eingeschalteter Werkzeugkompensation ist "
+"der Bahnradius nicht größer als der Werkzeugradius"
 
 #: src/emc/rs274ngc/interp_convert.cc:895
 #: src/emc/rs274ngc/interp_convert.cc:905 src/emc/rs274ngc/interp_queue.cc:607
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"Kreisbahn in einem Innenradius kann mit diesem Werkzeug nicht korrekt "
+"erreicht werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:931
 msgid "Arc to arc motion is invalid because the arcs have the same center"
 msgstr ""
+"Kreisbahnfolge ungültig, weil beide Kreisbahnen den gleichen Mittelpunkt "
+"haben"
 
 #: src/emc/rs274ngc/interp_convert.cc:934
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
 msgstr ""
+"Kreisbahnfolge erzeugt einen Sprung dem das Werkzeug durch die "
+"Werkzeugkompensation nicht korrekt folgen kann"
 
 #: src/emc/rs274ngc/interp_convert.cc:1066
 #: src/emc/rs274ngc/interp_convert.cc:1070
@@ -328,9 +339,9 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4120
 #: src/emc/rs274ngc/interp_convert.cc:4123
 #: src/emc/rs274ngc/interp_convert.cc:4126 src/emc/rs274ngc/interp_find.cc:99
-#, c-format
+#, c-format, fuzzy
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
-msgstr ""
+msgstr "Ungültige absolute Positionsangabe %5.2f für abgewickelte Drehachse %c"
 
 #: src/emc/rs274ngc/interp_convert.cc:1579
 msgid "Cannot change control mode with cutter radius compensation on"
@@ -350,7 +361,7 @@ msgstr "G%S.1 ohne D-Wort"
 #: src/emc/rs274ngc/interp_convert.cc:1945
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
-msgstr ""
+msgstr "G%d.1 mit L Wort, aber Ebene ist nicht G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:1956
 #, c-format
@@ -360,12 +371,12 @@ msgstr "D-Wort bei G%d muss eine Ganzzahl sein"
 #: src/emc/rs274ngc/interp_convert.cc:1963
 #, c-format
 msgid "G%d with lathe tool, but plane is not G18"
-msgstr ""
+msgstr "G%d mit Drehmeissel, aber Ebene ist nicht G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2365
-#, fuzzy
 msgid "Cannot set reference point with cutter compensation in effect"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Referenzpunkt kann nicht mit aktiver Werkzeugkompensation gesetzt werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:2945
 #, c-format
@@ -391,31 +402,36 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3016
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
-msgstr ""
+msgstr "M7x: Wiederherstellung der G20/G21 Einstellungen fehlgeschlagen: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3041
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
 msgstr ""
+"M7x: Einstellungswiederherstellung scheiterte bei der Ausführung : '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3110
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
 msgstr ""
+"Interpreterzustand konnte nach Abbruch nicht wieder hergestellt werden'%s': "
+"%s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3181
-#, fuzzy
 msgid "Cannot set motion output with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Bewegungssynchronisierter Digitalausgang kann nicht bei aktiver "
+"Werkzeugradiuskorrektur eingeschaltet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3182
 msgid "No valid P word with M62"
 msgstr "Kein gültiges P-Wort mit M62"
 
 #: src/emc/rs274ngc/interp_convert.cc:3186
-#, fuzzy
 msgid "Cannot set motion digital output with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Bewegungssynchronisierter Digitalausgang kann nicht bei aktiver "
+"Werkzeugradiuskorrektur ausgeschaltet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3187
 msgid "No valid P word with M63"
@@ -423,9 +439,10 @@ msgstr "Kein gültiges P-Wort mit M63"
 
 #: src/emc/rs274ngc/interp_convert.cc:3191
 #: src/emc/rs274ngc/interp_convert.cc:3196
-#, fuzzy
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Digitalausgang kann nicht bei aktiver Werkzeugradiuskorrektur eingeschaltet "
+"werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3192
 msgid "No valid P word with M64"
@@ -437,39 +454,42 @@ msgstr "Kein gültiges P-Wort mit M65"
 
 #: src/emc/rs274ngc/interp_convert.cc:3228
 msgid "invalid P-word with M66"
-msgstr ""
+msgstr "ungültiges P-Wort in M66"
 
 #: src/emc/rs274ngc/interp_convert.cc:3243
-#, fuzzy
 msgid "Cannot wait for digital input with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Digitaleingang kann nicht wartend bei aktiver Werkzeugradiuskorrektur "
+"abgefragt werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3255
-#, fuzzy
 msgid "Cannot wait for analog input with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Analogeingang kann nicht wartend bei aktiver Werkzeugradiuskorrektur "
+"abgefragt werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3270
-#, fuzzy
 msgid "Cannot set motion analog output with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Bewegungssynchronisierter Analogausgang kann nicht bei aktiver "
+"Werkzeugradiuskorrektur ausgegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3271
 msgid "Invalid analog index with M67"
-msgstr ""
+msgstr "ungültiger Analogausgang in M67"
 
 #: src/emc/rs274ngc/interp_convert.cc:3277
-#, fuzzy
 msgid "Cannot set auxiliary analog output with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Analogausgang kann nicht bei aktiver Werkzeugradiuskorrektur gesetzt werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3278
 msgid "Invalid analog index with M68"
-msgstr ""
+msgstr "ungültiger Analogausgang in M68"
 
 #: src/emc/rs274ngc/interp_convert.cc:3309
 msgid "Need non-negative Q-word to specify tool number with M61"
-msgstr ""
+msgstr "M61 Werkzeugnummer Q muss größer gleich 0 sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:3353
 #, c-format
@@ -2842,12 +2862,15 @@ msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:230
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
-msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
+msgstr ""
+"\n"
+"MOTION: num_extrajoints ist %d, muss zwischen 1 und %d liegen\n"
+"\n"
 
 #: src/emc/motion/motion.c:235
 msgid ""
@@ -3404,9 +3427,9 @@ msgid "Number of Words                 "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:130
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Counters              "
-msgstr "Tatsächliche Servoperiode:             "
+msgstr "Anzahl an Zählern              "
 
 #: src/hal/classicladder/config_gtk.c:134
 #, fuzzy, c-format
@@ -3414,9 +3437,9 @@ msgid "Number of Timers IEC            "
 msgstr "Tatsächliche Servoperiode:             "
 
 #: src/hal/classicladder/config_gtk.c:138
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions "
-msgstr "Digitale Eingänge:"
+msgstr "Digitale Eingänge "
 
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
@@ -3459,14 +3482,14 @@ msgid "Number of S32out HAL pins            "
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:177
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins             "
-msgstr "Analoge Eingänge (float):"
+msgstr "Analoge Eingänge (float)             "
 
 #: src/hal/classicladder/config_gtk.c:181
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins            "
-msgstr "Analoge Ausgänge (float):"
+msgstr "Analoge Ausgänge (float)            "
 
 #: src/hal/classicladder/config_gtk.c:185
 #, c-format
@@ -4209,11 +4232,8 @@ msgid "Language    "
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:314
-#, fuzzy
 msgid "Type   "
-msgstr ""
-"Typ 1\n"
-"Typ 2"
+msgstr "Typ   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 #, fuzzy
@@ -4928,7 +4948,7 @@ msgstr "HAL-Konfiguration"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
-msgstr "Möchten Sie Ihre Änderungen vor dem Beenden speichern? "
+msgstr "Möchten Sie Ihre Konfiguration vor dem Beenden speichern?"
 
 #: tcl/bin/halconfig.tcl:103
 msgid "Save All"
@@ -7399,7 +7419,7 @@ msgstr "Keine Datei geladen"
 #: src/emc/usr_intf/axis/scripts/axis.py:2010
 #, python-format
 msgid "generated from %s"
-msgstr "Erstellt von »%«"
+msgstr "Erstellt durch %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2016
 #, python-format
@@ -7476,9 +7496,9 @@ msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2669
-#, fuzzy, python-format
+#, python-format
 msgid "home_joint <%s> Use joint mode for homing"
-msgstr "Referenzfahrt nur im Gelenk-Modus möglich"
+msgstr "home_joint <%s> Nutze Gelenk-Modus für Referenzfahrt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2672
 #, python-format
@@ -7503,9 +7523,9 @@ msgid "Enter %s coordinate relative to %%s:"
 msgstr "%s-Koordinate relativ zu %%s:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2760
-#, fuzzy, python-format
+#, python-format
 msgid "Tool %s TouchOff"
-msgstr "Antasten"
+msgstr "Werkzeug %s antasten"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2929
 msgid "Error saving file"
@@ -7554,19 +7574,19 @@ msgid "Home All"
 msgstr "Referenzfahrt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3539
-#, fuzzy, python-format
+#, python-format
 msgid "Home all %s [Ctrl-Home]"
-msgstr "Referenzfahrt mit allen Achsen [Strg-Pos1]"
+msgstr "Referenzfahrt mit allen %s Achsen [Strg-Pos1]"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3542
-#, fuzzy, python-format
+#, python-format
 msgid "Home All %s"
-msgstr "Referenzfahrt"
+msgstr "Referenzfahrt Alle %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3544
-#, fuzzy, python-format
+#, python-format
 msgid "Unhome All %s"
-msgstr "Referenzfahrt aufheben bei allen Achsen"
+msgstr "Referenzfahrt aufheben bei allen Achsen %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3585
 #, python-format
@@ -7606,9 +7626,9 @@ msgid "Home %(name)s _%(id)s"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3645
-#, fuzzy, python-format
+#, python-format
 msgid "Unhome %(name)s _%(id)s"
-msgstr "Referenzfahrt aufheben bei _%s-Achse"
+msgstr "Referenzfahrt %(name)s aufheben bei _%(id)s-Achse"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3839
 msgid "Run from here"
@@ -8506,7 +8526,7 @@ msgstr "AXIS Tastaturbelegung"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr "AXIS $::version auf  $::machine"
+msgstr "AXIS $::version auf $::machine"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
@@ -9550,34 +9570,28 @@ msgid "QtPlasmaC THCAD"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:159
-#, fuzzy
 msgid "Axis X"
-msgstr "Achse "
+msgstr "X Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#, fuzzy
 msgid "Axis Y"
-msgstr "Achse "
+msgstr "Y Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:160
-#, fuzzy
 msgid "Axis Z"
-msgstr "Achse "
+msgstr "Z Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#, fuzzy
 msgid "Axis U"
-msgstr "Achse "
+msgstr "U Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:161
-#, fuzzy
 msgid "Axis V"
-msgstr "Achse "
+msgstr "V Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:162
-#, fuzzy
 msgid "Axis A"
-msgstr "Achse "
+msgstr "A Achse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:163
 #: src/emc/usr_intf/pncconf/private_data.py:466
@@ -10182,7 +10196,7 @@ msgid ""
 msgstr ""
 "Mit »OK« wird das bestehende benutzerdefinierte SPS-Programm ersetzt.\n"
 "Eine bestehende »Custom.clp«-Datei wird in custom_backup.clp« umbenannt.\n"
-"Eine bestehende »custom_backup.clp«-Dateien geht somit verloren."
+"Eine bestehende »custom_backup.clp«-Dateien geht somit verloren. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:278
 #: src/emc/usr_intf/pncconf/pages.py:1452
@@ -10198,7 +10212,7 @@ msgstr ""
 "übernehmen ausgewählt.\n"
 "Das geänderte Programm geht somit verloren.\n"
 "\n"
-"Sind Sie sicher?"
+"Sind Sie sicher?  "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:279
 #: src/emc/usr_intf/pncconf/private_data.py:1071
@@ -10445,7 +10459,7 @@ msgstr "# wird überschrieben, wenn Sie stepconf erneut ausführen"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:233
 msgid "# add halui MDI commands here (max 64) "
-msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64)"
+msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64) "
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:290
 #: src/emc/usr_intf/pncconf/build_HAL.py:747
@@ -10516,10 +10530,10 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:428
-#, fuzzy, python-format
+#, python-format
 msgid "# Include your %s HAL commands here"
 msgstr ""
-"# Benutzerdefinierte HAL-Anweisungen können nachfolgend angegeben werden"
+"# Benutzerdefinierte %s HAL-Anweisungen können nachfolgend angegeben werden"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:429
 #: src/emc/usr_intf/stepconf/build_HAL.py:715
@@ -10692,13 +10706,12 @@ msgid "Driver Timing Settings"
 msgstr "Treiber-Timing-Einstellungen"
 
 #: src/emc/usr_intf/stepconf/base.glade:283
-#, fuzzy
 msgid ""
 "_Test Base\n"
 "Period Jitter "
 msgstr ""
 "Systemtakt-Abweichung\n"
-"(Jitter) er_mitteln"
+"(Jitter) er_mitteln "
 
 #: src/emc/usr_intf/stepconf/base.glade:305
 msgid "D_river type:"
@@ -14418,7 +14431,7 @@ msgstr "Anzahl der PWM-Generatoren:"
 #: src/emc/usr_intf/pncconf/mesa0.glade:615
 #: src/emc/usr_intf/pncconf/mesa1.glade:615
 msgid "Num of step generators: "
-msgstr "Anzahl der Schrittgeneratoren:"
+msgstr "Anzahl der Schrittgeneratoren: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:627
 #: src/emc/usr_intf/pncconf/mesa1.glade:627
@@ -14467,9 +14480,8 @@ msgstr "Anzahl der Kanäle: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:808
 #: src/emc/usr_intf/pncconf/mesa1.glade:808
-#, fuzzy
 msgid "Num of resolvers:"
-msgstr "Anzahl der Kanäle: "
+msgstr "Anzahl der Kanäle:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:850
 #: src/emc/usr_intf/pncconf/mesa1.glade:850
@@ -15686,9 +15698,8 @@ msgid "<b>Max Velocity Override</b>"
 msgstr "<b>Max. Geschwindigkeitsübersteuerung</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:523
-#, fuzzy
 msgid "<b>Spindle Override</b>"
-msgstr "Spindelübersteuerung"
+msgstr "<b>Spindelübersteuerung</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
 #, fuzzy
@@ -17404,9 +17415,8 @@ msgstr "Pin _9:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1006
 #: src/emc/usr_intf/pncconf/pport2.glade:1009
-#, fuzzy
 msgid "Pin _1: "
-msgstr "Pin _1:"
+msgstr "Pin _1: "
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1066
 #: src/emc/usr_intf/pncconf/pport2.glade:1069
@@ -17557,9 +17567,8 @@ msgid "24"
 msgstr "2"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:451
-#, fuzzy
 msgid "Number of connectors:"
-msgstr "Anzahl der Kanäle: "
+msgstr "Anzahl der Kanäle:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:462
 #, fuzzy
@@ -17664,9 +17673,8 @@ msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1618
-#, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "Spindelencoder Index"
+msgstr "<b>Spindelencoder Index</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1660
 #: src/emc/usr_intf/pncconf/dialogs.glade:2481
@@ -18233,11 +18241,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3679
-#, fuzzy
 msgid ""
 "Set At\n"
 " "
-msgstr "Schrift auswählen"
+msgstr ""
+"Schrift auswählen\n"
+" "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3683
 msgid " Zero Origin"
@@ -18376,9 +18385,9 @@ msgid "Message"
 msgstr "Aufruf"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4451
-#, fuzzy, python-format
+#, python-format
 msgid "%d RPM"
-msgstr "Max. UPM"
+msgstr "%d UPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4566
 #, python-format
@@ -18386,9 +18395,9 @@ msgid "Tool %(t)s     %(l)s"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4598
-#, fuzzy, python-format
+#, python-format
 msgid "%4.2f mm/min"
-msgstr "mm/min "
+msgstr "%4.2f mm/min"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4600
 #, python-format
@@ -18503,7 +18512,7 @@ msgstr "Kühlnebel"
 #: src/emc/usr_intf/gscreen/gscreen.glade:1481
 #, fuzzy
 msgid " Flood "
-msgstr "Kühlmittel"
+msgstr " Kühlmittel "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1533
 #, fuzzy
@@ -19223,21 +19232,18 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:210
 #: lib/python/gladevcp/offsetpage.glade:224
-#, fuzzy
 msgid "G59.1"
-msgstr "P7  G59._1"
+msgstr "G59._1"
 
 #: lib/python/gladevcp/offsetpage.glade:227
 #: lib/python/gladevcp/offsetpage.glade:241
-#, fuzzy
 msgid "G59.2"
-msgstr "P8  G59._2"
+msgstr "G59.2"
 
 #: lib/python/gladevcp/offsetpage.glade:244
 #: lib/python/gladevcp/offsetpage.glade:258
-#, fuzzy
 msgid "G59.3"
-msgstr "P9  G59._3"
+msgstr "G59.3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 msgid "Offset"

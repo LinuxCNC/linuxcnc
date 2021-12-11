@@ -8,11 +8,11 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2021-12-11 06:16+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
-"Language: nb_NO\n"
+"Language: nb\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -4817,11 +4817,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:128
 msgid "Add signal"
-msgstr ""
+msgstr "Legg til signal"
 
 #: tcl/bin/halshow.tcl:130
 msgid "Add parameter"
-msgstr ""
+msgstr "Legg til parameter"
 
 #: tcl/bin/halshow.tcl:134
 msgid "Reload Watch"
@@ -4829,11 +4829,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:304
 msgid "Test HAL command :"
-msgstr ""
+msgstr "Test HAL-kommando:"
 
 #: tcl/bin/halshow.tcl:523
 msgid "Set to .."
-msgstr ""
+msgstr "Sett til .."
 
 #: tcl/bin/halshow.tcl:526
 msgid "Unlink pin"
@@ -4841,11 +4841,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:528
 msgid "Remove"
-msgstr ""
+msgstr "Fjern"
 
 #: tcl/bin/halshow.tcl:545
 msgid "Set"
-msgstr ""
+msgstr "Sett"
 
 #: tcl/bin/halshow.tcl:565
 msgid "User input"
@@ -4861,7 +4861,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:737
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr ""
+msgstr "Kommandoer kan testes her, men de kan IKKE lagres"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -4869,10 +4869,13 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
+"Klarte ikke finne pakken bwidget 1.7. Pakken bwidget finnes i Debian, "
+"installer den\n"
+"ved å bruke « sudo apt-get install bwidget»."
 
 #: tcl/bin/pickconfig.tcl:158
 msgid "LinuxCNC Configuration Selector"
-msgstr ""
+msgstr "LinuxCNC oppsettvelger"
 
 #: tcl/bin/pickconfig.tcl:308
 msgid "No details available."
@@ -18137,9 +18140,8 @@ msgid "select the highlighted file and return the path"
 msgstr ""
 
 #: lib/python/gladevcp/iconview.py:191
-#, fuzzy
 msgid "Close without returning a file path"
-msgstr "Lukk uten å returnere en filsti"
+msgstr "Lukk uten å returnere en filbane"
 
 #: lib/python/gladevcp/offsetpage_widget.py:354
 msgid "offsetpage widget error: unrecognized float input"
