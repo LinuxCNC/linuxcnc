@@ -464,19 +464,19 @@ copy_asciidoc_files:
 checkref: checkref_en checkref_fr checkref_es checkref_vi checkref_zh_CN
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref English $^
+	@$(DOC_SRCDIR)/checkref -X 'irc://.*' English $^
 
 checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref French $^
+	@$(DOC_SRCDIR)/checkref -X 'irc://.*' French $^
 
 checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/gcode_es.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Spanish $^
+	@$(DOC_SRCDIR)/checkref -X 'irc://.*' Spanish $^
 
 checkref_zh_CN: $(DOC_TARGETS_HTML_ZH_CN) .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Chinese $^
+	@$(DOC_SRCDIR)/checkref -X 'irc://.*' Chinese $^
 
 checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/gcode_vi.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Vietnamese $^
+	@$(DOC_SRCDIR)/checkref -X 'irc://.*' Vietnamese $^
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -L '^\.so ' $(sort $(MAN_SRCS))))
