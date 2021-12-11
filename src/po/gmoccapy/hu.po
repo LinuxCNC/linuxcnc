@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2021-12-11 21:44+0000\n"
+"Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/hu/>\n"
 "Language: hu\n"
@@ -21,13 +21,12 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: gmoccapy.py:232 gmoccapy.py:237
-#, fuzzy
 msgid "**** GMOCCAPY INI Entry **** \n"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY INI elnevezés **** \n"
 
 #: gmoccapy.py:233
 msgid "user mode selected"
-msgstr ""
+msgstr "Felhasználó mód kiválasztva"
 
 #: gmoccapy.py:238
 #, python-brace-format
@@ -35,9 +34,8 @@ msgid "logo entry found = {0}"
 msgstr ""
 
 #: gmoccapy.py:243
-#, fuzzy
 msgid "**** GMOCCAPY INI Entry Error **** \n"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY INI elnevezési hiba **** \n"
 
 #: gmoccapy.py:244
 msgid "Logofile entry found, but could not be converted to path.\n"
@@ -45,12 +43,12 @@ msgstr ""
 
 #: gmoccapy.py:245
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "A fájl elérési útja nem tartalmazhat szóközt"
 
 #: gmoccapy.py:632
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Nyomd meg az összes ref. pont felvételhez {0}"
 
 #: gmoccapy.py:641 gmoccapy.py:891
 msgid "Press to display previous homing button"
@@ -68,17 +66,15 @@ msgstr ""
 #: gmoccapy.py:687
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr ""
+msgstr "Nyomd meg az összes ref. törléséhez {0}"
 
 #: gmoccapy.py:693 gmoccapy.py:951
-#, fuzzy
 msgid "Press to return to main button list"
 msgstr "Vissza az alap gombok listájához"
 
 #: gmoccapy.py:723 gmoccapy.py:1796 gmoccapy.py:2037
-#, fuzzy
 msgid "**** GMOCCAPY ERROR ****\n"
-msgstr "**** GMOCCAPY HIBA ****"
+msgstr "**** GMOCCAPY HIBA ****\n"
 
 #: gmoccapy.py:724
 #, python-brace-format
@@ -91,15 +87,12 @@ msgid ""
 "  edit\n"
 "offsets"
 msgstr ""
-"   eltolások\n"
+"  eltolások\n"
 "szerkesztése"
 
 #: gmoccapy.py:882
-#, fuzzy
 msgid "Press to edit the offsets"
-msgstr ""
-"   eltolások\n"
-"szerkesztése"
+msgstr "Nyomja meg az eltolások szerkesztéséhez"
 
 #: gmoccapy.py:902
 #, python-brace-format
@@ -107,16 +100,14 @@ msgid "Press to set touch off value for axis {0}"
 msgstr ""
 
 #: gmoccapy.py:928
-#, fuzzy
 msgid ""
 "zero\n"
 " G92"
 msgstr ""
 "G92\n"
-"nullázás"
+" nullázás"
 
 #: gmoccapy.py:930
-#, fuzzy
 msgid "Press to reset all G92 offsets"
 msgstr "Minden G92 eltolás törlése"
 
@@ -125,13 +116,12 @@ msgid ""
 " Block\n"
 "Height"
 msgstr ""
-"Hasáb\n"
+" Hasáb\n"
 "Magasság"
 
 #: gmoccapy.py:938
-#, fuzzy
 msgid "Press to enter new value for block height"
-msgstr "Kérem a hasáb magasságát"
+msgstr "Kérem a hasáb új magasságát"
 
 #: gmoccapy.py:943
 msgid ""
@@ -142,7 +132,6 @@ msgstr ""
 "beállítása"
 
 #: gmoccapy.py:945
-#, fuzzy
 msgid "Press to set the selected coordinate system to be the active one"
 msgstr "A kiválasztott koordináta rendszer aktiválása"
 
@@ -161,24 +150,21 @@ msgid "**** disabled tool measurement ****"
 msgstr "**** Szerszám bemérés letiltva ****"
 
 #: gmoccapy.py:983
-#, fuzzy
 msgid "**** found valid probe config in INI File ****"
-msgstr "**** Nincs érvényes tapintó konfiguráció az INI fájlban ****"
+msgstr "**** érvényes tapintó konfiguráció az INI fájlban ****"
 
 #: gmoccapy.py:984
-#, fuzzy
 msgid "**** will use auto tool measurement ****"
-msgstr "**** Szerszám bemérés letiltva ****"
+msgstr "**** Automatikus szerszámbemérés használ ****"
 
 #: gmoccapy.py:999
-#, fuzzy
 msgid "**** GMOCCAPY build_GUI INFO ****"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY GUI INFO ****"
 
 #: gmoccapy.py:1000
 msgid "**** To many increments given in INI File for this screen ****"
 msgstr ""
-"**** túl sok növekmény van megadva az  INI fájlban ehhez a képernyőhöz ****"
+"**** túl sok növekmény van megadva az INI fájlban ehhez a képernyőhöz ****"
 
 #: gmoccapy.py:1001
 msgid "**** Only the first 10 will be reachable through this screen ****"
@@ -204,9 +190,8 @@ msgid "Press to jog joint {0}"
 msgstr ""
 
 #: gmoccapy.py:1197
-#, fuzzy
 msgid "**** GMOCCAPY INFO ****\n"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY INFO ****\n"
 
 #: gmoccapy.py:1198
 msgid "**** found more than 16 macros, will use only the first 16 ****"
@@ -226,14 +211,12 @@ msgid "Press to display next macro button"
 msgstr ""
 
 #: gmoccapy.py:1251
-#, fuzzy
 msgid "Press to display the virtual keyboard"
 msgstr "Virtuális billentyűzet kijelzése"
 
 #: gmoccapy.py:1350
-#, fuzzy
 msgid "*****  GMOCCAPY ERROR  *****"
-msgstr "**** GMOCCAPY HIBA ****"
+msgstr "****  GMOCCAPY HIBA  ****"
 
 #: gmoccapy.py:1351
 msgid "this is not a lathe, as a lathe must have at least\n"
@@ -252,9 +235,8 @@ msgid "Very critical situation"
 msgstr ""
 
 #: gmoccapy.py:1504
-#, fuzzy
 msgid "*****  GMOCCAPY INFO  *****"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY INFO  ****"
 
 #: gmoccapy.py:1505
 msgid "this is not a usual config\n"
@@ -277,7 +259,6 @@ msgid "inch/min"
 msgstr ""
 
 #: gmoccapy.py:1701
-#, fuzzy
 msgid "**** Invalid embedded tab configuration ****"
 msgstr "**** Érvénytelen beépített fül konfiguráció****"
 
@@ -286,7 +267,6 @@ msgid "**** No tabs will be added! ****"
 msgstr "**** Fülek nem lesznek hozzáadva! ****"
 
 #: gmoccapy.py:1715
-#, fuzzy
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr ""
 "HIBA, próbálom inicializálni a füleket és paneleket, ellenőrizze nem történt-"
@@ -302,16 +282,15 @@ msgstr "**** Hangjelzés elérhető ****"
 
 #: gmoccapy.py:1872
 msgid "**** no audio available! ****"
-msgstr "**** Hangjelzés nem elérhető**** "
+msgstr "**** Hangjelzés nem elérhető****"
 
 #: gmoccapy.py:1873
 msgid "**** PYGST libray not installed? ****"
 msgstr "**** PYGST nincs itelepítve? ****"
 
 #: gmoccapy.py:1874
-#, fuzzy
 msgid "**** is python-gstX.XX installed? ****"
-msgstr "**** PYGST nincs itelepítve? ****"
+msgstr "**** python-gstX.XX nincs itelepítve? ****"
 
 #: gmoccapy.py:1882
 msgid "**** Entering init gremlin ****"
@@ -329,15 +308,15 @@ msgstr "**** <onboard> virtuális billentyűzet program találtható"
 
 #: gmoccapy.py:1960
 msgid "**** virtual keyboard program found : <matchbox-keyboard>"
-msgstr "**** <matchbox-keyboard> virtuális billentyűzet program található:  "
+msgstr "**** virtuális billentyűzet program található: <matchbox-keyboard>"
 
 #: gmoccapy.py:1963
 msgid ""
 "**** No virtual keyboard installed, we checked for <onboard> and <matchbox-"
 "keyboard>."
 msgstr ""
-"****Nincs telepítve virtuális billentyűzet program (onboard vagy matchbox-"
-"keyboard)"
+"****Nincs telepítve virtuális billentyűzet program <onboard> vagy <matchbox-"
+"keyboard>."
 
 #: gmoccapy.py:1974 gmoccapy.py:3151 gmoccapy.py:3161
 msgid "**** GMOCCAPY ERROR ****"
@@ -349,7 +328,7 @@ msgstr "**** Hiba a virtuális billentyűzet program indításakor ****"
 
 #: gmoccapy.py:1976
 msgid "**** is onboard or matchbox-keyboard installed? ****"
-msgstr "**** Onboard  vagy matchbox-keyboard telepítve van? ****"
+msgstr "**** Onboard vagy matchbox-keyboard telepítve van? ****"
 
 #: gmoccapy.py:2008 gmoccapy.py:2831
 msgid "interrupt running macro"
@@ -377,12 +356,10 @@ msgid "Important Warning"
 msgstr "Fontos figyelmeztetés"
 
 #: gmoccapy.py:2313
-#, fuzzy
 msgid "External ESTOP is set, could not change state!"
 msgstr "HIBA: Külső ESTOP beállítva - nem lehet állapotot váltani!"
 
 #: gmoccapy.py:2326
-#, fuzzy
 msgid "Could not switch the machine on, is limit switch activated?"
 msgstr "HIBA: gépet nem lehet bekapcsolni, a végállás kapcsoló aktív?"
 
@@ -403,7 +380,7 @@ msgid "Enter value:"
 msgstr "Írd be az értéket:"
 
 #: gmoccapy.py:2791
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Set parameter {0} to:"
 msgstr "{0} paraméter beállítva:"
 
@@ -421,7 +398,7 @@ msgstr "Ez a gomb megjeleníti vagy elrejti a billentyűzetet"
 
 #: gmoccapy.py:2937
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr ""
+msgstr "Módváltás csak akkor engedélyezett, ha a fordító tétlen!"
 
 #: gmoccapy.py:3152
 #, python-brace-format
@@ -429,7 +406,7 @@ msgid "**** {0} ****"
 msgstr "**** {0} ****"
 
 #: gmoccapy.py:3162
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
 msgstr "**** Nincs {0} widget az aktíváláshoz ****"
 
@@ -438,7 +415,7 @@ msgid "No tool description available"
 msgstr "Nincs leírás a szerszámhoz"
 
 #: gmoccapy.py:3465
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Halo, welcome to the test message {0}"
 msgstr "Ez egy teszt üzenet {0}"
 
@@ -452,7 +429,7 @@ msgstr "Rossz kód, hozzáférés megtagadva"
 
 #: gmoccapy.py:3564
 msgid "Just to warn you"
-msgstr "Figyelem:"
+msgstr "Figyelem"
 
 #: gmoccapy.py:3704
 msgid "INFO:"
@@ -460,12 +437,12 @@ msgstr "INFO:"
 
 #: gmoccapy.py:3705
 msgid "Classicladder real-time component not detected"
-msgstr "Nincs Classicladder valós idejű komponens "
+msgstr "Nincs Classicladder valós idejű komponens"
 
 #: gmoccapy.py:3820
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Valami hiba keletkezett, ismeretlen widget {0}"
+msgstr "Valami hiba keletkezett, ismeretlen főorsó widget {0}"
 
 #: gmoccapy.py:3931
 msgid "Do you really want to delete the MDI history?\n"
@@ -473,7 +450,7 @@ msgstr "Tényleg akarod törölni az MDI előzményeket?\n"
 
 #: gmoccapy.py:3932
 msgid "this will not delete the MDI History file, but will\n"
-msgstr "ez nem fogja törölni az  MDI előzmények fájlt, de \n"
+msgstr "ez nem fogja törölni az MDI előzmények fájlt, de\n"
 
 #: gmoccapy.py:3933
 msgid "delete the listbox entries for this session"
@@ -484,34 +461,30 @@ msgid "Attention!!"
 msgstr "Vigyázat!!"
 
 #: gmoccapy.py:4059
-#, fuzzy
 msgid "Enter value for diameter"
-msgstr "Kérem a(z) %s tengely értékét:"
+msgstr "Kérem az átmérő értékét"
 
 #: gmoccapy.py:4060
-#, fuzzy
 msgid "Set diameter to:"
-msgstr "%s paraméter beállítva:"
+msgstr "Átmérő beállítása a következőre:"
 
 #: gmoccapy.py:4063
-#, fuzzy
 msgid "Enter value for radius"
-msgstr "Kérem a(z) %s tengely értékét:"
+msgstr "Kérem a sugár értékét"
 
 #: gmoccapy.py:4064
-#, fuzzy
 msgid "Set radius to:"
-msgstr "A(z) %s tengely beállítva :"
+msgstr "A sugár beállítása a következőre:"
 
 #: gmoccapy.py:4067
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr "Kérem a(z) {0} tengely értékét:"
+msgstr "Kérem a(z) {0} tengely értékét"
 
 #: gmoccapy.py:4068
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Set axis {0} to:"
-msgstr "A(z) {0} tengely beállítva :"
+msgstr "A(z) {0} tengely beállítva:"
 
 #: gmoccapy.py:4072
 msgid "Conversion error in btn_set_value"
@@ -545,7 +518,7 @@ msgstr "Hasáb magasság az asztaltól mérve"
 
 #: gmoccapy.py:4152
 msgid "Conversion error in btn_block_height!"
-msgstr "Konverziós hiba a btn_block_height-ben"
+msgstr "Konverziós hiba a btn_block_height-ben!"
 
 #: gmoccapy.py:4153
 msgid ""
@@ -572,10 +545,9 @@ msgstr ""
 "\n"
 "# {0:d}     {1} szeszámot \n"
 "\n"
-"és nyomd meg az OK gombot"
+"és nyomd meg az OK gombot."
 
 #: gmoccapy.py:4422
-#, fuzzy
 msgid "Manual Tool change"
 msgstr "Kézi szerszámcsere"
 
@@ -588,18 +560,16 @@ msgid "The old tool will remain set!"
 msgstr "A régi szerszám marad beállítva!"
 
 #: gmoccapy.py:4440
-#, fuzzy
 msgid "You are trying to delete the tool mounted in the spindle\n"
-msgstr "Csak a főorsóban levő szerszámmal lehet érinteni"
+msgstr "A főorsőban levő szerszámot próbálja törölni\n"
 
 #: gmoccapy.py:4441
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr ""
 
 #: gmoccapy.py:4442
-#, fuzzy
 msgid "Warning Tool can not be deleted!"
-msgstr "Vigyázat: Szerszám bemérés nem lehetséges"
+msgstr "Vigyázat: Szerszám törlése nem lehetséges!"
 
 #: gmoccapy.py:4461
 msgid "No or more than one tool selected in tool table"
@@ -611,7 +581,7 @@ msgstr "Csak egy szerszámot lehet kiválasztani a szerszám táblából"
 
 #: gmoccapy.py:4463 gmoccapy.py:4469 gmoccapy.py:4477
 msgid "Warning Tool Touch off not possible!"
-msgstr "Vigyázat: Szerszám bemérés nem lehetséges"
+msgstr "Vigyázat: Szerszám bemérés nem lehetséges!"
 
 #: gmoccapy.py:4467
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
@@ -640,10 +610,10 @@ msgstr "Végzetes hiba!"
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr ""
-"Olyan pozícióba került a gép ahova  on_btn_tool_touchoff-al nem lehetséges"
+"Olyan pozícióba került a gép ahova on_btn_tool_touchoff-al nem lehetséges"
 
 #: gmoccapy.py:4490
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "Add meg a(z) {0} tengely értékét:"
 
@@ -653,14 +623,13 @@ msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "A {0:d} szerszám paraméterének és a {1} tengelynek a beállítása:"
 
 #: gmoccapy.py:4495
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "Konverziós hiba a(z) {0} tengely érintésének rossz bejegyzése miatt"
 
 #: gmoccapy.py:4514
-#, fuzzy
 msgid "Enter the tool number as integer "
-msgstr "A szerszám száma egész szám kell legyen"
+msgstr "A szerszám száma egész szám kell legyen "
 
 #: gmoccapy.py:4515
 msgid "Select the tool to change"
@@ -671,13 +640,12 @@ msgid "Conversion error because of wrong entry for tool number\n"
 msgstr "Konverziós hiba rossz szerszámtábla bejegyzés miatt\n"
 
 #: gmoccapy.py:4518
-#, fuzzy
 msgid "enter only integer numbers"
 msgstr "Csak egész szám bevitele engedélyezett"
 
 #: gmoccapy.py:4524 gmoccapy.py:4542
 msgid "Selected tool is already in spindle, no change needed."
-msgstr "A kiválasztott szerszám a főorsóban van, szerszámcsere nem szükséges"
+msgstr "A kiválasztott szerszám a főorsóban van, szerszámcsere nem szükséges."
 
 #: gmoccapy.py:4538
 msgid ""
@@ -712,9 +680,8 @@ msgid "Could not translate {0} to number"
 msgstr ""
 
 #: gmoccapy.py:5036
-#, fuzzy
 msgid "no button here"
-msgstr "Auto Knopfleiste"
+msgstr "Itt nincs gomb"
 
 #: gmoccapy.py:5039
 msgid "the button is not sensitive"
@@ -757,7 +724,7 @@ msgstr "Felhasználói üzenet"
 
 #: dialogs.py:178 dialogs.py:182
 msgid "Restart Entry"
-msgstr "Bejegyzés újrakezdése"
+msgstr "Belépés újra"
 
 #: dialogs.py:194
 msgid "Up"
@@ -772,17 +739,16 @@ msgid "Down"
 msgstr "Le"
 
 #: getiniinfo.py:100
-#, fuzzy
 msgid "**** GMOCCAPY GETINIINFO : ****"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY GET ini INFO ****"
 
 #: getiniinfo.py:101
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, ****\n"
 "**** but you have given {0} through your INI file ****\n"
 msgstr ""
-"**** gmoccapy max. 4 tengelyt kezel, ****\n"
+"**** gmoccapy max. 9 tengelyt kezel, ****\n"
 "**** de az INI fájlban {0} van megadva ****\n"
 
 #: getiniinfo.py:102
@@ -794,21 +760,18 @@ msgstr ""
 "\n"
 
 #: getiniinfo.py:433
-#, fuzzy
 msgid "**** GMOCCAPY GETINIINFO ****\n"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY GET INI INFO ****\n"
 
 #: getiniinfo.py:434
-#, fuzzy
 msgid ""
 "**** No subroutine folder or program prefix is given in the ini file **** \n"
 msgstr ""
+"**** Nincs szubrutinkönyvtár vagy program prefix megadva az INI fájlban **** "
 "\n"
-"**** Nincs szbrutinkönyvtár vagy program prefix megadva az  INI fájlban "
-"****\n"
 
 #: notification.py:205
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "Error trying to delet the message with number {0}"
 msgstr "{0} sz. üzenet hiba miatt törölhető"
 
@@ -841,11 +804,8 @@ msgid "No Program loaded"
 msgstr "Nincs program betöltve"
 
 #: gmoccapy.glade.h:8
-#, fuzzy
 msgid "blockheight = 0.0"
-msgstr ""
-"Hasáb\n"
-"Magasság"
+msgstr "Hasábmagasság = 0.0"
 
 #: gmoccapy.glade.h:9
 msgid "clear plot"
@@ -853,11 +813,11 @@ msgstr "Szerszámpálya törlése"
 
 #: gmoccapy.glade.h:10
 msgid "Zoom in"
-msgstr "Közelít"
+msgstr "Nagyítás [+]"
 
 #: gmoccapy.glade.h:11
 msgid "Zoom out"
-msgstr "Távolít"
+msgstr "Kicsinyítés [-]"
 
 #: gmoccapy.glade.h:12
 msgid "view perspective"
@@ -865,15 +825,15 @@ msgstr "perspektivikus nézet"
 
 #: gmoccapy.glade.h:13
 msgid "view along the X axis from positive to negative"
-msgstr "Nézet X tengely mentén pozitívból  negatívba"
+msgstr "Nézet X tengely mentén pozitívból negatívba"
 
 #: gmoccapy.glade.h:14
 msgid "view along the Y axis from positive to negative"
-msgstr "Nézet Y tengely mentén pozitívból  negatívba"
+msgstr "Nézet Y tengely mentén pozitívból negatívba"
 
 #: gmoccapy.glade.h:15
 msgid "view along the Z axis from positive to negative"
-msgstr "Nézet Z tengely mentén pozitívból  negatívba"
+msgstr "Nézet Z tengely mentén pozitívból negatívba"
 
 #: gmoccapy.glade.h:16
 msgid "Show or hide tool path"
@@ -888,15 +848,14 @@ msgid ""
 "view along the Y axis from positive to negative as viewn for a back tool "
 "lathe"
 msgstr ""
-"Nézet Y tengely mentén pozitívból  negatívba, eszterga hátsó késtartó "
+"Nézet Y tengely mentén pozitívból negatívba, eszterga hátsó késtartó "
 "használatakor"
 
 #: gmoccapy.glade.h:19
 msgid "Preview"
-msgstr "Áttekintés"
+msgstr "Előnézet"
 
 #: gmoccapy.glade.h:20
-#, fuzzy
 msgid "Offset Page"
 msgstr "Eltolás ablak"
 
@@ -925,7 +884,6 @@ msgid "Ignore limits"
 msgstr "Végállások figyelmen kívül hagyása"
 
 #: gmoccapy.glade.h:27
-#, fuzzy
 msgid "<b>Jogging</b>"
 msgstr "<b>Léptetés</b>"
 
@@ -935,7 +893,7 @@ msgstr "Információ a főorsóban levő szerszámról"
 
 #: gmoccapy.glade.h:29
 msgid "Tool no."
-msgstr "Sorszám"
+msgstr "Szerszám sorszám."
 
 #: gmoccapy.glade.h:30 ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:4
 msgid "Diameter"
@@ -943,16 +901,15 @@ msgstr "Átmérő"
 
 #: gmoccapy.glade.h:31
 msgid "offset z"
-msgstr "Z eltolás "
+msgstr "Z eltolás"
 
 #: gmoccapy.glade.h:32
 msgid "offset x"
 msgstr "X eltolás"
 
 #: gmoccapy.glade.h:34
-#, fuzzy
 msgid "Vc= 0.00"
-msgstr "0.000"
+msgstr "Vc= 0.00"
 
 #: gmoccapy.glade.h:35
 msgid "<b>Tool information</b>"
@@ -991,9 +948,8 @@ msgid "Displays the current velocity"
 msgstr "Aktuális sebesség kijelzése"
 
 #: gmoccapy.glade.h:44
-#, fuzzy
 msgid "<b>Rapid Override</b>"
-msgstr "<b>Előtolás túlvez.[%]</b>"
+msgstr "<b>Gyorsjárat előtolás túlvez.</b>"
 
 #: gmoccapy.glade.h:45
 msgid "Displayes the programmed feed rate"
@@ -1004,9 +960,8 @@ msgid "reset feed override to 100 %"
 msgstr "Előtolás túlvezérlés lépték visszaállítása 100%-ra"
 
 #: gmoccapy.glade.h:48
-#, fuzzy
 msgid "<b>Feed Override</b>"
-msgstr "<b>Előtolás túlvez.[%]</b>"
+msgstr "<b>Előtolás túlvez.</b>"
 
 #: gmoccapy.glade.h:49
 msgid "Undo"
@@ -1037,19 +992,18 @@ msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
-"Szöveget\n"
-" lecserél"
+"Csere\n"
+"  Szöveg:"
 
 #: gmoccapy.glade.h:57
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
-"Mindet\n"
-" lecserél"
+"Csere\n"
+"  Mind"
 
 #: gmoccapy.glade.h:59
-#, fuzzy
 msgid ""
 "Ignore\n"
 " Case"
@@ -1066,11 +1020,10 @@ msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
-"Szöveget\n"
-"  keres:"
+"Keresés\n"
+"  Szöveg:"
 
 #: gmoccapy.glade.h:64
-#, fuzzy
 msgid "Main"
 msgstr "Fő"
 
@@ -1124,7 +1077,7 @@ msgstr "megjelenítése szerszámtábla szerkesztésekor"
 
 #: gmoccapy.glade.h:77
 msgid "Show keyboard on MDI"
-msgstr "megjelenítése MDI-ben "
+msgstr "Billentyűzet megjelenítése MDI-ben"
 
 #: gmoccapy.glade.h:78
 msgid "Show keyboard on EDIT"
@@ -1139,7 +1092,6 @@ msgid "<b>Keyboard</b>"
 msgstr "<b>Billentyűzet</b>"
 
 #: gmoccapy.glade.h:81
-#, fuzzy
 msgid "show preview"
 msgstr "Áttekintés megjelenítése"
 
@@ -1210,7 +1162,6 @@ msgid "<b>Mouse Button mode</b>"
 msgstr "<b>Egér mód gomb</b>"
 
 #: gmoccapy.glade.h:99
-#, fuzzy
 msgid "<b>Preview</b>"
 msgstr "<b>Előnézet</b>"
 
@@ -1259,7 +1210,6 @@ msgid "Appearance"
 msgstr "Megjelenés"
 
 #: gmoccapy.glade.h:111
-#, fuzzy
 msgid "Scale rapid override"
 msgstr "Főorsó túlvezérlés lépték"
 
@@ -1309,11 +1259,11 @@ msgstr "Kezdő fordulatszám"
 
 #: gmoccapy.glade.h:123
 msgid "Spindle bar min"
-msgstr "Főorső csík min."
+msgstr "Főorső csík min"
 
 #: gmoccapy.glade.h:124
 msgid "Spindle bar max"
-msgstr "Főorső csík max."
+msgstr "Főorső csík max"
 
 #: gmoccapy.glade.h:125
 msgid "<b>Spindle</b>"
@@ -1380,10 +1330,10 @@ msgid ""
 "to configure the settings."
 msgstr ""
 "Az INI fájlban \n"
-"nincs érvényesi\n"
+"nincs érvényes\n"
 "konfiguráció\n"
 "A WIKI részletezi\n"
-"a beállításokat"
+"a beállításokat."
 
 #: gmoccapy.glade.h:144
 msgid "<b>Tool Measurement</b>"
@@ -1410,9 +1360,8 @@ msgid ""
 msgstr ""
 
 #: gmoccapy.glade.h:155
-#, fuzzy
 msgid "<b>Reload Tool</b>"
-msgstr "<b>Billentyűzet</b>"
+msgstr "<b>Szerszám újratöltést</b>"
 
 #: gmoccapy.glade.h:156
 msgid "Do not use run from line"
@@ -1431,15 +1380,16 @@ msgid "Use frames"
 msgstr "Keretek használata"
 
 #: gmoccapy.glade.h:160
-#, fuzzy
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
-msgstr "When angewÃ¤hlt, wird beim Antastdialog die Offsetseite angezeigt"
+msgstr ""
+"Ha be van jelölve, az üzenetek\n"
+"keretben lesznek."
 
 #: gmoccapy.glade.h:162
 msgid "Font"
-msgstr "Betűtípus"
+msgstr "Karkter"
 
 #: gmoccapy.glade.h:163
 msgid "max."
@@ -1450,28 +1400,20 @@ msgid "The font to use"
 msgstr ""
 
 #: gmoccapy.glade.h:165
-#, fuzzy
 msgid "The maximum messages you want to be shown\t"
-msgstr "Anzahl der maximal anzuzeigenden Meldungen"
+msgstr "A megjeleníteni kívánt üzenetek maximális száma»\t"
 
 #: gmoccapy.glade.h:166
-#, fuzzy
 msgid "The width of the messages"
-msgstr "WÃ¤hle die Breite des Nachrichtenfensters"
+msgstr "Az üzenetek szélessége"
 
 #: gmoccapy.glade.h:167
-#, fuzzy
 msgid "X-position in pixel from top left corner of the screen"
-msgstr ""
-"Die X Position des Fensters, wobei von der linken oberen Ecke des "
-"Bildschirmes gezÃ¤hlt wird."
+msgstr "X-pozíció pixelben a képernyő bal felső sarkától"
 
 #: gmoccapy.glade.h:168
-#, fuzzy
 msgid "Y-position in pixel from top left corner of the screen"
-msgstr ""
-"Die Y Position des Fensters, wobei von der linken oberen Ecke des "
-"Bildschirmes gezÃ¤hlt wird."
+msgstr "Y-pozíció pixelben a képernyő bal felső sarkától"
 
 #: gmoccapy.glade.h:169
 msgid "Launch test message"
@@ -1512,32 +1454,36 @@ msgid "User tabs"
 msgstr "Felhasználói fülek"
 
 #: gmoccapy.glade.h:179
-#, fuzzy
 msgid ""
 "Estop the machine\n"
 "[F1]"
-msgstr "Gép vészleállítása"
+msgstr ""
+"Gép vészleállítása\n"
+"[F1]"
 
 #: gmoccapy.glade.h:181
-#, fuzzy
 msgid ""
 "Turn the machine on/off\n"
 "[F2]"
-msgstr "Gép be/kikapcsolása"
+msgstr ""
+"Gép be/kikapcsolása\n"
+"[F2]"
 
 #: gmoccapy.glade.h:183
-#, fuzzy
 msgid ""
 "enter manual mode to jog axis by hand or touch off\n"
 "[F3]"
-msgstr "Belépés KÉZI módba léptetéshez és érintéshez"
+msgstr ""
+"Belépés KÉZI módba léptetéshez és érintéshez\n"
+"[F3]"
 
 #: gmoccapy.glade.h:185
-#, fuzzy
 msgid ""
 "enter MDI mode to launch g-code commands\n"
 "[F5]"
-msgstr "Belépés MDI módba G-kódok végrehajtásához"
+msgstr ""
+"Belépés MDI módba G-kódok végrehajtásához\n"
+"[F5]"
 
 #: gmoccapy.glade.h:187
 msgid "enter auto mode to run programs"
@@ -1552,7 +1498,6 @@ msgid "show user tabs"
 msgstr "Felhasználói fülek megjelenítése"
 
 #: gmoccapy.glade.h:190
-#, fuzzy
 msgid "open homing button list"
 msgstr "Referencia gombok megjelenítése"
 
@@ -1609,7 +1554,6 @@ msgid "Run the  loaded program step by step"
 msgstr "Program futtatása lépésenként"
 
 #: gmoccapy.glade.h:205
-#, fuzzy
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checed!"
@@ -1664,11 +1608,11 @@ msgstr "LinuxCNC állapot kijelzése"
 
 #: gmoccapy.glade.h:216
 msgid "Hal Meter"
-msgstr "Hal Méter"
+msgstr "HAL meter"
 
 #: gmoccapy.glade.h:217
 msgid "launch hal meter"
-msgstr "HAL-méter indítása "
+msgstr "HAL-méter indítása"
 
 #: gmoccapy.glade.h:218
 msgid "Calibration"
@@ -1724,7 +1668,7 @@ msgstr "új szerszám hozzáadása a szerszámtáblához"
 
 #: gmoccapy.glade.h:231 ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:11
 msgid "Reload"
-msgstr "Áttölt"
+msgstr "Újratöltés"
 
 #: gmoccapy.glade.h:232
 msgid "reload tool table from file"
@@ -1774,7 +1718,7 @@ msgstr ""
 
 #: gmoccapy.glade.h:243 ../../../../lib/python/gladevcp/iconview.py:112
 msgid "Move to your home directory"
-msgstr "Mozgatás a felhasználó könyvtárába"
+msgstr "Ugrás a \"home\" mappába"
 
 #: gmoccapy.glade.h:244
 msgid "Move to parrent directory"
@@ -1786,7 +1730,7 @@ msgstr "Előző fájl kiválasztása"
 
 #: gmoccapy.glade.h:246 ../../../../lib/python/gladevcp/iconview.py:136
 msgid "Select the next file"
-msgstr "Következő fájl kiválasztása"
+msgstr "Válaszd ki a következő fájlt"
 
 #: gmoccapy.glade.h:247 ../../../../lib/python/gladevcp/iconview.py:160
 msgid "Jump to user defined directory"
@@ -1794,7 +1738,7 @@ msgstr "Ugrás a felhasználó által megadott könyvtárba"
 
 #: gmoccapy.glade.h:248 ../../../../lib/python/gladevcp/iconview.py:168
 msgid "select the highlighted file and return the path"
-msgstr "A megjelölt fájl kiválasztása és az elérési út visszaadása "
+msgstr "A megjelölt fájl kiválasztása és az elérési út visszaadása"
 
 #: gmoccapy.glade.h:249 ../../../../lib/python/gladevcp/iconview.py:176
 msgid "Close without returning a file path"
@@ -1805,19 +1749,16 @@ msgid "Load File"
 msgstr "Fájl betöltése"
 
 #: gmoccapy.glade.h:251
-#, fuzzy
 msgid "home joints"
-msgstr "Ref. felvét.  X tengelyen"
+msgstr "Ref. felvételek"
 
 #: ../../../../lib/python/gladevcp/iconview.py:120
-#, fuzzy
 msgid "Move to parent directory"
 msgstr "Mozgatás a szülő könyvtárba"
 
 #: ../../../../lib/python/gladevcp/iconview.py:128
-#, fuzzy
 msgid "Select the previous file"
-msgstr "Előző fájl kiválasztása"
+msgstr "Válassza ki az előző fájlt"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:142
 msgid ""
@@ -1861,9 +1802,8 @@ msgid "Tooledit_widget float error"
 msgstr ""
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:319
-#, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr "Szerszám újratöltése a szerszámtáblából"
+msgstr "A szerszámtábla újratöltése a linuxcnc-be nem sikerült"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:479
 msgid "Tool file was modified since it was last read"
@@ -1923,7 +1863,7 @@ msgstr "Ford"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:14
 msgid "Rotation of Z"
-msgstr "Z forgásiránya"
+msgstr "Z forgása"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:15
 msgid "G92"
@@ -1970,14 +1910,12 @@ msgid "G59.3"
 msgstr "G59.3"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:26
-#, fuzzy
 msgid "Offset"
-msgstr "X eltolás"
+msgstr "Eltolás"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:27
-#, fuzzy
 msgid "Offset Name"
-msgstr "Eltolás ablak"
+msgstr "Eltolás neve"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:28
 msgid ""
@@ -1988,27 +1926,24 @@ msgstr ""
 "nullázás"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:30
-#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    Zéró\n"
-"Forgó"
+"    Nincs\n"
+"Forgatás"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:32
 msgid "Edit"
-msgstr "Editálás"
+msgstr "Szerkesztés"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:1
-#, fuzzy
 msgid "Select"
-msgstr "Fájl kiválasztása"
+msgstr "Kiválaszt"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:2
-#, fuzzy
 msgid "Tool#"
-msgstr "Szerszám"
+msgstr "Szerszám#"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:3
 msgid "Pocket"
@@ -2016,24 +1951,23 @@ msgstr ""
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:5
 msgid "Front"
-msgstr ""
+msgstr "Elöl"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:6
 msgid "Back"
-msgstr ""
+msgstr "Vissza"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:7
 msgid "Orientation"
-msgstr ""
+msgstr "Tájolás"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:8
 msgid "Comments"
-msgstr ""
+msgstr "Megjegyzések"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:13
-#, fuzzy
 msgid "All Offsets"
-msgstr "Eltolások szerkesztése"
+msgstr "Összes eltolás"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:14
 msgid "X Wear"
@@ -2044,28 +1978,24 @@ msgid "Z Wear"
 msgstr ""
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:16
-#, fuzzy
 msgid "DIameter"
 msgstr "Átmérő"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:17
 msgid "Lathe Wear Offsets"
-msgstr ""
+msgstr "Eszterga kopás eltolás (kompenzálás)"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:18
-#, fuzzy
 msgid "X Tool"
-msgstr "Szerszám"
+msgstr "X szerszám"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:19
-#, fuzzy
 msgid "Z Tool"
-msgstr "Szerszám"
+msgstr "Z szerszám"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:20
-#, fuzzy
 msgid "Lathe Tool Offsets"
-msgstr "Eltolások szerkesztése"
+msgstr "Eszterga szerszám eltolások"
 
 #~ msgid "Home axis %s"
 #~ msgstr " %s tengely referenciára"
