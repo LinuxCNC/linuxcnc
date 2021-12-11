@@ -7,14 +7,16 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2020-07-15 05:10+0100\n"
-"Last-Translator: J.M. Garcia <jmgardeto@gmail.com>\n"
-"Language: es_ES\n"
+"PO-Revision-Date: 2021-12-09 03:52+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
+"linuxcnc/es/>\n"
+"Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 2.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/emc/task/emctaskmain.cc:870
 #, c-format
@@ -144,7 +146,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
-msgstr "Palabra E sin G76, M3, M4, M5, M19, M51, M66, M67 o M68 "
+msgstr "Palabra E sin G76, M3, M4, M5, M19, M51, M66, M67 o M68"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
@@ -11406,7 +11408,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2124
 #: src/emc/usr_intf/pncconf/dialogs.glade:2438
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

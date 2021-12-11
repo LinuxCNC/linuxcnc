@@ -10,14 +10,16 @@ msgstr ""
 "Project-Id-Version: it_rs274_err\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2020-05-14 22:22+0200\n"
-"Last-Translator: Ernesto Lo Valvo <ernesto.lovalvo@unipa.it>\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2021-12-10 08:20+0000\n"
+"Last-Translator: Ernesto Lo Valvo <elovalvo@gmail.com>\n"
+"Language-Team: Italian <https://hosted.weblate.org/projects/linuxcnc/"
+"linuxcnc/it/>\n"
 "Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3.1\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 
 #: src/emc/task/emctaskmain.cc:870
 #, c-format
@@ -117,7 +119,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr "G4 non disponibile con G2 o G3 perchè entrambi  usano P"
+msgstr "G4 non disponibile con G2 o G3 perchè entrambi usano P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
@@ -298,7 +300,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:449
 #, c-format
 msgid "%c word missing in absolute center arc"
-msgstr "Parametro %c  mancante in centro arco assoluto"
+msgstr "Parametro %c mancante in centro arco assoluto"
 
 #: src/emc/rs274ngc/interp_convert.cc:676
 msgid ""
@@ -337,7 +339,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4126 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
-msgstr "Posizione assoluta  %5.2f invalida per asse rotante  %c"
+msgstr "Posizione assoluta %5.2f invalida per asse rotante %c"
 
 #: src/emc/rs274ngc/interp_convert.cc:1579
 msgid "Cannot change control mode with cutter radius compensation on"
@@ -378,22 +380,22 @@ msgstr ""
 "attiva"
 
 #: src/emc/rs274ngc/interp_convert.cc:2945
-#, fuzzy, c-format
+#, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr "M7x: restore_settings G20/G21 errato: '%s'"
+msgstr "gen_restore G20/G21 fallito: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:2995
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
-"BUG: impossibile restore da u basso call level (%d) ad un alto call level "
-"(%d)"
+"BUG: impossibile restore da un call level (%d) basso ad un call level (%d) "
+"alto"
 
 #: src/emc/rs274ngc/interp_convert.cc:2996
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr "BUG: restore dal  livello %d !?"
+msgstr "BUG: restore dal livello %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:2997
 #, c-format
@@ -413,7 +415,7 @@ msgstr "M7x: restore_settings errato eseguendo '%s': %s"
 #: src/emc/rs274ngc/interp_convert.cc:3110
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
-msgstr ""
+msgstr "Fallito il ripristino dello stato di interp su aborto '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3181
 msgid "Cannot set motion output with cutter radius compensation on"
@@ -486,8 +488,8 @@ msgstr "Indice analogico non valido con M68"
 #: src/emc/rs274ngc/interp_convert.cc:3309
 msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr ""
-"E' necessario un parametro Q non-negativo  per specificare il numero "
-"utensile con M61"
+"E' necessario un parametro Q non-negativo per specificare il numero utensile "
+"con M61"
 
 #: src/emc/rs274ngc/interp_convert.cc:3353
 #, c-format
@@ -495,26 +497,26 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
-"Mandrino ($) numero fuori portata in comando M3\n"
-" num_spindles =% i. $ =% d\n"
+"Mandrino ($) numero fuori range in comando M3\n"
+"num_spindles =%i. $ =%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3370
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
-"Mandrino ($) numero fuori portata in comando M3\n"
-" num_spindles =% i. $ =% d\n"
+"Mandrino ($) numero fuori range in comando M3\n"
+"num_spindles =%i. $ =%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3387
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
-"Mandrino ($) numero fuori portata in comando M3\n"
-" num_spindles =% i. $ =% d\n"
+"Mandrino ($) numero fuori range in comando M5\n"
+"num_spindles =%i. $ =%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3406
 msgid "Spindle ($) number out of range in M19 Command"
@@ -689,7 +691,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:5621
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: Non può avere entrambe le parole H e asse"
 
 #: src/emc/rs274ngc/interp_convert.cc:5624
 #, fuzzy
@@ -867,7 +869,7 @@ msgstr "Le coordinate polari possono essere usate solo per movimenti"
 #: src/emc/rs274ngc/interp_read.cc:1208 src/emc/rs274ngc/interp_read.cc:1212
 #, c-format
 msgid "Bad character '\\%03o' used"
-msgstr "Uso di carattere '\\%03o'  errato"
+msgstr "Uso di carattere '\\%03o' errato"
 
 #: src/emc/rs274ngc/interp_read.cc:1212
 #, c-format
@@ -877,7 +879,7 @@ msgstr "Uso di carattere '%c' errato"
 #: src/emc/rs274ngc/interp_read.cc:1603
 #, c-format
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
-msgstr "% d: bug: non-M98/M99 M-code passato a read_o ():' %s'"
+msgstr "%d: bug: M-code non-M98/M99  passato a read_o ():' %s'"
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: src/emc/rs274ngc/interp_read.cc:1807
@@ -906,7 +908,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_read.cc:2071
 msgid "Expected # reading parameter"
-msgstr "Attesi  # parametri lettura"
+msgstr "Attesi # parametri lettura"
 
 #: src/emc/rs274ngc/interp_read.cc:2073
 msgid "Expected ] reading bracketed parameter"
@@ -950,12 +952,12 @@ msgstr "Parametro W presente più volte su una linea"
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr "File:%s   linea:%d sub: o|%s| trovata in posizione illegale"
+msgstr "File:%s linea:%d sub: o|%s| trovata in posizione illegale"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
-msgstr "File:%s  La linea:%d ridefinisce sub: o|%s| già definita nel file:%s"
+msgstr "File:%s La linea:%d ridefinisce sub: o|%s| già definita nel file:%s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:823
 #, c-format
@@ -965,12 +967,12 @@ msgstr "%d: manca nella definizione subroutine : '%s'"
 #: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
-msgstr "% d: etichetta O-Word duplicata:' %s'-definita nella riga% d"
+msgstr "%d: etichetta O-Word duplicata:' %s'-definita nella riga %d"
 
 #: src/emc/rs274ngc/interp_o_word.cc:975
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr "% d: etichetta O-Word duplicata-già definita nella riga% d:' %s'"
+msgstr "%d: etichetta O-Word duplicata-già definita nella riga %d:' %s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:999 src/emc/rs274ngc/interp_o_word.cc:1057
 #: src/emc/rs274ngc/interp_o_word.cc:1091
@@ -986,27 +988,26 @@ msgstr "%d: label O-word non definita: '%s'"
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr ""
-"% d: nessuna corrispondenza ' If ' Label:' %s'(trovato ' %s'nella riga% d)"
+"%d: nessuna corrispondenza ' If ' Label:' %s'(trovato ' %s'nella riga %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1094
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
 msgstr ""
-"% d: nessuna etichetta corrispondente:' %s'(trovata ' %s'nella riga% d):' %s'"
+"%d: nessuna etichetta corrispondente:' %s'(trovata ' %s'nella riga %d):' %s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1112
 #: src/emc/rs274ngc/interp_o_word.cc:1129
-#, c-format
+#, c-format, fuzzy
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
 msgstr ""
-"% d: nessuna etichetta while/do corrispondente:' %s'(trovato ' %s'nella riga"
-"% d)"
+"%d: nessuna etichetta while/do corrispondente: '%s' (trovato '%s' nella riga "
+"%d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1155
-#, c-format
+#, c-format, fuzzy
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
-msgstr ""
-"% d: nessuna etichetta corrispondente:' %s'(trovato ' %s'nella riga% d)"
+msgstr "%d: nessuna etichetta corrispondente: '%s' (trovato '%s' nella riga %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:177
 #, c-format
@@ -1041,7 +1042,7 @@ msgstr "Errore interno: non posso assegnare #<%s>"
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
 msgid "Cannot assign to read-only parameter #<%s>"
-msgstr "Impossibile assegnare  parametro #<%s> read-only"
+msgstr "Impossibile assegnare parametro #<%s> read-only"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:740
 #, c-format
@@ -1168,7 +1169,7 @@ msgstr "Errore nella compensazione raggio utensile"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:47
 msgid "Bug plane not xy yz or xz"
-msgstr "Errore: Piano diverso da  xy, yz o zx"
+msgstr "Errore: Piano diverso da xy, yz o zx"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:48
 msgid "Bug side not right or left"
@@ -1889,7 +1890,7 @@ msgstr "ERRORE: nessun nome di pin/segnale/parametro\n"
 msgid ""
 "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
 msgstr ""
-"ERRORE:  opzione -s richiede un tipo di esame ed un nome di pin/segnale/"
+"ERRORE: opzione -s richiede un tipo di esame ed un nome di pin/segnale/"
 "parametro\n"
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
@@ -2146,7 +2147,7 @@ msgid ""
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
-"Selezionare il nome di un  thread e il moltiplicatore, quindi cliccare 'OK'\n"
+"Selezionare il nome di un thread e il moltiplicatore, quindi cliccare 'OK'\n"
 "oppure\n"
 "Cliccare 'Esci' per uscire da HALSCOPE"
 
@@ -2282,15 +2283,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:487
 #: src/emc/usr_intf/pncconf/base.glade:389
 msgid "ns"
-msgstr ""
+msgstr "ns"
 
 #: src/hal/utils/scope_horiz.c:1161
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1165
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1169 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2299,7 +2300,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1186 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2315,15 +2316,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:460
 #: src/emc/usr_intf/pncconf/mesa1.glade:473
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1127
 #, c-format
@@ -2537,7 +2538,7 @@ msgstr "errore Inseguimento giunto %d"
 #: src/emc/motion/control.c:1412 src/emc/motion/control.c:1498
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
-msgstr "kinematicsInverse ha dato posizione giunti  non-finita sul giunto% d"
+msgstr "kinematicsInverse ha dato posizione giunti non-finita sul giunto %d"
 
 #: src/emc/motion/control.c:1429 src/emc/motion/control.c:1517
 msgid "kinematicsInverse failed"
@@ -2546,7 +2547,7 @@ msgstr "kinematicsInverse fallita"
 #: src/emc/motion/control.c:1594
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "Limite soft NEGATIVO superato  (%.5f) sull'asse %d\n"
+msgstr "Limite soft NEGATIVO superato (%.5f) sull'asse %d\n"
 
 #: src/emc/motion/control.c:1597 src/emc/motion/control.c:1606
 #, fuzzy
@@ -2561,7 +2562,7 @@ msgstr "Suggerimento: passare alla modalità giunti per jog off soft limit"
 #: src/emc/motion/control.c:1603
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-msgstr "Limite soft POSITIVO superato  (%.5f) sull'asse %d\n"
+msgstr "Limite soft POSITIVO superato (%.5f) sull'asse %d\n"
 
 #: src/emc/motion/command.c:145
 #, c-format
@@ -2604,14 +2605,13 @@ msgstr "positivo"
 #: src/emc/motion/command.c:263
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
-msgstr "%s movimento sulla riga% d non riesce kinematicsInverse"
+msgstr "%s movimento sulla riga %d non riesce kinematicsInverse"
 
 #: src/emc/motion/command.c:278
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr ""
-"%s movimento sulla linea % d ha dato posizione giunti non finita sul giunto "
-"% d"
+"%s movimento sulla linea %d ha dato posizione giunti non finita sul giunto %d"
 
 #: src/emc/motion/command.c:285
 #, c-format
@@ -2754,7 +2754,7 @@ msgstr "impossibile uso movimento tap rigido in presenza di superamento limiti"
 #: src/emc/motion/command.c:1704
 #, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
-msgstr "impossibile uso movimento tap rigido  alla linea %d, codice errore %d"
+msgstr "impossibile uso movimento tap rigido alla linea %d, codice errore %d"
 
 #: src/emc/motion/command.c:1746
 msgid "Attempt to start non-existent spindle"
@@ -2960,7 +2960,7 @@ msgstr ""
 
 #: src/emc/motion/homing.c:697
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
-msgstr "configurazione azzeramento errata: SEARCH_VEL necessita di   LATCH_VEL"
+msgstr "configurazione azzeramento errata: SEARCH_VEL necessita di LATCH_VEL"
 
 #: src/emc/motion/homing.c:845
 #, c-format
@@ -3188,7 +3188,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
-msgstr "Reset dati ladder   "
+msgstr "Reset dati ladder "
 
 #: src/hal/classicladder/classicladder_gtk.c:596
 msgid "Okay"
@@ -3227,9 +3227,7 @@ msgstr "Conferma!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
-msgstr ""
-"Vuoi davvero chiudere?\n"
-"\n"
+msgstr "Vuoi davvero chiudere?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid ""
@@ -3253,7 +3251,7 @@ msgstr "Commento del rung selezionato corrente"
 
 #: src/hal/classicladder/classicladder_gtk.c:762
 msgid "Display symbols"
-msgstr "Simboli  Visualizzazione"
+msgstr "Mostra simboli"
 
 #: src/hal/classicladder/classicladder_gtk.c:816
 msgid "Statusbar"
@@ -3397,7 +3395,7 @@ msgstr "Numero di Bits                  "
 #: src/hal/classicladder/config_gtk.c:122
 #, c-format
 msgid "Number of Error Bits                  "
-msgstr "Numero di Bits Errore                 "
+msgstr "Numero di Bits Errore                  "
 
 #: src/hal/classicladder/config_gtk.c:126
 #, c-format
@@ -3442,32 +3440,32 @@ msgstr "Numero di Monostables            "
 #: src/hal/classicladder/config_gtk.c:161
 #, c-format
 msgid "Number of BIT Inputs HAL pins           "
-msgstr "Numero di pin HAL BIT Inputs "
+msgstr "Numero di pin HAL BIT Inputs           "
 
 #: src/hal/classicladder/config_gtk.c:165
 #, c-format
 msgid "Number of BIT Outputs HAL pins          "
-msgstr "Numero di pin HAL BIT Outputs "
+msgstr "Numero di pin HAL BIT Outputs          "
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
 msgid "Number of S32in HAL pins             "
-msgstr "Numero di pin HAL S32in "
+msgstr "Numero di pin HAL S32in             "
 
 #: src/hal/classicladder/config_gtk.c:173
 #, c-format
 msgid "Number of S32out HAL pins            "
-msgstr "Numero di pin HAL S32out "
+msgstr "Numero di pin HAL S32out            "
 
 #: src/hal/classicladder/config_gtk.c:177
 #, c-format
 msgid "Number of floatin HAL pins             "
-msgstr "Numero di pin HAL floatin            "
+msgstr "Numero di pin HAL floatin             "
 
 #: src/hal/classicladder/config_gtk.c:181
 #, c-format
 msgid "Number of floatout HAL pins            "
-msgstr "Numero di pin HAL floatout     "
+msgstr "Numero di pin HAL floatout            "
 
 #: src/hal/classicladder/config_gtk.c:185
 #, c-format
@@ -3844,7 +3842,7 @@ msgstr "Tipo di elemento sconosciuto per Ele1"
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 msgstr ""
-"commonsearch: leftX %d, rightX %d, OffTransi%d, StepsY % d, TransiY %d\n"
+"commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY= %d\n"
 
 #: src/hal/classicladder/edit_sequential.c:508
 #: src/hal/classicladder/edit_sequential.c:552
@@ -3938,16 +3936,12 @@ msgstr "Non c'è abbastanza spazio sulla destra qui..."
 #: src/hal/classicladder/edit_sequential.c:875
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
-"DO_MANY_STEPS:nbr  clic su 2!!!, TypeBak %d, TypeNow%d\n"
-"\n"
+msgstr "DO_MANY_STEPS:nbr clics=2!!!, TypeBak %d, TypeNow%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:881
 #, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
-"DO_MANY_TRANSITIONS:nbr fa clic su 2!!!, TypeBak %d, TypeNow%d\n"
-"\n"
+msgstr "DO_MANY_TRANSITIONS:nbr fa clic su 2!!!, TypeBak %d, TypeNow%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:168
 msgid "Properties"
@@ -4044,7 +4038,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:182
 #, c-format
 msgid "Rung version not supported...\n"
-msgstr "Versione rung  non supportata...\n"
+msgstr "Versione rung non supportata...\n"
 
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
 #, c-format
@@ -4103,7 +4097,7 @@ msgstr "Monostable => Base = %d , Preset = %d\n"
 #: src/hal/classicladder/files.c:787
 #, c-format
 msgid "Sections file version not supported...\n"
-msgstr "Versione file Sezione  non supportata...\n"
+msgstr "Versione file Sezione non supportata...\n"
 
 #: src/hal/classicladder/files.c:811
 #, c-format
@@ -4111,13 +4105,13 @@ msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
-"Sezione %d : nome /  %s , Lingua , %d, SRnbr % d , FirstRung , %d , "
-"LastRung , %d , SequentialPage , %d\n"
+"Sezione %d => Nome = %s , Lingua= %d, SRnbr=%d , FirstRung= %d , LastRung "
+"=%d , SequentialPage=%d\n"
 
 #: src/hal/classicladder/files.c:1043
 #, c-format
 msgid "Symbols file version not supported...\n"
-msgstr "Versione file Symbols  non supportata...\n"
+msgstr "Versione file Symbols non supportata...\n"
 
 #: src/hal/classicladder/files.c:1056
 #, c-format
@@ -4127,9 +4121,7 @@ msgstr "Simbolo: %s - %s - %s\n"
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr ""
-"ERRORE con directory del percorso specificata per il progetto!!!\n"
-" \n"
+msgstr "ERRORE con directory del percorso specificata per il progetto!!!\n"
 
 #: src/hal/classicladder/files_project.c:184
 #, c-format
@@ -4139,7 +4131,7 @@ msgstr "Salva progetto '%s' dalla tmp dir=%s\n"
 #: src/hal/classicladder/files_sequential.c:97
 #, c-format
 msgid "Sequential version not supported...\n"
-msgstr "Versione Sequential  non supportata...\n"
+msgstr "Versione Sequential non supportata...\n"
 
 #: src/hal/classicladder/manager_gtk.c:71
 #: src/hal/classicladder/manager_gtk.c:229
@@ -4175,7 +4167,7 @@ msgstr "Vuoi davvero cancellare la sezione?"
 
 #: src/hal/classicladder/manager_gtk.c:174
 msgid "You can not delete the last section..."
-msgstr "Non puoi cancellare l'ultima  sezione..."
+msgstr "Non puoi cancellare l'ultima sezione..."
 
 #: src/hal/classicladder/manager_gtk.c:191
 msgid "This section is already executed the first !"
@@ -4207,7 +4199,7 @@ msgstr "Linguaggio    "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Type   "
-msgstr "Tipo "
+msgstr "Tipo   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "debug"
@@ -4851,7 +4843,7 @@ msgid ""
 msgstr ""
 "TkEditor\n"
 "\n"
-"Semplice  Editore Testo Tcl/Tk \n"
+"Semplice Editore Testo Tcl/Tk\n"
 "\n"
 "GPL Versione 2"
 
@@ -5192,8 +5184,8 @@ msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting LinuxCNC."
 msgstr ""
-"Il file di configurazione  è stato copiato in %s. La prossima volta, scegli "
-"questa  posizione quando attivi LinuxCNC."
+"Il file di configurazione è stato copiato in %s. La prossima volta, scegli "
+"questa posizione quando attivi LinuxCNC."
 
 #: tcl/bin/pickconfig.tcl:864
 msgid "Shortcut Created"
@@ -5331,8 +5323,10 @@ msgid ""
 msgstr ""
 "TkLinuxCNC\n"
 "\n"
-"Interfaccia grafica Tcl/Tk per LinuxCNC (n\n"
-"GPL Version 2 (2012)/n Traduzione italiana E. Lo Valvo"
+"Interfaccia grafica Tcl/Tk per LinuxCNC\n"
+"\n"
+"GPL Version 2 (2012)\n"
+"Traduzione italiana E. Lo Valvo"
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
@@ -6011,7 +6005,7 @@ msgstr "Autosend disabilitato, Ctrl-A scambia autosend"
 
 #: tcl/ngcgui.tcl:1867
 msgid "File saving enabled -- Finalize to save"
-msgstr "Salvataggio file abilitato --  Finalizzare per salvare"
+msgstr "Salvataggio file abilitato -- Finalizzare per salvare"
 
 #: tcl/ngcgui.tcl:1883
 msgid "Require .ngc suffix for filename"
@@ -6183,7 +6177,7 @@ msgstr "errore ngcgui"
 
 #: tcl/ngcgui.tcl:2751
 msgid "Declining support for tk send bug in ngcgui"
-msgstr "Declina supporto  per l'invio di bug tk in ngcgui"
+msgstr "Declina supporto per l'invio di bug tk in ngcgui"
 
 #: tcl/ngcgui.tcl:2752
 msgid "You should upgrade linuxcnc to >= linuxcnc2.5"
@@ -6219,7 +6213,7 @@ msgstr "su ultimo outfile"
 
 #: tcl/ngcgui.tcl:2998
 msgid "toggle expand subroutines"
-msgstr "on/off espansione  subroutine"
+msgstr "attiva/disattiva espandi subroutine"
 
 #: tcl/ngcgui.tcl:2999
 msgid "Create feature"
@@ -6428,7 +6422,7 @@ msgstr "non trovato"
 
 #: tcl/ngcgui_ttt.tcl:68
 msgid "found truetype-tracer v4 -OK"
-msgstr "trovato  truetype-tracer v4 -OK"
+msgstr "trovato truetype-tracer v4 -OK"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
@@ -6524,7 +6518,7 @@ msgstr "Testo nullo"
 
 #: tcl/ngcgui_ttt.tcl:385
 msgid "Using truetype-tracer default font"
-msgstr "Uso default font  truetype-tracer"
+msgstr "Usare il font predefinito truetype-tracer"
 
 #: tcl/ngcgui_ttt.tcl:389
 msgid "no such file"
@@ -6787,7 +6781,10 @@ msgid ""
 "Only these columns are currently used:\n"
 "\n"
 " %s"
-msgstr "Sono attualmente utilizzate solo queste colonne: %s"
+msgstr ""
+"Attualmente vengono utilizzate solo queste colonne:\n"
+"\n"
+"%s"
 
 #: tcl/tooledit.tcl:931
 msgid "Limit display to these columns by specifying"
@@ -6812,7 +6809,7 @@ msgstr "Creato da %s"
 
 #: tcl/tooledit.tcl:957
 msgid "Saved geometry (updated on program termination)"
-msgstr "Geometria salvata (aggiornata sulla fine  del programma)"
+msgstr "Geometria salvata (aggiornata alla fine del programma)"
 
 #: tcl/tooledit.tcl:980
 #, tcl-format
@@ -7848,7 +7845,7 @@ msgstr "Rotazione Mandrino (giri/min)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:686
 msgid "Roughing offset (units, 0=no roughing)"
-msgstr "Offset Sgrossatura  (unita', 0=senza sgrossatura)"
+msgstr "Offset di sgrossatura (unità, 0 = nessuna sgrossatura)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:687
 msgid "Roughing depth per pass (units)"
@@ -8248,7 +8245,7 @@ msgstr "Stop Emergenza On/Off [F1]"
 
 #: share/axis/tcl/axis.tcl:500
 msgid "Toggle Machine power [F2]"
-msgstr "Macchina  ON/OFF [F2]"
+msgstr "Macchina ON/OFF [F2]"
 
 #: share/axis/tcl/axis.tcl:511
 msgid "Open G-Code file [O]"
@@ -8280,7 +8277,7 @@ msgstr "Scambio Salto linee con '_/' [Alt-M /]"
 
 #: share/axis/tcl/axis.tcl:577
 msgid "Toggle optional pause [Alt-M 1]"
-msgstr "Scambio pausa opzionale  [Alt-M 1]"
+msgstr "Attiva/disattiva pausa opzionale [Alt-M 1]"
 
 #: share/axis/tcl/axis.tcl:586
 msgid "Zoom in"
@@ -8493,7 +8490,7 @@ msgstr ""
 "\n"
 "Questo software è gratuito, ed è possibile ridistribuirlo sotto alcune "
 "condizioni.  Vedi il file COPYING, incluso in LinuxCNC.\n"
-"Traduzione italiana: E. Lo Valvo (ernesto.lovalvo@unipa.it)  \n"
+"Traduzione italiana: E. Lo Valvo (ernesto.lovalvo@unipa.it) \n"
 "\n"
 "Visita il sito web di LinuxCNC: "
 
@@ -9528,7 +9525,7 @@ msgstr "Tasto X Zero"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:158
 msgid "QtPlasmaC THCAD"
-msgstr ""
+msgstr "QtPlasmaC THCAD"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:159
 msgid "Axis X"
@@ -9775,19 +9772,19 @@ msgstr "Abilita POT"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:237
 msgid "Plasma Scribe Arm"
-msgstr ""
+msgstr "Braccio Plasma Scribe"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:237
 msgid "Plasma Scribe On"
-msgstr ""
+msgstr "Plasma Scribe On"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:237
 msgid "Plasma Torch On"
-msgstr ""
+msgstr "Torcia al plasma On"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:237
 msgid "Plasma Laser On"
-msgstr ""
+msgstr "Laser al plasma acceso"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:238
 #: src/emc/usr_intf/stepconf/stepconf.py:272
@@ -10091,23 +10088,23 @@ msgstr "Digital in 2"
 #: src/emc/usr_intf/stepconf/stepconf.py:269
 #: src/emc/usr_intf/pncconf/private_data.py:422
 msgid "Digital in 3"
-msgstr "Digital  n 3"
+msgstr "Digital in 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Plasma Arc Voltage"
-msgstr ""
+msgstr "Tensione dell'arco al plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Plasma Arc OK"
-msgstr ""
+msgstr "Arco al plasma OK"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Plasma Ohmic Probe"
-msgstr ""
+msgstr "Sonda Ohmica del Plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
 msgid "Plasma Breakaway"
-msgstr ""
+msgstr "Distacco del plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
 #, fuzzy
@@ -10136,9 +10133,9 @@ msgid ""
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
 "Any existing file named -custom_backup.clp- will be lost. "
 msgstr ""
-"OK per sostituire il programma ladder custom esistente?\n"
-"Custom.clp esistente sarà rinominato custom_backup.clp.\n"
-"Qualsiasi  file esistente di nome -custom_backup.clp- verrà perso. "
+"Va bene sostituire il programma ladder personalizzato esistente?\n"
+"Il file Custom.clp esistente sarà rinominato custom_backup.clp.\n"
+"Qualsiasi file esistente chiamato -custom_backup.clp- sarà perso. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:278
 #: src/emc/usr_intf/pncconf/pages.py:1452
@@ -10253,12 +10250,14 @@ msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
 msgstr "Avvio dalla Scrivania per configurazioni LinuxCNC fatte da Stepconf"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:826
-#, fuzzy
 msgid ""
 "Loading configuration error:\n"
 "\n"
 "{}"
-msgstr "Selettore Configurazioni LinuxCNC"
+msgstr ""
+"Errore durante il caricamento della configurazione:\n"
+"\n"
+"{}"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:968
 #: src/emc/usr_intf/stepconf/pages.py:157
@@ -10410,7 +10409,7 @@ msgstr "# aggiungere qui i comandi halui MDI (max 64) "
 #: src/emc/usr_intf/stepconf/build_HAL.py:290
 #: src/emc/usr_intf/pncconf/build_HAL.py:747
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr "# **** Setup per programma ladder  estop esterno  -AVVIO ****"
+msgstr "# **** Setup per programma ladder  estop esterno -AVVIO ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:297
 #: src/emc/usr_intf/pncconf/build_HAL.py:754
@@ -10758,7 +10757,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/pport1.glade:32
 #: src/emc/usr_intf/stepconf/pport2.glade:37
 msgid "0x0378"
-msgstr ""
+msgstr "0x0378"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:46
 msgid "Xylotex"
@@ -10774,65 +10773,56 @@ msgstr "TB6560 4 assi"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:74
 #: src/emc/usr_intf/stepconf/pport2.glade:74
-#, fuzzy
 msgid " Pin _1:"
-msgstr "Pin _1:"
+msgstr " Pin _1:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:132
 #: src/emc/usr_intf/stepconf/pport2.glade:131
 #: src/emc/usr_intf/stepconf/pport2.glade:973
-#, fuzzy
 msgid " Pin _2:"
-msgstr "Pin _2:"
+msgstr " Pin _2:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:190
 #: src/emc/usr_intf/stepconf/pport2.glade:188
 #: src/emc/usr_intf/stepconf/pport2.glade:1089
-#, fuzzy
 msgid " Pin _4:"
-msgstr "Pin _4:"
+msgstr " Pin _4:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:248
 #: src/emc/usr_intf/stepconf/pport2.glade:245
 #: src/emc/usr_intf/stepconf/pport2.glade:1031
-#, fuzzy
 msgid " Pin _3:"
-msgstr "Pin _3:"
+msgstr " Pin _3:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:306
 #: src/emc/usr_intf/stepconf/pport2.glade:302
 #: src/emc/usr_intf/stepconf/pport2.glade:1147
-#, fuzzy
 msgid " Pin _5:"
-msgstr "Pin _5:"
+msgstr " Pin _5:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:364
 #: src/emc/usr_intf/stepconf/pport2.glade:359
 #: src/emc/usr_intf/stepconf/pport2.glade:1205
-#, fuzzy
 msgid " Pin _6:"
-msgstr "Pin _6:"
+msgstr " Pin _6:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:422
 #: src/emc/usr_intf/stepconf/pport2.glade:416
 #: src/emc/usr_intf/stepconf/pport2.glade:1263
-#, fuzzy
 msgid " Pin _7:"
-msgstr "Pin _7:"
+msgstr " Pin _7:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:480
 #: src/emc/usr_intf/stepconf/pport2.glade:473
 #: src/emc/usr_intf/stepconf/pport2.glade:1321
-#, fuzzy
 msgid " Pin _8:"
-msgstr "Pin _8:"
+msgstr " Pin _8:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:538
 #: src/emc/usr_intf/stepconf/pport2.glade:530
 #: src/emc/usr_intf/stepconf/pport2.glade:1379
-#, fuzzy
 msgid " Pin _9:"
-msgstr "Pin _9:"
+msgstr " Pin _9:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:596
 #: src/emc/usr_intf/stepconf/pport2.glade:588
@@ -10998,17 +10988,16 @@ msgstr "Gmoccapy"
 
 #: src/emc/usr_intf/stepconf/options.glade:54
 msgid "Qtdragon"
-msgstr ""
+msgstr "Qtdragon"
 
 #: src/emc/usr_intf/stepconf/options.glade:57
 #: src/emc/usr_intf/pncconf/screen.glade:145
 msgid "QtPlasmaC"
-msgstr ""
+msgstr "QtPlasmaC"
 
 #: src/emc/usr_intf/stepconf/options.glade:73
-#, fuzzy
 msgid "Screen:  "
-msgstr "Screen"
+msgstr "Screen:  "
 
 #: src/emc/usr_intf/stepconf/options.glade:126
 #: src/emc/usr_intf/stepconf/options.glade:159
@@ -11021,57 +11010,50 @@ msgstr "0.000"
 #: src/emc/usr_intf/stepconf/options.glade:242
 #: src/emc/usr_intf/pncconf/screen.glade:2546
 #: src/emc/usr_intf/pncconf/screen.glade:2647
-#, fuzzy
 msgid "  Y Offset"
-msgstr "Offset:"
+msgstr "  Offset Y"
 
 #: src/emc/usr_intf/stepconf/options.glade:196
 #: src/emc/usr_intf/stepconf/options.glade:210
 #: src/emc/usr_intf/pncconf/screen.glade:2600
 #: src/emc/usr_intf/pncconf/screen.glade:2614
-#, fuzzy
 msgid " X Offset"
-msgstr "Offset:"
+msgstr " Offset X"
 
 #: src/emc/usr_intf/stepconf/options.glade:256
 #: src/emc/usr_intf/pncconf/screen.glade:2661
 msgid "Alignment Camera:   "
-msgstr ""
+msgstr "Telecamera di allineamento: …   "
 
 #: src/emc/usr_intf/stepconf/options.glade:268
 #: src/emc/usr_intf/pncconf/screen.glade:2673
-#, fuzzy
 msgid "Alignment Laser:"
-msgstr "allineamento corrente"
+msgstr "Laser di allineamento:"
 
 #: src/emc/usr_intf/stepconf/options.glade:281
 #: src/emc/usr_intf/pncconf/screen.glade:2686
-#, fuzzy
 msgid "Screen Aspect:"
-msgstr "Screen"
+msgstr "Aspetto dello schermo:"
 
 #: src/emc/usr_intf/stepconf/options.glade:294
 #: src/emc/usr_intf/pncconf/screen.glade:2699
-#, fuzzy
 msgid "Estop Button:"
-msgstr "Estop on"
+msgstr "Pulsante Estop:"
 
 #: src/emc/usr_intf/stepconf/options.glade:310
 #: src/emc/usr_intf/pncconf/screen.glade:2714
-#, fuzzy
 msgid "4:3"
-msgstr "47:"
+msgstr "4:3"
 
 #: src/emc/usr_intf/stepconf/options.glade:326
 #: src/emc/usr_intf/pncconf/screen.glade:2730
-#, fuzzy
 msgid "Hidden"
-msgstr "HiddenColNbr!"
+msgstr "Nascosto"
 
 #: src/emc/usr_intf/stepconf/options.glade:342
 #: src/emc/usr_intf/pncconf/screen.glade:2746
 msgid "9:16"
-msgstr ""
+msgstr "9:16"
 
 #: src/emc/usr_intf/stepconf/options.glade:358
 #: src/emc/usr_intf/pncconf/screen.glade:2762
@@ -11082,23 +11064,22 @@ msgstr "Tasto sinistro"
 #: src/emc/usr_intf/stepconf/options.glade:374
 #: src/emc/usr_intf/pncconf/screen.glade:2778
 msgid "16:9"
-msgstr ""
+msgstr "16:9"
 
 #: src/emc/usr_intf/stepconf/options.glade:388
 #: src/emc/usr_intf/pncconf/screen.glade:2792
 msgid "Indicator"
-msgstr ""
+msgstr "Indicatore"
 
 #: src/emc/usr_intf/stepconf/options.glade:450
 #: src/emc/usr_intf/pncconf/screen.glade:2857
 msgid "Powermax Port:"
-msgstr ""
+msgstr "Porta Powermax:"
 
 #: src/emc/usr_intf/stepconf/options.glade:478
 #: src/emc/usr_intf/pncconf/screen.glade:2887
-#, fuzzy
 msgid "Mode:"
-msgstr "Modo"
+msgstr "Modo:"
 
 #: src/emc/usr_intf/stepconf/options.glade:491
 msgid "_Onscreen prompt for manual tool change"
@@ -11117,7 +11098,7 @@ msgstr "Azzera programma"
 #: src/emc/usr_intf/stepconf/options.glade:582
 #: src/emc/usr_intf/pncconf/vcp.glade:96
 msgid "Spindle speed display  "
-msgstr "Visualizza velocità mandrino "
+msgstr "Visualizza velocità mandrino  "
 
 #: src/emc/usr_intf/stepconf/options.glade:599
 #: src/emc/usr_intf/stepconf/options.glade:1073
@@ -11249,12 +11230,12 @@ msgstr "NML"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:41
 #: src/emc/usr_intf/pncconf/ubuttons.glade:46
 msgid "NAME"
-msgstr ""
+msgstr "NOME"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:55
 #: src/emc/usr_intf/pncconf/ubuttons.glade:58
 msgid "CODE"
-msgstr ""
+msgstr "CODICE"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:177
 #: src/emc/usr_intf/stepconf/thcad.glade:59
@@ -11266,9 +11247,8 @@ msgstr "10"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:189
 #: src/emc/usr_intf/pncconf/ubuttons.glade:200
-#, fuzzy
 msgid "11"
-msgstr "11:"
+msgstr "11"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:201
 #: src/emc/usr_intf/pncconf/ubuttons.glade:213
@@ -11278,9 +11258,8 @@ msgstr "2"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:213
 #: src/emc/usr_intf/pncconf/ubuttons.glade:226
-#, fuzzy
 msgid "13"
-msgstr "13:"
+msgstr "13"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:225
 #: src/emc/usr_intf/pncconf/ubuttons.glade:239
@@ -11290,9 +11269,8 @@ msgstr "1"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:237
 #: src/emc/usr_intf/pncconf/ubuttons.glade:252
-#, fuzzy
 msgid "15"
-msgstr "15:"
+msgstr "15."
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:249
 #: src/emc/usr_intf/pncconf/ubuttons.glade:265
@@ -11314,9 +11292,8 @@ msgstr "1"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:285
 #: src/emc/usr_intf/pncconf/ubuttons.glade:304
-#, fuzzy
 msgid "19"
-msgstr "19:"
+msgstr "19"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:297
 #: src/emc/usr_intf/pncconf/ubuttons.glade:317
@@ -11327,12 +11304,12 @@ msgstr "0"
 #: src/emc/usr_intf/stepconf/thcad.glade:12
 #: src/emc/usr_intf/pncconf/thcad.glade:12
 msgid "ENCA"
-msgstr ""
+msgstr "ENCA"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:15
 msgid "ENCB"
-msgstr ""
+msgstr "ENCB"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:18
 #: src/emc/usr_intf/pncconf/thcad.glade:18
@@ -11355,7 +11332,7 @@ msgstr "6"
 #: src/emc/usr_intf/stepconf/thcad.glade:38
 #: src/emc/usr_intf/pncconf/thcad.glade:38
 msgid "128"
-msgstr ""
+msgstr "128"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:62
 #: src/emc/usr_intf/pncconf/thcad.glade:62
@@ -11365,21 +11342,21 @@ msgstr "38400"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:111
 msgid "Full Scale Freq (kHz)"
-msgstr ""
+msgstr "Freq scala completa (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:125
 #: src/emc/usr_intf/pncconf/thcad.glade:134
 msgid "F Jumper"
-msgstr ""
+msgstr "Ponticello F"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:137
 #: src/emc/usr_intf/pncconf/thcad.glade:146
 msgid "Divider Ratio or Series Resistance"
-msgstr ""
+msgstr "Rapporto divisore o resistenza in serie"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:150
 msgid "0V Freq (kHz)"
-msgstr ""
+msgstr "Frequenza 0V (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:171
@@ -11390,7 +11367,7 @@ msgstr "Modo"
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:308
 msgid "THCAD For Arc Voltage"
-msgstr ""
+msgstr "THCAD per tensione ad arco"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:12
 #: src/emc/usr_intf/stepconf/axisy.glade:12
@@ -11431,7 +11408,9 @@ msgstr "Opposta"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2124
 #: src/emc/usr_intf/pncconf/dialogs.glade:2438
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11621,6 +11600,7 @@ msgid ""
 msgstr ""
 "Tutte le informazioni necessarie sono state raccolte.\n"
 " Clicca \"Applica\" per scrivere il file di configurazione sul disco.\n"
+"\n"
 "Se avverti dei blocchi mentre gira LinuxCNC:\n"
 "-e' necessario decrementare la velocita' massima che ha l' effetto di "
 "incrementare\n"
@@ -11779,9 +11759,9 @@ msgid ""
 "Clicking 'existing custom program' will aviod this warning. "
 msgstr ""
 "OK per sostituire il pannello pyvcp custom esistente?\n"
-"pyvcp-panel.xml esistente sarà rinominato e aggiunto alla cartella "
-"'backups'.\n"
-"Cliccando  'existing custom program' si eviterà questo avviso. "
+"pyvcp-panel.xml esistente sarà rinominato e aggiunto alla cartella 'backups'."
+"\n"
+"Cliccando 'existing custom program' si eviterà questo avviso. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3529
 #: src/emc/usr_intf/pncconf/private_data.py:550
@@ -12289,7 +12269,7 @@ msgstr "Porta Parallela"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
 msgid "Mesa THCAD"
-msgstr ""
+msgstr "Mesa THCAD"
 
 #: src/emc/usr_intf/pncconf/private_data.py:50
 msgid "X Motor"
@@ -13267,7 +13247,7 @@ msgstr "Switches"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
 msgid "Breakaway"
-msgstr ""
+msgstr "Distacco"
 
 #: src/emc/usr_intf/pncconf/private_data.py:463
 msgid "Unused Input"
@@ -13334,7 +13314,7 @@ msgstr "S BLDC Control"
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:532
 msgid "Plasma"
-msgstr ""
+msgstr "Plasma"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:479
@@ -13495,7 +13475,7 @@ msgstr "Incr. Vel Max"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 msgid "Arc Voltage"
-msgstr ""
+msgstr "Tensione d'arco"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Unused Encoder"
@@ -13561,7 +13541,7 @@ msgstr "Abilita POT"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Scribe Arm"
-msgstr ""
+msgstr "Braccio Scriba"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 #, fuzzy
@@ -13575,7 +13555,7 @@ msgstr "Contatto"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Laser On"
-msgstr ""
+msgstr "Laser acceso"
 
 #: src/emc/usr_intf/pncconf/private_data.py:527
 msgid "Unused Output"
@@ -13876,11 +13856,8 @@ msgid "Quit PNCconf and discard changes?"
 msgstr "Esci da PNCconf e perdi modifiche?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1074
-#, fuzzy
 msgid "Do you want to quit?"
-msgstr ""
-"Vuoi davvero chiudere?\n"
-"\n"
+msgstr "Vuoi davvero chiudere?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1080
 msgid ""
@@ -13904,6 +13881,7 @@ msgstr ""
 "Bisogna specificare un gladefile  Ma non ce ne sono nella cartella macchina.."
 
 #: src/emc/usr_intf/pncconf/tests.py:469
+#, fuzzy
 msgid ""
 "± = move on both sides of start position\n"
 "\n"
@@ -13911,6 +13889,11 @@ msgid ""
 "\n"
 "- = move on negative side of start position"
 msgstr ""
+"± = spostamento su entrambi i lati della posizione di partenza\n"
+"\n"
+"+ = spostamento sul lato positivo della posizione iniziale\n"
+"\n"
+"- = sposta sul lato negativo della posizione iniziale"
 
 #: src/emc/usr_intf/pncconf/tests.py:492
 msgid "Servo tuning is not tested in PNCconf yet\n"
@@ -14050,7 +14033,9 @@ msgstr "PNCconf - Mesa Card Configuration Wizard"
 msgid ""
 "Save\n"
 "Data"
-msgstr "Salva"
+msgstr ""
+"Salva\n"
+"Dati"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:283
 msgid ""
@@ -14107,30 +14092,29 @@ msgid ""
 "\n"
 "Beta 1 version"
 msgstr ""
-"\t\t\t\tPNCconf - Point e Click  CONFiguratore\n"
-"PNCconf è un programma di configurazione per Linuxcnc.\n"
+"\t\t\t\tPNCconf - Point e Click CONFiguratore\n"
+"PNCconf è un programma di configurazione per LinuxCNC.\n"
 "Configura le macchine usando schede I/O Mesa.\n"
 "Configura servo, stepper o macchine stepper in closed loop.\n"
 "Supporta alcune delle schede seriali Mesa.\n"
-"Sarà per sempre un work in progress come i cambiamenti in Linuxcnc.\n"
+"Sarà per sempre un work in progress come i cambiamenti in LinuxCNC.\n"
 "\n"
-"Molte grazie a: \n"
+"Molte grazie a:\n"
 "Jeff Eppler - PNCconf si basa sulla creazione di stepconf-Jeff. Jeff ha "
 "anche aiutato con difficoltà tecniche.\n"
 "Big John T - John ha disegnato le illustrazioni originali della macchina. "
 "Test e suggerimenti.\n"
-"Peter Wallace - aspetti tecnici sulle schede I/O di Mesa. Fornisce "
+"Peter Wallace - Aspetti tecnici sulle schede I/O di Mesa. Fornisce "
 "apparecchiatura di test.\n"
-"Andy Pugh - suggerimenti, risposto a domande e molte modifiche del nome del "
-"PIN:) \n"
-"Dave Armstrong -test e suggerimenti soprattutto con i resolver.\n"
+"Andy Pugh - Suggerimenti, risposto a domande e molte modifiche del nome del "
+"PIN:)\n"
+"Dave Armstrong - Test e suggerimenti soprattutto con i resolver.\n"
 "Tutti coloro che hanno dato un bug report! Non posso testare tutto però "
 "abbastanza con i rapporti di aiuto.\n"
 "\n"
 "Versione beta 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:24
-#, fuzzy
 msgid ""
 "  X axis:\n"
 "  Total Travel = 10\n"
@@ -14161,33 +14145,33 @@ msgid ""
 "  Note this is an example, Many other combinations are \n"
 "  possible"
 msgstr ""
-"Asse X:\n"
-"cammino Totale= 10\n"
-"Home Offset = distanza Origine fino a  Home Switch = 0\n"
-"Neg Travel Distance = Origin to neg limit distance = 0\n"
-"Pos Travel Distance = Total Travel - neg travel distance = 10\n"
+"  Asse X:\n"
+"Corsa Totale= 10\n"
+"Home Offset = distanza Origine fino a Home Switch = 0\n"
+"Neg Travel Distance = distanza Origine al  limite negativo = 0\n"
+"Pos Travel Distance = Corsa Totale  - Neg Travel Distance = 10\n"
 "Home Position = distanza Origine to Home Position = 6\n"
 "\n"
 "Asse Y\n"
-"Total Travel = 8\n"
-"Home Offset = Origin to Home Switch distance = 0\n"
-"Neg Travel Distance = Origin to neg limit distance = -8\n"
-"Pos Travel Distance = Total Travel - neg travel distance = 0\n"
-"Home Position = Origin to Home Position distance = 0\n"
+"Corsa Totale= 8\n"
+"Home Offset = distanza Origine fino a Home Switch = 0\n"
+"Neg Travel Distance = distanza Origine al  limite negativo = -8\n"
+"Pos Travel Distance = Corsa Totale  - Neg Travel Distance = 0\n"
+"Home Position = distanza Origine to Home Position = 0\n"
 "\n"
 "Asse Z:\n"
-"Total Travel = 12\n"
-"Home Offset = Origin to Home Switch distance = 0\n"
-"Neg Travel Distance = Origin to neg limit distance = -12\n"
-"Pos Travel Distance = Total Travel - neg travel distance = 0\n"
-"Home Position = Origin to Home Position distance = 0\n"
+"Corsa Totale= 12\n"
+"Home Offset = distanza Origine fino a Home Switch = 0\n"
+"Neg Travel Distance = distanza Origine al  limite negativo = -12\n"
+"Pos Travel Distance = Corsa Totale  - Neg Travel Distance = 0\n"
+"Home Position = distanza Origine to Home Position = 0\n"
 "\n"
-"Nota che gli indicatori direzione mostrate in alto a destra \n"
-"sonoper il movimento del TOOL e sulla macchina reale,\n"
+"Nota che gli indicatori direzione mostrati in alto a destra \n"
+"sono per il movimento del TOOL e sulla macchina reale,\n"
 "spesso è la tavola che si muove. In questo caso le direzioni\n"
 "del movimento sono opposte rispetto a quelle mostrate.\n"
 "\n"
-"Nota che è un esempio, Sono possibili molte altre \n"
+"Nota che questo è un esempio. Sono possibili molte altre \n"
 "combinazioni"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
@@ -14225,6 +14209,40 @@ msgid ""
 "    Note that there is distance between the limit switches and actual "
 "physical hard contact for coasting after the amplifier is disabled.\n"
 msgstr ""
+"Esempio di switch Zero e Limiti separati\n"
+"\n"
+"Le direzioni negative e positive si basano sul movimento dell' utensile che "
+"può essere diverso\n"
+"rispetto al movimento effettivo della macchina, cioè su una fresatrice in "
+"genere si muove la tavola piuttosto che l'utensile.\n"
+"\n"
+"I limiti soft(ware) sono all'interno dell'area del finecorsa.\n"
+"\n"
+"(Se si utilizza l'homing basato su interruttore) gli interruttori di zero "
+"utilizzano gli interruttori di finecorsa (condivisione zero / finecorsa)\n"
+"o si trovano all'interno dell'area dell'interruttore di finecorsa quando si "
+"utilizza un interruttore per lo zero separato.\n"
+"\n"
+"Lo zero macchina G53 zero è in genere, ma non necessariamente, all'interno "
+"dell'area dei limiti software.\n"
+"\n"
+"Se si utilizza un interruttore di zero separato, è possibile iniziare "
+"l'azzeramento sul lato sbagliato dell'interruttore di zero,\n"
+"che combinato con l'opzione HOME_IGNORE_LIMITS porterà a una collisione.\n"
+"Puoi evitarlo facendo in modo che l'interruttore di zero commuti il suo "
+"stato quando il finecorsa si trova su un lato particolare fino a quando non "
+"ritorna di nuovo superato il punto di zero.\n"
+"Detto in un altro modo, lo stato dell'interruttore di zero deve "
+"rappresentare la posizione del controllo rispetto all'interruttore (cioè "
+"prima o dopo l'interruttore),\n"
+"e deve rimanere così anche se il controllo supera l'interruttore nella "
+"stessa direzione.\n"
+"\n"
+"La distanza tra i finecorsa e i limiti software (-L<->A e D<-+L) è "
+"ingrandita in questo esempio\n"
+"Si noti che c'è una distanza tra gli interruttori di finecorsa e il contatto "
+"fisico effettivo per il coasting dopo che l'amplificatore è stato "
+"disabilitato.\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:110
 msgid "Help Page"
@@ -14235,7 +14253,6 @@ msgid "Mill"
 msgstr "Fresatrice"
 
 #: src/emc/usr_intf/pncconf/help.glade:190
-#, fuzzy
 msgid ""
 "  Total Travel = 4 + 6 = 10\n"
 "  Z Home Offset = Origin to Home Switch distance = 10\n"
@@ -14247,11 +14264,16 @@ msgid ""
 "  This is just a sample reference other switch combinations are\n"
 "  possible."
 msgstr ""
-"Corsa Totale = 4+6 =10\n"
-"Distanza Zero = Distanza dall'origine al pulsante Zero = -1\n"
-"Distanza Corsa Neg = Distanza dall'origine al limite neg = -1\n"
-"Distanza Corsa Pos = Corsa totale - Distanza Zero = 5\n"
-"Posizione Zero = Distanza tra Origine e Posizione Zero = 1."
+"  Corsa Totale = 4+6 =10\n"
+"Distanza Zero Z = Distanza dall'origine al pulsante Zero = 10\n"
+"Distanza Corsa Neg Z = Distanza dall'origine al limite neg = 0\n"
+"Distanza Corsa Pos Z = Corsa totale - Distanza Zero = 10\n"
+"Posizione Zero Z = Distanza tra Origine e Posizione Zero = 4\n"
+"\n"
+"L'asse X sarebbe simile ma non mostrato completamente per chiarezza. \n"
+"Questo è solo un esempio di riferimento, altre combinazioni di interruttori "
+"\n"
+"sono possibili."
 
 #: src/emc/usr_intf/pncconf/help.glade:234
 msgid "Lathe"
@@ -14272,10 +14294,22 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 10 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
+"    A è il limite software negativo\n"
+"B è la coordinata dello Zero macchina G53\n"
+"C è il punto di contatto dell'interruttore di azzeramento/\n"
+"\t\t\t\tLimite minimo condiviso\n"
+"D è il limite software positivo\n"
+"    H è la Posizione Zero finale = 3 unità\n"
+"    I -L e +L sono le posizioni degli interruttori di fine corsa\n"
+"\n"
+"A<->B è la distanza dello corsa negativa = -0 unità\n"
+"    B<->C è la posizione dello switch home = -0,7 unità\n"
+"    B<->D è la distanza dello corsa positiva = 10 unità\n"
+"    A<->D è la corsa totale = 10 unità\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:323
 msgid "Shared Home Switch"
-msgstr ""
+msgstr "Interruttore di azzeramento condiviso"
 
 #: src/emc/usr_intf/pncconf/help.glade:342
 msgid ""
@@ -14291,10 +14325,21 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 7 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
+"    A è il limite software negativo\n"
+"    B è la coordinata Zero macchina G53 \n"
+"    C è il punto di contatto dell'interruttore di zero\n"
+"    D è il limite software positivo\n"
+"    H è la posizione iniziale finale = 0 unità\n"
+"    -L e +L sono i punti di contatto dei finecorsa\n"
+"\n"
+"    A<->B è la distanza di corsa negativa = -3 unità\n"
+"    B<->C è la posizione dell'interruttore di zero= -2,3 unità\n"
+"    B<->D è la distanza di corsa positiva = 7 unità\n"
+"    A<->D è la corsa totale = 10 unità\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:411
 msgid "Separate Homing Switches"
-msgstr ""
+msgstr "Interruttori di riferimento separati"
 
 #: src/emc/usr_intf/pncconf/help.glade:427
 msgid "Diagram"
@@ -15365,7 +15410,7 @@ msgid ""
 "       I/O\n"
 " Connector 3"
 msgstr ""
-"     I/O\n"
+"       I/O\n"
 "Connettore 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:9427
@@ -15491,7 +15536,7 @@ msgid ""
 "       I/O\n"
 " Connector 4"
 msgstr ""
-"      I/O\n"
+"       I/O\n"
 " Connettore 4"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:11676
@@ -15500,7 +15545,7 @@ msgid ""
 "       I/O\n"
 " Connector 5"
 msgstr ""
-"      I/O\n"
+"       I/O\n"
 " Connettore 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:13769
@@ -15663,7 +15708,7 @@ msgstr "<b>Incr. avanzamento Max</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:523
 msgid "<b>Spindle Override</b>"
-msgstr ">b>Incr. Mandrino>/b>"
+msgstr "<b> Override mandrino </b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
 msgid "<b>USB Jogging</b>"
@@ -16067,7 +16112,7 @@ msgstr "<b>Caratteristiche Macchina</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:354
 msgid "Actual Servo Period:             "
-msgstr "Periodo Servo Corrente:          "
+msgstr "Periodo Servo Corrente:             "
 
 #: src/emc/usr_intf/pncconf/base.glade:408
 msgid "Recommend servo period:    1000000"
@@ -16131,7 +16176,7 @@ msgstr "<b>Standard e Opzioni</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:141
 msgid "QtDragon"
-msgstr ""
+msgstr "QtDragon"
 
 #: src/emc/usr_intf/pncconf/screen.glade:229
 msgid "<b>GUI Screen list</b>"
@@ -16311,7 +16356,7 @@ msgstr "Gmoccapy Defaults"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3000
 msgid "10 1 .1 .01 .001"
-msgstr ""
+msgstr "10 1 .1 .01 .001"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3126
 #, fuzzy
@@ -16336,7 +16381,7 @@ msgstr "Dettagli Pyvcp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:494
 msgid "Sample display  "
-msgstr "Schermo campione "
+msgstr "Schermo semplice  "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:681
 msgid "Standalone Panel"
@@ -16408,11 +16453,11 @@ msgstr "Includi Panello GUI GladeVCP personalizzato"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:120
 msgid "Full Scale Frequency (kHz)"
-msgstr ""
+msgstr "Frequenza a scala piena (kHz)"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:159
 msgid "0V Frequency (kHz)"
-msgstr ""
+msgstr "Frequenza 0V (kHz)"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:272
 #, fuzzy
@@ -17441,7 +17486,7 @@ msgstr "Nome scheda:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:177
 msgid "Read hostmot2 PIN file From help's input tab"
-msgstr ""
+msgstr "Leggi il file PIN di hostmot2 dalla scheda di input della guida"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:195
 msgid "Mesa Board Disvovery<"
@@ -17511,6 +17556,8 @@ msgid ""
 "Save entered data and quit\n"
 "or discard changes and quit?"
 msgstr ""
+"Salvare i dati inseriti e uscire\n"
+"o scartare le modifiche e uscire?"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:744
 msgid ""
@@ -17794,6 +17841,7 @@ msgid ""
 msgstr ""
 "Tutte le informazioni necessarie sono state raccolte.\n"
 "Clicca \"Applica\" per scrivere il file di configurazione sul disco.\n"
+"\n"
 "Se avverti dei blocchi mentre gira LinuxCNC;\n"
 "- e' necessario decrementare la velocita' massima che ha l' effetto di "
 "incrementare BASE_PERIOD.\n"
@@ -18553,7 +18601,9 @@ msgstr ""
 msgid ""
 "Diameter\n"
 "   Mode"
-msgstr "Modo Diametrale"
+msgstr ""
+"Diametro\n"
+"   Modalità"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2097
 #: src/emc/usr_intf/gscreen/gscreen.glade:3131
@@ -18712,7 +18762,7 @@ msgid ""
 "    Set\n"
 "Override"
 msgstr ""
-"  Imposta\n"
+"    Imposta\n"
 " Incr. Avanzamento"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
@@ -18837,7 +18887,7 @@ msgid ""
 "   Feed\n"
 "Override"
 msgstr ""
-" Avanzamento\n"
+"   Avanzamento\n"
 "Incremento"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3333
@@ -18853,7 +18903,7 @@ msgid ""
 "  Rapid\n"
 "Override"
 msgstr ""
-" Rapido\n"
+"  Rapido\n"
 "Superamento limite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3367
@@ -18861,7 +18911,7 @@ msgid ""
 "   Jog\n"
 "Speed"
 msgstr ""
-" Jog\n"
+"   Jog\n"
 "Velocità"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3380
@@ -19074,22 +19124,24 @@ msgstr "Chiude senza restituire il percorso file"
 msgid ""
 "**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"
 msgstr ""
+"**** Widget Offsetpage ERRORE: LINEAR_UNITS non trovato nella sezione TRAJ "
+"di INI"
 
 #: lib/python/gladevcp/offsetpage_widget.py:342
 msgid "offsetpage widget error: unrecognized float input"
-msgstr ""
+msgstr "Offsetpage widget error: input float non riconosciuto"
 
 #: lib/python/gladevcp/offsetpage_widget.py:379
 msgid "offsetpage widget error: MDI call error"
-msgstr ""
+msgstr "errore widget offsetpage: errore di chiamata MDI"
 
 #: lib/python/gladevcp/offsetpage_widget.py:398
 msgid "MDI error in offsetpage widget -zero G92"
-msgstr ""
+msgstr "Errore MDI nel widget offsetpage - zero G92"
 
 #: lib/python/gladevcp/offsetpage_widget.py:415
 msgid "MDI error in offsetpage widget-zero rotational offset"
-msgstr ""
+msgstr "Errore MDI nel widget offsetpage - offset rotazionale zero"
 
 #: lib/python/gladevcp/offsetpage_widget.py:486
 #, fuzzy
@@ -19098,19 +19150,19 @@ msgstr "Azzerramento completo sistema coordinate"
 
 #: lib/python/gladevcp/tooledit_widget.py:225
 msgid "tooledit_widget error: cannot select tool number"
-msgstr ""
+msgstr "errore tooledit_widget: impossibile selezionare il numero utensile"
 
 #: lib/python/gladevcp/tooledit_widget.py:244
 msgid "Toolfile does not exist"
-msgstr ""
+msgstr "Toolfile non esiste"
 
 #: lib/python/gladevcp/tooledit_widget.py:278
 msgid "Tooledit widget int error"
-msgstr ""
+msgstr "Errore int del widget Tooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:283
 msgid "Tooledit_widget float error"
-msgstr ""
+msgstr "Errore float di Tooledit_widget"
 
 #: lib/python/gladevcp/tooledit_widget.py:320
 #, fuzzy
@@ -19125,7 +19177,7 @@ msgstr "File %r e' stato modificato da quando è stato scritto da stepconf"
 #: lib/python/gladevcp/gladevcp-test.glade:103
 #: lib/python/gladevcp/gladevcp-test.glade:119
 msgid "radiobutton"
-msgstr ""
+msgstr "radiobutton"
 
 #: lib/python/gladevcp/gladevcp-test.glade:159
 #, fuzzy
@@ -19144,9 +19196,8 @@ msgstr "Autosend ON/OFF"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
-#, fuzzy
 msgid "Tool"
-msgstr "Utensile:"
+msgstr "Utensile"
 
 #: lib/python/gladevcp/offsetpage.glade:53
 #: lib/python/gladevcp/offsetpage.glade:70
@@ -19173,12 +19224,11 @@ msgstr "G54"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
-msgstr ""
+msgstr "Rot"
 
 #: lib/python/gladevcp/offsetpage.glade:88
-#, fuzzy
 msgid "Rotation of Z"
-msgstr "Rotazione XY:"
+msgstr "Rotazione di Z"
 
 #: lib/python/gladevcp/offsetpage.glade:91
 #: lib/python/gladevcp/offsetpage.glade:105
@@ -19235,9 +19285,8 @@ msgid "G59.3"
 msgstr "P9  G59._3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
-#, fuzzy
 msgid "Offset"
-msgstr "Offset:"
+msgstr "Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
 #, fuzzy
@@ -19259,8 +19308,8 @@ msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"  Rotazione\n"
-"Orizzontale"
+"    Zero\n"
+"Rotazionale"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
 #: lib/python/gladevcp/tooledit_gtk.glade:391
@@ -19272,16 +19321,14 @@ msgstr "_Seleziona"
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
 #: lib/python/gladevcp/tooledit_gtk.glade:624
-#, fuzzy
 msgid "Tool#"
-msgstr "Utensile:"
+msgstr "Utensile#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:109
 #: lib/python/gladevcp/tooledit_gtk.glade:413
 #: lib/python/gladevcp/tooledit_gtk.glade:635
-#, fuzzy
 msgid "Pocket"
-msgstr "Tasche:"
+msgstr "Tasca"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:222
 msgid "Diameter"
@@ -19313,19 +19360,16 @@ msgid "Reload"
 msgstr "Ricarica"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:369
-#, fuzzy
 msgid "All Offsets"
-msgstr ""
-"Offset\n"
-"%s"
+msgstr "Tutti gli offset"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:424
 msgid "X Wear"
-msgstr ""
+msgstr "Usura X"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:446
 msgid "Z Wear"
-msgstr ""
+msgstr "Usura Z"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
@@ -19334,19 +19378,16 @@ msgid "DIameter"
 msgstr "Diametro"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
-#, fuzzy
 msgid "Lathe Wear Offsets"
-msgstr "Offset di lavoro:"
+msgstr "Compensazioni usura tornio"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
-#, fuzzy
 msgid "X Tool"
-msgstr "Utensile:"
+msgstr "Utensile X"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:668
-#, fuzzy
 msgid "Z Tool"
-msgstr "Utensile:"
+msgstr "Utensile Z"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:812
 #, fuzzy

@@ -9,17 +9,19 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-05-14 11:18+0200\n"
-"Last-Translator: Norbert Schechner <gmoccapy@web.de>\n"
-"Language-Team: N. Schechner <gmoccapy@web.de>\n"
+"PO-Revision-Date: 2021-12-09 03:53+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
+"gmocappy/es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Gtranslator 2.91.7\n"
 
 #: gmoccapy.py:232 gmoccapy.py:237
 msgid "**** GMOCCAPY INI Entry **** \n"
@@ -51,7 +53,7 @@ msgstr "La ruta del archivo no debe contener espacios"
 #: gmoccapy.py:632
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr "Presione para iniciar todo"
+msgstr "Presione para iniciar todo {0}"
 
 #: gmoccapy.py:641 gmoccapy.py:891
 msgid "Press to display previous homing button"
@@ -108,7 +110,7 @@ msgid ""
 " G92"
 msgstr ""
 "poner cero\n"
-"   G92"
+" G92"
 
 #: gmoccapy.py:930
 msgid "Press to reset all G92 offsets"
@@ -440,7 +442,7 @@ msgstr "No hay descripcion de herramienta"
 #: gmoccapy.py:3465
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr "Hola, esta el Mensaje no. {0} "
+msgstr "Hola, esta el Mensaje no. {0}"
 
 #: gmoccapy.py:3561
 msgid "Hal Pin is low, Access denied"
@@ -797,7 +799,7 @@ msgstr "**** GMOCCAPY GETINIINFO ****\n"
 #: getiniinfo.py:434
 msgid ""
 "**** No subroutine folder or program prefix is given in the ini file **** \n"
-msgstr "**** No archivo para subrutinas o programas en el archivo INI  ****\n"
+msgstr "**** No archivo para subrutinas o programas en el archivo INI **** \n"
 
 #: notification.py:205
 #, python-brace-format
@@ -1564,11 +1566,11 @@ msgstr ""
 
 #: gmoccapy.glade.h:197
 msgid "make the preview as large as possible"
-msgstr "Hacer la vista previa lo mas grande posible "
+msgstr "Hacer la vista previa lo mas grande posible"
 
 #: gmoccapy.glade.h:198
 msgid "Close gmoccapy / leave the program"
-msgstr "Cerrar gmoccapy / salir del  programa"
+msgstr "Cerrar gmoccapy / salir del programa"
 
 #: gmoccapy.glade.h:199
 msgid "Load a new program"

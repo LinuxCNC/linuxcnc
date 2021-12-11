@@ -8,15 +8,17 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2015-07-12 13:52+0100\n"
-"Last-Translator: Norbert Schechner <gmoccapy@web.de>\n"
-"Language-Team: \n"
-"Language: hu_HU\n"
+"PO-Revision-Date: 2021-12-09 03:53+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
+"gmocappy/hu/>\n"
+"Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.10-dev\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.7.5\n"
 
 #: gmoccapy.py:232 gmoccapy.py:237
 #, fuzzy
@@ -207,11 +209,8 @@ msgid "**** GMOCCAPY INFO ****\n"
 msgstr "**** GMOCCAPY INFO ****"
 
 #: gmoccapy.py:1198
-#, fuzzy
 msgid "**** found more than 16 macros, will use only the first 16 ****"
-msgstr ""
-"\n"
-"****Túl sok makró, csak az első 9 lesz használva****"
+msgstr "**** Túl sok makró, csak az első 9 lesz használva ****"
 
 #: gmoccapy.py:1205
 msgid "Press to display previous macro button"
@@ -365,9 +364,9 @@ msgid "Select the file you want to be loaded at program start"
 msgstr "Válaszd ki a program indításakor betöltendő fájlt"
 
 #: gmoccapy.py:2142 gmoccapy.py:2166
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
-msgstr "**** GMOCCAPY HIBA**** /n  %s típusu üzenet nem támogatott"
+msgstr "**** GMOCCAPY HIBA**** /n {0} típusu üzenet nem támogatott"
 
 #: gmoccapy.py:2279
 msgid "Unknown error type and no error text given"
@@ -406,7 +405,7 @@ msgstr "Írd be az értéket:"
 #: gmoccapy.py:2791
 #, fuzzy, python-brace-format
 msgid "Set parameter {0} to:"
-msgstr "%s paraméter beállítva:"
+msgstr "{0} paraméter beállítva:"
 
 #: gmoccapy.py:2793
 msgid "conversion error"
@@ -425,14 +424,14 @@ msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr ""
 
 #: gmoccapy.py:3152
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "**** {0} ****"
-msgstr "**** %s ****"
+msgstr "**** {0} ****"
 
 #: gmoccapy.py:3162
 #, fuzzy, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
-msgstr "**** Nincs %s widget az aktíváláshoz ****"
+msgstr "**** Nincs {0} widget az aktíváláshoz ****"
 
 #: gmoccapy.py:3324 gmoccapy.glade.h:33
 msgid "No tool description available"
@@ -441,7 +440,7 @@ msgstr "Nincs leírás a szerszámhoz"
 #: gmoccapy.py:3465
 #, fuzzy, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr "Ez egy teszt üzenet %d"
+msgstr "Ez egy teszt üzenet {0}"
 
 #: gmoccapy.py:3561
 msgid "Hal Pin is low, Access denied"
@@ -466,7 +465,7 @@ msgstr "Nincs Classicladder valós idejű komponens "
 #: gmoccapy.py:3820
 #, fuzzy, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Valami hiba keletkezett, ismeretlen widget"
+msgstr "Valami hiba keletkezett, ismeretlen widget {0}"
 
 #: gmoccapy.py:3931
 msgid "Do you really want to delete the MDI history?\n"
@@ -507,12 +506,12 @@ msgstr "A(z) %s tengely beállítva :"
 #: gmoccapy.py:4067
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr "Kérem a(z) %s tengely értékét:"
+msgstr "Kérem a(z) {0} tengely értékét:"
 
 #: gmoccapy.py:4068
 #, fuzzy, python-brace-format
 msgid "Set axis {0} to:"
-msgstr "A(z) %s tengely beállítva :"
+msgstr "A(z) {0} tengely beállítva :"
 
 #: gmoccapy.py:4072
 msgid "Conversion error in btn_set_value"
@@ -646,7 +645,7 @@ msgstr ""
 #: gmoccapy.py:4490
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr "Add meg a(z) %s tengely értékét:"
+msgstr "Add meg a(z) {0} tengely értékét:"
 
 #: gmoccapy.py:4491
 #, python-brace-format
@@ -656,7 +655,7 @@ msgstr "A {0:d} szerszám paraméterének és a {1} tengelynek a beállítása:"
 #: gmoccapy.py:4495
 #, fuzzy, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
-msgstr "Konverziós hiba a(z) %s tengely érintésének rossz bejegyzése miatt "
+msgstr "Konverziós hiba a(z) {0} tengely érintésének rossz bejegyzése miatt"
 
 #: gmoccapy.py:4514
 #, fuzzy
@@ -784,7 +783,7 @@ msgid ""
 "**** but you have given {0} through your INI file ****\n"
 msgstr ""
 "**** gmoccapy max. 4 tengelyt kezel, ****\n"
-"**** de az INI fájlban %d van megadva ****\n"
+"**** de az INI fájlban {0} van megadva ****\n"
 
 #: getiniinfo.py:102
 msgid ""
@@ -811,7 +810,7 @@ msgstr ""
 #: notification.py:205
 #, fuzzy, python-brace-format
 msgid "Error trying to delet the message with number {0}"
-msgstr "%s sz. üzenet hiba miatt törölhető"
+msgstr "{0} sz. üzenet hiba miatt törölhető"
 
 #: gmoccapy.glade.h:1
 msgid "left rotate,  middle move,  right zoom"
