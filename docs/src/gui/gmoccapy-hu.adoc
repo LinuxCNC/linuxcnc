@@ -773,7 +773,7 @@ To enter the page you will have to click on:
 
 image::images/gmoccapy_settings_button.png[align="left"]
 
-and give an unlock code, witch is *123* as default. If you want to change it at this time you will
+and give an unlock code that defaults to *123*. If you want to change it at this time you will
 have to edit the hidden preference file, see <<sub:the_display_section,the display section>> for details.
 
 The page looks at the moment like so:
@@ -956,7 +956,7 @@ For the different Hal Pin to connect MPG Wheels to, you may select individual sc
 The main reason for this was my own test to solve this through hal connections, resulting in a very
 complex hal file. Imagine a user having an MPG Wheel with 100 ipr and he wants to slow down the max
 vel from 14000 to 2000 mm/min, that needs 12000 impulses, resulting in 120 turns of the wheel!
-Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override witch has
+Or an other user having a MPG Wheel with 500 ipr and he wants to set the spindle override which has
 limits from 50 to 120 % so he goes from min to max within 70 impulses, meaning not even 1/4 turn.
 
 By default all scales are set using the calculation:
