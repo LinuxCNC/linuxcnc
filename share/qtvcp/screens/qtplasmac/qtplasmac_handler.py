@@ -1,4 +1,4 @@
-VERSION = '1.220.141'
+VERSION = '1.221.142'
 
 '''
 qtplasmac_handler.py
@@ -515,8 +515,7 @@ class HandlerClass:
                 return
             ACTION.CALL_MDI(intext + '\n')
             try:
-                fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
-                with open(fp, 'w') as fp:
+                with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'a') as fp:
                     fp.write(intext + '\n')
             except:
                 pass
@@ -619,13 +618,10 @@ class HandlerClass:
         self.out1Pin = self.h.newpin('ext_out_1', hal.HAL_BIT, hal.HAL_OUT)
         self.out2Pin = self.h.newpin('ext_out_2', hal.HAL_BIT, hal.HAL_OUT)
         self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.gcodeScalePin = self.h.newpin('gcode_scale', hal.HAL_FLOAT, hal.HAL_OUT)
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
-        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
-        CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
-        CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable_changing'])
-        CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
         #arc parameters
         CALL(['halcmd', 'net', 'plasmac:arc-fail-delay', 'qtplasmac.arc_fail_delay-f', 'plasmac.arc-fail-delay'])
         CALL(['halcmd', 'net', 'plasmac:arc-max-starts', 'qtplasmac.arc_max_starts-s', 'plasmac.arc-max-starts'])
@@ -713,6 +709,12 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.torch_on'])
         # misc
         CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
+        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
+        CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
+        CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable_changing'])
+        CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
+        CALL(['halcmd', 'net', 'plasmac:gcode-scale', 'plasmac.gcode-scale', 'qtplasmac.gcode_scale'])
+
 # *** add system hal pin changes here that may affect existing configs ***
         if not hal.pin_has_writer('plasmac.feed-upm'): # if feed-upm is not yet connected in hal
             CALL(['halcmd', 'net', 'plasmac:feed-upm', 'motion.feed-upm', 'plasmac.feed-upm'])
@@ -1371,10 +1373,13 @@ class HandlerClass:
     def gcodes_changed(self, obj, cod):
         if self.units == 'inch' and STATUS.is_metric_mode():
             self.droScale = 25.4
+            self.gcodeScalePin.set(25.4)
         elif self.units == 'mm' and not STATUS.is_metric_mode():
             self.droScale = 1 / 25.4
+            self.gcodeScalePin.set(1 / 25.4)
         else:
             self.droScale = 1
+            self.gcodeScalePin.set(1)
         self.w.lbl_gcodes.setText('{}'.format(cod))
 
     def mcodes_changed(self, obj, cod):

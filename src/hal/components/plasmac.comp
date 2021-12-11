@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.220
+1.221
 
 .I SUMMARY:
 .br
@@ -59,6 +59,7 @@ pin in  float   feed_override               "feed override value from gui (conne
 pin in  float   feed_reduction              "reduce adaptive feed to this percentage (connect to motion.analog-out-03)";
 pin in  bit     float_switch                "float switch input (can also act as breakaway if it actuates when torch breaks away)";
 pin in  float   float_switch_travel         "float switch travel (machine units)";
+pin in  float   gcode_scale = 1             "current g-code scale";
 pin in  float   height_override             "height override adjustment (volts)";
 pin in  float   height_per_volt             "torch height change per volt (machine units)";
 pin in  bit     homed                       "machine is homed";
@@ -106,8 +107,8 @@ pin in  bit     program_is_running          "program is running, connect to halu
 pin in  float   puddle_jump_delay           "delay move from pierce height to cut height (seconds), leave disconnected if not required";
 pin in  float   puddle_jump_height          "puddle jump height (percentage of pierce height), leave disconnected if not required";
 /* requested_velocity is deprecated in favour of feed_upm, the pin is kept so as not to break existing configs */
-pin in  float   requested_velocity          "deprecated, requested velocity, connect to motion.requested-vel";
-pin in  float   feed_upm                    "requested feed_rate, connect to motion.feed-upm to use as the default (machine units per minute)";
+pin in  float   requested_velocity          "deprecated";
+pin in  float   feed_upm                    "requested feed_rate, connect to motion.feed-upm to use as the default (gcode units per minute)";
 pin in  s32     resolution = 100            "multiplier for resolution of the offset counts";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
@@ -249,8 +250,7 @@ variable int    puddle_jump_percent;        /* puddle jump height as percentage 
 variable int    puddle_jump_target;         /* puddle jump height target offset */
 variable float  puddle_jump_timer;          /* puddle jump delay timer */
 variable float  recovery_velocity;          /* cut recovery step velocity */
-//variable float  requested_feed_rate;        /* requested feed rate */
-pin out float  requested_feed_rate          "requested feed rate";
+variable float  requested_feed_rate;        /* requested feed rate */
 variable int    res;                        /* resolution of offset move*/
 variable float  restart_timer;              /* time between torch on attempts*/
 variable int    safe_min;                   /* minimum safe height allowed */
@@ -757,11 +757,7 @@ FUNCTION(_) {
     }
 
     /* if puddlejump height is 0 then set it to 100 */
-    if(puddle_jump_height == 0){
-        puddle_jump_percent = 100;
-    }else{
-        puddle_jump_percent = puddle_jump_height;
-    }
+    puddle_jump_percent = puddle_jump_height == 0 ? 100:puddle_jump_height;
 
     if(!machine_is_on){
         /* if machine is off */
@@ -1384,9 +1380,18 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 /* use feed_upm if it has a value */
                 if(feed_upm){
-                    requested_feed_rate = feed_upm / adaptive_feed;
+                    if(gcode_scale == 1){
+                        requested_feed_rate = feed_upm / adaptive_feed;
+                    }else{
+                        requested_feed_rate = feed_upm / adaptive_feed / gcode_scale;
+                    }
+                /* otherwise fall back to cut feed rate parameter */
                 }else{
-                    requested_feed_rate = cut_feed_rate * feed_override;
+                    if(gcode_scale == 1){
+                        requested_feed_rate = cut_feed_rate * feed_override;
+                    }else{
+                        requested_feed_rate = cut_feed_rate * feed_override / gcode_scale;
+                    }
                 }
                 /* while cutting and it is not a dry run and mesh mode is not enabled:
                  * if thc is enabled then vary the torch height to keep the arc voltage constant
@@ -1540,9 +1545,18 @@ FUNCTION(_) {
                 z_offset_enable = TRUE;
                 /* use feed_upm if it has a value */
                 if(feed_upm){
-                    requested_feed_rate = feed_upm / adaptive_feed;
+                    if(gcode_scale == 1){
+                        requested_feed_rate = feed_upm / adaptive_feed;
+                    }else{
+                        requested_feed_rate = feed_upm / adaptive_feed / gcode_scale;
+                    }
+                /* otherwise fall back to cut feed rate parameter */
                 }else{
-                    requested_feed_rate = cut_feed_rate * feed_override;
+                    if(gcode_scale == 1){
+                        requested_feed_rate = cut_feed_rate * feed_override;
+                    }else{
+                        requested_feed_rate = cut_feed_rate * feed_override / gcode_scale;
+                    }
                 }
                 /* while cutting and it is not a dry run and mesh mode is not enabled:
                  * if thc is enabled then vary the torch height to keep the arc voltage constant

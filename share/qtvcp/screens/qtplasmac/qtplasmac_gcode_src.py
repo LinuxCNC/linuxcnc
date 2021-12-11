@@ -694,22 +694,28 @@ def get_materials():
 def check_f_word(line):
     global lineNum, lineNumOrg, errorLines, materialDict, codeWarn, warnFeed
     begin, inFeed = line.split('f', 1)
+    # if feed rate from material file
+    if inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
+        # change feed rate if gcode file not in same units as machine units
+        if unitMultiplier != 1:
+            line = begin + '{}f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(begin, unitMultiplier)
+        return line
+    # if explicit feed rate
     rawFeed = ''
     codeFeed = 0.0
     # get feed rate if it is digits
     while len(inFeed) and (inFeed[0].isdigit() or inFeed[0] == '.'):
         rawFeed = rawFeed + inFeed[0]
         inFeed = inFeed[1:].lstrip()
-    if rawFeed:
-        codeFeed = float(rawFeed)
-    else:
+    if not rawFeed:
         return line
-    if inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
-        # change feed rate if gcode file not in same units as machine units
-        if unitMultiplier != 1:
-            line = begin + '{}f[#<_hal[plasmac.cut-feed-rate]> * {}]\n'.format(begin, unitMultiplier)
-    # warn if F word is not equal to the selected materials cut feed rate
-    if codeFeed != float(materialDict[material[0]][0]):
+    codeFeed = float(rawFeed)
+    matFeed = float(materialDict[material[0]][0]) * unitMultiplier
+
+    # this may need scaling ...
+    diff = 1
+
+    if codeFeed < matFeed - diff or codeFeed > matFeed + diff:
         codeWarn = True
         warnFeed.append([lineNum, rawFeed, material[0], materialDict[material[0]][0]])
         errorLines.append(lineNumOrg)
