@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2021-12-11 08:22+0000\n"
+"PO-Revision-Date: 2021-12-11 21:44+0000\n"
 "Last-Translator: Rainer Stelzer <r.stelzer@ibstelzer.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -535,18 +535,20 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3524
 #: src/emc/rs274ngc/interp_convert.cc:3546
 #: src/emc/rs274ngc/interp_convert.cc:3560
-#, fuzzy
 msgid "Cannot enable overrides with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Drehzahl und Vorschubübersteuerung können bei aktiver "
+"Werkzeugradiuskorrektur nicht aktiviert werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3492
 #: src/emc/rs274ngc/interp_convert.cc:3509
 #: src/emc/rs274ngc/interp_convert.cc:3533
 #: src/emc/rs274ngc/interp_convert.cc:3551
 #: src/emc/rs274ngc/interp_convert.cc:3565
-#, fuzzy
 msgid "Cannot disable overrides with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Drehzahl und Vorschubübersteuerung können bei aktiver "
+"Werkzeugradiuskorrektur nicht deaktiviert werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3519
 msgid "Invalid spindle ($) number in M51 command"
@@ -558,6 +560,7 @@ msgstr "Unbekannte Spindle Nummer ($) in M51 Befehl"
 #, c-format
 msgid "Indexing axis %c can only be moved with G0"
 msgstr ""
+"Achse %c mit diskreten Winkelpositionen kann nicht mit G0 verfahren werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3685
 #: src/emc/rs274ngc/interp_convert.cc:3687
@@ -565,35 +568,33 @@ msgstr ""
 #, c-format
 msgid "Indexing axis %c can only be moved alone"
 msgstr ""
+"Achse %c mit diskreten Winkelpositionen kann nur alleine verfahren werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3796
-#, fuzzy
 msgid "Cannot probe with feed per rev mode"
-msgstr "Abtast-Fahrt mit einer Verfahrgeschwindigkeit von 0 nicht möglich"
+msgstr "Abtast-Fahrt im spindelsynchronen Vorschubmodus nicht möglich"
 
 #: src/emc/rs274ngc/interp_convert.cc:3844
-#, fuzzy
 msgid "Cannot change retract mode with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Rückzugsstrategie kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt "
+"werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3878
 msgid "G10 L1 without offsets has no effect"
-msgstr ""
+msgstr "G10 L1 ohne Versatz hat keinen Effekt"
 
 #: src/emc/rs274ngc/interp_convert.cc:3984
 msgid "Q number in G10 is not an integer"
-msgstr ""
+msgstr "Q Angabe in G10 ist keine Ganzzahl"
 
 #: src/emc/rs274ngc/interp_convert.cc:3985
 msgid "Invalid tool orientation"
-msgstr ""
+msgstr "L10 Q Werkzeugorientierung ungültig"
 
 #: src/emc/rs274ngc/interp_convert.cc:4108
-#, fuzzy
 msgid "I J words not allowed with G10 L2"
-msgstr ""
-"Befehle G43.1, G41 R, und G42 R dürfen keine X-, Y-, Z-, A-, B-, C-. oder J-"
-"Wörter enthalten"
+msgstr "Bei G10 L2 sind I und J Wörter nicht erlaubt"
 
 #: src/emc/rs274ngc/interp_convert.cc:4129
 #, fuzzy
@@ -605,7 +606,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:4137
 msgid "R not allowed in G10 L20"
-msgstr ""
+msgstr "Bei G10 L20 darf kein Werkzeugradius R angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:4481
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
@@ -681,14 +682,12 @@ msgstr ""
 "Kollision erreichen kann"
 
 #: src/emc/rs274ngc/interp_convert.cc:5446
-#, fuzzy
 msgid "Cannot change tools with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr "Werkzeugwechsel bei aktiver Werkzeugradiuskorrektur nicht möglich"
 
 #: src/emc/rs274ngc/interp_convert.cc:5570
-#, fuzzy
 msgid "Cannot change tool offset with cutter radius compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr "Werkzeugvermessung nicht möglich bei aktiver Werkzeugkompensation"
 
 #: src/emc/rs274ngc/interp_convert.cc:5621
 msgid "G43.2: Can not have both H and axis words"
