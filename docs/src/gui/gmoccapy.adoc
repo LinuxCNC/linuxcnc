@@ -15,7 +15,7 @@ gmoccapy supports embedded tabs and side panels.
 As a good example for that see
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
 
-*gmoccapy 3 does support up to 9 axis and 9 joints. As gmoccapy 3 has been
+NOTE: gmoccapy 3 does support up to 9 axis and 9 joints. As gmoccapy 3 has been
 changed in code to support the joint / axis changes in LinuxCNC it does not 
 work on 2.7 or 2.6 branch!
 
@@ -26,13 +26,14 @@ settings of the GUI without editing files.
 
 'GMOCCAPY' can be localized very easy, because the corresponding files are
 separated from the linuxcnc.po files, so there is no need to translate unneeded
-stuff. The files are placed in */src/po/gmoccapy*. Just copy the gmoccapy.pot
-file to something like fr.po and translate that file with gtranslator or poedit.
-After rebuilding, you got the GUI in your preference language. Please publish 
-your translation, so it can be included in the official packages and be 
-published to other users. At the Moment it is available in English, German, 
+stuff. The files are placed in */src/po/gmoccapy*. You could just copy the gmoccapy.pot
+file to something like it.po and translate that file with gtranslator or poedit.
+After rebuilding, you'd get the GUI in your preference language. To facilitate the
+sharing of the translation gmoccapy is presented on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
+'GMOCCAPY' is currently available in English, German, 
 Spanish, Polish, Serbian and Hungarian. Feel free to help me to introduce more 
-languages, *nieson@web.de*. If you need help, don't hesitate to ask.
+languages, be it locally or via the web.
+If you need help, don't hesitate to contact me on *nieson@web.de*.
 
 image::images/gmoccapy_5_axis.png[align="left"]
 
@@ -1557,11 +1558,12 @@ image::images/gmoccapy_plasma.png[align="left"]
 There is a very good WIKI, which is actually growing, maintained by Marius
 see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[Plasma wiki page]
 
-== Video On You Tube
+== Videos On YouTube
 
-This are videos showing gmoccapy in action, unfortunately the videos don't
-show the latest version of gmoccapy, but the way to use it will not change
-much in the future. I will try to actualize the videos as soon as possible.
+Below are a series of videos list that show gmoccapy in action.
+Unfortunately, these videos don'tshow the latest version of gmoccapy,
+but the way to use it will still be the same as in the current version.
+I will update the videos as soon as possible.
 
 === Basic Usage
 
@@ -1577,7 +1579,7 @@ https://www.youtube.com/watch?v=AuwhSHRJoiI
 
 === Simulated Hardware Button
 
-Deutsch = http://www.youtube.com/watch?v=DTqhY-MfzDE
+German = http://www.youtube.com/watch?v=DTqhY-MfzDE
 
 English = http://www.youtube.com/watch?v=ItVWJBK9WFA
 
@@ -1587,7 +1589,7 @@ http://www.youtube.com/watch?v=rG1zmeqXyZI
 
 [[gmoccapy:tool-measurement-videos]]
 
-=== Tool Measurement Video
+=== Tool Measurement Videos
 
 Auto Tool Measurement Simulation = http://youtu.be/rrkMw6rUFdk
 
