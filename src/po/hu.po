@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-26 19:03+0200\n"
-"PO-Revision-Date: 2021-12-11 21:44+0000\n"
+"PO-Revision-Date: 2021-12-12 14:36+0000\n"
 "Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/hu/>\n"
@@ -31,40 +31,42 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
+"A parancs (%s) nem hajtható végre, amíg a gép az E-stopban van, és be van "
+"kapcsolva"
 
 #: src/emc/task/emctaskmain.cc:1000
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr ""
+msgstr "nem hajtható végre (%s:%d) kézi üzemben"
 
 #: src/emc/task/emctaskmain.cc:1107
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr ""
+msgstr "nem teheti meg (%s) automatikus módban a fordító idle"
 
 #: src/emc/task/emctaskmain.cc:1176
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr ""
+msgstr "nem lehetséges (%s) auto módban a fordító olvas"
 
 #: src/emc/task/emctaskmain.cc:1263
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr ""
+msgstr "nem lehetséges (%s) auto módban a fordító szünetel"
 
 #: src/emc/task/emctaskmain.cc:1334
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr ""
+msgstr "nem lehetséges (%s) auto módban a fordító várakozik"
 
 #: src/emc/task/emctaskmain.cc:1455
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "nem végrehajtható (%s:%d) MDI módban"
 
 #: src/emc/task/emctaskmain.cc:2126
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
-msgstr ""
+msgstr "Nem lehet módot váltani, AUTO módban és a fordító IDLE állpotban"
 
 #: src/emc/task/emctaskmain.cc:2179
 msgid "failed to close file"
@@ -94,6 +96,8 @@ msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
+"Zéró-rádiusz ív: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%"
+".4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -105,11 +109,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 nem engedélyezett G2 vagy G3-al, mert mindkettő P-t használ"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
-msgstr ""
+msgstr "A G10-es vonal nem rendelkezik L1, L10, L11, L2 vagy L20-val"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -127,7 +131,7 @@ msgstr "P érték a tartományon kívül esik G10 L%d esetén"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr "A G5.2 és G5.3 kódok között csak további G5.2 kódok engedélyezettek"
+msgstr "A G5.2 és G5.3 kódok között csak további G5.2 kódok engedélyezettek."
 
 #: src/emc/rs274ngc/interp_check.cc:260
 msgid ""
@@ -139,6 +143,8 @@ msgid ""
 "$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
 "use it"
 msgstr ""
+"$ (főorsó kiválasztás) word with no G41, G41.1, G42, G42.1, G76 G95 vagy G96 "
+"to use it"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
@@ -174,15 +180,16 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:336
 msgid "P value not an integer with M19 G2 or G3"
-msgstr ""
+msgstr "P értéke nem egész szám az M19 G2 vagy G3 során"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value must be 0,1,or 2 with M19"
-msgstr ""
+msgstr "P értéke csak 0,1,2 lehet M19 használatakor"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value should be 1 or greater with G2 or G3"
 msgstr ""
+"A P értéknek 1 vagy annál nagyobbnak kell lennie G2 vagy G3 használatakor"
 
 #: src/emc/rs274ngc/interp_check.cc:351
 msgid ""
@@ -192,11 +199,12 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:364
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "R érétke 0..360 közötti lehet M19 használatakor"
 
 #: src/emc/rs274ngc/interp_convert.cc:149
 msgid "You must specify both X and Y coordinates for Control Points"
 msgstr ""
+"Meg kell adnia mind az X, mind az Y koordinátát az ellenőrzési pontokhoz"
 
 #: src/emc/rs274ngc/interp_convert.cc:152
 msgid "Can specify P without X and Y only for the first control point"
@@ -208,11 +216,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:158
 msgid "Cannot make a NURBS with 0 feedrate"
-msgstr ""
+msgstr "Nem létrehozható NURBS, 0 előtolással"
 
 #: src/emc/rs274ngc/interp_convert.cc:195
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr ""
+msgstr "Nem használhatja a G5.3-at G5.2 nélkül"
 
 #: src/emc/rs274ngc/interp_convert.cc:196
 #, c-format
@@ -223,11 +231,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot convert spline with cutter radius compensation"
-msgstr ""
+msgstr "Nem tudja átalakítani a spline-t a vágó sugár kompenzációval"
 
 #: src/emc/rs274ngc/interp_convert.cc:235
 msgid "Splines must be in the XY plane"
-msgstr ""
+msgstr "A Spline-oknak az XY síkban kell lenni"
 
 #: src/emc/rs274ngc/interp_convert.cc:240
 msgid "Splines may not have motion in Z, A, B, or C"
@@ -686,7 +694,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Érvénytelen főorsó ($) szám a G74/G84 ciklusban"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
@@ -1821,12 +1829,10 @@ msgstr "Konfigurációs fájl megnyitása:"
 #: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
 #: src/hal/utils/scope_horiz.c:780 src/hal/utils/scope_vert.c:713
 #: src/hal/utils/scope_vert.c:934 src/hal/utils/scope_trig.c:315
-#, fuzzy
 msgid "_Cancel"
 msgstr "Mégsem"
 
 #: src/hal/utils/scope.c:471
-#, fuzzy
 msgid "_Open"
 msgstr "_Megnyitás"
 
@@ -1855,7 +1861,6 @@ msgid "S_ave Data File..."
 msgstr "Adatfájl el_mentésa..."
 
 #: src/hal/utils/scope.c:556 share/axis/tcl/axis.tcl:102
-#, fuzzy
 msgid "_Quit"
 msgstr "_Kilépés"
 
@@ -1864,12 +1869,10 @@ msgid "_About Halscope"
 msgstr "_Halszkóp névjegy"
 
 #: src/hal/utils/scope.c:568 share/axis/tcl/axis.tcl:470
-#, fuzzy
 msgid "_File"
 msgstr "_Fájl"
 
 #: src/hal/utils/scope.c:572 share/axis/tcl/axis.tcl:482
-#, fuzzy
 msgid "_Help"
 msgstr "_Segítség"
 
@@ -1926,7 +1929,6 @@ msgid " Pos "
 msgstr " Poz "
 
 #: src/hal/utils/scope_horiz.c:174
-#, fuzzy
 msgid ""
 "----- Samples\n"
 "at ---- kHz"
@@ -2190,7 +2192,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:1932
 #: lib/python/gladevcp/gladevcp-test.glade:222
 msgid "Scale"
-msgstr ""
+msgstr "Lépték"
 
 #: src/hal/utils/scope_vert.c:640
 msgid ""
@@ -3087,7 +3089,6 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:894 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:514
-#, fuzzy
 msgid "About"
 msgstr "Az AXIS névjegye"
 
@@ -5175,7 +5176,6 @@ msgid "Machine off"
 msgstr "Gép KI"
 
 #: tcl/tklinuxcnc.tcl:855 src/emc/usr_intf/touchy/touchy.glade:1561
-#, fuzzy
 msgid "Manual"
 msgstr "Kézi vezérlés"
 
@@ -5241,29 +5241,24 @@ msgid "Work Offsets:"
 msgstr "Work Eltolás:"
 
 #: tcl/tklinuxcnc.tcl:1126
-#, fuzzy
 msgid "override limits"
-msgstr "Határok módosítása"
+msgstr "Végállások felülbírálása"
 
 #: tcl/tklinuxcnc.tcl:1132
-#, fuzzy
 msgid "relative"
-msgstr "Relatív"
+msgstr "relatív"
 
 #: tcl/tklinuxcnc.tcl:1133
-#, fuzzy
 msgid "machine"
-msgstr "Gép"
+msgstr "gép"
 
 #: tcl/tklinuxcnc.tcl:1135
-#, fuzzy
 msgid "actual"
-msgstr "Aktuális"
+msgstr "aktuális"
 
 #: tcl/tklinuxcnc.tcl:1136
-#, fuzzy
 msgid "commanded"
-msgstr "Irányított"
+msgstr "irányított"
 
 #: tcl/tklinuxcnc.tcl:1139
 msgid "joint"
@@ -5274,9 +5269,8 @@ msgid "world"
 msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1167 src/emc/usr_intf/pncconf/private_data.py:464
-#, fuzzy
 msgid "home"
-msgstr "Nullpont"
+msgstr "nullpont"
 
 #: tcl/tklinuxcnc.tcl:1222
 msgid "Set axis value:"
@@ -5340,7 +5334,6 @@ msgid "Pause"
 msgstr "Szünet"
 
 #: tcl/tklinuxcnc.tcl:1549
-#, fuzzy
 msgid "Resume"
 msgstr "Folytatás"
 
@@ -5838,7 +5831,6 @@ msgid "Finished"
 msgstr ""
 
 #: tcl/ngcgui.tcl:2554
-#, fuzzy
 msgid "Canceled"
 msgstr "Mégsem"
 
@@ -6625,9 +6617,8 @@ msgid "Home"
 msgstr "Nullpont"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:202
-#, fuzzy
 msgid "Send active joint home"
-msgstr "Aktuális tengely kiinduló pozicióba"
+msgstr "Aktuális tengely nullpontba"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:203
 msgid "Ctrl-Home"
@@ -6642,9 +6633,8 @@ msgid "Shift-Home"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:204
-#, fuzzy
 msgid "Zero G54 offset for active axis"
-msgstr "A G54 offszet beállítása az aktiv tengelyen"
+msgstr "A G54 offszet beállítása az aktív tengelyen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "End"
@@ -6675,7 +6665,6 @@ msgid "Left, Right"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:211
-#, fuzzy
 msgid "Jog first axis or joint"
 msgstr "1. tengely léptetés"
 
@@ -6684,7 +6673,6 @@ msgid "Up, Down"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:212
-#, fuzzy
 msgid "Jog second axis or joint"
 msgstr "2. tengely léptetés"
 
@@ -6693,7 +6681,6 @@ msgid "Pg Up, Pg Dn"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:213
-#, fuzzy
 msgid "Jog third axis or joint"
 msgstr "3. tengely léptetés"
 
@@ -6706,7 +6693,6 @@ msgid "Jog at traverse speed"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:215
-#, fuzzy
 msgid "Jog fourth axis or joint"
 msgstr "4. tengely léptetés"
 
@@ -6727,7 +6713,6 @@ msgid "Shift+Left Button"
 msgstr "Shift+Bal egér gomb"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:220
-#, fuzzy
 msgid "Rotate or pan"
 msgstr "Forgatott felül nézet"
 
@@ -6754,9 +6739,8 @@ msgid "Rotate Wheel"
 msgstr "Egér görgető kerék"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:224
-#, fuzzy
 msgid "Control+Left Button"
-msgstr "Bal egér gomb"
+msgstr "Control+Bal gomb"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:227
 msgid "Manual control"
@@ -6892,7 +6876,6 @@ msgid "Cycle among preset views"
 msgstr "Ciklus előre beállított nézetek között"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:255
-#, fuzzy
 msgid "Cycle among preview, DRO, and user tabs"
 msgstr "Ciklus előre beállított nézetek között"
 
@@ -7329,7 +7312,6 @@ msgid "Tool change"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:49
-#, fuzzy
 msgid "Continue"
 msgstr "Folytonos"
 
@@ -7644,7 +7626,6 @@ msgid "_Pause"
 msgstr "_Szünet"
 
 #: share/axis/tcl/axis.tcl:139
-#, fuzzy
 msgid "Re_sume"
 msgstr "Folytatás"
 
@@ -7697,9 +7678,8 @@ msgid "Ha_l Scope"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:191
-#, fuzzy
 msgid "Sho_w LinuxCNC Status"
-msgstr "Mutasd az _EMC állapotát"
+msgstr "Mutasd az EMC állapotát"
 
 #: share/axis/tcl/axis.tcl:195
 msgid "Set _Debug Level"
@@ -7803,7 +7783,7 @@ msgstr "Mutasd a gyors mozgásokat"
 
 #: share/axis/tcl/axis.tcl:332
 msgid "Alpha-_blend program"
-msgstr "Alpha-_blend program"
+msgstr "Alpha-blend program"
 
 #: share/axis/tcl/axis.tcl:337
 msgid "Sho_w live plot"
@@ -7846,7 +7826,6 @@ msgid "Ctrl-K"
 msgstr "Ctrl-K"
 
 #: share/axis/tcl/axis.tcl:381
-#, fuzzy
 msgid "_Clear live plot"
 msgstr "Grafikus szimuláció törlése"
 
@@ -7855,22 +7834,18 @@ msgid "Ctrl-E"
 msgstr "Ctrl-E"
 
 #: share/axis/tcl/axis.tcl:396
-#, fuzzy
 msgid "Show commanded position"
 msgstr "Mutasd a programozott pozíciót"
 
 #: share/axis/tcl/axis.tcl:403
-#, fuzzy
 msgid "Show actual position"
 msgstr "Mutasd az aktuális pozíciót"
 
 #: share/axis/tcl/axis.tcl:412
-#, fuzzy
 msgid "Show machine position"
 msgstr "Mutasd a gép pozícióját"
 
 #: share/axis/tcl/axis.tcl:419
-#, fuzzy
 msgid "Show relative position"
 msgstr "Mutasd a relatív pozíciót"
 
@@ -7899,12 +7874,10 @@ msgid "Quick _Reference"
 msgstr "Gyors _referencia"
 
 #: share/axis/tcl/axis.tcl:474
-#, fuzzy
 msgid "_Machine"
-msgstr "Gép"
+msgstr "_Gép"
 
 #: share/axis/tcl/axis.tcl:478
-#, fuzzy
 msgid "_View"
 msgstr "_Nézet"
 
@@ -7913,7 +7886,6 @@ msgid "Toggle Emergency Stop [F1]"
 msgstr "Vészmegallítás Ki/Be [F1]"
 
 #: share/axis/tcl/axis.tcl:500
-#, fuzzy
 msgid "Toggle Machine power [F2]"
 msgstr "Gép Ki/Be [F2]"
 
@@ -7999,7 +7971,6 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:835 share/axis/tcl/axis.tcl:1923
 #: share/axis/tcl/axis.tcl:2110
-#, fuzzy
 msgid "Axis:"
 msgstr "Tengely:"
 
@@ -8035,12 +8006,10 @@ msgid "+"
 msgstr "+"
 
 #: share/axis/tcl/axis.tcl:1087
-#, fuzzy
 msgid "Brake"
 msgstr "Fék"
 
 #: share/axis/tcl/axis.tcl:1134
-#, fuzzy
 msgid "Coolant:"
 msgstr "Hűtés:"
 
@@ -8049,7 +8018,6 @@ msgid "Mist"
 msgstr "Permet"
 
 #: share/axis/tcl/axis.tcl:1144
-#, fuzzy
 msgid "Flood"
 msgstr "Folyadék"
 
@@ -8070,7 +8038,6 @@ msgid "DRO"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1385
-#, fuzzy
 msgid "Active G-Codes:"
 msgstr "Aktuális G-kódok:"
 
@@ -8147,7 +8114,6 @@ msgid "Rapid Override:"
 msgstr "Gyorsjárat túlhajtás (%):"
 
 #: share/axis/tcl/axis.tcl:1571
-#, fuzzy
 msgid ""
 "LinuxCNC/AXIS version $version\n"
 "\n"
@@ -8170,9 +8136,8 @@ msgstr ""
 "Szívesen látunk az LinuxCNC web oldalán: "
 
 #: share/axis/tcl/axis.tcl:1599
-#, fuzzy
 msgid "About AXIS"
-msgstr "_AXIS névjegye"
+msgstr "AXIS névjegye"
 
 #: share/axis/tcl/axis.tcl:1628
 msgid "AXIS Quick Reference"
@@ -8183,36 +8148,30 @@ msgid "AXIS $::version on $::machine"
 msgstr ""
 
 #: share/axis/tcl/axis.tcl:1758
-#, fuzzy
 msgid "(no file)"
-msgstr "AXIS (Nincs fájl)"
+msgstr "(Nincs fájl)"
 
 #: share/axis/tcl/axis.tcl:1833 share/axis/tcl/axis.tcl:1838
-#, fuzzy
 msgid "Position:"
 msgstr "Pozíció:"
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/pncconf/screen.glade:89
 #: src/emc/usr_intf/gscreen/gscreen.py:4563
-#, fuzzy
 msgid "Machine"
 msgstr "Gép"
 
 #: share/axis/tcl/axis.tcl:1835 src/emc/usr_intf/touchy/touchy.glade:155
 #: src/emc/usr_intf/pncconf/screen.glade:92
-#, fuzzy
 msgid "Relative"
 msgstr "Relatív"
 
 #: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3329
 #: src/emc/usr_intf/pncconf/screen.glade:78
-#, fuzzy
 msgid "Actual"
 msgstr "Aktuális"
 
 #: share/axis/tcl/axis.tcl:1836 src/emc/usr_intf/touchy/touchy.glade:3318
 #: src/emc/usr_intf/pncconf/screen.glade:75
-#, fuzzy
 msgid "Commanded"
 msgstr "Irányított"
 
@@ -8404,9 +8363,8 @@ msgid "Motion in unoffset coordinates"
 msgstr ""
 
 #: src/emc/usr_intf/touchy/mdi.py:79 src/emc/usr_intf/gscreen/mdi.py:77
-#, fuzzy
 msgid "Continuous mode"
-msgstr "Folytonos lépés"
+msgstr "Folyamatos üzemmód"
 
 #: src/emc/usr_intf/touchy/mdi.py:81 src/emc/usr_intf/gscreen/mdi.py:79
 msgid "Drill"
@@ -8938,7 +8896,6 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:2870
-#, fuzzy
 msgid "Active codes:"
 msgstr "Aktuális G-kódok:"
 
@@ -10579,7 +10536,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/spindle.glade:313
 msgid "Scale %"
-msgstr ""
+msgstr "Lépték %"
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:488
@@ -10930,7 +10887,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:111
 msgid "Full Scale Freq (kHz)"
-msgstr ""
+msgstr "Teljes lépték Frekv. (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:125
 #: src/emc/usr_intf/pncconf/thcad.glade:134
@@ -10997,6 +10954,7 @@ msgstr "Szemben (átellenben)"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2529
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11162,7 +11120,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:605
 #: src/emc/usr_intf/stepconf/axisa.glade:647
 msgid "Axis SCALE:"
-msgstr "Tengely SKÁLA:"
+msgstr "Tengely lépték:"
 
 #: src/emc/usr_intf/stepconf/finished.glade:6
 msgid ""
@@ -11463,15 +11421,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4046
 msgid "Resolver Scale:"
-msgstr "Rezolver skála:"
+msgstr "Rezolver lépték:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4384
 msgid "Spindle Scale Calculation"
-msgstr "Főorsó skála számítás"
+msgstr "Főorsó lépték számítás"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4496
 msgid "Axis Scale Calculation"
-msgstr ""
+msgstr "Tenegely lépték számítás"
 
 #: src/emc/usr_intf/pncconf/pages.py:241 src/emc/usr_intf/pncconf/pages.py:292
 #, python-format
@@ -12764,9 +12722,8 @@ msgid "Axis Selection"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:465
-#, fuzzy
 msgid "Overrides"
-msgstr "Határok módosítása"
+msgstr "Felülbírálás"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Operation"
@@ -12828,15 +12785,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:472
 msgid "Y2 Tandem PWM"
-msgstr ""
+msgstr "Y2 Tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:473
 msgid "Z2 Tandem PWM"
-msgstr ""
+msgstr "Z2 Tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:473
 msgid "A2 Tandem PWM"
-msgstr ""
+msgstr "A2 Tandem PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
 msgid "X Axis PWM"
@@ -12856,7 +12813,7 @@ msgstr "A tengely PWM"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "Unused PWM Gen"
-msgstr ""
+msgstr "Nemhasznált PWM Gen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:477
 msgid "Axis PWM"
@@ -12892,11 +12849,11 @@ msgstr "Z2 Tandem StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:487
 msgid "Unused StepGen"
-msgstr ""
+msgstr "Nemhasznált StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:489
 msgid "Charge Pump StepGen"
-msgstr ""
+msgstr "Charge Pump StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:489
 msgid "Spindle StepGen"
@@ -12904,19 +12861,19 @@ msgstr "Főorsó StepGen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
 msgid "X Encoder"
-msgstr ""
+msgstr "X jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:492
 msgid "Y Encoder"
-msgstr ""
+msgstr "Y jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
 msgid "Z Encoder"
-msgstr ""
+msgstr "Z jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
 msgid "A Encoder"
-msgstr ""
+msgstr "A jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:495
 msgid "X2 Tandem Encoder"
@@ -12936,23 +12893,23 @@ msgstr "A2 tandem jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
 msgid "X Hand Wheel"
-msgstr ""
+msgstr "X kézikerék"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
 msgid "Y Hand Wheel"
-msgstr ""
+msgstr "Y kézikerék"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Z Hand Wheel"
-msgstr ""
+msgstr "Z kézikerék"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "A Hand Wheel"
-msgstr ""
+msgstr "A kézikerék"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Multi Hand Wheel"
-msgstr ""
+msgstr "Multi kézikerék"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
 msgid "Feed Override"
@@ -12968,15 +12925,15 @@ msgstr "Max sebesség túlhajtás"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 msgid "Arc Voltage"
-msgstr ""
+msgstr "Ívfeszültség"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Unused Encoder"
-msgstr ""
+msgstr "Nemhasznált jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Axis Encoder"
-msgstr ""
+msgstr "Tengely jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Spindle Encoder"
@@ -12984,11 +12941,11 @@ msgstr "Főorsó jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "MPG Jog Controls"
-msgstr ""
+msgstr "MPG kézi vezérlés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Override MPG control"
-msgstr ""
+msgstr "MPG vezérlés felülbírálás"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
 msgid "Plasma Encoder"
@@ -12996,7 +12953,7 @@ msgstr "Plazma jeladó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:508
 msgid "Unused Unused"
-msgstr ""
+msgstr "Nemhasznált nemhasznált"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
 msgid "Spindle Enable"
@@ -13008,19 +12965,19 @@ msgstr "Gép engedélyezve"
 
 #: src/emc/usr_intf/pncconf/private_data.py:511
 msgid "X Amplifier Enable"
-msgstr ""
+msgstr "X erősítő (hajtás) engedélyezés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
 msgid "Y Amplifier Enable"
-msgstr ""
+msgstr "Y erősítő (hajtás) engedélyezés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
 msgid "Z Amplifier Enable"
-msgstr ""
+msgstr "Z erősítő (hajtás) engedélyezés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
 msgid "A Amplifier Enable"
-msgstr ""
+msgstr "A erősítő (hajtás) engedélyezés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
 msgid "Force Pin True"
@@ -13040,15 +12997,15 @@ msgstr "Karctű BE"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Torch On"
-msgstr ""
+msgstr "Fáklya (plazma) BE"
 
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Laser On"
-msgstr ""
+msgstr "Lézer Be"
 
 #: src/emc/usr_intf/pncconf/private_data.py:527
 msgid "Unused Output"
-msgstr ""
+msgstr "Nemhasznált kimenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:528
 msgid "Coolant"
@@ -13056,43 +13013,43 @@ msgstr "Hűtés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:528
 msgid "Control"
-msgstr ""
+msgstr "Vezérlés"
 
 #: src/emc/usr_intf/pncconf/private_data.py:531
 msgid " S BLDC Control"
-msgstr ""
+msgstr " S BLDC kontroll"
 
 #: src/emc/usr_intf/pncconf/private_data.py:534
 msgid "Unused 8I20"
-msgstr ""
+msgstr "Nemhasznált 8I20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:537
 msgid "Unused Resolver"
-msgstr ""
+msgstr "Nem használt rezolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:537
 msgid "X Resolver"
-msgstr ""
+msgstr "X rezolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "Y Resolver"
-msgstr ""
+msgstr "Y rezolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "Z Resolver"
-msgstr ""
+msgstr "Z rezolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "A Resolver"
-msgstr ""
+msgstr "A rezolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "S Resolver"
-msgstr ""
+msgstr "S rezolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:541
 msgid "Unused Analog Output"
-msgstr ""
+msgstr "Nem használt analóg kimenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:541
 msgid "Spindle Output"
@@ -13100,131 +13057,147 @@ msgstr "Főorsó kimenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:545
 msgid "Unused TPPWM Gen"
-msgstr ""
+msgstr "Nem használt TPPWM Gen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:545
 msgid "X Axis BL Driver"
-msgstr ""
+msgstr "X tengely BL meghajtó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "Y Axis BL Driver"
-msgstr ""
+msgstr "Y tengely BL meghajtó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "Z Axis BL Driver"
-msgstr ""
+msgstr "Z tengely BL meghajtó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:547
 msgid "A Axis BL Driver"
-msgstr ""
+msgstr "A tengely BL meghajtó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:547
 msgid "S Axis BL Driver"
-msgstr ""
+msgstr "S tengely BL meghajtó"
 
 #: src/emc/usr_intf/pncconf/private_data.py:550
 msgid "8i20 Amplifier Card"
-msgstr ""
+msgstr "8i20 erősítő kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "7i64 I/O Card"
-msgstr ""
+msgstr "7i64 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "7i69 I/O Card"
-msgstr ""
+msgstr "7i69 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "7i70 I/O Card"
-msgstr ""
+msgstr "7i70 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "7i71 I/O Card"
-msgstr ""
+msgstr "7i71 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:553
 msgid "7i76 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i76 Mód 0 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:553
 msgid "7i76 Mode 2 I/O Card"
-msgstr ""
+msgstr "7i76 Mód 2 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:554
 msgid "7i77 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i77 Mód 0 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:554
 msgid "7i77 Mode 3 I/O Card"
-msgstr ""
+msgstr "7i77 Mód 3 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "7i73 Mode 1 Pendant Card"
-msgstr ""
+msgstr "7i73 Mód 1 hajtás kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i84 Mode 1 I/O Card"
-msgstr ""
+msgstr "7i84 Mód 1 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i84 Mode 3 I/O Card"
-msgstr ""
+msgstr "7i84 Mód 3 Be/Ki kártya"
 
 #: src/emc/usr_intf/pncconf/private_data.py:558
 msgid "Unused Analog In"
-msgstr ""
+msgstr "Nem használt analóg bemenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:882
 msgid ""
 "7i64-Input\n"
 "P3 and P4"
 msgstr ""
+"7i64-bemenet\n"
+"P3 és P4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:882
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
 msgstr ""
+"7i64-Kimenet\n"
+"P2 és P5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:882
 msgid "7i64-Analog In"
-msgstr ""
+msgstr "7i64-Analóg bemenet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:895
 msgid ""
 "7i69\n"
 "P2"
 msgstr ""
+"7i69\n"
+"P2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:895
 msgid ""
 "7i69\n"
 "P3"
 msgstr ""
+"7i69\n"
+"P3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:907
 msgid ""
 "7i70-Input\n"
 "TB3"
 msgstr ""
+"7i70-Bemenet\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:907
 msgid ""
 "7i70-Input\n"
 "TB2"
 msgstr ""
+"7i70-Bemenet\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:919
 msgid ""
 "7i71-Output\n"
 "TB3"
 msgstr ""
+"7i71-Kimenet\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:919
 msgid ""
 "7i71-Output\n"
 "TB2"
 msgstr ""
+"7i71-Kimenet\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:931
 #: src/emc/usr_intf/pncconf/private_data.py:943
@@ -13232,6 +13205,8 @@ msgid ""
 "7i76-I/O\n"
 "TB6"
 msgstr ""
+"7i76-Be/Ki\n"
+"TB6"
 
 #: src/emc/usr_intf/pncconf/private_data.py:931
 #: src/emc/usr_intf/pncconf/private_data.py:943
@@ -13239,6 +13214,8 @@ msgid ""
 "7i76-I/O\n"
 "TB5"
 msgstr ""
+"7i76-Be/Ki\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:931
 #: src/emc/usr_intf/pncconf/private_data.py:943
@@ -13246,6 +13223,8 @@ msgid ""
 "7i76-Analog Output\n"
 "TB4"
 msgstr ""
+"7i76-Analóg Kimenet\n"
+"TB4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:955
 #: src/emc/usr_intf/pncconf/private_data.py:967
@@ -13253,6 +13232,8 @@ msgid ""
 "7i77-I/O\n"
 "TB8"
 msgstr ""
+"7i77-Be/Ki\n"
+"TB8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:955
 #: src/emc/usr_intf/pncconf/private_data.py:967
@@ -13260,6 +13241,8 @@ msgid ""
 "7i77-I/O\n"
 "TB7"
 msgstr ""
+"7i77-Be/Ki\n"
+"TB7"
 
 #: src/emc/usr_intf/pncconf/private_data.py:955
 #: src/emc/usr_intf/pncconf/private_data.py:967
@@ -13267,16 +13250,20 @@ msgid ""
 "7i77-Analog Output\n"
 "TB5"
 msgstr ""
+"7i77-Analóg kimenet\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:979
 msgid "7i73-I/O\n"
-msgstr ""
+msgstr "7i73-Be/Ki\n"
 
 #: src/emc/usr_intf/pncconf/private_data.py:992
 msgid ""
 "7i84-I/O\n"
 "TB3"
 msgstr ""
+"7i84-Be/Ki\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:992
 #: src/emc/usr_intf/pncconf/private_data.py:1007
@@ -13284,12 +13271,16 @@ msgid ""
 "7i84-I/O\n"
 "TB2"
 msgstr ""
+"7i84-Be/Ki\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1007
 msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
 msgstr ""
+"7i84-Be/Ki-MPG\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1072
 msgid ""
@@ -13302,11 +13293,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:1073
 msgid "Quit PNCconf and discard changes?"
-msgstr ""
+msgstr "Kilép a PNCconf-ból és eldob minten változtatást?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1074
 msgid "Do you want to quit?"
-msgstr ""
+msgstr "Biztos kilép?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1080
 msgid ""
@@ -13321,7 +13312,7 @@ msgstr ""
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
-msgstr ""
+msgstr "Ön megadta, hogy van egy meglévő gladefile, de nincs a gép mappában."
 
 #: src/emc/usr_intf/pncconf/tests.py:469
 msgid ""
@@ -13334,19 +13325,19 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:492
 msgid "Servo tuning is not tested in PNCconf yet\n"
-msgstr ""
+msgstr "A szervo hangolás még nem tesztelte a PncConf-t\n"
 
 #: src/emc/usr_intf/pncconf/tests.py:501
 msgid "degrees"
-msgstr ""
+msgstr "fok"
 
 #: src/emc/usr_intf/pncconf/tests.py:502
 msgid "degrees / minute"
-msgstr ""
+msgstr "fok / perc"
 
 #: src/emc/usr_intf/pncconf/tests.py:503
 msgid "degrees / second²"
-msgstr ""
+msgstr "fok / second²"
 
 #: src/emc/usr_intf/pncconf/tests.py:506
 msgid "revolutions"
@@ -13354,11 +13345,11 @@ msgstr "fordulatok"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "rpm"
-msgstr ""
+msgstr "ford./perc"
 
 #: src/emc/usr_intf/pncconf/tests.py:508
 msgid "revs / second²"
-msgstr ""
+msgstr "ford / second²"
 
 #: src/emc/usr_intf/pncconf/tests.py:512
 #: src/emc/usr_intf/pncconf/x_axis.glade:512
@@ -13374,7 +13365,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:547
 #: src/emc/usr_intf/pncconf/a_axis.glade:563
 msgid "mm / minute"
-msgstr ""
+msgstr "mm / perc"
 
 #: src/emc/usr_intf/pncconf/tests.py:513
 msgid "mm / second²"
@@ -13382,28 +13373,32 @@ msgstr "mm / second²"
 
 #: src/emc/usr_intf/pncconf/tests.py:517
 msgid "inches / minute"
-msgstr ""
+msgstr "inch / perc"
 
 #: src/emc/usr_intf/pncconf/tests.py:518
 msgid "inches / second²"
-msgstr ""
+msgstr "inch / second²"
 
 #: src/emc/usr_intf/pncconf/tests.py:720
 #, python-format
 msgid "%s Axis Tune"
-msgstr ""
+msgstr "%s Tengely hangolás"
 
 #: src/emc/usr_intf/pncconf/tests.py:914
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
 msgstr ""
+" Meg kell adnia egy jeladó / resolver jelet és egy analóg orsójelet a "
+"tengely teszthez"
 
 #: src/emc/usr_intf/pncconf/tests.py:918
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
 msgstr ""
+" Meg kell adnia egy jeladó / resolver jelet és egy PWM jelet a tengely "
+"teszthez"
 
 #: src/emc/usr_intf/pncconf/tests.py:1207
 msgid ""
@@ -13427,17 +13422,25 @@ msgid ""
 "If you have a REALLY large config that you wish to convert to this newer "
 "version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
+"Ezt a konfigurációt a PNCCONF korábbi verziójával mentették el, amely lehet, "
+"hogy nem kompatibilis.\n"
+"Ha nem okoz egyértelműen hibát, ments el másik néven és ellenőrizze. "
+"Biztonságosabb a karcolás elindításához.\n"
+"Ha egy tényleg nagy konfigurációt akar újabbra cserélni/átalakítani - "
+"kérdezze meg a Linuxcnc fórumot - lehet, hogy lehetséges."
 
 #: src/emc/usr_intf/pncconf/data.py:885
 #, python-format
 msgid "File %r was modified since it was written by PNCconf"
-msgstr ""
+msgstr "A %r fájlt módosította a PNCconf"
 
 #: src/emc/usr_intf/pncconf/data.py:889
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside PNCconf."
 msgstr ""
+"A konfigurációs fájl mentése eldobja a PNCconf külső konfigurációs "
+"módosításokat."
 
 #: src/emc/usr_intf/pncconf/data.py:1092
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
@@ -13445,13 +13448,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/main_page.glade:47
 msgid "PNCconf - Mesa Card Configuration Wizard"
-msgstr ""
+msgstr "PNCconf - Mesa kártya konfiguráció varázsló"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:174
 msgid ""
 "Save\n"
 "Data"
 msgstr ""
+"Mentés\n"
+"Adat"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:283
 msgid ""
@@ -13462,6 +13467,12 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
+"Ez a program létrehozza a konfigurációs fájlokat (.ini és .hal) a Mesa "
+"kártyához csatlakoztatott marógépekhez és esztergákhoz.\n"
+"\n"
+"Javasolt állapotok, amelyek nagyon alapvető tengelyekkel kezdődnek, "
+"szerezzük be őket, majd menj vissza, majd adjunk hozzá más lehetőségeket, "
+"például a VFD orsóvezérlést vagy a fejlett határértéket stb."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:312
 #: src/emc/usr_intf/pncconf/mesa0.glade:22128
@@ -13477,7 +13488,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:44688
 #: src/emc/usr_intf/pncconf/mesa1.glade:50338
 msgid "page 1"
-msgstr ""
+msgstr "lap 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
 msgid ""
@@ -13577,7 +13588,7 @@ msgstr "Segítség oldal"
 
 #: src/emc/usr_intf/pncconf/help.glade:172
 msgid "Mill"
-msgstr ""
+msgstr "Maró"
 
 #: src/emc/usr_intf/pncconf/help.glade:190
 msgid ""
@@ -13594,7 +13605,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:234
 msgid "Lathe"
-msgstr ""
+msgstr "Eszterga"
 
 #: src/emc/usr_intf/pncconf/help.glade:265
 msgid ""
@@ -13614,7 +13625,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:323
 msgid "Shared Home Switch"
-msgstr ""
+msgstr "Megosztott nullpont kapcsoló"
 
 #: src/emc/usr_intf/pncconf/help.glade:342
 msgid ""
@@ -13633,36 +13644,36 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:411
 msgid "Separate Homing Switches"
-msgstr ""
+msgstr "Különálló nullpont kapcsoló"
 
 #: src/emc/usr_intf/pncconf/help.glade:427
 msgid "Diagram"
-msgstr ""
+msgstr "Ábra"
 
 #: src/emc/usr_intf/pncconf/help.glade:461
 msgid "Output"
-msgstr ""
+msgstr "Kimenet"
 
 #: src/emc/usr_intf/pncconf/help.glade:493
 msgid "Input"
-msgstr ""
+msgstr "Bemenet"
 
 #: src/emc/usr_intf/pncconf/help.glade:537
 #: src/emc/usr_intf/pncconf/help.glade:601
 msgid "Print Map"
-msgstr ""
+msgstr "Nyomtatási térkép"
 
 #: src/emc/usr_intf/pncconf/help.glade:583
 msgid "7i76"
-msgstr ""
+msgstr "7i76"
 
 #: src/emc/usr_intf/pncconf/help.glade:650
 msgid "7i77"
-msgstr ""
+msgstr "7i77"
 
 #: src/emc/usr_intf/pncconf/help.glade:666
 msgid "Map"
-msgstr ""
+msgstr "Térkép"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:74
 #: src/emc/usr_intf/pncconf/mesa1.glade:74
@@ -13674,17 +13685,17 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:252
 #: src/emc/usr_intf/pncconf/mesa1.glade:252
 msgid "3PWM base frequency:"
-msgstr ""
+msgstr "3PWM bázis frekvencia:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:294
 #: src/emc/usr_intf/pncconf/mesa1.glade:294
 msgid "Card address:"
-msgstr ""
+msgstr "Kártya cím:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:306
 #: src/emc/usr_intf/pncconf/mesa1.glade:306
 msgid "Firmware:"
-msgstr ""
+msgstr "Firmware:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:353
 #: src/emc/usr_intf/pncconf/mesa1.glade:353
@@ -13702,71 +13713,73 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
+"Elfogad  komponensek\n"
+"          Változások"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:424
 #: src/emc/usr_intf/pncconf/mesa1.glade:424
 msgid "PWM base frequency:"
-msgstr ""
+msgstr "PWM bázis frekvencia:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:436
 #: src/emc/usr_intf/pncconf/mesa1.glade:436
 msgid "PDM base frequency:"
-msgstr ""
+msgstr "PDM bázis frekvencia:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:448
 #: src/emc/usr_intf/pncconf/mesa1.glade:448
 msgid "Watchdog timeout:"
-msgstr ""
+msgstr "Watchdog időtúllépés:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:591
 #: src/emc/usr_intf/pncconf/mesa1.glade:591
 msgid "Num of encoders:"
-msgstr ""
+msgstr "Jeladók száma:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:603
 #: src/emc/usr_intf/pncconf/mesa1.glade:603
 msgid "Num of pwm generators:"
-msgstr ""
+msgstr "PWM generátorok száma:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:615
 #: src/emc/usr_intf/pncconf/mesa1.glade:615
 msgid "Num of step generators: "
-msgstr ""
+msgstr "STEP generátorok száma: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:627
 #: src/emc/usr_intf/pncconf/mesa1.glade:627
 msgid "Board name"
-msgstr ""
+msgstr "Alaplap neve"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:634
 #: src/emc/usr_intf/pncconf/mesa1.glade:634
 msgid "Num of Smart Serial Ports:"
-msgstr ""
+msgstr "Smart Serial portok száma:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:690
 #: src/emc/usr_intf/pncconf/mesa1.glade:690
 msgid "7i29 daughter board"
-msgstr ""
+msgstr "7i29 alaplap"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:703
 #: src/emc/usr_intf/pncconf/mesa1.glade:703
 msgid "7i30 daughter board"
-msgstr ""
+msgstr "7i30 alaplap"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:716
 #: src/emc/usr_intf/pncconf/mesa1.glade:716
 msgid "7i33 daughter board"
-msgstr ""
+msgstr "7i33 alaplap"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:729
 #: src/emc/usr_intf/pncconf/mesa1.glade:729
 msgid "7i40 daughter board"
-msgstr ""
+msgstr "7i40 alaplap"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:742
 #: src/emc/usr_intf/pncconf/mesa1.glade:742
 msgid "7i48 daughter board"
-msgstr ""
+msgstr "7i48 alaplap"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:761
 #: src/emc/usr_intf/pncconf/mesa1.glade:761
@@ -13776,12 +13789,12 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:795
 #: src/emc/usr_intf/pncconf/mesa1.glade:795
 msgid "Num of channels: "
-msgstr ""
+msgstr "Csatornák száma: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:808
 #: src/emc/usr_intf/pncconf/mesa1.glade:808
 msgid "Num of resolvers:"
-msgstr ""
+msgstr "Rezolverek száma:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:850
 #: src/emc/usr_intf/pncconf/mesa1.glade:850
@@ -13789,6 +13802,8 @@ msgid ""
 "   Board\n"
 "Discovery"
 msgstr ""
+"   Kártya\n"
+"Felfedezés"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:929
 #: src/emc/usr_intf/pncconf/mesa1.glade:929
@@ -13796,6 +13811,8 @@ msgid ""
 "Configuration\n"
 "     Page"
 msgstr ""
+"Konfigurációs\n"
+"     Oldal"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1177
 #: src/emc/usr_intf/pncconf/mesa0.glade:1449
@@ -13894,7 +13911,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:52406
 #: src/emc/usr_intf/pncconf/mesa1.glade:52687
 msgid "Pin Type"
-msgstr ""
+msgstr "Láb típus"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1191
 #: src/emc/usr_intf/pncconf/mesa0.glade:1255
@@ -13993,7 +14010,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:52393
 #: src/emc/usr_intf/pncconf/mesa1.glade:52701
 msgid "Inv"
-msgstr ""
+msgstr "Inverz"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1269
 #: src/emc/usr_intf/pncconf/mesa0.glade:3497
@@ -14012,7 +14029,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16026
 #: src/emc/usr_intf/pncconf/mesa1.glade:18120
 msgid "  1:"
-msgstr ""
+msgstr "  1:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1284
 #: src/emc/usr_intf/pncconf/mesa0.glade:3512
@@ -14031,7 +14048,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16041
 #: src/emc/usr_intf/pncconf/mesa1.glade:18135
 msgid "  3:"
-msgstr ""
+msgstr "  3:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1299
 #: src/emc/usr_intf/pncconf/mesa0.glade:3527
@@ -14050,7 +14067,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16056
 #: src/emc/usr_intf/pncconf/mesa1.glade:18150
 msgid "  5:"
-msgstr ""
+msgstr "  5:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1314
 #: src/emc/usr_intf/pncconf/mesa0.glade:3542
@@ -14069,7 +14086,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16071
 #: src/emc/usr_intf/pncconf/mesa1.glade:18165
 msgid "  7:"
-msgstr ""
+msgstr "  7:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1329
 #: src/emc/usr_intf/pncconf/mesa0.glade:3557
@@ -14088,7 +14105,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16086
 #: src/emc/usr_intf/pncconf/mesa1.glade:18180
 msgid "  9:"
-msgstr ""
+msgstr "  9:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1344
 #: src/emc/usr_intf/pncconf/mesa0.glade:3572
@@ -14107,7 +14124,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16101
 #: src/emc/usr_intf/pncconf/mesa1.glade:18195
 msgid "11:"
-msgstr ""
+msgstr "11:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1359
 #: src/emc/usr_intf/pncconf/mesa0.glade:3587
@@ -14126,7 +14143,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16116
 #: src/emc/usr_intf/pncconf/mesa1.glade:18210
 msgid "13:"
-msgstr ""
+msgstr "13:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1374
 #: src/emc/usr_intf/pncconf/mesa0.glade:3602
@@ -14145,7 +14162,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16131
 #: src/emc/usr_intf/pncconf/mesa1.glade:18225
 msgid "15:"
-msgstr ""
+msgstr "15:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1389
 #: src/emc/usr_intf/pncconf/mesa0.glade:3617
@@ -14164,7 +14181,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16146
 #: src/emc/usr_intf/pncconf/mesa1.glade:18240
 msgid "17:"
-msgstr ""
+msgstr "17:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1404
 #: src/emc/usr_intf/pncconf/mesa0.glade:3632
@@ -14548,7 +14565,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:50971
 #: src/emc/usr_intf/pncconf/mesa1.glade:53628
 msgid "function"
-msgstr ""
+msgstr "funkció"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2639
 #: src/emc/usr_intf/pncconf/mesa0.glade:4843
@@ -14863,7 +14880,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:46774
 #: src/emc/usr_intf/pncconf/mesa1.glade:52424
 msgid "page 2"
-msgstr ""
+msgstr "lap 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:25683
 #: src/emc/usr_intf/pncconf/mesa0.glade:31333
@@ -14878,7 +14895,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:48243
 #: src/emc/usr_intf/pncconf/mesa1.glade:53893
 msgid "page 3"
-msgstr ""
+msgstr "lap 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:25699
 #: src/emc/usr_intf/pncconf/mesa1.glade:25659
@@ -15711,7 +15728,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/thcad.glade:120
 msgid "Full Scale Frequency (kHz)"
-msgstr ""
+msgstr "Teljes lépték frekvencia (kHz)"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:159
 msgid "0V Frequency (kHz)"
@@ -15934,7 +15951,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:344
 #: src/emc/usr_intf/pncconf/s_motor.glade:605
 msgid "3pwm Scale:"
-msgstr ""
+msgstr "3pwm lépték:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:355
 #: src/emc/usr_intf/pncconf/y_motor.glade:355
@@ -15980,7 +15997,7 @@ msgstr "Analóg max korlátozás:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:501
 #: src/emc/usr_intf/pncconf/a_motor.glade:501
 msgid "Analog Max Scale:"
-msgstr ""
+msgstr "Analóg max lépték:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:616
 #: src/emc/usr_intf/pncconf/y_motor.glade:616
@@ -16256,7 +16273,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1412
 #: src/emc/usr_intf/pncconf/a_motor.glade:1412
 msgid "Scale:"
-msgstr ""
+msgstr "Lépték:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1434
 #: src/emc/usr_intf/pncconf/y_motor.glade:1434
@@ -16349,7 +16366,7 @@ msgstr "Egy enkóder bemenet"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1834
 #: src/emc/usr_intf/pncconf/s_motor.glade:2306
 msgid "encoder Scale:"
-msgstr ""
+msgstr "enkóder lépték:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1859
 #: src/emc/usr_intf/pncconf/y_motor.glade:1859
@@ -16357,7 +16374,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1859
 #: src/emc/usr_intf/pncconf/s_motor.glade:2336
 msgid "Stepper Scale:"
-msgstr "Lépés nagyság:"
+msgstr "Stepper lépték:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1886
 #: src/emc/usr_intf/pncconf/y_motor.glade:1886
@@ -16368,6 +16385,8 @@ msgid ""
 "Calculate\n"
 "Scale"
 msgstr ""
+"Lépték\n"
+"Számítás"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1959
 #: src/emc/usr_intf/pncconf/y_motor.glade:1959
@@ -16435,7 +16454,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2478
 msgid "Use Near Scale"
-msgstr "Haszáld a közeli skálát"
+msgstr "Haszáld a közeli léptéket"
 
 #: src/emc/usr_intf/pncconf/options.glade:96
 msgid "Cmd 15"
@@ -16543,7 +16562,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:107
 msgid "scale"
-msgstr ""
+msgstr "lépték"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:133
 msgid "mux16"
@@ -16811,7 +16830,7 @@ msgstr "Dac eltolás:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:967
 msgid "Encoder Scale:"
-msgstr ""
+msgstr "Enkóder lépték:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:996
 msgid "Reset Encoder"
@@ -16880,7 +16899,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:1681
 #: src/emc/usr_intf/pncconf/dialogs.glade:2653
 msgid "<b>Encoder Scale</b>"
-msgstr ""
+msgstr "<b>Enkóder lépték</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1749
 msgid "Spindle RPM at Max Motor Speed -gear 1:"
@@ -16923,7 +16942,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2294
 msgid "<b>Step Motor Scale</b>"
-msgstr ""
+msgstr "<b>Lépető motor lépték</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2344
 msgid "TPI"
@@ -16947,7 +16966,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2770
 msgid "<b>Calculated Scale</b>"
-msgstr ""
+msgstr "<b>Számított lépték</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2839
 msgid "mm / encoder pulse"
@@ -16971,7 +16990,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3034
 msgid "Calculated Axis SCALE:"
-msgstr "Számított tengely SCALE:"
+msgstr "Számított tengely lépték:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3085
 msgid "Motor RPM at max speed:"
@@ -17074,7 +17093,6 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:271
-#, fuzzy
 msgid "Manual Mode"
 msgstr "Kézi vezérlés"
 
@@ -17083,9 +17101,8 @@ msgid "MDI Mode"
 msgstr "MDI mód"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:271
-#, fuzzy
 msgid "Auto Mode"
-msgstr "Futási mód"
+msgstr "Automatikus üzemmód"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:386
 #, python-format
@@ -18330,7 +18347,7 @@ msgstr "G55"
 #: lib/python/gladevcp/offsetpage.glade:142
 #: lib/python/gladevcp/offsetpage.glade:156
 msgid "G56"
-msgstr ""
+msgstr "G56"
 
 #: lib/python/gladevcp/offsetpage.glade:159
 #: lib/python/gladevcp/offsetpage.glade:173
@@ -18340,27 +18357,27 @@ msgstr "G57"
 #: lib/python/gladevcp/offsetpage.glade:176
 #: lib/python/gladevcp/offsetpage.glade:190
 msgid "G58"
-msgstr ""
+msgstr "G58"
 
 #: lib/python/gladevcp/offsetpage.glade:193
 #: lib/python/gladevcp/offsetpage.glade:207
 msgid "G59"
-msgstr ""
+msgstr "G59"
 
 #: lib/python/gladevcp/offsetpage.glade:210
 #: lib/python/gladevcp/offsetpage.glade:224
 msgid "G59.1"
-msgstr ""
+msgstr "G59.1"
 
 #: lib/python/gladevcp/offsetpage.glade:227
 #: lib/python/gladevcp/offsetpage.glade:241
 msgid "G59.2"
-msgstr ""
+msgstr "G59.2"
 
 #: lib/python/gladevcp/offsetpage.glade:244
 #: lib/python/gladevcp/offsetpage.glade:258
 msgid "G59.3"
-msgstr ""
+msgstr "G59.3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 msgid "Offset"
@@ -18375,13 +18392,15 @@ msgid ""
 "Zero\n"
 "G92"
 msgstr ""
+"Nulláz\n"
+"G92"
 
 #: lib/python/gladevcp/offsetpage.glade:456
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    Nincs\n"
+"    Nulláz\n"
 "Forgatás"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
@@ -18400,11 +18419,11 @@ msgstr "Szerszám#"
 #: lib/python/gladevcp/tooledit_gtk.glade:413
 #: lib/python/gladevcp/tooledit_gtk.glade:635
 msgid "Pocket"
-msgstr ""
+msgstr "Zseb"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:222
 msgid "Diameter"
-msgstr ""
+msgstr "Átmérő"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:237
 #: lib/python/gladevcp/tooledit_gtk.glade:538
