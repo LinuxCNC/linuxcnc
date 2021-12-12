@@ -1893,7 +1893,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_DECREASE");
 	    spindle_num = emcmotCommand->spindle;
         if (spindle_num >= emcmotConfig->numSpindles){
-            reportError(_("Attempt to decreasenon-existent spindle <%d>"),spindle_num);
+            reportError(_("Attempt to decrease non-existent spindle <%d>."),spindle_num);
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
