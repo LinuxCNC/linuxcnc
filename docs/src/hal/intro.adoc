@@ -146,7 +146,17 @@ Component::
     document uses 'HAL component' when there is likely to be confusion with
     other kinds of components, but normally just uses 'component'.) A HAL
     component is a piece of software with well-defined inputs, outputs, and
-    behavior, that can be installed and interconnected as needed. 
+    behavior, that can be installed and interconnected as needed.
+    
+    Note: Many HAL Components model the behaviour of a tangible part of a
+    machine, and a *pin* may indeed be meant to be connected to a *physical pin*
+    on the device to communicate with it, hence the names. But most often this is not the case.
+    Imagine a retrofit of a manual lathe/mill. What LinuxCNC implements is
+    how the machine presents itself to the outside world, and it is secondary
+    if the implementation how to draw a circle is implemented on the machine already
+    or provided from LinuxCNC. And it is common to add buttons to the imaginary retrofit that
+    *signal* an action, like an emergency stop. LinuxCNC and the machine become one.
+    And that is through the HAL.
 
 Parameter::
      (((HAL Parameter)))Many hardware components have adjustments that
