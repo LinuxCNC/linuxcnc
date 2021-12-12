@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-11 21:44+0000\n"
+"PO-Revision-Date: 2021-12-12 14:36+0000\n"
 "Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/hu/>\n"
@@ -39,7 +39,7 @@ msgstr "**** GMOCCAPY INI elnevezési hiba **** \n"
 
 #: gmoccapy.py:244
 msgid "Logofile entry found, but could not be converted to path.\n"
-msgstr ""
+msgstr "Logofájlt találtam, de nem alakítható útvonallá.\n"
 
 #: gmoccapy.py:245
 msgid "The file path should not contain any spaces"
@@ -57,7 +57,7 @@ msgstr ""
 #: gmoccapy.py:659
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "Nyomd meg a ref. gombot {0} {1}"
 
 #: gmoccapy.py:672 gmoccapy.py:915
 msgid "Press to display next homing button"
@@ -177,7 +177,7 @@ msgstr "Folyamatos"
 #: gmoccapy.py:1128
 #, python-brace-format
 msgid "unknown jog command {0}"
-msgstr ""
+msgstr "ismeretlen kézi parancs {0}"
 
 #: gmoccapy.py:1155
 #, python-brace-format
@@ -1922,15 +1922,15 @@ msgid ""
 "Zero\n"
 "G92"
 msgstr ""
-"G92\n"
-"nullázás"
+"Nulláz\n"
+"G92"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:30
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    Nincs\n"
+"    Nulláz\n"
 "Forgatás"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:32
@@ -1947,7 +1947,7 @@ msgstr "Szerszám#"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:3
 msgid "Pocket"
-msgstr ""
+msgstr "Zseb"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:5
 msgid "Front"
