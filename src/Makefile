@@ -538,10 +538,10 @@ pycheck-python-files:
 	done
 
 pycheck-python-script:
-	@echo 'Checking "text/x-python" (by MIME type) files python3 compatibility...'
+	@echo 'Checking "text/x-python" and "text/x-script.python" (by MIME type) files python3 compatibility...'
 	@for d in ../tests; do \
 		filelist=$(shell mktemp) && \
-		find $$d -type f -exec file -F ':' -i {} \; | grep 'text/x-python' | awk -F ':' '{print $$1}' > $$filelist && \
+		find $$d -type f -exec file -F ':' -i {} \; | grep -e 'text/x-python' -e 'text/x-script.python' | awk -F ':' '{print $$1}' > $$filelist && \
 		cat $$filelist | xargs /usr/bin/env python3 -m py_compile && \
 		rm -f $$filelist; \
 	done
