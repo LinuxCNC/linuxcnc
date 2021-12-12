@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-12 14:36+0000\n"
+"PO-Revision-Date: 2021-12-13 12:30+0000\n"
 "Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/hu/>\n"
@@ -732,7 +732,7 @@ msgstr "Fel"
 
 #: dialogs.py:196
 msgid "Enter"
-msgstr "Bevitel"
+msgstr "Enter"
 
 #: dialogs.py:198
 msgid "Down"
