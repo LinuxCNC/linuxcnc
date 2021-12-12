@@ -45,9 +45,7 @@ class Dialogs(GObject.GObject):
     def system_dialog(self, caller):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    caller.widgets.window1,
-                   Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                   Gtk.DialogFlags.DESTROY_WITH_PARENT)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
@@ -72,18 +70,14 @@ class Dialogs(GObject.GObject):
     def entry_dialog(self, caller, data = None, header = _("Enter value") , label = _("Enter the value to set"), integer = False):
         dialog = Gtk.Dialog(header,
                    caller.widgets.window1,
-                   Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                  (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                   Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                   Gtk.DialogFlags.DESTROY_WITH_PARENT)
         label = Gtk.Label(label)
         label.modify_font(Pango.FontDescription("sans 20"))
+        label.set_margin_top(15)
         calc = gladevcp.Calculator()
-        # add label to control the height of the action_area
-        label_h = Gtk.Label("\n\n\n")
-        dialog.action_area.pack_start(label_h, True, True, 0)
-        dialog.action_area.reorder_child(label_h, 0)
-        dialog.vbox.pack_start(label, True, True, 0)
-        dialog.vbox.add(calc)
+        content_area = dialog.get_content_area()
+        content_area.pack_start(child=label, expand=False, fill=False, padding=0)
+        content_area.add(calc)
         if data != None:
             calc.set_value(data)
         else:
@@ -180,9 +174,7 @@ class Dialogs(GObject.GObject):
             obj.widgets.gcode_view.set_line_number(line)
 
         restart_dialog = Gtk.Dialog(_("Restart Entry"),
-                   caller.widgets.window1, Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                     Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                   caller.widgets.window1, Gtk.DialogFlags.DESTROY_WITH_PARENT)
         label = Gtk.Label(_("Restart Entry"))
         label.modify_font(Pango.FontDescription("sans 20"))
         restart_dialog.vbox.pack_start(label, False, False, 0)

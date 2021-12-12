@@ -1979,10 +1979,7 @@ class Gscreen:
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.preset_spindle_dialog = Gtk.Dialog(_("Spindle Speed Preset Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
 
         calc = gladevcp.Calculator()
         self.data.preset_spindle_dialog.vbox.pack_start(label, False, False, 0)
@@ -2015,10 +2012,7 @@ class Gscreen:
         if self.data.index_tool_dialog: return
         self.data.index_tool_dialog = Gtk.Dialog(_("Manual Tool Index Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         label = Gtk.Label(_("Manual Tool Index Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.index_tool_dialog.vbox.pack_start(label, False, False, 0)
@@ -2197,10 +2191,7 @@ class Gscreen:
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.entry_dialog = Gtk.Dialog(title,
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         calc = gladevcp.Calculator()
         calc.set_editable(True)
         self.data.entry_dialog.vbox.pack_start(label, False, False, 0)
@@ -3789,9 +3780,7 @@ class Gscreen:
             return_method = self.restart_dialog_return
         self.data.restart_dialog = Gtk.Dialog(_("Restart Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         label = Gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.restart_dialog.vbox.pack_start(label, False, False, 0)

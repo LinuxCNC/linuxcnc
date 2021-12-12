@@ -196,9 +196,7 @@ class HandlerClass:
         if _LOCKTOGGLE == 0: return True
         dialog = gtk.Dialog("Enter System Unlock Code",
                    self.widgets.window1,
-                   gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.ResponseType.REJECT,
-                    gtk.STOCK_OK, gtk.ResponseType.ACCEPT))
+                   gtk.DialogFlags.DESTROY_WITH_PARENT)
         label = gtk.Label("Enter System Unlock Code")
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()

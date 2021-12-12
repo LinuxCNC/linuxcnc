@@ -78,12 +78,16 @@ class Calculator( Gtk.VBox ):
             "on_Add_clicked" : self.displayAdd,
             "on_Backspace_clicked" : self.displayBackspace,
             "on_mm_inch_clicked" : self.displayMmInch,
-            "on_inch_mm_clicked" : self.displayInchMm            
+            "on_inch_mm_clicked" : self.displayInchMm,
+            "on_ok_button_clicked" : self.on_ok_button_clicked,
+            "on_cancel_button_clicked" : self.on_cancel_button_clicked
             }
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
         self.entry.modify_font( Pango.FontDescription( self.font ) )
         self.calc_box = self.wTree.get_object( "calc_box" )
+        self.calc_box.set_vexpand(True)
+        self.calc_box.set_hexpand(True)
         window = self.wTree.get_object( "calc_box" )
         window.reparent( self )
 
@@ -281,6 +285,14 @@ class Calculator( Gtk.VBox ):
     def displayInchMm( self, widget ):
         self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
         self.compute()
+
+    def on_ok_button_clicked ( self, widget ):        
+        dialog = self.calc_box.get_toplevel()
+        dialog.response(Gtk.ResponseType.ACCEPT)
+
+    def on_cancel_button_clicked ( self, widget ):
+        dialog = self.calc_box.get_toplevel()
+        dialog.response(Gtk.ResponseType.REJECT)        
 
     def do_get_property( self, property ):
         name = property.name.replace( '-', '_' )
