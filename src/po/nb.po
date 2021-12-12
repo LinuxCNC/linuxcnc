@@ -94,7 +94,7 @@ msgstr ""
 "slutt=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
-#, c-format, fuzzy
+#, fuzzy, c-format
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
@@ -10965,9 +10965,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
