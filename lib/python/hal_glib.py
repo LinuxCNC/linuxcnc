@@ -985,7 +985,7 @@ class _GStat(GObject.GObject):
 
     def is_joint_homed(self, joint):
         self.stat.poll()
-        return self.stat.homed[joint]
+        return bool(self.stat.homed[joint])
 
     def is_all_homed(self):
         return self._is_all_homed
