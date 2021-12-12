@@ -75,4 +75,9 @@ notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/200
  - Likewise the words of Steven King: "LinuxCNC is user-friendly. It just
    isn't promiscuous about which users it's friendly with."
 
-
+A series of videos on YouTube provide plenty of evidence a transition to LinuxCNC
+is possible no matter what your regular computer operating system may be. That said,
+with the advent of additive manufacturing like 3D printing there is an increasing
+interest by the broader IT community in CNC machining and it should be possible
+to find someone with complementary skills/equipment near to you to jointly overcome
+the initial hurdles.
