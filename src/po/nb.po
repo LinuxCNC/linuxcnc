@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-11 06:16+0000\n"
+"PO-Revision-Date: 2021-12-12 14:36+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -35,22 +35,22 @@ msgstr "kan ikke gjøre det (%s:%d) i manuell modus"
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr ""
+msgstr "kan ikke gjøre det (%s) i automodus når kommandotolkeren står stille"
 
 #: src/emc/task/emctaskmain.cc:1177
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr ""
+msgstr "kan ikke gjøre det (%s) i automodus mens kommandotolkeren leser"
 
 #: src/emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr ""
+msgstr "kan ikke gjøre det (%s) i automodus mens kommandotolkeren er pauset"
 
 #: src/emc/task/emctaskmain.cc:1335
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr ""
+msgstr "kan ikke gjøre det (%s) i automodus mens kommandotolkeren venter"
 
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
@@ -60,6 +60,7 @@ msgstr ""
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
+"Kan ikke endre modus mens modus er AUTO og kommandotolkeren ikke er IDLE"
 
 #: src/emc/task/emctaskmain.cc:2180
 msgid "failed to close file"
@@ -89,14 +90,19 @@ msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
+"Sektor med null-radius: start=(%c%.4f,%c%.4f) senter=(%c%.4f,%c%.4f) "
+"slutt=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
+"Radius til slutten av sektor er ulik radius til start: start=(%c%.4f,%c%.4f) "
+"senter=(%c%.4f,%c%.4f) slutt=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_feil=%.4g "
+"rel_feil=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
@@ -108,26 +114,28 @@ msgstr "Linje med G10 mangler L1, L10, L11, L2 eller L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr ""
+msgstr "P-verd er ikke et heltall med G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr ""
+msgstr "Pverdi er utenfor område (0-9) med G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr ""
+msgstr "P-verdi utenfor område med G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr ""
+msgstr "Mellom kodene G5.2 og G5.3 er det kun tillatt med flere G5.2-koder."
 
 #: src/emc/rs274ngc/interp_check.cc:260
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
+"D-uttrykk uten noen G41, G41.1, G42, G42.1, G71, G71.1, G71.2 eller G96 til "
+"å bruke det"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 msgid ""
@@ -138,6 +146,8 @@ msgstr ""
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
 msgstr ""
+"E-uttrykk uten noe G76, M3, M4, M5, M19, M51, M66, M67 eller M68 til å bruke "
+"den"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
@@ -18137,7 +18147,7 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:182
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "velg den markerte filen og returner filbanen"
 
 #: lib/python/gladevcp/iconview.py:191
 msgid "Close without returning a file path"
