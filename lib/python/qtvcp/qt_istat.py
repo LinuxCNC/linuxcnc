@@ -145,6 +145,7 @@ class _IStat(object):
         axes = self.INI.find("TRAJ", "COORDINATES")
         if axes is not None:  # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
+            self.TRAJCO = axes.lower()
             log.debug('TRAJ COORDINATES: {}'.format(axes))
             self.AVAILABLE_AXES = []
             self.GET_NAME_FROM_JOINT = {}
@@ -513,6 +514,10 @@ class _IStat(object):
         elif file_extension.lower() in (self.VALID_PROGRAM_EXTENSIONS):
             return True
         return False
+
+    def get_jnum_from_axisnum(self, axisnum):
+        joint = self.TRAJCO.index( "xyzabcuvw"[axisnum] )
+        return joint
 
     def __getitem__(self, item):
         return getattr(self, item)
