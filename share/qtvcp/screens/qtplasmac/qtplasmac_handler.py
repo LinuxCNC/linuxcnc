@@ -1,4 +1,4 @@
-VERSION = '1.221.143'
+VERSION = '1.221.144'
 
 '''
 qtplasmac_handler.py
@@ -3373,7 +3373,9 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
             if self.boundsError['framing']:
-                head = _translate('HandlerClass', 'AXIS LIMIT ERROR')
+                head = _translate('HandlerClass', 'Axis Limit Error')
+                btn1 = _translate('HandlerClass', 'YES')
+                btn2 = _translate('HandlerClass', 'NO')
                 msgs = ''
                 msg1 = _translate('HandlerClass', 'due to laser offset')
                 for n in range(0, len(msgList), 3):
@@ -3383,11 +3385,13 @@ class HandlerClass:
                         msg0 = _translate('HandlerClass', 'move would exceed the minimum limit by')
                     fmt = '\n{} {} {}{} {}' if msgs else '{} {} {}{} {}'
                     msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units, msg1)
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msgs))
-                self.framing = False
-                self.w.run.setEnabled(True)
-                self.boundsError['framing'] = False
-                return
+                msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
+                if not self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs), '{}'.format(btn1), '{}'.format(btn2)):
+                    self.framing = False
+                    self.w.run.setEnabled(True)
+                    self.boundsError['framing'] = False
+                    return
+                msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', 0, 0)
             if not self.frFeed:
                 feed = float(self.w.cut_feed_rate.text())
             else:
@@ -4231,7 +4235,7 @@ class HandlerClass:
         self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.camOffsetX, self.camOffsetY)
 
     def cam_goto_pressed(self):
-        ACTION.CALL_MDI('G0 X0 Y0')
+        ACTION.CALL_MDI_WAIT('G0 X0 Y0')
         ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):

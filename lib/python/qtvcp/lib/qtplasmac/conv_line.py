@@ -31,8 +31,7 @@ _translate = QCoreApplication.translate
 def preview(P, W, Conv):
     invalidLine = False
     # check all entries are valid
-#    try:
-    if 1:
+    try:
         try:
             if not W.entry1.text():
                 W.entry1.setText('{:0.3f}'.format(P.xLineStart))
@@ -141,8 +140,7 @@ def preview(P, W, Conv):
                 invalidLine = do_arc_by_angle_radius(P, W, float(entry[0].text()), \
                                                            float(entry[1].text()),
                                                            float(entry[2].text()))
-#    except:
-    else:
+    except:
         msg0 = _translate('Conversational', 'Invalid entry detected')
         error_set(P, '{}.\n'.format(msg0))
         return
