@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-13 12:30+0000\n"
+"PO-Revision-Date: 2021-12-17 08:52+0000\n"
 "Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/hu/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: gmoccapy.py:232 gmoccapy.py:237
@@ -31,7 +31,7 @@ msgstr "Felhasználó mód kiválasztva"
 #: gmoccapy.py:238
 #, python-brace-format
 msgid "logo entry found = {0}"
-msgstr ""
+msgstr "Logo bejegyzés található = {0}"
 
 #: gmoccapy.py:243
 msgid "**** GMOCCAPY INI Entry Error **** \n"
@@ -204,7 +204,7 @@ msgstr ""
 #: gmoccapy.py:1224
 #, python-brace-format
 msgid "Press to run macro {0}"
-msgstr ""
+msgstr "Nyomja meg a gombot a makró futtatásához {0}"
 
 #: gmoccapy.py:1231
 msgid "Press to display next macro button"
@@ -232,7 +232,7 @@ msgstr ""
 
 #: gmoccapy.py:1354 gmoccapy.py:1799 gmoccapy.py:2040
 msgid "Very critical situation"
-msgstr ""
+msgstr "Nagyon kritikus helyzet"
 
 #: gmoccapy.py:1504
 msgid "*****  GMOCCAPY INFO  *****"
@@ -240,7 +240,7 @@ msgstr "**** GMOCCAPY INFO  ****"
 
 #: gmoccapy.py:1505
 msgid "this is not a usual config\n"
-msgstr ""
+msgstr "ez nem szokásos konfiguráció\n"
 
 #: gmoccapy.py:1506
 msgid "we miss one of X , Y or Z axis\n"
@@ -252,11 +252,11 @@ msgstr ""
 
 #: gmoccapy.py:1673 gmoccapy.py:2707
 msgid "mm/min"
-msgstr ""
+msgstr "mm/min"
 
 #: gmoccapy.py:1676 gmoccapy.py:2710
 msgid "inch/min"
-msgstr ""
+msgstr "inch/min"
 
 #: gmoccapy.py:1701
 msgid "**** Invalid embedded tab configuration ****"
@@ -301,6 +301,8 @@ msgid ""
 " Joint\n"
 "mode"
 msgstr ""
+" Joint\n"
+"mód"
 
 #: gmoccapy.py:1953
 msgid "**** virtual keyboard program found : <onboard>"
@@ -565,7 +567,7 @@ msgstr "A főorsőban levő szerszámot próbálja törölni\n"
 
 #: gmoccapy.py:4441
 msgid "This is not allowed, please change tool prior to delete it"
-msgstr ""
+msgstr "Ez nem megengedett, kérjük, változtassa meg a szerszámot a törlés előtt"
 
 #: gmoccapy.py:4442
 msgid "Warning Tool can not be deleted!"
@@ -664,10 +666,12 @@ msgid ""
 "World\n"
 "mode"
 msgstr ""
+"World\n"
+"mód"
 
 #: gmoccapy.py:4990
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
-msgstr ""
+msgstr "A tengely jogging csak world módban engedélyezett, de joint módban van!"
 
 #: gmoccapy.py:5026
 #, python-brace-format
@@ -685,26 +689,26 @@ msgstr "Itt nincs gomb"
 
 #: gmoccapy.py:5039
 msgid "the button is not sensitive"
-msgstr ""
+msgstr "a gomb nem érzékeny"
 
 #: gmoccapy.py:5044
 #, python-brace-format
 msgid "Button {0} has been toggled"
-msgstr ""
+msgstr "Gomb {0} átkapcsolt"
 
 #: gmoccapy.py:5048
 #, python-brace-format
 msgid "Button {0} has been pressed"
-msgstr ""
+msgstr "Gomb {0} lenyomva"
 
 #: gmoccapy.py:5051
 #, python-brace-format
 msgid "Button {0} has been clicked"
-msgstr ""
+msgstr "Gomb {0} kattintott"
 
 #: gmoccapy.py:5064
 msgid "got wrong location to locate the childs"
-msgstr ""
+msgstr "rossz helyen van a gyermekek megtalálásához"
 
 #: dialogs.py:46 dialogs.py:51
 msgid "Enter System Unlock Code"
@@ -869,15 +873,15 @@ msgstr "Fájl kiválasztása"
 
 #: gmoccapy.glade.h:23
 msgid "jog axes"
-msgstr ""
+msgstr "jog tengelyek"
 
 #: gmoccapy.glade.h:24
 msgid "jog joints"
-msgstr ""
+msgstr "jog jointok"
 
 #: gmoccapy.glade.h:25
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 #: gmoccapy.glade.h:26
 msgid "Ignore limits"
@@ -1061,7 +1065,7 @@ msgstr "kurzor elrejtése"
 
 #: gmoccapy.glade.h:73
 msgid "hide tooltips"
-msgstr ""
+msgstr "szerszám tippek elrejtése"
 
 #: gmoccapy.glade.h:74
 msgid "<b>Main Window</b>"
@@ -1136,6 +1140,8 @@ msgid ""
 "toggle DRO mode \n"
 "clicking on the DRO"
 msgstr ""
+"a DRO mód váltása\n"
+"a DRO-ra kattintva"
 
 #: gmoccapy.glade.h:93
 msgid "<b>DRO</b>"
@@ -1341,7 +1347,7 @@ msgstr "<b>Szerszám bemérés</b>"
 
 #: gmoccapy.glade.h:145
 msgid "Reload Tool on Start"
-msgstr ""
+msgstr "Újratölti a szerszámot indításkor"
 
 #: gmoccapy.glade.h:146
 msgid ""
@@ -1397,7 +1403,7 @@ msgstr "Max."
 
 #: gmoccapy.glade.h:164
 msgid "The font to use"
-msgstr ""
+msgstr "A betűtípus használható"
 
 #: gmoccapy.glade.h:165
 msgid "The maximum messages you want to be shown\t"
@@ -1424,6 +1430,8 @@ msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
+"Nyomja meg a tesztüzenet indításához\n"
+"A beállítások tesztelése."
 
 #: gmoccapy.glade.h:172
 msgid ""
@@ -1514,12 +1522,16 @@ msgid ""
 "World\n"
 "Mode"
 msgstr ""
+"World\n"
+"Mód"
 
 #: gmoccapy.glade.h:195
 msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
 msgstr ""
+"Kapcsolja a mozgás módot a joint és a worl mód között\n"
+"Az F12 vagy a $ kulcs ugyanazt teszi"
 
 #: gmoccapy.glade.h:197
 msgid "make the preview as large as possible"
