@@ -1,4 +1,4 @@
-VERSION = '1.221.142'
+VERSION = '1.221.143'
 
 '''
 qtplasmac_handler.py
@@ -4219,7 +4219,7 @@ class HandlerClass:
             self.w.camview.rotation = zAngle
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
-            ACTION.CALL_MDI('G0 X0 Y0')
+            ACTION.CALL_MDI_WAIT('G0 X0 Y0')
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
