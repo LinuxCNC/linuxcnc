@@ -1505,6 +1505,7 @@ class GlCanonDraw:
         s = self.stat
         limit = list(s.limit[:])
         homed = list(s.homed[:])
+        spd = self.to_internal_linear_unit(s.current_vel)
 
         if not self.get_joints_mode() or self.no_joint_display:
             if self.get_show_commanded():
@@ -1544,7 +1545,6 @@ class GlCanonDraw:
             g92_offset = self.to_internal_units(s.g92_offset)
             tlo_offset = self.to_internal_units(s.tool_offset)
             dtg = self.to_internal_linear_unit(s.distance_to_go)
-            spd = self.to_internal_linear_unit(s.current_vel)
 
             if self.get_show_metric():
                 positions = self.from_internal_units(positions, 1)
@@ -1555,17 +1555,21 @@ class GlCanonDraw:
                 dtg *= 25.4
                 spd = spd * 25.4
             spd = spd * 60
-
-            # Note: hal_gremlin overrides dro_format() for different dro behavior
-            limit, homed, posstrs, droposstrs = self.dro_format(self.stat,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset)
+            return self.dro_format(self.stat,spd,dtg,limit,homed,positions,
+                    axisdtg,g5x_offset,g92_offset,tlo_offset)
         else:
-            # N.B. no conversion here because joint positions are unitless
-            #      joint_mode and display_joint
-            posstrs = ["  %s:% 9.4f" % i for i in
-                zip(list(range(self.get_num_joints())), s.joint_actual_position)]
-            droposstrs = posstrs
+            return self.joint_dro_format(s,spd,self.get_num_joints(),limit, homed)
+
+    # N.B. no conversion here because joint positions are unitless
+    #      joint_mode and display_joint
+    # Note: this is overriden in other guis (then AXIS) for different dro behavior
+    def joint_dro_format(self,s,spd,num_of_joints,limit, homed):
+        posstrs = ["  %s:% 9.4f" % i for i in
+            zip(list(range(num_of_joints)), s.joint_actual_position)]
+        droposstrs = posstrs
         return limit, homed, posstrs, droposstrs
 
+    # Note: this is overriden in other guis (then AXIS) for different dro behavior
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
                 format = "% 6s:" + self.dro_mm

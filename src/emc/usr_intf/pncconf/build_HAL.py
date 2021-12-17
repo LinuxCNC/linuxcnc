@@ -963,6 +963,9 @@ class HAL:
                 f1 = open(custom, "w")
                 print(("# Include your %s HAL commands here")%i, file=f1)
                 print(_("# This file will not be overwritten when you run PNCconf again"), file=f1)
+                if i == "custom_postgui":
+                    print("\n# --- PLASMAC:LASER-ON ---", file=f1)
+                    print("#net plasmac:laser-on  qtplasmac.laser_on  =>  YOUR_LASER_ON_PI", file=f1)
 
         if self.d.frontend == _PD._TOUCHY:# TOUCHY GUI
                 touchyfile = os.path.join(base, "touchy.hal")
@@ -1975,10 +1978,6 @@ class HAL:
         print("net plasmac:xy-offset-enable     plasmac.xy-offset-enable    =>  axis.x.eoffset-enable axis.y.eoffset-enable", file=file)
         print("net plasmac:z-offset-counts      plasmac.z-offset-counts     =>  axis.z.eoffset-counts", file=file)
         print("net plasmac:z-offset-enable      plasmac.z-offset-enable     =>  axis.z.eoffset-enable", file=file)
-
-        if self.d.qtplasmacpmx:
-            print("\n# ---POWERMAX RS485 COMPONENT---", file=file)
-            print("loadusr -Wn pmx485 pmx485 {}".format(self.d.qtplasmacpmx), file=file)
 
 # BOILER CODE
     def __getitem__(self, item):

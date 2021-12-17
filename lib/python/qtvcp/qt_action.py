@@ -48,6 +48,16 @@ class _Lcnc_Action(object):
         else:
             self.cmd.state(linuxcnc.STATE_OFF)
 
+    def SET_MOTION_TELEOP(self, value):
+        # 1:teleop, 0: joint
+        #if value:
+        #    print('To telop (1)')
+        #else:
+        #    print('To joint (0)')
+        self.cmd.teleop_enable(value)
+        self.cmd.wait_complete()
+        STATUS.stat.poll()
+
     def SET_MACHINE_HOMING(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)

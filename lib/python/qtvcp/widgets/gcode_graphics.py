@@ -23,6 +23,7 @@ PyQt5 widget for plotting gcode.
 import sys
 import os
 import gcode
+import linuxcnc
 from PyQt5.QtCore import pyqtProperty, QTimer, Qt
 from PyQt5.QtGui import QColor
 
@@ -300,6 +301,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         super( GCodeGraphics, self).emit_percent(f)
         STATUS.emit('graphics-loading-progress',f)
 
+    def get_joints_mode(self):
+        return STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE
     #########################################################################
     # This is how designer can interact with our widget properties.
     # property getter/setters

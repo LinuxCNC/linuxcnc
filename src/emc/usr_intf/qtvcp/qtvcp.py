@@ -285,13 +285,13 @@ Pressing cancel will close linuxcnc.""" % target)
             if "initialized__" in dir(window.handler_instance):
                 LOG.debug('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
-        # add any external handler ovveride user commands
-        if INFO.USER_COMMAND_FILE is None:
-            INFO.USER_COMMAND_FILE = os.path.join(PATH.CONFIGPATH,'.{}rc'.format(PATH.BASEPATH))
-        INFO.USER_COMMAND_FILE = INFO.USER_COMMAND_FILE.replace('CONFIGFOLDER',PATH.CONFIGPATH)
-        INFO.USER_COMMAND_FILE = INFO.USER_COMMAND_FILE.replace('WORKINGFOLDER',PATH.WORKINGDIR)
+            # add any external handler override user commands
+            if INFO.USER_COMMAND_FILE is None:
+                INFO.USER_COMMAND_FILE = os.path.join(PATH.CONFIGPATH,'.{}rc'.format(PATH.BASEPATH))
+            INFO.USER_COMMAND_FILE = INFO.USER_COMMAND_FILE.replace('CONFIGFOLDER',PATH.CONFIGPATH)
+            INFO.USER_COMMAND_FILE = INFO.USER_COMMAND_FILE.replace('WORKINGFOLDER',PATH.WORKINGDIR)
 
-        window.handler_instance.call_user_command_(window.handler_instance, INFO.USER_COMMAND_FILE)
+            window.handler_instance.call_user_command_(window.handler_instance, INFO.USER_COMMAND_FILE)
 
         # All Widgets should be added now - synch them to linuxcnc
         STATUS.forced_update()

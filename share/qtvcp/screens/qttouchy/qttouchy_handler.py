@@ -66,11 +66,11 @@ class HandlerClass:
         self.pin_abort = QHAL.newpin('abort',QHAL.HAL_BIT, QHAL.HAL_IN)
         self.pin_abort.value_changed.connect(lambda s: self.abort(s))
 
-        self.wheel_x = QHAL.newpin('jog.wheel.x',QHAL.HAL_BIT, QHAL.HAL_OUT)
-        self.wheel_y = QHAL.newpin('jog.wheel.y',QHAL.HAL_BIT, QHAL.HAL_OUT)
-        self.wheel_z = QHAL.newpin('jog.wheel.z',QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.wheel_x = QHAL.newpin('jogwheel.x-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.wheel_y = QHAL.newpin('jogwheel.y-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.wheel_z = QHAL.newpin('jogwheel.z-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
 
-        self.jog_increment = QHAL.newpin('jog.wheel.incement',QHAL.HAL_FLOAT, QHAL.HAL_OUT)
+        self.jog_increment = QHAL.newpin('jogwheel.increment',QHAL.HAL_FLOAT, QHAL.HAL_OUT)
 
         STATUS.connect('feed-override-changed', lambda w, data: self.w.pushbutton_fo.setText('FO {0:.0f}%'.format(data)))
         STATUS.connect('rapid-override-changed', lambda w, data: self.w.pushbutton_ro.setText('RO {0:.0f}%'.format(data)))
@@ -157,12 +157,21 @@ class HandlerClass:
         selected = None
         if state:
             ACTION.SET_MANUAL_MODE()
-            selected = STATUS.get_selected_axis()
-        for temp in INFO.AVAILABLE_AXES:
-            if selected == temp:
-                self['wheel_{}'.format(temp.lower())].set(state)
+            if STATUS.is_joint_mode():
+                selected = STATUS.get_selected_joint()
+                for temp in INFO.AVAILABLE_JOINTS:
+                    axis = "xyzabcuvw"[temp]
+                    if selected == temp:
+                        self['wheel_{}'.format(axis)].set(True)
+                    else:
+                        self['wheel_{}'.format(axis)].set(False)
             else:
-                self['wheel_{}'.format(temp.lower())].set(False)
+                selected = STATUS.get_selected_axis()
+                for temp in INFO.AVAILABLE_AXES:
+                    if selected == temp:
+                        self['wheel_{}'.format(temp.lower())].set(True)
+                    else:
+                        self['wheel_{}'.format(temp.lower())].set(False)
 
     def colorDialog(self):
         color = QtWidgets.QColorDialog.getColor()
@@ -212,7 +221,6 @@ class HandlerClass:
 
     # MPG scrolling of program or MDI history
     def external_mpg(self, count):
-        print(count)
         diff = count - self._last_count
         if self.w.pushbutton_scroll.isChecked():
             if self.w.mainTab.currentWidget() == self.w.tab_auto:

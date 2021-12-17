@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-11 21:44+0000\n"
-"Last-Translator: Rainer Stelzer <r.stelzer@ibstelzer.de>\n"
+"PO-Revision-Date: 2021-12-13 00:10+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -113,7 +113,6 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 is nicht zulässig mit G2 oder G3 denn beide nutzen P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgstr "Zeile mit G10 enthält kein L1, L2, L10, L11 oder L20"
 
@@ -132,11 +131,9 @@ msgid "P value out of range with G10 L%d"
 msgstr "P-Wert außerhalb des gültigen Bereichs bei G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
-#, fuzzy
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr ""
-"Zwischen G5.2 und G5.3 Codes sind ausschließlich weitere G5.2 Codes "
-"gestattet."
+"Zwischen G5.2 und G5.3 Codes sind ausschließlich weitere G5.2 Codes zulässig."
 
 #: src/emc/rs274ngc/interp_check.cc:260
 #, fuzzy
@@ -178,22 +175,20 @@ msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
 msgstr "K-Wort ohne zugehörige Angabe von G2, G3, G33, G33.1, G76 oder G87"
 
 #: src/emc/rs274ngc/interp_check.cc:314
-#, fuzzy
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
-"I-Wort ohne G10, cutter Kompensierung, canned cycle, digital/analoger Input, "
-"M98 oder NURBS Code"
+"L-Wort ohne G10, Werkzeugkompensation, Zyklusaufruf, digitalem/analogen "
+"Eingang, M98 oder NURBS Anweisung"
 
 #: src/emc/rs274ngc/interp_check.cc:330
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
 "P-Wort ohne G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 oder M50 M51 M52 "
-"M53 M62 M63 M64 M65 M66 M98 oder eines M Codes des Anwenders"
+"M53 M62 M63 M64 M65 M66 M98 oder eines anwendungsspezifischen M Codes"
 
 #: src/emc/rs274ngc/interp_check.cc:336
 #, fuzzy
@@ -240,7 +235,7 @@ msgstr "NURBS: Eine Bahn mit Vorschubgeschwindigkeit 0 ist nicht möglich"
 
 #: src/emc/rs274ngc/interp_convert.cc:195
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr "NURBS: G5.3 kann nicht ohne vorangegangens G5.2 verwendet werden"
+msgstr "G5.3 kann nicht ohne vorangegangenes G5.2 verwendet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:196
 #, c-format
@@ -253,12 +248,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot convert spline with cutter radius compensation"
-msgstr ""
-"NURBS: Bahn kann nicht bei aktiver Werkzeugradiuskorrektur erzeugt werden."
+msgstr "Kann Spline nicht bei aktiver Werkzeugradiuskorrektur konvertieren"
 
 #: src/emc/rs274ngc/interp_convert.cc:235
 msgid "Splines must be in the XY plane"
-msgstr "NURBS: Bahn muss in der XY Ebene liegen."
+msgstr "Spline muss in der XY Ebene liegen"
 
 #: src/emc/rs274ngc/interp_convert.cc:240
 msgid "Splines may not have motion in Z, A, B, or C"
@@ -357,7 +351,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1942
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr "G%S.1 ohne D-Wort"
+msgstr "G%d.1 ohne D-Wort"
 
 #: src/emc/rs274ngc/interp_convert.cc:1945
 #, c-format
@@ -382,7 +376,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:2945
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr ""
+msgstr "gen_restore G20/G21 fehlgeschlagen: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:2995
 #, c-format
@@ -1476,9 +1470,7 @@ msgstr "Wurzel (sqrt-Befehl) mit negativem Argument"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:115
 msgid "Negative d word tool radius index used"
-msgstr ""
-"Negative Zahl bei bei D-Wort (Werkzeug-Radius als Index in der Werkzeug-"
-"Tabelle)"
+msgstr "Negative Zahl bei bei D-Wort als Index für Werkzeug-Radius angegeben"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:116
 msgid "Negative f word used"
@@ -2157,11 +2149,12 @@ msgid ""
 msgstr ""
 "Die HALSCOPE Echtzeit-Samplingfunktion\n"
 "muß aus einem HAL Thread aufgerufen werden,\n"
-"um die Samplingfrequenz zu ermitteln. \n"
+"um die Samplingfrequenz zu ermitteln.\n"
 "\n"
 "Führen Sie eine dieser Möglichkeiten aus:\n"
-"Wählen Sie einen Threadnamen, einen\n"
-"Multiplikationsfaktor und klicken Sie \"OK\"\n"
+"\n"
+"Wählen Sie einen Threadnamen sowie einen Multiplikationsfaktor und klicken "
+"Sie \"OK\"\n"
 "oder\n"
 "klicken Sie 'Quit' um HALSCOPE zu verlassen."
 
@@ -2259,16 +2252,16 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 "HALSCOPE benutzt HAL-Echtzeitkomponenten, um \n"
-"Signale für die Darstellung abzutasten. Die HAL threads\n"
-"sind nicht geladen. Threads werden normalerweise \n"
-"von der Anwendung geladen, die Sie starten wollen,\n"
-"oder können mit 'halcmd start' aufgerufen werden.\n"
+"Signale für die Darstellung abzutasten. Die HAL threads laufen nicht.\n"
+"Threads werden normalerweise von der Anwendung gestartet, die Sie\n"
+"aufgerufen haben, oder können mit dem Kommando 'halcmd start' gestartet "
+"werden.\n"
 "\n"
 "Sie haben diese Möglichkeiten:\n"
 "\n"
 "Sie starten die Threads und klicken 'OK'\n"
 "oder\n"
-"klicken Sie 'Quit', um HALSCOPE zu verlassen."
+"klicken Sie 'Quit', um HALSCOPE zu verlassen"
 
 #: src/hal/utils/scope_horiz.c:778
 msgid "Pick log file to write to:"
@@ -2284,9 +2277,8 @@ msgid ""
 "that are currently enabled.  Pick a shorter\n"
 "record length that supports more channels."
 msgstr ""
-"Diese Datensatzlänge kann nicht alle\n"
-"Kanäle verarbeiten wie momentan aktiv\n"
-"sind. Wählen Sie einen kürzeren Wert,\n"
+"Diese Datensatzlänge kann nicht alle Kanäle verarbeiten\n"
+"die momentan aktiv sind. Wählen Sie einen kürzeren Wert,\n"
 "um mehr Kanäle zu unterstützen."
 
 #: src/hal/utils/scope_horiz.c:1039
@@ -2406,7 +2398,7 @@ msgid ""
 "for channel %d."
 msgstr ""
 "Vertikaler Offset\n"
-"für Kanal %d"
+"für Kanal %d."
 
 #: src/hal/utils/scope_vert.c:710
 msgid "Set Offset"
@@ -2429,8 +2421,7 @@ msgid ""
 msgstr ""
 "Kein weiterer Kanal möglich.\n"
 "\n"
-"Einen oder mehrere Kanäle abschalten \n"
-"oder die Datensatzlänge verkleinern,\n"
+"Einen oder mehrere Kanäle abschalten oder die Datensatzlänge verkleinern,\n"
 "um mehr Kanäle zu ermöglichen."
 
 #: src/hal/utils/scope_vert.c:927
@@ -2545,8 +2536,9 @@ msgid "Probe tripped during a coordinate jog."
 msgstr "Tastspitze bei Koordinatenbewegung ausgelöst."
 
 #: src/emc/motion/control.c:752
+#, fuzzy
 msgid "motion stopped by enable input"
-msgstr "Bewegung durch Enable-Eingabe angehalten."
+msgstr "Bewegung durch Enable-Eingabe angehalten"
 
 #: src/emc/motion/control.c:759
 #, c-format
@@ -2603,27 +2595,27 @@ msgstr "Positiver Softanschlag bei Achse/Gelenk %d überschritten"
 #: src/emc/motion/command.c:145
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr "Kann ungültige(s) Achse/Gelenk %d nicht bewegen"
+msgstr "Kann ungültige(s) Achse/Gelenk %d nicht bewegen."
 
 #: src/emc/motion/command.c:149
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Kann Achse/Gelenk %d nicht weiter über Bahnmaximum bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über Bahnmaximum hinaus bewegen"
 
 #: src/emc/motion/command.c:154
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über Bahnminimum bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über Bahnminimum hinaus bewegen."
 
 #: src/emc/motion/command.c:160
-#, c-format
+#, c-format, fuzzy
 msgid "Can't jog joint %d further past max soft limit."
-msgstr "Kann Achse/Gelenk %d nicht über max. Softanschlag bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über max. Softanschlag bewegen."
 
 #: src/emc/motion/command.c:165
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr "Kann Achse/Gelenk %d nicht über min. Softanschlag bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über min. Softanschlag bewegen."
 
 #: src/emc/motion/command.c:210 src/emc/motion/command.c:216
 #, fuzzy, c-format
@@ -2811,12 +2803,12 @@ msgstr "Versuch eine nicht existierende Spindel einzuschalten"
 #: src/emc/motion/command.c:1796
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr "Versuch eine nicht existierende Spindel auszuschalten"
+msgstr "Versuch eine nicht existierende Spindel <%d> auszuschalten"
 
 #: src/emc/motion/command.c:1827
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr "Versuch eine nicht existierende Spindel zu orrientieren"
+msgstr "Versuch eine nicht existierende Spindel <%d> zu orientieren"
 
 #: src/emc/motion/command.c:1873
 #, c-format
@@ -2827,17 +2819,18 @@ msgstr "Versuche Geschwindigkeit einer nicht existierenden Spindel zu erhöhen"
 #, c-format
 msgid "Attempt to decreasenon-existent spindle <%d>"
 msgstr ""
-"Versuche Geschwindigkeit einer nicht existierenden Spindel zu verringern"
+"Versuch, die Geschwindigkeit der nicht existierenden Spindel <%d> zu "
+"verringern"
 
 #: src/emc/motion/command.c:1911
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr "Versuch Bremse einer nicht existierenden Spindel zu schalten"
+msgstr "Versuch, die Bremse der nicht existierenden Spindel <%d> zu schalten"
 
 #: src/emc/motion/command.c:1933
 #, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
-msgstr "Versuch Bremse einer nicht existierenden Spindel zu lösen"
+msgstr "Versuch, die Bremse der nicht existierenden Spindel <%d> zu lösen"
 
 #: src/emc/motion/command.c:1955
 #, c-format
@@ -3208,9 +3201,8 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:556
 #: src/hal/classicladder/classicladder_gtk.c:695
 #: src/hal/classicladder/classicladder_gtk.c:701
-#, fuzzy
 msgid "Warning!"
-msgstr "Warnung"
+msgstr "Warnung!"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 msgid ""
@@ -3253,9 +3245,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:699
-#, fuzzy
 msgid "Confirm!"
-msgstr "Änderungen bestätigen"
+msgstr "Bestätigen!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
@@ -3925,9 +3916,8 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:745
 #: src/hal/classicladder/edit_sequential.c:782
-#, fuzzy
 msgid "There is already an element!"
-msgstr "Eine Datei ist bereits geöffnet"
+msgstr "Dort ist bereits ein Element!"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
@@ -5172,8 +5162,7 @@ msgstr "Aktuelle Beobachtungsliste speichern"
 
 #: tcl/bin/halshow.tcl:737
 msgid "Commands may be tested here but they will NOT be saved"
-msgstr ""
-"Die Befehle können hier ausprobiert werden, werden aber NICHT gespeichert."
+msgstr "Befehle können hier ausprobiert werden, werden aber NICHT gespeichert"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5221,7 +5210,7 @@ msgstr ""
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "FEHLER: Es wurden keine Konfigurationen im Verzeichnis »%s« gefunden."
+msgstr "FEHLER: Leine Konfigurationen in Verzeichnis '%s' gefunden"
 
 #: tcl/bin/pickconfig.tcl:625
 msgid "Copy Configuration?"
@@ -11541,7 +11530,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -18230,9 +18220,8 @@ msgid "Machine powered on"
 msgstr "Maschine an"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2558
-#, fuzzy
 msgid "Machine Estopped!"
-msgstr "Maschinenposition"
+msgstr "Maschine Not-Aus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2564
 #, fuzzy
