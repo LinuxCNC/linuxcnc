@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-17 08:52+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2021-12-18 15:11+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -2563,7 +2563,7 @@ msgstr "Verstärkerfehler an Spindel %d"
 #: src/emc/motion/control.c:782
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr "Achsen- oder Gelenkfehler %d am Endschalter"
+msgstr "Achse/Gelenk %d am Endschalter"
 
 #: src/emc/motion/control.c:794
 #, c-format
@@ -2615,12 +2615,12 @@ msgstr "Kann ungültige(s) Achse/Gelenk %d nicht bewegen."
 #: src/emc/motion/command.c:149
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über Bahnmaximum hinaus bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über neg. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:154
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über Bahnminimum hinaus bewegen."
+msgstr "Kann Achse/Gelenk %d nicht über pos. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:160
 #, c-format, fuzzy
@@ -2639,12 +2639,10 @@ msgstr ""
 "Bewegung %s in Zeile %d würde pos. Anschlag von Achse/Gelenk %d überschreiten"
 
 #: src/emc/motion/command.c:211
-#, fuzzy
 msgid "negative"
 msgstr "Negativ"
 
 #: src/emc/motion/command.c:217
-#, fuzzy
 msgid "positive"
 msgstr "Positiv"
 
@@ -13721,24 +13719,20 @@ msgid "Machine Is Enabled"
 msgstr "Maschine ist eingeschaltet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
-#, fuzzy
 msgid "X Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "X-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "Y Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "Y-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "Z Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "Z-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "A Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "A-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:514
 msgid "Force Pin True"
@@ -18336,7 +18330,7 @@ msgstr "AXIS Manueller Werkzeugwechsel"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3756
 msgid "Operator Message"
-msgstr "Anwender Nachricht"
+msgstr "Anwenderhinweis"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
@@ -19014,7 +19008,9 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
-msgstr "Wiederherstellen"
+msgstr ""
+"Wieder-\n"
+"herstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
 #, fuzzy
@@ -19369,9 +19365,8 @@ msgstr "Z Verschleiß"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
-#, fuzzy
 msgid "DIameter"
-msgstr "Durchmesser:"
+msgstr "Durchm."
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
 #, fuzzy
