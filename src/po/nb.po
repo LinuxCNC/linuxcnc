@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-17 08:52+0000\n"
+"PO-Revision-Date: 2021-12-18 15:11+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -3504,7 +3504,7 @@ msgstr ""
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
 #: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
 msgid "Delete"
-msgstr ""
+msgstr "Slett"
 
 #: src/hal/classicladder/edit_gtk.c:186
 msgid "Do you really want to delete the current rung ?"
@@ -4903,7 +4903,7 @@ msgstr ""
 
 #: tcl/bin/pickconfig.tcl:443
 msgid "My Configurations"
-msgstr ""
+msgstr "Mine oppsett"
 
 #: tcl/bin/pickconfig.tcl:447
 msgid "Sample Configurations"
@@ -4912,11 +4912,11 @@ msgstr ""
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr ""
+msgstr "FEIL: fant intet oppsett i filbanen «%s»"
 
 #: tcl/bin/pickconfig.tcl:625
 msgid "Copy Configuration?"
-msgstr ""
+msgstr "Kopier oppsett?"
 
 #: tcl/bin/pickconfig.tcl:625
 #, tcl-format
@@ -4924,10 +4924,12 @@ msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
 msgstr ""
+"Ønsker du a kopiere %s-oppsettet til din hjemmekatalog slik at du kan gjøre "
+"tilpasninger av det?"
 
 #: tcl/bin/pickconfig.tcl:813
 msgid "Configuration Copied"
-msgstr ""
+msgstr "Oppsettet er kopiert"
 
 #: tcl/bin/pickconfig.tcl:813
 #, tcl-format
@@ -4935,20 +4937,24 @@ msgid ""
 "The configuration file has been copied to %s. Next time, choose this "
 "location when starting LinuxCNC."
 msgstr ""
+"Oppsettfilen har blitt kopiert til %s. Velg dette stedet neste gang når du "
+"starter LinuxCNC."
 
 #: tcl/bin/pickconfig.tcl:864
 msgid "Shortcut Created"
-msgstr ""
+msgstr "Snarvei opprettet"
 
 #: tcl/bin/pickconfig.tcl:864
 msgid ""
 "A shortcut to this configuration file has been created on your desktop.  You "
 "can use it to automatically launch this configuration."
 msgstr ""
+"Det er opprettet en snarvei til dette oppsettet på skrivebordet ditt.  Du "
+"kan bruke den til å automatisk startet dette oppsettet."
 
 #: tcl/bin/pickconfig.tcl:870
 msgid "Create Desktop Shortcut"
-msgstr ""
+msgstr "Opprett skrivebordsnarvei"
 
 #: tcl/bin/tkbackplot.tcl:110
 msgid "TkLinuxCNC BackPlot"
@@ -4956,19 +4962,19 @@ msgstr ""
 
 #: tcl/bin/tkbackplot.tcl:125
 msgid "SETUP"
-msgstr ""
+msgstr "OPPSETT"
 
 #: tcl/bin/tkbackplot.tcl:127
 msgid "RESET"
-msgstr ""
+msgstr "NULLSTILL"
 
 #: tcl/bin/tkbackplot.tcl:129
 msgid "CANCEL"
-msgstr ""
+msgstr "AVBRYT"
 
 #: tcl/bin/tkbackplot.tcl:250
 msgid "AXIS"
-msgstr ""
+msgstr "AKSER"
 
 #: tcl/bin/tkbackplot.tcl:251
 msgid "OFFSET"
@@ -4976,33 +4982,35 @@ msgstr ""
 
 #: tcl/bin/tkbackplot.tcl:252
 msgid "ANGLE"
-msgstr ""
+msgstr "VINKEL"
 
 #: tcl/bin/tkbackplot.tcl:253
 msgid "DIRECTION"
-msgstr ""
+msgstr "RETNING"
 
 #: tcl/bin/tkbackplot.tcl:270
 msgid "SIZE :"
-msgstr ""
+msgstr "STØRRELSE :"
 
 #: tcl/show_errors.tcl:78
 msgid "LinuxCNC Errors"
-msgstr ""
+msgstr "LinuxCNC-feil"
 
 #: tcl/show_errors.tcl:81
 msgid ""
 "LinuxCNC terminated with an error.  When reporting problems, please create a "
 "report file and include in your message."
 msgstr ""
+"LinuxCNC avsluttet med en feil. Når du rapporterer problemer, opprett en "
+"rapportfil og ta den med i meldingen din."
 
 #: tcl/show_errors.tcl:107
 msgid "Create Report File"
-msgstr ""
+msgstr "Opprett rapportfil"
 
 #: tcl/show_errors.tcl:109 tcl/scripts/Set_Coordinates.tcl:107
 msgid "Close"
-msgstr ""
+msgstr "Lukk"
 
 #: tcl/tklinuxcnc.tcl:155 tcl/tklinuxcnc.tcl:182
 msgid "Set Run Mark"
@@ -5015,11 +5023,11 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:177 tcl/tklinuxcnc.tcl:205
 msgid "untitled"
-msgstr ""
+msgstr "navnløs"
 
 #: tcl/tklinuxcnc.tcl:213
 msgid "Load Parameter File"
-msgstr ""
+msgstr "Last inn parameterfil"
 
 #: tcl/tklinuxcnc.tcl:262
 msgid "LinuxCNC Diagnostics"
@@ -18143,7 +18151,7 @@ msgstr "Velg neste fil"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Hopp til brukerbestemt katalog"
 
 #: lib/python/gladevcp/iconview.py:182
 msgid "select the highlighted file and return the path"
