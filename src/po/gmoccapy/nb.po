@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-04 08:33+0100\n"
-"PO-Revision-Date: 2021-12-17 08:52+0000\n"
+"PO-Revision-Date: 2021-12-18 15:11+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -435,7 +435,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3595
 msgid "wrong code entered, Access denied"
-msgstr ""
+msgstr "feil kode skrevet inn, tilgang nektet"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3596
 msgid "Just to warn you"
@@ -469,15 +469,15 @@ msgstr "slette rullegardinsoppføringene for denne økten"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3966
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4015
 msgid "Attention!!"
-msgstr ""
+msgstr "Følg med!!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4092
 msgid "Enter value for diameter"
-msgstr ""
+msgstr "Skriv inn diameterverdi"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4093
 msgid "Set diameter to:"
-msgstr ""
+msgstr "Sett diameter til:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4096
 msgid "Enter value for radius"
@@ -540,6 +540,8 @@ msgid ""
 "Please enter only numerical values\n"
 "Values have not been applied"
 msgstr ""
+"Skriv kun inn numeriske verdier\n"
+"Verdier har ikke tatt effekt"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4458
 msgid "Please remove the mounted tool and press OK when done"
@@ -570,27 +572,27 @@ msgstr "Endring av verktøy avbrutt.\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4472
 msgid "The old tool will remain set!"
-msgstr "Det gamle verktøyet vil forbli valgt."
+msgstr "Det gamle verktøyet vil forbli valgt!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4480
 msgid "You are trying to delete the tool mounted in the spindle\n"
-msgstr ""
+msgstr "Du forsøker å slette verkøyet som er montert i spindelen\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4481
 msgid "This is not allowed, please change tool prior to delete it"
-msgstr ""
+msgstr "Dette er ikke tillatt. Bytt verktøy før du sletter det"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4482
 msgid "Warning Tool can not be deleted!"
-msgstr ""
+msgstr "Advarsel: Verktøy kan ikke slettes!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4501
 msgid "No or more than one tool selected in tool table"
-msgstr ""
+msgstr "Ingen eller flere enn ett verktøy valgt i verktøytabellen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4502
 msgid "Please select only one tool in the table"
-msgstr ""
+msgstr "Velg kun et verktøy i tabellen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4503
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4509
@@ -617,7 +619,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4525
 msgid "Real big error!"
-msgstr ""
+msgstr "Virkelig stor feil!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4526
 msgid ""
@@ -1178,9 +1180,8 @@ msgid "none"
 msgstr "ingen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
-#, fuzzy
 msgid "<b>File to load on start</b>"
-msgstr "<b>Fil å laste inn ved start</b>"
+msgstr "<b>Fil å laste inn ved oppstart</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "Select user dir"
@@ -1551,6 +1552,8 @@ msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checed!"
 msgstr ""
+"kjør programmet fra en bestemt linje. Merk, dette er farlig, da de "
+"foregående linjene vil ikke bli sjekket!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid ""
@@ -1637,15 +1640,15 @@ msgstr "Vis eller skjul det virtuelle tastaturet"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:227
 msgid "Go back to main button list"
-msgstr ""
+msgstr "Gå tilbake til hovedknappliste"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "Delete"
-msgstr ""
+msgstr "Slett"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "delete selected tool or tools"
-msgstr ""
+msgstr "Slett valgte verktøy"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Add"
@@ -1653,7 +1656,7 @@ msgstr "Legg til"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "add a new tool to tool table"
-msgstr ""
+msgstr "legg inn nytt verktøy til verktøytabellen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Reload"
@@ -1661,7 +1664,7 @@ msgstr "Last inn igjen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "reload tool table from file"
-msgstr ""
+msgstr "Last verktøytabell fra fil"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Apply"
@@ -1671,6 +1674,8 @@ msgstr "Bruk"
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active g-code"
 msgstr ""
+"aktiver endringene du har gjort, G43 vil kun kjøres hvis det er en aktiv "
+"g-kode"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Select a tool by number"
@@ -1678,7 +1683,7 @@ msgstr "Velg verktøy ved nummer"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid "change tool with the command M61 Q?, no machine move will be done"
-msgstr ""
+msgstr "bytt verktøy med M61 Q?-kommandoen, maskinen vil ikke bevege seg"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid "change tool to the selected one"
@@ -1718,7 +1723,7 @@ msgstr "Velg neste fil"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Hopp til brukerbestemt katalog"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:249
 msgid "select the highlighted file and return the path"
