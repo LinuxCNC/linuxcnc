@@ -8058,7 +8058,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checed!</property>
+                    <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checked!</property>
                     <property name="image">img_run_from</property>
                     <signal name="clicked" handler="on_btn_from_line_clicked" swapped="no"/>
                   </object>
