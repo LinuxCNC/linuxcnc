@@ -71,6 +71,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
+        KEYBIND.add_call('Key_Dollar','on_keycall_dollar')
         KEYBIND.add_call('Key_QuoteLeft','on_keycall_feedoverride',0)
         KEYBIND.add_call('Key_1','on_keycall_feedoverride',10)
         KEYBIND.add_call('Key_2','on_keycall_feedoverride',20)
@@ -680,6 +681,12 @@ class HandlerClass:
     def on_keycall_spindleoverride(self,event,state,shift,cntrl,value):
         if state:
             ACTION.SET_SPINDLE_RATE(value)
+
+    def on_keycall_dollar(self,event,state,shift,cntrl):
+        if state:
+            print('Toggle joint mode before:',STATUS.get_jjogmode())
+            ACTION.SET_MOTION_TELEOP(not STATUS.get_jjogmode())
+            print('Toggle joint mode after:',STATUS.get_jjogmode())
 
     ###########################
     # **** closing event **** #
