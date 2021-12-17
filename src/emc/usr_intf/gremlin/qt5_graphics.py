@@ -207,6 +207,13 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         self.inifile = linuxcnc.ini(inifile)
         self.foam_option = bool(self.inifile.find("DISPLAY", "FOAM"))
+        try:
+            trajcoordinates = self.inifile.find("TRAJ", "COORDINATES").lower().replace(" ","")
+        except:
+            trajcoordinates = "unknown"
+            #raise SystemExit("Missing [TRAJ]COORDINATES")
+        kinsmodule = self.inifile.find("KINS", "KINEMATICS")
+
         self.logger = linuxcnc.positionlogger(linuxcnc.stat(),
             C('backplotjog'),
             C('backplottraverse'),
@@ -219,6 +226,8 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # start tracking linuxcnc position so we can plot it
         _thread.start_new_thread(self.logger.start, (.01,))
         glcanon.GlCanonDraw.__init__(self, stat, self.logger)
+        glcanon.GlCanonDraw.init_glcanondraw(self,trajcoordinates=trajcoordinates,
+                              kinsmodule=kinsmodule)
 
         # set defaults
         self.current_view = 'p'
@@ -231,7 +240,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self._current_file = None
         self.highlight_line = None
         self.program_alpha = False
-        self.use_joints_mode = False
+        self.use_joints_mode = True
         self.use_commanded = True
         self.show_limits = True
         self.show_extents_option = True
@@ -507,6 +516,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_font_info(self):
         return self.font_charwidth, self.font_linespace, self.font_base
     def get_program_alpha(self): return self.program_alpha
+    def get_num_joints(self): return self.num_joints
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option
@@ -568,6 +578,26 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     # gcannon assumes this function name
     def _redraw(self):
         self.updateGL()
+
+    def joint_dro_format(self,s,spd,num_of_joints,limit, homed):
+        if not self.enable_dro:
+            return limit, homed, [''], ['']
+
+        posstrs = ["  %s:% 9.4f" % i for i in
+            zip(list(range(num_of_joints)), s.joint_actual_position)]
+        droposstrs = posstrs
+
+        if self.get_show_machine_speed():
+            format = "% 6s:" + self.dro_in
+            diaformat = " " + format
+            if self.metric_units:
+                format = "% 6s:" + self.dro_mm
+                spd = spd * 25.4
+            spd = spd * 60
+            #posstrs.append(format % ("Vel", spd))
+            #droposstrs.append(diaformat % ("Vel", spd))
+
+        return limit, homed, posstrs, droposstrs
 
     # This overrides glcannon.py method so we can change the DRO 
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
@@ -658,6 +688,18 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))
+
+            # show extrajoints (if not showing offsets)
+            if (s.num_extrajoints >0 and (not self.get_show_offsets())):
+                posstrs.append("Extra Joints:")
+                for jno in range(self.get_num_joints() - s.num_extrajoints,
+                                 self.get_num_joints()):
+                    jval  = s.joint_actual_position[jno]
+                    jstr  =     "   EJ%d:% 9.4f" % (jno,jval)
+                    if jno >= 10:
+                        jstr  = "  EJ%2d:% 9.4f" % (jno,jval)
+                    posstrs.append(jstr)
+
             return limit, homed, posstrs, droposstrs
 
 
