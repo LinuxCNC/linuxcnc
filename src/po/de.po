@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-18 15:11+0000\n"
+"PO-Revision-Date: 2021-12-18 22:44+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -244,7 +244,7 @@ msgid ""
 "%d"
 msgstr ""
 "NURBS: Die Anzahl der Stützpunkte muss mindestens der Ordnung der "
-"Interpolation entsprechen  L = %d"
+"Interpolation entsprechen L = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot convert spline with cutter radius compensation"
@@ -1485,7 +1485,7 @@ msgstr "Wurzel (sqrt-Befehl) mit negativem Argument"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:115
 msgid "Negative d word tool radius index used"
-msgstr "Negative Zahl bei bei D-Wort als Index für Werkzeug-Radius angegeben"
+msgstr "Negative Zahl bei D-Wort als Index für Werkzeug-Radius angegeben"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:116
 msgid "Negative f word used"
@@ -2093,7 +2093,6 @@ msgid "Realtime component not loaded"
 msgstr "Echtzeicht-Komponente nicht geladen"
 
 #: src/hal/utils/scope_horiz.c:476
-#, fuzzy
 msgid ""
 "HALSCOPE uses a realtime component called scope_rt'\n"
 "to sample signals for display.  It is not currently loaded\n"
@@ -2108,8 +2107,8 @@ msgid ""
 msgstr ""
 "HALSCOPE benutzt eine Echtzeit-Komponente namens scope_rt\n"
 "um Werte aufzuzeichnen. Diese wurde nicht geladen und der\n"
-"atomatische Versuch die Komponente zu laden schlug fehl.\n"
-"Weitere Informationen könnten in der Konole verfügbar sein,\n"
+"automatische Versuch die Komponente zu laden schlug fehl.\n"
+"Weitere Informationen könnten in der Konsole verfügbar sein,\n"
 "aus der der Befehl »halscope« gestartet wurde.\n"
 "\n"
 "Wählen Sie eine der folgenden Möglichkeiten:\n"
@@ -2615,12 +2614,12 @@ msgstr "Kann ungültige(s) Achse/Gelenk %d nicht bewegen."
 #: src/emc/motion/command.c:149
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über neg. Anschlag hinaus bewegen."
+msgstr "Kann Achse/Gelenk %d nicht über pos. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:154
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über pos. Anschlag hinaus bewegen."
+msgstr "Kann Achse/Gelenk %d nicht über neg. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:160
 #, c-format, fuzzy
@@ -5262,7 +5261,7 @@ msgid ""
 "can use it to automatically launch this configuration."
 msgstr ""
 "Die Desktop-Verknüpfung wurde erfolgreich erstellt. Über diese Verknüpfung "
-"kann EMC2 automatisch mit mit dieser Konfiguration gestartet werden."
+"kann LinuxCNC automatisch mit dieser Konfiguration gestartet werden."
 
 #: tcl/bin/pickconfig.tcl:870
 msgid "Create Desktop Shortcut"
@@ -19161,11 +19160,11 @@ msgstr "Werkzeugdatei ist »%s«"
 
 #: lib/python/gladevcp/tooledit_widget.py:280
 msgid "Tooledit widget int error"
-msgstr "Tolledit Fehler bei Ganzzahl-Konvertierung"
+msgstr "Wekzeugeditor: Fehler bei Ganzzahl"
 
 #: lib/python/gladevcp/tooledit_widget.py:285
 msgid "Tooledit_widget float error"
-msgstr ""
+msgstr "Werkzeugeditor: Fehler bei Gleitkommazahl"
 
 #: lib/python/gladevcp/tooledit_widget.py:322
 msgid "Reloading tooltable into linuxcnc failed"
@@ -19366,7 +19365,7 @@ msgstr "Z Verschleiß"
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
 msgid "DIameter"
-msgstr "Durchm."
+msgstr "Durchmesser"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
 #, fuzzy
