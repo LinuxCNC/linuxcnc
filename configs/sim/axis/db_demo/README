@@ -9,6 +9,41 @@ tool 10 in pocket 11
 tool 11 in pocket 12
 ...
 
+Usage (for db_nonran.ini):
+
+1) In a terminal, start as
+$ linuxcnc db_nonran.ini
+F1 --------- Estop off
+F2 --------- Machine On
+Ctrl-Home -- Home All
+R ---------- Run program
+
+You can also experiment with MDI for the releveant
+commands (TnM6, T0M6, G10L0, G10L1, G10L10, M61)
+
+The default program runs a loop that a) loads tool
+T10 and applies its offset (G43), b) displays the
+zoffset, c) pauses, d) unloads the tool, e)
+reloads the tool data.
+
+The display will show different zoffsets at each
+tool change since the tool data includes several
+tools with the same diameter but different
+zoffsets and the applied database rule selects the
+tool with the minimun time usage.  Since the pause
+time is nominally the same for each tool offered,
+the database will select different tools for T10
+with each reload.
+
+To watch the tool data changes and tool usage time
+accrual, use the following command  in a separate
+terminal (source if rip_environment for RIP
+builds):
+
+$ watch -n 0.2 cat /tmp/db_nonran_file
+
+The M parameter in the /tmp/db_nonran_file
+accounts for tool time measured in minutes
 
 To get more information (stdout):
 
