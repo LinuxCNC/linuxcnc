@@ -641,7 +641,8 @@ G8 is default at power up.
 G10 L0
 ----
 
-G10 L0 reload all tool table data.
+G10 L0 reload all tool table data.  Requires that there is no
+current tool loaded in spindle.
 
 [NOTE]
 
