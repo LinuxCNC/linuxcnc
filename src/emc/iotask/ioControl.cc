@@ -538,14 +538,14 @@ void load_tool(int idx) {
             UNEXPECTED_MSG; return;
         }
         // spindle-->pocket (specified by idx)
-        tooldata_db_notify(tzero.toolno,idx,tzero);
+        tooldata_db_notify(SPINDLE_UNLOAD,tzero.toolno,idx,tzero);
         tzero.pocketno = tpocket.pocketno;
         if (tooldata_put(tzero,idx) != IDX_OK) {
             UNEXPECTED_MSG;
         }
 
         // pocket-->spindle (idx==0)
-        tooldata_db_notify(tpocket.toolno,0,tpocket);
+        tooldata_db_notify(SPINDLE_LOAD,tpocket.toolno,0,tpocket);
         tpocket.pocketno = 0;
         if (tooldata_put(tpocket,0) != IDX_OK) {
             UNEXPECTED_MSG;
@@ -567,7 +567,7 @@ void load_tool(int idx) {
         if (tooldata_put(tdata,0) != IDX_OK) {
             UNEXPECTED_MSG; return;
         }
-        if (tooldata_db_notify(0,0,tdata)) { UNEXPECTED_MSG; }
+        if (tooldata_db_notify(SPINDLE_UNLOAD,0,0,tdata)) { UNEXPECTED_MSG; }
     } else {
         // just copy the desired tool to the spindle
         if (tooldata_get(&tdata,idx) != IDX_OK) {
@@ -579,7 +579,7 @@ void load_tool(int idx) {
         // notify idx==0 tool in spindle:
         CANON_TOOL_TABLE temp;
         if (tooldata_get(&temp,0) != IDX_OK) { UNEXPECTED_MSG; }
-        if (tooldata_db_notify(temp.toolno,0,temp)) { UNEXPECTED_MSG; }
+        if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
     }
 } // load_tool()
 
@@ -1002,7 +1002,9 @@ int main(int argc, char *argv[])
                 if (io_db_mode == DB_ACTIVE) {
                     int pno = idx; // for random_toolchanger
                     if (!random_toolchanger) { pno = tdata.pocketno; }
-                    if (tooldata_db_notify(toolno,pno,tdata)) { UNEXPECTED_MSG; }
+                    if (tooldata_db_notify(TOOL_OFFSET,toolno,pno,tdata)) {
+                        UNEXPECTED_MSG;
+                    }
                 }
             }
             break;
