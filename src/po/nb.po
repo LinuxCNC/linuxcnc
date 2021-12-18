@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-18 15:11+0000\n"
+"PO-Revision-Date: 2021-12-18 22:45+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -7129,12 +7129,12 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:2036
 #, python-format
 msgid "%.1f minutes"
-msgstr ""
+msgstr "%.1f minutter"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2038
 #, python-format
 msgid "%d seconds"
-msgstr ""
+msgstr "%d sekunder"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2046
 #, python-format
@@ -7152,7 +7152,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:2196
 #: src/emc/usr_intf/axis/scripts/axis.py:2914
 msgid "rs274ngc files"
-msgstr ""
+msgstr "rs274ngc-filer"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2212
 msgid "axis cannot accept remote command while running"
@@ -7160,7 +7160,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2267
 msgid "File not Writable:"
-msgstr ""
+msgstr "Fil ikke skrivbar:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2268
 msgid ""
@@ -7213,7 +7213,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:2758
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
-msgstr ""
+msgstr "Skriv inn %s-koordinater relative til %%s:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2757
 #, python-format
@@ -7222,7 +7222,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2926
 msgid "Error saving file"
-msgstr ""
+msgstr "Feil ved lagring av fil"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3381
 #, python-format
@@ -7253,7 +7253,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3526
 msgid "Axes"
-msgstr ""
+msgstr "Akser"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3528
 msgid "Joints"
@@ -7334,33 +7334,33 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4165
 msgid "Error in ~/.axisrc"
-msgstr ""
+msgstr "Feil i ~/.axisrc"
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:127
 msgid "LinuxCNC Status"
-msgstr ""
+msgstr "LinuxCNC-status"
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:143
 msgid "Copy All"
-msgstr ""
+msgstr "Kopier alle"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:38
 #, python-format
 msgid "Insert tool %d and click continue when ready"
-msgstr ""
+msgstr "Sett inn verktøy %d og trykk på «fortsett» når klar"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:40
 msgid "Remove the tool and click continue when ready"
-msgstr ""
+msgstr "Fjern verktøyet og trykk på «fortsett» når klar"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:46
 #: src/emc/usr_intf/touchy/mdi.py:52 src/emc/usr_intf/gscreen/mdi.py:49
 msgid "Tool change"
-msgstr ""
+msgstr "Verktøybytte"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:46
 msgid "Continue"
-msgstr ""
+msgstr "Fortsett"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:67
 msgid "AXIS Manual Toolchanger"
@@ -7375,11 +7375,11 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:514
 #, python-format
 msgid "%s: Image to gcode"
-msgstr ""
+msgstr "%s: Bilde til gcode"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:515
 msgid "Image to gcode"
-msgstr ""
+msgstr "Bilde til gcode"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:525
 #, python-format
@@ -7391,47 +7391,47 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "G20 (in)"
-msgstr ""
+msgstr "G20 (tommer)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:615
 msgid "G21 (mm)"
-msgstr ""
+msgstr "G21 (mm)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
 msgid "White"
-msgstr ""
+msgstr "Hvit"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
 msgid "Black"
-msgstr ""
+msgstr "Svart"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Rows"
-msgstr ""
+msgstr "Rader"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Columns"
-msgstr ""
+msgstr "Kolonner"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Rows then Columns"
-msgstr ""
+msgstr "Rader, så kolonner"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:624
 msgid "Columns then Rows"
-msgstr ""
+msgstr "Kolonner, så rader"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
 msgid "Positive"
-msgstr ""
+msgstr "Positiv"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
 msgid "Negative"
-msgstr ""
+msgstr "Negativ"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
 msgid "Alternating"
-msgstr ""
+msgstr "Vekslende"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:625
 msgid "Up Milling"
@@ -7451,15 +7451,15 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:630
 msgid "30 Degree"
-msgstr ""
+msgstr "30 grader"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:630
 msgid "45 Degree"
-msgstr ""
+msgstr "45 grader"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:630
 msgid "60 Degree"
-msgstr ""
+msgstr "60 grader"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:631
 msgid "Secondary"
@@ -7467,7 +7467,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:631
 msgid "Full"
-msgstr ""
+msgstr "Full"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:661
 msgid "Invert Image"
@@ -7479,19 +7479,19 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:663
 msgid "Extend Image Border"
-msgstr ""
+msgstr "Utvid bildekant"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:664
 msgid "Pixel Size (Units)"
-msgstr ""
+msgstr "Pikselstørrelse (enhet)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:665
 msgid "Depth (units)"
-msgstr ""
+msgstr "Dybde (enheter)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:666
 msgid "Tolerance (units)"
-msgstr ""
+msgstr "Toleranse (enheter)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:667
 msgid "Stepover (pixels)"
@@ -7499,11 +7499,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:668
 msgid "Tool Diameter (units)"
-msgstr ""
+msgstr "Verktøydiameter (enheter)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:669
 msgid "Tool Type"
-msgstr ""
+msgstr "Verktøytype"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:670
 msgid "Feed Rate (units per minute)"
@@ -7515,7 +7515,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:673
 msgid "Safety Height (units)"
-msgstr ""
+msgstr "Sikkerhetshøyde (enheter)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:674
 msgid "Scan Pattern"
@@ -7531,11 +7531,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:677
 msgid "Contact Angle (degrees)"
-msgstr ""
+msgstr "Kontaktvinkel (grader)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:678
 msgid "Spindle Speed (RPM)"
-msgstr ""
+msgstr "Spindelhastighet (RPM)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:679
 msgid "Roughing offset (units, 0=no roughing)"
@@ -7547,7 +7547,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:747
 msgid "image-to-gcode: User pressed cancel"
-msgstr ""
+msgstr "bilde-til-gcode: Bruker trykket avbryt"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:762
 msgid "Depth images"
@@ -7555,19 +7555,19 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:22
 msgid "LinuxCNC Debug Level"
-msgstr ""
+msgstr "LinuxCNC-feilsøkingsnivå"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:23
 msgid "debuglevel"
-msgstr ""
+msgstr "feilsøkingsnivå"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:36
 msgid "Configuration *"
-msgstr ""
+msgstr "Oppsett *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:37
 msgid "Version Numbers *"
-msgstr ""
+msgstr "Versjonsnummer *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:38
 msgid "NML *"
@@ -7602,11 +7602,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:82
 msgid "  * This option can only be enabled in the inifile"
-msgstr ""
+msgstr "  * Dette valget kan kun aktiveres i ini-filen"
 
 #: share/axis/tcl/axis.tcl:58
 msgid "_Open..."
-msgstr ""
+msgstr "_Åpne..."
 
 #: share/axis/tcl/axis.tcl:62
 msgid "Recent _Files"
@@ -7614,11 +7614,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:66
 msgid "_Edit..."
-msgstr ""
+msgstr "_Rediger..."
 
 #: share/axis/tcl/axis.tcl:69
 msgid "Ctrl-R"
-msgstr ""
+msgstr "Ctrl-R"
 
 #: share/axis/tcl/axis.tcl:71
 msgid "_Reload"
@@ -7626,7 +7626,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:74
 msgid "Ctrl-S"
-msgstr ""
+msgstr "Ctrl-S"
 
 #: share/axis/tcl/axis.tcl:76
 msgid "_Save gcode as..."
@@ -7638,7 +7638,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
-msgstr ""
+msgstr "Rediger _verktøydata..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
@@ -7658,7 +7658,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:120
 msgid "_Run program"
-msgstr ""
+msgstr "_Kjør program"
 
 #: share/axis/tcl/axis.tcl:124
 msgid "Ru_n from selected line"
@@ -7670,23 +7670,23 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:134
 msgid "_Pause"
-msgstr ""
+msgstr "_Pause"
 
 #: share/axis/tcl/axis.tcl:139
 msgid "Re_sume"
-msgstr ""
+msgstr "Fort_sett"
 
 #: share/axis/tcl/axis.tcl:149
 msgid "Stop at M_1"
-msgstr ""
+msgstr "Stopp ved M_1"
 
 #: share/axis/tcl/axis.tcl:154
 msgid "Skip lines with '_/'"
-msgstr ""
+msgstr "Hopp over linjer med «_/»"
 
 #: share/axis/tcl/axis.tcl:159
 msgid "Ctrl-M"
-msgstr ""
+msgstr "Ctrl-M"
 
 #: share/axis/tcl/axis.tcl:161
 msgid "Clear MDI h_istory"
@@ -7694,7 +7694,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:163
 msgid "Ctrl-H"
-msgstr ""
+msgstr "Ctrl-H"
 
 #: share/axis/tcl/axis.tcl:165
 msgid "Copy from MDI hist_ory"
@@ -7702,7 +7702,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:167
 msgid "Ctrl-Shift-H"
-msgstr ""
+msgstr "Ctrl-Shift-H"
 
 #: share/axis/tcl/axis.tcl:169
 msgid "Paste to MDI histor_y"
@@ -7710,11 +7710,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:175
 msgid "_Calibration"
-msgstr ""
+msgstr "_Kalibrering"
 
 #: share/axis/tcl/axis.tcl:179
 msgid "Show _Hal Configuration"
-msgstr ""
+msgstr "Vis _Hal-oppsett"
 
 #: share/axis/tcl/axis.tcl:183
 msgid "H_al Meter"
@@ -7726,11 +7726,11 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:191
 msgid "Sho_w LinuxCNC Status"
-msgstr ""
+msgstr "_Vis LinuxCNC-status"
 
 #: share/axis/tcl/axis.tcl:195
 msgid "Set _Debug Level"
-msgstr ""
+msgstr "Sett _feilsøkingsnivå"
 
 #: share/axis/tcl/axis.tcl:201
 msgid "Homin_g"
@@ -7742,47 +7742,47 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:209
 msgid "_Zero coordinate system"
-msgstr ""
+msgstr "_Nyllstill koordinatsystem"
 
 #: share/axis/tcl/axis.tcl:213
 msgid "P1  G5_4"
-msgstr ""
+msgstr "P1  G5_4"
 
 #: share/axis/tcl/axis.tcl:217
 msgid "P2  G5_5"
-msgstr ""
+msgstr "P2  G5_5"
 
 #: share/axis/tcl/axis.tcl:221
 msgid "P3  G5_6"
-msgstr ""
+msgstr "P3  G5_6"
 
 #: share/axis/tcl/axis.tcl:225
 msgid "P4  G5_7"
-msgstr ""
+msgstr "P4  G5_7"
 
 #: share/axis/tcl/axis.tcl:229
 msgid "P5  G5_8"
-msgstr ""
+msgstr "P5  G5_8"
 
 #: share/axis/tcl/axis.tcl:233
 msgid "P6  G5_9"
-msgstr ""
+msgstr "P6  G5_9"
 
 #: share/axis/tcl/axis.tcl:237
 msgid "P7  G59._1"
-msgstr ""
+msgstr "P7  G59._1"
 
 #: share/axis/tcl/axis.tcl:241
 msgid "P8  G59._2"
-msgstr ""
+msgstr "P8  G59._2"
 
 #: share/axis/tcl/axis.tcl:245
 msgid "P9  G59._3"
-msgstr ""
+msgstr "P9  G59._3"
 
 #: share/axis/tcl/axis.tcl:249
 msgid "_G92"
-msgstr ""
+msgstr "_G92"
 
 #: share/axis/tcl/axis.tcl:257
 msgid "Tool touch off to wor_kpiece"
@@ -7794,35 +7794,35 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:271
 msgid "_Top view"
-msgstr ""
+msgstr "_Toppvisning"
 
 #: share/axis/tcl/axis.tcl:278
 msgid "_Rotated Top view"
-msgstr ""
+msgstr "_Rotert toppvisning"
 
 #: share/axis/tcl/axis.tcl:285
 msgid "_Side view"
-msgstr ""
+msgstr "_Sidevisning"
 
 #: share/axis/tcl/axis.tcl:292
 msgid "_Front view"
-msgstr ""
+msgstr "_Frontvisning"
 
 #: share/axis/tcl/axis.tcl:299
 msgid "_Perspective view"
-msgstr ""
+msgstr "_Perspektivvisning"
 
 #: share/axis/tcl/axis.tcl:308
 msgid "Display _Inches"
-msgstr ""
+msgstr "Vis _tommer"
 
 #: share/axis/tcl/axis.tcl:315
 msgid "Display _MM"
-msgstr ""
+msgstr "Vis _mm"
 
 #: share/axis/tcl/axis.tcl:322
 msgid "S_how program"
-msgstr ""
+msgstr "Vis program"
 
 #: share/axis/tcl/axis.tcl:327
 msgid "Show program r_apids"
@@ -7838,7 +7838,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:342
 msgid "Show too_l"
-msgstr ""
+msgstr "Vis verk_tøy"
 
 #: share/axis/tcl/axis.tcl:347
 msgid "Show e_xtents"
@@ -7854,7 +7854,7 @@ msgstr ""
 
 #: share/axis/tcl/axis.tcl:361
 msgid "Sh_ow machine limits"
-msgstr ""
+msgstr "Vis maskin_grenser"
 
 #: share/axis/tcl/axis.tcl:366
 msgid "Show v_elocity"
