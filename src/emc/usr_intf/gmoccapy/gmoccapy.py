@@ -463,7 +463,8 @@ class gmoccapy(object):
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "ntb_jog", "ntb_jog_JA", "vbtb_jog_incr", "hbox_jog_vel", 
+                      "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
                       "btn_select_tool_by_no", "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -471,6 +472,10 @@ class gmoccapy(object):
         # 
         self._sensitize_widgets(widgetlist, False)
 
+        # if limit switch active, activate ignore-checkbox
+        if any(self.stat.limit):
+            self.widgets.ntb_jog.set_sensitive(True)
+            
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
         self._init_notification()
