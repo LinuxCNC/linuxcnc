@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-18 15:11+0000\n"
+"PO-Revision-Date: 2021-12-18 22:44+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -474,7 +474,7 @@ msgstr "Achtung!!"
 
 #: gmoccapy.py:4059
 msgid "Enter value for diameter"
-msgstr "Wert für den Durchmesser eingeben"
+msgstr "Wert für Durchmesser eingeben"
 
 #: gmoccapy.py:4060
 msgid "Set diameter to:"
@@ -482,7 +482,7 @@ msgstr "Setze Durchmesser auf:"
 
 #: gmoccapy.py:4063
 msgid "Enter value for radius"
-msgstr "Wert für den Radius eingeben"
+msgstr "Wert für Radius eingeben"
 
 #: gmoccapy.py:4064
 msgid "Set radius to:"
@@ -1745,7 +1745,7 @@ msgstr "Wähle das einzuwechselnde Werkzeug durch die Angabe der Werkzeugnummer"
 #: gmoccapy.glade.h:236
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr ""
-"Werkzeugwechsel mit Kommando M61 Q?, keine Maschinenbewegung wird ausgeführt"
+"Werkzeugwechsel mit Kommando M61 Q?, Maschinenbewegung wird nicht ausgeführt"
 
 #: gmoccapy.glade.h:237
 msgid "change tool to the selected one"
@@ -1850,11 +1850,11 @@ msgstr "Werkzeugliste / Datei nicht gefunden"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:277
 msgid "Tooledit widget int error"
-msgstr "Tolledit Fehler bei Ganzzahl-Konvertierung"
+msgstr "Wekzeugeditor: Fehler bei Ganzzahl"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:282
 msgid "Tooledit_widget float error"
-msgstr "Tooledit widget: Gleitkommazahlfehler"
+msgstr "Werkzeugeditor: Fehler bei Gleitkommazahl"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:319
 msgid "Reloading tooltable into linuxcnc failed"
@@ -2034,7 +2034,7 @@ msgstr "Z Verschleiß"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:16
 msgid "DIameter"
-msgstr "Durchm."
+msgstr "Durchmesser"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:17
 msgid "Lathe Wear Offsets"
