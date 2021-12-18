@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2021-12-17 08:52+0000\n"
+"Last-Translator: Gunnar Wolf <gwolf@gwolf.org>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
 "Language: es\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -114,7 +114,7 @@ msgstr ""
 
 #: gmoccapy.py:930
 msgid "Press to reset all G92 offsets"
-msgstr "Cerorear todos los offsets G92"
+msgstr "Reestablecer todos los offsets G92"
 
 #: gmoccapy.py:936
 msgid ""
@@ -125,9 +125,8 @@ msgstr ""
 "Pieza"
 
 #: gmoccapy.py:938
-#, fuzzy
 msgid "Press to enter new value for block height"
-msgstr "Digite la altura de la pieza a mecanizar"
+msgstr "Oprima para seleccionar el nuevo valor para la altura de los bloques"
 
 #: gmoccapy.py:943
 msgid ""
@@ -136,9 +135,9 @@ msgid ""
 msgstr "aplicareelegido"
 
 #: gmoccapy.py:945
-#, fuzzy
 msgid "Press to set the selected coordinate system to be the active one"
-msgstr "Poner el sistema de coordinadas seleccionado como sistema actual"
+msgstr ""
+"Oprima para establecer el sistema de coordenadas seleccionado como activo"
 
 #: gmoccapy.py:966 gmoccapy.py:982 gmoccapy.py:1127 gmoccapy.py:1700
 #: gmoccapy.py:1858 gmoccapy.py:1871 gmoccapy.py:1881 gmoccapy.py:1952
@@ -157,21 +156,18 @@ msgid "**** disabled tool measurement ****"
 msgstr "**** Medición de herramientas no será posible"
 
 #: gmoccapy.py:983
-#, fuzzy
 msgid "**** found valid probe config in INI File ****"
 msgstr ""
-"**** No se encontró una configuración valida para el medidor de herramientas "
-"en el archivo INI ****"
+"**** Se encontró una configuración valida para el medidor de herramientas en "
+"el archivo INI ****"
 
 #: gmoccapy.py:984
-#, fuzzy
 msgid "**** will use auto tool measurement ****"
-msgstr "**** Medición de herramientas no será posible"
+msgstr "**** se utilizará la herramienta automatizada de medidas ****"
 
 #: gmoccapy.py:999
-#, fuzzy
 msgid "**** GMOCCAPY build_GUI INFO ****"
-msgstr "**** GMOCCAPY INFO ****"
+msgstr "**** GMOCCAPY build_GUI INFO ****"
 
 #: gmoccapy.py:1000
 msgid "**** To many increments given in INI File for this screen ****"
