@@ -113,11 +113,15 @@ class _Lcnc_Action(object):
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        # self.cmd.traj_mode(linuxcnc.TRAJ_MODE_FREE)
-        # if you unhome a joint that is combined with another (to make an axis)
-        # then unhome both.
-        for j in (INFO.JOINT_RELATIONS_LIST[joint]):
-            self.cmd.unhome(j)
+
+        if joint < 0:
+            # unhome all joints
+            self.cmd.unhome(joint)
+        else:
+            # if you unhome a joint that is combined with another (to make an axis)
+            # then unhome both.
+            for j in (INFO.JOINT_RELATIONS_LIST[joint]):
+                self.cmd.unhome(j)
 
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
