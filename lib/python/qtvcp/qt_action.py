@@ -54,6 +54,7 @@ class _Lcnc_Action(object):
         #    print('To telop (1)')
         #else:
         #    print('To joint (0)')
+
         self.cmd.teleop_enable(value)
         self.cmd.wait_complete()
         STATUS.stat.poll()
@@ -113,7 +114,10 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
         # self.cmd.traj_mode(linuxcnc.TRAJ_MODE_FREE)
-        self.cmd.unhome(joint)
+        # if you unhome a joint that is combined with another (to make an axis)
+        # then unhome both.
+        for j in (INFO.JOINT_RELATIONS_LIST[joint]):
+            self.cmd.unhome(j)
 
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
