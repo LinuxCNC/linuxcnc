@@ -7,7 +7,7 @@ import sys
 #  2) all writes to stdout go to host
 #     (use stderr for debug prints)
 #-----------------------------------------------------------
-DB_VERSION = 'v1.0'
+DB_VERSION = 'v2.0'
 
 #-----------------------------------------------------------
 # functions for import by user
@@ -65,27 +65,30 @@ def get_cmd(cmd,params):
                 pass
     do_reply("FINI (get_cmd)")
 
-def put_cmd(cmd,params):
+def put_cmds(cmd,params):
     # note: checks are mainly for commandline debugging,
     #       expect host to always provide a valid toolline
     uparams = params.upper()
     if len(uparams) == 0:
-        raise Exception("put_cmd: requires tool entry line")
+        raise Exception("cmd=%s: requires tool entry line"%cmd)
     try:
         toolno   = int(uparams[0:uparams.index(" ")].strip("T"))
         toolline = uparams
     except Exception as e:
-        sys.stderr.write("put_cmd: %s:\n"%e)
-        raise Exception("put_cmd: failed to parse <%s>"%params)
+        sys.stderr.write("cmd=%s: %s:\n"%(cmd,e))
+        raise Exception("cmd=%s: failed to parse <%s>"%(cmd,params))
     # require at least "Tvalue Pvalue"
     try: toolline.index("T");toolline.index(" P")
     except Exception as e:
-        sys.stderr.write("put_cmd: %s:\n"%e)
-        raise Exception("put_cmd: failed to parse <%s>"%params)
+        sys.stderr.write("cmd=%s: %s:\n"%(cmd,e))
+        raise Exception("cmd=%s: failed to parse <%s>"%(cmd,params))
 
-    try: put_tool(toolno,toolline)
+    try:
+        if   cmd == "p": put_tool(      toolno,toolline)
+        elif cmd == "l": load_spindle(  toolno,toolline)
+        elif cmd == "u": unload_spindle(toolno,toolline)
     except Exception as e:
-        nak_reply( "put_cmd():%s"%str(e))
+        nak_reply( "cmd=%s: %s"%(cmd,str(e)))
         return
     do_reply("FINI (update recvd) %s"%params)
 
@@ -103,8 +106,10 @@ def do_cmd(line):
         # params is everything after first " ":0
         params = line.strip()[line.index(" "):].strip()
     switcher = {
-               "g": get_cmd,  # get (all tools)
-               "p": put_cmd,  # put (update one tool)
+               "g": get_cmd,   # get (all tools)
+               "p": put_cmds,  # put (update one tool offsets)
+               "u": put_cmds,  # unload spindle
+               "l": put_cmds,  #   load spindle
                "t": tool_cmd, # debug usage
                }
     thecmd = switcher.get(cmd) or unknown_cmd
@@ -119,11 +124,13 @@ def startup_ack():
 #-----------------------------------------------------------
 # Begin functions that can be imported
 
-def tooldb_callbacks(tool_getter,tool_putter):
+def tooldb_callbacks(tool_getter,tool_putter,spindle_loader,spindle_unloader):
     """Specify callback functions"""
-    global get_tool, put_tool
-    get_tool = tool_getter
-    put_tool = tool_putter
+    global get_tool, put_tool, load_spindle, unload_spindle
+    get_tool       = tool_getter
+    put_tool       = tool_putter
+    load_spindle   = spindle_loader
+    unload_spindle = spindle_unloader
 
 def tooldb_tools(tool_list):
     """Specify list = available toolnumers"""

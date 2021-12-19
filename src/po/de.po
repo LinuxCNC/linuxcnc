@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-13 00:10+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2021-12-18 22:44+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -20,8 +20,8 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"%s kann nicht ausgeführt werden, solange der Notaus aktiv ist und die "
-"Maschine nicht eingeschaltet ist"
+"Kommando (%s )kann nicht ausgeführt werden solange der Notaus aktiv ist oder "
+"die Maschine nicht eingeschaltet ist"
 
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
@@ -244,7 +244,7 @@ msgid ""
 "%d"
 msgstr ""
 "NURBS: Die Anzahl der Stützpunkte muss mindestens der Ordnung der "
-"Interpolation entsprechen  L = %d"
+"Interpolation entsprechen L = %d"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
 msgid "Cannot convert spline with cutter radius compensation"
@@ -383,16 +383,23 @@ msgstr "gen_restore G20/G21 fehlgeschlagen: '%s'"
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
+"BUG: kann nicht von niedrigerem call level (%d) zurück zu höherem call level "
+"(%d) (bitte original Fehlermeldung berichten: cannot restore from lower call "
+"level to higher call level)"
 
 #: src/emc/rs274ngc/interp_convert.cc:2996
 #, c-format
 msgid "BUG: restore from level %d !?"
 msgstr ""
+"BUG: zurückkehren von Level %d !? (bitte original Fehlermeldung angeben: "
+"restore from level)"
 
 #: src/emc/rs274ngc/interp_convert.cc:2997
 #, c-format
 msgid "BUG: restore to level %d !?"
 msgstr ""
+"BUG: zurückkehren zu Level %d !? Bitte original Fehlermeldung angeben: "
+"'restore to level'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3016
 #, c-format
@@ -522,8 +529,11 @@ msgid "Q word with M19 requires a value > 0"
 msgstr "Q Befehl mit M19 benötigt einen Wrt > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3442
+#, fuzzy
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
+"Kann aus Unterprogramm nicht zurückkehren wegen eines ungültigen "
+"Funktionsaufrufs-Stapelspeichers (stack frame) - fehlt M70/M73?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3483
 #: src/emc/rs274ngc/interp_convert.cc:3504
@@ -605,7 +615,7 @@ msgstr "Bei G10 L20 darf kein Werkzeugradius R angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:4482
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr ""
+msgstr "Bug:  Erreichte convert_stop() aus M99 nach Rückkehr aus Unterprogramm"
 
 #: src/emc/rs274ngc/interp_convert.cc:4762
 msgid "Invalid spindle ($) number in G33 move"
@@ -633,12 +643,15 @@ msgid "Chosen spindle (%i) not turning in G76"
 msgstr "Gewählte Spindel (%i) ohne Bewegung in G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4840
+#, fuzzy
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr ""
+"BUG: Eine Achse bewegte sich unkorrekterweise zusammen mit einem Indexer"
 
 #: src/emc/rs274ngc/interp_convert.cc:4853
 msgid "BUG: trying to index incorrect axis"
 msgstr ""
+"BUG: versuche unkorrekte Achse zu indizieren (trying to index incorrect axis)"
 
 #: src/emc/rs274ngc/interp_convert.cc:4948
 #, fuzzy
@@ -685,12 +698,13 @@ msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "Werkzeugvermessung nicht möglich bei aktiver Werkzeugkompensation"
 
 #: src/emc/rs274ngc/interp_convert.cc:5622
+#, fuzzy
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2: Kann nicht sowohl H als auch Achsen-Wörter angeben"
 
 #: src/emc/rs274ngc/interp_convert.cc:5625
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2: Keine Achse spezifiziert und H-Wort fehlt"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -791,7 +805,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_cycles.cc:1882
 msgid "Invalid E-number in G74/G84 cycle"
-msgstr ""
+msgstr "Ungültige E-Nummer in G74/G84-Zyklus"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1988
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
@@ -818,11 +832,12 @@ msgstr "Rotations-Achse kann nicht mit G76 bewegt werden"
 #: src/emc/rs274ngc/interp_find.cc:280 src/emc/rs274ngc/interp_find.cc:339
 #: src/emc/rs274ngc/interp_find.cc:349
 msgid "Cannot specify X or Y words with polar coordinate"
-msgstr ""
+msgstr "Kann X oder Y Wörter nicht mit Polarkoordinaten angeben"
 
 #: src/emc/rs274ngc/interp_find.cc:274
+#, fuzzy
 msgid "Must specify angle in polar coordinate if at the origin"
-msgstr ""
+msgstr "Eine Polarkoordinate im Ursprung muss den Winkel angeben"
 
 #: src/emc/rs274ngc/interp_find.cc:340
 msgid ""
@@ -1470,7 +1485,7 @@ msgstr "Wurzel (sqrt-Befehl) mit negativem Argument"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:115
 msgid "Negative d word tool radius index used"
-msgstr "Negative Zahl bei bei D-Wort als Index für Werkzeug-Radius angegeben"
+msgstr "Negative Zahl bei D-Wort als Index für Werkzeug-Radius angegeben"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:116
 msgid "Negative f word used"
@@ -2078,7 +2093,6 @@ msgid "Realtime component not loaded"
 msgstr "Echtzeicht-Komponente nicht geladen"
 
 #: src/hal/utils/scope_horiz.c:476
-#, fuzzy
 msgid ""
 "HALSCOPE uses a realtime component called scope_rt'\n"
 "to sample signals for display.  It is not currently loaded\n"
@@ -2093,8 +2107,8 @@ msgid ""
 msgstr ""
 "HALSCOPE benutzt eine Echtzeit-Komponente namens scope_rt\n"
 "um Werte aufzuzeichnen. Diese wurde nicht geladen und der\n"
-"atomatische Versuch die Komponente zu laden schlug fehl.\n"
-"Weitere Informationen könnten in der Konole verfügbar sein,\n"
+"automatische Versuch die Komponente zu laden schlug fehl.\n"
+"Weitere Informationen könnten in der Konsole verfügbar sein,\n"
 "aus der der Befehl »halscope« gestartet wurde.\n"
 "\n"
 "Wählen Sie eine der folgenden Möglichkeiten:\n"
@@ -2548,7 +2562,7 @@ msgstr "Verstärkerfehler an Spindel %d"
 #: src/emc/motion/control.c:782
 #, c-format
 msgid "joint %d on limit switch error"
-msgstr "Achsen- oder Gelenkfehler %d am Endschalter"
+msgstr "Achse/Gelenk %d am Endschalter"
 
 #: src/emc/motion/control.c:794
 #, c-format
@@ -2600,12 +2614,12 @@ msgstr "Kann ungültige(s) Achse/Gelenk %d nicht bewegen."
 #: src/emc/motion/command.c:149
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über Bahnmaximum hinaus bewegen"
+msgstr "Kann Achse/Gelenk %d nicht über pos. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:154
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "Kann Achse/Gelenk %d nicht über Bahnminimum hinaus bewegen."
+msgstr "Kann Achse/Gelenk %d nicht über neg. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:160
 #, c-format, fuzzy
@@ -2624,12 +2638,10 @@ msgstr ""
 "Bewegung %s in Zeile %d würde pos. Anschlag von Achse/Gelenk %d überschreiten"
 
 #: src/emc/motion/command.c:211
-#, fuzzy
 msgid "negative"
 msgstr "Negativ"
 
 #: src/emc/motion/command.c:217
-#, fuzzy
 msgid "positive"
 msgstr "Positiv"
 
@@ -5249,7 +5261,7 @@ msgid ""
 "can use it to automatically launch this configuration."
 msgstr ""
 "Die Desktop-Verknüpfung wurde erfolgreich erstellt. Über diese Verknüpfung "
-"kann EMC2 automatisch mit mit dieser Konfiguration gestartet werden."
+"kann LinuxCNC automatisch mit dieser Konfiguration gestartet werden."
 
 #: tcl/bin/pickconfig.tcl:870
 msgid "Create Desktop Shortcut"
@@ -11532,6 +11544,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12436,12 +12449,13 @@ msgid "POT Output"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
+#, fuzzy
 msgid "POT Enable"
-msgstr ""
+msgstr "POT Aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
 msgid "POT Dir"
-msgstr ""
+msgstr "POT Verz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO Input"
@@ -12453,344 +12467,331 @@ msgstr "GPIO-Ausgang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO O Drain"
-msgstr ""
+msgstr "GPIO O Drain"
 
 #: src/emc/usr_intf/pncconf/private_data.py:117
-#, fuzzy
 msgid "SSR Output"
-msgstr "Ausgabe"
+msgstr "SSR Ausgabe"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
 msgid "Quad Enc-A"
-msgstr ""
+msgstr "Quad Enc-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
 msgid "Quad Enc-B"
-msgstr ""
+msgstr "Quad Enc-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
 msgid "Quad Enc-I"
-msgstr ""
+msgstr "Quad Enc-I"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
 msgid "Quad Enc-M"
-msgstr ""
+msgstr "Quad Enc-M"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "Muxed Enc 0"
-msgstr "Unbenutzt"
+msgstr "Muxed Enc 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "Muxed Enc 1"
-msgstr "Unbenutzt"
+msgstr "Muxed Enc 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "muxed Enc I"
-msgstr "Unbenutzt"
+msgstr "muxed Enc 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "Muxed Enc M"
-msgstr "Unbenutzt"
+msgstr "Muxed Enc M"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
 msgid "mux select"
-msgstr ""
+msgstr "mux Auswahl"
 
 #: src/emc/usr_intf/pncconf/private_data.py:126
 msgid "Resolver 0 Encoder"
-msgstr ""
+msgstr "Resolver 0 Encoder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:126
 msgid "Resolver 1 Encoder"
-msgstr ""
+msgstr "Resolver 1 Encoder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:126
 msgid "Resolver 2 Encoder"
-msgstr ""
+msgstr "Resolver 2 Encoder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "Resolver 3 Encoder"
-msgstr ""
+msgstr "Resolver 3 Encoder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "Resolver 4 Encoder"
-msgstr ""
+msgstr "Resolver 4 Encoder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "Resolver 5 Encoder"
-msgstr ""
+msgstr "Resolver 5 Encoder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Step Gen-A"
-msgstr ""
+msgstr "Schritt Gen-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Dir Gen-B"
-msgstr ""
+msgstr "Richt Gen-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Step/Dir Gen-C"
-msgstr ""
+msgstr "Schritt/Richt Gen-C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Step/Dir Gen-D"
-msgstr ""
+msgstr "Schritt/Richt Gen-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:132
 msgid "Step/Dir Gen-E"
-msgstr ""
+msgstr "Schritt/Richt Gen-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:132
 msgid "Step/dir Gen-F"
-msgstr ""
+msgstr "Schritt/Richt Gen-F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:134
-#, fuzzy
 msgid "PWM Gen-P"
-msgstr "Unbenutzter PWM-Generator"
+msgstr "PWM-Gen-P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:134
-#, fuzzy
 msgid "PWM Gen-D"
-msgstr "Unbenutzter PWM-Generator"
+msgstr "PWM-Gen-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:134
-#, fuzzy
 msgid "PWM Gen-E"
-msgstr "Unbenutzter PWM-Generator"
+msgstr "PWM-Gen-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "PDM Gen-P"
-msgstr ""
+msgstr "PDM-Gen-P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "PDM Gen-D"
-msgstr ""
+msgstr "PDM-Gen-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "PDM Gen-E"
-msgstr ""
+msgstr "PDM-Gen-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "UDM -Up"
-msgstr ""
+msgstr "UDM-Hoch"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "UDM-Down"
-msgstr "Abwärts"
+msgstr "UDM-Abwärts"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "UDM-E"
-msgstr ""
+msgstr "UDM-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "Motor Phase A"
-msgstr ""
+msgstr "Motor Phase A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "Motor Phase B"
-msgstr ""
+msgstr "Motor Phase B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "Motor Phase C"
-msgstr ""
+msgstr "Motor Phase C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
+#, fuzzy
 msgid "Motor Phase A Not"
-msgstr ""
+msgstr "Motor Phase A Neg???"
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
+#, fuzzy
 msgid "Motor Phase B Not"
-msgstr ""
+msgstr "Motor Phase B Neg???"
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
+#, fuzzy
 msgid "Motor Phase C Not"
-msgstr ""
+msgstr "Motor Phase C Neg???"
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
+#, fuzzy
 msgid "Motor Enable"
-msgstr ""
+msgstr "Motor Aktivierung"
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
 msgid "Motor Fault"
-msgstr ""
+msgstr "Moto Fehler"
 
 #: src/emc/usr_intf/pncconf/private_data.py:153
 msgid "SSERIAL-P0-TX"
-msgstr ""
+msgstr "SSERIAL-P0-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:153
 msgid "SSERIAL-P0-RX"
-msgstr ""
+msgstr "SSERIAL-P0-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:153
 msgid "SSERIAL-P0-EN"
-msgstr ""
+msgstr "SSERIAL-P0-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:154
 msgid "SSERIAL-P1-TX"
-msgstr ""
+msgstr "SSERIAL-P1-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:154
 msgid "SSERIAL-P1-RX"
-msgstr ""
+msgstr "SSERIAL-P1-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:154
 msgid "SSERIAL-P1-EN"
-msgstr ""
+msgstr "SSERIAL-P1-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:155
 msgid "SSERIAL-P2-TX"
-msgstr ""
+msgstr "SSERIAL-P2-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:155
 msgid "SSERIAL-P2-RX"
-msgstr ""
+msgstr "SSERIAL-P2-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:155
 msgid "SSERIAL-P2-EN"
-msgstr ""
+msgstr "SSERIAL-P2-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:156
 msgid "SSERIAL-P3-TX"
-msgstr ""
+msgstr "SSERIAL-P3-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:156
 msgid "SSERIAL-P3-RX"
-msgstr ""
+msgstr "SSERIAL-P3-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:156
 msgid "SSERIAL-P3-EN"
-msgstr ""
+msgstr "SSERIAL-P3-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P4-TX"
-msgstr ""
+msgstr "SSERIAL-P4-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P4-RX"
-msgstr ""
+msgstr "SSERIAL-P4-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P4-EN"
-msgstr ""
+msgstr "SSERIAL-P4-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P5-TX"
-msgstr ""
+msgstr "SSERIAL-P5-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P5-RX"
-msgstr ""
+msgstr "SSERIAL-P5-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P5-EN"
-msgstr ""
+msgstr "SSERIAL-P5-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:159
 msgid "SSERIAL-P6-TX"
-msgstr ""
+msgstr "SSERIAL-P6-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:159
 msgid "SSERIAL-P6-RX"
-msgstr ""
+msgstr "SSERIAL-P6-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:159
 msgid "SSERIAL-P6-EN"
-msgstr ""
+msgstr "SSERIAL-P6-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:160
 msgid "SSERIAL-P7-TX"
-msgstr ""
+msgstr "SSERIAL-P7-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:160
 msgid "SSERIAL-P7-RX"
-msgstr ""
+msgstr "SSERIAL-P7-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:160
 msgid "SSERIAL-P7-EN"
-msgstr ""
+msgstr "SSERIAL-P7-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:161
 msgid "7i76 I/O (SS0)"
-msgstr ""
+msgstr "7i76 I/O (SS0)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:161
 msgid "7i76 I/O (SS2)"
-msgstr ""
+msgstr "7i76 I/O (SS2)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:161
 msgid "7i76 I/O (SS3)"
-msgstr ""
+msgstr "7i76 I/O (SS3)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "7i77 I/O-SS0"
-msgstr ""
+msgstr "7i77 I/O-SS0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "7i77 Analog-SS1"
-msgstr ""
+msgstr "7i77 Analog-SS1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "7i77 I/O-SS3"
-msgstr ""
+msgstr "7i77 I/O-SS3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "7i77 Analog-SS4"
-msgstr ""
+msgstr "7i77 Analog-SS4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
-#, fuzzy
 msgid "Analog Input"
-msgstr "Analoge Steuerung"
+msgstr "Analoger Eingang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "X Home"
-msgstr "Pos1"
+msgstr "X Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "Y Home"
-msgstr "Pos1"
+msgstr "Y Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "Z Home"
-msgstr "Pos1"
+msgstr "Z Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
 msgid "A Home"
-msgstr ""
+msgstr "A Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
-#, fuzzy
 msgid "All Home"
-msgstr "Alle Referenzschalter"
+msgstr "Alle Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "X2 Tandem Home"
-msgstr "Pos1"
+msgstr "X2 Tandem Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Y2 Tandem Home"
-msgstr "Pos1"
+msgstr "Y2 Tandem Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Z2 Tandem Home"
-msgstr "Pos1"
+msgstr "Z2 Tandem Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
 msgid "A2 Tandem Home"
-msgstr ""
+msgstr "A2 Tandem Referenz"
 
 #: src/emc/usr_intf/pncconf/private_data.py:408
 #, fuzzy
@@ -13717,24 +13718,20 @@ msgid "Machine Is Enabled"
 msgstr "Maschine ist eingeschaltet"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
-#, fuzzy
 msgid "X Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "X-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "Y Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "Y-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "Z Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "Z-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "A Amplifier Enable"
-msgstr "Endstufe aktivieren"
+msgstr "A-Endstufe aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:514
 msgid "Force Pin True"
@@ -18332,7 +18329,7 @@ msgstr "AXIS Manueller Werkzeugwechsel"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3756
 msgid "Operator Message"
-msgstr "Anwender Nachricht"
+msgstr "Anwenderhinweis"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
@@ -19010,7 +19007,9 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
-msgstr "Wiederherstellen"
+msgstr ""
+"Wieder-\n"
+"herstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
 #, fuzzy
@@ -19161,11 +19160,11 @@ msgstr "Werkzeugdatei ist »%s«"
 
 #: lib/python/gladevcp/tooledit_widget.py:280
 msgid "Tooledit widget int error"
-msgstr "Tolledit Fehler bei Ganzzahl-Konvertierung"
+msgstr "Wekzeugeditor: Fehler bei Ganzzahl"
 
 #: lib/python/gladevcp/tooledit_widget.py:285
 msgid "Tooledit_widget float error"
-msgstr ""
+msgstr "Werkzeugeditor: Fehler bei Gleitkommazahl"
 
 #: lib/python/gladevcp/tooledit_widget.py:322
 msgid "Reloading tooltable into linuxcnc failed"
@@ -19365,9 +19364,8 @@ msgstr "Z Verschleiß"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
-#, fuzzy
 msgid "DIameter"
-msgstr "Durchmesser:"
+msgstr "Durchmesser"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
 #, fuzzy

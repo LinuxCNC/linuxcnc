@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-11 04:06+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2021-12-18 22:44+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -474,7 +474,7 @@ msgstr "Achtung!!"
 
 #: gmoccapy.py:4059
 msgid "Enter value for diameter"
-msgstr "Bitte Wert für den Durchmesser eingeben"
+msgstr "Wert für Durchmesser eingeben"
 
 #: gmoccapy.py:4060
 msgid "Set diameter to:"
@@ -482,7 +482,7 @@ msgstr "Setze Durchmesser auf:"
 
 #: gmoccapy.py:4063
 msgid "Enter value for radius"
-msgstr "Bitte Wert für den Radius eingeben"
+msgstr "Wert für Radius eingeben"
 
 #: gmoccapy.py:4064
 msgid "Set radius to:"
@@ -491,12 +491,12 @@ msgstr "Setze Radius auf:"
 #: gmoccapy.py:4067
 #, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr "Bitte Wert für Achse {0} eingeben"
+msgstr "Wert für {0}-Achse eingeben"
 
 #: gmoccapy.py:4068
 #, python-brace-format
 msgid "Set axis {0} to:"
-msgstr "Setze Achse {0} auf:"
+msgstr "Setze {0}-Achse auf:"
 
 #: gmoccapy.py:4072
 msgid "Conversion error in btn_set_value"
@@ -632,7 +632,7 @@ msgstr ""
 #: gmoccapy.py:4490
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr "Bitte den Wert für die {0} Achse eingeben:"
+msgstr "Wert für {0}-Achse eingeben:"
 
 #: gmoccapy.py:4491
 #, python-brace-format
@@ -1492,11 +1492,11 @@ msgstr "Einstellungen"
 
 #: gmoccapy.glade.h:177
 msgid "User tab 1"
-msgstr "Anwender Tab 1"
+msgstr "Anwender-Tab 1"
 
 #: gmoccapy.glade.h:178
 msgid "User tabs"
-msgstr "Anwender Tabs"
+msgstr "Anwender-Tabs"
 
 #: gmoccapy.glade.h:179
 msgid ""
@@ -1543,7 +1543,7 @@ msgstr ""
 
 #: gmoccapy.glade.h:189
 msgid "show user tabs"
-msgstr "zeige Anwender Tabs"
+msgstr "Zeige Anwender-Tabs"
 
 #: gmoccapy.glade.h:190
 msgid "open homing button list"
@@ -1745,7 +1745,7 @@ msgstr "Wähle das einzuwechselnde Werkzeug durch die Angabe der Werkzeugnummer"
 #: gmoccapy.glade.h:236
 msgid "change tool with the command M61 Q?, no machine move will be done"
 msgstr ""
-"wechsel Werkzeug mit Kommando M61 Q?, keine Maschinenbewegung wird ausgeführt"
+"Werkzeugwechsel mit Kommando M61 Q?, Maschinenbewegung wird nicht ausgeführt"
 
 #: gmoccapy.glade.h:237
 msgid "change tool to the selected one"
@@ -1850,11 +1850,11 @@ msgstr "Werkzeugliste / Datei nicht gefunden"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:277
 msgid "Tooledit widget int error"
-msgstr "Tolledit Fehler bei Ganzzahl-Konvertierung"
+msgstr "Wekzeugeditor: Fehler bei Ganzzahl"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:282
 msgid "Tooledit_widget float error"
-msgstr "Tooledit widget: Gleitkommazahlfehler"
+msgstr "Werkzeugeditor: Fehler bei Gleitkommazahl"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:319
 msgid "Reloading tooltable into linuxcnc failed"
@@ -2034,7 +2034,7 @@ msgstr "Z Verschleiß"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:16
 msgid "DIameter"
-msgstr "Durchm."
+msgstr "Durchmesser"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:17
 msgid "Lathe Wear Offsets"

@@ -370,10 +370,14 @@ Pressing cancel will close linuxcnc.""" % target)
             window.showFullScreen()
         else:
             self.panel.set_preference_geometry()
+
         window.show()
         if INIPATH:
             self.postgui()
             self.postgui_cmd()
+            window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcncicon.png')))
+        else:
+            window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcnc-wizard.gif')))
 
         # catch control c and terminate signals
         signal.signal(signal.SIGTERM, self.shutdown)

@@ -579,7 +579,11 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def _redraw(self):
         self.updateGL()
 
-    def joint_dro_format(self,s,spd,num_of_joints,limit, homed):
+    # This overrides glcannon.py method so we can change the joint DRO
+    # this is turned off because sending blank DRO variables (posstrs and droposstrs)
+    # breaks the screen display somehow - X axis indiator is offset
+    # remove _OFF and re make to enable function
+    def joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
         if not self.enable_dro:
             return limit, homed, [''], ['']
 
@@ -599,7 +603,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         return limit, homed, posstrs, droposstrs
 
-    # This overrides glcannon.py method so we can change the DRO 
+    # This overrides glcannon.py method so we can change the DRO
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if not self.enable_dro:
                 return limit, homed, [''], ['']

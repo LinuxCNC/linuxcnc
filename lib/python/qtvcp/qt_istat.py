@@ -224,6 +224,7 @@ class _IStat(object):
             self.JOINT_SEQUENCE[j] = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
         # jog synchronized sequence
+        # gives a list of joints combined to make an axis
         templist = []
         for j in self.AVAILABLE_JOINTS:
             temp = []
@@ -237,6 +238,21 @@ class _IStat(object):
                 templist.append(temp)
         # remove duplicates
         self.JOINT_SYNCH_LIST = list(set(tuple(sorted(sub)) for sub in templist))
+
+        # This is a list of joints that are related to a joint.
+        #ie. JOINT_RELATIONS_LIST(0) will give a list of joints that go with joint 0
+        # to make an axis or else a list with just 0 in it.
+        # current use case is to find out what other joints should be unhomed if you unhome 
+        # a combined joint axis.
+        self.JOINT_RELATIONS_LIST = [None] * jointcount
+        for j in range(jointcount):
+            temp = []
+            for hj, hs in list(self.JOINT_SEQUENCE_LIST.items()):
+                if abs(int(hs)) == abs(int(self.JOINT_SEQUENCE_LIST.get(j))):
+                    temp.append(hj)
+            if temp == []:
+                temp.append(j)
+            self.JOINT_RELATIONS_LIST[j] = temp
 
         # jogging increments
         increments = self.INI.find("DISPLAY", "INCREMENTS")
