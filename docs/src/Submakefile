@@ -177,8 +177,6 @@ DOC_SRCS_ZH_CN := $(subst $(DOC_SRCDIR)/,, \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_ZH_CN)
 
-DOC_SRCS_TXT := $(patsubst %.adoc, %.adoc, $(DOC_SRCS))
-
 DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
@@ -248,8 +246,8 @@ A2X = a2x --xsltproc-opts "--nonet \
                           $(A2X_LATEX_ENCODING) $(DBLATEX_OPTS)"
 
 ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS_TXT))
-Makefile: $(patsubst %.adoc, depends/%.d, $(DOC_SRCS_TXT))
+-include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
+Makefile: $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
 endif
 
 docs: manpages
