@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-20 17:26+0000\n"
+"PO-Revision-Date: 2021-12-20 22:37+0000\n"
 "Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -2982,7 +2982,7 @@ msgstr "!!!цикл ошибки в UpdateVScrollBar()!\n"
 #, c-format
 msgid ""
 "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"
-msgstr ""
+msgstr "Ошибка в ChoiceOfTheCurrentRung( %d ) с OffsetCurrentRungDisplayed=%d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
@@ -2994,10 +2994,11 @@ msgstr "Запустить"
 #: src/hal/classicladder/classicladder_gtk.c:338
 msgid "Stopped ladder program - press run button to continue."
 msgstr ""
+"Ladder программа остановлена - нажмите кнопку \"Запустить\" для продолжения."
 
 #: src/hal/classicladder/classicladder_gtk.c:344
 msgid "Started Ladder program - press stop to pause."
-msgstr ""
+msgstr "Запущена ladder программа -- нажмите \"Остановить\" для паузы."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Load Error"
@@ -3005,7 +3006,7 @@ msgstr "Ошибка загрузки"
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Failed to load the project file..."
-msgstr ""
+msgstr "Ошибка при загрузке файла проекта..."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 #: src/hal/classicladder/classicladder_gtk.c:409
@@ -3048,11 +3049,11 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:140
 #: src/emc/usr_intf/axis/scripts/axis.py:1572
 msgid "Ok"
-msgstr ""
+msgstr "Да"
 
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project loaded (stopped)."
-msgstr ""
+msgstr "Проект загружен(остановлен)."
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3062,25 +3063,25 @@ msgstr "Ошибка сохранения"
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
 msgid "Failed to save the project file..."
-msgstr ""
+msgstr "Ошибка при сохранении файла проекта..."
 
 #: src/hal/classicladder/classicladder_gtk.c:434
 #, c-format
 msgid "SAVE %s %d\n"
-msgstr ""
+msgstr "Сохранить %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:443
 #, c-format
 msgid "LOAD %s %d\n"
-msgstr ""
+msgstr "Загрузить %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:488
 msgid "Old directories projects"
-msgstr ""
+msgstr "Каталоги старых проектов"
 
 #: src/hal/classicladder/classicladder_gtk.c:492
 msgid "ClassicLadder projects"
-msgstr ""
+msgstr "Проекты ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:532
 #: src/hal/classicladder/classicladder_gtk.c:831
@@ -3090,31 +3091,33 @@ msgstr "Новый"
 
 #: src/hal/classicladder/classicladder_gtk.c:532
 msgid "Do you really want to clear all data ?"
-msgstr ""
+msgstr "Действительно хотите очистить все данные ?"
 
 #: src/hal/classicladder/classicladder_gtk.c:536
 msgid "Please select the project to load"
-msgstr ""
+msgstr "Выберите проект для загрузки"
 
 #: src/hal/classicladder/classicladder_gtk.c:542
 msgid "Sure?"
-msgstr ""
+msgstr "Уверены?"
 
 #: src/hal/classicladder/classicladder_gtk.c:542
 msgid ""
 "Do you really want to load another project ?\n"
 "If not saved, all modifications on the current project will be lost  \n"
 msgstr ""
+"Действительно хотите загрузить другой проект?\n"
+"Без сохранения, все изменения в текущем проекте будут потеряны  \n"
 
 #: src/hal/classicladder/classicladder_gtk.c:549
 msgid "Please select the project to save"
-msgstr ""
+msgstr "Выберите проект для сохранения"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 #: src/hal/classicladder/classicladder_gtk.c:695
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid "Warning!"
-msgstr ""
+msgstr "Осторожно!"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 msgid ""
@@ -3122,14 +3125,17 @@ msgid ""
 "can cause unexpected behavior\n"
 " Do you really want to reset?"
 msgstr ""
+"Сброс работающей программы\n"
+"может привести к неожиданному поведению\n"
+"Действительно хотите сбросить?"
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
-msgstr ""
+msgstr "Сбросить данные Ladder "
 
 #: src/hal/classicladder/classicladder_gtk.c:596
 msgid "Okay"
-msgstr ""
+msgstr "Конечно"
 
 #: src/hal/classicladder/classicladder_gtk.c:649 tcl/bin/pickconfig.tcl:625
 #: tcl/tooledit.tcl:906 src/emc/usr_intf/axis/scripts/axis.py:156
@@ -3155,6 +3161,8 @@ msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
 msgstr ""
+"Без сохранения, все изменения будут потеряны.\n"
+"Действительно хотите выйти?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Confirm!"
@@ -3162,13 +3170,15 @@ msgstr "Подтвердить!"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
-msgstr ""
+msgstr "Действительно хотите выйти?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
 msgstr ""
+"MODBUS остановится при выходе.\n"
+"Действительно хотите выйти?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:731
 msgid "Section Display"
@@ -3176,11 +3186,11 @@ msgstr "Дисплей частей"
 
 #: src/hal/classicladder/classicladder_gtk.c:752
 msgid "Label of the current selected rung"
-msgstr ""
+msgstr "Метка текущего выбранного рунга"
 
 #: src/hal/classicladder/classicladder_gtk.c:759
 msgid "Comment of the current selected rung"
-msgstr ""
+msgstr "Комментарий текущего выбранного рунга"
 
 #: src/hal/classicladder/classicladder_gtk.c:762
 msgid "Display symbols"
@@ -3192,7 +3202,7 @@ msgstr "Строка статуса"
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
-msgstr ""
+msgstr "Загрузить"
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
@@ -3210,7 +3220,7 @@ msgstr "Сброс"
 
 #: src/hal/classicladder/classicladder_gtk.c:861
 msgid "Vars"
-msgstr ""
+msgstr "Переменные"
 
 #: src/hal/classicladder/classicladder_gtk.c:867
 #: src/hal/classicladder/edit_gtk.c:344
@@ -3220,7 +3230,7 @@ msgstr "Редактор"
 
 #: src/hal/classicladder/classicladder_gtk.c:872
 msgid "Symbols"
-msgstr ""
+msgstr "Символы"
 
 #: src/hal/classicladder/classicladder_gtk.c:877
 #: src/hal/classicladder/config_gtk.c:1024
@@ -3243,11 +3253,11 @@ msgstr "О программе"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d us"
-msgstr ""
+msgstr "%d мкС"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
-msgstr ""
+msgstr "Ошибка конфигурации машины!"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 #: src/hal/classicladder/config_gtk.c:506 src/hal/classicladder/edit.c:410
@@ -3288,7 +3298,7 @@ msgstr "Ошибка"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 msgid "Failed MODBUS communications"
-msgstr ""
+msgstr "Ошибка коммуникаций MODBUS"
 
 #: src/hal/classicladder/classicladder_gtk.c:1010
 #, c-format
