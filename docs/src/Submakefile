@@ -558,7 +558,7 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 	$(call ADD_HTML_MANPAGES, 3rtapi, API calls: RTAPI)
 	$(call ADD_HTML_MANPAGES, 3hm2,  API calls: Hostmot2)
 	$(call ADD_HTML_MANPAGES, 3, API calls: General)
-	
+
 	# now make sure all manpages made it into the html index
 	FAIL=0; \
 	for F in $$(find $(DOC_DIR)/man/? -type f); do \
