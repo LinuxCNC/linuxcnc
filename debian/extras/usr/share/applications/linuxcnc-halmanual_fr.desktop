@@ -2,7 +2,7 @@
 Version=1.0
 Name=HAL Manual - FR
 Type=Application
-Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_HAL_Manual_fr.pdf
+Exec=xdg-open /usr/share/doc/linuxcnc/LinuxCNC_HAL.pdf
 Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc_fr.svg
 X-GNOME-DocPath=
 Terminal=false
