@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-20 13:52+0000\n"
+"PO-Revision-Date: 2021-12-20 17:26+0000\n"
 "Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -2938,39 +2938,45 @@ msgstr "неизвестное состояние '%d' при поиске на�
 #, c-format
 msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr ""
+"ERROR CLASSICLADDER- Ошибка инициализации пользовательского модуля "
+"classicladder.\n"
 
 #: src/hal/classicladder/classicladder.c:255
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
+"INFO CLASSICLADDER- Не запрошен ladder GUI-модуль реального времени будет "
+"работать до закрытия HAL.\n"
 
 #: src/hal/classicladder/classicladder.c:275
 msgid "Project loaded and running"
-msgstr ""
+msgstr "Проект загружен и работает"
 
 #: src/hal/classicladder/classicladder.c:275
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project failed to load..."
-msgstr ""
+msgstr "Ошибка загрузки проекта..."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid "GUI reloaded with existing ladder program"
-msgstr ""
+msgstr "GUI перезагружен с текущей ladder-программой"
 
 #: src/hal/classicladder/classicladder.c:294
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
+"INFO CLASSICLADDER- Ladder GUI закрылся. Модуль реального времени работает "
+"до закрытия HAL\n"
 
 #: src/hal/classicladder/classicladder.c:300
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER- Ошибка выделения памяти ladder\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:136
 #, c-format
 msgid "!!!error loop in UpdateVScrollBar()!\n"
-msgstr ""
+msgstr "!!!цикл ошибки в UpdateVScrollBar()!\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:202
 #, c-format
@@ -11235,6 +11241,7 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
