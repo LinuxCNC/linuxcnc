@@ -67,7 +67,6 @@ po/linuxcnc.pot:
 	$(ECHO) Localizing linuxcnc.pot
 	$(Q)(cd ..; $(XGETTEXT) --from-code=UTF-8 -k_ -o src/$@ `$(PYTHON) src/po/fixpaths.py -j src $^`)
 	$(Q)touch $@
-TARGETS += po/linuxcnc.pot
 
 pofiles: po/linuxcnc.pot
 	set -x; for i in po/*.po; do msgmerge -U $$i po/linuxcnc.pot; done
@@ -137,7 +136,6 @@ po/gmoccapy/gmoccapy.pot: $(GMOCCAPY_I18N_SRCS)
 	$(XGETTEXT) --from-code=UTF-8 --language=Python \
 		--keyword=_ --keyword=N_ \
 		--output=$@ $^
-TARGETS += po/gmoccapy/gmoccapy.pot
 
 clean: gmoccapy_i18n_clean
 gmoccapy_i18n_clean:
