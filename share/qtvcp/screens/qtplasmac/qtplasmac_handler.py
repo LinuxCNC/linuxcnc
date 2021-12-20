@@ -341,6 +341,9 @@ class HandlerClass:
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
+        self.laserTimer = QTimer()
+        self.laserTimer.timeout.connect(self.laser_timeout)
+        self.laserTimer.setSingleShot(True)
         self.set_color_styles()
         self.autorepeat_keys(False)
         # set hal pins only after initialized__ has begun
@@ -2135,6 +2138,7 @@ class HandlerClass:
         self.w.zoom_out.pressed.connect(self.zoom_out_pressed)
         self.w.camera.pressed.connect(self.camera_pressed)
         self.w.laser.pressed.connect(self.laser_pressed)
+        self.w.laser.clicked.connect(self.laser_clicked)
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
@@ -2762,6 +2766,12 @@ class HandlerClass:
                 self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
         if not active:
             self.pulseTimer.stop()
+
+    def laser_timeout(self):
+        if self.w.laser.isDown():
+            self.laserOnPin.set(0)
+            self.laserButtonState = 'reset'
+            self.w.laser.setText(_translate('HandlerClass', 'LASER'))
 
 
 #########################################################################################################################
@@ -4181,7 +4191,22 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.vkb_hide()
 
+    def laser_clicked(self):
+        if self.laserButtonState == 'reset':
+            self.laserButtonState = 'laser'
+            return
+        elif self.laserButtonState == 'laser':
+            self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
+            self.laserButtonState = 'markedge'
+            self.laserOnPin.set(1)
+            return
+        elif self.laserButtonState == 'setorigin':
+            self.laserOnPin.set(0)
+        self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
+
     def laser_pressed(self):
+        self.laserTimer.start(750)
+        return
         if self.laserButtonState == 'laser':
             self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
             self.laserButtonState = 'markedge'
