@@ -331,6 +331,7 @@ class HandlerClass:
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
+        STATUS.connect('periodic', lambda w: self.update_periodic())
         self.overlayPreview.setText(self.get_overlay_text(False))
         self.overlayConv.setText(self.get_overlay_text(True))
         if not self.w.chk_overlay.isChecked():
@@ -839,9 +840,9 @@ class HandlerClass:
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont('arial,helvetica', 16)
-        self.flasher = QTimer()
-        self.flasher.timeout.connect(self.flasher_timeout)
-        self.flasher.start(500)
+        self.flashState = False
+        self.flashRate = 4
+        self.flasher = self.flashRate
         self.manualCut = False
         self.jogPreManCut = [False, INFO.DEFAULT_LINEAR_JOG_VEL, 0]
         self.probeTest = False
@@ -2634,51 +2635,68 @@ class HandlerClass:
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
 
+    def update_periodic(self):
+        if self.framing and STATUS.is_interp_idle():
+            self.framing = False
+            ACTION.SET_MANUAL_MODE()
+            self.laserOnPin.set(0)
+            self.w.gcodegraphics.logger.clear()
+        self.set_button_color()
+        self.stats_update()
+        if self.flasher:
+            self.flasher -= 1
+        else:
+            self.flasher = self.flashRate
+            self.flashState = not self.flashState
+            self.flasher_timeout()
+
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
-            if self.w.pause.text() == '':
+            if self.flashState:
                 self.w.pause.setText(_translate('HandlerClass', 'CYCLE RESUME'))
             else:
                 self.w.pause.setText('')
         else:
             self.w.pause.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
         text = _translate('HandlerClass', 'FEED')
-        if self.w.feed_slider.value() != 100 and \
-           self.w.feed_label.text() == '{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100):
+        if self.w.feed_slider.value() != 100:
+            if self.flashState:
+                self.w.feed_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100))
+            else:
                 self.w.feed_label.setText(' \n ')
         else:
             self.w.feed_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100))
         text = _translate('HandlerClass', 'RAPID')
-        if self.w.rapid_slider.value() != 100 and \
-           self.w.rapid_label.text() == '{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100):
+        if self.w.rapid_slider.value() != 100:
+            if self.flashState:
+                self.w.rapid_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100))
+            else:
                 self.w.rapid_label.setText(' \n ')
         else:
             self.w.rapid_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100))
         text = _translate('HandlerClass', 'JOG')
-        if self.manualCut and text in self.w.jogs_label.text():
-            self.w.jogs_label.setText(' \n ')
-        else:
-            self.w.jogs_label.setText('{}\n{:.0f}'.format(text, STATUS.get_jograte()))
+        if self.manualCut:
+            if self.flashState:
+                self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
+                self.w.jogs_label.setText('{}\n{:.0f}'.format(text, STATUS.get_jograte()))
+            else:
+                self.w.run.setText('')
+                self.w.jogs_label.setText(' \n ')
         if self.heightOvr > 0.01 or self.heightOvr < -0.01:
-            if self.w.height_ovr_label.text() == '':
+            if self.flashState:
                 self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
             else:
                 self.w.height_ovr_label.setText('')
         else:
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
-        if self.manualCut:
-            if self.w.run.text() == '':
-                self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
-            else:
-                self.w.run.setText('')
         if self.flash_error and self.error_present:
-            if self.w.error_label.text().startswith(_translate('HandlerClass', 'ERROR')):
-                self.w.error_label.setText('')
-            else:
+            if self.flashState:
                 self.w.error_label.setText(_translate('HandlerClass', 'ERROR SENT TO MACHINE LOG'))
+            else:
+                self.w.error_label.setText('')
         if self.startLine > 0:
             if not self.w.run.text().startswith(_translate('HandlerClass', 'RUN')):
-                if self.w.run.text() == (''):
+                if self.flashState:
                     self.w.run.setText(self.runText)
                 else:
                     self.w.run.setText('')
@@ -2689,26 +2707,19 @@ class HandlerClass:
             self.pmx485LabelState = None
             self.w.pmx_stats_frame.hide()
         elif self.pmx485CommsError:
-            if self.w.pmx485_label.text() == '':
+            if self.flashState:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
                 self.pmx485LabelState = None
             else:
                 self.w.pmx485_label.setText('')
                 self.pmx485LabelState = None
         elif not self.pmx485LabelState:
-            if self.w.pmx485_label.text() == '':
+            if self.flashState:
                 self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
                 self.pmx485LabelState = None
             else:
                 self.w.pmx485_label.setText('')
                 self.pmx485LabelState = None
-        if self.framing and STATUS.is_interp_idle():
-            self.framing = False
-            ACTION.SET_MANUAL_MODE()
-            self.laserOnPin.set(0)
-            self.w.gcodegraphics.logger.clear()
-        self.set_button_color()
-        self.stats_update()
 
     def probe_timeout(self):
         if self.probeTime > 1:
