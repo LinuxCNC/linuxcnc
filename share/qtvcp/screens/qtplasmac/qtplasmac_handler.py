@@ -1,4 +1,4 @@
-VERSION = '1.221.144'
+VERSION = '1.221.145'
 
 '''
 qtplasmac_handler.py
@@ -321,7 +321,7 @@ class HandlerClass:
         STATUS.connect('g-code-changed', self.gcodes_changed)
         STATUS.connect('m-code-changed', self.mcodes_changed)
         STATUS.connect('program-pause-changed', self.pause_changed)
-        STATUS.connect('graphics-loading-progress', self.percent_loaded)
+        STATUS.connect('graphics-loading-progress', self.progress_changed)
         STATUS.connect('interp-paused', self.interp_paused)
         STATUS.connect('interp-idle', self.interp_idle)
         STATUS.connect('interp-reading', self.interp_reading)
@@ -819,9 +819,11 @@ class HandlerClass:
         self.w.gcode_display.set_margin_width(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
+        self.w.gcode_display.setCornerWidget(QLabel())
         self.w.gcode_editor.set_margin_width(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(4)
+        self.w.gcode_editor.editor.setCornerWidget(QLabel())
         self.w.gcode_editor.editMode()
         self.w.gcode_editor.pythonLexerAction.setVisible(False)
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
@@ -864,6 +866,8 @@ class HandlerClass:
         self.overlayConv.setStyleSheet('font: 12pt "Courier"; color: #cccccc; background: rgba(1,0,0,255)')
         self.overlayConv.setAlignment(Qt.AlignTop|Qt.AlignLeft)
         self.overlayProgress = QProgressBar(self.w.gcode_display)
+        self.overlayProgress.setOrientation(Qt.Vertical)
+        self.overlayProgress.setInvertedAppearance(True)
         self.overlayProgress.setFormat('')
         self.overlayProgress.hide()
 
@@ -1244,18 +1248,19 @@ class HandlerClass:
         msg0 = _translate('HandlerClass', 'JOG')
         self.w.jogs_label.setText('{}\n{:.0f}'.format(msg0, STATUS.get_jograte()))
 
-    def percent_loaded(self, object, percent):
-        if percent < 1:
+    def progress_changed(self, object, percent):
+        if percent < 0:
             self.overlayProgress.setValue(0)
             self.overlayProgress.hide()
-            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         else:
             self.overlayProgress.setValue(percent)
             self.overlayProgress.show()
-            self.overlayProgress.setFixedWidth(self.w.gcode_display.geometry().width() - 20)
-            self.overlayProgress.move(0, self.w.gcode_display.geometry().height() - 20)
+            self.overlayProgress.setFixedHeight(self.w.gcode_display.geometry().height())
+            self.overlayProgress.move(self.w.gcode_display.geometry().width() - 20, 0)
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def user_system_changed(self, obj, data):
         sys = self.systemList[int(data)]
@@ -1326,6 +1331,8 @@ class HandlerClass:
                 self.w.gcode_display.set_margin_width(3)
                 self.w.gcode_editor.set_margin_width(3)
         ACTION.SET_MANUAL_MODE()
+        if not len(self.w.gcode_display.text()):
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex():
             self.w.main_tab_widget.setCurrentIndex(0)
 
@@ -2007,6 +2014,7 @@ class HandlerClass:
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
         self.w.grid_size.valueChanged.connect(self.grid_size_changed)
         self.w.gcode_display.linesChanged.connect(self.gcode_display_loaded)
+        self.w.gcode_editor.percentDone.connect(lambda w:self.progress_changed(None, w))
         self.w.file_clear.clicked.connect(self.file_clear_clicked)
         self.w.file_open.clicked.connect(self.file_open_clicked)
         self.w.file_edit.clicked.connect(self.file_edit_clicked)
@@ -2638,6 +2646,7 @@ class HandlerClass:
             self.w[self.frButton].setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
+        self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def update_periodic(self):
         if self.framing and STATUS.is_interp_idle():
