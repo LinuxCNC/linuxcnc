@@ -4960,6 +4960,10 @@ msgstr "Anwenden"
 msgid "HAL Configuration"
 msgstr "HAL-Konfiguration"
 
+#: tcl/bin/halconfig.tcl:88 tcl/bin/halshow.tcl:33 tcl/tklinuxcnc.tcl:814
+msgid "HAL Show"
+msgstr "HAL Show"
+
 #: tcl/bin/halconfig.tcl:103
 msgid "Would you like to save your configuration before you exit?"
 msgstr "Möchten Sie Ihre Konfiguration vor dem Beenden speichern?"
@@ -5064,7 +5068,7 @@ msgstr "Bitte Variable zum Anzeigen auswählen."
 
 #: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:432
 msgid "<-- Select a Leaf.  Click on its name."
-msgstr "Bitte Variable zum Anzeigen auswählen."
+msgstr "<-- Bitte Variable zum Anzeigen auswählen."
 
 #: tcl/bin/halconfig.tcl:1085 tcl/bin/halconfig.tcl:1095
 #: tcl/bin/halconfig.tcl:1102 tcl/bin/halconfig.tcl:1109
@@ -5511,14 +5515,9 @@ msgstr "HAL-Scope"
 msgid "Set Coordinates"
 msgstr "EMC2 Koordinaten-Setup"
 
-#: tcl/tklinuxcnc.tcl:814
-msgid "HAL Show"
-msgstr "HAL anzeigen..."
-
 #: tcl/tklinuxcnc.tcl:815
-#, fuzzy
 msgid "HAL Config"
-msgstr "HAL konfigurieren"
+msgstr "HAL Config"
 
 #: tcl/tklinuxcnc.tcl:820
 msgid "Help..."
