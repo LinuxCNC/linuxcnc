@@ -28,6 +28,7 @@ Build-Depends:
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat,
+    po4a,
     procps,
     psmisc,
     python3,

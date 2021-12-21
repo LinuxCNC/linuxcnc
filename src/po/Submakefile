@@ -146,3 +146,12 @@ po/gmoccapy/gmoccapy.pot: $(GMOCCAPY_I18N_SRCS)
 clean: gmoccapy_i18n_clean
 gmoccapy_i18n_clean:
 	@rm -f $(GMOCCAPY_GLADE)
+
+postatus::
+	@echo "info: Program POT and PO file status"
+	@for p in po/*.pot po/*.po; do \
+	    echo -n "$$p ";  msgfmt --statistics -o /dev/null $$p; \
+	done
+	@for p in po/gmoccapy/*.pot po/gmoccapy/*.po; do \
+	    echo -n "$$p ";  msgfmt --statistics -o /dev/null $$p; \
+	done
