@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-20 22:37+0000\n"
+"PO-Revision-Date: 2021-12-22 18:53+0000\n"
 "Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.10\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -3308,7 +3308,7 @@ msgstr "Частичный показ %s"
 #: src/hal/classicladder/config.c:83
 #, c-format
 msgid "INFO CLASSICLADDER---Reading MODBUS config file -%s\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---Читаю MODBUS файл конфигурации -%s\n"
 
 #: src/hal/classicladder/config.c:86
 #, c-format
@@ -3318,42 +3318,42 @@ msgstr "Не могу открыть файл %s !!!\n"
 #: src/hal/classicladder/config.c:117
 #, c-format
 msgid "Unknown configtype for %s: %d\n"
-msgstr ""
+msgstr "Неизвестный тип конфигурации для %s: %d\n"
 
 #: src/hal/classicladder/config_gtk.c:109
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
-msgstr ""
+msgstr "Скорость обновления Рунга (миллисекунды)"
 
 #: src/hal/classicladder/config_gtk.c:114
 #, c-format
 msgid "Number of rungs (%d%c used      "
-msgstr ""
+msgstr "Число рунгов (%d%c использовано      "
 
 #: src/hal/classicladder/config_gtk.c:118
 #, c-format
 msgid "Number of Bits                  "
-msgstr ""
+msgstr "Число бит                  "
 
 #: src/hal/classicladder/config_gtk.c:122
 #, c-format
 msgid "Number of Error Bits                  "
-msgstr ""
+msgstr "Число битов ошибок                  "
 
 #: src/hal/classicladder/config_gtk.c:126
 #, c-format
 msgid "Number of Words                 "
-msgstr ""
+msgstr "Число слов                 "
 
 #: src/hal/classicladder/config_gtk.c:130
 #, c-format
 msgid "Number of Counters              "
-msgstr ""
+msgstr "Число счетчиков              "
 
 #: src/hal/classicladder/config_gtk.c:134
 #, c-format
 msgid "Number of Timers IEC            "
-msgstr ""
+msgstr "Число таймеров IEC            "
 
 #: src/hal/classicladder/config_gtk.c:138
 #, c-format
@@ -3363,42 +3363,42 @@ msgstr "Количество арифметических выражений "
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
 msgid "Number of Sections (%d%c used)   "
-msgstr ""
+msgstr "Число секций (%d%c использовано)   "
 
 #: src/hal/classicladder/config_gtk.c:147
 #, c-format
 msgid "Number of Symbols                "
-msgstr ""
+msgstr "Число символов                "
 
 #: src/hal/classicladder/config_gtk.c:152
 #, c-format
 msgid "Number of Timers                 "
-msgstr ""
+msgstr "Число таймеров                 "
 
 #: src/hal/classicladder/config_gtk.c:156
 #, c-format
 msgid "Number of Monostables            "
-msgstr ""
+msgstr "Число одновибраторов            "
 
 #: src/hal/classicladder/config_gtk.c:161
 #, c-format
 msgid "Number of BIT Inputs HAL pins           "
-msgstr ""
+msgstr "Число входных бит HAL выводов           "
 
 #: src/hal/classicladder/config_gtk.c:165
 #, c-format
 msgid "Number of BIT Outputs HAL pins          "
-msgstr ""
+msgstr "Число выходных бит HAL выводов          "
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
 msgid "Number of S32in HAL pins             "
-msgstr ""
+msgstr "Число S32in HAL выводов             "
 
 #: src/hal/classicladder/config_gtk.c:173
 #, c-format
 msgid "Number of S32out HAL pins            "
-msgstr ""
+msgstr "Число S32out HAL выводов            "
 
 #: src/hal/classicladder/config_gtk.c:177
 #, c-format
@@ -3413,7 +3413,7 @@ msgstr "Количество аналоговых (float) выходов        
 #: src/hal/classicladder/config_gtk.c:185
 #, c-format
 msgid "Current path/filename"
-msgstr ""
+msgstr "Текущий путь/файл"
 
 #: src/hal/classicladder/config_gtk.c:384
 msgid "Inverted"
@@ -3425,15 +3425,17 @@ msgid ""
 "Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
+"Ошибка в конфигурации I/O MODBUS: выявлено переполнение для I,B,Q,IQ или WQ "
+"мапирования...ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:506
 msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
-msgstr ""
+msgstr "Ошибка переполнения для I,B,Q,IQ или WQ мапирования..."
 
 #: src/hal/classicladder/config_gtk.c:632
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Последовательный порт(пусто для IP режима)"
 
 #: src/hal/classicladder/config_gtk.c:636
 #, c-format
@@ -3443,7 +3445,7 @@ msgstr "Скорость последовательного порта"
 #: src/hal/classicladder/config_gtk.c:641
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr ""
+msgstr "Пауза после передачи - миллисекунды"
 
 #: src/hal/classicladder/config_gtk.c:646
 #, c-format
