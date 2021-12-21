@@ -51,6 +51,8 @@ jobs:
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        eatmydata make -O -j$((1+$(nproc))) manpages
+        eatmydata make -O -j$((1+$(nproc))) translateddocs
         eatmydata make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
