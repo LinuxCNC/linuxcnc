@@ -49,6 +49,8 @@ jobs:
         cd src
         ./autogen.sh
         ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        make -O -j$((1+$(nproc))) manpages
+        make -O -j$((1+$(nproc))) translateddocs
         make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 

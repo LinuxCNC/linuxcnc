@@ -52,6 +52,8 @@ override_dh_auto_build-arch:
 
 override_dh_auto_build-indep:
 ifneq "$(enable_build_documentation)" ""
+	$(MAKE) PYTHON=/usr/bin/python3 -C src manpages
+	$(MAKE) PYTHON=/usr/bin/python3 -C src translateddocs
 	$(MAKE) PYTHON=/usr/bin/python3 -C src docs
 endif
 
