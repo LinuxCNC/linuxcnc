@@ -1,4 +1,4 @@
-VERSION = '1.221.145'
+VERSION = '1.221.146'
 
 '''
 qtplasmac_handler.py
@@ -2760,19 +2760,27 @@ class HandlerClass:
             self.torchTimer.start(100)
 
     def pulse_timer_timeout(self):
-        # halPulsePins format is: button name, pulse time, button text, remaining time
+        # halPulsePins format is: button name, pulse time, button text, remaining time, button number
         active = False
-        for halpin in self.halPulsePins:
-            if self.halPulsePins[halpin][3] > 0.05:
-                active = True
-                if self.halPulsePins[halpin][1] == self.halPulsePins[halpin][3]:
+        try:
+            for halpin in self.halPulsePins:
+                if self.halPulsePins[halpin][3] > 0.05:
+                    active = True
+                    if self.halPulsePins[halpin][1] == self.halPulsePins[halpin][3]:
+                        self.invert_pin_state(halpin)
+                    self.halPulsePins[halpin][3] -= 0.1
+                    self.w[self.halPulsePins[halpin][0]].setText('{:0.1f}'.format(self.halPulsePins[halpin][3]))
+                elif self.w[self.halPulsePins[halpin][0]].text() != self.halPulsePins[halpin][2]:
                     self.invert_pin_state(halpin)
-                self.halPulsePins[halpin][3] -= 0.1
-                self.w[self.halPulsePins[halpin][0]].setText('{:0.1f}'.format(self.halPulsePins[halpin][3]))
-            elif self.w[self.halPulsePins[halpin][0]].text() != self.halPulsePins[halpin][2]:
-                self.invert_pin_state(halpin)
-                self.halPulsePins[halpin][3] = 0
-                self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+                    self.halPulsePins[halpin][3] = 0
+                    self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+        except Exception as err:
+            self.halPulsePins[halpin][3] = 0
+            bNum = self.halPulsePins[halpin][4]
+            head = _translate('HandlerClass', 'HAL PIN ERROR')
+            msg0 = _translate('HandlerClass', 'Invalid code for user button')
+            msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
         if not active:
             self.pulseTimer.stop()
 
@@ -3005,9 +3013,9 @@ class HandlerClass:
                             msg2 = _translate('HandlerClass', 'does not exist')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
                             continue
-                    # halPulsePins format is: button name, pulse time, button text, remaining time
+                    # halPulsePins format is: button name, pulse time, button text, remaining time, button number
                     try:
-                        self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0]
+                        self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0, bNum]
                     except:
                         head = _translate('HandlerClass', 'USER BUTTON ERROR')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
@@ -3087,11 +3095,11 @@ class HandlerClass:
                     self.halPulsePins[halpin][3] = 0.0
                 else:
                     self.invert_pin_state(halpin)
-            except:
+            except Exception as err:
                 head = _translate('HandlerClass', 'HAL PIN ERROR')
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL PIN ERROR')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3105,7 +3113,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'Unknown error for user button')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
                     return
-            # halPulsePins format is: button name, pulse time, button text, remaining time
+            # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
                     self.halPulsePins[halpin][3] = 0.0
