@@ -7,7 +7,7 @@
 == Halcmd
 
 Halcmd is a command line tool for manipulating the HAL. There is a
-rather complete man page for halcmd, which will be installed if you
+rather complete man page for link:../man/man1/halcmd.1.html[halcmd], which will be installed if you
 have installed LinuxCNC from either source or a package. The manpage
 provides usage info:
 
@@ -108,7 +108,9 @@ Notes:
        linuxcnc must be running for standalone usage
 ----
 
-LinuxCNC must be running for standalone usage
+LinuxCNC must be running for standalone usage.
+
+image::images/halshow-4.png[align="center", alt="Watch Tab"]
 
 A watchfile created using the 'File/Save Watch List' menu item
 is formatted as a single line with tokens "pin+", "param+", "sig=+"
@@ -116,17 +118,20 @@ followed by the appropriate pin, param, or signal name.  The
 token-name pairs are separated by a space character.
 
 Example:
+----
    pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
+----
 
 A watchfile created using the 'File/Save Watch List (multiline)' menu item
 is formatted with separate lines for each item identified with token-name
 pairs as described above.
 
 Example:
+----
    pin+joint.0.pos-hard-limit
    pin+joint.1.pos-hard-limit
    sig+estop-loop
-
+----
 When loading a watchfile with the 'File/Load Watch List' menu item, the
 token-name pairs may appear as single or multiple lines.  Blank lines and
 lines beginning with a # character are ignored.

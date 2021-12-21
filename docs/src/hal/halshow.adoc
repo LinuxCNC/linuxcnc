@@ -40,7 +40,7 @@ Example to limit number of decimal points for floats
 and used a file named my.halshow in the current directory:
 
 ----
-$ halshow  --fformat ".5f" ./my.halshow
+$ halshow  --fformat "%.5f" ./my.halshow
 ----
 
 == HAL Tree Area
@@ -50,9 +50,7 @@ you might see with some file browsers. At the right is a tabbed notebook with
 tabs for show and watch.
 
 [[cap:halshow-layout]]
-
 .Halshow Layout
-
 image::images/halshow-1.png[align="center", alt="Halshow Layout"]
 
 The tree shows all of the major parts of a HAL. In front of each is a
@@ -67,7 +65,6 @@ Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
 .Show Menu
-
 image::images/halshow-3.png[align="center", alt="Show Menu"]
 
 == HAL Show Area
@@ -75,11 +72,15 @@ image::images/halshow-3.png[align="center", alt="Show Menu"]
 Clicking on the node name, the word "Components" for example, will
 show you (under the "Show" tab) all that HAL knows about the contents
 of that node. Figure <<cap:halshow-layout>> shows a list exactly like
-you will see if you click the "Components" name while you are running a
-standard m5i20 servo card. The information display is exactly like
+you will see if you click the "Components" name. 
+The information display is exactly like
 those shown in traditional text based HAL analysis tools. The advantage
 here is that we have mouse click access, access that can be as broad or
 as focused as you need.
+
+.[yellow-background]#New in 2.9#
+* Selected text from the Show tab can be copied by right-click or CTRL-C.
+* The command entry provides now a bash-like history (only for the session) for executed commands.
 
 If we take a closer look at the tree display we can see that the six
 major parts of a HAL can all be expanded at least one level. As these
@@ -189,7 +190,6 @@ position in the thread. The following figure shows the state of halshow
 after this command has been issued.
 
 .Addf Command
-
 image::images/halshow-2.png[align="center", alt="Addf Command"]
 
 Next we need to connect ddt to something. But how do we know
@@ -246,24 +246,35 @@ available in this area. That is where the HAL Watch Area is of value.
 
 == Watch Tab
 
+.[yellow-background]#New in 2.9#
+* Buttons for pin/signal/parameter manipulation
+* Right-click menu to
+  - Copy name
+  - Set value
+  - Unlink pin
+  - Remove Delete from view
+* Menu entries for
+  - Add signals/pins/parameters by name
+  - Set watch interval
+
 Clicking the watch tab produces a blank canvas. You can add signals and pins
 to this canvas and watch their values.footnote:[The refresh rate of the watch
 display is much lower than Halmeter or Halscope. If you need good resolution
-of the timing of signals those tools are much more effective.] You can add
-signals or pins when the watch tab is displayed by clicking on the name of it.
-The following figure shows this canvas with several "bit" type signals. These
-signals include enable-out for the first three axes and two of the three
-iocontrol "estop" signals. Notice that the axes are not enabled even though the
-estop signals say that LinuxCNC is not in estop. A quick look at TkLinuxCNC
-shows that the condition of LinuxCNC is ESTOP RESET. The amp enables do not
-turn true until the machine has been turned on.
+of the timing of signals use these tools or set the interval in the Watch menu.] 
+You can add signals or pins when the watch tab is displayed by clicking on the 
+name of it in the tree view.
+The following figure shows this canvas with several pins. 
+The pins and signals that are writable have buttons for manipulation on the right 
+side. Pins that are linked to a signal have disabled buttons. To set these values,
+the corresponding pin has to be unlinked from the signal. That can be done by
+right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
+
 
 .Watch Tab
-
 image::images/halshow-4.png[align="center", alt="Watch Tab"]
 
 Watch displays bit type (binary) values using colored circles
-representing LEDs. They show as dark brown when a bit signal or pin is
+representing LEDs. They show as dark red when a bit signal or pin is
 false, and as light yellow whenever that signal is true. If you select
 a pin or signal that is not a bit type (binary) signal, watch will show
 it as a numerical value.
@@ -275,4 +286,6 @@ use it for these if you move an axis very slowly or in very small
 increments of distance. If you've used IO_Show in LinuxCNC, the watch page
 in halshow can be set up to watch a parport much as IO_Show did.
 
-
+[[cap:watch-tab-context-menu]]
+.Watch Tab context menu
+image::images/halshow-5.png[align="center", alt="Watch Tab context menu"]
