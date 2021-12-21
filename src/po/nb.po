@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-18 22:45+0000\n"
+"PO-Revision-Date: 2021-12-20 13:52+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -5865,11 +5865,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2535
 msgid "Read Subfile"
-msgstr ""
+msgstr "Les underfil"
 
 #: tcl/ngcgui.tcl:2540
 msgid "Write Error"
-msgstr ""
+msgstr "Skrivefeil"
 
 #: tcl/ngcgui.tcl:2544
 msgid "Outfile set"
@@ -5877,23 +5877,23 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2549
 msgid "Finished"
-msgstr ""
+msgstr "Ferdig"
 
 #: tcl/ngcgui.tcl:2554
 msgid "Canceled"
-msgstr ""
+msgstr "Avbrutt"
 
 #: tcl/ngcgui.tcl:2560
 msgid "Sent"
-msgstr ""
+msgstr "Sent"
 
 #: tcl/ngcgui.tcl:2564
 msgid "SendFileToAxis failed"
-msgstr ""
+msgstr "SendFileToAxis feilet"
 
 #: tcl/ngcgui.tcl:2568
 msgid "Ctrl-k for Key bindings"
-msgstr ""
+msgstr "Ctrl-k for tastebindinger"
 
 #: tcl/ngcgui.tcl:2572
 msgid "Expand sub"
@@ -5901,7 +5901,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2576
 msgid "Retain values"
-msgstr ""
+msgstr "Bevar verdier"
 
 #: tcl/ngcgui.tcl:2580
 msgid "Verbose"
@@ -5913,11 +5913,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2723 tcl/ngcgui.tcl:2879 tcl/tooledit.tcl:885
 msgid "Dismiss"
-msgstr ""
+msgstr "Avvis"
 
 #: tcl/ngcgui.tcl:2728
 msgid "ngcgui Error"
-msgstr ""
+msgstr "ngcgui-feil"
 
 #: tcl/ngcgui.tcl:2751
 msgid "Declining support for tk send bug in ngcgui"
@@ -5925,7 +5925,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2752
 msgid "You should upgrade linuxcnc to >= linuxcnc2.5"
-msgstr ""
+msgstr "Du bør oppgradere linuxcnc til >= linuxcnc2.5"
 
 #: tcl/ngcgui.tcl:2796
 msgid "pre2.4_send_file_to_axis:error"
@@ -5933,7 +5933,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2990 share/axis/tcl/axis.tcl:1772
 msgid "OFF"
-msgstr ""
+msgstr "AV"
 
 #: tcl/ngcgui.tcl:2993
 msgid "Toggle autosend"
@@ -5961,7 +5961,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2999
 msgid "Create feature"
-msgstr ""
+msgstr "Opprett egenskap"
 
 #: tcl/ngcgui.tcl:3000
 msgid "Finalize (AUTO send is"
@@ -5969,7 +5969,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3001
 msgid "Show key bindings"
-msgstr ""
+msgstr "Vis tastebindinger"
 
 #: tcl/ngcgui.tcl:3002
 msgid "Restart (cancel pending)"
@@ -5997,7 +5997,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3008
 msgid "Show status"
-msgstr ""
+msgstr "Vis status"
 
 #: tcl/ngcgui.tcl:3009
 msgid "Show full status (debug info)"
@@ -17437,19 +17437,19 @@ msgstr "Operatørmelding"
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
 msgid "Restart Entry"
-msgstr ""
+msgstr "Start oppføring på nytt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3804
 msgid "Up"
-msgstr ""
+msgstr "Opp"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
 msgid "Enter"
-msgstr ""
+msgstr "Skriv inn"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3808
 msgid "Down"
-msgstr ""
+msgstr "Ned"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3828
 #, python-format

@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: AXIS Hungarian Translation 0.2\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-17 08:52+0000\n"
+"PO-Revision-Date: 2021-12-20 13:51+0000\n"
 "Last-Translator: Horváth Csaba <hcs.plc@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/hu/>\n"
@@ -2653,20 +2653,20 @@ msgstr ""
 #: src/emc/motion/command.c:2039
 #, c-format
 msgid "unrecognized command %d"
-msgstr ""
+msgstr "ismeretlen parancs %d"
 
 #: src/emc/motion/motion.c:164
 msgid "all joints must be homed before going into teleop mode"
-msgstr ""
+msgstr "minden joint-ot nullpontra kell állítani a teleop mód előtt"
 
 #: src/emc/motion/motion.c:220
 msgid "MOTION: hal_init() failed\n"
-msgstr ""
+msgstr "MOTION: hal_init() sikertelen\n"
 
 #: src/emc/motion/motion.c:225
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_joints ez %d, 1 és %d között kell lennie\n"
 
 #: src/emc/motion/motion.c:232
 #, c-format
@@ -2675,6 +2675,9 @@ msgid ""
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: num_extrajoints ez %d, 0 és %d között kell lennie\n"
+"\n"
 
 #: src/emc/motion/motion.c:237
 msgid ""
@@ -2696,34 +2699,34 @@ msgstr ""
 #: src/emc/motion/motion.c:249
 #, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr ""
+msgstr "MOTION: num_spindles ez %d, 0 és %d között kell lennie\n"
 
 #: src/emc/motion/motion.c:257
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_dio ez %d, 1 és %d között kell lennie\n"
 
 #: src/emc/motion/motion.c:264
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr ""
+msgstr "MOTION: num_aio ez %d, 1 és %d között kell lennie\n"
 
 #: src/emc/motion/motion.c:271
 #, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr ""
+msgstr "MOTION: num_misc_error ez %d, 0 és %d között kell lennie\n"
 
 #: src/emc/motion/motion.c:279
 msgid "MOTION: init_hal_io() failed\n"
-msgstr ""
+msgstr "MOTION: init_hal_io() sikertelen\n"
 
 #: src/emc/motion/motion.c:287
 msgid "MOTION: init_comm_buffers() failed\n"
-msgstr ""
+msgstr "MOTION: init_comm_buffers() sikertelen\n"
 
 #: src/emc/motion/motion.c:295
 msgid "MOTION: init_threads() failed\n"
-msgstr ""
+msgstr "MOTION: init_threads() sikertelen\n"
 
 #: src/emc/motion/motion.c:320
 #, c-format

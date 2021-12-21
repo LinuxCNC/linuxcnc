@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-04 08:33+0100\n"
-"PO-Revision-Date: 2021-12-18 15:11+0000\n"
+"PO-Revision-Date: 2021-12-20 13:52+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -163,7 +163,7 @@ msgstr "**** vil bruke automatisk verktøymåling ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1015
 msgid "**** GMOCCAPY build_GUI INFO ****"
-msgstr ""
+msgstr "**** GMOCCAPY build_GUI INFO ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1016
 msgid "**** To many increments given in INI File for this screen ****"
@@ -171,7 +171,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1017
 msgid "**** Only the first 10 will be reachable through this screen ****"
-msgstr ""
+msgstr "**** Kun de 10 første vil være tilgjengelig på dette skjermbildet ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1026
 msgid "Continuous"
@@ -194,15 +194,15 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1214
 msgid "**** GMOCCAPY INFO ****\n"
-msgstr ""
+msgstr "**** GMOCCAPY INFO ****\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1215
 msgid "**** found more than 16 macros, will use only the first 16 ****"
-msgstr ""
+msgstr "**** fant mer enn 16 makroer, vil kun bruke de 16 første ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1222
 msgid "Press to display previous macro button"
-msgstr ""
+msgstr "Trykk for å vise forrige makroknapp"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1241
 #, python-brace-format
@@ -241,15 +241,15 @@ msgstr "Svært kritisk situasjon"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1520
 msgid "*****  GMOCCAPY INFO  *****"
-msgstr ""
+msgstr "*****  GMOCCAPY INFO  *****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1521
 msgid "this is not a usual config\n"
-msgstr ""
+msgstr "dette er ikke et vanlig oppsett\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1522
 msgid "we miss one of X , Y or Z axis\n"
-msgstr ""
+msgstr "En av aksene X, Y eller Z mangler\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1523
 msgid "We will use by axisletter ordered jog button"
@@ -279,7 +279,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1825
 msgid "**** Did not find a toolfile file in [EMCIO] TOOL_TABLE ****"
-msgstr ""
+msgstr "**** Fant ikke en verktøyfil i [EMCIO] TOOL_TABLE ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1888
 msgid "**** audio available! ****"
@@ -291,7 +291,7 @@ msgstr "**** ingen lyd tilgjengelig. ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1902
 msgid "**** PYGST library not installed? ****"
-msgstr ""
+msgstr "**** er PYGST-biblioteket ikke installert? ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1903
 msgid "**** is python-gstX.XX installed? ****"
@@ -310,35 +310,35 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1976
 msgid "**** virtual keyboard program found : <onboard>"
-msgstr ""
+msgstr "**** fant virtuelt tastaturprogram : <onboard>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1979
 msgid "**** No virtual keyboard installed, we checked for <onboard> ."
-msgstr ""
+msgstr "**** Intet virtuelt tastatur funnet, vi lette etter <onboard> ."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1980
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1995
 msgid "**** try sudo apt-get install onboard"
-msgstr ""
+msgstr "**** forsøk «sudo apt-get install onboard»"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1992
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3180
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3190
 msgid "**** GMOCCAPY ERROR ****"
-msgstr ""
+msgstr "**** GMOCCAPY-FEIL ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1993
 msgid "**** Error with launching virtual keyboard,"
-msgstr ""
+msgstr "**** Feil ved oppstart av virtuelt tastatur,"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1994
 msgid "**** is onboard installed? ****"
-msgstr ""
+msgstr "**** er onboard installert? ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2027
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2859
 msgid "interrupt running macro"
-msgstr ""
+msgstr "bryt av kjørende makro"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2058
 msgid "**** Did not find a parameter file in [RS274NGC] PARAMETER_FILE ****"
@@ -389,30 +389,30 @@ msgstr ""
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2819
 #, python-brace-format
 msgid "Set parameter {0} to:"
-msgstr ""
+msgstr "Sett parameter {0} til:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2821
 msgid "conversion error"
-msgstr ""
+msgstr "konverteringsfeil"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2822
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4536
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4559
 msgid "Conversion error !"
-msgstr ""
+msgstr "Konverteringsfeil!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2857
 msgid "This button will show or hide the keyboard"
-msgstr ""
+msgstr "Denne knappen vil vise eller skjule tastaturet"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2965
 msgid "Mode change is only allowed if the interpreter is idle!"
-msgstr ""
+msgstr "Modusendring er kun tillat når kommandotolken ikke er aktiv!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3181
 #, python-brace-format
 msgid "**** {0} ****"
-msgstr ""
+msgstr "**** {0} ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3191
 #, python-brace-format
@@ -422,12 +422,12 @@ msgstr ""
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3357
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:34
 msgid "No tool description available"
-msgstr ""
+msgstr "Mangler verktøybeskrivelse"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3497
 #, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr ""
+msgstr "Hei, velkommen til testmeldingen {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3593
 msgid "Hal Pin is low, Access denied"
@@ -606,7 +606,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4508
 msgid "your selection has been reset to the tool in spindle"
-msgstr ""
+msgstr "ditt valg har blitt tilbakeført til verktøyet i spindelen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4515
 msgid ""
@@ -624,17 +624,17 @@ msgstr "Virkelig stor feil!"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4526
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
-msgstr ""
+msgstr "Du klarte å komme til en plass som ikke er mulig i on_btn_tool_touchoff"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4530
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr ""
+msgstr "Skriv inn verdi for akse {0} for å sette:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4531
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
-msgstr ""
+msgstr "Sett parameter for verktøy {0:d} og akse {1} til:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4535
 #, python-brace-format
@@ -650,7 +650,6 @@ msgid "Select the tool to change"
 msgstr "Velg verktøyet å endre"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4557
-#, fuzzy
 msgid "Conversion error because of wrong entry for tool number\n"
 msgstr "Konverteringsfeil som følge av feil oppføring for verktøynummer\n"
 
@@ -661,16 +660,16 @@ msgstr "kun skriv inn heltall"
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4564
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4582
 msgid "Selected tool is already in spindle, no change needed."
-msgstr ""
+msgstr "Valgt verktøy er allerede i spindel, ingen endring nødvendig."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4578
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
-msgstr ""
+msgstr "du valgte intet eller mer enn ett verktøy. verktøyvalget må være unikt"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4597
 msgid "Could not understand the entered tool number. Will not change anything"
-msgstr ""
+msgstr "Klarte ikke forstå inntastede verktøynummer. Endrer ikke på noe"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4881
 msgid ""
@@ -738,23 +737,23 @@ msgstr "Operatørmelding"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:182 emc/usr_intf/gmoccapy/dialogs.py:186
 msgid "Restart Entry"
-msgstr ""
+msgstr "Start oppføring på nytt"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:198
 msgid "Up"
-msgstr ""
+msgstr "Opp"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:200
 msgid "Enter"
-msgstr ""
+msgstr "Skriv inn"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:202
 msgid "Down"
-msgstr ""
+msgstr "Ned"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:98
 msgid "**** GMOCCAPY GETINIINFO : ****"
-msgstr ""
+msgstr "**** GMOCCAPY GETINIINFO : ****"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:99
 #, python-brace-format
@@ -762,16 +761,20 @@ msgid ""
 "**** gmoccapy can only handle 9 axis, ****\n"
 "**** but you have given {0} through your INI file ****\n"
 msgstr ""
+"**** gmoccapy kan bare håndtere 9 akser, ****\n"
+"**** men du har oppgitt {0} i din INI-fil ****\n"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:100
 msgid ""
 "**** gmoccapy will not start ****\n"
 "\n"
 msgstr ""
+"**** gmoccapy kan ikke starte ****\n"
+"\n"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:431
 msgid "**** GMOCCAPY GETINIINFO ****\n"
-msgstr ""
+msgstr "**** GMOCCAPY GETINIINFO ****\n"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:432
 msgid ""
@@ -781,15 +784,15 @@ msgstr ""
 #: emc/usr_intf/gmoccapy/notification.py:209
 #, python-brace-format
 msgid "Error trying to delete the message with number {0}"
-msgstr ""
+msgstr "Feil ved forsøk på å slette melding med nummer {0}"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
 msgid "left rotate,  middle move,  right zoom"
-msgstr ""
+msgstr "venstre roterer, midten flytter, høyre forstørrer"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:2
 msgid "left zoom,  middle move,  right rotate"
-msgstr ""
+msgstr "venstre forstørrer, midten flytter, høyre roterer"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:3
 msgid "left move,  middle rotate,  right zoom"
