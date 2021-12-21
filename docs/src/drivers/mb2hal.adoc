@@ -151,7 +151,7 @@ Click link:mb2hal_HOWTO.ini[here] to download.
 
 [source,{ini}]
 ----
-include::../../../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini[]
+include::mb2hal_HOWTO.ini[]
 ----
 
 == Pins
