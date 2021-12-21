@@ -696,11 +696,11 @@ QProgressBar {
     background: backalt;
     border: 0px;
     border-radius: 4px;
-    max-height: 20px; }
+    max-width: 20px; }
 
 QProgressBar::chunk {
     background-color: foregnd;
-    width: 1px;
+    height: 1px;
     margin: 0.5px }
 
 /****** LED ************/

@@ -10,8 +10,8 @@ ESTOP_TYPE = 0
 # estop is a button
 #ESTOP_TYPE = 2
 
-CAMERA_TOUCHOFF         = 25 0
-LASER_TOUCHOFF          = -25 0
+CAMERA_TOUCHOFF         = X25 Y0
+LASER_TOUCHOFF          = X-25 Y0
 
 # user buttons in the main window
 BUTTON_1_NAME           = OHMIC\TEST

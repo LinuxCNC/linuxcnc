@@ -3,7 +3,7 @@ Title: LinuxCNC Documentation French
 Section: Science/Engineering
 
 Format: PDF
-Files: /usr/share/doc/linuxcnc/LinuxCNC_User_Manual_fr.pdf
- /usr/share/doc/linuxcnc/LinuxCNC_Integrator_Manual_fr.pdf
- /usr/share/doc/linuxcnc/LinuxCNC_HAL_Manual_fr.pdf
+Files: /usr/share/doc/linuxcnc/LinuxCNC_User_fr.pdf
+ /usr/share/doc/linuxcnc/LinuxCNC_Integrator_fr.pdf
+ /usr/share/doc/linuxcnc/LinuxCNC_HAL_fr.pdf
  /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_fr.pdf

@@ -1588,7 +1588,7 @@ qtplasmac.laser_on
 
 *To set the origin with zero rotation:*
 
-. Press the *LASER* button.
+. Click the *LASER* button.
 . *LASER* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned on.
 . Jog until the laser cross hairs are on top of the desired origin point.
 . Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN*.
@@ -1598,7 +1598,7 @@ qtplasmac.laser_on
 
 *To set the origin with rotation:*
 
-. Press the *LASER* button.
+. Click the *LASER* button.
 . *LASER* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned on.
 . Jog until the laser cross hairs are at the edge of the material a suitable distance away from the desired origin point.
 . Press *MARK EDGE*. The *MARK EDGE* button label will change to *SET ORIGIN*.
@@ -1606,6 +1606,12 @@ qtplasmac.laser_on
 . Press *SET ORIGIN*. The *SET ORIGIN* button label will change to *MARK EDGE* and the HAL pin named qtplasmac.laser_on will be turned off.
 . The torch will now move to the X0 Y0 position.
 . The offset is now successfully set.
+
+*To turn the laser off and cancel an alignment:*
+
+. Press the *LASER* button and hold for longer than 750 mSec.
+. *LASER* button label will change to *LASER* and the HAL pin named qtplasmac.laser_on will be turned off.
+. Release the *LASER* button.
 
 [[qt_path-tolerance]]
 

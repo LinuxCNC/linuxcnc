@@ -1,4 +1,4 @@
-VERSION = '1.221.144'
+VERSION = '1.221.146'
 
 '''
 qtplasmac_handler.py
@@ -321,7 +321,7 @@ class HandlerClass:
         STATUS.connect('g-code-changed', self.gcodes_changed)
         STATUS.connect('m-code-changed', self.mcodes_changed)
         STATUS.connect('program-pause-changed', self.pause_changed)
-        STATUS.connect('graphics-loading-progress', self.percent_loaded)
+        STATUS.connect('graphics-loading-progress', self.progress_changed)
         STATUS.connect('interp-paused', self.interp_paused)
         STATUS.connect('interp-idle', self.interp_idle)
         STATUS.connect('interp-reading', self.interp_reading)
@@ -331,6 +331,7 @@ class HandlerClass:
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
+        STATUS.connect('periodic', lambda w: self.update_periodic())
         self.overlayPreview.setText(self.get_overlay_text(False))
         self.overlayConv.setText(self.get_overlay_text(True))
         if not self.w.chk_overlay.isChecked():
@@ -340,6 +341,9 @@ class HandlerClass:
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
+        self.laserTimer = QTimer()
+        self.laserTimer.timeout.connect(self.laser_timeout)
+        self.laserTimer.setSingleShot(True)
         self.set_color_styles()
         self.autorepeat_keys(False)
         # set hal pins only after initialized__ has begun
@@ -815,9 +819,11 @@ class HandlerClass:
         self.w.gcode_display.set_margin_width(3)
         self.w.gcode_display.setBraceMatching(False)
         self.w.gcode_display.setCaretWidth(0)
+        self.w.gcode_display.setCornerWidget(QLabel())
         self.w.gcode_editor.set_margin_width(3)
         self.w.gcode_editor.editor.setBraceMatching(False)
         self.w.gcode_editor.editor.setCaretWidth(4)
+        self.w.gcode_editor.editor.setCornerWidget(QLabel())
         self.w.gcode_editor.editMode()
         self.w.gcode_editor.pythonLexerAction.setVisible(False)
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
@@ -839,9 +845,9 @@ class HandlerClass:
         self.w.camview.cross_color = QtCore.Qt.red
         self.w.camview.cross_pointer_color = QtCore.Qt.red
         self.w.camview.font = QFont('arial,helvetica', 16)
-        self.flasher = QTimer()
-        self.flasher.timeout.connect(self.flasher_timeout)
-        self.flasher.start(500)
+        self.flashState = False
+        self.flashRate = 4
+        self.flasher = self.flashRate
         self.manualCut = False
         self.jogPreManCut = [False, INFO.DEFAULT_LINEAR_JOG_VEL, 0]
         self.probeTest = False
@@ -860,6 +866,8 @@ class HandlerClass:
         self.overlayConv.setStyleSheet('font: 12pt "Courier"; color: #cccccc; background: rgba(1,0,0,255)')
         self.overlayConv.setAlignment(Qt.AlignTop|Qt.AlignLeft)
         self.overlayProgress = QProgressBar(self.w.gcode_display)
+        self.overlayProgress.setOrientation(Qt.Vertical)
+        self.overlayProgress.setInvertedAppearance(True)
         self.overlayProgress.setFormat('')
         self.overlayProgress.hide()
 
@@ -1240,18 +1248,19 @@ class HandlerClass:
         msg0 = _translate('HandlerClass', 'JOG')
         self.w.jogs_label.setText('{}\n{:.0f}'.format(msg0, STATUS.get_jograte()))
 
-    def percent_loaded(self, object, percent):
-        if percent < 1:
+    def progress_changed(self, object, percent):
+        if percent < 0:
             self.overlayProgress.setValue(0)
             self.overlayProgress.hide()
-            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         else:
             self.overlayProgress.setValue(percent)
             self.overlayProgress.show()
-            self.overlayProgress.setFixedWidth(self.w.gcode_display.geometry().width() - 20)
-            self.overlayProgress.move(0, self.w.gcode_display.geometry().height() - 20)
+            self.overlayProgress.setFixedHeight(self.w.gcode_display.geometry().height())
+            self.overlayProgress.move(self.w.gcode_display.geometry().width() - 20, 0)
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.w.gcode_display.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def user_system_changed(self, obj, data):
         sys = self.systemList[int(data)]
@@ -1322,6 +1331,8 @@ class HandlerClass:
                 self.w.gcode_display.set_margin_width(3)
                 self.w.gcode_editor.set_margin_width(3)
         ACTION.SET_MANUAL_MODE()
+        if not len(self.w.gcode_display.text()):
+            self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex():
             self.w.main_tab_widget.setCurrentIndex(0)
 
@@ -2003,6 +2014,7 @@ class HandlerClass:
         self.w.cone_size.valueChanged.connect(self.cone_size_changed)
         self.w.grid_size.valueChanged.connect(self.grid_size_changed)
         self.w.gcode_display.linesChanged.connect(self.gcode_display_loaded)
+        self.w.gcode_editor.percentDone.connect(lambda w:self.progress_changed(None, w))
         self.w.file_clear.clicked.connect(self.file_clear_clicked)
         self.w.file_open.clicked.connect(self.file_open_clicked)
         self.w.file_edit.clicked.connect(self.file_edit_clicked)
@@ -2134,6 +2146,7 @@ class HandlerClass:
         self.w.zoom_out.pressed.connect(self.zoom_out_pressed)
         self.w.camera.pressed.connect(self.camera_pressed)
         self.w.laser.pressed.connect(self.laser_pressed)
+        self.w.laser.clicked.connect(self.laser_clicked)
         self.w.main_tab_widget.currentChanged.connect(lambda w:self.main_tab_changed(w))
         self.zHeightPin.value_changed.connect(lambda v:self.z_height_changed(v))
         self.plasmacStatePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
@@ -2633,52 +2646,70 @@ class HandlerClass:
             self.w[self.frButton].setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
+        self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+    def update_periodic(self):
+        if self.framing and STATUS.is_interp_idle():
+            self.framing = False
+            ACTION.SET_MANUAL_MODE()
+            self.laserOnPin.set(0)
+            self.w.gcodegraphics.logger.clear()
+        self.set_button_color()
+        self.stats_update()
+        if self.flasher:
+            self.flasher -= 1
+        else:
+            self.flasher = self.flashRate
+            self.flashState = not self.flashState
+            self.flasher_timeout()
 
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
-            if self.w.pause.text() == '':
+            if self.flashState:
                 self.w.pause.setText(_translate('HandlerClass', 'CYCLE RESUME'))
             else:
                 self.w.pause.setText('')
         else:
             self.w.pause.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
         text = _translate('HandlerClass', 'FEED')
-        if self.w.feed_slider.value() != 100 and \
-           self.w.feed_label.text() == '{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100):
+        if self.w.feed_slider.value() != 100:
+            if self.flashState:
+                self.w.feed_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100))
+            else:
                 self.w.feed_label.setText(' \n ')
         else:
             self.w.feed_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.feedrate * 100))
         text = _translate('HandlerClass', 'RAPID')
-        if self.w.rapid_slider.value() != 100 and \
-           self.w.rapid_label.text() == '{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100):
+        if self.w.rapid_slider.value() != 100:
+            if self.flashState:
+                self.w.rapid_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100))
+            else:
                 self.w.rapid_label.setText(' \n ')
         else:
             self.w.rapid_label.setText('{}\n{:.0f}%'.format(text, STATUS.stat.rapidrate * 100))
         text = _translate('HandlerClass', 'JOG')
-        if self.manualCut and text in self.w.jogs_label.text():
-            self.w.jogs_label.setText(' \n ')
-        else:
-            self.w.jogs_label.setText('{}\n{:.0f}'.format(text, STATUS.get_jograte()))
+        if self.manualCut:
+            if self.flashState:
+                self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
+                self.w.jogs_label.setText('{}\n{:.0f}'.format(text, STATUS.get_jograte()))
+            else:
+                self.w.run.setText('')
+                self.w.jogs_label.setText(' \n ')
         if self.heightOvr > 0.01 or self.heightOvr < -0.01:
-            if self.w.height_ovr_label.text() == '':
+            if self.flashState:
                 self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
             else:
                 self.w.height_ovr_label.setText('')
         else:
             self.w.height_ovr_label.setText('{:.2f}'.format(self.heightOvr))
-        if self.manualCut:
-            if self.w.run.text() == '':
-                self.w.run.setText(_translate('HandlerClass', 'MANUAL CUT'))
-            else:
-                self.w.run.setText('')
         if self.flash_error and self.error_present:
-            if self.w.error_label.text().startswith(_translate('HandlerClass', 'ERROR')):
-                self.w.error_label.setText('')
-            else:
+            if self.flashState:
                 self.w.error_label.setText(_translate('HandlerClass', 'ERROR SENT TO MACHINE LOG'))
+            else:
+                self.w.error_label.setText('')
         if self.startLine > 0:
             if not self.w.run.text().startswith(_translate('HandlerClass', 'RUN')):
-                if self.w.run.text() == (''):
+                if self.flashState:
                     self.w.run.setText(self.runText)
                 else:
                     self.w.run.setText('')
@@ -2689,26 +2720,19 @@ class HandlerClass:
             self.pmx485LabelState = None
             self.w.pmx_stats_frame.hide()
         elif self.pmx485CommsError:
-            if self.w.pmx485_label.text() == '':
+            if self.flashState:
                 self.w.pmx485_label.setText(_translate('HandlerClass', 'COMMS ERROR'))
                 self.pmx485LabelState = None
             else:
                 self.w.pmx485_label.setText('')
                 self.pmx485LabelState = None
         elif not self.pmx485LabelState:
-            if self.w.pmx485_label.text() == '':
+            if self.flashState:
                 self.w.pmx485_label.setText('Fault Code: {}'.format(self.pmx485FaultCode))
                 self.pmx485LabelState = None
             else:
                 self.w.pmx485_label.setText('')
                 self.pmx485LabelState = None
-        if self.framing and STATUS.is_interp_idle():
-            self.framing = False
-            ACTION.SET_MANUAL_MODE()
-            self.laserOnPin.set(0)
-            self.w.gcodegraphics.logger.clear()
-        self.set_button_color()
-        self.stats_update()
 
     def probe_timeout(self):
         if self.probeTime > 1:
@@ -2736,21 +2760,35 @@ class HandlerClass:
             self.torchTimer.start(100)
 
     def pulse_timer_timeout(self):
-        # halPulsePins format is: button name, pulse time, button text, remaining time
+        # halPulsePins format is: button name, pulse time, button text, remaining time, button number
         active = False
-        for halpin in self.halPulsePins:
-            if self.halPulsePins[halpin][3] > 0.05:
-                active = True
-                if self.halPulsePins[halpin][1] == self.halPulsePins[halpin][3]:
+        try:
+            for halpin in self.halPulsePins:
+                if self.halPulsePins[halpin][3] > 0.05:
+                    active = True
+                    if self.halPulsePins[halpin][1] == self.halPulsePins[halpin][3]:
+                        self.invert_pin_state(halpin)
+                    self.halPulsePins[halpin][3] -= 0.1
+                    self.w[self.halPulsePins[halpin][0]].setText('{:0.1f}'.format(self.halPulsePins[halpin][3]))
+                elif self.w[self.halPulsePins[halpin][0]].text() != self.halPulsePins[halpin][2]:
                     self.invert_pin_state(halpin)
-                self.halPulsePins[halpin][3] -= 0.1
-                self.w[self.halPulsePins[halpin][0]].setText('{:0.1f}'.format(self.halPulsePins[halpin][3]))
-            elif self.w[self.halPulsePins[halpin][0]].text() != self.halPulsePins[halpin][2]:
-                self.invert_pin_state(halpin)
-                self.halPulsePins[halpin][3] = 0
-                self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+                    self.halPulsePins[halpin][3] = 0
+                    self.w[self.halPulsePins[halpin][0]].setText('{}'.format(self.halPulsePins[halpin][2]))
+        except Exception as err:
+            self.halPulsePins[halpin][3] = 0
+            bNum = self.halPulsePins[halpin][4]
+            head = _translate('HandlerClass', 'HAL PIN ERROR')
+            msg0 = _translate('HandlerClass', 'Invalid code for user button')
+            msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
         if not active:
             self.pulseTimer.stop()
+
+    def laser_timeout(self):
+        if self.w.laser.isDown():
+            self.laserOnPin.set(0)
+            self.laserButtonState = 'reset'
+            self.w.laser.setText(_translate('HandlerClass', 'LASER'))
 
 
 #########################################################################################################################
@@ -2975,9 +3013,9 @@ class HandlerClass:
                             msg2 = _translate('HandlerClass', 'does not exist')
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}" {}\n'.format(head, msg0, bNum, msg1, halpin, msg2))
                             continue
-                    # halPulsePins format is: button name, pulse time, button text, remaining time
+                    # halPulsePins format is: button name, pulse time, button text, remaining time, button number
                     try:
-                        self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0]
+                        self.halPulsePins[halpin] = ['button_{}'.format(str(bNum)), float(delay), bLabel, 0.0, bNum]
                     except:
                         head = _translate('HandlerClass', 'USER BUTTON ERROR')
                         msg1 = _translate('HandlerClass', 'Check button code for invalid seconds argument')
@@ -3057,11 +3095,11 @@ class HandlerClass:
                     self.halPulsePins[halpin][3] = 0.0
                 else:
                     self.invert_pin_state(halpin)
-            except:
+            except Exception as err:
                 head = _translate('HandlerClass', 'HAL PIN ERROR')
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL PIN ERROR')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3075,7 +3113,7 @@ class HandlerClass:
                     msg0 = _translate('HandlerClass', 'Unknown error for user button')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
                     return
-            # halPulsePins format is: button name, pulse time, button text, remaining time
+            # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
                     self.halPulsePins[halpin][3] = 0.0
@@ -4170,7 +4208,22 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.vkb_hide()
 
+    def laser_clicked(self):
+        if self.laserButtonState == 'reset':
+            self.laserButtonState = 'laser'
+            return
+        elif self.laserButtonState == 'laser':
+            self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
+            self.laserButtonState = 'markedge'
+            self.laserOnPin.set(1)
+            return
+        elif self.laserButtonState == 'setorigin':
+            self.laserOnPin.set(0)
+        self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
+
     def laser_pressed(self):
+        self.laserTimer.start(750)
+        return
         if self.laserButtonState == 'laser':
             self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
             self.laserButtonState = 'markedge'
