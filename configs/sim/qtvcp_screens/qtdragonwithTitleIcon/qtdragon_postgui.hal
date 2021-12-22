@@ -1,0 +1,23 @@
+loadrt abs names=abs_spindle_feedback
+addf abs_spindle_feedback servo-thread
+
+net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+
+# external offset stuff
+net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-count => axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+setp axis.z.eoffset-enable 1
+setp axis.z.eoffset-scale 1.0
+
