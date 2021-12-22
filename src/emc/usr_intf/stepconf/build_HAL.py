@@ -750,7 +750,7 @@ class HAL:
             print(file=f1)
             if self.d.select_qtplasmac:
                 print("# --- PLASMAC:LASER-ON ---", file=f1)
-                print("#net plasmac:laser-on  qtplasmac.laser_on  =>  YOUR_LASER_ON_PI", file=f1)
+                print("#net plasmac:laser-on  qtplasmac.laser_on  =>  YOUR_LASER_ON_PIN", file=f1)
             f1.close()
         # if using thcad for arc voltage and not a sim config
         if self.d.thcadenc & 1 and not self.d.sim_hardware:

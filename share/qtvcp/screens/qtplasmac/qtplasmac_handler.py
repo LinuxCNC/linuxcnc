@@ -1,4 +1,4 @@
-VERSION = '1.221.146'
+VERSION = '1.221.147'
 
 '''
 qtplasmac_handler.py
@@ -249,9 +249,9 @@ class HandlerClass:
         self.progRun = False
         self.rapidOn = False
         self.probeOn = False
-        self.gcodeProps = ''
+        self.gcodeProps = {}
         self.framing = False
-        self.boundsError = {'loaded': False, 'framing': False}
+        self.boundsError = {'loaded': False, 'framing': False, 'align': False}
         self.obLayout = ''
         self.notifyColor = 'normal'
         self.firstHoming = False
@@ -1343,6 +1343,8 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT('T0 M6')
             ACTION.SET_MANUAL_MODE()
             self.firstHoming = True
+        if not self.fileOpened:
+            self.set_blank_gcodeprops()
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
@@ -1423,14 +1425,17 @@ class HandlerClass:
 
     def update_gcode_properties(self, props):
         if props:
-            self.gcodeProps = props
-            for axis in 'XY':
-                if not axis in self.gcodeProps:
-                    self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
-            if props['GCode Units'] == 'in':
-                STATUS.emit('metric-mode-changed', False)
+            if 'qtplasmac_program_clear.ngc' in props['name']:
+                self.set_blank_gcodeprops()
             else:
-                STATUS.emit('metric-mode-changed', True)
+                self.gcodeProps = props
+                for axis in 'XY':
+                    if not axis in self.gcodeProps:
+                        self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
+                if props['GCode Units'] == 'in':
+                    STATUS.emit('metric-mode-changed', False)
+                else:
+                    STATUS.emit('metric-mode-changed', True)
 
     def error_update(self, obj, kind, error):
         if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
@@ -1856,6 +1861,20 @@ class HandlerClass:
 # GENERAL FUNCTIONS #
 #########################################################################################################################
 
+    def set_blank_gcodeprops(self):
+        # a workaround for the extreme values in gcodeprops for a blank file
+        self.gcodeProps = {}
+        self.gcodeProps['name'] = 'generated from qtplasmac_program_clear.ngc'
+        self.gcodeProps['size'] = '35 bytes\n2 gcode lines'
+        self.gcodeProps['G0'] = '0.0 {}'.format(self.units)
+        self.gcodeProps['G1'] = '0.0 {}'.format(self.units)
+        self.gcodeProps['Run'] = '0 Seconds'
+        self.gcodeProps['X'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['Y'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['Z'] = '0.0 to 0.0 = 0.0 {}'.format(self.units)
+        self.gcodeProps['Units'] = '{}'.format(self.units)
+        self.gcodeProps['GCode Units'] = '{}'.format(self.units)
+
     def wcs_rotation(self, wcs):
         if wcs == 'get':
             self.currentRotation = STATUS.stat.rotation_xy
@@ -1910,28 +1929,28 @@ class HandlerClass:
             units = 'mm'
             if self.gcodeProps['Units'] == 'in':
                 boundsMultiplier = 25.4
-        xMin = float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset
+        xMin = round(float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset, 5)
         if xMin < self.xMin:
             amount = float(self.xMin - xMin)
             msgList.append('X')
             msgList.append('MIN')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        xMax = float(self.gcodeProps['X'].split()[2]) * boundsMultiplier + xOffset
+        xMax = round(float(self.gcodeProps['X'].split()[2]) * boundsMultiplier + xOffset, 5)
         if xMax > self.xMax:
             amount = float(xMax - self.xMax)
             msgList.append('X')
             msgList.append('MAX')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        yMin = float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier + yOffset
+        yMin = round(float(self.gcodeProps['Y'].split()[0]) * boundsMultiplier + yOffset, 5)
         if yMin < self.yMin:
             amount = float(self.yMin - yMin)
             msgList.append('Y')
             msgList.append('MIN')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        yMax = float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier + yOffset
+        yMax = round(float(self.gcodeProps['Y'].split()[2]) * boundsMultiplier + yOffset, 5)
         if yMax > self.yMax:
             amount = float(yMax - self.yMax)
             msgList.append('Y')
@@ -3409,6 +3428,7 @@ class HandlerClass:
         if self.gcodeProps and state:
             self.framing = True
             self.w.run.setEnabled(False)
+            response = False
             msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
             if self.boundsError['framing']:
                 head = _translate('HandlerClass', 'Axis Limit Error')
@@ -3424,7 +3444,8 @@ class HandlerClass:
                     fmt = '\n{} {} {}{} {}' if msgs else '{} {} {}{} {}'
                     msgs += fmt.format(msgList[n], msg0, msgList[n + 2], units, msg1)
                 msgs += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
-                if not self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs), '{}'.format(btn1), '{}'.format(btn2)):
+                response = self.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs), '{}'.format(btn1), '{}'.format(btn2))
+                if not response:
                     self.framing = False
                     self.w.run.setEnabled(True)
                     self.boundsError['framing'] = False
@@ -3436,15 +3457,16 @@ class HandlerClass:
                 feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
             if STATUS.is_on_and_idle() and STATUS.is_all_homed():
-                self.laserOnPin.set(1)
-                ACTION.CALL_MDI_WAIT('G64 P{:0.3}'.format(0.25 * self.unitsPerMm))
+                if not response:
+                    self.laserOnPin.set(1)
+                ACTION.CALL_MDI_WAIT('G64 P{:0.3f}'.format(0.25 * self.unitsPerMm))
                 if self.defaultZ:
-                    ACTION.CALL_MDI('G53 G0 Z{}'.format(zHeight))
-                ACTION.CALL_MDI('G53 G0 X{} Y{} F{}'.format(xMin, yMin, feed))
-                ACTION.CALL_MDI('G53 G1 Y{} F{}'.format(yMax, feed))
-                ACTION.CALL_MDI('G53 G1 X{} F{}'.format(xMax, feed))
-                ACTION.CALL_MDI('G53 G1 Y{} F{}'.format(yMin, feed))
-                ACTION.CALL_MDI('G53 G1 X{} F{}'.format(xMin, feed))
+                    ACTION.CALL_MDI('G53 G0 Z{:0.4f}'.format(zHeight))
+                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(xMin, yMin))
+                ACTION.CALL_MDI('G53 G1 Y{:0.2f} F{:0.0f}'.format(yMax, feed))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f}'.format(xMax))
+                ACTION.CALL_MDI('G53 G1 Y{:0.2f}'.format(yMin))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f}'.format(xMin))
 
     def single_cut(self):
         self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)
@@ -4209,6 +4231,13 @@ class HandlerClass:
             self.vkb_hide()
 
     def laser_clicked(self):
+        xPos = STATUS.get_position()[0][0] - self.laserOffsetX
+        yPos = STATUS.get_position()[0][1] - self.laserOffsetY
+        if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
+            head = _translate('HandlerClass', 'LASER ERROR')
+            msg0 = _translate('HandlerClass', 'Laser is outside the machine boundary')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            return
         if self.laserButtonState == 'reset':
             self.laserButtonState = 'laser'
             return
@@ -4224,14 +4253,6 @@ class HandlerClass:
     def laser_pressed(self):
         self.laserTimer.start(750)
         return
-        if self.laserButtonState == 'laser':
-            self.w.laser.setText(_translate('HandlerClass', 'MARK\nEDGE'))
-            self.laserButtonState = 'markedge'
-            self.laserOnPin.set(1)
-            return
-        elif self.laserButtonState == 'setorigin':
-            self.laserOnPin.set(0)
-        self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
 
     def sheet_align(self, button_state, button, offsetX, offsetY):
         if button_state == 'markedge':
@@ -4273,10 +4294,13 @@ class HandlerClass:
                     zAngle = 0
             else:
                 zAngle = 0
+            if not self.gcodeProps:
+                msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('align', 0, 0)
             self.w.camview.rotation = zAngle
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
-            ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+            if not self.boundsError['align']:
+                ACTION.CALL_MDI_WAIT('G0 X0 Y0')
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -4285,11 +4309,20 @@ class HandlerClass:
         return button_state
 
     def cam_mark_pressed(self):
+        xPos = STATUS.get_position()[0][0] - self.camOffsetX
+        yPos = STATUS.get_position()[0][1] - self.camOffsetY
+        if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
+            head = _translate('HandlerClass', 'CAMERA ERROR')
+            msg0 = _translate('HandlerClass', 'Camera is outside the machine boundary')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+            return
         self.camButtonState = self.sheet_align(self.camButtonState, self.w.cam_mark, self.camOffsetX, self.camOffsetY)
 
     def cam_goto_pressed(self):
-        ACTION.CALL_MDI_WAIT('G0 X0 Y0')
-        ACTION.SET_MANUAL_MODE()
+        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('align', 0, 0)
+        if not self.boundsError['align']:
+            ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+            ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
         if self.w.camview.scale >= 5:
