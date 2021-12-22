@@ -101,7 +101,7 @@ class QTVCP:
     def __init__(self):
         sys.excepthook = self.excepthook
         INIPATH = None
-        INITTITLE = ""
+        INITITLE = ""
         INIICON = ""
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
@@ -119,7 +119,7 @@ class QTVCP:
         for i in range(len(sys.argv)):
             if sys.argv[i] =='-title':
                 del sys.argv[i]
-                INITTITLE = sys.argv.pop(i)
+                INITITLE = sys.argv.pop(i)
                 break
         for i in range(len(sys.argv)):
             if sys.argv[i] =='-icon':
@@ -283,9 +283,9 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # title
         if INIPATH:
-            if (INITTITLE == ""):
-                INITTITLE="QTvcp-Screen-" + opts.component
-            title = INITTITLE 
+            if (INITITLE == ""):
+                INITITLE='QTvcp-Screen-%s'% opts.component
+            title = INITITLE 
         else:
             title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
