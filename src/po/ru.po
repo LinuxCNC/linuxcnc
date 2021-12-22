@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-22 18:53+0000\n"
+"PO-Revision-Date: 2021-12-23 05:43+0000\n"
 "Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -3450,17 +3450,17 @@ msgstr "Пауза после передачи - миллисекунды"
 #: src/hal/classicladder/config_gtk.c:646
 #, c-format
 msgid "After receive pause - milliseconds"
-msgstr ""
+msgstr "Пауза после приема - миллисекунды"
 
 #: src/hal/classicladder/config_gtk.c:650
 #, c-format
 msgid "Request Timeout length - milliseconds"
-msgstr ""
+msgstr "Таймаут для запроса - миллисекунды"
 
 #: src/hal/classicladder/config_gtk.c:654
 #, c-format
 msgid "Use RTS to send"
-msgstr ""
+msgstr "Использовать RTS для посылки"
 
 #: src/hal/classicladder/config_gtk.c:658
 #, c-format
