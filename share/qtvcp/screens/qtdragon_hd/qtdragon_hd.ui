@@ -5537,8 +5537,8 @@ OFF</string>
                   </property>
                   <property name="off_color" stdset="0">
                    <color>
-                    <red>0</red>
-                    <green>255</green>
+                    <red>255</red>
+                    <green>0</green>
                     <blue>0</blue>
                    </color>
                   </property>
@@ -5623,8 +5623,8 @@ OFF</string>
                   </property>
                   <property name="off_color" stdset="0">
                    <color>
-                    <red>0</red>
-                    <green>255</green>
+                    <red>255</red>
+                    <green>0</green>
                     <blue>0</blue>
                    </color>
                   </property>
@@ -5712,8 +5712,8 @@ OFF</string>
                   </property>
                   <property name="off_color" stdset="0">
                    <color>
-                    <red>0</red>
-                    <green>255</green>
+                    <red>255</red>
+                    <green>0</green>
                     <blue>0</blue>
                    </color>
                   </property>
@@ -5802,7 +5802,7 @@ OFF</string>
                   <property name="off_color" stdset="0">
                    <color>
                     <red>0</red>
-                    <green>255</green>
+                    <green>0</green>
                     <blue>0</blue>
                    </color>
                   </property>
@@ -5858,7 +5858,7 @@ OFF</string>
                   <property name="off_color" stdset="0">
                    <color>
                     <red>0</red>
-                    <green>255</green>
+                    <green>0</green>
                     <blue>0</blue>
                    </color>
                   </property>
@@ -5933,14 +5933,14 @@ OFF</string>
                   </property>
                   <property name="color">
                    <color>
-                    <red>255</red>
-                    <green>0</green>
+                    <red>85</red>
+                    <green>255</green>
                     <blue>0</blue>
                    </color>
                   </property>
                   <property name="off_color" stdset="0">
                    <color>
-                    <red>255</red>
+                    <red>0</red>
                     <green>0</green>
                     <blue>0</blue>
                    </color>
@@ -12729,7 +12729,7 @@ INCREMENT</string>
                         <bool>false</bool>
                        </property>
                        <property name="indicator_status_option" stdset="0">
-                        <bool>false</bool>
+                        <bool>true</bool>
                        </property>
                        <property name="on_color" stdset="0">
                         <color>
@@ -12847,6 +12847,9 @@ INCREMENT</string>
                        </property>
                        <property name="indicator_HAL_pin_option" stdset="0">
                         <bool>false</bool>
+                       </property>
+                       <property name="indicator_status_option" stdset="0">
+                        <bool>true</bool>
                        </property>
                        <property name="on_color" stdset="0">
                         <color>
@@ -13172,7 +13175,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>02:01:22 PM</string>
+               <string>09:52:47 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
