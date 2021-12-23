@@ -362,11 +362,16 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def get_wheel_rotation(self):
         return self._noRotate
     def reset_wheel_rotation(self):
-        self._noRotate = False
-
+        self._camNum = False
+    def set_camnum(self, value):
+        self._camNum = value
+    def get_camnum(self):
+        return self._noRotate
+    def reset_camnum(self):
+        self._camNum = 0
     # designer will show these properties in this order:
     block_wheel_rotation = QtCore.pyqtProperty(bool, get_wheel_rotation, set_wheel_rotation, reset_wheel_rotation)
-    camera_number = QtCore.pyqtProperty(int, get_wheel_rotation, set_wheel_rotation, reset_wheel_rotation)
+    camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
     def __init__(self, src=0):
