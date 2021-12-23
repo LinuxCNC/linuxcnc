@@ -362,11 +362,11 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def get_wheel_rotation(self):
         return self._noRotate
     def reset_wheel_rotation(self):
-        self._camNum = False
+        self._noRotate = False
     def set_camnum(self, value):
         self._camNum = value
     def get_camnum(self):
-        return self._noRotate
+        return self._camNum
     def reset_camnum(self):
         self._camNum = 0
     # designer will show these properties in this order:
