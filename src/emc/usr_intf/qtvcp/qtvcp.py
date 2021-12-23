@@ -101,7 +101,7 @@ class QTVCP:
     def __init__(self):
         sys.excepthook = self.excepthook
         INIPATH = None
-        INITTITLE = INFO.TITLE
+        INITITLE = INFO.TITLE
         INIICON = INFO.ICON
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
