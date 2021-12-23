@@ -101,8 +101,8 @@ class QTVCP:
     def __init__(self):
         sys.excepthook = self.excepthook
         INIPATH = None
-        INITITLE = ""
-        INIICON = ""
+        INITTITLE = INFO.TITLE
+        INIICON = INFO.ICON
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
         parser.disable_interspersed_args()
@@ -115,16 +115,6 @@ class QTVCP:
                 del sys.argv[i]
                 # pop out the ini path
                 INIPATH = sys.argv.pop(i)
-                break
-        for i in range(len(sys.argv)):
-            if sys.argv[i] =='-title':
-                del sys.argv[i]
-                INITITLE = sys.argv.pop(i)
-                break
-        for i in range(len(sys.argv)):
-            if sys.argv[i] =='-icon':
-                del sys.argv[i]
-                INIICON = sys.argv.pop(i)
                 break
         (opts, args) = parser.parse_args()
 

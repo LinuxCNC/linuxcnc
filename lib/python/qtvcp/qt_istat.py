@@ -69,6 +69,8 @@ class _IStat(object):
         self.MAX_FEED_OVERRIDE = 1.5
         self.MAX_SPINDLE_OVERRIDE = 1.5
         self.MIN_SPINDLE_OVERRIDE = 0.5
+        self.TITLE = ""
+        self.ICON = ""
 
         self.update()
 
@@ -406,7 +408,8 @@ class _IStat(object):
 
         # maximum number of errors shown in on screen display
         self.MAX_DISPLAYED_ERRORS = int(self.INI.find("DISPLAY", "MAX_DISPLAYED_ERRORS") or 10)
-
+        self.TITLE = (self.INI.find("DISPLAY", "TITLE")) or ""
+        self.ICON = (self.INI.find("DISPLAY", "ICON")) or ""
     ###################
     # helper functions
     ###################

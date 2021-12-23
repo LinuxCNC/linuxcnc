@@ -524,12 +524,6 @@ GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=`(set -- $retval ; echo $1 )`
 EMCDISPLAYARGS=`(set -- $retval ; shift ; echo $* )`
 
-GetFromIni TITLE DISPLAY
-EMCDISPLAYTITLE=`(set -- $retval  ; echo $* )`
-
-GetFromIni ICON DISPLAY
-EMCDISPLAYICON=`(set -- $retval  ; echo $* )`
-
 case $EMCDISPLAY in
     tkemc) EMCDISPLAY=tklinuxcnc ;;
 esac
@@ -951,16 +945,6 @@ case $EMCDISPLAY in
   ;;
   linuxcncrsh)
     $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS -- -ini "$INIFILE"
-  ;;
-  qtvcp)
-    # all other displays are assumed to be commands on the PATH
-    if ! program_available $EMCDISPLAY; then
-        echo "Can't execute DISPLAY program $EMCDISPLAY $EMCDISPLAYARGS $EXTRA_ARGS"
-        Cleanup
-        exit 1
-    fi
-    $EMCDISPLAY -ini "$INIFILE" -title "$EMCDISPLAYTITLE" -icon "$EMCDISPLAYICON" $EMCDISPLAYARGS $EXTRA_ARGS
-    result=$?  
   ;;
   *)
     # all other displays are assumed to be commands on the PATH
