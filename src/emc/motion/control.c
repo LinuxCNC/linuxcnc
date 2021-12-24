@@ -1559,11 +1559,11 @@ static void get_pos_cmds(long period)
         }
 
 	/* check for soft limits */
-	if (joint->pos_cmd > joint->max_pos_limit) {
+	if (joint->pos_cmd > joint->max_pos_limit + 0.000000000001) {
 	    joint_limit[joint_num][1] = 1;
             onlimit = 1;
         }
-        else if (joint->pos_cmd < joint->min_pos_limit) {
+        else if (joint->pos_cmd < joint->min_pos_limit - 0.000000000001) {
 	    joint_limit[joint_num][0] = 1;
             onlimit = 1;
         }
