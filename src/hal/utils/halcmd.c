@@ -143,6 +143,7 @@ struct halcmd_command halcmd_commands[] = {
     {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
     {"getp",    FUNCT(do_getp_cmd),    A_ONE },
     {"gets",    FUNCT(do_gets_cmd),    A_ONE },
+    {"print",   FUNCT(do_print_cmd),   A_ONE | A_OPTIONAL},
     {"ptype",   FUNCT(do_ptype_cmd),   A_ONE },
     {"stype",   FUNCT(do_stype_cmd),   A_ONE },
     {"help",    FUNCT(do_help_cmd),    A_ONE | A_OPTIONAL },
