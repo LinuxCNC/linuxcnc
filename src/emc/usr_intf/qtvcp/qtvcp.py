@@ -101,6 +101,8 @@ class QTVCP:
     def __init__(self):
         sys.excepthook = self.excepthook
         INIPATH = None
+        INITITLE = INFO.TITLE
+        INIICON = INFO.ICON
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
         parser.disable_interspersed_args()
@@ -114,7 +116,6 @@ class QTVCP:
                 # pop out the ini path
                 INIPATH = sys.argv.pop(i)
                 break
-
         (opts, args) = parser.parse_args()
 
         # so web engine can load local images
@@ -272,7 +273,9 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # title
         if INIPATH:
-            title = 'QTvcp-Screen-%s'% opts.component
+            if (INITITLE == ""):
+                INITITLE='QTvcp-Screen-%s'% opts.component
+            title = INITITLE 
         else:
             title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
@@ -375,7 +378,10 @@ Pressing cancel will close linuxcnc.""" % target)
         if INIPATH:
             self.postgui()
             self.postgui_cmd()
-            window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcncicon.png')))
+            if (INIICON == ""):
+                window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcncicon.png')))
+            else:
+                window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.CONFIGPATH, INIICON)))
         else:
             window.setWindowIcon(QtGui.QIcon(os.path.join(PATH.IMAGEDIR, 'linuxcnc-wizard.gif')))
 
