@@ -6,10 +6,10 @@
 
 Homing sets the zero origin of the G53 machine coordinates. +
 Soft limits are defined relative to the machine origin. +
-The soft limits automatically decelerate and stop the axes before they hits the limits switches +
-A properly setup and functioning machine will not move beyond soft(ware) limits and +
+The soft limits automatically decelerate and stop the axes before they hit the limits switches +
+A properly configured and functioning machine will not move beyond soft(ware) limits and +
 will have the machine origin set as repeatable as the home switch/index mechanism is. +
-Linuxcnc can be  homed by eye (alignment marks), with switches, with switches and encoder index, or use absolute encoders. +
+Linuxcnc can be homed by eye (alignment marks), with switches, with switches and an encoder index, or by using absolute encoders. +
 Homing seems simple enough - just move each joint to a known location,
 and set LinuxCNC's internal variables accordingly. +
 However, different machines have different requirements, and homing is actually quite
