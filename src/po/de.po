@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-18 22:44+0000\n"
+"PO-Revision-Date: 2021-12-27 13:52+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -20,8 +20,8 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
-"Kommando (%s )kann nicht ausgeführt werden solange der Notaus aktiv ist oder "
-"die Maschine nicht eingeschaltet ist"
+"Befehl (%s ) kann nicht ausgeführt werden solange der Notaus aktiv ist oder "
+"die Maschine ausgeschaltet ist"
 
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
@@ -39,26 +39,27 @@ msgstr ""
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
-"kann '%s' im automatischen Modus nicht ausführen werden während der "
-"Interpreter liest"
+"%s kann im automatischen Modus nicht ausgeführt werden, wenn der Interpreter "
+"liest"
 
 #: src/emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
-"kann '%s' im automatischen Modus nicht ausführen während der Interpreter "
-"Pause macht"
+"%s kann im automatischen Modus nicht ausgeführt werden, während der "
+"Interpreter pausiert"
 
 #: src/emc/task/emctaskmain.cc:1335
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
-"kann '%s' im automatischen Modus nicht führen während der Interpreter wartet"
+"%s kann im automatischen Modus nicht ausgeführt werden, während der "
+"Interpreter wartet"
 
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "kann '%s:%d' im MDI-Modus nicht ausführen"
+msgstr "'%s:%d' kann im MDI-Modus nicht ausgeführt werden"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
@@ -88,25 +89,24 @@ msgid "Can't run a program when not homed"
 msgstr "Programm kann ohne vorherige Referenzfahrt nicht ausgeführt werden"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Radius am Kreisanfang unterscheidet sich vom Radius am Kreisende: Anfang=(%c"
-"%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1="
-"%.4f, Radius 2=%.4f"
+"Kreisbogen mit Radius Null: Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%."
+"4f), Ende=(%c%.4f,%c%.4f), Radius 1=%.4f, Radius 2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Radius to end of arc differs from radius to start: start=(%c%.4f,%c%.4f) "
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Radius am Kreisanfang unterscheidet sich vom Radius am Kreisende: Anfang=(%c"
-"%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius 1="
-"%.4f, Radius 2=%.4f"
+"Radius am Kreisende unterscheidet sich vom Radius am Kreisanfang: Anfang=(%c%"
+".4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), Ende=(%c%.4f,%c%.4f), Radius "
+"1=%.4f, Radius 2=%.4f Abs. Fehler=%.4g Rel. Fehler=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
@@ -114,7 +114,7 @@ msgstr "G4 is nicht zulässig mit G2 oder G3 denn beide nutzen P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
-msgstr "Zeile mit G10 enthält kein L1, L2, L10, L11 oder L20"
+msgstr "Zeile mit G10 hat kein L1, L10, L11, L2 oder L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -149,7 +149,7 @@ msgid ""
 "use it"
 msgstr ""
 "$ (spindle selection)-Wort ohne zugehörige Angabe von G41, G41.1, G42, "
-"G42.1, G76 G95 oder G96"
+"G42.1, G76, G95 oder G96"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
@@ -334,7 +334,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:4121
 #: src/emc/rs274ngc/interp_convert.cc:4124
 #: src/emc/rs274ngc/interp_convert.cc:4127 src/emc/rs274ngc/interp_find.cc:99
-#, fuzzy, c-format
+#, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Ungültige absolute Positionsangabe %5.2f für abgewickelte Drehachse %c"
 
@@ -422,8 +422,8 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:3181
 msgid "Cannot set motion output with cutter radius compensation on"
 msgstr ""
-"Bewegungssynchronisierter Digitalausgang kann nicht bei aktiver "
-"Werkzeugradiuskorrektur eingeschaltet werden"
+"Bewegungssynchronisierter Ausgang kann nicht bei aktiver "
+"Werkzeugradiuskorrektur geschaltet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3182
 msgid "No valid P word with M62"
@@ -433,7 +433,7 @@ msgstr "Kein gültiges P-Wort mit M62"
 msgid "Cannot set motion digital output with cutter radius compensation on"
 msgstr ""
 "Bewegungssynchronisierter Digitalausgang kann nicht bei aktiver "
-"Werkzeugradiuskorrektur ausgeschaltet werden"
+"Werkzeugradiuskorrektur geschaltet werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3187
 msgid "No valid P word with M63"
@@ -443,7 +443,7 @@ msgstr "Kein gültiges P-Wort mit M63"
 #: src/emc/rs274ngc/interp_convert.cc:3196
 msgid "Cannot set auxiliary digital output with cutter radius compensation on"
 msgstr ""
-"Digitalausgang kann nicht bei aktiver Werkzeugradiuskorrektur eingeschaltet "
+"Digitalausgang kann nicht bei aktiver Werkzeugradiuskorrektur geschaltet "
 "werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:3192
@@ -623,7 +623,7 @@ msgstr "Ungültige Spindel Nummer in G33 Bewegung"
 
 #: src/emc/rs274ngc/interp_convert.cc:4767
 msgid "Spindle not turning in G33"
-msgstr "Spindel nicht eingeschaltet in M33 Befehl"
+msgstr "Spindel nicht eingeschaltet in G33 Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:4777
 msgid "Invalid spindle ($) number in G33.1 move"
@@ -631,16 +631,16 @@ msgstr "Ungültige Spindel Nummer in G33.1 Bewegung"
 
 #: src/emc/rs274ngc/interp_convert.cc:4782
 msgid "Spindle not turning in G33.1"
-msgstr "Spindel nicht eingeschaltet in M33.1 Befehl"
+msgstr "Spindel nicht eingeschaltet in G33.1 Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:4797
 msgid "Invalid D-number in G76 cycle"
 msgstr "Ungültige D Nummer in G76 Zyklus"
 
 #: src/emc/rs274ngc/interp_convert.cc:4802
-#, fuzzy, c-format
+#, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr "Gewählte Spindel (%i) ohne Bewegung in G76"
+msgstr "Gewählte Spindel (%i) dreht sich nicht bei G76-Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:4840
 #, fuzzy
@@ -665,11 +665,11 @@ msgstr "Bei G76 Befehl darf I nicht Null sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:4953
 msgid "In G76, J must be greater than 0"
-msgstr "Bei G76 Befehl muss J größer Null sein"
+msgstr "Bei G76 Befehl muss J größer als Null sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:4955
 msgid "In G76, K must be greater than J"
-msgstr "Bei G76 Befehl mus sK größer J sein"
+msgstr "Bei G76 Befehl muss K größer als J sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:5098
 msgid ""
@@ -678,7 +678,7 @@ msgstr "Der Werkzeugeinlaufpfad ist nicht größer wie der Werkzeugradius"
 
 #: src/emc/rs274ngc/interp_convert.cc:5317
 msgid "Zero degree inside corner is invalid for cutter compensation"
-msgstr "Null Grad Innenecke ist bei Werkzeugradienkorrektur unzulässig"
+msgstr "Null Grad Innenecke ist bei Werkzeugradiuskorrektur unzulässig"
 
 #: src/emc/rs274ngc/interp_convert.cc:5355
 #: src/emc/rs274ngc/interp_convert.cc:5363
@@ -695,7 +695,7 @@ msgstr "Werkzeugwechsel bei aktiver Werkzeugradiuskorrektur nicht möglich"
 
 #: src/emc/rs274ngc/interp_convert.cc:5571
 msgid "Cannot change tool offset with cutter radius compensation on"
-msgstr "Werkzeugvermessung nicht möglich bei aktiver Werkzeugkompensation"
+msgstr "Werkzeugvermessung nicht möglich bei aktiver Werkzeugradiuskorrektur"
 
 #: src/emc/rs274ngc/interp_convert.cc:5622
 #, fuzzy
@@ -725,9 +725,9 @@ msgid ""
 msgstr ""
 
 #: src/emc/rs274ngc/interp_queue.cc:667
-#, fuzzy, c-format
+#, c-format
 msgid "BUG: Unsupported plane [%d] in cutter compensation"
-msgstr "Nicht untersützte Ebene in Werkzeugradiuskorrektur"
+msgstr "BUG: Nicht unterstützte Ebene [%d] in Werkzeugradiuskorrektur"
 
 #: src/emc/rs274ngc/interp_queue.cc:678
 msgid ""
@@ -745,7 +745,7 @@ msgstr "G74, aber Werkzeug-Spindel dreht sich im Uhrzeigersinn"
 
 #: src/emc/rs274ngc/interp_cycles.cc:280
 msgid "Spindle turning counterclockwise in G84"
-msgstr "G84, aber Werkzeug-Spindel dreht sich im Gegenuhrzeigersinn"
+msgstr "G84, aber Werkzeug-Spindel dreht gegen den Uhrzeigersinn"
 
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
@@ -754,8 +754,7 @@ msgstr "Unbekannter Spindel Status in %s"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
 msgid "Cannot feed with zero feed rate"
-msgstr ""
-"G1 kann nicht mit einer Vorschubgeschwindigkeit von 0 ausgeführt werden"
+msgstr "Kann nicht mit einer Vorschubgeschwindigkeit von null ausgeführt werden"
 
 # Anmerkung:FJ: Who the fuck is "inverse time feed mode"?  :-)))
 #               Angabe des Weges, der in einer Minuten zurückgelegt werden soll???
@@ -763,14 +762,14 @@ msgstr ""
 # F100 -> 60/100 = Weg im Raum wird in 0,6s zurückgelegt. Einige CAM Systeme erzeugen solchen Code...
 # Anmerkung:FJ: DIN66025 nennt das "Zeitreziproke Vorschubverschlüsselung". Was es nicht alles gibt :-) !!!!!
 #: src/emc/rs274ngc/interp_cycles.cc:725
-#, fuzzy
 msgid "Cannot use inverse time feed with canned cycles"
-msgstr "Abtast-Fahrten sind im zeitreziproken Vorschub-Modus nicht möglich"
+msgstr "Zeitreziproker Vorschub nicht möglich bei Festzyklen"
 
 #: src/emc/rs274ngc/interp_cycles.cc:726
-#, fuzzy
 msgid "Cannot use canned cycles with cutter compensation on"
-msgstr "Ebene kann nicht bei aktiver Werkzeugradiuskorrektur gewechselt werden"
+msgstr ""
+"Arbeitszyklen können bei aktiver Werkzeugradiuskorrektur nicht verwendet "
+"werden"
 
 #: src/emc/rs274ngc/interp_cycles.cc:922
 msgid "G17 canned cycle is not possible on a machine without Z axis"
@@ -824,9 +823,8 @@ msgid "Invalid spindle ($) number in Spindle speed command"
 msgstr "Unbekannte Spindel ($) im Spindel Geschwindigkeits Befehl"
 
 #: src/emc/rs274ngc/interp_find.cc:172
-#, fuzzy
 msgid "Cannot use polar coordinates with G53"
-msgstr "Rotations-Achse kann nicht mit G76 bewegt werden"
+msgstr "Polarkoordinaten können nicht in Verbindung mit G53 verwendet werden"
 
 #: src/emc/rs274ngc/interp_find.cc:268 src/emc/rs274ngc/interp_find.cc:273
 #: src/emc/rs274ngc/interp_find.cc:280 src/emc/rs274ngc/interp_find.cc:339
@@ -892,20 +890,17 @@ msgstr ""
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: src/emc/rs274ngc/interp_read.cc:1807
-#, fuzzy
 msgid "Left bracket missing after 'while'"
-msgstr "Fehlende linke Klammer nach Schrägstrich bei atan"
+msgstr "Fehlende linke Klammer nach 'while'"
 
 #: src/emc/rs274ngc/interp_read.cc:1822
-#, fuzzy
 msgid "Left bracket missing after 'repeat'"
-msgstr "Fehlende linke Klammer nach unärem Befehlssnamen"
+msgstr "Fehlende linke Klammer nach 'repeat'"
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: src/emc/rs274ngc/interp_read.cc:1837
-#, fuzzy
 msgid "Left bracket missing after 'if'"
-msgstr "Fehlende linke Klammer nach Schrägstrich bei atan"
+msgstr "Fehlende linke Klammer nach 'if'"
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: src/emc/rs274ngc/interp_read.cc:1852
@@ -914,7 +909,9 @@ msgstr "Fehlende linke Klammer nach 'elseif'"
 
 #: src/emc/rs274ngc/interp_read.cc:2056
 msgid "Cannot read current position with cutter radius compensation on"
-msgstr "Kann aktuelle Position nicht bei aktiver Werkzeugradiuskorrektur lesen"
+msgstr ""
+"Aktuelle Position kann bei aktiver Werkzeugradiuskorrektur nicht gelesen "
+"werden"
 
 #: src/emc/rs274ngc/interp_read.cc:2071
 msgid "Expected # reading parameter"
@@ -961,9 +958,9 @@ msgid "Multiple W words on one line"
 msgstr "Mehrere W-Wörter in einem Satz"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
-#, fuzzy, c-format
+#, c-format
 msgid "File:%s line:%d sub: o|%s| found in illegal location"
-msgstr "Datei: %s Zeile: %d sub: o|%s| gefunden in ungültiger Lage"
+msgstr "Datei: %s, Zeile: %d: Unterprogramm o|%s| gefunden an ungültiger Stelle"
 
 #: src/emc/rs274ngc/interp_o_word.cc:108
 #, c-format
@@ -971,9 +968,9 @@ msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
 
 #: src/emc/rs274ngc/interp_o_word.cc:823
-#, fuzzy, c-format
+#, c-format
 msgid "%d: not in a subroutine definition: '%s'"
-msgstr "Nicht in der Definition der Unterfunktion"
+msgstr "%d: nicht in der Definition einer Unterfunktion: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
 #, c-format
@@ -1062,23 +1059,21 @@ msgid "Queue is not empty after tool change"
 msgstr "Warteschlange ist nach Werkzeugwechsel nicht leer"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1840
-#, fuzzy, c-format
+#, c-format
 msgid "Unable to open parameter file: '%s'"
-msgstr "Datei kann nicht geöffnet werden"
+msgstr "Parameterdatei '%s' kann nicht geöffnet werden"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:2507
-#, fuzzy
 msgid "Parameter file name is missing"
-msgstr "Parameterdatei ist »%s«"
+msgstr "Parameterdateiname fehlt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:19
 msgid "A file is already open"
 msgstr "Eine Datei ist bereits geöffnet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:21
-#, fuzzy
 msgid "All axes missing with g52 or g92"
-msgstr "Keine Weginformation für G92 angegeben"
+msgstr "Keine Axen fur G52 oder G92 angegeben"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:22
 msgid "All axes missing with motion code"
@@ -1390,18 +1385,17 @@ msgid "Left bracket missing after unary operation name"
 msgstr "Fehlende linke Klammer nach unärem Befehlssnamen"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:92
-#, fuzzy, c-format
+#, c-format
 msgid "M code greater than 199: M%d"
-msgstr "M-Wort größer als 199"
+msgstr "M-Wort größer als 199: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:93
 msgid "Mixed radius ijk format for arc"
 msgstr "Radius- und IJK-Format durcheinandergewürfelt"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:94
-#, fuzzy
 msgid "Multiple spindle choice ($) words on one line"
-msgstr "Mehrere Spindelauswahl Befehle ($) in einem Satz"
+msgstr "Mehrere Spindelauswahl-Befehle ($) in einem Satz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:95
 msgid "Multiple a words on one line"
@@ -1485,7 +1479,7 @@ msgstr "Wurzel (sqrt-Befehl) mit negativem Argument"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:115
 msgid "Negative d word tool radius index used"
-msgstr "Negative Zahl bei D-Wort als Index für Werkzeug-Radius angegeben"
+msgstr "Negative Zahl bei D-Wort (Werkzeug-Radius- Index) verwendet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:116
 msgid "Negative f word used"
@@ -1520,9 +1514,8 @@ msgid "Negative spindle speed used"
 msgstr "Geschwindigkeit der Werkzeug-Spindel kleiner Null"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
-#, fuzzy
 msgid "Negative tool id (tool not found)"
-msgstr "Negative Werkzeugnummer verwendet"
+msgstr "Negative Werkzeugnummer (Werkzeug nicht gefunden)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
@@ -1595,7 +1588,7 @@ msgstr "G84, aber Werkzeug-Spindel dreht sich nicht im Uhrzeigersinn"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:142
 msgid "Spindle not turning in g86"
-msgstr "G86, aber Werkzeug-Spindel nicht in Rotation"
+msgstr "G86, aber Werkzeug-Spindel nicht eingeschaltet"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:143
 msgid "Spindle not turning in g87"
@@ -1620,9 +1613,8 @@ msgstr "Zu viele M-Wörter in einer Zeile"
 # Anmerkung:FJ: Tool max? Was das?
 # Anmerkung:AJ: sollte "Index in tool table file too large" sein
 #: src/emc/rs274ngc/rs274ngc_return.hh:148
-#, fuzzy
 msgid "Pocket max too large"
-msgstr "Werkzeug-Datei-Index zu groß"
+msgstr "Tasche zu groß"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:149
 msgid "Tool radius not less than arc radius with comp"
@@ -1658,9 +1650,9 @@ msgid "Unknown g code used"
 msgstr "Unbekanntes G-Wort"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:156
-#, fuzzy, c-format
+#, c-format
 msgid "Unknown m code used: M%d"
-msgstr "Unbekanntes M-Wort"
+msgstr "Unbekanntes M-Wort: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:157
 msgid "Unknown operation"
@@ -1931,7 +1923,7 @@ msgstr "FEHLER: Kein Pin-, Signal- oder Parameter-Name mit -s\n"
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
-msgstr "Hal Meter"
+msgstr "Hal-Meter"
 
 #: src/hal/utils/meter.c:292
 msgid "_Select"
@@ -1976,14 +1968,12 @@ msgstr "Konfigurationsdatei öffnen:"
 #: src/hal/utils/scope.c:470 src/hal/utils/scope.c:493
 #: src/hal/utils/scope_horiz.c:780 src/hal/utils/scope_vert.c:713
 #: src/hal/utils/scope_vert.c:933 src/hal/utils/scope_trig.c:315
-#, fuzzy
 msgid "_Cancel"
-msgstr "Abbrechen"
+msgstr "_Abbrechen"
 
 #: src/hal/utils/scope.c:471
-#, fuzzy
 msgid "_Open"
-msgstr "Öffnen..."
+msgstr "_Öffnen..."
 
 #: src/hal/utils/scope.c:491
 #, fuzzy
@@ -1991,9 +1981,8 @@ msgid "Save Configuration File:"
 msgstr "Konfigurationsdatei öffnen:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:781
-#, fuzzy
 msgid "_Save"
-msgstr "Speichern"
+msgstr "_Speichern"
 
 #: src/hal/utils/scope.c:525
 msgid "_Open Configuration..."
@@ -2080,7 +2069,6 @@ msgid " Pos "
 msgstr " Pos "
 
 #: src/hal/utils/scope_horiz.c:174
-#, fuzzy
 msgid ""
 "----- Samples\n"
 "at ---- kHz"
@@ -2113,7 +2101,8 @@ msgstr ""
 "\n"
 "Wählen Sie eine der folgenden Möglichkeiten:\n"
 "\n"
-"Laden der Komponente (mittels »halcmd loadrt scope_rt«). Wählen Sie »OK«\n"
+"Laden Sie die Komponente (mittels »halcmd loadrt scope_rt«) und wählen Sie "
+"»OK«\n"
 "oder\n"
 "wählen Sie »Beenden« um HALSCOPE zu beenden"
 
@@ -2167,10 +2156,10 @@ msgstr ""
 "\n"
 "Führen Sie eine dieser Möglichkeiten aus:\n"
 "\n"
-"Wählen Sie einen Threadnamen sowie einen Multiplikationsfaktor und klicken "
-"Sie \"OK\"\n"
+"Wählen Sie einen Threadnamen sowie einen Multiplikator und klicken Sie \"OK\""
+"\n"
 "oder\n"
-"klicken Sie 'Quit' um HALSCOPE zu verlassen."
+"klicken Sie 'Beenden' um HALSCOPE zu verlassen."
 
 #: src/hal/utils/scope_horiz.c:526
 msgid "Select Sample Rate"
@@ -2189,9 +2178,8 @@ msgstr ""
 "wählen Sie »Beenden« um HALSCOPE zu beenden\n"
 
 #: src/hal/utils/scope_horiz.c:534 src/hal/utils/scope_vert.c:712
-#, fuzzy
 msgid "_OK"
-msgstr "OK"
+msgstr "_OK"
 
 #: src/hal/utils/scope_horiz.c:554
 msgid "Thread:"
@@ -2219,9 +2207,8 @@ msgid "Multiplier:"
 msgstr "Vervielfacher:"
 
 #: src/hal/utils/scope_horiz.c:656
-#, fuzzy
 msgid "Record Length"
-msgstr "Länge der Aufzeichnung"
+msgstr "Aufzeichnungslänge"
 
 #: src/hal/utils/scope_horiz.c:661
 #, c-format
@@ -2266,7 +2253,7 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 "HALSCOPE benutzt HAL-Echtzeitkomponenten, um \n"
-"Signale für die Darstellung abzutasten. Die HAL threads laufen nicht.\n"
+"Signale für die Darstellung abzutasten. Die HAL-Threads laufen nicht.\n"
 "Threads werden normalerweise von der Anwendung gestartet, die Sie\n"
 "aufgerufen haben, oder können mit dem Kommando 'halcmd start' gestartet "
 "werden.\n"
@@ -2275,7 +2262,7 @@ msgstr ""
 "\n"
 "Sie starten die Threads und klicken 'OK'\n"
 "oder\n"
-"klicken Sie 'Quit', um HALSCOPE zu verlassen"
+"klicken Sie 'Beenden' um HALSCOPE zu verlassen"
 
 #: src/hal/utils/scope_horiz.c:778
 msgid "Pick log file to write to:"
@@ -2291,8 +2278,8 @@ msgid ""
 "that are currently enabled.  Pick a shorter\n"
 "record length that supports more channels."
 msgstr ""
-"Diese Datensatzlänge kann nicht alle Kanäle verarbeiten\n"
-"die momentan aktiv sind. Wählen Sie einen kürzeren Wert,\n"
+"Aufzeichnungslänge zu groß für die aktiven Kanäle. \n"
+"Wählen Sie einen kleineren Wert,\n"
 "um mehr Kanäle zu unterstützen."
 
 #: src/hal/utils/scope_horiz.c:1039
@@ -2433,9 +2420,10 @@ msgid ""
 "Either turn off one or more channels, or shorten\n"
 "the record length to allow for more channels"
 msgstr ""
-"Kein weiterer Kanal möglich.\n"
+"Kein weiterer Kanal mehr möglich.\n"
 "\n"
-"Einen oder mehrere Kanäle abschalten oder die Datensatzlänge verkleinern,\n"
+"Entweder einen oder mehrere Kanäle abschalten oder die Datensatzlänge "
+"verkleinern,\n"
 "um mehr Kanäle zu ermöglichen."
 
 #: src/hal/utils/scope_vert.c:927
@@ -2591,7 +2579,7 @@ msgstr ""
 #: src/emc/motion/control.c:1592
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
-msgstr "Negatives Softlimit bei (%.5f) Motor %d überschritten\n"
+msgstr "Negatives Softlimit bei (%.5f) Achse/Gelenk %d überschritten\n"
 
 #: src/emc/motion/control.c:1595 src/emc/motion/control.c:1604
 msgid "Joint must be unhomed, jogged into limits, rehomed"
@@ -2602,9 +2590,9 @@ msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 
 #: src/emc/motion/control.c:1601
-#, fuzzy, c-format
+#, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
-msgstr "Positiver Softanschlag bei Achse/Gelenk %d überschritten"
+msgstr "Positiver Softanschlag (%.5f) bei Achse/Gelenk %d überschritten\n"
 
 #: src/emc/motion/command.c:145
 #, c-format
@@ -2622,7 +2610,7 @@ msgid "Can't jog joint %d further past min hard limit."
 msgstr "Kann Achse/Gelenk %d nicht über neg. Anschlag hinaus bewegen."
 
 #: src/emc/motion/command.c:160
-#, c-format, fuzzy
+#, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr "Kann Achse/Gelenk %d nicht über max. Softanschlag bewegen."
 
@@ -2632,10 +2620,11 @@ msgid "Can't jog joint %d further past min soft limit."
 msgstr "Kann Achse/Gelenk %d nicht über min. Softanschlag bewegen."
 
 #: src/emc/motion/command.c:210 src/emc/motion/command.c:216
-#, fuzzy, c-format
+#, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
 msgstr ""
-"Bewegung %s in Zeile %d würde pos. Anschlag von Achse/Gelenk %d überschreiten"
+"Bewegung %s in Zeile %d würde von Achse/Gelenk %c den Anschlag %s "
+"überschreiten"
 
 #: src/emc/motion/command.c:211
 msgid "negative"
@@ -2697,9 +2686,9 @@ msgid "can't do linear move with limits exceeded"
 msgstr "Keine Linearbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:1132
-#, fuzzy, c-format
+#, c-format
 msgid "can't add linear move at line %d, error code %d"
-msgstr "Keine Linearbewegung jenseits der Grenzen"
+msgstr "Keine Linearbewegung möglich in Zeile %d, Fehlercode %d"
 
 #: src/emc/motion/command.c:1159
 msgid "need to be enabled, in coord mode for circular move"
@@ -2710,9 +2699,9 @@ msgid "can't do circular move with limits exceeded"
 msgstr "Keine Kreisbewegung jenseits der Grenzen"
 
 #: src/emc/motion/command.c:1188
-#, fuzzy, c-format
+#, c-format
 msgid "can't add circular move at line %d, error code %d"
-msgstr "Keine Kreisbewegung jenseits der Grenzen"
+msgstr "Keine Kreisbewegung möglich in Zeile %d, Fehlercode %d"
 
 #: src/emc/motion/command.c:1303
 msgid "MOTION: can't STEP while already executing"
@@ -2804,9 +2793,9 @@ msgid "can't do rigid tap move with limits exceeded"
 msgstr "Kein Gewindebohren außerhalb der Grenzen"
 
 #: src/emc/motion/command.c:1704
-#, fuzzy, c-format
+#, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
-msgstr "Kein Gewindebohren außerhalb der Grenzen"
+msgstr "Kein Gewindebohren möglich in Zeile %d, Fehlercode %d"
 
 #: src/emc/motion/command.c:1746
 msgid "Attempt to start non-existent spindle"
@@ -2815,23 +2804,24 @@ msgstr "Versuch eine nicht existierende Spindel einzuschalten"
 #: src/emc/motion/command.c:1796
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr "Versuch eine nicht existierende Spindel <%d> auszuschalten"
+msgstr "Versuch eine nicht vorhandene Spindel (%d) auszuschalten"
 
 #: src/emc/motion/command.c:1827
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr "Versuch eine nicht existierende Spindel <%d> zu orientieren"
+msgstr "Versuch eine nicht vorhandenen Spindel (%d) zu orientieren"
 
 #: src/emc/motion/command.c:1873
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
-msgstr "Versuche Geschwindigkeit einer nicht existierenden Spindel zu erhöhen"
+msgstr ""
+"Versuch die Geschwindigkeit einer nicht vorhandenen Spindel (%d) zu erhöhen"
 
 #: src/emc/motion/command.c:1896
 #, c-format
 msgid "Attempt to decreasenon-existent spindle <%d>"
 msgstr ""
-"Versuch, die Geschwindigkeit der nicht existierenden Spindel <%d> zu "
+"Versuch die Geschwindigkeit einer nicht vorhandenen Spindel (%d) zu "
 "verringern"
 
 #: src/emc/motion/command.c:1911
@@ -2880,7 +2870,7 @@ msgid ""
 "\n"
 msgstr ""
 "\n"
-"MOTION: num_extrajoints ist %d, muss zwischen 1 und %d liegen\n"
+"MOTION: num_extrajoints ist %d, muss zwischen 0 und %d liegen\n"
 "\n"
 
 #: src/emc/motion/motion.c:237
@@ -2901,9 +2891,9 @@ msgid ""
 msgstr ""
 
 #: src/emc/motion/motion.c:249
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_joints ist %d, muß zwischen 0 und %d liegen\n"
+msgstr "MOTION: num_spindles ist %d, muß zwischen 0 und %d liegen\n"
 
 #: src/emc/motion/motion.c:257
 #, c-format
@@ -2916,10 +2906,9 @@ msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:271
-#, fuzzy, c-format
-#| msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
+#, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_dio ist %d, muß zwischen 1 und %d liegen\n"
+msgstr "MOTION: num_misc_error ist %d, muss zwischen 0 und %d liegen\n"
 
 #: src/emc/motion/motion.c:279
 msgid "MOTION: init_hal_io() failed\n"
@@ -2988,7 +2977,7 @@ msgstr "Bewegungsende im Referenzstatus %d"
 
 #: src/emc/motion/homing.c:231
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
-msgstr "MOTION: all_joints_home_data_t malloc fehlgeschlagen\n"
+msgstr "HOMING: all_joints_home_data_t malloc fehlgeschlagen\n"
 
 #: src/emc/motion/homing.c:565
 #, c-format
@@ -2996,9 +2985,11 @@ msgid "unknown state '%d' during homing sequence"
 msgstr "Unbekannter Zustand '%d' bei Referenzfahrt"
 
 #: src/emc/motion/homing.c:628
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot home while shared home switch is closed j=%d"
-msgstr "Keine Referenzfahrt bei geschlossenem gemeinsamem Endschalter"
+msgstr ""
+"Referenzfahrt nicht möglich, wenn gemeinsamer Endschalter geschlossen ist ("
+"Achse/Gelenk: %d)"
 
 #: src/emc/motion/homing.c:688
 msgid ""
@@ -3014,29 +3005,29 @@ msgstr ""
 "Ungültige Referenz-Konfiguration: SEARCH_VEL ungleich Null braucht LATCH_VEL"
 
 #: src/emc/motion/homing.c:845
-#, fuzzy, c-format
+#, c-format
 msgid "Home switch inactive before start of backoff move j=%d"
-msgstr "Referenzschalter inaktiv vor der Rückbewegung"
+msgstr "Referenzschalter inaktiv vor der Rückbewegung (Achse/Gelenk: %d)"
 
 #: src/emc/motion/homing.c:894
-#, fuzzy, c-format
+#, c-format
 msgid "Home switch active before start of latch move j=%d"
-msgstr "Referenzschalter inaktiv vor der Rückbewegung"
+msgstr "Referenzschalter aktiv vor der Auslösebewegung (Achse/Gelenk: %d)"
 
 #: src/emc/motion/homing.c:951
-#, fuzzy, c-format
+#, c-format
 msgid "Home switch inactive before start of latch move j=%d"
-msgstr "Referenzschalter inaktiv vor der Rückbewegung"
+msgstr "Referenzschalter inaktiv vor der Auslösebewegung (Achse/Gelenk: %d)"
 
 #: src/emc/motion/homing.c:1202
-#, fuzzy, c-format
+#, c-format
 msgid "hit limit in home state j=%d"
-msgstr "Grenze im Referenzstatus erreicht %d"
+msgstr "Grenze im Referenzstatus erreicht (Achse/Gelenk: %d)"
 
 #: src/emc/motion/homing.c:1259
-#, fuzzy, c-format
+#, c-format
 msgid "unknown state '%d' during homing j=%d"
-msgstr "Unbekannter Zustand '%d' während Referenzfahrt"
+msgstr "Unbekannter Zustand '%d' während Referenzfahrt (Achse/Gelenk: %d)"
 
 #: src/hal/classicladder/classicladder.c:194
 #, c-format
@@ -3782,7 +3773,7 @@ msgstr ""
 #: src/hal/classicladder/edit_gtk.c:350
 #: lib/python/gladevcp/tooledit_gtk.glade:310
 msgid "Add"
-msgstr "Dazuzählen"
+msgstr "Hinzufügen"
 
 #: src/hal/classicladder/edit_gtk.c:355
 msgid "Insert"
@@ -4816,7 +4807,6 @@ msgid "Paste"
 msgstr "Einfügen"
 
 #: tcl/bin/genedit.tcl:99
-#, fuzzy
 msgid "Select All"
 msgstr "Alles markieren"
 
@@ -4832,7 +4822,7 @@ msgstr "Über..."
 
 #: tcl/bin/genedit.tcl:130
 msgid "Save and Reload"
-msgstr "Speichern und Aktualisieren"
+msgstr "Speichern und neu laden"
 
 #: tcl/bin/genedit.tcl:133
 msgid "Find..."
@@ -5226,7 +5216,7 @@ msgstr ""
 #: tcl/bin/pickconfig.tcl:575
 #, tcl-format
 msgid "ERROR: no configurations found in path '%s'"
-msgstr "FEHLER: Leine Konfigurationen in Verzeichnis '%s' gefunden"
+msgstr "FEHLER: Keine Konfigurationen im Verzeichnis '%s' gefunden"
 
 #: tcl/bin/pickconfig.tcl:625
 msgid "Copy Configuration?"
@@ -5312,18 +5302,16 @@ msgid "LinuxCNC Errors"
 msgstr "LinuxCNC-Fehler"
 
 #: tcl/show_errors.tcl:81
-#, fuzzy
 msgid ""
 "LinuxCNC terminated with an error.  When reporting problems, please create a "
 "report file and include in your message."
 msgstr ""
-"EMC2 wurde mit einem Fehler beendet. Falls Sie den Fehler melden wollen, "
-"fügen Sie bitte Ihrer Mitteilung die unten stehenden Informationen bei."
+"LinuxCNC wurde mit einem Fehler beendet. Wenn Sie den Fehler melden wollen, "
+"fügen Sie bitte Ihrer Mitteilung die untenstehenden Informationen bei."
 
 #: tcl/show_errors.tcl:107
-#, fuzzy
 msgid "Create Report File"
-msgstr "Erstellen oder Bearbeiten"
+msgstr "Bericht erstellen"
 
 #: tcl/show_errors.tcl:109 tcl/scripts/Set_Coordinates.tcl:107
 msgid "Close"
@@ -5513,7 +5501,7 @@ msgstr "HAL-Scope"
 #: tcl/tklinuxcnc.tcl:806
 #, fuzzy
 msgid "Set Coordinates"
-msgstr "EMC2 Koordinaten-Setup"
+msgstr "Koordinaten setzen"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
@@ -5898,9 +5886,8 @@ msgid "sub label"
 msgstr ""
 
 #: tcl/ngcgui.tcl:528 tcl/ngcgui.tcl:583
-#, fuzzy
 msgid "does not match subroutine file name"
-msgstr "Zu viele Ebenen für die Unterfunktion"
+msgstr "Entspricht nicht dem Dateinamen des Unterprogramms"
 
 #: tcl/ngcgui.tcl:543 tcl/ngcgui.tcl:544
 msgid "ignoring M2 after endsub"
@@ -7010,7 +6997,6 @@ msgid "Ctrl-Home"
 msgstr "Strg-Pos1"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:197
-#, fuzzy
 msgid "Home all joints"
 msgstr "Referenzfahrt mit allen Achsen"
 
@@ -7036,9 +7022,8 @@ msgid "Ctrl-End"
 msgstr "Strg-R"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:200
-#, fuzzy
 msgid "Set tool offset for loaded tool"
-msgstr "Absolute Nullpunktverschiebung für die aktive Achse setzen"
+msgstr "Werkzeuglängenkorrektur für aktives Werkzeug setzen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:201
 #, fuzzy
@@ -7613,15 +7598,16 @@ msgid "Axes"
 msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3528
-#, fuzzy
 msgid "Joints"
-msgstr "Achse/Gelenk:"
+msgstr "Achsen/Gelenke"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3530
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
 msgid "Home All"
-msgstr "Referenzfahrt"
+msgstr ""
+"Referenzfahrt\n"
+"alle Achsen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3532
 #, python-format
@@ -7668,7 +7654,7 @@ msgstr "Achse/Gelenk:"
 #: src/emc/usr_intf/axis/scripts/axis.py:3628
 #, fuzzy
 msgid "Home Joint"
-msgstr "_Referenzpunkt:"
+msgstr "Referenzpunkt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
@@ -8014,9 +8000,8 @@ msgid "Edit _tool data..."
 msgstr "_Werkzeugtabelle bearbeiten..."
 
 #: share/axis/tcl/axis.tcl:90
-#, fuzzy
 msgid "Reload tool _data"
-msgstr "We_rkzeugtabelle neu laden"
+msgstr "Werkzeug_tabelle neu laden"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
@@ -8402,7 +8387,9 @@ msgstr "Achse:"
 
 #: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
 msgid "Home Axis"
-msgstr "Referenzfahrt"
+msgstr ""
+"Referenzfahrt\n"
+"aktuelle Achse"
 
 #: share/axis/tcl/axis.tcl:938
 msgid "Touch Off"
@@ -8770,19 +8757,19 @@ msgstr "Sensor"
 
 #: src/emc/usr_intf/touchy/mdi.py:74 src/emc/usr_intf/gscreen/mdi.py:70
 msgid "Radius compensation left"
-msgstr "Werkzeugradienkorrektur links"
+msgstr "Werkzeugradiuskorrektur links"
 
 #: src/emc/usr_intf/touchy/mdi.py:75 src/emc/usr_intf/gscreen/mdi.py:71
 msgid "Radius compensation right"
-msgstr "Werkzeugradienkorrektur rechts"
+msgstr "Werkzeugradiuskorrektur rechts"
 
 #: src/emc/usr_intf/touchy/mdi.py:76 src/emc/usr_intf/gscreen/mdi.py:72
 msgid "Radius compensation left, immediate"
-msgstr "sofortige Werkzeugradienkorrektur links"
+msgstr "sofortige Werkzeugradiuskorrektur links"
 
 #: src/emc/usr_intf/touchy/mdi.py:77 src/emc/usr_intf/gscreen/mdi.py:73
 msgid "Radius compensation right, immediate"
-msgstr "sofortige Werkzeugradienkorrektur rechts"
+msgstr "sofortige Werkzeugradiuskorrektur rechts"
 
 #: src/emc/usr_intf/touchy/mdi.py:78 src/emc/usr_intf/gscreen/mdi.py:74
 msgid "Tool length offset"
@@ -9021,7 +9008,7 @@ msgstr "Aktive Achse verfahren"
 #: src/emc/usr_intf/touchy/touchy.glade:610
 #, fuzzy
 msgid "Unhome Selected"
-msgstr "Referenzfahrt aufheben bei allen Achsen"
+msgstr "Referenzfahrt aufheben bei ausgewählten Achsen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:632
 msgid "<b>Homing</b>"
@@ -17623,7 +17610,6 @@ msgid "<b>frame2</b>"
 msgstr "<b>Seite</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
-#, fuzzy
 msgid "Save & Quit"
 msgstr "Speichern und Beenden"
 
@@ -18609,9 +18595,8 @@ msgid "<b>Mode</b>"
 msgstr "<b>Modus</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1817
-#, fuzzy
 msgid "Main Level"
-msgstr "Schwelle"
+msgstr "Hauptebene"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1858
 msgid "Themes"
@@ -19011,11 +18996,12 @@ msgstr ""
 "herstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
-#, fuzzy
 msgid ""
 " Reload\n"
 "Program"
-msgstr "Programm neu laden"
+msgstr ""
+" Programm\n"
+"neu laden"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3609
 #, fuzzy
@@ -19344,9 +19330,8 @@ msgid "Comments"
 msgstr "Bemerkung"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:325
-#, fuzzy
 msgid "Reload"
-msgstr "_Neu laden"
+msgstr "Neu laden"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:369
 #, fuzzy
