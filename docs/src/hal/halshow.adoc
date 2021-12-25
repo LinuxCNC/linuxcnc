@@ -252,7 +252,7 @@ available in this area. That is where the HAL Watch Area is of value.
   - Copy name
   - Set value
   - Unlink pin
-  - Remove Delete from view
+  - Remove from view
 * Menu entries for
   - Add signals/pins/parameters by name
   - Set watch interval

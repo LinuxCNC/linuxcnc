@@ -42,7 +42,7 @@ set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
-wm  minsize . $masterwidth $masterheight
+wm minsize . [int [expr $masterwidth*0.3]] [int [expr $masterheight*0.5]]
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
@@ -60,20 +60,24 @@ proc killHalConfig {} {
     exit
 }
 
-set main [frame .main -padx 10 -pady 10]
-pack $main -fill both -expand yes
+set ::main [frame .main -padx 6 -pady 6]
+pack $::main -fill both -expand yes
 
 # build frames from left side
-set tf [frame $main.maint]
-set top [NoteBook $main.note]
+set ::tf [frame $::main.maint]
+set ::top [NoteBook $::main.note]
 
 # Each mode has a unique set of widgets inside tab
-set showhal [$top insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
-set ::watchhal [$top insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
+set showhal [$::top insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
+set ::watchhal [$::top insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
 
 # use place manager to fix locations of frames within top
-place configure $tf -in $main -x 0 -y 0 -relheight 1 -relwidth .3
-place configure $top -in $main -relx .3 -y 0 -relheight 1 -relwidth .7
+proc placeFrames {ratio} {
+    place configure $::tf -in $::main -x 0 -y 0 -relheight 1 -relwidth $ratio
+    place configure $::top -in $::main -relx $ratio -y 0 -relheight 1 -relwidth [expr 1-$ratio]
+}
+
+placeFrames 0.3
 
 # slider process is used for several widgets
 proc sSlide {f a b} {
@@ -82,7 +86,7 @@ proc sSlide {f a b} {
 
 # Build menu
 # fixme clean up the underlines so they are unique under each set
-set menubar [menu $top.menubar -tearoff 0]
+set menubar [menu $::top.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
@@ -139,6 +143,25 @@ set watchmenu [menu $menubar.watch -tearoff 1]
 
 . configure -menu $menubar
 
+# frame as grip for scaling
+set grip [frame $::tf.grip -borderwidth 3 -relief raise -width 8]
+pack $grip -side right -fill y
+$grip configure -cursor sb_h_double_arrow 
+set ::grip_clicked false
+bind $grip <Motion> [list scaleFrames]
+bind $grip <ButtonPress-1> {set ::grip_clicked true}
+bind $grip <ButtonRelease-1> {set ::grip_clicked false}
+
+proc scaleFrames {} {
+    if {$::grip_clicked} {
+        set xpos [expr {[winfo pointerx .] - [winfo x .]}]
+        set padx [$::main cget -padx]
+        if {$xpos >= [expr $padx+4] && $xpos <= [expr [winfo width .]-$padx-4]} {
+            set ratio [expr double ($xpos-$padx+4)/([winfo width .]-2*$padx)]
+            placeFrames $ratio
+        }
+    }
+}
 # build the tree widgets left side
 set ::treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
 set str $tf.sc
@@ -321,6 +344,7 @@ proc makeShow {} {
                  -width 0 -height 1  \
                  -borderwidth 2 -relief groove ]
     pack $::showtext -side left -fill both -anchor w -expand 1
+    pack [ttk::sizegrip $f2.show.grip] -side right -anchor se
 
     bind $::disp <Button-3> {copySelection 1}
     bind . <Control-KeyPress-c> {copySelection 0}
@@ -757,7 +781,7 @@ proc savewatchlist { {fmt oneline} } {
 makeShow
 makeWatch
 refreshHAL
-$top raise ps
+$::top raise ps
 
 set firststr [msgcat::mc "Commands may be tested here but they will NOT be saved"]
 
