@@ -219,6 +219,8 @@ def change_epilog(self, **words):
                 self.toolchange_flag = True
                 yield INTERP_EXECUTE_FINISH
             else:
+                # yield to print any messages from the NGC program
+                yield INTERP_EXECUTE_FINISH
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
                 yield INTERP_ERROR
     except Exception as e:
