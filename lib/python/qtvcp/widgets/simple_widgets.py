@@ -419,6 +419,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         else:
             self.pressed.connect(lambda: _update(True))
             self.released.connect(lambda: _update(False))
+        _update(self.isChecked())
 
     def _init_state_change(self):
         def only_false(data):
@@ -1108,6 +1109,7 @@ class PushButton(IndicatedPushButton, _HalWidgetBase):
         else:
             self.pressed.connect(lambda: _update(True))
             self.released.connect(lambda: _update(False))
+        _update(self.isChecked())
 
 class ScaledLabel(QtWidgets.QLabel):
     def __init__(self, parent=None):
