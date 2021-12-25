@@ -2093,6 +2093,9 @@ MEASURE</string>
                     <property name="checkable">
                      <bool>true</bool>
                     </property>
+                    <property name="checked">
+                     <bool>true</bool>
+                    </property>
                     <property name="pin_name" stdset="0">
                      <string/>
                     </property>
@@ -4803,22 +4806,22 @@ MEASURE</string>
   <slot>help_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="length_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="inside_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
   <buttongroup name="outside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="length_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
   <buttongroup name="skew_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="inside_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

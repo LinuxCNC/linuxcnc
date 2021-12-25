@@ -107,8 +107,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         # have to call hal_init on widgets in this widget ourselves
         # qtvcp doesn't see them otherwise
-        self.pbtn_use_tool_measurement.setProperty('pin_name','{}-enable'.format(self.objectName()))
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtversaprobe')
+        self.pbtn_use_tool_measurement.setProperty('pin_name','enable')
         self.pbtn_use_tool_measurement.hal_init()
+        self.HAL_GCOMP_.comp.setprefix(oldname)
 
         self.allow_auto_skew.hal_init()
         self.allow_auto_zero.hal_init()
@@ -151,6 +154,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_side_edge_length.setText(str(self.PREFS_.getpref( "ps_side_edge_length", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_tool_probe_height.setText(str(self.PREFS_.getpref( "ps_probe_height", 20.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_tool_block_height.setText(str(self.PREFS_.getpref( "ps_block_height", 20.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.pbtn_use_tool_measurement.setChecked((self.PREFS_.getpref( "use_tool_measurement", True, bool, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_x.setText(str(self.PREFS_.getpref( "ps_offs_x", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_y.setText(str(self.PREFS_.getpref( "ps_offs_y", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -158,14 +162,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
 
         # make pins available for tool measure remaps
-        self.pin_svel = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtversaprobe')
+        self.pin_svel = self.HAL_GCOMP_.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_svel.set(float(self.input_search_vel.text()))
-        self.pin_pvel = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-probevel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_pvel = self.HAL_GCOMP_.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_pvel.set(float(self.input_probe_vel.text()))
-        self.pin_pheight = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_pheight = self.HAL_GCOMP_.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_pheight.set(float(self.input_tool_probe_height.text()))
-        self.pin_bheight = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + "-blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_bheight = self.HAL_GCOMP_.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_bheight.set(float(self.input_tool_block_height.text()))
+        self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # install callbacks to update HAL pins
         self.input_search_vel.textChanged.connect(self.update_search_vel_pin)
@@ -187,6 +194,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_side_edge_length", float(self.input_side_edge_length.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_height", float(self.input_tool_probe_height.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_block_height", float(self.input_tool_block_height.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "use_tool_measurement", bool(self.pbtn_use_tool_measurement.isChecked()), bool, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_x", float(self.input_adj_x.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_y", float(self.input_adj_y.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
