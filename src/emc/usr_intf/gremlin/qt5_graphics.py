@@ -1051,7 +1051,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         # set flag that presets are valid
         self._presetFlag = True
-        self._recordedView = self.current_view
+        self._recordedView = 'p' if self.perspective == True else self.current_view
         self._recordedDist = self.get_zoom_distance()
         self._recordedTransX,self._recordedTransY = self.get_total_translation()
         self._lat,self._lon = self.get_viewangle()
@@ -1073,7 +1073,8 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         # if never been set - set it first
         if not self._presetFlag:
             self.recordCurrentViewSettings()
-        return self.current_view, self.get_zoom_distance(), \
+        return 'p' if self.perspective == True else self.current_view, \
+                self.get_zoom_distance(), \
                 self._recordedTransX, self._recordedTransY, \
                 self.get_viewangle()[0], self.get_viewangle()[1]
 
