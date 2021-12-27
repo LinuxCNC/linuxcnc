@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2021-12-27 13:52+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -14143,6 +14143,14 @@ msgid ""
 "If you have a REALLY large config that you wish to convert to this newer "
 "version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
+"Diese Konfiguration wurde mit einer früheren Version von pncconf erzeugt, "
+"die möglicherweise inkompatibel ist.\n"
+"Auch wenn keine Fehler beim Lesen angezeigt wird, wäre es ratsam, diese "
+"unter einem anderen Namen zu speichern und manuell zu überprüfen. Sicherer "
+"wäre, die Datei neu aufzubauen.\n"
+"Wenn Sie eine WIRKLICH große Konfigurationsdatei haben und sie zu dieser "
+"neueren Version von pncconf konvertieren möchten - fragen Sie in den "
+"LinuxCNC Forum - es wäre möglich.."
 
 #: src/emc/usr_intf/pncconf/data.py:876
 #, python-format
@@ -14165,8 +14173,9 @@ msgstr ""
 "erstellt von Stepconf"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:47
+#, fuzzy
 msgid "PNCconf - Mesa Card Configuration Wizard"
-msgstr ""
+msgstr "PNCconf - Mesa Card Konfiguration"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
 #, fuzzy
@@ -14176,6 +14185,7 @@ msgid ""
 msgstr "Speichern"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
+#, fuzzy
 msgid ""
 "This program creates configuration files (.ini and .hal) for  milling "
 "machines and lathes connected to a Mesa Card.\n"
@@ -14184,6 +14194,12 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
+"Dieses Programm erzeugt Konfigurationsdateien (.ini und .hal) zur "
+"Ansteuerung von Fräs- und Drehmaschinen mit Mesa  Karten.\n"
+"\n"
+"Es ist empfohlen, zunächst mit den grundlegenden Optionen für die Achsen zu "
+"beginnen, und nachdem dieses funktionieren, weitere Optionen hinzuzufügen "
+"zur Einbindung der Spindel und Endschalter."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20244
