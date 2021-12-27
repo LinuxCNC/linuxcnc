@@ -346,7 +346,7 @@ proc makeShow {} {
     pack $::showtext -side left -fill both -anchor w -expand 1
     pack [ttk::sizegrip $f2.show.grip] -side right -anchor se
 
-    bind $::disp <Button-3> {copySelection 1}
+    bind $::disp <Button-3> {popupmenu_text %X %Y}
     bind . <Control-KeyPress-c> {copySelection 0}
 }
 
@@ -533,8 +533,8 @@ proc watchHAL {which} {
         }
     }
     if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $::canvaswidth - 52] \
-        [expr $i * 20 + 3] -fill grey75}
-    $::cisp bind $label <Button-3> [list popupmenu $label $i $writable $which %X %Y]
+        [expr $i * 20 + 3] -fill grey70}
+    $::cisp bind $label <Button-3> [list popupmenu_watch $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
     set tmplist [split $which +]
@@ -544,7 +544,7 @@ proc watchHAL {which} {
     refreshItem $i $vartype $label
 }
 
-proc popupmenu {label index writable which x y} {
+proc popupmenu_watch {label index writable which x y} {
     # create menu
     set m [menu .popupMenu$index -tearoff false]
     # add entries
@@ -559,6 +559,34 @@ proc popupmenu {label index writable which x y} {
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
+}
+
+
+proc popupmenu_text {x y} {
+    # create menu
+    set m [menu .popupMenuText -tearoff false]
+    # add entries
+    $m add command -label [msgcat::mc "Copy"] -command {copySelection 0}
+    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatch "pin"}
+    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatch "sig"}
+    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatch "param"}
+    # show menu
+    tk_popup $m $x $y
+    bind $m <FocusOut> [list destroy $m]
+}
+
+proc addToWatch {type} {
+    catch {set selected [join [selection get] " "]}
+    set varcount 0
+    foreach item $selected {
+        if {[catch {hal [string index $type 0]type $item} fid]} { 
+            #puts stderr "not added: $item --> $fid"
+        } else {
+            #puts stderr "added $item"
+            watchHAL "$type+$item"
+            incr varcount
+        }
+    }
 }
 
 proc hal_setp {label val} {
