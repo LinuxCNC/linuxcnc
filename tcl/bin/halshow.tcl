@@ -128,20 +128,32 @@ set watchmenu [menu $menubar.watch -tearoff 1]
     $menubar add cascade -label [msgcat::mc "Watch"] \
             -menu $watchmenu
         $watchmenu add command -label [msgcat::mc "Add pin"] \
-            -command {watchHAL pin+[entrybox "" [msgcat::mc "Add to watch"] "Pin"]}
+            -command {addToWatch pin [msgcat::mc "Pin"]}
         $watchmenu add command -label [msgcat::mc "Add signal"] \
-            -command {watchHAL sig+[entrybox "" [msgcat::mc "Add to watch"] "Signal"]}
+            -command {addToWatch sig [msgcat::mc "Signal"]}
         $watchmenu add command -label [msgcat::mc "Add parameter"] \
-            -command {watchHAL param+[entrybox "" [msgcat::mc "Add to watch"] "Parameter"]}
+            -command {addToWatch param [msgcat::mc "Parameter"]}
         $watchmenu add separator
         $watchmenu add command -label [msgcat::mc "Set Watch interval"] \
             -command {setWatchInterval}
         $watchmenu add command -label [msgcat::mc "Reload Watch"] \
             -command {reloadWatch}
         $watchmenu add command -label [msgcat::mc "Erase Watch"] \
-            -command {watchReset all}
+            -command {
+                watchReset all
+                setStatusbar [msgcat::mc "Watchlist cleared"]
+            }
 
 . configure -menu $menubar
+
+proc addToWatch {type name} {
+    set var [entrybox "" [msgcat::mc "Add to watch"] $name]
+    if {$var != "cancel"} {
+        if {[watchHAL $type+$var] == ""} {
+            setStatusbar "'$var' [msgcat::mc "added"]"
+        }
+    }   
+}
 
 # frame as grip for scaling
 set grip [frame $::tf.grip -borderwidth 3 -relief raise -width 8]
@@ -341,8 +353,8 @@ proc makeShow {} {
     pack [frame $f2.show -height 5] \
          -side top -fill both -expand 1
     set ::showtext [text $f2.show.txt \
-                 -width 0 -height 1  \
-                 -borderwidth 2 -relief groove ]
+                 -width 0 -height 1 -bg grey85 \
+                 -borderwidth 2 -relief sunken ]
     pack $::showtext -side left -fill both -anchor w -expand 1
     pack [ttk::sizegrip $f2.show.grip] -side right -anchor se
 
@@ -387,6 +399,7 @@ proc workMode {which} {
         }
         watchhal {
             watchHAL $which
+            setStatusbar ""
         }
         default {
             showMode showhal
@@ -461,25 +474,32 @@ proc watchHAL {which} {
     } else {
         $::cisp delete firstmessage
     }
-    # return if variable is already used.
-    if {[lsearch $::watchlist $which] != -1} {
-        return
-    }
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
+    set varname [lindex $tmplist end]
+    # return if variable is already used.
+    if {[lsearch $::watchlist $which] != -1} {
+        setStatusbar "'$varname' [msgcat::mc "already in list"]"
+        return "Item already in list"
+    }
     if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
         # cannot watch components, functions, or threads
         return
     }
-    set varname [lindex $tmplist end]
     if {$vartype == "sig"} {
         # stype (and gets) fail when the item clicked is not a leaf
         # e.g., clicking "Signals / X"
-        if {[catch {hal stype $varname} type]} { return }
+        if {[catch {hal stype $varname} type]} { 
+            setStatusbar $type
+            return $type
+        }
     } else {
         # ptype (and getp) fail when the item clicked is not a leaf
         # e.g., clicking "Pins / axis / 0"
-        if {[catch {hal ptype $varname} type]} { return }
+        if {[catch {hal ptype $varname} type]} { 
+            setStatusbar $type
+            return $type
+        }
     }
 
     lappend ::watchlist $which
@@ -567,26 +587,27 @@ proc popupmenu_text {x y} {
     set m [menu .popupMenuText -tearoff false]
     # add entries
     $m add command -label [msgcat::mc "Copy"] -command {copySelection 0}
-    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatch "pin"}
-    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatch "sig"}
-    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatch "param"}
+    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatchFromSel "pin"}
+    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatchFromSel "sig"}
+    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatchFromSel "param"}
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
 }
 
-proc addToWatch {type} {
-    catch {set selected [join [selection get] " "]}
+proc addToWatchFromSel {type} {
+    set selected [join [selection get] " "]
     set varcount 0
-    foreach item $selected {
-        if {[catch {hal [string index $type 0]type $item} fid]} { 
-            #puts stderr "not added: $item --> $fid"
-        } else {
-            #puts stderr "added $item"
-            watchHAL "$type+$item"
-            incr varcount
+    catch {
+        foreach item $selected {
+            if {![catch {hal [string index $type 0]type $item} return]} { 
+                if {[watchHAL "$type+$item"] == ""} {
+                incr varcount 
+                } 
+            }
         }
     }
+    setStatusbar [msgcat::mc "$varcount item(s) added"]
 }
 
 proc hal_setp {label val} {
@@ -634,6 +655,7 @@ proc entrybox {defVal buttonText label} {
         .top.en icursor end
         button .top.but -command {set ret $entryVal} -text $buttonText
         bind .top.en <Return> {set ret $entryVal}
+        bind .top.en <KP_Enter> {set ret $entryVal}
         wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
         pack {*}[winfo children .top]
         focus .top.en
@@ -728,6 +750,7 @@ proc watchReset {del} {
                 foreach var $watchlist_copy {
                     watchHAL $var
                 }
+                setStatusbar "'$del' [msgcat::mc "removed from list"]"
             } else {            
                 watchHAL zzz
             }
@@ -777,6 +800,7 @@ proc loadwatchlist {filename} {
   watchReset all
   $::top raise pw
   foreach item $wl { watchHAL $item }
+  setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"]"
 }
 
 proc savewatchlist { {fmt oneline} } {
@@ -811,11 +835,13 @@ makeWatch
 refreshHAL
 $::top raise ps
 
-set firststr [msgcat::mc "Commands may be tested here but they will NOT be saved"]
-
-$::showtext delete 1.0 end
-$::showtext insert end $firststr
-$::showtext config -state disabled
+proc setStatusbar {message} {
+    $::showtext config -state normal
+    $::showtext delete 1.0 end
+    $::showtext insert end $message
+    $::showtext config -state disabled
+}
+setStatusbar [msgcat::mc "Commands may be tested here but they will NOT be saved"]
 
 proc usage {} {
   set prog [file tail $::argv0]
