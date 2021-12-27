@@ -410,6 +410,164 @@ Press the 'Touch Plate' button. +
 The machine will probe down twice and the current user offset (G5X) will be zeroed at the bottom of the +
 plate by calculation from the touchplate height setting. +
 
+== Auto Tool Measurement
+
+QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget. +
+To use this feature, you will need to do some additional settings and you may want to use the +
+offered hal pin to get values in your own ngc remap procedure. +
+
+[IMPORTANT] Before starting the first test, do not forget to enter the probe +
+height and probe velocities on the versa probe settings page. +
+
+Tool Measurement in QtDragon is done with the following steps:
+
+* touch of you workpiece in X and Y
+* measure the height of your block from the base where your tool switch is
+  located, to the upper face of the block (including chuck etc.)
+* In the Versa probe tab, enter the measured value for block height
+* Make sure the use tool measurement button in the Vesa probe tab is enabled
+* Go to auto mode and start your program
+
+[NOTE]
+When fist setting up auto tool measurement, please use caution untill you confirm +
+tool change and probe locations - it's easy to break a tool/probe. Abort will be honoured +
+while the probe is in motion.
+
+Here is a diagram:
+
+image::images/sketch_auto_tool_measurement.png[align="left"]
+
+With the first given tool change the tool will be measured and the offset will +
+be set automatically to fit the block height. +
+The advantage of this way is, that you do not need a reference tool. +
+
+[NOTE]
+Your program must contain a tool change at the beginning. +
+The tool will be measured, even it has been used before, so there is no danger +
+if the block height has changed. +
+There are several videos on you tube that demonstrate the technique using Gmoccapy. +
+The Gmoccapy screen pioneered the technique.
+
+=== Tool Measurement Pins
+
+Versaprobe offers 5 pins for tool measurement purpose. The pins are used +
+to be read from a remap gcode subroutine, so the code can react to different values. +
+
+* qtversaprobe.toolmeasurement HAL_BIT enable or not tool measurement
+* qtversaprobe.blockheight HAL_FLOAT the measured value of the top face of the
+  workpiece
+* qtversaprobe.probeheight HAL_FLOAT the probe switch height
+* qtversaprobe.searchvel HAL_FLOAT the velocity to search for the tool probe switch
+* qtversaprobe.probevel HAL_FLOAT the velocity to probe tool length
+
+=== Tool Measurement INI File Modifications
+
+Modify your INI File to include the following:
+
+. The PROBE section
+
+QtDragon allows you to select one of two styles of touch probe routines. +
+Versa probe works with a M6 remap to add auto tool probing.
+[source,{ini}]
+----
+[PROBE]
+USE_PROBE = versaprobe
+----
+
+.The RS274NGC section
+
+[source,{ini}]
+----
+[RS274NGC]
+
+# adjust this paths to point to folders with stdglu.py and qt_auto_tool_probe.ngc
+# or similarly coded custom remap files
+SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:~/linuxcnc/nc_files/remap_lib
+
+# is the sub, with is called when a error during tool change happens, not needed on every machine configuration
+ON_ABORT_COMMAND=O <on_abort> call
+
+# The remap code for Qtvcp's versaprobe's automatic tool probe of Z
+REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_tool_probe epilog=change_epilog
+----
+
+.The Tool Sensor Section
+
+The position of the tool sensor and the start position of the probing movement, +
+all values are absolute (G53) coordinates, except MAXPROBE, what must be given in +
+relative movement.
+All values are in machine native units
+
+[source,{ini}]
+----
+[TOOLSENSOR]
+X = 10
+Y = 10
+Z = -20
+MAXPROBE =  -20
+----
+
+.The Change Position Section
+
+This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
+will interfere otherwise.* The position to move the machine before giving the
+change tool command. All values are in absolute coordinates.
+All values are in machine native units
+
+[source,{ini}]
+----
+[CHANGE_POSITION]
+X = 10
+Y = 10
+Z = -2
+----
+
+.The Python Section
+
+The Python section sets up what files linuxcnc's python interpreter looks for.
+ie. 'toplevel.py' file in the 'python' folder in the configuration directory:
+
+[source,{ini}]
+----
+[PYTHON]
+# The path to start a search for user modules
+PATH_PREPEND = python
+# The start point for all.
+TOPLEVEL = python/toplevel.py
+----
+
+=== Needed Files
+
+You must copy the following files to your config directory
+
+First create a directory named 'python' in your machine's configuration folder. +
+From 'YOUR_LINUXCNC_DIRECTORY/configs/sim/QtDragon/python', copy 'toplevel.py' and +
+'remap.py' to your configuration's new 'python' folder. +
+Make a system link or copy the following files into the 'python' folder described above. +
+
+In '~/linuxcnc/nc_files/remap_subroutine/' folder +
+make sure 'on_abort.ngc' and 'qt_auto_tool_probe.ngc' are present +
+
+In '~/linuxcnc/nc_files/remap_lib/python_stdglue/' folder +
+make sure 'stdglue.py' is present.
+
+[NOTE]
+These file names and location could be different depending on installed verses development (RIP) +
+version of linuxcnc. You could use customized versions of the same files or name them differently. +
+The entries in the '[RS274NGC]' section dictate to linuxcnc what and where to look. +
+The names and location quoted should be available in either system by default. +
+
+=== Needed Hal Connections
+
+Make sure to connect the tool probe input in your hal file: +
+If connected properly, you should be able to toggle the probe LED in qtdragon +
+if you press the probe stylus. +
+
+[source,{hal}]
+----
+net probe  motion.probe-input <= <your_input_pin>
+----
+
 == Run from Line
 
 A gcode program can be started at any line by clicking on the desired line in the gcode display while in AUTO mode. +
