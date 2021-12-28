@@ -4485,7 +4485,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
   // M99 as subroutine return is handled in interp_o_word.cc
   // convert_control_functions()
   CHKS((block->m_modes[4] == 99 && settings->call_level > 0),
-        (_("Bug:  Reached convert_stop() from M99 as subprogram return")));
+        (_("BUG: Reached convert_stop() from M99 as subprogram return")));
   if (block->m_modes[4] == 0) {
     PROGRAM_STOP();
   } else if (block->m_modes[4] == 60) {
