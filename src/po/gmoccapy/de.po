@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2021-12-18 22:44+0000\n"
+"PO-Revision-Date: 2021-12-27 13:52+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10\n"
+"X-Generator: Weblate 4.10.1\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -218,7 +218,7 @@ msgstr "Drücken um weitere Makros anzuzeigen"
 
 #: gmoccapy.py:1251
 msgid "Press to display the virtual keyboard"
-msgstr "Bildschirmtastatur anzeigen oder verbergen"
+msgstr "Bildschirmtastatur anzeigen"
 
 #: gmoccapy.py:1350
 msgid "*****  GMOCCAPY ERROR  *****"
@@ -868,7 +868,7 @@ msgstr "Werkzeugpfad zeigen / verbergen"
 
 #: gmoccapy.glade.h:17
 msgid "Show or hide dimensions"
-msgstr "Zeige oder verberge die Einheiten"
+msgstr "Einheiten zeigen / verbergen"
 
 #: gmoccapy.glade.h:18
 msgid ""
@@ -1192,7 +1192,7 @@ msgstr "Zeige DTG"
 
 #: gmoccapy.glade.h:98
 msgid "<b>Mouse Button mode</b>"
-msgstr "<b>Mausknopfverhalten</b>"
+msgstr "<b>Maustasten-Modus</b>"
 
 #: gmoccapy.glade.h:99
 msgid "<b>Preview</b>"
@@ -1304,7 +1304,7 @@ msgstr "<b>Spindel</b>"
 
 #: gmoccapy.glade.h:126
 msgid "Hide turtle Jog Button"
-msgstr "Verberge Knopf"
+msgstr "Knopf verbergen"
 
 #: gmoccapy.glade.h:127
 msgid "Turtle jog Factor"
@@ -1363,9 +1363,9 @@ msgid ""
 "to configure the settings."
 msgstr ""
 "Keine gültige Konfiguration\n"
-"in der INI Datei gefunden,\n"
-"bitte sehen Sie im WIKI nach,\n"
-"um die Grundein-stellungen\n"
+"in der INI Datei gefunden.\n"
+"Bitte sehen Sie im WIKI nach,\n"
+"um die Grundeinstellungen\n"
 "richtig vorzunehmen."
 
 #: gmoccapy.glade.h:144
@@ -1374,7 +1374,7 @@ msgstr "<b>Werkzeugmessung</b>"
 
 #: gmoccapy.glade.h:145
 msgid "Reload Tool on Start"
-msgstr "Werkzeug bei Start erneut laden"
+msgstr "Werkzeug beim Start neu laden"
 
 #: gmoccapy.glade.h:146
 msgid ""
@@ -1384,11 +1384,11 @@ msgid ""
 "at start of the GUI. Also it's \n"
 "length offset will be reloaded.\n"
 msgstr ""
-"Wenn angehakt wird das Werkzeug\n"
-"welches in der Spindel ist bei jedem Wechsel\n"
+"Wenn ausgewählt, wird das Werkzeug\n"
+"in der Spindel bei jedem Wechsel\n"
 "gespeichert und beim Start der Oberfläche\n"
-"neu geladen. Auch der Werkzeuglängen-\n"
-"ausgleich wird neu geladen\n"
+"geladen. Auch der Werkzeuglängen-\n"
+"korrekturwert wird neu geladen.\n"
 
 #: gmoccapy.glade.h:152
 msgid ""
@@ -1398,7 +1398,7 @@ msgid ""
 msgstr ""
 "Sie verwenden NO_FORCE_HOMING,\n"
 "daher ist das automatische Laden des\n"
-"Werkzeuges bei Start nicht möglich."
+"Werkzeuges beim Start nicht möglich."
 
 #: gmoccapy.glade.h:155
 msgid "<b>Reload Tool</b>"
@@ -1410,7 +1410,7 @@ msgstr "Starte ab Zeile nicht verwenden"
 
 #: gmoccapy.glade.h:157
 msgid "Use run from line"
-msgstr "Nutze Starte ab Zeile"
+msgstr "Starte ab Zeile verwenden"
 
 #: gmoccapy.glade.h:158
 msgid "<b>Run from line</b>"
@@ -1661,7 +1661,7 @@ msgstr "Starte Linuxcnc Status"
 
 #: gmoccapy.glade.h:216
 msgid "Hal Meter"
-msgstr "Hal Meter"
+msgstr "Hal-Meter"
 
 #: gmoccapy.glade.h:217
 msgid "launch hal meter"
@@ -1713,7 +1713,7 @@ msgstr "Lösche die ausgewählten Werkzeuge"
 
 #: gmoccapy.glade.h:229 ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:10
 msgid "Add"
-msgstr "Neu"
+msgstr "Hinzufügen"
 
 #: gmoccapy.glade.h:230
 msgid "add a new tool to tool table"

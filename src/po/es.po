@@ -7,8 +7,8 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-11 21:44+0000\n"
-"Last-Translator: Leonardo Daniel Marsaglia <ldmarsaglia@gmail.com>\n"
+"PO-Revision-Date: 2021-12-27 13:52+0000\n"
+"Last-Translator: Jose Manuel Garcia de Torres <jmgardeto@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
 "Language: es\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -688,9 +688,8 @@ msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2: No puede usarse con palabra H y eje simultáneamente."
 
 #: src/emc/rs274ngc/interp_convert.cc:5625
-#, fuzzy
 msgid "G43.2: No axes specified and H word missing"
-msgstr "G43.2: Falta la palabra H"
+msgstr "G43.2: Sin especificación de ejes y falta la palabra H"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -1011,8 +1010,7 @@ msgid "Named parameter #<%s> not defined"
 msgstr "Parámetro con nombre #<%s> no definido"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
-#| msgid "cant open ini file '%s'"
+#, c-format
 msgid "can't open ini file '%s'"
 msgstr "no se puede abrir el archivo ini '%s'"
 
@@ -1476,9 +1474,8 @@ msgid "Negative spindle speed used"
 msgstr "Velocidad de husillo negativa"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:124
-#, fuzzy
 msgid "Negative tool id (tool not found)"
-msgstr "ID de herramienta negativa"
+msgstr "ID  de herramienta negativo (herramienta no encontrada)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:125
 msgid "Nested comment found"
@@ -1937,9 +1934,8 @@ msgid "_Open"
 msgstr "Abrir"
 
 #: src/hal/utils/scope.c:491
-#, fuzzy
 msgid "Save Configuration File:"
-msgstr "Abrir archivo de configuración:"
+msgstr "Guardar archivo de configuración:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:781
 #, fuzzy
@@ -2476,9 +2472,8 @@ msgid "G38.2 move finished without making contact."
 msgstr "Movimiento G38.2 terminado sin hacer contacto."
 
 #: src/emc/motion/control.c:691
-#, fuzzy
 msgid "Probe tripped during non-probe move."
-msgstr "La sonda se disparó durante comando no-sonda MDI."
+msgstr "La sonda se disparó durante movimiento no-sonda MDI."
 
 #: src/emc/motion/control.c:729
 msgid "Probe tripped during homing motion."
@@ -2519,7 +2514,7 @@ msgstr "error de seguimiento en articulacion %d"
 #: src/emc/motion/control.c:816
 #, c-format
 msgid "Motion Stopped by misc error %d"
-msgstr ""
+msgstr "Movimiento detenido por error miscelaneo %d"
 
 #: src/emc/motion/control.c:1410 src/emc/motion/control.c:1496
 #, c-format
@@ -2817,12 +2812,15 @@ msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_joints es %d, debe estar entre 1 y %d\n"
 
 #: src/emc/motion/motion.c:232
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
-msgstr "MOTION: num_joints es %d, debe estar entre 1 y %d\n"
+msgstr ""
+"\n"
+"MOTION: num_extrajoints es %d, debe estar entre 0 y %d\n"
+"\n"
 
 #: src/emc/motion/motion.c:237
 msgid ""
@@ -2835,7 +2833,7 @@ msgstr ""
 "\n"
 
 #: src/emc/motion/motion.c:242
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: kinematicjoints=%2d\n"
@@ -2846,7 +2844,7 @@ msgstr ""
 "\n"
 "MOTION: kinematicjoints=%2d\n"
 "            extrajoints=%2d\n"
-"           Total joints=%2d\n"
+"           Total articulaciones=%2d\n"
 "\n"
 
 #: src/emc/motion/motion.c:249
@@ -2865,10 +2863,9 @@ msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_aio es %d, debe estar entre 1 y %d\n"
 
 #: src/emc/motion/motion.c:271
-#, fuzzy, c-format
-#| msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
+#, c-format
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_dio es %d, debe estar entre 1 y %d\n"
+msgstr "MOTION: num_misc_error es %d, debe estar entre 0 y %d\n"
 
 #: src/emc/motion/motion.c:279
 msgid "MOTION: init_hal_io() failed\n"
@@ -2912,14 +2909,13 @@ msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: falló la exportación pin/param articulacion %d\n"
 
 #: src/emc/motion/motion.c:523
-#, fuzzy
 msgid "MOTION: export_joint_home_pins failed\n"
-msgstr "MOTION: init_hal_io() falló\n"
+msgstr "MOTION:  falló export_joint_home_pins\n"
 
 #: src/emc/motion/motion.c:531
-#, fuzzy, c-format
+#, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
-msgstr "MOTION: falló la exportación pin/param articulacion %d\n"
+msgstr "MOTION: falló la exportación pin/param extrajoint %d\n"
 
 #: src/emc/motion/motion.c:567
 #, c-format
@@ -2937,9 +2933,8 @@ msgid "end of move in home state %d"
 msgstr "fin del movimiento en estado home %d"
 
 #: src/emc/motion/homing.c:231
-#, fuzzy
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
-msgstr "MOTION: falló malloc emcmot_hal_data\n"
+msgstr "MOTION: falló all_joints_home_data_t malloc\n"
 
 #: src/emc/motion/homing.c:565
 #, c-format
@@ -3151,8 +3146,6 @@ msgid "New"
 msgstr "Nuevo"
 
 #: src/hal/classicladder/classicladder_gtk.c:532
-#, fuzzy
-#| msgid "Do you really want to clear all datas ?"
 msgid "Do you really want to clear all data ?"
 msgstr "¿Realmente quiere borrar todos los datos?"
 
@@ -4264,8 +4257,7 @@ msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 msgstr "ERROR CLASSICLADDER-     MODBUS -Eco del esclavo #%s es INCORRECTO.\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:419
-#, fuzzy, c-format
-#| msgid "INFO CLASSICLADDER-   MODBUS function code not reconized"
+#, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
 msgstr "INFO CLASSICLADDER-     Código de función MODBUS no reconocido"
 
@@ -4822,7 +4814,7 @@ msgstr "Renumerar archivo..."
 
 #: tcl/bin/genedit.tcl:140 tcl/tklinuxcnc.tcl:775
 msgid "Settings"
-msgstr "Configuraciones"
+msgstr "Ajustes"
 
 #: tcl/bin/genedit.tcl:141
 msgid "No Numbering"
@@ -5106,62 +5098,44 @@ msgid "Tree View"
 msgstr "Vista de árbol"
 
 #: tcl/bin/halshow.tcl:126
-#, fuzzy
-#| msgid "Add section"
 msgid "Add pin"
-msgstr "Agregar sección"
+msgstr "Agregar pin"
 
 #: tcl/bin/halshow.tcl:127 tcl/bin/halshow.tcl:129 tcl/bin/halshow.tcl:131
 msgid "Add to watch"
-msgstr ""
+msgstr "Añadir a observación"
 
 #: tcl/bin/halshow.tcl:128
-#, fuzzy
-#| msgid "Add section"
 msgid "Add signal"
-msgstr "Agregar sección"
+msgstr "Agregar señal"
 
 #: tcl/bin/halshow.tcl:130
-#, fuzzy
-#| msgid "Parameter"
 msgid "Add parameter"
-msgstr "Parámetro"
+msgstr "Añadir parámetro"
 
 #: tcl/bin/halshow.tcl:134
-#, fuzzy
-#| msgid "Load Watch List"
 msgid "Reload Watch"
-msgstr "Cargar lista de vigilancia"
+msgstr "Recargar lista de observación"
 
 #: tcl/bin/halshow.tcl:304
 msgid "Test HAL command :"
 msgstr "Probar comando HAL:"
 
 #: tcl/bin/halshow.tcl:523
-#, fuzzy
-#| msgid ""
-#| "Set At\n"
-#| " "
 msgid "Set to .."
-msgstr ""
-"Establecer en\n"
-" "
+msgstr "Establecer en .."
 
 #: tcl/bin/halshow.tcl:526
 msgid "Unlink pin"
-msgstr ""
+msgstr "Desenlazar pin"
 
 #: tcl/bin/halshow.tcl:528
-#, fuzzy
-#| msgid "remove"
 msgid "Remove"
-msgstr "eliminar"
+msgstr "Eliminar"
 
 #: tcl/bin/halshow.tcl:545
-#, fuzzy
-#| msgid "Sent"
 msgid "Set"
-msgstr "Enviado"
+msgstr "Juego"
 
 #: tcl/bin/halshow.tcl:565
 #, fuzzy
@@ -5725,7 +5699,7 @@ msgstr "Establecer fuente"
 
 #: tcl/tklinuxcnc.tcl:1954 tcl/ngcgui_ttt.tcl:284
 msgid "Font"
-msgstr "Fuente"
+msgstr "Tipo letra"
 
 #: tcl/tklinuxcnc.tcl:1961
 msgid "Size"
@@ -11505,7 +11479,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12262,7 +12237,7 @@ msgstr "# --- señales de cambio de herramienta manual ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:816
 msgid "#  ---ignore tool prepare requests---"
-msgstr ""
+msgstr "#  ---ignorar peticiones de preparación de herramienta---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:821
 msgid "#  ---toolchange signals for custom tool changer---"
@@ -12304,8 +12279,8 @@ msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
 msgstr ""
-"# **** Botón de contacto del eje Z - requiere la clásica clásica de "
-"contactoprograma ****"
+"# **** Botón touch-off del eje Z - requiere programa touch-off classicladder "
+"****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:938
 msgid "# Put custom HAL commands in custom_postgui.hal"
@@ -13636,7 +13611,7 @@ msgstr "ajuste del husillo"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 msgid "Max Vel Override"
-msgstr "Ajuste de Vel Vel"
+msgstr "Reajuste de Vel Max"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "Arc Voltage"
@@ -14205,29 +14180,6 @@ msgid "page 1"
 msgstr "página 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
-#, fuzzy
-#| msgid ""
-#| "\t\t\t\tPNCconf - Point aNd Click CONFigurator\n"
-#| "PNCconf is a configuration program for Linuxcnc.\n"
-#| "It configures machines using Mesa I/O cards.\n"
-#| "It configures servo,stepper or closed loop stepper machines.\n"
-#| "It supports some of Mesa's sserial cards.\n"
-#| "It will forever be a work in progress as Linuxcnc changes.\n"
-#| "\n"
-#| "Many thanks To:\n"
-#| "Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also "
-#| "has helped with techincal difficulties.\n"
-#| "Big John T - John drew the original machine illustrations. Testing and "
-#| "suggestions.\n"
-#| "Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample "
-#| "equipment to test with.\n"
-#| "Andy Pugh - suggestions, questions answered and many pin name "
-#| "changes :) \n"
-#| "Dave Armstrong - testing and suggestions expecially with resolvers.\n"
-#| "Everyone who gave a bug report ! I cannot test everything thoughly enough "
-#| "so reports help.\n"
-#| "\n"
-#| "Beta 1 version"
 msgid ""
 "\t\t\t\tPNCconf - Point aNd Click CONFigurator\n"
 "PNCconf is a configuration program for Linuxcnc.\n"
@@ -14250,24 +14202,25 @@ msgid ""
 "\n"
 "Beta 1 version"
 msgstr ""
-"\t\t\t\tPNCconf - Apunte y haga clic en Configurador\n"
+"\t\t\t\tPNCconf - Configurador Apuntar y Click\n"
 "PNCconf es un programa de configuración para Linuxcnc.\n"
-"Configura máquinas usando tarjetas Mesa I / O.\n"
-"Configura máquinas servo, paso a paso o de paso cerrado.\n"
-"Es compatible con algunas de las tarjetas de serie de Mesa.\n"
+"Configura máquinas usando tarjetas Mesa I/O.\n"
+"Configura máquinas con servos, motores de pasos con bucle abierto o cerrado."
+"\n"
+"Es compatible con algunas de las tarjetas sserial de Mesa.\n"
 "Siempre será un trabajo en progreso a medida que Linuxcnc cambie.\n"
 "\n"
 "Muchas gracias a:Jeff Eppler - PNCconf se basa en stepconf - la creación de "
 "Jeff. Jeff también ayudó con dificultades técnicas.\n"
 "Big John T - John dibujó las ilustraciones originales de la máquina. Pruebas "
-"ysugerencias.\n"
-"Peter Wallace - Preguntas técnicas sobre las tarjetas de E / S de Mesa. "
+"y sugerencias.\n"
+"Peter Wallace - Preguntas técnicas sobre las tarjetas de E/S de Mesa. "
 "Muestra suministrada equipo para probar.\n"
-"Andy Pugh: sugerencias, preguntas respondidas y muchos cambios de nombre de "
-"pin :) \n"
-"Dave Armstrong: pruebas y sugerencias, especialmente con solucionadores.\n"
-"¡Todos los que dieron un informe de error! No puedo probar todo lo "
-"suficientemente bien informa ayuda.\n"
+"Andy Pugh: sugerencias, preguntas respondidas y muchos cambios de nombres de "
+"pines :)\n"
+"Dave Armstrong: pruebas y sugerencias, especialmente con resolvers.\n"
+"¡Todos los que dieron un informe de error! No puedo probar todo "
+"suficientemente;  los reportes ayudan.\n"
 "\n"
 "Versión Beta 1"
 
@@ -17955,7 +17908,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4199
 msgid "DeadBand"
-msgstr ""
+msgstr "Holgura"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4274
 msgid "PID Tuning"
@@ -18458,7 +18411,7 @@ msgstr "Mensaje del operador"
 #: src/emc/usr_intf/gscreen/gscreen.py:3790
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
 msgid "Restart Entry"
-msgstr "Reiniciar entrada"
+msgstr "Reiniciar Entrada"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3804
 msgid "Up"
@@ -18466,7 +18419,7 @@ msgstr "Arriba"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
 msgid "Enter"
-msgstr "Entrar"
+msgstr "Aceptar"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3808
 msgid "Down"
@@ -18694,7 +18647,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Buscar\n"
-" Texto:"
+"  Texto:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
 msgid ""
@@ -18702,7 +18655,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Reemplazar\n"
-"    Texto:"
+"  Texto:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
 msgid ""
@@ -18710,7 +18663,7 @@ msgid ""
 "   All"
 msgstr ""
 "Reemplazar\n"
-"   Todas"
+"   todo"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1775
 msgid ""
@@ -18718,7 +18671,7 @@ msgid ""
 " Case"
 msgstr ""
 "Ignorar\n"
-" Caso"
+" caso"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 msgid "<b>Mode</b>"
@@ -19244,7 +19197,7 @@ msgstr "pantalla 2"
 
 #: lib/python/gladevcp/iconview.py:121
 msgid "Move to your home directory"
-msgstr "Mover a su directorio de inicio"
+msgstr "Mover al directorio home"
 
 #: lib/python/gladevcp/iconview.py:130
 #, fuzzy
@@ -19258,7 +19211,7 @@ msgstr "Seleccione el archivo previos"
 
 #: lib/python/gladevcp/iconview.py:148
 msgid "Select the next file"
-msgstr "Seleccione el siguiente archivo"
+msgstr "Eligir el siguiente archivo"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
@@ -19274,15 +19227,15 @@ msgstr "Cerrar sin devolver una ruta de archivo"
 
 #: lib/python/gladevcp/offsetpage_widget.py:354
 msgid "offsetpage widget error: unrecognized float input"
-msgstr ""
+msgstr "error widget offsetpage: entrada float no reconocida"
 
 #: lib/python/gladevcp/offsetpage_widget.py:391
 msgid "offsetpage widget error: MDI call error"
-msgstr ""
+msgstr "error widget offsetpage: error en llamada MDI"
 
 #: lib/python/gladevcp/offsetpage_widget.py:410
 msgid "MDI error in offsetpage widget -zero G92"
-msgstr ""
+msgstr "Error MDI en offsetpage widget -zero G92"
 
 #: lib/python/gladevcp/offsetpage_widget.py:427
 msgid "MDI error in offsetpage widget-zero rotational offset"
@@ -19303,16 +19256,15 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:280
 msgid "Tooledit widget int error"
-msgstr ""
+msgstr "error en widgetTooledit"
 
 #: lib/python/gladevcp/tooledit_widget.py:285
 msgid "Tooledit_widget float error"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:322
-#, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr "recargar la tabla de herramientas desde el archivo"
+msgstr "Fallo al recargar la tabla de herramientas en linuxcnc"
 
 #: lib/python/gladevcp/tooledit_widget.py:482
 #, fuzzy
@@ -19364,18 +19316,16 @@ msgstr "negro"
 
 #: lib/python/gladevcp/offsetpage.glade:57
 #: lib/python/gladevcp/offsetpage.glade:71
-#, fuzzy
 msgid "G5x"
-msgstr "G54"
+msgstr "G5x"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
 msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:88
-#, fuzzy
 msgid "Rotation of Z"
-msgstr "Rotación XY:"
+msgstr "Rotacion de Z"
 
 #: lib/python/gladevcp/offsetpage.glade:91
 #: lib/python/gladevcp/offsetpage.glade:105
@@ -19442,27 +19392,26 @@ msgid "Offset Name"
 msgstr "Página de offset"
 
 #: lib/python/gladevcp/offsetpage.glade:442
-#, fuzzy
 msgid ""
 "Zero\n"
 "G92"
 msgstr ""
-"cero\n"
-" G92"
+"Cero\n"
+"G92"
 
 #: lib/python/gladevcp/offsetpage.glade:456
-#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
-msgstr "RotarHoriontal"
+msgstr ""
+"    Cero\n"
+"Rotacional"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
 #: lib/python/gladevcp/tooledit_gtk.glade:391
 #: lib/python/gladevcp/tooledit_gtk.glade:613
-#, fuzzy
 msgid "Select"
-msgstr "_Seleccionar"
+msgstr "Selección"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:93
 #: lib/python/gladevcp/tooledit_gtk.glade:402
@@ -19499,9 +19448,8 @@ msgstr "Operación"
 #: lib/python/gladevcp/tooledit_gtk.glade:270
 #: lib/python/gladevcp/tooledit_gtk.glade:571
 #: lib/python/gladevcp/tooledit_gtk.glade:793
-#, fuzzy
 msgid "Comments"
-msgstr "Comentario"
+msgstr "Comentarios"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:325
 msgid "Reload"
@@ -19520,7 +19468,7 @@ msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:446
 msgid "Z Wear"
-msgstr ""
+msgstr "Desgaste Z"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
@@ -19534,9 +19482,8 @@ msgid "Lathe Wear Offsets"
 msgstr "Offsets de trabajo:"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
-#, fuzzy
 msgid "X Tool"
-msgstr "Herramienta:"
+msgstr "herramienta X"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:668
 #, fuzzy
