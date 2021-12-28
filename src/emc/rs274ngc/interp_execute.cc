@@ -281,7 +281,7 @@ int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS27
     } else {
         if (block->dollar_flag){
             CHKS((block->dollar_number < -1 || block->dollar_number >= settings->num_spindles),
-                (_("Invalid spindle ($) number in Spindle speed command")));
+                (_("Invalid spindle ($) number in Spindle Speed command")));
             if (block->dollar_number == -1 ){
                 for (int i = 0; i < settings->num_spindles; status = convert_speed(i++, block, settings));
             } else {
