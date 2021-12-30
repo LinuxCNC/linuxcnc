@@ -517,9 +517,8 @@ class INI:
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)
 
-        # if all axis have homing switches and user doesn't request
-        # manual individual homing:
-        if all_homes and not self.d.individual_homing:
+        # if  user doesn't request manual individual homing, add the sequence number:
+        if not self.d.individual_homing:
             seqnum = int(get("homesequence"))
             # if a tandem joint we wish to finish the home sequence together
             if tandemflag: wait ='-'
