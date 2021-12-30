@@ -643,13 +643,23 @@ proc funct_for_pin {pname dir} {
   return $ans ;# {threadname order functname} {...}
 } ;# funct_for_pin
 
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc make_report {fd} {
   make_addf_list
   make_pin_alias_list ::ALIAS_TO_PIN ::PIN_TO_ALIAS
   #parray ::ALIAS_TO_PIN
   #parray ::PIN_TO_ALIAS
   set ::HR(date) [clock format [clock seconds] -format "%d%b%y %H:%M:%S"]
-  set which_linuxcnc [exec which linuxcnc]
+  set found_linuxcnc "linuxcnc"
+  catch { set found_linuxcnc [which_exe linuxcnc] }
   set this_script [info script]
 
   set linuxcncversion ""
@@ -657,9 +667,9 @@ proc make_report {fd} {
 
   puts $fd "$::HR(date)  $this_script\n"
   puts $fd "This report:      $::HR(report_file)"
-  puts $fd "LinuxCNC:         $which_linuxcnc"
+  puts $fd "LinuxCNC:         $found_linuxcnc"
   puts $fd "LinuxCNC Version: $linuxcncversion"
-  if {[string first /usr/bin $which_linuxcnc] < 0} {
+  if {[string first /usr/bin $found_linuxcnc] < 0} {
     set restore_dir [pwd]
     cd [file dirname $this_script]
     catch {puts $fd "git commit (RIP): [exec git rev-parse --short HEAD]" }

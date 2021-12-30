@@ -81,13 +81,24 @@ proc set_defaults {} {
   set ::LH(after,repeat) ''
 } ;# set_defaults
 
+
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc program_check {plist} {
   foreach prog $plist {
     if [catch {
-      set ::LH(prog,$prog) [exec which $prog]
-     } msg] {
+      set ::LH(prog,$prog) [which_exe $prog]
+     } chkmsg] {
        set msg  "Cannot find required program named:   <$prog>"
        set msg  "$msg\n\nIf Run-in-Place, source rip-environment first"
+       set msg  "$msg\n\n$chkmsg"
        popup  $msg
        exit 1
      }
@@ -763,6 +774,7 @@ proc update_bin_data {thd} {
 } ;# update_bin_data
 
 proc popup {msg} { \
+  package require Tk
   set answer [tk_messageBox \
      -parent . \
      -icon error \

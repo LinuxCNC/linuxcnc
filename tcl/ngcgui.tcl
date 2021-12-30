@@ -783,8 +783,17 @@ proc retain_or_unset {hdl ay_name} {
   }
 } ;# retain_or_unset
 #-----------------------------------------------------------------------
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc ::ngcgui::find_gcmc {} {
-  if [catch {set found [exec which gcmc]} msg] {
+  if [catch {set found [which_exe gcmc]} msg] {
     puts stdout "find_gcmc:NOTfound:<$msg>"
     return ""
   } else {

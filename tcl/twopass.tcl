@@ -108,6 +108,14 @@ proc ::tp::restore_puts {} {
 } ;# restore_puts
 
 #--------------------------------------------------------------------------
+proc ::tp::which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
 
 proc ::tp::loadusr_substitute {args} {
   set pass [passnumber]
@@ -133,7 +141,7 @@ proc ::tp::loadusr_substitute {args} {
     }
     set ptype [file pathtype $prog]
     puts "twopass:pass0: loadusr $args"
-    if {[catch {exec which $prog} msg]} {
+    if {[catch {which_exe $prog} msg]} {
        # prog not in PATH:
        if {[file exists $prog]} {
           if {[file executable $prog]} {

@@ -7,8 +7,9 @@ POSITION_OFFSET=RELATIVE
 POSITION_FEEDBACK=ACTUAL
 DISPLAY = axis
 MAX_LINEAR_VELOCITY = 1
-# placeholder for an editor for a db_program:
+# placeholder for a user supplied editor for a db_program:
 TOOL_EDITOR = ./db_editor.tcl
+PYVCP = ./db_panel.xml
 
 [TASK]
 TASK = milltask
@@ -21,6 +22,7 @@ SERVO_PERIOD = 1000000
 [HAL]
 HALUI=halui
 HALFILE = LIB:basic_sim.tcl -no_use_hal_manualtoolchange
+POSTGUI_HALFILE = db_postgui.hal
 
 [TRAJ]
 NO_FORCE_HOMING = 1
