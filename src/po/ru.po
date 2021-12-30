@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-30 08:14+0000\n"
-"Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
+"PO-Revision-Date: 2021-12-30 12:40+0000\n"
+"Last-Translator: Nikita Shubin <nikita.shubin@maquefel.me>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -3475,30 +3475,30 @@ msgstr "Уровень отладки"
 #: src/hal/classicladder/config_gtk.c:666
 #, c-format
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Читаем регистры флагов/входов в"
 
 #: src/hal/classicladder/config_gtk.c:670
 #, c-format
 msgid "Write Coils map from"
-msgstr ""
+msgstr "Пишем регистры флагов из"
 
 #: src/hal/classicladder/config_gtk.c:674
 #, c-format
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Читаем карту регистров хранения в"
 
 #: src/hal/classicladder/config_gtk.c:678
 #, c-format
 msgid "Write registers map from"
-msgstr ""
+msgstr "Записать карту регистров из"
 
 #: src/hal/classicladder/config_gtk.c:732
 msgid "NO"
-msgstr ""
+msgstr "НЕТ"
 
 #: src/hal/classicladder/config_gtk.c:737
 msgid "YES"
-msgstr ""
+msgstr "ДА"
 
 #: src/hal/classicladder/config_gtk.c:783
 msgid "QUIET"
@@ -3506,19 +3506,21 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:788
 msgid "LEVEL 1"
-msgstr ""
+msgstr "УРОВЕНЬ 1"
 
 #: src/hal/classicladder/config_gtk.c:792
 msgid "LEVEL 2"
-msgstr ""
+msgstr "УРОВЕНЬ 2"
 
 #: src/hal/classicladder/config_gtk.c:796
 msgid "LEVEL 3"
-msgstr ""
+msgstr "УРОВЕНЬ 3"
 
 #: src/hal/classicladder/config_gtk.c:969
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
+" Чтобы изменить настройки Modbus порта, сохраните и перезагрузите "
+"графический интерфейс ladder"
 
 #: src/hal/classicladder/config_gtk.c:972
 msgid "Updated Modbus configuration"
@@ -3527,40 +3529,41 @@ msgstr "Обновлена конфигурация ModBus"
 #: src/hal/classicladder/config_gtk.c:995
 msgid "Opened Configuration window. Press again to update changes and close"
 msgstr ""
+"Открыто окно конфигурации. Нажмите снова, чтобы применить изменения и закрыть"
 
 #: src/hal/classicladder/config_gtk.c:1027
 msgid "Period/object info"
-msgstr ""
+msgstr "Информация о периоде/объекте"
 
 #: src/hal/classicladder/config_gtk.c:1030
 msgid "Modbus communication setup"
-msgstr ""
+msgstr "Настройка соединения Modbus"
 
 #: src/hal/classicladder/config_gtk.c:1033
 msgid "Modbus  I/O register setup "
-msgstr ""
+msgstr "Настройка регистров I/O для Modbus "
 
 #: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "Variable"
-msgstr ""
+msgstr "Переменная"
 
 #: src/hal/classicladder/edit.c:150
 msgid "JumpToLabel"
-msgstr ""
+msgstr "ПерейтиНаМетку"
 
 #: src/hal/classicladder/edit.c:154
 msgid "Sub-Routine"
-msgstr ""
+msgstr "Подпрограмма"
 
 #: src/hal/classicladder/edit.c:160 src/hal/classicladder/edit.c:186
 msgid "TimerNbr"
-msgstr ""
+msgstr "НомерТаймера"
 
 #: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:171
 #: src/hal/classicladder/edit.c:188
 msgid "Base"
-msgstr ""
+msgstr "Базовое значение"
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
@@ -3574,7 +3577,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:179
 msgid "CounterNbr"
-msgstr ""
+msgstr "НомерСчетчика"
 
 #: src/hal/classicladder/edit.c:192
 msgid "TimerMode"
@@ -3587,7 +3590,7 @@ msgstr "Выражение"
 #: src/hal/classicladder/edit.c:227
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
-msgstr ""
+msgstr "Переменная: %s    HAL сигнал: %s"
 
 #: src/hal/classicladder/edit.c:230
 #, c-format
@@ -3602,27 +3605,27 @@ msgstr "Подпрограмма: %d"
 #: src/hal/classicladder/edit.c:238
 #, c-format
 msgid "%cT%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cT%d: Предустановленное=%d Базовое=%s"
 
 #: src/hal/classicladder/edit.c:242
 #, c-format
 msgid "%cM%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cM%d: Предустановленное=%d Базовое=%s"
 
 #: src/hal/classicladder/edit.c:247
 #, c-format
 msgid "%cC%d: Preset=%d"
-msgstr ""
+msgstr "%cC%d: Предустановленное=%d"
 
 #: src/hal/classicladder/edit.c:251
 #, c-format
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
-msgstr ""
+msgstr "%cTM%d: Предустановленное=%d Базовое=%s Режим=%s"
 
 #: src/hal/classicladder/edit.c:255
 #, c-format
 msgid "HAL sig: %s"
-msgstr ""
+msgstr "HAL сигнал: %s"
 
 #: src/hal/classicladder/edit.c:352
 msgid "Incompatible type of variable (must be an integer!)"
@@ -3631,7 +3634,7 @@ msgstr "Несовместимый тип переменной (должен б�
 #: src/hal/classicladder/edit.c:391
 #, c-format
 msgid "New expr=%s\n"
-msgstr ""
+msgstr "Новое выражение=%s\n"
 
 #: src/hal/classicladder/edit.c:393
 msgid "Expression too long"
@@ -3649,7 +3652,7 @@ msgstr "Неизвестная переменная..."
 #: src/hal/classicladder/edit.c:1082
 #, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
-msgstr ""
+msgstr "!!!Неправильный текущий тип=%d в ступеньке...(файл %s,строка %d)\n"
 
 #: src/hal/classicladder/edit.c:1172
 msgid "No more free function block available...please delete!"
@@ -3714,7 +3717,7 @@ msgstr "Комментарий"
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "поиск шага posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:161
 #: src/hal/classicladder/edit_sequential.c:179
@@ -3726,36 +3729,36 @@ msgstr "найдено=%d!!!\n"
 #: src/hal/classicladder/edit_sequential.c:169
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "поиск перехода posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:187
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "поиск комментария posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:216
 #, c-format
 msgid "found free step=%d!!!\n"
-msgstr ""
+msgstr "найден свободный шаг=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:234
 #, c-format
 msgid "found free transi=%d!!!\n"
-msgstr ""
+msgstr "найдено свободное перемещение=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:253
 #, c-format
 msgid "found free comment=%d!!!\n"
-msgstr ""
+msgstr "найден свободный комментарий=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:386
 #, c-format
 msgid "Do link : transi=%d (top=%d), step=%d\n"
-msgstr ""
+msgstr "Сделать ссылку : transi=%d (top=%d), step=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:404
 msgid "Not selected first and last transitions to be joined !!??"
-msgstr ""
+msgstr "Первый и последний переходы не были выбраны для соединения !!??"
 
 #: src/hal/classicladder/edit_sequential.c:421
 msgid "Unknown element type for Ele1"
@@ -3763,11 +3766,11 @@ msgstr "Неизвестный тип элемента для Ele1"
 
 #: src/hal/classicladder/edit_sequential.c:435
 msgid "First and last steps selected are not on the same line !!??"
-msgstr ""
+msgstr "Выбранные первый и последний шаг не находятся на одной линии !!??"
 
 #: src/hal/classicladder/edit_sequential.c:452
 msgid "First and last transitions selected are not on the same line !!??"
-msgstr ""
+msgstr "Первый и последний выбранные переходы находятся не на одной линии !!??"
 
 #: src/hal/classicladder/edit_sequential.c:459
 msgid "Unknown element type for Ele2"
@@ -3777,7 +3780,7 @@ msgstr "Неизвестный тип элемента для Ele2"
 #, c-format
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
-msgstr ""
+msgstr "общий поиск: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:508
 #: src/hal/classicladder/edit_sequential.c:552
@@ -3797,25 +3800,25 @@ msgstr ""
 #: src/hal/classicladder/edit_sequential.c:593
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "количество перемещений linked=%d для transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:596
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "->сохраняем количество перемещений linked=%d для transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:612
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr ""
+msgstr "=>шаг до activ=%d, шаг до desactiv=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:621
 msgid "Not found at least 2 transitions linked..."
-msgstr ""
+msgstr "Не найдены хотя бы 2 связанных перехода..."
 
 #: src/hal/classicladder/edit_sequential.c:740
 msgid "Sequential memory full for steps"
-msgstr ""
+msgstr "Последовательная память заполнена для шагов"
 
 #: src/hal/classicladder/edit_sequential.c:745
 #: src/hal/classicladder/edit_sequential.c:782
@@ -3824,20 +3827,22 @@ msgstr "Элемент уже есть!"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Шаг не может располагаться на четных линиях"
 
 #: src/hal/classicladder/edit_sequential.c:777
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Последовательная память заполнена для перехода"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Переход не может располагаться на нечетных линиях"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 msgstr ""
+"количество clicks=1!!! (posi=%s), подождите следующую точку для соединения..."
+"\n"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
@@ -3852,24 +3857,24 @@ msgstr "низ"
 #: src/hal/classicladder/edit_sequential.c:805
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:843
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Последовательная память заполнена для комментариев"
 
 #: src/hal/classicladder/edit_sequential.c:848
 msgid "There is already an element on 4 horizontal blocks required!"
-msgstr ""
+msgstr "Уже есть элемент на требуемых 4ых горизонтальных блоках!"
 
 #: src/hal/classicladder/edit_sequential.c:853
 msgid "Not enough room on the right here..."
-msgstr ""
+msgstr "Справа не хватает места ..."
 
 #: src/hal/classicladder/edit_sequential.c:875
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:881
 #, c-format
@@ -3903,11 +3908,11 @@ msgstr "номер переменной выходит за пределы"
 
 #: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
 msgid "None -Internal Memory"
-msgstr ""
+msgstr "Отсутствует -Внутренняя память"
 
 #: src/hal/classicladder/emc_mods.c:123
 msgid "None -Internal Error Status"
-msgstr ""
+msgstr "Отсутствует -Внутренняя Ошибка Статуса"
 
 #: src/hal/classicladder/emc_mods.c:128
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
@@ -3923,11 +3928,11 @@ msgstr "Ошибка"
 
 #: src/hal/classicladder/emc_mods.c:151
 msgid "no signal connected"
-msgstr ""
+msgstr "сигнал не подсоединен"
 
 #: src/hal/classicladder/emc_mods.c:155
 msgid "Conv. HAL signal ERROR"
-msgstr ""
+msgstr "Conv. ОШИБКА HAL сигнала"
 
 #: src/hal/classicladder/emc_mods.c:177
 msgid "No expression"
@@ -3940,7 +3945,7 @@ msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:203
 msgid "first var. expression error"
-msgstr ""
+msgstr "ошибка выражения в первой переменной"
 
 #: src/hal/classicladder/emc_mods.c:257
 msgid "Old Timer"
@@ -3952,7 +3957,7 @@ msgstr "Новый таймер"
 
 #: src/hal/classicladder/emc_mods.c:267
 msgid "One-shot"
-msgstr ""
+msgstr "Разовое-выполнение"
 
 #: src/hal/classicladder/emc_mods.c:272
 msgid "Counter"
@@ -3981,7 +3986,7 @@ msgstr "Загрузка файла : %s"
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
 msgid " - ok.\n"
-msgstr ""
+msgstr " - в порядке.\n"
 
 #: src/hal/classicladder/files.c:280 src/hal/classicladder/files.c:306
 msgid " - not found.\n"
@@ -4010,12 +4015,12 @@ msgstr "!!!Ошибка в ConvBaseInMilliSecsToInt()\n"
 #: src/hal/classicladder/files.c:660
 #, c-format
 msgid "!!! Error loading parameter base in %s\n"
-msgstr ""
+msgstr "!!! Ошибка загрузки базового значения параметра в %s\n"
 
 #: src/hal/classicladder/files.c:469
 #, c-format
 msgid "Timer => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Таймер => Базовое = %d , Заданное = %d\n"
 
 #: src/hal/classicladder/files.c:501
 #, c-format
@@ -4030,7 +4035,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:787
 #, c-format
 msgid "Sections file version not supported...\n"
-msgstr ""
+msgstr "Нет поддержки версии файла секций...\n"
 
 #: src/hal/classicladder/files.c:811
 #, c-format
@@ -4042,7 +4047,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:1043
 #, c-format
 msgid "Symbols file version not supported...\n"
-msgstr ""
+msgstr "Нет поддержки версии файла символов...\n"
 
 #: src/hal/classicladder/files.c:1056
 #, c-format
@@ -4052,17 +4057,17 @@ msgstr "Символ: %s - %s - %s\n"
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr ""
+msgstr "ОШИБКА: неправильный путь к директории проекта !!!\n"
 
 #: src/hal/classicladder/files_project.c:184
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
-msgstr ""
+msgstr "Сохранить проект '%s' из временной директории=%s\n"
 
 #: src/hal/classicladder/files_sequential.c:97
 #, c-format
 msgid "Sequential version not supported...\n"
-msgstr ""
+msgstr "Версия последовательности не поддерживается...\n"
 
 #: src/hal/classicladder/manager_gtk.c:71
 #: src/hal/classicladder/manager_gtk.c:229
@@ -4078,7 +4083,7 @@ msgstr "Главная"
 #: src/hal/classicladder/manager_gtk.c:76
 #: src/hal/classicladder/manager_gtk.c:231
 msgid "Sequential"
-msgstr ""
+msgstr "Последовательность"
 
 #: src/hal/classicladder/manager_gtk.c:131
 msgid "This section name already exist or is incorrect !!!"
@@ -4086,23 +4091,23 @@ msgstr "Это имя секции уже существует или невер
 
 #: src/hal/classicladder/manager_gtk.c:137
 msgid "This sub-routine number for calls is already defined !!!"
-msgstr ""
+msgstr "Эта подпрограмма для вызовов уже определена !!!"
 
 #: src/hal/classicladder/manager_gtk.c:143
 msgid "Failed to add a new section. Full?"
-msgstr ""
+msgstr "Ошибка добавления новой секции. Заполнен?"
 
 #: src/hal/classicladder/manager_gtk.c:170
 msgid "Do you really want to delete the section ?"
-msgstr ""
+msgstr "Вы действительно хотите удалить эту секцию ?"
 
 #: src/hal/classicladder/manager_gtk.c:174
 msgid "You can not delete the last section..."
-msgstr ""
+msgstr "Вы не можете удалить последнюю секцию..."
 
 #: src/hal/classicladder/manager_gtk.c:191
 msgid "This section is already executed the first !"
-msgstr ""
+msgstr "Эта секция уже была выполнена первой !"
 
 #: src/hal/classicladder/manager_gtk.c:241
 msgid "Add a section..."
@@ -4110,7 +4115,7 @@ msgstr "Добавить раздел..."
 
 #: src/hal/classicladder/manager_gtk.c:256
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #: src/hal/classicladder/manager_gtk.c:257
 msgid "Main/Sub-Routine"
@@ -4126,7 +4131,7 @@ msgstr "Имя раздела   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Language    "
-msgstr ""
+msgstr "Язык    "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Type   "
@@ -4170,6 +4175,8 @@ msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
+"ERROR CLASSICLADDER-    MODBUS -Код функции полученный от ведомого не "
+"совпадает с запрошенным!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:367
 #, c-format
@@ -4177,21 +4184,27 @@ msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
+"INFO CLASSICLADDER-   MODBUS -Эхо от ведомого устройства #%s является "
+"правильным (data=257).\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:370
 #, c-format
 msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 msgstr ""
+"ERROR CLASSICLADDER-    MODBUS -Эхо от ведомого устройства является #%s "
+"является НЕПРАВИЛЬНЫМ.\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:419
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   MODBUS код функции не распознан"
 
 #: src/hal/classicladder/protocol_modbus_master.c:424
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 msgstr ""
+"INFO CLASSICLADDER-   MODBUS Длина которую мы должны получить receive=%d (+3)"
+"\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:558
 #, c-format
@@ -4204,12 +4217,12 @@ msgstr ""
 #: src/hal/classicladder/protocol_modbus_master.c:587
 #, c-format
 msgid "Slave: %X  "
-msgstr ""
+msgstr "Ведомый: %X  "
 
 #: src/hal/classicladder/protocol_modbus_master.c:564
 #, c-format
 msgid "Function: %X  Data: "
-msgstr ""
+msgstr "Функция: %X  Данные: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:566
 #: src/hal/classicladder/protocol_modbus_master.c:591
@@ -4227,7 +4240,7 @@ msgstr ""
 #: src/hal/classicladder/protocol_modbus_master.c:589
 #, c-format
 msgid "Function: %X Data: "
-msgstr ""
+msgstr "Функция: %X Данные: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:621
 #, c-format
@@ -4239,48 +4252,54 @@ msgstr ""
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
+"ERROR CLASSICLADDER-   MODBUS-ПОЛУЧЕН НЕПРАВИЛЬНЫЙ ОТВЕТ ОТ ВЕДОМОГО "
+"УСТРОЙСТВА!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:650
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-   MODBUS-ОШИБКА НИЗКОГО УРОВНЯ В ОТВЕТЕ!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:710
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 msgstr ""
+"ERROR CLASSICLADDER--- Переменная не определена для карты MODBUS READ "
+"REQUEST "
 
 #: src/hal/classicladder/protocol_modbus_master.c:757
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "
 msgstr ""
+"ERROR CLASSICLADDER--- Переменная не определена для карты MODBUS WRITE "
+"REQUEST "
 
 #: src/hal/classicladder/serial_linux.c:139
 #, c-format
 msgid "Speed value not found for serial\n"
-msgstr ""
+msgstr "Не найдено значение скорости для последовательного порта\n"
 
 #: src/hal/classicladder/serial_linux.c:144
 #, c-format
 msgid "Failed to open serial port %s...\n"
-msgstr ""
+msgstr "Не удалось открыть последовательный порт %s...\n"
 
 #: src/hal/classicladder/serial_linux.c:171
 #, c-format
 msgid "Set RTS=%d\n"
-msgstr ""
+msgstr "Задать RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:185
 #, c-format
 msgid "Serial writing...\n"
-msgstr "Сериал пишет...\n"
+msgstr "Последовательный порт пишет...\n"
 
 #: src/hal/classicladder/serial_linux.c:190
 #, c-format
 msgid "SerialSend failed: %s!\n"
-msgstr ""
+msgstr "SerialSend не удался: %s!\n"
 
 #: src/hal/classicladder/serial_linux.c:197
 #, c-format
@@ -4290,32 +4309,34 @@ msgstr "Запись завершена!\n"
 #: src/hal/classicladder/serial_linux.c:215
 #, c-format
 msgid "Serial config...\n"
-msgstr "Настроить Сериал...\n"
+msgstr "Настроить последовательный порт...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
 #, c-format
 msgid "select() for serial reading...\n"
-msgstr ""
+msgstr "вызываем select() для ожидания данных с последовательного порта...\n"
 
 #: src/hal/classicladder/serial_linux.c:241
 #, c-format
 msgid "Serial reading...\n"
-msgstr "Сериал читает...\n"
+msgstr "Последовательный порт читает...\n"
 
 #: src/hal/classicladder/serial_linux.c:244
 #, c-format
 msgid "%d chars found\n"
-msgstr ""
+msgstr "%d символов найдено\n"
 
 #: src/hal/classicladder/serial_linux.c:255
 #, c-format
 msgid "Serial flush all!\n"
-msgstr ""
+msgstr "Принудительной сброс данных в буфере последовательного порта!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"
 msgstr ""
+"ERROR CLASSICLADDER-   Ошибка создания потока I/O для ведущего устройства "
+"modbus...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:121
 #, c-format
@@ -4327,112 +4348,123 @@ msgstr ""
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
 msgstr ""
+"INFO CLASSICLADDER---инициализация I/O ведущего устройства modbus (%s) "
+"успешно завершилась!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 msgid "Serial"
-msgstr ""
+msgstr "Последовательный порт"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 #: src/emc/usr_intf/pncconf/dialogs.glade:36
 #: src/emc/usr_intf/pncconf/dialogs.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:328
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernet"
 
 #: src/hal/classicladder/socket_modbus_master.c:168
 #, c-format
 msgid "Init socket for I/O module (%d)...\n"
-msgstr ""
+msgstr "Будет выполнена инициализация сокета для модуля I/O (%d)...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:172
 #, c-format
 msgid "Failed to open I/O socket master...\n"
-msgstr ""
+msgstr "Ошибка инициализации сокета для ведущего устройства...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:198
 #, c-format
 msgid "Connecting I/O module...\n"
-msgstr ""
+msgstr "Устанавливаем соединение с модулем I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:220
 #, c-format
 msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
-msgstr ""
+msgstr "Не могу найти IP адрес в modbus таблице, чзн?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:225
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr ""
+msgstr "Не удалось подключиться к модулю I/O\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:231
 #, c-format
 msgid "Too much IP connections under run...\n"
-msgstr ""
+msgstr "Слишком много IP соединений запущено...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:248
 #, c-format
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   Посылаю кадр модулю I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:254
 #, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
 msgstr ""
+"ERROR CLASSICLADDER-  НЕ УДАЛОСЬ ОТПРАВИТЬ ЧЕРЕЗ СОКЕТ !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:275
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   ждем ответа от ведомых устройств...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:307
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---I/O модуль ведущего устройства закрыт!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:356
 #, c-format
 msgid "INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER- после посылки ждем...%i миллисекунд\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:366
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-  MODBUS НЕТ ОТВЕТА (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:86
 #, c-format
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- ИНИЦИАЛИЗАЦИЯ СОКЕТА!!!\n"
 
 #: src/hal/classicladder/socket_server.c:91
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER--- Не удалось открыть сокет сервера...\n"
 
 #: src/hal/classicladder/socket_server.c:103
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Вызов bind() для сокета сервера завершился с "
+"ошибкой...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:112
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Вызов listen() для сокета сервера завершился с "
+"ошибкой...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:130
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Создание потока pthread_create() завершилось с "
+"ошибкой...\n"
 
 #: src/hal/classicladder/socket_server.c:135
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"
 msgstr ""
+"INFO CLASSICLADDER--- Успешная инициализация сокета сервера (modbus - порт "
+"%d)!\n"
 
 #: src/hal/classicladder/socket_server.c:174
 #, c-format
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- MODBUS ОТВЕТ ДЛИНА=%d+%d !\n"
 
 #: src/hal/classicladder/socket_server.c:204
 #, c-format
