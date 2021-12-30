@@ -69,7 +69,7 @@ changes include:
   * c) tool substitutions (M61Qn).
 
 When a tool data change occurs, LinuxCNC sends a command to the
-*db_program* consisting of a identifying command letter followed by a
+*db_program* consisting of an identifying command letter followed by a
 full or abbreviated tool data line.  The *db_program* must respond with
 a reply to confirm receipt.  If the reply includes the text "'NAK'", a
 message is printed to stdout but execution continues.  The "'NAK'"
@@ -93,18 +93,18 @@ The commands issued for tool data changes are:
 
 When a NON_RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=0 (the default), the spindle_load command
-issued for TnM6 is: 'l Tn P0' (pocket '0' is the spindle).  The
-spindle_unload command issued for T0M6 is 'u T0 P0'.
+issued for TnM6 (or M61Qn) is: 'l Tn P0' (pocket '0' is the spindle).
+The spindle_unload command issued for T0M6 is 'u T0 P0'.
 
 [NOTE]
 
 When a RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=1, a pair of spindle_unload/spindle_load
-commands are issued at each tool exchange.  The pair of commands issued
-for TnM6 are 'u Tu Pm' followed by 'l Tn P0' where 'u' is the current
-tool to be sent to pocket 'm' and 'n' is the new tool to load in the
-spindle (pocket '0').  By convention, a tool number of '0' is used to
-specify an empty tool,
+commands are issued at each tool exchange.  The pair of commands
+issued for TnM6 (or M61Qn) are 'u Tu Pm' followed by 'l Tn P0' where
+'u' is the current tool to be sent to pocket 'm' and 'n' is the new
+tool to load in the spindle (pocket '0').  By convention, a tool
+number of '0' is used to specify an empty tool,
 
 === Usage
 
@@ -147,7 +147,7 @@ stdout) for additional debugging information about interface activity.
 === Example program
 
 An example *db_program* (implemented as a python script) is provided
-with the simulation examples.  The program databasetrates the
+with the simulation examples.  The program demonsrates the
 required operations to:
 
 . acknowledge startup version
@@ -210,7 +210,7 @@ python-based applications that interface with an external database.
 
 Simulation configs using the axis gui:
 
-. configs/sim/axis/db_demo/*db_ran*.ini    (   random_toolchanger)
+. configs/sim/axis/db_demo/*db_ran*.ini    (random_toolchanger)
 . configs/sim/axis/db_demo/*db_nonran*.ini (nonrandom_toolchanger)
 
 Each sim config simulates a *db_program* implementing a database
