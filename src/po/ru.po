@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-30 12:40+0000\n"
-"Last-Translator: Nikita Shubin <nikita.shubin@maquefel.me>\n"
+"PO-Revision-Date: 2021-12-31 00:07+0000\n"
+"Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
 "Language: ru\n"
@@ -3502,7 +3502,7 @@ msgstr "ДА"
 
 #: src/hal/classicladder/config_gtk.c:783
 msgid "QUIET"
-msgstr ""
+msgstr "МОЛЧА"
 
 #: src/hal/classicladder/config_gtk.c:788
 msgid "LEVEL 1"
@@ -4191,8 +4191,8 @@ msgstr ""
 #, c-format
 msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 msgstr ""
-"ERROR CLASSICLADDER-    MODBUS -Эхо от ведомого устройства является #%s "
-"является НЕПРАВИЛЬНЫМ.\n"
+"ERROR CLASSICLADDER-    MODBUS -Эхо от ведомого устройства #%s является "
+"НЕПРАВИЛЬНЫМ.\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:419
 #, c-format
@@ -11604,15 +11604,14 @@ msgstr ""
 "дальнейшие изменения не будут сохраняться"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1780
-#, fuzzy
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
-"OK to replace existing custom ladder program?\n"
-"Existing Custom.clp will be renamed custom_backup.clp.\n"
-"Any existing file named -custom_backup.clp- will be lost. "
+"OK to replace existing custom pyvcp panel?\n"
+"Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
+"Clicking 'existing custom program' will avoid this warning. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3569
 #: src/emc/usr_intf/pncconf/private_data.py:551
@@ -12049,25 +12048,22 @@ msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "ножка# %(pinnum)d подключена к выходу сигнала:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1539
-#, fuzzy
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
-msgstr "# **** Use ACTUAL spindle velocity from spindle encoder"
+msgstr "# Use ACTUAL spindle velocity from spindle encoder"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1540
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1541
-#, fuzzy
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"# **** spindle-velocity is signed so we use absolute compoent to remove sign"
+"# spindle-velocity is signed so we use absolute component to remove sign"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1542
-#, fuzzy
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr "# **** ACTUAL velocity is in RPS not RPM so we scale it."
+msgstr "# ACTUAL velocity is in RPS not RPM so we scale it."
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
@@ -16856,12 +16852,10 @@ msgid "Include Halui user interface component / commands"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/options.glade:605
-#, fuzzy
 msgid "Number of digital (bit) in pins:"
 msgstr "Количество цифровых входов:"
 
 #: src/emc/usr_intf/pncconf/options.glade:622
-#, fuzzy
 msgid "Number of digital (bit) out pins:"
 msgstr "Количество цифровых выходов:"
 
@@ -17144,7 +17138,6 @@ msgid "<b>frame2</b>"
 msgstr "<b>Страница</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
-#, fuzzy
 msgid "Save & Quit"
 msgstr "Сохранить и выйти"
 
@@ -17200,9 +17193,8 @@ msgid "Pulley teeth (motor:gearbox):"
 msgstr "Зубья шкивов (мотор:редуктор):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1370
-#, fuzzy
 msgid "Gear ratio 1 (Input:Output)"
-msgstr "Передача червяка (Вход:Выход)"
+msgstr "Передача червяка 1(Вход:Выход)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1383
 #: src/emc/usr_intf/pncconf/dialogs.glade:2156
@@ -17223,18 +17215,16 @@ msgid "Use Negative voltage for reverse:"
 msgstr "Использовать отрицательное напряжение для реверса:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1495
-#, fuzzy
 msgid "Gear ratio 2 (Input:Output)"
-msgstr "Передача червяка (Вход:Выход)"
+msgstr "Передача червяка 2(Вход:Выход)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1569
 msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1600
-#, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "<b>Шпиндель</b>"
+msgstr "<b>Мотор Шпинделя</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1640
 #: src/emc/usr_intf/pncconf/dialogs.glade:2440
@@ -17248,7 +17238,6 @@ msgstr "Линий энкодера на оборот:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1661
 #: src/emc/usr_intf/pncconf/dialogs.glade:2606
-#, fuzzy
 msgid "<b>Encoder Scale</b>"
 msgstr "<b>Множитель энкодера:</b>"
 
@@ -17270,9 +17259,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1799
 #: src/emc/usr_intf/pncconf/dialogs.glade:3215
-#, fuzzy
 msgid "<b>Motion Data</b>"
-msgstr "<b>Охлаждение</b>"
+msgstr "<b>Данные движения</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1945
 msgid "TPI "
@@ -17309,14 +17297,12 @@ msgid "                    "
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2691
-#, fuzzy
 msgid "encoder pulses per unit:"
 msgstr "Линий энкодера на оборот:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2704
-#, fuzzy
 msgid "motor steps per unit:"
-msgstr "Шаги мотора на оборот:"
+msgstr "Шагов мотора на единицу длины:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2719
 msgid "<b>Calculated Scale</b>"
@@ -17460,19 +17446,16 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "Manual Mode"
-msgstr "Ручной"
+msgstr "Ручной Режим"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "MDI Mode"
-msgstr "Режим работы"
+msgstr "Режим MDI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "Auto Mode"
-msgstr "Режим работы"
+msgstr "Режим Авто"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:393
 #, python-format
@@ -17649,9 +17632,8 @@ msgid "Cycle start pressed in AUTO mode"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1890
-#, fuzzy
 msgid "Cycle start pressed in MDI mode"
-msgstr "не могу делать это (%s) в MDI режиме"
+msgstr "Старт цикла нажат в MDI режиме"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1925
 #, python-format
@@ -17689,9 +17671,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1941
 #: src/emc/usr_intf/gscreen/gscreen.py:1960
-#, fuzzy
 msgid "can't start spindle manually in Auto mode"
-msgstr "не могу делать это (%s) в ручном режиме"
+msgstr "не могу запустить шпиндель в Авто режиме"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1966
 #: src/emc/usr_intf/gscreen/gscreen.py:4152
@@ -17700,15 +17681,13 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1978
 #: src/emc/usr_intf/gscreen/gscreen.py:1980
-#, fuzzy
 msgid "Spindle Speed Preset Entry"
-msgstr "Обороты шпинделя"
+msgstr "Предустановка оборотов шпинделя"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2016
 #: src/emc/usr_intf/gscreen/gscreen.py:2022
-#, fuzzy
 msgid "Manual Tool Index Entry"
-msgstr "Ручная смена инструмента AXIS"
+msgstr "Ввод индекса ручной смены инструмента"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2190
 msgid "Entry dialog"
