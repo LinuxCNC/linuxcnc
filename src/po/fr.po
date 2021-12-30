@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-30 08:14+0000\n"
+"PO-Revision-Date: 2021-12-31 00:07+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
@@ -11624,11 +11624,11 @@ msgstr "Cavalier F"
 #: src/emc/usr_intf/stepconf/thcad.glade:137
 #: src/emc/usr_intf/pncconf/thcad.glade:139
 msgid "Divider Ratio or Series Resistance"
-msgstr ""
+msgstr "Ratio du diviseur ou résistance de la série"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:150
 msgid "0V Freq (kHz)"
-msgstr ""
+msgstr "0V Fréq. (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:164
@@ -11639,7 +11639,7 @@ msgstr "Mode"
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:291
 msgid "THCAD For Arc Voltage"
-msgstr ""
+msgstr "THCAD pour la Tension d'Arc"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:12
 #: src/emc/usr_intf/stepconf/axisy.glade:12
@@ -11651,8 +11651,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:44
 #: src/emc/usr_intf/pncconf/z_axis.glade:44
 #: src/emc/usr_intf/pncconf/a_axis.glade:44
+#, fuzzy
 msgid "Same"
-msgstr ""
+msgstr "Même"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:15
 #: src/emc/usr_intf/stepconf/axisy.glade:15
@@ -11685,6 +11686,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11890,7 +11892,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/finished.glade:55
 msgid " Simulator: will not run hardware "
-msgstr ""
+msgstr " Simulateur : n’utilisera pas de matériel "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:97
 #, fuzzy, python-format
@@ -11911,34 +11913,37 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:173
 msgid "PnCconf is setting up"
-msgstr ""
+msgstr "PnCconf se configure"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:265
 msgid "**** PNCCONF ERROR:    custom firmware loading error"
-msgstr ""
+msgstr "**** ERREUR PNCCONF : erreur de chargement du firmware personnalisé"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:268
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
-msgstr ""
+msgstr "**** INFO PNCCONF : firmware supplémentaire trouvé dans le fichier"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:364
+#, fuzzy
 msgid "Discovery metadata update"
-msgstr ""
+msgstr "Mise à jour des métadonnées de découverte"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:408
 #, python-format
 msgid "%s metadata update"
-msgstr ""
+msgstr "%s mise à jour des métadonnées"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:428
 msgid "PnCconf setup"
-msgstr ""
+msgstr "Configuration de PnCconf"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:448
 msgid ""
 "\n"
 "**** Debug Pause! ****"
 msgstr ""
+"\n"
+"**** Pause de débogage ! ****"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:532
 #, fuzzy
@@ -11977,10 +11982,10 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "No board was found\n"
-msgstr ""
+msgstr "Aucune carte n'a été trouvée\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1339
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Discovery has an error,\n"
 "\n"
@@ -11988,6 +11993,11 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"La découverte renvoie une erreur,\n"
+"\n"
+" Mesaflash est-il installé ?\n"
+"\n"
+" %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1353
 #, fuzzy
@@ -12412,8 +12422,9 @@ msgid "#  ---manual tool change signals to qtdragon's dialog---"
 msgstr "#  ---signaux changeur manuel d'outil---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:816
+#, fuzzy
 msgid "#  ---ignore tool prepare requests---"
-msgstr ""
+msgstr "# --- ignorer les requêtes de préparation d'outil ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:821
 msgid "#  ---toolchange signals for custom tool changer---"
@@ -12545,15 +12556,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
-msgstr ""
+msgstr "PNCconf"
 
 #: src/emc/usr_intf/pncconf/private_data.py:41
 msgid "Screen"
-msgstr ""
+msgstr "Écran"
 
 #: src/emc/usr_intf/pncconf/private_data.py:42
 msgid "VCP"
-msgstr ""
+msgstr "VCP"
 
 #: src/emc/usr_intf/pncconf/private_data.py:44
 msgid "External Controls"
@@ -12561,11 +12572,11 @@ msgstr "Contrôles externes"
 
 #: src/emc/usr_intf/pncconf/private_data.py:45
 msgid "Mesa Card 0"
-msgstr ""
+msgstr "Carte Mesa 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:46
 msgid "Mesa Card 1"
-msgstr ""
+msgstr "Carte Mesa 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
 #, fuzzy
@@ -12574,7 +12585,7 @@ msgstr "Réglage port parallèle"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
 msgid "Mesa THCAD"
-msgstr ""
+msgstr "Mesa THCAD"
 
 #: src/emc/usr_intf/pncconf/private_data.py:50
 #, fuzzy
