@@ -1609,12 +1609,18 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
     This setting will default to MAX_VELOCITY if omitted. It can be used
     in cases where the spindle speed is limited in reverse. Set to zero
     for spindles which must not be run in reverse.
-    In this context "max" refers to the abslute magnitude of the spindle
+    In this context "max" refers to the absolute magnitude of the spindle
     speed.
 
 * 'MIN_REVERSE_VELOCITY = 3000'
     This setting is equivalent to MIN_VELOCITY but for reverse spindle
     rotation. It will default to the MIN_VELOCITY if omitted.
+
+* 'INCREMENT = 200'
+    Sets the step size for spindle speed increment / decrement commands.
+    This can have a different value for each spindle.
+    This setting is effective with Axis and Touchy but note that some
+    GUIs may handle things differently.
 
 * 'HOME_SEARCH_VELOCITY = 100' - FIXME: Spindle homing not yet working
     Sets the homing speed (rpm) for the spindle. The spindle will rotate
