@@ -1940,10 +1940,10 @@ static void output_to_hal(void)
     }
 
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+        double speed;
 		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
 			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset
 								- emcmotStatus->carte_pos_cmd.tran.x);
-			double speed;
 			double maxpositive;
 			if(denom > 0) speed = emcmotStatus->spindle_status[spindle_num].css_factor / denom;
 			else speed = emcmotStatus->spindle_status[spindle_num].speed;
@@ -1955,32 +1955,38 @@ static void output_to_hal(void)
 					speed = -maxpositive;
 				if(speed > maxpositive)
 					speed = maxpositive;
-
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) = speed;
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) = speed/60.;
 		} else {
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) =
-					emcmotStatus->spindle_status[spindle_num].speed *
+			speed = emcmotStatus->spindle_status[spindle_num].speed *
 					emcmotStatus->spindle_status[spindle_num].net_scale;
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) =
-					emcmotStatus->spindle_status[spindle_num].speed *
-					emcmotStatus->spindle_status[spindle_num].net_scale / 60.;
 		}
-		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) =
-				fabs(*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out));
-		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) =
-				fabs(*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps));
-		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
+
+        // Limit to spindle velocity limits
+        if (speed > 0){
+            if (speed > emcmotStatus->spindle_status[spindle_num].max_pos_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].max_pos_speed;
+            } else if (speed < emcmotStatus->spindle_status[spindle_num].min_pos_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].min_pos_speed;
+            }
+        } else if (speed < 0) {
+            if (speed < emcmotStatus->spindle_status[spindle_num].min_neg_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].min_neg_speed;
+            } else if (speed > emcmotStatus->spindle_status[spindle_num].max_neg_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].max_neg_speed;
+            }
+        }
+
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) = speed;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) = speed/60.;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) = fabs(speed);
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) = fabs(speed / 60);
+	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = (speed != 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_forward) = (speed > 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) = (speed < 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
+		    (emcmotStatus->spindle_status[spindle_num].brake != 0) ? 1 : 0;
+        // What is this for? Docs don't say
+        *(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
 				emcmotStatus->spindle_status[spindle_num].speed / 60.;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_on) =
-				((emcmotStatus->spindle_status[spindle_num].state *
-						emcmotStatus->spindle_status[spindle_num].net_scale) != 0) ? 1 : 0;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_forward) =
-				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out > 0) ? 1 : 0;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) =
-				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out < 0) ? 1 : 0;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
-				(emcmotStatus->spindle_status[spindle_num].brake != 0) ? 1 : 0;
     }
 
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
