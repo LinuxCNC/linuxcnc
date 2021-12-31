@@ -226,7 +226,8 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
 
 int count_names(char *names[]){
   int namecount = 0;
-  for (int i = 0; i < MAX_IO; i++) {
+  int i;
+  for (i = 0; i < MAX_IO; i++) {
     if (((names[i] == NULL) || (*names[i] == 0))){
       break;
     }
