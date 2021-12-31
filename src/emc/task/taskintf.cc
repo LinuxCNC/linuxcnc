@@ -1892,7 +1892,7 @@ int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_
     int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
-        rcs_print("%s(%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f, %i, %.4f) returned %d\n",
+        rcs_print("%s(%d, %e, %e, %e, %e, %f, %f, %i, %f) returned %d\n",
           __FUNCTION__, spindle, max_pos, min_pos, max_neg, min_neg, search_vel, home_angle,
           sequence, increment, retval);
     }
