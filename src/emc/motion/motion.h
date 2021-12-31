@@ -189,6 +189,8 @@ extern "C" {
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
 
+        EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
+
     } cmd_code_t;
 
 /* this enum lists the possible results of a command */
@@ -220,6 +222,8 @@ extern "C" {
 	double motor_offset;    /* offset from joint to motor position */
 	double maxLimit;	/* pos value for position limit, output */
 	double minLimit;	/* neg value for position limit, output */
+	double min_pos_speed;     /* spindle minimum positive speed */
+	double max_neg_speed;     /* spindle maximum negative speed */
 	EmcPose pos;		/* line/circle endpt, or teleop vector */
 	PmCartesian center;	/* center for circle */
 	PmCartesian normal;	/* normal vec for circle */
@@ -541,11 +545,19 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int locked;             // spindle lock engaged after orient
 	int orient_fault;       // fault code from motion.spindle-orient-fault
 	int orient_state;       // orient_state_t
-    int spindle_index_enable;  /* hooked to a canon encoder index-enable */
-    double spindleRevs;     /* position of spindle in revolutions */
-    double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
-    int at_speed;
+	int spindle_index_enable;  /* hooked to a canon encoder index-enable */
+	double spindleRevs;     /* position of spindle in revolutions */
+	double spindleSpeedIn;  /* velocity of spindle in revolutions per minute */
+	int at_speed;
 	int fault; /* amplifier fault */
+	double max_pos_speed; /* spindle speed limits */
+	double min_pos_speed; /* signed values, so max_neg = 0 */
+	double max_neg_speed; /* and min_neg = -1e99 indicates no limit */
+	double min_neg_speed;
+	double home_angle;
+	double home_search_vel;
+	int home_sequence;
+	double increment;
     } spindle_status_t;
     
     typedef struct {

@@ -284,17 +284,22 @@ On multi spindle machine there will be entries for each spindle number. Qtvcp on
 * 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
   is started in manual mode. if this setting is not present, this
   defaults to 1 RPM for AXIS and 300 RPM for gmoccapy.
+  - deprecated - use the [SPINDLE_n] section instead
 
 * 'DEFAULT_SPINDLE_0_SPEED = 100' - The default spindle RPM when the spindle
   is started in manual mode. On multi spindle machine there will be entries for each spindle number. Qtvcp only
+  - deprecated - use the [SPINDLE_n] section instead
 
 * 'SPINDLE_INCREMENT = 200' - The increment used when clicking increase/decrease buttons Qtvcp only
+- deprecated - use the [SPINDLE_n] section instead
 
 * 'MIN_SPINDLE_0_SPEED = 1000' - The minimum RPM that can be manually selected.
 On multi spindle machine there will be entries for each spindle number. Qtvcp only
+- deprecated - use the [SPINDLE_n] section instead
 
 * 'MAX_SPINDLE_0_SPEED = 20000' - The maximum RPM that can be manually selected.
 On multi spindle machine there will be entries for each spindle number. Qtvcp only
+- deprecated - use the [SPINDLE_n] section instead
 
 * 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code
   files and the location for user-defined M-codes. This location is searched
@@ -1585,6 +1590,43 @@ image::images/encoder-scale.png[align="center"]
     than the joint MAX_VELOCITY. Subsequent testing has shown that use of
     STEPGEN_MAXVEL does not improve the tuning of stepgen's position loop.
 
+[[sec:spindle-section]](((INI File, SPINDLE Section)))
+
+=== [SPINDLE_<num>] Section
+The <num> specifies the spindle number 0 ... (num_spindles-1)
+The value of 'num_spindles' is set by [TRAJ]SPINDLES=
+
+* 'MAX_VELOCITY = 20000'
+    The maximum spindle speed (in rpm) for the specified spindle. Optional.
+
+* 'MIN_VELOCITY = 3000'
+    The minimum spindle speed (in rpm) for the specified spindle. Optional.
+    Many spindles have a minimum speed below which they should not be run.
+    Any spindle speed command below this limit will be /increased/ to this
+    limit.
+
+* 'MAX_REVERSE_VELOCITY = 20000'
+    This setting will default to MAX_VELOCITY if omitted. It can be used
+    in cases where the spindle speed is limited in reverse. Set to zero
+    for spindles which must not be run in reverse.
+    In this context "max" refers to the abslute magnitude of the spindle
+    speed.
+
+* 'MIN_REVERSE_VELOCITY = 3000'
+    This setting is equivalent to MIN_VELOCITY but for reverse spindle
+    rotation. It will default to the MIN_VELOCITY if omitted.
+
+* 'HOME_SEARCH_VELOCITY = 100' - FIXME: Spindle homing not yet working
+    Sets the homing speed (rpm) for the spindle. The spindle will rotate
+    at this velocity during the homing sequence until the spindle index
+    is located, at which point the spindle position will be set to zero.
+    Note that it makes no sense for the spindle home position to be any
+    value other than zero, and so there is no provision to do so.
+
+* 'HOME_SEQUENCE = 0' - FIXME: Spindle homing not yet working
+    Controls where in the general homing sequence the spindle homing
+    rotations occur. Set the HOME_SEARCH_VELOCITY to zero to avoid spindle
+    rotation during the homing sequence
 
 [[sec:emcio-section]](((INI File, EMCIO Section)))
 
