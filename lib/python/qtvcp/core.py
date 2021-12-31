@@ -7,6 +7,7 @@ from gi.repository import GObject
 import inspect
 import _hal
 import hal
+import traceback
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import GStat
 from qtvcp.qt_istat import _IStat as IStatParent
@@ -152,6 +153,7 @@ class _QHal(object):
             t = inspect.getframeinfo(inspect.currentframe().f_back)
             log.error("Qhal: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
                 format(e, t[0], t[1], t[2]))
+            log.error("Qhal: {}".format(traceback.format_exc()))
             p = DummyPin(*a, ERROR=e)
         return p
 
