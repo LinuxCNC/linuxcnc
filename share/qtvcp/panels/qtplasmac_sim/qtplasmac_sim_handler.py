@@ -110,7 +110,7 @@ class HandlerClass:
             '* {{\n'\
             '    color: {0};\n'\
             '    background: {1};\n'\
-            '    font: 10pt Lato }}\n'\
+            '    font: 10pt DejaVuSans }}\n'\
             '\n/****** BUTTONS ************/\n'\
             'QPushButton {{\n'\
             '    color: {0};\n'\
