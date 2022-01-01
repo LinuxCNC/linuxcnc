@@ -1,4 +1,4 @@
-VERSION = '1.221.147'
+VERSION = '1.221.148'
 
 '''
 qtplasmac_handler.py
@@ -242,7 +242,7 @@ class HandlerClass:
         self.isJogging = {0:False, 1:False, 2:False, 3:False}
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton = '', ''
+        self.ovButton, self.llButton, self.tlButton = '', '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         self.torchOn = False
@@ -906,6 +906,10 @@ class HandlerClass:
                         self.laserOffsetX = float(parms[0].replace('x', ''))
                     elif parm.startswith('y'):
                         self.laserOffsetY = float(parms[1].replace('y', ''))
+                    else:
+                        self.laserOffsetX = 0.0
+                        self.laserOffsetY = 0.0
+                        break
             except:
                 self.w.laser.hide()
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
@@ -927,6 +931,10 @@ class HandlerClass:
                         self.camOffsetX = float(parms[0].replace('x', ''))
                     elif parm.startswith('y'):
                         self.camOffsetY = float(parms[1].replace('y', ''))
+                    else:
+                        self.camOffsetX = 0.0
+                        self.camOffsetY = 0.0
+                        break
             except:
                 self.w.camera.hide()
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
@@ -2548,6 +2556,12 @@ class HandlerClass:
             else:
                 if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halPulsePins[halpin][0])
+        if self.tlButton:
+            if self.laserOnPin.get():
+                self.button_active(self.tlButton)
+            else:
+                self.button_normal(self.tlButton)
+
 
     def run_critical_check(self):
         rcButtonList = []
@@ -3000,6 +3014,10 @@ class HandlerClass:
                         continue
                 # halTogglePins format is: button name, run critical flag, button text
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
+            elif 'toggle-laser' in bCode:
+                self.tlButton = 'button_{}'.format(str(bNum))
+                self.idleHomedList.append('button_{}'.format(str(bNum)))
+                continue
             elif 'pulse-halpin' in bCode:
                 if len(bCode.split()) < 4:
                     try:
@@ -3119,6 +3137,12 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
+        elif 'toggle-laser' in commands.lower():
+            self.laserOnPin.set(not self.laserOnPin.get())
+            for command in commands.split('\\'):
+                command = command.strip()
+                if command != 'toggle-laser':
+                    self.user_button_command(command)
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL PIN ERROR')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3181,32 +3205,36 @@ class HandlerClass:
         else:
             for command in commands.split('\\'):
                 command = command.strip()
-                if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
-                    if '{' in command:
-                        newCommand = subCommand = ''
-                        for char in command:
-                            if char == '{':
-                                subCommand = ':'
-                            elif char == '}':
-                                f1, f2 = subCommand.replace(':','').split()
-                                newCommand += self.iniFile.find(f1,f2)
-                                subCommand = ''
-                            elif subCommand.startswith(':'):
-                                subCommand += char
-                            else:
-                                newCommand += char
-                        command = newCommand
-                    ACTION.CALL_MDI(command)
-                    if command.lower().replace(' ', '').startswith('g10l20'):
-                        self.file_reload_clicked()
-                elif command and command[0] == '%':
-                    command = command.lstrip('%').lstrip() + '&'
-                    msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
-                else:
-                    head = _translate('HandlerClass', 'CODE ERROR')
-                    msg0 = _translate('HandlerClass', 'Invalid code for user button')
-                    msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
+                self.user_button_command(command)
+
+    # for g-code commands and external commands
+    def user_button_command(self, command):
+        if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
+            if '{' in command:
+                newCommand = subCommand = ''
+                for char in command:
+                    if char == '{':
+                        subCommand = ':'
+                    elif char == '}':
+                        f1, f2 = subCommand.replace(':','').split()
+                        newCommand += self.iniFile.find(f1,f2)
+                        subCommand = ''
+                    elif subCommand.startswith(':'):
+                        subCommand += char
+                    else:
+                        newCommand += char
+                command = newCommand
+            ACTION.CALL_MDI(command)
+            if command.lower().replace(' ', '').startswith('g10l20'):
+                self.file_reload_clicked()
+        elif command and command[0] == '%':
+            command = command.lstrip('%').lstrip() + '&'
+            msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+        else:
+            head = _translate('HandlerClass', 'CODE ERROR')
+            msg0 = _translate('HandlerClass', 'Invalid code for user button')
+            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
 
     def user_button_up(self, bNum):
         commands = self.iniButtonCodes[bNum]

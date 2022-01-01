@@ -3172,7 +3172,7 @@ EDGE</string>
                          </property>
                          <property name="font">
                           <font>
-                           <family>Lato</family>
+                           <family>DejaVuSans</family>
                            <pointsize>40</pointsize>
                           </font>
                          </property>

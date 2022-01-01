@@ -2,7 +2,7 @@
 * {
     color: foregnd;
     background: backgnd;
-    font: 10pt Lato;
+    font: 10pt DejaVuSans;
     outline: none }
 
 *:disabled {
@@ -184,7 +184,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
 #touch_x, #touch_y, #touch_z, #touch_a, #touch_b {
-    font: 20pt 'Lato' }
+    font: 20pt 'DejaVuSans' }
 
 /******    JOG BUTTON ************/
 #jog_x_minus, #jog_x_plus,
@@ -275,7 +275,7 @@ DROLabel {
     color: foregnd;
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 20pt 'Lato' }
+    font: 20pt 'DejaVuSans' }
 
 DROLabel[homed=false] {
     color: inactive;
@@ -291,7 +291,7 @@ DROLabel[homed=false] {
     background: foregnd;
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 20pt 'Lato' }
+    font: 20pt 'DejaVuSans' }
 
 #dro_label_x[homed=false],
 #dro_label_y[homed=false],
@@ -536,7 +536,7 @@ QHeaderView::section {
 #filemanager QTableView {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 11pt 'Lato';
+    font: 11pt 'DejaVuSans';
     alternate-background-color: backalt;
     padding: 2px }
 
@@ -565,7 +565,7 @@ QHeaderView::section {
 /* this also uses QHeaderView from FILEMANAGER */
 
 #originoffsetview {
-    font: 11pt 'Lato';
+    font: 11pt 'DejaVuSans';
     border: 1px solid foregnd;
     border-radius: 4px;
     alternate-background-color: backgnd;
@@ -587,7 +587,7 @@ QHeaderView::section {
 #mdihistory QListView {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 11pt 'Lato';
+    font: 11pt 'DejaVuSans';
     alternate-background-color: backalt;
     padding: 2 }
 
@@ -739,14 +739,14 @@ EditorBase {
     qproperty-styleColor7: foregnd;
     qproperty-styleColorMarginText: foregnd;
     qproperty-styleColorMarginBackground: backgnd;
-    qproperty-styleFont0: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont1: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont2: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont3: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont4: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont5: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont6: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont7: 'Lato,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont0: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont1: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont2: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont3: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont4: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont5: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont6: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont7: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
     qproperty-styleColorSelectionText: backgnd;
     qproperty-styleColorSelectionBackground: foregnd }
 

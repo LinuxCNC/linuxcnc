@@ -2877,6 +2877,7 @@ Buttons can run the following:
 . <<qt_button-cmds, External commands>>
 . <<qt_button-code, G-Code commands>>
 . <<qt_button-toggle, Toggle a HAL pin>>
+. <<qt_button-laser, Toggle the alignment laser HAL pin>>
 . <<qt_button-pulse, Pulse a HAL pin>>
 . <<qt_button-probe, Probe test>>
 . <<qt_button-ohmic, Ohmic Test>>
@@ -2958,6 +2959,30 @@ It is possible for the user to mark a toggle-halpin button's associated hal pin 
 ----
 BUTTON_n_CODE = toggle-halpin the-hal-pin-name runcritical
 ----
+
+[[qt_button-laser]]
+
+[underline]*Toggle Alignment Laser HAL Pin*
+
+The following code will allow the user to use a button to invert the current state of the alignment laser HAL bit pin:
+
+----
+BUTTON_n_CODE = toggle-laser
+----
+
+This code is also able to be used as a multiple command with g-code or external commands but may control only the alignment laser HAL bit pin.
+
+The button colors will follow the state of the alignment laser hal pin.
+
+After setting the code, upon clicking, the button will invert colors and the alignment laser HAL pin will invert pin state. The button will stay "latched" until the button is clicked again, which will return the button to the original colors and the alignment laser HAL pin to the original pin state.
+
+The following code would allow the user to use a button to invert the current state of the alignment laser HAL bit pin and then move the X and Y axes to the offset for the alignment laser as specified in the <machine_name>.ini file:
+
+----
+BUTTON_n_CODE = G0 {QTPLASMAC LASER_TOUCHOFF} \ toggle-laser
+----
+
+The position of the "toggle-laser" command is not important as it is always the first command actioned regardless of position.
 
 [[qt_button-pulse]]
 

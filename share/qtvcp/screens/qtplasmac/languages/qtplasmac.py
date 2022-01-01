@@ -1075,7 +1075,7 @@ class Ui_MainWindow(object):
         self.arc_voltage.setMinimumSize(QtCore.QSize(90, 44))
         self.arc_voltage.setMaximumSize(QtCore.QSize(90, 44))
         font = QtGui.QFont()
-        font.setFamily("Lato")
+        font.setFamily("DejaVuSans")
         font.setPointSize(40)
         self.arc_voltage.setFont(font)
         self.arc_voltage.setFrameShape(QtWidgets.QFrame.NoFrame)
