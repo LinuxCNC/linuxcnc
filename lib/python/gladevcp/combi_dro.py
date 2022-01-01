@@ -139,7 +139,6 @@ class Combi_DRO(Gtk.VBox):
         self.widgets = {}  # will hold all our widgets we need to style
 
         # Make the GUI and connect signals
-        self.css = Gtk.CssProvider()
         
         self.css_text = """
                         .background  {background-color: #000000;}
