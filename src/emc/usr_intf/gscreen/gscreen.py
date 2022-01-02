@@ -2021,10 +2021,10 @@ class Gscreen:
         calc.set_property("font","sans 20")
         calc.set_editable(True)
         calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',Gtk.ResponseType.ACCEPT))
-        self.data.index_tool_dialog.parse_geometry("400x400")
-        self.data.index_tool_dialog.show_all()
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
+        self.data.index_tool_dialog.parse_geometry("360x400")
+        self.data.index_tool_dialog.show_all()
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
 
     def on_index_tool_return(self,widget,result,calc):
@@ -3800,10 +3800,10 @@ class Gscreen:
         downbutton.connect("clicked",self.restart_down,calc)
         enterbutton.connect("clicked",lambda w:calc.entry.emit('activate'))
         calc.entry.connect("activate",return_method,True,calc)
-        self.data.restart_dialog.parse_geometry("400x400+0+0")
-        self.data.restart_dialog.show_all()
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
+        self.data.restart_dialog.parse_geometry("360x400+0+0")
+        self.data.restart_dialog.show_all()
         self.data.restart_dialog.connect("response", return_method,calc)
 
     # either start the gcode at the line specified or cancel
