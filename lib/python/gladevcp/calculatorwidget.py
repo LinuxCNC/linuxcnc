@@ -51,6 +51,7 @@ class Calculator( Gtk.VBox ):
         self.font = "sans 12"
         self.is_editable = False
         self.integer_only = False
+        self.has_num_pad_only = False
         self.wTree = Gtk.Builder()
         self.wTree.add_from_file( os.path.join( datadir, "calculator.glade" ) )
         dic = {
@@ -92,21 +93,31 @@ class Calculator( Gtk.VBox ):
         window.reparent( self )
 
     def num_pad_only( self, value ):
-        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", "Add", "Minus", "Equal", "Inch_mm", "mm_Inch"]
-        for i in objects:
-            temp = self.wTree.get_object( i )
-            if value:
-                temp.hide()
-            else:
-                temp.show()
+        self.has_num_pad_only = value
+        table = self.wTree.get_object("table1")
+        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", 
+            "Add", "Minus", "Equal", "Inch_mm", "mm_Inch", "Backspace", "CLR", 
+            "Inch_mm", "mm_Inch", "cancel_button", "ok_button"]
+        if value:    
+            for i in objects:
+                table.remove(self.wTree.get_object(i))
+        if self.integer_only:
+            col_offs = 0
+        else:
+            col_offs = 1
+        table.resize(5, 3+col_offs)
+        # reorder items to fit size-reduced table
+        table.attach(self.wTree.get_object("Backspace"), 1, 2, 0, 1)
+        table.attach(self.wTree.get_object("CLR"), 2, 3, 0, 1)
+        table.attach(self.wTree.get_object("cancel_button"), 1+col_offs, 2+col_offs, 4, 5)
+        table.attach(self.wTree.get_object("ok_button"), 2+col_offs, 3+col_offs, 4, 5)        
+        self.show_all()
 
     def integer_entry_only( self, value ):
-        temp = self.wTree.get_object( 'Dot' )
         if value:
-            temp.hide()
+            self.wTree.get_object("table1").remove(self.wTree.get_object('Dot'))
             self.integer_only = True
         else:
-            temp.show()
             self.integer_only = False
 
     def set_editable( self, value ):

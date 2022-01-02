@@ -1980,7 +1980,6 @@ class Gscreen:
         self.data.preset_spindle_dialog = Gtk.Dialog(_("Spindle Speed Preset Entry"),
                    self.widgets.window1,
                    0, destroy_with_parent = True)
-
         calc = gladevcp.Calculator()
         self.data.preset_spindle_dialog.vbox.pack_start(label, False, False, 0)
         self.data.preset_spindle_dialog.vbox.add(calc)
@@ -2024,8 +2023,8 @@ class Gscreen:
         calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',Gtk.ResponseType.ACCEPT))
         self.data.index_tool_dialog.parse_geometry("400x400")
         self.data.index_tool_dialog.show_all()
-        calc.num_pad_only(True)
         calc.integer_entry_only(True)
+        calc.num_pad_only(True)
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
 
     def on_index_tool_return(self,widget,result,calc):
@@ -3803,8 +3802,8 @@ class Gscreen:
         calc.entry.connect("activate",return_method,True,calc)
         self.data.restart_dialog.parse_geometry("400x400+0+0")
         self.data.restart_dialog.show_all()
-        calc.num_pad_only(True)
         calc.integer_entry_only(True)
+        calc.num_pad_only(True)
         self.data.restart_dialog.connect("response", return_method,calc)
 
     # either start the gcode at the line specified or cancel
