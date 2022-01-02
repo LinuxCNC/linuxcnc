@@ -92,7 +92,7 @@ class Calculator( Gtk.VBox ):
         window.reparent( self )
 
     def num_pad_only( self, value ):
-        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", "Add", "Minus", "Equal"]
+        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", "Add", "Minus", "Equal", "Inch_mm", "mm_Inch"]
         for i in objects:
             temp = self.wTree.get_object( i )
             if value:
