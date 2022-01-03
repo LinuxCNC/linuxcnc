@@ -89,33 +89,33 @@ class Calculator( Gtk.VBox ):
         self.calc_box = self.wTree.get_object( "calc_box" )
         self.calc_box.set_vexpand(True)
         self.calc_box.set_hexpand(True)
+        self.table = self.wTree.get_object("table1")
         window = self.wTree.get_object( "calc_box" )
         window.reparent( self )
 
     def num_pad_only( self, value ):
         self.has_num_pad_only = value
-        table = self.wTree.get_object("table1")
         objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", 
             "Add", "Minus", "Equal", "Inch_mm", "mm_Inch", "Backspace", "CLR", 
             "Inch_mm", "mm_Inch", "cancel_button", "ok_button"]
         if value:    
             for i in objects:
-                table.remove(self.wTree.get_object(i))
+                self.table.remove(self.wTree.get_object(i))
         if self.integer_only:
             col_offs = 0
         else:
             col_offs = 1
-        table.resize(5, 3+col_offs)
+        self.table.resize(5, 3+col_offs)
         # reorder items to fit size-reduced table
-        table.attach(self.wTree.get_object("Backspace"), 1, 2, 0, 1)
-        table.attach(self.wTree.get_object("CLR"), 2, 3, 0, 1)
-        table.attach(self.wTree.get_object("cancel_button"), 1+col_offs, 2+col_offs, 4, 5)
-        table.attach(self.wTree.get_object("ok_button"), 2+col_offs, 3+col_offs, 4, 5)        
+        self.table.attach(self.wTree.get_object("Backspace"), 1, 2, 0, 1)
+        self.table.attach(self.wTree.get_object("CLR"), 2, 3, 0, 1)
+        self.table.attach(self.wTree.get_object("cancel_button"), 1+col_offs, 2+col_offs, 4, 5)
+        self.table.attach(self.wTree.get_object("ok_button"), 2+col_offs, 3+col_offs, 4, 5)        
         self.show_all()
 
     def integer_entry_only( self, value ):
         if value:
-            self.wTree.get_object("table1").remove(self.wTree.get_object('Dot'))
+            self.table.remove(self.wTree.get_object('Dot'))
             self.integer_only = True
         else:
             self.integer_only = False
@@ -326,9 +326,7 @@ class Calculator( Gtk.VBox ):
 def main():
     window = Gtk.Dialog( "My dialog",
                    None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   ( Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT ) )
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT )
     calc = Calculator()
 
     window.vbox.add( calc )

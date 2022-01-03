@@ -91,8 +91,8 @@ class Dialogs(GObject.GObject):
         dialog.set_decorated(True)
         self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button
-            calc.num_pad_only(True)
             calc.integer_entry_only(True)
+            calc.num_pad_only(True)            
         dialog.show_all()
         response = dialog.run()
         value = calc.get_value()
@@ -170,7 +170,7 @@ class Dialogs(GObject.GObject):
 
         # highlight the gcode of the entered line
         # used for run-at-line restart
-        def enter_button(widget, obj, calc):
+        def on_enter_button(widget, obj, calc):
             line = int(calc.get_value())
             obj.start_line = line
             obj.widgets.gcode_view.set_line_number(line)
@@ -185,21 +185,21 @@ class Dialogs(GObject.GObject):
         calc.set_value("%d" % caller.widgets.gcode_view.get_line_number())
         calc.set_property("font", "sans 20")
         calc.set_editable(True)
-        calc.entry.connect("activate", enter_button, caller, calc)
+        calc.entry.connect("activate", on_enter_button, caller, calc)
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
-        box = Gtk.HButtonBox()
-        upbutton = Gtk.Button(label = _("Up"))
-        box.add(upbutton)
-        enterbutton = Gtk.Button(label = _("Enter"))
-        box.add(enterbutton)
-        downbutton = Gtk.Button(label = _("Down"))
-        box.add(downbutton)
-        calc.calc_box.pack_end(box, expand = False, fill = False, padding = 0)
+        # add additional buttons
+        upbutton = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
+        enterbutton = Gtk.Button.new_from_stock(Gtk.STOCK_JUMP_TO)
+        downbutton = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
+        calc.table.attach(upbutton,3,4,1,2)
+        calc.table.attach(downbutton,3,4,2,3)
+        calc.table.attach(enterbutton,3,4,3,4)
         upbutton.connect("clicked", restart_up, caller, calc)
         downbutton.connect("clicked", restart_down, caller, calc)
-        enterbutton.connect("clicked", enter_button, caller, calc)
-        restart_dialog.parse_geometry("360x400+0+0")
+        enterbutton.connect("clicked", on_enter_button, caller, calc)
+
+        restart_dialog.parse_geometry("450x400+0+0")
         restart_dialog.show_all()
         self.emit("play_sound", "alert")
         result = restart_dialog.run()
