@@ -1,4 +1,4 @@
-VERSION = '1.221.149'
+VERSION = '1.221.150'
 
 '''
 qtplasmac_handler.py
@@ -829,6 +829,7 @@ class HandlerClass:
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
         self.w.gcode_editor.label.setText('')
         self.w.gcodegraphics.set_alpha_mode(True)
+        self.w.gcodegraphics.setdro(False)
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
         self.w.conv_preview.set_alpha_mode(True)
@@ -1353,6 +1354,8 @@ class HandlerClass:
             self.firstHoming = True
         if not self.fileOpened:
             self.set_blank_gcodeprops()
+        self.w.gcodegraphics.setdro(False)
+        self.w.conv_preview.setdro(False)
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
