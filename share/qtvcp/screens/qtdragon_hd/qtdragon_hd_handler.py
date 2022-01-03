@@ -230,15 +230,6 @@ class HandlerClass:
 
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(0)
-        self.w.slider_jog_linear.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
-        self.w.slider_jog_linear.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
-        self.w.slider_jog_angular.setMaximum(INFO.MAX_ANGULAR_JOG_VEL)
-        self.w.slider_jog_angular.setValue(INFO.DEFAULT_ANGULAR_JOG_VEL)
-        self.w.slider_feed_ovr.setMaximum(INFO.MAX_FEED_OVERRIDE)
-        self.w.slider_feed_ovr.setValue(100)
-        self.w.slider_spindle_ovr.setMinimum(INFO.MIN_SPINDLE_OVERRIDE)
-        self.w.slider_spindle_ovr.setMaximum(INFO.MAX_SPINDLE_OVERRIDE)
-        self.w.slider_spindle_ovr.setValue(100)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")

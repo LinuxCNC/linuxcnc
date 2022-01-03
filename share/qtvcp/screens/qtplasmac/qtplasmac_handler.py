@@ -772,8 +772,6 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         self.w.gcode_stack.setCurrentIndex(0)
         self.w.jog_stack.setCurrentIndex(0)
-        self.w.jog_slider.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
-        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.thc_enable.setChecked(self.w.PREFS_.getpref('THC enable', True, bool, 'ENABLE_OPTIONS'))
