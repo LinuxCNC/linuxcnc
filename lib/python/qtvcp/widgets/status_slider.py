@@ -18,7 +18,7 @@
 import hal
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, pyqtSignal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -39,45 +39,38 @@ LOG = logger.getLogger(__name__)
 
 # Based on https://stackoverflow.com/questions/42820380/use-float-for-qslider
 class DoubleSlider(QtWidgets.QSlider):
+
+    # create our our signal that we can connect to if necessary
+    doubleValueChanged = pyqtSignal(float)
+
     def __init__(self, *args, **kargs):
         super(DoubleSlider, self).__init__( *args, **kargs)
-        self._min = 0
-        self._max = 99
-        self.interval = 1
+        self._multi = 1 ** 2 # arbitrarily set
 
-    def setValue(self, value):
-        index = round((value - self._min) / self.interval)
-        return super(DoubleSlider, self).setValue(index)
+        # not needed at this time
+        self.valueChanged.connect(self.emitDoubleValueChanged)
+
+    def emitDoubleValueChanged(self):
+        value = float(super(DoubleSlider, self).value())/self._multi
+        self.doubleValueChanged.emit(value)
 
     def value(self):
-        return self.index * self.interval + self._min
-
-    @property
-    def index(self):
-        return super(DoubleSlider, self).value()
-
-    def setIndex(self, index):
-        return super(DoubleSlider, self).setValue(index)
+        return float(super(DoubleSlider, self).value()) / self._multi
 
     def setMinimum(self, value):
-        self._min = value
-        self._range_adjusted()
+        return super(DoubleSlider, self).setMinimum(value * self._multi)
 
     def setMaximum(self, value):
-        self._max = value
-        self._range_adjusted()
+        return super(DoubleSlider, self).setMaximum(value * self._multi)
 
-    def setInterval(self, value):
-        # To avoid division by zero
-        if not value:
-            raise ValueError('Interval of zero specified')
-        self.interval = value
-        self._range_adjusted()
+    def setSingleStep(self, value):
+        return super(DoubleSlider, self).setSingleStep(value * self._multi)
 
-    def _range_adjusted(self):
-        number_of_steps = int((self._max - self._min) / self.interval)
-        super(DoubleSlider, self).setMaximum(number_of_steps)
+    def singleStep(self):
+        return float(super(DoubleSlider, self).singleStep()) / self._multi
 
+    def setValue(self, value):
+        super(DoubleSlider, self).setValue(int(value * self._multi))
 
 class StatusSlider(DoubleSlider, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -128,15 +121,9 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
             self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_FLOAT, hal.HAL_OUT)
 
         # connect a signal and callback function to the button
-        self.valueChanged.connect(self._action)
+        self.doubleValueChanged.connect(self._action)
         # If the widget uses dynamic properties in stylesheet...
         self._style_polish(state= self.get_alert_cmd(self.value()))
-
-    # catch any programmed settings and update HAL pin
-    def setValue(self, v):
-        super(StatusSlider, self).setValue(v)
-        if self._halpin_option:
-            self.hal_pin.set(v)
 
     # catch any programmed settings and update HAL pin
     def setValue(self, v):
