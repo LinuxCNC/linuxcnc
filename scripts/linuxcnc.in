@@ -372,7 +372,7 @@ function run_applications () {
              exe_name="$(pwd)/$app_name";;
           *) # try local first then PATH
              exe_name=$(pwd)/$app_name
-             if [ ! -x $exe_name ] ; then
+             if [ ! -x "$exe_name" ] ; then
                exe_name=$(command -v $app_name)
              fi
        esac
