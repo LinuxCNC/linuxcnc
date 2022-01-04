@@ -318,8 +318,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def drawCrossHair(self, event, gp):
         size = self.size()
-        w = size.width()/2
-        h = size.height()/2
+        w = size.width()//2
+        h = size.height()//2
         pen0 = QPen(self.cross_pointer_color, 1, QtCore.Qt.SolidLine)
         pen = QPen(self.cross_color, 1, QtCore.Qt.SolidLine)
         gp.translate(w, h)
