@@ -714,7 +714,7 @@ class gmoccapy(object):
         self.widgets.hbtb_ref.show_all()
 
     def _get_space_label(self, name):
-        lbl = Gtk.Label("")
+        lbl = Gtk.Label.new("")
         lbl.set_property("name", name)
         lbl.set_size_request(85,56)
         lbl.show()
@@ -724,7 +724,7 @@ class gmoccapy(object):
         print("get button with image")
         image = Gtk.Image()
         image.set_size_request(72,48)
-        btn = Gtk.Button()
+        btn = Gtk.Button.new()
         btn.set_size_request(85,56)
         btn.set_property("name", name)
         try:
@@ -732,14 +732,14 @@ class gmoccapy(object):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filepath, 48, 48)
                 image.set_from_pixbuf(pixbuf)
             else:
-                image.set_from_stock(stock, 48)
+                image.set_from_icon_name(stock, 48)
             btn.add(image)
         except Exception as e:
             print(e)
             message = _("**** GMOCCAPY ERROR ****\n")
             message += _("**** could not resolv the image path '{0}' given for button '{1}' ****".format(filepath, name))
             print(message)
-            image.set_from_stock(Gtk.STOCK_MISSING_IMAGE, 48)
+            image.set_from_icon_name(Gtk.STOCK_MISSING_IMAGE, 48)
             btn.add(image)
         
         btn.show_all()
@@ -893,11 +893,11 @@ class gmoccapy(object):
             # we will have 3 buttons on the right side
             end -= 1
 
-        btn = Gtk.ToggleButton(_("  edit\noffsets"))
+        btn = Gtk.ToggleButton.new_with_label(_("  edit\noffsets"))
         btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
         btn.set_property("tooltip-text", _("Press to edit the offsets"))
         btn.set_property("name", "edit_offsets")
-        btn.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+        btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
@@ -941,7 +941,7 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(lbl,True,True,0)
             lbl.show()
 
-        btn = Gtk.Button(_("zero\n G92"))
+        btn = Gtk.Button.new_with_label(_("zero\n G92"))
         btn.connect("clicked", self.on_btn_zero_g92_clicked)
         btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
         btn.set_property("name", "zero_offsets")
@@ -949,14 +949,14 @@ class gmoccapy(object):
         btn.show()
 
         if self.tool_measure_OK:
-            btn = Gtk.Button(_(" Block\nHeight"))
+            btn = Gtk.Button.new_with_label(_(" Block\nHeight"))
             btn.connect("clicked", self.on_btn_block_height_clicked)
             btn.set_property("tooltip-text", _("Press to enter new value for block height"))
             btn.set_property("name", "block_height")
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
             btn.show()
 
-        btn = Gtk.Button(_("    set\nselected"))
+        btn = Gtk.Button.new_with_label(_("    set\nselected"))
         btn.connect("clicked", self._on_btn_set_selected_clicked)
         btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
         btn.set_property("name", "set_active")
@@ -1030,7 +1030,7 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
         rbt.set_property("draw_indicator", False)
         rbt.show()
-        rbt.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.Color(65535, 65535, 0))
+        rbt.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
         self.incr_rbt_dic[rbt.get_property("name")] = rbt
         # the rest of the buttons are now added to the group
         # self.no_increments is set while setting the hal pins with self._check_len_increments
@@ -1043,7 +1043,7 @@ class gmoccapy(object):
             self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
             rbt.set_property("draw_indicator", False)
             rbt.show()
-            rbt.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+            rbt.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
             self.incr_rbt_dic[rbt.get_property("name")] = rbt
         self.incr_rbt_dic["rbt_0"].set_active(True)
         self.active_increment = "rbt_0" 
@@ -1165,12 +1165,12 @@ class gmoccapy(object):
         for axis in self.axis_list:
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(axis), direction)
-                btn = Gtk.Button(name.upper())
+                btn = Gtk.Button.new_with_label(name.upper())
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
-                btn.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+                btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
                 btn.set_size_request(48,48)
 
                 self.jog_button_dic[name] = btn
@@ -1184,12 +1184,12 @@ class gmoccapy(object):
         for joint in range(0, self.stat.joints):
             for direction in ["+","-"]:
                 name = "{0}{1}".format(str(joint), direction)
-                btn = Gtk.Button(name.upper())
+                btn = Gtk.Button.new_with_label(name.upper())
                 btn.set_property("name", name)
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
-                btn.modify_bg(Gtk.StateFlags.ACTIVE, Gdk.color_parse("#FFFF00"))
+                btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
                 btn.set_size_request(48,48)
 
                 self.joints_button_dic[name] = btn
@@ -1236,7 +1236,7 @@ class gmoccapy(object):
                 # shorten / break line of the name if it is to long
                 if len(lbl) > 11:
                     lbl = lbl[0:10] + "\n" + lbl[11:20]
-                btn = Gtk.Button(lbl, None, False)
+                btn = Gtk.Button.new_with_label(lbl, None, False)
                 btn.set_property("name","macro_{0}".format(pos))
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
@@ -1919,8 +1919,8 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property("mouse_btn_mode", self.prefs.getpref( "mouse_btn_mode", 4, int ) )
         self.widgets.gremlin.set_property("use_commanded", not self.dro_actual)
         self.widgets.gremlin.set_property("enable_dro", self.enable_gremlin_dro)
-        self.widgets.eb_program_label.modify_bg(Gtk.StateFlags.NORMAL, Gdk.Color(0, 0, 0))
-        self.widgets.eb_blockheight_label.modify_bg(Gtk.StateFlags.NORMAL, Gdk.Color(0, 0, 0))
+        self.widgets.eb_program_label.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
+        self.widgets.eb_blockheight_label.override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA(0.0, 0.0, 0.0, 1.0))
 
     def _init_kinematics_type (self):
         print("Kinematics type changed")
