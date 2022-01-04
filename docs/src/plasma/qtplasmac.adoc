@@ -849,8 +849,8 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 This box defaults to unfilled (disabled) when QtPlasmaC is first run. +
 This box must be filled to change it to "Torch Enabled" before material cutting can commence. +
 If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
-|VELOCITY A/DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the VAD Threshold percentage set on the <<qt_parameters-tab, PARAMETERS Tab>>.
-|VELOCITY A/DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY A/DIVE.
+|VELOCITY ANTI DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the VAD Threshold percentage set on the <<qt_parameters-tab, PARAMETERS Tab>>.
+|VELOCITY ANTI DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY ANTI DIVE.
 |VOID A/DIVE|0, 1|Indicates that the THC is locked due to a void being sensed.
 |VOID A/DIVE ENABLE|0, 1|This box toggles between Enabling and Disabling VOID A/DIVE.
 |MESH MODE|0, 1, 2|This box will enable or disable <<qt_mesh-mode, Mesh Mode>> for the cutting of expanded metal. This check box may be enabled or disabled at any time during normal cutting. +

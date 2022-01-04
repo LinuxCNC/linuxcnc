@@ -4265,7 +4265,7 @@ EDGE</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>VELOCITY A/DIVE</string>
+                          <string>VELOCITY ANTI DIVE</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

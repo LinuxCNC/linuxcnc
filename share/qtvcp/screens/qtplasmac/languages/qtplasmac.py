@@ -5494,7 +5494,7 @@ class Ui_MainWindow(object):
         self.use_auto_volts_lbl.setText(_translate("MainWindow", "AUTO VOLTS"))
         self.label_72.setText(_translate("MainWindow", "VOID A/DIVE"))
         self.label_73.setText(_translate("MainWindow", "ENABLE"))
-        self.label_70.setText(_translate("MainWindow", "VELOCITY A/DIVE"))
+        self.label_70.setText(_translate("MainWindow", "VELOCITY ANTI DIVE"))
         self.label_71.setText(_translate("MainWindow", "ENABLE"))
         self.sensor_label.setText(_translate("MainWindow", "SENSOR"))
         self.label_49.setText(_translate("MainWindow", "FLOAT"))
