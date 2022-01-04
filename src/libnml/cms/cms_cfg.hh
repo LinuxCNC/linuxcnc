@@ -44,7 +44,6 @@ extern "C" {
     extern int unload_nml_config_file(const char *file);
 //    extern int print_loaded_nml_config_file_list();
 //    extern int unload_all_nml_config_files();
-    extern char *get_buffer_line(const char *buf, const char *file);
     extern int hostname_matches_bufferline(char *bufline);
 
 #ifdef __cplusplus
