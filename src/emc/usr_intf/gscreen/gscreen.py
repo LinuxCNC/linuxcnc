@@ -3792,9 +3792,12 @@ class Gscreen:
         calc.num_pad_only(True)
         calc.entry.connect("activate",return_method,True,calc)
         # add additional buttons
-        upbutton = Gtk.Button.new_from_stock(Gtk.STOCK_GO_UP)
-        downbutton = Gtk.Button.new_from_stock(Gtk.STOCK_GO_DOWN)
-        enterbutton = Gtk.Button.new_from_stock(Gtk.STOCK_JUMP_TO)
+        upbutton = Gtk.Button.new_with_mnemonic(_("_Up     "))
+        upbutton.set_image(Gtk.Image.new_from_icon_name("go-up", Gtk.IconSize.BUTTON))
+        downbutton = Gtk.Button.new_with_mnemonic(_("_Down"))
+        downbutton.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.BUTTON))
+        enterbutton = Gtk.Button.new_with_mnemonic(_("_Jump to"))
+        enterbutton.set_image(Gtk.Image.new_from_icon_name("go-jump", Gtk.IconSize.BUTTON))
         calc.table.attach(upbutton,3,4,1,2)
         calc.table.attach(downbutton,3,4,2,3)
         calc.table.attach(enterbutton,3,4,3,4)
@@ -3802,7 +3805,7 @@ class Gscreen:
         downbutton.connect("clicked",self.restart_down,calc)
         enterbutton.connect("clicked", self.restart_set_line,calc)
 
-        self.data.restart_dialog.parse_geometry("450x400+0+0")
+        self.data.restart_dialog.parse_geometry("410x400+0+0")
         self.data.restart_dialog.show_all()
         self.data.restart_dialog.connect("response", return_method,calc)
 

@@ -90,8 +90,9 @@ class Calculator( Gtk.VBox ):
         self.calc_box.set_vexpand(True)
         self.calc_box.set_hexpand(True)
         self.table = self.wTree.get_object("table1")
-        window = self.wTree.get_object( "calc_box" )
-        window.reparent( self )
+        self.window = self.calc_box.get_parent()
+        self.window.remove(self.calc_box)
+        self.add(self.calc_box)
 
     def num_pad_only( self, value ):
         self.has_num_pad_only = value
@@ -326,7 +327,7 @@ class Calculator( Gtk.VBox ):
 def main():
     window = Gtk.Dialog( "My dialog",
                    None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT )
+                   modal=True, destroy_with_parent=True )
     calc = Calculator()
 
     window.vbox.add( calc )
