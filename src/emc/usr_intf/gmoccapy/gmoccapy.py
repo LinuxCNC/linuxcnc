@@ -551,10 +551,6 @@ class gmoccapy(object):
         self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
         self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
 
-        # holds the max velocity value and is needed to be able to jog at
-        # at max velocity if <SHIFT> is hold during jogging
-        self.max_velocity = self.stat.max_velocity
-
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
         self.max_spindle_rev = self.prefs.getpref("spindle_bar_max", 6000.0, float)
@@ -1081,7 +1077,7 @@ class gmoccapy(object):
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_property("max") / 60
             else:
-                value = self.stat.max_velocity
+                value = self.jog_rate_max
         else:
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_value() / 60
