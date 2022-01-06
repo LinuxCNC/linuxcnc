@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-04 13:10+0000\n"
+"PO-Revision-Date: 2022-01-06 23:19+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -2172,16 +2172,14 @@ msgid "Select Sample Rate"
 msgstr "Abtastrate auswählen"
 
 #: src/hal/utils/scope_horiz.c:527
-#, fuzzy
 msgid ""
 "Select a thread name and multiplier then click 'OK'\n"
 "or\n"
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
-"Wählen Sie einen Tread-Namen und Vervielfacher\n"
-"und bestätigen Sie mit »OK«\n"
+"Wählen Sie einen Tread-Namen und Vervielfacher, dann bestätigen mit »OK«\n"
 "oder\n"
-"wählen Sie »Beenden« um HALSCOPE zu beenden\n"
+"wählen Sie »Beenden«, um HALSCOPE zu verlassen"
 
 #: src/hal/utils/scope_horiz.c:534 src/hal/utils/scope_vert.c:712
 msgid "_OK"
@@ -3441,9 +3439,9 @@ msgid "Number of Counters              "
 msgstr "Anzahl an Zählern              "
 
 #: src/hal/classicladder/config_gtk.c:134
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers IEC            "
-msgstr "Tatsächliche Servoperiode:             "
+msgstr "Anzahl an Timern IEC            "
 
 #: src/hal/classicladder/config_gtk.c:138
 #, c-format
@@ -4081,7 +4079,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:182
 #, fuzzy, c-format
 msgid "Rung version not supported...\n"
-msgstr "Abeitszyklen werden nicht unterstützt"
+msgstr "Abeitszyklen werden nicht unterstützt\n"
 
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
 #, fuzzy, c-format
@@ -4094,9 +4092,8 @@ msgid " - ok.\n"
 msgstr ""
 
 #: src/hal/classicladder/files.c:280 src/hal/classicladder/files.c:306
-#, fuzzy
 msgid " - not found.\n"
-msgstr "nicht gefunden"
+msgstr " - nicht gefunden.\n"
 
 #: src/hal/classicladder/files.c:330
 #, fuzzy, c-format
@@ -4392,7 +4389,7 @@ msgstr ""
 #: src/hal/classicladder/serial_linux.c:185
 #, fuzzy, c-format
 msgid "Serial writing...\n"
-msgstr "Arbeite..."
+msgstr "Serielles Schreiben...\n"
 
 #: src/hal/classicladder/serial_linux.c:190
 #, c-format
@@ -4400,14 +4397,14 @@ msgid "SerialSend failed: %s!\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "Writing done!\n"
-msgstr "Schrift auswählen"
+msgstr "Schreiben abgeschlossen!\n"
 
 #: src/hal/classicladder/serial_linux.c:215
 #, fuzzy, c-format
 msgid "Serial config...\n"
-msgstr "HAL konfigurieren..."
+msgstr "Seriell konfigurieren...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
 #, c-format
@@ -4417,7 +4414,7 @@ msgstr ""
 #: src/hal/classicladder/serial_linux.c:241
 #, fuzzy, c-format
 msgid "Serial reading...\n"
-msgstr "Arbeite..."
+msgstr "Seriell lesen...\n"
 
 #: src/hal/classicladder/serial_linux.c:244
 #, c-format
@@ -8691,9 +8688,8 @@ msgstr "Erlaubt über die Endschalter zu verfahren [L]"
 #: src/emc/usr_intf/pncconf/pncconf.py:1751
 #: src/emc/usr_intf/pncconf/pncconf.py:1754
 #: src/emc/usr_intf/gscreen/gscreen.py:1329
-#, fuzzy
 msgid "Follow System Theme"
-msgstr "Systemthema folgen\n"
+msgstr "Systemthema folgen"
 
 #: src/emc/usr_intf/touchy/mdi.py:50 src/emc/usr_intf/stepconf/stepconf.py:222
 #: src/emc/usr_intf/pncconf/private_data.py:510
@@ -10273,15 +10269,16 @@ msgstr ""
 "der parallelen Schnitstelle festgelegt wein."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:269
-#, fuzzy
 msgid ""
 "OK to replace existing custom pyvcp panel file ?\n"
 "Existing custompanel.xml will be renamed custompanel_backup.xml.\n"
 "Any existing file named custompanel_backup.xml will be lost. "
 msgstr ""
-"Mit »OK« wird das bestehende benutzerdefinierte SPS-Programm ersetzt.\n"
-"Eine bestehende »Custom.clp«-Datei wird in custom_backup.clp« umbenannt.\n"
-"Eine bestehende »custom_backup.clp«-Dateien geht somit verloren."
+"Mit »OK« wird das bestehende benutzerdefinierte \"pyvcp panel\"-Programm "
+"ersetzt.\n"
+"Eine bestehende »custompanel.xml«-Datei wird in »custompanel_backup.xml« "
+"umbenannt.\n"
+"Eine bestehende »custompanel_backup.xml«-Dateien geht somit verloren. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Quit Stepconf and discard changes?"
@@ -10579,10 +10576,9 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:385
-#, fuzzy
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr ""
-"# **** AKTUELLE  Geschwindigkeit ist in RPS nicht RPM und wird entsprechend "
+"# **** AKTUELLE Geschwindigkeit ist in RPS nicht RPM und wird entsprechend "
 "skaliert"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:394
@@ -11906,8 +11902,9 @@ msgid ""
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
 "Mit »OK« wird das bestehende benutzerdefinierte SPS-Programm ersetzt.\n"
-"Eine bestehende »Custom.clp«-Datei wird in custom_backup.clp« umbenannt.\n"
-"Eine bestehende »custom_backup.clp«-Dateien geht somit verloren."
+"Bestehende »pyvcp-panel.xml«-Dateien werden umbenannt und dem 'backups' "
+"Ordner hinzugefügt.\n"
+"Die Auswahl von 'existing custom program' vermeidet diese Warnung. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3569
 #: src/emc/usr_intf/pncconf/private_data.py:551
@@ -12323,7 +12320,7 @@ msgstr " Verbinder"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1106
 msgid "invrt"
-msgstr ""
+msgstr "invrt"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1115
 #, python-format
@@ -12338,16 +12335,17 @@ msgstr "-> invertiert"
 #: src/emc/usr_intf/pncconf/build_HAL.py:1122
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
-msgstr ""
+msgstr "Pin# %(pinnum)d ist verbunden mit Eingangssignal:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1130
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
-msgstr ""
+msgstr "Pin# %(pinnum)d ist verbunden mit Ausgangssignal:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1539
+#, fuzzy
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
-msgstr ""
+msgstr "#  Nutze TATSÄCHLICHE Spindel-Geschwindigkeit vom Spindel-Encoder"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1540
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
@@ -14041,7 +14039,7 @@ msgstr ""
 "Die Dateien »custompanel.xml« und »custom_postgui.hal« werden in "
 "»custompanel_backup.xml« und »postgui_backup.hal« umbenannt.\n"
 "Bereits bestehende Dateien »custompanel_backup.xml« and »custom_postgui.hal« "
-"werden überschrieben."
+"werden überschrieben. "
 
 #: src/emc/usr_intf/pncconf/private_data.py:1111
 #, fuzzy
@@ -16194,8 +16192,8 @@ msgid ""
 " Test Base\n"
 "Period Jitter "
 msgstr ""
-"Systemtakt-Abweichung\n"
-"(Jitter) er_mitteln"
+" Systemtakt-Abweichung\n"
+"(Jitter) er_mitteln "
 
 #: src/emc/usr_intf/pncconf/base.glade:444
 msgid "<b>Computer Response Time</b>"
@@ -18781,7 +18779,9 @@ msgstr "Werkzeugtabelle bearbeiten..."
 msgid ""
 "Offset\n"
 " Page"
-msgstr "Offset-Wert "
+msgstr ""
+"Offset\n"
+" Seite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2562
 msgid "Zero Origin"
@@ -18819,9 +18819,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2795
-#, fuzzy
 msgid "Homing\n"
-msgstr "Re_ferenzfahrt"
+msgstr "Referenzfahrt\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2816
 #, fuzzy
@@ -19313,9 +19312,8 @@ msgid "Offset"
 msgstr "Offset"
 
 #: lib/python/gladevcp/offsetpage.glade:416
-#, fuzzy
 msgid "Offset Name"
-msgstr "Offset-Wert "
+msgstr "Offset Name"
 
 #: lib/python/gladevcp/offsetpage.glade:442
 #, fuzzy
