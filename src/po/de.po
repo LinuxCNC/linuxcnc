@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-27 13:52+0000\n"
+"PO-Revision-Date: 2022-01-04 13:10+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -136,7 +136,6 @@ msgstr ""
 "Zwischen G5.2 und G5.3 Codes sind ausschließlich weitere G5.2 Codes zulässig."
 
 #: src/emc/rs274ngc/interp_check.cc:260
-#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
@@ -191,7 +190,6 @@ msgstr ""
 "M53 M62 M63 M64 M65 M66 M98 oder eines anwendungsspezifischen M Codes"
 
 #: src/emc/rs274ngc/interp_check.cc:336
-#, fuzzy
 msgid "P value not an integer with M19 G2 or G3"
 msgstr "P-Wert ist nicht ganzzahlig bei M19, G2 oder G3"
 
@@ -529,7 +527,6 @@ msgid "Q word with M19 requires a value > 0"
 msgstr "Q Befehl mit M19 benötigt einen Wrt > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3442
-#, fuzzy
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
 "Kann aus Unterprogramm nicht zurückkehren wegen eines ungültigen "
@@ -602,7 +599,6 @@ msgid "I J words not allowed with G10 L2"
 msgstr "Bei G10 L2 sind I und J Wörter nicht erlaubt"
 
 #: src/emc/rs274ngc/interp_convert.cc:4130
-#, fuzzy
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
@@ -698,20 +694,21 @@ msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "Werkzeugvermessung nicht möglich bei aktiver Werkzeugradiuskorrektur"
 
 #: src/emc/rs274ngc/interp_convert.cc:5622
-#, fuzzy
 msgid "G43.2: Can not have both H and axis words"
-msgstr "G43.2: Kann nicht sowohl H als auch Achsen-Wörter angeben"
+msgstr "G43.2: Kann nicht sowohl H- als auch Achsen-Wörter angeben"
 
 #: src/emc/rs274ngc/interp_convert.cc:5625
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2: Keine Achse spezifiziert und H-Wort fehlt"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
+"BUG: cutter Kompensation generierte einen ungültigen Bogen mit zwei "
+"ungleichen radii r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
 #: src/emc/rs274ngc/interp_queue.cc:690
@@ -841,10 +838,12 @@ msgstr "Eine Polarkoordinate im Ursprung muss den Winkel angeben"
 msgid ""
 "Incremental motion with polar coordinates is indeterminate when at the origin"
 msgstr ""
+"Inkrementelle Bewegungen anhand von Polar-Koordinaten sind am Ursprung "
+"unbestimmt"
 
 #: src/emc/rs274ngc/interp_find.cc:350
 msgid "G91 motion with polar coordinates is indeterminate when at the origin"
-msgstr ""
+msgstr "G91 Bewegung anhand von Polar-Koordinaten sind am Ursprung unbestimmt"
 
 #: src/emc/rs274ngc/interp_find.cc:724 src/emc/rs274ngc/interp_find.cc:740
 #, c-format
@@ -854,18 +853,22 @@ msgstr "Angefordertes Werkzeug %d nicht in der Werkzeugtabelle gefunden"
 #: src/emc/rs274ngc/interp_internal.cc:159
 msgid "Cannot use polar coordinate on a machine lacking X or Y axes"
 msgstr ""
+"Kann keine Polar-Koordinaten für eine Maschine ohne X oder Y Achse nutzen"
 
 #: src/emc/rs274ngc/interp_internal.cc:160
+#, fuzzy
 msgid "Cannot use polar coordinate except in G17 plane"
-msgstr ""
+msgstr "Kann keine Polarkoordinate nutzen außer in einer G17 Ebene"
 
 #: src/emc/rs274ngc/interp_internal.cc:161
+#, fuzzy
 msgid "Cannot specify both polar coordinate and X word"
-msgstr ""
+msgstr "Kann nicht gleichzeitig eine Polar-Koordinate und ein X-Wort festlegen"
 
 #: src/emc/rs274ngc/interp_internal.cc:162
+#, fuzzy
 msgid "Cannot specify both polar coordinate and Y word"
-msgstr ""
+msgstr "Kann nicht gleichzeitig eine Polar-Koordinate und ein Y-Wort festlegen"
 
 #: src/emc/rs274ngc/interp_internal.cc:183
 #: src/emc/rs274ngc/interp_internal.cc:200
@@ -884,9 +887,9 @@ msgid "Bad character '%c' used"
 msgstr "Ungültiges Zeichen »%c« benutzt"
 
 #: src/emc/rs274ngc/interp_read.cc:1603
-#, c-format
+#, c-format, fuzzy
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
-msgstr ""
+msgstr "%d: Bug:  Anderer M-code als m98/m99 angegeben für read_o(): '%s'"
 
 # Anmerkung:FJ: Schrägstrich, atan? Klären? Division wie bei c-Funktion atan2(x,y) ???
 #: src/emc/rs274ngc/interp_read.cc:1807
@@ -966,6 +969,8 @@ msgstr "Datei: %s, Zeile: %d: Unterprogramm o|%s| gefunden an ungültiger Stelle
 #, c-format
 msgid "File:%s line:%d redefining sub: o|%s| already defined in file:%s"
 msgstr ""
+"Datei:%s Zeile:%d neudefinierte Subroutine: o|%s| bereits definiert in "
+"Datei:%s"
 
 #: src/emc/rs274ngc/interp_o_word.cc:823
 #, c-format
@@ -975,12 +980,12 @@ msgstr "%d: nicht in der Definition einer Unterfunktion: '%s'"
 #: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
-msgstr ""
+msgstr "%d: dupliziertes O-Wort Label: '%s' - definiert in Zeile %d"
 
 #: src/emc/rs274ngc/interp_o_word.cc:975
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr ""
+msgstr "%d: dupliziertes O-Wort Label - bereits definiert in Zeile %d: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:999 src/emc/rs274ngc/interp_o_word.cc:1057
 #: src/emc/rs274ngc/interp_o_word.cc:1091
@@ -989,34 +994,34 @@ msgstr ""
 #: src/emc/rs274ngc/interp_o_word.cc:1151
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
-msgstr ""
+msgstr "%d: undefiniertes O-Wort Label: '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1002
 #: src/emc/rs274ngc/interp_o_word.cc:1060
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: kein zugehöriges 'if' Label: '%s' (gefunden '%s' in Zeile %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1094
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
-msgstr ""
+msgstr "%d: kein zugehöriges Label: '%s' (gefunden '%s' in Zeile %d): '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1112
 #: src/emc/rs274ngc/interp_o_word.cc:1129
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: kein zugehöriges while/do Label: '%s' (gefunden '%s' in Zeile %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1155
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
-msgstr ""
+msgstr "%d: kein zugehöriges Label: '%s' (gefunden '%s' in Zeile %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
-#, c-format
+#, c-format, fuzzy
 msgid "Named parameter #<%s> not defined"
-msgstr ""
+msgstr "Benamter Parameter #<%s> nicht definiert"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
 #, fuzzy, c-format
@@ -1025,24 +1030,25 @@ msgid "can't open ini file '%s'"
 msgstr "INI-Datei »%s« kann nicht geöffnet werden"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, c-format
+#, c-format, fuzzy
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
 msgstr ""
+"Benamter ini Parameter #<%s> nicht gefunden in inifile '%s': Fehler=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
 msgid "Internal error: Could not assign #<%s>"
-msgstr ""
+msgstr "Interner Fehler: Konnte nicht zuweisen #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:430
 #, c-format
@@ -3282,11 +3288,11 @@ msgstr "Anzeigeoptionen"
 #: src/hal/classicladder/classicladder_gtk.c:816
 #, fuzzy
 msgid "Statusbar"
-msgstr "Status"
+msgstr "Statuszeile"
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
-msgstr ""
+msgstr "Last"
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
@@ -3295,9 +3301,8 @@ msgid "Save"
 msgstr "Speichern"
 
 #: src/hal/classicladder/classicladder_gtk.c:846
-#, fuzzy
 msgid "Save As"
-msgstr "Speichern unter..."
+msgstr "Speichern unter"
 
 #: src/hal/classicladder/classicladder_gtk.c:851 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
@@ -3305,7 +3310,7 @@ msgstr "Zurücksetzen"
 
 #: src/hal/classicladder/classicladder_gtk.c:861
 msgid "Vars"
-msgstr ""
+msgstr "Variablen"
 
 #: src/hal/classicladder/classicladder_gtk.c:867
 #: src/hal/classicladder/edit_gtk.c:344
@@ -3315,22 +3320,20 @@ msgstr "Editor"
 
 #: src/hal/classicladder/classicladder_gtk.c:872
 msgid "Symbols"
-msgstr ""
+msgstr "Symbole"
 
 #: src/hal/classicladder/classicladder_gtk.c:877
 #: src/hal/classicladder/config_gtk.c:1024
-#, fuzzy
 msgid "Config"
-msgstr "HAL konfigurieren"
+msgstr "Konfiguration"
 
 #: src/hal/classicladder/classicladder_gtk.c:883 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
 msgstr "Vorschau"
 
 #: src/hal/classicladder/classicladder_gtk.c:888
-#, fuzzy
 msgid "Print"
-msgstr "Drucker-Einstellungen"
+msgstr "Drucken"
 
 #: src/hal/classicladder/classicladder_gtk.c:894 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:511
@@ -3338,9 +3341,9 @@ msgid "About"
 msgstr "Über"
 
 #: src/hal/classicladder/classicladder_gtk.c:938
-#, c-format
+#, c-format, fuzzy
 msgid "%d us"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
@@ -3385,27 +3388,27 @@ msgstr "Fehler"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 msgid "Failed MODBUS communications"
-msgstr ""
+msgstr "MODBUS Kommunication fehlgeschlagen"
 
 #: src/hal/classicladder/classicladder_gtk.c:1010
 #, fuzzy, c-format
 msgid "Section Display of %s"
-msgstr "Element zum Anzeigen auswählen"
+msgstr "Sektion zur Anzeige von %s"
 
 #: src/hal/classicladder/config.c:83
-#, c-format
+#, c-format, fuzzy
 msgid "INFO CLASSICLADDER---Reading MODBUS config file -%s\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---Lese MODBUS Konfiguration von Datei -%s\n"
 
 #: src/hal/classicladder/config.c:86
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot open %s file !!!\n"
-msgstr "Sicherungsdatei kann nicht geöffnet werden"
+msgstr "Kann Datei %s nicht öffnen !!!\n"
 
 #: src/hal/classicladder/config.c:117
 #, c-format
 msgid "Unknown configtype for %s: %d\n"
-msgstr ""
+msgstr "Unbekannter Konfigurationstyp für %s: %d\n"
 
 #: src/hal/classicladder/config_gtk.c:109
 #, c-format
@@ -3418,19 +3421,19 @@ msgid "Number of rungs (%d%c used      "
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:118
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits                  "
-msgstr "                    "
+msgstr "Anzahl Bits                  "
 
 #: src/hal/classicladder/config_gtk.c:122
 #, fuzzy, c-format
 msgid "Number of Error Bits                  "
-msgstr "                    "
+msgstr "Anzahl Error Bits                  "
 
 #: src/hal/classicladder/config_gtk.c:126
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Words                 "
-msgstr "                    "
+msgstr "Anzahl Wörter                 "
 
 #: src/hal/classicladder/config_gtk.c:130
 #, c-format
@@ -3448,19 +3451,19 @@ msgid "Number of Arithmetic Expressions "
 msgstr "Digitale Eingänge "
 
 #: src/hal/classicladder/config_gtk.c:143
-#, c-format
+#, c-format, fuzzy
 msgid "Number of Sections (%d%c used)   "
-msgstr ""
+msgstr "Anzahl Sektionen (%d%c genutzt)   "
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Symbols                "
-msgstr "                    "
+msgstr "Anzahl Symbole                "
 
 #: src/hal/classicladder/config_gtk.c:152
 #, fuzzy, c-format
 msgid "Number of Timers                 "
-msgstr "                    "
+msgstr "Anzahl Timer                 "
 
 #: src/hal/classicladder/config_gtk.c:156
 #, c-format
@@ -3468,24 +3471,24 @@ msgid "Number of Monostables            "
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:161
-#, c-format
+#, c-format, fuzzy
 msgid "Number of BIT Inputs HAL pins           "
-msgstr ""
+msgstr "Anzahl BIT Eingänge HAL Pins           "
 
 #: src/hal/classicladder/config_gtk.c:165
 #, c-format
 msgid "Number of BIT Outputs HAL pins          "
-msgstr ""
+msgstr "Anzahl BIT Ausgänge HAL Pins          "
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
 msgid "Number of S32in HAL pins             "
-msgstr ""
+msgstr "Anzahl S32in HAL Pins             "
 
 #: src/hal/classicladder/config_gtk.c:173
 #, c-format
 msgid "Number of S32out HAL pins            "
-msgstr ""
+msgstr "Anzahl S32out HAL Pins            "
 
 #: src/hal/classicladder/config_gtk.c:177
 #, c-format
@@ -3500,33 +3503,35 @@ msgstr "Analoge Ausgänge (float)            "
 #: src/hal/classicladder/config_gtk.c:185
 #, c-format
 msgid "Current path/filename"
-msgstr ""
+msgstr "Aktueller Pfad/Dateiname"
 
 #: src/hal/classicladder/config_gtk.c:384
-#, fuzzy
 msgid "Inverted"
-msgstr "Invertieren"
+msgstr "Invertiert"
 
 #: src/hal/classicladder/config_gtk.c:504
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
+"Fehler in I/O modbus Konfiguration: Overflow von I,B,Q,IQ oder WQ mapping "
+"erkannt...ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:506
+#, fuzzy
 msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
-msgstr ""
+msgstr "Overflow error bei I,B,Q,IQ or WQ mapping erkannt..."
 
 #: src/hal/classicladder/config_gtk.c:632
-#, c-format
+#, c-format, fuzzy
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Serieller Port (blank = IP mode)"
 
 #: src/hal/classicladder/config_gtk.c:636
-#, fuzzy, c-format
+#, c-format
 msgid "Serial baud rate"
-msgstr "Serielles Modbus-Programm"
+msgstr "Serielle Baudrate"
 
 #: src/hal/classicladder/config_gtk.c:641
 #, c-format
@@ -10190,12 +10195,14 @@ msgid "Digital in 3"
 msgstr "Digitaler Eingang 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
+#, fuzzy
 msgid "Plasma Arc Voltage"
-msgstr ""
+msgstr "Plasmabogen Spannung"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
+#, fuzzy
 msgid "Plasma Arc OK"
-msgstr ""
+msgstr "Plasmabogen OK"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Float Switch"
@@ -10227,7 +10234,7 @@ msgstr "Spindel vorwärts"
 #: src/emc/usr_intf/stepconf/stepconf.py:265
 #: src/emc/usr_intf/pncconf/private_data.py:1106
 msgid "Done"
-msgstr ""
+msgstr "Erledigt"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
 #: src/emc/usr_intf/pncconf/private_data.py:1107
@@ -10282,21 +10289,27 @@ msgstr "Maschinenkonfiguration beenden und Änderungen verwerfen?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
 #: src/emc/usr_intf/pncconf/private_data.py:1113
+#, fuzzy
 msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
+"Die Konfiguration wurde erstellt und gespeichert.\n"
+"Möchten Sie das Programm beenden?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
 #: src/emc/usr_intf/pncconf/private_data.py:1114
+#, fuzzy
 msgid ""
 "You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
 "of hardware is unavailable."
 msgstr ""
+"Sie nutzen eine simulierte-realtime Version von LinuxCNC, deswegen ist das "
+"Testen/Tuning der Hardware nicht möglich."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:273
 #: src/emc/usr_intf/pncconf/private_data.py:1115
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "You are using a realtime version of LinuxCNC but didn't load a realtime "
 "kernel so testing / tuning of hardware is                 unavailable.\n"
@@ -10305,6 +10318,12 @@ msgid ""
 "You are using the  %(actual)s  kernel.\n"
 "You need to use kernel:"
 msgstr ""
+"Sie nutzen eine realtime Version von LinuxCNC aber haben den realtime Kernel "
+"nicht geladen, deswegen ist das Testen/Tuning der Hardware nicht möglich.\n"
+"Eine Ursache könnte sein, dass Sie das Betriebsystem aktualisiert haben und "
+"dieses den RTAI Kernel nicht nutzt.\n"
+"Aktuell nutzen Sie den %(actual) Kernel.\n"
+"Sie sollten nutzen den Kernel:"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:293
 msgid "my-mill"
@@ -10341,11 +10360,10 @@ msgid "launch %s"
 msgstr "%s starten"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:747
-#, fuzzy
 msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
 msgstr ""
-"Verknüpfung zum starten von EMC mit einer festgelegten Konfiguration, "
-"erstellt von Stepconf"
+"Verknüpfung zum Starten von LinuxCNC mit einer von Stepconf erstellten "
+"Konfiguration"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:816
 #, fuzzy
@@ -10353,7 +10371,10 @@ msgid ""
 "Loading configuration error:\n"
 "\n"
 "{}"
-msgstr "LinuxCNC-Konfigurationswähler"
+msgstr ""
+"Fehler beim Laden der Konfiguration:\n"
+"\n"
+"{}"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:968
 #: src/emc/usr_intf/stepconf/pages.py:152
@@ -10476,9 +10497,9 @@ msgstr "Schritte / in"
 #: src/emc/usr_intf/stepconf/build_HAL.py:359
 #: src/emc/usr_intf/stepconf/build_HAL.py:377
 #: src/emc/usr_intf/stepconf/build_HAL.py:418
-#, fuzzy, python-format
+#, python-format
 msgid "# Generated by stepconf 1.1 at %s"
-msgstr "# Erstellt von stepconf am %s"
+msgstr "# Erstellt von stepconf 1.1 am %s"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:55
 #: src/emc/usr_intf/stepconf/build_HAL.py:45
@@ -10495,9 +10516,8 @@ msgstr "# Änderungen an dieser Datei werden beim nächsten"
 #: src/emc/usr_intf/stepconf/build_HAL.py:361
 #: src/emc/usr_intf/stepconf/build_HAL.py:379
 #: src/emc/usr_intf/stepconf/build_HAL.py:420
-#, fuzzy
 msgid "# overwritten when you run stepconf again"
-msgstr "# wird überschrieben, wenn Sie stepconf erneut ausführen"
+msgstr "# wird überschrieben wenn Sie stepconf erneut ausführen"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:232
 msgid "# add halui MDI commands here (max 64) "
@@ -10537,12 +10557,14 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:380
 #: src/emc/usr_intf/pncconf/build_HAL.py:941
+#, fuzzy
 msgid "# **** Setup of spindle speed display using pyvcp -START ****"
-msgstr ""
+msgstr "# **** Setup der Spinder Geschwindigkeits-Anzeige mit pyvcp -START ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:382
+#, fuzzy
 msgid "# **** Use ACTUAL spindle velocity from spindle encoder"
-msgstr ""
+msgstr "# **** Nutze TATSÄCHLICHE Spindel Geschindigkeit von Spindel Encoder"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:383
 msgid ""
@@ -10557,18 +10579,24 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:385
+#, fuzzy
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
 msgstr ""
+"# **** AKTUELLE  Geschwindigkeit ist in RPS nicht RPM und wird entsprechend "
+"skaliert"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:394
 msgid "# **** set up spindle at speed indicator ****"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:407
+#, fuzzy
 msgid ""
 "# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle "
 "encoder was specified"
 msgstr ""
+"# **** Nutze COMMANDED Spindel Geschwindigkeit von LinuxCNC da kein Spindel "
+"Encoder spezifiziert ist"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:430
 #, python-format
@@ -10579,21 +10607,24 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:431
 #: src/emc/usr_intf/stepconf/build_HAL.py:724
 #: src/emc/usr_intf/stepconf/build_HAL.py:749
-#, fuzzy
 msgid "# This file will not be overwritten when you run stepconf again"
 msgstr ""
-"# Diese Datei wird nicht überschrieben, wenn Sie stepconf erneut ausführen"
+"# Diese Datei wird nicht überschrieben wenn Sie stepconf erneut ausführen"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:479
+#, fuzzy
 msgid "# This file sets up simulated limits/home/spindle encoder hardware."
 msgstr ""
+"# Diese Datei konfiguriert simulierte Endschalter/Referenzpunkte/Spindel "
+"Encoder Hardware."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:480
 msgid "# This is a generated file do not edit."
 msgstr ""
+"# Diese Datei wurde automatisch generiert und sollte nicht manuell "
+"bearbeitet werden."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:723
-#, fuzzy
 msgid "# Include your custom HAL commands here"
 msgstr ""
 "# Benutzerdefinierte HAL-Anweisungen können nachfolgend angegeben werden"
@@ -10613,7 +10644,7 @@ msgstr "Maschinenkonfiguration komplett"
 #: src/emc/usr_intf/pncconf/main_page.glade:35
 #: src/emc/usr_intf/pncconf/dialogs.glade:3247
 msgid "±"
-msgstr ""
+msgstr "±"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:129
 msgid "mm/s"
@@ -10687,7 +10718,6 @@ msgid "Back"
 msgstr "Zurück"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
-#, fuzzy
 msgid ""
 "This program creates configuration files (.ini and .hal) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
@@ -10696,42 +10726,40 @@ msgid ""
 msgstr ""
 "Dieses Programm erstellt Konfigurationsdateien (.ini und .hal) für Fräs- und "
 "Drehmaschinen mit »Schritt- und Richtung«-Schnittstelle, die über den "
-"Druckeranschluss mit dem PC verbunden sind."
+"Druckeranschluss mit dem PC verbunden sind.\n"
+"\n"
+"Stepconf benötigt eine Bildschirmauflösung von wenigstens 800 x 600 Punkten."
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
-#, fuzzy
 msgid "Page 1"
 msgstr "Seite 1"
 
 #: src/emc/usr_intf/stepconf/base.glade:18
 #: src/emc/usr_intf/pncconf/base.glade:12
 msgid "XYZ"
-msgstr ""
+msgstr "XYZ"
 
 #: src/emc/usr_intf/stepconf/base.glade:21
 #: src/emc/usr_intf/pncconf/base.glade:15
 msgid "XYZA"
-msgstr ""
+msgstr "XYZA"
 
 #: src/emc/usr_intf/stepconf/base.glade:24
-#, fuzzy
 msgid "XZ (Lathe)"
-msgstr ""
-"XYZ\n"
-"XYZA\n"
-"XZ (Drehmaschine)"
+msgstr "XZ (Drehmaschine)"
 
 #: src/emc/usr_intf/stepconf/base.glade:27
+#, fuzzy
 msgid "XYUV (Foam)"
-msgstr ""
+msgstr "XYUV (Schaumstoff)"
 
 #: src/emc/usr_intf/stepconf/base.glade:30
 msgid "XY(special)"
-msgstr ""
+msgstr "XY(spezial)"
 
 #: src/emc/usr_intf/stepconf/base.glade:72
 msgid "MM"
-msgstr ""
+msgstr "MM"
 
 #: src/emc/usr_intf/stepconf/base.glade:209
 msgid "Step _Time:"
@@ -10769,18 +10797,19 @@ msgstr "En_dstufe:"
 #: src/emc/usr_intf/pncconf/base.glade:520
 #, fuzzy
 msgid "One Parport"
-msgstr "%(name)s Parallelport"
+msgstr "Ein Parallelport"
 
 #: src/emc/usr_intf/stepconf/base.glade:446
 #: src/emc/usr_intf/pncconf/base.glade:535
+#, fuzzy
 msgid "Two Parports"
-msgstr ""
+msgstr "Zwei Parallelports"
 
 #: src/emc/usr_intf/stepconf/base.glade:464
 #: src/emc/usr_intf/pncconf/base.glade:550
 #, fuzzy
 msgid "Three Parports"
-msgstr "Dritte Parallelport-Adresse:"
+msgstr "Drei Parallelports"
 
 #: src/emc/usr_intf/stepconf/base.glade:500
 msgid "Min Base Period:"
@@ -10806,7 +10835,7 @@ msgstr "_Achsenkonfiguration:"
 #: src/emc/usr_intf/stepconf/base.glade:616
 #, fuzzy
 msgid "Reset Default machine _units:"
-msgstr "Maschinen_einheiten:"
+msgstr "Reset der Maschinen_einheiten:"
 
 #: src/emc/usr_intf/stepconf/base.glade:641
 msgid ""
@@ -11106,20 +11135,22 @@ msgstr "Achse"
 #: src/emc/usr_intf/stepconf/options.glade:51
 #, fuzzy
 msgid "Gmoccapy"
-msgstr "gmoccapy Grundeinstellungen"
+msgstr "Gmoccapy"
 
 #: src/emc/usr_intf/stepconf/options.glade:54
 msgid "Qtdragon"
-msgstr ""
+msgstr "Qtdragon"
 
 #: src/emc/usr_intf/stepconf/options.glade:57
 #: src/emc/usr_intf/pncconf/screen.glade:145
+#, fuzzy
 msgid "QtPlasmaC"
-msgstr ""
+msgstr "QtPlasmaC"
 
 #: src/emc/usr_intf/stepconf/options.glade:73
+#, fuzzy
 msgid "Screen:  "
-msgstr ""
+msgstr "Bildschirm:  "
 
 #: src/emc/usr_intf/stepconf/options.glade:126
 #: src/emc/usr_intf/pncconf/screen.glade:2969
@@ -11130,55 +11161,55 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:2982
 #, fuzzy
 msgid "Estop Button:"
-msgstr "Notaus gesetzt"
+msgstr "Notaus Knopf:"
 
 #: src/emc/usr_intf/stepconf/options.glade:155
 #: src/emc/usr_intf/pncconf/screen.glade:2998
-#, fuzzy
 msgid "4:3"
-msgstr "47:"
+msgstr "4:3"
 
 #: src/emc/usr_intf/stepconf/options.glade:171
 #: src/emc/usr_intf/pncconf/screen.glade:3014
+#, fuzzy
 msgid "Hidden"
-msgstr ""
+msgstr "Versteckt"
 
 #: src/emc/usr_intf/stepconf/options.glade:187
 #: src/emc/usr_intf/pncconf/screen.glade:3030
 msgid "9:16"
-msgstr ""
+msgstr "9:16"
 
 #: src/emc/usr_intf/stepconf/options.glade:203
 #: src/emc/usr_intf/pncconf/screen.glade:3046
 #, fuzzy
 msgid "Button"
-msgstr "Taste"
+msgstr "Knopf"
 
 #: src/emc/usr_intf/stepconf/options.glade:219
 #: src/emc/usr_intf/pncconf/screen.glade:3062
 msgid "16:9"
-msgstr ""
+msgstr "16:9"
 
 #: src/emc/usr_intf/stepconf/options.glade:233
 #: src/emc/usr_intf/pncconf/screen.glade:3076
+#, fuzzy
 msgid "Indicator"
-msgstr ""
+msgstr "Anzeige"
 
 #: src/emc/usr_intf/stepconf/options.glade:295
 #: src/emc/usr_intf/pncconf/screen.glade:3140
+#, fuzzy
 msgid "Powermax Port:"
-msgstr ""
+msgstr "Powermax Port:"
 
 #: src/emc/usr_intf/stepconf/options.glade:323
 #: src/emc/usr_intf/pncconf/screen.glade:3168
-#, fuzzy
 msgid "Mode:"
-msgstr "Modus"
+msgstr "Modus:"
 
 #: src/emc/usr_intf/stepconf/options.glade:336
-#, fuzzy
 msgid "_Onscreen prompt for manual tool change"
-msgstr "_Bildschirmmitteilung bei Werkzeugwechsel"
+msgstr "_Bildschirmmitteilung bei manuellem Werkzeugwechsel"
 
 #: src/emc/usr_intf/stepconf/options.glade:352
 #: src/emc/usr_intf/pncconf/vcp.glade:426
@@ -11225,11 +11256,10 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/options.glade:550
 #, fuzzy
 msgid "Set pyVCP options"
-msgstr "Geometrieoptionen"
+msgstr "Setze pyVCP Einstellungen"
 
 #: src/emc/usr_intf/stepconf/options.glade:574
 #: src/emc/usr_intf/pncconf/options.glade:1098
-#, fuzzy
 msgid "Include _Classicladder PLC"
 msgstr "SPS (Classicladder) einbinden"
 
@@ -11240,31 +11270,29 @@ msgstr "Digitale Eingänge:"
 #: src/emc/usr_intf/stepconf/options.glade:728
 #, fuzzy
 msgid "Number of digital  out pins:"
-msgstr "Digitale Ausgänge:"
+msgstr "Anzahl digitaler Ausgänge:"
 
 #: src/emc/usr_intf/stepconf/options.glade:743
 #: src/emc/usr_intf/pncconf/options.glade:638
 #, fuzzy
 msgid " Number of analog (s32) in pins:"
-msgstr "Analoge Eingänge (s32):"
+msgstr " Anzahl analoger Eingänge (s32):"
 
 #: src/emc/usr_intf/stepconf/options.glade:759
 #: src/emc/usr_intf/pncconf/options.glade:655
-#, fuzzy
 msgid " Number of analog (s32) out pins:"
-msgstr "Analoge Ausgänge (s32):"
+msgstr " Anzahl analoge Ausgänge (s32):"
 
 #: src/emc/usr_intf/stepconf/options.glade:774
 #: src/emc/usr_intf/pncconf/options.glade:671
-#, fuzzy
 msgid " Number of analog (float) in pins:"
-msgstr "Analoge Eingänge (float):"
+msgstr " Anzahl analoger Eingänge (float):"
 
 #: src/emc/usr_intf/stepconf/options.glade:789
 #: src/emc/usr_intf/pncconf/options.glade:687
 #, fuzzy
 msgid " Number of analog (float) out pins:"
-msgstr "Analoge Ausgänge (float):"
+msgstr " Anzahl analoge Ausgänge (float):"
 
 #: src/emc/usr_intf/stepconf/options.glade:805
 msgid "setup number of external pins"
@@ -11292,11 +11320,12 @@ msgstr "Serielles Modbus-Programm"
 
 #: src/emc/usr_intf/stepconf/options.glade:986
 #: src/emc/usr_intf/pncconf/options.glade:1057
-#, fuzzy
 msgid ""
 "Edit ladder\n"
 "program"
-msgstr "SPS-Programm bearbeiten"
+msgstr ""
+"SPS-Programm\n"
+"bearbeiten"
 
 #: src/emc/usr_intf/stepconf/options.glade:1027
 #, fuzzy

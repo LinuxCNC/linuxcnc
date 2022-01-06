@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-23 05:43+0000\n"
+"PO-Revision-Date: 2021-12-31 00:07+0000\n"
 "Last-Translator: Alexey Starikovskiy <aystarik@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -152,7 +152,7 @@ msgstr "E-слово без G76, M3, M4, M5, M19, M51, M66, M67 или M68"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr "H слово вне G43 или G76"
+msgstr "H-слово без G43 или G76"
 
 #: src/emc/rs274ngc/interp_check.cc:290
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
@@ -160,7 +160,7 @@ msgstr "I-слово без G2, G3, G5, G5.1, G10, G33.1, G76 или G87 пер�
 
 #: src/emc/rs274ngc/interp_check.cc:296
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
-msgstr "J слово без G2, G3, G5, G5.1, G10, G76, G87 или G43.1 перед ним"
+msgstr "J-слово без G2, G3, G5, G5.1, G10, G76, G87 или G43.1 перед ним"
 
 #: src/emc/rs274ngc/interp_check.cc:302
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
@@ -296,18 +296,18 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:905 src/emc/rs274ngc/interp_queue.cc:607
 msgid ""
 "Arc move in concave corner cannot be reached by the tool without gouging"
-msgstr "Арка в вогнутом угле не может быть достигнута инструментом без зареза"
+msgstr "Дуга в вогнутом угле не может быть достигнута инструментом без зареза"
 
 #: src/emc/rs274ngc/interp_convert.cc:931
 msgid "Arc to arc motion is invalid because the arcs have the same center"
-msgstr "Переход из арки в арку неверен, так как арки имеют общий центр"
+msgstr "Переход из дуги в дугу неверен, так как дуги имеют общий центр"
 
 #: src/emc/rs274ngc/interp_convert.cc:934
 msgid ""
 "Arc to arc motion makes a corner the compensated tool can't fit in without "
 "gouging"
 msgstr ""
-"Переход от арки к арке делает угол в который скомпенсированный инструмент не "
+"Переход от дуги к дуге делает угол в который скомпенсированный инструмент не "
 "может проникнуть без зареза"
 
 #: src/emc/rs274ngc/interp_convert.cc:1066
@@ -335,17 +335,17 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1942
 #, c-format
 msgid "G%d.1 with no D word"
-msgstr "G%d.1 без D слова"
+msgstr "G%d.1 без D-слова"
 
 #: src/emc/rs274ngc/interp_convert.cc:1945
 #, c-format
 msgid "G%d.1 with L word, but plane is not G18"
-msgstr "G%d.1 с L словом, но плоскость не G18"
+msgstr "G%d.1 с L-словом, но плоскость не G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:1956
 #, c-format
 msgid "G%d requires D word to be a whole number"
-msgstr "G%d требует D слово как целое число"
+msgstr "G%d требует D-слово как целое число"
 
 #: src/emc/rs274ngc/interp_convert.cc:1963
 #, c-format
@@ -684,8 +684,8 @@ msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
-"Ошибка: компенсация радиуса создала неверную арку с несовпадающими радиусами "
-"r1 %f r2 %f\n"
+"Ошибка: компенсация радиуса создала неверную дугу с не совпадающими "
+"радиусами r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
 #: src/emc/rs274ngc/interp_queue.cc:690
@@ -867,7 +867,7 @@ msgstr "Левая скобка отсутствует после 'repeat'"
 
 #: src/emc/rs274ngc/interp_read.cc:1837
 msgid "Left bracket missing after 'if'"
-msgstr "Левая скобка отсутствует 'if'"
+msgstr "Левая скобка отсутствует после 'if'"
 
 #: src/emc/rs274ngc/interp_read.cc:1852
 msgid "Left bracket missing after 'elseif'"
@@ -912,15 +912,15 @@ msgstr "EOF в файле:%s ищу o-слово: o<%s> из строки: %d"
 
 #: src/emc/rs274ngc/interp_read.cc:3243
 msgid "Multiple U words on one line"
-msgstr "Несколько U на одной строке"
+msgstr "Несколько U-слов на одной строке"
 
 #: src/emc/rs274ngc/interp_read.cc:3259
 msgid "Multiple V words on one line"
-msgstr "Несколько V на одной строке"
+msgstr "Несколько V-слов на одной строке"
 
 #: src/emc/rs274ngc/interp_read.cc:3275
 msgid "Multiple W words on one line"
-msgstr "Несколько W на одной строке"
+msgstr "Несколько W-слов на одной строке"
 
 #: src/emc/rs274ngc/interp_o_word.cc:104
 #, c-format
@@ -1048,7 +1048,7 @@ msgstr "Все оси отсутствуют с кодом движения"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:23
 msgid "Arc radius too small to reach end point"
-msgstr "Радиус арки слишком мал для достижения конечной точки"
+msgstr "Радиус дуги слишком мал для достижения конечной точки"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:24
 msgid "Argument to acos out of range"
@@ -1132,7 +1132,7 @@ msgstr "Ошибка: расстояние не G90 или G91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:45
 msgid "Bug function should not have been called"
-msgstr "Функция не должна вызываться"
+msgstr "Ошибка: функция не должна вызываться"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:46
 msgid "Bug in tool radius comp"
@@ -1173,7 +1173,7 @@ msgstr "Не могу делать ноль повторения цикла"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:55
 msgid "Cannot make arc with zero feed rate"
-msgstr "Не могу делать арку с нулевой подачей"
+msgstr "Не могу делать дугу с нулевой подачей"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:56
 msgid "Cannot open backup file"
@@ -1237,7 +1237,7 @@ msgstr "Слишком длинная команда"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:71
 msgid "Current point same as end point of arc"
-msgstr "Текущая точка та же, что и конец арки"
+msgstr "Текущая точка та же, что и конец дуги"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:72
 msgid "Dwell time missing with g4"
@@ -1265,11 +1265,11 @@ msgstr "Знак равно не найден в установке параме
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:78
 msgid "F word missing with inverse time arc move"
-msgstr "F слово не задано в движении с инверсным временем"
+msgstr "F-слово не задано в движении с инверсным временем"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:79
 msgid "F word missing with inverse time g1 move"
-msgstr "F слово не задано в движении с инверсным временем"
+msgstr "F-слово не задано в движении G1 с инверсным временем"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
 msgid "File ended with no percent sign"
@@ -1285,31 +1285,31 @@ msgstr "Слишком длинное имя файла"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
 msgid "G code out of range"
-msgstr "G код вне дипазона"
+msgstr "G-код вне дипазона"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:84
 msgid "I word given for arc in yz plane"
-msgstr "I слово задано для арки на yz плоскости"
+msgstr "I-слово задано для дуги на YZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:85
 msgid "I word missing with g87"
-msgstr "I слово отсутствует после g87"
+msgstr "I-слово отсутствует после G87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:86
 msgid "J word given for arc in xz plane"
-msgstr "J слово дано для арки в xz плоскости"
+msgstr "J-слово дано для дуги в XZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:87
 msgid "J word missing with g87"
-msgstr "J слово отсутствует после g87"
+msgstr "J-слово отсутствует после G87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:88
 msgid "K word given for arc in xy plane"
-msgstr "K слово задано для арки на xy плоскости"
+msgstr "K-слово задано для дуги на XY плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:89
 msgid "K word missing with g87"
-msgstr "K слово отсутствует после g87"
+msgstr "K-слово отсутствует после G87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:90
 msgid "Left bracket missing after slash with atan"
@@ -1326,7 +1326,7 @@ msgstr "M-код больше 199: M%d"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:93
 msgid "Mixed radius ijk format for arc"
-msgstr "Смешан радиус и ijk форматы для арки"
+msgstr "Смешан радиус и IJK-форматы для дуги"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:94
 msgid "Multiple spindle choice ($) words on one line"
@@ -1334,79 +1334,79 @@ msgstr "Много слов выбора шпинделя ($) на одной с
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:95
 msgid "Multiple a words on one line"
-msgstr "Много a слов на одной строке"
+msgstr "Много A-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:96
 msgid "Multiple b words on one line"
-msgstr "Много b слов на одной строке"
+msgstr "Много B-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:97
 msgid "Multiple c words on one line"
-msgstr "Много c слов на одной строке"
+msgstr "Много C-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:98
 msgid "Multiple d words on one line"
-msgstr "Много d слов на одной строке"
+msgstr "Много D-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:99
 msgid "Multiple f words on one line"
-msgstr "Много f слов на одной строке"
+msgstr "Много F-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:100
 msgid "Multiple h words on one line"
-msgstr "Много h слов на одной строке"
+msgstr "Много H-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:101
 msgid "Multiple i words on one line"
-msgstr "Много i слов на одной строке"
+msgstr "Много I-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:102
 msgid "Multiple j words on one line"
-msgstr "Много j слов на одной строке"
+msgstr "Много J-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:103
 msgid "Multiple k words on one line"
-msgstr "Много k слов на одной строке"
+msgstr "Много K-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:104
 msgid "Multiple l words on one line"
-msgstr "Много l слов на одной строке"
+msgstr "Много L-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:105
 msgid "Multiple p words on one line"
-msgstr "Много p слов на одной строке"
+msgstr "Много P-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:106
 msgid "Multiple q words on one line"
-msgstr "Много q слов на одной строке"
+msgstr "Много Q-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:107
 msgid "Multiple r words on one line"
-msgstr "Много r слов на одной строке"
+msgstr "Много R-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:108
 msgid "Multiple s words on one line"
-msgstr "Много s слов на одной строке"
+msgstr "Много S-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:109
 msgid "Multiple t words on one line"
-msgstr "Много t слов на одной строке"
+msgstr "Много T-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:110
 msgid "Multiple x words on one line"
-msgstr "Много x слов на одной строке"
+msgstr "Много X-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:111
 msgid "Multiple y words on one line"
-msgstr "Много y слов на одной строке"
+msgstr "Много Y-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:112
 msgid "Multiple z words on one line"
-msgstr "Много z слов на одной строке"
+msgstr "Много Z-слов на одной строке"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:113
 msgid "Must use g0 or g1 with g53"
-msgstr "Должен использовать g0 или g1 с g53"
+msgstr "Должен использовать G0 или G1 с G53"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:114
 msgid "Negative argument to sqrt"
@@ -1418,31 +1418,31 @@ msgstr "Отрицательное d слово для индекса радиу
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:116
 msgid "Negative f word used"
-msgstr "Отрицательное f слово"
+msgstr "Отрицательное F-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:117
 msgid "Negative g code used"
-msgstr "Отрицательное g слово"
+msgstr "Отрицательное G-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:118
 msgid "Negative h word used"
-msgstr "Отрицательное h слово"
+msgstr "Отрицательное H-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:119
 msgid "Negative l word used"
-msgstr "Отрицательное l слово"
+msgstr "Отрицательное L-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:120
 msgid "Negative m code used"
-msgstr "Отрицательное m слово"
+msgstr "Отрицательное M-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:121
 msgid "Negative or zero q value used"
-msgstr "Отрицательное или нулевое q слово"
+msgstr "Отрицательное или нулевое Q-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:122
 msgid "Negative p word used"
-msgstr "Отрицательное p слово"
+msgstr "Отрицательное P-слово"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:123
 msgid "Negative spindle speed used"
@@ -1482,7 +1482,7 @@ msgstr "Параметр только для чтения"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:132
 msgid "Q word missing with g83"
-msgstr "Q слово отсутствует после g83"
+msgstr "Q-слово отсутствует после G83"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:133
 msgid "Queue is not empty after probing"
@@ -1494,23 +1494,23 @@ msgstr "R плоскость прохода не определена для ц�
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:135
 msgid "R i j k words all missing for arc"
-msgstr "R i j k слова не определены для арки"
+msgstr "R I J K слова не определены для дуги"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:136
 msgid "R less than x in cycle in yz plane"
-msgstr "R меньше x в цикле на yz плоскости"
+msgstr "R меньше X в цикле на YZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:137
 msgid "R less than y in cycle in xz plane"
-msgstr "R меньше y в цикле на xz плоскости"
+msgstr "R меньше Y в цикле на XZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:138
 msgid "R less than z in cycle in xy plane"
-msgstr "R меньше z в цикле на xy плоскости"
+msgstr "R меньше Z в цикле на XY плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:139
 msgid "R word with no g code that uses it"
-msgstr "R слово без g кода перед ним"
+msgstr "R-слово без G-кода перед ним"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:140
 msgid "Slash missing after first atan argument"
@@ -1518,19 +1518,19 @@ msgstr "Слэш отсутствует после первого аргумен
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:141
 msgid "Spindle not turning clockwise in g84"
-msgstr "Шпиндель не крутится вперед при g84"
+msgstr "Шпиндель не крутится вперед при G84"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:142
 msgid "Spindle not turning in g86"
-msgstr "Шпиндель не крутится при g86"
+msgstr "Шпиндель не крутится при G86"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:143
 msgid "Spindle not turning in g87"
-msgstr "Шпиндель не крутится при g87"
+msgstr "Шпиндель не крутится при G87"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:144
 msgid "Spindle not turning in g88"
-msgstr "Шпиндель не крутится при g88"
+msgstr "Шпиндель не крутится при G88"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:145
 msgid "Sscanf failed"
@@ -1550,15 +1550,15 @@ msgstr "Максимум кармана слишком большой"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:149
 msgid "Tool radius not less than arc radius with comp"
-msgstr "Радиус инструмента не меньше радиуса арки с компенсацией"
+msgstr "Радиус инструмента не меньше радиуса дуги с компенсацией"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:150
 msgid "Two g codes used from same modal group"
-msgstr "Использованы два g-кода из одной модальной группы"
+msgstr "Использованы два G-кода из одной модальной группы"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:151
 msgid "Two m codes used from same modal group"
-msgstr "Использованы два m-кода из одной модальной группы"
+msgstr "Использованы два M-кода из одной модальной группы"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:152
 #, c-format
@@ -1640,27 +1640,27 @@ msgstr "Неизвестное слово после унарной операц
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:171
 msgid "X and y words missing for arc in xy plane"
-msgstr "X и y не найдены для арки на xy плоскости"
+msgstr "X и Y не найдены для дуги на XY плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:172
 msgid "X and z words missing for arc in xz plane"
-msgstr "X и z не найдены для арки на xz плоскости"
+msgstr "X и Z не найдены для дуги на XZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:173
 msgid "X value unspecified in yz plane canned cycle"
-msgstr "X не задан для цикла на yz плоскости"
+msgstr "X не задан для постоянного цикла на YZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:174
 msgid "Y and z words missing for arc in yz plane"
-msgstr "Y и z слова не заданы для арки на yz плоскости"
+msgstr "Y и Z слова не заданы для дуги на YZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:175
 msgid "Y value unspecified in xz plane canned cycle"
-msgstr "Значение Y не указано для цикла на xz плоскости"
+msgstr "Значение Y не указано для постоянного цикла на XZ плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:176
 msgid "Z value unspecified in xy plane canned cycle"
-msgstr "Значение Z не указано для цикла на xy плоскости"
+msgstr "Значение Z не указано для постоянного цикла на XY плоскости"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:177
 msgid "Zero or negative argument to ln"
@@ -1668,31 +1668,31 @@ msgstr "Неположительный аргумент для ln"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:178
 msgid "Zero radius arc"
-msgstr "Арка с нулевым радиусом"
+msgstr "Дуга с нулевым радиусом"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:179
 msgid "K word missing with g33/g33.1"
-msgstr "K не указан после g33/g33.1"
+msgstr "K не указан после G33/G33.1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:180
 msgid "F word used with a g33/g33.1"
-msgstr "F использован для g33/g33.1"
+msgstr "F использован для G33/G33.1"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:181
 msgid "Unknown operation name starting with e"
-msgstr "Неизвестная операция на e"
+msgstr "Неизвестная операция на E"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:182
 msgid "Unknown operation name starting with n"
-msgstr "Неизвестная операция на n"
+msgstr "Неизвестная операция на N"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:183
 msgid "Unknown operation name starting with g"
-msgstr "Неизвестная операция на g"
+msgstr "Неизвестная операция на G"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:184
 msgid "Unknown operation name starting with l"
-msgstr "Неизвестная операция на l"
+msgstr "Неизвестная операция на L"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:185
 msgid "Too many subroutine parameters"
@@ -1708,11 +1708,11 @@ msgstr "Ошибка: исчерпание стэка"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:188
 msgid "Unknown control command in o word"
-msgstr "Неизвестная управляющая команда в o-слове"
+msgstr "Неизвестная управляющая команда в O-слове"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:189
 msgid "Too many oword labels"
-msgstr "Слишком много o-меток"
+msgstr "Слишком много O-меток"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:190
 msgid "Unknown oword number"
@@ -1798,7 +1798,7 @@ msgstr "Нужно задать верное P или E для M66"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:210
 msgid "Q word missing with g73"
-msgstr "Q не указан для g73"
+msgstr "Q-слово не указано для G73"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:211
 msgid "Digital input selected out of bounds"
@@ -3475,50 +3475,52 @@ msgstr "Уровень отладки"
 #: src/hal/classicladder/config_gtk.c:666
 #, c-format
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Читаем регистры флагов/входов в"
 
 #: src/hal/classicladder/config_gtk.c:670
 #, c-format
 msgid "Write Coils map from"
-msgstr ""
+msgstr "Пишем регистры флагов из"
 
 #: src/hal/classicladder/config_gtk.c:674
 #, c-format
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Читаем карту регистров хранения в"
 
 #: src/hal/classicladder/config_gtk.c:678
 #, c-format
 msgid "Write registers map from"
-msgstr ""
+msgstr "Записать карту регистров из"
 
 #: src/hal/classicladder/config_gtk.c:732
 msgid "NO"
-msgstr ""
+msgstr "НЕТ"
 
 #: src/hal/classicladder/config_gtk.c:737
 msgid "YES"
-msgstr ""
+msgstr "ДА"
 
 #: src/hal/classicladder/config_gtk.c:783
 msgid "QUIET"
-msgstr ""
+msgstr "МОЛЧА"
 
 #: src/hal/classicladder/config_gtk.c:788
 msgid "LEVEL 1"
-msgstr ""
+msgstr "УРОВЕНЬ 1"
 
 #: src/hal/classicladder/config_gtk.c:792
 msgid "LEVEL 2"
-msgstr ""
+msgstr "УРОВЕНЬ 2"
 
 #: src/hal/classicladder/config_gtk.c:796
 msgid "LEVEL 3"
-msgstr ""
+msgstr "УРОВЕНЬ 3"
 
 #: src/hal/classicladder/config_gtk.c:969
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
+" Чтобы изменить настройки Modbus порта, сохраните и перезагрузите "
+"графический интерфейс ladder"
 
 #: src/hal/classicladder/config_gtk.c:972
 msgid "Updated Modbus configuration"
@@ -3527,40 +3529,41 @@ msgstr "Обновлена конфигурация ModBus"
 #: src/hal/classicladder/config_gtk.c:995
 msgid "Opened Configuration window. Press again to update changes and close"
 msgstr ""
+"Открыто окно конфигурации. Нажмите снова, чтобы применить изменения и закрыть"
 
 #: src/hal/classicladder/config_gtk.c:1027
 msgid "Period/object info"
-msgstr ""
+msgstr "Информация о периоде/объекте"
 
 #: src/hal/classicladder/config_gtk.c:1030
 msgid "Modbus communication setup"
-msgstr ""
+msgstr "Настройка соединения Modbus"
 
 #: src/hal/classicladder/config_gtk.c:1033
 msgid "Modbus  I/O register setup "
-msgstr ""
+msgstr "Настройка регистров I/O для Modbus "
 
 #: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "Variable"
-msgstr ""
+msgstr "Переменная"
 
 #: src/hal/classicladder/edit.c:150
 msgid "JumpToLabel"
-msgstr ""
+msgstr "ПерейтиНаМетку"
 
 #: src/hal/classicladder/edit.c:154
 msgid "Sub-Routine"
-msgstr ""
+msgstr "Подпрограмма"
 
 #: src/hal/classicladder/edit.c:160 src/hal/classicladder/edit.c:186
 msgid "TimerNbr"
-msgstr ""
+msgstr "НомерТаймера"
 
 #: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:171
 #: src/hal/classicladder/edit.c:188
 msgid "Base"
-msgstr ""
+msgstr "Базовое значение"
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
@@ -3574,7 +3577,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:179
 msgid "CounterNbr"
-msgstr ""
+msgstr "НомерСчетчика"
 
 #: src/hal/classicladder/edit.c:192
 msgid "TimerMode"
@@ -3587,81 +3590,79 @@ msgstr "Выражение"
 #: src/hal/classicladder/edit.c:227
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
-msgstr ""
+msgstr "Переменная: %s    HAL сигнал: %s"
 
 #: src/hal/classicladder/edit.c:230
 #, c-format
 msgid "Label: %s"
-msgstr ""
+msgstr "Метка: %s"
 
 #: src/hal/classicladder/edit.c:233
 #, c-format
 msgid "Sub-Routine: %d"
-msgstr ""
+msgstr "Подпрограмма: %d"
 
 #: src/hal/classicladder/edit.c:238
 #, c-format
 msgid "%cT%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cT%d: Предустановленное=%d Базовое=%s"
 
 #: src/hal/classicladder/edit.c:242
 #, c-format
 msgid "%cM%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cM%d: Предустановленное=%d Базовое=%s"
 
 #: src/hal/classicladder/edit.c:247
 #, c-format
 msgid "%cC%d: Preset=%d"
-msgstr ""
+msgstr "%cC%d: Предустановленное=%d"
 
 #: src/hal/classicladder/edit.c:251
 #, c-format
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
-msgstr ""
+msgstr "%cTM%d: Предустановленное=%d Базовое=%s Режим=%s"
 
 #: src/hal/classicladder/edit.c:255
 #, c-format
 msgid "HAL sig: %s"
-msgstr ""
+msgstr "HAL сигнал: %s"
 
 #: src/hal/classicladder/edit.c:352
 msgid "Incompatible type of variable (must be an integer!)"
-msgstr ""
+msgstr "Несовместимый тип переменной (должен быть целым!)"
 
 #: src/hal/classicladder/edit.c:391
 #, c-format
 msgid "New expr=%s\n"
-msgstr ""
+msgstr "Новое выражение=%s\n"
 
 #: src/hal/classicladder/edit.c:393
-#, fuzzy
 msgid "Expression too long"
-msgstr "Слишком длинная команда"
+msgstr "Слишком длинное выражение"
 
 #: src/hal/classicladder/edit.c:460
 msgid "You must select a boolean variable !"
-msgstr ""
+msgstr "Вы должны выбрать логическую переменную!"
 
 #: src/hal/classicladder/edit.c:473 src/hal/classicladder/edit_sequential.c:100
 #: src/hal/classicladder/symbols_gtk.c:140
 msgid "Unknown variable..."
-msgstr ""
+msgstr "Неизвестная переменная..."
 
 #: src/hal/classicladder/edit.c:1082
 #, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
-msgstr ""
+msgstr "!!!Неправильный текущий тип=%d в ступеньке...(файл %s,строка %d)\n"
 
 #: src/hal/classicladder/edit.c:1172
 msgid "No more free function block available...please delete!"
-msgstr ""
+msgstr "Нет больше свободных функциональных блоков... пожалуйста удалите!"
 
 #: src/hal/classicladder/edit_gtk.c:128
 msgid "Current rung in edit mode..."
-msgstr ""
+msgstr "Текущая ступенька в режиме редактирования..."
 
 #: src/hal/classicladder/edit_gtk.c:128
-#, fuzzy
 msgid "Edit mode..."
 msgstr "Изменить..."
 
@@ -3672,7 +3673,7 @@ msgstr "Удалить"
 
 #: src/hal/classicladder/edit_gtk.c:186
 msgid "Do you really want to delete the current rung ?"
-msgstr ""
+msgstr "Вы действительно хотите удалить текущий рунг?"
 
 #: src/hal/classicladder/edit_gtk.c:350
 #: lib/python/gladevcp/tooledit_gtk.glade:310
@@ -3681,7 +3682,7 @@ msgstr "Добавить"
 
 #: src/hal/classicladder/edit_gtk.c:355
 msgid "Insert"
-msgstr ""
+msgstr "Вставить"
 
 #: src/hal/classicladder/edit_gtk.c:365 tcl/bin/halconfig.tcl:134
 msgid "Modify"
@@ -3716,75 +3717,75 @@ msgstr "Комментарий"
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "поиск шага posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:161
 #: src/hal/classicladder/edit_sequential.c:179
 #: src/hal/classicladder/edit_sequential.c:197
 #, c-format
 msgid "found=%d!!!\n"
-msgstr ""
+msgstr "найдено=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:169
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "поиск перехода posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:187
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "поиск комментария posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:216
 #, c-format
 msgid "found free step=%d!!!\n"
-msgstr ""
+msgstr "найден свободный шаг=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:234
 #, c-format
 msgid "found free transi=%d!!!\n"
-msgstr ""
+msgstr "найдено свободное перемещение=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:253
 #, c-format
 msgid "found free comment=%d!!!\n"
-msgstr ""
+msgstr "найден свободный комментарий=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:386
 #, c-format
 msgid "Do link : transi=%d (top=%d), step=%d\n"
-msgstr ""
+msgstr "Сделать ссылку : transi=%d (top=%d), step=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:404
 msgid "Not selected first and last transitions to be joined !!??"
-msgstr ""
+msgstr "Первый и последний переходы не были выбраны для соединения !!??"
 
 #: src/hal/classicladder/edit_sequential.c:421
 msgid "Unknown element type for Ele1"
-msgstr ""
+msgstr "Неизвестный тип элемента для Ele1"
 
 #: src/hal/classicladder/edit_sequential.c:435
 msgid "First and last steps selected are not on the same line !!??"
-msgstr ""
+msgstr "Выбранные первый и последний шаг не находятся на одной линии !!??"
 
 #: src/hal/classicladder/edit_sequential.c:452
 msgid "First and last transitions selected are not on the same line !!??"
-msgstr ""
+msgstr "Первый и последний выбранные переходы находятся не на одной линии !!??"
 
 #: src/hal/classicladder/edit_sequential.c:459
 msgid "Unknown element type for Ele2"
-msgstr ""
+msgstr "Неизвестный тип элемента для Ele2"
 
 #: src/hal/classicladder/edit_sequential.c:478
 #, c-format
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
-msgstr ""
+msgstr "общий поиск: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:508
 #: src/hal/classicladder/edit_sequential.c:552
 msgid "Error in selection or not possible..."
-msgstr ""
+msgstr "Ошибка в выборе или невозможно..."
 
 #: src/hal/classicladder/edit_sequential.c:516
 #, c-format
@@ -3799,25 +3800,25 @@ msgstr ""
 #: src/hal/classicladder/edit_sequential.c:593
 #, c-format
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "количество перемещений linked=%d для transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:596
 #, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "->сохраняем количество перемещений linked=%d для transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:612
 #, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr ""
+msgstr "=>шаг до activ=%d, шаг до desactiv=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:621
 msgid "Not found at least 2 transitions linked..."
-msgstr ""
+msgstr "Не найдены хотя бы 2 связанных перехода..."
 
 #: src/hal/classicladder/edit_sequential.c:740
 msgid "Sequential memory full for steps"
-msgstr ""
+msgstr "Последовательная память заполнена для шагов"
 
 #: src/hal/classicladder/edit_sequential.c:745
 #: src/hal/classicladder/edit_sequential.c:782
@@ -3826,20 +3827,22 @@ msgstr "Элемент уже есть!"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Шаг не может располагаться на четных линиях"
 
 #: src/hal/classicladder/edit_sequential.c:777
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Последовательная память заполнена для перехода"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Переход не может располагаться на нечетных линиях"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 msgstr ""
+"количество clicks=1!!! (posi=%s), подождите следующую точку для соединения..."
+"\n"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
@@ -3849,29 +3852,29 @@ msgstr "Верх"
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
 msgid "bottom"
-msgstr ""
+msgstr "низ"
 
 #: src/hal/classicladder/edit_sequential.c:805
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:843
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Последовательная память заполнена для комментариев"
 
 #: src/hal/classicladder/edit_sequential.c:848
 msgid "There is already an element on 4 horizontal blocks required!"
-msgstr ""
+msgstr "Уже есть элемент на требуемых 4ых горизонтальных блоках!"
 
 #: src/hal/classicladder/edit_sequential.c:853
 msgid "Not enough room on the right here..."
-msgstr ""
+msgstr "Справа не хватает места ..."
 
 #: src/hal/classicladder/edit_sequential.c:875
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:881
 #, c-format
@@ -3889,11 +3892,11 @@ msgstr "Параметр"
 #: src/hal/classicladder/editproperties_gtk.c:213
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
-msgstr ""
+msgstr "Применить"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr ""
+msgstr "Ошибка: пустое символьное имя"
 
 #: src/hal/classicladder/emc_mods.c:72 src/hal/classicladder/emc_mods.c:78
 #: src/hal/classicladder/emc_mods.c:86 src/hal/classicladder/emc_mods.c:94
@@ -3901,15 +3904,15 @@ msgstr ""
 #: src/hal/classicladder/emc_mods.c:114 src/hal/classicladder/emc_mods.c:118
 #: src/hal/classicladder/emc_mods.c:122
 msgid "out of bounds variable number"
-msgstr ""
+msgstr "номер переменной выходит за пределы"
 
 #: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
 msgid "None -Internal Memory"
-msgstr ""
+msgstr "Отсутствует -Внутренняя память"
 
 #: src/hal/classicladder/emc_mods.c:123
 msgid "None -Internal Error Status"
-msgstr ""
+msgstr "Отсутствует -Внутренняя Ошибка Статуса"
 
 #: src/hal/classicladder/emc_mods.c:128
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
@@ -3920,17 +3923,16 @@ msgid "None"
 msgstr "Ничего"
 
 #: src/hal/classicladder/emc_mods.c:130
-#, fuzzy
 msgid "error"
 msgstr "Ошибка"
 
 #: src/hal/classicladder/emc_mods.c:151
 msgid "no signal connected"
-msgstr ""
+msgstr "сигнал не подсоединен"
 
 #: src/hal/classicladder/emc_mods.c:155
 msgid "Conv. HAL signal ERROR"
-msgstr ""
+msgstr "Conv. ОШИБКА HAL сигнала"
 
 #: src/hal/classicladder/emc_mods.c:177
 msgid "No expression"
@@ -3943,11 +3945,11 @@ msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:203
 msgid "first var. expression error"
-msgstr ""
+msgstr "ошибка выражения в первой переменной"
 
 #: src/hal/classicladder/emc_mods.c:257
 msgid "Old Timer"
-msgstr ""
+msgstr "Старый таймер"
 
 #: src/hal/classicladder/emc_mods.c:262
 msgid "New Timer"
@@ -3955,11 +3957,11 @@ msgstr "Новый таймер"
 
 #: src/hal/classicladder/emc_mods.c:267
 msgid "One-shot"
-msgstr ""
+msgstr "Разовое-выполнение"
 
 #: src/hal/classicladder/emc_mods.c:272
 msgid "Counter"
-msgstr ""
+msgstr "Счётчик"
 
 #: src/hal/classicladder/emc_mods.c:277
 msgid "Error Flag Bit"
@@ -3968,6 +3970,8 @@ msgstr "Флаг ошибки"
 #: src/hal/classicladder/emc_mods.c:280
 msgid "Cannot auto assign symbol names-wrong variable name"
 msgstr ""
+"Не могу автоматически назначить символьные имена - неправильное имя "
+"переменной"
 
 #: src/hal/classicladder/files.c:182
 #, c-format
@@ -3982,11 +3986,11 @@ msgstr "Загрузка файла : %s"
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
 msgid " - ok.\n"
-msgstr ""
+msgstr " - в порядке.\n"
 
 #: src/hal/classicladder/files.c:280 src/hal/classicladder/files.c:306
 msgid " - not found.\n"
-msgstr ""
+msgstr " - не найдено.\n"
 
 #: src/hal/classicladder/files.c:330
 #, c-format
@@ -3995,33 +3999,33 @@ msgstr "Сохранение файла: %s"
 
 #: src/hal/classicladder/files.c:334
 msgid " - failed.\n"
-msgstr ""
+msgstr " - не удалось.\n"
 
 #: src/hal/classicladder/files.c:342
 #, c-format
 msgid "Used=%d\n"
-msgstr ""
+msgstr "Использовано=%d\n"
 
 #: src/hal/classicladder/files.c:396
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
-msgstr ""
+msgstr "!!!Ошибка в ConvBaseInMilliSecsToInt()\n"
 
 #: src/hal/classicladder/files.c:466 src/hal/classicladder/files.c:536
 #: src/hal/classicladder/files.c:660
 #, c-format
 msgid "!!! Error loading parameter base in %s\n"
-msgstr ""
+msgstr "!!! Ошибка загрузки базового значения параметра в %s\n"
 
 #: src/hal/classicladder/files.c:469
 #, c-format
 msgid "Timer => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Таймер => Базовое = %d , Заданное = %d\n"
 
 #: src/hal/classicladder/files.c:501
 #, c-format
 msgid " - result=%d\n"
-msgstr ""
+msgstr " - результат=%d\n"
 
 #: src/hal/classicladder/files.c:539
 #, c-format
@@ -4031,7 +4035,7 @@ msgstr ""
 #: src/hal/classicladder/files.c:787
 #, c-format
 msgid "Sections file version not supported...\n"
-msgstr ""
+msgstr "Нет поддержки версии файла секций...\n"
 
 #: src/hal/classicladder/files.c:811
 #, c-format
@@ -4043,27 +4047,27 @@ msgstr ""
 #: src/hal/classicladder/files.c:1043
 #, c-format
 msgid "Symbols file version not supported...\n"
-msgstr ""
+msgstr "Нет поддержки версии файла символов...\n"
 
 #: src/hal/classicladder/files.c:1056
 #, c-format
 msgid "Symbol: %s - %s - %s\n"
-msgstr ""
+msgstr "Символ: %s - %s - %s\n"
 
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr ""
+msgstr "ОШИБКА: неправильный путь к директории проекта !!!\n"
 
 #: src/hal/classicladder/files_project.c:184
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
-msgstr ""
+msgstr "Сохранить проект '%s' из временной директории=%s\n"
 
 #: src/hal/classicladder/files_sequential.c:97
 #, c-format
 msgid "Sequential version not supported...\n"
-msgstr ""
+msgstr "Версия последовательности не поддерживается...\n"
 
 #: src/hal/classicladder/manager_gtk.c:71
 #: src/hal/classicladder/manager_gtk.c:229
@@ -4079,39 +4083,39 @@ msgstr "Главная"
 #: src/hal/classicladder/manager_gtk.c:76
 #: src/hal/classicladder/manager_gtk.c:231
 msgid "Sequential"
-msgstr ""
+msgstr "Последовательность"
 
 #: src/hal/classicladder/manager_gtk.c:131
 msgid "This section name already exist or is incorrect !!!"
-msgstr ""
+msgstr "Это имя секции уже существует или неверно!!!"
 
 #: src/hal/classicladder/manager_gtk.c:137
 msgid "This sub-routine number for calls is already defined !!!"
-msgstr ""
+msgstr "Эта подпрограмма для вызовов уже определена !!!"
 
 #: src/hal/classicladder/manager_gtk.c:143
 msgid "Failed to add a new section. Full?"
-msgstr ""
+msgstr "Ошибка добавления новой секции. Заполнен?"
 
 #: src/hal/classicladder/manager_gtk.c:170
 msgid "Do you really want to delete the section ?"
-msgstr ""
+msgstr "Вы действительно хотите удалить эту секцию ?"
 
 #: src/hal/classicladder/manager_gtk.c:174
 msgid "You can not delete the last section..."
-msgstr ""
+msgstr "Вы не можете удалить последнюю секцию..."
 
 #: src/hal/classicladder/manager_gtk.c:191
 msgid "This section is already executed the first !"
-msgstr ""
+msgstr "Эта секция уже была выполнена первой !"
 
 #: src/hal/classicladder/manager_gtk.c:241
 msgid "Add a section..."
-msgstr ""
+msgstr "Добавить раздел..."
 
 #: src/hal/classicladder/manager_gtk.c:256
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #: src/hal/classicladder/manager_gtk.c:257
 msgid "Main/Sub-Routine"
@@ -4123,23 +4127,23 @@ msgstr "Имя"
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Section Name   "
-msgstr ""
+msgstr "Имя раздела   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Language    "
-msgstr ""
+msgstr "Язык    "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Type   "
-msgstr ""
+msgstr "Тип   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "debug"
-msgstr ""
+msgstr "отладка"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "Sections Manager"
-msgstr ""
+msgstr "Менеджер разделов"
 
 #: src/hal/classicladder/manager_gtk.c:335
 msgid "Add section"
@@ -4152,7 +4156,7 @@ msgstr "Убрать раздел"
 #: src/hal/classicladder/manager_gtk.c:345
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Move Up"
-msgstr ""
+msgstr "Сдвинуть вверх"
 
 #: src/hal/classicladder/manager_gtk.c:350
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
@@ -4171,6 +4175,8 @@ msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
+"ERROR CLASSICLADDER-    MODBUS -Код функции полученный от ведомого не "
+"совпадает с запрошенным!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:367
 #, c-format
@@ -4178,21 +4184,27 @@ msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
+"INFO CLASSICLADDER-   MODBUS -Эхо от ведомого устройства #%s является "
+"правильным (data=257).\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:370
 #, c-format
 msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 msgstr ""
+"ERROR CLASSICLADDER-    MODBUS -Эхо от ведомого устройства #%s является "
+"НЕПРАВИЛЬНЫМ.\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:419
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   MODBUS код функции не распознан"
 
 #: src/hal/classicladder/protocol_modbus_master.c:424
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 msgstr ""
+"INFO CLASSICLADDER-   MODBUS Длина которую мы должны получить receive=%d (+3)"
+"\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:558
 #, c-format
@@ -4205,12 +4217,12 @@ msgstr ""
 #: src/hal/classicladder/protocol_modbus_master.c:587
 #, c-format
 msgid "Slave: %X  "
-msgstr ""
+msgstr "Ведомый: %X  "
 
 #: src/hal/classicladder/protocol_modbus_master.c:564
 #, c-format
 msgid "Function: %X  Data: "
-msgstr ""
+msgstr "Функция: %X  Данные: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:566
 #: src/hal/classicladder/protocol_modbus_master.c:591
@@ -4228,7 +4240,7 @@ msgstr ""
 #: src/hal/classicladder/protocol_modbus_master.c:589
 #, c-format
 msgid "Function: %X Data: "
-msgstr ""
+msgstr "Функция: %X Данные: "
 
 #: src/hal/classicladder/protocol_modbus_master.c:621
 #, c-format
@@ -4240,48 +4252,54 @@ msgstr ""
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
+"ERROR CLASSICLADDER-   MODBUS-ПОЛУЧЕН НЕПРАВИЛЬНЫЙ ОТВЕТ ОТ ВЕДОМОГО "
+"УСТРОЙСТВА!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:650
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-   MODBUS-ОШИБКА НИЗКОГО УРОВНЯ В ОТВЕТЕ!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:710
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 msgstr ""
+"ERROR CLASSICLADDER--- Переменная не определена для карты MODBUS READ "
+"REQUEST "
 
 #: src/hal/classicladder/protocol_modbus_master.c:757
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "
 msgstr ""
+"ERROR CLASSICLADDER--- Переменная не определена для карты MODBUS WRITE "
+"REQUEST "
 
 #: src/hal/classicladder/serial_linux.c:139
 #, c-format
 msgid "Speed value not found for serial\n"
-msgstr ""
+msgstr "Не найдено значение скорости для последовательного порта\n"
 
 #: src/hal/classicladder/serial_linux.c:144
 #, c-format
 msgid "Failed to open serial port %s...\n"
-msgstr ""
+msgstr "Не удалось открыть последовательный порт %s...\n"
 
 #: src/hal/classicladder/serial_linux.c:171
 #, c-format
 msgid "Set RTS=%d\n"
-msgstr ""
+msgstr "Задать RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:185
 #, c-format
 msgid "Serial writing...\n"
-msgstr "Сериал пишет...\n"
+msgstr "Последовательный порт пишет...\n"
 
 #: src/hal/classicladder/serial_linux.c:190
 #, c-format
 msgid "SerialSend failed: %s!\n"
-msgstr ""
+msgstr "SerialSend не удался: %s!\n"
 
 #: src/hal/classicladder/serial_linux.c:197
 #, c-format
@@ -4291,32 +4309,34 @@ msgstr "Запись завершена!\n"
 #: src/hal/classicladder/serial_linux.c:215
 #, c-format
 msgid "Serial config...\n"
-msgstr "Настроить Сериал...\n"
+msgstr "Настроить последовательный порт...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
 #, c-format
 msgid "select() for serial reading...\n"
-msgstr ""
+msgstr "вызываем select() для ожидания данных с последовательного порта...\n"
 
 #: src/hal/classicladder/serial_linux.c:241
 #, c-format
 msgid "Serial reading...\n"
-msgstr "Сериал читает...\n"
+msgstr "Последовательный порт читает...\n"
 
 #: src/hal/classicladder/serial_linux.c:244
 #, c-format
 msgid "%d chars found\n"
-msgstr ""
+msgstr "%d символов найдено\n"
 
 #: src/hal/classicladder/serial_linux.c:255
 #, c-format
 msgid "Serial flush all!\n"
-msgstr ""
+msgstr "Принудительной сброс данных в буфере последовательного порта!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"
 msgstr ""
+"ERROR CLASSICLADDER-   Ошибка создания потока I/O для ведущего устройства "
+"modbus...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:121
 #, c-format
@@ -4328,112 +4348,123 @@ msgstr ""
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
 msgstr ""
+"INFO CLASSICLADDER---инициализация I/O ведущего устройства modbus (%s) "
+"успешно завершилась!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 msgid "Serial"
-msgstr ""
+msgstr "Последовательный порт"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 #: src/emc/usr_intf/pncconf/dialogs.glade:36
 #: src/emc/usr_intf/pncconf/dialogs.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:328
 msgid "Ethernet"
-msgstr ""
+msgstr "Ethernet"
 
 #: src/hal/classicladder/socket_modbus_master.c:168
 #, c-format
 msgid "Init socket for I/O module (%d)...\n"
-msgstr ""
+msgstr "Будет выполнена инициализация сокета для модуля I/O (%d)...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:172
 #, c-format
 msgid "Failed to open I/O socket master...\n"
-msgstr ""
+msgstr "Ошибка инициализации сокета для ведущего устройства...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:198
 #, c-format
 msgid "Connecting I/O module...\n"
-msgstr ""
+msgstr "Устанавливаем соединение с модулем I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:220
 #, c-format
 msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
-msgstr ""
+msgstr "Не могу найти IP адрес в modbus таблице, чзн?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:225
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr ""
+msgstr "Не удалось подключиться к модулю I/O\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:231
 #, c-format
 msgid "Too much IP connections under run...\n"
-msgstr ""
+msgstr "Слишком много IP соединений запущено...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:248
 #, c-format
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   Посылаю кадр модулю I/O...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:254
 #, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
 msgstr ""
+"ERROR CLASSICLADDER-  НЕ УДАЛОСЬ ОТПРАВИТЬ ЧЕРЕЗ СОКЕТ !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:275
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER-   ждем ответа от ведомых устройств...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:307
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---I/O модуль ведущего устройства закрыт!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:356
 #, c-format
 msgid "INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER- после посылки ждем...%i миллисекунд\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:366
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-  MODBUS НЕТ ОТВЕТА (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:86
 #, c-format
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- ИНИЦИАЛИЗАЦИЯ СОКЕТА!!!\n"
 
 #: src/hal/classicladder/socket_server.c:91
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER--- Не удалось открыть сокет сервера...\n"
 
 #: src/hal/classicladder/socket_server.c:103
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Вызов bind() для сокета сервера завершился с "
+"ошибкой...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:112
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Вызов listen() для сокета сервера завершился с "
+"ошибкой...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:130
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
 msgstr ""
+"ERROR CLASSICLADDER--- Создание потока pthread_create() завершилось с "
+"ошибкой...\n"
 
 #: src/hal/classicladder/socket_server.c:135
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"
 msgstr ""
+"INFO CLASSICLADDER--- Успешная инициализация сокета сервера (modbus - порт "
+"%d)!\n"
 
 #: src/hal/classicladder/socket_server.c:174
 #, c-format
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER--- MODBUS ОТВЕТ ДЛИНА=%d+%d !\n"
 
 #: src/hal/classicladder/socket_server.c:204
 #, c-format
@@ -4492,7 +4523,7 @@ msgstr ""
 #: src/hal/classicladder/symbols_gtk.c:122
 #, c-format
 msgid "A variable name always start with '%' character !"
-msgstr ""
+msgstr "Имя переменной всегда начинается с символа '%'!"
 
 #: src/hal/classicladder/symbols_gtk.c:173
 msgid "opened SYMBOLS window. Press again to close"
@@ -6247,7 +6278,6 @@ msgid "not writable"
 msgstr ""
 
 #: tcl/ngcgui.tcl:3408 tcl/ngcgui.tcl:3589
-#, fuzzy
 msgid "new"
 msgstr "Новый"
 
@@ -6423,7 +6453,6 @@ msgid "Mode"
 msgstr "Режим"
 
 #: tcl/ngcgui_ttt.tcl:248
-#, fuzzy
 msgid "normal"
 msgstr "Нормальный"
 
@@ -6460,9 +6489,8 @@ msgid "Using truetype-tracer default font"
 msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:389
-#, fuzzy
 msgid "no such file"
-msgstr "(нет файла)"
+msgstr "нет такого файла"
 
 #: tcl/ngcgui_ttt.tcl:394
 msgid "file not readable"
@@ -6590,7 +6618,6 @@ msgid "comment"
 msgstr "коммент"
 
 #: tcl/tooledit.tcl:444
-#, fuzzy
 msgid "Del"
 msgstr "Удалить"
 
@@ -6786,7 +6813,7 @@ msgstr "Отсутствующее имя файла"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Do you really want to close LinuxCNC?"
-msgstr ""
+msgstr "Вы точно хотите закрыть LinuxCNC?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
 msgid "Confirm Close"
@@ -7151,7 +7178,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Open a Menu"
-msgstr ""
+msgstr "Открыть меню"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:909
 #, python-format
@@ -7243,7 +7270,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1764
 msgid "workpiece"
-msgstr ""
+msgstr "заготовка"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1785
 msgid "Name:"
@@ -7390,7 +7417,7 @@ msgstr "Решетка Пользователя"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
 msgid "Enter grid size"
-msgstr ""
+msgstr "Введите размер сетки"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2652
 msgid "Joint is already homed, are you sure you want to re-home?"
@@ -7460,7 +7487,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3526
 msgid "Axes"
-msgstr ""
+msgstr "Оси"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3528
 msgid "Joints"
@@ -7537,7 +7564,7 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3894 share/axis/tcl/axis.tcl:387
 msgid "Show pyVCP pan_el"
-msgstr ""
+msgstr "Показать панель pyVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4165
 msgid "Error in ~/.axisrc"
@@ -7545,7 +7572,7 @@ msgstr "Ошибка в ~/.axisrc"
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:127
 msgid "LinuxCNC Status"
-msgstr ""
+msgstr "Статус LinuxCNC"
 
 #: src/emc/usr_intf/axis/scripts/linuxcnctop.py:143
 msgid "Copy All"
@@ -7771,7 +7798,7 @@ msgstr "Уровень отладки LinuxCNC"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:23
 msgid "debuglevel"
-msgstr ""
+msgstr "уровень отладки"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:36
 msgid "Configuration *"
@@ -7811,6 +7838,8 @@ msgid ""
 "Inifile setting for this debug level:\n"
 "[EMC]DEBUG=0x%08x"
 msgstr ""
+"Настройки ini-файла для этого уровня отладки:\n"
+"[EMC]DEBUG=0x%08x"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:82
 msgid "  * This option can only be enabled in the inifile"
@@ -8058,7 +8087,7 @@ msgstr "Показать размеры"
 
 #: share/axis/tcl/axis.tcl:351
 msgid "_Grid"
-msgstr ""
+msgstr "Сетка"
 
 #: share/axis/tcl/axis.tcl:356
 msgid "Show o_ffsets"
@@ -8118,11 +8147,11 @@ msgstr "Режим координат"
 
 #: share/axis/tcl/axis.tcl:443
 msgid "_Off"
-msgstr ""
+msgstr "Отключена"
 
 #: share/axis/tcl/axis.tcl:449
 msgid "_Custom"
-msgstr ""
+msgstr "Выборочно"
 
 #: share/axis/tcl/axis.tcl:460
 msgid "_About AXIS"
@@ -8142,15 +8171,15 @@ msgstr "Вид"
 
 #: share/axis/tcl/axis.tcl:491
 msgid "Toggle Emergency Stop [F1]"
-msgstr "Аварийная остановка [F1]"
+msgstr "Аварийная остановка·[F1]"
 
 #: share/axis/tcl/axis.tcl:500
 msgid "Toggle Machine power [F2]"
-msgstr "Питание станка [F2]"
+msgstr "Питание станка·[F2]"
 
 #: share/axis/tcl/axis.tcl:511
 msgid "Open G-Code file [O]"
-msgstr "Открыть файл G-кодов [O]"
+msgstr "Открыть файл G-кодов·[O]"
 
 #: share/axis/tcl/axis.tcl:519
 msgid "Reopen current file [Control-R]"
@@ -8178,7 +8207,7 @@ msgstr "Пропускать строки с '/' [Alt-M /]"
 
 #: share/axis/tcl/axis.tcl:577
 msgid "Toggle optional pause [Alt-M 1]"
-msgstr "Включить остановку по требованию [Alt-M 1]"
+msgstr "Включить остановку по требованию·[Alt-M 1]"
 
 #: share/axis/tcl/axis.tcl:586
 msgid "Zoom in"
@@ -8562,12 +8591,12 @@ msgstr ""
 #: src/emc/usr_intf/touchy/mdi.py:61 src/emc/usr_intf/touchy/mdi.py:62
 #: src/emc/usr_intf/gscreen/mdi.py:57 src/emc/usr_intf/gscreen/mdi.py:58
 msgid "Arc CW"
-msgstr ""
+msgstr "Дуга CW"
 
 #: src/emc/usr_intf/touchy/mdi.py:63 src/emc/usr_intf/touchy/mdi.py:64
 #: src/emc/usr_intf/gscreen/mdi.py:59 src/emc/usr_intf/gscreen/mdi.py:60
 msgid "Arc CCW"
-msgstr ""
+msgstr "Дуга CCW"
 
 #: src/emc/usr_intf/touchy/mdi.py:65 src/emc/usr_intf/touchy/mdi.py:66
 #: src/emc/usr_intf/gscreen/mdi.py:61 src/emc/usr_intf/gscreen/mdi.py:62
@@ -9220,7 +9249,7 @@ msgstr "Шрифт программы"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3145
 msgid "Hide pointer"
-msgstr ""
+msgstr "Скрыть указатель"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3156
 msgid "Show pointer"
@@ -9228,11 +9257,11 @@ msgstr "Показать стрелку"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3183
 msgid "Theme:"
-msgstr ""
+msgstr "Тема:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3226
 msgid "<b>Display Options</b>"
-msgstr ""
+msgstr "<b>Опции дисплея</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3257
 #: src/emc/usr_intf/stepconf/base.glade:69
@@ -9273,7 +9302,7 @@ msgstr "Пауза по M1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3449
 msgid "Ignore M1"
-msgstr ""
+msgstr "Игнорировать M1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3469
 msgid "<b>Program Options</b>"
@@ -9538,7 +9567,7 @@ msgstr "X·Шаг"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:218
 msgid "X Direction"
-msgstr "X Направление"
+msgstr "X·Направление"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:218
 msgid "Y Step"
@@ -9558,11 +9587,11 @@ msgstr "Z·Направление"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:219
 msgid "A Step"
-msgstr "A Шаг"
+msgstr "A·Шаг"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:219
 msgid "A Direction"
-msgstr "A Направление"
+msgstr "A·Направление"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "U Step"
@@ -9570,7 +9599,7 @@ msgstr "U·Шаг"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "U Direction"
-msgstr "U Направление"
+msgstr "U·Направление"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "V Step"
@@ -9578,7 +9607,7 @@ msgstr "V·Шаг"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "V Direction"
-msgstr "V Направление"
+msgstr "V·Направление"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:221
 msgid "Tandem X Step"
@@ -9689,7 +9718,7 @@ msgstr "Не подключен"
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/pncconf/private_data.py:436
 msgid "ESTOP In"
-msgstr "ESTOP вход"
+msgstr "АВОСТ вход"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:229
 #: src/emc/usr_intf/pncconf/private_data.py:436
@@ -9966,11 +9995,11 @@ msgstr "Цифровой вход 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc Voltage"
-msgstr ""
+msgstr "Напряжение дуги плазмы"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc OK"
-msgstr ""
+msgstr "Дуга плазмы ОК"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Float Switch"
@@ -9986,7 +10015,7 @@ msgstr "Плазма омический контакт"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 msgid "Plasma Move Up"
-msgstr ""
+msgstr "Плазма вверх"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 msgid "Plasma Move Down"
@@ -10000,7 +10029,7 @@ msgstr "Вперед"
 #: src/emc/usr_intf/stepconf/stepconf.py:265
 #: src/emc/usr_intf/pncconf/private_data.py:1106
 msgid "Done"
-msgstr ""
+msgstr "Готово"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
 #: src/emc/usr_intf/pncconf/private_data.py:1107
@@ -10336,7 +10365,7 @@ msgstr "# **** НАСТОЯЩАЯ скорость в об/сек, а не в о
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:394
 msgid "# **** set up spindle at speed indicator ****"
-msgstr ""
+msgstr "# **** Настройка индикатора spindle-at-speed ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:407
 msgid ""
@@ -10374,9 +10403,8 @@ msgid "# Include your custom_postgui HAL commands here"
 msgstr "# Добавляйте измененные custom_postgui команды HALсюда"
 
 #: src/emc/usr_intf/stepconf/import_mach.py:32
-#, fuzzy
 msgid "Mach configuration files"
-msgstr "Настройка станка завершена"
+msgstr "Mach3 файлы профилей"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:23
 #: src/emc/usr_intf/pncconf/main_page.glade:35
@@ -10409,9 +10437,8 @@ msgid "Acceleration:"
 msgstr "Ускорение:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:425
-#, fuzzy
 msgid "Stepconf -Stepper Configuration Wizard"
-msgstr "Конфигурация LinuxCNC для фрезера на шаговых моторах"
+msgstr "Stepconf - мастер для настройки станка на шаговых двигателях"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:519
 #: src/emc/usr_intf/pncconf/main_page.glade:143
@@ -10445,7 +10472,7 @@ msgstr "Конфигурация LinuxCNC для фрезера на шагов�
 #: lib/python/gladevcp/gladevcp-test.glade:80
 #: lib/python/gladevcp/gladevcp-test.glade:94
 msgid "label"
-msgstr ""
+msgstr "метка"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
@@ -10470,7 +10497,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
-msgstr ""
+msgstr "Страница 1"
 
 #: src/emc/usr_intf/stepconf/base.glade:18
 #: src/emc/usr_intf/pncconf/base.glade:12
@@ -10492,7 +10519,7 @@ msgstr "XYUV (Пена)"
 
 #: src/emc/usr_intf/stepconf/base.glade:30
 msgid "XY(special)"
-msgstr ""
+msgstr "XY(специальный)"
 
 #: src/emc/usr_intf/stepconf/base.glade:72
 msgid "MM"
@@ -10533,12 +10560,12 @@ msgstr "Тип привода:"
 #: src/emc/usr_intf/stepconf/base.glade:429
 #: src/emc/usr_intf/pncconf/base.glade:520
 msgid "One Parport"
-msgstr ""
+msgstr "Один параллельный порт"
 
 #: src/emc/usr_intf/stepconf/base.glade:446
 #: src/emc/usr_intf/pncconf/base.glade:535
 msgid "Two Parports"
-msgstr ""
+msgstr "Два параллельных порта"
 
 #: src/emc/usr_intf/stepconf/base.glade:464
 #: src/emc/usr_intf/pncconf/base.glade:550
@@ -10567,9 +10594,8 @@ msgid "_Axis configuration:"
 msgstr "Конфигурация осей:"
 
 #: src/emc/usr_intf/stepconf/base.glade:616
-#, fuzzy
 msgid "Reset Default machine _units:"
-msgstr "Единицы станка:"
+msgstr "Сбросить единицы станка по умолчанию:"
 
 #: src/emc/usr_intf/stepconf/base.glade:641
 msgid ""
@@ -10597,9 +10623,8 @@ msgid "Modify a configuration already created with this program"
 msgstr "Изменить конфигурацию уже созданую этой программой"
 
 #: src/emc/usr_intf/stepconf/start.glade:56
-#, fuzzy
 msgid "Import a Mach file"
-msgstr "(нет файла)"
+msgstr "Импортировать Mach3 xml файл"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
@@ -10777,9 +10802,8 @@ msgstr "Входы (От станка к PC):"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1222
 #: src/emc/usr_intf/stepconf/pport2.glade:817
-#, fuzzy
 msgid "Parport _Number:"
-msgstr "Следующий номер:"
+msgstr "Номер параллельного порта:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1273
 msgid "Output pinout presets:"
@@ -10796,17 +10820,16 @@ msgstr "Выход"
 #: src/emc/usr_intf/pncconf/base.glade:35
 #: src/emc/usr_intf/pncconf/pport1.glade:37
 #: src/emc/usr_intf/pncconf/pport2.glade:37
-#, fuzzy
 msgid "In"
-msgstr "Инверсный"
+msgstr "Вход"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:29
 msgid "_PWM 1:"
-msgstr "_PWM 1:"
+msgstr "ШИМ 1:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:43
 msgid "P_WM 2:"
-msgstr "P_WM 2:"
+msgstr "ШИМ 2:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:124
 msgid "Enter 0 Hz for \"PDM\" mode"
@@ -10841,14 +10864,12 @@ msgid "Speed display filter gain:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/spindle.glade:294
-#, fuzzy
 msgid "Use spindle-at-speed:"
-msgstr "Обороты шпинделя:"
+msgstr "Использовать шпиндель-на-скорости:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:313
-#, fuzzy
 msgid "Scale %"
-msgstr "Масштаб"
+msgstr "Масштаб %"
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:489
@@ -10899,9 +10920,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:203
 #: src/emc/usr_intf/pncconf/screen.glade:3046
-#, fuzzy
 msgid "Button"
-msgstr "Левая кнопка"
+msgstr "Кнопка"
 
 #: src/emc/usr_intf/stepconf/options.glade:219
 #: src/emc/usr_intf/pncconf/screen.glade:3062
@@ -10924,9 +10944,8 @@ msgid "Mode:"
 msgstr "Режим:"
 
 #: src/emc/usr_intf/stepconf/options.glade:336
-#, fuzzy
 msgid "_Onscreen prompt for manual tool change"
-msgstr "Экранный запрос смены инструмента"
+msgstr "Экранный запрос ручной смены инструмента"
 
 #: src/emc/usr_intf/stepconf/options.glade:352
 #: src/emc/usr_intf/pncconf/vcp.glade:426
@@ -10941,7 +10960,7 @@ msgstr "Пустая программа"
 #: src/emc/usr_intf/stepconf/options.glade:427
 #: src/emc/usr_intf/pncconf/vcp.glade:96
 msgid "Spindle speed display  "
-msgstr "Показать скорость шпинделя  "
+msgstr "Экран скорости шпинделя  "
 
 #: src/emc/usr_intf/stepconf/options.glade:444
 #: src/emc/usr_intf/stepconf/options.glade:918
@@ -10949,7 +10968,7 @@ msgstr "Показать скорость шпинделя  "
 #: src/emc/usr_intf/pncconf/vcp.glade:504
 #: src/emc/usr_intf/pncconf/options.glade:988
 msgid "Existing custom program"
-msgstr "Существующая программа"
+msgstr "Существующая индивидуальная программа"
 
 #: src/emc/usr_intf/stepconf/options.glade:461
 #: src/emc/usr_intf/stepconf/options.glade:935
@@ -10972,7 +10991,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:550
 msgid "Set pyVCP options"
-msgstr ""
+msgstr "Задать опции pyVCP"
 
 #: src/emc/usr_intf/stepconf/options.glade:574
 #: src/emc/usr_intf/pncconf/options.glade:1098
@@ -11024,7 +11043,7 @@ msgstr "Пустая программа PLC"
 #: src/emc/usr_intf/stepconf/options.glade:885
 #: src/emc/usr_intf/pncconf/options.glade:938
 msgid "Estop ladder program"
-msgstr "Лестница АвОст"
+msgstr "АВОСТ программа PLC"
 
 #: src/emc/usr_intf/stepconf/options.glade:901
 #: src/emc/usr_intf/pncconf/options.glade:971
@@ -11041,9 +11060,8 @@ msgstr ""
 "лестницу"
 
 #: src/emc/usr_intf/stepconf/options.glade:1027
-#, fuzzy
 msgid "Set Ladder Options"
-msgstr "Пример устнавок Pyvcp"
+msgstr "Установить опции LADDER"
 
 #: src/emc/usr_intf/stepconf/options.glade:1043
 msgid "Include Halui user interface component"
@@ -11067,9 +11085,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:31
 #: src/emc/usr_intf/pncconf/ubuttons.glade:34
-#, fuzzy
 msgid "NUM"
-msgstr "NML"
+msgstr "Номер"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:41
 #: src/emc/usr_intf/pncconf/ubuttons.glade:43
@@ -11203,9 +11220,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:164
-#, fuzzy
 msgid "Model"
-msgstr "Режим работы"
+msgstr "Модель"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:291
@@ -11272,7 +11288,7 @@ msgstr "до"
 #: src/emc/usr_intf/stepconf/axisv.glade:402
 #: src/emc/usr_intf/stepconf/axisa.glade:403
 msgid "T_est this axis"
-msgstr "Проверить ось"
+msgstr "Проверить эту ось"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:441
 #: src/emc/usr_intf/stepconf/axisy.glade:440
@@ -11299,7 +11315,7 @@ msgstr "Микрошаг привода:"
 #: src/emc/usr_intf/stepconf/axisv.glade:468
 #: src/emc/usr_intf/stepconf/axisa.glade:468
 msgid "_Pulley teeth (Motor:Leadscrew):"
-msgstr "Зубья шестеренок (Мотор:Винт):"
+msgstr "Зубья шкивов (Мотор:Винт):"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:483
 #: src/emc/usr_intf/stepconf/axisy.glade:491
@@ -11452,12 +11468,12 @@ msgstr ""
 "-сначала проверьте правильность времен для ШД.\n"
 "- проведите более тщательный тест задержек по описанию на linuxcnc.org wiki."
 "\n"
-" http;//wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
+" http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
 "\n"
 "Если вы получили сообщение \"Unexpected Realtime Delay\", \n"
 "-проведите более тщательный тест задержек по описанию на linuxcnc.org wiki: "
 "\n"
-" http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
+" http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/stepconf/finished.glade:55
 msgid " Simulator: will not run hardware "
@@ -11509,9 +11525,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:532
-#, fuzzy
 msgid "Specific Help page is unavailable\n"
-msgstr "Помощь не доступна\n"
+msgstr "Страница Помощи не доступна\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:534
 msgid "Help Pages"
@@ -11526,9 +11541,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:900
-#, fuzzy
 msgid "LinuxCNC 'PNCconf' configuration files"
-msgstr "EMC2 'stepconf' configuration files"
+msgstr "LinuxCNC 'PNCconf' файлы конфигураций"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:933
 msgid ""
@@ -11552,29 +11566,25 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1353
-#, fuzzy
 msgid "Discovery is  unavailable\n"
-msgstr "Помощь не доступна\n"
+msgstr "Поиск не доступен\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1615
 msgid "USB device Info Search"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1629
-#, fuzzy
 msgid "USB device  page is unavailable\n"
-msgstr "Помощь не доступна\n"
+msgstr "Страница USB устройств не доступна\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1702
 #: src/emc/usr_intf/pncconf/tests.py:90
-#, fuzzy
 msgid "Pin names are unavailable\n"
-msgstr "Помощь не доступна\n"
+msgstr "Имена ножек не доступны\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1725
-#, fuzzy
 msgid "Device names are unavailable\n"
-msgstr "Помощь не доступна\n"
+msgstr "Имена устройств не доступны\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "No Pncconf made device rules were found\n"
@@ -11594,21 +11604,19 @@ msgstr ""
 "дальнейшие изменения не будут сохраняться"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1780
-#, fuzzy
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
-"OK to replace existing custom ladder program?\n"
-"Existing Custom.clp will be renamed custom_backup.clp.\n"
-"Any existing file named -custom_backup.clp- will be lost. "
+"OK to replace existing custom pyvcp panel?\n"
+"Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
+"Clicking 'existing custom program' will avoid this warning. "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3569
 #: src/emc/usr_intf/pncconf/private_data.py:551
-#, fuzzy
 msgid "Unused Channel"
-msgstr "Выбранный канал"
+msgstr "Неиспользованный канал"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3843
 msgid "You can not have both steppers and pwm signals for spindle control\n"
@@ -11758,14 +11766,12 @@ msgid "Encoder pulses / "
 msgstr "Пульсы энкодера / "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4089
-#, fuzzy
 msgid "Resolver Scale:"
-msgstr "Множитель энкодера:"
+msgstr "Множитель резольвера:"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4427
-#, fuzzy
 msgid "Spindle Scale Calculation"
-msgstr "Конфигурация шпинделя"
+msgstr "Вычисление множителя шпинделя"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4539
 msgid "Axis Scale Calculation"
@@ -11780,15 +11786,16 @@ msgstr "Легкое конфигурирование - %s.pncconf "
 msgid ""
 "You need to designate a parport and/or mesa I/O device before continuing."
 msgstr ""
+"Вам необходимо задать параллельный порт и/или mesa I/O устройство, прежде "
+"чем продолжить."
 
 #: src/emc/usr_intf/pncconf/pages.py:392
 msgid "PCI search page is unavailable\n"
-msgstr ""
+msgstr "Страница поиска PCI недоступна\n"
 
 #: src/emc/usr_intf/pncconf/pages.py:441
-#, fuzzy
 msgid "in / min"
-msgstr "градусы/мин"
+msgstr "дюймы/мин"
 
 #: src/emc/usr_intf/pncconf/pages.py:445
 #: src/emc/usr_intf/pncconf/screen.glade:799
@@ -11798,7 +11805,7 @@ msgstr "градусы/мин"
 #: src/emc/usr_intf/pncconf/screen.glade:3304
 #: src/emc/usr_intf/pncconf/screen.glade:3317
 msgid "mm / min"
-msgstr ""
+msgstr "мм/мин"
 
 #: src/emc/usr_intf/pncconf/pages.py:999
 msgid ""
@@ -11806,6 +11813,9 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
+"Вам нужно настроить страницу mesa0.\n"
+" Выберите тип платы, прошивку, количества компонентов и нажмите кнопку "
+"'Принять изменения компонентов'"
 
 #: src/emc/usr_intf/pncconf/pages.py:1002
 msgid ""
@@ -11819,6 +11829,9 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
+"Вам нужно настроить страницу mesa1.\n"
+" Выберите тип платы, прошивку, количества компонентов и нажмите кнопку "
+"'Принять изменения компонентов'"
 
 #: src/emc/usr_intf/pncconf/pages.py:1054
 msgid ""
@@ -11828,7 +11841,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pages.py:1485
 msgid "You need to designate an E-stop input pin for this ladder program."
-msgstr ""
+msgstr "Вам нужно указать ножку входа АВОСТ для этой ladder-программы."
 
 #: src/emc/usr_intf/pncconf/pages.py:1496
 msgid "You need to designate a probe input pin for this ladder program."
@@ -11852,79 +11865,80 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:1063
 #, python-format
 msgid "# Generated by PNCconf at %s"
-msgstr ""
+msgstr "# Создано PNCconf в %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:18
 #: src/emc/usr_intf/pncconf/build_HAL.py:54
 #, python-format
 msgid "# Using LinuxCNC version:  %s"
-msgstr ""
+msgstr "# Используя LinuxCNC версии:  %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:20
 #: src/emc/usr_intf/pncconf/build_HAL.py:56
 msgid "# overwritten when you run PNCconf again"
-msgstr ""
+msgstr "# Будет перезаписано при повторном запуске PNCconf"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:437
 msgid "# connect miscellaneous signals"
-msgstr ""
+msgstr "# Подключение различных сигналов"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:440
 msgid "#  ---HALUI signals---"
-msgstr ""
+msgstr "#  ---сигналы HALUI---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:473
 msgid "#  ---charge pump signals---"
-msgstr ""
+msgstr "#  ---сигналы charge pump---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:477
 msgid "#  ---coolant signals---"
-msgstr ""
+msgstr "#  ---сигналы управления подачей СОЖ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:482
 msgid "#  ---probe signal---"
-msgstr ""
+msgstr "#  ---сигналы пробника---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:487
 msgid "# ---jog button signals---"
-msgstr ""
+msgstr "# ---сигналы кнопок jog---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:492
 msgid "# ---USB device jog button signals---"
-msgstr ""
+msgstr "# --- Сигналы jog кнопок с USB устройства ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:533
 #: src/emc/usr_intf/pncconf/build_HAL.py:559
 msgid "#  ---mpg signals---"
-msgstr ""
+msgstr "#  --- Сигналы штурвала РГИ ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:743
 msgid "#  ---motion control signals---"
-msgstr ""
+msgstr "#  --- Сигналы для управления движением ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:748
 msgid "#  ---digital in / out signals---"
-msgstr ""
+msgstr "#  --- Сигналы цифровых входов / выходов ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:758
 msgid "#  ---estop signals---"
-msgstr ""
+msgstr "#  --- Сигналы АВОСТ ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:779
 msgid "#  ---manual tool change signals---"
-msgstr ""
+msgstr "#  --- Сигналы ручной смены инструмента ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:787
 msgid "#  ---Use external manual tool change dialog---"
 msgstr ""
+"#  --- Сигналы смены инструмента для индивидуального сменщика инструмента ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:799
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
-msgstr ""
+msgstr "#  --- Сигналы ручной смены инструмента для диалога gmoccapy ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:809
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
-msgstr ""
+msgstr "#  --- Сигналы ручной смены инструмента для диалога qtdragon ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:816
 msgid "#  ---ignore tool prepare requests---"
@@ -11933,10 +11947,12 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:821
 msgid "#  ---toolchange signals for custom tool changer---"
 msgstr ""
+"#  --- Сигналы смены инструмента для индивидуального сменщика инструмента ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:852
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
+"#  --- Сигналы Classicladder для программы автоматического касания оси Z ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:871
 msgid "# These files are loaded post gladeVCP, in the order they appear"
@@ -11949,17 +11965,15 @@ msgstr "#НЕ добавляйте свои команды HAL сюда."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:886
 msgid "# Put custom HAL commands in custom_gvcp.hal"
-msgstr ""
+msgstr "# Добавьте Ваши индивидуальные HAL-команды в custom_gvcp.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:889
-#, fuzzy
 msgid "# **** Setup of spindle speed display using gladevcp ****"
-msgstr ""
-"# **** Setup of spindle speed and tool number display using pyvcp -START ****"
+msgstr "# **** Настройки экрана скорости шпинделя используя gladevcp ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:898
 msgid "# **** Setup GLADE MDI buttons ****"
-msgstr ""
+msgstr "# **** Настройки кнопок GLADE MDI ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:911
 msgid ""
@@ -11969,29 +11983,24 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:938
 msgid "# Put custom HAL commands in custom_postgui.hal"
-msgstr ""
+msgstr "# Добавьте Ваши индивидуальные HAL-команды в custom_postgui.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:939
-#, fuzzy
 msgid "# The commands in this file are run after the GUI loads"
-msgstr ""
-"# The commands in this file are run after the AXIS GUI (including PyVCP "
-"panel) starts"
+msgstr "# Команды в этом файле будут выполнены после загрузки GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:949
-#, fuzzy
 msgid "# **** Setup of spindle speed display using pyvcp -END ****"
-msgstr ""
-"# **** Setup of spindle speed and tool number display using pyvcp -START ****"
+msgstr "# **** Настройка экрана скорости шпинделя используя pyvcp -НАЧАЛО ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:965
 #: src/emc/usr_intf/pncconf/build_HAL.py:1893
 msgid "# This file will not be overwritten when you run PNCconf again"
-msgstr ""
+msgstr "# Этот файл не будет перезаписан при повторном запуске PNCconf"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:971
 msgid "# These commands are required for Touchy GUI"
-msgstr ""
+msgstr "# Эти команды необходимы для Touchy GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1071
 #, python-format
@@ -12000,11 +12009,11 @@ msgstr "Сделано PNCconf в %s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1083
 msgid "configures LinuxCNC as:\n"
-msgstr ""
+msgstr "настраивает LinuxCNC как:\n"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1084
 msgid "type CNC\n"
-msgstr ""
+msgstr "тип ЧПУ\n"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1085
 msgid "will be used as the frontend display"
@@ -12026,38 +12035,35 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:1120
 #: src/emc/usr_intf/pncconf/build_HAL.py:1128
 msgid "-> inverted"
-msgstr ""
+msgstr "-> инвертирован"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1122
 #, python-format
 msgid "pin# %(pinnum)d is connected to input signal:'%(data)s' %(mesag)s"
-msgstr ""
+msgstr "ножка# %(pinnum)d подключена к входу сигнала:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1130
 #, python-format
 msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
-msgstr ""
+msgstr "ножка# %(pinnum)d подключена к выходу сигнала:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1539
-#, fuzzy
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
-msgstr "# **** Use ACTUAL spindle velocity from spindle encoder"
+msgstr "# Use ACTUAL spindle velocity from spindle encoder"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1540
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1541
-#, fuzzy
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
-"# **** spindle-velocity is signed so we use absolute compoent to remove sign"
+"# spindle-velocity is signed so we use absolute component to remove sign"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1542
-#, fuzzy
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr "# **** ACTUAL velocity is in RPS not RPM so we scale it."
+msgstr "# ACTUAL velocity is in RPS not RPM so we scale it."
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
@@ -12077,25 +12083,23 @@ msgstr "внешнее управление"
 
 #: src/emc/usr_intf/pncconf/private_data.py:45
 msgid "Mesa Card 0"
-msgstr ""
+msgstr "Mesa Плата 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:46
 msgid "Mesa Card 1"
-msgstr ""
+msgstr "Mesa Плата 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
-#, fuzzy
 msgid "Parallel Port 0"
-msgstr "Настройка параллельного порта"
+msgstr "Параллельный порт 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
 msgid "Mesa THCAD"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:50
-#, fuzzy
 msgid "X Motor"
-msgstr "Инвертировать мотор"
+msgstr "Мотор X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:51
 #: src/emc/usr_intf/pncconf/private_data.py:535
@@ -12103,9 +12107,8 @@ msgid "X Axis"
 msgstr "Ось X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:52
-#, fuzzy
 msgid "Y Motor"
-msgstr "Инвертировать мотор"
+msgstr "Мотор Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:53
 #: src/emc/usr_intf/pncconf/private_data.py:535
@@ -12113,9 +12116,8 @@ msgid "Y Axis"
 msgstr "Ось Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:54
-#, fuzzy
 msgid "Z Motor"
-msgstr "Инвертировать мотор"
+msgstr "Мотор Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:55
 #: src/emc/usr_intf/pncconf/private_data.py:535
@@ -12123,9 +12125,8 @@ msgid "Z Axis"
 msgstr "Ось Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:56
-#, fuzzy
 msgid "A Motor"
-msgstr "Инвертировать мотор"
+msgstr "Мотор A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:57
 #: src/emc/usr_intf/pncconf/private_data.py:536
@@ -12133,9 +12134,8 @@ msgid "A Axis"
 msgstr "Ось A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:58
-#, fuzzy
 msgid "Spindle Motor"
-msgstr "Выключить шпиндель"
+msgstr "Мотор шпинделя"
 
 #: src/emc/usr_intf/pncconf/private_data.py:60
 msgid "Realtime"
@@ -12143,7 +12143,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:110
 msgid "Not Used"
-msgstr ""
+msgstr "Не использован"
 
 #: src/emc/usr_intf/pncconf/private_data.py:110
 #: src/emc/usr_intf/pncconf/private_data.py:111
@@ -12153,22 +12153,19 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:111
 msgid "8i20 Servo Drive"
-msgstr ""
+msgstr "8i20 Серводрайвер"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
-#, fuzzy
 msgid "POT Output"
-msgstr "GPIO выход"
+msgstr "POT выход"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
-#, fuzzy
 msgid "POT Enable"
-msgstr "Разрешение"
+msgstr "Разрешение POT"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
-#, fuzzy
 msgid "POT Dir"
-msgstr "X Направление"
+msgstr "POT Направление"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO Input"
@@ -12183,89 +12180,72 @@ msgid "GPIO O Drain"
 msgstr "GPIO открытый исток"
 
 #: src/emc/usr_intf/pncconf/private_data.py:117
-#, fuzzy
 msgid "SSR Output"
-msgstr "GPIO выход"
+msgstr "SSR выход"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
-#, fuzzy
 msgid "Quad Enc-A"
-msgstr "Неиспользованный енкодер"
+msgstr "Квадр Энк-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
-#, fuzzy
 msgid "Quad Enc-B"
-msgstr "Неиспользованный енкодер"
+msgstr "Квадр Энк-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
-#, fuzzy
 msgid "Quad Enc-I"
-msgstr "Неиспользованный енкодер"
+msgstr "Квадр Энк-I"
 
 #: src/emc/usr_intf/pncconf/private_data.py:120
-#, fuzzy
 msgid "Quad Enc-M"
-msgstr "Неиспользованный енкодер"
+msgstr "Квадр Энк-M"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "Muxed Enc 0"
-msgstr "Неиспользованный енкодер"
+msgstr "Переключаемый энкодер 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "Muxed Enc 1"
-msgstr "Неиспользованный енкодер"
+msgstr "Переключаемый энкодер 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "muxed Enc I"
-msgstr "Неиспользованный енкодер"
+msgstr "Переключаемый энкодер I"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "Muxed Enc M"
-msgstr "Неиспользованный енкодер"
+msgstr "Переключаемый энкодер M"
 
 #: src/emc/usr_intf/pncconf/private_data.py:123
-#, fuzzy
 msgid "mux select"
-msgstr "Найти начало активной оси"
+msgstr "управление переключателем"
 
 #: src/emc/usr_intf/pncconf/private_data.py:126
-#, fuzzy
 msgid "Resolver 0 Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер ресолвера 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:126
-#, fuzzy
 msgid "Resolver 1 Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер ресолвера 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:126
-#, fuzzy
 msgid "Resolver 2 Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер ресолвера 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
-#, fuzzy
 msgid "Resolver 3 Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер ресолвера 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
-#, fuzzy
 msgid "Resolver 4 Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер ресолвера 4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
-#, fuzzy
 msgid "Resolver 5 Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер ресолвера 5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
-#, fuzzy
 msgid "Step Gen-A"
-msgstr "X·Шаг"
+msgstr "Генератор шагов A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Dir Gen-B"
@@ -12288,40 +12268,36 @@ msgid "Step/dir Gen-F"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:134
-#, fuzzy
 msgid "PWM Gen-P"
-msgstr "Неиспользованный ШИМ генератор"
+msgstr "ШИМ генератор P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:134
-#, fuzzy
 msgid "PWM Gen-D"
-msgstr "Неиспользованный ШИМ генератор"
+msgstr "ШИМ генератор D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:134
-#, fuzzy
 msgid "PWM Gen-E"
-msgstr "Неиспользованный ШИМ генератор"
+msgstr "ШИМ генератор E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "PDM Gen-P"
-msgstr ""
+msgstr "PDM генератор P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "PDM Gen-D"
-msgstr ""
+msgstr "PDM генератор D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "PDM Gen-E"
-msgstr ""
+msgstr "PDM генератор E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "UDM -Up"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "UDM-Down"
-msgstr "Вниз"
+msgstr "UDM вниз"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
 msgid "UDM-E"
@@ -12352,9 +12328,8 @@ msgid "Motor Phase C Not"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
-#, fuzzy
 msgid "Motor Enable"
-msgstr "X Разрешение"
+msgstr "Мотор разрешение"
 
 #: src/emc/usr_intf/pncconf/private_data.py:141
 msgid "Motor Fault"
@@ -12485,9 +12460,8 @@ msgid "7i77 Analog-SS4"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
-#, fuzzy
 msgid "Analog Input"
-msgstr "Ручное управление"
+msgstr "Аналоговый вход"
 
 #: src/emc/usr_intf/pncconf/private_data.py:406
 msgid "X Home"
@@ -12510,24 +12484,20 @@ msgid "All Home"
 msgstr "Все начала"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "X2 Tandem Home"
-msgstr "Начало X"
+msgstr "Начало Тандем-X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Y2 Tandem Home"
-msgstr "Начало Y"
+msgstr "Начало Тандем-Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "Z2 Tandem Home"
-msgstr "Начало Z"
+msgstr "Начало Тандем-Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:407
-#, fuzzy
 msgid "A2 Tandem Home"
-msgstr "Начало A"
+msgstr "Начало Тандем-A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:408
 msgid "X Minimum Limit + Home"
@@ -12535,7 +12505,7 @@ msgstr "Меньший предел + начало X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:409
 msgid "Y Minimum Limit + Home"
-msgstr "Меньший предел + начало X"
+msgstr "Меньший предел + начало Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:409
 msgid "Z Minimum Limit + Home"
@@ -12578,85 +12548,72 @@ msgid "A Both Limit + Home"
 msgstr "Оба предела + начало A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
-#, fuzzy
 msgid "All Limits + Home"
-msgstr "Все пределы"
+msgstr "Все пределы + начала"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
-#, fuzzy
 msgid "X2 Minimum Limit + Home"
-msgstr "Меньший предел + начало X"
+msgstr "Меньший предел + начало X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:416
-#, fuzzy
 msgid "Y2 Minimum Limit + Home"
-msgstr "Меньший предел + начало X"
+msgstr "Меньший предел + начало Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:416
-#, fuzzy
 msgid "Z2 Minimum Limit + Home"
-msgstr "Меньший предел + начало Z"
+msgstr "Меньший предел + начало Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:417
-#, fuzzy
 msgid "A2 Minimum Limit + Home"
-msgstr "Меньший предел + начало A"
+msgstr "Меньший предел + начало A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:417
-#, fuzzy
 msgid "X2 Maximum Limit + Home"
-msgstr "Больший предел + начало X"
+msgstr "Больший предел + начало X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:418
-#, fuzzy
 msgid "Y2 Maximum Limit + Home"
-msgstr "Больший предел + начало Y"
+msgstr "Больший предел + начало Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:418
-#, fuzzy
 msgid "Z2 Maximum Limit + Home"
-msgstr "Больший предел + начало Z"
+msgstr "Больший предел + начало Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:419
-#, fuzzy
 msgid "A2 Maximum Limit + Home"
-msgstr "Больший предел + начало A"
+msgstr "Больший предел + начало A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:419
-#, fuzzy
 msgid "X2 Both Limit + Home"
-msgstr "Оба предела + начало X"
+msgstr "Оба предела + начало X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:420
-#, fuzzy
 msgid "Y2 Both Limit + Home"
-msgstr "Оба предела + начало Y"
+msgstr "Оба предела + начало Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:420
-#, fuzzy
 msgid "Z2 Both Limit + Home"
-msgstr "Оба предела + начало Z"
+msgstr "Оба предела + начало Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
-#, fuzzy
 msgid "A2 Both Limit + Home"
-msgstr "Оба предела + начало A"
+msgstr "Оба предела + начало A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Joint select A"
-msgstr ""
+msgstr "Выбор сочленения A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Joint select B"
-msgstr ""
+msgstr "Выбор сочленения B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:425
 msgid "Joint select C"
-msgstr ""
+msgstr "Выбор сочленения C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:425
 msgid "Joint select D"
-msgstr ""
+msgstr "Выбор сочленения D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr A"
@@ -12751,9 +12708,8 @@ msgid "Spindle Up-To-Speed"
 msgstr "Шпинделя раскручен"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
-#, fuzzy
 msgid "Gear Select A"
-msgstr "Выбрать всё"
+msgstr "Выбрать передачу A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:435
 msgid "Cycle Start"
@@ -12764,9 +12720,8 @@ msgid "Abort"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:435
-#, fuzzy
 msgid "Single Step"
-msgstr "Один пробел"
+msgstr "Единичный шаг"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog X +"
@@ -12778,27 +12733,27 @@ msgstr "Двигать X -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog Y +"
-msgstr ""
+msgstr "Двигать Y +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog Y -"
-msgstr ""
+msgstr "Двигать Y -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog Z +"
-msgstr ""
+msgstr "Двигать Z +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog Z -"
-msgstr ""
+msgstr "Двигать Z -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog A +"
-msgstr ""
+msgstr "Двигать A +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog A -"
-msgstr ""
+msgstr "Двигать A -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Jog button selected +"
@@ -12950,21 +12905,18 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:448
 #: src/emc/usr_intf/pncconf/private_data.py:524
-#, fuzzy
 msgid "S HALL 1"
-msgstr "Сохранить HAL INI"
+msgstr "S HALL 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:448
 #: src/emc/usr_intf/pncconf/private_data.py:524
-#, fuzzy
 msgid "S HALL 2"
-msgstr "Сохранить HAL INI"
+msgstr "S HALL 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:448
 #: src/emc/usr_intf/pncconf/private_data.py:524
-#, fuzzy
 msgid "S HALL 3"
-msgstr "Сохранить HAL INI"
+msgstr "S HALL 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:449
 #: src/emc/usr_intf/pncconf/private_data.py:525
@@ -13004,7 +12956,7 @@ msgstr "Меньший предел A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:451
 msgid "X Maximum Limit"
-msgstr "Больший предел Y"
+msgstr "Больший предел X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:451
 msgid "Y Maximum Limit"
@@ -13039,64 +12991,52 @@ msgid "All Limits"
 msgstr "Все пределы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
-#, fuzzy
 msgid "X2 Minimum Limit"
-msgstr "Меньший предел X"
+msgstr "Меньший предел X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
-#, fuzzy
 msgid "Y2 Minimum Limit"
-msgstr "Меньший предел Y"
+msgstr "Меньший предел Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
-#, fuzzy
 msgid "Z2 Minimum Limit"
-msgstr "Меньший предел Z"
+msgstr "Меньший предел Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
-#, fuzzy
 msgid "A2 Minimum Limit"
-msgstr "Меньший предел A"
+msgstr "Меньший предел A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
-#, fuzzy
 msgid "X2 Maximum Limit"
-msgstr "Больший предел Y"
+msgstr "Больший предел X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
-#, fuzzy
 msgid "Y2 Maximum Limit"
-msgstr "Больший предел Y"
+msgstr "Больший предел Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
-#, fuzzy
 msgid "Z2 Maximum Limit"
-msgstr "Больший предел Z"
+msgstr "Больший предел Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:455
-#, fuzzy
 msgid "A2 Maximum Limit"
-msgstr "Больший предел A"
+msgstr "Больший предел A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
-#, fuzzy
 msgid "X2 Both Limit"
-msgstr "Оба предела X"
+msgstr "Оба предела X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
-#, fuzzy
 msgid "Y2 Both Limit"
-msgstr "Оба предела Y"
+msgstr "Оба предела Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
-#, fuzzy
 msgid "Z2 Both Limit"
-msgstr "Оба предела Z"
+msgstr "Оба предела Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:456
-#, fuzzy
 msgid "A2 Both Limit"
-msgstr "Оба предела A"
+msgstr "Оба предела A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 #: src/emc/usr_intf/pncconf/private_data.py:459
@@ -13104,9 +13044,8 @@ msgstr "Оба предела A"
 #: src/emc/usr_intf/pncconf/private_data.py:477
 #: src/emc/usr_intf/pncconf/private_data.py:487
 #: src/emc/usr_intf/pncconf/private_data.py:503
-#, fuzzy
 msgid "Main Axis"
-msgstr "Ось X"
+msgstr "Главная ось"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 #: src/emc/usr_intf/pncconf/private_data.py:459
@@ -13114,23 +13053,20 @@ msgstr "Ось X"
 #: src/emc/usr_intf/pncconf/private_data.py:477
 #: src/emc/usr_intf/pncconf/private_data.py:487
 #: src/emc/usr_intf/pncconf/private_data.py:503
-#, fuzzy
 msgid "Tandem Axis"
-msgstr "Найти начало оси"
+msgstr "Подчинённая ось"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
 msgid "Arc OK"
-msgstr ""
+msgstr "Дуга ОК"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
-#, fuzzy
 msgid "Ohmic Contact"
-msgstr "Разрешение"
+msgstr "Резистивный контакт"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
-#, fuzzy
 msgid "Float Switch"
-msgstr "дюймы"
+msgstr "плавающий переключатель"
 
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Breakaway"
@@ -13141,7 +13077,6 @@ msgid "Unused Input"
 msgstr "Неиспользованный вход"
 
 #: src/emc/usr_intf/pncconf/private_data.py:464
-#, fuzzy
 msgid "Limits"
 msgstr "Все пределы"
 
@@ -13151,29 +13086,25 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 #: src/emc/usr_intf/pncconf/private_data.py:530
-#, fuzzy
 msgid "Digital"
-msgstr "Цифровой вход 0"
+msgstr "Цифровой"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 #: src/emc/usr_intf/pncconf/private_data.py:913
-#, fuzzy
 msgid "Axis Selection"
-msgstr "A Направление"
+msgstr "Выбор оси"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
-#, fuzzy
 msgid "Overrides"
-msgstr "Игнорировать пределы"
+msgstr "переопределения"
 
 #: src/emc/usr_intf/pncconf/private_data.py:467
 msgid "Operation"
 msgstr "Операция"
 
 #: src/emc/usr_intf/pncconf/private_data.py:467
-#, fuzzy
 msgid "External Control"
-msgstr "внешнее управление"
+msgstr "Внешнее управление"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 msgid "Axis rapid"
@@ -13181,37 +13112,32 @@ msgstr "Ось быстрая"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 #: src/emc/usr_intf/pncconf/private_data.py:530
-#, fuzzy
 msgid "X BLDC Control"
-msgstr "Control-M"
+msgstr "BLDC управление X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:469
 #: src/emc/usr_intf/pncconf/private_data.py:531
-#, fuzzy
 msgid "Y BLDC Control"
-msgstr "Control-M"
+msgstr "BLDC управление Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:469
 #: src/emc/usr_intf/pncconf/private_data.py:531
-#, fuzzy
 msgid "Z BLDC Control"
-msgstr "Control-M"
+msgstr "BLDC управление Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:532
-#, fuzzy
 msgid "A BLDC Control"
-msgstr "Control-M"
+msgstr "BLDC управление A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
-#, fuzzy
 msgid "S BLDC Control"
-msgstr "Control-M"
+msgstr "BLDC управление S"
 
 #: src/emc/usr_intf/pncconf/private_data.py:471
 #: src/emc/usr_intf/pncconf/private_data.py:533
 msgid "Plasma"
-msgstr ""
+msgstr "Плазма"
 
 #: src/emc/usr_intf/pncconf/private_data.py:471
 #: src/emc/usr_intf/pncconf/private_data.py:480
@@ -13223,163 +13149,140 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:543
 #: src/emc/usr_intf/pncconf/private_data.py:549
 #: src/emc/usr_intf/pncconf/private_data.py:559
-#, fuzzy
 msgid "Custom Signals"
-msgstr "Сигналы"
+msgstr "Индивидуальные сигналы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:473
 msgid "X2 Tandem PWM"
-msgstr ""
+msgstr "ШИМ Тандем-X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:473
 msgid "Y2 Tandem PWM"
-msgstr ""
+msgstr "ШИМ Тандем-Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
 msgid "Z2 Tandem PWM"
-msgstr ""
+msgstr "ШИМ Тандем-Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:474
 msgid "A2 Tandem PWM"
-msgstr ""
+msgstr "ШИМ Тандем-A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
-#, fuzzy
 msgid "X Axis PWM"
-msgstr "Ось X"
+msgstr "ШИМ оси X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:475
-#, fuzzy
 msgid "Y Axis PWM"
-msgstr "Ось Y"
+msgstr "ШИМ оси Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:476
-#, fuzzy
 msgid "Z Axis PWM"
-msgstr "Ось Z"
+msgstr "ШИМ оси Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:476
-#, fuzzy
 msgid "A Axis PWM"
-msgstr "Ось A"
+msgstr "ШИМ оси A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:478
 msgid "Unused PWM Gen"
 msgstr "Неиспользованный ШИМ генератор"
 
 #: src/emc/usr_intf/pncconf/private_data.py:478
-#, fuzzy
 msgid "Axis PWM"
-msgstr "Ось X"
+msgstr "ШИМ оси"
 
 #: src/emc/usr_intf/pncconf/private_data.py:482
-#, fuzzy
 msgid "X Axis StepGen"
-msgstr "Неиспользованный генератор шагов"
+msgstr "Генератор шагов X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:483
-#, fuzzy
 msgid "Y Axis StepGen"
-msgstr "Неиспользованный генератор шагов"
+msgstr "Генератор шагов Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:483
-#, fuzzy
 msgid "Z Axis StepGen"
-msgstr "Неиспользованный генератор шагов"
+msgstr "Генератор шагов Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:484
-#, fuzzy
 msgid "A Axis StepGen"
-msgstr "Неиспользованный генератор шагов"
+msgstr "Генератор шагов A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:485
-#, fuzzy
 msgid "X2 Tandem StepGen"
-msgstr "Шпиндель медленнее"
+msgstr "Генератор шагов Тандем-X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:485
-#, fuzzy
 msgid "Y2 Tandem StepGen"
-msgstr "Шпиндель медленнее"
+msgstr "Генератор шагов Тандем-Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:486
-#, fuzzy
 msgid "Z2 Tandem StepGen"
-msgstr "Шпиндель медленнее"
+msgstr "Генератор шагов Тандем-Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:488
 msgid "Unused StepGen"
 msgstr "Неиспользованный генератор шагов"
 
 #: src/emc/usr_intf/pncconf/private_data.py:490
-#, fuzzy
 msgid "Charge Pump StepGen"
-msgstr "Пульс"
+msgstr "генератор шагов накачки заряда"
 
 #: src/emc/usr_intf/pncconf/private_data.py:490
-#, fuzzy
 msgid "Spindle StepGen"
-msgstr "Шпиндель медленнее"
+msgstr "Генератор шагов шпинделя"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
-#, fuzzy
 msgid "X Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:493
-#, fuzzy
 msgid "Y Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
 msgid "Z Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:494
-#, fuzzy
 msgid "A Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
 msgid "X2 Tandem Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер Тандем-X2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:496
-#, fuzzy
 msgid "Y2 Tandem Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер Тандем-Y2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
 msgid "Z2 Tandem Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер Тандем-Z2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:497
-#, fuzzy
 msgid "A2 Tandem Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер Тандем-A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "X Hand Wheel"
-msgstr ""
+msgstr "Штурвал РГИ X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:498
 msgid "Y Hand Wheel"
-msgstr ""
+msgstr "Штурвал РГИ Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "Z Hand Wheel"
-msgstr ""
+msgstr "Штурвал РГИ Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:499
 msgid "A Hand Wheel"
-msgstr ""
+msgstr "Штурвал РГИ A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:500
 msgid "Multi Hand Wheel"
-msgstr ""
+msgstr "Общий штурвал РГИ"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
 msgid "Feed Override"
@@ -13395,21 +13298,19 @@ msgstr "Изменить максимальную подачу"
 
 #: src/emc/usr_intf/pncconf/private_data.py:502
 msgid "Arc Voltage"
-msgstr ""
+msgstr "Напряжение дуги"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
 msgid "Unused Encoder"
-msgstr "Неиспользованный енкодер"
+msgstr "Неиспользованный энкодер"
 
 #: src/emc/usr_intf/pncconf/private_data.py:504
-#, fuzzy
 msgid "Axis Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер оси"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
-#, fuzzy
 msgid "Spindle Encoder"
-msgstr "Шпиндель тормоз"
+msgstr "Энкодер шпинделя"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
 msgid "MPG Jog Controls"
@@ -13420,66 +13321,56 @@ msgid "Override MPG control"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:506
-#, fuzzy
 msgid "Plasma Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер плазмы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:509
-#, fuzzy
 msgid "Unused Unused"
-msgstr "Неиспользованный вход"
+msgstr "Неиспользованный Неиспользованный"
 
 #: src/emc/usr_intf/pncconf/private_data.py:510
-#, fuzzy
 msgid "Spindle Enable"
-msgstr "Шпиндель разрешение"
+msgstr "Включить шпиндель"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
 msgid "Machine Is Enabled"
-msgstr "Машина разрешена"
+msgstr "Станок включен"
 
 #: src/emc/usr_intf/pncconf/private_data.py:512
-#, fuzzy
 msgid "X Amplifier Enable"
-msgstr "Включить усилитель"
+msgstr "Включить усилитель X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "Y Amplifier Enable"
-msgstr "Включить усилитель"
+msgstr "Включить усилитель Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "Z Amplifier Enable"
-msgstr "Включить усилитель"
+msgstr "Включить усилитель Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:513
-#, fuzzy
 msgid "A Amplifier Enable"
-msgstr "Включить усилитель"
+msgstr "Включить усилитель A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:514
 msgid "Force Pin True"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
-#, fuzzy
 msgid "Ohmic Enable"
-msgstr "Разрешение"
+msgstr "включить резистор"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "Scribe Arm"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
-#, fuzzy
 msgid "Scribe On"
-msgstr "Станок вкл"
+msgstr "Включить скрайбер"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
-#, fuzzy
 msgid "Torch On"
-msgstr "Задать отступ"
+msgstr "Включить факел"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "Laser On"
@@ -13494,144 +13385,140 @@ msgid "Coolant"
 msgstr "Охлаждение"
 
 #: src/emc/usr_intf/pncconf/private_data.py:529
-#, fuzzy
 msgid "Control"
-msgstr "Control-M"
+msgstr "Управление"
 
 #: src/emc/usr_intf/pncconf/private_data.py:532
 msgid " S BLDC Control"
-msgstr ""
+msgstr " BLDC управление S"
 
 #: src/emc/usr_intf/pncconf/private_data.py:535
-#, fuzzy
 msgid "Unused 8I20"
-msgstr "Не подключен"
+msgstr "Неиспользованная 8I20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
-#, fuzzy
 msgid "Unused Resolver"
-msgstr "Неиспользованный енкодер"
+msgstr "Неиспользованный резольвер"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "X Resolver"
-msgstr ""
+msgstr "Резольвер X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Y Resolver"
-msgstr ""
+msgstr "Резольвер Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Z Resolver"
-msgstr ""
+msgstr "Резольвер Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:540
 msgid "A Resolver"
-msgstr ""
+msgstr "Резольвер A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:540
 msgid "S Resolver"
-msgstr ""
+msgstr "Резольвер S"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
-#, fuzzy
 msgid "Unused Analog Output"
-msgstr "Неиспользованный выход"
+msgstr "Неиспользованный аналоговый выход"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
-#, fuzzy
 msgid "Spindle Output"
-msgstr "Шпиндель ON"
+msgstr "Выход шпинделя"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
-#, fuzzy
 msgid "Unused TPPWM Gen"
-msgstr "Неиспользованный ШИМ генератор"
+msgstr "Неиспользованный 3Ф-ШИМ генератор"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "X Axis BL Driver"
-msgstr ""
+msgstr "BL Драйвер оси X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:547
 msgid "Y Axis BL Driver"
-msgstr ""
+msgstr "BL Драйвер оси Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:547
 msgid "Z Axis BL Driver"
-msgstr ""
+msgstr "BL Драйвер оси Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:548
 msgid "A Axis BL Driver"
-msgstr ""
+msgstr "BL Драйвер оси A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:548
 msgid "S Axis BL Driver"
-msgstr ""
+msgstr "BL Драйвер оси S"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
-#, fuzzy
 msgid "8i20 Amplifier Card"
-msgstr "Включить усилитель"
+msgstr "8i20 Плата усилитель"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "7i64 I/O Card"
-msgstr ""
+msgstr "7i64 Плата I/O"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "7i69 I/O Card"
-msgstr ""
+msgstr "7i69 Плата I/O"
 
 #: src/emc/usr_intf/pncconf/private_data.py:553
 msgid "7i70 I/O Card"
-msgstr ""
+msgstr "7i70 Плата I/O"
 
 #: src/emc/usr_intf/pncconf/private_data.py:553
 msgid "7i71 I/O Card"
-msgstr ""
+msgstr "7i71 Плата I/O"
 
 #: src/emc/usr_intf/pncconf/private_data.py:554
 msgid "7i76 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i76 Режим 0 I/O Платы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:554
 msgid "7i76 Mode 2 I/O Card"
-msgstr ""
+msgstr "7i76 Режим 2 I/O Платы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "7i77 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i77 Режим 0 I/O Платы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "7i77 Mode 3 I/O Card"
-msgstr ""
+msgstr "7i77 Режим 3 I/O Платы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i73 Mode 1 Pendant Card"
-msgstr ""
+msgstr "7i73 Режим 1 Платы пульта"
 
 #: src/emc/usr_intf/pncconf/private_data.py:557
 msgid "7i84 Mode 1 I/O Card"
-msgstr ""
+msgstr "7i84 Режим 1 I/O Платы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:557
 msgid "7i84 Mode 3 I/O Card"
-msgstr ""
+msgstr "7i84 Режим 3 I/O Платы"
 
 #: src/emc/usr_intf/pncconf/private_data.py:559
-#, fuzzy
 msgid "Unused Analog In"
-msgstr "Неиспользованный выход"
+msgstr "Неиспользованный аналоговый вход"
 
 #: src/emc/usr_intf/pncconf/private_data.py:921
 msgid ""
 "7i64-Input\n"
 "P3 and P4"
 msgstr ""
+"7i64-Вход\n"
+"P3 и P4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:921
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
 msgstr ""
+"7i64-Выход\n"
+"P2 и P5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:921
 msgid "7i64-Analog In"
@@ -13654,24 +13541,32 @@ msgid ""
 "7i70-Input\n"
 "TB3"
 msgstr ""
+"7i70-Вход\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:946
 msgid ""
 "7i70-Input\n"
 "TB2"
 msgstr ""
+"7i70-Вход\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:958
 msgid ""
 "7i71-Output\n"
 "TB3"
 msgstr ""
+"7i71-Выход\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:958
 msgid ""
 "7i71-Output\n"
 "TB2"
 msgstr ""
+"7i71-Выход\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:970
 #: src/emc/usr_intf/pncconf/private_data.py:982
@@ -13693,6 +13588,8 @@ msgid ""
 "7i76-Analog Output\n"
 "TB4"
 msgstr ""
+"7i76-Аналоговый выход\n"
+"TB4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:994
 #: src/emc/usr_intf/pncconf/private_data.py:1006
@@ -13714,6 +13611,8 @@ msgid ""
 "7i77-Analog Output\n"
 "TB5"
 msgstr ""
+"7i77-Аналоговый выход\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1018
 msgid "7i73-I/O\n"
@@ -13737,6 +13636,8 @@ msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
 msgstr ""
+"7i84-I/O-РГИ\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1110
 msgid ""
@@ -13752,9 +13653,8 @@ msgstr ""
 "Все custompanel_backup.xml и custom_postgui.hal будут потеряны. "
 
 #: src/emc/usr_intf/pncconf/private_data.py:1111
-#, fuzzy
 msgid "Quit PNCconf and discard changes?"
-msgstr "Выйти из Stepconf и сбросить все изменения?"
+msgstr "Выйти из PNCconf и сбросить все изменения?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1112
 msgid "Do you want to quit?"
@@ -13794,7 +13694,7 @@ msgstr "градусы"
 
 #: src/emc/usr_intf/pncconf/tests.py:508
 msgid "degrees / minute"
-msgstr ""
+msgstr "градусы/мин"
 
 #: src/emc/usr_intf/pncconf/tests.py:509
 msgid "degrees / second²"
@@ -13809,9 +13709,8 @@ msgid "rpm"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:514
-#, fuzzy
 msgid "revs / second²"
-msgstr "градусы/сек²"
+msgstr "обороты/сек²"
 
 #: src/emc/usr_intf/pncconf/tests.py:518
 #: src/emc/usr_intf/pncconf/x_axis.glade:620
@@ -13835,11 +13734,11 @@ msgstr "мм/сек²"
 
 #: src/emc/usr_intf/pncconf/tests.py:523
 msgid "inches / minute"
-msgstr ""
+msgstr "дюймы/мин"
 
 #: src/emc/usr_intf/pncconf/tests.py:524
 msgid "inches / second²"
-msgstr ""
+msgstr "дюймы/сек²"
 
 #: src/emc/usr_intf/pncconf/tests.py:726
 #, python-format
@@ -13868,9 +13767,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/data.py:112
-#, fuzzy
 msgid "my_LinuxCNC_machine"
-msgstr "Моя_машина"
+msgstr "Мой_LinuxCNC_станок"
 
 #: src/emc/usr_intf/pncconf/data.py:870
 msgid ""
@@ -13894,9 +13792,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/data.py:1083
-#, fuzzy
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
-msgstr "Desktop Launcher for EMC config made by Stepconf"
+msgstr "Настольная ссылка для конфигурации LinuxCNC сделанной PNCconf"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:47
 msgid "PNCconf - Mesa Card Configuration Wizard"
@@ -13934,7 +13831,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:40974
 #: src/emc/usr_intf/pncconf/mesa1.glade:46156
 msgid "page 1"
-msgstr ""
+msgstr "страница 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
 msgid ""
@@ -14029,9 +13926,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:111
-#, fuzzy
 msgid "Help Page"
-msgstr "Страницы помощи"
+msgstr "Страница помощи"
 
 #: src/emc/usr_intf/pncconf/help.glade:173
 msgid "Mill"
@@ -14098,20 +13994,17 @@ msgid "Diagram"
 msgstr "Диаграмма"
 
 #: src/emc/usr_intf/pncconf/help.glade:460
-#, fuzzy
 msgid "Output"
-msgstr "GPIO выход"
+msgstr "Выход"
 
 #: src/emc/usr_intf/pncconf/help.glade:490
-#, fuzzy
 msgid "Input"
-msgstr "GPIO вход"
+msgstr "Вход"
 
 #: src/emc/usr_intf/pncconf/help.glade:534
 #: src/emc/usr_intf/pncconf/help.glade:596
-#, fuzzy
 msgid "Print Map"
-msgstr "Настройки печати"
+msgstr "Печать карты"
 
 #: src/emc/usr_intf/pncconf/help.glade:578
 msgid "7i76"
@@ -14139,14 +14032,13 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:288
 #: src/emc/usr_intf/pncconf/mesa1.glade:288
-#, fuzzy
 msgid "Card address:"
-msgstr "Адрес порта MESA:"
+msgstr "Адрес карты:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:300
 #: src/emc/usr_intf/pncconf/mesa1.glade:300
 msgid "Firmware:"
-msgstr ""
+msgstr "Прошивка:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:339
 #: src/emc/usr_intf/pncconf/mesa1.glade:339
@@ -14232,9 +14124,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:734
 #: src/emc/usr_intf/pncconf/mesa1.glade:734
-#, fuzzy
 msgid "<b>Sanity Checks</b>"
-msgstr "<b>Штурвал</b>"
+msgstr "<b>Проверки на смысл</b>"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:766
 #: src/emc/usr_intf/pncconf/mesa1.glade:766
@@ -15013,7 +14904,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:46651
 #: src/emc/usr_intf/pncconf/mesa1.glade:49236
 msgid "function"
-msgstr ""
+msgstr "функция"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2507
 #: src/emc/usr_intf/pncconf/mesa0.glade:4513
@@ -15034,7 +14925,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16002
 #: src/emc/usr_intf/pncconf/mesa1.glade:17928
 msgid "Launch test panel"
-msgstr ""
+msgstr "Запустить тестовую панель"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2859
 #: src/emc/usr_intf/pncconf/mesa0.glade:2872
@@ -15328,7 +15219,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:42868
 #: src/emc/usr_intf/pncconf/mesa1.glade:48050
 msgid "page 2"
-msgstr ""
+msgstr "страница 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23523
 #: src/emc/usr_intf/pncconf/mesa0.glade:28705
@@ -15343,7 +15234,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:44253
 #: src/emc/usr_intf/pncconf/mesa1.glade:49435
 msgid "page 3"
-msgstr ""
+msgstr "страница 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23539
 #: src/emc/usr_intf/pncconf/mesa1.glade:23541
@@ -15384,9 +15275,8 @@ msgid "Create a desktop shortcut (symlink) to configuration files."
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/start.glade:129
-#, fuzzy
 msgid "Show Advanced Option Pages"
-msgstr "Продвинутые настройки"
+msgstr "Показать страницы глубоких настроек"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
 msgid "Use INI substitution for Mesa board names."
@@ -15417,9 +15307,8 @@ msgid "/dev/ttyS0"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:389
-#, fuzzy
 msgid "<b>Serial VFD</b>"
-msgstr "<b>Шпиндель</b>"
+msgstr "<b>Последовательный ПЧ</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
@@ -15442,9 +15331,8 @@ msgid "<b>Spindle Override</b>"
 msgstr "<b>Изменить обороты шпинделя</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
-#, fuzzy
 msgid "<b>USB Jogging</b>"
-msgstr "<b>Поиск начала</b>"
+msgstr "<b>USB шагогенератор</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
 msgid ""
@@ -15459,16 +15347,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:752
 msgid "Test device"
-msgstr ""
+msgstr "Проверить устройство"
 
 #: src/emc/usr_intf/pncconf/external.glade:766
 msgid "Search for device rules"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:793
-#, fuzzy
 msgid "Device Name:"
-msgstr "Название станка:"
+msgstr "Имя устройства:"
 
 #: src/emc/usr_intf/pncconf/external.glade:867
 msgid "A +"
@@ -15519,9 +15406,8 @@ msgid "Speed B"
 msgstr "Скорость B"
 
 #: src/emc/usr_intf/pncconf/external.glade:1124
-#, fuzzy
 msgid "X +"
-msgstr "Двигать X +"
+msgstr "X +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1131
 msgid "Y +"
@@ -15532,9 +15418,8 @@ msgid "Z +"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1153
-#, fuzzy
 msgid "X -"
-msgstr "Двигать X -"
+msgstr "X -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1164
 msgid "Y -"
@@ -15549,9 +15434,8 @@ msgid "Speed A"
 msgstr "Скорость A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1304
-#, fuzzy
 msgid "Digital Control"
-msgstr "Цифровой выход 0"
+msgstr "Цифровое управление"
 
 #: src/emc/usr_intf/pncconf/external.glade:1414
 #: src/emc/usr_intf/gscreen/gscreen.glade:502
@@ -15578,9 +15462,8 @@ msgid "X "
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1456
-#, fuzzy
 msgid "Analog Control"
-msgstr "Ручное управление"
+msgstr "Аналоговое управление"
 
 #: src/emc/usr_intf/pncconf/external.glade:1475
 msgid "Joy Jog"
@@ -15588,11 +15471,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1489
 msgid "shared buttons for all axis"
-msgstr ""
+msgstr "общие кнопки для всех осей"
 
 #: src/emc/usr_intf/pncconf/external.glade:1504
 msgid "buttons for each axis"
-msgstr "кнопки на каждой оси"
+msgstr "кнопки для каждой оси"
 
 #: src/emc/usr_intf/pncconf/external.glade:1566
 msgid "B JOG"
@@ -15600,15 +15483,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:1580
 msgid "Shared MPG / selectable axis"
-msgstr ""
+msgstr "Общий РГИ / выбираемая ось"
 
 #: src/emc/usr_intf/pncconf/external.glade:1595
 msgid "Mpg per axis"
-msgstr "Шаговых генераторов на ось"
+msgstr "РГИ на ось"
 
 #: src/emc/usr_intf/pncconf/external.glade:1610
 msgid "selectable MPG increments"
-msgstr "Выбираемые скорости генератора"
+msgstr "Выбираемые приращения РГИ"
 
 #: src/emc/usr_intf/pncconf/external.glade:1686
 #: src/emc/usr_intf/pncconf/external.glade:3264
@@ -15714,15 +15597,14 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:4308
 #: src/emc/usr_intf/pncconf/external.glade:5251
 msgid "use debounce"
-msgstr ""
+msgstr "использовать антидребезг"
 
 #: src/emc/usr_intf/pncconf/external.glade:2460
 #: src/emc/usr_intf/pncconf/external.glade:3344
 #: src/emc/usr_intf/pncconf/external.glade:4287
 #: src/emc/usr_intf/pncconf/external.glade:5230
-#, fuzzy
 msgid "Mux options"
-msgstr "Motion"
+msgstr "Опции переключателя"
 
 #: src/emc/usr_intf/pncconf/external.glade:2491
 #: src/emc/usr_intf/pncconf/external.glade:3429
@@ -15732,19 +15614,18 @@ msgid "Sec"
 msgstr "секунды"
 
 #: src/emc/usr_intf/pncconf/external.glade:2515
-#, fuzzy
 msgid "increments"
-msgstr "увеличить"
+msgstr "размер шага"
 
 #: src/emc/usr_intf/pncconf/external.glade:2534
 msgid "MPG"
-msgstr ""
+msgstr "РГИ"
 
 #: src/emc/usr_intf/pncconf/external.glade:2547
 #: src/emc/usr_intf/pncconf/external.glade:3490
 #: src/emc/usr_intf/pncconf/external.glade:4433
 msgid "Use MPG "
-msgstr ""
+msgstr "Использовать РГИ "
 
 #: src/emc/usr_intf/pncconf/external.glade:2562
 #: src/emc/usr_intf/pncconf/external.glade:3505
@@ -15755,9 +15636,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3397
 #: src/emc/usr_intf/pncconf/external.glade:4323
 #: src/emc/usr_intf/pncconf/external.glade:5266
-#, fuzzy
 msgid "use graycode"
-msgstr "Неиспользованный енкодер"
+msgstr "использовать код Грея"
 
 #: src/emc/usr_intf/pncconf/external.glade:3412
 #: src/emc/usr_intf/pncconf/external.glade:4338
@@ -15768,9 +15648,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3458
 #: src/emc/usr_intf/pncconf/external.glade:4401
 #: src/emc/usr_intf/pncconf/external.glade:5344
-#, fuzzy
 msgid "Increments"
-msgstr "Увеличить"
+msgstr "Размер шага"
 
 #: src/emc/usr_intf/pncconf/external.glade:3477
 msgid "FO"
@@ -15793,9 +15672,8 @@ msgid "Mitsubishi FR Spindle VFD"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
-#, fuzzy
 msgid "GS2 Spindle VFD"
-msgstr "Шпиндель вперед"
+msgstr "ПЧ шпинделя GS2"
 
 #: src/emc/usr_intf/pncconf/external.glade:5429
 msgid "Deacceleration Time"
@@ -15806,17 +15684,16 @@ msgid "Acceleration Time"
 msgstr "Время ускорения"
 
 #: src/emc/usr_intf/pncconf/external.glade:5452
-#, fuzzy
 msgid "Slave number"
-msgstr "Перенумеровать"
+msgstr "Номер подчиненного"
 
 #: src/emc/usr_intf/pncconf/external.glade:5464
 msgid "Baud Rate"
-msgstr ""
+msgstr "Скорость передачи"
 
 #: src/emc/usr_intf/pncconf/external.glade:5476
 msgid "Device  Name"
-msgstr "Название станка"
+msgstr "Имя устройства"
 
 #: src/emc/usr_intf/pncconf/external.glade:5577
 msgid "GS2"
@@ -15869,14 +15746,12 @@ msgid "<b>Computer Response Time</b>"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:490
-#, fuzzy
 msgid "Mesa0 PCI/ Etho/ Parport Card:"
-msgstr "Адрес порта MESA:"
+msgstr "MESA 0 PCI/Езернет/параллельный-порт карта:"
 
 #: src/emc/usr_intf/pncconf/base.glade:575
-#, fuzzy
 msgid "Mesa1 PCI/ Etho/ Parport Card:"
-msgstr "Адрес порта MESA:"
+msgstr "MESA 1 PCI/Езернет/параллельный-порт карта:"
 
 #: src/emc/usr_intf/pncconf/base.glade:593
 msgid "<b>I/O Control Ports/ Boards</b>"
@@ -15895,9 +15770,8 @@ msgid "Require homing before MDI / Running"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:687
-#, fuzzy
 msgid "Popup Manual Toolchange Prompt"
-msgstr "Ручная смена инструмента AXIS"
+msgstr "Всплывающее приглашение ручной смены инструмента"
 
 #: src/emc/usr_intf/pncconf/base.glade:702
 msgid "Leave spindle on during tool change"
@@ -15990,7 +15864,7 @@ msgstr "Шаги "
 
 #: src/emc/usr_intf/pncconf/screen.glade:911
 msgid "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
-msgstr ""
+msgstr "5мм 1мм .5мм .1мм .05мм .01мм .005мм"
 
 #: src/emc/usr_intf/pncconf/screen.glade:926
 msgid "Max Angular velocity"
@@ -16049,9 +15923,8 @@ msgid "Force Axis to Maximize"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1189
-#, fuzzy
 msgid "AXIS Defaults"
-msgstr "умолчания AXIS"
+msgstr "Начальные настройки AXIS"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1504
 msgid "Force Touchy to Maximize after positioning"
@@ -16061,7 +15934,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:2694
 #: src/emc/usr_intf/pncconf/vcp.glade:760
 msgid "GTK Theme"
-msgstr ""
+msgstr "GTK тема"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1775
 #: src/emc/usr_intf/gscreen/gscreen.glade:1892
@@ -16069,14 +15942,12 @@ msgid "Absolute Text Color"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1857
-#, fuzzy
 msgid "Absolute Textcolor"
-msgstr "Абсолютный"
+msgstr "Абсолютный цвет текста"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1870
-#, fuzzy
 msgid "Relative Textcolor"
-msgstr "Относительная позиция"
+msgstr "Относительная цвет текста"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1883
 msgid "DTG Textcolor"
@@ -16087,9 +15958,8 @@ msgid "Error Textcolor"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:2047
-#, fuzzy
 msgid "Touchy Defaults"
-msgstr "Использовать умолчания"
+msgstr "Начальные настройки Touchy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2497
 msgid "Force Gmoccapy to Maximize after positioning"
@@ -16104,21 +15974,20 @@ msgid "10 1 .1 .01 .001"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:3385
-#, fuzzy
 msgid "QtPlasmaC Options"
-msgstr "Пример устнавок Pyvcp"
+msgstr "Опции QtPlasmaC"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:26
 msgid "<b>Virtual Control Panel</b>"
-msgstr ""
+msgstr "<b>Виртуальная панель управления</b>"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:113
 msgid "XYZ buttons (uses Halui)"
-msgstr ""
+msgstr "XYZ кнопки (используя Halui)"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:307
 msgid "Geometry Options"
-msgstr ""
+msgstr "Опции геометрии"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:402
 msgid "Pyvcp Details"
@@ -16145,43 +16014,36 @@ msgid "Force Maximize"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:774
-#, fuzzy
 msgid "Display Options"
-msgstr "Показать дюймы"
+msgstr "Настройки экрана"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:831
 msgid "Max RPM"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:847
-#, fuzzy
 msgid "Spindle Speed Indicator"
-msgstr "Обороты шпинделя"
+msgstr "Индикатор оборотов шпинделя"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:862
-#, fuzzy
 msgid "Spindle At Speed LED"
-msgstr "Обороты шпинделя"
+msgstr "Светодиод Шпиндель На Скорости"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:877
-#, fuzzy
 msgid "Zero X Button"
-msgstr "Левая кнопка"
+msgstr "Кнопка Обнулить X"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:892
-#, fuzzy
 msgid "Zero Y Button"
-msgstr "Левая кнопка"
+msgstr "Кнопка Обнулить Y"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:907
-#, fuzzy
 msgid "Zero Z Button"
-msgstr "Левая кнопка"
+msgstr "Кнопка Обнулить Z"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:922
-#, fuzzy
 msgid "Zero A Button"
-msgstr "Левая кнопка"
+msgstr "Кнопка Обнулить A"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:937
 msgid "Auto Z Touch Off Button"
@@ -16192,18 +16054,16 @@ msgid "Requires Classicladder touch-off program"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:958
-#, fuzzy
 msgid "Sample Options"
-msgstr "Пример устнавок Pyvcp"
+msgstr "Пример настроек"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:1045
 msgid "Gladevcp Details"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:1069
-#, fuzzy
 msgid "Include custom GladeVCP GUI panel"
-msgstr "Добавить PyVCP GUI панель"
+msgstr "Добавить GladeVCP GUI панель"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:113
 msgid "Full Scale Frequency (kHz)"
@@ -16214,23 +16074,22 @@ msgid "0V Frequency (kHz)"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/thcad.glade:256
-#, fuzzy
 msgid "Encoder"
-msgstr "Сбросить энкодер"
+msgstr "Энкодер"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:16
 #: src/emc/usr_intf/pncconf/y_axis.glade:16
 #: src/emc/usr_intf/pncconf/z_axis.glade:16
 #: src/emc/usr_intf/pncconf/a_axis.glade:16
 msgid "Type 1"
-msgstr ""
+msgstr "Тип 1"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:19
 #: src/emc/usr_intf/pncconf/y_axis.glade:19
 #: src/emc/usr_intf/pncconf/z_axis.glade:19
 #: src/emc/usr_intf/pncconf/a_axis.glade:19
 msgid "Type 2"
-msgstr ""
+msgstr "Тип 2"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:58
 #: src/emc/usr_intf/pncconf/y_axis.glade:58
@@ -16334,9 +16193,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:354
 #: src/emc/usr_intf/pncconf/z_axis.glade:354
 #: src/emc/usr_intf/pncconf/a_axis.glade:354
-#, fuzzy
 msgid "Home Search Sequence:"
-msgstr "Максимальная скорость поиска начала:"
+msgstr "Последовательность поиска начала:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:369
 #: src/emc/usr_intf/pncconf/y_axis.glade:369
@@ -16350,9 +16208,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:184
 #: src/emc/usr_intf/pncconf/a_motor.glade:182
 #: src/emc/usr_intf/pncconf/s_motor.glade:213
-#, fuzzy
 msgid "Max Output"
-msgstr "GPIO выход"
+msgstr "наибольший выход"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:259
 #: src/emc/usr_intf/pncconf/y_motor.glade:259
@@ -16404,7 +16261,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:357
 #: src/emc/usr_intf/pncconf/s_motor.glade:398
 msgid "P"
-msgstr ""
+msgstr "П"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:381
 #: src/emc/usr_intf/pncconf/y_motor.glade:381
@@ -16412,7 +16269,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:369
 #: src/emc/usr_intf/pncconf/s_motor.glade:410
 msgid "I"
-msgstr ""
+msgstr "И"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:395
 #: src/emc/usr_intf/pncconf/y_motor.glade:395
@@ -16420,22 +16277,20 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:383
 #: src/emc/usr_intf/pncconf/s_motor.glade:424
 msgid "D"
-msgstr ""
+msgstr "Д"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:471
 #: src/emc/usr_intf/pncconf/s_motor.glade:500
-#, fuzzy
 msgid "PID Info"
-msgstr "I/O инфо"
+msgstr "ПИД инфо"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:551
 #: src/emc/usr_intf/pncconf/y_motor.glade:551
 #: src/emc/usr_intf/pncconf/z_motor.glade:551
 #: src/emc/usr_intf/pncconf/a_motor.glade:533
 #: src/emc/usr_intf/pncconf/s_motor.glade:586
-#, fuzzy
 msgid "3pwm Scale:"
-msgstr "Масштаб оси:"
+msgstr "Множитель 3PWM:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:563
 #: src/emc/usr_intf/pncconf/y_motor.glade:563
@@ -16487,9 +16342,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:801
 #: src/emc/usr_intf/pncconf/z_motor.glade:801
 #: src/emc/usr_intf/pncconf/a_motor.glade:772
-#, fuzzy
 msgid "Output Info"
-msgstr "Инфо по отступу"
+msgstr "Инфо по выходу"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:845
 #: src/emc/usr_intf/pncconf/y_motor.glade:845
@@ -16544,36 +16398,32 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1085
 #: src/emc/usr_intf/pncconf/a_motor.glade:1048
 #: src/emc/usr_intf/pncconf/s_motor.glade:1250
-#, fuzzy
 msgid "No feedback"
-msgstr "Обратная связь по позиции"
+msgstr "Нет обратной связи"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1101
 #: src/emc/usr_intf/pncconf/y_motor.glade:1101
 #: src/emc/usr_intf/pncconf/z_motor.glade:1101
 #: src/emc/usr_intf/pncconf/a_motor.glade:1063
 #: src/emc/usr_intf/pncconf/s_motor.glade:1266
-#, fuzzy
 msgid "Absolute Feedback"
-msgstr "Абсолютный"
+msgstr "Абсолютная обратная связь"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1116
 #: src/emc/usr_intf/pncconf/y_motor.glade:1116
 #: src/emc/usr_intf/pncconf/z_motor.glade:1116
 #: src/emc/usr_intf/pncconf/a_motor.glade:1077
 #: src/emc/usr_intf/pncconf/s_motor.glade:1281
-#, fuzzy
 msgid "Incremental Feedback"
-msgstr "Увеличить"
+msgstr "Относительная обратная связь"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1131
 #: src/emc/usr_intf/pncconf/y_motor.glade:1131
 #: src/emc/usr_intf/pncconf/z_motor.glade:1131
 #: src/emc/usr_intf/pncconf/a_motor.glade:1091
 #: src/emc/usr_intf/pncconf/s_motor.glade:1296
-#, fuzzy
 msgid "Incremental Encoder"
-msgstr "Инвертировать энкодер"
+msgstr "Относительный энкодер"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1146
 #: src/emc/usr_intf/pncconf/y_motor.glade:1146
@@ -16596,27 +16446,24 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1176
 #: src/emc/usr_intf/pncconf/a_motor.glade:1133
 #: src/emc/usr_intf/pncconf/s_motor.glade:1341
-#, fuzzy
 msgid "Use encoder Index"
-msgstr "Неиспользованный енкодер"
+msgstr "Использовать индекс-выход энкодера"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1219
 #: src/emc/usr_intf/pncconf/y_motor.glade:1219
 #: src/emc/usr_intf/pncconf/z_motor.glade:1219
 #: src/emc/usr_intf/pncconf/a_motor.glade:1175
 #: src/emc/usr_intf/pncconf/s_motor.glade:1384
-#, fuzzy
 msgid "<b>Input Options</b>"
-msgstr "<b>Опции программы</b>"
+msgstr "<b>Опции входов</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1246
 #: src/emc/usr_intf/pncconf/y_motor.glade:1246
 #: src/emc/usr_intf/pncconf/z_motor.glade:1246
 #: src/emc/usr_intf/pncconf/a_motor.glade:1202
 #: src/emc/usr_intf/pncconf/s_motor.glade:1411
-#, fuzzy
 msgid "Digital instead of PWM outputs"
-msgstr "Выбранный цифровой вход вне диапазона"
+msgstr "Цифровой вместо ШИМ выходов"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1261
 #: src/emc/usr_intf/pncconf/y_motor.glade:1261
@@ -16624,7 +16471,7 @@ msgstr "Выбранный цифровой вход вне диапазона"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1216
 #: src/emc/usr_intf/pncconf/s_motor.glade:1426
 msgid "6 outputs instead of 3 "
-msgstr ""
+msgstr "6 выходов вместо 3 "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1276
 #: src/emc/usr_intf/pncconf/y_motor.glade:1276
@@ -16663,18 +16510,16 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1358
 #: src/emc/usr_intf/pncconf/a_motor.glade:1306
 #: src/emc/usr_intf/pncconf/s_motor.glade:1523
-#, fuzzy
 msgid "8i20 Max Current"
-msgstr "Текущий"
+msgstr "8i20 Максимальный ток"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1403
 #: src/emc/usr_intf/pncconf/y_motor.glade:1403
 #: src/emc/usr_intf/pncconf/z_motor.glade:1403
 #: src/emc/usr_intf/pncconf/a_motor.glade:1351
 #: src/emc/usr_intf/pncconf/s_motor.glade:1568
-#, fuzzy
 msgid "<b>Output Options</b>"
-msgstr "<b>Опции программы</b>"
+msgstr "<b>Опции выхода</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1465
 #: src/emc/usr_intf/pncconf/y_motor.glade:1465
@@ -16730,7 +16575,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1565
 #: src/emc/usr_intf/pncconf/s_motor.glade:1799
 msgid "Encoder-offset"
-msgstr ""
+msgstr "Отступ энкодера"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1645
 #: src/emc/usr_intf/pncconf/y_motor.glade:1645
@@ -16738,7 +16583,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1576
 #: src/emc/usr_intf/pncconf/s_motor.glade:1810
 msgid "Poles"
-msgstr ""
+msgstr "Полюсов"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1667
 #: src/emc/usr_intf/pncconf/y_motor.glade:1667
@@ -16762,7 +16607,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1631
 #: src/emc/usr_intf/pncconf/s_motor.glade:1866
 msgid "<b>Use BLDC Motor Commutation Control</b>"
-msgstr ""
+msgstr "<b>Использовать управление коммутацией BLDC мотора</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1746
 #: src/emc/usr_intf/pncconf/y_motor.glade:1746
@@ -16801,9 +16646,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:1848
 #: src/emc/usr_intf/pncconf/z_motor.glade:1848
 #: src/emc/usr_intf/pncconf/a_motor.glade:1773
-#, fuzzy
 msgid "<b>Use Spindle-At-Speed</b>"
-msgstr "<b>Шпиндель</b>"
+msgstr "<b>Использовать Шпиндель-на-скорости</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1879
 #: src/emc/usr_intf/pncconf/y_motor.glade:1879
@@ -16824,14 +16668,14 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:1993
 #: src/emc/usr_intf/pncconf/a_motor.glade:1916
 msgid "Rapid Speed Following Error:"
-msgstr ""
+msgstr "Ошибка рассогласования быстрого хода:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2006
 #: src/emc/usr_intf/pncconf/y_motor.glade:2006
 #: src/emc/usr_intf/pncconf/z_motor.glade:2006
 #: src/emc/usr_intf/pncconf/a_motor.glade:1929
 msgid "Feed Speed Following Error:"
-msgstr ""
+msgstr "Ошибка рассогласования подачи:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2019
 #: src/emc/usr_intf/pncconf/y_motor.glade:2019
@@ -16839,7 +16683,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1942
 #: src/emc/usr_intf/pncconf/s_motor.glade:1961
 msgid "Invert Motor Direction"
-msgstr "изменить направление мотора"
+msgstr "Изменить направление мотора"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2035
 #: src/emc/usr_intf/pncconf/y_motor.glade:2035
@@ -16847,23 +16691,21 @@ msgstr "изменить направление мотора"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1957
 #: src/emc/usr_intf/pncconf/s_motor.glade:1977
 msgid "Invert Encoder Direction "
-msgstr ""
+msgstr "Изменить направление энкодера "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2099
 #: src/emc/usr_intf/pncconf/y_motor.glade:2099
 #: src/emc/usr_intf/pncconf/z_motor.glade:2099
 #: src/emc/usr_intf/pncconf/a_motor.glade:2016
 #: src/emc/usr_intf/pncconf/s_motor.glade:1993
-#, fuzzy
 msgid "Single Input Encoder"
-msgstr "Инвертировать энкодер"
+msgstr "Энкодер с одним входом"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2224
 #: src/emc/usr_intf/pncconf/y_motor.glade:2224
 #: src/emc/usr_intf/pncconf/z_motor.glade:2224
 #: src/emc/usr_intf/pncconf/a_motor.glade:2136
 #: src/emc/usr_intf/pncconf/s_motor.glade:2195
-#, fuzzy
 msgid "encoder Scale:"
 msgstr "Множитель энкодера:"
 
@@ -16872,9 +16714,8 @@ msgstr "Множитель энкодера:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:2252
 #: src/emc/usr_intf/pncconf/a_motor.glade:2162
 #: src/emc/usr_intf/pncconf/s_motor.glade:2223
-#, fuzzy
 msgid "Stepper Scale:"
-msgstr "Пауза шага:"
+msgstr "Множитель мотора:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2282
 #: src/emc/usr_intf/pncconf/y_motor.glade:2282
@@ -16892,7 +16733,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:2270
 #: src/emc/usr_intf/pncconf/s_motor.glade:2488
 msgid "Test / Tune Axis"
-msgstr ""
+msgstr "Тест/Настройка оси"
 
 #: src/emc/usr_intf/pncconf/y_motor.glade:471
 #: src/emc/usr_intf/pncconf/z_motor.glade:471
@@ -16905,9 +16746,8 @@ msgid "analog Max Voltage:"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:717
-#, fuzzy
 msgid "Use +- voltage for direction"
-msgstr "изменить направление мотора"
+msgstr "использовать знак напряжения для направления"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:737
 #: src/emc/usr_intf/pncconf/s_motor.glade:1146
@@ -16920,9 +16760,8 @@ msgid "Range 2 Max RPM"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:772
-#, fuzzy
 msgid "Output Voltage Info"
-msgstr "Инфо по отступу"
+msgstr "Инфо по выходному напряжению"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1176
 msgid "Slave number:"
@@ -17013,12 +16852,10 @@ msgid "Include Halui user interface component / commands"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/options.glade:605
-#, fuzzy
 msgid "Number of digital (bit) in pins:"
 msgstr "Количество цифровых входов:"
 
 #: src/emc/usr_intf/pncconf/options.glade:622
-#, fuzzy
 msgid "Number of digital (bit) out pins:"
 msgstr "Количество цифровых выходов:"
 
@@ -17028,7 +16865,7 @@ msgstr " Количество бит внутренней памяти:"
 
 #: src/emc/usr_intf/pncconf/options.glade:719
 msgid " Number of Internal word memory:"
-msgstr ""
+msgstr " Количество слов внутренней памяти:"
 
 #: src/emc/usr_intf/pncconf/options.glade:895
 msgid "Setup number of external pins"
@@ -17040,15 +16877,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:126
 msgid "Add HAL components with this page."
-msgstr ""
+msgstr "Добавить HAL-компоненты с этой страницы."
 
 #: src/emc/usr_intf/pncconf/realtime.glade:151
 msgid "<b>Component</b>"
-msgstr ""
+msgstr "<b>Компоненты</b>"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:178
 msgid "<b>number of components</b>"
-msgstr ""
+msgstr "<b>количество компонентов</b>"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:194
 msgid "PID"
@@ -17068,11 +16905,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/realtime.glade:348
 msgid "Base Thread"
-msgstr ""
+msgstr "Базовый поток"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:361
 msgid "Servo Thread"
-msgstr ""
+msgstr "Серво поток"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:412
 msgid "Load Command "
@@ -17092,51 +16929,43 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pport1.glade:134
 #: src/emc/usr_intf/pncconf/pport2.glade:137
-#, fuzzy
 msgid "Pin 2:"
-msgstr "Ножка _2:"
+msgstr "Ножка 2:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:192
 #: src/emc/usr_intf/pncconf/pport2.glade:195
-#, fuzzy
 msgid "Pin 3:"
-msgstr "Ножка _3:"
+msgstr "Ножка 3:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:250
 #: src/emc/usr_intf/pncconf/pport2.glade:253
-#, fuzzy
 msgid "Pin 4:"
-msgstr "Ножка _4:"
+msgstr "Ножка 4:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:308
 #: src/emc/usr_intf/pncconf/pport2.glade:311
-#, fuzzy
 msgid "Pin 5:"
-msgstr "Ножка _5:"
+msgstr "Ножка 5:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:366
 #: src/emc/usr_intf/pncconf/pport2.glade:369
-#, fuzzy
 msgid "Pin 6:"
-msgstr "Ножка _6:"
+msgstr "Ножка 6:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:424
 #: src/emc/usr_intf/pncconf/pport2.glade:427
-#, fuzzy
 msgid "Pin 7:"
-msgstr "Ножка _7:"
+msgstr "Ножка 7:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:482
 #: src/emc/usr_intf/pncconf/pport2.glade:485
-#, fuzzy
 msgid "Pin 8:"
-msgstr "Ножка _8:"
+msgstr "Ножка 8:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:540
 #: src/emc/usr_intf/pncconf/pport2.glade:543
-#, fuzzy
 msgid "Pin 9:"
-msgstr "Ножка _9:"
+msgstr "Ножка 9:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:966
 #: src/emc/usr_intf/pncconf/pport2.glade:969
@@ -17204,18 +17033,16 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:40
 #: src/emc/usr_intf/pncconf/dialogs.glade:306
 #: src/emc/usr_intf/pncconf/dialogs.glade:332
-#, fuzzy
 msgid "Pci"
-msgstr "Ножка"
+msgstr "PCI"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:41
 msgid "PCI"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:44
-#, fuzzy
 msgid "Parallel Port"
-msgstr "Настройка параллельного порта"
+msgstr "Параллельный порт"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:45
 msgid "--epp"
@@ -17267,9 +17094,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:310
 #: src/emc/usr_intf/pncconf/dialogs.glade:336
-#, fuzzy
 msgid "Parallel Port -7i43"
-msgstr "Настройка параллельного порта"
+msgstr "Параллельный порт - 7i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:311
 #: src/emc/usr_intf/pncconf/dialogs.glade:337
@@ -17278,9 +17104,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-#, fuzzy
 msgid "Parellel Port- 7i90"
-msgstr "Настройка параллельного порта"
+msgstr "Параллельный порт - 7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
 #: src/emc/usr_intf/pncconf/dialogs.glade:341
@@ -17293,17 +17118,19 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:450
 msgid "Number of connectors:"
-msgstr ""
+msgstr "Количество разъемов:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:461
 msgid "Number of pins per connector:"
-msgstr ""
+msgstr "Количество контактов на разъем:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:503
 msgid ""
 "Pncconf doesn't recognize the board name.\n"
 "Please set the data and press ok"
 msgstr ""
+"Pncconf не распознал имя платы.\n"
+"Пожалуйста, установите данные и нажмите Да"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:536
 #, fuzzy
@@ -17311,7 +17138,6 @@ msgid "<b>frame2</b>"
 msgstr "<b>Страница</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
-#, fuzzy
 msgid "Save & Quit"
 msgstr "Сохранить и выйти"
 
@@ -17320,6 +17146,8 @@ msgid ""
 "Save entered data and quit\n"
 "or discard changes and quit?"
 msgstr ""
+"Сохранить введенные данные и выйти\n"
+"или отменить изменения и выйти?"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:749
 msgid ""
@@ -17362,12 +17190,11 @@ msgstr "Инвертировать мотор"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1361
 msgid "Pulley teeth (motor:gearbox):"
-msgstr "Зубья шестеренок (мотор:редуктор):"
+msgstr "Зубья шкивов (мотор:редуктор):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1370
-#, fuzzy
 msgid "Gear ratio 1 (Input:Output)"
-msgstr "Передача червяка (Вход:Выход)"
+msgstr "Передача червяка 1(Вход:Выход)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1383
 #: src/emc/usr_intf/pncconf/dialogs.glade:2156
@@ -17388,18 +17215,16 @@ msgid "Use Negative voltage for reverse:"
 msgstr "Использовать отрицательное напряжение для реверса:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1495
-#, fuzzy
 msgid "Gear ratio 2 (Input:Output)"
-msgstr "Передача червяка (Вход:Выход)"
+msgstr "Передача червяка 2(Вход:Выход)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1569
 msgid "      <b>MOTOR</b> RPM at Max Voltage"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1600
-#, fuzzy
 msgid "<b>Spindle Drive Motor</b>"
-msgstr "<b>Шпиндель</b>"
+msgstr "<b>Мотор Шпинделя</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1640
 #: src/emc/usr_intf/pncconf/dialogs.glade:2440
@@ -17413,7 +17238,6 @@ msgstr "Линий энкодера на оборот:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1661
 #: src/emc/usr_intf/pncconf/dialogs.glade:2606
-#, fuzzy
 msgid "<b>Encoder Scale</b>"
 msgstr "<b>Множитель энкодера:</b>"
 
@@ -17435,9 +17259,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1799
 #: src/emc/usr_intf/pncconf/dialogs.glade:3215
-#, fuzzy
 msgid "<b>Motion Data</b>"
-msgstr "<b>Охлаждение</b>"
+msgstr "<b>Данные движения</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1945
 msgid "TPI "
@@ -17467,21 +17290,19 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2536
 msgid "Pulley teeth (encoder:Leadscrew):"
-msgstr "Зубья шестеренок (Энкодер:Винт):"
+msgstr "Зубья шкивов (Энкодер:Винт):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2650
 msgid "                    "
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2691
-#, fuzzy
 msgid "encoder pulses per unit:"
 msgstr "Линий энкодера на оборот:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2704
-#, fuzzy
 msgid "motor steps per unit:"
-msgstr "Шаги мотора на оборот:"
+msgstr "Шагов мотора на единицу длины:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2719
 msgid "<b>Calculated Scale</b>"
@@ -17501,11 +17322,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2950
 msgid "sec"
-msgstr ""
+msgstr "Сек"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2966
 msgid "Khz"
-msgstr ""
+msgstr "кГц"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2982
 msgid "Calculated Axis SCALE:"
@@ -17625,19 +17446,16 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "Manual Mode"
-msgstr "Ручной"
+msgstr "Ручной Режим"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "MDI Mode"
-msgstr "Режим работы"
+msgstr "Режим MDI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "Auto Mode"
-msgstr "Режим работы"
+msgstr "Режим Авто"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:393
 #, python-format
@@ -17814,9 +17632,8 @@ msgid "Cycle start pressed in AUTO mode"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1890
-#, fuzzy
 msgid "Cycle start pressed in MDI mode"
-msgstr "не могу делать это (%s) в MDI режиме"
+msgstr "Старт цикла нажат в MDI режиме"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1925
 #, python-format
@@ -17854,9 +17671,8 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1941
 #: src/emc/usr_intf/gscreen/gscreen.py:1960
-#, fuzzy
 msgid "can't start spindle manually in Auto mode"
-msgstr "не могу делать это (%s) в ручном режиме"
+msgstr "не могу запустить шпиндель в Авто режиме"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1966
 #: src/emc/usr_intf/gscreen/gscreen.py:4152
@@ -17865,15 +17681,13 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1978
 #: src/emc/usr_intf/gscreen/gscreen.py:1980
-#, fuzzy
 msgid "Spindle Speed Preset Entry"
-msgstr "Обороты шпинделя"
+msgstr "Предустановка оборотов шпинделя"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2016
 #: src/emc/usr_intf/gscreen/gscreen.py:2022
-#, fuzzy
 msgid "Manual Tool Index Entry"
-msgstr "Ручная смена инструмента AXIS"
+msgstr "Ввод индекса ручной смены инструмента"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2190
 msgid "Entry dialog"
@@ -17926,9 +17740,8 @@ msgid "Program loaded: %s"
 msgstr "Файл программы %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2984
-#, fuzzy
 msgid "Manual Spindle Control"
-msgstr "Остановить шпиндель"
+msgstr "Ручное управление шпинделем"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3064
 #: src/emc/usr_intf/gscreen/gscreen.py:3065
@@ -18002,9 +17815,8 @@ msgid "Dialog error - Is the dialog handler missing from the handler file?"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3754
-#, fuzzy
 msgid "Manual Toolchange"
-msgstr "Ручная смена инструмента AXIS"
+msgstr "Ручная смена инструмента"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3756
 msgid "Operator Message"
@@ -18097,7 +17909,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4433
 #: src/emc/usr_intf/gscreen/gscreen.py:4435
 msgid "Message"
-msgstr ""
+msgstr "Сообщение"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4465
 #, python-format
@@ -18132,7 +17944,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4636
 #: src/emc/usr_intf/gscreen/gscreen.py:4637
 msgid " mm "
-msgstr ""
+msgstr " мм "
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:48
 #: src/emc/usr_intf/gscreen/gscreen.glade:59
@@ -18206,9 +18018,8 @@ msgid "V"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1298
-#, fuzzy
 msgid "G code"
-msgstr "Сбросить энкодер"
+msgstr "G-код"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1392
 msgid "<b>G Codes Active</b>"
@@ -18252,6 +18063,8 @@ msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
+"Найти\n"
+"Текст:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
 msgid ""
@@ -18792,25 +18605,23 @@ msgstr ""
 
 #: lib/python/gladevcp/iconview.py:121
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Переместить в свой домашний каталог"
 
 #: lib/python/gladevcp/iconview.py:130
 msgid "Move to parent directory"
 msgstr "Переместить в верхний каталог"
 
 #: lib/python/gladevcp/iconview.py:139
-#, fuzzy
 msgid "Select the previous file"
-msgstr "Выберите объект для показа"
+msgstr "Выберите предыдущий файл"
 
 #: lib/python/gladevcp/iconview.py:148
-#, fuzzy
 msgid "Select the next file"
-msgstr "Выберите объект для показа"
+msgstr "Выберите следующий файл"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Перейти к пользовательскому каталогу"
 
 #: lib/python/gladevcp/iconview.py:182
 msgid "select the highlighted file and return the path"
@@ -18846,9 +18657,8 @@ msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:246
-#, fuzzy
 msgid "Toolfile does not exist"
-msgstr "Файл инструмента %s"
+msgstr "Файл инструмента не существует"
 
 #: lib/python/gladevcp/tooledit_widget.py:280
 msgid "Tooledit widget int error"
@@ -18859,14 +18669,12 @@ msgid "Tooledit_widget float error"
 msgstr ""
 
 #: lib/python/gladevcp/tooledit_widget.py:322
-#, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
-msgstr "Перегрузить таблицу инструментов"
+msgstr "Не удалось перегрузить таблицу инструментов в LinuxCNC"
 
 #: lib/python/gladevcp/tooledit_widget.py:482
-#, fuzzy
 msgid "Tool file was modified since it was last read"
-msgstr "Файл %r был изменен после записи stepconf"
+msgstr "Файл инструмента был изменен после последнего чтения"
 
 #: lib/python/gladevcp/gladevcp-test.glade:103
 #: lib/python/gladevcp/gladevcp-test.glade:119
@@ -19042,17 +18850,16 @@ msgid "Reload"
 msgstr "Перегрузить"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:369
-#, fuzzy
 msgid "All Offsets"
-msgstr "Отступ оси"
+msgstr "Все отступы"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:424
 msgid "X Wear"
-msgstr ""
+msgstr "X Износ"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:446
 msgid "Z Wear"
-msgstr ""
+msgstr "Z Износ"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:523
 #: lib/python/gladevcp/tooledit_gtk.glade:745
@@ -19072,9 +18879,8 @@ msgid "Z Tool"
 msgstr "Z Инструмент"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:812
-#, fuzzy
 msgid "Lathe Tool Offsets"
-msgstr "Установить отступ инструмента"
+msgstr "Отступы токарного инструмента"
 
 #, fuzzy
 #~ msgid "default\n"

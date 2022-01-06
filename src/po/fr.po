@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-09 03:52+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2021-12-31 00:07+0000\n"
+"Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.10.1\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -208,7 +208,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:364
 msgid "R value must be within 0..360 with M19"
-msgstr ""
+msgstr "la valeur de R doit être comprise entre 0 et 360 avec M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:149
 msgid "You must specify both X and Y coordinates for Control Points"
@@ -373,38 +373,42 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:2945
 #, c-format
 msgid "gen_restore G20/G21 failed: '%s'"
-msgstr ""
+msgstr "gen_restore G20/G21 a échoué: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:2995
 #, c-format
 msgid ""
 "BUG: cannot restore from a lower call level (%d) to a higher call level (%d)"
 msgstr ""
+"BUG: impossible de récupérer depuis un niveau d'appel inférieur (%d) vers un "
+"niveau d'appel supérieur (%d)"
 
 #: src/emc/rs274ngc/interp_convert.cc:2996
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr ""
+msgstr "BUG: récupération depuis le niveau %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:2997
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr ""
+msgstr "BUG: récupération vers le niveau %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3016
 #, c-format
 msgid "M7x: restore_settings G20/G21 failed: '%s'"
-msgstr ""
+msgstr "M7x: restore_settings G20/G21 a échoué: '%s'"
 
 #: src/emc/rs274ngc/interp_convert.cc:3041
 #, c-format
 msgid "M7x: restore_settings failed executing: '%s': %s"
-msgstr ""
+msgstr "M7x: restore_settings n'a pu s'exécuter: '%s': %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3110
 #, c-format
 msgid "Failed to restore interp state on abort '%s': %s"
 msgstr ""
+"Impossible de restorer l'état de l'interpréteur suite à l'interruption '%s' :"
+" %s"
 
 #: src/emc/rs274ngc/interp_convert.cc:3181
 msgid "Cannot set motion output with cutter radius compensation on"
@@ -478,9 +482,9 @@ msgid "Invalid analog index with M68"
 msgstr "Index analogique invalide avec M68"
 
 #: src/emc/rs274ngc/interp_convert.cc:3309
-#, fuzzy
 msgid "Need non-negative Q-word to specify tool number with M61"
-msgstr "Avec M61, un mot Q positif doit spécifier le numéro de l'outil"
+msgstr ""
+"Un mot Q positif est requit pour spécifier le numéro de l'outil avec M61"
 
 #: src/emc/rs274ngc/interp_convert.cc:3353
 #, c-format
@@ -488,6 +492,8 @@ msgid ""
 "Spindle ($) number out of range in M3 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Numéro de broche ($) hors intervalle dans la commande M3\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3370
 #, c-format
@@ -495,6 +501,8 @@ msgid ""
 "Spindle ($) number out of range in M4 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Numéro de broche ($) hors intervalle dans la commande M4\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3387
 #, c-format
@@ -502,18 +510,23 @@ msgid ""
 "Spindle ($) number out of range in M5 Command\n"
 "num_spindles =%i. $=%d\n"
 msgstr ""
+"Numéro de broche ($) hors intervalle dans la commande M5\n"
+"num_spindles =%i. $=%d\n"
 
 #: src/emc/rs274ngc/interp_convert.cc:3406
 msgid "Spindle ($) number out of range in M19 Command"
-msgstr ""
+msgstr "Numéro de broche ($) hors intervalle dans la commande M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:3413
 msgid "Q word with M19 requires a value > 0"
-msgstr ""
+msgstr "Le mot Q avec M19 requiert une valeur > 0"
 
 #: src/emc/rs274ngc/interp_convert.cc:3442
+#, fuzzy
 msgid "Cannot restore context from invalid stack frame - missing M70/M73?"
 msgstr ""
+"Impossible de récupérer depuis un appel invalide dans la pile - M70/73 "
+"manquant ?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3483
 #: src/emc/rs274ngc/interp_convert.cc:3504
@@ -536,7 +549,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:3519
 msgid "Invalid spindle ($) number in M51 command"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans la commande M51"
 
 #: src/emc/rs274ngc/interp_convert.cc:3676
 #: src/emc/rs274ngc/interp_convert.cc:3677
@@ -591,11 +604,11 @@ msgstr "R n'est pas permis avec G10 L20"
 
 #: src/emc/rs274ngc/interp_convert.cc:4482
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
-msgstr ""
+msgstr "BUG : convert_stop() atteint depuis M99 comme retour de sous-programme"
 
 #: src/emc/rs274ngc/interp_convert.cc:4762
 msgid "Invalid spindle ($) number in G33 move"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans un mouvement G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:4767
 msgid "Spindle not turning in G33"
@@ -603,7 +616,7 @@ msgstr "Broche pas en rotation en G33"
 
 #: src/emc/rs274ngc/interp_convert.cc:4777
 msgid "Invalid spindle ($) number in G33.1 move"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans un mouvement G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:4782
 msgid "Spindle not turning in G33.1"
@@ -611,7 +624,7 @@ msgstr "Broche pas en rotation en G33.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:4797
 msgid "Invalid D-number in G76 cycle"
-msgstr ""
+msgstr "Nombre D invalide dans le cycle G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4802
 #, fuzzy, c-format
@@ -677,11 +690,11 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:5622
 msgid "G43.2: Can not have both H and axis words"
-msgstr ""
+msgstr "G43.2 : Le mot H et les axes ne peuvent être spécifiés simultanément"
 
 #: src/emc/rs274ngc/interp_convert.cc:5625
 msgid "G43.2: No axes specified and H word missing"
-msgstr ""
+msgstr "G43.2 : Aucun axe spécifié et le mot H est manquant"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
 #, c-format
@@ -735,7 +748,7 @@ msgstr "La broche ne tourne pas en sens horaire dans g84"
 #: src/emc/rs274ngc/interp_cycles.cc:283
 #, c-format
 msgid "Spindle state unknown for %s"
-msgstr ""
+msgstr "État de la broche %s inconnu"
 
 #: src/emc/rs274ngc/interp_cycles.cc:724
 msgid "Cannot feed with zero feed rate"
@@ -762,7 +775,7 @@ msgstr "Le cycle préprogrammé G17 est impossible sur une machine sans axe Z"
 #: src/emc/rs274ngc/interp_cycles.cc:2105
 #: src/emc/rs274ngc/interp_cycles.cc:2129
 msgid "Invalid spindle ($) number in G74/G84 cycle"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans le cycle G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1131
 msgid "G17.1 canned cycle is not possible on a machine without W axis"
@@ -782,23 +795,25 @@ msgstr "Le cycle préprogrammé G18 est impossible sur une machine sans axe Y"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1882
 msgid "Invalid E-number in G74/G84 cycle"
-msgstr ""
+msgstr "Nombre E invalide dans le cycle G74/G84"
 
 #: src/emc/rs274ngc/interp_cycles.cc:1988
 msgid "G18.1 canned cycle is not possible on a machine without V axis"
 msgstr "Le cycle préprogrammé G18.1 est impossible sur une machine sans axe V"
 
 #: src/emc/rs274ngc/interp_execute.cc:250
+#, fuzzy
 msgid "Invalid spindle ($) number in Spindle Mode command"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans la commande Mode Broche"
 
 #: src/emc/rs274ngc/interp_execute.cc:260
+#, fuzzy
 msgid "Invalid spindle ($) number in Spindle Feed command"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans la commande Avance Broche"
 
 #: src/emc/rs274ngc/interp_execute.cc:284
 msgid "Invalid spindle ($) number in Spindle speed command"
-msgstr ""
+msgstr "Numéro de broche ($) invalide dans la commande Vitesse Broche"
 
 #
 #: src/emc/rs274ngc/interp_find.cc:172
@@ -871,7 +886,7 @@ msgstr "Caractère '%c' incorrect"
 #: src/emc/rs274ngc/interp_read.cc:1603
 #, c-format
 msgid "%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"
-msgstr ""
+msgstr "%d : BUG : M-code autre que M98/M99 passés à read_o() : '%s'"
 
 #: src/emc/rs274ngc/interp_read.cc:1807
 msgid "Left bracket missing after 'while'"
@@ -959,12 +974,12 @@ msgstr "Pas dans une définition de sous-programmme"
 #: src/emc/rs274ngc/interp_o_word.cc:872 src/emc/rs274ngc/interp_o_word.cc:922
 #, c-format
 msgid "%d: duplicate O-word label: '%s' - defined in line %d"
-msgstr ""
+msgstr "%d : nom de mot O redondant : '%s' - définit à la ligne %d"
 
 #: src/emc/rs274ngc/interp_o_word.cc:975
 #, c-format
 msgid "%d: duplicate O-word label - already defined in line %d: '%s'"
-msgstr ""
+msgstr "%d : nom de mot O redondant - déjà définit à la ligne %d : '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:999 src/emc/rs274ngc/interp_o_word.cc:1057
 #: src/emc/rs274ngc/interp_o_word.cc:1091
@@ -973,29 +988,36 @@ msgstr ""
 #: src/emc/rs274ngc/interp_o_word.cc:1151
 #, c-format
 msgid "%d: undefined O-word label: '%s'"
-msgstr ""
+msgstr "%d : nom de mot O non définit : '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1002
 #: src/emc/rs274ngc/interp_o_word.cc:1060
 #, c-format
 msgid "%d: no matching 'if' label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d : pas d'instruction 'if' correspondante : '%s' ('%s' rencontré à la ligne "
+"%d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1094
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d): '%s'"
 msgstr ""
+"%d : pas d'instruction correspondante : '%s' ('%s' rencontré à la ligne %d) :"
+" '%s'"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1112
 #: src/emc/rs274ngc/interp_o_word.cc:1129
 #, c-format
 msgid "%d: no matching while/do label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d : pas d'instruction while/do correspondante : '%s' ('%s' trouvé à la "
+"ligne %d)"
 
 #: src/emc/rs274ngc/interp_o_word.cc:1155
 #, c-format
 msgid "%d: no matching label: '%s' (found '%s' in line %d)"
 msgstr ""
+"%d : pas d'instruction correspondante : '%s' ('%s' rencontré à la ligne %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
@@ -1013,14 +1035,14 @@ msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
 msgstr "Paramètre nommé #<%s> non défini"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
-#, c-format
+#, c-format, fuzzy
 msgid "fetch_hal_param: hal_init(%s): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_init(%s): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:258
-#, c-format
+#, c-format, fuzzy
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr ""
+msgstr "fetch_hal_param: hal_ready(): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
@@ -1030,12 +1052,12 @@ msgstr "Erreur interne: Ne peut assigner #<%s>"
 #: src/emc/rs274ngc/interp_namedparams.cc:430
 #, c-format
 msgid "Cannot assign to read-only parameter #<%s>"
-msgstr ""
+msgstr "Assignation impossible au paramètre en lecture seule #<%s>"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:772
 #, c-format
 msgid "BUG: lookup_named_param(%s): unhandled index=%fn"
-msgstr ""
+msgstr "BUG : lookup_named_param(%s) : index non pris en charge=%fn"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1449 src/emc/rs274ngc/rs274ngc_pre.cc:1524
 msgid "Queue is not empty after tool change"
@@ -1732,7 +1754,7 @@ msgstr "Trop de niveaux de sous-programmes"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:187
 msgid "Bug: call stack underrun"
-msgstr ""
+msgstr "BUG : épuisement de la pile d'appel"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:188
 msgid "Unknown control command in o word"
@@ -1761,7 +1783,7 @@ msgstr "Fichier non ouvert"
 #: src/emc/rs274ngc/rs274ngc_return.hh:194
 #, c-format
 msgid "cannot reopen file %s - removed or renamed? (%s)"
-msgstr "Ne peut pas ré-ouvrir le fichier %s - Effacer ou renommer (%s)?"
+msgstr "Ne peut pas ré-ouvrir le fichier %s - Effacé ou renommé ? (%s)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
 msgid "Need tool prepared -Txx- for toolchange"
@@ -2270,15 +2292,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:471
 #: src/emc/usr_intf/pncconf/base.glade:384
 msgid "ns"
-msgstr ""
+msgstr "ns"
 
 #: src/hal/utils/scope_horiz.c:1161
 msgid "µs"
-msgstr ""
+msgstr "µs"
 
 #: src/hal/utils/scope_horiz.c:1165
 msgid "ms"
-msgstr ""
+msgstr "ms"
 
 #: src/hal/utils/scope_horiz.c:1169 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2287,7 +2309,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:345
 #: src/emc/usr_intf/stepconf/axisa.glade:343
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: src/hal/utils/scope_horiz.c:1186 src/emc/usr_intf/stepconf/spindle.glade:112
 #: src/emc/usr_intf/stepconf/axisx.glade:359
@@ -2303,15 +2325,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:444
 #: src/emc/usr_intf/pncconf/mesa1.glade:457
 msgid "Hz"
-msgstr ""
+msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "kHz"
-msgstr ""
+msgstr "kHz"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "MHz"
-msgstr ""
+msgstr "MHz"
 
 #: src/hal/utils/scope_vert.c:411 src/hal/utils/scope_vert.c:1126
 #, c-format
@@ -2491,14 +2513,12 @@ msgid "Probe tripped during homing motion."
 msgstr "La sonde à touché pendant un mouvement de prise d'origine."
 
 #: src/emc/motion/control.c:733
-#, fuzzy
 msgid "Probe tripped during a joint jog."
-msgstr "La sonde à touché pendant un mouvement à la manivelle."
+msgstr "Contact palpeur pendant la télécommande d'une jointure."
 
 #: src/emc/motion/control.c:736
-#, fuzzy
 msgid "Probe tripped during a coordinate jog."
-msgstr "La sonde à touché pendant un mouvement à la manivelle."
+msgstr "Contact palpeur pendant une télécommande en coordonnées."
 
 #: src/emc/motion/control.c:752
 msgid "motion stopped by enable input"
@@ -2525,18 +2545,20 @@ msgid "joint %d following error"
 msgstr "Erreur de suivi jointure %d:"
 
 #: src/emc/motion/control.c:816
-#, c-format
+#, c-format, fuzzy
 msgid "Motion Stopped by misc error %d"
-msgstr ""
+msgstr "Mouvement interrompu par une erreur diverse %d"
 
 #: src/emc/motion/control.c:1410 src/emc/motion/control.c:1496
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
 msgstr ""
+"kinematicsInverse a retourné une position de jointure non-finie pour la "
+"jointure %d"
 
 #: src/emc/motion/control.c:1427 src/emc/motion/control.c:1515
 msgid "kinematicsInverse failed"
-msgstr ""
+msgstr "kinematicsInverse a échoué"
 
 #: src/emc/motion/control.c:1592
 #, fuzzy, c-format
@@ -2544,15 +2566,16 @@ msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "La jointure %d à dépassé la limite logicielle positive"
 
 #: src/emc/motion/control.c:1595 src/emc/motion/control.c:1604
-#, fuzzy
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
-"La prise d'origine de toutes les jointures doit être faite avant d'aller en "
-"mode teleop"
+"La jointure doit avoir son origine réinitialisée, doit être télécommandée à "
+"l'intérieur des limites, et reprendre son origine"
 
 #: src/emc/motion/control.c:1597 src/emc/motion/control.c:1606
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
+"Astuce : basculer en mode jointure pour permettre la télécommande au-delà "
+"des limites logicielles"
 
 #: src/emc/motion/control.c:1601
 #, fuzzy, c-format
@@ -2562,31 +2585,35 @@ msgstr "La jointure %d à dépassé la limite logicielle positive"
 #: src/emc/motion/command.c:145
 #, c-format
 msgid "Can't jog invalid joint number %d."
-msgstr "numéro d'articulation %d invalide, jog impossible."
+msgstr "Numéro de jointure %d invalide, télécommande impossible."
 
 #: src/emc/motion/command.c:149
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
 msgstr ""
-"L'articulation %d à dépassé la limite physique maximale, jog impossible."
+"La jointure %d à dépassé la limite physique maximale, télécommande "
+"impossible."
 
 #: src/emc/motion/command.c:154
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
 msgstr ""
-"L'articulation %d à dépassé la limite physique minimale, jog impossible."
+"La jointure %d à dépassé la limite physique minimale, télécommande "
+"impossible."
 
 #: src/emc/motion/command.c:160
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr ""
-"L'articulation %d à dépassé la limite logicielle maximale, jog impossible."
+"La jointure %d à dépassé la limite logicielle maximale, télécommande "
+"impossible."
 
 #: src/emc/motion/command.c:165
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
 msgstr ""
-"L'articulation %d à dépassé la limite logicielle minimale, jog impossible."
+"La jointure %d à dépassé la limite logicielle minimale, télécommande "
+"impossible."
 
 #: src/emc/motion/command.c:210 src/emc/motion/command.c:216
 #, fuzzy, c-format
@@ -2608,12 +2635,14 @@ msgstr "Positif"
 #: src/emc/motion/command.c:263
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
-msgstr ""
+msgstr "Le mouvement %s à la ligne %d provoque une erreur kinematicsInverse"
 
 #: src/emc/motion/command.c:278
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr ""
+"Le mouvement %s à la ligne %d donne une position non-finie pour la jointure "
+"%d"
 
 #: src/emc/motion/command.c:285
 #, c-format
@@ -2638,15 +2667,15 @@ msgstr ""
 #: src/emc/motion/command.c:819 src/emc/motion/command.c:909
 #: src/emc/motion/command.c:1008
 msgid "Can't jog joint when not enabled."
-msgstr "Jog d'articulation impossible quand elle n'est pas activée."
+msgstr "Télécommande de jointure impossible quand la CN n'est pas activée."
 
 #: src/emc/motion/command.c:824 src/emc/motion/command.c:1013
 msgid "Can't jog any joints while homing."
-msgstr "Jog d'articulations impossible avant la prise d'origine."
+msgstr "Télécommande des jointures impossible avant la prise d'origine."
 
 #: src/emc/motion/command.c:914
 msgid "Can't jog any joint while homing."
-msgstr "Jog d'articulation impossible avant la prise d'origine."
+msgstr "Télécommande de toutes jointures impossible avant la prise d'origine."
 
 #: src/emc/motion/command.c:1091
 msgid "need to be enabled, in coord mode for linear move"
@@ -2654,7 +2683,7 @@ msgstr "doit être activé en mode coordonné pour mouvement linéaire"
 
 #: src/emc/motion/command.c:1096
 msgid "invalid params in linear command"
-msgstr ""
+msgstr "Paramètre(s) invalide(s) dans la commande linéaire"
 
 #: src/emc/motion/command.c:1102
 msgid "can't do linear move with limits exceeded"
@@ -2693,7 +2722,7 @@ msgstr "doit être en mode jointure pour la prise d'origine"
 #: src/emc/motion/command.c:1473
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
-msgstr ""
+msgstr "Prise d'origine refusée par motion.homing-inhibit joint=%d\n"
 
 #: src/emc/motion/command.c:1487
 msgid "homing sequence already in progress"
@@ -2768,32 +2797,32 @@ msgstr ""
 
 #: src/emc/motion/command.c:1746
 msgid "Attempt to start non-existent spindle"
-msgstr ""
+msgstr "Tentative de démarrage d'une broche inexistante"
 
 #: src/emc/motion/command.c:1796
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentative d'arrêt d'une broche inexistante <%d>"
 
 #: src/emc/motion/command.c:1827
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentative d'orientation d'une broche inexistante <%d>"
 
 #: src/emc/motion/command.c:1873
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentative d'accélérer une broche inexistante <%d>"
 
 #: src/emc/motion/command.c:1896
 #, c-format
 msgid "Attempt to decreasenon-existent spindle <%d>"
-msgstr ""
+msgstr "Tentative de décélérer une broche inexistante <%d>"
 
 #: src/emc/motion/command.c:1911
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
-msgstr ""
+msgstr "Tentative d'engagement du frein d'une broche inexistante <%d>"
 
 #: src/emc/motion/command.c:1933
 #, fuzzy, c-format
@@ -2831,12 +2860,15 @@ msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_joints est %d, doit être compris entre 1 et %d\n"
 
 #: src/emc/motion/motion.c:232
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "\n"
 "MOTION: num_extrajoints is %d, must be between 0 and %d\n"
 "\n"
-msgstr "MOTION: num_joints est %d, doit être compris entre 1 et %d\n"
+msgstr ""
+"\n"
+"MOTION : num_extrajoints est %d, doit être compris entre 0 et %d\n"
+"\n"
 
 #: src/emc/motion/motion.c:237
 msgid ""
@@ -2844,6 +2876,9 @@ msgid ""
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: num_extrajoints non nul nécessite KINEMATICS_BOTH\n"
+"\n"
 
 #: src/emc/motion/motion.c:242
 #, c-format
@@ -2854,6 +2889,11 @@ msgid ""
 "           Total joints=%2d\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: kinematicjoints=%2d\n"
+"            extrajoints=%2d\n"
+"           Total des jointures=%2d\n"
+"\n"
 
 #: src/emc/motion/motion.c:249
 #, fuzzy, c-format
@@ -3000,45 +3040,52 @@ msgstr "état '%d' inconnu pendant la prise d'origine"
 #, c-format
 msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr ""
+"ERREUR CLASSICLADDER-   Erreur lors de l'initialisation du module "
+"utilisateur classicladder\n"
 
 #: src/hal/classicladder/classicladder.c:255
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
+"INFO CLASSICLADDER-   Pas de GUI demandée. Realtime s'exécute jusqu'à ce que "
+"HAL termine.\n"
 
 #: src/hal/classicladder/classicladder.c:275
 msgid "Project loaded and running"
-msgstr ""
+msgstr "Projet chargé et en cours d'exécution"
 
 #: src/hal/classicladder/classicladder.c:275
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project failed to load..."
-msgstr ""
+msgstr "Échec de chargement du projet..."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid "GUI reloaded with existing ladder program"
-msgstr ""
+msgstr "GUI rechargée avec le programme ladder existant"
 
 #: src/hal/classicladder/classicladder.c:294
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
+"INFO CLASSICLADDER-   GUI ladder fermée. Realtime s'exécute jusqu'à ce que "
+"HAL termine\n"
 
 #: src/hal/classicladder/classicladder.c:300
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER-   Erreur d'allocation de mémoire ladder\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:136
 #, c-format
 msgid "!!!error loop in UpdateVScrollBar()!\n"
-msgstr ""
+msgstr "!!!erreur boucle dans UpdateVScrollBar()!\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:202
 #, c-format
 msgid ""
 "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"
 msgstr ""
+"Erreur dans ChoiceOfTheCurrentRung( %d ) avec OffsetCurrentRungDisplayed=%d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
@@ -3049,11 +3096,11 @@ msgstr "Lancer"
 
 #: src/hal/classicladder/classicladder_gtk.c:338
 msgid "Stopped ladder program - press run button to continue."
-msgstr ""
+msgstr "Programme ladder arrêté - presser le bouton exécuter pour continuer."
 
 #: src/hal/classicladder/classicladder_gtk.c:344
 msgid "Started Ladder program - press stop to pause."
-msgstr ""
+msgstr "Programme ladder démarré - presser le bouton stop pour mettre en pause."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 #, fuzzy
@@ -3062,7 +3109,7 @@ msgstr "Erreur d'analyse"
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Failed to load the project file..."
-msgstr ""
+msgstr "Erreur de chargement du fichier de projet..."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 #: src/hal/classicladder/classicladder_gtk.c:409
@@ -3109,7 +3156,7 @@ msgstr "Ok"
 
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project loaded (stopped)."
-msgstr ""
+msgstr "Projet chargé (arrêté)."
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3120,25 +3167,25 @@ msgstr "Erreur d'analyse"
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
 msgid "Failed to save the project file..."
-msgstr ""
+msgstr "Échec d'enregistrement du fichier de projet..."
 
 #: src/hal/classicladder/classicladder_gtk.c:434
 #, c-format
 msgid "SAVE %s %d\n"
-msgstr ""
+msgstr "ENREGISTRER %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:443
 #, c-format
 msgid "LOAD %s %d\n"
-msgstr ""
+msgstr "CHARGER %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:488
 msgid "Old directories projects"
-msgstr ""
+msgstr "Anciens dossiers de projets"
 
 #: src/hal/classicladder/classicladder_gtk.c:492
 msgid "ClassicLadder projects"
-msgstr ""
+msgstr "Projets ClassicLadder"
 
 #: src/hal/classicladder/classicladder_gtk.c:532
 #: src/hal/classicladder/classicladder_gtk.c:831
@@ -3148,32 +3195,34 @@ msgstr "Nouveau"
 
 #: src/hal/classicladder/classicladder_gtk.c:532
 msgid "Do you really want to clear all data ?"
-msgstr ""
+msgstr "Voulez-vous vraiment effacer toutes les données ?"
 
 #: src/hal/classicladder/classicladder_gtk.c:536
 msgid "Please select the project to load"
-msgstr ""
+msgstr "Veuillez sélectionner le projet à charger"
 
 #: src/hal/classicladder/classicladder_gtk.c:542
 msgid "Sure?"
-msgstr ""
+msgstr "Certain(e) ?"
 
 #: src/hal/classicladder/classicladder_gtk.c:542
 msgid ""
 "Do you really want to load another project ?\n"
 "If not saved, all modifications on the current project will be lost  \n"
 msgstr ""
+"Voulez-vous vraiment charger un autre projet ?\n"
+"Si non sauvegardées, toutes les modifications du projet courant seront "
+"perdues  \n"
 
 #: src/hal/classicladder/classicladder_gtk.c:549
 msgid "Please select the project to save"
-msgstr ""
+msgstr "Veuillez sélectionner le projet à sauvegarder"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 #: src/hal/classicladder/classicladder_gtk.c:695
 #: src/hal/classicladder/classicladder_gtk.c:701
-#, fuzzy
 msgid "Warning!"
-msgstr "Attention"
+msgstr "Attention !"
 
 #: src/hal/classicladder/classicladder_gtk.c:556
 msgid ""
@@ -3181,14 +3230,17 @@ msgid ""
 "can cause unexpected behavior\n"
 " Do you really want to reset?"
 msgstr ""
+"Réinitialiser un programme en cours d'exécution\n"
+"peut entrainer un comportement inattendu\n"
+"Voulez-vous vraiment réinitialiser ?"
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
-msgstr ""
+msgstr "Réinitialiser les données ladder "
 
 #: src/hal/classicladder/classicladder_gtk.c:596
 msgid "Okay"
-msgstr ""
+msgstr "D'accord"
 
 #: src/hal/classicladder/classicladder_gtk.c:649 tcl/bin/pickconfig.tcl:625
 #: tcl/tooledit.tcl:906 src/emc/usr_intf/axis/scripts/axis.py:156
@@ -3215,33 +3267,36 @@ msgid ""
 "If not saved, all modifications will be lost.\n"
 "Do you really want to quit ?\n"
 msgstr ""
+"Si non sauvegardées, toutes les modifications seront perdues.\n"
+"Voulez-vous vraiment quitter ?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
-#, fuzzy
 msgid "Confirm!"
-msgstr "Nouvelle confirmation ?"
+msgstr "Confirmer !"
 
 #: src/hal/classicladder/classicladder_gtk.c:699
 msgid "Do you really want to quit ?\n"
-msgstr ""
+msgstr "Voulez-vous vraiment quitter ?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:701
 msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
 msgstr ""
+"MODBUS s'arrêtera si vous quittez.\n"
+" Voulez-vous vraiment quitter ?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:731
 msgid "Section Display"
-msgstr ""
+msgstr "Affichage des Sections"
 
 #: src/hal/classicladder/classicladder_gtk.c:752
 msgid "Label of the current selected rung"
-msgstr ""
+msgstr "Nom de l'échelon actuellement sélectionné"
 
 #: src/hal/classicladder/classicladder_gtk.c:759
 msgid "Comment of the current selected rung"
-msgstr ""
+msgstr "Commentaire de l'échelon actuellement sélectionné"
 
 #: src/hal/classicladder/classicladder_gtk.c:762
 #, fuzzy
@@ -3255,7 +3310,7 @@ msgstr "Statut:"
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
-msgstr ""
+msgstr "Charger"
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
@@ -3274,7 +3329,7 @@ msgstr "Reset"
 
 #: src/hal/classicladder/classicladder_gtk.c:861
 msgid "Vars"
-msgstr ""
+msgstr "Variables"
 
 #: src/hal/classicladder/classicladder_gtk.c:867
 #: src/hal/classicladder/edit_gtk.c:344
@@ -3284,7 +3339,7 @@ msgstr "Éditeur"
 
 #: src/hal/classicladder/classicladder_gtk.c:872
 msgid "Symbols"
-msgstr ""
+msgstr "Symboles"
 
 #: src/hal/classicladder/classicladder_gtk.c:877
 #: src/hal/classicladder/config_gtk.c:1024
@@ -3309,11 +3364,12 @@ msgstr "À propos"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d us"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
+#, fuzzy
 msgid "Config hardware error occurred!"
-msgstr ""
+msgstr "Erreur de configuration matérielle"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 #: src/hal/classicladder/config_gtk.c:506 src/hal/classicladder/edit.c:410
@@ -3354,17 +3410,17 @@ msgstr "Erreur"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
 msgid "Failed MODBUS communications"
-msgstr ""
+msgstr "Échec de communication MODBUS"
 
 #: src/hal/classicladder/classicladder_gtk.c:1010
 #, c-format
 msgid "Section Display of %s"
-msgstr ""
+msgstr "Affichage de la section %s"
 
 #: src/hal/classicladder/config.c:83
 #, c-format
 msgid "INFO CLASSICLADDER---Reading MODBUS config file -%s\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER---Lecture du fichier de configuration MODBUS -%s\n"
 
 #: src/hal/classicladder/config.c:86
 #, fuzzy, c-format
@@ -3374,17 +3430,17 @@ msgstr "Impossible d'ouvrir le fichier de sauveguarde"
 #: src/hal/classicladder/config.c:117
 #, c-format
 msgid "Unknown configtype for %s: %d\n"
-msgstr ""
+msgstr "configtype inconnu pour %s: %d\n"
 
 #: src/hal/classicladder/config_gtk.c:109
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
-msgstr ""
+msgstr "Taux de rafraichissement des l'échelons (millisecondes)"
 
 #: src/hal/classicladder/config_gtk.c:114
 #, c-format
 msgid "Number of rungs (%d%c used      "
-msgstr ""
+msgstr "Nombre d'échelons (%d%c utilisés)      "
 
 #: src/hal/classicladder/config_gtk.c:118
 #, fuzzy, c-format
@@ -3419,7 +3475,7 @@ msgstr "Nombre de broches d'entrée numérique:"
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
 msgid "Number of Sections (%d%c used)   "
-msgstr ""
+msgstr "Nombre de sections (%d%c utilisées)   "
 
 #: src/hal/classicladder/config_gtk.c:147
 #, fuzzy, c-format
@@ -3434,27 +3490,27 @@ msgstr "                    "
 #: src/hal/classicladder/config_gtk.c:156
 #, c-format
 msgid "Number of Monostables            "
-msgstr ""
+msgstr "Nombre de monostables            "
 
 #: src/hal/classicladder/config_gtk.c:161
 #, c-format
 msgid "Number of BIT Inputs HAL pins           "
-msgstr ""
+msgstr "Nombre d'entrées BIT de broches HAL           "
 
 #: src/hal/classicladder/config_gtk.c:165
 #, c-format
 msgid "Number of BIT Outputs HAL pins          "
-msgstr ""
+msgstr "Nombre de sorties BIT de broches HAL          "
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
 msgid "Number of S32in HAL pins             "
-msgstr ""
+msgstr "Nombre de broches HAL S32in             "
 
 #: src/hal/classicladder/config_gtk.c:173
 #, c-format
 msgid "Number of S32out HAL pins            "
-msgstr ""
+msgstr "Nombre de broches HAL S32out            "
 
 #: src/hal/classicladder/config_gtk.c:177
 #, fuzzy, c-format
@@ -3482,15 +3538,18 @@ msgid ""
 "Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
 msgstr ""
+"Erreur dans la configuration des E/S modbus : dépassement détecté pour la "
+"désignation de I, B, Q, IQ or WQ... ASKED=%i, MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:506
 msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
 msgstr ""
+"Erreur de dépassement détectée pour la désignation de I, B, Q, IQ ou WQ..."
 
 #: src/hal/classicladder/config_gtk.c:632
 #, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr ""
+msgstr "Port série (vide = mode IP)"
 
 #: src/hal/classicladder/config_gtk.c:636
 #, fuzzy, c-format
@@ -3500,22 +3559,22 @@ msgstr "Programme Modbus série"
 #: src/hal/classicladder/config_gtk.c:641
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr ""
+msgstr "Pause après transmission (ms)"
 
 #: src/hal/classicladder/config_gtk.c:646
 #, c-format
 msgid "After receive pause - milliseconds"
-msgstr ""
+msgstr "Pause après réception (ms)"
 
 #: src/hal/classicladder/config_gtk.c:650
 #, c-format
 msgid "Request Timeout length - milliseconds"
-msgstr ""
+msgstr "Durée d'expiration des requêtes (ms)"
 
 #: src/hal/classicladder/config_gtk.c:654
 #, c-format
 msgid "Use RTS to send"
-msgstr ""
+msgstr "Utiliser RTS pour l'envoi"
 
 #: src/hal/classicladder/config_gtk.c:658
 #, fuzzy, c-format
@@ -3528,28 +3587,28 @@ msgid "Debug level"
 msgstr "niveau de déboguage"
 
 #: src/hal/classicladder/config_gtk.c:666
-#, c-format
+#, c-format, fuzzy
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Lecture de associations des Bobines/Entrées vers"
 
 #: src/hal/classicladder/config_gtk.c:670
-#, c-format
+#, c-format, fuzzy
 msgid "Write Coils map from"
-msgstr ""
+msgstr "Écrire les associations de Bobines depuis"
 
 #: src/hal/classicladder/config_gtk.c:674
-#, c-format
+#, c-format, fuzzy
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Lire les correspondances de registre/\"holding\" vers"
 
 #: src/hal/classicladder/config_gtk.c:678
-#, c-format
+#, c-format, fuzzy
 msgid "Write registers map from"
-msgstr ""
+msgstr "Écrire les correspondances de registres depuis"
 
 #: src/hal/classicladder/config_gtk.c:732
 msgid "NO"
-msgstr ""
+msgstr "NON"
 
 #: src/hal/classicladder/config_gtk.c:737
 #, fuzzy
@@ -3560,23 +3619,25 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:783
 msgid "QUIET"
-msgstr ""
+msgstr "SILENCIEUX"
 
 #: src/hal/classicladder/config_gtk.c:788
 msgid "LEVEL 1"
-msgstr ""
+msgstr "NIVEAU 1"
 
 #: src/hal/classicladder/config_gtk.c:792
 msgid "LEVEL 2"
-msgstr ""
+msgstr "NIVEAU 2"
 
 #: src/hal/classicladder/config_gtk.c:796
 msgid "LEVEL 3"
-msgstr ""
+msgstr "NIVEAU 3"
 
 #: src/hal/classicladder/config_gtk.c:969
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
+" Pour changer les paramètres de port Modbus, sauvegarder et relancer "
+"l'interface ladder"
 
 #: src/hal/classicladder/config_gtk.c:972
 #, fuzzy
@@ -3586,10 +3647,13 @@ msgstr "Créer une nouvelle configuration"
 #: src/hal/classicladder/config_gtk.c:995
 msgid "Opened Configuration window. Press again to update changes and close"
 msgstr ""
+"Fenêtre de configuration ouverte. Presser à nouveau pour mettre à jour les "
+"changements et fermer"
 
 #: src/hal/classicladder/config_gtk.c:1027
+#, fuzzy
 msgid "Period/object info"
-msgstr ""
+msgstr "Informations sur la Période/l'Objet"
 
 #: src/hal/classicladder/config_gtk.c:1030
 #, fuzzy
@@ -3598,7 +3662,7 @@ msgstr "Compensation de rayon à gauche"
 
 #: src/hal/classicladder/config_gtk.c:1033
 msgid "Modbus  I/O register setup "
-msgstr ""
+msgstr "Configuration du registre d'E/S Modbus "
 
 #: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
 #: src/hal/classicladder/symbols_gtk.c:191
@@ -3607,8 +3671,9 @@ msgid "Variable"
 msgstr "non inscriptible"
 
 #: src/hal/classicladder/edit.c:150
+#, fuzzy
 msgid "JumpToLabel"
-msgstr ""
+msgstr "JumpToLabel"
 
 #: src/hal/classicladder/edit.c:154
 #, fuzzy
@@ -3616,13 +3681,14 @@ msgid "Sub-Routine"
 msgstr "Fichier sous-programme"
 
 #: src/hal/classicladder/edit.c:160 src/hal/classicladder/edit.c:186
+#, fuzzy
 msgid "TimerNbr"
-msgstr ""
+msgstr "TimerNbr"
 
 #: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:171
 #: src/hal/classicladder/edit.c:188
 msgid "Base"
-msgstr ""
+msgstr "Base"
 
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
@@ -3632,12 +3698,14 @@ msgid "Preset"
 msgstr "Reset"
 
 #: src/hal/classicladder/edit.c:169
+#, fuzzy
 msgid "MonostNbr"
-msgstr ""
+msgstr "MonostNbr"
 
 #: src/hal/classicladder/edit.c:179
+#, fuzzy
 msgid "CounterNbr"
-msgstr ""
+msgstr "CounterNbr"
 
 #: src/hal/classicladder/edit.c:192
 #, fuzzy
@@ -3652,12 +3720,12 @@ msgstr "Expression non fermée"
 #: src/hal/classicladder/edit.c:227
 #, c-format
 msgid "Variable: %s    Hal sig: %s"
-msgstr ""
+msgstr "Variable: %s     HAL sig: %s"
 
 #: src/hal/classicladder/edit.c:230
 #, c-format
 msgid "Label: %s"
-msgstr ""
+msgstr "Nom : %s"
 
 #: src/hal/classicladder/edit.c:233
 #, fuzzy, c-format
@@ -3667,22 +3735,22 @@ msgstr "Fichier sous-programme"
 #: src/hal/classicladder/edit.c:238
 #, c-format
 msgid "%cT%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cT%d: Preset=%d Base=%s"
 
 #: src/hal/classicladder/edit.c:242
-#, c-format
+#, c-format, fuzzy
 msgid "%cM%d: Preset=%d Base=%s"
-msgstr ""
+msgstr "%cM%d: Preset=%d Base=%s"
 
 #: src/hal/classicladder/edit.c:247
-#, c-format
+#, c-format, fuzzy
 msgid "%cC%d: Preset=%d"
-msgstr ""
+msgstr "%cC%d: Preset=%d"
 
 #: src/hal/classicladder/edit.c:251
-#, c-format
+#, c-format, fuzzy
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
-msgstr ""
+msgstr "%cTM%d: Preset=%d Base=%s Mode=%s"
 
 #: src/hal/classicladder/edit.c:255
 #, fuzzy, c-format
@@ -3691,12 +3759,12 @@ msgstr "%s: Utiliser: %s"
 
 #: src/hal/classicladder/edit.c:352
 msgid "Incompatible type of variable (must be an integer!)"
-msgstr ""
+msgstr "Type de variable incompatible (doit être un entier !)"
 
 #: src/hal/classicladder/edit.c:391
 #, c-format
 msgid "New expr=%s\n"
-msgstr ""
+msgstr "Nouvelle expr=%s\n"
 
 #: src/hal/classicladder/edit.c:393
 #, fuzzy
@@ -3705,25 +3773,26 @@ msgstr "Commande trop longue"
 
 #: src/hal/classicladder/edit.c:460
 msgid "You must select a boolean variable !"
-msgstr ""
+msgstr "Vous devez sélectionner une variable booléenne !"
 
 #: src/hal/classicladder/edit.c:473 src/hal/classicladder/edit_sequential.c:100
 #: src/hal/classicladder/symbols_gtk.c:140
 msgid "Unknown variable..."
-msgstr ""
+msgstr "Variable inconnue..."
 
 #: src/hal/classicladder/edit.c:1082
 #, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr ""
+"!!!Courant anormal de type=%d dans l'échelon... (fichier %s, ligne %d)\n"
 
 #: src/hal/classicladder/edit.c:1172
 msgid "No more free function block available...please delete!"
-msgstr ""
+msgstr "Plus de bloc de fonction disponible... Effacez s'il vous plait !"
 
 #: src/hal/classicladder/edit_gtk.c:128
 msgid "Current rung in edit mode..."
-msgstr ""
+msgstr "Échelon courant en mode édition..."
 
 #: src/hal/classicladder/edit_gtk.c:128
 #, fuzzy
@@ -3737,7 +3806,7 @@ msgstr "Effacer"
 
 #: src/hal/classicladder/edit_gtk.c:186
 msgid "Do you really want to delete the current rung ?"
-msgstr ""
+msgstr "Voulez-vous vraiment effacer l'échelon courant ?"
 
 #: src/hal/classicladder/edit_gtk.c:350
 #: lib/python/gladevcp/tooledit_gtk.glade:310
@@ -3746,7 +3815,7 @@ msgstr "Ajouter"
 
 #: src/hal/classicladder/edit_gtk.c:355
 msgid "Insert"
-msgstr ""
+msgstr "Insérer"
 
 #: src/hal/classicladder/edit_gtk.c:365 tcl/bin/halconfig.tcl:134
 msgid "Modify"
@@ -3783,131 +3852,136 @@ msgstr "commentaire"
 #: src/hal/classicladder/edit_sequential.c:151
 #, c-format
 msgid "step search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "Recherche étape posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:161
 #: src/hal/classicladder/edit_sequential.c:179
 #: src/hal/classicladder/edit_sequential.c:197
 #, c-format
 msgid "found=%d!!!\n"
-msgstr ""
+msgstr "Trouvé=%d !!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:169
 #, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "Recherche transi posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:187
 #, c-format
 msgid "comment search posiX=%d, posiY=%d ; "
-msgstr ""
+msgstr "Recherche commentaire posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:216
 #, c-format
 msgid "found free step=%d!!!\n"
-msgstr ""
+msgstr "Étape libre trouvée=%d !!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:234
 #, c-format
 msgid "found free transi=%d!!!\n"
-msgstr ""
+msgstr "Transi libre trouvée=%d !!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:253
 #, c-format
 msgid "found free comment=%d!!!\n"
-msgstr ""
+msgstr "Commentaire libre trouvé=%d !!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:386
-#, c-format
+#, c-format, fuzzy
 msgid "Do link : transi=%d (top=%d), step=%d\n"
-msgstr ""
+msgstr "Lier : transi=%d (top=%d), step=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:404
 msgid "Not selected first and last transitions to be joined !!??"
 msgstr ""
+"Première et dernière transitions devant être jointes non sélectionnées !!??"
 
 #: src/hal/classicladder/edit_sequential.c:421
 msgid "Unknown element type for Ele1"
-msgstr ""
+msgstr "Type d'élément inconnu pour Ele1"
 
 #: src/hal/classicladder/edit_sequential.c:435
 msgid "First and last steps selected are not on the same line !!??"
 msgstr ""
+"La première et la dernière étape sélectionnées ne sont pas sur la même ligne "
+"!!??"
 
 #: src/hal/classicladder/edit_sequential.c:452
 msgid "First and last transitions selected are not on the same line !!??"
 msgstr ""
+"La première et la dernière transition sélectionnées ne sont pas sur la même "
+"ligne !!??"
 
 #: src/hal/classicladder/edit_sequential.c:459
 msgid "Unknown element type for Ele2"
-msgstr ""
+msgstr "Type d'élément inconnu pour Ele2"
 
 #: src/hal/classicladder/edit_sequential.c:478
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 msgstr ""
+"commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:508
 #: src/hal/classicladder/edit_sequential.c:552
 msgid "Error in selection or not possible..."
-msgstr ""
+msgstr "Erreur dans la sélection ou action impossible..."
 
 #: src/hal/classicladder/edit_sequential.c:516
 #, c-format
 msgid "DO ACT/DESACT STEPS x1=%d, x2=%d, y=%d\n"
-msgstr ""
+msgstr "ACT/DÉSACT ÉTAPES x1=%d, x2=%d, y=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:536
-#, c-format
+#, c-format, fuzzy
 msgid "StepActDesact++=%d\n"
-msgstr ""
+msgstr "StepActDesact++=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:593
-#, c-format
+#, c-format, fuzzy
 msgid "having num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "num transi=%d lié pour transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:596
-#, c-format
+#, c-format, fuzzy
 msgid "->storing num transi linked=%d for transi=%d\n"
-msgstr ""
+msgstr "->enregistrement num transi=%d lié pour transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:612
-#, c-format
+#, c-format, fuzzy
 msgid "=>step to activ=%d, step to desactiv=%d\n"
-msgstr ""
+msgstr "=>étape à activer=%d, étape à désactiver=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:621
 msgid "Not found at least 2 transitions linked..."
-msgstr ""
+msgstr "Au moins 2 transitions liées non trouvées..."
 
 #: src/hal/classicladder/edit_sequential.c:740
 msgid "Sequential memory full for steps"
-msgstr ""
+msgstr "Mémoire séquentielle saturée pour les étapes"
 
 #: src/hal/classicladder/edit_sequential.c:745
 #: src/hal/classicladder/edit_sequential.c:782
-#, fuzzy
 msgid "There is already an element!"
-msgstr "Un fichier est déjà ouvert"
+msgstr "Un élément est déjà présent !"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Une étape ne peut être placée sur les lignes paires"
 
 #: src/hal/classicladder/edit_sequential.c:777
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Mémoire séquentielle pleine pour les transitions"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Une transition ne peut être placée sur les lignes impaires"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
-msgstr ""
+msgstr "nb clic=1 !!! (posi=%s), attente prochain point à lier...\n"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
@@ -3918,34 +3992,35 @@ msgstr "Stopper"
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
 msgid "bottom"
-msgstr ""
+msgstr "bas"
 
 #: src/hal/classicladder/edit_sequential.c:805
 #, c-format
 msgid "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "nb clics=2 !!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:843
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Mémoire séquentielle pleine pour les commentaires"
 
 #: src/hal/classicladder/edit_sequential.c:848
+#, fuzzy
 msgid "There is already an element on 4 horizontal blocks required!"
-msgstr ""
+msgstr "Il y a déjà un élément sur 4 blocs horizontaux requis !"
 
 #: src/hal/classicladder/edit_sequential.c:853
 msgid "Not enough room on the right here..."
-msgstr ""
+msgstr "Pas assez d'espace sur la droite ici..."
 
 #: src/hal/classicladder/edit_sequential.c:875
 #, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_STEPS: nb clics=2 !!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:881
 #, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_TRANSITIONS: nb clics=2 !!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:168
 #, fuzzy
@@ -3960,11 +4035,11 @@ msgstr "Paramètres"
 #: src/hal/classicladder/editproperties_gtk.c:213
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
-msgstr ""
+msgstr "Appliquer"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr ""
+msgstr "Erreur: nom de symbole vide"
 
 #: src/hal/classicladder/emc_mods.c:72 src/hal/classicladder/emc_mods.c:78
 #: src/hal/classicladder/emc_mods.c:86 src/hal/classicladder/emc_mods.c:94
@@ -3972,7 +4047,7 @@ msgstr ""
 #: src/hal/classicladder/emc_mods.c:114 src/hal/classicladder/emc_mods.c:118
 #: src/hal/classicladder/emc_mods.c:122
 msgid "out of bounds variable number"
-msgstr ""
+msgstr "Numéro de variable hors limites"
 
 #: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
 #, fuzzy
@@ -3981,7 +4056,7 @@ msgstr "Nombre de bits de mémoire interne:"
 
 #: src/hal/classicladder/emc_mods.c:123
 msgid "None -Internal Error Status"
-msgstr ""
+msgstr "Aucun - Erreur Interne"
 
 #: src/hal/classicladder/emc_mods.c:128
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
@@ -3998,11 +4073,11 @@ msgstr "Erreur"
 
 #: src/hal/classicladder/emc_mods.c:151
 msgid "no signal connected"
-msgstr ""
+msgstr "pas de signal connecté"
 
 #: src/hal/classicladder/emc_mods.c:155
 msgid "Conv. HAL signal ERROR"
-msgstr ""
+msgstr "ERREUR de conv. signal HAL"
 
 #: src/hal/classicladder/emc_mods.c:177
 #, fuzzy
@@ -4012,15 +4087,15 @@ msgstr "Expression non fermée"
 #: src/hal/classicladder/emc_mods.c:196
 #, c-format
 msgid " %s (for %s)  Exprsn~ %s"
-msgstr ""
+msgstr " %s (pour %s), Expression : %s"
 
 #: src/hal/classicladder/emc_mods.c:203
 msgid "first var. expression error"
-msgstr ""
+msgstr "Erreur sur la première variable de l'expression"
 
 #: src/hal/classicladder/emc_mods.c:257
 msgid "Old Timer"
-msgstr ""
+msgstr "Ancien chronomètre"
 
 #: src/hal/classicladder/emc_mods.c:262
 #, fuzzy
@@ -4029,11 +4104,11 @@ msgstr "Step Time:"
 
 #: src/hal/classicladder/emc_mods.c:267
 msgid "One-shot"
-msgstr ""
+msgstr "Unique"
 
 #: src/hal/classicladder/emc_mods.c:272
 msgid "Counter"
-msgstr ""
+msgstr "Compteur"
 
 #: src/hal/classicladder/emc_mods.c:277
 #, fuzzy
@@ -4043,11 +4118,12 @@ msgstr "Police erreur"
 #: src/hal/classicladder/emc_mods.c:280
 msgid "Cannot auto assign symbol names-wrong variable name"
 msgstr ""
+"Impossible d'auto-assigner les noms de symboles - mauvais nom de variable"
 
 #: src/hal/classicladder/files.c:182
 #, c-format
 msgid "Rung version not supported...\n"
-msgstr ""
+msgstr "Version d'échelon non supportée...\n"
 
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
 #, fuzzy, c-format
@@ -4057,7 +4133,7 @@ msgstr "Fichier chargé:"
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
 msgid " - ok.\n"
-msgstr ""
+msgstr " - OK.\n"
 
 #: src/hal/classicladder/files.c:280 src/hal/classicladder/files.c:306
 #, fuzzy
@@ -4071,81 +4147,83 @@ msgstr "Erreur d'enregistrement du fichier"
 
 #: src/hal/classicladder/files.c:334
 msgid " - failed.\n"
-msgstr ""
+msgstr " - échec.\n"
 
 #: src/hal/classicladder/files.c:342
 #, c-format
 msgid "Used=%d\n"
-msgstr ""
+msgstr "Utilisé=%d\n"
 
 #: src/hal/classicladder/files.c:396
 #, c-format
 msgid "!!!Error in ConvBaseInMilliSecsToInt()\n"
-msgstr ""
+msgstr "!!! Erreur dans ConvBaseInMilliSecsToInt()\n"
 
 #: src/hal/classicladder/files.c:466 src/hal/classicladder/files.c:536
 #: src/hal/classicladder/files.c:660
 #, c-format
 msgid "!!! Error loading parameter base in %s\n"
-msgstr ""
+msgstr "!!! Erreur de chargement du paramètre base dans %s\n"
 
 #: src/hal/classicladder/files.c:469
-#, c-format
+#, c-format, fuzzy
 msgid "Timer => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Horloge => Base = %d , Préréglage = %d\n"
 
 #: src/hal/classicladder/files.c:501
 #, c-format
 msgid " - result=%d\n"
-msgstr ""
+msgstr " - résultat=%d\n"
 
 #: src/hal/classicladder/files.c:539
 #, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
-msgstr ""
+msgstr "Monostable = > Base = %d , Préréglage = %d\n"
 
 #: src/hal/classicladder/files.c:787
 #, c-format
 msgid "Sections file version not supported...\n"
-msgstr ""
+msgstr "Version de fichier de sections non supporté...\n"
 
 #: src/hal/classicladder/files.c:811
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
+"Section %d => Nom=%s, Language=%d, SRnbr=%d, PremEche=%d, SecEchel=%d, "
+"PageSequence=%d\n"
 
 #: src/hal/classicladder/files.c:1043
 #, c-format
 msgid "Symbols file version not supported...\n"
-msgstr ""
+msgstr "Version de fichier de symboles non supportée...\n"
 
 #: src/hal/classicladder/files.c:1056
 #, c-format
 msgid "Symbol: %s - %s - %s\n"
-msgstr ""
+msgstr "Symbole : %s - %s - %s\n"
 
 #: src/hal/classicladder/files_project.c:86
 #, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr ""
+msgstr "ERREUR dans le chemin de répertoire donné pour le projet !!!\n"
 
 #: src/hal/classicladder/files_project.c:184
 #, c-format
 msgid "Save project '%s' from tmp dir=%s\n"
-msgstr ""
+msgstr "Enregistrer le projet '%s' depuis le rép temp=%s\n"
 
 #: src/hal/classicladder/files_sequential.c:97
-#, c-format
+#, c-format, fuzzy
 msgid "Sequential version not supported...\n"
-msgstr ""
+msgstr "Version de séquence non supportée ...\n"
 
 #: src/hal/classicladder/manager_gtk.c:71
 #: src/hal/classicladder/manager_gtk.c:229
 #: src/emc/usr_intf/gscreen/gscreen.glade:2373
 msgid "Ladder"
-msgstr ""
+msgstr "Ladder"
 
 #: src/hal/classicladder/manager_gtk.c:72
 #: src/hal/classicladder/manager_gtk.c:234 tcl/bin/halconfig.tcl:196
@@ -4154,40 +4232,41 @@ msgstr "Manuel"
 
 #: src/hal/classicladder/manager_gtk.c:76
 #: src/hal/classicladder/manager_gtk.c:231
+#, fuzzy
 msgid "Sequential"
-msgstr ""
+msgstr "Séquentiel"
 
 #: src/hal/classicladder/manager_gtk.c:131
 msgid "This section name already exist or is incorrect !!!"
-msgstr ""
+msgstr "Le nom de cette section existe déjà ou est incorrect !!!"
 
 #: src/hal/classicladder/manager_gtk.c:137
 msgid "This sub-routine number for calls is already defined !!!"
-msgstr ""
+msgstr "Ce numéro de sous-routine pour les appels est déjà définit !!!"
 
 #: src/hal/classicladder/manager_gtk.c:143
 msgid "Failed to add a new section. Full?"
-msgstr ""
+msgstr "Échec de l'ajout d'une nouvelle section. Plein ?"
 
 #: src/hal/classicladder/manager_gtk.c:170
 msgid "Do you really want to delete the section ?"
-msgstr ""
+msgstr "Voulez-vous vraiment supprimer la section ?"
 
 #: src/hal/classicladder/manager_gtk.c:174
 msgid "You can not delete the last section..."
-msgstr ""
+msgstr "Vous ne pouvez pas supprimer la dernière section..."
 
 #: src/hal/classicladder/manager_gtk.c:191
 msgid "This section is already executed the first !"
-msgstr ""
+msgstr "Cette section est déjà exécutée en premier !"
 
 #: src/hal/classicladder/manager_gtk.c:241
 msgid "Add a section..."
-msgstr ""
+msgstr "Ajouter une section..."
 
 #: src/hal/classicladder/manager_gtk.c:256
 msgid "Language"
-msgstr ""
+msgstr "Language"
 
 #: src/hal/classicladder/manager_gtk.c:257
 #, fuzzy
@@ -4201,11 +4280,11 @@ msgstr "Nom:"
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Section Name   "
-msgstr ""
+msgstr "Nom de la section   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Language    "
-msgstr ""
+msgstr "Language    "
 
 #: src/hal/classicladder/manager_gtk.c:314
 #, fuzzy
@@ -4221,7 +4300,7 @@ msgstr "niveau de déboguage"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "Sections Manager"
-msgstr ""
+msgstr "Gestionnaire de Sections"
 
 #: src/hal/classicladder/manager_gtk.c:335
 #, fuzzy
@@ -4236,7 +4315,7 @@ msgstr "Position relative"
 #: src/hal/classicladder/manager_gtk.c:345
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Move Up"
-msgstr ""
+msgstr "Déplacer vers le haut"
 
 #: src/hal/classicladder/manager_gtk.c:350
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
@@ -4248,14 +4327,16 @@ msgstr "Bas"
 #: src/hal/classicladder/protocol_modbus_master.c:277
 #, c-format
 msgid "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
-msgstr ""
+msgstr "ERREUR CLASSICLADDER - EXCEPTION MODBUS REÇUE:%X (Excep=%X)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:283
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
+"ERREUR CLASSICLADDER - MODBUS: le code de fonction reçu de l'esclave n'était "
+"pas le même que celui demandé !\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:367
 #, c-format
@@ -4263,21 +4344,24 @@ msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
 msgstr ""
+"INFO CLASSICLADDER - MODBUS : Echo de retour de l'esclave #%s n'est pas "
+"correct (data=257)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:370
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 msgstr ""
+"ERREUR CLASSICLADDER - MODBUS: Echo de retour de l'esclave #%s est WRONG\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:419
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
-msgstr ""
+msgstr "INFO CLASSICLADDER - MODBUS : code de fonction non reconnu"
 
 #: src/hal/classicladder/protocol_modbus_master.c:424
 #, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - MODBUS : longueur qui devrait être reçue=%d (+3)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:558
 #, c-format
@@ -4285,23 +4369,25 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O to send (Hex):\n"
 "    Length=%d bytes -> "
 msgstr ""
+"INFO CLASSICLADDER - MODBUS : I/O to send (Hex) :\n"
+"    Longueur=%d octets -> "
 
 #: src/hal/classicladder/protocol_modbus_master.c:562
 #: src/hal/classicladder/protocol_modbus_master.c:587
 #, c-format
 msgid "Slave: %X  "
-msgstr ""
+msgstr "Esclave : %X  "
 
 #: src/hal/classicladder/protocol_modbus_master.c:564
 #, c-format
 msgid "Function: %X  Data: "
-msgstr ""
+msgstr "Fonction : %X  Données : "
 
 #: src/hal/classicladder/protocol_modbus_master.c:566
 #: src/hal/classicladder/protocol_modbus_master.c:591
 #, c-format
 msgid " CRC: %X "
-msgstr ""
+msgstr " CRC : %X "
 
 #: src/hal/classicladder/protocol_modbus_master.c:583
 #, c-format
@@ -4309,54 +4395,61 @@ msgid ""
 "INFO CLASSICLADDER-   Modbus I/O received (Hex):\n"
 "    Length=%d bytes <- "
 msgstr ""
+"INFO CLASSICLADDER - MODBUS : E/S reçue (Hex) :\n"
+"    Longueur=%d octets <- "
 
 #: src/hal/classicladder/protocol_modbus_master.c:589
 #, c-format
 msgid "Function: %X Data: "
-msgstr ""
+msgstr "Fonction : %X Données : "
 
 #: src/hal/classicladder/protocol_modbus_master.c:621
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
-msgstr ""
+msgstr "ERREUR CLASSICLADDER - MODBUS : Erreur CRC : calc=%x, trame=%x\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:644
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
+"ERREUR CLASSICLADDER - MODBUS : RÉPONSE INCORRECTE REÇUE DE L'ESCLAVE !!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:650
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr ""
+msgstr "ERREUR CLASSICLADDER - MODBUS : ERREUR BAS NIVEAU DANS LA RÉPONSE !!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:710
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 msgstr ""
+"ERREUR CLASSICLADDER - MODBUS : Variable non définie pour l'association des "
+"requêtes READ "
 
 #: src/hal/classicladder/protocol_modbus_master.c:757
 #, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "
 msgstr ""
+"ERREUR CLASSICLADDER - MODBUS : Variable non définie pour l'association des "
+"requêtes WRITE "
 
 #: src/hal/classicladder/serial_linux.c:139
 #, c-format
 msgid "Speed value not found for serial\n"
-msgstr ""
+msgstr "Valeur de la vitesse introuvable pour le port série\n"
 
 #: src/hal/classicladder/serial_linux.c:144
 #, c-format
 msgid "Failed to open serial port %s...\n"
-msgstr ""
+msgstr "Échec de l'ouverture du port série %s...\n"
 
 #: src/hal/classicladder/serial_linux.c:171
-#, c-format
+#, c-format, fuzzy
 msgid "Set RTS=%d\n"
-msgstr ""
+msgstr "Définir RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:185
 #, fuzzy, c-format
@@ -4366,7 +4459,7 @@ msgstr "Filtrage..."
 #: src/hal/classicladder/serial_linux.c:190
 #, c-format
 msgid "SerialSend failed: %s!\n"
-msgstr ""
+msgstr "Échec de SerialSend : %s !\n"
 
 #: src/hal/classicladder/serial_linux.c:197
 #, fuzzy, c-format
@@ -4379,9 +4472,9 @@ msgid "Serial config...\n"
 msgstr "Configurer HAL"
 
 #: src/hal/classicladder/serial_linux.c:236
-#, c-format
+#, c-format, fuzzy
 msgid "select() for serial reading...\n"
-msgstr ""
+msgstr "select() pour la lecture série...\n"
 
 #: src/hal/classicladder/serial_linux.c:241
 #, fuzzy, c-format
@@ -4391,28 +4484,31 @@ msgstr "Filtrage..."
 #: src/hal/classicladder/serial_linux.c:244
 #, c-format
 msgid "%d chars found\n"
-msgstr ""
+msgstr "%d caractères trouvés\n"
 
 #: src/hal/classicladder/serial_linux.c:255
-#, c-format
+#, c-format, fuzzy
 msgid "Serial flush all!\n"
-msgstr ""
+msgstr "Flush série complet !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
 #, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"
 msgstr ""
+"ERREUR CLASSICLADDER - MODBUS: Échec de création du fil d'E/S maître...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:121
 #, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
+"INFO CLASSICLADDER - MODBUS : E/S maître Bits de données %i Stop bits %i "
+"Parité %i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - MODBUS : E/S maître(%s) init OK !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
 #, fuzzy
@@ -4430,185 +4526,205 @@ msgstr "Autre"
 #: src/hal/classicladder/socket_modbus_master.c:168
 #, c-format
 msgid "Init socket for I/O module (%d)...\n"
-msgstr ""
+msgstr "Socket d'initialisation pour le module d'E/S (%d) ...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:172
 #, c-format
 msgid "Failed to open I/O socket master...\n"
-msgstr ""
+msgstr "Échec d'ouverture du socket d'E/S maître ...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:198
 #, c-format
 msgid "Connecting I/O module...\n"
-msgstr ""
+msgstr "Connection du module d'E/S ...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:220
 #, c-format
 msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
-msgstr ""
+msgstr "Impossible de récupérer l'adresse IP dans la table Modbus ?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:225
 #, c-format
 msgid "Failed  to connect to I/O module\n"
-msgstr ""
+msgstr "Échec de connexion au module d'E/S\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:231
-#, c-format
+#, c-format, fuzzy
 msgid "Too much IP connections under run...\n"
-msgstr ""
+msgstr "Trop de connexion IP en cours ...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:248
 #, c-format
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - Envoie de trame au module d'E/S ...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:254
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
 msgstr ""
+"ERREUR CLASSICLADDER - Échec de transmission sur le socket !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:275
 #, c-format
 msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - Attente de la réponse de l'esclave ...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:307
 #, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - MODBUS : E/S maître fermé !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:356
 #, c-format
 msgid "INFO CLASSICLADDER- after transmit delay now...%i milliseconds\n"
 msgstr ""
+"INFO CLASSICLADDER - après retard de transmission maintenant ...%i "
+"millisecondes\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:366
 #, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr ""
+msgstr "ERREUR CLASSICLADDER - MODBUS : pas de réponse (Erreurs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:86
 #, c-format
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - Initialisation du socket !!!\n"
 
 #: src/hal/classicladder/socket_server.c:91
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
-msgstr ""
+msgstr "ERREUR CLASSICLADDER - Échec de l'ouverture du socket serveur ...\n"
 
 #: src/hal/classicladder/socket_server.c:103
 #, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 msgstr ""
+"ERREUR CLASSICLADDER - Échec de liaison au socket serveur ... (erreur=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:112
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER--- Failed to listen socket server...(error=%s)\n"
 msgstr ""
+"ERREUR CLASSICLADDER - Échec de l'écoute du socket serveur ... (erreur=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:130
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
-msgstr ""
+msgstr "ERREUR CLASSICLADDER - Échec de création du fil du socket serveur ...\n"
 
 #: src/hal/classicladder/socket_server.c:135
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"
 msgstr ""
+"INFO CLASSICLADDER - Initialisation du socket serveur OK (Modbus - port %d) !"
+"\n"
 
 #: src/hal/classicladder/socket_server.c:174
-#, c-format
+#, c-format, fuzzy
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - MODBUS: Réponse Lgt=%d+%d !\n"
 
 #: src/hal/classicladder/socket_server.c:204
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET WAITING...\n"
 msgstr ""
+"INFO CLASSICLADDER - SOCKET SERVEUR : Modbus : Socket serveur en attente ..."
+"\n"
 
 #: src/hal/classicladder/socket_server.c:209
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"
 msgstr ""
+"INFO CLASSICLADDER - SOCKET SERVEUR : Modbus : Client accepté sur le socket "
+"serveur ...\n"
 
 #: src/hal/classicladder/socket_server.c:215
 #, c-format
 msgid "INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - SOCKET SERVEUR : Modbus : Socket reçu=%d !\n"
 
 #: src/hal/classicladder/socket_server.c:218
-#, c-format
+#, c-format, fuzzy
 msgid "ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n"
-msgstr ""
+msgstr "ERROR CLASSICLADDER - SOCKET SERVEUR : Echec de recv ... (erreur=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:232
-#, c-format
+#, c-format, fuzzy
 msgid "INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - SOCKET SERVEUR : Modbus : fermeture du client.\n"
 
 #: src/hal/classicladder/socket_server.c:262
 #, c-format
 msgid "INFO CLASSICLADDER--- Server socket closed!\n"
-msgstr ""
+msgstr "INFO CLASSICLADDER - SOCKET SERVEUR: Fermé !\n"
 
 #: src/hal/classicladder/spy_vars_gtk.c:181
 msgid "Bit Status Window"
-msgstr ""
+msgstr "Fenêtre d'état des bits"
 
 #: src/hal/classicladder/spy_vars_gtk.c:202
+#, fuzzy
 msgid "Offset for vars displayed below (return to apply)"
-msgstr ""
+msgstr "Décalage pour les vars affichés ci-dessous (valider pour appliquer)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:409
 msgid "Watch Window"
-msgstr ""
+msgstr "Fenêtre de surveillance"
 
 #: src/hal/classicladder/spy_vars_gtk.c:484
+#, fuzzy
 msgid "opened BOOL (bit) variable window. press again for WORD window"
 msgstr ""
+"Fenêtre de variable BOOL (bit) ouverte. Presser à nouveau pour la fenêtre "
+"WORD"
 
 #: src/hal/classicladder/spy_vars_gtk.c:487
+#, fuzzy
 msgid "opened WORD (s32) variable window. press again for both windows"
 msgstr ""
+"Fenêtre de variable WORD (s32) ouverte. Presser à nouveau pour les deux "
+"fenêtres."
 
 #: src/hal/classicladder/spy_vars_gtk.c:490
 msgid "opened BOTH variable windows. press again to close them."
 msgstr ""
+"LES DEUX fenêtres de variables sont ouvertes. Presser à nouveau pour les "
+"fermer."
 
 #: src/hal/classicladder/symbols_gtk.c:122
 #, c-format
 msgid "A variable name always start with '%' character !"
-msgstr ""
+msgstr "Un nom de variable commence toujours par le caractère '%' !"
 
 #: src/hal/classicladder/symbols_gtk.c:173
 msgid "opened SYMBOLS window. Press again to close"
-msgstr ""
+msgstr "Fenêtre SYMBOLES ouverte. Presser à nouveau pour la fermer."
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "HiddenColNbr!"
-msgstr ""
+msgstr "HiddenColNbr !"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "Symbol name"
-msgstr ""
+msgstr "Nom du symbole"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "HAL signal/Comment"
-msgstr ""
+msgstr "Signal/Commentaire HAL"
 
 #: src/hal/classicladder/symbols_gtk.c:194
 msgid "Symbols names"
-msgstr ""
+msgstr "Noms des Symboles"
 
 #: src/hal/classicladder/vars_names.c:120
-#, c-format
+#, c-format, fuzzy
 msgid "infogene display symbols=&i\n"
-msgstr ""
+msgstr "infogene affiche les symboles=&i\n"
 
 #: src/hal/classicladder/vars_names.c:178
 msgid "Unknown symbol for variable name"
-msgstr ""
+msgstr "Symbole inconnu pour la variable désignée"
 
 #: src/hal/classicladder/vars_names.c:198
 #: src/hal/classicladder/vars_names.c:220
@@ -4620,13 +4736,13 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:413
 #: src/hal/classicladder/vars_names.c:621
 msgid "Unknown variable (number value out of bound)"
-msgstr ""
+msgstr "Variable inconnue (valeur du nombre hors limites)"
 
 #: src/hal/classicladder/vars_names.c:229
 #: src/hal/classicladder/vars_names.c:301
 #: src/hal/classicladder/vars_names.c:343
 msgid "Unknown variable (missing '.' character before attribute)"
-msgstr ""
+msgstr "Variable inconnue (caractère '.' manquant avant l'attribut)"
 
 #: src/hal/classicladder/vars_names.c:244
 #: src/hal/classicladder/vars_names.c:255
@@ -4636,15 +4752,15 @@ msgstr ""
 #: src/hal/classicladder/vars_names.c:367
 #: src/hal/classicladder/vars_names.c:429
 msgid "Unknown variable (unknown attribute)"
-msgstr ""
+msgstr "Variable inconnue (attribut inconnu)"
 
 #: src/hal/classicladder/vars_names.c:438
 msgid "Unknown variable (on first character following %)"
-msgstr ""
+msgstr "Variable inconnue (au premier caractère suivant '%')"
 
 #: src/hal/classicladder/vars_names.c:452
 msgid "Unknown variable (global error)"
-msgstr ""
+msgstr "Variable inconnue (erreur globale)"
 
 #: tcl/bin/emccalib.tcl:95
 #, fuzzy
@@ -5059,15 +5175,15 @@ msgid ""
 "allowed by law."
 msgstr ""
 "Copyright Raymond E Henry. 2006\n"
-"License: GPL Version 2\n"
+"Licence : GPL Version 2\n"
 "\n"
-"Halconfig est un outil de configuration de LinuxCNC.  Il doit être lancé "
+"Halconfig est un outil de configuration de LinuxCNC. Il doit être lancé "
 "depuis le répertoire de LinuxCNC et nécessite qu'une instance de celui-ci "
-"ait été lancée, sinon une nouvelle configuration refaite avec le script demo "
-"rt.\n"
+"ait été lancée, sinon une nouvelle configuration est créée avec le script "
+"demo rt.\n"
 "\n"
 "Ce script n'est pas fait pour les cœurs sensibles et ne comporte aucune "
-"garantie ou ou responsabilité pour son usage dans la mesure autorisée par la "
+"garantie ou responsabilité pour son usage dans la mesure autorisée par la "
 "loi."
 
 #: tcl/bin/halshow.tcl:71
@@ -5085,7 +5201,7 @@ msgstr "Charger liste de watch"
 
 #: tcl/bin/halshow.tcl:90
 msgid "Save Watch List (multiline)"
-msgstr ""
+msgstr "Enregistrer à liste de surveillance (multi-lignes)"
 
 #: tcl/bin/halshow.tcl:95
 msgid "Load Watch List"
@@ -5102,7 +5218,7 @@ msgstr "Direction A"
 
 #: tcl/bin/halshow.tcl:127 tcl/bin/halshow.tcl:129 tcl/bin/halshow.tcl:131
 msgid "Add to watch"
-msgstr ""
+msgstr "Ajouter à la surveillance"
 
 #: tcl/bin/halshow.tcl:128
 #, fuzzy
@@ -5131,7 +5247,7 @@ msgstr "Choisir police"
 
 #: tcl/bin/halshow.tcl:526
 msgid "Unlink pin"
-msgstr ""
+msgstr "Dissocier la broche"
 
 #: tcl/bin/halshow.tcl:528
 #, fuzzy
@@ -5630,11 +5746,11 @@ msgstr "Ajuster valeurs d'axes"
 
 #: tcl/tklinuxcnc.tcl:1280
 msgid "Set Jog Speed"
-msgstr "Ajuster la vitesse de jog"
+msgstr "Ajuster la vitesse de télécommande"
 
 #: tcl/tklinuxcnc.tcl:1293
 msgid "Set jog speed:"
-msgstr "Ajuster la vitesse de jog:"
+msgstr "Ajuster la vitesse de télécommande:"
 
 #: tcl/tklinuxcnc.tcl:1318
 msgid "Set Feed Override"
@@ -5654,11 +5770,11 @@ msgstr "Ajustement de la vitesse de broche:"
 
 #: tcl/tklinuxcnc.tcl:1410
 msgid "Linear Jog Speed"
-msgstr "Vitesse de jog linéaire"
+msgstr "Vitesse de télécommande linéaire"
 
 #: tcl/tklinuxcnc.tcl:1441
 msgid "Angular Jog Speed (deg)/min:"
-msgstr "Vitesse de jog angulaire (degrés)/min:"
+msgstr "Vitesse de télécommande angulaire (degrés)/min:"
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
 msgid "Feed Override:"
@@ -5921,7 +6037,7 @@ msgstr "pas de endsub dans le fichier"
 
 #: tcl/ngcgui.tcl:805
 msgid "Cannot find gcmc executable"
-msgstr ""
+msgstr "Exécutable gcmc introuvable"
 
 #: tcl/ngcgui.tcl:806
 #, fuzzy
@@ -5930,7 +6046,7 @@ msgstr "Installer Img"
 
 #: tcl/ngcgui.tcl:814
 msgid "not embedded, deriving outdir from:"
-msgstr ""
+msgstr "non inclu, dérive de outdir de :"
 
 #: tcl/ngcgui.tcl:1042
 msgid "Choose Files"
@@ -6904,7 +7020,7 @@ msgstr "Nom de fichier manquant"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Do you really want to close LinuxCNC?"
-msgstr ""
+msgstr "Voulez-vous vraiment fermer LinuxCNC ?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
 #, fuzzy
@@ -6941,16 +7057,18 @@ msgid "Activate first through ninth joint"
 msgstr "Activer du cinquième axe au neuvième"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:189
+#, fuzzy
 msgid "if joints radiobuttons visible"
-msgstr ""
+msgstr "si les boutons radio des jointures sont visibles"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:190
 msgid "Set Feed Override from 0% to 100%"
 msgstr "Correction de la vitesse entre 0% et 100%"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:191
+#, fuzzy
 msgid "if axes radiobuttons visible"
-msgstr ""
+msgstr "si les boutons radios des axes sont visibles"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid ", and ."
@@ -6958,7 +7076,7 @@ msgstr ", et ."
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid "Select jog speed"
-msgstr "Sélection de la vitesse de jog"
+msgstr "Sélection de la vitesse de télécommande"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "< and >"
@@ -6966,7 +7084,7 @@ msgstr "< et >"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Select angular jog speed"
-msgstr "Sélection de la vitesse angulaire de jog"
+msgstr "Sélection de la vitesse angulaire de télécommande"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "I, Shift-I"
@@ -6974,11 +7092,11 @@ msgstr "I, Maj+I"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:194 share/axis/tcl/axis.tcl:2269
 msgid "Select jog increment"
-msgstr "Sélection d'incrément de jog"
+msgstr "Sélection d'incrément de télécommande"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:195
 msgid "Continuous jog"
-msgstr "Jog en continu"
+msgstr "Télécommande en continu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:196
 msgid "Home"
@@ -7025,9 +7143,8 @@ msgid "Set tool offset for loaded tool"
 msgstr "Valide le décalage G54 de l'axe actif"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:201
-#, fuzzy
 msgid "Jog active axis or joint"
-msgstr "Jog de l'axe actif"
+msgstr "Télécommande de l'axe actif"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:202
 #, fuzzy
@@ -7039,40 +7156,36 @@ msgid "Left, Right"
 msgstr "Gauche, Droite"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
-#, fuzzy
 msgid "Jog first axis or joint"
-msgstr "Jog du premier axe"
+msgstr "Télécommande de la première jointure"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Up, Down"
 msgstr "Haut, Bas"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
-#, fuzzy
 msgid "Jog second axis or joint"
-msgstr "Jog du deuxième axe"
+msgstr "Télécommande de la deuxième jointure"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Pg Up, Pg Dn"
 msgstr "Pg.Préc, Pg.Suiv"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
-#, fuzzy
 msgid "Jog third axis or joint"
-msgstr "Jog du troisième axe"
+msgstr "Télécommande de la troisième jointure"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Shift+above jogs"
-msgstr "Shift+jog dessus"
+msgstr "Shift+Flèche Haut télécommande"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Jog at traverse speed"
-msgstr "Jog en vitesse rapide"
+msgstr "Télécommande en vitesse rapide"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:209
-#, fuzzy
 msgid "Jog fourth axis or joint"
-msgstr "Jog du quatrième axe"
+msgstr "Télécommande de la quatrième jointure"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:212
 msgid "Toggle between Drag and Rotate mode"
@@ -7259,7 +7372,7 @@ msgstr "Défilement parcours d'outil, visu et onglets utilisateur"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:250
 msgid "toggle Actual/Commanded"
-msgstr ""
+msgstr "Basculer Réel/Commandé"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:251
 #, fuzzy
@@ -7276,7 +7389,7 @@ msgstr "Effacer les notifications"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Alt-F, M, V"
-msgstr ""
+msgstr "Alt-F, M, V"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 #, fuzzy
@@ -7511,10 +7624,17 @@ msgid ""
 "Save it to your own directory\n"
 "then open that saved, writable file"
 msgstr ""
+"Ce fichier n'est pas accessible en écriture\n"
+"Vous pouvez l'éditer en lecture seule\n"
+"\n"
+"ou\n"
+"\n"
+"Enregistrez le dans votre répertoire\n"
+"puis ouvrez ce fichier ré-enregistré, et inscriptible"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2275
 msgid "Edit-readonly"
-msgstr ""
+msgstr "Éditer en lecture seule"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
 #, fuzzy
@@ -7523,7 +7643,7 @@ msgstr "Personnalisé"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
 msgid "Enter grid size"
-msgstr ""
+msgstr "Saisir la taille de la grille"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2652
 #, fuzzy
@@ -7538,11 +7658,13 @@ msgid "home_joint <%s> Use joint mode for homing"
 msgstr "doit être en mode jointure pour la prise d'origine"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2669
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
 msgstr ""
+"\n"
+"Prise d'origine individuelle des axes interdite pour la lettre double:<%s> "
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2678
 #, fuzzy
@@ -7572,35 +7694,47 @@ msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3381
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Missing required specifier:\n"
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Paramètre requis manquant :\n"
+"%s\n"
+"Voir la documentation 'Configuration INI'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3394
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Missing required specifier (has linear joint or axis):\n"
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Paramètre requis manquant (possède un axe ou une jointure linéaire) :\n"
+"%s\n"
+"Voir la documentation 'Configuration INI'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3407
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Warning: Missing required specifier (has angular joint or axis):\n"
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Paramètre requis manquant (possède un axe ou une jointure angulaire) :\n"
+"%s\n"
+"Voir la documentation 'Configuration INI'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3526
 msgid "Axes"
-msgstr ""
+msgstr "Axes"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3528
 #, fuzzy
@@ -7632,11 +7766,14 @@ msgstr "Annulation OM de tous les axes"
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
+"Avertissement : La cinématique directe doit gérer les lettres de coordonnées "
+"en double :%s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3581
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
+"Remarque : le nombre de [TRAJ]COORDINATES=%(t)s dépasse [KINS]JOINTS=%(l)d"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3613
 msgid ""
@@ -7644,11 +7781,15 @@ msgid ""
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
+"\n"
+"Remarque :\n"
+"La prise d'origine d'axe individuel n'est actuellement pas pris en charge "
+"pour"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3614
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
-msgstr ""
+msgstr "KINEMATICS_IDENTITY avec une double lettre d'axe <%s> ;\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3626
 #, fuzzy
@@ -7663,7 +7804,7 @@ msgstr "Emplacement de l'origine mac_hine:"
 #: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Home %(name)s _%(id)s"
-msgstr ""
+msgstr "Accueil %(name)s _%(id)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3638
 #, fuzzy, python-format
@@ -7676,11 +7817,11 @@ msgstr "Démarrer depuis ici"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3892
 msgid "toggle PYVCP panel visibility"
-msgstr ""
+msgstr "activer la visibilité du panneau PYVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3894 share/axis/tcl/axis.tcl:387
 msgid "Show pyVCP pan_el"
-msgstr ""
+msgstr "Afficher le panel pyVCP"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4165
 msgid "Error in ~/.axisrc"
@@ -8205,8 +8346,9 @@ msgid "Show e_xtents"
 msgstr "Afficher les étendues"
 
 #: share/axis/tcl/axis.tcl:351
+#, fuzzy
 msgid "_Grid"
-msgstr ""
+msgstr "_Grid"
 
 #: share/axis/tcl/axis.tcl:356
 msgid "Show o_ffsets"
@@ -8266,8 +8408,9 @@ msgid "World mode"
 msgstr "Mode articulations"
 
 #: share/axis/tcl/axis.tcl:443
+#, fuzzy
 msgid "_Off"
-msgstr ""
+msgstr "_Off"
 
 #: share/axis/tcl/axis.tcl:449
 #, fuzzy
@@ -8457,7 +8600,7 @@ msgstr "G-codes actifs:"
 
 #: share/axis/tcl/axis.tcl:1397 share/axis/tcl/axis.tcl:1410
 msgid "Jog Speed:"
-msgstr "Vitesse de jog:"
+msgstr "Vitesse de télécommande :"
 
 #: share/axis/tcl/axis.tcl:1422
 msgid "Max Velocity:"
@@ -8670,11 +8813,13 @@ msgstr "Activer l'axe [5]"
 
 #: share/axis/tcl/axis.tcl:2267 share/axis/tcl/axis.tcl:2268
 msgid "Jog selected axis"
-msgstr "Jog de l'axe sélectionné"
+msgstr "Télécommande de l'axe sélectionné"
 
 #: share/axis/tcl/axis.tcl:2270
 msgid "Temporarily allow jogging outside machine limits [L]"
-msgstr "Mouvement temporaire hors limites [L]"
+msgstr ""
+"Autoriser temporairement la télécommande au-delà des limites de la machine "
+"[L]"
 
 #: src/emc/usr_intf/touchy/touchy.py:144
 #: src/emc/usr_intf/pncconf/pncconf.py:1751
@@ -9018,7 +9163,7 @@ msgstr "Original"
 
 #: src/emc/usr_intf/touchy/touchy.glade:693
 msgid "Macro"
-msgstr ""
+msgstr "Macro"
 
 #: src/emc/usr_intf/touchy/touchy.glade:730
 msgid "G"
@@ -9464,11 +9609,11 @@ msgstr "MV: 100"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3568
 msgid "Jogging"
-msgstr "Jog"
+msgstr "Télécommandé"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3582
 msgid "Start Point"
-msgstr ""
+msgstr "Point de départ"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3609
 msgid ".01"
@@ -9580,7 +9725,7 @@ msgstr "Options des interfaces graphiques"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:144
 msgid "HALUI"
-msgstr ""
+msgstr "HALUI"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:145
 #: src/emc/usr_intf/pncconf/private_data.py:43
@@ -9590,7 +9735,7 @@ msgstr "Bouton X à zéro"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:146
 msgid "QtPlasmaC THCAD"
-msgstr ""
+msgstr "QtPlasmaC THCAD"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:147
 #, fuzzy
@@ -9632,7 +9777,7 @@ msgstr "Broche"
 #: src/emc/usr_intf/stepconf/stepconf.py:151
 #: src/emc/usr_intf/pncconf/private_data.py:61
 msgid "Almost Done"
-msgstr ""
+msgstr "Presque fini"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
 #: src/emc/usr_intf/pncconf/private_data.py:1066
@@ -9842,7 +9987,7 @@ msgstr "Sortie numérique 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Torch On"
-msgstr ""
+msgstr "Torche plasma allumée"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 #, fuzzy
@@ -9851,15 +9996,15 @@ msgstr "Validation POT"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Scribe Arm"
-msgstr ""
+msgstr "Bras de traçage Plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Scribe On"
-msgstr ""
+msgstr "Traçage Plasma activé"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Laser On"
-msgstr ""
+msgstr "Faisceau Plasma Activé"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:227
 #: src/emc/usr_intf/stepconf/stepconf.py:261
@@ -10181,11 +10326,11 @@ msgstr "Entrée numérique 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc Voltage"
-msgstr ""
+msgstr "Tension d’Arc Plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc OK"
-msgstr ""
+msgstr "Arc Plasma OK"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 #, fuzzy
@@ -10194,7 +10339,7 @@ msgstr "Switches"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Breakaway"
-msgstr ""
+msgstr "Perte du Faisceau Plasma"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 #, fuzzy
@@ -10202,8 +10347,9 @@ msgid "Plasma Ohmic Contact"
 msgstr "Validation POT"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
+#, fuzzy
 msgid "Plasma Move Up"
-msgstr ""
+msgstr "Plasma Monte"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 #, fuzzy
@@ -10219,7 +10365,7 @@ msgstr "Broche sens horaire"
 #: src/emc/usr_intf/stepconf/stepconf.py:265
 #: src/emc/usr_intf/pncconf/private_data.py:1106
 msgid "Done"
-msgstr ""
+msgstr "Terminé"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
 #: src/emc/usr_intf/pncconf/private_data.py:1107
@@ -10278,6 +10424,8 @@ msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
+"La configuration a été générée et enregistrée.\n"
+"Voulez-vous quitter ?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
 #: src/emc/usr_intf/pncconf/private_data.py:1114
@@ -10325,7 +10473,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:657
 #: src/emc/usr_intf/pncconf/data.py:898
 msgid "Continue? "
-msgstr "Continuer ?"
+msgstr "Continuer ? "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:658
 #: src/emc/usr_intf/pncconf/data.py:899
@@ -10592,10 +10740,12 @@ msgstr "# Ce fichier ne sera pas écrasé si vous relancez Stepconf"
 #: src/emc/usr_intf/stepconf/build_HAL.py:479
 msgid "# This file sets up simulated limits/home/spindle encoder hardware."
 msgstr ""
+"# Ce fichier configure la simulation d'encodeur de limites/d'origine/de "
+"broche matériels."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:480
 msgid "# This is a generated file do not edit."
-msgstr ""
+msgstr "# Ceci est un fichier généré : ne pas modifier."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:723
 #, fuzzy
@@ -10616,7 +10766,7 @@ msgstr "Configuration machine complète"
 #: src/emc/usr_intf/pncconf/main_page.glade:35
 #: src/emc/usr_intf/pncconf/dialogs.glade:3247
 msgid "±"
-msgstr ""
+msgstr "±"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:129
 msgid "mm/s"
@@ -10626,7 +10776,7 @@ msgstr "mm/s"
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
 #: src/emc/usr_intf/pncconf/dialogs.glade:3478
 msgid "Jog:"
-msgstr "Jog:"
+msgstr "Télécommande:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:349
 #: src/emc/usr_intf/pncconf/dialogs.glade:3493
@@ -10712,12 +10862,12 @@ msgstr "page 1"
 #: src/emc/usr_intf/stepconf/base.glade:18
 #: src/emc/usr_intf/pncconf/base.glade:12
 msgid "XYZ"
-msgstr ""
+msgstr "XYZ"
 
 #: src/emc/usr_intf/stepconf/base.glade:21
 #: src/emc/usr_intf/pncconf/base.glade:15
 msgid "XYZA"
-msgstr ""
+msgstr "XYZA"
 
 #: src/emc/usr_intf/stepconf/base.glade:24
 #, fuzzy
@@ -10729,15 +10879,16 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:27
 msgid "XYUV (Foam)"
-msgstr ""
+msgstr "XYUV (Mousse)"
 
 #: src/emc/usr_intf/stepconf/base.glade:30
+#, fuzzy
 msgid "XY(special)"
-msgstr ""
+msgstr "XY(spécial)"
 
 #: src/emc/usr_intf/stepconf/base.glade:72
 msgid "MM"
-msgstr ""
+msgstr "MM"
 
 #: src/emc/usr_intf/stepconf/base.glade:209
 msgid "Step _Time:"
@@ -10780,7 +10931,7 @@ msgstr "%(name)s Parport"
 #: src/emc/usr_intf/stepconf/base.glade:446
 #: src/emc/usr_intf/pncconf/base.glade:535
 msgid "Two Parports"
-msgstr ""
+msgstr "Deux Ports Parallèles"
 
 #: src/emc/usr_intf/stepconf/base.glade:464
 #: src/emc/usr_intf/pncconf/base.glade:550
@@ -10819,6 +10970,8 @@ msgid ""
 "Driver characteristics: (Multiply by 1000 for times specified in µs or "
 "microseconds)"
 msgstr ""
+"Caractéristiques du pilote : (Multiplier par 1000 pour des temps spécifiés "
+"en µs ou microsecondes)"
 
 #: src/emc/usr_intf/stepconf/base.glade:654
 msgid "Base Period Maximum _Jitter:"
@@ -10870,7 +11023,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/pport1.glade:32
 #: src/emc/usr_intf/stepconf/pport2.glade:37
 msgid "0x0378"
-msgstr ""
+msgstr "0x0378"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:46
 #, fuzzy
@@ -10879,11 +11032,11 @@ msgstr "Xylotex 8S-3"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:49
 msgid "TB6560 3 axes"
-msgstr ""
+msgstr "TB6560 3 axes"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:52
 msgid "TB6560 4 axes"
-msgstr ""
+msgstr "TB6560 4 axes"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:74
 #: src/emc/usr_intf/stepconf/pport2.glade:74
@@ -11084,7 +11237,7 @@ msgstr "Calibration:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:245
 msgid "12345"
-msgstr ""
+msgstr "12345"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:271
 msgid "_Cycles per revolution:"
@@ -11109,25 +11262,26 @@ msgstr "Axis"
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
-msgstr ""
+msgstr "Gmoccapy"
 
 #: src/emc/usr_intf/stepconf/options.glade:54
 msgid "Qtdragon"
-msgstr ""
+msgstr "Qtdragon"
 
 #: src/emc/usr_intf/stepconf/options.glade:57
 #: src/emc/usr_intf/pncconf/screen.glade:145
 msgid "QtPlasmaC"
-msgstr ""
+msgstr "QtPlasmaC"
 
 #: src/emc/usr_intf/stepconf/options.glade:73
 msgid "Screen:  "
-msgstr ""
+msgstr "Écran :  "
 
 #: src/emc/usr_intf/stepconf/options.glade:126
 #: src/emc/usr_intf/pncconf/screen.glade:2969
+#, fuzzy
 msgid "Screen Aspect:"
-msgstr ""
+msgstr "Aspect de l'écran :"
 
 #: src/emc/usr_intf/stepconf/options.glade:139
 #: src/emc/usr_intf/pncconf/screen.glade:2982
@@ -11144,12 +11298,12 @@ msgstr "47:"
 #: src/emc/usr_intf/stepconf/options.glade:171
 #: src/emc/usr_intf/pncconf/screen.glade:3014
 msgid "Hidden"
-msgstr ""
+msgstr "Caché"
 
 #: src/emc/usr_intf/stepconf/options.glade:187
 #: src/emc/usr_intf/pncconf/screen.glade:3030
 msgid "9:16"
-msgstr ""
+msgstr "9:16"
 
 #: src/emc/usr_intf/stepconf/options.glade:203
 #: src/emc/usr_intf/pncconf/screen.glade:3046
@@ -11160,17 +11314,18 @@ msgstr "Bouton gauche"
 #: src/emc/usr_intf/stepconf/options.glade:219
 #: src/emc/usr_intf/pncconf/screen.glade:3062
 msgid "16:9"
-msgstr ""
+msgstr "16:9"
 
 #: src/emc/usr_intf/stepconf/options.glade:233
 #: src/emc/usr_intf/pncconf/screen.glade:3076
+#, fuzzy
 msgid "Indicator"
-msgstr ""
+msgstr "Indicateur"
 
 #: src/emc/usr_intf/stepconf/options.glade:295
 #: src/emc/usr_intf/pncconf/screen.glade:3140
 msgid "Powermax Port:"
-msgstr ""
+msgstr "Port Powermax :"
 
 #: src/emc/usr_intf/stepconf/options.glade:323
 #: src/emc/usr_intf/pncconf/screen.glade:3168
@@ -11309,19 +11464,19 @@ msgstr "Inclure l'interface utilisateur Halui"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:24
 msgid "Insert here some commands to put after MDI_COMMAND"
-msgstr ""
+msgstr "Insérer ici des commandes à mettre après MDI_COMMAND"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:75
 msgid "ADD"
-msgstr ""
+msgstr "AJOUTER"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:99
 msgid "DELETE"
-msgstr ""
+msgstr "SUPPRIMER"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:134
 msgid "Move UP"
-msgstr ""
+msgstr "Déplacer vers le HAUT"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:31
 #: src/emc/usr_intf/pncconf/ubuttons.glade:34
@@ -11332,12 +11487,12 @@ msgstr "NML"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:41
 #: src/emc/usr_intf/pncconf/ubuttons.glade:43
 msgid "NAME"
-msgstr ""
+msgstr "NOM"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:55
 #: src/emc/usr_intf/pncconf/ubuttons.glade:55
 msgid "CODE"
-msgstr ""
+msgstr "CODE"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:177
 #: src/emc/usr_intf/stepconf/thcad.glade:59
@@ -11413,14 +11568,15 @@ msgstr "0"
 #: src/emc/usr_intf/stepconf/thcad.glade:12
 #: src/emc/usr_intf/pncconf/thcad.glade:12
 #: src/emc/usr_intf/pncconf/thcad.glade:271
+#, fuzzy
 msgid "ENCA"
-msgstr ""
+msgstr "ENCA"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:272
 msgid "ENCB"
-msgstr ""
+msgstr "ENCB"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:18
 #: src/emc/usr_intf/pncconf/thcad.glade:18
@@ -11447,31 +11603,32 @@ msgstr "6"
 #: src/emc/usr_intf/pncconf/thcad.glade:38
 #: src/emc/usr_intf/pncconf/thcad.glade:191
 msgid "128"
-msgstr ""
+msgstr "128"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:62
 #: src/emc/usr_intf/pncconf/thcad.glade:62
 #: src/emc/usr_intf/pncconf/thcad.glade:175
 msgid "300"
-msgstr ""
+msgstr "300"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:111
+#, fuzzy
 msgid "Full Scale Freq (kHz)"
-msgstr ""
+msgstr "Fréq. pleine échelle (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:125
 #: src/emc/usr_intf/pncconf/thcad.glade:127
 msgid "F Jumper"
-msgstr ""
+msgstr "Cavalier F"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:137
 #: src/emc/usr_intf/pncconf/thcad.glade:139
 msgid "Divider Ratio or Series Resistance"
-msgstr ""
+msgstr "Ratio du diviseur ou résistance de la série"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:150
 msgid "0V Freq (kHz)"
-msgstr ""
+msgstr "0V Fréq. (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:164
@@ -11482,7 +11639,7 @@ msgstr "Mode"
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:291
 msgid "THCAD For Arc Voltage"
-msgstr ""
+msgstr "THCAD pour la Tension d'Arc"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:12
 #: src/emc/usr_intf/stepconf/axisy.glade:12
@@ -11494,8 +11651,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:44
 #: src/emc/usr_intf/pncconf/z_axis.glade:44
 #: src/emc/usr_intf/pncconf/a_axis.glade:44
+#, fuzzy
 msgid "Same"
-msgstr ""
+msgstr "Même"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:15
 #: src/emc/usr_intf/stepconf/axisy.glade:15
@@ -11526,7 +11684,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11732,7 +11892,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/finished.glade:55
 msgid " Simulator: will not run hardware "
-msgstr ""
+msgstr " Simulateur : n’utilisera pas de matériel "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:97
 #, fuzzy, python-format
@@ -11753,34 +11913,37 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:173
 msgid "PnCconf is setting up"
-msgstr ""
+msgstr "PnCconf se configure"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:265
 msgid "**** PNCCONF ERROR:    custom firmware loading error"
-msgstr ""
+msgstr "**** ERREUR PNCCONF : erreur de chargement du firmware personnalisé"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:268
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
-msgstr ""
+msgstr "**** INFO PNCCONF : firmware supplémentaire trouvé dans le fichier"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:364
+#, fuzzy
 msgid "Discovery metadata update"
-msgstr ""
+msgstr "Mise à jour des métadonnées de découverte"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:408
 #, python-format
 msgid "%s metadata update"
-msgstr ""
+msgstr "%s mise à jour des métadonnées"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:428
 msgid "PnCconf setup"
-msgstr ""
+msgstr "Configuration de PnCconf"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:448
 msgid ""
 "\n"
 "**** Debug Pause! ****"
 msgstr ""
+"\n"
+"**** Pause de débogage ! ****"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:532
 #, fuzzy
@@ -11819,10 +11982,10 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "No board was found\n"
-msgstr ""
+msgstr "Aucune carte n'a été trouvée\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1339
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Discovery has an error,\n"
 "\n"
@@ -11830,6 +11993,11 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"La découverte renvoie une erreur,\n"
+"\n"
+" Mesaflash est-il installé ?\n"
+"\n"
+" %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1353
 #, fuzzy
@@ -11957,8 +12125,8 @@ msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
-"Touchy requiert qu'une 'Manivelle de jog externe' soit sélectionnée sur la "
-"page des contrôles externes\n"
+"Touchy requiert qu'une 'manivelle de télécommande externe' soit sélectionnée "
+"sur la page des contrôles externes\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3882
 msgid ""
@@ -12210,11 +12378,11 @@ msgstr "#  ---signal de sonde---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:487
 msgid "# ---jog button signals---"
-msgstr "#  ---signaux de boutons de jog---"
+msgstr "# ---signaux de boutons de télécommande---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:492
 msgid "# ---USB device jog button signals---"
-msgstr "# ---signaux de boutons de jog sur dispositif USB---"
+msgstr "# ---signaux de boutons de télécommande sur dispositif USB---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:533
 #: src/emc/usr_intf/pncconf/build_HAL.py:559
@@ -12254,8 +12422,9 @@ msgid "#  ---manual tool change signals to qtdragon's dialog---"
 msgstr "#  ---signaux changeur manuel d'outil---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:816
+#, fuzzy
 msgid "#  ---ignore tool prepare requests---"
-msgstr ""
+msgstr "# --- ignorer les requêtes de préparation d'outil ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:821
 msgid "#  ---toolchange signals for custom tool changer---"
@@ -12387,15 +12556,15 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
-msgstr ""
+msgstr "PNCconf"
 
 #: src/emc/usr_intf/pncconf/private_data.py:41
 msgid "Screen"
-msgstr ""
+msgstr "Écran"
 
 #: src/emc/usr_intf/pncconf/private_data.py:42
 msgid "VCP"
-msgstr ""
+msgstr "VCP"
 
 #: src/emc/usr_intf/pncconf/private_data.py:44
 msgid "External Controls"
@@ -12403,11 +12572,11 @@ msgstr "Contrôles externes"
 
 #: src/emc/usr_intf/pncconf/private_data.py:45
 msgid "Mesa Card 0"
-msgstr ""
+msgstr "Carte Mesa 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:46
 msgid "Mesa Card 1"
-msgstr ""
+msgstr "Carte Mesa 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
 #, fuzzy
@@ -12416,7 +12585,7 @@ msgstr "Réglage port parallèle"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
 msgid "Mesa THCAD"
-msgstr ""
+msgstr "Mesa THCAD"
 
 #: src/emc/usr_intf/pncconf/private_data.py:50
 #, fuzzy
@@ -12817,9 +12986,8 @@ msgid "7i77 I/O-SS0"
 msgstr "7i77 E/S (SS0)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
-#, fuzzy
 msgid "7i77 Analog-SS1"
-msgstr "7i77 Analogique   (SS1)"
+msgstr "7i77 Analogique (SS1)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 #, fuzzy
@@ -12827,9 +12995,8 @@ msgid "7i77 I/O-SS3"
 msgstr "7i77 E/S (SS3)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
-#, fuzzy
 msgid "7i77 Analog-SS4"
-msgstr "7i77 Analogique   (SS4)"
+msgstr "7i77 Analogique (SS4)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
 msgid "Analog Input"
@@ -13006,19 +13173,19 @@ msgstr "Sélection jointure D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr A"
-msgstr "Incrément du Jog A"
+msgstr "Incrément de télécommande A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr B"
-msgstr "Incrément du Jog B"
+msgstr "Incrément de télécommande B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr C"
-msgstr "Incrément du Jog C"
+msgstr "Incrément de télécommande C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Jog incr D"
-msgstr "Incrément du Jog D"
+msgstr "Incrément de télécommande D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Feed Override incr A"
@@ -13115,43 +13282,43 @@ msgstr "Pas par pas"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog X +"
-msgstr "Jog X +"
+msgstr "Télécommande X +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog X -"
-msgstr "Jog X -"
+msgstr "Télécommande X -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog Y +"
-msgstr "Jog Y +"
+msgstr "Télécommande Y +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:437
 msgid "Jog Y -"
-msgstr "Jog Y -"
+msgstr "Télécommande Y -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog Z +"
-msgstr "Jog Z +"
+msgstr "Télécommande Z +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog Z -"
-msgstr "Jog Z -"
+msgstr "Télécommande Z -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog A +"
-msgstr "Jog A +"
+msgstr "Télécommande A +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:438
 msgid "Jog A -"
-msgstr "Jog A -"
+msgstr "Télécommande A -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Jog button selected +"
-msgstr "Bouton + du Jog sélectionné"
+msgstr "Bouton + de télécommande sélectionné"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Jog button selected -"
-msgstr "Bouton - du Jog sélectionné"
+msgstr "Bouton - de télécommande sélectionné"
 
 #: src/emc/usr_intf/pncconf/private_data.py:440
 #: src/emc/usr_intf/pncconf/private_data.py:516
@@ -13732,7 +13899,7 @@ msgstr "Codeur broche"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
 msgid "MPG Jog Controls"
-msgstr "Contrôles sur manivelle de jog"
+msgstr "Contrôles de manivelle de télécommande"
 
 #: src/emc/usr_intf/pncconf/private_data.py:505
 msgid "Override MPG control"
@@ -14106,9 +14273,8 @@ msgid "Quit PNCconf and discard changes?"
 msgstr "Quitter PNCconf et perdre les modifications ?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1112
-#, fuzzy
 msgid "Do you want to quit?"
-msgstr "Que voulez-vous faire:"
+msgstr "Voulez-vous quitter ?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1118
 msgid ""
@@ -14137,9 +14303,8 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:498
-#, fuzzy
 msgid "Servo tuning is not tested in PNCconf yet\n"
-msgstr "Les réglages de servo ne sont pas  opérationnels dans PNCconf \n"
+msgstr "Le réglage des servos dans PNCconf n'est pas encore testé\n"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "degrees"
@@ -14315,29 +14480,6 @@ msgid "page 1"
 msgstr "page 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
-#, fuzzy
-#| msgid ""
-#| "\t\t\t\tPNCconf - Point aNd Click CONFigurator\n"
-#| "PNCconf is a configuration program for Linuxcnc.\n"
-#| "It configures machines using Mesa I/O cards.\n"
-#| "It configures servo,stepper or closed loop stepper machines.\n"
-#| "It supports some of Mesa's sserial cards.\n"
-#| "It will forever be a work in progress as Linuxcnc changes.\n"
-#| "\n"
-#| "Many thanks To:\n"
-#| "Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also "
-#| "has helped with techincal difficulties.\n"
-#| "Big John T - John drew the original machine illustrations. Testing and "
-#| "suggestions.\n"
-#| "Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample "
-#| "equipment to test with.\n"
-#| "Andy Pugh - suggestions, questions answered and many pin name "
-#| "changes :) \n"
-#| "Dave Armstrong - testing and suggestions expecially with resolvers.\n"
-#| "Everyone who gave a bug report ! I cannot test everything thoughly enough "
-#| "so reports help.\n"
-#| "\n"
-#| "Beta 1 version"
 msgid ""
 "\t\t\t\tPNCconf - Point aNd Click CONFigurator\n"
 "PNCconf is a configuration program for Linuxcnc.\n"
@@ -14360,26 +14502,27 @@ msgid ""
 "\n"
 "Beta 1 version"
 msgstr ""
-"\t\t\t\tPNCconf - Configurateur -à la souris-\n"
-"PNCconf est un programme de configuration pour Linuxcnc.\n"
+"\t\t\t\tPNCconf - Configurateur \"Pointer et Cliquer\"\n"
+"PNCconf est un programme de configuration pour LinuxCNC.\n"
 "Il configure les machines utilisant les cartes E/S de Mesa.\n"
-"Il configure les machines à servomoteurs, à pas à pas ou à pas à pas en "
-"boucle fermée.\n"
-"Il supporte certaines cartes série Mesa.\n"
-"Il évoluera pour suivre les changements de Linuxcnc.\n"
+"Il configure les machines à servomoteurs, à moteurs pas à pas, ou pas à pas "
+"en boucle fermée.\n"
+"Il supporte certaines cartes Mesa SmartSerial.\n"
+"Il est pour toujours un travail en cours pour suivre les changements de "
+"LinuxCNC.\n"
 "\n"
-"Merci beaucoup à:\n"
+"Merci beaucoup à :\n"
 "Jeff Eppler - PNCconf est basé sur stepconf qui est une création de Jeff. "
-"Jeff nous a aussi beaucoup aidé à surmonter les difficultés techniques.\n"
-"Big John T - John à créé les illustrations de la machine d'origine. Testé "
-"est faits de nombreuses suggestions.\n"
-"Peter Wallace - Questions techniques sur les cartes E/S Mesa. Il nous a "
-"fourni des équipements pour nos test.\n"
+"Jeff a aussi aidé à surmonter les difficultés techniques.\n"
+"Big John T - John à créé les illustrations originales de la machine, testé, "
+"et fait de nombreuses suggestions.\n"
+"Peter Wallace - Questions techniques sur les cartes E/S Mesa. Fourniture des "
+"équipements de test.\n"
 "Andy Pugh - Suggestions, réponses aux questions et de nombreux changements "
-"de noms de pin :) \n"
-"Dave Armstrong - Il a testé et suggéré des solutions, spécialement pour les "
+"de noms de broches :) \n"
+"Dave Armstrong - Tests et suggestion de solutions, spécialement pour les "
 "résolveurs.\n"
-"Et tout ceux qui nous ont fourni des rapports de bogue ! Je n'aurais pas pu "
+"Et tout ceux qui nous ont fourni des rapports de bogue ! Je n'aurais pas pu "
 "tester tout sans l'aide de ces rapports.\n"
 "\n"
 "Beta 1 version"
@@ -15912,11 +16055,11 @@ msgstr "<b>Broche</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
-msgstr "<b>Boutons de jog externes</b>"
+msgstr "<b>Boutons de télécommande externes</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:454
 msgid "<b>External MPG Jogging</b>"
-msgstr "<b>Manivelle de jog externe</b>"
+msgstr "<b>Manivelle de télécommande externe</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:477
 msgid "<b>External Feed Override</b>"
@@ -15932,9 +16075,8 @@ msgid "<b>Spindle Override</b>"
 msgstr "<b>Correcteur de vitesse broche externe</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:546
-#, fuzzy
 msgid "<b>USB Jogging</b>"
-msgstr "<b>Joystick USB pour le jog</b>"
+msgstr "<b>Télécommande USB</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:711
 msgid ""
@@ -16071,7 +16213,7 @@ msgstr "Contrôle analogique"
 
 #: src/emc/usr_intf/pncconf/external.glade:1475
 msgid "Joy Jog"
-msgstr ""
+msgstr "Télécommande Joy"
 
 #: src/emc/usr_intf/pncconf/external.glade:1489
 msgid "shared buttons for all axis"
@@ -16083,7 +16225,7 @@ msgstr "Boutons pour chacun des axes"
 
 #: src/emc/usr_intf/pncconf/external.glade:1566
 msgid "B JOG"
-msgstr ""
+msgstr "Télécommande B"
 
 #: src/emc/usr_intf/pncconf/external.glade:1580
 msgid "Shared MPG / selectable axis"
@@ -18232,10 +18374,14 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:667
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
+"Incréments de télécommande par défaut introuvables dans la section [DISPLAY] "
+"du fichier INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:680
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
+"Incréments de télécommande angulaire par défaut introuvables dans la section "
+"[DISPLAY] du fichier INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:689
 #, python-format
@@ -18412,9 +18558,8 @@ msgid "Machine powered on"
 msgstr "Machine en marche"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2558
-#, fuzzy
 msgid "Machine Estopped!"
-msgstr "Position machine"
+msgstr "Machine Arrêtée d'Urgence !"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2564
 #, fuzzy
@@ -18558,11 +18703,11 @@ msgstr "Créer une nouvelle configuration"
 #: src/emc/usr_intf/gscreen/gscreen.py:4105
 #: src/emc/usr_intf/gscreen/gscreen.py:4172
 msgid "Can't jog multiple axis"
-msgstr ""
+msgstr "Impossible de télécommander plusieurs jointures"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4108
 msgid "No axis selected to jog"
-msgstr ""
+msgstr "Pas de jointure sélectionnée pour la télécommande"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4175
 msgid "No axis selected to move"
@@ -18755,9 +18900,8 @@ msgid " At Speed "
 msgstr "LED Vitesse de broche atteinte"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1546
-#, fuzzy
 msgid " Jog mode"
-msgstr "Mode articulations"
+msgstr " Mode télécommande"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1600
 msgid "10 DPM"
@@ -19055,11 +19199,12 @@ msgid ""
 msgstr "Bascule envoi auto"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3039
-#, fuzzy
 msgid ""
 "Jogging\n"
 "  Mode"
-msgstr "Jog"
+msgstr ""
+"Mode\n"
+"Télécommande"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3051
 #, fuzzy
@@ -19136,18 +19281,20 @@ msgid ""
 msgstr "Correcteur de vitesse broche"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3367
-#, fuzzy
 msgid ""
 "   Jog\n"
 "Speed"
-msgstr "Vitesse de jog:"
+msgstr ""
+"   Vitesse de\n"
+"Télécommande"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3380
-#, fuzzy
 msgid ""
 "      Jog\n"
 "Increments"
-msgstr "Incréments"
+msgstr ""
+"      Incréments de\n"
+"Télécommande"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3396
 msgid ""
@@ -19468,21 +19615,18 @@ msgstr ""
 
 #: lib/python/gladevcp/offsetpage.glade:210
 #: lib/python/gladevcp/offsetpage.glade:224
-#, fuzzy
 msgid "G59.1"
-msgstr "P7  G59._1"
+msgstr "G59.1"
 
 #: lib/python/gladevcp/offsetpage.glade:227
 #: lib/python/gladevcp/offsetpage.glade:241
-#, fuzzy
 msgid "G59.2"
-msgstr "P8  G59._2"
+msgstr "G59.2"
 
 #: lib/python/gladevcp/offsetpage.glade:244
 #: lib/python/gladevcp/offsetpage.glade:258
-#, fuzzy
 msgid "G59.3"
-msgstr "P9  G59._3"
+msgstr "G59.3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 #, fuzzy
