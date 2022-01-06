@@ -16,17 +16,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# This fixes integer division error
-# so dividing two integers gives a float
-
 import sys, os
 import math
 
 # localization
 import locale
 locale.setlocale( locale.LC_ALL, '' )
-
 datadir = os.path.abspath( os.path.dirname( __file__ ) )
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.bindtextdomain("linuxcnc", LOCALEDIR)
 
 import gi
 gi.require_version("Gtk","3.0")
@@ -53,6 +52,7 @@ class Calculator( Gtk.VBox ):
         self.integer_only = False
         self.has_num_pad_only = False
         self.wTree = Gtk.Builder()
+        self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file( os.path.join( datadir, "calculator.glade" ) )
         dic = {
             "on_displayText_activate" : self.displayText,
