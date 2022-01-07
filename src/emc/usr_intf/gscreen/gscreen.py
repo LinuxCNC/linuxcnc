@@ -1979,11 +1979,7 @@ class Gscreen:
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.preset_spindle_dialog = Gtk.Dialog(_("Spindle Speed Preset Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
-
+                   0, destroy_with_parent = True)
         calc = gladevcp.Calculator()
         self.data.preset_spindle_dialog.vbox.pack_start(label, False, False, 0)
         self.data.preset_spindle_dialog.vbox.add(calc)
@@ -2015,10 +2011,7 @@ class Gscreen:
         if self.data.index_tool_dialog: return
         self.data.index_tool_dialog = Gtk.Dialog(_("Manual Tool Index Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         label = Gtk.Label(_("Manual Tool Index Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.index_tool_dialog.vbox.pack_start(label, False, False, 0)
@@ -2028,10 +2021,10 @@ class Gscreen:
         calc.set_property("font","sans 20")
         calc.set_editable(True)
         calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',Gtk.ResponseType.ACCEPT))
-        self.data.index_tool_dialog.parse_geometry("400x400")
-        self.data.index_tool_dialog.show_all()
-        calc.num_pad_only(True)
         calc.integer_entry_only(True)
+        calc.num_pad_only(True)
+        self.data.index_tool_dialog.parse_geometry("360x400")
+        self.data.index_tool_dialog.show_all()
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
 
     def on_index_tool_return(self,widget,result,calc):
@@ -2197,10 +2190,7 @@ class Gscreen:
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.entry_dialog = Gtk.Dialog(title,
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         calc = gladevcp.Calculator()
         calc.set_editable(True)
         self.data.entry_dialog.vbox.pack_start(label, False, False, 0)
@@ -3789,9 +3779,7 @@ class Gscreen:
             return_method = self.restart_dialog_return
         self.data.restart_dialog = Gtk.Dialog(_("Restart Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         label = Gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.restart_dialog.vbox.pack_start(label, False, False, 0)
@@ -3800,22 +3788,25 @@ class Gscreen:
         calc.set_value("%d"%self.data.last_line)
         calc.set_property("font","sans 20")
         calc.set_editable(True)
-        box = Gtk.HButtonBox()
-        upbutton = Gtk.Button(label = _("Up"))
-        box.add(upbutton)
-        enterbutton = Gtk.Button(label = _("Enter"))
-        box.add(enterbutton)
-        downbutton = Gtk.Button(label = _("Down"))
-        box.add(downbutton)
-        calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
+        calc.integer_entry_only(True)
+        calc.num_pad_only(True)
+        calc.entry.connect("activate",return_method,True,calc)
+        # add additional buttons
+        upbutton = Gtk.Button.new_with_mnemonic(_("_Up     "))
+        upbutton.set_image(Gtk.Image.new_from_icon_name("go-up", Gtk.IconSize.BUTTON))
+        downbutton = Gtk.Button.new_with_mnemonic(_("_Down"))
+        downbutton.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.BUTTON))
+        enterbutton = Gtk.Button.new_with_mnemonic(_("_Jump to"))
+        enterbutton.set_image(Gtk.Image.new_from_icon_name("go-jump", Gtk.IconSize.BUTTON))
+        calc.table.attach(upbutton,3,4,1,2)
+        calc.table.attach(downbutton,3,4,2,3)
+        calc.table.attach(enterbutton,3,4,3,4)
         upbutton.connect("clicked",self.restart_up,calc)
         downbutton.connect("clicked",self.restart_down,calc)
-        enterbutton.connect("clicked",lambda w:calc.entry.emit('activate'))
-        calc.entry.connect("activate",return_method,True,calc)
-        self.data.restart_dialog.parse_geometry("400x400+0+0")
+        enterbutton.connect("clicked", self.restart_set_line,calc)
+
+        self.data.restart_dialog.parse_geometry("410x400+0+0")
         self.data.restart_dialog.show_all()
-        calc.num_pad_only(True)
-        calc.integer_entry_only(True)
         self.data.restart_dialog.connect("response", return_method,calc)
 
     # either start the gcode at the line specified or cancel
