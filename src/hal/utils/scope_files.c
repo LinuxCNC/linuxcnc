@@ -111,6 +111,7 @@ typedef struct {
 *                     LOCAL FUNCTION PROTOTYPES                        *
 ************************************************************************/
 
+static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type);
 static int parse_command(char *in);
 /* the following functions implement halscope config items
    each is called with a pointer to a single argument (the parser
@@ -319,7 +320,7 @@ void write_log_file (char *filename)
 						if ((n % sample_len) != 0) {
 							fprintf(fp, ";");
 						}
-						write_sample(fp, label[chan_num], dptr, type[chan_num]);
+						write_sample(fp, dptr, type[chan_num]);
 						/* point to next sample */
 						n++;
 					}
@@ -330,7 +331,7 @@ void write_log_file (char *filename)
 					n=chan_num;
 					while (n <= samples) {
 						dptr=start+n;
-						write_sample( fp, label[chan_num], dptr, type[chan_num]);
+						write_sample(fp, dptr, type[chan_num]);
 						fprintf( fp, "\n");
 						/* point to next sample */
 						n += sample_len;
@@ -346,7 +347,7 @@ void write_log_file (char *filename)
 }
 
 /* format the data and print it */
-void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
+static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type)
 {
 	double data_value;
 	switch (type) {
