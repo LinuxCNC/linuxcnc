@@ -1076,7 +1076,7 @@ class gmoccapy(object):
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_property("max") / 60
             else:
-                value = self.stat.max_velocity
+                value = self.max_velocity
         else:
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_value() / 60
