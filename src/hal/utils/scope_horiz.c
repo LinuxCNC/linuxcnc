@@ -780,9 +780,9 @@ void log_popup(GtkWindow *parent)
                                         _("_Cancel"), GTK_RESPONSE_CANCEL,
                                         _("_Save"), GTK_RESPONSE_ACCEPT, NULL);
 
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(filew), "halscope.log");
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(filew), "halscope.csv");
     chooser = GTK_FILE_CHOOSER(filew);
-    set_file_filter(chooser, "Halscope log", "*.log");
+    set_file_filter(chooser, "Text CSV (.csv)", "*.csv");
     gtk_file_chooser_set_do_overwrite_confirmation(chooser, TRUE);
 
     if (gtk_dialog_run(GTK_DIALOG(filew)) == GTK_RESPONSE_ACCEPT) {

@@ -32,6 +32,7 @@
     information, go to https://linuxcnc.org.
 */
 
+#include <locale.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -247,7 +248,7 @@ void write_log_file (char *filename)
     scope_chan_t *chan;
     hal_type_t type[16];
     FILE *fp;
-
+    char *old_locale, *saved_locale;
 
 
     fp = fopen(filename, "w");
@@ -276,21 +277,49 @@ void write_log_file (char *filename)
 	log->order=INTERLACED;
 
     /* write data */
-    fprintf(fp, "Sampling period is %i ns \n", sample_period_ns );
+    fprintf(fp, "# Sampling period is %i ns\n", sample_period_ns);
 
 	/* point to the first sample in the display buffer */
-	start = ctrl_usr->disp_buf ;
+	start = ctrl_usr->disp_buf;
+
+    /* write header to csv file */
+    for (chan_num = 0; chan_num < sample_len; chan_num++) {
+        fprintf(fp, "%s", label[chan_num]);
+        if (chan_num < sample_len - 1) {
+            fprintf(fp, ";");
+        }
+    }
+
+    /*
+     * Specify LC_NUMERIC, makes the number format consistent, regardless
+     * which locale previously in use. Necessary since the number format changes
+     * with different locales.
+     */
+    old_locale = setlocale(LC_NUMERIC, NULL);
+    if (old_locale == NULL) {
+        fprintf(stderr, "ERROR: Could not read locale.");
+        return;
+    }
+    saved_locale = strdup(old_locale);
+    if (saved_locale == NULL) {
+        fprintf(stderr, "ERROR: Could not copy old locale.");
+        return;
+    }
+    setlocale(LC_NUMERIC, "C");
 
 	switch (log->order) {
 		case INTERLACED:
 				while (n <= samples) {
 
-					for (chan_num=0; chan_num<sample_len; chan_num++) {
-						dptr=start+n;
-						if ((n%sample_len)==0){
-						fprintf( fp, "\n");
+					for (chan_num = 0; chan_num < sample_len; chan_num++) {
+						dptr = start + n;
+						if ((n % sample_len) == 0) {
+							fprintf(fp, "\n");
 						}
-						write_sample( fp, label[chan_num], dptr, type[chan_num]);
+						if ((n % sample_len) != 0) {
+							fprintf(fp, ";");
+						}
+						write_sample(fp, label[chan_num], dptr, type[chan_num]);
 						/* point to next sample */
 						n++;
 					}
@@ -311,6 +340,8 @@ void write_log_file (char *filename)
 	}
 
     fclose(fp);
+    setlocale(LC_NUMERIC, saved_locale);
+    free(saved_locale);
     fprintf(stderr, "Log file '%s' written.\n", filename );
 }
 
@@ -339,9 +370,8 @@ void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
 			data_value = 0.0;
 			break;
 		}
-	/*actually write the data to disk */
-	/* this should look something like CHAN1 1.234 */
-	fprintf(fp, "%s %+.14f ", label, data_value );
+	/* actually write the data to disk */
+	fprintf(fp, "%.14f", data_value);
 }
 
 
