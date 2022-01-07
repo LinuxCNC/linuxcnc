@@ -238,50 +238,43 @@ void write_config_file (char *filename)
 
 /* writes captured data to disk */
 
-void write_log_file (char *filename)
+void write_log_file(char *filename)
 {
-	scope_data_t *dptr, *start;
-	scope_horiz_t *horiz;
-	int sample_len, chan_num, sample_period_ns, samples, n;
-	char *label[16];
-    //scope_disp_t *disp;
-	scope_log_t *log;
     scope_chan_t *chan;
+    scope_data_t *dptr, *start;
+    scope_horiz_t *horiz;
     hal_type_t type[16];
-    FILE *fp;
-    char *old_locale, *saved_locale;
 
+    char *label[16];
+    char *old_locale, *saved_locale;
+    int sample_len, chan_num, sample_period_ns, samples, n;
+    FILE *fp;
 
     fp = fopen(filename, "w");
-    if ( fp == NULL ) {
-	fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename );
-	return;
+    if (fp == NULL) {
+        fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename);
+        return;
     }
 
-	/* fill in local variables */
-	for (chan_num=0; chan_num<16; chan_num++) {
-		chan = &(ctrl_usr->chan[chan_num]);
-	    label[chan_num] = chan->name;
-	 	type[chan_num] = chan->data_type;
-	}
-	/* sample_len is really the number of channels, don't let it fool you */
-	sample_len = ctrl_shm->sample_len;
-    //disp = &(ctrl_usr->disp);
-	n=0;
-	samples = ctrl_usr->samples*sample_len ;
-	//fprintf(stderr, "maxsamples = %p \n", maxsamples);
-	log = &(ctrl_usr->log);
-	horiz = &(ctrl_usr->horiz);
-	sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
+    /* fill in local variables */
+    for (chan_num = 0; chan_num < 16; chan_num++) {
+        chan = &(ctrl_usr->chan[chan_num]);
+        label[chan_num] = chan->name;
+        type[chan_num] = chan->data_type;
+    }
 
-	//for testing, this will be a check box or something eventually
-	log->order=INTERLACED;
+    /* sample_len is really the number of channels, don't let it fool you */
+    sample_len = ctrl_shm->sample_len;
+    samples = ctrl_usr->samples * sample_len;
+
+    horiz = &(ctrl_usr->horiz);
+    sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
 
     /* write data */
     fprintf(fp, "# Sampling period is %i ns\n", sample_period_ns);
 
-	/* point to the first sample in the display buffer */
-	start = ctrl_usr->disp_buf;
+    /* point to the first sample in the display buffer */
+    start = ctrl_usr->disp_buf;
 
     /* write header to csv file */
     for (chan_num = 0; chan_num < sample_len; chan_num++) {
@@ -308,37 +301,21 @@ void write_log_file (char *filename)
     }
     setlocale(LC_NUMERIC, "C");
 
-	switch (log->order) {
-		case INTERLACED:
-				while (n <= samples) {
-
-					for (chan_num = 0; chan_num < sample_len; chan_num++) {
-						dptr = start + n;
-						if ((n % sample_len) == 0) {
-							fprintf(fp, "\n");
-						}
-						if ((n % sample_len) != 0) {
-							fprintf(fp, ";");
-						}
-						write_sample(fp, dptr, type[chan_num]);
-						/* point to next sample */
-						n++;
-					}
-   				 }
-				break;
-		case NOT_INTERLACED:
-				for (chan_num=0; chan_num<sample_len; chan_num++) {
-					n=chan_num;
-					while (n <= samples) {
-						dptr=start+n;
-						write_sample(fp, dptr, type[chan_num]);
-						fprintf( fp, "\n");
-						/* point to next sample */
-						n += sample_len;
-					}
-   				 }
-				break;
-	}
+    n = 0;
+    while (n <= samples) {
+        for (chan_num = 0; chan_num < sample_len; chan_num++) {
+            dptr = start + n;
+            if ((n % sample_len) == 0) {
+                fprintf(fp, "\n");
+            }
+            if ((n % sample_len) != 0) {
+                fprintf(fp, ";");
+            }
+            write_sample(fp, dptr, type[chan_num]);
+            /* point to next sample */
+            n++;
+        }
+    }
 
     fclose(fp);
     setlocale(LC_NUMERIC, saved_locale);

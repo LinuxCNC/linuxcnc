@@ -182,21 +182,6 @@ typedef struct {
     int selected_part;
 } scope_disp_t;
 
-/* this struct holds data relating to logging */
-
-typedef enum { INTERLACED, NOT_INTERLACED } log_order_t;
-typedef enum { OVERWRITE, APPEND } log_append_t;
-typedef struct {
-	/* logging preferences */
-	log_order_t order; /* order that fields are written */
-	int auto_save; /* save log every trigger */
-	char *filename, *default_filename;
-	log_append_t append;
-	GtkWidget *log_win;
-	GtkWidget *log_prefs_button;
-	GtkWidget *log_prefs_label;
-} scope_log_t;
-
 /* this is the master user space control structure */
 
 typedef enum { STOP = 0, NORMAL, SINGLE, ROLL } scope_run_mode_t;
@@ -232,7 +217,6 @@ typedef struct {
     scope_vert_t vert;		/* vertical control data */
     scope_trig_t trig;		/* triggering data */
     scope_disp_t disp;		/* display data */
-	scope_log_t log;  		/* logging preferences */
 } scope_usr_control_t;
 
 /***********************************************************************
