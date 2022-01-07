@@ -343,7 +343,7 @@ void write_log_file (char *filename)
     fclose(fp);
     setlocale(LC_NUMERIC, saved_locale);
     free(saved_locale);
-    fprintf(stderr, "Log file '%s' written.\n", filename );
+    printf("Log file '%s' written.\n", filename);
 }
 
 /* format the data and print it */
