@@ -466,6 +466,13 @@ class gmoccapy(object):
         # 
         self._sensitize_widgets(widgetlist, False)
 
+        # if limit switch active, activate ignore-checkbox
+        if any(self.stat.limit):
+            self.widgets.ntb_jog.set_sensitive(True)
+            self.widgets.ntb_jog_JA.set_sensitive(False)
+            self.widgets.vbtb_jog_incr.set_sensitive(False)
+            self.widgets.hbox_jog_vel.set_sensitive(False)
+
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
         self._init_notification()
