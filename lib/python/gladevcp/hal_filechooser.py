@@ -149,7 +149,8 @@ class _EMC_FileChooser(_EMC_ActionBase):
             #print "New filter %s: %s" % (n, el)
             p = gtk.FileFilter()
             p.set_name(n)
-            map(lambda s: p.add_pattern('*' + s), el)
+            for s in el:
+                p.add_pattern('*' + s)
             #print p
             return p
         all_extensions = [".ngc"]
@@ -201,8 +202,8 @@ class EMC_Action_Open(_EMC_Action, _EMC_FileChooser):
         if self.fixed_file:
             self.load_file(self.fixed_file)
             return
-        dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FILE_CHOOSER_ACTION_OPEN, 
-                buttons=(gtk.STOCK_CANCEL,gtk.RESPONSE_CANCEL,gtk.STOCK_OPEN,gtk.ResponseType.OK))
+        dialog = EMC_FileChooserDialog(title="Open File",action=gtk.FileChooserAction.OPEN, 
+                buttons=(gtk.STOCK_CANCEL,gtk.ResponseType.CANCEL,gtk.STOCK_OPEN,gtk.ResponseType.OK))
         dialog.set_current_folder(self.currentfolder)
         dialog.show()
         r = dialog.run()

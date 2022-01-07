@@ -16,17 +16,16 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# This fixes integer division error
-# so dividing two integers gives a float
-
 import sys, os
 import math
 
 # localization
 import locale
 locale.setlocale( locale.LC_ALL, '' )
-
 datadir = os.path.abspath( os.path.dirname( __file__ ) )
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.bindtextdomain("linuxcnc", LOCALEDIR)
 
 import gi
 gi.require_version("Gtk","3.0")
@@ -51,7 +50,9 @@ class Calculator( Gtk.VBox ):
         self.font = "sans 12"
         self.is_editable = False
         self.integer_only = False
+        self.has_num_pad_only = False
         self.wTree = Gtk.Builder()
+        self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file( os.path.join( datadir, "calculator.glade" ) )
         dic = {
             "on_displayText_activate" : self.displayText,
@@ -78,31 +79,46 @@ class Calculator( Gtk.VBox ):
             "on_Add_clicked" : self.displayAdd,
             "on_Backspace_clicked" : self.displayBackspace,
             "on_mm_inch_clicked" : self.displayMmInch,
-            "on_inch_mm_clicked" : self.displayInchMm            
+            "on_inch_mm_clicked" : self.displayInchMm,
+            "on_ok_button_clicked" : self.on_ok_button_clicked,
+            "on_cancel_button_clicked" : self.on_cancel_button_clicked
             }
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
         self.entry.modify_font( Pango.FontDescription( self.font ) )
         self.calc_box = self.wTree.get_object( "calc_box" )
-        window = self.wTree.get_object( "calc_box" )
-        window.reparent( self )
+        self.calc_box.set_vexpand(True)
+        self.calc_box.set_hexpand(True)
+        self.table = self.wTree.get_object("table1")
+        self.window = self.calc_box.get_parent()
+        self.window.remove(self.calc_box)
+        self.add(self.calc_box)
 
     def num_pad_only( self, value ):
-        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", "Add", "Minus", "Equal"]
-        for i in objects:
-            temp = self.wTree.get_object( i )
-            if value:
-                temp.hide()
-            else:
-                temp.show()
+        self.has_num_pad_only = value
+        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", 
+            "Add", "Minus", "Equal", "Inch_mm", "mm_Inch", "Backspace", "CLR", 
+            "Inch_mm", "mm_Inch", "cancel_button", "ok_button"]
+        if value:    
+            for i in objects:
+                self.table.remove(self.wTree.get_object(i))
+        if self.integer_only:
+            col_offs = 0
+        else:
+            col_offs = 1
+        self.table.resize(5, 3+col_offs)
+        # reorder items to fit size-reduced table
+        self.table.attach(self.wTree.get_object("Backspace"), 1, 2, 0, 1)
+        self.table.attach(self.wTree.get_object("CLR"), 2, 3, 0, 1)
+        self.table.attach(self.wTree.get_object("cancel_button"), 1+col_offs, 2+col_offs, 4, 5)
+        self.table.attach(self.wTree.get_object("ok_button"), 2+col_offs, 3+col_offs, 4, 5)        
+        self.show_all()
 
     def integer_entry_only( self, value ):
-        temp = self.wTree.get_object( 'Dot' )
         if value:
-            temp.hide()
+            self.table.remove(self.wTree.get_object('Dot'))
             self.integer_only = True
         else:
-            temp.show()
             self.integer_only = False
 
     def set_editable( self, value ):
@@ -282,6 +298,14 @@ class Calculator( Gtk.VBox ):
         self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
         self.compute()
 
+    def on_ok_button_clicked ( self, widget ):        
+        dialog = self.calc_box.get_toplevel()
+        dialog.response(Gtk.ResponseType.ACCEPT)
+
+    def on_cancel_button_clicked ( self, widget ):
+        dialog = self.calc_box.get_toplevel()
+        dialog.response(Gtk.ResponseType.REJECT)        
+
     def do_get_property( self, property ):
         name = property.name.replace( '-', '_' )
         if name in list(self.__gproperties.keys()):
@@ -303,9 +327,7 @@ class Calculator( Gtk.VBox ):
 def main():
     window = Gtk.Dialog( "My dialog",
                    None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   ( Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT ) )
+                   modal=True, destroy_with_parent=True )
     calc = Calculator()
 
     window.vbox.add( calc )
