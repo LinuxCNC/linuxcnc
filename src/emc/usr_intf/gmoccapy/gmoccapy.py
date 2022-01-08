@@ -649,7 +649,7 @@ class gmoccapy(object):
 
         if num_elements > 7:
             # show the previous arrow to switch visible homing button)
-            btn = self._get_button_with_image("previous_button", None, Gtk.STOCK_GO_BACK)
+            btn = self._get_button_with_image("previous_button", None, "gtk-go-back")
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_clicked)
             self.widgets.hbtb_ref.pack_start(btn,True,True,0)
@@ -680,7 +680,7 @@ class gmoccapy(object):
 
         if num_elements > 7:
             # show the next arrow to switch visible homing button)
-            btn = self._get_button_with_image("next_button", None, Gtk.STOCK_GO_FORWARD)
+            btn = self._get_button_with_image("next_button", None, "gtk-go-forward")
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_clicked)
             self.widgets.hbtb_ref.pack_start(btn,True,True,0)
@@ -701,7 +701,7 @@ class gmoccapy(object):
         self.widgets.hbtb_ref.pack_start(btn,True,True,0)
         
         name = "home_back"
-        btn = self._get_button_with_image(name, None, Gtk.STOCK_UNDO)
+        btn = self._get_button_with_image(name, None, "gtk-undo")
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
         self.widgets.hbtb_ref.pack_start(btn,True,True,0)
@@ -720,7 +720,7 @@ class gmoccapy(object):
         lbl.show()
         return lbl
 
-    def _get_button_with_image(self, name, filepath, stock):
+    def _get_button_with_image(self, name, filepath, icon_name):
         print("get button with image")
         image = Gtk.Image()
         image.set_size_request(72,48)
@@ -732,14 +732,14 @@ class gmoccapy(object):
                 pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_size(filepath, 48, 48)
                 image.set_from_pixbuf(pixbuf)
             else:
-                image.set_from_icon_name(stock, 48)
+                image.set_from_icon_name(icon_name, Gtk.IconSize.DIALOG)
             btn.add(image)
         except Exception as e:
             print(e)
             message = _("**** GMOCCAPY ERROR ****\n")
             message += _("**** could not resolv the image path '{0}' given for button '{1}' ****".format(filepath, name))
             print(message)
-            image.set_from_icon_name(Gtk.STOCK_MISSING_IMAGE, 48)
+            image.set_from_icon_name("gtk-missing-image", Gtk.IconSize.DIALOG)
             btn.add(image)
         
         btn.show_all()
@@ -903,7 +903,7 @@ class gmoccapy(object):
 
         if num_elements > 6:
             # show the previous arrow to switch visible touch button)
-            btn = self._get_button_with_image("previous_button", None, Gtk.STOCK_GO_BACK)
+            btn = self._get_button_with_image("previous_button", None, "gtk-go-back")
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_touch_clicked)
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -927,7 +927,7 @@ class gmoccapy(object):
 
         if num_elements > (end - 1):
             # show the next arrow to switch visible homing button)
-            btn = self._get_button_with_image("next_button", None, Gtk.STOCK_GO_FORWARD)
+            btn = self._get_button_with_image("next_button", None, "gtk-go-forward")
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_touch_clicked)
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -963,7 +963,7 @@ class gmoccapy(object):
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
-        btn = self._get_button_with_image("touch_back", None, Gtk.STOCK_UNDO)
+        btn = self._get_button_with_image("touch_back", None, "gtk-undo")
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -1217,7 +1217,7 @@ class gmoccapy(object):
 
             num_macros = 16
 
-        btn = self._get_button_with_image("previous_button", None, Gtk.STOCK_GO_BACK)
+        btn = self._get_button_with_image("previous_button", None, "gtk-go-back")
         btn.hide()
         btn.set_property("tooltip-text", _("Press to display previous macro button"))
         btn.connect("clicked", self._on_btn_previous_macro_clicked)
@@ -1244,7 +1244,7 @@ class gmoccapy(object):
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
 
-        btn = self._get_button_with_image("next_button", None, Gtk.STOCK_GO_FORWARD)
+        btn = self._get_button_with_image("next_button", None, "gtk-go-forward")
         btn.set_property("tooltip-text", _("Press to display next macro button"))
         btn.connect("clicked", self._on_btn_next_macro_clicked)
         btn.hide()
