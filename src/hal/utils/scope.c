@@ -547,7 +547,7 @@ static void define_menubar(GtkWidget *vboxtop) {
     filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
     g_signal_connect_swapped(filesavedatafile, "activate",
-            G_CALLBACK(log_popup), 0);
+            G_CALLBACK(save_log_cb), 0);
     gtk_widget_show(filesavedatafile);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);

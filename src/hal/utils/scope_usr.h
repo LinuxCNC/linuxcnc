@@ -281,5 +281,5 @@ int set_trigger_polarity(int setting);
 int set_trigger_mode(int mode);
 int set_run_mode(int mode);
 void prepare_scope_restart(void);
-void log_popup(GtkWindow *parent);
+void save_log_cb(GtkWindow *parent);
 #endif /* SCOPE_USR_H */

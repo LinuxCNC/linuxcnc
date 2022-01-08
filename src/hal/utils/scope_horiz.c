@@ -77,6 +77,7 @@ static void acquire_popup(GtkWidget * widget, gpointer gdata);
 static void dialog_realtime_not_loaded(void);
 static void dialog_realtime_not_linked(void);
 static void dialog_realtime_not_running(void);
+static void log_popup(GtkWindow *parent);
 static void acquire_selection_made(GtkWidget *widget, gpointer data);
 static int set_sample_thread_name(char *name);
 static int activate_sample_thread(void);
@@ -770,7 +771,34 @@ static void dialog_realtime_not_running(void)
     }
 }
 
-void log_popup(GtkWindow *parent)
+void save_log_cb(GtkWindow *parent)
+{
+    scope_vert_t *vert;
+    GtkWidget *dialog;
+    int i;
+
+    /* Only create log if one or more channels is selected. */
+    vert = &(ctrl_usr->vert);
+    for (i = 0; i < 16; i++) {
+        if (vert->chan_enabled[i] == 1) {
+            log_popup(parent);
+            return;
+        }
+    }
+
+    dialog = gtk_message_dialog_new(NULL,
+                                    GTK_DIALOG_MODAL,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_OK,
+                                    _("No channels selected"));
+    gtk_message_dialog_format_secondary_text(
+            GTK_MESSAGE_DIALOG(dialog),
+            _("You need to choose at least one channel."));
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
+static void log_popup(GtkWindow *parent)
 {
     GtkWidget *filew;
     GtkFileChooser *chooser;
