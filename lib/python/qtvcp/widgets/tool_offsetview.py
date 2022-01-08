@@ -528,6 +528,7 @@ class MyTableModel(QAbstractTableModel):
             #print(">>> setData() role = ", role)
             #print(">>> setData() index.column() = ", index.column())
             if value == Qt.Checked:
+                self.uncheckAllTools()
                 self.arraydata[index.row()][index.column()].setChecked(True)
                 #self.arraydata[index.row()][index.column()].setText("Delete")
                 #print 'selected',self.arraydata[index.row()][1]
