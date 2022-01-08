@@ -243,11 +243,12 @@ void write_log_file(char *filename)
     scope_chan_t *chan;
     scope_data_t *dptr, *start;
     scope_horiz_t *horiz;
+    scope_vert_t *vert;
     hal_type_t type[16];
 
     char *label[16];
     char *old_locale, *saved_locale;
-    int sample_len, chan_num, sample_period_ns, samples, n;
+    int sample_len, chan_active, chan_num, sample_period_ns, samples, n;
     FILE *fp;
 
     fp = fopen(filename, "w");
@@ -256,11 +257,16 @@ void write_log_file(char *filename)
         return;
     }
 
-    /* fill in local variables */
+    /* Get name and type of active channels. */
+    chan_active = 0;
+    vert = &(ctrl_usr->vert);
     for (chan_num = 0; chan_num < 16; chan_num++) {
-        chan = &(ctrl_usr->chan[chan_num]);
-        label[chan_num] = chan->name;
-        type[chan_num] = chan->data_type;
+        if (vert->chan_enabled[chan_num] == 1) {
+            chan = &(ctrl_usr->chan[chan_num]);
+            label[chan_active] = chan->name;
+            type[chan_active] = chan->data_type;
+            chan_active++;
+        }
     }
 
     /* sample_len is really the number of channels, don't let it fool you */
@@ -277,12 +283,13 @@ void write_log_file(char *filename)
     start = ctrl_usr->disp_buf;
 
     /* write header to csv file */
-    for (chan_num = 0; chan_num < sample_len; chan_num++) {
+    for (chan_num = 0; chan_num < chan_active; chan_num++) {
         fprintf(fp, "%s", label[chan_num]);
-        if (chan_num < sample_len - 1) {
+        if (chan_num < chan_active - 1) {
             fprintf(fp, ";");
         }
     }
+    fprintf(fp, "\n");
 
     /*
      * Specify LC_NUMERIC, makes the number format consistent, regardless
@@ -302,16 +309,21 @@ void write_log_file(char *filename)
     setlocale(LC_NUMERIC, "C");
 
     n = 0;
-    while (n <= samples) {
+    while (n < samples) {
         for (chan_num = 0; chan_num < sample_len; chan_num++) {
             dptr = start + n;
-            if ((n % sample_len) == 0) {
-                fprintf(fp, "\n");
-            }
-            if ((n % sample_len) != 0) {
-                fprintf(fp, ";");
+            /* Skip values for inactive channels. */
+            if (chan_num >= chan_active) {
+                n++;
+                continue;
             }
             write_sample(fp, dptr, type[chan_num]);
+            if (chan_num < chan_active - 1) {
+                fprintf(fp, ";");
+            }
+            if ((chan_num == chan_active - 1) || (chan_num == 15 && chan_active == 16)) {
+                fprintf(fp, "\n");
+            }
             /* point to next sample */
             n++;
         }
