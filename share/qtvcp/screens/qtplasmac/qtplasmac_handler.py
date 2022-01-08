@@ -1,4 +1,4 @@
-VERSION = '1.221.150'
+VERSION = '1.221.151'
 
 '''
 qtplasmac_handler.py
@@ -1230,6 +1230,8 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
+            # time delay workaround to ensure userspace pins/variables have time to set
+            time.sleep(0.1)
             if self.ccButton and not hal.get_value('plasmac.cut-recovering') and hal.get_value('plasmac.stop-type-out'):
                 self.w[self.ccButton].setEnabled(True)
             if self.tpButton and self.w.torch_enable.isChecked():
@@ -3204,9 +3206,17 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
         else:
+            self.reloadRequired = False
             for command in commands.split('\\'):
                 command = command.strip()
                 self.user_button_command(command)
+                while not STATUS.is_interp_idle():
+                    self.w.gcodegraphics.updateGL()
+                if command.lower().replace(' ', '').startswith('g10l20'):
+                    self.reloadRequired = True
+            if self.reloadRequired:
+                self.file_reload_clicked()
+            ACTION.SET_MANUAL_MODE()
 
     # for g-code commands and external commands
     def user_button_command(self, command):
@@ -3226,8 +3236,6 @@ class HandlerClass:
                         newCommand += char
                 command = newCommand
             ACTION.CALL_MDI(command)
-            if command.lower().replace(' ', '').startswith('g10l20'):
-                self.file_reload_clicked()
         elif command and command[0] == '%':
             command = command.lstrip('%').lstrip() + '&'
             msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
@@ -4329,7 +4337,9 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
             if not self.boundsError['align']:
-                ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+                ACTION.CALL_MDI('G0 X0 Y0')
+                while not STATUS.is_interp_idle():
+                    self.w.gcodegraphics.updateGL()
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -4351,6 +4361,8 @@ class HandlerClass:
         msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('align', 0, 0)
         if not self.boundsError['align']:
             ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+            while not STATUS.is_interp_idle():
+                self.w.gcodegraphics.updateGL()
             ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
