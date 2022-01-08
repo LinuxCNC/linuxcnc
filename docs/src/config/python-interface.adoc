@@ -265,7 +265,7 @@ reflects 'iocontrol.0.lube_level'.
 maximum  acceleration. reflects [TRAJ]MAX_ACCELERATION.
 
 *max_velocity*:: '(returns float)' -
-maximum  velocity. reflects [TRAJ]MAX_VELOCITY.
+maximum  velocity. reflects the current maximum velocity. If not modified by halui.max-velocity or similar it should reflect [TRAJ]MAX_VELOCITY.
 
 *mcodes*:: '(returns tuple of 10 integers)' -
 currently active M-codes.
