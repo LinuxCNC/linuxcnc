@@ -1,4 +1,4 @@
-VERSION = '1.221.151'
+VERSION = '1.221.152'
 
 '''
 qtplasmac_handler.py
@@ -3212,10 +3212,12 @@ class HandlerClass:
                 self.user_button_command(command)
                 while not STATUS.is_interp_idle():
                     self.w.gcodegraphics.updateGL()
-                if command.lower().replace(' ', '').startswith('g10l20'):
+                if command.lower().replace(' ', '').startswith('g10l20') and self.fileOpened:
                     self.reloadRequired = True
             if self.reloadRequired:
                 self.file_reload_clicked()
+            else:
+                self.w.gcodegraphics.logger.clear()
             ACTION.SET_MANUAL_MODE()
 
     # for g-code commands and external commands
