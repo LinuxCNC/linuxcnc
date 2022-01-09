@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2022-01-10 00:54+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -3531,9 +3531,9 @@ msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
 msgstr "Overflow error bei I,B,Q,IQ or WQ mapping erkannt..."
 
 #: src/hal/classicladder/config_gtk.c:632
-#, c-format, fuzzy
+#, c-format
 msgid "Serial port (blank = IP mode)"
-msgstr "Serieller Port (blank = IP mode)"
+msgstr "Serieller Port (leer = IP mode)"
 
 #: src/hal/classicladder/config_gtk.c:636
 #, c-format
