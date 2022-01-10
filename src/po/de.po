@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-10 00:54+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-01-10 18:31+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -132,7 +132,7 @@ msgstr "P-Wert außerhalb des gültigen Bereichs bei G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr "Zwischen G5.2 und G5.3 sind ausschließlich weitere G5.2  gestattet."
+msgstr "Zwischen G5.2 und G5.3 sind ausschließlich weitere G5.2 gestattet."
 
 #: src/emc/rs274ngc/interp_check.cc:260
 msgid ""
@@ -393,9 +393,7 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:2997
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr ""
-"BUG: zurückkehren zu Level %d !? Bitte original Fehlermeldung angeben: "
-"'restore to level'"
+msgstr "BUG: 'restore to level': zurückkehren zu Level %d !?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3016
 #, c-format
@@ -5293,9 +5291,8 @@ msgid ""
 "Would you like to copy the %s configuration to your home directory so you "
 "can customize it?"
 msgstr ""
-"Soll die Konfiguration »%s« in Ihr home-Verzeichnis kopiert werden? \n"
-"Dies ist nötig, damit benutzerspezifische Änderungen duchgeführt werden "
-"können."
+"Soll die Konfiguration »%s« in Ihr home-Verzeichnis kopiert werden, um "
+"benutzerspezifische Änderungen duchführen zu können?"
 
 #: tcl/bin/pickconfig.tcl:813
 msgid "Configuration Copied"
@@ -7353,12 +7350,14 @@ msgid "Cycle among preview, DRO, and user tabs"
 msgstr "Perspektive wechseln"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:250
+#, fuzzy
 msgid "toggle Actual/Commanded"
-msgstr ""
+msgstr "Wechsel aktuell/angewiesen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:251
+#, fuzzy
 msgid "toggle Relative/Machine"
-msgstr ""
+msgstr "Wechsel relativ/Maschine"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:252
 msgid "Ctrl-Space"
@@ -7370,7 +7369,7 @@ msgstr "Mitteilungen löschen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Alt-F, M, V"
-msgstr ""
+msgstr "Alt-F, M, V"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
 #, fuzzy
@@ -7462,8 +7461,9 @@ msgid "Coordinate System:"
 msgstr "Koordinatensystem:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1763
+#, fuzzy
 msgid "fixture"
-msgstr ""
+msgstr "Halterung"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1764
 msgid "workpiece"
@@ -7586,8 +7586,9 @@ msgid "rs274ngc files"
 msgstr "NC Dateien"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2212
+#, fuzzy
 msgid "axis cannot accept remote command while running"
-msgstr ""
+msgstr "Achse kann keine remote Befehle während des Laufs akzeptieren"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2267
 msgid "File not Writable:"
@@ -7614,12 +7615,15 @@ msgid "Custom Grid"
 msgstr "Benutzerdefiniert"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
+#, fuzzy
 msgid "Enter grid size"
-msgstr ""
+msgstr "Eingabe Gitter-Größe"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2652
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
+"Gelenk ist bereits an Referenzpunkt, möchten Sie wirklich die Referenzfahrt "
+"erneut ausführen?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2666
 #, python-format
@@ -7627,15 +7631,21 @@ msgid "home_joint <%s> Use joint mode for homing"
 msgstr "home_joint <%s> Nutze Gelenk-Modus für Referenzfahrt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2669
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
 msgstr ""
+"\n"
+"Referenzfahrt für einzelne Achsen nicht gestattet wegen duplizierten "
+"Buchstaben:<%s> "
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2678
+#, fuzzy
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
+"Das Gelenk ist bereits an Referenzpunkt, möchten Sie die Referenzfahrt "
+"erneut ausführen?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2716
 #, fuzzy
@@ -7665,28 +7675,40 @@ msgid ""
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Fehlender Bezeichner:\n"
+"%s\n"
+"Siehe Dokumentation zur 'INI Konfiguration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3394
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Missing required specifier (has linear joint or axis):\n"
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Fehlender Bezeichner (hat lineares Gelenk oder Achse):\n"
+"%s\n"
+"Siehe Dokumentation zur 'INI Configuration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3407
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "\n"
 "Warning: Missing required specifier (has angular joint or axis):\n"
 "%s\n"
 "See the 'INI Configuration' documents\n"
 msgstr ""
+"\n"
+"Warnung: Fehlender Bezeichner (has angular joint or axis):\n"
+"%s\n"
+"See Dokumentation zur 'INI Konfiguration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3526
 msgid "Axes"
-msgstr ""
+msgstr "Achsen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3528
 msgid "Joints"
@@ -7724,6 +7746,7 @@ msgstr ""
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
+"Bemerke: Anzahl [TRAJ]COORDINATES=%(t)s überschreitet [KINS]JOINTS=%(l)d"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3613
 msgid ""
@@ -7731,11 +7754,14 @@ msgid ""
 "Note:\n"
 "Individual axis homing is not currently supported for"
 msgstr ""
+"\n"
+"Bemerke:\n"
+"Referenzfahrten einzelner Achsen werden derzeit nicht unterstützt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3614
-#, python-format
+#, fuzzy, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
-msgstr ""
+msgstr "KINEMATICS_IDENTITY mit duplizierten Achsen-Bezeichner <%s>\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3626
 #, fuzzy
@@ -7750,7 +7776,7 @@ msgstr "Referenzpunkt"
 #: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Home %(name)s _%(id)s"
-msgstr ""
+msgstr "Home %(name)s _%(id)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3638
 #, python-format
@@ -7763,11 +7789,12 @@ msgstr "Ab hier ausführen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3892
 msgid "toggle PYVCP panel visibility"
-msgstr ""
+msgstr "Wechsel PyVCP Panel Sichtbarkeit"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3894 share/axis/tcl/axis.tcl:387
+#, fuzzy
 msgid "Show pyVCP pan_el"
-msgstr ""
+msgstr "Zeige pyVCP pan_el"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:4165
 msgid "Error in ~/.axisrc"
@@ -8798,7 +8825,7 @@ msgstr "Setze Werkzeugnummer"
 
 #: src/emc/usr_intf/touchy/mdi.py:54 src/emc/usr_intf/gscreen/mdi.py:50
 msgid "Input control"
-msgstr ""
+msgstr "Eingabe Kontrolle"
 
 #: src/emc/usr_intf/touchy/mdi.py:57 src/emc/usr_intf/touchy/mdi.py:58
 #: src/emc/usr_intf/gscreen/mdi.py:53 src/emc/usr_intf/gscreen/mdi.py:54
@@ -9014,23 +9041,23 @@ msgstr "aa"
 
 #: src/emc/usr_intf/touchy/touchy.glade:272
 msgid "ba"
-msgstr ""
+msgstr "ba"
 
 #: src/emc/usr_intf/touchy/touchy.glade:286
 msgid "ca"
-msgstr ""
+msgstr "ca"
 
 #: src/emc/usr_intf/touchy/touchy.glade:300
 msgid "ua"
-msgstr ""
+msgstr "ua"
 
 #: src/emc/usr_intf/touchy/touchy.glade:314
 msgid "va"
-msgstr ""
+msgstr "va"
 
 #: src/emc/usr_intf/touchy/touchy.glade:328
 msgid "wa"
-msgstr ""
+msgstr "wa"
 
 #: src/emc/usr_intf/touchy/touchy.glade:342
 #, fuzzy
@@ -9043,19 +9070,19 @@ msgstr "bd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:370
 msgid "cd"
-msgstr ""
+msgstr "cd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:384
 msgid "ud"
-msgstr ""
+msgstr "ud"
 
 #: src/emc/usr_intf/touchy/touchy.glade:398
 msgid "vd"
-msgstr ""
+msgstr "vd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:412
 msgid "wd"
-msgstr ""
+msgstr "wd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:458
 #, fuzzy
@@ -9105,8 +9132,9 @@ msgid "<b>Homing</b>"
 msgstr "<b>Referenzfahrt</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:648
+#, fuzzy
 msgid "Startup"
-msgstr ""
+msgstr "Hochfahren"
 
 #: src/emc/usr_intf/touchy/touchy.glade:663
 #, fuzzy
@@ -9115,11 +9143,11 @@ msgstr "Werkzeugoffset"
 
 #: src/emc/usr_intf/touchy/touchy.glade:678
 msgid "Set Origin"
-msgstr ""
+msgstr "Setze Ursprung"
 
 #: src/emc/usr_intf/touchy/touchy.glade:693
 msgid "Macro"
-msgstr ""
+msgstr "Makro"
 
 #: src/emc/usr_intf/touchy/touchy.glade:730
 msgid "G"
@@ -9127,7 +9155,7 @@ msgstr "G"
 
 #: src/emc/usr_intf/touchy/touchy.glade:932
 msgid "."
-msgstr ""
+msgstr "."
 
 #: src/emc/usr_intf/touchy/touchy.glade:966
 #: src/emc/usr_intf/stepconf/options.glade:247
@@ -9218,7 +9246,7 @@ msgstr "9"
 #: lib/python/gladevcp/offsetpage.glade:48
 #: lib/python/gladevcp/offsetpage.glade:65
 msgid "8"
-msgstr ""
+msgstr "8"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1115
 #: src/emc/usr_intf/stepconf/ubuttons.glade:141
@@ -9277,8 +9305,9 @@ msgstr "Spindeldrehzahl:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1509
 #: src/emc/usr_intf/touchy/touchy.glade:2680
+#, fuzzy
 msgid "label26"
-msgstr ""
+msgstr "label26"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1535
 msgid "<b>Spindle</b>"
@@ -9286,7 +9315,7 @@ msgstr "<b>Spindel</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1586
 msgid "file.ngc"
-msgstr ""
+msgstr "datei.ngc"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1801
 #: src/emc/usr_intf/touchy/touchy.glade:2006
@@ -9308,7 +9337,7 @@ msgstr "<b>Seite</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2294
 msgid "<span foreground=\"blue\" weight=\"bold\">Start Point</span>"
-msgstr ""
+msgstr "<span foreground=\"blue\" weight=\"bold\">Startpunkt</span>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2432
 msgid "<b>Loaded File</b>"
@@ -9338,8 +9367,9 @@ msgid "Delay:"
 msgstr "Verzögerung:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2525
+#, fuzzy
 msgid "On limit switch:"
-msgstr ""
+msgstr "An Endschalter:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2538
 msgid "Spindle direction:"
@@ -9351,52 +9381,63 @@ msgstr "Geladenes Werkzeug:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2577
 #: src/emc/usr_intf/touchy/touchy.glade:2928
+#, fuzzy
 msgid "label19"
-msgstr ""
+msgstr "label19"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2590
+#, fuzzy
 msgid "label20"
-msgstr ""
+msgstr "label20"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2605
 #: src/emc/usr_intf/touchy/touchy.glade:2752
 #: src/emc/usr_intf/touchy/touchy.glade:2781
 #: src/emc/usr_intf/touchy/touchy.glade:2885
 #: src/emc/usr_intf/touchy/touchy.glade:2900
+#, fuzzy
 msgid "label21"
-msgstr ""
+msgstr "label21"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2620
+#, fuzzy
 msgid "label22"
-msgstr ""
+msgstr "label22"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2635
+#, fuzzy
 msgid "label23"
-msgstr ""
+msgstr "label23"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2650
+#, fuzzy
 msgid "label24"
-msgstr ""
+msgstr "label24"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2665
+#, fuzzy
 msgid "label25"
-msgstr ""
+msgstr "label25"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2695
+#, fuzzy
 msgid "label27"
-msgstr ""
+msgstr "label27"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2710
+#, fuzzy
 msgid "Prepped tool:"
-msgstr ""
+msgstr "Vorbereitetes Werkzeug:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2723
+#, fuzzy
 msgid "label28"
-msgstr ""
+msgstr "label28"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2738
+#, fuzzy
 msgid "Running line:"
-msgstr ""
+msgstr "Ausgeführte Zeile:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2767
 msgid "XY Rotation:"
@@ -9407,8 +9448,9 @@ msgid "Tool length:"
 msgstr "Werkzeuglänge:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2809
+#, fuzzy
 msgid "label52"
-msgstr ""
+msgstr "label52"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2824
 msgid ""
@@ -9416,18 +9458,23 @@ msgid ""
 "M1 M2 M3\n"
 "F1 S1"
 msgstr ""
+"G1 G2 G3\n"
+"M1 M2 M3\n"
+"F1 S1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2843
 msgid "Active codes:"
 msgstr "Aktive Codes:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2856
+#, fuzzy
 msgid "G5x Offset:"
-msgstr ""
+msgstr "G5x Korrektur:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2871
+#, fuzzy
 msgid "G92 Offset:"
-msgstr ""
+msgstr "G92 Korrektur:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2915
 msgid "Loaded file lines:"
@@ -9435,7 +9482,7 @@ msgstr "Geladene Dateizeilen:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2944
 msgid "Pockets:"
-msgstr ""
+msgstr "Taschen:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2957
 msgid ""
@@ -9477,8 +9524,9 @@ msgid "Error Font"
 msgstr "Fehler-Schriftart"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3108
+#, fuzzy
 msgid "Listing Font:"
-msgstr ""
+msgstr "Listing Zeichensatz:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3125
 #, fuzzy
@@ -9487,7 +9535,7 @@ msgstr "Schrift auswählen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3145
 msgid "Hide pointer"
-msgstr ""
+msgstr "Verstecke Zeiger"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3156
 #, fuzzy
@@ -9513,15 +9561,16 @@ msgstr "Zoll"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3320
 msgid "<b>Position Readout</b>"
-msgstr ""
+msgstr "<b>Position Auslesen</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3347
 msgid "Workpiece"
 msgstr "Werkstück"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3358
+#, fuzzy
 msgid "Fixture"
-msgstr ""
+msgstr "Halterung"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3378
 msgid "<b>Tool Setting</b>"
@@ -14120,9 +14169,8 @@ msgid "Quit PNCconf and discard changes?"
 msgstr "PNCconfig beenden und Änderungen verwerfen?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1112
-#, fuzzy
 msgid "Do you want to quit?"
-msgstr "Folgende Optionen stehen zur Verfügung:"
+msgstr "Möchten Sie beenden?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1118
 msgid ""
@@ -14494,15 +14542,16 @@ msgstr "Drucker-Einstellungen"
 
 #: src/emc/usr_intf/pncconf/help.glade:578
 msgid "7i76"
-msgstr ""
+msgstr "7i76"
 
 #: src/emc/usr_intf/pncconf/help.glade:643
 msgid "7i77"
-msgstr ""
+msgstr "7i77"
 
 #: src/emc/usr_intf/pncconf/help.glade:659
+#, fuzzy
 msgid "Map"
-msgstr ""
+msgstr "Karte/Zuordnung"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:71
 #: src/emc/usr_intf/pncconf/mesa1.glade:71
@@ -14529,13 +14578,14 @@ msgstr "Firmware:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:339
 #: src/emc/usr_intf/pncconf/mesa1.glade:339
+#, fuzzy
 msgid "Num of 3 pwm generators: "
-msgstr ""
+msgstr "Anzahl 3 PWM Generatoren "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:367
 #: src/emc/usr_intf/pncconf/mesa1.glade:367
 msgid "Total number of pins:"
-msgstr ""
+msgstr "Gesamtanzahl an Pins:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:391
 #: src/emc/usr_intf/pncconf/mesa1.glade:391
@@ -14556,13 +14606,14 @@ msgstr "PDM-Basisfrequenz:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:432
 #: src/emc/usr_intf/pncconf/mesa1.glade:432
+#, fuzzy
 msgid "Watchdog timeout:"
-msgstr ""
+msgstr "Watchdog timeout:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:565
 #: src/emc/usr_intf/pncconf/mesa1.glade:565
 msgid "Num of encoders:"
-msgstr ""
+msgstr "Anzahl Encoder:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:577
 #: src/emc/usr_intf/pncconf/mesa1.glade:577
@@ -14576,38 +14627,45 @@ msgstr "Anzahl der Schrittgeneratoren: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:601
 #: src/emc/usr_intf/pncconf/mesa1.glade:601
+#, fuzzy
 msgid "Board name"
-msgstr ""
+msgstr "Board Name"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:608
 #: src/emc/usr_intf/pncconf/mesa1.glade:608
+#, fuzzy
 msgid "Num of Smart Serial Ports:"
-msgstr ""
+msgstr "Anzahl Smart Serielle Ports:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:663
 #: src/emc/usr_intf/pncconf/mesa1.glade:663
+#, fuzzy
 msgid "7i29 daughter board"
-msgstr ""
+msgstr "7i29 daughter board"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:676
 #: src/emc/usr_intf/pncconf/mesa1.glade:676
+#, fuzzy
 msgid "7i30 daughter board"
-msgstr ""
+msgstr "7i30 daughter board"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:689
 #: src/emc/usr_intf/pncconf/mesa1.glade:689
+#, fuzzy
 msgid "7i33 daughter board"
-msgstr ""
+msgstr "7i33 daughter board"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:702
 #: src/emc/usr_intf/pncconf/mesa1.glade:702
+#, fuzzy
 msgid "7i40 daughter board"
-msgstr ""
+msgstr "7i40 daughter board"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:715
 #: src/emc/usr_intf/pncconf/mesa1.glade:715
+#, fuzzy
 msgid "7i48 daughter board"
-msgstr ""
+msgstr "7i48 daughter board"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:734
 #: src/emc/usr_intf/pncconf/mesa1.glade:734
@@ -14630,6 +14688,8 @@ msgid ""
 "   Board\n"
 "Discovery"
 msgstr ""
+"   Board\n"
+"Erkennung"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:887
 #: src/emc/usr_intf/pncconf/mesa1.glade:887
@@ -15411,8 +15471,9 @@ msgstr "Funktion"
 #: src/emc/usr_intf/pncconf/mesa1.glade:14077
 #: src/emc/usr_intf/pncconf/mesa1.glade:16002
 #: src/emc/usr_intf/pncconf/mesa1.glade:17928
+#, fuzzy
 msgid "Launch test panel"
-msgstr ""
+msgstr "Start Test Panel"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2859
 #: src/emc/usr_intf/pncconf/mesa0.glade:2872
@@ -15511,7 +15572,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:46289
 #: src/emc/usr_intf/pncconf/mesa1.glade:49403
 msgid "Num"
-msgstr ""
+msgstr "Anzahl"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2892
 #: src/emc/usr_intf/pncconf/mesa1.glade:2892
@@ -15744,33 +15805,39 @@ msgstr "Seite 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23539
 #: src/emc/usr_intf/pncconf/mesa1.glade:23541
+#, fuzzy
 msgid "Smart Serial 0"
-msgstr ""
+msgstr "Smart Seriell 0"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:28721
 #: src/emc/usr_intf/pncconf/mesa1.glade:28723
+#, fuzzy
 msgid "Smart Serial 1"
-msgstr ""
+msgstr "Smart Seriell 1"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:33903
 #: src/emc/usr_intf/pncconf/mesa1.glade:33905
+#, fuzzy
 msgid "Smart Serial 2"
-msgstr ""
+msgstr "Smart Seriell 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:39085
 #: src/emc/usr_intf/pncconf/mesa1.glade:39087
+#, fuzzy
 msgid "Smart Serial 3"
-msgstr ""
+msgstr "Smart Seriell 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:44267
 #: src/emc/usr_intf/pncconf/mesa1.glade:44269
+#, fuzzy
 msgid "Smart Serial 4"
-msgstr ""
+msgstr "Smart Seriell 4"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:49449
 #: src/emc/usr_intf/pncconf/mesa1.glade:49451
+#, fuzzy
 msgid "Smart Serial 5"
-msgstr ""
+msgstr "Smart Seriell 5"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
 #, fuzzy
@@ -15790,32 +15857,33 @@ msgid "Show Advanced Option Pages"
 msgstr "Erweiterte Optionen"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
+#, fuzzy
 msgid "Use INI substitution for Mesa board names."
-msgstr ""
+msgstr "Nutze INI Substitution für Mesa Board Namen."
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
-msgstr ""
+msgstr "9600"
 
 #: src/emc/usr_intf/pncconf/external.glade:161
 msgid "19200"
-msgstr ""
+msgstr "19200"
 
 #: src/emc/usr_intf/pncconf/external.glade:165
 msgid "38400"
-msgstr ""
+msgstr "38400"
 
 #: src/emc/usr_intf/pncconf/external.glade:169
 msgid "57600"
-msgstr ""
+msgstr "57600"
 
 #: src/emc/usr_intf/pncconf/external.glade:173
 msgid "115200"
-msgstr ""
+msgstr "115200"
 
 #: src/emc/usr_intf/pncconf/external.glade:189
 msgid "/dev/ttyS0"
-msgstr ""
+msgstr "/dev/ttyS0"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 #, fuzzy
@@ -15823,12 +15891,14 @@ msgid "<b>Serial VFD</b>"
 msgstr "<b>Spindel</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
+#, fuzzy
 msgid "<b>External Button Jogging</b>"
-msgstr ""
+msgstr "<b>Externer Button Jogging</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:454
+#, fuzzy
 msgid "<b>External MPG Jogging</b>"
-msgstr ""
+msgstr "<b>Externer MPG Jogging</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:477
 msgid "<b>External Feed Override</b>"
@@ -15853,6 +15923,9 @@ msgid ""
 "Press the corresponding info button to\n"
 "show / adjust parameters."
 msgstr ""
+"Nutze die Checkboxen um Optionen zu aktivieren.\n"
+"Drücke den dazugehörigen Info-Button um die\n"
+"Parameter zu zeigen / anzupassen."
 
 #: src/emc/usr_intf/pncconf/external.glade:738
 msgid "Add device rule"
@@ -15981,8 +16054,9 @@ msgid "Analog Control"
 msgstr "Analoge Steuerung"
 
 #: src/emc/usr_intf/pncconf/external.glade:1475
+#, fuzzy
 msgid "Joy Jog"
-msgstr ""
+msgstr "Joy Jog"
 
 #: src/emc/usr_intf/pncconf/external.glade:1489
 msgid "shared buttons for all axis"
@@ -15994,7 +16068,7 @@ msgstr "Tasten für jede Achse"
 
 #: src/emc/usr_intf/pncconf/external.glade:1566
 msgid "B JOG"
-msgstr ""
+msgstr "B JOG"
 
 #: src/emc/usr_intf/pncconf/external.glade:1580
 msgid "Shared MPG / selectable axis"
@@ -16006,8 +16080,9 @@ msgid "Mpg per axis"
 msgstr "Erste Achse verfahren"
 
 #: src/emc/usr_intf/pncconf/external.glade:1610
+#, fuzzy
 msgid "selectable MPG increments"
-msgstr ""
+msgstr "auswählbare MPG Schrittweiten"
 
 #: src/emc/usr_intf/pncconf/external.glade:1686
 #: src/emc/usr_intf/pncconf/external.glade:3264
@@ -16101,8 +16176,9 @@ msgid " abd)"
 msgstr " abd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2401
+#, fuzzy
 msgid "ignore all inputs false"
-msgstr ""
+msgstr "ignoriere alle Eingaben falsch"
 
 #: src/emc/usr_intf/pncconf/external.glade:2416
 msgid "use gray code"
@@ -16135,20 +16211,22 @@ msgid "increments"
 msgstr "Inkremente"
 
 #: src/emc/usr_intf/pncconf/external.glade:2534
+#, fuzzy
 msgid "MPG"
-msgstr ""
+msgstr "MPG"
 
 #: src/emc/usr_intf/pncconf/external.glade:2547
 #: src/emc/usr_intf/pncconf/external.glade:3490
 #: src/emc/usr_intf/pncconf/external.glade:4433
+#, fuzzy
 msgid "Use MPG "
-msgstr ""
+msgstr "Nutze MPG "
 
 #: src/emc/usr_intf/pncconf/external.glade:2562
 #: src/emc/usr_intf/pncconf/external.glade:3505
 #: src/emc/usr_intf/pncconf/external.glade:4448
 msgid "use switches"
-msgstr ""
+msgstr "nutze Schalter"
 
 #: src/emc/usr_intf/pncconf/external.glade:3397
 #: src/emc/usr_intf/pncconf/external.glade:4323
@@ -16170,23 +16248,25 @@ msgstr "Inkremente"
 
 #: src/emc/usr_intf/pncconf/external.glade:3477
 msgid "FO"
-msgstr ""
+msgstr "FO"
 
 #: src/emc/usr_intf/pncconf/external.glade:4420
+#, fuzzy
 msgid "MVO"
-msgstr ""
+msgstr "MVO"
 
 #: src/emc/usr_intf/pncconf/external.glade:5363
 msgid "SO"
-msgstr ""
+msgstr "SO"
 
 #: src/emc/usr_intf/pncconf/external.glade:5378
 msgid "Serial connected VFD"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5388
+#, fuzzy
 msgid "Mitsubishi FR Spindle VFD"
-msgstr ""
+msgstr "Mitsubishi FR Spindel VFD"
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
 #, fuzzy
@@ -16210,7 +16290,7 @@ msgstr "Anwenden"
 
 #: src/emc/usr_intf/pncconf/external.glade:5464
 msgid "Baud Rate"
-msgstr ""
+msgstr "BAUD Rate"
 
 #: src/emc/usr_intf/pncconf/external.glade:5476
 #, fuzzy
@@ -16219,11 +16299,11 @@ msgstr "Gerätename:"
 
 #: src/emc/usr_intf/pncconf/external.glade:5577
 msgid "GS2"
-msgstr ""
+msgstr "GS2"
 
 #: src/emc/usr_intf/pncconf/external.glade:5599
 msgid "VFD"
-msgstr ""
+msgstr "VFD"
 
 #: src/emc/usr_intf/pncconf/base.glade:18
 #, fuzzy
