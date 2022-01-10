@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-10 18:31+0000\n"
+"PO-Revision-Date: 2022-01-11 00:08+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -6777,7 +6777,7 @@ msgstr "Fach"
 
 #: tcl/tooledit.tcl:410
 msgid "diam"
-msgstr "Dmess"
+msgstr "Durchm"
 
 #: tcl/tooledit.tcl:411
 msgid "front"
@@ -6996,12 +6996,11 @@ msgstr "Fehlender Dateiname"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:155
 msgid "Do you really want to close LinuxCNC?"
-msgstr ""
+msgstr "LinuxCNC wirklich beenden?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
-#, fuzzy
 msgid "Confirm Close"
-msgstr "Konfiguration kopiert"
+msgstr "Beenden bestätigen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:181
 msgid "Emergency stop"
@@ -7341,14 +7340,12 @@ msgid "Cycle among preview, DRO, and user tabs"
 msgstr "Zwischen Vorschau, DRO und User Tabs umschalten"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:250
-#, fuzzy
 msgid "toggle Actual/Commanded"
-msgstr "Wechsel aktuell/angewiesen"
+msgstr "Umschalten aktuell/erwartet"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:251
-#, fuzzy
 msgid "toggle Relative/Machine"
-msgstr "Wechsel relativ/Maschine"
+msgstr "Umschalten relativ/Maschine"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:252
 msgid "Ctrl-Space"
@@ -7702,7 +7699,7 @@ msgstr "Achsen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3528
 msgid "Joints"
-msgstr "Achsen/Gelenke"
+msgstr "Gelenke"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3530
 #: src/emc/usr_intf/touchy/touchy.glade:584
@@ -7725,7 +7722,7 @@ msgstr "Referenzfahrt Alle %s"
 #: src/emc/usr_intf/axis/scripts/axis.py:3537
 #, python-format
 msgid "Unhome All %s"
-msgstr "Referenzfahrt aufheben bei allen Achsen %s"
+msgstr "Referenzfahrt aufheben bei allen %s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3578
 #, python-format
@@ -7766,12 +7763,12 @@ msgstr "Referenzpunkt"
 #: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Home %(name)s _%(id)s"
-msgstr "Home %(name)s _%(id)s"
+msgstr "Referenzfahrt %(name)s _%(id)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3638
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
-msgstr "Referenzfahrt %(name)s aufheben bei _%(id)s-Achse"
+msgstr "Referenzfahrt aufheben bei %(name)s _%(id)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3832
 msgid "Run from here"
@@ -9103,7 +9100,6 @@ msgid "<b>Power</b>"
 msgstr "<b>Leistung</b>"
 
 #: src/emc/usr_intf/touchy/touchy.glade:569
-#, fuzzy
 msgid "Unhome All"
 msgstr "Referenzfahrt aufheben bei allen Achsen"
 
@@ -9113,7 +9109,6 @@ msgid "Home Selected"
 msgstr "Aktive Achse verfahren"
 
 #: src/emc/usr_intf/touchy/touchy.glade:610
-#, fuzzy
 msgid "Unhome Selected"
 msgstr "Referenzfahrt aufheben bei ausgewählten Achsen"
 
@@ -19122,7 +19117,6 @@ msgid "<b>Select Buttons</b>"
 msgstr "<b>Ausgabeoptionen</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2990
-#, fuzzy
 msgid ""
 "Unhome \n"
 "    All"
