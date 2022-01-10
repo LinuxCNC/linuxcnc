@@ -5127,8 +5127,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     halnum = 0
                 prefix = make_name(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME],halnum)
                 write_cmnds.append( "addf %s.write         servo-thread"% (prefix))
-                if '7i76e' in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME] or \
-                    '7i92' in self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._BOARDNAME]:
+                # if stepper system add DPLL to be more latency tolerant- this might not be right
+                # I think some old firmware has steppers but not DPLL
+                if self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSTEP] > 0:
                     write_cmnds.append( "setp %s.dpll.01.timer-us -50"% (prefix))
                     write_cmnds.append( "setp %s.stepgen.timer-number 1"% (prefix))
             return load_cmnds,read_cmnds,write_cmnds
