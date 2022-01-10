@@ -230,7 +230,7 @@ Field power should be connected to detect all pins.
               <object class="GtkLabel" id="cardname_label1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Mesa Board Disvovery&lt;</property>
+                <property name="label" translatable="yes">Mesa Board Discovery&lt;</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
