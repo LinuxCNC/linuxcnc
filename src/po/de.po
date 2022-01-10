@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2022-01-10 18:31+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -7028,13 +7028,12 @@ msgid "Activate fourth axis"
 msgstr "Vierte Achse aktivieren"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:188
-#, fuzzy
 msgid "Activate first through ninth joint"
-msgstr "Fünfte bis neunte Achse aktivieren"
+msgstr "Erste bis neunte Achse aktivieren"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:189
 msgid "if joints radiobuttons visible"
-msgstr ""
+msgstr "wenn Radiobuttons sichtbar"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:190
 msgid "Set Feed Override from 0% to 100%"
@@ -7077,7 +7076,6 @@ msgid "Home"
 msgstr "Pos1"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:196
-#, fuzzy
 msgid "Send active joint home"
 msgstr "Referenzfahrt mit der aktiven Achse"
 
@@ -7115,21 +7113,18 @@ msgid "Set tool offset for loaded tool"
 msgstr "Werkzeuglängenkorrektur für aktives Werkzeug setzen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:201
-#, fuzzy
 msgid "Jog active axis or joint"
 msgstr "Aktive Achse verfahren"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:202
-#, fuzzy
 msgid "Select Max velocity"
-msgstr "Max. Geschwindigkeit:"
+msgstr "Max. Geschwindigkeit einstellen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
 msgid "Left, Right"
 msgstr "Links, Rechts"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:205
-#, fuzzy
 msgid "Jog first axis or joint"
 msgstr "Erste Achse verfahren"
 
@@ -7138,7 +7133,6 @@ msgid "Up, Down"
 msgstr "Hoch, Runter"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:206
-#, fuzzy
 msgid "Jog second axis or joint"
 msgstr "Zweite Achse verfahren"
 
@@ -7147,7 +7141,6 @@ msgid "Pg Up, Pg Dn"
 msgstr "Bild auf, Bild ab"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:207
-#, fuzzy
 msgid "Jog third axis or joint"
 msgstr "Dritte Achse verfahren"
 
@@ -7157,10 +7150,9 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Jog at traverse speed"
-msgstr ""
+msgstr "Mit Eilgang verfahren"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:209
-#, fuzzy
 msgid "Jog fourth axis or joint"
 msgstr "Vierte Achse verfahren"
 
@@ -7345,9 +7337,8 @@ msgid "Cycle among preset views"
 msgstr "Perspektive wechseln"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:249
-#, fuzzy
 msgid "Cycle among preview, DRO, and user tabs"
-msgstr "Perspektive wechseln"
+msgstr "Zwischen Vorschau, DRO und User Tabs umschalten"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:250
 #, fuzzy
@@ -7372,9 +7363,8 @@ msgid "Alt-F, M, V"
 msgstr "Alt-F, M, V"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:253
-#, fuzzy
 msgid "Open a Menu"
-msgstr "Eine neue Unterdatei öffnen"
+msgstr "Menü öffnen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:909
 #, python-format
@@ -8113,7 +8103,6 @@ msgid "_Properties..."
 msgstr "_Eigenschaften..."
 
 #: share/axis/tcl/axis.tcl:86
-#, fuzzy
 msgid "Edit _tool data..."
 msgstr "_Werkzeugtabelle bearbeiten..."
 
@@ -8208,9 +8197,8 @@ msgid "Sho_w LinuxCNC Status"
 msgstr "LinuxCNC-Status an_zeigen"
 
 #: share/axis/tcl/axis.tcl:195
-#, fuzzy
 msgid "Set _Debug Level"
-msgstr "Deb_ug-Stufe festlegen"
+msgstr "_Debug-Level festlegen"
 
 #: share/axis/tcl/axis.tcl:201
 msgid "Homin_g"
@@ -8265,12 +8253,14 @@ msgid "_G92"
 msgstr "_G92"
 
 #: share/axis/tcl/axis.tcl:257
+#, fuzzy
 msgid "Tool touch off to wor_kpiece"
-msgstr ""
+msgstr "Antasten auf _Werkstück"
 
 #: share/axis/tcl/axis.tcl:263
+#, fuzzy
 msgid "Tool touch off to _fixture"
-msgstr ""
+msgstr "Anstasten auf Spannvorrichtung?"
 
 #: share/axis/tcl/axis.tcl:271
 msgid "_Top view"
