@@ -1753,7 +1753,7 @@ It is important to thoroughly understand the difference between *Synchronized wi
 
 [underline]*Velocity Based THC*
 
-If the cut velocity falls below a percentage of *CutFeedRate* (as defined by the VAD Threshold % value in the THC frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>) the THC will be locked until the cut velocity returns to at least 99.9% of *CutFeedRate*. This will be made apparent by the *THC Velocity Lock* indicator illuminating in the <<qt_control-panel, CONTROL Panel>> on the <<qt_main-tab, MAIN Tab>>.
+If the cut velocity falls below a percentage of *CutFeedRate* (as defined by the VAD Threshold % value in the THC frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>>) the THC will be locked until the cut velocity returns to at least 99.9% of *CutFeedRate*. This will be made apparent by the *VELOCITY ANTI DIVE* indicator illuminating in the <<qt_control-panel, CONTROL Panel>> on the <<qt_main-tab, MAIN Tab>>.
 
 Velocity based THC prevents the torch height being changed when velocity is reduced for a sharp corner or a small hole.
 
