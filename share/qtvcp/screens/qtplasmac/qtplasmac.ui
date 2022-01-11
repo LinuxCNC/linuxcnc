@@ -2988,7 +2988,7 @@ EDGE</string>
              </property>
              <property name="maximumSize">
               <size>
-               <width>236</width>
+               <width>268</width>
                <height>16777215</height>
               </size>
              </property>
@@ -4031,7 +4031,7 @@ EDGE</string>
                           </size>
                          </property>
                          <property name="text">
-                          <string>VOID A/DIVE</string>
+                          <string>VOID ANTI DIVE</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
