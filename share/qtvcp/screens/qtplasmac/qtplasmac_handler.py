@@ -1,4 +1,4 @@
-VERSION = '1.221.152'
+VERSION = '1.221.153'
 
 '''
 qtplasmac_handler.py
@@ -966,6 +966,10 @@ class HandlerClass:
         self.w.pmx485_enable.setChecked(False)
         # close soft keyboard
         self.vkb_hide()
+        # turn autorepeat back on for the OS
+        self.autorepeat_keys(True)
+        # save the log files
+        self.save_logfile(5)
         # save preferences
         if not self.w.PREFS_: return
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
@@ -980,8 +984,6 @@ class HandlerClass:
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.autorepeat_keys(True)
-        self.save_logfile(5)
 
     def save_logfile(self, numLogs):
             logPre = 'machine_log_'
