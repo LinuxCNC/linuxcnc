@@ -849,7 +849,7 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 This box defaults to unfilled (disabled) when QtPlasmaC is first run. +
 This box must be filled to change it to "Torch Enabled" before material cutting can commence. +
 If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
-|VELOCITY ANTI DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the VAD Threshold percentage set on the <<qt_parameters-tab, PARAMETERS Tab>>.
+|VELOCITY ANTI DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the Velocity Anti Dive (VAD) Threshold percentage set on the <<qt_parameters-tab, PARAMETERS Tab>>.
 |VELOCITY ANTI DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY ANTI DIVE.
 |VOID ANTI DIVE|0, 1|Indicates that the THC is locked due to a void being sensed.
 |VOID ANTI DIVE ENABLE|0, 1|This box toggles between Enabling and Disabling VOID ANTI DIVE.
@@ -3849,13 +3849,16 @@ There is a frequency divider jumper on each THCAD card which should be set accor
 
 [width="40%"]
 |===
-|*Parallel Port*|*Mesa Card*
-|F/64|F/32
+|*Input Device*|*Recommended Setting*
+|Parallel Port with very low latency|F/32
+|Parallel Port recommended starting point|F/64
+|Parallel Port with higher latency, or when cutting thick material|F/128
+|Mesa Card|F/32
 |===
 
 This value is required to be entered into PNcConf during installation.
 
-NOTE: If using a parallel port and the user's computer has very good latency then they may be able to use *F/32*
+NOTE: If using a parallel port it may be necessary for the user to adjust the jumper setting and the subsequent scaling values on the <<qt_parameters-tab, Parameters Tab>> to achieve optimal results. Symptoms may include random torch raises or dives during otherwise stable cutting. Halscope plots may be useful in diagnosing these issues.
 
 [[qt_calibration-values]]
 
