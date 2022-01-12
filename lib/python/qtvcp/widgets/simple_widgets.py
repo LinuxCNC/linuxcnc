@@ -326,8 +326,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
         # python commands data
         self._python_command = False # use commands
-        self.true_python_command = '''print"true command"'''
-        self.false_python_command = '''print"false command"'''
+        self.true_python_command = '''print("true command")'''
+        self.false_python_command = '''print("false command")'''
 
         # indicator LED data
         self.draw_indicator = False # Show LED
