@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
 "PO-Revision-Date: 2022-01-13 21:11+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -1917,8 +1917,9 @@ msgid "Rot"
 msgstr "Rot"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:14
+#, fuzzy
 msgid "Rotation of Z"
-msgstr "Drehung um Z"
+msgstr "XY-Drehung"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:15
 msgid "G92"
@@ -2038,8 +2039,9 @@ msgid "DIameter"
 msgstr "Durchmesser"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:17
+#, fuzzy
 msgid "Lathe Wear Offsets"
-msgstr "Drehmaschine Verschleißwerte"
+msgstr "Arbeitsoffset"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:18
 msgid "X Tool"
