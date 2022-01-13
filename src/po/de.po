@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2022-01-14 21:52+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -18880,7 +18880,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Suche\n"
-" Text:"
+"Text:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1743
 msgid ""
@@ -18888,23 +18888,23 @@ msgid ""
 "  Text:"
 msgstr ""
 "Ersetze\n"
-"  Text:"
+"Text:"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1762
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
-"ersetze\n"
-"   alles"
+"Alle\n"
+"ersetzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1775
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
-"Ignoriere\n"
-"Groß/Klein"
+"Groß/klein\n"
+"ignorieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1801
 msgid "<b>Mode</b>"
@@ -19606,12 +19606,13 @@ msgid ""
 msgstr "G59.2 auf Null setzen"
 
 #: lib/python/gladevcp/offsetpage.glade:456
+#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    null\n"
-"rotation"
+"    Drehachsen\n"
+"nullen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
 #: lib/python/gladevcp/tooledit_gtk.glade:391
