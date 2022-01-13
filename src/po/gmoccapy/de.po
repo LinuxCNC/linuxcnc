@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-10 00:54+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-01-13 21:11+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -101,7 +101,7 @@ msgstr "Drücken um die Offsets zu bearbeiten"
 #: gmoccapy.py:902
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
-msgstr "Drücken um Antastpunkt für Achse {0} zu übernehmen"
+msgstr "Drücken um Antastwert für Achse {0} zu übernehmen"
 
 #: gmoccapy.py:928
 msgid ""
@@ -132,8 +132,8 @@ msgid ""
 "    set\n"
 "selected"
 msgstr ""
-"    gewähltes\n"
-"   setzen"
+"    Gewählten\n"
+"Offset setzen"
 
 #: gmoccapy.py:945
 msgid "Press to set the selected coordinate system to be the active one"
@@ -1001,16 +1001,16 @@ msgid ""
 "Search\n"
 " back"
 msgstr ""
-"Suche\n"
-"rückw."
+"Rückw.\n"
+"suchen"
 
 #: gmoccapy.glade.h:52
 msgid ""
 "Search\n"
 "  fwd"
 msgstr ""
-"Suche\n"
-" vorw."
+"Vorw.\n"
+"suchen"
 
 #: gmoccapy.glade.h:54
 msgid "Redo"
@@ -1024,23 +1024,23 @@ msgid ""
 "  Text:"
 msgstr ""
 "Ersetze\n"
-"  Text:"
+"Text:"
 
 #: gmoccapy.glade.h:57
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
-"ersetze\n"
-"   alles"
+"Alle\n"
+"ersetzen"
 
 #: gmoccapy.glade.h:59
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
-"Ignoriere\n"
-"Groß/Klein"
+"Groß/klein\n"
+"ignorieren"
 
 #: gmoccapy.glade.h:61
 msgid "Replace"
@@ -1052,7 +1052,7 @@ msgid ""
 "  Text:"
 msgstr ""
 "Suche\n"
-" Text:"
+"Text:"
 
 #: gmoccapy.glade.h:64
 msgid "Main"
@@ -1100,7 +1100,7 @@ msgstr "<b>Hauptbildschirm</b>"
 
 #: gmoccapy.glade.h:75
 msgid "Show keyboard on offset"
-msgstr "Zeige Tastatur an Offset"
+msgstr "Zeige Tastatur bei Offsets"
 
 #: gmoccapy.glade.h:76
 msgid "Show keyboard on tooledit"
@@ -1981,12 +1981,13 @@ msgstr ""
 "G92"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:30
+#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    null\n"
-"rotation"
+"    Drehachsen\n"
+"nullen"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:32
 msgid "Edit"
