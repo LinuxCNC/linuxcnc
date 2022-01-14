@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-14 21:52+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-01-15 04:07+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -3051,28 +3051,33 @@ msgid "Project failed to load..."
 msgstr "Projekt konnte nicht geladen werden..."
 
 #: src/hal/classicladder/classicladder.c:286
+#, fuzzy
 msgid "GUI reloaded with existing ladder program"
-msgstr ""
+msgstr "GUI neu geladen mit bestehendem SPS Programm"
 
 #: src/hal/classicladder/classicladder.c:294
+#, fuzzy
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
+"INFO CLASSICLADDER-   SPS GUI geschlossen. Echtzeit-Modul bleibt aktiviert "
+"bis HAL geschlossen wird\n"
 
 #: src/hal/classicladder/classicladder.c:300
 msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
-msgstr ""
+msgstr "FEHLER CLASSICLADDER-   SPS Fehler bei Speicher Reservierung\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:136
-#, c-format
+#, c-format, fuzzy
 msgid "!!!error loop in UpdateVScrollBar()!\n"
-msgstr ""
+msgstr "!!!error loop in UpdateVScrollBar()!\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:202
 #, c-format
 msgid ""
 "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"
 msgstr ""
+"Fehler in ChoiceOfTheCurrentRung( %d ) mit OffsetCurrentRungDisplayed=%d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:337 tcl/tklinuxcnc.tcl:1547
 #: src/emc/usr_intf/stepconf/main_page.glade:292
@@ -3082,12 +3087,15 @@ msgid "Run"
 msgstr "Ausführen"
 
 #: src/hal/classicladder/classicladder_gtk.c:338
+#, fuzzy
 msgid "Stopped ladder program - press run button to continue."
 msgstr ""
+"SPS Programm angehalten - drücke run Button um es weiterlaufen zu lassen"
 
 #: src/hal/classicladder/classicladder_gtk.c:344
+#, fuzzy
 msgid "Started Ladder program - press stop to pause."
-msgstr ""
+msgstr "SPS Program gestartet - drücke stop zum Pausieren."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 #, fuzzy
@@ -3143,7 +3151,7 @@ msgstr "Ok"
 
 #: src/hal/classicladder/classicladder_gtk.c:397
 msgid "Project loaded (stopped)."
-msgstr ""
+msgstr "Projekt geladen (angehalten)."
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3168,7 +3176,7 @@ msgstr "LADEN %s %d\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:488
 msgid "Old directories projects"
-msgstr ""
+msgstr "Verzeichnis alter Projekte"
 
 #: src/hal/classicladder/classicladder_gtk.c:492
 msgid "ClassicLadder projects"
@@ -3223,7 +3231,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
-msgstr ""
+msgstr "Reset SPS Daten "
 
 #: src/hal/classicladder/classicladder_gtk.c:596
 msgid "Okay"
@@ -5659,7 +5667,7 @@ msgstr "Werkzeugoffset:"
 
 #: tcl/tklinuxcnc.tcl:942
 msgid "Work Offsets:"
-msgstr "Arbeitsoffset:"
+msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1126
 msgid "override limits"
@@ -9427,6 +9435,7 @@ msgid "Running line:"
 msgstr "Ausgeführte Zeile:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2767
+#, fuzzy
 msgid "XY Rotation:"
 msgstr "XY-Drehung:"
 
@@ -19541,9 +19550,8 @@ msgid "Rot"
 msgstr "Rot"
 
 #: lib/python/gladevcp/offsetpage.glade:88
-#, fuzzy
 msgid "Rotation of Z"
-msgstr "XY-Drehung"
+msgstr "Drehung von Z"
 
 #: lib/python/gladevcp/offsetpage.glade:91
 #: lib/python/gladevcp/offsetpage.glade:105
@@ -19680,9 +19688,8 @@ msgid "DIameter"
 msgstr "Durchmesser"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
-#, fuzzy
 msgid "Lathe Wear Offsets"
-msgstr "Arbeitsoffset"
+msgstr ""
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
 msgid "X Tool"
