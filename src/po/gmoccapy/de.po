@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-15 04:07+0000\n"
+"PO-Revision-Date: 2022-01-15 14:08+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -1826,19 +1826,19 @@ msgstr "offsetpage widget Fehler: erkenne Gleitkommazahl nicht"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:379
 msgid "offsetpage widget error: MDI call error"
-msgstr "offsetpage widget Fehler: MDI Aufruf Fehler"
+msgstr "offsetpage widget Fehler: MDI call error"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:398
 msgid "MDI error in offsetpage widget -zero G92"
-msgstr "MDI Fehler im offsetpage widget - Nulle G92"
+msgstr "MDI Fehler in offsetpage widget -zero G92"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:415
 msgid "MDI error in offsetpage widget-zero rotational offset"
-msgstr "MDI Fehler in offsetpage widget: Nulle Verdrehungsoffset"
+msgstr "MDI Fehler in offsetpage widget-zero rotational offset"
 
 #: ../../../../lib/python/gladevcp/offsetpage_widget.py:486
 msgid "offsetpage_widget error: cannot select coordinate system"
-msgstr "offsetpage widget Fehler: Kann kein Koordinatensystem wählen"
+msgstr "offsetpage_widget Fehler: kann das Koordinatensystem nicht auswählen"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:224
 msgid "tooledit_widget error: cannot select tool number"
@@ -1966,11 +1966,11 @@ msgstr "G59.3"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:26
 msgid "Offset"
-msgstr "Offset"
+msgstr "Versatz"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:27
 msgid "Offset Name"
-msgstr "Offset Name"
+msgstr "Versatz Name"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:28
 msgid ""
@@ -2022,8 +2022,9 @@ msgid "Comments"
 msgstr "Bemerkung"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:13
+#, fuzzy
 msgid "All Offsets"
-msgstr "Alle Offsets"
+msgstr "Alle Versatz-Einstellungen"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:14
 msgid "X Wear"
@@ -2051,7 +2052,7 @@ msgstr "Z Werkzeug"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:20
 msgid "Lathe Tool Offsets"
-msgstr "Drehmaschine Offsets"
+msgstr "Drehbank Werkzeug-Korrekturen"
 
 #~ msgid "Follow System Theme"
 #~ msgstr "Systemdesign übernehmen"
