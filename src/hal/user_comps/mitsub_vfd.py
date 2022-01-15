@@ -28,7 +28,7 @@
 # PR 79 - 1 or 0
 # PR 117 station number - 1               (can be optionally set 0 - 31) if component is also set
 # PR 118 communication speed 96           (can be optionally set 48,96,192) if component is also set
-# PR 119 stop bit/data length - 0         8 bits, two stop (don't change)
+# PR 119 stop bit/data length - 1         8 bits, two stop (don't change)
 # PR 120 parity - 0                       no parity (don't change)
 # PR 121 COM tries - 10                   if 10 (maximuim) COM errors then inverter faults (can change)
 # PR 122 COM check time interval 9999     (never check) if communication is lost inverter will not know (can change)
