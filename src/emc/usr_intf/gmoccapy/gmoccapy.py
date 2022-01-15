@@ -1236,7 +1236,7 @@ class gmoccapy(object):
                 # shorten / break line of the name if it is to long
                 if len(lbl) > 11:
                     lbl = lbl[0:10] + "\n" + lbl[11:20]
-                btn = Gtk.Button.new_with_label(lbl, None, False)
+                btn = Gtk.Button.new_with_label(lbl)
                 btn.set_property("name","macro_{0}".format(pos))
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
