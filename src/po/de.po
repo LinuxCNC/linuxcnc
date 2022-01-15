@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2022-01-15 23:50+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -1474,7 +1474,7 @@ msgstr "Mehrere Z-Wörter in einem Satz"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:113
 msgid "Must use g0 or g1 with g53"
-msgstr "G53 muß immer zusammen mit G0 oder G1 benutzt werden"
+msgstr "G53 muss immer zusammen mit G0 oder G1 benutzt werden"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:114
 msgid "Negative argument to sqrt"
@@ -2154,7 +2154,7 @@ msgid ""
 "Click 'Quit' to exit HALSCOPE"
 msgstr ""
 "Die HALSCOPE Echtzeit-Samplingfunktion\n"
-"muß aus einem HAL Thread aufgerufen werden,\n"
+"muss aus einem HAL-Thread aufgerufen werden,\n"
 "um die Samplingfrequenz zu ermitteln.\n"
 "\n"
 "Führen Sie eine dieser Möglichkeiten aus:\n"
@@ -2860,7 +2860,7 @@ msgstr "MOTION: hal_init fehlgeschlagen\n"
 #: src/emc/motion/motion.c:225
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_joints ist %d, muß zwischen 1 und %d liegen\n"
+msgstr "MOTION: num_joints ist %d, muss zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:232
 #, c-format
@@ -2893,17 +2893,17 @@ msgstr ""
 #: src/emc/motion/motion.c:249
 #, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
-msgstr "MOTION: num_spindles ist %d, muß zwischen 0 und %d liegen\n"
+msgstr "MOTION: num_spindles ist %d, muss zwischen 0 und %d liegen\n"
 
 #: src/emc/motion/motion.c:257
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_dio ist %d, muß zwischen 1 und %d liegen\n"
+msgstr "MOTION: num_dio ist %d, muss zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:264
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
-msgstr "MOTION: num_aio ist %d, muß zwischen 1 und %d liegen\n"
+msgstr "MOTION: num_aio ist %d, muss zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:271
 #, c-format
