@@ -129,6 +129,8 @@ XMLNAME = os.path.join(DATADIR, "gmoccapy.glade")
 THEMEDIR = "/usr/share/themes"
 USERTHEMEDIR = os.path.join(os.path.expanduser("~"), ".themes")
 LOCALEDIR = os.path.join(BASE, "share", "locale")
+ICON_THEME_DIR = os.path.join(DATADIR, "icons")
+USER_ICON_THEME_DIR = os.path.join(os.path.expanduser("~"), ".icons")
 
 # path to TCL for external programs eg. halshow
 TCLPATH = os.environ['LINUXCNC_TCL_DIR']
@@ -136,6 +138,19 @@ TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 # the ICONS should must be in share/gmoccapy/images
 ALERT_ICON = os.path.join(IMAGEDIR, "applet-critical.png")
 INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
+
+
+def _find_valid_icon_themes():
+    valid_icon_themes = [
+        # path, name
+        (None, "default")
+    ]
+    for base_dir in [e for e in [USER_ICON_THEME_DIR, ICON_THEME_DIR] if os.path.exists(e)]:
+        for theme_name in os.listdir(base_dir):
+            theme_dir = os.path.join(base_dir, theme_name)
+            if os.path.exists(os.path.join(theme_dir, "index.theme")):
+                valid_icon_themes.append((theme_dir, theme_name))
+    return valid_icon_themes
 
 
 class gmoccapy(object):
@@ -239,6 +254,9 @@ class gmoccapy(object):
         # the default theme = System Theme we store here to be able to go back to that one later
         #TODO:
         #self.default_theme = Gtk.settings_get_default().get_property("Gtk-theme-name")
+        self.icon_theme = Gtk.IconTheme()
+        self.icon_theme.append_search_path(ICON_THEME_DIR)
+        self.icon_theme.append_search_path(USER_ICON_THEME_DIR)
 
         self.dialogs = dialogs.Dialogs()
         self.dialogs.connect("play_sound", self._on_play_sound)
@@ -335,6 +353,7 @@ class gmoccapy(object):
         self._init_dynamic_tabs()
         self._init_tooleditor()
         self._init_themes()
+        self._init_icon_themes()
         self._init_audio()
         self._init_gremlin()
         self._init_kinematics_type()
@@ -1907,6 +1926,22 @@ class gmoccapy(object):
         #settings = Gtk.settings_get_default()
         #if not theme_name == "Follow System Theme":
         #    settings.set_string_property("Gtk-theme-name", theme_name, "")
+
+    def _init_icon_themes(self):
+        valid_icon_themes = _find_valid_icon_themes()
+
+        model = self.widgets.icon_theme_choice.get_model()
+        model.clear()
+        for icon_theme in valid_icon_themes:
+            model.append(icon_theme)
+
+        icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
+        try:
+            selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
+            self.widgets.icon_theme_choice.set_active(selected_index)
+        except ValueError:
+            print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
+            self.widgets.icon_theme_choice.set_active(0)
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
@@ -4264,6 +4299,16 @@ class gmoccapy(object):
         # if theme == "Follow System Theme":
         #    theme = self.default_theme
         #settings.set_string_property("Gtk-theme-name", theme, "")
+
+    def _set_icon_theme(self, name):
+        print(f"Setting icon theme '{name}': Not yet implemented")
+
+    def on_icon_theme_choice_changed(self, widget):
+        active = widget.get_active_iter()
+        if active is not None:
+            name = widget.get_model()[active][1]
+            self.prefs.putpref("icon_theme", name)
+            self._set_icon_theme(name)
 
     def on_rbt_unlock_toggled(self, widget, data=None):
         if widget.get_active():
