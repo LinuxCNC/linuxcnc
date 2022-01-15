@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-15 14:08+0000\n"
+"PO-Revision-Date: 2022-01-15 18:23+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -1918,7 +1918,7 @@ msgstr "Rot"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:14
 msgid "Rotation of Z"
-msgstr "Drehung von Z"
+msgstr "Drehung um Z"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:15
 msgid "G92"
@@ -1981,13 +1981,12 @@ msgstr ""
 "G92"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:30
-#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    Drehachsen\n"
-"nullen"
+"    Rotation\n"
+"auf null setzen"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:32
 msgid "Edit"
