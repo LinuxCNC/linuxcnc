@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-15 18:23+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-01-15 23:50+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -3035,10 +3035,13 @@ msgid "ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"
 msgstr ""
 
 #: src/hal/classicladder/classicladder.c:255
+#, fuzzy
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
 msgstr ""
+"INFO CLASSICLADDER-   Keine SPS GUI angefordert - Echtzeit-Anforderungen "
+"werden aufrechterhalten bis HAL geschlossen wird.\n"
 
 #: src/hal/classicladder/classicladder.c:275
 msgid "Project loaded and running"
@@ -3067,7 +3070,7 @@ msgid "ERROR CLASSICLADDER-   Ladder memory allocation error\n"
 msgstr "FEHLER CLASSICLADDER-   SPS Fehler bei Speicher Reservierung\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:136
-#, c-format, fuzzy
+#, c-format
 msgid "!!!error loop in UpdateVScrollBar()!\n"
 msgstr "!!!error loop in UpdateVScrollBar()!\n"
 
@@ -3086,10 +3089,9 @@ msgid "Run"
 msgstr "Ausführen"
 
 #: src/hal/classicladder/classicladder_gtk.c:338
-#, fuzzy
 msgid "Stopped ladder program - press run button to continue."
 msgstr ""
-"SPS Programm angehalten - drücke run Button um es weiterlaufen zu lassen"
+"SPS Programm angehalten - drücke run Button um es weiterlaufen zu lassen."
 
 #: src/hal/classicladder/classicladder_gtk.c:344
 #, fuzzy
@@ -5951,16 +5953,19 @@ msgid "bogus"
 msgstr ""
 
 #: tcl/ngcgui.tcl:509
+#, fuzzy
 msgid "can not include subroutines within ngcgui subfile"
-msgstr ""
+msgstr "kann keine Unterprogramme in ncgui Unterdatei einbinden"
 
 #: tcl/ngcgui.tcl:517
+#, fuzzy
 msgid "Multiple subroutines in file not allowed"
-msgstr ""
+msgstr "Mehrere Unterprogramme innerhalb nur einer Datei sind nicht gestattet"
 
 #: tcl/ngcgui.tcl:528
+#, fuzzy
 msgid "sub label"
-msgstr ""
+msgstr "sub Bezeichner"
 
 #: tcl/ngcgui.tcl:528 tcl/ngcgui.tcl:583
 msgid "does not match subroutine file name"
@@ -5968,19 +5973,19 @@ msgstr "Entspricht nicht dem Dateinamen des Unterprogramms"
 
 #: tcl/ngcgui.tcl:543 tcl/ngcgui.tcl:544
 msgid "ignoring M2 after endsub"
-msgstr ""
+msgstr "ignoriere M2 nach endsub"
 
 #: tcl/ngcgui.tcl:549
 msgid "file contains lines after subend"
-msgstr ""
+msgstr "Datei enthält Zeilen nach subend"
 
 #: tcl/ngcgui.tcl:562
 msgid "file contains lines before sub"
-msgstr ""
+msgstr "Datei enthält Zeilen vor sub"
 
 #: tcl/ngcgui.tcl:583
 msgid "endsub label"
-msgstr ""
+msgstr "endsub Bezeichner"
 
 #: tcl/ngcgui.tcl:688
 msgid "out of sequence positional parameter"
@@ -5992,19 +5997,19 @@ msgstr "erwartet"
 
 #: tcl/ngcgui.tcl:739
 msgid "no sub found in file"
-msgstr ""
+msgstr "kein sub in Datei gefunden"
 
 #: tcl/ngcgui.tcl:742
 msgid "no endsub found in file"
-msgstr ""
+msgstr "kein endsub in Datei gefunden"
 
 #: tcl/ngcgui.tcl:805
 msgid "Cannot find gcmc executable"
-msgstr ""
+msgstr "Kann gcmc Programm nicht finden"
 
 #: tcl/ngcgui.tcl:806
 msgid "Please Install in path"
-msgstr ""
+msgstr "Bitte installieren Sie in Pfad"
 
 #: tcl/ngcgui.tcl:814
 msgid "not embedded, deriving outdir from:"
@@ -6028,12 +6033,14 @@ msgid "Subfile"
 msgstr "Unterdatei"
 
 #: tcl/ngcgui.tcl:1216
+#, fuzzy
 msgid "Postamble"
-msgstr ""
+msgstr "Postamble"
 
 #: tcl/ngcgui.tcl:1233
+#, fuzzy
 msgid "Retain values on Subfile read"
-msgstr ""
+msgstr "Erhalte Werte nach Lesen der Unterdatei"
 
 #: tcl/ngcgui.tcl:1241
 #, fuzzy
@@ -6042,16 +6049,16 @@ msgstr "Menübaum aufklappen"
 
 #: tcl/ngcgui.tcl:1251 tcl/ngcgui.tcl:2583
 msgid "Autosend"
-msgstr ""
+msgstr "Autosend"
 
 #: tcl/ngcgui.tcl:1261
 msgid "Verbose ngcfile"
-msgstr ""
+msgstr "Ausführlicher ngcfile"
 
 #: tcl/ngcgui.tcl:1271 tcl/ngcgui.tcl:2405 tcl/ngcgui.tcl:2428
 #: tcl/ngcgui.tcl:2458
 msgid "Create Feature"
-msgstr ""
+msgstr "Erstelle Feature"
 
 #: tcl/ngcgui.tcl:1277 tcl/ngcgui.tcl:3070
 msgid "MakeFile"
@@ -6063,19 +6070,20 @@ msgstr "Abschließen"
 
 #: tcl/ngcgui.tcl:1295
 msgid "Reread"
-msgstr ""
+msgstr "Erneut lesen"
 
 #: tcl/ngcgui.tcl:1304 src/emc/usr_intf/gscreen/gscreen.glade:4014
 msgid "Restart"
 msgstr "Anfang an"
 
 #: tcl/ngcgui.tcl:1314
+#, fuzzy
 msgid "SendFileToAxis"
-msgstr ""
+msgstr "SendFileToAxis"
 
 #: tcl/ngcgui.tcl:1357
 msgid "Unrecoverable problem"
-msgstr ""
+msgstr "Nicht zu behebendes Problem"
 
 #: tcl/ngcgui.tcl:1435
 msgid "Postamble file"
@@ -11488,16 +11496,17 @@ msgid "Include Halui user interface component"
 msgstr "HalUI-Benutzerschnittstelle einbinden"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:24
+#, fuzzy
 msgid "Insert here some commands to put after MDI_COMMAND"
-msgstr ""
+msgstr "Fügen Sie hier die Kommandos ein, die nach MDI_COMMAND auszuführen sind"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:75
 msgid "ADD"
-msgstr ""
+msgstr "ADD"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:99
 msgid "DELETE"
-msgstr ""
+msgstr "DELETE"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:134
 msgid "Move UP"
@@ -11512,12 +11521,12 @@ msgstr "NML"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:41
 #: src/emc/usr_intf/pncconf/ubuttons.glade:43
 msgid "NAME"
-msgstr ""
+msgstr "NAME"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:55
 #: src/emc/usr_intf/pncconf/ubuttons.glade:55
 msgid "CODE"
-msgstr ""
+msgstr "CODE"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:177
 #: src/emc/usr_intf/stepconf/thcad.glade:59
@@ -11589,13 +11598,13 @@ msgstr "0"
 #: src/emc/usr_intf/pncconf/thcad.glade:12
 #: src/emc/usr_intf/pncconf/thcad.glade:271
 msgid "ENCA"
-msgstr ""
+msgstr "ENCA"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:272
 msgid "ENCB"
-msgstr ""
+msgstr "ENCB"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:18
 #: src/emc/usr_intf/pncconf/thcad.glade:18
@@ -11629,7 +11638,7 @@ msgstr "123"
 #: src/emc/usr_intf/pncconf/thcad.glade:62
 #: src/emc/usr_intf/pncconf/thcad.glade:175
 msgid "300"
-msgstr ""
+msgstr "300"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:111
 msgid "Full Scale Freq (kHz)"
@@ -11638,16 +11647,16 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/thcad.glade:125
 #: src/emc/usr_intf/pncconf/thcad.glade:127
 msgid "F Jumper"
-msgstr ""
+msgstr "F Jumper"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:137
 #: src/emc/usr_intf/pncconf/thcad.glade:139
 msgid "Divider Ratio or Series Resistance"
-msgstr ""
+msgstr "Teilerverhältnis oder Reihenwiderstand"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:150
 msgid "0V Freq (kHz)"
-msgstr ""
+msgstr "0V Freq (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
 #: src/emc/usr_intf/pncconf/thcad.glade:164
@@ -11658,7 +11667,7 @@ msgstr "Modus"
 #: src/emc/usr_intf/stepconf/thcad.glade:261
 #: src/emc/usr_intf/pncconf/thcad.glade:291
 msgid "THCAD For Arc Voltage"
-msgstr ""
+msgstr "THCAD für Bogenspannung"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:12
 #: src/emc/usr_intf/stepconf/axisy.glade:12
@@ -11670,8 +11679,9 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:44
 #: src/emc/usr_intf/pncconf/z_axis.glade:44
 #: src/emc/usr_intf/pncconf/a_axis.glade:44
+#, fuzzy
 msgid "Same"
-msgstr ""
+msgstr "Selbige"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:15
 #: src/emc/usr_intf/stepconf/axisy.glade:15
@@ -11912,7 +11922,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/finished.glade:55
 msgid " Simulator: will not run hardware "
-msgstr ""
+msgstr " Simulator: wird nicht auf Hardware ausgeführt "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:97
 #, python-format
@@ -11931,15 +11941,16 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:173
 msgid "PnCconf is setting up"
-msgstr ""
+msgstr "PnCconf wird eingerichtet"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:265
 msgid "**** PNCCONF ERROR:    custom firmware loading error"
 msgstr ""
+"**** PNCCONF FEHLER:   Fehler beim Laden der selbst modifzierten Firmware"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:268
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
-msgstr ""
+msgstr "**** PNCCONF INFO:    Zusätzliche firmware in Datei gefunden"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:364
 msgid "Discovery metadata update"
@@ -11948,17 +11959,21 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.py:408
 #, python-format
 msgid "%s metadata update"
-msgstr ""
+msgstr "%s Metadaten-update"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:428
+#, fuzzy
 msgid "PnCconf setup"
-msgstr ""
+msgstr "PnCconf setup"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:448
+#, fuzzy
 msgid ""
 "\n"
 "**** Debug Pause! ****"
 msgstr ""
+"\n"
+"**** Debug Pause! ****"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:532
 #, fuzzy
@@ -11976,6 +11991,9 @@ msgid ""
 "%s\n"
 "PNCconf will use internal firmware data"
 msgstr ""
+"Sie haben keine hostmot2 firmware heruntergeladen in Ordner:\n"
+"%s\n"
+"PNCconf wird eine interne firmware nutzen"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:900
 msgid "LinuxCNC 'PNCconf' configuration files"
@@ -11987,10 +12005,13 @@ msgid ""
 "continue.\n"
 "."
 msgstr ""
+"Es scheinen die Daten in dieser Datei von einer zu alten Version PNCConf zu "
+"sein um fortzufahren.\n"
+"."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1296
 msgid "No board was found\n"
-msgstr ""
+msgstr "Kein Board gefunden\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1339
 #, python-format
@@ -12001,6 +12022,11 @@ msgid ""
 "\n"
 " %s"
 msgstr ""
+"Discovery hat einen Fehler,\n"
+"\n"
+" Ist mesaflash installiert?\n"
+"\n"
+" %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1353
 #, fuzzy
@@ -12009,7 +12035,7 @@ msgstr "Gerätenamen sind nicht verfügbar\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1615
 msgid "USB device Info Search"
-msgstr ""
+msgstr "USB Device Info Suche"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1629
 msgid "USB device  page is unavailable\n"
