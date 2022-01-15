@@ -152,6 +152,9 @@ def _find_valid_icon_themes():
                 valid_icon_themes.append((theme_dir, theme_name))
     return valid_icon_themes
 
+def find_handler_id_by_signal(obj, signal_name):
+    signal_id, detail = GObject.signal_parse_name(signal_name, obj, True)
+    return GObject.signal_handler_find(obj, GObject.SignalMatchType.ID, signal_id, detail, None, None, None)
 
 class gmoccapy(object):
     def __init__(self, argv):
@@ -3797,13 +3800,13 @@ class gmoccapy(object):
 
     def on_tbtn_fullsize_preview_toggled(self, widget, data=None):
         state = widget.get_active()
-        name = Gtk.Buildable.get_name(widget)
-        if name[-1] == "0":
-            name_2 = name[:-1] + "1"
-        else:
-            name_2 = name[:-1] + "0"
-        self.widgets[name_2].set_active(state)
-        print("tbtn_fullsize_toggled", name, name_2)
+
+        # "synchronize" all fullscreen toggle buttons
+        for tbtn_fullscreen, num in [(self.widgets[f"tbtn_fullsize_preview{n}"], n) for n in range(2)]:
+            if tbtn_fullscreen.get_active() is not state:
+                with(tbtn_fullscreen.handler_block(find_handler_id_by_signal(tbtn_fullscreen, "toggled"))):
+                    tbtn_fullscreen.set_active(state)
+            tbtn_fullscreen.set_image(self.widgets[f"img_fullsize_preview{num}_" + ("close" if state else "open")])
 
         if state:
             self.widgets.box_info.hide()
@@ -4316,7 +4319,124 @@ class gmoccapy(object):
         #settings.set_string_property("Gtk-theme-name", theme, "")
 
     def _set_icon_theme(self, name):
-        print(f"Setting icon theme '{name}': Not yet implemented")
+        print(f"Setting icon theme '{name}'")
+        if name is None or name == "default":
+            # TODO: restore default on the fly
+            message = "Restore default icon theme requires a restart to take effect."
+            self.dialogs.warning_dialog(self, _("Just to warn you"), message)
+        else:
+            self.icon_theme.set_custom_theme(name)
+
+            icon_configs = [
+                # widget, named_icon, size
+                ("img_emergency", "main_switch_on", 48),
+                ("img_emergency_off", "main_switch_off", 48),
+                ("img_machine_on", "power_on", 48),
+                ("img_machine_off", "power_off", 48),
+                # mode buttons
+                ("img_manual", "mode_manual_inactive", 48),
+                ("img_manual_on", "mode_manual_active", 48),
+                ("img_mdi", "mode_mdi_inactive", 48),
+                ("img_mdi_on", "mode_mdi_active", 48),
+                ("img_auto", "mode_auto_inactive", 48),
+                ("img_auto_on", "mode_auto_active", 48),
+                ("img_settings", "mode_settings_inactive", 48),
+                ("img_settings_on", "mode_settings_active", 48),
+                ("img_user_tabs", "mode_user_tabs_inactive", 48),
+                ("img_user_tabs_on", "mode_user_tabs_active", 48),
+                # gremlin controls
+                ("img_view_p", "tool_axis_p", 24),
+                ("img_view_x", "tool_axis_x", 24),
+                ("img_view_y", "tool_axis_y", 24),
+                ("img_view_y2", "tool_axis_y2", 24),
+                ("img_view_z", "tool_axis_z", 24),
+                ("img_zoom_in", "zoom_in", 24),
+                ("img_zoom_out", "zoom_out", 24),
+                ("img_tool_clear", "clear", 24),
+                ("img_tool_path", "toolpath", 24),
+                ("img_dimensions", "dimensions", 24),
+                # coolant
+                ("img_coolant_on", "coolant_flood_active", 32),
+                ("img_coolant_off", "coolant_flood_inactive", 32),
+                ("img_mist_on", "coolant_mist_active", 32),
+                ("img_mist_off", "coolant_mist_inactive", 32),
+                # spindle
+                ("img_spindle_forward", "spindle_right", 48),
+                ("img_spindle_forward_on", "spindle_right_on", 48),
+                ("img_spindle_reverse", "spindle_left", 48),
+                ("img_spindle_reverse_on", "spindle_left_on", 48),
+                ("img_spindle_stop", "spindle_stop", 48),
+                ("img_spindle_stop_on", "spindle_stop_on", 48),
+                # jog
+                ("img_rabbit_jog", "jog_speed_fast", 16),
+                ("img_turtle_jog", "jog_speed_slow", 16),
+                # fullscreen
+                ("img_fullsize_preview0_open",  "fullscreen_open",  32),
+                ("img_fullsize_preview0_close", "fullscreen_close", 32),
+                ("img_fullsize_preview1_open",  "fullscreen_open",  32),
+                ("img_fullsize_preview1_close", "fullscreen_close", 32),
+                # ref
+                ("img_ref_all", "ref_all", 48),
+                # ("", "ref_", 48)
+                # misc
+                ("img_close", "logout", 32),
+            ]
+
+            # default style context see TODO below
+            default_style = Gtk.Button().get_style_context()
+
+            failed_icons = 0
+            for widget_name, icon_name, size in icon_configs:
+                try:
+                    image = self.widgets[widget_name]
+                    # TODO: Thats kind a problem, as not every image has (yet) a parent (e.g. for toggle button only one
+                    #  image is assigned at a time) and the default_style is maybe to inaccurate in terms of overridden
+                    #  style attributes used by the icon loading mechanism (fg, succcss, warning and error colors)
+                    style = image.get_parent().get_style_context() if image.get_parent() is not None else default_style
+                    pixbuf = self._load_symbolic_from_icon_theme(icon_name, size, style)
+                    image.set_from_pixbuf(pixbuf)
+                    image.set_size_request(size, size)
+                except BaseException as err:
+                    print(f"Warning: Failed to change icon for <{widget_name}> to '{icon_name}': {str(err)}")
+                    failed_icons += 1
+
+            if failed_icons > 0:
+                print(f"Warning: {failed_icons} icons failed to load! (Maybe the icon theme is incomplete?)")
+
+
+    def _load_symbolic_from_icon_theme(self, icon_name, size, style = None ):
+        """Load a symbolic icon from the current icon theme.
+        If style is given, the symolic icon will be recolored based on colors derive from the stylecontext:
+         foreground color from Gtk.StateFlags.NORMAL, success_color, warning_color and error_color by calling
+         the corresponding lookup_color method.
+        If style is None, the icon is loaded via the Gtk.IconInfo.load_icon method without recoloring.
+
+        :param icon_name: The icon name
+        :type icon_name: str
+        :param size: Icon size to load
+        :type size: int
+        :param style: The style context to derive the colors from
+        :type style: Gtk.StyleContext
+        :return: GdkPixbuf.Pixbuf
+        :raises: ValueError: if icon lookup fails (usually if the theme does not contain a icon with this name)
+        """
+        lookup_flags = Gtk.IconLookupFlags.USE_BUILTIN | Gtk.IconLookupFlags.FORCE_SYMBOLIC | Gtk.IconLookupFlags.FORCE_SIZE
+        icon_info = self.icon_theme.lookup_icon(icon_name, size, lookup_flags)
+        if icon_info is None:
+            raise ValueError(f"Lookup icon '{icon_name}' failed")
+
+        pixbuf = None
+        if style is not None:
+            fg = style.get_color(Gtk.StateFlags.NORMAL)
+            __, success_color = style.lookup_color("success_color")
+            __, warning_color = style.lookup_color("warning_color")
+            __, error_color = style.lookup_color("error_color")
+
+            pixbuf, _ = icon_info.load_symbolic(fg, success_color, warning_color, error_color)
+        else:
+            pixbuf = icon_info.load_icon()
+
+        return pixbuf
 
     def on_icon_theme_choice_changed(self, widget):
         active = widget.get_active_iter()

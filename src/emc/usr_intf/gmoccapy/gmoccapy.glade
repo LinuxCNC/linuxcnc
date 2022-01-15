@@ -241,12 +241,22 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/E-Stop.gif</property>
   </object>
-  <object class="GtkImage" id="img_fullsize_preview">
+  <object class="GtkImage" id="img_fullsize_preview0_open">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/fullscreen_preview.png</property>
   </object>
-  <object class="GtkImage" id="img_fullsize_preview1">
+  <object class="GtkImage" id="img_fullsize_preview1_open">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/fullscreen_preview.png</property>
+  </object>
+  <object class="GtkImage" id="img_fullsize_preview0_close">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/fullscreen_preview.png</property>
+  </object>
+  <object class="GtkImage" id="img_fullsize_preview1_close">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/fullscreen_preview.png</property>
@@ -9098,7 +9108,7 @@ F12 or $ key does the same</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">make the preview as large as possible</property>
-                    <property name="image">img_fullsize_preview</property>
+                    <property name="image">img_fullsize_preview0_open</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
                   <packing>
@@ -9369,7 +9379,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="image">img_fullsize_preview1</property>
+                    <property name="image">img_fullsize_preview1_open</property>
                     <signal name="toggled" handler="on_tbtn_fullsize_preview_toggled" swapped="no"/>
                   </object>
                   <packing>

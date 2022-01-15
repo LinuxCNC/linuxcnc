@@ -88,6 +88,23 @@ def compose_images():
                  layers=["base"]
                  )
 
+    # logout
+    logout_svg = svg("logout.inkscape.svg")
+    composer.add("logout.symbolic.png",
+                 src_file=logout_svg,
+                 context="actions",
+                 layers=["base"]
+                 )
+
+    # fullscreen
+    fullscreen_icons_svg = svg("fullscreen_icons.inkscape.svg")
+    for state in ["open", "close"]:
+        composer.add(f"fullscreen_{state}.symbolic.png",
+                     src_file=fullscreen_icons_svg,
+                     context="actions",
+                     layers=[state]
+                     )
+
     # gremlin controls
     gremlin_control_icons_svg = svg("gremlin_control_icons.inkscape.svg")
     composer.add("toolpath.symbolic.png",
