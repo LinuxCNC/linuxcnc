@@ -3651,6 +3651,15 @@ class gmoccapy(object):
             if page_num != 1:  # setup page is active,
                 self.widgets.tbtn_setup.set_active(False)
 
+    def on_rbt_manual_toggled(self, widget):
+        widget.set_image(self.widgets["img_manual_on" if widget.get_active() else "img_manual"])
+
+    def on_rbt_mdi_toggled(self, widget):
+        widget.set_image(self.widgets["img_mdi_on" if widget.get_active() else "img_mdi"])
+
+    def on_rbt_auto_toggled(self, widget):
+        widget.set_image(self.widgets["img_auto_on" if widget.get_active() else "img_auto"])
+
     def on_tbtn_setup_toggled(self, widget, data=None):
         # first we set to manual mode, as we do not allow changing settings in other modes
         # otherwise external halui commands could start a program while we are in settings
@@ -3680,6 +3689,7 @@ class gmoccapy(object):
                 self.widgets.ntb_main.set_current_page(1)
                 self.widgets.ntb_setup.set_current_page(0)
                 self.widgets.ntb_button.set_current_page(_BB_SETUP)
+                widget.set_image(self.widgets.img_settings_on)
             else:
                 if self.widgets.rbt_hal_unlock.get_active():
                     message = _("Hal Pin is low, Access denied")
@@ -3687,6 +3697,7 @@ class gmoccapy(object):
                     message = _("wrong code entered, Access denied")
                 self.dialogs.warning_dialog(self, _("Just to warn you"), message)
                 self.widgets.tbtn_setup.set_active(False)
+                widget.set_image(self.widgets.img_settings)
         else:
             # check which button should be sensitive, depending on the state of the machine
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
@@ -3715,14 +3726,18 @@ class gmoccapy(object):
             if self.widgets.tbtn_user_tabs.get_active():
                 self.widgets.tbtn_user_tabs.set_active(False)
 
+            widget.set_image(self.widgets.img_settings)
+
     # Show or hide the user tabs
     def on_tbtn_user_tabs_toggled(self, widget, data=None):
         if widget.get_active():
             self.widgets.ntb_main.set_current_page(2)
             self.widgets.tbtn_fullsize_preview0.set_sensitive(False)
+            widget.set_image(self.widgets.img_user_tabs_on)
         else:
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.tbtn_fullsize_preview0.set_sensitive(True)
+            widget.set_image(self.widgets.img_user_tabs)
 
 # =========================================================
 # The homing functions
@@ -3877,24 +3892,24 @@ class gmoccapy(object):
 
     def on_rbt_forward_clicked(self, widget, data=None):
         if widget.get_active():
-            widget.set_image(self.widgets.img_forward_on)
+            widget.set_image(self.widgets.img_spindle_forward_on)
             self._set_spindle("forward")
         else:
-            self.widgets.rbt_forward.set_image(self.widgets.img_forward)
+            self.widgets.rbt_forward.set_image(self.widgets.img_spindle_forward)
 
     def on_rbt_reverse_clicked(self, widget, data=None):
         if widget.get_active():
-            widget.set_image(self.widgets.img_reverse_on)
+            widget.set_image(self.widgets.img_spindle_reverse_on)
             self._set_spindle("reverse")
         else:
-            widget.set_image(self.widgets.img_reverse)
+            widget.set_image(self.widgets.img_spindle_reverse)
 
     def on_rbt_stop_clicked(self, widget, data=None):
         if widget.get_active():
-            widget.set_image(self.widgets.img_stop_on)
+            widget.set_image(self.widgets.img_spindle_stop_on)
             self._set_spindle("stop")
         else:
-            self.widgets.rbt_stop.set_image(self.widgets.img_sstop)
+            self.widgets.rbt_stop.set_image(self.widgets.img_spindle_stop)
 
     def _set_spindle(self, command):
         # if we are in estop state, we will have to leave here, otherwise
@@ -3908,17 +3923,17 @@ class gmoccapy(object):
         if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
                 if self.stat.spindle[0]['direction'] > 0:
-                    self.widgets.rbt_forward.set_sensitive(True)
-                    self.widgets.rbt_reverse.set_sensitive(False)
-                    self.widgets.rbt_stop.set_sensitive(False)
-                elif self.stat.spindle[0]['direction'] < 0:
                     self.widgets.rbt_forward.set_sensitive(False)
                     self.widgets.rbt_reverse.set_sensitive(True)
-                    self.widgets.rbt_stop.set_sensitive(False)
-                else:
-                    self.widgets.rbt_forward.set_sensitive(False)
+                    self.widgets.rbt_stop.set_sensitive(True)
+                elif self.stat.spindle[0]['direction'] < 0:
+                    self.widgets.rbt_forward.set_sensitive(True)
                     self.widgets.rbt_reverse.set_sensitive(False)
                     self.widgets.rbt_stop.set_sensitive(True)
+                else:
+                    self.widgets.rbt_forward.set_sensitive(True)
+                    self.widgets.rbt_reverse.set_sensitive(True)
+                    self.widgets.rbt_stop.set_sensitive(False)
                 return
 
         rpm = self._check_spindle_range()
