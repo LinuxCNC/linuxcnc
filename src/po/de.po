@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-15 04:07+0000\n"
+"PO-Revision-Date: 2022-01-15 18:23+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -1208,7 +1208,7 @@ msgstr "Unbekannter Befehl"
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
 msgstr ""
-"Der Offset einer Achse kann nicht geändert werden, wenn "
+"Der Versatz einer Achse kann nicht geändert werden, wenn "
 "Werkzeugbahnkorrektur aktiv ist"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:52
@@ -2359,7 +2359,7 @@ msgid ""
 "Offset\n"
 "%s"
 msgstr ""
-"Offset\n"
+"Versatz\n"
 "%s"
 
 #: src/hal/utils/scope_vert.c:607
@@ -2381,13 +2381,12 @@ msgid "Scale"
 msgstr "Skala"
 
 #: src/hal/utils/scope_vert.c:640
-#, fuzzy
 msgid ""
 "Offset\n"
 "----"
 msgstr ""
-"Offset\n"
-"%s"
+"Versatz\n"
+"----"
 
 #: src/hal/utils/scope_vert.c:648
 msgid "Chan Off"
@@ -2399,12 +2398,12 @@ msgid ""
 "Set the vertical offset\n"
 "for channel %d."
 msgstr ""
-"Vertikaler Offset\n"
+"Vertikaler Versatz\n"
 "für Kanal %d."
 
 #: src/hal/utils/scope_vert.c:710
 msgid "Set Offset"
-msgstr "Offset setzen"
+msgstr "Versatz setzen"
 
 #: src/hal/utils/scope_vert.c:729
 msgid "AC Coupled"
@@ -4638,8 +4637,10 @@ msgid "Bit Status Window"
 msgstr "Bit Status Fenster"
 
 #: src/hal/classicladder/spy_vars_gtk.c:202
+#, fuzzy
 msgid "Offset for vars displayed below (return to apply)"
 msgstr ""
+"Versatz für unten angzeigte Variablen (Drücke return um diesen zu setzen)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:409
 msgid "Watch Window"
@@ -5354,8 +5355,9 @@ msgid "AXIS"
 msgstr "ACHSE"
 
 #: tcl/bin/tkbackplot.tcl:251
+#, fuzzy
 msgid "OFFSET"
-msgstr "OFFSET"
+msgstr "VERSATZ"
 
 #: tcl/bin/tkbackplot.tcl:252
 msgid "ANGLE"
@@ -5458,7 +5460,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:400
 msgid "Set Tool Offset"
-msgstr "Werkzeugoffset"
+msgstr "Werkzeugkorrektur"
 
 #: tcl/tklinuxcnc.tcl:405 tcl/tklinuxcnc.tcl:934
 msgid "Tool:"
@@ -5497,7 +5499,7 @@ msgstr "Werkzeugtabelle neu laden"
 
 #: tcl/tklinuxcnc.tcl:769
 msgid "Offsets and Variables..."
-msgstr "Parameterdatei..."
+msgstr "Versatz und Variablen..."
 
 #: tcl/tklinuxcnc.tcl:770
 msgid "Diagnostics..."
@@ -5663,7 +5665,7 @@ msgstr "ABBRECHEN"
 
 #: tcl/tklinuxcnc.tcl:936
 msgid "Offset:"
-msgstr "Werkzeugoffset:"
+msgstr "Werkzeugkorrektur:"
 
 #: tcl/tklinuxcnc.tcl:942
 msgid "Work Offsets:"
@@ -5905,7 +5907,7 @@ msgstr "Var # "
 
 #: tcl/scripts/Set_Coordinates.tcl:85
 msgid "Offset Value "
-msgstr "Offset-Wert "
+msgstr "Versatz-Wert "
 
 #: tcl/scripts/Set_Coordinates.tcl:86
 #, fuzzy
@@ -6077,7 +6079,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1435
 msgid "Postamble file"
-msgstr ""
+msgstr "Postamble Datei"
 
 #: tcl/ngcgui.tcl:1485
 msgid "Subroutine file"
@@ -6097,7 +6099,7 @@ msgstr "Noch keine Parameter"
 
 #: tcl/ngcgui.tcl:1709
 msgid "Missing value for parm"
-msgstr ""
+msgstr "Fehlender Wert für Parameter"
 
 #: tcl/ngcgui.tcl:1730
 msgid "Output file"
@@ -6108,12 +6110,13 @@ msgid "Multiple Tabs with Features"
 msgstr ""
 
 #: tcl/ngcgui.tcl:1846
+#, fuzzy
 msgid "Finalize all Tabs?"
-msgstr ""
+msgstr "Alle Tabs finalisieren?"
 
 #: tcl/ngcgui.tcl:1846
 msgid "Order"
-msgstr ""
+msgstr "Reihenfolge"
 
 #: tcl/ngcgui.tcl:1848
 msgid "No, just this page"
@@ -6128,32 +6131,37 @@ msgid "Error: "
 msgstr "Fehler: "
 
 #: tcl/ngcgui.tcl:1865
+#, fuzzy
 msgid "Autosend disabled, Ctrl-A toggles autosend"
-msgstr ""
+msgstr "Automatisches Senden deaktiviert, Strg-A schaltet autosend ein/aus"
 
 #: tcl/ngcgui.tcl:1867
+#, fuzzy
 msgid "File saving enabled -- Finalize to save"
-msgstr ""
+msgstr "Datei speichern aktiviert -- Finalisiere zum Sichern"
 
 #: tcl/ngcgui.tcl:1883
 msgid "Require .ngc suffix for filename"
-msgstr ""
+msgstr "Der Dateiname muss auf .ngc enden"
 
 #: tcl/ngcgui.tcl:1893
 msgid "Disallowed overwrite of"
 msgstr "Unzulässiges Überschreiben von"
 
 #: tcl/ngcgui.tcl:1921
+#, fuzzy
 msgid "FEATURE"
-msgstr ""
+msgstr "FEATURE"
 
 #: tcl/ngcgui.tcl:1928
+#, fuzzy
 msgid "feature line added"
-msgstr ""
+msgstr "Eigenschaft-Zeile hinzugefügt"
 
 #: tcl/ngcgui.tcl:1932
+#, fuzzy
 msgid "remaining_features line added"
-msgstr ""
+msgstr "verbleibende_Eigenschaften-Zeile hinzugefügt"
 
 #: tcl/ngcgui.tcl:1944
 msgid "line added"
@@ -6307,7 +6315,7 @@ msgstr "Ausführlich"
 
 #: tcl/ngcgui.tcl:2586
 msgid "Finalize Canceled"
-msgstr ""
+msgstr "Finalisieren abgebrochen"
 
 #: tcl/ngcgui.tcl:2723 tcl/ngcgui.tcl:2879 tcl/tooledit.tcl:885
 msgid "Dismiss"
@@ -6353,8 +6361,9 @@ msgid "Open editor specified by"
 msgstr "Öffne Editor spezifiziert durch"
 
 #: tcl/ngcgui.tcl:2997
+#, fuzzy
 msgid "on last outfile"
-msgstr ""
+msgstr "auf letzter Ausgabedatei"
 
 #: tcl/ngcgui.tcl:2998
 #, fuzzy
@@ -6367,7 +6376,7 @@ msgstr "Erstelle Feature"
 
 #: tcl/ngcgui.tcl:3000
 msgid "Finalize (AUTO send is"
-msgstr ""
+msgstr "Finalisiere (AUTO send ist"
 
 #: tcl/ngcgui.tcl:3001
 msgid "Show key bindings"
@@ -6476,7 +6485,7 @@ msgstr "entfernen"
 
 #: tcl/ngcgui.tcl:3602 tcl/ngcgui.tcl:3608
 msgid "move"
-msgstr ""
+msgstr "bewege"
 
 #: tcl/ngcgui.tcl:3716 src/emc/usr_intf/pncconf/pncconf.py:3943
 #: src/emc/usr_intf/pncconf/pncconf.py:4049
@@ -6486,19 +6495,20 @@ msgstr "Benutzerdefiniert"
 
 #: tcl/ngcgui.tcl:3742
 msgid "Problem creating page"
-msgstr ""
+msgstr "Problem beim Seiten-Erstellung"
 
 #: tcl/ngcgui.tcl:3749
+#, fuzzy
 msgid "entrykeybindings not available"
-msgstr ""
+msgstr "Tastenbelegungen nicht verfügbar"
 
 #: tcl/ngcgui.tcl:3793
 msgid "Found multiple matches for"
-msgstr ""
+msgstr "Mehrere Übereinstimmungen gefunden für"
 
 #: tcl/ngcgui.tcl:3794
 msgid "using path"
-msgstr ""
+msgstr "nutze Pfad"
 
 #: tcl/ngcgui.tcl:3802 src/emc/usr_intf/axis/scripts/axis.py:2652
 #: src/emc/usr_intf/axis/scripts/axis.py:2678
@@ -6506,16 +6516,18 @@ msgid "Warning"
 msgstr "Warnung"
 
 #: tcl/ngcgui.tcl:3803
+#, fuzzy
 msgid "File absolute path specifier conflicts with searchpath result"
-msgstr ""
+msgstr "Absoluter Datei-Pfadangabe in Konflikt mit Suchpfad"
 
 #: tcl/ngcgui.tcl:3804
+#, fuzzy
 msgid "Absolute Specifier"
-msgstr ""
+msgstr "Absolute Angabe"
 
 #: tcl/ngcgui.tcl:3805
 msgid "Using Search Result"
-msgstr ""
+msgstr "Nutze Suchergebnis"
 
 #: tcl/ngcgui.tcl:3810
 msgid "File not in Search Path"
@@ -6547,7 +6559,7 @@ msgstr "in INI-Datei"
 
 #: tcl/ngcgui.tcl:3829
 msgid "(Restart required after fixing ini file)"
-msgstr ""
+msgstr "(Neustart benötigt nach Korrektur der ini Datei)"
 
 #: tcl/ngcgui.tcl:3844
 #, fuzzy
@@ -6564,7 +6576,7 @@ msgstr "Fehlendes Tcl-Paket Img"
 
 #: tcl/ngcgui.tcl:3930
 msgid "Please install Img"
-msgstr ""
+msgstr "Bitte installieren Sie Img"
 
 #: tcl/ngcgui.tcl:4134
 msgid "ini file"
@@ -6575,24 +6587,25 @@ msgid "not found"
 msgstr "nicht gefunden"
 
 #: tcl/ngcgui_ttt.tcl:68
+#, fuzzy
 msgid "found truetype-tracer v4 -OK"
-msgstr ""
+msgstr "gefundene truetype-tracer v4 -OK"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
-msgstr ""
+msgstr "Bemerkung: truetype-tracer v4 wird benötigt"
 
 #: tcl/ngcgui_ttt.tcl:72
 msgid "Note: truetype-tracer v4 is required"
-msgstr ""
+msgstr "Bemerkung: truetype-tracer v4 wird benötigt"
 
 #: tcl/ngcgui_ttt.tcl:82
 msgid "ngcgui_app.tcl must be loaded before"
-msgstr ""
+msgstr "ngcgui_app.tcl muss vorher geladen werden"
 
 #: tcl/ngcgui_ttt.tcl:90
 msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
-msgstr ""
+msgstr "Erstellen einer Unterroutinen-Datei durch truetype-tracer (V4 benötigt)"
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
 msgid "problem with"
@@ -6604,15 +6617,16 @@ msgstr "Kein Eintrag für"
 
 #: tcl/ngcgui_ttt.tcl:110
 msgid "wrong version of truetype-tracer"
-msgstr ""
+msgstr "falsche Version von truetype-tracer"
 
 #: tcl/ngcgui_ttt.tcl:126
 msgid "not writable, using"
-msgstr ""
+msgstr "nicht schreibbar, nutze"
 
 #: tcl/ngcgui_ttt.tcl:126
+#, fuzzy
 msgid "and setting expandsub"
-msgstr ""
+msgstr "und Setzen von expandsub"
 
 #: tcl/ngcgui_ttt.tcl:162 src/emc/usr_intf/pncconf/external.glade:721
 msgid "Text"
@@ -6644,7 +6658,7 @@ msgstr "normal"
 
 #: tcl/ngcgui_ttt.tcl:249
 msgid "date"
-msgstr ""
+msgstr "Datum"
 
 #: tcl/ngcgui_ttt.tcl:250
 msgid "fontname"
@@ -6652,7 +6666,7 @@ msgstr "Schriftname"
 
 #: tcl/ngcgui_ttt.tcl:263
 msgid "Switches"
-msgstr ""
+msgstr "Schalter"
 
 #: tcl/ngcgui_ttt.tcl:271
 msgid "Unicode"
@@ -6663,16 +6677,18 @@ msgid "Allow Rotation"
 msgstr "Drehung erlauben"
 
 #: tcl/ngcgui_ttt.tcl:296
+#, fuzzy
 msgid "Make ngcgui-compatible subfile and new tab page"
 msgstr ""
+"Erstelle ngcgui-compatible Unterdatei und einen neuen Reiter zur Darstellung"
 
 #: tcl/ngcgui_ttt.tcl:354
 msgid "Null text"
-msgstr ""
+msgstr "Leerer Text"
 
 #: tcl/ngcgui_ttt.tcl:385
 msgid "Using truetype-tracer default font"
-msgstr ""
+msgstr "Nutze truetype-tracer Standard-Schriftart"
 
 #: tcl/ngcgui_ttt.tcl:389
 msgid "no such file"
@@ -6684,13 +6700,15 @@ msgstr "Datei ist nicht lesbar"
 
 #: tcl/ngcgui_ttt.tcl:508
 msgid "Creating new tab page"
-msgstr ""
+msgstr "Erstelle neuen Reiter"
 
 #: tcl/ngcgui_app.tcl:26
 msgid ""
 "requires command inifindall\n"
 "from axis.py (LinuxCNC 2.5) or"
 msgstr ""
+"benötigt Befehl inifindall\n"
+"aus axis.py (LinuxCNC 2.5) or"
 
 #: tcl/ngcgui_app.tcl:43
 #, fuzzy
@@ -6698,8 +6716,9 @@ msgid "not readable"
 msgstr "Datei ist nicht lesbar"
 
 #: tcl/ngcgui_app.tcl:49 tcl/ngcgui_app.tcl:52
+#, fuzzy
 msgid "Unexpected: multiple startups for ngcgui"
-msgstr ""
+msgstr "Unerwartet: mehrere startups für ngcgui"
 
 #: tcl/ngcgui_app.tcl:50
 #, fuzzy
@@ -6707,8 +6726,9 @@ msgid "LinuxCNC"
 msgstr "TKLinuxCNC"
 
 #: tcl/ngcgui_app.tcl:51
+#, fuzzy
 msgid "for linuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
-msgstr ""
+msgstr "für linuxCNC 2.5.xxx, tkapp.py nicht in der ini file einbinden"
 
 #: tcl/ngcgui_app.tcl:70
 #, fuzzy
@@ -6717,7 +6737,7 @@ msgstr "LinuxCNC-Fehler"
 
 #: tcl/ngcgui_app.tcl:71
 msgid "for LinuxCNC 2.5.xxx, Do not include tkapp.py in the ini file"
-msgstr ""
+msgstr "für LinuxCNC 2.5.xxx, tkapp.py nicht in der ini file einbinden"
 
 #: tcl/tooledit.tcl:65
 msgid "Problem reading ~/.tooleditrc"
@@ -7051,7 +7071,7 @@ msgstr "Vorschubübersteuerung von 0% bis 100%"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:191
 msgid "if axes radiobuttons visible"
-msgstr ""
+msgstr "wenn Achsen-Radiobuttons sichtbar"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:192
 msgid ", and ."
@@ -7386,7 +7406,7 @@ msgstr "Kein Werkzeug"
 #: src/emc/usr_intf/axis/scripts/axis.py:913
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
-msgstr "Werkzeug %(tool)d, Werkzeugverschiebung %(zo)g, Durchmesser %(dia)g"
+msgstr "Werkzeug %(tool)d, Werkzeugversatz %(zo)g, Durchmesser %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:915
 #, python-format
@@ -8008,7 +8028,7 @@ msgstr "Spindeldrehzahl (1/min)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:679
 msgid "Roughing offset (units, 0=no roughing)"
-msgstr "Schruppoffset (Einheiten, 0=kein Schruppen)"
+msgstr "Schrupp-Versatz (Einheiten, 0=kein Schruppen)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:680
 msgid "Roughing depth per pass (units)"
@@ -8898,8 +8918,9 @@ msgid "Tool length offset additional"
 msgstr "zusätzlicher Werkzeug-Längen-Ausgleich"
 
 #: src/emc/usr_intf/touchy/mdi.py:81 src/emc/usr_intf/gscreen/mdi.py:76
+#, fuzzy
 msgid "Motion in unoffset coordinates"
-msgstr ""
+msgstr "Bewegung in Maschinen-Koordinaten (ohne Versatz)"
 
 #: src/emc/usr_intf/touchy/mdi.py:82 src/emc/usr_intf/gscreen/mdi.py:77
 #, fuzzy
@@ -8931,60 +8952,64 @@ msgid "Bore with dwell"
 msgstr "Mit Verweilzeit bohren"
 
 #: src/emc/usr_intf/touchy/mdi.py:90 src/emc/usr_intf/gscreen/mdi.py:85
+#, fuzzy
 msgid "Offset all coordinate systems"
-msgstr ""
+msgstr "Verschiebung aller Koordinaten-System"
 
 #: src/emc/usr_intf/touchy/mdi.py:91 src/emc/usr_intf/gscreen/mdi.py:86
 msgid "CSS Mode"
 msgstr "CSS-Modus"
 
 #: src/emc/usr_intf/touchy/emc_interface.py:435
+#, fuzzy
 msgid "CCW"
-msgstr ""
+msgstr "CCW"
 
 #: src/emc/usr_intf/touchy/emc_interface.py:435
 msgid "Stopped"
 msgstr "Gestoppt"
 
 #: src/emc/usr_intf/touchy/emc_interface.py:435
+#, fuzzy
 msgid "CW"
-msgstr ""
+msgstr "CW"
 
 #: src/emc/usr_intf/touchy/touchy.glade:17
 msgid "LinuxCNC/Touchy"
-msgstr ""
+msgstr "LinuxCNC/Touchy"
 
 #: src/emc/usr_intf/touchy/touchy.glade:41
 msgid "xa"
-msgstr ""
+msgstr "xa"
 
 #: src/emc/usr_intf/touchy/touchy.glade:54
 msgid "xd"
-msgstr ""
+msgstr "xd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:67
+#, fuzzy
 msgid "yr"
-msgstr ""
+msgstr "yr"
 
 #: src/emc/usr_intf/touchy/touchy.glade:78
 msgid "ya"
-msgstr ""
+msgstr "ya"
 
 #: src/emc/usr_intf/touchy/touchy.glade:91
 msgid "yd"
-msgstr ""
+msgstr "yd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:104
 msgid "zr"
-msgstr ""
+msgstr "zr"
 
 #: src/emc/usr_intf/touchy/touchy.glade:115
 msgid "za"
-msgstr ""
+msgstr "za"
 
 #: src/emc/usr_intf/touchy/touchy.glade:128
 msgid "zd"
-msgstr ""
+msgstr "zd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:141
 #: src/emc/usr_intf/gscreen/gscreen.glade:85
@@ -9006,31 +9031,31 @@ msgstr "Absolut"
 
 #: src/emc/usr_intf/touchy/touchy.glade:175
 msgid "xr"
-msgstr ""
+msgstr "xr"
 
 #: src/emc/usr_intf/touchy/touchy.glade:186
 msgid "ar"
-msgstr ""
+msgstr "ar"
 
 #: src/emc/usr_intf/touchy/touchy.glade:198
 msgid "br"
-msgstr ""
+msgstr "br"
 
 #: src/emc/usr_intf/touchy/touchy.glade:210
 msgid "cr"
-msgstr ""
+msgstr "cr"
 
 #: src/emc/usr_intf/touchy/touchy.glade:222
 msgid "ur"
-msgstr ""
+msgstr "ur"
 
 #: src/emc/usr_intf/touchy/touchy.glade:234
 msgid "vr"
-msgstr ""
+msgstr "vr"
 
 #: src/emc/usr_intf/touchy/touchy.glade:246
 msgid "wr"
-msgstr ""
+msgstr "wr"
 
 #: src/emc/usr_intf/touchy/touchy.glade:258
 msgid "aa"
@@ -9134,7 +9159,7 @@ msgstr "Hochfahren"
 #: src/emc/usr_intf/touchy/touchy.glade:663
 #, fuzzy
 msgid "Set Tool"
-msgstr "Werkzeugoffset"
+msgstr "Setze Werkzeug"
 
 #: src/emc/usr_intf/touchy/touchy.glade:678
 msgid "Set Origin"
@@ -9496,7 +9521,7 @@ msgstr "Status"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3007
 msgid "Control Font:"
-msgstr ""
+msgstr "Steuerung Schriftart:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3019
 msgid "DRO Font:"
@@ -9601,12 +9626,12 @@ msgstr "Einstellungen"
 #: src/emc/usr_intf/touchy/touchy.glade:3525
 #: src/emc/usr_intf/gscreen/gscreen.glade:1425
 msgid "FO: 100%"
-msgstr ""
+msgstr "FO: 100%"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3540
 #: src/emc/usr_intf/gscreen/gscreen.glade:1437
 msgid "SO: 100%"
-msgstr ""
+msgstr "SO: 100%"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3554
 msgid "MV: 100"
@@ -9618,19 +9643,19 @@ msgstr ""
 
 #: src/emc/usr_intf/touchy/touchy.glade:3582
 msgid "Start Point"
-msgstr ""
+msgstr "Startpunkt"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3609
 msgid ".01"
-msgstr ""
+msgstr ".01"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3622
 msgid ".001"
-msgstr ""
+msgstr ".001"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3638
 msgid ".0001"
-msgstr ""
+msgstr ".0001"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3666
 msgid "  X  "
@@ -9658,7 +9683,7 @@ msgstr "  C  "
 
 #: src/emc/usr_intf/touchy/touchy.glade:3760
 msgid "  U  "
-msgstr ""
+msgstr "  U  "
 
 #: src/emc/usr_intf/touchy/touchy.glade:3776
 msgid "  V  "
@@ -9675,7 +9700,7 @@ msgstr "<b>Handrad</b>"
 #. # Touchy is Copyright (c) 2009-2015  Chris Radek <chris@timeguy.com> # # Touchy is free software: you can redistribute it and/or modify # it under the terms of the GNU General Public License as published by # the Free Software Foundation, either version 2 of the License, or # (at your option) any later version. # # Touchy is distributed in the hope that it will be useful, # but WITHOUT ANY WARRANTY; without even the implied warranty of # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the # GNU General Public License for more details.
 #: src/emc/usr_intf/touchy/touchy.glade:3857
 msgid "window1"
-msgstr ""
+msgstr "window1"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:63
 msgid ""
@@ -9730,7 +9755,7 @@ msgstr "GUI-Optionen"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:144
 msgid "HALUI"
-msgstr ""
+msgstr "HALUI"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:145
 #: src/emc/usr_intf/pncconf/private_data.py:43
@@ -9740,7 +9765,7 @@ msgstr "Null-X-Taste"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:146
 msgid "QtPlasmaC THCAD"
-msgstr ""
+msgstr "QtPlasmaC THCAD"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:147
 msgid "Axis X"
@@ -9776,7 +9801,7 @@ msgstr "Spindel"
 #: src/emc/usr_intf/stepconf/stepconf.py:151
 #: src/emc/usr_intf/pncconf/private_data.py:61
 msgid "Almost Done"
-msgstr ""
+msgstr "Beinahe fertig"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:155
 #: src/emc/usr_intf/pncconf/private_data.py:1066
@@ -9986,23 +10011,25 @@ msgstr "Digitaler Ausgang 1"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Torch On"
-msgstr ""
+msgstr "Plasma Brenner Ein"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
+#, fuzzy
 msgid "Plasma Ohmic Enable"
-msgstr ""
+msgstr "Ohmsches Plasma aktivieren"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Scribe Arm"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
+#, fuzzy
 msgid "Plasma Scribe On"
-msgstr ""
+msgstr "Plasma Scribe Ein"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Laser On"
-msgstr ""
+msgstr "Plasma Laser Ein"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:227
 #: src/emc/usr_intf/stepconf/stepconf.py:261
@@ -10334,20 +10361,23 @@ msgid "Plasma Arc OK"
 msgstr "Plasmabogen OK"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
+#, fuzzy
 msgid "Plasma Float Switch"
-msgstr ""
+msgstr "Plasma Float Schalter"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Breakaway"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
+#, fuzzy
 msgid "Plasma Ohmic Contact"
-msgstr ""
+msgstr "Ohmsches Plasma Kontakt"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
+#, fuzzy
 msgid "Plasma Move Up"
-msgstr ""
+msgstr "Plasma Hoch"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 #, fuzzy
@@ -10457,7 +10487,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/stepconf.py:293
 msgid "my-mill"
-msgstr ""
+msgstr "my-Fräse"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:636
 #, python-format
@@ -10655,13 +10685,15 @@ msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64) "
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:292
 #: src/emc/usr_intf/pncconf/build_HAL.py:763
+#, fuzzy
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr ""
+msgstr "# **** Einstellungen for externes Notaus SPS Programm -START ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:299
 #: src/emc/usr_intf/pncconf/build_HAL.py:770
+#, fuzzy
 msgid "# **** Setup for external estop ladder program -END ****"
-msgstr ""
+msgstr "# **** Einstellungen for externes Notaus SPS Programm -ENDE ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:330
 #: src/emc/usr_intf/pncconf/build_HAL.py:841
@@ -10967,10 +10999,13 @@ msgid "Reset Default machine _units:"
 msgstr "Reset der Maschinen_einheiten:"
 
 #: src/emc/usr_intf/stepconf/base.glade:641
+#, fuzzy
 msgid ""
 "Driver characteristics: (Multiply by 1000 for times specified in µs or "
 "microseconds)"
 msgstr ""
+"Treiber Eigenschaften: (Multipliziere mit 1000 für Angaben in µs oder "
+"Millisekunden)"
 
 #: src/emc/usr_intf/stepconf/base.glade:654
 msgid "Base Period Maximum _Jitter:"
@@ -11025,7 +11060,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/pport1.glade:32
 #: src/emc/usr_intf/stepconf/pport2.glade:37
 msgid "0x0378"
-msgstr ""
+msgstr "0x0378"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:46
 msgid "Xylotex"
@@ -11033,11 +11068,11 @@ msgstr "Xylotex"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:49
 msgid "TB6560 3 axes"
-msgstr ""
+msgstr "TB6560 3 Achsen"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:52
 msgid "TB6560 4 axes"
-msgstr ""
+msgstr "TB6560 4 Achsen"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:74
 #: src/emc/usr_intf/stepconf/pport2.glade:74
@@ -11228,7 +11263,7 @@ msgstr "Kalibrierung:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:245
 msgid "12345"
-msgstr ""
+msgstr "12345"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:271
 msgid "_Cycles per revolution:"
@@ -11272,8 +11307,9 @@ msgstr "Bildschirm:  "
 
 #: src/emc/usr_intf/stepconf/options.glade:126
 #: src/emc/usr_intf/pncconf/screen.glade:2969
+#, fuzzy
 msgid "Screen Aspect:"
-msgstr ""
+msgstr "Bildschirm Seitenverhältnis:"
 
 #: src/emc/usr_intf/stepconf/options.glade:139
 #: src/emc/usr_intf/pncconf/screen.glade:2982
@@ -12055,15 +12091,17 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3867
 msgid "Touchy require an external cycle start signal\n"
-msgstr ""
+msgstr "Touchy benötigt ein externes Zyklus-Start-Signal\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3870
+#, fuzzy
 msgid "Touchy require an external abort signal\n"
-msgstr ""
+msgstr "Touchy benötigt ein externes Abbruch-Signal\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3873
+#, fuzzy
 msgid "Touchy require an external single-step signal\n"
-msgstr ""
+msgstr "Touchy benötigt ein externes Einzelschritt-Signal\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3876
 msgid ""
@@ -12072,60 +12110,79 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3879
+#, fuzzy
 msgid ""
 "Touchy require 'external mpg jogging' to be selected on the external control "
 "page\n"
 msgstr ""
+"Für Touchy muss auf der externen Steuerungs-Seite 'external mpg jogging' ("
+"Steuerung durch Handgerät) ausgewählt sein\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3882
+#, fuzzy
 msgid ""
 "Touchy require the external mpg to be in 'shared mpg' mode on the external "
 "controls page\n"
 msgstr ""
+"Für Touchy muss auf der externen Steuerungs-Seite das externe Handgerät im "
+"'shared mpg' Modus eingestellt sein\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3885
+#, fuzzy
 msgid ""
 "Touchy require selectable increments to be unchecked on the external "
 "controls page\n"
 msgstr ""
+"Für Touchy darf selectable increments auf der externen Steuerungs-Seite "
+"nicht ausgewählt sein\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3898
 msgid ""
 "The 7i29 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
+"Das 7i29 daughter board benötigt PWM Typ Generatoren and eine PWM "
+"Grundfrequenz von 20 kHz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3901
 msgid ""
 "The 7i30 daughter board requires PWM type generators and a PWM base "
 "frequency of 20 khz\n"
 msgstr ""
+"Das 7i30 daughter board benötigt PWM Typ Generatoren and eine PWM "
+"Grundfrequenz von 20 kHz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3904
 msgid ""
 "The 7i33 daughter board requires PDM type generators and a PDM base "
 "frequency of 6 Mhz\n"
 msgstr ""
+"Das 7i33 daughter board benötigt PDM Typ Generatoren und eine PDM "
+"Grundfrequenz von 6 Mhz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3907
 msgid ""
 "The 7i40 daughter board requires PWM type generators and a PWM base "
 "frequency of 50 khz\n"
 msgstr ""
+"Das 7i40 daughter board benötigt PWM Typ Generatoren and eine PWM "
+"Grundfrequenz von 50 kHz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3910
 msgid ""
 "The 7i48 daughter board requires UDM type generators and a PWM base "
 "frequency of 24 khz\n"
 msgstr ""
+"Das 7i48 daughter board benötigt UDM Typ Generatoren and ein PWM "
+"Grundfrequenz von 24 kHz\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4058
 msgid "Gearbox Reduction Ratio"
-msgstr ""
+msgstr "Getriebe Untersetzungsverhältnis"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4061
 msgid "Reduction Ratio"
-msgstr ""
+msgstr "Untersetzungsverhältnis"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4064
 msgid "Leadscrew Pitch"
@@ -12163,11 +12220,11 @@ msgstr "Schritte / "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4080
 msgid " / encoder pulse"
-msgstr ""
+msgstr " / Encoder-Impuls"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4081
 msgid "Encoder pulses / "
-msgstr ""
+msgstr "Encoder-Impulse / "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4089
 #, fuzzy
@@ -12181,7 +12238,7 @@ msgstr "Konfiguration der Spindel"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:4539
 msgid "Axis Scale Calculation"
-msgstr ""
+msgstr "Berechnung der Achsenskalierung"
 
 #: src/emc/usr_intf/pncconf/pages.py:246 src/emc/usr_intf/pncconf/pages.py:297
 #, python-format
@@ -12192,6 +12249,8 @@ msgstr "Konfiguration durch Zeigen und Klicken - %s.pncconf "
 msgid ""
 "You need to designate a parport and/or mesa I/O device before continuing."
 msgstr ""
+"Sie müssen ein Parport- und/oder Mesa-E/A-Gerät festlegen, bevor Sie "
+"fortfahren."
 
 #: src/emc/usr_intf/pncconf/pages.py:392
 msgid "PCI search page is unavailable\n"
@@ -12217,12 +12276,17 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
+"Sie müssen die Seite mesa0 konfigurieren.\n"
+" Wählen Sie den Platinentyp, die Firmware, die Anzahl der Komponenten und "
+"drücken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1002
 msgid ""
 "The chosen Mesa0 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
+"Das ausgewählte Mesa0-Board unterscheidet sich von dem aktuell angezeigten.\n"
+"Bitte klicken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1051
 msgid ""
@@ -12230,12 +12294,17 @@ msgid ""
 " Choose the board type, firmware, component amounts and press 'Accept "
 "component changes' button'"
 msgstr ""
+"Sie müssen die Seite mesa1 konfigurieren.\n"
+" Wählen Sie den Platinentyp, die Firmware, die Anzahl der Komponenten und "
+"drücken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1054
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
+"Das ausgewählte Mesa1-Board unterscheidet sich von dem aktuell angezeigten.\n"
+"Bitte klicken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1485
 #, fuzzy
@@ -12275,7 +12344,7 @@ msgstr "# Erstellt von PNCconf am %s"
 #: src/emc/usr_intf/pncconf/build_HAL.py:54
 #, python-format
 msgid "# Using LinuxCNC version:  %s"
-msgstr ""
+msgstr "# Verwendete LinuxCNC version:  %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:20
 #: src/emc/usr_intf/pncconf/build_HAL.py:56
@@ -12285,56 +12354,60 @@ msgstr "# wird überschrieben, wenn Sie PNCconf erneut ausführen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:437
 msgid "# connect miscellaneous signals"
-msgstr ""
+msgstr "# Verbinden verschiedener Signale"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:440
 msgid "#  ---HALUI signals---"
-msgstr ""
+msgstr "#  ---HALUI Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:473
+#, fuzzy
 msgid "#  ---charge pump signals---"
-msgstr ""
+msgstr "#  ---Signale der Ladepumpe---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:477
 msgid "#  ---coolant signals---"
-msgstr ""
+msgstr "#  ---Kühlmittel-Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:482
 msgid "#  ---probe signal---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:487
+#, fuzzy
 msgid "# ---jog button signals---"
-msgstr ""
+msgstr "# -- Signale von Tasten des Handgeräts---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:492
+#, fuzzy
 msgid "# ---USB device jog button signals---"
-msgstr ""
+msgstr "# ---USB Handsteuerungs-Tasten Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:533
 #: src/emc/usr_intf/pncconf/build_HAL.py:559
 msgid "#  ---mpg signals---"
-msgstr ""
+msgstr "#  --- Signale der Handsteuerung---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:743
 msgid "#  ---motion control signals---"
-msgstr ""
+msgstr "#  ---Signale zur Bewegungs-Steuerung---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:748
+#, fuzzy
 msgid "#  ---digital in / out signals---"
-msgstr ""
+msgstr "#  ---Digitale in / out Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:758
 msgid "#  ---estop signals---"
-msgstr ""
+msgstr "#  ---Notaus-Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:779
 msgid "#  ---manual tool change signals---"
-msgstr ""
+msgstr "#  ---Signale zum manuellen Werkzeugwechsel---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:787
 msgid "#  ---Use external manual tool change dialog---"
-msgstr ""
+msgstr "#  ---Nutze externen Dialog zum Werkzeugwechsel---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:799
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
@@ -12414,7 +12487,7 @@ msgstr "Generiert von PNCconf am %s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1083
 msgid "configures LinuxCNC as:\n"
-msgstr ""
+msgstr "konfiguriert LinuxCNC wie folgt:\n"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1084
 msgid "type CNC\n"
@@ -13975,27 +14048,27 @@ msgstr "Unbenutzter TPPWM-Generator"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "X Axis BL Driver"
-msgstr ""
+msgstr "X Achse BL Treiber"
 
 #: src/emc/usr_intf/pncconf/private_data.py:547
 msgid "Y Axis BL Driver"
-msgstr ""
+msgstr "Y Achse BL Treiber"
 
 #: src/emc/usr_intf/pncconf/private_data.py:547
 msgid "Z Axis BL Driver"
-msgstr ""
+msgstr "Z Achse BL Treiber"
 
 #: src/emc/usr_intf/pncconf/private_data.py:548
 msgid "A Axis BL Driver"
-msgstr ""
+msgstr "A Achse BL Treiber"
 
 #: src/emc/usr_intf/pncconf/private_data.py:548
 msgid "S Axis BL Driver"
-msgstr ""
+msgstr "S Achse BL Treiber"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "8i20 Amplifier Card"
-msgstr ""
+msgstr "8i20 Verstärker-Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "7i64 I/O Card"
@@ -14015,7 +14088,7 @@ msgstr "7i71 E/A-Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:554
 msgid "7i76 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i76 Modus 0 I/O Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:554
 #, fuzzy
@@ -14056,52 +14129,68 @@ msgid ""
 "7i64-Input\n"
 "P3 and P4"
 msgstr ""
+"7i64-Input\n"
+"P3 und P4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:921
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
 msgstr ""
+"7i64-Output\n"
+"P2 und P5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:921
 msgid "7i64-Analog In"
-msgstr ""
+msgstr "7i64-Analog In"
 
 #: src/emc/usr_intf/pncconf/private_data.py:934
 msgid ""
 "7i69\n"
 "P2"
 msgstr ""
+"7i69\n"
+"P2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:934
 msgid ""
 "7i69\n"
 "P3"
 msgstr ""
+"7i69\n"
+"P3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:946
 msgid ""
 "7i70-Input\n"
 "TB3"
 msgstr ""
+"7i70-Input\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:946
 msgid ""
 "7i70-Input\n"
 "TB2"
 msgstr ""
+"7i70-Input\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:958
 msgid ""
 "7i71-Output\n"
 "TB3"
 msgstr ""
+"7i71-Output\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:958
 msgid ""
 "7i71-Output\n"
 "TB2"
 msgstr ""
+"7i71-Output\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:970
 #: src/emc/usr_intf/pncconf/private_data.py:982
@@ -14109,6 +14198,8 @@ msgid ""
 "7i76-I/O\n"
 "TB6"
 msgstr ""
+"7i76-I/O\n"
+"TB6"
 
 #: src/emc/usr_intf/pncconf/private_data.py:970
 #: src/emc/usr_intf/pncconf/private_data.py:982
@@ -14116,6 +14207,8 @@ msgid ""
 "7i76-I/O\n"
 "TB5"
 msgstr ""
+"7i76-I/O\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:970
 #: src/emc/usr_intf/pncconf/private_data.py:982
@@ -14131,6 +14224,8 @@ msgid ""
 "7i77-I/O\n"
 "TB8"
 msgstr ""
+"7i77-I/O\n"
+"TB8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:994
 #: src/emc/usr_intf/pncconf/private_data.py:1006
@@ -14138,6 +14233,8 @@ msgid ""
 "7i77-I/O\n"
 "TB7"
 msgstr ""
+"7i77-I/O\n"
+"TB7"
 
 #: src/emc/usr_intf/pncconf/private_data.py:994
 #: src/emc/usr_intf/pncconf/private_data.py:1006
@@ -14149,13 +14246,15 @@ msgstr "Unbenutzter analoger Ausgang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1018
 msgid "7i73-I/O\n"
-msgstr ""
+msgstr "7i73-I/O\n"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1031
 msgid ""
 "7i84-I/O\n"
 "TB3"
 msgstr ""
+"7i84-I/O\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1031
 #: src/emc/usr_intf/pncconf/private_data.py:1046
@@ -14163,12 +14262,16 @@ msgid ""
 "7i84-I/O\n"
 "TB2"
 msgstr ""
+"7i84-I/O\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1046
 msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
 msgstr ""
+"7i84-I/O-MPG\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1110
 msgid ""
@@ -14412,6 +14515,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:24
+#, fuzzy
 msgid ""
 "  X axis:\n"
 "  Total Travel = 10\n"
@@ -14442,6 +14546,34 @@ msgid ""
 "  Note this is an example, Many other combinations are \n"
 "  possible"
 msgstr ""
+"  X Achse:\n"
+"  Total Travel = 10\n"
+"  Home Offset = Origin to Home Switch distance = 0\n"
+"  Neg Travel Distance = Origin to neg limit distance = 0\n"
+"  Pos Travel Distance = Total Travel - neg travel distance = 10\n"
+"  Home Position = Origin to Home Position distance = 6\n"
+"\n"
+"  Y Achse:\n"
+"  Total Travel = 8\n"
+"  Home Offset = Origin to Home Switch distance = 0\n"
+"  Neg Travel Distance = Origin to neg limit distance = -8\n"
+"  Pos Travel Distance = Total Travel - neg travel distance = 0\n"
+"  Home Position = Origin to Home Position distance = 0\n"
+"\n"
+"  Z Achse:\n"
+"  Total Travel = 12\n"
+"  Home Offset = Origin to Home Switch distance = 0\n"
+"  Neg Travel Distance = Origin to neg limit distance = -12\n"
+"  Pos Travel Distance = Total Travel - neg travel distance = 0\n"
+"  Home Position = Origin to Home Position distance = 0\n"
+"\n"
+"  Note that the direction indicators on the top right show \n"
+"  movement of the TOOL and on the actual machine,\n"
+"  often it is the table that actually moves. In that case the \n"
+"  directions are opposite of shown.\n"
+"\n"
+"  Dies ist ein Beispiel. Viele andere Kombinationen sind \n"
+"  möglich."
 
 #: src/emc/usr_intf/pncconf/help.glade:54
 msgid ""
@@ -14488,6 +14620,7 @@ msgid "Mill"
 msgstr "Fräsen"
 
 #: src/emc/usr_intf/pncconf/help.glade:191
+#, fuzzy
 msgid ""
 "  Total Travel = 4 + 6 = 10\n"
 "  Z Home Offset = Origin to Home Switch distance = 10\n"
@@ -14499,6 +14632,15 @@ msgid ""
 "  This is just a sample reference other switch combinations are\n"
 "  possible."
 msgstr ""
+"  Total Travel = 4 + 6 = 10\n"
+"  Z Home Offset = Origin to Home Switch distance = 10\n"
+"  Z Neg Travel Distance = Origin to neg limit distance = 0\n"
+"  Z Pos Travel Distance = Total Travel - neg travel distance = 10\n"
+"  Z Home Position = Origin to Home Position distance = 4\n"
+"\n"
+"  X Achse wäre analog, ist hier nicht gezeigt zur Vereinfachung.\n"
+"  Dies ist nur ein Beispiel. Andere Switch-Kombinationen sind\n"
+"  möglich."
 
 #: src/emc/usr_intf/pncconf/help.glade:235
 msgid "Lathe"
@@ -16433,9 +16575,8 @@ msgid "<b>GUI Screen list</b>"
 msgstr "<b>GUI-Frontend-Liste</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:398
-#, fuzzy
 msgid "Position_offset"
-msgstr "Position_offset"
+msgstr "Position_versatz"
 
 #: src/emc/usr_intf/pncconf/screen.glade:406
 #, fuzzy
@@ -17245,7 +17386,7 @@ msgstr "Ausgangsmuster"
 #: src/emc/usr_intf/pncconf/s_motor.glade:1788
 #, fuzzy
 msgid "Drive-offset"
-msgstr "Laufwerk-Offset"
+msgstr "Drive-Offset"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1634
 #: src/emc/usr_intf/pncconf/y_motor.glade:1634
@@ -18593,7 +18734,7 @@ msgstr " Null Ursprung"
 #: src/emc/usr_intf/gscreen/gscreen.glade:2573
 #, fuzzy
 msgid "Offset Origin"
-msgstr "Offset-Info"
+msgstr "Versatz des Ursprungs"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3710
 msgid ""
@@ -18973,11 +19114,12 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2097
 #: src/emc/usr_intf/gscreen/gscreen.glade:3131
+#, fuzzy
 msgid ""
 " Show\n"
 "Offsets"
 msgstr ""
-" Offsets\n"
+" Versatz\n"
 "anzeigen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2114
@@ -19058,12 +19200,11 @@ msgid "Tooleditor"
 msgstr "Werkzeugtabelle bearbeiten..."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2439
-#, fuzzy
 msgid ""
 "Offset\n"
 " Page"
 msgstr ""
-"Offset\n"
+"Versatz\n"
 " Seite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2562
@@ -19457,19 +19598,19 @@ msgstr "offsetpage widget Fehler: erkenne Gleitkommazahl nicht"
 
 #: lib/python/gladevcp/offsetpage_widget.py:391
 msgid "offsetpage widget error: MDI call error"
-msgstr ""
+msgstr "offsetpage widget Fehler: MDI call error"
 
 #: lib/python/gladevcp/offsetpage_widget.py:410
 msgid "MDI error in offsetpage widget -zero G92"
-msgstr ""
+msgstr "MDI Fehler in offsetpage widget -zero G92"
 
 #: lib/python/gladevcp/offsetpage_widget.py:427
 msgid "MDI error in offsetpage widget-zero rotational offset"
-msgstr ""
+msgstr "MDI Fehler in offsetpage widget-zero rotational offset"
 
 #: lib/python/gladevcp/offsetpage_widget.py:503
 msgid "offsetpage_widget error: cannot select coordinate system"
-msgstr ""
+msgstr "offsetpage_widget Fehler: kann das Koordinatensystem nicht auswählen"
 
 #: lib/python/gladevcp/tooledit_widget.py:227
 msgid "tooledit_widget error: cannot select tool number"
@@ -19600,11 +19741,11 @@ msgstr "G59.3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 msgid "Offset"
-msgstr "Offset"
+msgstr "Versatz"
 
 #: lib/python/gladevcp/offsetpage.glade:416
 msgid "Offset Name"
-msgstr "Offset Name"
+msgstr "Versatz Name"
 
 #: lib/python/gladevcp/offsetpage.glade:442
 #, fuzzy
@@ -19672,7 +19813,7 @@ msgstr "Neu laden"
 #: lib/python/gladevcp/tooledit_gtk.glade:369
 #, fuzzy
 msgid "All Offsets"
-msgstr "Achsoffset"
+msgstr "Alle Versatz-Einstellungen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:424
 msgid "X Wear"
@@ -19700,9 +19841,8 @@ msgid "Z Tool"
 msgstr "Z Werkzeug"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:812
-#, fuzzy
 msgid "Lathe Tool Offsets"
-msgstr "Werkzeugoffset"
+msgstr "Drehbank Werkzeug-Korrekturen"
 
 #~ msgid "default\n"
 #~ msgstr "Standard\n"
