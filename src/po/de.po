@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
 "PO-Revision-Date: 2022-01-15 18:23+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -19260,7 +19260,7 @@ msgid ""
 "Override"
 msgstr ""
 "    Vorschubübersteuerung\n"
-"         setzen"
+"setzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2859
 msgid "Graphics\n"
@@ -19692,7 +19692,7 @@ msgstr "Rot"
 
 #: lib/python/gladevcp/offsetpage.glade:88
 msgid "Rotation of Z"
-msgstr "Drehung von Z"
+msgstr "Drehung um Z"
 
 #: lib/python/gladevcp/offsetpage.glade:91
 #: lib/python/gladevcp/offsetpage.glade:105
@@ -19755,13 +19755,12 @@ msgid ""
 msgstr "G59.2 auf Null setzen"
 
 #: lib/python/gladevcp/offsetpage.glade:456
-#, fuzzy
 msgid ""
 "    Zero\n"
 "Rotational"
 msgstr ""
-"    Drehachsen\n"
-"nullen"
+"    Rotation\n"
+"auf null setzen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
 #: lib/python/gladevcp/tooledit_gtk.glade:391
