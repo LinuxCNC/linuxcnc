@@ -52,8 +52,12 @@ class mitsubishi_serial:
             self.ser.open()
             self.ser.isOpen()
         except:
-            print "ERROR : mitsub_vfd - No serial interface found at %s"% port
-            raise SystemExit
+            try:
+                self.ser.close()
+                self.ser.open()
+            except Exception as e:
+                print("ERROR : mitsub_vfd - No serial interface found at %s\nError: %s"% (port,e))
+                raise SystemExit
         print "Mitsubishi VFD serial computer link has loaded"
         print "Port: %s,\nbaudrate: %d\n8 data bits, no parity, 2 stop bits\n"%(port,baudrate)
 
