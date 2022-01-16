@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-16 10:01+0000\n"
+"PO-Revision-Date: 2022-01-16 17:53+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -14152,7 +14152,7 @@ msgstr "7i70 E/A-Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i73 Mode 1 Pendant Card"
-msgstr ""
+msgstr "7i73 Mode 1 angehängter Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:557
 #, fuzzy
@@ -14343,6 +14343,7 @@ msgid "Do you want to quit?"
 msgstr "Möchten Sie beenden?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1118
+#, fuzzy
 msgid ""
 "Ok to replace AXIS's .axisrc file?\n"
 " If you haven't added custom commands to this hidden file, outside of "
@@ -14350,6 +14351,11 @@ msgid ""
 "Choosing no will mean AXIS options such as size/position and force maximum "
 "might not be as requested \n"
 msgstr ""
+"Kann AXIS's .axisrc ersetzt werden?\n"
+"Wenn Sie keine eigenen Kommandos in dieser versteckten Datei hinterlegt "
+"haben, d.h. außerhalb von PnCConf, so sollte dies in Ordnung sein.\n"
+"Wenn nicht, so sind AXIS (Achsen)-Einstellungen wie Größe/Position und "
+"maximale Kraft möglicherweise nicht wie gewünscht eingestellt. \n"
 
 #: src/emc/usr_intf/pncconf/tests.py:163
 msgid ""
@@ -14358,6 +14364,7 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/tests.py:475
+#, fuzzy
 msgid ""
 "± = move on both sides of start position\n"
 "\n"
@@ -14365,10 +14372,16 @@ msgid ""
 "\n"
 "- = move on negative side of start position"
 msgstr ""
+"± = bewegen auf beiden Seiten der Startposition\n"
+"\n"
+"+ = bewegen auf positiver Seite der Startposition\n"
+"\n"
+"- = bewegen auf negativer Seite der Startposition"
 
 #: src/emc/usr_intf/pncconf/tests.py:498
+#, fuzzy
 msgid "Servo tuning is not tested in PNCconf yet\n"
-msgstr ""
+msgstr "Servo tuning wurde noch nicht in PNCconf getestet\n"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "degrees"
@@ -14447,6 +14460,12 @@ msgid ""
 "hesitate to even allow it's use but at times it's very useful.\n"
 "Do you wish to continue the test?"
 msgstr ""
+"Aus technischen Gründen kann dieses Testpanel nur einmal geladen werden, "
+"ohne pncconf neu zu laden. Sie können auch keine anderen Tests durchführen, "
+"bis Sie pncconf neu laden und möglicherweise ein Terminal öffnen und 'halrun "
+"-U' eingeben. Ich zögere, es überhaupt zuzulassen, aber manchmal ist es sehr "
+"nützlich.\n"
+"Möchten Sie den Test fortführen?"
 
 #: src/emc/usr_intf/pncconf/data.py:112
 msgid "my_LinuxCNC_machine"
@@ -14711,6 +14730,7 @@ msgid "Shared Home Switch"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:343
+#, fuzzy
 msgid ""
 "    A is the negative software limit\n"
 "    B is the G53 machine coordinate Origin\n"
@@ -14724,6 +14744,17 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 7 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
+"    A ist die negative Software Begrenzung\n"
+"    B ist der G53 Koordinaten Ursprung der Maschine\n"
+"    C ist der home switch trip Punkt\n"
+"    D ist die positive software Begrenzung\n"
+"    H ist die finale home Position  = 0 Einheiten\n"
+"    -L und +L sind die limit switches trip points\n"
+"\n"
+"    A<->B ist die negative Travel Distanz  = -3 Einheiten\n"
+"    B<->C ist die Home Switch Location  = -2.3 Einheiten\n"
+"    B<->D ist die Positive Travel Distanz  = 7 Einheiten\n"
+"    A<->D ist der Gesamtweg = 10 Einheiten\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:412
 msgid "Separate Homing Switches"
@@ -14763,10 +14794,15 @@ msgstr "Karte/Zuordnung"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:71
 #: src/emc/usr_intf/pncconf/mesa1.glade:71
+#, fuzzy
 msgid ""
 "Press the button to make the tabbed pages accept the changes.\n"
 "Click on each page tab to configure signal names for each connector port.\n"
 msgstr ""
+"Drücken Sie den button, damit die Seiten (mit Reiter) die Änderungen "
+"übernehmen.\n"
+"Klicken Sie auf den entsprechenden Reiter, um Signalnamen für einzelne Ports "
+"zu konfigurieren.\n"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:248
 #: src/emc/usr_intf/pncconf/mesa1.glade:248
@@ -14801,6 +14837,8 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
+"Acceptiere  Komponenten\n"
+"          Änderungen"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:408
 #: src/emc/usr_intf/pncconf/mesa1.glade:408
@@ -16465,7 +16503,7 @@ msgstr "SO"
 
 #: src/emc/usr_intf/pncconf/external.glade:5378
 msgid "Serial connected VFD"
-msgstr ""
+msgstr "Seriell angebundene Spindel-Einstellung"
 
 #: src/emc/usr_intf/pncconf/external.glade:5388
 #, fuzzy
@@ -16580,8 +16618,9 @@ msgid "Random position toolchanger "
 msgstr "Position des Werkzeugwechslers ist zufällig "
 
 #: src/emc/usr_intf/pncconf/base.glade:675
+#, fuzzy
 msgid "Require homing before MDI / Running"
-msgstr ""
+msgstr "Referenzfahrt benötigt vor MDI / Lauf"
 
 #: src/emc/usr_intf/pncconf/base.glade:687
 #, fuzzy
@@ -16825,8 +16864,9 @@ msgid "Sample display  "
 msgstr "Beispiel Bildschirm  "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:674
+#, fuzzy
 msgid "Standalone Panel"
-msgstr ""
+msgstr "Unabhängige Eingabemaske"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:691
 msgid "Rightside Embedded"
@@ -17005,8 +17045,11 @@ msgstr "Nutze Umkehrspiel-Kompensation:"
 #: src/emc/usr_intf/pncconf/y_axis.glade:274
 #: src/emc/usr_intf/pncconf/z_axis.glade:274
 #: src/emc/usr_intf/pncconf/a_axis.glade:274
+#, fuzzy
 msgid "Final Home Position location   (Offset from machine zero Origin):"
 msgstr ""
+"Finaler Referenzpunkt   (Angabe relativ zu Ursprung der "
+"Maschinenkoordinaten):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:291
 #: src/emc/usr_intf/pncconf/y_axis.glade:291
@@ -17149,15 +17192,17 @@ msgstr "3pwm Skalierung:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:563
 #: src/emc/usr_intf/pncconf/a_motor.glade:545
 #: src/emc/usr_intf/pncconf/s_motor.glade:598
+#, fuzzy
 msgid "3pwm Deadtime:"
-msgstr ""
+msgstr "3pwm Totzeit:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:577
 #: src/emc/usr_intf/pncconf/y_motor.glade:577
 #: src/emc/usr_intf/pncconf/z_motor.glade:577
 #: src/emc/usr_intf/pncconf/a_motor.glade:559
+#, fuzzy
 msgid "Quad Pulses / Rev:"
-msgstr ""
+msgstr "Quat Pulse / Umdrehung:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:670
 #: src/emc/usr_intf/pncconf/y_motor.glade:670
