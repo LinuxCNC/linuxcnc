@@ -267,7 +267,7 @@ class Combi_DRO(Gtk.VBox):
         else:
             if not self.toggle_readout:
                 return
-            self.toogle_readout()
+            self.set_toggle_readout()
 
     # Get propertys
     def do_get_property(self, property):
@@ -523,7 +523,7 @@ class Combi_DRO(Gtk.VBox):
     # this will toggle the DRO around, mainly used to maintain all DRO
     # at the same state, because a click on one will only change that DRO
     # This can be used to change also the others
-    def toogle_readout(self, Data = None):
+    def set_toggle_readout(self, Data = None):
         '''
         toggles the order of the DRO in the widget
 
@@ -609,7 +609,7 @@ class Combi_DRO(Gtk.VBox):
         '''
         self._ORDER = order
         self._set_labels()
-        self.toogle_readout(Data=True)
+        self.set_toggle_readout(Data=True)
 
     # This will return the position information of all three DRO
     # it will be in the order Abs, Rel, DTG
