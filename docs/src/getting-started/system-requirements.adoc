@@ -90,7 +90,7 @@ and compile LinuxCNC from source to utilise it.
 
 === RTAI with linuxcnc-uspace
 
-It is also possible to run linuxCNC with RTAI in user-space mode. As
+It is also possible to run LinuxCNC with RTAI in user-space mode. As
 with Xenomai you will need to compile from source to do this.
 
 

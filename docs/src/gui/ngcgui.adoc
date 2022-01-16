@@ -106,7 +106,7 @@ example G code subroutine (.ngc) files and G code-meta-compiler (.gcmc) files:
 ** 'wheels.gcmc' - gcmc demo of complex patterns
 
 To try a demonstration, select a sim configuration and start
-the linuxCNC program.
+the LinuxCNC program.
 
 If using the axis gui, press the 'E-Stop'
 image:images/tool_estop.png[] then 'Machine Power'
@@ -129,7 +129,7 @@ may be different.
 ===============================
 The demonstration configs create tab pages for just a few of the provided
 examples.  Any gui with a <<ngcgui-ini,custom tab>> can open any of the library
-example subroutines or any user file if it is in the linuxCNC subroutine
+example subroutines or any user file if it is in the LinuxCNC subroutine
 path.
 
 To see special key bindings, click inside an ngcgui tab page to get
@@ -143,7 +143,7 @@ before running on a real machine.
 
 == Library Locations
 
-In linuxCNC installations installed from deb packages, the simulation configs
+In LinuxCNC installations installed from deb packages, the simulation configs
 for ngcgui use symbolic links to non-user-writable LinuxCNC libraries for:
 
 * 'nc_files/ngcgui_lib'             ngcgui-compatible subfiles
@@ -153,7 +153,7 @@ for ngcgui use symbolic links to non-user-writable LinuxCNC libraries for:
 * 'nc_files/ngcgui_lib/mfiles'      User M files
 
 These libraries are located by ini file items that specify the search
-paths used by linuxCNC (and ngcgui):
+paths used by LinuxCNC (and ngcgui):
 
 ----
 [RS274NGC]
@@ -267,12 +267,12 @@ Notes:
       One set of files can be specified from cmdline.
       Multiple sets of files can be specified from an inifile.
       If --ini is NOT specified:
-         search for a running linuxCNC and use its inifile
+         search for a running LinuxCNC and use its inifile
 ----
     
 [NOTE]
 As a standalone application, pyngcgui can read an ini file (or a
-running linuxCNC application) to create tab pages for multiple
+running LinuxCNC application) to create tab pages for multiple
 subfiles.
 
 == Embedding NGCGUI
@@ -349,8 +349,8 @@ use custom Mfiles which must be in a directory specified by the
 
 The Gcode-meta-compiler (gcmc) can include statements like:
   include("filename.inc.gcmc");
-By default, gcmc includes the current directory which, for linuxCNC,  will be
-the directory containing the linuxCNC ini file.  Additional directories can be
+By default, gcmc includes the current directory which, for LinuxCNC,  will be
+the directory containing the LinuxCNC ini file.  Additional directories can be
 prepended to the gcmc search order with the GCMC_INCLUDE_PATH item.
 
 .Sample axis-gui-based INI
@@ -427,7 +427,7 @@ Note:    Optional, specifies filename for preamble used for ttt created subfiles
 
 === INI File Path Specifications
 
-Ngcgui uses the linuxCNC search path to find files.
+Ngcgui uses the LinuxCNC search path to find files.
 
 The search path begins with the standard directory specified by:
 
@@ -470,7 +470,7 @@ for multiple directories and shows the use of relative and absolute paths.
 [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs:/tmp/tmpngc`
 ----
 
-This is one long line, do not continue on multiple lines.  When linuxCNC and/or
+This is one long line, do not continue on multiple lines.  When LinuxCNC and/or
 ngcgui searches for files, the first file found in the search is used.
 
 LinuxCNC (and ngcgui) must be able to find all subroutines including helper routines
@@ -515,7 +515,7 @@ Note:    Optional, needed to locate custom user mfiles
 Item:    [DISPLAY]EMBED_TAB_NAME = name to display on embedded tab page
 Example: [DISPLAY]EMBED_TAB_NAME = Pyngcgui
 Note:    The entries: EMBED_TAB_NAME,EMBED_TAB_COMMAND,EMBED_TAB_LOCATION
-         define an embedded application for several linuxCNC guis
+         define an embedded application for several LinuxCNC guis
 
 Item:    [DISPLAY]EMBED_TAB_COMMAND = programname followed by arguments
 Example: [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui
@@ -529,7 +529,7 @@ Note:    See example INI files for possible locations
 
 Item:    [DISPLAY]PROGRAM_PREFIX = dirname
 Example: [DISPLAY]PROGRAM_PREFIX = ../../nc_files
-Note:    Mandatory and needed for numerous linuxCNC functions
+Note:    Mandatory and needed for numerous LinuxCNC functions
          It is the first directory used in the search for files
 
 
@@ -574,10 +574,10 @@ Note:    Multiple options are separated by blanks.
          By default, ngcgui configures tab pages so that:
             1) a user can make new tabs
             2) a user can remove tabs (except for the last remaining one)
-            3) finalized files are automatically sent to linuxCNC
+            3) finalized files are automatically sent to LinuxCNC
             4) an image frame (iframe) is made available to display
                an image for the subfile (if an image is provided)
-            5) the ngcgui result file sent to linuxCNC is terminated with
+            5) the ngcgui result file sent to LinuxCNC is terminated with
                an m2 (and incurs m2 side-effects)
 
          The options nonew, noremove, noauto, noiframe, nom2 respectively
@@ -697,7 +697,7 @@ global context that is difficult to maintain. Using numbered parameters #1
 thru #30 as subroutine inputs should be sufficient to satisfy a wide range of
 design requirements.
 
-While input global named parameters are discouraged, linuxCNC subroutines must use
+While input global named parameters are discouraged, LinuxCNC subroutines must use
 global named parameters for returning results. Since ngcgui-compatible
 subfiles are aimed at gui usage, return values are not a common requirement.
 However, ngcgui is useful as a testing tool for subroutines which do return
@@ -778,7 +778,7 @@ Files for the Gcode-meta-compiler (gcmc) are read by ngcgui and it
 creates entry boxes for variables tagged in the file.  When a feature
 for the file is finalized, ngcgui passes the file as input to the gcmc
 compiler and, if the compile is successful, the resulting gcode file
-is sent to linuxCNC for execution.  The resulting file is formatted as
+is sent to LinuxCNC for execution.  The resulting file is formatted as
 single-file subroutine; .gcmc files and .ngc files can be intermixed
 by ngcgui. 
 

@@ -1185,7 +1185,7 @@ print 'value is a',type(value),'value of',value
 # los nombres de los botones son 'manual-tab', 'mdi-tab', 'preview-tab', 'dro-tab', 'user0-tab'
 # la pestaña user_0, si existe, sería la primera pestaña incrustada GladeVCP
 
-# para la rama linuxCNC 2.8+
+# para la rama LinuxCNC 2.8+
 
 def user_live_update():
     try:
