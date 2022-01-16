@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-15 23:50+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-01-16 10:01+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -1288,7 +1288,7 @@ msgstr "<b>Einstellungen entsperren</b>"
 
 #: gmoccapy.glade.h:122
 msgid "Starting RPM"
-msgstr "Startdrehzahl"
+msgstr "Anfangsdrehzahl"
 
 #: gmoccapy.glade.h:123
 msgid "Spindle bar min"
@@ -1998,7 +1998,7 @@ msgstr "Auswählen"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:2
 msgid "Tool#"
-msgstr "Werkzeug-Nr."
+msgstr "Werkzeug#"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:3
 msgid "Pocket"
