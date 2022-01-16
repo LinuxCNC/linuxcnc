@@ -160,8 +160,7 @@ class TESTS:
         if not self.w.createconfig.get_active() and self.w.gladeexists.get_active():
             folder = os.path.expanduser("~/linuxcnc/configs/%s" % self.d.machinename)
             if not os.path.exists(folder + "/gvcp-panel.ui"):
-                self.a.warning_dialog (_("""You specified there is an existing gladefile, \
-But there is not one in the machine-named folder.."""),True)
+                self.a.warning_dialog (_("""You specified the gladefile named 'gvcp-panel.ui' to exist but this is not found in the machine's configuration folder '~/linuxcnc/config/%s'.""") % self.d.machinename,True)
                 return
         self.gladevcptestpanel(self)
         if self.w.gladevcpposition.get_active() == True:
