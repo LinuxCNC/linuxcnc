@@ -1268,7 +1268,7 @@ print 'value is a',type(value),'value of',value
 # button names are 'manual-tab', 'mdi-tab', 'preview-tab', 'dro-tab', 'user0-tab'
 # the user_0 tab if it exists would be the first GladeVCP embedded tab
 
-# for linuxCNC 2.8+ branch
+# for LinuxCNC 2.8+ branch
 
 def user_live_update():
     try:
