@@ -3,7 +3,7 @@ import sys
 # A python interface for LinuxCNC tool database usage
 
 #Notes
-#  1) host (linuxCNC) pushes commands to this program
+#  1) host (LinuxCNC) pushes commands to this program
 #  2) all writes to stdout go to host
 #     (use stderr for debug prints)
 #-----------------------------------------------------------
