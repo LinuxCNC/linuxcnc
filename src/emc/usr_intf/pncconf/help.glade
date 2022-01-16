@@ -6,9 +6,10 @@
     <property name="text" translatable="yes">				PNCconf - Point aNd Click CONFigurator
 PNCconf is a configuration program for Linuxcnc.
 It configures machines using Mesa I/O cards.
-It configures servo,stepper or closed loop stepper machines.
-It supports some of Mesa's sserial cards.
-It will forever be a work in progress as Linuxcnc changes.
+It configures servos, regular stepper motors or close-loop steppers,
+in open loop arrangements or with feedback from absolute positioning devices like glass scales.
+It supports some of Mesa's serial cards.
+It will forever be a work in progress as LinuxCNC progresses.
 
 Many thanks To:
 Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with technical difficulties.
