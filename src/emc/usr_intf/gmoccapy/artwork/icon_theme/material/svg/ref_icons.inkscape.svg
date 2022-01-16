@@ -39,10 +39,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="3.192116"
-     inkscape:cx="148.71174"
+     inkscape:cx="97.491797"
      inkscape:cy="55.424436"
      inkscape:document-units="px"
-     inkscape:current-layer="unhome"
+     inkscape:current-layer="unref-all"
      inkscape:document-rotation="0"
      showgrid="false"
      units="px"
@@ -50,9 +50,9 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:window-width="1871"
-     inkscape:window-height="1412"
+     inkscape:window-height="1387"
      inkscape:window-x="3009"
-     inkscape:window-y="28"
+     inkscape:window-y="25"
      inkscape:window-maximized="0">
     <sodipodi:guide
        position="40,64"
@@ -274,8 +274,8 @@
   </g>
   <g
      inkscape:groupmode="layer"
-     id="unhome"
-     inkscape:label="unhome"
+     id="unref-all"
+     inkscape:label="unref-all"
      style="display:inline">
     <path
        id="path870-7"

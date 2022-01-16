@@ -34,10 +34,10 @@ def compose_images():
                  context="actions",
                  layers=["origin", "all-arrows"]
                  )
-    composer.add("unhome.symbolic.png",
+    composer.add("unref_all.symbolic.png",
                  src_file=ref_icons_svg,
                  context="actions",
-                 layers=["unhome"]
+                 layers=["unref-all"]
                  )
     for axis in ["x", "y", "z", "a", "b", "c", "u", "v", "w"] + [str(i) for i in range(8)]:
         composer.add(f"ref_{axis}.symbolic.png",
@@ -188,6 +188,34 @@ def compose_images():
                      layers=[speed]
                      )
 
+    # chevron
+    chevron_icons_svg = svg("chevron_icons.inkscape.svg")
+    for direction in ["left", "right", "up"]:
+        composer.add(f"chevron_{direction}.symbolic.png",
+                     src_file=chevron_icons_svg,
+                     context="actions",
+                     layers=[direction]
+                     )
+
+    # auto menu icons
+    auto_icons_svg = svg("auto_icons.inkscape.svg")
+    for name in ["open_file", "refresh", "play", "stop", "pause", "pause_active", "step", "run_from_line",
+                 "skip_optional_active", "skip_optional_inactive", "edit_code"]:
+        composer.add(f"{name}.symbolic.png",
+                     src_file=auto_icons_svg,
+                     context="actions",
+                     layers=[name.replace("_", "-")]
+                     )
+
+    # folder icons
+    folder_icons_svg = svg("folder_icons.inkscape.svg")
+    for name in ["home_folder", "user_defined_folder"]:
+        composer.add(f"{name}.symbolic.png",
+                     src_file=folder_icons_svg,
+                     context="actions",
+                     layers=[name.replace("_", "-")]
+                     )
+
     # compose all images
     composer.compose(DIMENSIONS)
 
@@ -199,9 +227,10 @@ def create_theme_index():
 
     index = "index.theme"
     src = Path(BASE_PATH).joinpath(index)
-    dest = copyfile(src, Path(TARGET_DIR).joinpath(index) )
+    dest = copyfile(src, Path(TARGET_DIR).joinpath(index))
     if dest:
         print(f"copied {src} -> {dest}")
+
 
 def copy_license_files():
     """Copy license files"""
@@ -210,9 +239,10 @@ def copy_license_files():
 
     for file in ["LICENSE", "NOTICE"]:
         src = Path(BASE_PATH).joinpath(file)
-        dest = copyfile(src, Path(TARGET_DIR).joinpath(file) )
+        dest = copyfile(src, Path(TARGET_DIR).joinpath(file))
         if dest:
             print(f"copied {src} -> {dest}")
+
 
 def build():
     """Default build steps"""
@@ -238,4 +268,4 @@ if __name__ == '__main__':
             create_theme_index()
 
         if "license" in sys.argv:
-            create_theme_index()
+            copy_license_files()
