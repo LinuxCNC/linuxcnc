@@ -34,6 +34,7 @@
 # PR 122 COM check time interval 9999     (never check) if communication is lost inverter will not know (can change)
 # PR 123 wait time - 9999 -               no wait time is added to the serial data frame (don't change)
 # PR 124 CR selection - 0                 don't change
+# PR 549 communication protocol - 0        not all VFDs has this
 
 import time,hal
 import serial
@@ -362,9 +363,10 @@ if __name__ == "__main__":
       elif o in ['-b','--baud']:
          baud = p
       elif o in ['-h','--help']:
-        print('Mitsubishi VFD computer-link interface')
-        print(' User space component for controlling a misubishi inverter over the serial port using the rs485 standard')
-        print(' specifcally the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments')
+        print('Mitsubishi VFD COMPUTER-LINK interface')
+        print('This does NOT use the MODBUS protocol.')
+        print(' User space component for controlling a mitsubishi inverter over the serial port using the rs485 standard')
+        print(' specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments')
         print(''' I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.''')
         print(''' 'Fr-A700 F700 E700 D700 technical manual' for the 700 series''')
         print() 
@@ -379,6 +381,7 @@ if __name__ == "__main__":
         print(' PR 122 COM check time interval 9999     (never check) if communication is lost inverter will not know (can change)')
         print(''' PR 123 wait time - 9999 -               no wait time is added to the serial data frame (don't change)''')
         print(''' PR 124 CR selection - 0                 don't change''')
+        print(''' PR 549 communication protocol - 0        not all VFDs has this''')
         print('''
 This driver assumes certain other VFD settings:
 -That the  motor frequency status is set to show herts.
