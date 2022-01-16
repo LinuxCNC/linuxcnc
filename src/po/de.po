@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-16 17:53+0000\n"
+"PO-Revision-Date: 2022-01-17 23:54+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.11-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -697,13 +697,13 @@ msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2: Keine Achse spezifiziert und H-Wort fehlt"
 
 #: src/emc/rs274ngc/interp_queue.cc:605
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "BUG: cutter compensation has generated an invalid arc with mismatched radii "
 "r1 %f r2 %f\n"
 msgstr ""
-"BUG: cutter Kompensation generierte einen ungültigen Bogen mit zwei "
-"ungleichen radii r1 %f r2 %f\n"
+"BUG: Fräserkompensation hat einen ungültigen Bogen mit nicht "
+"übereinstimmenden Radien erzeugt r1 %f r2 %f\n"
 
 #: src/emc/rs274ngc/interp_queue.cc:627 src/emc/rs274ngc/interp_queue.cc:649
 #: src/emc/rs274ngc/interp_queue.cc:690
@@ -715,6 +715,8 @@ msgid ""
 "Straight traverse in concave corner cannot be reached by the tool without "
 "gouging"
 msgstr ""
+"Gerade Traversen in konkaven Ecken können vom Werkzeug nicht ohne "
+"Fugenbildung erreicht werden"
 
 #: src/emc/rs274ngc/interp_queue.cc:667
 #, c-format
@@ -725,6 +727,8 @@ msgstr "BUG: Nicht unterstützte Ebene [%d] in Werkzeugradiuskorrektur"
 msgid ""
 "Straight feed in concave corner cannot be reached by the tool without gouging"
 msgstr ""
+"Gerader Vorschub in konkaven Ecken kann vom Werkzeug nicht erreicht werden, "
+"ohne dass es zu Fugenbildung kommt"
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
 #, c-format
@@ -1015,18 +1019,17 @@ msgid "%d: no matching label: '%s' (found '%s' in line %d)"
 msgstr "%d: kein zugehöriges Label: '%s' (gefunden '%s' in Zeile %d)"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:185
-#, c-format, fuzzy
+#, c-format
 msgid "Named parameter #<%s> not defined"
 msgstr "Benamter Parameter #<%s> nicht definiert"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
-#| msgid "cant open ini file '%s'"
+#, c-format
 msgid "can't open ini file '%s'"
-msgstr "INI-Datei »%s« kann nicht geöffnet werden"
+msgstr "INI-Datei '%s' kann nicht geöffnet werden"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, c-format, fuzzy
+#, c-format
 msgid "Named ini parameter #<%s> not found in inifile '%s': error=0x%x"
 msgstr ""
 "Benamter ini Parameter #<%s> nicht gefunden in inifile '%s': Fehler=0x%x"
@@ -1135,9 +1138,8 @@ msgid "Bug code not g2 or g3"
 msgstr "Wort ist nicht G2 oder G3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:37
-#, fuzzy
 msgid "Bug code not g4 g10 g28 g30 g52 g53 or g92 series"
-msgstr "Wort ist nicht G4, G10, G28, G30, G53 oder aus G92-Serie"
+msgstr "Wort ist nicht aus G4, G10, G28, G30, G53 oder G92-Serie"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:38
 msgid "Bug code not g61 g61.1 or g64"
@@ -1152,9 +1154,8 @@ msgid "Bug code not g98 or g99"
 msgstr "Wort ist nicht G98 oder G99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:41
-#, fuzzy
 msgid "Bug code not in g52 or g92 series"
-msgstr "Wort ist nicht aus G92-Serie"
+msgstr "Fehler: Wort ist nicht aus G52 oder G92-Serie"
 
 # Anmerkung:FJ: g593 ???? WM: wahrscheinlich g59.3
 #: src/emc/rs274ngc/rs274ngc_return.hh:42
@@ -1162,9 +1163,8 @@ msgid "Bug code not in range g54 to g593"
 msgstr "Wort ist nicht im Bereich G54 bis G59.3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:43
-#, fuzzy
 msgid "Bug code not m0 m1 m2 m30 m60 m99"
-msgstr "Wort ist nicht M0, M1, M2, M30 oder M60"
+msgstr "Fehler: Wort ist nicht M0, M1, M2, M30 oder M60"
 
 # Anmerkung:FJ: distance mode? -> incremental oder absolut? Oder was ist hier gemeint!?
 # Anmerkung:FJ: Kettenmaß oder Absolutmaß -->> Bemaßungs-Modus, Maßmodus ...
@@ -1810,7 +1810,6 @@ msgid "cannot reopen file %s - removed or renamed? (%s)"
 msgstr "Kann Datei %s nicht erneug öffnen - verschoben oder umbenannt? (%s)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:195
-#, fuzzy
 msgid "Need tool prepared -Txx- for toolchange"
 msgstr "Werkzeug muss vorbereitet sein -Txx- für Werkzeugwechsel"
 
@@ -1860,9 +1859,10 @@ msgid "Can't select analog input with wait type != immediate return"
 msgstr "Kann analogen input nicht auswählen mit Warte-Typ != sofortiger Return"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:207
-#, fuzzy
 msgid "Zero timeout with wait type != immediate return"
-msgstr "Timeout auf 0 bei wait type != immediate return"
+msgstr ""
+"Null-Timeout mit Warteart != sofortige Rückkehr (wait type != immediate "
+"return)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:208
 msgid "Invalid to select both a digital and an analog input with M66"
@@ -1981,9 +1981,8 @@ msgid "_Open"
 msgstr "_Öffnen"
 
 #: src/hal/utils/scope.c:491
-#, fuzzy
 msgid "Save Configuration File:"
-msgstr "Konfigurationsdatei öffnen:"
+msgstr "Konfigurationsdatei speichern:"
 
 #: src/hal/utils/scope.c:494 src/hal/utils/scope_horiz.c:781
 msgid "_Save"
@@ -2510,9 +2509,9 @@ msgid "Source"
 msgstr "Quelle"
 
 #: src/emc/motion/control.c:516
-#, c-format
+#, c-format, fuzzy
 msgid "fault %d during orient in progress"
-msgstr ""
+msgstr "Fehler %d während der laufenden Orientierung"
 
 #: src/emc/motion/control.c:675
 msgid "G38.4 move finished without breaking contact."
@@ -2523,9 +2522,8 @@ msgid "G38.2 move finished without making contact."
 msgstr "G38.4: Bewegung ohne Kontaktschließung beendet."
 
 #: src/emc/motion/control.c:691
-#, fuzzy
 msgid "Probe tripped during non-probe move."
-msgstr "Tastspitze bei inaktivem MDI-Befehl ausgelöst."
+msgstr "Sonde ausgelöst während einer Bewegung ohne Sonde."
 
 #: src/emc/motion/control.c:729
 msgid "Probe tripped during homing motion."
@@ -2540,9 +2538,8 @@ msgid "Probe tripped during a coordinate jog."
 msgstr "Tastspitze bei Koordinatenbewegung ausgelöst."
 
 #: src/emc/motion/control.c:752
-#, fuzzy
 msgid "motion stopped by enable input"
-msgstr "Bewegung durch Enable-Eingabe angehalten"
+msgstr "Bewegung gestoppt durch Aktivierung der Eingabe"
 
 #: src/emc/motion/control.c:759
 #, c-format
@@ -2644,7 +2641,7 @@ msgstr "%s Bewegung in Zeile %d provoziert Fehler bei kinematicsInverse"
 #: src/emc/motion/command.c:278
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
-msgstr ""
+msgstr "%s Bewegung auf Zeile %d gab nicht-finite Gelenkposition für Gelenk %d"
 
 #: src/emc/motion/command.c:285
 #, c-format
@@ -2667,7 +2664,7 @@ msgstr ""
 #: src/emc/motion/command.c:819 src/emc/motion/command.c:909
 #: src/emc/motion/command.c:1008
 msgid "Can't jog joint when not enabled."
-msgstr ""
+msgstr "Gelenk kann nicht bewegt werden, wenn es nicht aktiviert ist."
 
 #: src/emc/motion/command.c:824 src/emc/motion/command.c:1013
 msgid "Can't jog any joints while homing."
@@ -2886,6 +2883,9 @@ msgid ""
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
 "\n"
 msgstr ""
+"\n"
+"MOTION: num_extrajoints ungleich Null erfordert KINEMATICS_BOTH\n"
+"\n"
 
 #: src/emc/motion/motion.c:242
 #, c-format
@@ -3494,7 +3494,7 @@ msgstr "Anzahl Timer                 "
 #: src/hal/classicladder/config_gtk.c:156
 #, c-format
 msgid "Number of Monostables            "
-msgstr ""
+msgstr "Anzahl der Monostabilen            "
 
 #: src/hal/classicladder/config_gtk.c:161
 #, c-format, fuzzy
@@ -3614,11 +3614,8 @@ msgid "NO"
 msgstr "NEIN"
 
 #: src/hal/classicladder/config_gtk.c:737
-#, fuzzy
 msgid "YES"
-msgstr ""
-"NEIN\n"
-"JA"
+msgstr "JA"
 
 #: src/hal/classicladder/config_gtk.c:783
 msgid "QUIET"
@@ -3637,8 +3634,11 @@ msgid "LEVEL 3"
 msgstr "LEVEL 3"
 
 #: src/hal/classicladder/config_gtk.c:969
+#, fuzzy
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
+" Um die Modbus Port-Einstellungen zu ändern, speichern und laden Sie die SPS-"
+"GUI neu"
 
 #: src/hal/classicladder/config_gtk.c:972
 #, fuzzy
@@ -3780,9 +3780,9 @@ msgid "Unknown variable..."
 msgstr "Unbekannte Variable..."
 
 #: src/hal/classicladder/edit.c:1082
-#, c-format
+#, c-format, fuzzy
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
-msgstr ""
+msgstr "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 
 #: src/hal/classicladder/edit.c:1172
 msgid "No more free function block available...please delete!"
@@ -4008,21 +4008,21 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:848
 msgid "There is already an element on 4 horizontal blocks required!"
-msgstr ""
+msgstr "Es ist bereits ein Element auf 4 horizontalen Blöcken erforderlich!"
 
 #: src/hal/classicladder/edit_sequential.c:853
 msgid "Not enough room on the right here..."
-msgstr ""
+msgstr "Hier ist nicht genug Platz auf der rechten Seite..."
 
 #: src/hal/classicladder/edit_sequential.c:875
-#, c-format
+#, c-format, fuzzy
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:881
-#, c-format
+#, c-format, fuzzy
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
-msgstr ""
+msgstr "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/editproperties_gtk.c:168
 msgid "Properties"
@@ -4036,11 +4036,11 @@ msgstr "Parameter"
 #: src/hal/classicladder/editproperties_gtk.c:213
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
-msgstr ""
+msgstr "Anwenden"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
-msgstr ""
+msgstr "Fehler leerer Symbolname"
 
 #: src/hal/classicladder/emc_mods.c:72 src/hal/classicladder/emc_mods.c:78
 #: src/hal/classicladder/emc_mods.c:86 src/hal/classicladder/emc_mods.c:94
@@ -4048,7 +4048,7 @@ msgstr ""
 #: src/hal/classicladder/emc_mods.c:114 src/hal/classicladder/emc_mods.c:118
 #: src/hal/classicladder/emc_mods.c:122
 msgid "out of bounds variable number"
-msgstr ""
+msgstr "Variablennummer außerhalb der Grenzen"
 
 #: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
 msgid "None -Internal Memory"
@@ -4671,10 +4671,12 @@ msgstr "öffnete BOOL (bit) Variablen-Fenster. drücke nochmmal für WORD-Fenste
 #: src/hal/classicladder/spy_vars_gtk.c:487
 msgid "opened WORD (s32) variable window. press again for both windows"
 msgstr ""
+"geöffnetes WORD (s32)-Variablenfenster. für beide Fenster erneut drücken"
 
 #: src/hal/classicladder/spy_vars_gtk.c:490
 msgid "opened BOTH variable windows. press again to close them."
 msgstr ""
+"BEIDE Variablenfenster geöffnet. Drücken Sie erneut, um sie zu schließen."
 
 #: src/hal/classicladder/symbols_gtk.c:122
 #, c-format
@@ -5267,8 +5269,8 @@ msgid ""
 "install \n"
 "it with sudo apt-get install bwidget."
 msgstr ""
-"Das Paket »bwidget 1.7« konnte nicht gefunden werden.\n"
-"Es existiert ein »bwidget« Paket für Debian basierende Systeme.\n"
+"Das Paket »bwidget 1.7« konnte nicht gefunden werden.  Es existiert ein "
+"»bwidget« Paket für Debian basierende Systeme.\n"
 "Dieses kann mit »sudo apt-get install bwidget« installiert werden."
 
 #: tcl/bin/pickconfig.tcl:158
@@ -5954,18 +5956,21 @@ msgstr "Dateiname unbestimmt"
 
 #: tcl/ngcgui.tcl:487
 msgid "Disallowed use of ngcgui generated file as Subfile"
-msgstr ""
+msgstr "Unzulässige Verwendung der von ngcgui erzeugten Datei als Unterdatei"
 
 #: tcl/ngcgui.tcl:493
 msgid ""
 "marked (not_a_subfile)\n"
 "Not intended for use as a subfile"
 msgstr ""
+"markiert (not_a_subfile)\n"
+"Nicht für die Verwendung als Subfile vorgesehen"
 
 #: tcl/ngcgui.tcl:507 tcl/ngcgui.tcl:526 tcl/ngcgui.tcl:548 tcl/ngcgui.tcl:561
 #: tcl/ngcgui.tcl:581 tcl/ngcgui.tcl:686
+#, fuzzy
 msgid "bogus"
-msgstr ""
+msgstr "hier stimmt etwas nicht"
 
 #: tcl/ngcgui.tcl:509
 #, fuzzy
@@ -6027,8 +6032,9 @@ msgid "Please Install in path"
 msgstr "Bitte installieren Sie in Pfad"
 
 #: tcl/ngcgui.tcl:814
+#, fuzzy
 msgid "not embedded, deriving outdir from:"
-msgstr ""
+msgstr "nicht eingebettet, leite outdir ab von:"
 
 #: tcl/ngcgui.tcl:1042
 msgid "Choose Files"
@@ -6076,8 +6082,9 @@ msgid "Create Feature"
 msgstr "Erstelle Feature"
 
 #: tcl/ngcgui.tcl:1277 tcl/ngcgui.tcl:3070
+#, fuzzy
 msgid "MakeFile"
-msgstr ""
+msgstr "MakeFile"
 
 #: tcl/ngcgui.tcl:1278 tcl/ngcgui.tcl:3067
 msgid "Finalize"
@@ -6130,7 +6137,7 @@ msgstr "Ausgabedatei"
 
 #: tcl/ngcgui.tcl:1845
 msgid "Multiple Tabs with Features"
-msgstr ""
+msgstr "Mehrere Registerkarten mit Funktionen"
 
 #: tcl/ngcgui.tcl:1846
 #, fuzzy
@@ -6657,7 +6664,7 @@ msgstr "Text"
 
 #: tcl/ngcgui_ttt.tcl:172
 msgid "Linescale"
-msgstr ""
+msgstr "Linienskala"
 
 #: tcl/ngcgui_ttt.tcl:178
 msgid "none"
@@ -7636,6 +7643,7 @@ msgid "File not Writable:"
 msgstr "Datei nicht schreibbar:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2268
+#, fuzzy
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7645,6 +7653,13 @@ msgid ""
 "Save it to your own directory\n"
 "then open that saved, writable file"
 msgstr ""
+"Diese Datei ist nicht beschreibbar\n"
+"Sie können sie jedoch im Editor öffnen\n"
+"\n"
+"alternativ\n"
+"\n"
+"speichern Sie sie in einem eigenen Verzeichnis \n"
+"und öffnen dann diese gespeicherte, beschreibbare Kopie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2275
 msgid "Edit-readonly"
@@ -7761,7 +7776,7 @@ msgstr "Gelenke"
 msgid "Home All"
 msgstr ""
 "Referenzfahrt\n"
-"alle Achsen"
+"aller Achsen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3532
 #, python-format
@@ -7782,6 +7797,8 @@ msgstr "Referenzfahrt aufheben bei allen %s"
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
+"Warnung: Die Vorwärtskinematik muss mit doppelten Koordinatenbuchstaben "
+"umgehen:%s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3581
 #, python-format
@@ -10721,9 +10738,10 @@ msgstr "# **** Einstellungen for externes Notaus SPS Programm -ENDE ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:330
 #: src/emc/usr_intf/pncconf/build_HAL.py:841
+#, fuzzy
 msgid ""
 "# Load Classicladder with modbus master included (GUI must run for Modbus)"
-msgstr ""
+msgstr "# SPS Programm mit Modbus-Master laden (GUI muss für Modbus laufen)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:333
 #: src/emc/usr_intf/pncconf/build_HAL.py:846
@@ -10740,6 +10758,8 @@ msgstr "Benutzerdefiniertes PyVCP-Panel hier einbinden.\n"
 #: src/emc/usr_intf/stepconf/build_HAL.py:417
 msgid "# These files are loaded post GUI, in the order they appear"
 msgstr ""
+"# Diese Dateien werden nach der GUI geladen, in der Reihenfolge, in der sie "
+"erscheinen"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:380
 #: src/emc/usr_intf/pncconf/build_HAL.py:941
@@ -10757,12 +10777,16 @@ msgid ""
 "# **** spindle-velocity-feedback-rps bounces around so we filter it with "
 "lowpass"
 msgstr ""
+"**** spindle-velocity-feedback-rps springt umher, also filtern wir es mit "
+"Tiefpass"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:384
 msgid ""
 "# **** spindle-velocity-feedback-rps is signed so we use absolute component "
 "to remove sign"
 msgstr ""
+"**** spindle-velocity-feedback-rps hat ein Vorzeichen (für Rechts-/Linkslauf)"
+", daher verwenden wir die absolute Komponente, um das Vorzeichen zu entfernen"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:385
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
@@ -11294,7 +11318,7 @@ msgstr "Encoder-_Takte pro Spindel-Umdrehung:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:285
 msgid "Speed display filter gain:"
-msgstr ""
+msgstr "Filterverstärkung der Geschwindigkeitsanzeige:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:294
 #, fuzzy
@@ -11525,7 +11549,7 @@ msgstr "DELETE"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:134
 msgid "Move UP"
-msgstr ""
+msgstr "NACH OBEN bewegen"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:31
 #: src/emc/usr_intf/pncconf/ubuttons.glade:34
@@ -11657,7 +11681,7 @@ msgstr "300"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:111
 msgid "Full Scale Freq (kHz)"
-msgstr ""
+msgstr "Skalenendwert-Freq (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:125
 #: src/emc/usr_intf/pncconf/thcad.glade:127
@@ -11708,11 +11732,8 @@ msgstr "Selbige"
 #: src/emc/usr_intf/pncconf/y_axis.glade:47
 #: src/emc/usr_intf/pncconf/z_axis.glade:47
 #: src/emc/usr_intf/pncconf/a_axis.glade:47
-#, fuzzy
 msgid "Opposite"
-msgstr ""
-"Gleiche Richtung\n"
-"Entgegengesetzte Richtung"
+msgstr "Entgegengesetzt"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:166
 #: src/emc/usr_intf/stepconf/axisy.glade:166
@@ -12067,7 +12088,7 @@ msgstr "Gerätenamen sind nicht verfügbar\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1728
 msgid "No Pncconf made device rules were found\n"
-msgstr ""
+msgstr "Es wurden keine von Pncconf erstellten Geräteregeln gefunden\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1773
 msgid ""
@@ -12101,11 +12122,15 @@ msgstr "Unbenutzter Kanal"
 #: src/emc/usr_intf/pncconf/pncconf.py:3843
 msgid "You can not have both steppers and pwm signals for spindle control\n"
 msgstr ""
+"Sie können nicht sowohl Schrittmotoren als auch PWM-Signale für die "
+"Spindelsteuerung verwenden.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3847
-#, python-format
+#, fuzzy, python-format
 msgid "You forgot to designate a stepper or pwm signal for axis %s\n"
 msgstr ""
+"Sie haben vergessen, ein Stepper- oder PWM-Signal für die Achse %s zu "
+"bestimmen.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3850
 #, python-format
@@ -12116,11 +12141,14 @@ msgstr ""
 #, python-format
 msgid "You forgot to designate a pwm signal or stepper signal for axis %s\n"
 msgstr ""
+"Sie haben vergessen, ein PWM-Signal oder ein Steppersignal für Achse %s zu "
+"bestimmen\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3856
 #, python-format
 msgid "You can not have both steppers and pwm signals for axis %s\n"
 msgstr ""
+"Für Achse %s kann man nicht sowohl Stepper als auch PWM-Signale verwenden.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3859
 #, python-format
@@ -12454,11 +12482,11 @@ msgstr "#  ---Nutze externen Dialog zum Werkzeugwechsel---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:799
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
-msgstr ""
+msgstr "# ---manuelle Werkzeugwechsel-Signale zu gmoccapy's Dialog---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:809
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
-msgstr ""
+msgstr "# ---manuelle Werkzeugwechsel-Signale zu qtdragon's Dialog---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:816
 #, fuzzy
@@ -12473,10 +12501,15 @@ msgstr "#  ---Werkzeugwechsel signalisiert an custom Werkzeugwechsler---"
 #: src/emc/usr_intf/pncconf/build_HAL.py:852
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
 msgstr ""
+"#  --- Klassische Kontaktplan-Signale für die Z-Achse Auto-Touch-Off-"
+"Programm---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:871
+#, fuzzy
 msgid "# These files are loaded post gladeVCP, in the order they appear"
 msgstr ""
+"# Diese Dateien werden nach gladeVCP geladen, in der Reihenfolge, in der sie "
+"erscheinen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:885
 #: src/emc/usr_intf/pncconf/build_HAL.py:937
@@ -12486,7 +12519,7 @@ msgstr "# Hier _KEINE_ HAL Befehle einbinden."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:886
 msgid "# Put custom HAL commands in custom_gvcp.hal"
-msgstr ""
+msgstr "# Benutzerdefinierte HAL-Befehle in custom_gvcp.hal einfügen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:889
 msgid "# **** Setup of spindle speed display using gladevcp ****"
@@ -14084,8 +14117,9 @@ msgid "Unused Analog Output"
 msgstr "Unbenutzter analoger Ausgang"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
+#, fuzzy
 msgid "Spindle Output"
-msgstr ""
+msgstr "Spindelleistung"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "Unused TPPWM Gen"
@@ -14257,11 +14291,12 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:970
 #: src/emc/usr_intf/pncconf/private_data.py:982
-#, fuzzy
 msgid ""
 "7i76-Analog Output\n"
 "TB4"
-msgstr "Unbenutzter analoger Ausgang"
+msgstr ""
+"7i76-Analog-Ausgang\n"
+"TB4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:994
 #: src/emc/usr_intf/pncconf/private_data.py:1006
@@ -14283,11 +14318,12 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:994
 #: src/emc/usr_intf/pncconf/private_data.py:1006
-#, fuzzy
 msgid ""
 "7i77-Analog Output\n"
 "TB5"
-msgstr "Unbenutzter analoger Ausgang"
+msgstr ""
+"7i77-Analog-Ausgang\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1018
 msgid "7i73-I/O\n"
@@ -14358,10 +14394,13 @@ msgstr ""
 "maximale Kraft möglicherweise nicht wie gewünscht eingestellt. \n"
 
 #: src/emc/usr_intf/pncconf/tests.py:163
+#, fuzzy
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
 msgstr ""
+"Sie verwiesen auf eine glade-Datei, die nicht in dem Konfigurations-"
+"Verzeichnis mit dem Namen dieser Maschine liegt.."
 
 #: src/emc/usr_intf/pncconf/tests.py:475
 #, fuzzy
@@ -14515,11 +14554,12 @@ msgid "PNCconf - Mesa Card Configuration Wizard"
 msgstr "PNCconf - Mesa Card Konfiguration"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
-#, fuzzy
 msgid ""
 "Save\n"
 "Data"
-msgstr "Speichern"
+msgstr ""
+"Daten\n"
+"Speichern"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
 #, fuzzy
@@ -14555,6 +14595,7 @@ msgid "page 1"
 msgstr "Seite 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
+#, fuzzy
 msgid ""
 "\t\t\t\tPNCconf - Point aNd Click CONFigurator\n"
 "PNCconf is a configuration program for Linuxcnc.\n"
@@ -14577,6 +14618,27 @@ msgid ""
 "\n"
 "Beta 1 version"
 msgstr ""
+"\t\t\t\tPNCconf - Point aNd Click CONFigurator\n"
+"PNCconf ist ein Programm zur Konfiguration von Linuxcnc.\n"
+"Es konfiguriet Machines mit Mesa I/O Karten.\n"
+"Es konfiguriert Servos und Schrittmotoren, mit oder ohne closed-loops.\n"
+"Es unterstützt einige der Mesa Karten mit seriellen Schnittstellen.\n"
+"Es wird für immer unter Entwicklung sein, da sich LinuxCNC weiterentwickelt."
+"\n"
+"\n"
+"Vielen Dank an:\n"
+"Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has "
+"helped with technical difficulties.\n"
+"Big John T - John drew the original machine illustrations. Testing and "
+"suggestions.\n"
+"Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample "
+"equipment to test with.\n"
+"Andy Pugh - suggestions, questions answered and many pin name changes :) \n"
+"Dave Armstrong - testing and suggestions especially with resolvers.\n"
+"Everyone who gave a bug report ! I cannot test everything thoughly enough so "
+"reports help.\n"
+"\n"
+"Beta 1 Version"
 
 #: src/emc/usr_intf/pncconf/help.glade:24
 msgid ""
@@ -14639,6 +14701,7 @@ msgstr ""
 "  möglich"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
+#, fuzzy
 msgid ""
 "Separate Home and Limt Switches Example\n"
 "\n"
@@ -14673,6 +14736,43 @@ msgid ""
 "    Note that there is distance between the limit switches and actual "
 "physical hard contact for coasting after the amplifier is disabled.\n"
 msgstr ""
+"Getrennte Schalter für Referenzfahrt und Limit Beispiel\n"
+"\n"
+"    Die negativen und positiven Richtungen basieren auf der "
+"Werkzeugbewegung, die sich von der tatsächlichen Maschinenbewegung "
+"unterscheiden kann.\n"
+"    d.h. bei einer Fräsmaschine bewegt sich normalerweise der Tisch und "
+"nicht das Werkzeug.\n"
+"\n"
+"    Soft(ware)-Grenzen befinden sich innerhalb des Endschalterbereichs.\n"
+"\n"
+"    (Bei Verwendung der schalterbasierten Referenzfahrt nutzen die "
+"Referenzschalter die Endschalter (gemeinsame Referenzfahrt/Endschalter)\n"
+"    oder befinden sich innerhalb des Endschalterbereichs, wenn ein separater "
+"Referenzschalter verwendet wird.\n"
+"\n"
+"    Der Nullpunkt der G53-Maschine liegt in der Regel innerhalb des Bereichs "
+"der weichen Begrenzungen, muss aber nicht.\n"
+"\n"
+"    Bei Verwendung eines separaten Referenzfahrtschalters ist es möglich, "
+"dass die Referenzfahrt auf der falschen Seite des Referenzfahrtschalters "
+"beginnt,\n"
+"    was in Verbindung mit der Option HOME_IGNORE_LIMITS zu einem harten "
+"Absturz führt.\n"
+"    Man kann dies vermeiden, indem man den Home-Schalter so lange seinen "
+"Zustand umschalten lässt, bis der Mitnehmer/Auslöser auf einer bestimmten "
+"Seite ist und den Trip-Punkt wieder passiert.\n"
+"    Anders ausgedrückt: Der Zustand des Home-Schalters muss die Position des "
+"Auslösers relativ zum Schalter darstellen (also vor oder nach dem Schalter),"
+"\n"
+"    und muss diesen Zustand auch dann beibehalten, wenn der dog in derselben "
+"Richtung am Schalter vorbeiläuft.\n"
+"\n"
+"    Der Abstand zwischen den Endschaltern und den Soft Limits (-L<->A und "
+"D<-+L) wird in diesem Beispiel vergrößert dargestellt\n"
+"    Beachten Sie, dass der Abstand zwischen den Endschaltern und dem "
+"tatsächlichen harten Kontakt für den Auslauf nach der Deaktivierung des "
+"Verstärkers vorhanden ist.\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
@@ -14710,6 +14810,7 @@ msgid "Lathe"
 msgstr "Drehmaschine"
 
 #: src/emc/usr_intf/pncconf/help.glade:266
+#, fuzzy
 msgid ""
 "    A is the negative software limit\n"
 "    B is the G53 machine coordinate Origin\n"
@@ -14724,6 +14825,18 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 10 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
+"    A ist die negative Softwaregrenze\n"
+"    B ist die G53-Maschinenkoordinate Ursprung\n"
+"    C ist der Auslösepunkt des Referenzschalters/\n"
+"                   Gemeinsame minimale Grenzwertauslösung\n"
+"    D ist die positive Softwaregrenze\n"
+"    H ist die endgültige Ausgangsposition = 3 Einheiten\n"
+"    -L und +L sind die Auslösepunkte der Endschalter\n"
+"\n"
+"    A<->B ist die negative Fahrstrecke = -0 Einheiten\n"
+"    B<->C ist die Ausgangsschalterposition = -0,7 Einheiten\n"
+"    B<->D ist die positive Verfahrstrecke = 10 Einheiten\n"
+"    A<->D ist die gesamte Wegstrecke = 10 Einheiten\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:324
 msgid "Shared Home Switch"
@@ -16093,7 +16206,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/start.glade:44
 msgid "Create a desktop shortcut (symlink) to configuration files."
-msgstr "Verknüpfung zu den Konfigurationsdateien auf dem Desktop erstellen"
+msgstr "Verknüpfung zu den Konfigurationsdateien auf dem Desktop erstellen."
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 #, fuzzy
@@ -16955,21 +17068,15 @@ msgstr "Unicode"
 #: src/emc/usr_intf/pncconf/y_axis.glade:16
 #: src/emc/usr_intf/pncconf/z_axis.glade:16
 #: src/emc/usr_intf/pncconf/a_axis.glade:16
-#, fuzzy
 msgid "Type 1"
-msgstr ""
-"Typ 1\n"
-"Typ 2"
+msgstr "Typ 1"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:19
 #: src/emc/usr_intf/pncconf/y_axis.glade:19
 #: src/emc/usr_intf/pncconf/z_axis.glade:19
 #: src/emc/usr_intf/pncconf/a_axis.glade:19
-#, fuzzy
 msgid "Type 2"
-msgstr ""
-"Typ 1\n"
-"Typ 2"
+msgstr "Typ 2"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:58
 #: src/emc/usr_intf/pncconf/y_axis.glade:58
@@ -17554,15 +17661,16 @@ msgstr "UPM"
 #: src/emc/usr_intf/pncconf/y_motor.glade:1848
 #: src/emc/usr_intf/pncconf/z_motor.glade:1848
 #: src/emc/usr_intf/pncconf/a_motor.glade:1773
+#, fuzzy
 msgid "<b>Use Spindle-At-Speed</b>"
-msgstr ""
+msgstr "<b>Nutze Spindel-Bei-Drehzahl</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1879
 #: src/emc/usr_intf/pncconf/y_motor.glade:1879
 #: src/emc/usr_intf/pncconf/z_motor.glade:1879
 #: src/emc/usr_intf/pncconf/a_motor.glade:1804
 msgid "Filter gain:"
-msgstr ""
+msgstr "Filter-Verstärkung:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1922
 #: src/emc/usr_intf/pncconf/y_motor.glade:1922
@@ -17617,7 +17725,7 @@ msgstr "Bild invertieren"
 #: src/emc/usr_intf/pncconf/a_motor.glade:2136
 #: src/emc/usr_intf/pncconf/s_motor.glade:2195
 msgid "encoder Scale:"
-msgstr ""
+msgstr "Encoder Skala:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2252
 #: src/emc/usr_intf/pncconf/y_motor.glade:2252
@@ -17692,7 +17800,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2006
 msgid "Use At-Speed Calculation"
-msgstr ""
+msgstr "At-Speed-Berechnung verwenden"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2272
 #, fuzzy
@@ -17701,7 +17809,7 @@ msgstr "Spindel Anzeige Filter:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2343
 msgid "Use Near Range"
-msgstr ""
+msgstr "Nahbereich verwenden"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2359
 #, fuzzy
@@ -17784,12 +17892,13 @@ msgid "Number of digital (bit) out pins:"
 msgstr "Digitale Ausgänge:"
 
 #: src/emc/usr_intf/pncconf/options.glade:703
+#, fuzzy
 msgid " Number of Internal bit memory:"
-msgstr ""
+msgstr " Anzahl der internen Bitspeicher:"
 
 #: src/emc/usr_intf/pncconf/options.glade:719
 msgid " Number of Internal word memory:"
-msgstr ""
+msgstr " Nummer des internen Wortspeichers:"
 
 #: src/emc/usr_intf/pncconf/options.glade:895
 msgid "Setup number of external pins"
@@ -17797,7 +17906,7 @@ msgstr "Anzahl der externen Pins einrichten"
 
 #: src/emc/usr_intf/pncconf/options.glade:954
 msgid "Z Auto Touch off program"
-msgstr ""
+msgstr "Z Auto Touch off Programm"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:126
 #, fuzzy
@@ -17830,11 +17939,11 @@ msgstr "Tiefpass"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:348
 msgid "Base Thread"
-msgstr ""
+msgstr "Basisgewinde"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:361
 msgid "Servo Thread"
-msgstr ""
+msgstr "Servo-Gewinde"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:412
 #, fuzzy
@@ -17843,11 +17952,11 @@ msgstr "Lade Kommando "
 
 #: src/emc/usr_intf/pncconf/realtime.glade:459
 msgid "Thread Speed"
-msgstr ""
+msgstr "Gewinde Geschwindigkeit"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:470
 msgid "Thread Command"
-msgstr ""
+msgstr "Gewinde Befehl"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:483
 #, fuzzy
@@ -17955,6 +18064,10 @@ msgid ""
 "  Address \n"
 "  Search"
 msgstr ""
+"PCI-Erweiterung\n"
+"  Parport\n"
+"  Adresse\n"
+"  Suche"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1712
 #: src/emc/usr_intf/pncconf/pport2.glade:1715
@@ -18382,7 +18495,6 @@ msgid "Step Timing"
 msgstr "Schritteinstellung"
 
 #: src/emc/usr_intf/pncconf/finished.glade:6
-#, fuzzy
 msgid ""
 "All the necessary information has now been gathered. \n"
 "Click \"Done\" to write your configuration files to disk.\n"
@@ -18402,21 +18514,22 @@ msgid ""
 "-run a more thorough latency test as described on the linuxcnc.org wiki: \n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
-"Alle notwendigen Informationen wurden erfasst. Bestätigen Sie mit "
-"»Anwenden«, um die Konfiguration zu speichern.\n"
-"Falls EMC2 nicht mehr reagieren sollte, verkleinern Sie die maximale "
-"Geschwindigkeit, was die Zeit für einen Systemtakt (BASE_PERIOD) "
-"vergrößert.\n"
+"Alle notwendigen Informationen wurden erfasst.\n"
+"Bestätigen Sie mit »Anwenden«, um die Konfiguration zu speichern.\n"
 "\n"
-"Falls Sie Schrittverluste bemerken sollten, überprüfen Sie zuerst die "
-"Zeiteinstellungen für ihre Endstufe. Wird das Problem hierdurch nicht "
-"behoben, dann führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki "
-"beschrieben werden:\n"
+"Falls LinuxCNC nicht mehr reagieren sollte,\n"
+"verkleinern Sie die maximale Geschwindigkeit, was die Zeit für einen "
+"Systemtakt (BASE_PERIOD) vergrößert.\n"
+"\n"
+"Falls Sie Schrittverluste bemerken sollten,\n"
+"überprüfen Sie zuerst die Zeiteinstellungen für ihre Endstufe.\n"
+"Wird das Problem hierdurch nicht behoben, dann führen bitte weiter Maßnahmen "
+"durch, wie sie im LinuxCNC-Wiki beschrieben werden:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
-"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten, dann "
-"führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben "
-"werden:\n"
+"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten,\n"
+"dann führen bitte weiter Maßnahmen durch, wie sie im LinuxCNC-Wiki "
+"beschrieben werden:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:64
@@ -18792,7 +18905,7 @@ msgstr "Fehler beim Programmstart für die Bildschirmtastatur %s"
 #: src/emc/usr_intf/gscreen/gscreen.py:3257
 #, python-format
 msgid "**** GSCREEN INFO: Overriding internal signal call to %s"
-msgstr ""
+msgstr "GSCREEN INFO: Überschreiben des internen Signalaufrufs an %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3689
 msgid ""
@@ -18927,7 +19040,7 @@ msgstr "Kann nicht mehrere Achsen von Referenzpunkt zurückfahren"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4258
 msgid "No axis selected to unhome"
-msgstr ""
+msgstr "Keine Achse zum Ausfahren ausgewählt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4267
 msgid "No axis selected for origin zeroing"
@@ -18935,15 +19048,15 @@ msgstr "Keine Achse ausgewählt für das Setzen des Ursprungs auf 0"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4278
 msgid "No axis selected for origin touch-off"
-msgstr ""
+msgstr "Keine Achse für den Nullpunktabgriff ausgewählt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4284
 msgid "Can't tool touch-off multiple axes"
-msgstr ""
+msgstr "Werkzeug kann nicht mehrere Achsen abtasten"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4287
 msgid "No axis selected for tool touch-off"
-msgstr ""
+msgstr "Keine Achse zum Anfahren des Werkzeugs ausgewählt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4346
 #: src/emc/usr_intf/gscreen/gscreen.py:4431
@@ -19026,7 +19139,7 @@ msgstr " mm "
 #: src/emc/usr_intf/gscreen/gscreen.glade:1085
 #: src/emc/usr_intf/gscreen/gscreen.glade:1161
 msgid "0000.0000"
-msgstr ""
+msgstr "0000.0000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:73
 #: src/emc/usr_intf/gscreen/gscreen.glade:201
@@ -19194,6 +19307,8 @@ msgid ""
 "   Display\n"
 "Aux Screen"
 msgstr ""
+"   Anzeige\n"
+"Aux-Bildschirm"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2080
 msgid ""
@@ -19214,29 +19329,37 @@ msgstr ""
 "anzeigen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2114
-#, fuzzy
 msgid ""
 "Show\n"
 "DTG"
-msgstr "Anzeigen"
+msgstr ""
+"DTG\n"
+"Anzeigen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2131
 msgid ""
 " Gscreen\n"
 "Fullscreen"
 msgstr ""
+" G-Bildschirm\n"
+"Vollbild"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2153
+#, fuzzy
 msgid ""
 " On M7 Use\n"
 "Aux Coolant"
 msgstr ""
+" Bei M7 nutze\n"
+"Hilfskühlmittel"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2166
 msgid ""
 " On M8 Use\n"
 "Aux Coolant"
 msgstr ""
+" Bei M8 nutze\n"
+"Hilfskühlmittel"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2179
 msgid "Hide Pointer"
@@ -19247,6 +19370,8 @@ msgid ""
 "  Desktop\n"
 "Notification"
 msgstr ""
+"  Desktop\n"
+"Benachrichtigung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2263
 #: src/emc/usr_intf/gscreen/gscreen.glade:2403
@@ -19275,11 +19400,12 @@ msgid "Halmeter"
 msgstr "HAL-Meter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2350
-#, fuzzy
 msgid ""
 "linuxcnc\n"
 "  Status"
-msgstr "LinuxCNC-Status"
+msgstr ""
+"LinuxCNC\n"
+"  Status"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2362
 #, fuzzy
@@ -19300,7 +19426,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2562
 msgid "Zero Origin"
-msgstr ""
+msgstr "Null Ursprung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2607
 #: src/emc/usr_intf/gscreen/gscreen.glade:2784
@@ -19314,11 +19440,12 @@ msgid "Tool Setting"
 msgstr "<b>Werkzeugeinstellung</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2683
-#, fuzzy
 msgid ""
 "Single\n"
 " Step"
-msgstr "ein Leerzeichen"
+msgstr ""
+"Einzelner\n"
+" Schritt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2696
 msgid ""
@@ -19345,7 +19472,9 @@ msgstr "Referenzfahrt\n"
 msgid ""
 "Ignore\n"
 "Limits"
-msgstr "Alle Endschalter"
+msgstr ""
+"Ignore\n"
+"Grenzen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2845
 msgid ""
@@ -19364,7 +19493,9 @@ msgstr "Grafiken\n"
 msgid ""
 "Menu\n"
 "Level"
-msgstr "Schwelle"
+msgstr ""
+"Menü\n"
+"Ebene"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2886
 msgid ""
@@ -19383,14 +19514,17 @@ msgstr "<b>Ausgabeoptionen</b>"
 msgid ""
 "Unhome \n"
 "    All"
-msgstr "Referenzfahrt aufheben bei allen Achsen"
+msgstr ""
+"Referenzfahrt aufheben\n"
+"    bei allen Achsen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3002
-#, fuzzy
 msgid ""
 "Unhome\n"
 "   Axis"
-msgstr "Referenzfahrt aufheben bei _%s-Achse"
+msgstr ""
+"Referenzfahrt aufheben\n"
+"   bei Achse"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3014
 #: src/emc/usr_intf/gscreen/gscreen.glade:3119
@@ -19398,6 +19532,8 @@ msgid ""
 "Toggle\n"
 "Readout"
 msgstr ""
+"Umschalten\n"
+"Auslesen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3039
 msgid ""
@@ -19425,7 +19561,9 @@ msgstr "Werkzeug angelegt"
 msgid ""
 "Spindle\n"
 "Controls"
-msgstr "Strg-M"
+msgstr ""
+"Spindel\n"
+"Steuerung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3230
 #, fuzzy
@@ -19441,24 +19579,29 @@ msgstr ""
 "löschen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3252
-#, fuzzy
 msgid ""
 "Optional\n"
 "   Stop"
-msgstr "Wahlweiser Halt"
+msgstr ""
+"Wahlweiser\n"
+"   Halt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3264
 msgid ""
 " Full\n"
 "View"
 msgstr ""
+" Vollständige\n"
+"Darstellung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3300
 #, fuzzy
 msgid ""
 "Next\n"
 " Tab"
-msgstr "Nächster Wert"
+msgstr ""
+"Nächste\n"
+" Registerkarte"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3320
 msgid ""
@@ -19595,12 +19738,14 @@ msgid ""
 " Clear\n"
 "status"
 msgstr ""
+" Löschen\n"
+"Status"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3677
 #: lib/python/gladevcp/offsetpage.glade:108
 #: lib/python/gladevcp/offsetpage.glade:122
 msgid "G54"
-msgstr ""
+msgstr "G54"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3693
 msgid "calc"
@@ -19608,15 +19753,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3768
 msgid "test"
-msgstr ""
+msgstr "test"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3771
 msgid "test2"
-msgstr ""
+msgstr "test2"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3821
 msgid "Data Entry"
-msgstr ""
+msgstr "Dateneingabe"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3847
 #, fuzzy
@@ -19640,12 +19785,16 @@ msgid ""
 "Line\n"
 " Up"
 msgstr ""
+"Zeile\n"
+" hoch"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3987
 msgid ""
 " Line\n"
 "Down"
 msgstr ""
+" Zeile\n"
+"Runter"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4069
 #, fuzzy
@@ -19654,15 +19803,15 @@ msgstr "MV: 100"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4139
 msgid " FWD"
-msgstr ""
+msgstr " VORW"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4174
 msgid " REV"
-msgstr ""
+msgstr " RÜCKW"
 
 #: src/emc/usr_intf/gscreen/gscreen2.glade:35
 msgid "screen 2"
-msgstr ""
+msgstr "Bildschirm 2"
 
 #: lib/python/gladevcp/iconview.py:121
 msgid "Move to your home directory"
@@ -19684,15 +19833,15 @@ msgstr "Wähle die nächste Datei"
 
 #: lib/python/gladevcp/iconview.py:173
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Springe zu von Anwender angegebenen Verzeichnis"
 
 #: lib/python/gladevcp/iconview.py:182
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "Wählt die hervorgehobene Datei aus und gibt den Dateipfad zurück"
 
 #: lib/python/gladevcp/iconview.py:191
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Schließe ohne einen Dateipfad zurückzuliefern"
 
 #: lib/python/gladevcp/offsetpage_widget.py:354
 msgid "offsetpage widget error: unrecognized float input"
@@ -19715,8 +19864,9 @@ msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "offsetpage_widget Fehler: kann das Koordinatensystem nicht auswählen"
 
 #: lib/python/gladevcp/tooledit_widget.py:227
+#, fuzzy
 msgid "tooledit_widget error: cannot select tool number"
-msgstr ""
+msgstr "tooledit_widget Fehler: Werkzeugnummer kann nicht ausgewählt werden"
 
 #: lib/python/gladevcp/tooledit_widget.py:246
 #, fuzzy
@@ -19808,8 +19958,9 @@ msgstr "G55"
 
 #: lib/python/gladevcp/offsetpage.glade:142
 #: lib/python/gladevcp/offsetpage.glade:156
+#, fuzzy
 msgid "G56"
-msgstr ""
+msgstr "G56"
 
 #: lib/python/gladevcp/offsetpage.glade:159
 #: lib/python/gladevcp/offsetpage.glade:173
@@ -19819,7 +19970,7 @@ msgstr "G57"
 #: lib/python/gladevcp/offsetpage.glade:176
 #: lib/python/gladevcp/offsetpage.glade:190
 msgid "G58"
-msgstr ""
+msgstr "G58"
 
 #: lib/python/gladevcp/offsetpage.glade:193
 #: lib/python/gladevcp/offsetpage.glade:207
@@ -19880,7 +20031,7 @@ msgstr "Werkzeug#"
 #: lib/python/gladevcp/tooledit_gtk.glade:413
 #: lib/python/gladevcp/tooledit_gtk.glade:635
 msgid "Pocket"
-msgstr ""
+msgstr "Tasche"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:222
 msgid "Diameter"
@@ -19918,7 +20069,7 @@ msgstr "Alle Versatz-Einstellungen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:424
 msgid "X Wear"
-msgstr ""
+msgstr "X Abnutzung"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:446
 msgid "Z Wear"
@@ -19931,7 +20082,7 @@ msgstr "Durchmesser"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:590
 msgid "Lathe Wear Offsets"
-msgstr ""
+msgstr "Drehmaschinen-Verschleißkorrekturen"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:646
 msgid "X Tool"
