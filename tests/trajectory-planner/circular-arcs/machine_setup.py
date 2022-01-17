@@ -36,6 +36,6 @@ if len(sys.argv)>1:
     e.wait_on_program()
 
 else:
-    print("No G code specified, setup complete")
+    print("No G-code specified, setup complete")
 
 

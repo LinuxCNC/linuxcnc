@@ -1,12 +1,12 @@
 [[cha:m-codes]]
 
-= M Codes
+= M-Codes
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-== M Code Quick Reference Table
+== M-Code Quick Reference Table
 
 [width="60%", options="header", cols="2^,5<"]
 |========================================
@@ -33,7 +33,7 @@
 |<<mcode:m72,M72>>                   | Restore Modal State
 |<<mcode:m73,M73>>                   | Save Autorestore Modal State
 |<<mcode:m98-m99,M98 M99>>           | Call and Return From Subprogram
-|<<mcode:m100-m199,M100-M199>>       | User Defined M-Codes 
+|<<mcode:m100-m199,M100-M199>>       | User Defined M-Codes
 |========================================
 
 
@@ -53,7 +53,7 @@
 [NOTE]
 It is OK to program 'M0' and 'M1' in MDI mode,
 but the effect will probably not be noticeable,
-because normal behavior in MDI mode is 
+because normal behavior in MDI mode is
 to stop after each line of input anyway.
 
 [[mcode:m2-m30]]
@@ -85,7 +85,7 @@ Lines of code after M2/M30 will not be executed. Pressing `Cycle Start`
 will start the program at the beginning of the file.
 
 [WARNING]
-Using % to wrap the G code does not do the same thing as a 'Program End'. See
+Using % to wrap the G-code does not do the same thing as a 'Program End'. See
 <<gcode:file-requirements,File Requirements>> for more information on what using
 % does not do.
 
@@ -108,7 +108,7 @@ Using % to wrap the G code does not do the same thing as a 'Program End'. See
 
 Use $ to operate on specific spindles. If $ is omitted then the commands
 default to operating on spindle.0
-Use $-1 to operate on all active spindles. 
+Use $-1 to operate on all active spindles.
 
 This example will start spindles 0, 1, and 2 simultaneously at different
 speeds:
@@ -116,7 +116,7 @@ speeds:
 ----
 S100 $0
 S200 $1
-S300 $2 
+S300 $2
 M3 $-1
 ----
 
@@ -165,7 +165,7 @@ to the tool most recently selected (using a T word - see Section
 <<sec:select-tool,Select Tool>>), program 'M6'.
 When the tool change is complete:
 
-* The spindle will be stopped. 
+* The spindle will be stopped.
 * The tool that was selected (by a T word on the same line or on any
    line after the previous tool change) will be in the spindle.
 * If the selected tool was not in the spindle before the tool change,
@@ -181,7 +181,7 @@ When the tool change is complete:
 The tool length offset is not changed by 'M6', use '<<gcode:g43,G43>>' after the
 'M6' to change the tool length offset.
 
-The tool change may include axis motion. 
+The tool change may include axis motion.
 It is OK (but not useful) to program a change to the tool already in the spindle.
 It is OK if there is no tool in the selected slot;
 in that case, the spindle will be empty after the tool change.
@@ -199,7 +199,7 @@ classicladder.
 * 'M9' - turn both M7 and M8 off.
 
 Connect one or both of the coolant control pins in HAL before M7 or M8 will
-control an output. M7 and M8 can be used to turn on any output via G code.
+control an output. M7 and M8 can be used to turn on any output via G-code.
 
 It is OK to use any of these commands, regardless of the current coolant
 state.
@@ -236,26 +236,26 @@ ORIENT_OFFSET = 0-360 (fixed offset in degrees added to M19 R word)
 HAL Pins
 
 * 'spindle.N.orient-angle' (out float)
-Desired spindle orientation for M19. Value of the M19 R word parameter 
+Desired spindle orientation for M19. Value of the M19 R word parameter
 plus the value of the [RS274NGC]ORIENT_OFFSET ini parameter.
 
 * 'spindle.N.orient-mode' (out s32)
 Desired spindle rotation mode. Reflects M19 P parameter word, Default = 0
 
 * 'spindle.N.orient' (out bit)
-Indicates start of spindle orient cycle. Set by M19. Cleared by any of 
+Indicates start of spindle orient cycle. Set by M19. Cleared by any of
 M3,M4,M5.
-  If spindle-orient-fault is not zero during spindle-orient true, the 
+  If spindle-orient-fault is not zero during spindle-orient true, the
 M19 command fails with an error message.
 
 * 'spindle.N.is-oriented' (in bit)
-Acknowledge pin for spindle-orient. Completes orient cycle. If 
+Acknowledge pin for spindle-orient. Completes orient cycle. If
 spindle-orient was true when spindle-is-oriented
-  was asserted, the spindle-orient pin is cleared and the spindle-locked 
+  was asserted, the spindle-orient pin is cleared and the spindle-locked
 pin is asserted. Also, the spindle-brake pin is asserted.
 
 * 'spindle.N.orient-fault' (in s32)
-  Fault code input for orient cycle. Any value other than zero will 
+  Fault code input for orient cycle. Any value other than zero will
 cause the orient cycle to abort.
 
 * 'spindle.N.locked' (out bit)
@@ -269,10 +269,10 @@ Spindle orient complete pin. Cleared by any of M3,M4,M5.
 * 'M49' - disable both controls.
 
 These commands also take an optional $ parameter to determine which
-spindle they operate on. 
+spindle they operate on.
 
-It is OK to enable or disable the controls when 
-they are already enabled or disabled. 
+It is OK to enable or disable the controls when
+they are already enabled or disabled.
 See the <<sub:feed-rate,Feed Rate>> Section for more details.
 
 [[mcode:m50]]
@@ -280,9 +280,9 @@ See the <<sub:feed-rate,Feed Rate>> Section for more details.
 (((M50 Feed Override Control)))
 
 * 'M50 <P1>' - enable the feed rate override control. The P1
-               is optional. 
+               is optional.
 * 'M50 P0' - disable the feed rate control.
- 
+
 While disabled the feed override will have no influence,
 and the motion will be executed at programmed feed rate.
 (unless there is an adaptive feed rate override active).
@@ -292,7 +292,7 @@ and the motion will be executed at programmed feed rate.
 (((M51 Spindle Speed Override)))
 
 * 'M51 <P1> <$->'- enable the spindle speed override control for the
-                   selected spindle. The  P1 is optional. 
+                   selected spindle. The  P1 is optional.
 * 'M51 P0 <$->'  - disable the spindle speed override control program.
                    While disabled the spindle speed override will have
                    no influence, and the spindle speed will have the
@@ -305,7 +305,7 @@ and the motion will be executed at programmed feed rate.
 
 * 'M52 <P1>' - use an adaptive feed. The P1 is optional.
 * 'M52 P0' - stop using adaptive feed.
- 
+
 When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
 to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
@@ -337,7 +337,7 @@ cutters and wire spark eroders but it is not limited to such applications.
 * 'M61 Q-' - change the current tool number without a tool change. One use is
              when you power up LinuxCNC with a tool currently in the spindle,
              you can then set that tool number without doing a tool change.
-             M61 Q0 will set the spindle to the tool-unloaded state. 
+             M61 Q0 will set the spindle to the tool-unloaded state.
 
 [WARNING]
 The tool length offset is not changed by 'M61', use '<<gcode:g43,G43>>' after
@@ -377,7 +377,7 @@ command.
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion G code (G0, G1, etc) right after the M62/63.
+program a motion G-code (G0, G1, etc) right after the M62/63.
 
 M64 & M65 happen immediately as they are received by the motion
 controller. They are not synchronized with movement, and they will
@@ -450,12 +450,12 @@ M67 E- Q-
 The actual change of the specified outputs will happen at the
 beginning of the next motion command. If there is no subsequent motion
 command, the queued output changes won't happen. It's best to always
-program a motion G code (G0, G1, etc) right after the M67. M67 functions
+program a motion G-code (G0, G1, etc) right after the M67. M67 functions
 the same as M62-63.
 
 The number of I/O can be increased by using the num_dio or num_aio parameter
 when loading the motion controller. See the <<sec:motion,Motion Section>> for
-more information. 
+more information.
 
 [NOTE]
 M67 will not function unless the appropriate motion.analog-out-nn pins are
@@ -712,9 +712,9 @@ of the new file, otherwise you will get an 'Unknown m code' error.
 
 The external program named 'M100' through 'M199' (no extension and a capitol M)
 is executed with the optional P and Q values as its two arguments.
-Execution of the G code file pauses until the external program exits.
+Execution of the G-code file pauses until the external program exits.
 Any valid executable file can be used. The file must be located in the search
-path specified in the ini file configuration. See the 
+path specified in the ini file configuration. See the
 <<sec:display-section,Display Section>> for more information on search paths.
 
 [WARNING]
@@ -723,7 +723,7 @@ will leave unseen codes that will cause problems and may prevent a bash or
 python file from working. Use a text editor like Gedit in Ubuntu or Notepad++
 in other operating systems to create or edit the files.
 
-The error 'Unknown M code used' denotes one of the following
+The error 'Unknown M-code used' denotes one of the following
 
 * The specified User Defined Command does not exist
 * The file is not an executable file
@@ -780,7 +780,7 @@ eog /home/john/linuxcnc/nc_files/message.png
 exit 0
 ----
 
-To display a graphic message and continue processing the G code file 
+To display a graphic message and continue processing the G-code file
 suffix an ampersand to the command.
 
 .M110 Example display and keep going

@@ -106,11 +106,11 @@ well in applications where a keyboard and mouse are the preferred methods of con
 
 image::../gui/images/gmoccapy_3_axis.png[align="center", alt="gmoccapy, a touch screen GUI based on Gscreen"]
 
-<<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides wizard-style programming of G code. NGCGUI may be
+<<cha:ngcgui,'NGCGUI'>>, a subroutine GUI that provides wizard-style programming of G-code. NGCGUI may be
 run as a standalone program or embedded into another GUI as a series of tabs. The following screen shot
 shows NGCGUI embedded into Axis:
 
-image::../gui/images/ngcgui.png[align="center", alt="NGCGUI, a subroutine GUI that provides wizard-style programming of G code"]
+image::../gui/images/ngcgui.png[align="center", alt="NGCGUI, a subroutine GUI that provides wizard-style programming of G-code"]
 
 == Virtual Control Panels
 

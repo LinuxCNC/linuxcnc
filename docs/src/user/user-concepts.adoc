@@ -12,10 +12,10 @@ before attempting to run a CNC machine with g code.
 === Trajectory Planning
 
 Trajectory planning, in general, is the means by which LinuxCNC follows the
-path specified by your G Code program, while still operating within the
+path specified by your G-code program, while still operating within the
 limits of your machinery.
 
-A G Code program can never be fully obeyed. For example, imagine you
+A G-code program can never be fully obeyed. For example, imagine you
 specify as a single-line program the following move:
 
 ----
@@ -26,7 +26,7 @@ In reality, the whole move can't be made at F10, since the machine
 must accelerate from a stop, move toward X=1, and then decelerate to
 stop again. Sometimes part of the move is done at F10, but for many
 moves, especially short ones, the specified feed rate is never reached
-at all. Having short moves in your G Code can cause your machine to
+at all. Having short moves in your G-code can cause your machine to
 slow down and speed up for the longer moves if the 'naive cam detector'
 is not employed with G64 Pn.
 
@@ -41,7 +41,7 @@ For more information on the Trajectory Panner ini options see the
 === Path Following
 
 A less straightforward problem is that of path following. When you
-program a corner in G Code, the trajectory planner can do several
+program a corner in G-code, the trajectory planner can do several
 things, all of which are right in some cases: it can decelerate to a
 stop exactly at the coordinates of the corner, and then accelerate in
 the new direction. It can also do what is called blending, which is to
@@ -63,10 +63,10 @@ The trajectory control commands are as follows:
 
 * 'G61' - (Exact Path Mode) visits the programmed point exactly, even though
     that means it might temporarily come to a complete stop in order to
-    change direction to the next programmed point. 
+    change direction to the next programmed point.
 
 * 'G61.1' - (Exact Stop Mode) tells the planner to come to an exact stop at every
-    segment's end. 
+    segment's end.
 
 * 'G64' - (Blend Without Tolerance Mode) G64 is the default setting when you
     start LinuxCNC. G64 is just blending and the naive cam detector is not
@@ -90,8 +90,8 @@ The trajectory control commands are as follows:
     following compromise. The blend tolerance can be changed throughout the
     program as necessary. Beware that a specification of G64 P0 has the
     same effect as G64 alone (above), which is necessary for backward
-    compatibility for old G Code programs. See the <<gcode:g64,G64 section>>
-    of the G code chapter.
+    compatibility for old G-code programs. See the <<gcode:g64,G64 section>>
+    of the G-code chapter.
 
 * 'Blending without tolerance' - The controlled point will touch each specified
     movement at at least one point. The machine will never move at such a speed
@@ -115,7 +115,7 @@ The trajectory control commands are as follows:
     those lines are then subject to the naive cam algorithm for lines.
     Thus, line-arc, arc-arc, and arc-line cases as well as line-line
     benefit from the 'naive cam detector'. This improves contouring
-    performance by simplifying the path. 
+    performance by simplifying the path.
 
 In the following figure the blue line represents the actual machine
 velocity. The red lines are the acceleration capability of the machine.
@@ -150,18 +150,18 @@ ini file acceleration
 
 To keep up the feed rate, the move must be longer than the distance it
 takes to accelerate from 0 to the desired feed rate and then stop
-again. Using A as *1/2* the ini file MAX_ACCELERATION 
-and F as the feed rate *in units per second*, the acceleration time is 
-*t~a~ = F/A* and the acceleration distance is 
-*d~a~ = F*t~a~/2*. The deceleration time 
-and distance are the same, making the critical distance 
-*d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*. 
+again. Using A as *1/2* the ini file MAX_ACCELERATION
+and F as the feed rate *in units per second*, the acceleration time is
+*t~a~ = F/A* and the acceleration distance is
+*d~a~ = F*t~a~/2*. The deceleration time
+and distance are the same, making the critical distance
+*d = d~a~ + d~d~ = 2 * d~a~ = F^2^/A*.
 
 For example, for a feed rate of 1 inch per second and an acceleration of
-*10 inches/sec^2^*, the critical distance is 
+*10 inches/sec^2^*, the critical distance is
 *1^2^/10 = 1/10 = 0.1 inches*.
 
-For a feed rate of 0.5 inch per second, the critical distance is 
+For a feed rate of 0.5 inch per second, the critical distance is
 *5^2^/100 = 25/100 = 0.025* inches.
 
 ////
@@ -169,27 +169,27 @@ This section has been commented out until latexmath is working again.
 
 To keep up the feed rate, the move must be longer than the distance it
 takes to accelerate from 0 to the desired feed rate and then stop
-again. Using A as latexmath:[$\frac{1}{2}$] the ini file MAX_ACCELERATION 
-and F as the feed rate *in units per second*, the acceleration time is 
-latexmath:[$ ta = \frac{F}{A} $] and the acceleration distance is 
-latexmath:[$ da = \frac{1}{2} \times F \times ta $]. The deceleration time 
-and distance are the same, making the critical distance 
-latexmath:[$ d = da + dd = 2 \times da = \frac{F^{2}}{A} $]. 
+again. Using A as latexmath:[$\frac{1}{2}$] the ini file MAX_ACCELERATION
+and F as the feed rate *in units per second*, the acceleration time is
+latexmath:[$ ta = \frac{F}{A} $] and the acceleration distance is
+latexmath:[$ da = \frac{1}{2} \times F \times ta $]. The deceleration time
+and distance are the same, making the critical distance
+latexmath:[$ d = da + dd = 2 \times da = \frac{F^{2}}{A} $].
 
-For example, for a feed rate of 1 inch per second and an acceleration of 
-latexmath:[$ 10 \frac{inch}{sec^{2}} $], the critical distance is 
-latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch. 
-For a feed rate of 0.5 inch per second, the critical distance is 
+For example, for a feed rate of 1 inch per second and an acceleration of
+latexmath:[$ 10 \frac{inch}{sec^{2}} $], the critical distance is
+latexmath:[$\frac{1^{2}}{10} = \frac{1}{10} = 0.1$] inch.
+For a feed rate of 0.5 inch per second, the critical distance is
 latexmath:[$ \frac{0.5^{2}}{10} = \frac{0.25}{10} = 0.025$] inch.
 ////
 
-== G Code
+== G-Code
 
 === Defaults
 
-When LinuxCNC first starts up many G and M codes are loaded by default. The
-current active G and M codes can be viewed on the MDI tab in the
-'Active G-Codes:' window in the AXIS interface. These G and M codes
+When LinuxCNC first starts up many G- and M-codes are loaded by default. The
+current active G- and M-codes can be viewed on the MDI tab in the
+'Active G-Codes:' window in the AXIS interface. These G- and M-codes
 define the behavior of LinuxCNC and it is important that you understand what
 each one does before running LinuxCNC. The defaults can be changed when
 running a G-Code file and left in a different state than when you
@@ -212,14 +212,14 @@ somewhere along each programmed move without gouging the two adjacent
 moves. If that is not possible with the current tool diameter you will
 get an error. A smaller diameter tool may run without an error on the
 same path. This means you can program a cutter to pass down a path that
-is narrower than the cutter without any errors. See the 
+is narrower than the cutter without any errors. See the
 <<sec:cutter-compensation,Cutter Compensation>> Section
 for more information.
 
 == Homing
 
 After starting LinuxCNC each axis must be homed prior to running a program
-or running a MDI command. 
+or running a MDI command.
 
 If your machine does not have home switches a match mark on each axis
 can aid in homing the machine coordinates to the same place each time.
@@ -236,7 +236,7 @@ found in the Integrator Manual.
 There are several options when doing manual tool changes. See the
 <<sec:emcio-section,[EMCIO] section>> for information on configuration
 of these options. Also see the <<gcode:g28-g28.1,G28>> and <<gcode:g30-g30.1,G30>>
-section of the G code chapter.
+section of the G-code chapter.
 
 == Coordinate Systems
 
@@ -251,7 +251,7 @@ manual.
 When you home LinuxCNC you set the G53 Machine Coordinate System to 0 for
 each axis homed.
 
- - No other coordinate systems or tool offsets are changed by homing. 
+ - No other coordinate systems or tool offsets are changed by homing.
 
 The only time you move in the G53 machine coordinate system is when
 you program a G53 on the same line as a move. Normally you are in the
@@ -264,7 +264,7 @@ current user coordinate system a small blue ball with lines will be at the
 <<sec.machine-coordinate-system, machine origin>> when your DRO is displaying
 'Position: Relative Actual' in Axis. If your offsets are temporary use the Zero
 Coordinate System from the Machine menu or program 'G10 L2 P1 X0 Y0 Z0'
-at the end of your G Code file. Change the 'P' number to suit the
+at the end of your G-code file. Change the 'P' number to suit the
 coordinate system you wish to clear the offset in.
 
  -  Offsets stored in a user coordinate system are retained when LinuxCNC is
@@ -281,7 +281,7 @@ them.
  - Move to the Machine origin with G53 G0 X0 Y0 Z0
  - Clear any G92 offset with G92.1
  - Use the G54 coordinate system with G54
- - Set the G54 coordinate system to be the same as the 
+ - Set the G54 coordinate system to be the same as the
    machine coordinate system with G10 L2 P1 X0 Y0 Z0 R0
  - Turn off tool offsets with G49
  - Turn on the Relative Coordinate Display from the menu

@@ -57,7 +57,7 @@ Depends: ${misc:Depends},
 Section: devel
 Description: PC based motion controller for real-time Linux
  LinuxCNC is a fully-realised CNC machine controller that can interpret
- machine-control programs (such as G code), plan trajectories and finally
+ machine-control programs (such as G-code), plan trajectories and finally
  output low-level signals to machine control hardware
  .
  LinuxCNC is modular and in principle the HAL (hardware abstraction layer),

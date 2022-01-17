@@ -58,11 +58,11 @@ uname -r
 ----
 
 If you see (as above) `-rt-` in the kernel name then you are running the
-preempt-rt kernel and should install the "uspace" version of linuxcnc.
+preempt-rt kernel and should install the "uspace" version of LinuxCNC.
 You should also install uspace for "sim" configs on non-realtime kernels
 
 If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the linuxcnc version to install.
+realtime. See below for the LinuxCNC version to install.
 
 
 [[_setting_apt_sources]]
@@ -1259,7 +1259,7 @@ The master branch is version-tagged with prerelease notation, typically
 2.9 changed to Python3 and GTK3. This only affects you if you have custom glade or python handlers in your config.
 
 . run py3clean in your config directory to remove any temporary files.
-. run py3clean in your linuxcnc source directory if you compile from source
+. run py3clean in your LinuxCNC source directory if you compile from source
 . run 2to3 -w on any .py files you have written
 . make sure the interpreter in the first line of the script is python3, not python2
 . open the ui file in glade, and save it. It should convert everything that can be converted automatically, and give you warnings.

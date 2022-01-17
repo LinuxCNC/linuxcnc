@@ -411,7 +411,7 @@ class emc_status:
                 self.data["%s_abs"% letter] = p[count]
                 self.data["%s_rel"% letter] = relp[count]
                 self.data["%s_dtg"% letter] = dtg[count]
-            # active G codes
+            # active G-codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.gcodes[1:]):
                 if i == -1: continue
@@ -426,7 +426,7 @@ class emc_status:
                 if i == '95': ipr = True
             self.data.IPR_mode = ipr
             self.data.active_gcodes = active_codes
-            # M codes
+            # M-codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.mcodes[1:]):
                 if i == -1: continue

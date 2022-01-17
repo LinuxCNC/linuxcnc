@@ -1,7 +1,7 @@
 <docs>
 
 <docgroup lang="en" index="index.html">
-<doc name="html_gcode" title="G Code quick reference">
+<doc name="html_gcode" title="G-code quick reference">
 
 <doc name="common_emc2-intro" title="Overleaf Image"/>
 <doc name="common_overleaf" title="Overleaf Text"/>
@@ -101,7 +101,7 @@
 </docgroup>
 
 <docgroup lang="es" index="index_es.html">
-<doc name="html_gcode_es" title="Référence G Code, aide rapide"/>
+<doc name="html_gcode_es" title="Référence G-code, aide rapide"/>
 
 <doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
 <doc name="common/System_Requirements_es.html" title="Configuration requise"/>
@@ -198,7 +198,7 @@
 </docgroup>
 
 <docgroup lang="fr" index="index_fr.html">
-<doc name="html_gcode_fr" title="R&eacute;f&eacute;rence du G Code, aide rapide"/>
+<doc name="html_gcode_fr" title="R&eacute;f&eacute;rence du G-code, aide rapide"/>
 
 <doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/System_Requirements_fr.html" title="Configuration requise"/>

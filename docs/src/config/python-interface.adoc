@@ -197,7 +197,7 @@ pose of the current g92 offset.
 
 *gcodes*:: '(returns tuple of integers)' -
 Active G-codes for each modal group.
-G code constants
+G-code constants
 G_0, G_1, G_2, G_3, G_4, G_5, G_5_1, G_5_2, G_5_3, G_7, G_8, G_100, G_17,
 G_17_1, G_18, G_18_1, G_19, G_19_1, G_20, G_21, G_28, G_28_1, G_30, G_30_1,
 G_33, G_33_1, G_38_2, G_38_3, G_38_4, G_38_5, G_40, G_41, G_41_1, G_42, G_42_1,

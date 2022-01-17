@@ -7,7 +7,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
@@ -53,11 +53,11 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g81(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                  
-                              double x,  //!< x-value where cycle is executed 
-                              double y,  //!< y-value where cycle is executed 
-                              double clear_z,    //!< z-value of clearance plane      
-                              double bottom_z)   //!< value of z at bottom of cycle   
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z)   //!< value of z at bottom of cycle
 {
     cycle_feed(block, plane, x, y, bottom_z);
     cycle_traverse(block, plane, x, y, clear_z);
@@ -91,12 +91,12 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g82(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                  
-                              double x,  //!< x-value where cycle is executed 
-                              double y,  //!< y-value where cycle is executed 
-                              double clear_z,    //!< z-value of clearance plane      
-                              double bottom_z,   //!< value of z at bottom of cycle   
-                              double dwell)      //!< dwell time                      
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z,   //!< value of z at bottom of cycle
+                              double dwell)      //!< dwell time
 {
   cycle_feed(block, plane, x, y, bottom_z);
   DWELL(dwell);
@@ -138,13 +138,13 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g83(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                  
-                              double x,  //!< x-value where cycle is executed 
-                              double y,  //!< y-value where cycle is executed 
-                              double r,  //!< initial z-value                 
-                              double clear_z,    //!< z-value of clearance plane      
-                              double bottom_z,   //!< value of z at bottom of cycle   
-                              double delta)      //!< size of z-axis feed increment   
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double r,  //!< initial z-value
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z,   //!< value of z at bottom of cycle
+                              double delta)      //!< size of z-axis feed increment
 {
   double current_depth;
   double rapid_delta;
@@ -202,13 +202,13 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g73(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                  
-                              double x,  //!< x-value where cycle is executed 
-                              double y,  //!< y-value where cycle is executed 
-                              double r,  //!< initial z-value                 
-                              double clear_z,    //!< z-value of clearance plane      
-                              double bottom_z,   //!< value of z at bottom of cycle   
-                              double delta)      //!< size of z-axis feed increment   
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double r,  //!< initial z-value
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z,   //!< value of z at bottom of cycle
+                              double delta)      //!< size of z-axis feed increment
 {
   double current_depth;
   double rapid_delta;
@@ -408,12 +408,12 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g85(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                  
-                              double x,  //!< x-value where cycle is executed 
-                              double y,  //!< y-value where cycle is executed 
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
                               double r,  // retract plane
-                              double clear_z,    //!< z-value of clearance plane      
-                              double bottom_z)   //!< value of z at bottom of cycle   
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z)   //!< value of z at bottom of cycle
 {
   cycle_feed(block, plane, x, y, bottom_z);
   cycle_feed(block, plane, x, y, r);
@@ -454,11 +454,11 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g86(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                     
-                              double x,  //!< x-value where cycle is executed    
-                              double y,  //!< y-value where cycle is executed    
-                              double clear_z,    //!< z-value of clearance plane         
-                              double bottom_z,   //!< value of z at bottom of cycle      
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z,   //!< value of z at bottom of cycle
                               double dwell,      //!< dwell time
                               CANON_DIRECTION direction, //!< direction spindle turning at outset
                               int spindle)       // the spindle being used
@@ -539,15 +539,15 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g87(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                     
-                              double x,  //!< x-value where cycle is executed    
-                              double offset_x,   //!< x-axis offset position             
-                              double y,  //!< y-value where cycle is executed    
-                              double offset_y,   //!< y-axis offset position             
-                              double r,  //!< z_value of r_plane                 
-                              double clear_z,    //!< z-value of clearance plane         
-                              double middle_z,   //!< z-value of top of back bore        
-                              double bottom_z,   //!< value of z at bottom of cycle      
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double offset_x,   //!< x-axis offset position
+                              double y,  //!< y-value where cycle is executed
+                              double offset_y,   //!< y-axis offset position
+                              double r,  //!< z_value of r_plane
+                              double clear_z,    //!< z-value of clearance plane
+                              double middle_z,   //!< z-value of top of back bore
+                              double bottom_z,   //!< value of z at bottom of cycle
                               CANON_DIRECTION direction, //!< direction spindle turning at outset
                               int spindle)       // the spindle being used
 {
@@ -610,11 +610,11 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g88(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                     
-                              double x,  //!< x-value where cycle is executed    
-                              double y,  //!< y-value where cycle is executed    
-                              double bottom_z,   //!< value of z at bottom of cycle      
-                              double dwell,      //!< dwell time                         
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double bottom_z,   //!< value of z at bottom of cycle
+                              double dwell,      //!< dwell time
                               CANON_DIRECTION direction, //!< direction spindle turning at outset
                               int spindle)       // the spindle being used
 {
@@ -659,12 +659,12 @@ For the XZ and YZ planes, this makes analogous motions.
 */
 
 int Interp::convert_cycle_g89(block_pointer block,
-                              CANON_PLANE plane, //!< selected plane                  
-                              double x,  //!< x-value where cycle is executed 
-                              double y,  //!< y-value where cycle is executed 
-                              double clear_z,    //!< z-value of clearance plane      
-                              double bottom_z,   //!< value of z at bottom of cycle   
-                              double dwell)      //!< dwell time                      
+                              CANON_PLANE plane, //!< selected plane
+                              double x,  //!< x-value where cycle is executed
+                              double y,  //!< y-value where cycle is executed
+                              double clear_z,    //!< z-value of clearance plane
+                              double bottom_z,   //!< value of z at bottom of cycle
+                              double dwell)      //!< dwell time
 {
   cycle_feed(block, plane, x, y, bottom_z);
   DWELL(dwell);
@@ -716,8 +716,8 @@ See the documentation of convert_cycle_xy for most of the details.
 */
 
 int Interp::convert_cycle(int motion,    //!< a g-code between G_81 and G_89, a canned cycle
-                         block_pointer block,   //!< pointer to a block of RS274 instructions      
-                         setup_pointer settings)        //!< pointer to machine settings                   
+                         block_pointer block,   //!< pointer to a block of RS274 instructions
+                         setup_pointer settings)        //!< pointer to machine settings
 {
   CANON_PLANE plane;
 
@@ -818,7 +818,7 @@ Returned Value: int
       NCE_I_WORD_MISSING_WITH_G87
       NCE_J_WORD_MISSING_WITH_G87
       NCE_K_WORD_MISSING_WITH_G87
-   7. the G code is not between G_81 and G_89.
+   7. the G-code is not between G_81 and G_89.
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
 
 Side effects:
@@ -894,8 +894,8 @@ The rotary axes may not move during a canned cycle.
 */
 
 int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a canned cycle
-                            block_pointer block,        //!< pointer to a block of RS274 instructions      
-                            setup_pointer settings)     //!< pointer to machine settings                   
+                            block_pointer block,        //!< pointer to a block of RS274 instructions
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   double aa;
   double aa_increment=0.;
@@ -968,7 +968,7 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
   // rapid straight up to the R plane.
   if (old_cc < r) {
     STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, r,
-                      settings->AA_current, settings->BB_current, settings->CC_current, 
+                      settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, settings->w_current);
     old_cc = r;
     current_cc = old_cc;
@@ -1102,8 +1102,8 @@ int Interp::convert_cycle_xy(int motion, //!< a g-code between G_81 and G_89, a 
 
 
 int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a canned cycle
-                            block_pointer block,        //!< pointer to a block of RS274 instructions      
-                            setup_pointer settings)     //!< pointer to machine settings                   
+                            block_pointer block,        //!< pointer to a block of RS274 instructions
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   int spindle = settings->active_spindle;
   double aa;
@@ -1159,7 +1159,7 @@ int Interp::convert_cycle_uv(int motion, //!< a g-code between G_81 and G_89, a 
 
   if (old_cc < r) {
     STRAIGHT_TRAVERSE(block->line_number, settings->current_x, settings->current_y, settings->current_z,
-                      settings->AA_current, settings->BB_current, settings->CC_current, 
+                      settings->AA_current, settings->BB_current, settings->CC_current,
                       settings->u_current, settings->v_current, r);
     old_cc = r;
     current_cc = old_cc;
@@ -1317,7 +1317,7 @@ Returned Value: int
       NCE_I_WORD_MISSING_WITH_G87
       NCE_J_WORD_MISSING_WITH_G87
       NCE_K_WORD_MISSING_WITH_G87
-   7. the G code is not between G_81 and G_89.
+   7. the G-code is not between G_81 and G_89.
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
 
 Side effects:
@@ -1338,8 +1338,8 @@ turned off, and the NC code written to take tool length into account.
 */
 
 int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a canned cycle
-                            block_pointer block,        //!< pointer to a block of RS274/NGC instructions  
-                            setup_pointer settings)     //!< pointer to machine settings                   
+                            block_pointer block,        //!< pointer to a block of RS274/NGC instructions
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   int spindle = settings->active_spindle;
   double aa;
@@ -1527,8 +1527,8 @@ int Interp::convert_cycle_yz(int motion, //!< a g-code between G_81 and G_89, a 
 
 
 int Interp::convert_cycle_vw(int motion, //!< a g-code between G_81 and G_89, a canned cycle
-                            block_pointer block,        //!< pointer to a block of RS274/NGC instructions  
-                            setup_pointer settings)     //!< pointer to machine settings                   
+                            block_pointer block,        //!< pointer to a block of RS274/NGC instructions
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   double aa;
   double aa_increment=0.;
@@ -1743,7 +1743,7 @@ Returned Value: int
       NCE_I_WORD_MISSING_WITH_G87
       NCE_J_WORD_MISSING_WITH_G87
       NCE_K_WORD_MISSING_WITH_G87
-   7. the G code is not between G_81 and G_89.
+   7. the G-code is not between G_81 and G_89.
       NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED
 
 Side effects:
@@ -1772,8 +1772,8 @@ CANON_PLANE_XZ.
 */
 
 int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a canned cycle
-                            block_pointer block,        //!< pointer to a block of RS274 instructions      
-                            setup_pointer settings)     //!< pointer to machine settings                   
+                            block_pointer block,        //!< pointer to a block of RS274 instructions
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   double aa;
   double aa_increment=0.;
@@ -1959,8 +1959,8 @@ int Interp::convert_cycle_zx(int motion, //!< a g-code between G_81 and G_89, a 
 }
 
 int Interp::convert_cycle_wu(int motion, //!< a g-code between G_81 and G_89, a canned cycle
-                            block_pointer block,        //!< pointer to a block of RS274 instructions      
-                            setup_pointer settings)     //!< pointer to machine settings                   
+                            block_pointer block,        //!< pointer to a block of RS274 instructions
+                            setup_pointer settings)     //!< pointer to machine settings
 {
   double aa;
   double aa_increment=0.;
@@ -2185,10 +2185,10 @@ respect to the given plane. No rotary axis motion takes place.
 */
 
 int Interp::cycle_feed(block_pointer block,
-                       CANON_PLANE plane,        //!< currently selected plane  
-                       double end1,      //!< first coordinate value    
-                       double end2,      //!< second coordinate value   
-                       double end3)      //!< third coordinate value    
+                       CANON_PLANE plane,        //!< currently selected plane
+                       double end1,      //!< first coordinate value
+                       double end2,      //!< second coordinate value
+                       double end3)      //!< third coordinate value
 {
     if (plane == CANON_PLANE_XY)
         STRAIGHT_FEED(block->line_number, end1, end2, end3,
@@ -2243,10 +2243,10 @@ move with respect to the given plane. No rotary axis motion takes place.
 */
 
 int Interp::cycle_traverse(block_pointer block,
-                           CANON_PLANE plane,    //!< currently selected plane 
-                           double end1,  //!< first coordinate value   
-                           double end2,  //!< second coordinate value  
-                           double end3)  //!< third coordinate value   
+                           CANON_PLANE plane,    //!< currently selected plane
+                           double end1,  //!< first coordinate value
+                           double end2,  //!< second coordinate value
+                           double end3)  //!< third coordinate value
 {
 
     if (plane == CANON_PLANE_XY)
