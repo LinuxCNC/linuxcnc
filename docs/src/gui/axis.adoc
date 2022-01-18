@@ -40,7 +40,7 @@ CYCLE_TIME = 100
  . Start LinuxCNC.
  . Reset E-STOP (F1) and turn the Machine Power (F2) on.
  . Home all axes.
- . Load the g-code file.
+ . Load the G-code file.
  . Use the preview plot to verify that the program is correct.
  . Load the material.
  . Set the proper offset for each axis by jogging and using the Touch
@@ -637,7 +637,7 @@ image::images/axis-mdi.png[align="center", alt="MDI tab"]
 
 * 'History' - This shows MDI commands that have been typed earlier in this session.
 
-* 'MDI Command' - This allows you to enter a g-code command to be executed. Execute the
+* 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
     command by pressing Enter or by clicking 'Go'.
 
 * 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
@@ -906,8 +906,8 @@ py = python
 ----
 
 In this way, any Python script can be opened, and its output is
-treated as g-code. One such example script is available at
-'nc_files/holecircle.py'. This script creates g-code for drilling a
+treated as G-code. One such example script is available at
+'nc_files/holecircle.py'. This script creates G-code for drilling a
 series of holes along the circumference of a circle.
 
 .Circular Holes
@@ -1034,7 +1034,7 @@ being first. Anything after a (AXIS,stop) will not be drawn during the
 preview.
 
 These comments are useful to unclutter the preview display (for
-instance while debugging a larger g-code file, one can disable the
+instance while debugging a larger G-code file, one can disable the
 preview on certain parts that are already working OK).
 
  - (AXIS,hide) Stops the preview (must be first)

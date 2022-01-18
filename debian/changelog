@@ -580,7 +580,7 @@ linuxcnc (1:2.7.9) unstable; urgency=medium
   * Interp: fix a typo in a cutter-comp error message
   * Task: set the stat struct member queuedMDIcommands
 
-  * example g-code: fix Z value reported by rectangle_probe.ngc
+  * example G-code: fix Z value reported by rectangle_probe.ngc
   * example configs: fix hal pin names in gmoccapy_plasma
   * example configs: limit led without off color in gmoccapy_plasma
   * example configs: xhc-hb04.tcl: if prior connects, continue with msg
@@ -736,7 +736,7 @@ linuxcnc (1:2.7.5) unstable; urgency=medium
   * docs: add info to pncconfig docs about editing a config
   * hm2_eth manpage: note the irq-coalesce trick
   * hal_input manpage: don't try to document udev rules syntax
-  * linuxcncrsh manpage: remove wrong info about open g-code files
+  * linuxcncrsh manpage: remove wrong info about open G-code files
 
   * Axis GUI: fix File/Open on ini files with no [DISPLAY]PROGRAM_PREFIX
   * gmoccapy: small bug fixes (iconview and handlers)

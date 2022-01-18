@@ -97,7 +97,7 @@ zBypass = False
 convBlock = False
 filtered = False
 firstMove = False
-notice  = 'If the g-code editor is used to resolve the following issues, the lines with errors\n'
+notice  = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
 notice += 'will be highlighted. The line numbers may differ from what is shown below.\n\n'
 codeError = False
 errors  = 'The following errors will affect the process.\n'
@@ -774,7 +774,7 @@ get_materials()
 
 # start processing the gcode file
 with open(inFile, 'r') as inCode:
-    if ';qtplasmac filtered g-code file' in inCode.read():
+    if ';qtplasmac filtered G-code file' in inCode.read():
         filtered = True
     inCode.seek(0)
     for line in inCode:
@@ -782,7 +782,7 @@ with open(inFile, 'r') as inCode:
         lineNumOrg += 1
         # if original is already filtered there is no need to process the line
         if filtered:
-            if not ';qtplasmac filtered g-code file' in line:
+            if not ';qtplasmac filtered G-code file' in line:
                 gcodeList.append(line.rstrip())
             continue
         # remove whitespace and trailing periods
@@ -1195,10 +1195,10 @@ else:
     with open(errorFile, 'w') as errFile:
         pass
 
-# output the finalised g-code
+# output the finalised G-code
 with open(filteredBkp, 'w') as outFile:
     for line in gcodeList:
         print(line)
         outFile.write('{}\n'.format(line))
-    print(';qtplasmac filtered g-code file')
-    outFile.write(';qtplasmac filtered g-code file')
+    print(';qtplasmac filtered G-code file')
+    outFile.write(';qtplasmac filtered G-code file')

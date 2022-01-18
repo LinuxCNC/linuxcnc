@@ -5460,7 +5460,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_toggle_readout">
-                                            <property name="label" translatable="yes">toggle DRO mode 
+                                            <property name="label" translatable="yes">toggle DRO mode
 clicking on the DRO</property>
                                             <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
@@ -6918,7 +6918,7 @@ clicking on the DRO</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="label" translatable="yes">No valid configuration
 found in your INI file,
-please take a look at 
+please take a look at
 the WIKI to check how
 to configure the settings.</property>
                                                 <property name="wrap">True</property>
@@ -6975,7 +6975,7 @@ to configure the settings.</property>
                                                 <property name="tooltip_text" translatable="yes">If checked, the tool in spindle
 will be saved on each change
 and the last tool will be reloaded
-at start of the GUI. Also it's 
+at start of the GUI. Also it's
 length offset will be reloaded.
 </property>
                                                 <property name="active">True</property>
@@ -7564,7 +7564,7 @@ to test your settings.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch g-code commands
+                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch G-code commands
 [F5]</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
@@ -8720,7 +8720,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be executed only if it is active g-code</property>
+                    <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be executed only if it is active G-code</property>
                     <signal name="clicked" handler="on_btn_apply_tool_changes_clicked" swapped="no"/>
                   </object>
                   <packing>

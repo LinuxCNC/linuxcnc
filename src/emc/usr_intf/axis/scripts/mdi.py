@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-'''Manual Data Input - issue a single line of g-code to the running system
+'''Manual Data Input - issue a single line of G-code to the running system
 
 mdi.py may be specified on the commandline, e.g.,
         bin/mdi g0 x0

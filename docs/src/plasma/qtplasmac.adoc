@@ -2970,7 +2970,7 @@ The following code will allow the user to use a button to invert the current sta
 BUTTON_n_CODE = toggle-laser
 ----
 
-This code is also able to be used as a multiple command with g-code or external commands but may control only the alignment laser HAL bit pin.
+This code is also able to be used as a multiple command with G-code or external commands but may control only the alignment laser HAL bit pin.
 
 The button colors will follow the state of the alignment laser hal pin.
 

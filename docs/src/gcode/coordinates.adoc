@@ -148,7 +148,7 @@ orientation on the pallet.
 [CAUTION]
 
 As a temporary offset, set and unset within the localized scope of a
-part program, in other g-code interpreters 'G52' does not persist
+part program, in other G-code interpreters 'G52' does not persist
 after machine reset, 'M02' or 'M30'.  In LinuxCNC, 'G52' shares
 parameters with 'G92', which, for historical reasons, *does* persist
 these parameters.  See <<sec:g92-persistence-cautions,G92 Persistence

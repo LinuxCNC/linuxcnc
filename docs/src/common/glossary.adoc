@@ -284,7 +284,7 @@ Rapid rate::
      (((rapid rate)))The speed at which a rapid motion occurs.
     In auto or mdi mode, rapid rate is usually the maximum speed of the machine.
     It is often desirable to limit the rapid rate when
-    testing a g-code program for the first time.
+    testing a G-code program for the first time.
 
 Real-time::
     (((real-time))) Software that is intended to meet

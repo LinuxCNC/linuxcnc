@@ -458,7 +458,7 @@ class HandlerClass:
     ("", ""),
     ("O",("Open program")),
     (("Control-R"),("Reload program")),
-    (("Control-S"),("Save g-code as")),
+    (("Control-S"),("Save G-code as")),
     ("R",("Run program")),
     ("T",("Step program")),
     ("P",("Pause program")),

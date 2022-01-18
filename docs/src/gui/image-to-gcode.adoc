@@ -46,7 +46,7 @@ image-to-gcode option screen again, allowing you to tweak them.
 === Units
 
 Specifies whether to use G20 (inches) or G21 (mm) in the generated
-g-code and as the units for each option labeled '(units)'.
+G-code and as the units for each option labeled '(units)'.
 
 === Invert Image
 

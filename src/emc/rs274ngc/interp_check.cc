@@ -48,7 +48,7 @@ Currently, all checks are on g_codes in modal group 0.
 
 The read_g function checks for errors which would foul up the reading.
 The enhance_block function checks for logical errors in the use of
-axis values by g-codes in modal groups 0 and 1.
+axis values by G-codes in modal groups 0 and 1.
 This function checks for additional logical errors in g_codes.
 
 [Fanuc, page 45, note 4] says there is no maximum for how many g_codes

@@ -866,7 +866,7 @@ O<change> sub
 (debug, change: current_tool=#<current_tool>)
 (debug, change: selected_pocket=#<selected_pocket>)
 ;
-; insert any g-code which you see fit here, eg:
+; insert any G-code which you see fit here, eg:
 ; G0  #<_ini[setup]tc_x>  #<_ini[setup]tc_y>  #<_ini[setup]tc_z>
 ;
 O<change> endsub [1]

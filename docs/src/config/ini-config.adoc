@@ -62,7 +62,7 @@ The following sections are used by LinuxCNC:
 * '[<<sec:emc-section,EMC>>]' general information
 * '[<<sec:display-section,DISPLAY>>]' settings related to the graphical user interface
 * '[<<sec:filter-section,FILTER>>]' settings input filter programs
-* '[<<sec:rs274ngc-section,RS274NGC>>]' settings used by the g-code interpreter
+* '[<<sec:rs274ngc-section,RS274NGC>>]' settings used by the G-code interpreter
 * '[<<sec:emcmot-section,EMCMOT>>]' settings used by the real time motion controller
 * '[<<sec:task-section,TASK>>]' settings used by the task controller
 * '[<<sec:hal-section,HAL>>]' specifies .hal files
@@ -301,7 +301,7 @@ On multi spindle machine there will be entries for each spindle number. Qtvcp on
 On multi spindle machine there will be entries for each spindle number. Qtvcp only
 - deprecated - use the [SPINDLE_n] section instead
 
-* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for g-code
+* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for G-code
   files and the location for user-defined M-codes. This location is searched
   for the file name before the subroutine path and user M path if specified
   in the [RS274NGC] section.
@@ -458,7 +458,7 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 AXIS and gmoccapy have the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure
 the file ends with M2, or something as complicated as detecting whether
-the input is a depth image, and generating g-code to mill the shape it
+the input is a depth image, and generating G-code to mill the shape it
 defines. The [FILTER] section of the ini file controls how filters
 work. First, for each type of file, write a PROGRAM_EXTENSION line.
 Then, specify the program to execute for each type of file. This
@@ -496,9 +496,9 @@ It is also possible to specify an interpreter:
 ** 'py = python'
 
 In this way, any Python script can be opened, and its output is
-treated as g-code. One such example script is available at
-nc_files/holecircle.py. This script creates g-code for drilling a
-series of holes along the circumference of a circle. Many more g-code
+treated as G-code. One such example script is available at
+nc_files/holecircle.py. This script creates G-code for drilling a
+series of holes along the circumference of a circle. Many more G-code
 generators are on the LinuxCNC Wiki site
 http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org/].
 
@@ -567,8 +567,8 @@ if __name__ == "__main__":
 * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
     (((RS274NGC STARTUP CODE))) A string of NC codes that the interpreter
     is initialized with. This is not a substitute for specifying modal
-    g-codes at the top of each ngc file, because the modal codes of
-    machines differ, and may be changed by g-code interpreted earlier in
+    G-codes at the top of each ngc file, because the modal codes of
+    machines differ, and may be changed by G-code interpreted earlier in
     the session.
 
 * 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
@@ -952,7 +952,7 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'COORDINATES = X Y Z' - The names of the axes being controlled.
    Only X, Y, Z, A, B, C, U, V, W are valid. Only axes named in 'COORDINATES'
-   are accepted in g-code.  It is permitted to write an axis name more than
+   are accepted in G-code.  It is permitted to write an axis name more than
    once (e.g., X Y Y Z for a gantry machine).
    For the common 'trivkins kinematics', joint numbers are assigned in sequence
    according to the trivkins parameter 'coordinates='.  So, for trivkins

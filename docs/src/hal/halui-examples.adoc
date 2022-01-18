@@ -73,7 +73,7 @@ LinuxCNC that it should resume executing G-code.
 Difficulties in timing
 
  - The "resume" input return signal should not be
-   longer than the time required to get the g-code
+   longer than the time required to get the G-code
    running again.
 
  - The "is-paused" output should no longer be active
