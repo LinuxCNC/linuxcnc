@@ -574,7 +574,7 @@ if __name__ == "__main__":
 * 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
     (((SUBROUTINE PATH))) Specifies a colon (:) separated list of up to 10
     directories to be searched when single-file subroutines are specified
-    in gcode. These directories are searched after searching
+    in G-code. These directories are searched after searching
     [DISPLAY]PROGRAM_PREFIX (if it is specified) and before searching
     [WIZARD]WIZARD_ROOT (if specified). The paths are searched in the order
     that they are listed. The first matching subroutine file
@@ -676,7 +676,7 @@ Section.
 * 'TASK = milltask' -
     Specifies the name of the 'task' executable. The 'task' executable does various
     things, such as communicate with the UIs over NML, communicate with the
-    realtime motion planner over non-HAL shared memory, and interpret gcode.
+    realtime motion planner over non-HAL shared memory, and interpret G-code.
     Currently there is only one task executable that makes sense for
     99.9% of users, milltask.
 
@@ -1219,13 +1219,13 @@ specified.
 The [JOINT_N]MIN_LIMIT, MAX_LIMIT settings are enforced while jogging in joint
 mode prior to homing.  After homing, [AXIS_L]MIN_LIMIT,MAX_LIMIT coordinate
 limits are used as constraints for axis (coordinate letter) jogging and
-by the trajectory planning used for gcode moves (programs and mdi commands).
+by the trajectory planning used for G-code moves (programs and mdi commands).
 The trajectory planner works in Cartesian space (XYZABCUVW) and has no
 information about the motion of joints implemented by *any* kinematics module.
-It is possible for joint limit violations to occur for gcode that obeys
+It is possible for joint limit violations to occur for G-code that obeys
 trajectory planning position limits when non identity kinematics are used.  The
 motion module always detects joint position limit violations and faults if they
-occur during the execution of gcode commands.  See also related github issue
+occur during the execution of G-code commands.  See also related github issue
 #97.
 
 * 'MIN_FERROR = 0.010' - (((MIN FERROR))) This is the value in machine units by

@@ -157,7 +157,7 @@ REMAP=M6 python=ignore_m6
 [PYTHON]
 # where to find the Python code:
 
-# code specific for this configuration  
+# code specific for this configuration
 PATH_PREPEND=./
 
 # generic support code - make sure this actually points to python-stdglue
@@ -239,12 +239,12 @@ the reference section.
 
 === Execution sequencing
 
-Executable G-code words are classified into <<gcode:modal-groups,modal
-groups>>, which also defines their relative execution behavior.
+Executable G-code words are classified into <<gcode:modal-groups,modal groups>>,
+which also defines their relative execution behavior.
 
 If a  G-code block  contains several executable words on a line, these
-words are executed in a predefined <<gcode:order-of-execution, order of
-execution>>, not in the order they appear in block.
+words are executed in a predefined <<gcode:order-of-execution,order of execution>>,
+not in the order they appear in block.
 
 When you define a new executable code, the interpreter does not yet
 know where your code fits into this scheme. For this
@@ -272,7 +272,7 @@ In a nutshell, this means:
 
 - when an `M400` code is encountered, execute `myprocedure.ngc`  along
 the other <<gcode:modal-groups,modal group>> 10 M-codes as per
-<<gcode:order-of-execution, order of execution>>.
+<<gcode:order-of-execution,order of execution>>.
 
 - the value of `P`, and `Q` are available in the procedure as local
    named parameters. The may be referred to  as `#<P>` and `#<Q>`. The
@@ -641,7 +641,7 @@ The minimal prerequisites for using `REMAP` statements are as follows:
  this case Python also needs to find `stdglue.py` - we just copy it
  from the distribution so you can make local changes as
  needed. Depending on your installation the path to `stdglue.py` might
- vary. 
+ vary.
 
 Assuming your configuration lives under `/home/user/xxx` and the ini
 file is `/home/user/xxx/xxx.ini`, execute the following commands.
@@ -684,7 +684,7 @@ works>> section (dire but necessary).
 
 Note than when remapping an existing code, we completely disable
 <<remap:interpreter-action-on-m6,this codes' built in functionality>>
-of the interpreter. 
+of the interpreter.
 
 So our remapped code will need to do a bit more
 than just generating some commands to move the machine as we like - it
@@ -702,7 +702,7 @@ Decisions, decisions:
 - Is the iocontrol HAL sequence (tool-prepare/tool-prepared and
  tool-change/tool-changed pins) good enough or do we need a different kind
  of HAL interaction for our tool changer (for example: more HAL pins
- involved with a  different interaction sequence)? 
+ involved with a  different interaction sequence)?
 
 Depending on the answer, we have four different scenarios:
 
@@ -751,7 +751,7 @@ What you need to decide is whether the existing iocontrol HAL sequences
 are sufficient to drive your changer. Maybe you need a different
 interaction sequence - for instance more HAL  pins, or maybe a more
 complex interaction. Depending on the answer, we might continue to use the existing
-iocontrol HAL sequences, or define our own ones. 
+iocontrol HAL sequences, or define our own ones.
 
 For the sake of documentation, we'll disable these  iocontrol
 sequences, and roll our own - the result will look and feel like the
@@ -773,14 +773,14 @@ Iocontrol pin correspondence in the examples
 [frame="topbot",grid="none"]
 [options="header"]
 |======
-iocontrol.0 pin  ,motion pin     
-tool-prepare,digital-out-00 
-tool-prepared,digital-in-00  
-tool-change,digital-out-01 
-tool-changed,digital-in-01  
-tool-prep-number,analog-out-00  
-tool-prep-pocket,analog-out-01  
-tool-number,analog-out-02  
+iocontrol.0 pin  ,motion pin
+tool-prepare,digital-out-00
+tool-prepared,digital-in-00
+tool-change,digital-out-01
+tool-changed,digital-in-01
+tool-prep-number,analog-out-00
+tool-prep-pocket,analog-out-01
+tool-number,analog-out-02
 |======
 
 Let us assume you want to redefine the M6 command, and replace it by
@@ -827,7 +827,7 @@ changed there, or used in a message. Those are: `tool_in_spindle`,
 The legacy names *selected_pocket* and *current_pocket* actually reference
 a sequential tooldata index for tool items loaded from a tool
 table ([EMCIO]TOOL_TABLE) or via a tooldata database ([EMCIO]DB_PROGRAM)
- 
+
 
 [source,python]
 ---------------------------------------------------------------------
@@ -934,7 +934,7 @@ The standard prologs and epilogs found in
 parameters' to the remap procedure.
 
 An 'exposed parameter' is a named local variable visible in a remap
-procedure which corresponds to interpreter-internal variable which 
+procedure which corresponds to interpreter-internal variable which
 is relevant for the current remap. Exposed parameters
 are set up in the respective prolog, and inspected in the epilog. They
 can be changed in the remap procedure and the change will be picked up
@@ -970,14 +970,14 @@ would be a error - a `remapping recursion`.
 
 Slightly twisting a built in would look like so (in the case of `M6`):
 
- REMAP=M6   modalgroup=6  ngc=mychange 
+ REMAP=M6   modalgroup=6  ngc=mychange
 
 [source,{ngc}]
 ---------------------------------------------------------------------
 o<mychange> sub
 M6 (use built in M6 behavior)
 (.. move to tool length switch, probe and set tool length..)
-o<mychange> endsub 
+o<mychange> endsub
 m2
 ---------------------------------------------------------------------
 
@@ -1028,7 +1028,7 @@ def prepare_prolog(self,**words):
                 return "T%d: pocket not found" % (tool)
         else:
             pocket = -1 # this is a T0 - tool unload
-            
+
         # these variables will be visible in the ngc oword sub
         # as #<tool> and #<pocket> local variables, and can be
         # modified there - the epilog will retrieve the changed
@@ -1089,12 +1089,12 @@ aborted.
 
 The way to do this is by using the `[RS274NGC]ON_ABORT_COMMAND`
 feature. This ini option specifies a O-word procedure call which is
-executed if task for some reason aborts program execution. 
+executed if task for some reason aborts program execution.
 
 [source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
-ON_ABORT_COMMAND=O <on_abort> call 
+ON_ABORT_COMMAND=O <on_abort> call
 ---------------------------------------------------------------------
 
 The suggested on_abort procedure would look like so (adapt to
@@ -1214,21 +1214,21 @@ a detailed description of +cycle_prolog+ and +cycle_epilog+):
 ---------------------------------------------------------------------
 [RS274NGC]
 # A cycle with an oword procedure: G84.3 <X- Y- Z- Q- P->
-REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1 
+REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
 Executing the following lines:
 [source,{ngc}]
 ---------------------------------------------------------------------
-g17 
-(1)   g84.3 x1 y2 z3  r1  
-(2)   x3 y4 p2            
-(3)   x6 y7 z5            
-(4)   G80                 
+g17
+(1)   g84.3 x1 y2 z3  r1
+(2)   x3 y4 p2
+(3)   x6 y7 z5
+(4)   G80
 ---------------------------------------------------------------------
 causes the following (note 'R' is sticky, and 'Z' is sticky since the plane is 'XY'):
 
 . `g843.ngc` is called with words x=1, y=2, z=3, r=1
-. `g843.ngc` is called with words x=3, y=4, z=3, p=2, r=1 
+. `g843.ngc` is called with words x=3, y=4, z=3, p=2, r=1
 . `g843.ngc` is called with words x=6, y=7, z=3, r=1
 .  The `G84.3` cycle is canceled.
 
@@ -1339,7 +1339,7 @@ parameter `self` which can be used to access internals.
 
 If the `TOPLEVEL`  module defines a function `__init__`, it will be
 called once the interpreter is fully configured (ini file read, and
-state synchronized with the world model). 
+state synchronized with the world model).
 
 If the `TOPLEVEL`  module defines a function `__delete__`, it will be
 called once before the interpreter is shutdown and after the persistent
@@ -1379,8 +1379,7 @@ If there are setup or cleanup actions which are to happen only in the
 milltask Interpreter instance (as opposed to the interpreter instance
 which sits in the `gcode` Python module and serves preview/progress
 display purposes but nothing else), this can be tested for by
-<<remap:axis-preview-and-remapped-code-execution,evaluating
-'self.task'>>.
+<<remap:axis-preview-and-remapped-code-execution,evaluating 'self.task'>>.
 
 An example use of `__init__` and `__delete__` can be found in
 'configs/sim/axis/remap/cycle/python/toplevel.py' initialising attributes
@@ -1512,7 +1511,7 @@ to suspend execution with the following statement:
 
 `yield INTERP_EXECUTE_FINISH`::
        This signals task to stop read ahead, execute all
-       queued operations, execute the 'queue-buster' operation, 
+       queued operations, execute the 'queue-buster' operation,
        synchronize interpreter state with machine state, and then signal
   the interpreter to continue. At this point the function is
   resumed at the statement following the `yield ..` statement.
@@ -1540,7 +1539,7 @@ def read_pin(self,*args):
 ---------------------------------------------------------------------
 
 WARNING: The 'yield' feature is fragile. The following restrictions
-apply to the usage of 'yield INTERP_EXECUTE_FINISH': 
+apply to the usage of 'yield INTERP_EXECUTE_FINISH':
 
 - Python code executing a 'yield INTERP_EXECUTE_FINISH' must be part
   of a remap procedure. Yield does not work in a Python oword procedure.
@@ -1762,7 +1761,7 @@ can currently be found in
 'ncfiles/remap_lib/python-stdglue/stdglue.py' and provide the
 following routines:
 
-=== T: +prepare_prolog+ and +prepare_epilog+ 
+=== T: +prepare_prolog+ and +prepare_epilog+
 
 These wrap a NGC procedure for Tx Tool Prepare.
 
@@ -1800,9 +1799,9 @@ tool table is ignored. This is currently a restriction.
   changed values in account.
 - then, the Canon command `SELECT_TOOL(#<tool>)` is executed.
 
-=== M6: +change_prolog+ and +change_epilog+ 
+=== M6: +change_prolog+ and +change_epilog+
 
-These wrap a NGC procedure for M6 Tool Change. 
+These wrap a NGC procedure for M6 Tool Change.
 
 .Actions of +change_prolog+
 
@@ -1823,7 +1822,7 @@ message.
 Then, the following parameters are exported to the NGC procedure:
 
 - `#<tool_in_spindle>` : the tool number of the currently loaded tool
-- `#<selected_tool>` : the tool number selected 
+- `#<selected_tool>` : the tool number selected
 - `#<selected_pocket>` : the selected tool's tooldata index
 
 .Actions of +change_epilog+
@@ -1843,7 +1842,7 @@ fault. An informational message is displayed and the epilog continues.
   preceding or following it with some other statements.
 * Otherwise, the `#<selected_pocket>` parameter is extracted
   from the subroutine's parameter space, and used to set the
-  interpreter's `current_pocket` variable. Again, the 
+  interpreter's `current_pocket` variable. Again, the
   procedure could change this value, and the epilog takes the
   changed value in account.
 * then, the Canon command `CHANGE_TOOL(#<selected_pocket>)` is
@@ -1869,15 +1868,14 @@ error messages.
 The suggested argspec is as follows:
 [source,{ini}]
 ---------------------------------------------------------------------
-REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1 
+REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
 This will permit +cycle_prolog+ to determine the compatibility of any
 axis words give in the block, see below.
 
 .Actions of +cycle_prolog+
 * Determine whether the words passed in from the current block fulfill
-the conditions outlined under <<gcode:canned-cycle-errors,Canned Cycle
-Errors>>.
+the conditions outlined under <<gcode:canned-cycle-errors,Canned Cycle Errors>>.
 ** export the axis words as +<x>+, +#<y>+ etc; fail if axis words from
 different groups (XYZ) (UVW) are used together, or any of (ABC) is given.
 ** export 'L-' as +#<l>+; default to 1 if not given.
@@ -1899,15 +1897,15 @@ parameters.
 ** retain the current motion mode so a continuation line without a
 motion code will execute the same motion code.
 
-=== S (Set Speed) : +setspeed_prolog+ and +setspeed_epilog+ 
+=== S (Set Speed) : +setspeed_prolog+ and +setspeed_epilog+
 
 TBD
 
-=== F (Set Feed) : +setfeed_prolog+ and +setfeed_epilog+ 
+=== F (Set Feed) : +setfeed_prolog+ and +setfeed_epilog+
 
 TBD
 
-=== M61 Set tool number : +settool_prolog+ and +settool_epilog+ 
+=== M61 Set tool number : +settool_prolog+ and +settool_epilog+
 
 TBD
 
@@ -2014,7 +2012,7 @@ is loaded, but it doesn't actually cause machine movements.
 Now assume that your remap procedure contains a G38 probe operation,
 for example as part of a tool change with automatic tool length
 touch off. If the probe fails, that would clearly be an error, so you'd
-display a message and abort the program. 
+display a message and abort the program.
 
 Now, what about preview of this procedure?  At preview time, of course
 it's not known whether the probe succeeds or fails - but you would
@@ -2025,7 +2023,7 @@ preview further movements. Also, there is no point in displaying a
 
 The way to address this issue is to test in your procedure whether it
 executes in preview or execution mode. This can be checked for by
-testing the `#<_task>` <<gcode:predefined-named-parameters, predefined
+testing the `#<_task>` <<gcode:predefined-named-parameters,predefined
 named parameter>> - it will be 1 during actual execution and 0 during
 preview. See
 'configs/sim/axis/remap/manual-toolchange-with-tool-length-switch/nc_subroutines/manual_change.ngc'
@@ -2060,11 +2058,11 @@ Note that the use of M61 currently requires the use of iocontrol-v2.
 
 === Currently unallocated G-codes:
 
-Currently unallocated G-codes (for remapping) must be selected from the blank 
-areas of the following tables. All the listed G-codes are already defined in 
-the current implementation of LinuxCNC and may *not* be used to remap new 
-G-codes. (Developers who add new G-codes to LinuxCNC are encouraged to also 
-add their new G-codes to these tables.) 
+Currently unallocated G-codes (for remapping) must be selected from the blank
+areas of the following tables. All the listed G-codes are already defined in
+the current implementation of LinuxCNC and may *not* be used to remap new
+G-codes. (Developers who add new G-codes to LinuxCNC are encouraged to also
+add their new G-codes to these tables.)
 
 .Table_of_Allocated_G-codes_00-09
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
@@ -2231,27 +2229,27 @@ add their new G-codes to these tables.)
 === Currently unallocated M-codes:
 
 These M-codes are currently undefined in the current implementation of LinuxCNC
-and may be used to define new M-codes. (Developers who define new M-codes in 
-LinuxCNC are encouraged to remove them from this table.) 
+and may be used to define new M-codes. (Developers who define new M-codes in
+LinuxCNC are encouraged to remove them from this table.)
 
 .Table_of_Unallocated_M-codes_00-99
 [width="90%",align="center",options="header,strong,unbreakable",cols="1*2^em,10*1<m"]
 |==============================================================
-|#     |Mx0 |Mx1 |Mx2 |Mx3 |Mx4 |Mx5 |Mx6 |Mx7 |Mx8 |Mx9 
-|00-09 |    |    |    |    |    |    |    |    |    |    
-|10-19 |M10 |M11 |M12 |M13 |M14 |M15 |M16 |M17 |M18 |    
-|20-29 |M20 |M21 |M22 |M23 |M24 |M25 |M26 |M27 |M28 |M29 
-|30-39 |    |M31 |M32 |M33 |M34 |M35 |M36 |M37 |M38 |M39 
-|40-49 |M40 |M41 |M42 |M43 |M44 |M45 |M46 |M47 |    |    
-|50-59 |    |    |    |    |M54 |M55 |M56 |M57 |M58 |M59 
-|60-69 |    |    |    |    |    |    |    |    |    |    
-|70-79 |    |    |    |    |M74 |M75 |M76 |M77 |M78 |M79 
-|80-89 |M80 |M81 |M82 |M83 |M84 |M85 |M86 |M87 |M88 |M89 
-|90-99 |M90 |M91 |M92 |M93 |M94 |M95 |M96 |M97 |M98 |M99 
+|#     |Mx0 |Mx1 |Mx2 |Mx3 |Mx4 |Mx5 |Mx6 |Mx7 |Mx8 |Mx9
+|00-09 |    |    |    |    |    |    |    |    |    |
+|10-19 |M10 |M11 |M12 |M13 |M14 |M15 |M16 |M17 |M18 |
+|20-29 |M20 |M21 |M22 |M23 |M24 |M25 |M26 |M27 |M28 |M29
+|30-39 |    |M31 |M32 |M33 |M34 |M35 |M36 |M37 |M38 |M39
+|40-49 |M40 |M41 |M42 |M43 |M44 |M45 |M46 |M47 |    |
+|50-59 |    |    |    |    |M54 |M55 |M56 |M57 |M58 |M59
+|60-69 |    |    |    |    |    |    |    |    |    |
+|70-79 |    |    |    |    |M74 |M75 |M76 |M77 |M78 |M79
+|80-89 |M80 |M81 |M82 |M83 |M84 |M85 |M86 |M87 |M88 |M89
+|90-99 |M90 |M91 |M92 |M93 |M94 |M95 |M96 |M97 |M98 |M99
 |==============================================================
 
-All M-codes from `M100` to `M199` are user-defined M-codes already, 
-and should not be remapped. 
+All M-codes from `M100` to `M199` are user-defined M-codes already,
+and should not be remapped.
 
 All M-codes from `M200` to `M999` are available for remapping.
 
@@ -2341,13 +2339,13 @@ and executed resulting in actual machine movements.
 This means that typically the interpreter is far ahead of the actual
 execution of commands - the parsing of the program might well be
 finished before any noticeable movement starts. This behavior is
-called 'read-ahead'. 
+called 'read-ahead'.
 
 === Predicting the machine position
 
 To compute canonical machine operations in advance during read ahead,
 the interpreter must be able to predict the machine position after
-each line of Gcode, and that is not always possible.
+each line of G-code, and that is not always possible.
 
 Let's look at a simple example program which does relative moves
 (G91), and assume the machine starts at x=0,y=0,z=0. Relative moves
@@ -2408,11 +2406,11 @@ read ahead and wait until the relevant result is available. The way
 this works is:
 
 - when such a code is encountered, the interpreter returns a
-special return code to task ('INTERP_EXECUTE_FINISH'). 
+special return code to task ('INTERP_EXECUTE_FINISH').
 
 - this return code signals to task to stop read ahead for now, execute
 all queued canonical commands built up so far (including the last one,
-which is the queue buster), and then 'synchronize 
+which is the queue buster), and then 'synchronize
 the interpreter state with the world model'. Technically, this means
 updating internal variables to reflect HAL pin values, reload tool
 geometries after an M6, and convey results of a probe.
@@ -2430,7 +2428,7 @@ One or several 'words' may be present on an NGC 'block' if they are
 compatible (some are mutually exclusive and must be on different
 lines).  The execution model however prescribes a strict ordering of
 execution of codes, regardless of their appearance on the source line
-(<<gcode:order-of-execution, G-Code Order of Execution>>).
+(<<gcode:order-of-execution,G-code Order of Execution>>).
 
 === Parsing
 
@@ -2556,7 +2554,7 @@ continue. (again, this 'wait' istn strictly necessary IMO)
 
 .Building the prolog and epilog for Tx
 
-See the Python functions `prepare_prolog` and `prepare_epilog` in 
+See the Python functions `prepare_prolog` and `prepare_epilog` in
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 === How M6 (Change tool) works
@@ -2632,17 +2630,17 @@ From there on, the interpreter has complete  knowledge of the world
 model and continues with read ahead.
 
 .Building the prolog and epilog for M6
-See the Python functions `change_prolog` and `change_epilog` in 
+See the Python functions `change_prolog` and `change_epilog` in
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 === How M61 (Change tool number) works
 
 M61 requires a non-negative `Q`parameter (tool number). If zero, this
-means 'unload tool', else 'set current tool number to Q'. 
+means 'unload tool', else 'set current tool number to Q'.
 
 .Building the replacement for M61
 An example Python redefinition for M61 can be found in the
-`set_tool_number` function in 
+`set_tool_number` function in
 `configs/sim/axis/remap/toolchange/python/toolchange.py`.
 
 

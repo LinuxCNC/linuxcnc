@@ -157,7 +157,7 @@ Under the '\_\_init__.(self, halcomp, widgets, paths):' function +
 Toolbar buttons and submenus are added in Designer but the code to make them do something is added in the handler file. +
 In this example we assume you added a tool bar with one submenu and three actions. +
 These will be configure to create a recent file selection menu, an about pop up dialog action, a quit program action and +
-a user defined function action. + 
+a user defined function action. +
 You can add submenus in designer by adding an qaction (by typing in the toolbar column) then clicking the 'plus' icon on the right. +
 This will ad a sub column that you need to type a name into. Now the original Qaction will be a Qmenu instead. +
 Now erase the Qaction you added to that Qmenu - the menu will stay as a menu. +
@@ -549,7 +549,7 @@ The we add our QProgress bar and LED to the layout. +
         # add the container to the corner of the right tab widget
         self.w.rightTab.setCornerWidget(w)
 ----
- 
+
 Now we build the function to actually update out QProgressBar when STATUS updates the spindle speed. +
 'self.w.rpm_bar.setInvertedAppearance()' - In this case we chose to display left-to-right or right-to-left depending if we are turning clockwise or anticlockwise. +
 'self.w.rpm_bar.setFormat()' - This formats the writing in the bar. +
@@ -797,7 +797,7 @@ They would be printed to the terminal as well. +
 [source,python]
 ----
 ACTION.SET_DISPLAY_MESSAGE('MESSAGE')
-ACTION.SET_ERROR_MESSAGE('MESSAGE') 
+ACTION.SET_ERROR_MESSAGE('MESSAGE')
 ----
 
 == Catch Focus Changes
@@ -828,9 +828,9 @@ Or we may want to know what widget has focus right when focus changes:
 
     def focusInChanged(self, widget):
         if isinstance(widget.parent(),type(self.w.gcode_editor.editor)):
-            print('Gcode Editor')
+            print('G-code Editor')
         elif isinstance(widget,type(self.w.gcodegraphics)):
-            print('Gcode Display')
+            print('G-code Display')
         elif isinstance(widget.parent(),type(self.w.mdihistory) ):
             print('MDI History')
 ----
@@ -838,7 +838,7 @@ Or we may want to know what widget has focus right when focus changes:
 Notice we sometimes compare to 'widget', sometimes 'widget.parent()'. +
 This is because some Qtvcp widgets are built from multiple sub-widgets and +
 the sub-widgets actually get the focus; so we need to check the parent of those sub-widgets. +
-Other times the main widget is what gets the focus; ie Gcode display widget can be set to +
+Other times the main widget is what gets the focus; ie G-code display widget can be set to +
 accept focus and in that case there are no sub-widgets in it so comparing to the widget.parent() +
-would get you the container that holds the gcode widget. +
+would get you the container that holds the G-code widget. +
 

@@ -79,7 +79,7 @@ the fault.
 
 The commands issued for tool data changes are:
 
-  * "'p'" put data changes caused by G10L1, G10L10, G10L11 gcodes.
+  * "'p'" put data changes caused by G10L1, G10L10, G10L11 G-codes.
     The tool data line will include all elements of a tool table
     text line.
 
@@ -122,8 +122,8 @@ appropriate pocket based on tool usage history.
 By default, requests for tool data are made at startup only.  A database
 program may update tool usage data on a continuous basis so long-lived
 LinuxCNC applications may benefit by refreshing the tool data.  The
-gcode command *G10 L0* can be used to request a tool data reload ('g'
-command) from within gcode programs or by MDI.
+G-code command *G10 L0* can be used to request a tool data reload ('g'
+command) from within G-code programs or by MDI.
 
 A reload operation is also typically provided by a Graphical User
 Interface (GUI) so that on-demand reloads can be requested.  For
@@ -171,7 +171,7 @@ following python code:
 user_tools = list(...)   # list of available tool numbers
 
 def user_get_tool(toolno):
-    # function to respond to 'g' (get) commands 
+    # function to respond to 'g' (get) commands
     # called once for each toolno in user_tools
     ...
 def user_put_tool(toolno,params):

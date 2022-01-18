@@ -52,7 +52,7 @@ provided by two Halui components:
 In your customized hal file, add the following
 two lines that will be connected to your I/O to turn
 on the program pause or to resume when the external
-system wants LinuxCNC to continue. 
+system wants LinuxCNC to continue.
 
     net ispaused halui.program.is paused => "your output pin"
     net resume halui.program.resume <= "your input pin"
@@ -66,9 +66,9 @@ encountered in your G-code, the `halui.program.is-paused`
 signal goes true. This turns on your output pin so that
 the external controller knows that LinuxCNC is paused.
 
-To resume the LinuxCNC gcode program, when the external controller
+To resume the LinuxCNC G-code program, when the external controller
 is ready it will make its output true. This will signal
-LinuxCNC that it should resume executing Gcode.
+LinuxCNC that it should resume executing G-code.
 
 Difficulties in timing
 

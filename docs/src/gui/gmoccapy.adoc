@@ -994,7 +994,7 @@ you tube.
 === Tool Measurement Pins
 
 Gmoccapy offers 5 pins for tool measurement purpose. The pins are mostly used
-to be read from a gcode subroutine, so the code can react to different values.
+to be read from a G-code subroutine, so the code can react to different values.
 
 * gmoccapy.toolmeasurement HAL_BIT enable or not tool measurement
 * gmoccapy.blockheight HAL_FLOAT the measured value of the top face of the
@@ -1011,7 +1011,7 @@ Modify your INI File to include the following:
 
 ----
 [RS274NGC]
-# Enables the reading of INI and HAL values from gcode
+# Enables the reading of INI and HAL values from G-code
 FEATURES=12
 
 # is the sub, with is called when a error during tool change happens, not needed on every machine configuration

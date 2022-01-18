@@ -114,7 +114,7 @@ Some menu items might be grayed out depending on how you have your
     from the beginning then reload the file. The toolbar reload is the same
     as the menu.
 
-* 'Save gcode as...' - Save the current file with a new name.
+* 'Save G-code as...' - Save the current file with a new name.
 
 * 'Properties' - The sum of the rapid and feed moves. Does not factor in
     acceleration, blending or path mode so time reported will never
@@ -1153,7 +1153,7 @@ root_window.tk.call('.pane.top.right','itemconfigure','preview','-text',' Previe
 root_window.tk.call('.pane.top.right','itemconfigure','numbers','-text',' DRO ')
 
 
-# gcode font is independent
+# G-code font is independent
 
 root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue')
 #root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue','-font',font)

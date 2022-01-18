@@ -16,14 +16,14 @@ to the motor drives.
 Optionally the number of Digital I/O is set with num_dio.
 The number of Analog I/O is set with num_aio. The default is 4 each.
 
-Pin and parameter names starting with 'axis.L' and joint.N' 
+Pin and parameter names starting with 'axis.L' and joint.N'
 are read and updated by the motion-controller function.
 
 Motion is loaded with the motmod command. A kins should be loaded
 before motion.
 
 ----
-loadrt motmod [base_period_nsec=period] [servo_period_nsec=period] 
+loadrt motmod [base_period_nsec=period] [servo_period_nsec=period]
 [traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16]) ([unlock_joints_mask=0xNN])
 ----
 
@@ -56,13 +56,13 @@ of the low level motion planner.
 
 * 'traj_period_nsec = 100000' - This is the 'Trajectory Planner'
   task period in nanoseconds. This value will be rounded to an integer
-  multiple of 'servo_period_nsec'. Except for machines with unusual 
+  multiple of 'servo_period_nsec'. Except for machines with unusual
   kinematics (e.g., hexapods) there is no reason to make this value larger
   than 'servo_period_nsec'.
 
 === Options
 
-If the number of digital I/O needed is more than the default of 4 you 
+If the number of digital I/O needed is more than the default of 4 you
 can add up to 64 digital I/O by using the num_dio option when loading
 motmod.
 
@@ -81,63 +81,63 @@ joint(s).  The LSB of the mask selects joint 0.  Example:
 These pins, parameters, and functions are created by the realtime
 'motmod' module.
 
-* 'motion.adaptive-feed' - 
+* 'motion.adaptive-feed' -
      (float, in) When adaptive feed is enabled with 'M52 P1' , the
     commanded velocity is multiplied by this value. This effect is
      multiplicative with the NML-level feed override value and
     'motion.feed-hold'. As of version 2.9 of LinuxCNC it is possible to
     use a negative adaptive feed value to run the G-code path in reverse.
 
-* 'motion.analog-in-00' - 
+* 'motion.analog-in-00' -
      (float, in) These pins (00, 01, 02, 03 or more if configured) are
-    controlled by M66. 
+    controlled by M66.
 
-* 'motion.analog-out-00' - 
+* 'motion.analog-out-00' -
      (float, out) These pins (00, 01, 02, 03 or more if configured) are
     controlled by M67 or M68.
 
-* 'motion.coord-error' - 
+* 'motion.coord-error' -
      (bit, out) TRUE when motion has encountered an error, such as
     exceeding a soft limit
 
-* 'motion.coord-mode' - 
+* 'motion.coord-mode' -
      (bit, out) TRUE when motion is in 'coordinated mode', as opposed to
     'teleop mode'
 
-* 'motion.current-vel' - 
+* 'motion.current-vel' -
     (float, out) The current tool velocity in user units per second.
 
-* 'motion.digital-in-00' - 
+* 'motion.digital-in-00' -
      (bit, in) These pins (00, 01, 02, 03 or more if configured) are
     controlled by M62-65.
 
-* 'motion.digital-out-00' - 
+* 'motion.digital-out-00' -
      (bit, out) These pins (00, 01, 02, 03 or more if configured) are
     controlled by the 'M62-65'.
 
-* 'motion.distance-to-go' - 
+* 'motion.distance-to-go' -
     (float,out) The distance remaining in the current move.
 
-* 'motion.enable' - 
+* 'motion.enable' -
      (bit, in) If this bit is driven FALSE, motion stops, the machine is
     placed in the 'machine off' state, and a message is displayed for the
     operator. For normal motion, drive this bit TRUE.
 
-* 'motion.feed-hold' - 
+* 'motion.feed-hold' -
      (bit, in) When Feed Stop Control is enabled with 'M53 P1', and this
     bit is TRUE, the feed rate is set to 0.
 
-* 'motion.feed-inhibit' - 
+* 'motion.feed-inhibit' -
      (bit, in) When this bit is TRUE, the feed rate is set to 0.
     This will be delayed during spindle synch moves till the end of the move.
 
-* 'motion.in-position' - 
+* 'motion.in-position' -
     (bit, out) TRUE if the machine is in position.
 
-* 'motion.motion-enabled' - 
+* 'motion.motion-enabled' -
     (bit, out) TRUE when in 'machine on' state.
 
-* 'motion.motion-type' - 
+* 'motion.motion-type' -
     (s32, out) These values are from src/emc/nml_intf/motion_types.h
 
  - 0: Idle (no motion)
@@ -154,27 +154,27 @@ These pins, parameters, and functions are created by the realtime
 
  - 6: Rotary axis indexing
 
-* 'motion.on-soft-limit' - 
+* 'motion.on-soft-limit' -
     (bit, out) TRUE when the machine is on a soft limit.
 
-* 'motion.probe-input' - 
+* 'motion.probe-input' -
      (bit, in) 'G38.n'  uses the value on this pin to determine when the
-    probe has made contact. 
-    TRUE for probe contact closed (touching), 
+    probe has made contact.
+    TRUE for probe contact closed (touching),
     FALSE for probe contact open.
 
-* 'motion.program-line' - 
+* 'motion.program-line' -
      (s32, out) The current program line while executing. Zero if not
     running or between lines while single stepping.
 
-* 'motion.requested-vel' - 
+* 'motion.requested-vel' -
      (float, out) The current requested velocity in user units per
     second.  This value is the F-word setting from the G-code file,
     possibly reduced to accommodate machine velocity and acceleration
     limits. The value on this pin does not reflect the feed override or
     any other adjustments.
 
-* 'spindle.0.at-speed' - 
+* 'spindle.0.at-speed' -
      (bit, in) Motion will pause until this pin is TRUE, under the
     following conditions: before the first feed move after each spindle
     start or speed change; before the start of every chain of
@@ -186,64 +186,64 @@ These pins, parameters, and functions are created by the realtime
     Otherwise, it is easy to generate this signal with the 'HAL near'
     component, by comparing requested and actual spindle speeds.
 
-* 'spindle.N.brake' - 
+* 'spindle.N.brake' -
     (bit, out) TRUE when the spindle brake should be applied.
 
-* 'spindle.N.forward' - 
+* 'spindle.N.forward' -
     (bit, out) TRUE when the spindle should rotate forward.
 
-* 'spindle.N.index-enable' - 
+* 'spindle.N.index-enable' -
      (bit, I/O) For correct operation of spindle synchronized moves, this
-    pin must be hooked to the index-enable pin of the spindle encoder. 
+    pin must be hooked to the index-enable pin of the spindle encoder.
 
-* 'spindle.N.inhibit' - 
+* 'spindle.N.inhibit' -
      (bit, in) When this bit is TRUE, the spindle speed is set to 0.
 
-* 'spindle.N.on' - 
+* 'spindle.N.on' -
     (bit, out) TRUE when spindle should rotate.
 
-* 'spindle.N.reverse' - 
+* 'spindle.N.reverse' -
     (bit, out) TRUE when the spindle should rotate backward
 
-* 'spindle.N.revs' - 
+* 'spindle.N.revs' -
      (float, in) For correct operation of spindle synchronized moves, this
     signal must be hooked to the position pin of the spindle encoder. The
     spindle encoder position should be scaled such that spindle-revs
     increases by 1.0 for each rotation of the spindle in the clockwise
     ('M3') direction.
 
-* 'spindle.N.speed-in' - 
+* 'spindle.N.speed-in' -
      (float, in) Feedback of actual spindle speed in rotations per second.
     This is used by feed-per-revolution motion ('G95'). If your spindle
     encoder driver does not have a velocity output, you
      can generate a suitable one by sending the spindle position through a
-    'ddt' component.  If you do not have a spindle encoder, you can loop 
+    'ddt' component.  If you do not have a spindle encoder, you can loop
     back 'spindle.N.speed-out-rps'.
 
-* 'spindle.N.speed-out' - 
+* 'spindle.N.speed-out' -
      (float, out) Commanded spindle speed in rotations per minute. Positive
     for spindle forward ('M3'), negative for spindle reverse ('M4').
 
-* 'spindle.N.speed-out-abs' - 
+* 'spindle.N.speed-out-abs' -
      (float, out) Commanded spindle speed in rotations per minute. This will
     always be a positive number.
 
-* 'spindle.N.speed-out-rps' - 
+* 'spindle.N.speed-out-rps' -
      (float, out) Commanded spindle speed in rotations per second. Positive
     for spindle forward ('M3'), negative for spindle reverse ('M4').
 
-* 'spindle.N.speed-out-rps-abs' - 
+* 'spindle.N.speed-out-rps-abs' -
      (float, out) Commanded spindle speed in rotations per second. This will
     always be a positive number.
 
-* 'motion.teleop-mode' - 
+* 'motion.teleop-mode' -
      (bit, out) TRUE when motion is in 'teleop mode', as opposed to
     'coordinated mode'
 
-* 'motion.tooloffset.x ... motion.tooloffset.w' - 
+* 'motion.tooloffset.x ... motion.tooloffset.w' -
      (float, out, one per axis) shows the tool offset in effect;
      it could come from the tool table ('G43' active), or it could
-     come from the gcode ('G43.1' active)
+     come from the G-code ('G43.1' active)
 
 * `spindle.N.orient-angle` -
 	(float,out) Desired spindle orientation for M19. Value of the
@@ -254,7 +254,7 @@ These pins, parameters, and functions are created by the realtime
 
 * `spindle.N.orient` -
 	(out,bit)
-	Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5. 
+	Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3,M4,M5.
 	If spindle-orient-fault is not zero during spindle-orient
 	true, the M19 command fails with an error message.
 
@@ -269,7 +269,7 @@ These pins, parameters, and functions are created by the realtime
 	than zero  will cause the orient cycle to abort.
 
 * `spindle.N.lock` -
-	(bit, out) Spindle orient complete pin. Cleared by any of M3,M4,M5. 
+	(bit, out) Spindle orient complete pin. Cleared by any of M3,M4,M5.
 
 .HAL pin usage for M19 orient spindle
 
@@ -305,10 +305,10 @@ desired orientation' or 'orientation complete' mode. This is indicated
 by deasserting both the `spindle-orient` and `spindle-locked` pins.
 
 The `spindle-orient-mode` pin reflects the M19 P word and shall be
-interpreted as follows: 
+interpreted as follows:
 
  - 0: rotate clockwise or counterclockwise for smallest angular movement
- - 1: always rotate clockwise 
+ - 1: always rotate clockwise
  - 2: always rotate counterclockwise
 
 It can be used with the `orient` HAL component which provides a PID
@@ -320,49 +320,49 @@ and `spindle-orient-mode`.
 Many of these parameters serve as debugging aids, and are subject to
 change or removal at any time.
 
-* 'motion-command-handler.time' - 
+* 'motion-command-handler.time' -
     (s32, RO)
 
-* 'motion-command-handler.tmax' - 
+* 'motion-command-handler.tmax' -
     (s32, RW)
 
-* 'motion-controller.time' - 
+* 'motion-controller.time' -
     (s32, RO)
 
-* 'motion-controller.tmax' - 
+* 'motion-controller.tmax' -
     (s32, RW)
 
-* 'motion.debug-bit-0' - 
-    (bit, RO) This is used for debugging purposes. 
+* 'motion.debug-bit-0' -
+    (bit, RO) This is used for debugging purposes.
 
-* 'motion.debug-bit-1' - 
-    (bit, RO) This is used for debugging purposes. 
+* 'motion.debug-bit-1' -
+    (bit, RO) This is used for debugging purposes.
 
-* 'motion.debug-float-0' - 
-    (float, RO) This is used for debugging purposes. 
+* 'motion.debug-float-0' -
+    (float, RO) This is used for debugging purposes.
 
-* 'motion.debug-float-1' - 
-    (float, RO) This is used for debugging purposes. 
+* 'motion.debug-float-1' -
+    (float, RO) This is used for debugging purposes.
 
-* 'motion.debug-float-2' - 
-    (float, RO) This is used for debugging purposes. 
+* 'motion.debug-float-2' -
+    (float, RO) This is used for debugging purposes.
 
-* 'motion.debug-float-3' - 
-    (float, RO) This is used for debugging purposes. 
+* 'motion.debug-float-3' -
+    (float, RO) This is used for debugging purposes.
 
-* 'motion.debug-s32-0' - 
-    (s32, RO) This is used for debugging purposes. 
+* 'motion.debug-s32-0' -
+    (s32, RO) This is used for debugging purposes.
 
-* 'motion.debug-s32-1' - 
-    (s32, RO) This is used for debugging purposes. 
+* 'motion.debug-s32-1' -
+    (s32, RO) This is used for debugging purposes.
 
-* 'motion.servo.last-period' - 
+* 'motion.servo.last-period' -
      (u32, RO) The number of CPU cycles between invocations of the servo
     thread. Typically, this number divided by the CPU speed gives the time
     in seconds, and can be used to determine whether the realtime motion
     controller is meeting its timing constraints
 
-* 'motion.servo.last-period-ns' - 
+* 'motion.servo.last-period-ns' -
     (float, RO)
 
 === Functions
@@ -370,17 +370,17 @@ change or removal at any time.
 Generally, these functions are both added to the servo-thread in the
 order shown.
 
-* 'motion-command-handler' - 
+* 'motion-command-handler' -
     Processes motion commands coming from user space
 
-* 'motion-controller' - 
+* 'motion-controller' -
     Runs the LinuxCNC motion controller
 
 == Axis and Joint Pins and Parameters
 
-These pins and parameters are created by the realtime 'motmod' 
+These pins and parameters are created by the realtime 'motmod'
 module.  [In 'trivial kinematics' machines, there is a one-to-one
-correspondence between joints and axes.] 
+correspondence between joints and axes.]
 They are read and updated by the 'motion-controller' function.
 
 See the motion man page 'motion(9)' for details on the pins and parameters.
@@ -395,45 +395,45 @@ synchronized i/o provided by <<sec:motion,motion>> instead.
 
 === Pins (((iocontrol (HAL pins))))
 
-* 'iocontrol.0.coolant-flood' - 
-    (bit, out) TRUE when flood coolant is requested. 
+* 'iocontrol.0.coolant-flood' -
+    (bit, out) TRUE when flood coolant is requested.
 
-* 'iocontrol.0.coolant-mist' - 
-    (bit, out) TRUE when mist coolant is requested. 
+* 'iocontrol.0.coolant-mist' -
+    (bit, out) TRUE when mist coolant is requested.
 
-* 'iocontrol.0.emc-enable-in' - 
+* 'iocontrol.0.emc-enable-in' -
      (bit, in) Should be driven FALSE when an external E-Stop condition
-    exists. 
+    exists.
 
-* 'iocontrol.0.lube' - 
-    (bit, out) TRUE when lube is commanded. 
+* 'iocontrol.0.lube' -
+    (bit, out) TRUE when lube is commanded.
 
-* 'iocontrol.0.lube_level' - 
-    (bit, in) Should be driven TRUE when lube level is high enough. 
+* 'iocontrol.0.lube_level' -
+    (bit, in) Should be driven TRUE when lube level is high enough.
 
-* 'iocontrol.0.tool-change' - 
-    (bit, out) TRUE when a tool change is requested. 
+* 'iocontrol.0.tool-change' -
+    (bit, out) TRUE when a tool change is requested.
 
-* 'iocontrol.0.tool-changed' - 
-    (bit, in) Should be driven TRUE when a tool change is completed. 
+* 'iocontrol.0.tool-changed' -
+    (bit, in) Should be driven TRUE when a tool change is completed.
 
-* 'iocontrol.0.tool-number' - 
-    (s32, out) The current tool number. 
+* 'iocontrol.0.tool-number' -
+    (s32, out) The current tool number.
 
-* 'iocontrol.0.tool-prep-number' - 
-    (s32, out) The number of the next tool, from the RS274NGC T-word. 
+* 'iocontrol.0.tool-prep-number' -
+    (s32, out) The number of the next tool, from the RS274NGC T-word.
 
-* 'iocontrol.0.tool-prepare' - 
-    (bit, out) TRUE when a tool prepare is requested. 
+* 'iocontrol.0.tool-prepare' -
+    (bit, out) TRUE when a tool prepare is requested.
 
-* 'iocontrol.0.tool-prepared' - 
-    (bit, in) Should be driven TRUE when a tool prepare is completed. 
+* 'iocontrol.0.tool-prepared' -
+    (bit, in) Should be driven TRUE when a tool prepare is completed.
 
-* 'iocontrol.0.user-enable-out' - 
-    (bit, out) FALSE when an internal E-Stop condition exists. 
+* 'iocontrol.0.user-enable-out' -
+    (bit, out) FALSE when an internal E-Stop condition exists.
 
-* 'iocontrol.0.user-request-enable' - 
-    (bit, out) TRUE when the user has requested that E-Stop be cleared. 
+* 'iocontrol.0.user-request-enable' -
+    (bit, out) TRUE when the user has requested that E-Stop be cleared.
 
 
 == ini settings

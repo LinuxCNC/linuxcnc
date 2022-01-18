@@ -54,7 +54,7 @@ This feature should be used by any filter that runs for a long time. +
 
 Here is a very basic example of the filtering mechanics:
 When run through a Linucnc screen that offers program filtering, +
-it will produce and write a line of gcode every 100th of a second to standard output. +
+it will produce and write a line of G-code every 100th of a second to standard output. +
 It also sends a progress message out to the Unix standard error stream. +
 If there was an error it would post an error message and exit with an exitcode of 1. +
 
@@ -68,7 +68,7 @@ for i in range(0,100):
         # simulate calculation time
         time.sleep(.1)
 
-        # output a line of gcode
+        # output a line of G-code
         print >>sys.stdout, 'G0 X1'
 
         # update progress

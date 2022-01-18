@@ -91,7 +91,7 @@ This is the input value that will be displayed with the gauge needle and in the 
 It must be set to a value between 0 and the maximum value.
 
 * 'Setpoint' -
-This is a value that determines the location of a small marker on the gauge face. 
+This is a value that determines the location of a small marker on the gauge face.
 It must be set to a value between 0 and the maximum value.
 
 
@@ -258,7 +258,7 @@ qproperty-off_color: #444;
 }
 ----
 
-or for a particular button: 
+or for a particular button:
 ----
 Indicated_PushButton #button_estop{
 qproperty-on_color: black;
@@ -406,12 +406,12 @@ It is based on pyQT's QLabel
 === LCD Number Widget
 
 This widget displays HAL float/s32/bit values in a LCD looking way. +
-It can display numbers in decimal, hexadecimal, binary and octal formats 
+It can display numbers in decimal, hexadecimal, binary and octal formats
 by setting the property 'mode'. +
 When using floats you can set a formatting string. +
 You must set the property 'digitCount' to an appropriate setting to display the largest number. +
 
-==== Properties 
+==== Properties
 
 * 'pin_name': +
 Option string to be used as the HAL pin name. If set to an empty string the widget name will be used. +
@@ -614,7 +614,7 @@ qproperty-off_color: #444;
 }
 ----
 
-or for a particular button: 
+or for a particular button:
 ----
 Indicated_PushButton #button_estop{
 qproperty-on_color: black;
@@ -779,7 +779,7 @@ DROLabel #dr0_x_axis [isHomed=false] {
 It is based on pyQT's QLabel
 
 === GcodeDisplay
-This displays Gcode in text form. It will highlight the currently running line. +
+This displays G-code in text form. It will highlight the currently running line. +
 This can also display MDI history when linuxcnc is in MDI mode. +
 This can also display log entries when linuxcnc is in MANUAL mode. +
 This will also display preference file entries if you enter 'PREFERENCE' in capitals +
@@ -815,7 +815,7 @@ qproperty-styleFontMargin: "Times,14,-1,0,90,0,0,0,0,0";
 }
 ----
 
-For gcodeDisplay widget's default Gcode lexer: +
+For gcodeDisplay widget's default G-code lexer: +
 
 * styleColor0 = Default = digit characters
 * styleColor1 = Comments = characters inside of 'msg()'
@@ -836,9 +836,9 @@ It is based on pyQT's QWidget which incorporates GcodeDisplay widget +
 === GCodeGraphics Widget
 
 .Graphics Display
-image::images/qtvcp_gcodeGraphics.png["QTvcp Gcode Graphics",scale="25%"]
+image::images/qtvcp_gcodeGraphics.png["QTvcp G-code Graphics",scale="25%"]
 
-This Displays the current Gcode in a graphical form. +
+This Displays the current G-code in a graphical form. +
 
 Properties: +
 
@@ -868,7 +868,7 @@ qproperty-MouseButtonMode:1;
 ----
 
 ==== ACTION functions
-The ACTION library can control the gcode graphics widget. +
+The ACTION library can control the G-code graphics widget. +
 'ACTION.RELOAD_DISPLAY()' -reload the current program which recalculates the origin/offsets. +
 'ACTION.SET_GRAPHICS_VIEW(view)' The following commands can be sent:
 ----
@@ -932,7 +932,7 @@ Typical template for metric mode in true state, might be: 'Metric Mode' +
 
 * 'false_textTemplate' +
 This will be the text set when the option is true. +
-You can use Qt rich text code for different fonts/colours etc. + 
+You can use Qt rich text code for different fonts/colours etc. +
 Typical template for metric mode in false state, might be: 'Imperial Mode' +
 
 It is based on pyQT's QLabel
@@ -968,7 +968,7 @@ Shows the last loade full file path name
 * 'gcode_status' +
 Shows all active G-codes
 * 'gcode selected_status' +
-Show the current selected Gcode line
+Show the current selected G-code line
 * 'halpin status' +
 Shows the HAL pin output of a selected HAL pin
 * 'jograte_status' +
@@ -1019,7 +1019,7 @@ This uses python formatting rules to set the text output. +
 This is usually used for imperial (G20) or angular numerical settings, though +
 not every option has imperial/metric conversion. +
 One can use %s for no conversion, %d for integer conversion, %f for float conversion. etc +
-You can also use Qt rich text code. + 
+You can also use Qt rich text code. +
 Typical template used for formatting imperial float numbers to text eg. '%9.4f' or '%9.4f inch' +
 
 * 'alt_textTemplate' +
@@ -1086,7 +1086,7 @@ options. This is the preferred way to use these options +
 These properties that can be set in designer, in python handler code or +
 (if appropriate) in stylesheets.
 
-.These include: 
+.These include:
 
 * 'halCompBaseName': +
 If left empty Qtvcp will use the screen's name as the HAL component's basename. +
@@ -1147,7 +1147,7 @@ Color of transparent layer shown when the message dialog is shown.
 
 * 'closeDialog_option': +
 sets up the standard close screen prompt dialog
- 
+
 * 'entryDialog_option': +
 sets up the numerical entry dialog
 
@@ -1251,7 +1251,7 @@ self.w.screen_options.setProperty('play_sounds_option',False)
 ie. In style sheets +
 Here we can reference the widget by QtDesigner user defined name +
 or by widget class name. +
- 
+
 ----
 /* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
 /* the # sign is used to refer to QtDesigner defined widget name */
@@ -1314,7 +1314,7 @@ Under the heading: 'NOTIFY_OPTIONS'
 [NOTE]
 
 
-In Debian/Ubuntu/Mint based systems these sounds should be available as sound-type entries above: + 
+In Debian/Ubuntu/Mint based systems these sounds should be available as sound-type entries above: +
 (These Sound options require python3-gst1.0 installed.) +
 
 * ERROR
@@ -1439,7 +1439,7 @@ qproperty-flashRate: 150;
 }
 ----
 
-It is based on the LED widget 
+It is based on the LED widget
 
 === StatusAdjustmentBar
 
@@ -1467,14 +1467,14 @@ It is based on pyQT's QToolButton
 .Macrotab
 image::images/qtvcp_macro.png["QTvcp led",scale="25%"]
 
-This Widget allows a user to select and adjust special macro programs for 
+This Widget allows a user to select and adjust special macro programs for
 doing small jobs. +
 It uses images for visual representation of the macro and for an icon. +
 It searches for special macros using the INI definition: +
 [source,INI]
 ----
 [RS274NGC]
-SUBROUTINE_PATH = 
+SUBROUTINE_PATH =
 ----
 The macros are Oword subroutine with special comments to work with the launcher. +
 The first three lines must have the keywords: (The forth is optional) +
@@ -1482,7 +1482,7 @@ Here is a sample for the first four lines in an Oword file: +
 ----
 ; MACROCOMMAND=Entry1,Entry2
 ; MACRODEFAULTS=0,true
-; MACROIMAGE=my_image.svg,Icon layer number, Macro layer number 
+; MACROIMAGE=my_image.svg,Icon layer number, Macro layer number
 ; MACROOPTIONS=load:yes,save:yes,default:default.txt,path:~/macros
 ----
 
@@ -1637,7 +1637,7 @@ the left. +
 This macro capability is useful for edge/hole probing and other setup +
 tasks, as well as perhaps hole milling or other simple operations +
 that can be done from the panel without requiring specially-written +
-gcode programs. +
+G-code programs. +
 
 ===  OriginOffsetView Widget
 
@@ -1884,7 +1884,7 @@ the message dict. +
 * 'MESSAGE':'your text'    -Title message text in bold
 * 'MORE':'your more text' - standard text under the heading
 * 'DETAILS':'hidden text' - initial hidden text
-* 'TYPE':'OK' -type can be 'OK', 'YESNO', 'OKCANCEL' 
+* 'TYPE':'OK' -type can be 'OK', 'YESNO', 'OKCANCEL'
 * 'ICON':'INFO' -icon can be 'QUESTION','INFO','CRITICAL','WARNING'
 * 'PINNAME' -not implemented yet
 * 'FOCUSTEXT':None -text to display if focus overlay is used. Use None for no text.
@@ -1913,7 +1913,7 @@ It is based on pyQT's QMessagebox
 .File Dialog
 image::images/qtvcp_fileDialog.png["QTvcp file dialog",scale="25%"]
 
-This is used to load Gcode files +
+This is used to load G-code files +
 If there is a Focus Overlay widget present, it will signal it to display. +
 When using STATUS's 'request-dialog' function, the default launch names are 'LOAD' or 'SAVE' +
 
@@ -2037,7 +2037,7 @@ Other available widgets
 image::images/qtvcp_nurbsEditor.png["QTvcp nurbs editor",scale="25%"]
 
 The Nurbs editor allows you to manipulate a nurbs based geometry on screen and then +
-convert this to gcode. you can edit the gcode on screen and then send it to linuxcnc.
+convert this to G-code. you can edit the G-code on screen and then send it to LinuxCNC.
 
 === JoyPad
 It is the base class for the HALPad widget. +
@@ -2101,7 +2101,7 @@ Sets the buttons popup tooltip descriptive text. +
 
 * 'setLight(state)': +
 Sets the highlight indicator to the true color or false color. +
-The set_highlight() function must be used prior to set the indicator to use. +  
+The set_highlight() function must be used prior to set the indicator to use. +
 
 ==== signals
 These signals will be sent when buttons are pressed. +

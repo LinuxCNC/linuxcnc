@@ -29,7 +29,7 @@ Gmoccapy (GUI)::
      (((GUI))) A Graphical User Interfaces available to users of
     LinuxCNC. It features the use and feel of an industrial control and can
     be used with touch screen, mouse and keyboard. It support embedded tabs and
-    hal driven user messages, it offers a lot of hal beens to be controlled with 
+    hal driven user messages, it offers a lot of hal beens to be controlled with
     hardware. Gmoccapy is highly cusomizable.
 
 
@@ -173,7 +173,7 @@ GUI::
          A type of interface that allows communications between a computer
         and a human (in most cases) via the manipulation of icons and other
         elements (widgets) on a computer screen.
-    
+
     LinuxCNC;;
          An application that presents a graphical screen to the machine
         operator allowing manipulation of the machine and the corresponding
@@ -199,7 +199,7 @@ Instance::
      (((Instance))) One can have an instance of a class or a
     particular object. The instance is the actual object created at
     runtime. In programmer jargon, the Lassie object is an instance of the
-    Dog class. 
+    Dog class.
 
 Joint Coordinates::
      (((joint coordinates))) These specify the angles
@@ -231,7 +231,7 @@ Lead-screw::
 
 Machine units::
      (((machine units))) The linear and angular units used for machine
-    configuration. These units are specified and used in the ini file. 
+    configuration. These units are specified and used in the ini file.
     HAL pins and parameters are also generally in machine units.
 
 MDI::
@@ -251,10 +251,10 @@ NML::
 Offsets::
      (((offsets)))
     An arbitrary amount, added to the value of something to make it
-    equal to some desired value. For example, gcode programs are
+    equal to some desired value. For example, G-code programs are
     often written around some convenient point, such as X0, Y0.
     Fixture offsets can be used to shift the actual execution point
-    of that gcode program to properly fit the true location
+    of that G-code program to properly fit the true location
     of the vice and jaws.
     Tool offsets can be used to shift the "uncorrected" length
     of a tool to equal that tool's actual length.
@@ -324,7 +324,7 @@ Servo Loop::
 
 Signed Integer::
      (((Signed Integer))) A whole number that can have a positive or
-    negative sign. In HAL it is known as s32. (A signed 32-bit 
+    negative sign. In HAL it is known as s32. (A signed 32-bit
     integer has a usable range of -2,147,483,647 to +2,147,483,647.)
 
 Spindle::
@@ -367,7 +367,7 @@ Units::
     (((units))) See "Machine Units", "Display Units", or "Program Units".
 
 Unsigned Integer::
-     (((Unsigned Integer))) A whole number that has no sign. In HAL 
+     (((Unsigned Integer))) A whole number that has no sign. In HAL
     it is known as u32. (An unsigned 32-bit integer has a usable range of
     zero to 4,294,967,296.)
 
