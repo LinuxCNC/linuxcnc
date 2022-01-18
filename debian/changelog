@@ -2353,7 +2353,7 @@ linuxcnc (1:2.5.0) lucid; urgency=low
   * Interpreter: new unary function EXISTS tells whether a certain
     parameter exists
   * Interpreter: search path for subroutines: [RS274NGC]SUBROUTINE_PATH
-  * Interpreter: search path for user M codes: [RS274NGC]USER_M_PATH
+  * Interpreter: search path for user M-codes: [RS274NGC]USER_M_PATH
   * Interpreter: detect and error on malformed O-if[] statements
 
   * IOcontrol: make aborting tool changes work
@@ -2402,7 +2402,7 @@ linuxcnc (1:2.5.0) lucid; urgency=low
   * Touchy: turning the wheel during a continuous jog changes the current
     jog speed
 
-  * add a G code language spec for gedit
+  * add a G-code language spec for gedit
   * add latencyplot, a strip-chart type display of latency test results
 
  -- Chris Radek <chris@timeguy.com>  Fri, 30 Mar 2012 13:20:02 -0500

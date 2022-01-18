@@ -4,7 +4,7 @@
 
 == File Locations
 
-LinuxCNC looks for the configuration and G code files in a specific place. The
+LinuxCNC looks for the configuration and G-code files in a specific place. The
 location depends on how you run LinuxCNC.
 
 === Installed
@@ -16,7 +16,7 @@ directories:
 * The LinuxCNC directory is located at '/home/user-name/linuxcnc'.
 * The Configuration directories are located at '/home/user-name/linuxcnc/configs'.
 **  Configuration files are located at '/home/user-name/linuxcnc/configs/name-of-config'.
-* G code files are located at /home/user-name/linuxcnc/nc_files'.
+* G-code files are located at /home/user-name/linuxcnc/nc_files'.
 
 For example for a configuration called Mill and a user name Fred the directory
 and file structure would look like this.

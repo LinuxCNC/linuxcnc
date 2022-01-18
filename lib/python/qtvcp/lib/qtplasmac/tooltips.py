@@ -170,7 +170,7 @@ def clear_tool_tips(W):
 
 def set_tool_tips(W):
     # main widgets
-    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G and M Codes'))
+    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G- and M-Codes'))
 
     # main_preview_widgets
     text0 = _translate('ToolTips', 'Shows the currently loaded material')

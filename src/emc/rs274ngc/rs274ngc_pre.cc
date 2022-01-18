@@ -276,7 +276,7 @@ Side Effects:
    Calls to canonical machining commands are made.
    The interpreter variables are changed.
    At the end of the program, the file is closed.
-   If using a file, the active G codes and M codes are updated.
+   If using a file, the active G-codes and M codes are updated.
 
 Called By: external programs
 
@@ -2078,7 +2078,7 @@ interpreter.
 
 Returned Value: none
 
-Side Effects: copies active G codes into the codes array
+Side Effects: copies active G-codes into the codes array
 
 Called By: external programs
 
@@ -2145,7 +2145,7 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
 
 /**
  * Unpack state information from a motion line tag into
- * TASK_STAT-style arrays of G/M Codes.
+ * TASK_STAT-style arrays of G-/M-Codes.
  *
  * This method allows us to keep the existing infrastructure for g
  * code status / state storage intact.
@@ -2170,7 +2170,7 @@ int Interp::active_modes(int *g_codes,
     g_codes[3] = tag.fields[GM_FIELD_PLANE];
     g_codes[4] = tag.fields[GM_FIELD_CUTTER_COMP];
 
-    // Unpack flags into appropriate G code equivalents
+    // Unpack flags into appropriate G-code equivalents
     g_codes[5] = tag.flags[GM_FLAG_UNITS] ? G_20 : G_21;
     g_codes[6] = tag.flags[GM_FLAG_DISTANCE_MODE] ? G_90 : G_91;
     g_codes[7] = tag.flags[GM_FLAG_FEED_INVERSE_TIME] ? G_93 :

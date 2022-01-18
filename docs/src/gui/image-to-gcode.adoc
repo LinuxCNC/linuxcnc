@@ -1,8 +1,8 @@
 [[cha:image-to-g-code]]
 
-= Image to G Code
+= Image to G-Code
 
-image::images/image-to-gcode.png[align="center", alt="Image to G Code"]
+image::images/image-to-gcode.png[align="center", alt="Image to G-Code"]
 
 == What is a depth map?
 

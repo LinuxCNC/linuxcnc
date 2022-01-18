@@ -18,7 +18,7 @@ These include:
 When LinuxCNC is started the positions of each axis is the machine origin. Once
 an axis homed the the machine origin for that axis is set to the homed position.
 The machine origin is the machine coordinate system which all other coordinate
-systems are based. The <<gcode:g53,G53>> G code can be used to move in the
+systems are based. The <<gcode:g53,G53>> G-code can be used to move in the
 machine coordinate system.
 
 == Coordinate Systems
@@ -39,10 +39,10 @@ image::images/offsets.png[align="center", alt="Example of Coordinate Systems"]
 * G59.3 - use coordinate system 9
 
 Coordinate system offsets are used to shift the coordinate system from the
-machine coordinate system. This allows the G code to be programmed for the
+machine coordinate system. This allows the G-code to be programmed for the
 part without regard to the part location on the machine. Using coordinate
 system offsets would allow you to machine parts in multiple locations with the
-same G code.
+same G-code.
 
 The values for offsets are stored in the VAR file that is requested by the INI
 file during the startup of an LinuxCNC.

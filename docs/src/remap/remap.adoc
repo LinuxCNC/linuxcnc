@@ -1,6 +1,6 @@
 [[cha:remap]]
 
-= Remap Extending G code
+= Remap Extending G-code
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -1203,10 +1203,10 @@ A G-code cycle as used here is meant to behave as follows:
 * On first invocation, the associated words are collected and the
 G-code cycle is executed.
 * If subsequent lines just continue parameter words applicable to this
-code, but no new G-code, the previous G code is re-executed with the
+code, but no new G-code, the previous G-code is re-executed with the
 parameters changed accordingly.
 
-An example: Assume you have `G84.3` defined as remapped G code cycle
+An example: Assume you have `G84.3` defined as remapped G-code cycle
 with the following ini segment (see <<remap:cycle-stdglue,here>> for
 a detailed description of +cycle_prolog+ and +cycle_epilog+):
 
@@ -1852,7 +1852,7 @@ fault. An informational message is displayed and the epilog continues.
 
 [[remap:cycle-stdglue]]
 
-=== G code Cycles: +cycle_prolog+ and +cycle_epilog+
+=== G-code Cycles: +cycle_prolog+ and +cycle_epilog+
 
 These wrap a NGC procedure so it can act as a cycle, meaning the
 motion code is retained after finishing execution. If the next line
@@ -1885,7 +1885,7 @@ different groups (XYZ) (UVW) are used together, or any of (ABC) is given.
 ** export 'R-' as +#<r>+; fail if r not given, or less equal 0 if given.
 ** fail if feed rate is zero, or inverse time feed or cutter
 compensation is on.
-* Determine whether this is the first invocation of a cycle G code, if
+* Determine whether this is the first invocation of a cycle G-code, if
 so:
 ** Add the words passed in (as per argspec) into a set of sticky
 parameters, which is retained across several invocations.
