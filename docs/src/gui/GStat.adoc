@@ -366,10 +366,10 @@ Sent when flood coolant state changes.
 Sent when mist coolant state changes.
 
 *m-code-changed* :: '(returns string)' -
-Sent when active M codes change
+Sent when active M-codes change
 
 *g-code-changed* :: '(returns string)' -
-Sent when active G code change
+Sent when active G-code change
 
 *metric-mode-changed* :: '(returns bool)' -
 Sent when G21 status changes

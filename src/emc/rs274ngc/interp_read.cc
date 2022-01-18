@@ -2484,7 +2484,7 @@ defined as a synonym for real_value, but in fact a constraint is added
 which cannot be readily written in a production language.  An
 integer_value is a real_value which is very close to an integer.
 Integer_values are needed for array and table indices and (when
-divided by 10) for the values of M codes and G codes. All numbers
+divided by 10) for the values of M-codes and G-codes. All numbers
 (including integers) are read as real numbers and stored as doubles.
 If an integer_value is required in some situation, a test for being
 close to an integer is applied to the number after it is read.

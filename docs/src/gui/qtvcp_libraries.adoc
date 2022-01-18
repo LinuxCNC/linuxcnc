@@ -7,7 +7,7 @@ In this way you can select what features you want - yet don't have to build comm
 
 == STATUS
 
-STATUS is a library that sends GObject messages based on linuxcnc's current state. +
+STATUS is a library that sends GObject messages based on LinuxCNC's current state. +
 It is an extension of gladevcp's GStat object. <<cha:GStat,GStats>>
 
 It also has some functions to give status on such things as internal jog rate. +
@@ -53,8 +53,8 @@ These would call functions that looks like these: +
             print 'Linuxcnc machine is off'
 ----
 
-In this example code when linuxcnc is in machine on state the function self.on_state_on will be called. +
-When linuxcnc is in machine off state the function self.on_state_off will be called. +
+In this example code when LinuxCNC is in 'machine on'-state the function self.on_state_on will be called. +
+When LinuxCNC is in 'machine off'-state the function self.on_state_off will be called. +
 
 == INFO
 
@@ -182,7 +182,7 @@ if INFO.MACHINE_IS_METRIC is True:
 
 == Action
 
-This library is used to command linuxcnc's motion controller. +
+This library is used to command LinuxCNC's motion controller. +
 It tries to hide incidental details and add convenience methods for developers. +
 
 To import this modules add this python code to your import section: +
@@ -345,19 +345,19 @@ Delete the numbered tool
 === SAVE_TOOLFILE(toolarray)
 This will parse the toolarray and save it to the file specified in the INI as the tool path. +
 This tool array must contain all the available tools information. +
-This array is expected to use the linuxcnc raw tool array - (doesn't have tool wear entries) +
+This array is expected to use the LinuxCNC raw tool array - (doesn't have tool wear entries) +
 it will return True if there was an error. +
 
 === CONVERT_TO_WEAR_TYPE(toolarray)
-This function converts a linuxcnc raw tool array to a qtvcp tool wear array. +
+This function converts a LinuxCNC raw tool array to a qtvcp tool wear array. +
 Qtvcp's array includes entries for X and Z axis tool wear. +
 inuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
 This also requires remap code to add the wear offsets at tool change time. +
 
 === CONVERT_TO_STANDARD_TYPE(toolarray)
-This function converts qtvcp's tool array into a linuxcnc raw tool array. +
+This function converts qtvcp's tool array into a LinuxCNC raw tool array. +
 Qtvcp's array includes entries for X and Z axis tool wear. +
-linuxcnc covers tool wear by adding tool wear information into tool entries above 10000. +
+LinuxCNC covers tool wear by adding tool wear information into tool entries above 10000. +
 This also requires remap code to add the wear offsets t tool change time. +
 
 == Path
@@ -389,7 +389,7 @@ PATH.WORKINGDIR     # The directory qtvcp was launched from
 PATH.IS_SCREEN      # Is this a screen or a VCP?
 PATH.CONFIGPATH     # launched configuration folder
 PATH.RIPCONFIGDIR   # The Run-in-place config folder for Qtvcp screens
-PATH.BASEDIR        # Base folder for linuxcnc
+PATH.BASEDIR        # Base folder for LinuxCNC
 PATH.BASENAME       # The Designer files name (no ending)
 PATH.IMAGEDIR       # The Qtvcp image folder
 PATH.SCREENDIR      # The Qtvcp builtin Screen folder
@@ -435,7 +435,7 @@ WIDGETS = VCPWindow()
 
 == aux_program_loader
 
-This module allows an easy way to load auxiliary programs linuxcnc often uses. +
+This module allows an easy way to load auxiliary programs LinuxCNC often uses. +
 To import this modules add this python code to your import section: +
 [source,python]
 ----
@@ -466,7 +466,7 @@ AUX_PRGM.load_halmeter()
 ----
 AUX_PRGM.load_ladder()
 ----
-=== linuxcnc status program
+=== LinuxCNC status program
 ----
 AUX_PRGM.load_status()
 ----

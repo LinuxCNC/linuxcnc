@@ -34,7 +34,7 @@ organized:
 
 ** 'by_machine' - Configurations organized by machine.
 
-** 'apps' - Applications that do not require starting linuxcnc but may be
+** 'apps' - Applications that do not require starting LinuxCNC but may be
    useful for testing or trying applications like <<cha:pyvcp,PyVCP>> or
    <<cha:glade-vcp,GladeVCP>>.
 
@@ -83,8 +83,8 @@ systems like:
 A complete system may be required to use these configurations.
 
 The apps items are typically 1) utilities that don't require
-starting linuxcnc or 2) demonstrations of applications that can
-be used with linuxcnc:
+starting LinuxCNC or 2) demonstrations of applications that can
+be used with LinuxCNC:
 
 * info - creates a file with system information that may be useful for
   problem diagnosis.

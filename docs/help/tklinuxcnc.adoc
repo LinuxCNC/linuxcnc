@@ -4,7 +4,7 @@ Menus
 File->Run... : prompts for an NC program to run. You need to be
 in Auto mode, or you'll get an error.
 
-File->Reset : resets the interpreter. The modal G and M codes are
+File->Reset : resets the interpreter. The modal G- and M-codes are
 set to their defaults.
 
 File->Quit : quits the Tkemc graphical application. The controller will
@@ -234,12 +234,12 @@ speed change keys F11 and F12.
 
 The RS-274-NGC Interpreter
 --------------------------
-The EMC runs a dialect of RS-274 "G codes" that originated from
+The EMC runs a dialect of RS-274 "G-codes" that originated from
 Allen-Bradley as part of their work for the National Center for
 Manufacturing Sciences (NCMS) on the Next Generation Controller (NGC)
 project. The dialect is similar to the Fanuc series of CNCs.
 
-G codes:
+G-codes:
 
 G00 X Y Z          rapid feed
 G01 X Y Z          linear feed, e.g., G01 X10 Y20 Z30 F60 for 60 ipm
@@ -286,7 +286,7 @@ G93                inverse time feed mode
 G94                feed per minute mode (the usual)
 G98,G99            set canned cycle return level
 
-M codes:
+M-codes:
 
 M0   optional program stop
 M1   program stop
@@ -324,7 +324,7 @@ Q. Why doesn't the mouse or return key work?
 A. Sometimes the cursor needs to be in the part of the window with the
 text in it. Move the cursor to a different region and try it.
 
-Q. Why are the modal G and M codes not correct in Auto mode?
+Q. Why are the modal G- and M-codes not correct in Auto mode?
 A. The modes that will be active when you enter MDI mode are
 shown. These are read ahead of actual program execution.
 

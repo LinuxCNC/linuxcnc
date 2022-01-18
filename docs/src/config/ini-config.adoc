@@ -142,7 +142,7 @@ Z_SAFE_DISTANCE = -10
 ----
 
 To use the custom variables in your HAL file, put the section and
-variable name in place of the value. 
+variable name in place of the value.
 
 .HAL Example
 ----
@@ -260,7 +260,7 @@ User Manual.
   https://docs.python.org/2/library/string.html#format-specification-mini-language
   An error will be raised if the format can not accept a floating-point value.
 
-* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in 
+* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in
   the graphics display
 
 * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
@@ -343,7 +343,7 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 * 'MAX_ANGULAR_VELOCITY = 1.0' - The maximum velocity for angular jogs, in machine units per second.
 
 * 'INCREMENTS = 1 mm, .5 in, ...' - Defines the increments available for incremental jogs.
-    The INCREMENTS can be used to override the default. 
+    The INCREMENTS can be used to override the default.
     The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16),
     optionally followed by a unit (cm, mm, um, inch, in or mil).
     If a unit is not specified the machine unit is assumed.
@@ -357,17 +357,17 @@ See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
    a blank string "" and no file will be loaded at start up. gmoccapy will not use this setting, as it
    offers a corresponding entry on its settings page.
 
-* 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G code 
+* 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G-code
     from the AXIS menu. This must be configured for this menu item to
-    work. Another valid entry is gnome-terminal -e vim. This entry does not apply to gmoccapy, as gmoccapy 
+    work. Another valid entry is gnome-terminal -e vim. This entry does not apply to gmoccapy, as gmoccapy
     has an integrated editor.
 
 * 'TOOL_EDITOR = tooledit' - The editor to use when editing the tool table (for example by
     selecting "File > Edit tool table..." in Axis). Other valid
-    entries are "gedit", "gnome-terminal -e vim", and "gvim". This entry does not apply to gmoccapy, as gmoccapy 
+    entries are "gedit", "gnome-terminal -e vim", and "gvim". This entry does not apply to gmoccapy, as gmoccapy
     has an integrated editor.
 
-* 'PYVCP = /filename.xml' - The PyVCP panel description file. See the 
+* 'PYVCP = /filename.xml' - The PyVCP panel description file. See the
     <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
@@ -474,7 +474,7 @@ the following line:
 
 * 'PROGRAM_EXTENSION = .NGC XYZ Post Processor'
 
-The following lines add support for the image-to-G code converter
+The following lines add support for the image-to-G-code converter
 included with LinuxCNC.
 
 * 'PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image'
@@ -482,7 +482,7 @@ included with LinuxCNC.
 ** 'gif = image-to-gcode'
 ** 'jpg = image-to-gcode'
 
-An example of a custom G code converter located in the linuxcnc directory.
+An example of a custom G-code converter located in the linuxcnc directory.
 
 * 'PROGRAM_EXTENSION = .gcode 3D Printer'
 ** 'gcode = /home/mill/linuxcnc/convert.py'
@@ -557,7 +557,7 @@ if __name__ == "__main__":
 * 'PARAMETER_FILE = myfile.var' -
     (((PARAMETER FILE))) The file located in the same directory as the ini
     file which contains the parameters used by the interpreter (saved
-    between runs). 
+    between runs).
 
 * 'ORIENT_OFFSET = 0' -
     (((ORIENT OFFSET))) A float value added to the R word parameter
@@ -673,13 +673,13 @@ Section.
 
 === [TASK] Section
 
-* 'TASK = milltask' - 
+* 'TASK = milltask' -
     Specifies the name of the 'task' executable. The 'task' executable does various
     things, such as communicate with the UIs over NML, communicate with the
     realtime motion planner over non-HAL shared memory, and interpret gcode.
     Currently there is only one task executable that makes sense for
     99.9% of users, milltask.
-    
+
 * 'CYCLE_TIME = 0.010' -
     The period, in seconds, at which TASK will run. This parameter
     affects the polling interval when waiting for motion to complete, when
@@ -712,7 +712,7 @@ Section.
 
 * 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl'
     at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
-    processed as above but use haltcl for processing  See the 
+    processed as above but use haltcl for processing  See the
     <<cha:haltcl,HALTCL Chapter>> for more information.
 
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal'
@@ -784,7 +784,7 @@ For more information see the <<cha:hal-twopass,Hal TWOPASS>> chapter.
 
 === [HALUI] section
 
-* 'MDI_COMMAND = G53 G0 X0 Y0 Z0' - 
+* 'MDI_COMMAND = G53 G0 X0 Y0 Z0' -
      An MDI command can be executed by using halui.mdi-command-00. Increment
     the number for each command listed in the [HALUI] section.
 
@@ -814,7 +814,7 @@ gui-dependent actions (like creating gui-specific hal pins).
 
    APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
 
-** Invoke halshow with a previuosly saved watchlist. Since linuxcnc sets the working directory to the directory for the inifile, you can refer to files in that directory (example: my.halshow):
+** Invoke halshow with a previuosly saved watchlist. Since the linuxcnc script sets the working directory to the directory for the inifile, you can refer to files in that directory (example: my.halshow):
 
    APP = halshow my.halshow
 
@@ -925,7 +925,7 @@ on that segment, and use constant acceleration. (Setting
 ARC_BLEND_RAMP_FREQ = 1000 is equivalent to always using trapezoidal
 acceleration, if the servo loop is 1kHz).
 +
-You can characterize the worst-case loss of performance by comparing the 
+You can characterize the worst-case loss of performance by comparing the
 velocity that a trapezoidal profile reaches vs. the ramp:
 +
 # v_ripple = a_max / (4.0 * f)
@@ -934,18 +934,18 @@ velocity that a trapezoidal profile reaches vs. the ramp:
 # a_max = max axis acceleration
 # f = cutoff frequency from INI
 +
-For the aforementioned machine, the ripple for a 20Hz cutoff frequency 
-is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it 
-is only a worst-case estimate. In reality , the trapezoidal motion 
-profile is limited by other factors, such as normal acceleration or 
-requested velocity, and so the actual performance loss should be much 
-smaller. Increasing the cutoff frequency can squeeze out more 
-performance, but make the motion rougher due to acceleration 
-discontinuities. A value in the range 20Hz to 200Hz should be reasonable 
+For the aforementioned machine, the ripple for a 20Hz cutoff frequency
+is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
+is only a worst-case estimate. In reality , the trapezoidal motion
+profile is limited by other factors, such as normal acceleration or
+requested velocity, and so the actual performance loss should be much
+smaller. Increasing the cutoff frequency can squeeze out more
+performance, but make the motion rougher due to acceleration
+discontinuities. A value in the range 20Hz to 200Hz should be reasonable
 to start.
 +
-Finally, no amount of tweaking will speed up a toolpath with lots of 
-small, tight corners, since you're limited by cornering acceleration. 
+Finally, no amount of tweaking will speed up a toolpath with lots of
+small, tight corners, since you're limited by cornering acceleration.
 
 * 'SPINDLES = 3' - The number of spindles to support. It is imperative that this
    number matches the "num_spindles" parameter passed to the motion module.
@@ -963,7 +963,7 @@ small, tight corners, since you're limited by cornering acceleration.
 * 'LINEAR_UNITS = <units>' - (((LINEAR UNITS))) Specifies the 'machine units' for linear axes.
     Possible choices are mm or inch.
     This does not affect the linear units in NC code (the G20 and G21
-    words do this). 
+    words do this).
 
 * 'ANGULAR_UNITS = <units>' - (((ANGULAR UNITS))) Specifies the 'machine units' for rotational axes.
     Possible choices are 'deg', 'degree' (360 per circle), 'rad', 'radian'
@@ -1034,7 +1034,7 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
 
 === [AXIS_<letter>] Section
 The <letter> specifies one of: X Y Z A B C U V W
-   
+
 * 'MAX_VELOCITY = 1.2' -
     Maximum velocity for this axis in <<sec:traj-section,machine units>> per second.
 
@@ -1056,7 +1056,7 @@ The <letter> specifies one of: X Y Z A B C U V W
     For a rotary axis (A,B,C typ) with unlimited rotation having no MAX_LIMIT
     for that axis in the [AXIS_<letter>] section a value of 1e99 is used.
 
-* 'WRAPPED_ROTARY = 1' - 
+* 'WRAPPED_ROTARY = 1' -
     When this is set to 1 for an ANGULAR axis the axis will move 0-359.999
     degrees. Positive Numbers will move the axis in a positive direction and
     negative numbers will move the axis in the negative direction.
@@ -1161,7 +1161,7 @@ For more information on kinematics modules see the manpage: '$ man kins'
     numbers. Currently the limit inside LinuxCNC is for 256 triplets per joint.
     +
     +
-    If COMP_FILE is specified for an joint, BACKLASH is not used. A 
+    If COMP_FILE is specified for an joint, BACKLASH is not used. A
     'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
 
 * 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
@@ -1265,7 +1265,7 @@ These parameters are Homing related, for a better explanation read the
     the homing process, this is the position that is assigned to that point.
     When sharing home and limit switches and using a home sequence that will
     leave the home/limit switch in the toggled state the home offset can be
-    used define the home switch position to be other than 0 if your HOME 
+    used define the home switch position to be other than 0 if your HOME
     position is desired to be 0.
 
 * 'HOME_SEARCH_VEL = 0.0' -
@@ -1311,7 +1311,7 @@ These parameters are Homing related, for a better explanation read the
      Used to indicate the joint uses an absolute encoder.  At a request
     for homing, the current joint value is set to the 'HOME_OFFSET' value.
     If the 'HOME_ABSOLUTE_ENCODER' setting is 1, the machine makes the usual
-    final move to the 'HOME' value.  
+    final move to the 'HOME' value.
     If the 'HOME_ABSOLUTE_ENCODER' setting is 2, no final move is made.
 
 * 'HOME_SEQUENCE = <n>' -
@@ -1387,7 +1387,7 @@ image::images/encoder-counts-math.png[align="center"]
     units on the P gain are volts per machine unit, e.g.,
     image:images/p-term.png[height=25]
 
-//latexmath:[$\frac{volt}{mu}$]. 
+//latexmath:[$\frac{volt}{mu}$].
 
 * 'I = 0' - The integral gain for the joint servo. The value
     multiplies the
@@ -1395,7 +1395,7 @@ image::images/encoder-counts-math.png[align="center"]
     units, resulting in a contribution to the computed voltage for the
     motor amplifier. The units on the I gain are volts per machine unit
     second, e.g., image:images/i-term.png[height=25]
-    
+
 //latexmath:[$\frac{volt}{mu\, s}$].
 
 * 'D = 0' - The derivative gain for the joint servo. The value
@@ -1429,10 +1429,10 @@ image::images/encoder-counts-math.png[align="center"]
     contribution to the computed voltage for the motor amplifier. The units
     on the FF2 gain are volts per machine unit per second per second,
     e.g., image:images/ff2.png[height=25]
-    
+
 // latexmath:[$\frac{volt}{mu\, s^{2}}$].
 
-* 'OUTPUT_SCALE = 1.000' - 
+* 'OUTPUT_SCALE = 1.000' -
 
 * 'OUTPUT_OFFSET = 0.000' - These two values are the scale and offset factors for
     the joint output to the motor amplifiers.
@@ -1445,7 +1445,7 @@ image::images/encoder-counts-math.png[align="center"]
     output in quasi-SI units to raw actuator values, e.g., volts for an
     amplifier DAC. This scaling
     looks like: image:images/output-offset.png[]
-    
+
 // latexmath:[raw=\frac{output-offset}{scale}]
 
 The value for scale can be obtained analytically by doing a unit
@@ -1472,18 +1472,18 @@ To do this, follow this procedure.
 
 . Build a calibration table for the output, driving the DAC with a
    desired voltage and measuring the result.
-   
+
 . Do a least-squares linear fit to get coefficients a, b such
    that image:images/calibration-1.png[]
 . Note that we want raw output such that our measured result is
-   identical to the commanded output. This means 
+   identical to the commanded output. This means
 .. image:images/calibration-2.png[]
 .. image:images/calibration-3.png[]
 . As a result, the a and b coefficients from the linear fit can be
-   used as the scale and offset for the controller directly. 
+   used as the scale and offset for the controller directly.
 
 See the following table for an example of voltage measurements.
-   
+
 // latexmath:[ meas=a*raw+b ]
 // latexmath:[ cmd=a*raw+b ]
 // latexmath:[ raw=(cmd-b)/a ]
@@ -1555,7 +1555,7 @@ have:
 
 image::images/stepper-scale.png[align="center"]
 
-//latexmath:[ scale = 
+//latexmath:[ scale =
 //\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} =
 //\frac{4000\, steps}{inch} ]
 
@@ -1568,7 +1568,7 @@ For an angular joint one unit is equal to the setting in ANGULAR_UNITS.
 A second number, if specified, is ignored.
 For example, on a 2000 counts per rev encoder, and 10
 revs/inch gearing, and desired units of inch, we
-have: 
+have:
 
 image::images/encoder-scale.png[align="center"]
 

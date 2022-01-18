@@ -55,7 +55,7 @@ inline int round_to_int(T x) {
 
 /* nested remap: a remapped code is found in the body of a subroutine
  * which is executing on behalf of another remapped code
- * example: a user G code command executes a tool change
+ * example: a user G-code command executes a tool change
  */
 #define MAX_NESTED_REMAPS 10
 
@@ -193,7 +193,7 @@ enum OCodes
     O_ = 18,
 };
 
-// G Codes are symbolic to be dialect-independent in source code
+// G-codes are symbolic to be dialect-independent in source code
 enum GCodes
 {
     G_0 = 0,
@@ -574,7 +574,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 
 #define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
-// for M and G codes
+// for M- and G-codes
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
@@ -599,8 +599,8 @@ struct context_struct {
     double saved_params[INTERP_SUB_PARAMS];
     parameter_map named_params;
     unsigned char context_status;		// see CONTEXT_ defines below
-    int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
-    int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
+    int saved_g_codes[ACTIVE_G_CODES];  // array of active G-codes
+    int saved_m_codes[ACTIVE_M_CODES];  // array of active M-codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
     pycontext pystuff;
@@ -660,8 +660,8 @@ struct setup
   double v_axis_offset, v_current, v_origin_offset;
   double w_axis_offset, w_current, w_origin_offset;
 
-  int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
-  int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
+  int active_g_codes[ACTIVE_G_CODES];  // array of active G-codes
+  int active_m_codes[ACTIVE_M_CODES];  // array of active M-codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
   StateTag state_tag;
 

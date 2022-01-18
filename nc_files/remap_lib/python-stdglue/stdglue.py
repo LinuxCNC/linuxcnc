@@ -385,7 +385,7 @@ def cycle_prolog(self,**words):
         return "cycle_prolog failed: %s" % (e)
 
 # make sure the next line has the same motion code, unless overridden by a
-# new G code
+# new G-code
 def cycle_epilog(self,**words):
     try:
         c = self.blocks[self.remap_level]

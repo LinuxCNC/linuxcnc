@@ -44,7 +44,7 @@ comment = '^[n|N]([ |\t]*[0-9]){1,5}'
 preproc = '[ \t]*[o|O](([ \t]*[0-9])+|<([[:alpha:]]|_)([[:word:]]|\-)+>)[ \t]*',
 	'(sub|endsub|while|endwhile|if|else|endif|do|call|break|continue|return|repeat|endrepeat|elseif)'
 
-# G codes
+# G-codes
 vardef GCODE = '[g|G]([ \t]*[0])*[ \t]*'
 keyword = $GCODE + '1[ \t]*[07-9]'
 keyword = $GCODE + '2[ \t]*[018]'
