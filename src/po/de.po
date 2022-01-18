@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-17 23:54+0000\n"
+"PO-Revision-Date: 2022-01-19 00:54+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -7229,7 +7229,6 @@ msgid "Pan, rotate or select line"
 msgstr "Verschieben, drehen oder Linie auswählen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:214
-#, fuzzy
 msgid "Shift+Left Button"
 msgstr "Umschalt+Linke Maustaste"
 
@@ -7636,7 +7635,8 @@ msgstr "NC Dateien"
 #: src/emc/usr_intf/axis/scripts/axis.py:2212
 #, fuzzy
 msgid "axis cannot accept remote command while running"
-msgstr "Achse kann keine remote Befehle während des Laufs akzeptieren"
+msgstr ""
+"Achse kann keinen entfernten (remote) Befehl während des Laufs entgegennehmen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2267
 msgid "File not Writable:"
@@ -7663,12 +7663,11 @@ msgstr ""
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2275
 msgid "Edit-readonly"
-msgstr ""
+msgstr "Schreibgeschützt bearbeiten"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
-#, fuzzy
 msgid "Custom Grid"
-msgstr "Benutzerdefiniert"
+msgstr "Benutzerdefiniertes Raster"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
 #, fuzzy
@@ -7697,7 +7696,6 @@ msgstr ""
 "Buchstaben:<%s> "
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2678
-#, fuzzy
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
 "Das Gelenk ist bereits an Referenzpunkt, möchten Sie die Referenzfahrt "
@@ -7737,7 +7735,7 @@ msgstr ""
 "Siehe Dokumentation zur 'INI Konfiguration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3394
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "Missing required specifier (has linear joint or axis):\n"
@@ -7750,7 +7748,7 @@ msgstr ""
 "Siehe Dokumentation zur 'INI Configuration'\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3407
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "Warning: Missing required specifier (has angular joint or axis):\n"
@@ -7758,7 +7756,7 @@ msgid ""
 "See the 'INI Configuration' documents\n"
 msgstr ""
 "\n"
-"Warnung: Fehlender Bezeichner (has angular joint or axis):\n"
+"Warnung: Fehlender Bezeichner (hat Winkelgelenk oder Achse):\n"
 "%s\n"
 "See Dokumentation zur 'INI Konfiguration'\n"
 
@@ -7817,9 +7815,9 @@ msgstr ""
 "Referenzfahrten einzelner Achsen werden derzeit nicht unterstützt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3614
-#, fuzzy, python-format
+#, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
-msgstr "KINEMATICS_IDENTITY mit duplizierten Achsen-Bezeichner <%s>\n"
+msgstr "KINEMATICS_IDENTITY mit dupliziertem Achsen-Bezeichner <%s>\n"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3626
 msgid "Joint"
@@ -7849,7 +7847,6 @@ msgid "toggle PYVCP panel visibility"
 msgstr "Wechsel PyVCP Panel Sichtbarkeit"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3894 share/axis/tcl/axis.tcl:387
-#, fuzzy
 msgid "Show pyVCP pan_el"
 msgstr "Zeige pyVCP pan_el"
 
@@ -8083,9 +8080,8 @@ msgid "Depth images"
 msgstr "Bilddateien"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:22
-#, fuzzy
 msgid "LinuxCNC Debug Level"
-msgstr "LinuxCNC Debug-Stufe"
+msgstr "LinuxCNC Debug-Ebene"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:23
 msgid "debuglevel"
@@ -8178,7 +8174,6 @@ msgid "Reload tool _data"
 msgstr "Werkzeug_tabelle neu laden"
 
 #: share/axis/tcl/axis.tcl:96
-#, fuzzy
 msgid "_Ladder Editor..."
 msgstr "_SPS-Editor..."
 
@@ -8251,12 +8246,10 @@ msgid "Show _Hal Configuration"
 msgstr "_HAL-Konfiguration anzeigen"
 
 #: share/axis/tcl/axis.tcl:183
-#, fuzzy
 msgid "H_al Meter"
 msgstr "H_al Meter"
 
 #: share/axis/tcl/axis.tcl:187
-#, fuzzy
 msgid "Ha_l Scope"
 msgstr "Ha_l Scope"
 
@@ -8326,9 +8319,8 @@ msgid "Tool touch off to wor_kpiece"
 msgstr "Antasten auf _Werkstück"
 
 #: share/axis/tcl/axis.tcl:263
-#, fuzzy
 msgid "Tool touch off to _fixture"
-msgstr "Anstasten auf Spannvorrichtung"
+msgstr "Anstasten an Spannvorrichtung"
 
 #: share/axis/tcl/axis.tcl:271
 msgid "_Top view"
@@ -8415,9 +8407,8 @@ msgid "_Clear live plot"
 msgstr "Werkzeugpfad _löschen"
 
 #: share/axis/tcl/axis.tcl:385
-#, fuzzy
 msgid "Ctrl-E"
-msgstr "Strg-R"
+msgstr "Strg-E"
 
 #: share/axis/tcl/axis.tcl:396
 msgid "Show commanded position"
@@ -8822,9 +8813,8 @@ msgid "Set G54 offset for active axis [End]"
 msgstr "Nullpunktverschiebung für die aktive Achse setzen [Ende]"
 
 #: share/axis/tcl/axis.tcl:2260
-#, fuzzy
 msgid "Set tool offset for loaded tool [Control-End]"
-msgstr "Nullpunktverschiebung für die aktive Achse setzen [Ende]"
+msgstr "Setze Kompensation für das geladene Werkzeug [Steuerung-Ende]"
 
 #: share/axis/tcl/axis.tcl:2261
 msgid "Activate axis [X]"
@@ -8926,7 +8916,6 @@ msgstr ""
 #: src/emc/usr_intf/touchy/mdi.py:72 src/emc/usr_intf/touchy/mdi.py:73
 #: src/emc/usr_intf/gscreen/mdi.py:66 src/emc/usr_intf/gscreen/mdi.py:67
 #: src/emc/usr_intf/gscreen/mdi.py:68 src/emc/usr_intf/gscreen/mdi.py:69
-#, fuzzy
 msgid "Probe"
 msgstr "Sensor"
 
