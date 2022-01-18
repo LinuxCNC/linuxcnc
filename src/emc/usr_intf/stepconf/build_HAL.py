@@ -432,10 +432,6 @@ class HAL:
                     print(file=f1)
                     f1.close()
 
-        # qtplasmac requires connections to the plasmac hal component
-        if self.d.select_qtplasmac:
-            self.plasmac_hal_component(file)
-
         file.close()
         self.sim_hardware_halfile(base)
         self.d.add_md5sum(filename)
@@ -793,51 +789,6 @@ class HAL:
             print("net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up", file=f1)
             print("net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down", file=f1)
             f1.close()
-
-    def plasmac_hal_component(self, file):
-        print("\n# ---PLASMAC COMPONENT INPUTS---", file=file)
-        print("net plasmac:arc-ok               db_arc-ok.out               =>  plasmac.arc-ok-in", file=file)
-        print("net plasmac:axis-x-position      axis.x.pos-cmd              =>  plasmac.axis-x-position", file=file)
-        print("net plasmac:axis-y-position      axis.y.pos-cmd              =>  plasmac.axis-y-position", file=file)
-        print("net plasmac:breakaway-switch-out db_breakaway.out            =>  plasmac.breakaway", file=file)
-        print("net plasmac:current-velocity     motion.current-vel          =>  plasmac.current-velocity", file=file)
-        print("net plasmac:cutting-start        spindle.0.on                =>  plasmac.cutting-start", file=file)
-        print("net plasmac:feed-override        halui.feed-override.value   =>  plasmac.feed-override", file=file)
-        print("net plasmac:feed-reduction       motion.analog-out-03        =>  plasmac.feed-reduction", file=file)
-        print("net plasmac:float-switch-out     db_float.out                =>  plasmac.float-switch", file=file)
-        print("net plasmac:ignore-arc-ok-0      motion.digital-out-01       =>  plasmac.ignore-arc-ok-0", file=file)
-        print("net machine-is-on                halui.machine.is-on         =>  plasmac.machine-is-on", file=file)
-        print("net plasmac:motion-type          motion.motion-type          =>  plasmac.motion-type", file=file)
-        print("net plasmac:offsets-active       motion.eoffset-active       =>  plasmac.offsets-active", file=file)
-        print("net plasmac:ohmic-probe-out      db_ohmic.out                =>  plasmac.ohmic-probe", file=file)
-        print("net plasmac:program-is-idle      halui.program.is-idle       =>  plasmac.program-is-idle", file=file)
-        print("net plasmac:program-is-paused    halui.program.is-paused     =>  plasmac.program-is-paused", file=file)
-        print("net plasmac:program-is-running   halui.program.is-running    =>  plasmac.program-is-running", file=file)
-        print("net plasmac:feed-upm             motion.feed-upm             =>  plasmac.feed-upm", file=file)
-        print("net plasmac:scribe-start         spindle.1.on                =>  plasmac.scribe-start", file=file)
-        print("net plasmac:spotting-start       spindle.2.on                =>  plasmac.spotting-start", file=file)
-        print("net plasmac:thc-disable          motion.digital-out-02       =>  plasmac.thc-disable", file=file)
-        print("net plasmac:torch-off            motion.digital-out-03       =>  plasmac.torch-off", file=file)
-        print("net plasmac:units-per-mm         halui.machine.units-per-mm  =>  plasmac.units-per-mm", file=file)
-        print("net plasmac:x-offset-current     axis.x.eoffset              =>  plasmac.x-offset-current", file=file)
-        print("net plasmac:y-offset-current     axis.y.eoffset              =>  plasmac.y-offset-current", file=file)
-        print("net plasmac:z-offset-current     axis.z.eoffset              =>  plasmac.z-offset-current", file=file)
-
-        print("\n# ---PLASMAC COMPONENT OUTPUTS---", file=file)
-        print("net plasmac:adaptive-feed        plasmac.adaptive-feed       =>  motion.adaptive-feed", file=file)
-        print("net plasmac:cutting-stop         halui.spindle.0.stop        =>  plasmac.cutting-stop", file=file)
-        print("net plasmac:feed-hold            plasmac.feed-hold           =>  motion.feed-hold", file=file)
-        print("net plasmac:offset-scale         plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale", file=file)
-        print("net plasmac:program-pause        plasmac.program-pause       =>  halui.program.pause", file=file)
-        print("net plasmac:program-resume       plasmac.program-resume      =>  halui.program.resume", file=file)
-        print("net plasmac:program-run          plasmac.program-run         =>  halui.program.run", file=file)
-        print("net plasmac:program-stop         plasmac.program-stop        =>  halui.program.stop", file=file)
-        print("net plasmac:torch-on             plasmac.torch-on", file=file)
-        print("net plasmac:x-offset-counts      plasmac.x-offset-counts     =>  axis.x.eoffset-counts", file=file)
-        print("net plasmac:y-offset-counts      plasmac.y-offset-counts     =>  axis.y.eoffset-counts", file=file)
-        print("net plasmac:xy-offset-enable     plasmac.xy-offset-enable    =>  axis.x.eoffset-enable axis.y.eoffset-enable", file=file)
-        print("net plasmac:z-offset-counts      plasmac.z-offset-counts     =>  axis.z.eoffset-counts", file=file)
-        print("net plasmac:z-offset-enable      plasmac.z-offset-enable     =>  axis.z.eoffset-enable", file=file)
 
     # Boiler code
     def __getitem__(self, item):
