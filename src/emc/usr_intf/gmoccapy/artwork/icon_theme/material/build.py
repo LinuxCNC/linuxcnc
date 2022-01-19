@@ -216,6 +216,15 @@ def compose_images():
                      layers=[name.replace("_", "-")]
                      )
 
+    # edit icons
+    edit_icons_svg = svg("edit_icons.inkscape.svg")
+    for name in ["save", "save_as", "new_document", "keyboard", "keyboard_hide"]:
+        composer.add(f"{name}.symbolic.png",
+                     src_file=edit_icons_svg,
+                     context="actions",
+                     layers=[name.replace("_", "-")]
+                     )
+
     # compose all images
     composer.compose(DIMENSIONS)
 

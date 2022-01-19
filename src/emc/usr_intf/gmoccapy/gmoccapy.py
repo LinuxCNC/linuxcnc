@@ -1280,6 +1280,8 @@ class gmoccapy(object):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make macro button")
 
+        default_size = (85, 56)
+
         macros = self.get_ini_info.get_macros()
 
         # if no macros at all are found, we receive a NONE, so we have to check:
@@ -1298,7 +1300,11 @@ class gmoccapy(object):
 
             num_macros = 16
 
-        btn = self._get_button_with_image("previous_button", None, "gtk-go-back")
+        btn = self._new_button_with_predefined_image(
+            name="previous_button",
+            size=default_size,
+            image=self.widgets.img_macro_paginate_prev
+        )
         btn.hide()
         btn.set_property("tooltip-text", _("Press to display previous macro button"))
         btn.connect("clicked", self._on_btn_previous_macro_clicked)
@@ -1325,7 +1331,11 @@ class gmoccapy(object):
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
 
-        btn = self._get_button_with_image("next_button", None, "gtk-go-forward")
+        btn = self._new_button_with_predefined_image(
+            name="next_button",
+            size=default_size,
+            image=self.widgets.img_macro_paginate_next
+        )
         btn.set_property("tooltip-text", _("Press to display next macro button"))
         btn.connect("clicked", self._on_btn_next_macro_clicked)
         btn.hide()
@@ -1341,14 +1351,13 @@ class gmoccapy(object):
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
 
-        file = "keyboard.png"
-        filepath = os.path.join(IMAGEDIR, file)
-
-        name = "keyboard"
-        btn = self._get_button_with_image(name, filepath, None)
+        btn = self.widgets.btn_macro_menu_toggle_keyboard = self._new_button_with_predefined_image(
+            name="keyboard",
+            size=default_size,
+            image=self.widgets.img_macro_menu_keyboard
+        )
         btn.set_property("tooltip-text", _("Press to display the virtual keyboard"))
         btn.connect("clicked", self.on_btn_show_kbd_clicked)
-        btn.set_property("name", name)
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
 
         self.macro_dic = {}
@@ -2119,7 +2128,7 @@ class gmoccapy(object):
         self.widgets.chk_use_kb_on_mdi.set_active(False)
         self.widgets.chk_use_kb_on_file_selection.set_active(False)
         self.widgets.frm_keyboard.set_sensitive(False)
-        self._change_kbd_image("stop")
+        self._change_kbd_image("img_macro_menu_stop")
         self.macro_dic["keyboard"].set_sensitive(False)
         self.macro_dic["keyboard"].set_property("tooltip-text", _("interrupt running macro"))
         self.widgets.btn_keyb.set_sensitive(False)
@@ -2566,9 +2575,9 @@ class gmoccapy(object):
             btn.set_sensitive(True)
 
         if self.onboard:
-            self._change_kbd_image("keyboard")
+            self._change_kbd_image("img_macro_menu_keyboard")
         else:
-            self._change_kbd_image("stop")
+            self._change_kbd_image("img_macro_menu_stop")
             self.macro_dic["keyboard"].set_sensitive(False)
 
         self.widgets.btn_run.set_sensitive(True)
@@ -2598,7 +2607,7 @@ class gmoccapy(object):
         self.widgets.btn_run.set_sensitive(False)
         self.widgets.btn_stop.set_sensitive(True)
 
-        self._change_kbd_image("stop")
+        self._change_kbd_image("img_macro_menu_stop")
         self.macro_dic["keyboard"].set_sensitive(True)
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
@@ -2971,14 +2980,7 @@ class gmoccapy(object):
 # =========================================================
 
     def _change_kbd_image(self, image):
-        #print("change keyboard image",self.macro_dic)
-        if image == "stop":
-            file = "stop.png"
-        else:
-            file = "keyboard.png"
-        filepath = os.path.join(IMAGEDIR, file)
-        image = self.macro_dic["keyboard"].get_children()[0]
-        image.set_from_file(filepath)
+        self.macro_dic["keyboard"].set_image(self.widgets[image])
         if self.onboard:
             self.macro_dic["keyboard"].set_property("tooltip-text", _("This button will show or hide the keyboard"))
         else:
@@ -4124,7 +4126,7 @@ class gmoccapy(object):
             for pos in self.macro_dic:
                 self.macro_dic[pos].set_sensitive(True)
             if self.onboard:
-                self._change_kbd_image("keyboard")
+                self._change_kbd_image("img_macro_menu_keyboard")
                 #self.socket.show_all()  # This is needed, because after a rezise the keyboard is not visible for unknown reasons
             else:
                 self.macro_dic["keyboard"].set_sensitive(False)
@@ -4147,6 +4149,15 @@ class gmoccapy(object):
             self.widgets.hal_mdihistory.entry.grab_focus()
         elif self.stat.task_mode == linuxcnc.MODE_AUTO:
             self.widgets.gcode_view.grab_focus()
+        # Change keyboard icon on keyboard-show buttons
+        shown = page_num == 1
+        self.widgets.btn_keyb.set_image(
+            self.widgets["img_edit_menu_keyboard_hide" if shown else "img_edit_menu_keyboard"]
+        )
+        if self.onboard:
+            self.widgets.btn_macro_menu_toggle_keyboard.set_image(
+                self.widgets["img_macro_menu_keyboard_hide" if shown else "img_macro_menu_keyboard"]
+            )
 
     # Three back buttons to be able to leave notebook pages
     # All use the same callback offset
@@ -4453,6 +4464,18 @@ class gmoccapy(object):
                 ("img_jump_to",         "user_defined_folder",  32),
                 ("img_select",          "open_file",            32),
                 ("img_back_file_load",  "back_to_app",          32),
+                # edit file menu
+                ("img_edit_menu_reload",        "refresh",          32),
+                ("img_edit_menu_save",          "save",             32),
+                ("img_edit_menu_save_as",       "save_as",          32),
+                ("img_edit_menu_new",           "new_document",     32),
+                ("img_edit_menu_keyboard",      "keyboard",         32),
+                ("img_edit_menu_keyboard_hide", "keyboard_hide",    32),
+                ("img_edit_menu_close",         "back_to_app",      32),
+                # macro menu
+                ("img_macro_menu_keyboard",         "keyboard",         32),
+                ("img_macro_menu_keyboard_hide",    "keyboard_hide",    32),
+                ("img_macro_menu_stop",             "stop",             32),
                 # misc
                 ("img_close", "logout", 32),
             ]
