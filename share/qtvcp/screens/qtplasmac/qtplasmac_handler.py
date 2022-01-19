@@ -1,4 +1,4 @@
-VERSION = '1.221.154'
+VERSION = '1.221.155'
 
 '''
 qtplasmac_handler.py
@@ -4931,6 +4931,8 @@ class HandlerClass:
             hal.set_p('plasmac.paused-motion-speed',str(speed))
 
     def cutrec_move(self, state, x, y):
+        if not STATUS.is_interp_paused():
+            return
         if state:
             maxMove = 10
             if self.units == 'inch':
