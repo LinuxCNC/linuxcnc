@@ -111,17 +111,24 @@ class Dialogs(GObject.GObject):
     def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"), sound = True):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                                   Gtk.MessageType.INFO, Gtk.ButtonsType.OK, message)
+                                   Gtk.MessageType.INFO, Gtk.ButtonsType.NONE, message)
         # if there is a secondary message then the first message text is bold
         if secondary:
             dialog.format_secondary_text(secondary)
+        ok_button = Gtk.Button.new_with_mnemonic("_Ok")
+        ok_button.set_size_request(-1, 56)
+        space_l = Gtk.Label.new("")
+        space_r = Gtk.Label.new("")
+        dialog.add_action_widget(space_l, Gtk.ResponseType.NONE)
+        dialog.add_action_widget(ok_button, Gtk.ResponseType.OK)
+        dialog.add_action_widget(space_r, Gtk.ResponseType.NONE)
         dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == Gtk.ResponseType.OK
+        return response == Gtk.ResponseType.OK
 
     def yesno_dialog(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
@@ -133,9 +140,9 @@ class Dialogs(GObject.GObject):
         dialog.set_markup(message)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == Gtk.ResponseType.YES
+        return response == Gtk.ResponseType.YES
 
     def show_user_message(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
@@ -147,9 +154,9 @@ class Dialogs(GObject.GObject):
         dialog.set_markup(message)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == Gtk.ResponseType.OK
+        return response == Gtk.ResponseType.OK
 
     # dialog for run from line
     def restart_dialog(self, caller):
