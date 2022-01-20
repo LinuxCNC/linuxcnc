@@ -117,11 +117,7 @@ class Dialogs(GObject.GObject):
             dialog.format_secondary_text(secondary)
         ok_button = Gtk.Button.new_with_mnemonic("_Ok")
         ok_button.set_size_request(-1, 56)
-        space_l = Gtk.Label.new("")
-        space_r = Gtk.Label.new("")
-        dialog.add_action_widget(space_l, Gtk.ResponseType.NONE)
         dialog.add_action_widget(ok_button, Gtk.ResponseType.OK)
-        dialog.add_action_widget(space_r, Gtk.ResponseType.NONE)
         dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
@@ -134,10 +130,17 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.QUESTION,
-                                   Gtk.ButtonsType.YES_NO)
+                                   Gtk.ButtonsType.NONE)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)
+        yes_button = Gtk.Button.new_with_mnemonic(_("_Yes"))
+        no_button = Gtk.Button.new_with_mnemonic(_("_No"))
+        yes_button.set_size_request(-1, 56)
+        no_button.set_size_request(-1, 56)
+        dialog.add_action_widget(yes_button, Gtk.ResponseType.YES)
+        dialog.add_action_widget(no_button, Gtk.ResponseType.NO)
+
         dialog.show_all()
         self.emit("play_sound", "alert")
         response = dialog.run()
@@ -148,10 +151,13 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO,
-                                   Gtk.ButtonsType.OK)
+                                   Gtk.ButtonsType.NONE)
         if title:
             dialog.set_title(str(title))
         dialog.set_markup(message)
+        ok_button = Gtk.Button.new_with_mnemonic(_("_Ok"))
+        ok_button.set_size_request(-1, 56)
+        dialog.add_action_widget(ok_button, Gtk.ResponseType.OK)
         dialog.show_all()
         self.emit("play_sound", "alert")
         response = dialog.run()
