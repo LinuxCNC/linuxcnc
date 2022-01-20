@@ -452,7 +452,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
 
             # show desktop notify dialog rather then a qt dialog
             if self._useDesktopNotify:
-                NOTICE.show_toolchange_notification(MESS,
+               self.deskNotice = NOTICE.show_toolchange_notification(MESS,
                                     MORE +'\n' + comment,
                                     None, 0,
                                     self._processChange,
@@ -465,12 +465,20 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.changed.set(False)
 
     # process callback for 'change-button' HAL pin
+    # hide the message dialog or destop notify message
     def external_acknowledge(self, state):
-        if state and self.isVisible():
+        #print('external acklnowledge: {}'.format(state))
+        if state:
+            if self._useDesktopNotify:
+                self.deskNotice.close()
+            elif self.isVisible():
+                self.hide()
             self._processChange(True)
+
 
     # This also is called from DesktopDialog
     def _processChange(self,answer):
+        #print('proces change: {}'.format(answer))
         if answer == -1:
             self.changed.set(True)
             ACTION.ABORT()
