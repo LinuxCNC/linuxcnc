@@ -1,4 +1,4 @@
-VERSION = '1.221.155'
+VERSION = '1.221.156'
 
 '''
 qtplasmac_handler.py
@@ -59,6 +59,8 @@ from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 from qtvcp.lib.qtplasmac import run_from_line as RFL
 from qtvcp.lib.qtplasmac import updater as UPDATER
+from OpenGL.GL import glTranslatef
+from rs274.glcanon import GlCanonDraw
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -193,6 +195,8 @@ class HandlerClass:
         self.yMax = float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT'))
         self.zMin = float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
         self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
+        self.xLen = float(self.xMax - self.xMin)
+        self.yLen = float(self.yMax - self.yMin)
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
         self.maxHeight = self.zMax - self.zMin
@@ -351,7 +355,6 @@ class HandlerClass:
         # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
-        self.startupTimer.start(250)
         if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
             self.pmx485_startup(self.iniFile.find('QTPLASMAC', 'PM_PORT'))
         else:
@@ -362,6 +365,7 @@ class HandlerClass:
             self.w.pmx485_frame.hide()
         if self.firstRun is True:
             self.firstRun = False
+        self.startupTimer.start(250)
 
 
 #########################################################################################################################
@@ -735,6 +739,7 @@ class HandlerClass:
         self.w.chk_tool_tips.setChecked(self.w.PREFS_.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
+        self.w.table_zoom_scale.setValue(self.w.PREFS_.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_led.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('LED', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -981,6 +986,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('T view zoom scale', self.w.table_zoom_scale.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Corner lock enable', self.w.cornerlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
@@ -1348,6 +1354,15 @@ class HandlerClass:
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex():
             self.w.main_tab_widget.setCurrentIndex(0)
+        if self.fileOpened:
+            if self.w.view_p.isChecked():
+                self.w.gcodegraphics.set_view('P')
+            elif self.w.view_z.isChecked():
+                self.w.gcodegraphics.set_view('Z')
+            else:
+                self.view_t_pressed()
+        else:
+            self.view_t_pressed()
 
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
@@ -1604,6 +1619,38 @@ class HandlerClass:
         else:
             self.kb_jog(state, ['x','y','z','a','b'].index(joint), direction, shift)
 
+    def view_t_pressed(self):
+        t = time.time() + 0.01
+        while time.time() < t:
+            QApplication.processEvents()
+        self.w.gcodegraphics.set_view('Z')
+        mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
+        if self.gcodeProps:
+            mult = 1
+            if self.units == 'inch':
+                if self.gcodeProps['Units'] == 'mm':
+                    mult = 0.03937
+            else:
+                if self.gcodeProps['Units'] == 'in':
+                    mult = 25.4
+            x = (round(float(self.gcodeProps['X'].split()[0]) * mult, 4))
+            y = (round(float(self.gcodeProps['Y'].split()[0]) * mult, 4))
+            xl = (round(float(self.gcodeProps['X'].split('=')[1].split()[0]) * mult, 4))
+            yl = (round(float(self.gcodeProps['Y'].split('=')[1].split()[0]) * mult, 4))
+        else:
+            x = y = xl = yl = 0
+        if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
+           self.w.view_t.isChecked() or self.w.view_t.isDown() or self.fileClear:
+            mult = 1 if self.units == 'inch' else 25.4
+            zoomScale = (self.w.table_zoom_scale.value() * 2)
+            mid = [(self.xLen - (x * 2) - xl) / mult / 2, (self.yLen - (y * 2) - yl) / mult / 2, 0]
+            size = [self.xLen / mult / zoomScale, self.yLen / mult / zoomScale, 0]
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.w.gcodegraphics.set_eyepoint_from_extents(size[0], size[1])
+        self.w.gcodegraphics.perspective = False
+        self.w.gcodegraphics.lat = self.w.gcodegraphics.lon = 0
+        self.w.gcodegraphics.updateGL()
+
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
 
@@ -1664,6 +1711,8 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('T0 M6')
                 ACTION.CALL_MDI_WAIT('G43 H0')
                 ACTION.SET_MANUAL_MODE()
+        else:
+            self.view_t_pressed()
 
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
@@ -1718,12 +1767,19 @@ class HandlerClass:
         self.w.gcodegraphics.grid_size = grid
 
     def main_tab_changed(self, tab):
+        t = time.time() + 0.01
+        while time.time() < t:
+            QApplication.processEvents()
         if tab == 0:
-            if self.w.view_p.isChecked():
-                self.w.gcodegraphics.set_view('P')
+            if self.fileOpened:
+                if self.w.view_p.isChecked():
+                    self.w.gcodegraphics.set_view('P')
+                elif self.w.view_z.isChecked():
+                    self.w.gcodegraphics.set_view('Z')
+                else:
+                    self.view_t_pressed()
             else:
-                self.w.gcodegraphics.set_view('Z')
-            self.w.gcodegraphics.set_current_view()
+                self.view_t_pressed()
             if self.w.preview_stack.currentIndex() == 2:
                 self.vkb_show()
             else:
@@ -2177,6 +2233,7 @@ class HandlerClass:
         self.w.cam_dia_minus.pressed.connect(self.cam_dia_minus_pressed)
         self.w.view_p.pressed.connect(self.view_p_pressed)
         self.w.view_z.pressed.connect(self.view_z_pressed)
+        self.w.view_t.pressed.connect(self.view_t_pressed)
         self.w.view_clear.pressed.connect(self.view_clear_pressed)
         self.w.pan_left.pressed.connect(self.pan_left_pressed)
         self.w.pan_right.pressed.connect(self.pan_right_pressed)
@@ -2693,6 +2750,7 @@ class HandlerClass:
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view_t_pressed()
 
     def update_periodic(self):
         if self.framing and STATUS.is_interp_idle():
