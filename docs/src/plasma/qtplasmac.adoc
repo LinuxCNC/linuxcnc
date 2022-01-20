@@ -760,14 +760,15 @@ Some functions/features are only used for particular modes and are not displayed
 |PD:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Pierce Delay.
 |CH:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Cut Height.
 |CA:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
-|P|This button changes the preview to an isometric view.
-|Z|This button changes the preview to a top down view.
-|→|This button pans the preview right.
-|←|This button pans the preview left.
-|↑|This button pans the preview up.
-|↓|This button pans the preview down.
-|+|This button zooms the preview.
-|-|This button zooms the preview.
+|T|This button changes the <<qt_preview-view, preview>> to a top down full table view.
+|P|This button changes the <<qt_preview-view, preview>> to an isometric view.
+|Z|This button changes the <<qt_preview-view, preview>> to a top down view.
+|→|This button pans the <<qt_preview-view, preview>> right.
+|←|This button pans the <<qt_preview-view, preview>> left.
+|↑|This button pans the <<qt_preview-view, preview>> up.
+|↓|This button pans the <<qt_preview-view, preview>> down.
+|+|This button zooms the <<qt_preview-view, preview>>.
+|-|This button zooms the <<qt_preview-view, preview>>.
 |C|This button clears the live plot.
 |===
 
@@ -961,6 +962,20 @@ The torch (T0) will be selected if it was not the active tool.
 *Divide By 2* - divides the currently displayed coordinate in the DRO by two. +
 *Set To Last* - sets the axis to the previously set coordinate.
 |===
+
+[[qt_preview-view]]
+
+==== Preview Views
+
+The QtPlasmaC preview screen has the ability to be switched between different views and displays, as well as zooming in and out, and panning horizontally and vertically.
+
+When QtPlasmaC is first started, the Z (top down) view will be selected as the default view for a loaded G-Code file, but the full table view will be displayed.
+
+When a G-Code file is loaded, the display will change to the selected view.
+
+Whenever there is no G-Code file loaded, the full table will automatically be displayed irrespective of which view is currently selected (the highlighted button representing the currently selected view will not change).
+
+If a full table is displayed due to no G-Code file being loaded and the user wishes to change the view orientation, then pressing either Z or P will change the display to the newly selected view. If the user then wishes to display the full table while maintaining the currently selected view as the default view for a loaded G-Code file, then pressing CLEAR will achieve this and allow the selected view orientation to prevail the next time a G-Code file is loaded.
 
 [[qt_conversational-tab]]
 
@@ -1172,6 +1187,7 @@ To return any of the color changes to their default values, see the <<qt_default
 |Optional Block|This radio button allows the user to enable or disable whether or not lines starting with "/" will be skipped if present in a running program.
 |Grid Size|This allows a user to change the size of the grid in the Preview Window on the <<qt_main-tab, MAIN Tab>>. Grid size of 0.0 will disable the grid.
 |Cone Size|This allows a user to change the size of the cone (which represents the current tool) in the Preview Window on the <<qt_main-tab, MAIN Tab>>.
+|Table Zoom|This allows a user to change the default zoom level for the top down full table view in the Preview Window on the <<qt_main-tab, MAIN Tab>>.
 |===
 
 [underline]*UTILITIES*
@@ -2350,7 +2366,7 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |↑|Jogs the Y axis positive.
 |↓|Jogs the Y axis negative.
 |PAGE UP|Jogs the Z axis positive.
-|PAGE DOWN|jog the Z axis negative.
+|PAGE DOWN|Jogs the Z axis negative.
 |[|Jogs the A axis positive.
 |]|Jogs the A axis negative.
 |.|Jogs the B axis positive.
