@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2021-12-27 13:52+0000\n"
+"PO-Revision-Date: 2022-01-22 07:55+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.11-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -10310,7 +10310,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/base.glade:616
 msgid "Reset Default machine _units:"
-msgstr ""
+msgstr "N_ullstill forvalgte maskinenheter:"
 
 #: src/emc/usr_intf/stepconf/base.glade:641
 msgid ""
@@ -10325,21 +10325,21 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/start.glade:10
 #: src/emc/usr_intf/pncconf/start.glade:111
 msgid "Create a new configuration"
-msgstr ""
+msgstr "Lag et nytt oppsett"
 
 #: src/emc/usr_intf/stepconf/start.glade:30
 #: src/emc/usr_intf/pncconf/start.glade:82
 msgid "Do you wish to:"
-msgstr ""
+msgstr "Ønsker du å:"
 
 #: src/emc/usr_intf/stepconf/start.glade:39
 #: src/emc/usr_intf/pncconf/start.glade:93
 msgid "Modify a configuration already created with this program"
-msgstr ""
+msgstr "Endre et oppsett allerede laget med dette programmet"
 
 #: src/emc/usr_intf/stepconf/start.glade:56
 msgid "Import a Mach file"
-msgstr ""
+msgstr "Last inn en Mach-fil"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
@@ -10351,7 +10351,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
-msgstr ""
+msgstr "Lag simulert maskinvareoppsett."
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -10363,48 +10363,48 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/pport1.glade:32
 #: src/emc/usr_intf/stepconf/pport2.glade:37
 msgid "0x0378"
-msgstr ""
+msgstr "0x0378"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:46
 msgid "Xylotex"
-msgstr ""
+msgstr "Xylotex"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:49
 msgid "TB6560 3 axes"
-msgstr ""
+msgstr "TB6560 3-akser"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:52
 msgid "TB6560 4 axes"
-msgstr ""
+msgstr "TB6560 4-akser"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:74
 #: src/emc/usr_intf/stepconf/pport2.glade:74
 msgid " Pin _1:"
-msgstr ""
+msgstr " Pinne _1:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:132
 #: src/emc/usr_intf/stepconf/pport2.glade:131
 #: src/emc/usr_intf/stepconf/pport2.glade:973
 msgid " Pin _2:"
-msgstr ""
+msgstr " Pinne _2:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:190
 #: src/emc/usr_intf/stepconf/pport2.glade:188
 #: src/emc/usr_intf/stepconf/pport2.glade:1089
 msgid " Pin _4:"
-msgstr ""
+msgstr " Pinne _4:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:248
 #: src/emc/usr_intf/stepconf/pport2.glade:245
 #: src/emc/usr_intf/stepconf/pport2.glade:1031
 msgid " Pin _3:"
-msgstr ""
+msgstr " Pinne _3:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:306
 #: src/emc/usr_intf/stepconf/pport2.glade:302
 #: src/emc/usr_intf/stepconf/pport2.glade:1147
 msgid " Pin _5:"
-msgstr ""
+msgstr " Pinne _5:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:364
 #: src/emc/usr_intf/stepconf/pport2.glade:359
