@@ -310,6 +310,11 @@ class Data:
         self.qtplasmacmode = 0
         self.qtplasmacscreen = 0
         self.qtplasmacestop = 0
+        self.qtplasmacdro = 0
+        self.qtplasmacerror = 0
+        self.qtplasmacstart = 0
+        self.qtplasmacpause = 0
+        self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
         self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
         self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
