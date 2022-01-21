@@ -123,11 +123,11 @@ a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
 \fBmotion.feed\-hold\fR IN BIT
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
-Note: feed-hold applies to gcode commands -- not jogs.
+Note: feed-hold applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-inhibit\fR IN BIT
-When this pin is TRUE, machine motion is inhibited for gcode commands.
+When this pin is TRUE, machine motion is inhibited for G-code commands.
 
 If the machine is performing a spindle synchronized move when this
 pin goes TRUE, the spindle synchronized motion will finish, and any
@@ -140,7 +140,7 @@ maximum allowed acceleration rate.
 
 Motion resumes when this pin goes FALSE.
 
-Note: feed-inhibit applies to gcode commands -- not jogs.
+Note: feed-inhibit applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-upm\fR OUT FLOAT
@@ -219,7 +219,7 @@ The number of CPU clocks between invocations of the servo thread. Typically, thi
 \fBmotion.switchkins-type\fR IN float
 Kinematics modules that define the functions kinematicsSwitchable()
 and kinematicsSwitch() receive the \fBinteger\fR value of this pin to
-select the machine kinematics functions.  Extra gcode commands
+select the machine kinematics functions.  Extra G-code commands
 may be required to synchronize task and motion before and after changes
 to the pin value.
 

@@ -181,7 +181,7 @@ enable flag for feed override.
 current feedrate override, 1.0 = 100%.
 
 *file*:: '(returns string)' -
-currently loaded gcode filename with path.
+currently loaded G-code filename with path.
 
 *flood*:: '(returns integer)' -
 Flood status, either FLOOD_OFF or FLOOD_ON.

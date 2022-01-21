@@ -347,7 +347,7 @@ dependences, if any, in a SUBROUTINE_PATH directory.  Some subroutines may
 use custom Mfiles which must be in a directory specified by the
 [RS274NGC]USER_M_PATH.
 
-The Gcode-meta-compiler (gcmc) can include statements like:
+The G-code-meta-compiler (gcmc) can include statements like:
   include("filename.inc.gcmc");
 By default, gcmc includes the current directory which, for LinuxCNC,  will be
 the directory containing the LinuxCNC ini file.  Additional directories can be
@@ -613,7 +613,7 @@ Note:    Optional, each directory will be included when gcmc is invoked
 ....
 
 == File Requirements for NGCGUI Compatibility
-=== Single-File Gcode (.ngc) Subroutine Requirements
+=== Single-File G-code (.ngc) Subroutine Requirements
 
 An NGCGUI-compatible subfile contains a single subroutine definition. The name
 of the subroutine must be the same as the filename (not including the .ngc
@@ -768,16 +768,16 @@ The LinuxCNC distribution includes a library (ngcgui_lib directory) that
 includes both example ngcgui-compatible subfiles and utility files
 to illustrate the features of LinuxCNC subroutines and ngcgui usage.
 Another library (gcmc_lib) provides examples for subroutine files for
-the Gcode meta compiler (gcmc)
+the G-code meta compiler (gcmc)
 
 Additional user sumitted subroutines can be found on the Forum in the
 Subroutines Section.
 
-=== Gcode-meta-compiler (.gcmc) file requirements
-Files for the Gcode-meta-compiler (gcmc) are read by ngcgui and it
+=== G-code-meta-compiler (.gcmc) file requirements
+Files for the G-code-meta-compiler (gcmc) are read by ngcgui and it
 creates entry boxes for variables tagged in the file.  When a feature
 for the file is finalized, ngcgui passes the file as input to the gcmc
-compiler and, if the compile is successful, the resulting gcode file
+compiler and, if the compile is successful, the resulting G-code file
 is sent to LinuxCNC for execution.  The resulting file is formatted as
 single-file subroutine; .gcmc files and .ngc files can be intermixed
 by ngcgui.

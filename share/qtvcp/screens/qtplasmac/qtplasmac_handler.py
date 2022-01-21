@@ -3288,7 +3288,7 @@ class HandlerClass:
                 self.w.gcodegraphics.logger.clear()
             ACTION.SET_MANUAL_MODE()
 
-    # for g-code commands and external commands
+    # for G-code commands and external commands
     def user_button_command(self, command):
         if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
             if '{' in command:

@@ -15,7 +15,7 @@ LinuxCNC controla máquinas CNC. Puede manejar fresadoras, tornos, impresoras 3D
 
 Este software se lanza bajo licencia GPLv2, con algunas partes bajo LGPL. Vea el archivo COPYING para más detalles.
 
-La traduccion al español de este software queda adherida a este descargo y a las licencias GPLv2 y partes LGPL. 
+La traduccion al español de este software queda adherida a este descargo y a las licencias GPLv2 y partes LGPL.
 
 
 # El proceso de construcción

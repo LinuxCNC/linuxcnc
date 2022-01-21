@@ -265,12 +265,12 @@ To control extra spindles the G and M-codes which control spindle speed
 now accept an additional "$" argument, for example M3 $2 to start the
 third spindle. "$" was chosen to avoid clashes with any existing code
 letters. It should be possible to create custom G-codes to match any
-other multi-spindle controller. 
+other multi-spindle controller.
 See the G-code and M-code manuals for code changes, and man motion for
-the HAL pin changes. 
+the HAL pin changes.
 
 === TRAJ velocities, accelerations names
- 
+
 With incorporation of joints_axes functionality, some names were
 changed to clarify available functionality.
 
@@ -448,13 +448,13 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
 named [JOINT_n]HOME_SEQUENCE.  Prior to joints_axes incorporation a value
 of -1 or the omission of the item indicated no sequence was applicable.
 Now, only omission of the item is used for that purpose.
-See the chapter: <<cha:homing-configuration, 'Homing Configuration'>> 
+See the chapter: <<cha:homing-configuration, 'Homing Configuration'>>
 for more information.
 
 === Locking rotary indexer (updates for joints_axes)
 
 With joints_axes, an indexer is a joint that can be homed (joint mode)
-but must also be unlocked from gcode.  This requires a one-to-one
+but must also be unlocked from G-code.  This requires a one-to-one
 correspondence between a single joint and an axis.
 
 Specify the joint number that corresponds to a rotary axis (L = A,B, or C)
@@ -715,7 +715,7 @@ machine's motion.
 World coordinates (X,Y,Z,A,B,C,U,V,W) are determined by applying
 'FORWARD' kinematics operations to joint (motor) positions.
 
-When moving in world space (e.g., gcode movements) the required
+When moving in world space (e.g., G-code movements) the required
 joint (motor) positions are determined by applying 'INVERSE'
 kinematics operations to the coordinates requested for motion
 in world space.
@@ -734,8 +734,8 @@ Joint jogging (by joint number 0,1,...) is used in joint mode
 (usually used only 'BEFORE' homing).  When homing is completed,
 the jogging mode is 'AUTOMATICALLY' switched from joint mode to
 world mode and axis jogging (coordinate letter X,Y,...) is used.
-This is appropriate for all gcode moves requested by MDI commands
-or by gcode programs.
+This is appropriate for all G-code moves requested by MDI commands
+or by G-code programs.
 
 Although jogging in joint mode is often never required after
 homing, some guis (like axis) provide a keyboard shortcut ('$')
@@ -1294,7 +1294,7 @@ may be removed before a new release.
 
 Code references to the sequential indexes for internal tooldata have
 been clarified but legacy variable names persist for *selected_pocket*
-and *current_pocket*.  Variables with these names refer to the 
+and *current_pocket*.  Variables with these names refer to the
 sequential index for internal tooldata not an actual pocket number.
 These variable names may be renamed in the future and require changes
 to user-fielded python remap applications that modify tool handling.
@@ -1302,7 +1302,7 @@ to user-fielded python remap applications that modify tool handling.
 A new optional interface is provided to support management of
 tool data by an external database application.
 
-The ioControl_v2.cc file providing the userspace program iov2 has 
+The ioControl_v2.cc file providing the userspace program iov2 has
 no maintainter and its use is deprecated -- it may be removed before
 the next release.
 
@@ -1322,7 +1322,7 @@ A new motmod parameter (num_extrajoints) specifies joints that are
 homed by conventional joint homing methods but controlled by new hal
 pins (joint.N.posthome-cmd) after homing.  Such joints may be
 managed by independent motion planner/controllers in hal and manipulated
-from gcode using custom M-codes.  See the motion man page for
+from G-code using custom M-codes.  See the motion man page for
 more info.
 
 ==== Homing

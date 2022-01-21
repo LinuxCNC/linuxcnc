@@ -196,7 +196,7 @@ image::images/tkemc-mdi.png[align="center", alt="The Code Entry tab"]
 
 .MDI:
 
-This allows you to enter a g-code command to be executed. Execute the
+This allows you to enter a G-code command to be executed. Execute the
 command by pressing Enter.
 
 .Active G-Codes

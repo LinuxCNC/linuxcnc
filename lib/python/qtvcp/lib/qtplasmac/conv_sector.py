@@ -120,7 +120,7 @@ def preview(P, W, Conv):
     yOC = yS + (leadOutOffset * math.sin(angle + dir[0]))
     xOE = xOC + (leadOutOffset * math.cos(angle + dir[2]))
     yOE = yOC + (leadOutOffset * math.sin(angle + dir[2]))
-# setup files and write g-code
+# setup files and write G-code
     outTmp = open(P.fTmp, 'w')
     outNgc = open(P.fNgc, 'w')
     inWiz = open(P.fNgcBkp, 'r')
