@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: tp.comp
-*   IEC_61131-3 Pulse Time timer for HAL bit signals.
+*   IEC_61131-3 Pulse Time timer for LinuxCNC HAL bit signals.
 *
 *   This is a HAL component that can be used to send a pulse signal
 *   for a certain amount of time.
