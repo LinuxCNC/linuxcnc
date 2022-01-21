@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-16 10:01+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-01-20 22:59+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.11-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -589,19 +589,19 @@ msgstr "Warnung: Werkzeug kann nicht gelöscht werden!"
 
 #: gmoccapy.py:4461
 msgid "No or more than one tool selected in tool table"
-msgstr "Sie haben kein oder mehr als ein Werkzeug ausgewählt"
+msgstr "Sie haben kein oder mehr als ein Werkzeug ausgewählt.\\n"
 
 #: gmoccapy.py:4462
 msgid "Please select only one tool in the table"
-msgstr "Bitte nur ein Werkzeug auswählen"
+msgstr "Bitte nur ein Werkzeug auswählen."
 
 #: gmoccapy.py:4463 gmoccapy.py:4469 gmoccapy.py:4477
 msgid "Warning Tool Touch off not possible!"
-msgstr "Warnung: Werkzeug Antastung nicht möglich!"
+msgstr "Warnung: Antasten des Werkzeugs nicht möglich!"
 
 #: gmoccapy.py:4467
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
-msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist"
+msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist.\\n"
 
 #: gmoccapy.py:4468
 msgid "your selection has been reseted to the tool in spindle"
@@ -1789,15 +1789,15 @@ msgstr "Wähle die nächste Datei"
 
 #: gmoccapy.glade.h:247 ../../../../lib/python/gladevcp/iconview.py:160
 msgid "Jump to user defined directory"
-msgstr "Springe ins benutzerdefinierte Verzeichnis"
+msgstr "Springe zu von Anwender angegebenen Verzeichnis"
 
 #: gmoccapy.glade.h:248 ../../../../lib/python/gladevcp/iconview.py:168
 msgid "select the highlighted file and return the path"
-msgstr "Wähle die markierte Datei und übergebe die Auswahl"
+msgstr "Wählt die hervorgehobene Datei aus und gibt den Dateipfad zurück"
 
 #: gmoccapy.glade.h:249 ../../../../lib/python/gladevcp/iconview.py:176
 msgid "Close without returning a file path"
-msgstr "Verlasse die Auswahl ohne eine Auswahl zurück zu geben"
+msgstr "Schließe ohne einen Dateipfad zurückzuliefern"
 
 #: gmoccapy.glade.h:250
 msgid "Load File"
@@ -1841,8 +1841,9 @@ msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "offsetpage_widget Fehler: kann das Koordinatensystem nicht auswählen"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:224
+#, fuzzy
 msgid "tooledit_widget error: cannot select tool number"
-msgstr "tooledit widget Fehler: Kann keine Werkzeugnummer wählen"
+msgstr "tooledit_widget Fehler: Werkzeugnummer kann nicht ausgewählt werden"
 
 #: ../../../../lib/python/gladevcp/tooledit_widget.py:243
 msgid "Toolfile does not exist"
@@ -1937,6 +1938,7 @@ msgid "G55"
 msgstr "G55"
 
 #: ../../../../lib/python/gladevcp/offsetpage.glade.h:19
+#, fuzzy
 msgid "G56"
 msgstr "G56"
 
@@ -2002,7 +2004,7 @@ msgstr "Werkzeug#"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:3
 msgid "Pocket"
-msgstr "Werkzeugtasche"
+msgstr "Tasche"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:5
 msgid "Front"
@@ -2027,7 +2029,7 @@ msgstr "Alle Versatz-Einstellungen"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:14
 msgid "X Wear"
-msgstr "X Verschleiß"
+msgstr "X Abnutzung"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:15
 msgid "Z Wear"
@@ -2039,7 +2041,7 @@ msgstr "Durchmesser"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:17
 msgid "Lathe Wear Offsets"
-msgstr ""
+msgstr "Drehmaschinen-Verschleißkorrekturen"
 
 #: ../../../../lib/python/gladevcp/tooledit_gtk.glade.h:18
 msgid "X Tool"
