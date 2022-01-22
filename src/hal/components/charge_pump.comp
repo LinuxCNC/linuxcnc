@@ -1,4 +1,4 @@
-//   This is a 'charge-pump' component for EMC2 HAL
+//   This is a 'charge-pump' component for LinuxCNC HAL
 //   Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 //
 //   This program is free software; you can redistribute it and/or modify

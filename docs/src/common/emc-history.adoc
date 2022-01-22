@@ -104,8 +104,8 @@ LINUX® trademark from the Linux Foundation (www.linuxfoundation.org),
 protecting our use of the LinuxCNC name. (LINUX® is the registered trademark
 of Linus Torvalds in the U.S. and other countries.)
 
-The rebranding effort will include the linuxcnc.org website, the IRC
-channels, and versions of the software and documentation starting with
+The rebranding effort included the linuxcnc.org website, the IRC
+channels, and versions of the software and documentation since version
 2.5.0.
 
 == Additional Info

@@ -1,6 +1,6 @@
 // classicladder v7.124 adaptation for emc2 January 08
 
-// this is a collection of completely new functions added for the adaptation to EMC2
+// this is a collection of completely new functions added for the adaptation to LinuxCNC
 // it is easier to keep them all together in one place --I hope!
 // please add all new functions here!
 
