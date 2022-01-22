@@ -630,10 +630,70 @@
     <property name="can_focus">False</property>
     <property name="pixbuf">images/tools.png</property>
   </object>
+  <object class="GtkImage" id="img_touch_a">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_a.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_b">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_b.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_c">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_c.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_menu_close">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">edit-undo</property>
+  </object>
   <object class="GtkImage" id="img_touch_off">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="pixbuf">images/touchoff.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_paginate_next">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-next</property>
+  </object>
+  <object class="GtkImage" id="img_touch_paginate_prev">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-previous</property>
+  </object>
+  <object class="GtkImage" id="img_touch_u">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_u.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_v">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_v.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_w">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_w.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_x">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_x.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_y">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_y.png</property>
+  </object>
+  <object class="GtkImage" id="img_touch_z">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">images/touch_z.png</property>
   </object>
   <object class="GtkImage" id="img_turtle_jog">
     <property name="width_request">36</property>

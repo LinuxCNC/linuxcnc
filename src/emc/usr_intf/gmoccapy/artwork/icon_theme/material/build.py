@@ -55,6 +55,20 @@ def compose_images():
                      layers=["background", "question", axis]
                      )
 
+    # touch off
+    touch_icons_svg = svg("touch_icons.inkscape.svg")
+    composer.add(f"touch_off.symbolic.png",
+                 src_file=touch_icons_svg,
+                 context="actions",
+                 layers=["touch-off"]
+                 )
+    for axis in ["x", "y", "z", "a", "b", "c", "u", "v", "w"]:
+        composer.add(f"touch_{axis}.symbolic.png",
+                     src_file=touch_icons_svg,
+                     context="actions",
+                     layers=["background", "set", axis]
+                     )
+
     # power button & main switch
     power_icons_svg = svg("power_icons.inkscape.svg")
     main_switch_icons_svg = svg("main_switch_icons.inkscape.svg")
@@ -221,6 +235,15 @@ def compose_images():
     for name in ["save", "save_as", "new_document", "keyboard", "keyboard_hide"]:
         composer.add(f"{name}.symbolic.png",
                      src_file=edit_icons_svg,
+                     context="actions",
+                     layers=[name.replace("_", "-")]
+                     )
+
+    # tool
+    tool_icons_svg = svg("tool_icons.inkscape.svg")
+    for name in ["hsk_mill_tool", "mill_tool_change", "mill_tool_change_num", "mill_tool_set_num"]:
+        composer.add(f"{name}.symbolic.png",
+                     src_file=tool_icons_svg,
                      context="actions",
                      layers=[name.replace("_", "-")]
                      )

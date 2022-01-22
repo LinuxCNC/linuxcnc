@@ -790,6 +790,7 @@ class gmoccapy(object):
             # TODO: Deprecated
             missing_image.set_from_stock(Gtk.STOCK_MISSING_IMAGE, Gtk.IconSize.BUTTON)
             btn.set_image(missing_image)
+        btn.show_all()
         return btn
 
     def _get_button_with_image(self, name, filepath, icon_name):
@@ -957,6 +958,9 @@ class gmoccapy(object):
         print("**** GMOCCAPY INFO ****")
         print("**** Entering make touch button")
 
+        # default button size
+        default_size = (85, 56)
+
         dic = self.axis_list
         num_elements = len(dic)
         end = 7
@@ -979,19 +983,24 @@ class gmoccapy(object):
 
         if num_elements > 6:
             # show the previous arrow to switch visible touch button)
-            btn = self._get_button_with_image("previous_button", None, "gtk-go-back")
+            btn = self._new_button_with_predefined_image(
+                name="previous_button",
+                size=default_size,
+                image=self.widgets.img_touch_paginate_prev
+            )
             btn.set_property("tooltip-text", _("Press to display previous homing button"))
             btn.connect("clicked", self._on_btn_previous_touch_clicked)
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
             end -= 1
             btn.hide()
 
-        for pos, elem in enumerate(dic):
-            file = "touch_{0}.png".format(elem)
-            filepath = os.path.join(IMAGEDIR, file)
-            name = "touch_{0}".format(elem)
-            btn = self._get_button_with_image(name, filepath, None)
-            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(elem.upper())))
+        for pos, axis in enumerate(dic):
+            btn = self._new_button_with_predefined_image(
+                name=f"touch_{axis}",
+                size=default_size,
+                image_name=f"img_touch_{axis}"
+            )
+            btn.set_property("tooltip-text", _("Press to set touch off value for axis {0}".format(axis.upper())))
             btn.connect("clicked", self._on_btn_set_value_clicked)
 
             #print("Touch button Name = ",name)
@@ -1003,7 +1012,11 @@ class gmoccapy(object):
 
         if num_elements > (end - 1):
             # show the next arrow to switch visible homing button)
-            btn = self._get_button_with_image("next_button", None, "gtk-go-forward")
+            btn = self._new_button_with_predefined_image(
+                name="next_button",
+                size=default_size,
+                image=self.widgets.img_touch_paginate_next
+            )
             btn.set_property("tooltip-text", _("Press to display next homing button"))
             btn.connect("clicked", self._on_btn_next_touch_clicked)
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -1044,7 +1057,11 @@ class gmoccapy(object):
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
         btn.show()
 
-        btn = self._get_button_with_image("touch_back", None, "gtk-undo")
+        btn = self._new_button_with_predefined_image(
+            name="touch_back",
+            size=default_size,
+            image=self.widgets.img_touch_menu_close
+        )
         btn.set_property("tooltip-text", _("Press to return to main button list"))
         btn.connect("clicked", self._on_btn_home_back_clicked)
         self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
@@ -4443,7 +4460,25 @@ class gmoccapy(object):
                 ("img_ref_6", "ref_6", 48),
                 ("img_ref_7", "ref_7", 48),
                 # touch off
-                #("img_touch_off", "TODO", 32),
+                ("img_touch_off",           "touch_off", 48),
+                ("img_touch_menu_close",    "back_to_app",  32),
+                ("img_touch_paginate_next",   "chevron_right",    32),
+                ("img_touch_paginate_prev",   "chevron_left",     32),
+                ("img_touch_x", "touch_x", 48),
+                ("img_touch_y", "touch_y", 48),
+                ("img_touch_z", "touch_z", 48),
+                ("img_touch_a", "touch_a", 48),
+                ("img_touch_b", "touch_b", 48),
+                ("img_touch_c", "touch_c", 48),
+                ("img_touch_u", "touch_u", 48),
+                ("img_touch_v", "touch_v", 48),
+                ("img_touch_w", "touch_w", 48),
+                # tool settings
+                ("img_tools",       "hsk_mill_tool",        48),
+                ("img_toolchange",  "mill_tool_change",     48),
+                ("img_back_tool",   "back_to_app",          32),
+                ("img_tool_by_no",  "mill_tool_change_num", 48),
+                ("img_index_tool",  "mill_tool_set_num",    48),
                 # auto mode buttons
                 ("img_open",            "open_file",        32),
                 ("img_reload1",         "refresh",          32),
