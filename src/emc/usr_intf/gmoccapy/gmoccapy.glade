@@ -558,7 +558,7 @@
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/forward.gif</property>
+    <property name="pixbuf">images/forward.png</property>
   </object>
   <object class="GtkImage" id="img_spindle_forward_on">
     <property name="width_request">48</property>
@@ -572,7 +572,7 @@
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/reverse.gif</property>
+    <property name="pixbuf">images/reverse.png</property>
   </object>
   <object class="GtkImage" id="img_spindle_reverse_on">
     <property name="width_request">48</property>
@@ -593,7 +593,7 @@
     <property name="height_request">48</property>
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixbuf">images/stop_om.gif</property>
+    <property name="pixbuf">images/stop_on.gif</property>
   </object>
   <object class="GtkImage" id="img_step">
     <property name="visible">True</property>
@@ -795,7 +795,7 @@
     </columns>
     <data>
       <row>
-        <col id="0"/>
+        <col id="0">default</col>
         <col id="1" translatable="yes">default</col>
       </row>
     </data>
