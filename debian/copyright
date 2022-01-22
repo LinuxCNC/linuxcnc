@@ -190,80 +190,80 @@ Copyright: 2004-2021 The LinuxCNC Developers and notably
 License: GPL-2+
 
 Files:
- ./src/emc/nml_intf/*
- ./src/emc/kinematics/*
- ./src/emc/motion/*
- ./src/emc/canterp/canterp.cc:* License: GPL Version 2
- ./src/emc/sai/driver.cc:* License: GPL Version 2
- ./src/emc/sai/saicanon.cc:* License: GPL Version 2
- ./src/emc/linuxcnc.h
- ./src/emc/usr_intf/*
- ./src/emc/tp/*
- ./src/emc/ini/*
- ./src/emc/task/*
- ./src/emc/rs274ngc/*
- ./src/emc/iotask/ioControl.cc
- ./src/emc/iotask/ioControl_v2.cc
- ./src/rtapi/rtapi_list.h
- ./src/rtapi/rtai_rtapi.c
- ./src/rtapi/rtapi.h
- ./src/rtapi/rtapi_vsnprintf.h
- ./src/rtapi/rtapi_proc.h
- ./src/rtapi/rtapi_common.h
- ./src/rtapi/rtai_ulapi.c
- ./src/hal/classicladder/README.txt
- ./src/hal/hal.h
- ./src/hal/hal_lib.c
- ./src/hal/hal_priv.h
- ./src/hal/utils/bitfile.c
- ./src/hal/utils/bitfile.h
- ./src/hal/utils/halcmd.c
- ./src/hal/utils/halcmd_commands.c
- ./src/hal/utils/halcmd_commands.h
- ./src/hal/utils/halcmd_completion.c
- ./src/hal/utils/halcmd_completion.h
- ./src/hal/utils/halcmd.h
- ./src/hal/utils/halcmd_main.c
- ./src/hal/utils/halrmt.c
- ./src/hal/utils/meter.c
- ./src/hal/utils/miscgtk.c
- ./src/hal/utils/miscgtk.h
- ./src/hal/utils/pci_read.c
- ./src/hal/utils/pci_write.c
- ./src/hal/utils/scope.c
- ./src/hal/utils/scope_disp.c
- ./src/hal/utils/scope_files.c
- ./src/hal/utils/scope_horiz.c
- ./src/hal/utils/scope_rt.c
- ./src/hal/utils/scope_rt.h
- ./src/hal/utils/scope_shm.h
- ./src/hal/utils/scope_trig.c
- ./src/hal/utils/scope_usr.h
- ./src/hal/utils/scope_vert.c
- ./src/hal/utils/upci.c
- ./src/hal/utils/upci.h
- ./src/hal/drivers/bcm2835.h
- ./src/hal/drivers/hal_ax5214h.c
- ./src/hal/drivers/hal_bb_gpio.c
- ./src/hal/drivers/hal_evoreg.c
- ./src/hal/drivers/hal_motenc.c
- ./src/hal/drivers/hal_pi_gpio.c
- ./src/hal/drivers/hal_ppmc.c
- ./src/hal/drivers/hal_skeleton.c
- ./src/hal/drivers/hal_speaker.c
- ./src/hal/drivers/hal_stg.c
- ./src/hal/drivers/hal_stg.h
- ./src/hal/drivers/hal_tiro.c
- ./src/hal/drivers/hal_vti.c
- ./src/hal/drivers/hal_vti.h
- ./src/hal/drivers/motenc.h
- ./src/hal/user_comps/vfs11_vfd/vfs11_vfd.c
- ./src/hal/user_comps/wj200_vfd/wj200_vfd.comp
- ./src/hal/user_comps/gs2_vfd.c
- ./src/hal/user_comps/pi500_vfd/pi500_vfd.comp
- ./src/hal/user_comps/svd-ps_vfd.c
- ./src/hal/user_comps/hy_gt_vfd.c
- ./src/hal/user_comps/vfdb_vfd/vfdb_vfd.c
+ src/emc/nml_intf/*
+ src/emc/kinematics/*
+ src/emc/motion/*
+ src/emc/canterp/canterp.cc:* License: GPL Version 2
+ src/emc/sai/driver.cc:* License: GPL Version 2
+ src/emc/sai/saicanon.cc:* License: GPL Version 2
+ src/emc/linuxcnc.h
+ src/emc/usr_intf/*
+ src/emc/tp/*
+ src/emc/ini/*
+ src/emc/task/*
+ src/emc/rs274ngc/*
+ src/emc/iotask/ioControl.cc
+ src/emc/iotask/ioControl_v2.cc
+ src/rtapi/rtapi_list.h
+ src/rtapi/rtai_rtapi.c
+ src/rtapi/rtapi.h
+ src/rtapi/rtapi_vsnprintf.h
+ src/rtapi/rtapi_proc.h
+ src/rtapi/rtapi_common.h
+ src/rtapi/rtai_ulapi.c
+ src/hal/classicladder/README.txt
+ src/hal/hal.h
+ src/hal/hal_lib.c
+ src/hal/hal_priv.h
+ src/hal/utils/bitfile.c
+ src/hal/utils/bitfile.h
+ src/hal/utils/halcmd.c
+ src/hal/utils/halcmd_commands.c
+ src/hal/utils/halcmd_commands.h
+ src/hal/utils/halcmd_completion.c
+ src/hal/utils/halcmd_completion.h
+ src/hal/utils/halcmd.h
+ src/hal/utils/halcmd_main.c
+ src/hal/utils/halrmt.c
+ src/hal/utils/meter.c
+ src/hal/utils/miscgtk.c
+ src/hal/utils/miscgtk.h
+ src/hal/utils/pci_read.c
+ src/hal/utils/pci_write.c
+ src/hal/utils/scope.c
+ src/hal/utils/scope_disp.c
+ src/hal/utils/scope_files.c
+ src/hal/utils/scope_horiz.c
+ src/hal/utils/scope_rt.c
+ src/hal/utils/scope_rt.h
+ src/hal/utils/scope_shm.h
+ src/hal/utils/scope_trig.c
+ src/hal/utils/scope_usr.h
+ src/hal/utils/scope_vert.c
+ src/hal/utils/upci.c
+ src/hal/utils/upci.h
+ src/hal/drivers/bcm2835.h
+ src/hal/drivers/hal_ax5214h.c
+ src/hal/drivers/hal_bb_gpio.c
+ src/hal/drivers/hal_evoreg.c
+ src/hal/drivers/hal_motenc.c
+ src/hal/drivers/hal_pi_gpio.c
+ src/hal/drivers/hal_ppmc.c
+ src/hal/drivers/hal_skeleton.c
+ src/hal/drivers/hal_speaker.c
+ src/hal/drivers/hal_stg.c
+ src/hal/drivers/hal_stg.h
+ src/hal/drivers/hal_tiro.c
+ src/hal/drivers/hal_vti.c
+ src/hal/drivers/hal_vti.h
+ src/hal/drivers/motenc.h
+ src/hal/user_comps/vfs11_vfd/vfs11_vfd.c
+ src/hal/user_comps/wj200_vfd/wj200_vfd.comp
+ src/hal/user_comps/gs2_vfd.c
+ src/hal/user_comps/pi500_vfd/pi500_vfd.comp
+ src/hal/user_comps/svd-ps_vfd.c
+ src/hal/user_comps/hy_gt_vfd.c
+ src/hal/user_comps/vfdb_vfd/vfdb_vfd.c
 Copyright: same flock of LinuxCNC devs as above
 License: GPL-2
 
@@ -289,12 +289,12 @@ License: GPL-3+
 
 Files: share/qtvcp/images/qtplasmac/numpad.svg
        share/qtvcp/images/qtplasmac/keyboard.svg
-Copyright: 2013, 2016 Francesco Fumanti <francesco.fumanti@gmx.net>
-           2011-2014  marmuta <marmvta@gmail.com>
+Copyright: 2013,2016 Francesco Fumanti <francesco.fumanti@gmx.net>
+           2011-2014 marmuta <marmvta@gmail.com>
            Onboard Devel Team
 License: GPL-3+
 
-Files: ./src/m4/ax_boost_python.m4
+Files: src/m4/ax_boost_python.m4
 Copyright: 2008 Michael Tindal
            2013 Daniel Müllner <daniel@danifold.net>
 License: GPL-2+
@@ -330,21 +330,21 @@ Comment: The origin of this subtree is the Classic Ladder Project
  http://membres.lycos.fr/mavati/classicladder/ 
  http://www.sourceforge.net/projects/classicladder
 
-Files: ./qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js
-Copyright:       2002 Mihai Bazon
+Files: qtvcp/screens/woodpecker/images/QTvcp Widgets_files/asciidoc.js
+Copyright:      2002 Mihai Bazon
  modified by
-                 2006 Troy D. Hanson
-           2006, 2009 Stuart Rackham
+                2006 Troy D. Hanson
+           2006,2009 Stuart Rackham
 License: GPL-2
 
 Files: src/libnml/*
-       src/libnml/linklist/* License: LGPL Version 2
-       src/libnml/posemath/* License: LGPL Version 2
-       src/libnml/rcs/* License: LGPL Version 2
-       src/libnml/cms/* License: LGPL Version 2
-       src/libnml/buffer/* License: LGPL Version 2
-       src/libnml/nml/* License: LGPL Version 2
-       src/libnml/os_intf/* License: LGPL Version 2
+       src/libnml/linklist/*
+       src/libnml/posemath/*
+       src/libnml/rcs/*
+       src/libnml/cms/*
+       src/libnml/buffer/*
+       src/libnml/nml/*
+       src/libnml/os_intf/*
 Copyright: The LinuxCNC developers derived this work from
            2004 Fred Proctor & Will Shackleford
 License: LGPL-2
