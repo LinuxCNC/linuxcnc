@@ -2783,14 +2783,13 @@ static int init_hal_data(void)
 {
     /* has the block already been initialized? */
     if (hal_data->version != 0) {
-	/* yes, verify version code */
-	if (hal_data->version == HAL_VER) {
-	    return 0;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: version code mismatch\n");
-	    return -1;
-	}
+        /* yes, verify version code */
+        if (hal_data->version == HAL_VER) {
+            return 0;
+        } else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: version code mismatch\n");
+            return -1;
+        }
     }
     /* no, we need to init it, grab the mutex unconditionally */
     rtapi_mutex_try(&(hal_data->mutex));
