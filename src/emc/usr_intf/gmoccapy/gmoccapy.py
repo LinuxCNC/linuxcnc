@@ -1992,12 +1992,19 @@ class gmoccapy(object):
             model.append(icon_theme)
 
         icon_theme_preference = self.prefs.getpref("icon_theme", None, str)
-        try:
-            selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
-            self.widgets.icon_theme_choice.set_active(selected_index)
-        except ValueError:
-            print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
-            self.widgets.icon_theme_choice.set_active(0)
+        icon_theme_choice = self.widgets.icon_theme_choice
+        with(icon_theme_choice.handler_block(find_handler_id_by_signal(icon_theme_choice, "changed"))):
+            try:
+                selected_index = [icon_theme[1] for icon_theme in valid_icon_themes].index(icon_theme_preference)
+                icon_theme_choice.set_active(selected_index)
+            except ValueError:
+                print(f"Warning: preferred icon-theme '{icon_theme_preference}' not found; switching to 'default'.")
+                icon_theme_choice.set_active(0)
+
+        # switch theme if not default
+        if icon_theme_choice.get_active():
+            self._set_icon_theme(model[icon_theme_choice.get_active_iter()][1])
+
 
     def _init_audio(self):
         # try to add ability for audio feedback to user.
