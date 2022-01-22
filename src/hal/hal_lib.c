@@ -349,7 +349,7 @@ int hal_exit(int comp_id)
     --ref_cnt;
 #ifdef ULAPI
     if(ref_cnt == 0) {
-        rtapi_print_msg(RTAPI_MSG_DBG, "HAL:  releasing RTAPI resources");
+        rtapi_print_msg(RTAPI_MSG_DBG, "HAL: releasing RTAPI resources\n");
 	/* release RTAPI resources */
 	rtapi_shmem_delete(lib_mem_id, lib_module_id);
 	rtapi_exit(lib_module_id);
