@@ -53,7 +53,15 @@ class HandlerClass:
         self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
         self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
         self.arcVoltsPin = self.hal.newpin('arc_voltage_out-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
+        simStepconf = False
+        for sig in hal.get_info_signals():
+            if sig['NAME'] == 'Zjoint-pos-fb':
+                simStepconf = True
+                break
+        if simStepconf:
+            CALL(['halcmd', 'net', 'Zjoint-pos-fb', 'qtplasmac_sim.z_position'])
+        else:
+            CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
         CALL(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
         self.torchPin.value_changed.connect(self.torch_changed)
         self.zPosPin.value_changed.connect(lambda v:self.z_position_changed(v))

@@ -501,6 +501,8 @@ class HAL:
                 print("setp sim-hardware.{:14}[JOINT_{}]MIN_LIMIT".format(j.upper() + "minsw-upper", self.d.axislist.index(j)), file=f1)
                 print("setp sim-hardware.{:14}-{}".format(j.upper() + "minsw-lower", limit), file=f1)
                 print("setp sim-hardware.{:14}[JOINT_{}]HOME_OFFSET".format(j.upper() + "homesw-pos", self.d.axislist.index(j)), file=f1)
+                if self.d.units: # change sim home switch hysteresis for metric configs
+                    print("setp sim-hardware.{:14}{}".format(j.upper() + "homesw-hyst", 0.6), file=f1)
                 print(file=f1)
             for port in range(0,self.d.number_pports):
                 if port==0 or not self.d.pp2_direction: # output option
