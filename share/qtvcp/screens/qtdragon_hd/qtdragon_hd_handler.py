@@ -144,6 +144,30 @@ class HandlerClass:
             self.w['lbl_' + i].setText(unit)
         self.w.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
+        # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
+        flag = True
+        macro_button_list = [self.w.macrobutton0, 
+                             self.w.macrobutton1, 
+                             self.w.macrobutton2, 
+                             self.w.macrobutton3, 
+                             self.w.macrobutton4, 
+                             self.w.macrobutton5, 
+                             self.w.macrobutton6, 
+                             self.w.macrobutton7, 
+                             self.w.macrobutton8,
+                             self.w.macrobutton9
+                             ]
+        for button in (macro_button_list):
+            num = button.property('ini_mdi_number')
+            try:
+                code = INFO.MDI_COMMAND_LIST[num]
+                flag = False
+            except:
+                button.hide()
+        # no buttons hide frame
+        if flag:
+            self.w.frame_macro_buttons.hide()
+
     #############################
     # SPECIAL FUNCTIONS SECTION #
     #############################

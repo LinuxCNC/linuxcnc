@@ -408,7 +408,26 @@ class _IStat(object):
         except:
             self.ZIPPED_TABS = None
 
-        self.MDI_COMMAND_LIST = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        # users can specify a label for the MDI action button by adding ',Some\nText'
+        # to the end of the MDI command
+        # here we separate them to two lists
+        # action_button takes it from there.
+        self.MDI_COMMAND_LIST = []
+        self.MDI_COMMAND_LABEL_LIST = []
+        temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        if temp is None:
+            self.MDI_COMMAND_LABEL_LIST.append(None)
+            self.MDI_COMMAND_LABEL_LIST.append(None)
+        else:
+            for i in temp:
+                for num,k in enumerate(i.split(',')):
+                    if num == 0:
+                        self.MDI_COMMAND_LIST.append(k)
+                        if len(i.split(',')) <2:
+                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                    else:
+                        self.MDI_COMMAND_LABEL_LIST.append(k)
+
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.INI.findall("HAL", "POSTGUI_HALFILE")) or None
         self.POSTGUI_HAL_COMMANDS = (self.INI.findall("HAL", "POSTGUI_HALCMD")) or None
