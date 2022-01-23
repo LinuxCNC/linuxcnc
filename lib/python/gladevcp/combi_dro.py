@@ -135,6 +135,9 @@ class Combi_DRO(Gtk.VBox):
         self.cycle_time = 150
         self.diameter = False
         self.actual = True
+        self.dtg = 0
+        self.abs_pos = 0
+        self.rel_pos = 0
 
         self.widgets = {}  # will hold all our widgets we need to style
 
@@ -267,7 +270,7 @@ class Combi_DRO(Gtk.VBox):
         else:
             if not self.toggle_readout:
                 return
-            self.toggle_readout()
+            self.set_toggle_readout()
 
     # Get propertys
     def do_get_property(self, property):
@@ -452,6 +455,9 @@ class Combi_DRO(Gtk.VBox):
         self.widgets["main_dro"].set_label(main_dro)
         self.widgets["dro_left"].set_label(left_dro)
         self.widgets["dro_right"].set_label(right_dro)
+        self.dtg = dtg * scale
+        self.abs_pos = abs_pos * scale
+        self.rel_pos = rel_pos * scale
 
     def _not_all_homed(self, widget, data = None):
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
@@ -523,7 +529,7 @@ class Combi_DRO(Gtk.VBox):
     # this will toggle the DRO around, mainly used to maintain all DRO
     # at the same state, because a click on one will only change that DRO
     # This can be used to change also the others
-    def toggle_readout(self, Data = None):
+    def set_toggle_readout(self, Data = None):
         '''
         toggles the order of the DRO in the widget
 
@@ -609,7 +615,7 @@ class Combi_DRO(Gtk.VBox):
         '''
         self._ORDER = order
         self._set_labels()
-        self.toggle_readout(Data=True)
+        self.set_toggle_readout(Data=True)
 
     # This will return the position information of all three DRO
     # it will be in the order Abs, Rel, DTG
@@ -629,13 +635,7 @@ class Combi_DRO(Gtk.VBox):
         DTG = the distance to go, will mosltly be 0, as this function should not be used
               while the machine is moving, because of time delays
         '''
-        positions = self._position()
-        if self._ORDER == ["Rel", "Abs", "DTG"]:
-            return positions[1], positions[0], positions[2]
-        if self._ORDER == ["DTG", "Rel", "Abs"]:
-            return positions[2], positions[1], positions[0]
-        if self._ORDER == ["Abs", "DTG", "Rel"]:
-            return positions[0], positions[2], positions[1]
+        return self.abs_pos, self.rel_pos, self.dtg
 
 # for testing without glade editor:
 # to show some behavior and setting options
