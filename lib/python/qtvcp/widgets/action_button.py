@@ -362,6 +362,8 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
             STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
+            if self.ini_mdi_command:
+                self.setMDILabel()
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
         elif True in(self.exit, self.machine_log_dialog):
@@ -731,6 +733,19 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         tmpl = lambda s: str(self._alt_textTemplate) % s
         self.setText(tmpl(data))
 
+    # see if the INI specified an optional new label
+    # if so apply it, otherwise skip and use the original text
+    def setMDILabel(self):
+        try:
+            label = INFO.MDI_COMMAND_LABEL_LIST[self.ini_mdi_num]
+            self.setToolTip(INFO.MDI_COMMAND_LIST[self.ini_mdi_num].replace(';', '\n'))
+            if label is None:
+                return
+            label = label.replace(r'\n', '\n')
+            self.setText(label)
+
+        except:
+            return
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
