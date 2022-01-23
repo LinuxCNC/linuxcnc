@@ -272,7 +272,7 @@ class Private_Data:
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
         self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
                  unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-            "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
+            "You are using the {} kernel.\nYou need to use kernel:".format(os.uname()[2]))
 
     def __getitem__(self, item):
         return getattr(self, item)
