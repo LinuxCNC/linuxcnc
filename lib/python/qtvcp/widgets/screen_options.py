@@ -87,7 +87,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.mchnMsg_speak_text = True
         self.mchnMsg_sound_type  = 'ERROR'
         self.usrMsg_play_sound = True
-        self.usrMsg_sound_type = 'BELL'
+        self.usrMsg_sound_type = 'ATTENTION'
         self.usrMsg_use_FocusOverlay = True
         self.shutdown_play_sound = True
         self.shutdown_alert_sound_type = 'READY'
@@ -244,7 +244,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 LOG.warning('Sound Option turned off due to error registering')
 
         if self.user_messages:
-            MSG.message_setup(self.HAL_GCOMP_)
+            self._msg = MSG.message_setup(self.HAL_GCOMP_, self.QTVCP_INSTANCE_)
             MSG.message_option('NOTIFY', NOTICE)
             if self.play_sounds:
                 MSG.message_option('play_sounds', self.usrMsg_play_sound)
@@ -379,7 +379,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                                                  display_type='YESNO',
                                                                  focus_text=self.shutdown_msg_focus_text,
                                                                  focus_color=self._close_color,
-                                                                 play_alert=sound)
+                                                                 play_alert=sound, use_exec=True)
             except:
                 answer = True
             # system shutdown

@@ -368,10 +368,20 @@ class _IStat(object):
             log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] sectioN')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
             log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_ICON):
+            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] sectioN')
+            if self.USRMESS_ICON == []:
+                temp = 'INFO'
+            else:
+                temp = self.USRMESS_ICON[0]
+                self.USRMESS_ICON = []
+            for i in self.USRMESS_TEXT:
+                self.USRMESS_ICON.append(temp)
+
         try:
             self.ZIPPED_USRMESS = list(
                 zip(self.USRMESS_BOLDTEXT, self.USRMESS_TEXT, self.USRMESS_DETAILS, self.USRMESS_TYPE,
-                    self.USRMESS_PINNAME))
+                    self.USRMESS_PINNAME, self.USRMESS_ICON))
         except:
             self.ZIPPED_USRMESS = None
 
