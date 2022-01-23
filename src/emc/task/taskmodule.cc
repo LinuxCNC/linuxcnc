@@ -223,6 +223,7 @@ static  active_settings_array activeSettings_wrapper ( EMC_TASK_STAT & m) {
 
 static const char *get_file( EMC_TASK_STAT &t) { return t.file; }
 static const char *get_command( EMC_TASK_STAT &t) { return t.command; }
+static const char *get_ini_filename( EMC_TASK_STAT &t) { return t.ini_filename; }
 
 static void operator_error(const char *message, int id = 0) {
     emcOperatorError(id,"%s",message);
@@ -449,6 +450,7 @@ BOOST_PYTHON_MODULE(emctask) {
 	//  read-only
 	.add_property("file",  &get_file)
 	.add_property("command",   &get_command)
+	.add_property("ini_filename",   &get_ini_filename)
 
 	.def_readwrite("g5x_offset", &EMC_TASK_STAT::g5x_offset)
 	.def_readwrite("g5x_index", &EMC_TASK_STAT::g5x_index)
