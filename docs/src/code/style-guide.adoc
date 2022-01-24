@@ -3,9 +3,28 @@
 
 = Coding Style
 
-This chapter describes the source code style preferred by the LinuxCNC team.
+LinuxCNC is developed in C/C++, Python, BASH and Tcl/TK.
+Documentation is written in asciidoc, which includes parts of the
+UNIX man pages.
 
-== Do no harm
+These computer languages are not completely independent from each other.
+So is C/C++ used to extend the functionality of the other scripting
+languages. And executables implemented in any of these languages
+may be called from anywhere, mostly from the scripting languages.
+
+Every computer language is its very own syntax and customs to be structured,
+and many flavours with every developer being very opinionated about
+their very own being the best. And while the exact style does not matter
+too much, it is important for the eye to see the source code formatted
+consistently.
+
+This chapter hence describes the source code style preferred by the
+LinuxCNC team. This shall improve our overall efficiency and avoid
+intensive discussions (aka bike-shedding) about how to style it best.
+
+== General comments
+
+=== Do no harm
 
 When making small edits to code in a style different than the one
 described below, observe the local coding style. Rapid changes from one
@@ -19,17 +38,28 @@ Do not use an editor that makes unneeded changes to whitespace (e.g.,
 which replaces 8 spaces with a tabstop on a line not otherwise
 modified, or word-wraps lines not otherwise modified).
 
-== Tab Stops
+=== Tab Stops
 
 A tab stop always corresponds to 8 spaces. Do not write code that
 displays correctly only with a differing tab stop setting.
 
-== Indentation
+=== Indentation
 
 Use 4 spaces per level of indentation. Combining 8 spaces into one tab
 is acceptable but not required.
 
-== Placing Braces
+=== Translations
+
+All program code and documentation is written in US English.
+All translations (which soon includes the documentation) are performed
+with the help of the (https://hosted.weblate.org/projects/linuxcnc/)[weblate]
+services. Our users and developers are kindly asked to help with the
+translation. The source tree then maintains the .po files in sync with that online
+representation.
+
+== Code implementing functionality for the machine
+
+=== Placing Braces
 
 Put the opening brace last on the line, and put the closing brace first:
 
@@ -68,7 +98,7 @@ This brace-placement also minimizes the number of empty (or almost
 empty) lines, which allows a greater amount of code or comments to be
 visible at once in a terminal of a fixed size.
 
-== Naming
+=== Naming
 
 C is a Spartan language, and so should your naming be. Unlike Modula-2
 and Pascal programmers, C programmers do not use cute names like
@@ -100,7 +130,7 @@ If you are afraid to mix up your local variable names, you have
 another problem, which is called the function-growth-hormone-imbalance
 syndrome. See next chapter.
 
-== Functions
+=== Functions
 
 Functions should be short and sweet, and do just one thing. They
 should fit on one or two screenfuls of text (the ISO/ANSI screen size
@@ -127,7 +157,7 @@ easily keep track of about 7 different things, anything more and it
 gets confused. You know you're brilliant, but maybe you'd like to
 understand what you did 2 weeks from now.
 
-== Commenting
+=== Commenting
 
 Comments are good, but there is also a danger of over-commenting.
 NEVER try to explain HOW your code works in a comment: it's much better
@@ -149,7 +179,7 @@ say why something needs fixing. When a change has been made to the
 affected portion of code, either remove the comment, or amend it to
 indicate a change has been made and needs testing.
 
-== Shell Scripts & Makefiles
+=== Shell Scripts & Makefiles
 
 Not everyone has the same tools and packages installed. Some people
 use vi, others emacs - A few even avoid having either package
@@ -163,7 +193,7 @@ does not provide, than the script will break for some users. The same
 would apply to mawk. In short, use the generic awk invocation in
 preference to gawk or mawk.
 
-== C++ Conventions
+=== C++ Conventions
 
 C++ coding styles are always likely to end up in heated debates (a bit
 like the emacs versus vi arguments). One thing is certain however, a
@@ -254,17 +284,128 @@ of .c and .h are reserved for plain C. Headers are for class, method,
 and structure declarations, not code (unless the functions are declared
 inline).
 
-== Python coding standards
+=== Python coding standards
 
 Use the http://www.python.org/dev/peps/pep-0008/[PEP 8] style for
 Python code.
 
-== Comp coding standards
+=== Comp coding standards
 
 In the declaration portion of a .comp file, begin each declaration at
 the first column. Insert extra blank lines when they help group related
 items.
 
 In the code portion of a .comp file, follow normal C coding style.
+
+== Code describing the functionality for the human
+
+This is a very recent (1/2022) part of this document. Please help shaping it if you are familiar with asciidoc.
+
+After the website, and maybe the one or other YouTube Video, the
+LinuxCNC documentation is likely the first point of contact for any new
+user. The talent to get the documentation right is mostly disjunct from
+computationally orchestrating all the moving parts of a mill or lathe,
+though. Still, we need this to shine if we want LinuxCNC to shine and
+for a transfer of our knowledge for the next generation - this seems
+fair to say for a project that was started in the last millenium and few
+individuals buying their own mills/lathes before their hair turns gray.
+
+=== Overall structure of documentation
+
+There are two basic documents, i.e. the
+ * Users' Guide and the
+ * Developers' Guide
+
+All documents created belong to either of these "parental documents"
+and are included from the respective document, either directly or that
+included file includes it.
+
+=== Common challenges
+
+ * header tags block like toc etc
+
+   Every file should start with a header. This is typically
+   ----
+   :lang: en
+   ----
+   and longer documents may also chose to set
+   ----
+   :toc:
+   ----
+   This should be followed by an anchor for that section or chapter that is
+   represented in that file, like
+   ----
+   [[cha:filename]]
+   ----
+   If the file has a language-extension like _fr then this extension shall not become part of the anchor.
+   For a better consistency, and maintainability, the anchors need to be the same for all langages.
+   If the page needs extras, e.g. for the syntax-highlighting, then such lines may then follow.
+
+ * anchors for titles and other blocks
+
+   If a chapter/section header shall be granted the option to be
+   referenced from another part of the documentation then it needs an achor.
+   The anchor shall be a combination of an indicator of the kind
+   of block that is referenced (cha,sec,fig,tab,...) together with a
+   short name identifying the object.
+
+ * index entries for titles and other blocks
+
+   ?
+
+ * lists formatting
+
+   ?
+
+ * usage of lists vs titles
+
+   ?
+
+ * use of bold and italic
+ * structure/page splitting guidance
+   - avoid 2k+ char long lines
+ * table formatting
+
+   Tables can be presented with a series of options.
+
+   - header
+
+     With the header-option set, the fist line will be interpreted accordingly.
+
+   - column width
+
+     in ideal column, the column is constituted only by its data. No
+     vertical separators should be required. The horizontal alignment will
+     also not be required since the writing itself is horizontal enough.
+
+     If individual fields have too much text then a line-break within that
+     field should be provoked.
+
+   - what lines are visible
+
+     As motivated above, there should be no grid lines.
+     The top and bottom lines should separate the table from the surrounding text.
+     Another line could be motivated between the header and the main body.
+
+   - captions
+
+     Asciidoc makes it difficult to nicely prepare captions. At the same time,
+     captions are the only bit of the whole document that even with the first flick
+     through the document will not escape the reader's attention.
+     ----
+     Instruction needs to be added
+     ----
+
+    - reference
+
+ * figure formatting (captions)
+   - reference
+   - caption
+     ----
+     Instruction needs to be added
+     ----
+ * footnotes
+ * comments
+ * interaction with other media like videos
 
 // vim: set syntax=asciidoc:
