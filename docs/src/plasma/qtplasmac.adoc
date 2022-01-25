@@ -815,9 +815,10 @@ See <<qt_custom-user-buttons, custom user buttons>> for detailed information on 
 |===
 |*Name*|*Description*
 |EDIT|This button opens a G-Code editor for the currently loaded program.
-|MDI|This button places QtPlasmaC into Manual Data Input mode which will display the MDI HISTORY and an entry box over top of the G-Code window. +
+|MDI|This button places QtPlasmaC into Manual Data Input (MDI) mode which will display the MDI HISTORY and an entry box over top of the G-Code window. +
 Once pressed, this button will display "MDI CLOSE". +
-Pressing *MDI CLOSE* will close the MDI.
+Pressing *MDI CLOSE* will close the MDI. +
+Please see the <<qt_mdi, MDI>> section for additional MDI information.
 |OHMIC TEST|This button will enable the Ohmic Probe Enable output signal and if the Ohmic Probe input is sensed, the LED indicator in the SENSOR Panel will light. +
 The main purpose of this is to allow a quick test for a shorted torch tip.
 |PROBE TEST|This button will initiate a <<qt_probe-test, Probe Test>>.
@@ -2325,6 +2326,8 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |F2|Toggles the GUI power button.
 |F9|Toggles the "Cutting" command, used to begin or end a manual cut.
 |F12|Show stylesheet editor.
+|ALT + RETURN|Places QtPlasmaC into Manual Data Input (MDI) mode. +
+Note that ALT + ENTER will achieve the same result.
 |1|Changes jog speed to 10% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |2|Changes jog speed to 20% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |3|Changes jog speed to 30% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
@@ -2376,6 +2379,33 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |- (+ Jog Key)|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
    If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 |===
+
+[[qt_mdi]]
+=== MDI
+
+In addition to the typical G and M codes that are allowed by LinuxCNC in MDI mode, the MDI in QtPlasmaC can be used to access several other handy features.
+
+NOTE: M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
+
+These can be accessed by pressing the MDI button and entering the following commands which are not case sensitive:
+
+[width="100%",cols="4,16"]
+|===
+|*Command*|*Description*
+|PREFERENCE|Opens a read only version of qtplasmac.prefs from the current machine's config folder
+|HALMETER|Starts LinuxCNC utility link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halmeter[Halmeter].
+|HALSHOW|Starts LinuxCNC utility link:http://linuxcnc.org/docs/devel/html/hal/halshow.html#cha:halshow[Halshow].
+|HALSCOPE|Starts LinuxCNC utility link:http://linuxcnc.org/docs/devel/html/hal/tutorial.html#sec:tutorial-halscope[Halscope].
+|CALIBRATION|Starts LinuxCNC utility link:http://linuxcnc.org/docs/devel/html/getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[Calibration].
+|CLASSICLADDER|Starts the link:http://linuxcnc.org/docs/devel/html/ladder/classic-ladder.html[ClassicLadder GUI] if the ClassicLadder realtime HAL component was loaded by the machine's config files.
+|STATUS|Starts LinuxCNC utility link:https://linuxcnc.org/docs//html/man/man1/linuxcnctop.1.html[Status].
+|CLEAR HISTORY|Clears the MDI history.
+|SETP|Sets the value of a pin or a parameter. Valid values depend on the object type of the pin or parameter. An error will result if the data types do not match or the pin is connected to a signal. +
+Syntax: setp <pin/parameter-name> <value> +
+Example: setp plasmac.resolution 100
+|===
+
+*In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.*
 
 [[qt_shape-library]]
 
@@ -3392,6 +3422,16 @@ The following example would set the distance from Z MAX_LIMIT to 10mm:
 ----
 setp plasmac.max-offset 10
 ----
+
+=== Enable Tabs During Automated Motion
+
+By default, all tabs except the <<qt_main-tab, MAIN Tab>> are disabled during automated motion. It is possible for every tab but the <<qt_conversational-tab, CONVERSATIONAL Tab>> to be enabled during automated motion by setting the following HAL pin True:
+
+----
+setp qtplasmac.tabs_always_enabled 1
+----
+
+WARNING: It is the responsibility of the operator to ensure that the machine is equipped with a suitable, working hardware ESTOP. If using only a touchscreen to navigate the QtPlasmaC GUI, there is no way to stop automated machine motion on any tab but the MAIN tab.
 
 === QtPlasmaC State Outputs
 
