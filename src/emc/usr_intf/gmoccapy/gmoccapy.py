@@ -4457,8 +4457,12 @@ class gmoccapy(object):
             if toolnumber == 0:
                 message = _("Please remove the mounted tool and press OK when done")
             else:
-                tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
-                message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
+                try:
+                    tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
+                    message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
+                except:
+                    message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
+
             result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
             if result:
                 self.halcomp["toolchange-changed"] = True
