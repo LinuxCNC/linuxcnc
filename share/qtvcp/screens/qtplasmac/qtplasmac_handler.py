@@ -1,4 +1,4 @@
-VERSION = '1.221.157'
+VERSION = '1.221.158'
 
 '''
 qtplasmac_handler.py
@@ -172,6 +172,8 @@ class HandlerClass:
         KEYBIND.add_call('Key_Period', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_Greater', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_End', 'on_keycall_END')
+        KEYBIND.add_call('Alt+Key_Return', 'on_keycall_ALTRETURN')
+        KEYBIND.add_call('Alt+Key_Enter', 'on_keycall_ALTRETURN')
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -179,7 +181,7 @@ class HandlerClass:
         self.jogSlow = False
         self.lastLoadedProgram = 'None'
         self.estopOnList = []
-        self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
+        self.idleList = ['file_clear', 'file_open', 'file_reload']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button']
@@ -262,6 +264,7 @@ class HandlerClass:
         self.notifyColor = 'normal'
         self.firstHoming = False
         self.droScale = 1
+        self.mdiError = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -363,6 +366,10 @@ class HandlerClass:
             self.w.cut_mode.hide()
             self.w.cut_mode_label.hide()
             self.w.pmx485_frame.hide()
+        if self.w.mdihistory.rows:
+            self.mdiLast = self.w.mdihistory.model.item(self.w.mdihistory.rows - 1).text()
+        else:
+            self.mdiLast = None
         if self.firstRun is True:
             self.firstRun = False
         self.startupTimer.start(250)
@@ -414,6 +421,7 @@ class HandlerClass:
             msg1 = _translate('HandlerClass', 'Do you want to exit')
             if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
                 return
+        self.w.preview_stack.setCurrentIndex(0)
         if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
             self.file_reload_clicked()
         elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
@@ -421,8 +429,8 @@ class HandlerClass:
         elif self.fileOpened == False:
             self.w.gcode_editor.editor.new_text()
             self.w.gcode_editor.editor.setModified(False)
+            self.view_t_pressed()
         self.w.gcode_editor.editMode()
-        self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlayPreview.show()
@@ -493,30 +501,42 @@ class HandlerClass:
         self.old_submit = MDI_LINE.submit
         MDI_LINE.submit = self.new_submit
 
-    # don't allow M3 or M5 in MDI codes
     def new_submit(self):
+        self.mdiError = False
         intext = str(self.w.mdihistory.MDILine.text()).rstrip()
-        if intext == '': return
-        if intext.upper() == 'HALMETER':
+        if intext == '':
+            self.mdi_show_clicked()
+            return
+        if intext.lower() == 'halmeter':
             AUX_PRGM.load_halmeter()
-        elif intext.upper() == 'STATUS':
+        elif intext.lower() == 'status':
             AUX_PRGM.load_status()
-        elif intext.upper() == 'HALSHOW':
+        elif intext.lower() == 'halshow':
             AUX_PRGM.load_halshow()
-        elif intext.upper() == 'CLASSICLADDER':
+        elif intext.lower() == 'classicladder':
             AUX_PRGM.load_ladder()
-        elif intext.upper() == 'HALSCOPE':
+        elif intext.lower() == 'halscope':
             AUX_PRGM.load_halscope()
-        elif intext.upper() == 'CALIBRATION':
+        elif intext.lower() == 'calibration':
             AUX_PRGM.load_calibration()
-        elif intext.upper() == 'PREFERENCE':
+        elif intext.lower() == 'preference':
             self.new_openReturn(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs'))
             self.w.gcode_editor.readOnlyMode()
             self.w.preview_stack.setCurrentIndex(2)
+        elif intext.lower() == 'clear history':
+            with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'w') as fp:
+                fp.close()
+        elif intext.lower().startswith('setp'):
+            self.mdi_setp(intext)
+        # don't allow M3, M4, or M5 in MDI codes
         else:
             head = _translate('HandlerClass', 'MDI ERROR')
             if 'm3' in intext.lower().replace(' ',''):
                 msg0 = _translate('HandlerClass', 'M3 commands are not allowed in MDI mode')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+                return
+            elif 'm4' in intext.lower().replace(' ',''):
+                msg0 = _translate('HandlerClass', 'M4 commands are not allowed in MDI mode')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
             elif 'm5' in intext.lower().replace(' ',''):
@@ -524,11 +544,17 @@ class HandlerClass:
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
                 return
             ACTION.CALL_MDI(intext + '\n')
+        t = time.time() + 0.1
+        while time.time() < t:
+            QApplication.processEvents()
+        if not self.mdiError and intext.lower() != self.mdiLast and intext.lower() != 'clear history':
             try:
                 with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'a') as fp:
                     fp.write(intext + '\n')
             except:
                 pass
+        self.mdiLast = intext.lower()
+        if not self.mdiError:
             STATUS.emit('mdi-history-changed')
 
 # patched offset table functions
@@ -630,6 +656,7 @@ class HandlerClass:
         self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
         self.gcodeScalePin = self.h.newpin('gcode_scale', hal.HAL_FLOAT, hal.HAL_OUT)
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
+        self.tabsAlwaysEnabled = self.h.newpin('tabs_always_enabled', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -1149,8 +1176,6 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('G91')
         if not self.manualCut:
             self.set_buttons_state([self.idleList], True)
-        if self.fileOpened == False:
-            self.w.file_edit.setEnabled(False)
         if self.lastLoadedProgram == 'None':
             self.w.file_reload.setEnabled(False)
         if STATUS.machine_is_on() and not self.manualCut:
@@ -1308,7 +1333,6 @@ class HandlerClass:
                 self.w.gcode_stack.setCurrentIndex(0)
             self.w.file_reload.setEnabled(True)
         self.w.gcodegraphics.logger.clear()
-        self.w.file_edit.setEnabled(True)
         if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
             self.rflActive = False
             self.startLine = 0
@@ -1468,7 +1492,10 @@ class HandlerClass:
                     STATUS.emit('metric-mode-changed', True)
 
     def error_update(self, obj, kind, error):
-        if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
+        if kind == linuxcnc.OPERATOR_ERROR:
+            self.error_status(True)
+            self.mdiError = True
+        if kind == linuxcnc.NML_ERROR:
             self.error_status(True)
 
 
@@ -1726,20 +1753,21 @@ class HandlerClass:
             self.overlayPreview.hide()
             self.w.run.setEnabled(False)
             self.w.gcode_editor.editor.setFocus()
-            self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
-            text = _translate('HandlerClass', 'EDIT')
-            self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
-            self.w.gcode_editor.editor.setModified(False)
-            try:
-                if os.path.getsize(self.gcodeErrorFile):
-                    with open(self.gcodeErrorFile, 'r') as inFile:
-                        self.w.gcode_editor.select_line(int(inFile.readline().rstrip()) - 1)
-                        inFile.seek(0)
-                        for line in inFile:
-                            self.w.gcode_editor.editor.userHandle = \
-                            self.w.gcode_editor.editor.markerAdd(int(line) - 1, self.w.gcode_editor.editor.USER_MARKER_NUM)
-            except:
-                pass
+            if self.fileOpened:
+                self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
+                text = _translate('HandlerClass', 'EDIT')
+                self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
+                self.w.gcode_editor.editor.setModified(False)
+                try:
+                    if os.path.getsize(self.gcodeErrorFile):
+                        with open(self.gcodeErrorFile, 'r') as inFile:
+                            self.w.gcode_editor.select_line(int(inFile.readline().rstrip()) - 1)
+                            inFile.seek(0)
+                            for line in inFile:
+                                self.w.gcode_editor.editor.userHandle = \
+                                self.w.gcode_editor.editor.markerAdd(int(line) - 1, self.w.gcode_editor.editor.USER_MARKER_NUM)
+                except:
+                    pass
             self.vkb_show()
         else:
             self.new_exitCall()
@@ -1784,7 +1812,8 @@ class HandlerClass:
                 self.vkb_show()
             else:
                 self.vkb_hide()
-            self.autorepeat_keys(False)
+            if self.w.gcode_stack.currentIndex() == 0 and self.w.preview_stack.currentIndex() == 0:
+                self.autorepeat_keys(False)
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
@@ -2716,9 +2745,12 @@ class HandlerClass:
                 if n > 1:
                     self.w.main_tab_widget.setTabEnabled(n, state)
         else:
-            for n in range(self.w.main_tab_widget.count()):
-                if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
-                     self.w.main_tab_widget.setTabEnabled(n, state)
+            if self.tabsAlwaysEnabled.get():
+                self.w.main_tab_widget.setTabEnabled(1, state)
+            else:
+                for n in range(self.w.main_tab_widget.count()):
+                    if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
+                         self.w.main_tab_widget.setTabEnabled(n, state)
             self.w.jog_slider.setEnabled(state)
             self.w.jogs_label.setEnabled(state)
             self.w.jog_slow.setEnabled(state)
@@ -2737,6 +2769,62 @@ class HandlerClass:
             else:
                 ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
 
+    def mdi_setp(self, setpString):
+        head = _translate('HandlerClass', 'SETP UNSUCCESSFUL')
+        arguments = len(setpString.lower().replace('setp ','').split(' '))
+        if arguments == 2:
+            halpin, value = setpString.lower().replace('setp ','').split(' ')
+        else:
+            msg0 = _translate('HandlerClass', 'setp requires 2 arguments')
+            msg1 = _translate('HandlerClass', 'given')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}, {} {}\n'.format(head, msg0, arguments, msg1))
+            return
+        try:
+            hal.get_value(halpin)
+        except Exception as err:
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, err))
+            return
+        try:
+            hal.set_p(halpin, value)
+        except Exception as err:
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n"{}" {}\n'.format(head, halpin, err))
+            return
+        msg0 = _translate('HandlerClass', 'Value')
+        if type(hal.get_value(halpin)) == bool:
+            if value.lower() in ['true', '1']:
+                value = True
+            elif value.lower() in ['false', '0']:
+                value = False
+            else:
+                msg1 =  _translate('HandlerClass', 'invalid for a BIT pin/parameter')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n'.format(head, msg0, value, msg1))
+                return
+            if hal.get_value(halpin) != value:
+                msg1 = _translate('HandlerClass', 'BIT value comparison error')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg1))
+                return
+        elif type(hal.get_value(halpin)) == float:
+            try:
+                value = float(value)
+            except:
+                msg1 =  _translate('HandlerClass', 'invalid for a Float pin/parameter')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n'.format(head, msg0, value, msg1))
+                return
+            if hal.get_value(halpin) != value:
+                msg1 = _translate('HandlerClass', 'Float value comparison error')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg1))
+                return
+        else:
+            try:
+                value = int(value)
+            except:
+                msg1 =  _translate('HandlerClass', 'invalid for S32 or U32 pin/parameter')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n'.format(head, msg0, value, msg1))
+                return
+            if hal.get_value(halpin) != value:
+                msg1 = _translate('HandlerClass', 'S32 or U32 value comparison error')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg1))
+                return
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -4226,9 +4314,9 @@ class HandlerClass:
                             c_mode = float(line.split('=')[1].strip())
                 except:
                     msg0 = _translate('Material file processing was aborted')
-                    msg1 += _translate('The following line in the material file')
-                    msg2 += _translate('contains an erroneous character')
-                    msg3 += _translate('Fix the line and reload the material file')
+                    msg1 = _translate('The following line in the material file')
+                    msg2 = _translate('contains an erroneous character')
+                    msg3 = _translate('Fix the line and reload the material file')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}\n'.format(head, msg0, msg1, msg2, line, msg3))
                     material_error = True
                     break
@@ -5394,6 +5482,10 @@ class HandlerClass:
     def on_keycall_END(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.w.touch_xy.isEnabled():
             self.touch_xy_clicked()
+
+    def on_keycall_ALTRETURN(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.mdi_show.isEnabled():
+            self.mdi_show_clicked()
 
 #########################################################################################################################
 # required class boiler code #
