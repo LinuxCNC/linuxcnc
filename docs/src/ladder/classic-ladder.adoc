@@ -1027,7 +1027,7 @@ Looking in the Modbus protocol reference for Response: +
 |Byte count | 1 Byte | 2 x N*
 |Register value | N* x 2 Bytes | returned value of requested address
 |Checksum | (2 bytes) | Calculated automatically
-| ( *N = Number of Registers ) | |
+| ( *N = Number of Registers ) | | 
 |========================================
 
 

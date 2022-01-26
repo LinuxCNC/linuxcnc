@@ -77,9 +77,9 @@ board.
 |========================================
 |Bit # | Value | Meaning
 |0     | 1     | Timeout is 16ms if set, 8ms if unset
-|1     | 2     |
+|1     | 2     | 
 |2     | 4     | Watchdog is enabled
-|3     | 8     |
+|3     | 8     | 
 |4     | 16    | Watchdog is automatically reset by DAC writes (the HAL dac-write function)
 |======================================== 
 
