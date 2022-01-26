@@ -1,4 +1,4 @@
-VERSION = '1.221.158'
+VERSION = '1.221.159'
 
 '''
 qtplasmac_handler.py
@@ -524,8 +524,11 @@ class HandlerClass:
             self.w.gcode_editor.readOnlyMode()
             self.w.preview_stack.setCurrentIndex(2)
         elif intext.lower() == 'clear history':
-            with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'w') as fp:
-                fp.close()
+            try:
+                with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'w') as fp:
+                    fp.close()
+            except:
+                pass
         elif intext.lower().startswith('setp'):
             self.mdi_setp(intext)
         # don't allow M3, M4, or M5 in MDI codes
