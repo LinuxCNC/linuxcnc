@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-12-06 07:52+0100\n"
-"PO-Revision-Date: 2022-01-19 00:54+0000\n"
+"PO-Revision-Date: 2022-01-25 01:50+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -3452,9 +3452,9 @@ msgid "Number of Bits                  "
 msgstr "Anzahl Bits                  "
 
 #: src/hal/classicladder/config_gtk.c:122
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Error Bits                  "
-msgstr "Anzahl Error Bits                  "
+msgstr "Anzahl Fehlerbits                  "
 
 #: src/hal/classicladder/config_gtk.c:126
 #, c-format
@@ -3477,7 +3477,7 @@ msgid "Number of Arithmetic Expressions "
 msgstr "Digitale Eingänge "
 
 #: src/hal/classicladder/config_gtk.c:143
-#, c-format, fuzzy
+#, c-format
 msgid "Number of Sections (%d%c used)   "
 msgstr "Anzahl Sektionen (%d%c genutzt)   "
 
@@ -3487,7 +3487,7 @@ msgid "Number of Symbols                "
 msgstr "Anzahl Symbole                "
 
 #: src/hal/classicladder/config_gtk.c:152
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers                 "
 msgstr "Anzahl Timer                 "
 
@@ -3536,7 +3536,7 @@ msgid "Inverted"
 msgstr "Invertiert"
 
 #: src/hal/classicladder/config_gtk.c:504
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
@@ -3545,7 +3545,6 @@ msgstr ""
 "erkannt...ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:506
-#, fuzzy
 msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
 msgstr "Overflow error bei I,B,Q,IQ or WQ mapping erkannt..."
 
@@ -3585,9 +3584,9 @@ msgid "Modbus element offset"
 msgstr "Werkzeug-Längen-Index zu groß"
 
 #: src/hal/classicladder/config_gtk.c:662
-#, fuzzy, c-format
+#, c-format
 msgid "Debug level"
-msgstr "Debug-Level"
+msgstr "Debug-Ebene"
 
 #: src/hal/classicladder/config_gtk.c:666
 #, c-format
@@ -3634,7 +3633,6 @@ msgid "LEVEL 3"
 msgstr "LEVEL 3"
 
 #: src/hal/classicladder/config_gtk.c:969
-#, fuzzy
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
 " Um die Modbus Port-Einstellungen zu ändern, speichern und laden Sie die SPS-"
@@ -3652,7 +3650,6 @@ msgstr ""
 "übernehmen und das Fenster zu schließen"
 
 #: src/hal/classicladder/config_gtk.c:1027
-#, fuzzy
 msgid "Period/object info"
 msgstr "Periode/Objekt Info"
 
@@ -3667,18 +3664,16 @@ msgstr "Modbus  I/O Register Setup "
 
 #: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
 #: src/hal/classicladder/symbols_gtk.c:191
-#, fuzzy
 msgid "Variable"
-msgstr "nicht beschreibbar"
+msgstr "Variable"
 
 #: src/hal/classicladder/edit.c:150
 msgid "JumpToLabel"
 msgstr "JumpToLabel"
 
 #: src/hal/classicladder/edit.c:154
-#, fuzzy
 msgid "Sub-Routine"
-msgstr "Unterprogrammdatei"
+msgstr "Unterprogramm"
 
 #: src/hal/classicladder/edit.c:160 src/hal/classicladder/edit.c:186
 msgid "TimerNbr"
@@ -3686,7 +3681,6 @@ msgstr "TimerNbr"
 
 #: src/hal/classicladder/edit.c:162 src/hal/classicladder/edit.c:171
 #: src/hal/classicladder/edit.c:188
-#, fuzzy
 msgid "Base"
 msgstr "Basis"
 
@@ -3711,12 +3705,11 @@ msgid "TimerMode"
 msgstr "Modus"
 
 #: src/hal/classicladder/edit.c:197
-#, fuzzy
 msgid "Expression"
-msgstr "Nicht abgeschlossener Ausdruck"
+msgstr "Ausdruck"
 
 #: src/hal/classicladder/edit.c:227
-#, c-format, fuzzy
+#, c-format
 msgid "Variable: %s    Hal sig: %s"
 msgstr "Variable: %s    Hal Sig: %s"
 
@@ -3731,14 +3724,14 @@ msgid "Sub-Routine: %d"
 msgstr "Unterroutine: %d"
 
 #: src/hal/classicladder/edit.c:238
-#, c-format, fuzzy
+#, c-format
 msgid "%cT%d: Preset=%d Base=%s"
 msgstr "%cT%d: Preset=%d Basis=%s"
 
 #: src/hal/classicladder/edit.c:242
-#, c-format, fuzzy
+#, c-format
 msgid "%cM%d: Preset=%d Base=%s"
-msgstr "%cM%d: Preset=%d Basis=%s"
+msgstr "%cM%d: Preset=%d Base=%s"
 
 #: src/hal/classicladder/edit.c:247
 #, c-format
@@ -3746,9 +3739,9 @@ msgid "%cC%d: Preset=%d"
 msgstr "%cC%d: Preset=%d"
 
 #: src/hal/classicladder/edit.c:251
-#, c-format, fuzzy
+#, c-format
 msgid "%cTM%d: Preset=%d Base=%s Mode=%s"
-msgstr "%cTM%d: Preset=%d Basis=%s Modus=%s"
+msgstr "%cTM%d: Preset=%d Base=%s Mode=%s"
 
 #: src/hal/classicladder/edit.c:255
 #, c-format
@@ -3756,14 +3749,13 @@ msgid "HAL sig: %s"
 msgstr "HAL sig: %s"
 
 #: src/hal/classicladder/edit.c:352
-#, fuzzy
 msgid "Incompatible type of variable (must be an integer!)"
 msgstr "Inkompatibler Variablentyp (muss ganzzahlig sein)"
 
 #: src/hal/classicladder/edit.c:391
-#, c-format, fuzzy
+#, c-format
 msgid "New expr=%s\n"
-msgstr "Neuer Ausdruck=%s\n"
+msgstr "Neuer Ausruck=%s\n"
 
 #: src/hal/classicladder/edit.c:393
 #, fuzzy
@@ -3843,12 +3835,11 @@ msgid "Step Nbr"
 msgstr "Schritt"
 
 #: src/hal/classicladder/edit_sequential.c:76
-#, fuzzy
 msgid "Comment"
-msgstr "Bemerkung"
+msgstr "Kommentar"
 
 #: src/hal/classicladder/edit_sequential.c:151
-#, c-format, fuzzy
+#, c-format
 msgid "step search posiX=%d, posiY=%d ; "
 msgstr "step Suche posiX=%d, posiY=%d ; "
 
@@ -3860,7 +3851,7 @@ msgid "found=%d!!!\n"
 msgstr "gefunden=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:169
-#, c-format, fuzzy
+#, c-format
 msgid "transi search posiX=%d, posiY=%d ; "
 msgstr "transi Suche posiX=%d, posiY=%d ; "
 
@@ -3870,22 +3861,22 @@ msgid "comment search posiX=%d, posiY=%d ; "
 msgstr "comment Suche posiX=%d, posiY=%d ; "
 
 #: src/hal/classicladder/edit_sequential.c:216
-#, c-format, fuzzy
+#, c-format
 msgid "found free step=%d!!!\n"
 msgstr "fand freien step=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:234
-#, c-format, fuzzy
+#, c-format
 msgid "found free transi=%d!!!\n"
 msgstr "fand freie transi=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:253
-#, c-format, fuzzy
+#, c-format
 msgid "found free comment=%d!!!\n"
-msgstr "fand freie comment=%d!!!\n"
+msgstr "fand freien comment=%d!!!\n"
 
 #: src/hal/classicladder/edit_sequential.c:386
-#, c-format, fuzzy
+#, c-format
 msgid "Do link : transi=%d (top=%d), step=%d\n"
 msgstr "Do link : transi=%d (top=%d), step=%d\n"
 
@@ -3944,12 +3935,12 @@ msgid "having num transi linked=%d for transi=%d\n"
 msgstr "having num transi linked=%d for transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:596
-#, c-format, fuzzy
+#, c-format
 msgid "->storing num transi linked=%d for transi=%d\n"
 msgstr "->storing num transi linked=%d for transi=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:612
-#, c-format, fuzzy
+#, c-format
 msgid "=>step to activ=%d, step to desactiv=%d\n"
 msgstr "=>step to activ=%d, step to desactiv=%d\n"
 
@@ -3981,7 +3972,7 @@ msgid "A transition can't be placed on odd lines"
 msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:797
-#, c-format, fuzzy
+#, c-format
 msgid "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 msgstr "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 
@@ -4015,12 +4006,12 @@ msgid "Not enough room on the right here..."
 msgstr "Hier ist nicht genug Platz auf der rechten Seite..."
 
 #: src/hal/classicladder/edit_sequential.c:875
-#, c-format, fuzzy
+#, c-format
 msgid "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr "DO_MANY_STEPS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:881
-#, c-format, fuzzy
+#, c-format
 msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 
@@ -4172,7 +4163,7 @@ msgid "Timer => Base = %d , Preset = %d\n"
 msgstr "Timer => Basis = %d , Voreinstellung = %d\n"
 
 #: src/hal/classicladder/files.c:501
-#, c-format, fuzzy
+#, c-format
 msgid " - result=%d\n"
 msgstr " - result=%d\n"
 
@@ -4328,7 +4319,7 @@ msgstr "Abwärts"
 #: src/hal/classicladder/protocol_modbus_master.c:277
 #, c-format
 msgid "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
-msgstr "ERROR CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
+msgstr "FEHLER CLASSICLADDER-     MODBUS-EXCEPTION RECEIVED:%X (Excep=%X)\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:283
 #, c-format
@@ -4336,11 +4327,11 @@ msgid ""
 "ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 msgstr ""
-"ERROR CLASSICLADDER-    MODBUS -Function code received from slave was not "
+"FEHLER CLASSICLADDER-    MODBUS -Function code received from slave was not "
 "the same as requested!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:367
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "INFO CLASSICLADDER-   MODBUS -Echo back from slave #%s is correct "
 "(data=257).\n"
@@ -4349,9 +4340,9 @@ msgstr ""
 "\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:370
-#, c-format, fuzzy
+#, c-format
 msgid "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
-msgstr "ERROR CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
+msgstr "FEHLER CLASSICLADDER-    MODBUS -Echo back from slave #%s is WRONG.\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:419
 #, c-format
@@ -4359,7 +4350,7 @@ msgid "INFO CLASSICLADDER-   MODBUS function code not recognized"
 msgstr "INFO CLASSICLADDER-   MODBUS Functions-code nicht erkannt"
 
 #: src/hal/classicladder/protocol_modbus_master.c:424
-#, c-format, fuzzy
+#, c-format
 msgid "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 msgstr "INFO CLASSICLADDER-   MODBUS Length we should receive=%d (+3)\n"
 
@@ -4406,7 +4397,7 @@ msgstr "Funktion: %X Daten: "
 #: src/hal/classicladder/protocol_modbus_master.c:621
 #, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
-msgstr "ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
+msgstr "FEHLER CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:644
 #, c-format, fuzzy
@@ -4421,11 +4412,11 @@ msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:710
-#, c-format, fuzzy
+#, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 msgstr ""
-"ERROR CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
+"FEHLER CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 
 #: src/hal/classicladder/protocol_modbus_master.c:757
 #, c-format, fuzzy
@@ -4504,7 +4495,7 @@ msgstr ""
 "INFO CLASSICLADDER---I/O modbus master Daten Bits %i Stop Bits %i Parity %i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:124
-#, c-format, fuzzy
+#, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
 msgstr "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
 
@@ -4551,14 +4542,14 @@ msgid "Too much IP connections under run...\n"
 msgstr "Zu viele IP Verbindungen unter run...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:248
-#, c-format, fuzzy
+#, c-format
 msgid "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
 msgstr "INFO CLASSICLADDER-   Sending frame to I/O module...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:254
-#, c-format, fuzzy
+#, c-format
 msgid "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
-msgstr "ERROR CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
+msgstr "FEHLER CLASSICLADDER-  FAILED TO SEND ON SOCKET !!!(LgtSend=%d)\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:275
 #, c-format
@@ -4566,7 +4557,7 @@ msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
 msgstr "INFO CLASSICLADDER-   warte auf Antwort von slave...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:307
-#, c-format, fuzzy
+#, c-format
 msgid "INFO CLASSICLADDER---I/O modbus master closed!\n"
 msgstr "INFO CLASSICLADDER---I/O modbus master closed!\n"
 
@@ -4577,9 +4568,9 @@ msgstr ""
 "INFO CLASSICLADDER- nach Übertragung Verzögerung nun...%i Millisekunden\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:366
-#, c-format, fuzzy
+#, c-format
 msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
-msgstr "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
+msgstr "FEHLER CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:86
 #, c-format, fuzzy
@@ -4587,14 +4578,14 @@ msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
 msgstr "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
 
 #: src/hal/classicladder/socket_server.c:91
-#, c-format, fuzzy
+#, c-format
 msgid "ERROR CLASSICLADDER--- Failed to open socket server...\n"
-msgstr "ERROR CLASSICLADDER--- Failed to open socket server...\n"
+msgstr "FEHLER CLASSICLADDER--- Failed to open socket server...\n"
 
 #: src/hal/classicladder/socket_server.c:103
-#, c-format, fuzzy
+#, c-format
 msgid "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
-msgstr "ERROR CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
+msgstr "FEHLER CLASSICLADDER--- Failed to bind socket server...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:112
 #, c-format
@@ -4603,9 +4594,9 @@ msgstr ""
 "FEHLER CLASSICLADDER--- Kann nicht von Socket Server lesen...(Fehler=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:130
-#, c-format, fuzzy
+#, c-format
 msgid "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
-msgstr "ERROR CLASSICLADDER--- Failed to create thread socket server...\n"
+msgstr "FEHLER CLASSICLADDER--- Failed to create thread socket server...\n"
 
 #: src/hal/classicladder/socket_server.c:135
 #, c-format
@@ -6054,7 +6045,6 @@ msgid "Subfile"
 msgstr "Unterdatei"
 
 #: tcl/ngcgui.tcl:1216
-#, fuzzy
 msgid "Postamble"
 msgstr "Postamble"
 
@@ -6099,7 +6089,6 @@ msgid "Restart"
 msgstr "Anfang an"
 
 #: tcl/ngcgui.tcl:1314
-#, fuzzy
 msgid "SendFileToAxis"
 msgstr "SendFileToAxis"
 
@@ -11987,9 +11976,8 @@ msgid "%s metadata update"
 msgstr "%s Metadaten-update"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:428
-#, fuzzy
 msgid "PnCconf setup"
-msgstr "PnCconf setup"
+msgstr "PnCconf Einrichtung"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:448
 #, fuzzy

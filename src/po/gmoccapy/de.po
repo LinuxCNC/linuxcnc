@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-20 22:59+0000\n"
+"PO-Revision-Date: 2022-01-22 07:55+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -589,7 +589,7 @@ msgstr "Warnung: Werkzeug kann nicht gelöscht werden!"
 
 #: gmoccapy.py:4461
 msgid "No or more than one tool selected in tool table"
-msgstr "Sie haben kein oder mehr als ein Werkzeug ausgewählt.\\n"
+msgstr "Sie haben kein oder mehr als ein Werkzeug ausgewählt. –"
 
 #: gmoccapy.py:4462
 msgid "Please select only one tool in the table"
@@ -601,7 +601,7 @@ msgstr "Warnung: Antasten des Werkzeugs nicht möglich!"
 
 #: gmoccapy.py:4467
 msgid "you can not touch of a tool, witch is not mounted in the spindle"
-msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist.\\n"
+msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist. –"
 
 #: gmoccapy.py:4468
 msgid "your selection has been reseted to the tool in spindle"
