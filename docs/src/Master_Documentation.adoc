@@ -17,7 +17,7 @@ LinuxCNC V{lversion}, {date}
 
 = Introduction
 
-image::common/images/emc2-intro.*[]
+image::common/images/emc2-intro.png[]
 
 include::common/overleaf.adoc[]
 
