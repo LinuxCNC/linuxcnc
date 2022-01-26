@@ -39,6 +39,13 @@ try:
 except:
     pass
 
+import locale              # for setting the language of the GUI
+import gettext             # to extract the strings to be translated
+import sys
+
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+
 class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
     '''
     EMC_MDIHistory will store each MDI command to a file on your hard drive
@@ -63,6 +70,12 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
 
     def __init__(self, *a, **kw):
         Gtk.VBox.__init__(self, *a, **kw)
+
+        # prepare for translation
+        locale.setlocale(locale.LC_ALL, '')
+        locale.bindtextdomain("linuxcnc", LOCALEDIR)
+        gettext.install("linuxcnc", localedir=LOCALEDIR)
+
         self.use_double_click = False
         self.gstat = GStat()
         # if 'NO_FORCE_HOMING' is true, MDI  commands are allowed before homing.
@@ -80,7 +93,7 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         self.tv.set_model(self.model)
         self.cell = Gtk.CellRendererText()
 
-        self.col = Gtk.TreeViewColumn("Command")
+        self.col = Gtk.TreeViewColumn(_("Command"))
         self.col.pack_start(self.cell, True)
         self.col.add_attribute(self.cell, 'text', 0)
 
@@ -96,7 +109,6 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         scroll.props.vscrollbar_policy = Gtk.PolicyType.AUTOMATIC
 
         self.entry = Gtk.Entry()
-        print("Icon from stock")
         self.entry.set_icon_from_icon_name(Gtk.EntryIconPosition.SECONDARY, "gtk-ok")
         self.entry.modify_font(Pango.FontDescription(self.default_font))
 
@@ -263,7 +275,7 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         try:
             p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
         except:
-            self.entry.set_text('ERROR loading halshow')
+            self.entry.set_text(_("ERROR loading halshow"))
 
     def _get_iter_last(self, model):
         itr = model.get_iter_first()

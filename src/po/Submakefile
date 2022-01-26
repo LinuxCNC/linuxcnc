@@ -62,7 +62,8 @@ TOOLI18NSRCS := \
 	../lib/python/gladevcp/gladevcp-test.glade \
 	../lib/python/gladevcp/offsetpage.glade \
 	../lib/python/gladevcp/tooledit_gtk.glade \
-	../lib/python/gladevcp/calculator.glade
+	../lib/python/gladevcp/calculator.glade \
+	../lib/python/gladevcp/hal_mdihistory.py
 
 po/linuxcnc.pot:
 	$(ECHO) Localizing linuxcnc.pot
