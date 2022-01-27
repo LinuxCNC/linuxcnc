@@ -1,4 +1,4 @@
-VERSION = '1.221.158'
+VERSION = '1.221.159'
 
 '''
 qtplasmac_handler.py
@@ -174,6 +174,8 @@ class HandlerClass:
         KEYBIND.add_call('Key_End', 'on_keycall_END')
         KEYBIND.add_call('Alt+Key_Return', 'on_keycall_ALTRETURN')
         KEYBIND.add_call('Alt+Key_Enter', 'on_keycall_ALTRETURN')
+        KEYBIND.add_call('Key_Return', 'on_keycall_RETURN')
+        KEYBIND.add_call('Key_Enter', 'on_keycall_RETURN')
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -370,6 +372,7 @@ class HandlerClass:
             self.mdiLast = self.w.mdihistory.model.item(self.w.mdihistory.rows - 1).text()
         else:
             self.mdiLast = None
+        self.w.mdihistory.MDILine.spindle_inhibit(True)
         if self.firstRun is True:
             self.firstRun = False
         self.startupTimer.start(250)
@@ -381,7 +384,6 @@ class HandlerClass:
     def class_patch__(self):
         self.gcode_editor_patch()
         self.camview_patch()
-        self.mdi_line_patch()
         self.offset_table_patch()
 
 # patched gcode editor functions
@@ -495,67 +497,6 @@ class HandlerClass:
             self.w.camview.scale = 1
         elif event.button() & QtCore.Qt.MiddleButton:
             self.w.camview.diameter = 20
-
-# patched mdi_line functions
-    def mdi_line_patch(self):
-        self.old_submit = MDI_LINE.submit
-        MDI_LINE.submit = self.new_submit
-
-    def new_submit(self):
-        self.mdiError = False
-        intext = str(self.w.mdihistory.MDILine.text()).rstrip()
-        if intext == '':
-            self.mdi_show_clicked()
-            return
-        if intext.lower() == 'halmeter':
-            AUX_PRGM.load_halmeter()
-        elif intext.lower() == 'status':
-            AUX_PRGM.load_status()
-        elif intext.lower() == 'halshow':
-            AUX_PRGM.load_halshow()
-        elif intext.lower() == 'classicladder':
-            AUX_PRGM.load_ladder()
-        elif intext.lower() == 'halscope':
-            AUX_PRGM.load_halscope()
-        elif intext.lower() == 'calibration':
-            AUX_PRGM.load_calibration()
-        elif intext.lower() == 'preference':
-            self.new_openReturn(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs'))
-            self.w.gcode_editor.readOnlyMode()
-            self.w.preview_stack.setCurrentIndex(2)
-        elif intext.lower() == 'clear history':
-            with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'w') as fp:
-                fp.close()
-        elif intext.lower().startswith('setp'):
-            self.mdi_setp(intext)
-        # don't allow M3, M4, or M5 in MDI codes
-        else:
-            head = _translate('HandlerClass', 'MDI ERROR')
-            if 'm3' in intext.lower().replace(' ',''):
-                msg0 = _translate('HandlerClass', 'M3 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-                return
-            elif 'm4' in intext.lower().replace(' ',''):
-                msg0 = _translate('HandlerClass', 'M4 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-                return
-            elif 'm5' in intext.lower().replace(' ',''):
-                msg0 = _translate('HandlerClass', 'M5 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-                return
-            ACTION.CALL_MDI(intext + '\n')
-        t = time.time() + 0.1
-        while time.time() < t:
-            QApplication.processEvents()
-        if not self.mdiError and intext.lower() != self.mdiLast and intext.lower() != 'clear history':
-            try:
-                with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'a') as fp:
-                    fp.write(intext + '\n')
-            except:
-                pass
-        self.mdiLast = intext.lower()
-        if not self.mdiError:
-            STATUS.emit('mdi-history-changed')
 
 # patched offset table functions
     def offset_table_patch(self):
@@ -1043,6 +984,7 @@ class HandlerClass:
             # then check if it's one we want the keypress events to go to
             flag = False
             conversational = False
+            mdiBlank = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
                 if isinstance(receiver2, QtWidgets.QDialog):
@@ -1055,9 +997,13 @@ class HandlerClass:
                     flag = True
                     break
                 if isinstance(receiver2, MDI_LINE):
+                    if self.w.mdihistory.MDILine.text().rstrip() == '':
+                        mdiBlank = True
                     flag = True
                     break
                 if isinstance(receiver2, MDI_HISTORY):
+                    if self.w.mdihistory.MDILine.text().rstrip() == '':
+                        mdiBlank = True
                     flag = True
                     break
                 if isinstance(receiver2, EDITOR):
@@ -1084,6 +1030,8 @@ class HandlerClass:
                         self.keyPressEvent(event)
                     else:
                         receiver.keyPressEvent(event)
+                    if mdiBlank and (code == Qt.Key_Return or code == Qt.Key_Enter):
+                        self.keyPressEvent(event)
                     event.accept()
                     return True
                 else:
@@ -2769,62 +2717,6 @@ class HandlerClass:
             else:
                 ACTION.DISABLE_AUTOREPEAT_KEYS(' ')
 
-    def mdi_setp(self, setpString):
-        head = _translate('HandlerClass', 'SETP UNSUCCESSFUL')
-        arguments = len(setpString.lower().replace('setp ','').split(' '))
-        if arguments == 2:
-            halpin, value = setpString.lower().replace('setp ','').split(' ')
-        else:
-            msg0 = _translate('HandlerClass', 'setp requires 2 arguments')
-            msg1 = _translate('HandlerClass', 'given')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}, {} {}\n'.format(head, msg0, arguments, msg1))
-            return
-        try:
-            hal.get_value(halpin)
-        except Exception as err:
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, err))
-            return
-        try:
-            hal.set_p(halpin, value)
-        except Exception as err:
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n"{}" {}\n'.format(head, halpin, err))
-            return
-        msg0 = _translate('HandlerClass', 'Value')
-        if type(hal.get_value(halpin)) == bool:
-            if value.lower() in ['true', '1']:
-                value = True
-            elif value.lower() in ['false', '0']:
-                value = False
-            else:
-                msg1 =  _translate('HandlerClass', 'invalid for a BIT pin/parameter')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n'.format(head, msg0, value, msg1))
-                return
-            if hal.get_value(halpin) != value:
-                msg1 = _translate('HandlerClass', 'BIT value comparison error')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg1))
-                return
-        elif type(hal.get_value(halpin)) == float:
-            try:
-                value = float(value)
-            except:
-                msg1 =  _translate('HandlerClass', 'invalid for a Float pin/parameter')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n'.format(head, msg0, value, msg1))
-                return
-            if hal.get_value(halpin) != value:
-                msg1 = _translate('HandlerClass', 'Float value comparison error')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg1))
-                return
-        else:
-            try:
-                value = int(value)
-            except:
-                msg1 =  _translate('HandlerClass', 'invalid for S32 or U32 pin/parameter')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} "{}" {}\n'.format(head, msg0, value, msg1))
-                return
-            if hal.get_value(halpin) != value:
-                msg1 = _translate('HandlerClass', 'S32 or U32 value comparison error')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg1))
-                return
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -5485,6 +5377,10 @@ class HandlerClass:
 
     def on_keycall_ALTRETURN(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.mdi_show.isEnabled():
+            self.mdi_show_clicked()
+
+    def on_keycall_RETURN(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.gcode_stack.currentIndex() and self.w.mdi_show.isEnabled():
             self.mdi_show_clicked()
 
 #########################################################################################################################
