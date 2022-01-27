@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-25 01:50+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-01-27 16:37+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -94,8 +94,8 @@ msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Kreis mit Radius 0: Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%.4f), "
-"Ende=(%c%.4f,%c%.4f), Radius 1=%.4f, Radius 2=%.4f"
+"Kreisbogen mit Radius Null: Anfang=(%c%.4f,%c%.4f), Mittelpunkt=(%c%.4f,%c%."
+"4f), Ende=(%c%.4f,%c%.4f), Radius 1=%.4f, Radius 2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -11990,7 +11990,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
