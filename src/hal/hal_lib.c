@@ -349,7 +349,7 @@ int hal_exit(int comp_id)
     --ref_cnt;
 #ifdef ULAPI
     if(ref_cnt == 0) {
-        rtapi_print_msg(RTAPI_MSG_DBG, "HAL:  releasing RTAPI resources");
+        rtapi_print_msg(RTAPI_MSG_DBG, "HAL: releasing RTAPI resources\n");
 	/* release RTAPI resources */
 	rtapi_shmem_delete(lib_mem_id, lib_module_id);
 	rtapi_exit(lib_module_id);
@@ -2879,20 +2879,30 @@ static void thread_task(void *arg)
 
 static int init_hal_data(void)
 {
-    /* has the block already been initialized? */
+    /* has the hal_data block already been initialized? */
+
+    /* Lock hal_data by taking the mutex, so that two processes
+    don't both try to initialize hal_data at the same time.  NOTE:
+    The first time through, the hal_data memory buffer is fresh from
+    rtapi_shmem_new(), which means it's initialized to all zero bytes.
+    This means hal_data->mutex is valid and unlocked. */
+    rtapi_mutex_get(&(hal_data->mutex));
+
     if (hal_data->version != 0) {
-	/* yes, verify version code */
-	if (hal_data->version == HAL_VER) {
-	    return 0;
-	} else {
-	    rtapi_print("HAL: version:%d expected:%d\n",hal_data->version,HAL_VER);
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"HAL: ERROR: version code mismatch\n");
-	    return -1;
-	}
+        /* hal_data has been initialized already, verify version code */
+        if (hal_data->version == HAL_VER) {
+            rtapi_mutex_give(&(hal_data->mutex));
+            return 0;
+        } else {
+            rtapi_print("HAL: version:%d expected:%d\n",hal_data->version,HAL_VER);
+            rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: version code mismatch\n");
+            rtapi_mutex_give(&(hal_data->mutex));
+            return -1;
+        }
     }
-    /* no, we need to init it, grab the mutex unconditionally */
-    rtapi_mutex_try(&(hal_data->mutex));
+
+    /* hal_data has *NOT* been initialized yet, we get the honor */
+
     /* set version code so nobody else init's the block */
     hal_data->version = HAL_VER;
     /* initialize everything */
