@@ -20,19 +20,21 @@ with this program; if not, write to the Free Software Foundation, Inc
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import os
 import linuxcnc
 import hal
 import time
 from subprocess import call as CALL
 from PyQt5 import QtCore
-from PyQt5.QtGui import QPalette, QColor
+from PyQt5.QtGui import QPalette, QColor, QIcon
 from PyQt5.QtWidgets import QMessageBox
 
 class HandlerClass:
 
-    def __init__(self, halcomp,widgets,paths):
+    def __init__(self, halcomp, widgets, paths):
         self.hal = halcomp
         self.w = widgets
+        self.PATHS = paths
         self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint | \
                               QtCore.Qt.WindowTitleHint | \
                               QtCore.Qt.WindowStaysOnTopHint )
@@ -42,6 +44,8 @@ class HandlerClass:
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
+        self.IMAGES = os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac/images/')
+        self.w.setWindowIcon(QIcon(os.path.join(self.IMAGES, 'linuxcncicon.png')))
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
@@ -49,7 +53,15 @@ class HandlerClass:
         self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
         self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
         self.arcVoltsPin = self.hal.newpin('arc_voltage_out-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
+        simStepconf = False
+        for sig in hal.get_info_signals():
+            if sig['NAME'] == 'Zjoint-pos-fb':
+                simStepconf = True
+                break
+        if simStepconf:
+            CALL(['halcmd', 'net', 'Zjoint-pos-fb', 'qtplasmac_sim.z_position'])
+        else:
+            CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
         CALL(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
         self.torchPin.value_changed.connect(self.torch_changed)
         self.zPosPin.value_changed.connect(lambda v:self.z_position_changed(v))
@@ -106,7 +118,7 @@ class HandlerClass:
             '* {{\n'\
             '    color: {0};\n'\
             '    background: {1};\n'\
-            '    font: 10pt Lato }}\n'\
+            '    font: 10pt DejaVuSans }}\n'\
             '\n/****** BUTTONS ************/\n'\
             'QPushButton {{\n'\
             '    color: {0};\n'\

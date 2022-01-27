@@ -1,0 +1,60 @@
+:lang: fr
+:toc:
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:ascii-ids:
+:lversion: {sys: cat ../VERSION}
+:revdate: 2021-10-28
+Manuel de l'utilisateur V{lversion}, {date}
+===========================================
+
+[NOTE]
+Cette documentation n'a pas été mise à jour depuis LinuxCNC version 2.5,
+publiée en 2012.
+C'est très dépassé. Veuillez utiliser la documentation en anglais.
+Si vous souhaitez mettre à jour cette traduction, veuillez contacter
+l'équipe LinuxCNC via le forum ou la liste de diffusion.
+
+:masterdir: {indir}
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+The LinuxCNC Team
+
+include::common/overleaf_fr.adoc[]
+
+include::common/outdated-notice_fr.adoc[]
+include::user/user-foreword_fr.adoc[]
+include::user/user-intro_fr.adoc[]
+:leveloffset: 0
+= Les interfaces utilisateur
+:leveloffset: 1
+include::gui/axis_fr.adoc[]
+include::gui/ngcgui_fr.adoc[]
+include::gui/touchy_fr.adoc[]
+include::gui/tklinuxcnc_fr.adoc[]
+:leveloffset: 0
+
+= L'utilisation de LinuxCNC
+:leveloffset: 1
+include::user/user-concepts_fr.adoc[]
+include::gcode/machining_center_fr.adoc[]
+include::gcode/coordinates_fr.adoc[]
+include::gcode/tool_compensation_fr.adoc[]
+include::gcode/overview_fr.adoc[]
+include::gcode/gcode_fr.adoc[]
+include::gcode/m-code_fr.adoc[]
+include::gcode/o-code_fr.adoc[]
+include::gcode/other-code_fr.adoc[]
+include::examples/gcode_fr.adoc[]
+include::lathe/lathe-user_fr.adoc[]
+include::gcode/rs274ngc_fr.adoc[]
+include::gui/image-to-gcode_fr.adoc[]
+include::common/Glossary_fr.adoc[]
+include::common/gpld-copyright.adoc[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

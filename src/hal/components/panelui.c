@@ -358,7 +358,7 @@ skip:
             if (PyErr_Occurred()) PyErr_Print();
         }
     }
-    /* run was succesfull */
+    /* run was successful */
     exitval = 0;
 
 out:

@@ -18,17 +18,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import print_function
 import os
 import sys
 import errno
 import hashlib
 import xml.dom.minidom
 
-if sys.version_info[0] == 3:
-    import subprocess
-else:
-    import commands as subprocess
+import subprocess
 
 def md5sum(filename):
     try:
@@ -314,10 +310,11 @@ class Data:
         self.qtplasmacmode = 0
         self.qtplasmacscreen = 0
         self.qtplasmacestop = 0
-        self.qtplasmacxcam = 0.0
-        self.qtplasmacycam = 0.0
-        self.qtplasmacxlaser = 0.0
-        self.qtplasmacylaser = 0.0
+        self.qtplasmacdro = 0
+        self.qtplasmacerror = 0
+        self.qtplasmacstart = 0
+        self.qtplasmacpause = 0
+        self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
         self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
         self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"

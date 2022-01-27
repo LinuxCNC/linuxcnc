@@ -82,7 +82,7 @@ typedef struct {
     hal_float_t *motor_offset;	/* RPI: motor offset, for checking homing stability */
     hal_float_t *motor_pos_cmd;	/* WPI: commanded position, with comp */
     hal_float_t *motor_pos_fb;	/* RPI: position feedback, with comp */
-    hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, mot ofs */
+    hal_float_t *joint_pos_cmd;	/* WPI: commanded position w/o comp, not ofs */
     hal_float_t *joint_pos_fb;	/* RPI: position feedback, w/o comp */
     hal_float_t *f_error;	/* RPI: following error */
     hal_float_t *f_error_lim;	/* RPI: following error limit */
@@ -178,6 +178,7 @@ typedef struct {
     hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
     hal_float_t *analog_input[EMCMOT_MAX_AIO]; /* RPI array: input pins for analog Inputs */
     hal_float_t *analog_output[EMCMOT_MAX_AIO]; /* RPI array: output pins for analog Inputs */
+    hal_bit_t *misc_error[EMCMOT_MAX_MISC_ERROR]; /* RPI array: output pins for misc error Inputs */
 
     // FIXME - debug only, remove later
     hal_float_t traj_pos_out;	/* RPA: traj internals, for debugging */

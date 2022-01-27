@@ -342,7 +342,7 @@ class HandlerClass:
     # add pass so gscreen doesn't try to update it's regular widgets or
     # add the individual function names that you would like to call.
     def periodic(self):
-        # put the poll comand in a try, so if the linuxcnc pid is killed
+        # put the poll command in a try, so if the linuxcnc pid is killed
         # from an external command, also quit the GUI
         try:
             self.stat.poll()

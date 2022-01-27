@@ -1,4 +1,4 @@
-INCLUDES += libnml/cms
+INCLUDES += emc libnml/cms
 
 $(patsubst ./libnml/cms/%,../include/%,$(wildcard ./libnml/cms/*.h)): ../include/%.h: ./libnml/cms/%.h
 	cp $^ $@

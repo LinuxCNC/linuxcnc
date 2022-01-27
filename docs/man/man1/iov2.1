@@ -165,7 +165,7 @@ mechanism) of the tool requested by the most recent T-word.
 (BIT,IN) Acknowledgment line for start\-change.
 .TP
 \fBiocontrol.0.toolchanger\-fault
-(BIT,IN) Toolchanger signals fault. This line is contionuously monitored. A fault toogles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
+(BIT,IN) Toolchanger signals fault. This line is contionuously monitored. A fault toggles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
 .TP
 \fBiocontrol.0.toolchanger\-fault\-ack
 (BIT,OUT) Handshake line for above signal. will be set by iov2 after above fault line True is recognized and deasserted when toolchanger\-fault drops. Toolchanger is free to interpret the ack; reading the \-ack lines assures fault has been received and acted upon.
@@ -185,7 +185,6 @@ mechanism) of the tool requested by the most recent T-word.
 \fBiocontrol.0.state
 (S32,OUT) Debugging pin reflecting internal state
 
-.HTML <br>
 .PP
 See 
 .UR http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ToolchangerProtocolProposal 

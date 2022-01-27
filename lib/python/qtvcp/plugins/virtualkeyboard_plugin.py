@@ -31,7 +31,7 @@ class VirtualKeyboardPlugin(QPyDesignerCustomWidgetPlugin):
         return "VirtualKeyboard"
 
     def group(self):
-        return "Linuxcnc - Controller"
+        return "Linuxcnc - Widgets"
 
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('virtualkeyboard')))

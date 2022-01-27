@@ -5,7 +5,7 @@
 #    Copyright 2007 Jeff Epler <jepler@unpythonic.net>
 #
 #    stepconf 1.1 revamped by Chris Morley 2014
-#    replaced Gnome Druid as that is not available in future linux distrubutions
+#    replaced Gnome Druid as that is not available in future linux distributions
 #    and because of GTK/GLADE bugs, the GLADE file could only be edited with Ubuntu 8.04
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -48,12 +48,7 @@ try:
 except ImportError:
     from xml.parsers import expat
 
-if sys.version_info[0] == 3:
-    import subprocess
-else:
-    import commands as subprocess
-    reload(sys)
-    sys.setdefaultencoding('utf8')
+import subprocess
 
 import traceback
 # otherwise, on hardy the user is shown spurious "[application] closed
@@ -85,10 +80,7 @@ BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 import locale, gettext
 LOCALEDIR = os.path.join(BASE, "share", "locale")
 domain = "linuxcnc"
-if sys.version_info[0] == 3:
-    gettext.install(domain, localedir=LOCALEDIR)
-else:
-    gettext.install(domain, localedir=LOCALEDIR, unicode=True)
+gettext.install(domain, localedir=LOCALEDIR)
 
 locale.setlocale(locale.LC_ALL, '')
 locale.bindtextdomain(domain, LOCALEDIR)
@@ -280,7 +272,7 @@ class Private_Data:
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
         self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
                  unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-            "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
+            "You are using the {} kernel.\nYou need to use kernel:".format(os.uname()[2]))
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -445,10 +437,11 @@ class Data:
         self.qtplasmacmode = 0
         self.qtplasmacscreen = 0
         self.qtplasmacestop = 0
-        self.qtplasmacxcam = 0.0
-        self.qtplasmacycam = 0.0
-        self.qtplasmacxlaser = 0.0
-        self.qtplasmacylaser = 0.0
+        self.qtplasmacdro = 0
+        self.qtplasmacerror = 0
+        self.qtplasmacstart = 0
+        self.qtplasmacpause = 0
+        self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
         self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
                                  "","","","","","","","","","","","","",""]

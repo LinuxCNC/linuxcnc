@@ -62,7 +62,6 @@ LANGUAGES = @LANGUAGES@
 
 #still needs discussion
 # do we really need these?
-initd_dir = /etc/init.d
 docsdir = ${prefix}/share/doc/linuxcnc
 sampleconfsdir = ${prefix}/share/doc/linuxcnc/examples/sample-configs
 ncfilesdir = ${prefix}/share/linuxcnc/ncfiles
@@ -224,7 +223,6 @@ CONFIG_HAL_GM=m
 CONFIG_HAL_BB_GPIO=m
 CONFIG_HAL_PI_GPIO=m
 
-RTAPI_APP_CFLAGS=@RTAPI_APP_CFLAGS@
 CONFIG_USPACE_RTAI=@CONFIG_USPACE_RTAI@
 RTAI_LXRT_CFLAGS=@RTAI_LXRT_CFLAGS@
 RTAI_LXRT_LDFLAGS=@RTAI_LXRT_LDFLAGS@

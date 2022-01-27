@@ -45,11 +45,7 @@ class Calculator(QDialog):
                     self.digitClicked))
 
         self.pointButton = self.createButton(".", self.pointClicked)
-        if sys.version_info.major > 2:
-            text = str("\N{PLUS-MINUS SIGN}")
-        else:
-            text = u"\N{PLUS-MINUS SIGN}".encode('utf-8')
-        self.changeSignButton = self.createButton(text, self.changeSignClicked)
+        self.changeSignButton = self.createButton(str("\N{PLUS-MINUS SIGN}"), self.changeSignClicked)
         self.axisButton = self.createAxisButton("AXIS X", self.axisClicked)
         self.backspaceButton = self.createButton("BKSP",self.backspaceClicked, 'Backspace')
         self.clearButton = self.createButton("CLR", self.clear)
@@ -59,26 +55,14 @@ class Calculator(QDialog):
         self.setMemoryButton = self.createButton("MS", self.setMemory, 'Set memory')
         self.addToMemoryButton = self.createButton("M+", self.addToMemory, 'Add to memory')
 
-        if sys.version_info.major > 2:
-            text = str("\N{DIVISION SIGN}")
-        else:
-            text = u"\N{DIVISION SIGN}".encode('utf-8')
-        self.divisionButton = self.createButton(text,
+        self.divisionButton = self.createButton(str("\N{DIVISION SIGN}"),
                 self.multiplicativeOperatorClicked)
-        if sys.version_info.major > 2:
-            text = str("\N{MULTIPLICATION SIGN}")
-        else:
-            text = u"\N{MULTIPLICATION SIGN}".encode('utf-8')
-        self.timesButton = self.createButton(text, self.multiplicativeOperatorClicked)
+        self.timesButton = self.createButton(str("\N{MULTIPLICATION SIGN}"), self.multiplicativeOperatorClicked)
         self.minusButton = self.createButton("-", self.additiveOperatorClicked)
         self.plusButton = self.createButton("+", self.additiveOperatorClicked)
 
         self.squareRootButton = self.createButton("SQRT", self.unaryOperatorClicked)
-        if sys.version_info.major > 2:
-            text = str("x\N{SUPERSCRIPT TWO}")
-        else:
-            text = u"x\N{SUPERSCRIPT TWO}".encode('utf-8')
-        self.powerButton = self.createButton(text, self.unaryOperatorClicked)
+        self.powerButton = self.createButton(str("x\N{SUPERSCRIPT TWO}"), self.unaryOperatorClicked)
         self.reciprocalButton = self.createButton("1/x", self.unaryOperatorClicked)
         self.equalButton = self.createButton("=", self.equalClicked)
 
@@ -103,7 +87,7 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.addToMemoryButton, 5, 0)
 
         for i in range(1, Calculator.NumDigitButtons):
-            row = ((9 - i) / 3) + 2
+            row = ((9 - i) // 3) + 2
             column = ((i - 1) % 3) + 1
             mainLayout.addWidget(self.digitButtons[i], row, column)
 
@@ -159,17 +143,12 @@ class Calculator(QDialog):
         clickedButton = self.sender()
         clickedOperator = clickedButton.text()
         operand = float(self.display.text())
-        if sys.version_info.major > 2:
-            SQR = str("x\N{SUPERSCRIPT TWO}")
-        else:
-            SQR = u"x\N{SUPERSCRIPT TWO}"
-
         if clickedOperator == "SQRT":
             if operand < 0.0:
                 self.abortOperation()
                 return
             result = math.sqrt(operand)
-        elif clickedOperator == SQR:
+        elif clickedOperator == str("x\N{SUPERSCRIPT TWO}"):
             result = math.pow(operand, 2.0)
         elif clickedOperator == "1/x":
             if operand == 0.0:
@@ -402,15 +381,9 @@ class Calculator(QDialog):
             self.sumSoFar += rightOperand
         elif pendingOperator == "-":
             self.sumSoFar -= rightOperand
-        if sys.version_info.major > 2:
-            mult = str("\N{MULTIPLICATION SIGN}")
-            div = str("\N{DIVISION SIGN}")
-        else:
-            mult = u"\N{MULTIPLICATION SIGN}"
-            div = u"\N{DIVISION SIGN}"
-        if pendingOperator == mult:
+        if pendingOperator == str("\N{MULTIPLICATION SIGN}"):
             self.factorSoFar *= rightOperand
-        elif pendingOperator == div:
+        elif pendingOperator == str("\N{DIVISION SIGN}"):
             if rightOperand == 0.0:
                 return False
             self.factorSoFar /= rightOperand

@@ -10,6 +10,8 @@
 # When used to produce a debian package, this file is a script "used to
 # control compilation and installation of the executable"
 
+set -e
+
 usage () {
     P=${0##*/}
     cat <<EOF
@@ -70,6 +72,16 @@ if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
         texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
         texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, \
         asciidoc-dblatex'
+    case $DISTRIB_NAME in
+	Debian-9)
+	    ;; # No xetex in Debian 9 Stretch
+	*)
+	    # Not quite sure which packages is needed for xetex, but
+	    # texlive-xetex seem like a safe choice.  Need xetex to be
+	    # able to build Chinese PDF.
+	    DOC_DEPENDS="$DOC_DEPENDS,texlive-xetex"
+	    ;;
+    esac
 else
     DOC_DEPENDS=''
 fi
@@ -80,11 +92,20 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
+QTVCP_DEPENDS="python3-pyqt5,python3-pyqt5.qsci,python3-pyqt5.qtsvg, \
+        python3-pyqt5.qtopengl, python3-opencv,python3-dbus,python3-espeak, \
+        python3-dbus.mainloop.pyqt5,python3-pyqt5.qtwebkit,python3-xlib, \
+        espeak-ng,python3-numpy,pyqt5-dev-tools,gstreamer1.0-tools,espeak, \
+        sound-theme-freedesktop"
 YAPPS_RUNTIME="python3-yapps"
+DEBHELPER="debhelper (>= 9)"
+COMPAT="9"
 
 case $DISTRIB_NAME in
     Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
+        COMPAT=""
+        DEBHELPER="debhelper-compat (= 13)"
         ;;
     Ubuntu-20.*)
         ;;
@@ -118,6 +139,8 @@ CONFIGURE_REALTIME_ARG=--with-realtime=uspace
 
 subst () {
 sed \
+    -e "s#@COMPAT@#$COMPAT#g" \
+    -e "s#@DEBHELPER@#$DEBHELPER#g" \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
     -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
     -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
@@ -139,6 +162,7 @@ sed \
     -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
     -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
     -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
+    -e "s#@QTVCP_DEPENDS@#$QTVCP_DEPENDS#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
     -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
@@ -150,30 +174,24 @@ sed \
     $*
 }
 
+if [[ -z "${COMPAT}" ]]; then
+    rm -f compat
+else
+    subst compat.in > compat
+fi
+
 subst control.top.in > control
 
 echo >> control
 subst control.main-pkg.in >> control
 
-cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
+subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
+subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
 
-subst rules.in > rules; chmod +x rules
-
-if [ -f $EXTRAS/linuxcnc.files ]; then
-    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
-else
-    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
-fi
+subst rules.in > rules
+chmod +x rules
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn})
-    for P in $DOCS_PACKAGES; do
-        if [ -f $EXTRAS/$P.files ]; then
-            cat $P.files.in $EXTRAS/$P.files > $P.files
-        else
-            cat $P.files.in > $P.files
-        fi
-    done
     subst control.docs.in >> control
 fi
 

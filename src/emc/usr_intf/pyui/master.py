@@ -62,7 +62,7 @@ class keyboard():
                     self.r_c[value] = idname
                 metadata[attribute.upper()] = value
 
-            # intialize the widget
+            # initialize the widget
             widget.hal_init(self, self.hal, idname, metadata, 
                     self.cmd, self.widgets, DBG_state)
             self.widgets[idname] = widget

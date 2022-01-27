@@ -1,4 +1,4 @@
-( Excerpt from AXIS "splash g-code")
+( Excerpt from AXIS "splash G-code")
 G21 G90 G64 G40
 G0 Z3.0
 G17

@@ -96,7 +96,7 @@ class HandlerClass:
             else:
                 self.makedirs(dest)
 
-            # walk the folder and copy everthing
+            # walk the folder and copy everything
             for path, dirs, filenames in os.walk(src):
                 for directory in dirs:
                     destDir = path.replace(src,dest)

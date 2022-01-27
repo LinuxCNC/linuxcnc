@@ -1431,7 +1431,7 @@ card_mgr(void *arg, long period)
 	}
 	
 	
-      //Chack if change happened in control reg and write control reg if well
+      //Check if change happened in control reg and write control reg if well
 	 //  ... Estop_1 | Estop_0 | Pwr_fault | Bus_err | Wdt_err  //Card status read resets wdt
 	temp = 1; //EMC run
 	if(*(device->cardMgr.power_enable)) temp |= (0x0001 << 1); //power enable
@@ -1499,7 +1499,7 @@ encoder(void *arg, long period)
 		}
 		else if(*(device->encoder[i].index_enable) == 1) //If not in reset and index is enabled
 		{
-		  if (temp2 != device->encoder[i].last_index_latch) //If index puls come
+		  if (temp2 != device->encoder[i].last_index_latch) //If index pulse come
 		  {
 		    if(device->encoder[i].index_mode == 0)  //reset counter at index
 		    {
@@ -1535,7 +1535,7 @@ encoder(void *arg, long period)
 		*(device->encoder[i].rawcounts) =  temp1 - device->encoder[i].raw_offset;
 		*(device->encoder[i].counts) = *(device->encoder[i].rawcounts) - device->encoder[i].index_offset;
 		
-		if((device->encoder[i].position_scale < 0.000001) && (device->encoder[i].position_scale > -0.000001))  device->encoder[i].position_scale = 1; //Dont like to devide by 0
+		if((device->encoder[i].position_scale < 0.000001) && (device->encoder[i].position_scale > -0.000001))  device->encoder[i].position_scale = 1; //Don't like to divide by 0
 		*(device->encoder[i].position) = (hal_float_t) *(device->encoder[i].counts) / device->encoder[i].position_scale;
 		
 		vel = (hal_float_t) pCard->ENC_period[i];
@@ -1870,7 +1870,7 @@ RS485(void *arg, long period)
         }
   
        //read RS485-s
-	for(i=0;i<16;i++) if((device-> RS485_mgr.ID[i] != 0) && (device-> RS485_mgr.BYTES_TO_READ[i] != 0)) //If the modul is presented and not write only
+	for(i=0;i<16;i++) if((device-> RS485_mgr.ID[i] != 0) && (device-> RS485_mgr.BYTES_TO_READ[i] != 0)) //If the module is presented and not write only
 	{
 	      //Block ram address lookahead support
 		if(i != 0) *(&(pCard->serialModulesDataIn[i-1][7])); 
@@ -1949,7 +1949,7 @@ RS485(void *arg, long period)
 			}
 			*(device->RS485_TeachPad[i].enc_counts) = *(device->RS485_TeachPad[i].enc_rawcounts) - device->RS485_TeachPad[i].enc_raw_offset;
 			
-			if((device->RS485_TeachPad[i].enc_position_scale < 0.000001) && (device->RS485_TeachPad[i].enc_position_scale > -0.000001)) device->RS485_TeachPad[i].enc_position_scale=1; //dont devide by 0
+			if((device->RS485_TeachPad[i].enc_position_scale < 0.000001) && (device->RS485_TeachPad[i].enc_position_scale > -0.000001)) device->RS485_TeachPad[i].enc_position_scale=1; //don't divide by 0
 			
 			*(device->RS485_TeachPad[i].enc_position) = *(device->RS485_TeachPad[i].enc_counts) / device->RS485_TeachPad[i].enc_position_scale;
 			
@@ -1961,20 +1961,20 @@ RS485(void *arg, long period)
 	}
 
       //Write serial IOs
-	for(i=0;i<16;i++) if((device-> RS485_mgr.ID[i] != 0) && (device-> RS485_mgr.BYTES_TO_WRITE[i] != 0)) //If the modul is presented and not read only
+	for(i=0;i<16;i++) if((device-> RS485_mgr.ID[i] != 0) && (device-> RS485_mgr.BYTES_TO_WRITE[i] != 0)) //If the module is presented and not read only
 	{
 	  
 		switch (device-> RS485_mgr.ID[i])
 		{
-		    case RS485MODUL_ID_8OUTPUT:   
-		      RS485DataIn8[0]=((*(device->RS485_8output[i].out_7) ^ (device->RS485_8output[i].invertOut_7)) << 7) | 
+		    case RS485MODUL_ID_8OUTPUT:
+		      RS485DataIn8[0]=((*(device->RS485_8output[i].out_7) ^ (device->RS485_8output[i].invertOut_7)) << 7) |
 				      ((*(device->RS485_8output[i].out_6) ^ (device->RS485_8output[i].invertOut_6)) << 6) |
 				      ((*(device->RS485_8output[i].out_5) ^ (device->RS485_8output[i].invertOut_5)) << 5) |
 				      ((*(device->RS485_8output[i].out_4) ^ (device->RS485_8output[i].invertOut_4)) << 4) |
 				      ((*(device->RS485_8output[i].out_3) ^ (device->RS485_8output[i].invertOut_3)) << 3) |
 				      ((*(device->RS485_8output[i].out_2) ^ (device->RS485_8output[i].invertOut_2)) << 2) |
 				      ((*(device->RS485_8output[i].out_1) ^ (device->RS485_8output[i].invertOut_1)) << 1) |
-				      ((*(device->RS485_8output[i].out_0) ^ (device->RS485_8output[i].invertOut_0)) << 0);	      		      
+				      ((*(device->RS485_8output[i].out_0) ^ (device->RS485_8output[i].invertOut_0)) << 0);
 		    break;
 
 		    case RS485MODUL_ID_DACADC:

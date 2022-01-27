@@ -462,7 +462,7 @@ class Private_Data:
                      [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ] ]
 
         self.human_input_names = [ [_("Unused Input"),S.UNUSED_INPUT],[_("Limits"),blimits],
-            [_("home"),bhome],[_("Limts/Home Shared"),bshared],
+            [_("home"),bhome],[_("Limits/Home Shared"),bshared],
             [_("Digital"),digital],[_("Axis Selection"),axis_select],[_("Overrides"),override],
             [_("Spindle"),spindle],[_("Operation"),operation],[_("External Control"),control],
             [_("Axis rapid"),rapid],[_("X BLDC Control"),xmotor_control],
@@ -1095,7 +1095,7 @@ class Private_Data:
         '7i80hd':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
         '7i80db':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':4,'TAB_NUMS':[1,2,3,4],'TAB_NAMES':['P1','P2','P3','P4']},
         '7i90':{'DRIVER':'hm2_7i90','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
-        '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2},
+        '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
         '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
         '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
         '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3},
@@ -1114,7 +1114,7 @@ class Private_Data:
         self.MESS_NO_REALTIME = _("You are using a simulated-realtime version of LinuxCNC, so testing / tuning of hardware is unavailable.")
         self.MESS_KERNEL_WRONG = _("You are using a realtime version of LinuxCNC but didn't load a realtime kernel so testing / tuning of hardware is\
                  unavailable.\nThis is possibly because you updated the OS and it doesn't automatically load the RTAI kernel anymore.\n"+
-            "You are using the  %(actual)s  kernel.\nYou need to use kernel:")% {'actual':os.uname()[2]}
+            "You are using the {} kernel.\nYou need to use kernel:".format(os.uname()[2]))
         self.MESS_REPLACE_RC_FILE = _("Ok to replace AXIS's .axisrc file?\n\
  If you haven't added custom commands to this hidden file, outside of pncconf, then this should be fine.\n\
 Choosing no will mean AXIS options such as size/position and force maximum might not be as requested \n")

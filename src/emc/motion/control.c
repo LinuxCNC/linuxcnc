@@ -16,8 +16,9 @@
 #define SWITCHKINS_DEBUG
 #undef  SWITCHKINS_DEBUG
 
-#define SWITCHKINS_MESSAGE
-#undef  SWITCHKINS_MESSAGE
+#ifdef SWITCHKINS_DEBUG
+#include <stdio.h>  // rtpreempt only, consolidate to stderr
+#endif
 
 #include "posemath.h"
 #include "rtapi.h"
@@ -191,6 +192,7 @@ static void sync_carte_pos_to_teleop_tp(int);
 static void apply_ext_offsets_to_carte_pos(int);
 static int  update_coord_with_bound(void);
 static int  update_teleop_with_check(int,simple_tp_t*);
+static void handle_kinematicsSwitch(void);
 
 /***********************************************************************
 *                        PUBLIC FUNCTION CODE                          *
@@ -251,6 +253,7 @@ void emcmotController(void *arg, long period)
     /* here begins the core of the controller */
 
     read_homing_in_pins(ALL_JOINTS);
+    handle_kinematicsSwitch();
     process_inputs();
     do_forward_kins();
     process_probe_inputs();
@@ -276,7 +279,7 @@ void emcmotController(void *arg, long period)
 /***********************************************************************
 *                         LOCAL FUNCTION CODE                          *
 ************************************************************************/
-/* The protoypes and documentation for these functions are located
+/* The prototypes and documentation for these functions are located
    at the top of the file in the section called "local function
    prototypes"
 */
@@ -284,63 +287,51 @@ void emcmotController(void *arg, long period)
 static void handle_kinematicsSwitch(void) {
     int joint_num;
     int hal_switchkins_type = 0;
-    if (kinematicsSwitchable()) {
-        hal_switchkins_type = (int)*emcmot_hal_data->switchkins_type;
-    }
-#ifdef SWITCHKINS_DEBUG
-    double j0b,j1b,j0a,j1a,xb,yb,xa,ya;
-    emcmot_joint_t *jj;
-#endif
-    if(   kinematicsSwitchable()
-       && switchkins_type != hal_switchkins_type) {
-      switchkins_type = hal_switchkins_type;
 
-      emcmot_joint_t *jointKinsSwitch;
-      double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
-#ifdef SWITCHKINS_DEBUG
-      jj = &joints[0]; j0b=jj->pos_cmd;
-      jj = &joints[1]; j1b=jj->pos_cmd;
-      xb  = emcmotStatus->carte_pos_cmd.tran.x;
-      yb  = emcmotStatus->carte_pos_cmd.tran.y;
-#endif
-      /* copy joint position feedback to local array */
-      for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    if (!kinematicsSwitchable()) return;
+    hal_switchkins_type = (int)*emcmot_hal_data->switchkins_type;
+    if (switchkins_type == hal_switchkins_type) return;
+
+    switchkins_type = hal_switchkins_type;
+
+    emcmot_joint_t *jointKinsSwitch;
+    double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
+    /* copy joint position feedback to local array */
+    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
         /* point to joint struct */
         jointKinsSwitch = &joints[joint_num];
         /* copy feedback */
-        joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_fb;
-      }
-
-      if (kinematicsSwitch(switchkins_type)) {
-          rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
-                          *emcmot_hal_data->switchkins_type);
-          SET_MOTION_ERROR_FLAG(1);  // abort
-          return; // no updates for abort
-      }
-
-      KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
-      KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
-
-      kinematicsForward(joint_posKinsSwitch,
-                        &emcmotStatus->carte_pos_cmd,
-                        &tmpFFlags, &tmpIFlags);
-      tpSetPos(&emcmotDebug->coord_tp, &emcmotStatus->carte_pos_cmd);
-
-#ifdef SWITCHKINS_MESSAGE
-      // use MSG_ERR to force display in axis gui
-      rtapi_print_msg(RTAPI_MSG_ERR ,"switchkins:%d\n",switchkins_type);
-#endif
-#ifdef SWITCHKINS_DEBUG
-      xa  = emcmotStatus->carte_pos_cmd.tran.x;
-      ya  = emcmotStatus->carte_pos_cmd.tran.y;
-      j0a = joint_posKinsSwitch[0];
-      j1a = joint_posKinsSwitch[1];
-      rtapi_print("j0b=%7.3f j1b=%7.3f xb=%7.3f yb=%7.3f\n",j0b,j1b,xb,yb);
-      rtapi_print("j0a=%7.3f j1a=%7.3f xb=%7.3f yb=%7.3f\n",j0a,j1a,xa,ya);
-#endif
-      //emcmotStatus->carte_pos_fb_ok = 1;
+        joint_posKinsSwitch[joint_num] = jointKinsSwitch->pos_cmd;
     }
-}
+
+    if (kinematicsSwitch(switchkins_type)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"kinematicsSwitch() FAIL<%f>\n",
+                        *emcmot_hal_data->switchkins_type);
+        SET_MOTION_ERROR_FLAG(1);  // abort
+        return; // no updates for abort
+    }
+
+    KINEMATICS_FORWARD_FLAGS tmpFFlags = fflags;
+    KINEMATICS_INVERSE_FLAGS tmpIFlags = iflags;
+#ifdef SWITCHKINS_DEBUG
+    double beforePose[EMCMOT_MAX_AXIS];
+    int anum;
+    for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {
+        beforePose[anum] = *pcmd_p[anum];
+    }
+#endif
+    kinematicsForward(joint_posKinsSwitch,
+                      &emcmotStatus->carte_pos_cmd,
+                      &tmpFFlags, &tmpIFlags);
+#ifdef SWITCHKINS_DEBUG
+    fprintf(stderr,"kswitch type=%d (%s:%d)\n",switchkins_type,__FUNCTION__,__LINE__);
+    for (anum = 0; anum < EMCMOT_MAX_AXIS; anum++) {
+        fprintf(stderr,"anum=%d before:%8.3g after:%8.3g delta=%8.3g\n"
+               ,anum,beforePose[anum],*pcmd_p[anum],*pcmd_p[anum]-beforePose[anum]);
+    }
+#endif
+    tpSetPos(&emcmotDebug->coord_tp, &emcmotStatus->carte_pos_cmd);
+} //handle_kinematicsSwitch()
 
 static void process_inputs(void)
 {
@@ -349,7 +340,6 @@ static void process_inputs(void)
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
     unsigned char enables;
-    handle_kinematicsSwitch();
     /* read spindle angle (for threading, etc) */
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
 		emcmotStatus->spindle_status[spindle_num].spindleRevs =
@@ -562,7 +552,7 @@ static void do_forward_kins(void)
    the cartesean coordinates of home, as stored in the global worldHome,
    and we set carte_fb_ok to 0 to indicate that the feedback is invalid.
 \todo  FIXME - maybe setting to home isn't the right thing to do.  We need
-   it to be set to home eventually, (right before the first attemt to
+   it to be set to home eventually, (right before the first attempt to
    run the kins), but that doesn't mean we should say we're at home
    when we're not.
 
@@ -751,7 +741,7 @@ static void process_probe_inputs(void)
 
 static void check_for_faults(void)
 {
-    int joint_num, spindle_num;
+    int joint_num, spindle_num, error_num;
     emcmot_joint_t *joint;
     int neg_limit_override, pos_limit_override;
 
@@ -818,6 +808,14 @@ static void check_for_faults(void)
 	/* end of if JOINT_ACTIVE_FLAG(joint) */
 	}
     /* end of check for joint faults loop */
+    }
+
+    /* Check Miscellaneous faults */
+    for (error_num=0; error_num < emcmotConfig->numMiscError; error_num++){
+      if(emcmotStatus->misc_error[error_num] && GET_MOTION_ENABLE_FLAG()) {
+        reportError(_("Motion Stopped by misc error %d"), error_num);
+        emcmotDebug->enabling = 0;
+      }
     }
 }
 
@@ -906,11 +904,11 @@ static void set_operating_mode(void)
 		if (joint_num < NO_OF_KINS_JOINTS) {
 		/* point to joint data */
 		    joint = &joints[joint_num];
-		if (coord_cubic_active && *(emcmot_hal_data->eoffset_active)) {
-		    //skip
-		} else {
-		    cubicDrain(&(joint->cubic));
-		}
+		    if (coord_cubic_active && *(emcmot_hal_data->eoffset_active)) {
+		        //skip
+		    } else {
+		        cubicDrain(&(joint->cubic));
+		    }
 		    positions[joint_num] = joint->coarse_pos;
 		} else {
 		    positions[joint_num] = 0;
@@ -1304,7 +1302,7 @@ static void get_pos_cmds(long period)
             joint->vel_cmd = joint->free_tp.curr_vel;
             //no acceleration output form simple_tp, but the pin will
             //still show the acceleration from the interpolation.
-            //its delayed, but thats ok during jogging or homing.
+            //it's delayed, but that's ok during jogging or homing.
             joint->acc_cmd = 0.0;
             joint->coarse_pos = joint->free_tp.curr_pos;
             /* update joint status flag and overall status flag */
@@ -1561,11 +1559,11 @@ static void get_pos_cmds(long period)
         }
 
 	/* check for soft limits */
-	if (joint->pos_cmd > joint->max_pos_limit) {
+	if (joint->pos_cmd > joint->max_pos_limit + 0.000000000001) {
 	    joint_limit[joint_num][1] = 1;
             onlimit = 1;
         }
-        else if (joint->pos_cmd < joint->min_pos_limit) {
+        else if (joint->pos_cmd < joint->min_pos_limit - 0.000000000001) {
 	    joint_limit[joint_num][0] = 1;
             onlimit = 1;
         }
@@ -1573,7 +1571,7 @@ static void get_pos_cmds(long period)
     if ( onlimit ) {
 	if ( ! emcmotStatus->on_soft_limit ) {
         /* Unexpectedly hit a joint soft limit.
-        ** Possibile causes:
+        ** Possible causes:
         **  1) a joint positional limit was reduced by an ini halpin
         **     (like ini.N.max_limit) -- undetected by trajectory planning
         **     including simple_tp
@@ -1796,10 +1794,10 @@ static void compute_screw_comp(void)
      *   
      * Limitations:
      *   Since the compensation adds up to the normal movement, total
-     *   accelleration and total velocity may exceed maximum settings!
+     *   acceleration and total velocity may exceed maximum settings!
      *   Currently this is limited to 150% by implementation.
      *   To fix this, the calculations in get_pos_cmd should include
-     *   information from the backlash corection. This makes things
+     *   information from the backlash correction. This makes things
      *   rather complicated and it might be better to implement the
      *   backlash compensation at another place to prevent this kind
      *   of interaction.
@@ -1809,7 +1807,7 @@ static void compute_screw_comp(void)
      *   movements and less following errors than the original code.
      */
 
-	/* Limit maximum accelleration and velocity 'overshoot'
+	/* Limit maximum acceleration and velocity 'overshoot'
 	 * to 150% of the maximum settings.
 	 * The TP and backlash shouldn't use more than 100%
 	 * (together) but this requires some interaction that
@@ -1942,10 +1940,10 @@ static void output_to_hal(void)
     }
 
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
+        double speed;
 		if(emcmotStatus->spindle_status[spindle_num].css_factor) {
 			double denom = fabs(emcmotStatus->spindle_status[spindle_num].xoffset
 								- emcmotStatus->carte_pos_cmd.tran.x);
-			double speed;
 			double maxpositive;
 			if(denom > 0) speed = emcmotStatus->spindle_status[spindle_num].css_factor / denom;
 			else speed = emcmotStatus->spindle_status[spindle_num].speed;
@@ -1957,32 +1955,38 @@ static void output_to_hal(void)
 					speed = -maxpositive;
 				if(speed > maxpositive)
 					speed = maxpositive;
-
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) = speed;
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) = speed/60.;
 		} else {
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) =
-					emcmotStatus->spindle_status[spindle_num].speed *
+			speed = emcmotStatus->spindle_status[spindle_num].speed *
 					emcmotStatus->spindle_status[spindle_num].net_scale;
-			*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) =
-					emcmotStatus->spindle_status[spindle_num].speed *
-					emcmotStatus->spindle_status[spindle_num].net_scale / 60.;
 		}
-		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) =
-				fabs(*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out));
-		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) =
-				fabs(*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps));
-		*(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
+
+        // Limit to spindle velocity limits
+        if (speed > 0){
+            if (speed > emcmotStatus->spindle_status[spindle_num].max_pos_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].max_pos_speed;
+            } else if (speed < emcmotStatus->spindle_status[spindle_num].min_pos_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].min_pos_speed;
+            }
+        } else if (speed < 0) {
+            if (speed < emcmotStatus->spindle_status[spindle_num].min_neg_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].min_neg_speed;
+            } else if (speed > emcmotStatus->spindle_status[spindle_num].max_neg_speed) {
+                speed = emcmotStatus->spindle_status[spindle_num].max_neg_speed;
+            }
+        }
+
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out) = speed;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps) = speed/60.;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) = fabs(speed);
+	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) = fabs(speed / 60);
+	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = (speed != 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_forward) = (speed > 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) = (speed < 0) ? 1 : 0;
+	*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
+		    (emcmotStatus->spindle_status[spindle_num].brake != 0) ? 1 : 0;
+        // What is this for? Docs don't say
+        *(emcmot_hal_data->spindle[spindle_num].spindle_speed_cmd_rps) =
 				emcmotStatus->spindle_status[spindle_num].speed / 60.;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_on) =
-				((emcmotStatus->spindle_status[spindle_num].state *
-						emcmotStatus->spindle_status[spindle_num].net_scale) != 0) ? 1 : 0;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_forward) =
-				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out > 0) ? 1 : 0;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) =
-				(*emcmot_hal_data->spindle[spindle_num].spindle_speed_out < 0) ? 1 : 0;
-		*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
-				(emcmotStatus->spindle_status[spindle_num].brake != 0) ? 1 : 0;
     }
 
     *(emcmot_hal_data->program_line) = emcmotStatus->id;
@@ -2138,7 +2142,7 @@ static void output_to_hal(void)
 
 static void update_status(void)
 {
-    int joint_num, axis_num, dio, aio;
+    int joint_num, axis_num, dio, aio, misc_error;
     emcmot_joint_t *joint;
     emcmot_joint_status_t *joint_status;
     emcmot_axis_t *axis;
@@ -2209,6 +2213,10 @@ static void update_status(void)
     for (aio = 0; aio < emcmotConfig->numAIO; aio++) {
 	emcmotStatus->analog_input[aio] = *(emcmot_hal_data->analog_input[aio]);
 	emcmotStatus->analog_output[aio] = *(emcmot_hal_data->analog_output[aio]);
+    }
+
+    for (misc_error=0; misc_error < emcmotConfig->numMiscError; misc_error++){
+      emcmotStatus->misc_error[misc_error] = *(emcmot_hal_data->misc_error[misc_error]);
     }
 
     /*! \todo FIXME - the rest of this function is stuff that was apparently

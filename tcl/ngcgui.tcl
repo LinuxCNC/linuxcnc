@@ -185,7 +185,7 @@
 #     Instead of using the button and file selection dialog, enter
 #     a new file name in the associated entry and <Return> to open
 #     and read different file.  When the filename differs from the
-#     currently laoded file, the filename text changes color.
+#     currently loaded file, the filename text changes color.
 #     This shortcut is useful when you are debugging/editing one of the
 #     input files -- enter a <Return> in the corresponding entry item
 #     for the filename to reload the file.
@@ -204,7 +204,7 @@
 #          o<rect> endsub
 #      Only comments and empty lines may appear before sub or after endsub
 
-#   2. The parameters passed to a subroutine (Postional parameters)
+#   2. The parameters passed to a subroutine (Positional parameters)
 #      are identified as "Numbered parameters" #1,#2,...,#n with
 #      n <= 30
 #      ngcgui finds any instances of #1,...,#30 and identifies
@@ -226,7 +226,7 @@
 #          Positional Parametrs --> #1, ..., #n   1<=n<=30
 #          Named Labels         --> o<label_name>
 #      This seems consistent with the trajectory of LinuxCNC gcode and
-#      accomodation of earlier styles (numbered labels like
+#      accommodation of earlier styles (numbered labels like
 #      #n+1 to #30) is a small matter of editing:).
 
 #   4. removed
@@ -382,7 +382,7 @@
 #       nom2       -- no m2 terminator (use %)
 #
 # 25. When ngcgui pages are embedded in the axis gui and the user
-#     is allowed to open new subroutines, the initial starting directroy
+#     is allowed to open new subroutines, the initial starting directory
 #     for subfiles is:
 #        the first directory in [RS274NGC]SUBROUTINE_PATH if
 #                               [RS274NGC]SUBROUTINE_PATH is specified
@@ -783,8 +783,17 @@ proc retain_or_unset {hdl ay_name} {
   }
 } ;# retain_or_unset
 #-----------------------------------------------------------------------
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc ::ngcgui::find_gcmc {} {
-  if [catch {set found [exec which gcmc]} msg] {
+  if [catch {set found [which_exe gcmc]} msg] {
     puts stdout "find_gcmc:NOTfound:<$msg>"
     return ""
   } else {
@@ -2131,7 +2140,7 @@ proc ::ngcgui::savesection_gcmc {hdl} {
     # error messages even for hard ($? !=0) errors, just
     #    "child process exited abnormally"
     # so warnings ($?=0) cause abort even though file created
-    # partial file may be left on error so you cant tell by existence
+    # partial file may be left on error so you can't tell by existence
     # so, parse each warning message
 
     # parse messages on stderr from gcmc
@@ -2212,7 +2221,7 @@ proc ::ngcgui::savesection_gcmc {hdl} {
       }
     }
     lappend ::ngc($hdl,data,section) \
-          "(gcmc: Variable substitions:)"
+          "(gcmc: Variable substitutions:)"
     for {set i 1} {$i <= $::ngc($hdl,argct)} {incr i} {
        set num02 [format %02d $i]
        set name  $::ngc($hdl,arg,name,$num02)
@@ -2984,7 +2993,7 @@ proc ::ngcgui::bind_for_axis {w} {
 } ;# bind_for_axis
 
 proc ::ngcgui::bindings {hdl mode} {
-  set mode [string tolower $mode] ;# -nocase doesnt work tcl8.4
+  set mode [string tolower $mode] ;# -nocase doesn't work tcl8.4
   switch $mode {
     show {
       set atxt "[_ "OFF"]"
@@ -3049,7 +3058,7 @@ Ctrl-U [_ "Open editor specified by"] \$VISUAL\n\
     leave {
       bindtags $::ngc($hdl,topf) $::ngc($hdl,restore,bindtags)
       focus -force $::ngc($hdl,restore,focus)
-      # this seems to be necesarry with notebook pages
+      # this seems to be necessary with notebook pages
       foreach key $::ngc(any,kbindlist) {
         bind $::ngc($hdl,topf) <Control-Key-$key> {}
       }
@@ -3210,7 +3219,7 @@ proc ::ngcgui::wgui {dir} {
   # this proc is useful for testing with tkcon:
   # to debug using tkcon: source this file then % ::ngcgui::wgui dirname
   # to run ngcgui in a frame, use ::ngcgui::gui hdl create frame
-  # multiple intantiations of ngcgui within the same prcess are not supported
+  # multiple intantiations of ngcgui within the same process are not supported
   package require Tk
   set hdl 0
   catch {unset ::ngc}

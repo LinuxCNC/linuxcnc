@@ -72,7 +72,7 @@ def clear_tool_tips(W):
     'cut_rec_n','cut_rec_ne','cut_rec_move_label']
 
     main_gcode_widgets = [
-    'file_open','file_reload','gcode_progress']
+    'file_open','file_reload']
 
     main_dro_widgets = [
     'dro_a','dro_b','dro_x','dro_y','dro_z','home_a','home_b','home_x','home_y',
@@ -88,9 +88,8 @@ def clear_tool_tips(W):
 
     conversational_widgets = [
     'conv_line','conv_circle','conv_ellipse','conv_triangle','conv_rectangle',
-    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset',
-    'conv_sector','conv_rotate','conv_scale','conv_array','conv_new',
-    'conv_save','conv_settings','conv_send']
+    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset','conv_sector',
+    'conv_block','conv_new','conv_save','conv_settings','conv_send']
 
     parameters_configuration_widgets = [
     'arc_fail_delay','arc_max_starts','arc_restart_delay','arc_voltage_scale',
@@ -171,7 +170,7 @@ def clear_tool_tips(W):
 
 def set_tool_tips(W):
     # main widgets
-    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G and M Codes'))
+    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G- and M-Codes'))
 
     # main_preview_widgets
     text0 = _translate('ToolTips', 'Shows the currently loaded material')
@@ -280,7 +279,6 @@ def set_tool_tips(W):
     # main gcode widgets
     W.file_open.setToolTip(_translate('ToolTips', 'Opens the file selector'))
     W.file_reload.setToolTip(_translate('ToolTips', 'Reloads the current G-Code file'))
-    W.gcode_progress.setToolTip(_translate('ToolTips', 'Shows the progress of opening a G-Code file'))
 
     # main dro widgets
     text0 = _translate('ToolTips', 'Shows the current')
@@ -337,9 +335,7 @@ def set_tool_tips(W):
     W.conv_star.setToolTip(_translate('ToolTips', 'Create a star'))
     W.conv_gusset.setToolTip(_translate('ToolTips', 'Create a gusset'))
     W.conv_sector.setToolTip(_translate('ToolTips', 'Create a sector'))
-    W.conv_rotate.setToolTip(_translate('ToolTips', 'Rotate the current G-Code program'))
-    W.conv_scale.setToolTip(_translate('ToolTips', 'Scale the current G-Code program'))
-    W.conv_array.setToolTip(_translate('ToolTips', 'Create an array'))
+    W.conv_block.setToolTip(_translate('ToolTips', 'Rotate, Scale, and Array the current G-Code program'))
     W.conv_new.setToolTip(_translate('ToolTips', 'Starts a new file'))
     W.conv_save.setToolTip(_translate('ToolTips', 'Saves the current file'))
     W.conv_settings.setToolTip(_translate('ToolTips', 'Opens the conversational settings panel'))

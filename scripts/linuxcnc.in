@@ -117,7 +117,7 @@ Options:
                   ini directory and system library:
                   $HALLIB_DIR
 Note:
-    The -H "dirname" option may be specifed multiple times
+    The -H "dirname" option may be specified multiple times
 EOF
 
 }
@@ -372,8 +372,8 @@ function run_applications () {
              exe_name="$(pwd)/$app_name";;
           *) # try local first then PATH
              exe_name=$(pwd)/$app_name
-             if [ ! -x $exe_name ] ; then
-               exe_name=$(which $app_name)
+             if [ ! -x "$exe_name" ] ; then
+               exe_name=$(command -v $app_name)
              fi
        esac
        if [ ! -f "$exe_name" ] ; then

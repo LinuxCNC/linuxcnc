@@ -8,15 +8,18 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2015-01-06 00:04+0100\n"
-"Last-Translator: Adam Jedynak <tuxcnc@gmail.com>\n"
-"Language-Team: \n"
-"Language: pl_PL\n"
+"PO-Revision-Date: 2021-12-09 03:53+0000\n"
+"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
+"pl/>\n"
+"Language: pl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
+"|| n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 4.10-dev\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Generator: Poedit 1.5.4\n"
 
 #: gmoccapy.py:232 gmoccapy.py:237
 #, fuzzy
@@ -95,9 +98,7 @@ msgstr ""
 #: gmoccapy.py:882
 #, fuzzy
 msgid "Press to edit the offsets"
-msgstr ""
-"   Edycja\n"
-"ofsetów"
+msgstr "Edycja ofsetów"
 
 #: gmoccapy.py:902
 #, python-brace-format
@@ -206,11 +207,9 @@ msgid "**** GMOCCAPY INFO ****\n"
 msgstr "**** GMOCCAPY INFO ****"
 
 #: gmoccapy.py:1198
-#, fuzzy
 msgid "**** found more than 16 macros, will use only the first 16 ****"
 msgstr ""
-"\n"
-"****znaleziono ponad zbyt wiele makr, tylko pierwsze 9 będzie użyte****"
+"**** znaleziono ponad zbyt wiele makr, tylko pierwsze 9 będzie użyte ****"
 
 #: gmoccapy.py:1205
 msgid "Press to display previous macro button"
@@ -366,7 +365,7 @@ msgstr "Wybierz plik, który ma być ładowany przy uruchamianiu programu"
 #: gmoccapy.py:2142 gmoccapy.py:2166
 #, fuzzy, python-brace-format
 msgid "**** GMOCCAPY ERROR **** /n Message type {0} not supported"
-msgstr "**** GMOCCAPY ERROR **** /n nie obsługiwany komunikat %s"
+msgstr "**** GMOCCAPY ERROR **** /n nie obsługiwany komunikat {0}"
 
 #: gmoccapy.py:2279
 msgid "Unknown error type and no error text given"
@@ -406,7 +405,7 @@ msgstr "Wprowadź wartość:"
 #: gmoccapy.py:2791
 #, fuzzy, python-brace-format
 msgid "Set parameter {0} to:"
-msgstr "Parametr %s ustawiono na:"
+msgstr "Parametr {0} ustawiono na:"
 
 #: gmoccapy.py:2793
 msgid "conversion error"
@@ -425,14 +424,14 @@ msgid "Mode change is only allowed if the interpreter is idle!"
 msgstr ""
 
 #: gmoccapy.py:3152
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "**** {0} ****"
-msgstr "**** %s ****"
+msgstr "**** {0} ****"
 
 #: gmoccapy.py:3162
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "**** No widget named: {0} to sensitize ****"
-msgstr "****Żadnego widgetu %s do aktywacji ****"
+msgstr "****Żadnego widgetu {0} do aktywacji ****"
 
 #: gmoccapy.py:3324 gmoccapy.glade.h:33
 msgid "No tool description available"
@@ -441,7 +440,7 @@ msgstr "Opis narzędzia niedostępny"
 #: gmoccapy.py:3465
 #, fuzzy, python-brace-format
 msgid "Halo, welcome to the test message {0}"
-msgstr "Wiadomość testowa %d"
+msgstr "Wiadomość testowa {0}"
 
 #: gmoccapy.py:3561
 msgid "Hal Pin is low, Access denied"
@@ -466,7 +465,7 @@ msgstr "Nie znaleziono real-time component Classicladder."
 #: gmoccapy.py:3820
 #, fuzzy, python-brace-format
 msgid "Something went wrong, we have an unknown spindle widget {0}"
-msgstr "Coś poszło źle - mamy niezidentyfikowany widget"
+msgstr "Coś poszło źle — mamy niezidentyfikowany widget {0}"
 
 #: gmoccapy.py:3931
 msgid "Do you really want to delete the MDI history?\n"
@@ -507,12 +506,12 @@ msgstr "Oś %s ustawiona na :"
 #: gmoccapy.py:4067
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0}"
-msgstr "Wprowadź wartość dla osi %s"
+msgstr "Wprowadź wartość dla osi {0}"
 
 #: gmoccapy.py:4068
 #, fuzzy, python-brace-format
 msgid "Set axis {0} to:"
-msgstr "Oś %s ustawiona na :"
+msgstr "Oś {0} ustawiona na :"
 
 #: gmoccapy.py:4072
 msgid "Conversion error in btn_set_value"
@@ -641,7 +640,7 @@ msgstr "Znalazłeś się w miejscu niewłaściwym dla on_btn_tool_touchoff"
 #: gmoccapy.py:4490
 #, fuzzy, python-brace-format
 msgid "Enter value for axis {0} to set:"
-msgstr "Wprowadź wartość dla osi %s "
+msgstr "Wprowadź wartość dla osi {0}"
 
 #: gmoccapy.py:4491
 #, python-brace-format
@@ -651,7 +650,7 @@ msgstr "Ustaw parametr narzędzia {0:d} i osi {1} na:"
 #: gmoccapy.py:4495
 #, fuzzy, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
-msgstr "Błąd wartości dla pomiaru narzędzia w osi %s"
+msgstr "Błąd wartości dla pomiaru narzędzia w osi {0}"
 
 #: gmoccapy.py:4514
 msgid "Enter the tool number as integer "
@@ -775,7 +774,7 @@ msgid ""
 "**** but you have given {0} through your INI file ****\n"
 msgstr ""
 "**** gmoccapy obsługuje tylko 4 osie, ****\n"
-"**** ale możesz ustawić %d w pliku INI ****\n"
+"**** ale możesz ustawić {0} w pliku INI ****\n"
 
 #: getiniinfo.py:102
 msgid ""
@@ -791,17 +790,14 @@ msgid "**** GMOCCAPY GETINIINFO ****\n"
 msgstr "**** GMOCCAPY INFO ****"
 
 #: getiniinfo.py:434
-#, fuzzy
 msgid ""
 "**** No subroutine folder or program prefix is given in the ini file **** \n"
-msgstr ""
-"\n"
-"**** Brak folderu lub ścieżki w pliku INI ****\n"
+msgstr "**** Brak folderu lub ścieżki w pliku INI **** \n"
 
 #: notification.py:205
 #, fuzzy, python-brace-format
 msgid "Error trying to delet the message with number {0}"
-msgstr "Błąd usunięcia komunkatu nr %s"
+msgstr "Błąd usunięcia komunkatu nr {0}"
 
 #: gmoccapy.glade.h:1
 msgid "left rotate,  middle move,  right zoom"

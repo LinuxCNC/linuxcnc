@@ -78,7 +78,7 @@ void export_EmcTypes()
 
     // PmCartesian and EmcPose make sense to be instantiable 
     // within Python, since some canon calls take these as parameter
-    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian postition")
+    class_<PmCartesian, noncopyable>("PmCartesian","EMC cartesian position")
 	.def_readwrite("x",&PmCartesian::x)
 	.def_readwrite("y",&PmCartesian::y)
 	.def_readwrite("z",&PmCartesian::z)

@@ -268,7 +268,7 @@ class GLWidget(QOpenGLWidget):
         # so lets also invert the work2view matrix
         view2work = invert(self.work2view.t)
 
-        # since backplot lines only need vertexes, not orientation,
+        # since backplot lines only need vertices, not orientation,
         # and the tooltip is at the origin, getting the tool coords
         # is easy
         tx, ty, tz = self.tool2view.t[3][:3]

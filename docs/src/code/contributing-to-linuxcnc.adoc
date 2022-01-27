@@ -1,0 +1,301 @@
+= Contributing to LinuxCNC
+
+== Introduction
+
+This document contains information for developers about LinuxCNC
+infrastructure, and describes the best practices for contributing code
+and documentation updates to the LinuxCNC project.
+
+Throughout this document, "source" means both the source code to the
+programs and libraries, and the source text for the documentation.
+
+
+== Communication among LinuxCNC developers
+
+The two main ways that project developers communicate with each other are:
+
+* Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel on Libera.chat].
+
+* Via email, on the developers' mailing list:
+  https://lists.sourceforge.net/lists/listinfo/emc-developers
+
+
+== The LinuxCNC Source Forge project
+
+We use Source Forge for mailing lists: http://sourceforge.net/p/emc/mailman/
+
+
+== The git Revision Control System
+
+All of the LinuxCNC source is maintained in the revision control system
+git footnote:[http://git-scm.com/].
+
+=== LinuxCNC official git repo
+
+The official LinuxCNC git repo is at http://github.com/linuxcnc/linuxcnc/
+
+Anyone can get a read-only copy of the LinuxCNC source tree via git:
+
+`git clone https://github.com/linuxcnc/linuxcnc linuxcnc-dev`
+
+If you are a developer with push access, then follow github's instructions
+for setting up a repository that you can push from.
+
+Note that the clone command put the local LinuxCNC repo in a
+directory called `linuxcnc-dev`, instead of the default `linuxcnc`.
+This is because the LinuxCNC software by default expects configs and
+G-code programs in a directory called `$HOME/linuxcnc`, and having the
+git repo there too is confusing.
+
+Issues and pull requests are welcome on github:
+https://github.com/LinuxCNC/linuxcnc/issues
+https://github.com/LinuxCNC/linuxcnc/pulls
+
+=== Use of git in the LinuxCNC project
+
+We use the "merging upwards" and "topic branches" git workflows described
+here:
+
+https://www.kernel.org/pub/software/scm/git/docs/gitworkflows.html
+
+We have a development branch called `master`, and one or more stable
+branches with names like `2.6` and `2.7` indicating the version number
+of the releases we make from it.
+
+Bugfixes go in the oldest applicable stable branch, and that branch gets
+merged into the next newer stable branch, and so on up to `master`.
+The committer of the bugfix may do the merges themselves, or they may
+leave the merges for someone else.
+
+New features generally go in the `master` branch, but some kinds of
+features (specifically well isolated device drivers and documentation)
+may (at the discretion of the stable branch release managers) go into
+a stable branch and get merged up just like bugfixes do.
+
+
+=== git tutorials
+
+There are many excellent, free git tutorials on the internet.
+
+The first place to look is probably the "gittutorial" manpage.
+This manpage is accessible by running "man gittutorial" in a terminal
+(if you have the git manpages installed).  The gittutorial and its
+follow-on documentation are also available online here:
+
+* git tutorial:
+  https://www.kernel.org/pub/software/scm/git/docs/gittutorial.html
+
+* git tutorial 2:
+  https://www.kernel.org/pub/software/scm/git/docs/gittutorial-2.html
+
+* Everyday git with 20 commands or so:
+  https://www.kernel.org/pub/software/scm/git/docs/giteveryday.html
+
+* Git User's Manual:
+  https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
+
+For a more thorough documentation of git see the "Pro Git" book:
+http://git-scm.com/book
+
+Another online tutorial that has been recommended is "Git for the Lazy":
+http://wiki.spheredev.org/Git_for_the_lazy
+
+
+== Overview of the process
+
+The high-level overview of how to contribute changes to the source goes
+like this:
+
+* Communicate with the project developers and let us know what you're
+  hacking on
+
+* Clone the git repo
+
+* Make your changes in a local branch, making sure you "sign off" your commits
+  according to our signed-off-by policy (see below).
+
+* Adding documentation and tests is an important part of adding a new
+  feature.  Otherwise, others won't know how to use your feature, and
+  if other changes break your feature it can go unnoticed without a test.
+
+* Share your changes with the other project developers in one of these ways:
+
+** Push your branch to github and create a github pull request to
+   https://github.com/linuxcnc/linuxcnc (this requires a github account)
+
+** Push your branch to a publicly visible git repo (such as github,
+   bitbucket, your own publicly-accessible server, etc) and share that
+   location on the emc-developers mailing list, or
+
+** Email your commits to the emc-developers mailing list (use `git
+   format-patch` to create the patches)
+
+* Advocate for your patch
+
+** Explain what problem it addresses and why it should be included
+   in LinuxCNC
+
+** Be receptive to questions and feedback from the developer community.
+
+** It is not uncommon for a patch to go through several revisions before
+   it is accepted.
+
+
+== git configuration
+
+In order to be considered for inclusion in the LinuxCNC source, commits
+must have correct Author fields identifying the author of the commit.
+A good way to ensure this is to set your global git config:
+
+`git config --global user.name "Your full name"`
+
+`git config --global user.email "you@example.com"`
+
+Use your real name (not a handle), and use an unobfuscated e-mail address.
+
+
+== Effective use of git
+
+=== Commit contents
+
+Keep your commits small and to the point.  Each commit should accomplish
+one logical change to the repo.
+
+=== Write good commit messages
+
+Keep commit messages around 72 columns wide (so that in a default-size
+terminal window, they don't wrap when shown by `git log`).
+
+Use the first line as a summary of the intent of the change (almost
+like the subject line of an e-mail).  Follow it with a blank line,
+then a longer message explaining the change.  Example:
+
+    Get rid of RTAPI_SUCCESS, use 0 instead
+
+    The test "retval < 0" should feel familiar; it's the same kind of
+    test you use in userspace (returns -1 for error) and in kernel space
+    (returns -ERRNO for error)
+
+=== Commit to the proper branch
+
+Bugfixes should go on the oldest applicable branch.  New features should
+go in the master branch.  If you're not sure where a change belongs,
+ask on irc or on the mailing list.
+
+=== Use multiple commits to organize changes
+
+When appropriate, organize your changes into a branch (a series of
+commits) where each commit is a logical step towards your ultimate
+goal. For example, first factor out some complex code into a new
+function. Then, in a second commit, fix an underlying bug. Then, in the
+third commit, add a new feature which is made easier by the refactoring
+and which would not have worked without fixing that bug.
+
+This is helpful to reviewers, because it is easier to see that the
+"factor out code into new function" step was right when there aren’t
+other edits mixed in; it’s easier to see that the bug is fixed when
+the change that fixes it is separate from the new feature; and so on.
+
+=== Follow the style of the surrounding code
+
+Make an effort to follow the prevailing indentation style of surrounding
+code. In particular, changes to whitespace make it harder for other
+developers to track changes over time. When reformatting code must be
+done, do it as a commit separate from any semantic changes.
+
+=== Simplify complicated history before sharing with fellow developers
+
+With git, it’s possible to record every edit and false start as a
+separate commit. This is very convenient as a way to create checkpoints
+during development, but often you don’t want to share these false
+starts with others.
+
+Git provides two main ways to clean history, both of which can be done
+freely before you share the change:
+
+`git commit --amend` lets you make additional changes to the last thing
+you committed, optionally modifying the commit message as well. Use this
+if you realized right away that you left something out of the commit,
+or if you typo’d the commit message.
+
+`git rebase --interactive upstream-branch` lets you go back through each
+commit made since you forked your feature branch from the upstream branch,
+possibly editing commits, dropping commits, or squashing (combining)
+commits with others.  Rebase can also be used to split individual commits
+into multiple new commits.
+
+===  Make sure every commit builds
+
+If your change consists of several patches, `git rebase -i` may be used to
+reorder these patches into a sequence of commits which more clearly lays
+out the steps of your work.  A potential consequence of reordering patches
+is that one might get dependencies wrong - for instance, introducing a
+use of a variable, and the declaration of that variable only follows in
+a later patch.
+
+While the branch HEAD will build, not every commit might build in such
+a case.  That breaks `git bisect` - something somebody else might use
+later on to find the commit which introduced a bug.  So beyond making
+sure your branch builds, it is important to assure every single commit
+builds as well.
+
+There's an automatic way to check a branch for each commit being buildable
+- see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
+, and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence .
+Use as follows (in this case testing every commit from origin/master to
+HEAD, including running regression tests):
+
+----
+cd linuxcnc-dev
+git-test-sequence origin/master..  '(cd src && make && ../scripts/runtests)'
+----
+
+This will either report 'All's well' or 'Broke on <commit>'
+
+===  Renaming files
+
+Please use the ability to rename files very cautiously.  Like running
+indent on single files, renames still make it more difficult to follow
+changes over time.  At a minimum, you should seek consensus on irc or
+the mailing list that the rename is an improvement.
+
+===  Prefer "rebase"
+
+Use `git pull --rebase` instead of bare `git pull` in order to keep a
+nice linear history.  When you rebase, you always retain your work as
+revisions that are ahead of origin/master, so you can do things like
+`git format-patch` them to share with others without pushing to the
+central repository.
+
+
+== Translations
+
+The LinuxCNC project uses gettext to translate the software into
+many languages.  We welcome contributions and help in this area!
+Improving and extending the translations is easy: you don't need to know
+any programming, and you don't need to install any special translation
+programs or other software.
+
+The easiest way to help with translations is using Weblate,
+an open-source web service.  Our translation project is here:
+https://hosted.weblate.org/projects/linuxcnc/
+
+Documentation on how to use Weblate is here:
+https://docs.weblate.org/en/latest/user/basic.html
+
+If web services are not your thing, you can also work on translations
+using a variety of local gettext translator apps including gtranslator,
+poedit, and many more.
+
+
+== Other ways to contribute
+
+There are many ways  to contribute to LinuxCNC, that are not addressed
+by this document.  These ways include:
+
+* Answering questions on the forum, mailing lists, and in IRC
+
+* Reporting bugs on the bug tracker, forum, mailing lists, or in IRC
+
+* Helping test experimental features
+

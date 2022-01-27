@@ -184,13 +184,7 @@ class StyleSheetEditor(QDialog):
             file = QFile(fileName)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-            if sys.version_info.major > 2:
-                styleSheet = str(styleSheet, encoding='utf8')
-            else:
-                # Python v2.
-                styleSheet = unicode(styleSheet, encoding='utf8')
-
-            self.styleTextView.setPlainText(styleSheet)
+            self.styleTextView.setPlainText(str(styleSheet, encoding='utf8'))
             model = self.styleSheetCombo.model()
             item = QtGui.QStandardItem(os.path.basename(fileName))
             item.setData( fileName, role = QtCore.Qt.UserRole + 1)
@@ -266,12 +260,7 @@ class StyleSheetEditor(QDialog):
             file = QFile(qssname)
             file.open(QFile.ReadOnly)
             styleSheet = file.readAll()
-            if sys.version_info.major > 2:
-                # Python v3.
-                styleSheet = str(styleSheet, encoding='utf8')
-            else:
-                styleSheet = str(styleSheet)
-        self.styleTextView.setPlainText(styleSheet)
+        self.styleTextView.setPlainText(str(styleSheet, encoding='utf8'))
 
     def saveStyleSheet(self, fileName):
         styleSheet = self.styleTextEdit.toPlainText()

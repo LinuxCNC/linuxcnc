@@ -7,13 +7,13 @@
 * pc says:
 *
 *   Most of the configs would be better off being passed via an ioctl
-*   implimentation leaving pure realtime data to be handled by
+*   implementation leaving pure realtime data to be handled by
 *   emcmotCommandHandler() - This would provide a small performance
 *   increase on slower systems.
 *
 * jmk says:
 *
-*   Using commands to set config parameters is "undesireable", because
+*   Using commands to set config parameters is "undesirable", because
 *   of the large amount of code needed for each parameter.  Today you
 *   need to do the following to add a single new parameter called foo:
 *
@@ -42,7 +42,7 @@
 *       there are about 6 switch statements that need at least a
 *       case label added.
 *   12) Add cases to two giant switch statements in emc.cc, associated
-*       with looking up and formating the command.
+*       with looking up and formatting the command.
 *
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
@@ -190,6 +190,16 @@ void refresh_jog_limits(emcmot_joint_t *joint, int joint_num)
 	range = joint->max_pos_limit - joint->min_pos_limit;
 	joint->max_jog_limit = joint->pos_fb + range;
 	joint->min_jog_limit = joint->pos_fb - range;
+    }
+}
+
+void apply_spindle_limits(spindle_status_t *s){
+    if (s->speed > 0) {
+        if (s->speed > s->max_pos_speed) s->speed = s->max_pos_speed;
+        if (s->speed < s->min_pos_speed) s->speed = s->min_pos_speed;
+    } else if (s->speed < 0) {
+        if (s->speed < s->min_neg_speed) s->speed = s->min_neg_speed;
+        if (s->speed > s->max_neg_speed) s->speed = s->max_neg_speed;
     }
 }
 
@@ -1738,6 +1748,27 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    }
 	    break;
 
+    case EMCMOT_SET_SPINDLE_PARAMS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_SETUP: spindle %d/%d max_pos %f min_pos %f"
+                "max_neg %f min_neg %f, home: %f, %f, %d\n",
+                        emcmotCommand->spindle, emcmotConfig->numSpindles, emcmotCommand->maxLimit,
+                        emcmotCommand->min_pos_speed, emcmotCommand->max_neg_speed, emcmotCommand->minLimit,
+                        emcmotCommand->search_vel, emcmotCommand->home, emcmotCommand->home_sequence);
+	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to configure non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
+        emcmotStatus->spindle_status[spindle_num].max_pos_speed = emcmotCommand->maxLimit;
+        emcmotStatus->spindle_status[spindle_num].min_neg_speed = emcmotCommand->minLimit;
+        emcmotStatus->spindle_status[spindle_num].max_neg_speed = emcmotCommand->max_neg_speed;
+        emcmotStatus->spindle_status[spindle_num].min_pos_speed = emcmotCommand->min_pos_speed;
+        emcmotStatus->spindle_status[spindle_num].home_search_vel = emcmotCommand->search_vel;
+        emcmotStatus->spindle_status[spindle_num].home_sequence = emcmotCommand->home_sequence;
+        emcmotStatus->spindle_status[spindle_num].increment = emcmotCommand->offset;
+
+        break;
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON: spindle %d/%d speed %d\n",
                         emcmotCommand->spindle, emcmotConfig->numSpindles, (int) emcmotCommand->vel);
@@ -1764,7 +1795,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
 
 	        /* if (emcmotStatus->spindle.orient) { */
-	        /* 	reportError(_("cant turn on spindle during orient in progress")); */
+	        /* 	reportError(_("can\'t turn on spindle during orient in progress")); */
 	        /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
 	        /* 	tpAbort(&emcmotDebug->tp); */
 	        /* 	SET_MOTION_ERROR_FLAG(1); */
@@ -1780,10 +1811,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    emcmotStatus->spindle_status[n].direction = -1;
 	        }
 	        emcmotStatus->spindle_status[n].brake = 0; //disengage brake
+            apply_spindle_limits(&emcmotStatus->spindle_status[n]);
         }
         emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
 
-       // check wether it's passed correctly
+       // check whether it's passed correctly
        if (!emcmotStatus->atspeed_next_feed){
            rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON without wait-for-atspeed");
        }
@@ -1843,7 +1875,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        if (*(emcmot_hal_data->spindle[n].spindle_orient)) {
 		    rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
 
-		    // mah:FIXME unsure wether this is ok or an error
+		    // mah:FIXME unsure whether this is ok or an error
 		    /* reportError(_("orient already in progress")); */
 		    /* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
 		    /* tpAbort(&emcmotDebug->tp); */
@@ -1882,10 +1914,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
         }
         for (n = s0; n<=s1; n++){
 	        if (emcmotStatus->spindle_status[n].speed > 0) {
-	    	emcmotStatus->spindle_status[n].speed += 100; //FIXME - make the step a HAL parameter
+		    emcmotStatus->spindle_status[n].speed += emcmotStatus->spindle_status[n].increment;
 	        } else if (emcmotStatus->spindle_status[n].speed < 0) {
-		    emcmotStatus->spindle_status[n].speed -= 100;
+		    emcmotStatus->spindle_status[n].speed -= emcmotStatus->spindle_status[n].increment;
 	        }
+            apply_spindle_limits(&emcmotStatus->spindle_status[n]);
         }
 	    break;
 
@@ -1893,16 +1926,25 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_DECREASE");
 	    spindle_num = emcmotCommand->spindle;
         if (spindle_num >= emcmotConfig->numSpindles){
-            reportError(_("Attempt to decreasenon-existent spindle <%d>"),spindle_num);
+            reportError(_("Attempt to decrease non-existent spindle <%d>."),spindle_num);
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    if (emcmotStatus->spindle_status[spindle_num].speed > 100) {
-		emcmotStatus->spindle_status[spindle_num].speed -= 100; //FIXME - make the step a HAL parameter
-	    } else if (emcmotStatus->spindle_status[spindle_num].speed < -100) {
-		emcmotStatus->spindle_status[spindle_num].speed += 100;
-	    }
-	    break;
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
+            if (emcmotStatus->spindle_status[n].speed > emcmotStatus->spindle_status[n].increment) {
+                emcmotStatus->spindle_status[n].speed -= emcmotStatus->spindle_status[n].increment;
+            } else if (emcmotStatus->spindle_status[n].speed < -1.0 * emcmotStatus->spindle_status[n].increment) {
+                emcmotStatus->spindle_status[n].speed += emcmotStatus->spindle_status[n].increment;
+            }
+            apply_spindle_limits(&emcmotStatus->spindle_status[n]);
+        }
+        break;
 
 	case EMCMOT_SPINDLE_BRAKE_ENGAGE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_BRAKE_ENGAGE");

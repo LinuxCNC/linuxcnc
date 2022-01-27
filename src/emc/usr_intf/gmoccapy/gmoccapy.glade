@@ -3206,7 +3206,7 @@
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label">Manuell</property>
+                                    <property name="label">Manual</property>
                                   </object>
                                   <packing>
                                     <property name="tab_fill">False</property>
@@ -4266,8 +4266,8 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="has_tooltip">True</property>
-                                                            <property name="tooltip_markup">Displayes the programmed feed rate</property>
-                                                            <property name="tooltip_text" translatable="yes">Displayes the programmed feed rate</property>
+                                                            <property name="tooltip_markup">Displays the programmed feed rate</property>
+                                                            <property name="tooltip_text" translatable="yes">Displays the programmed feed rate</property>
                                                             <property name="label">F 275</property>
                                                             <attributes>
                                                             <attribute name="weight" value="bold"/>
@@ -4398,7 +4398,7 @@
                               <object class="GtkLabel" id="lbl_frm_info_emb_keyb">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label">Embeded keyboard</property>
+                                <property name="label">Embedded keyboard</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -4665,7 +4665,7 @@
                     <property name="can_focus">True</property>
                     <property name="tab_pos">left</property>
                     <child>
-                      <object class="GtkHBox" id="hbox_setup_apear">
+                      <object class="GtkHBox" id="hbox_setup_appear">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -5460,7 +5460,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_toggle_readout">
-                                            <property name="label" translatable="yes">toggle DRO mode 
+                                            <property name="label" translatable="yes">toggle DRO mode
 clicking on the DRO</property>
                                             <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
@@ -6796,7 +6796,7 @@ clicking on the DRO</property>
                                                   <object class="GtkLabel" id="lbl_frm_probe">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">&lt;b&gt;Probe Informations&lt;/b&gt;</property>
+                                                    <property name="label" translatable="yes">&lt;b&gt;Probe Information&lt;/b&gt;</property>
                                                     <property name="use_markup">True</property>
                                                   </object>
                                                 </child>
@@ -6918,7 +6918,7 @@ clicking on the DRO</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="label" translatable="yes">No valid configuration
 found in your INI file,
-please take a look at 
+please take a look at
 the WIKI to check how
 to configure the settings.</property>
                                                 <property name="wrap">True</property>
@@ -6975,7 +6975,7 @@ to configure the settings.</property>
                                                 <property name="tooltip_text" translatable="yes">If checked, the tool in spindle
 will be saved on each change
 and the last tool will be reloaded
-at start of the GUI. Also it's 
+at start of the GUI. Also it's
 length offset will be reloaded.
 </property>
                                                 <property name="active">True</property>
@@ -7564,7 +7564,7 @@ to test your settings.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch g-code commands
+                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch G-code commands
 [F5]</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
@@ -8058,7 +8058,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checed!</property>
+                    <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checked!</property>
                     <property name="image">img_run_from</property>
                     <signal name="clicked" handler="on_btn_from_line_clicked" swapped="no"/>
                   </object>
@@ -8720,7 +8720,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be excecuted only if it is active g-code</property>
+                    <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be executed only if it is active G-code</property>
                     <signal name="clicked" handler="on_btn_apply_tool_changes_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -8913,7 +8913,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Move to parrent directory</property>
+                    <property name="tooltip_text" translatable="yes">Move to parent directory</property>
                     <property name="image">img_dir_up</property>
                     <signal name="clicked" handler="on_btn_dir_up_clicked" swapped="no"/>
                   </object>
@@ -8944,7 +8944,7 @@ F12 or $ key does the same</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Select the previos file</property>
+                    <property name="tooltip_text" translatable="yes">Select the previous file</property>
                     <property name="image">img_sel_prev</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_prev_clicked" swapped="no"/>

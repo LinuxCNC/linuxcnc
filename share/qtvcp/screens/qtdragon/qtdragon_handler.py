@@ -1,5 +1,4 @@
 import os
-import hal
 from PyQt5 import QtCore, QtWidgets, QtGui
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
@@ -10,7 +9,7 @@ from qtvcp.widgets.file_manager import FileManager as FM
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
 from qtvcp.lib.gcodes import GCodes
-from qtvcp.core import Status, Action, Info, Path
+from qtvcp.core import Status, Action, Info, Path, Qhal
 from qtvcp import logger
 from shutil import copyfile
 
@@ -22,6 +21,7 @@ ACTION = Action()
 PATH = Path()
 STYLEEDITOR = SSE()
 WRITER = writer.Main()
+QHAL = Qhal()
 
 # constants for tab pages
 TAB_MAIN = 0
@@ -176,20 +176,20 @@ class HandlerClass:
     #############################
     def init_pins(self):
         # spindle control pins
-        pin = self.h.newpin("spindle_amps", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-amps", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = self.h.newpin("spindle_volts", hal.HAL_FLOAT, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-volts", QHAL.HAL_FLOAT, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_pwr_changed)
-        pin = self.h.newpin("spindle_fault", hal.HAL_U32, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-fault", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.spindle_fault_changed)
-        pin = self.h.newpin("modbus-errors", hal.HAL_U32, hal.HAL_IN)
+        pin = QHAL.newpin("spindle-modbus-errors", QHAL.HAL_U32, QHAL.HAL_IN)
         pin.value_changed.connect(self.mb_errors_changed)
-        self.h.newpin("spindle_pause", hal.HAL_BIT, hal.HAL_OUT)
+        QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
         # external offset control pins
-        self.h.newpin("eoffset_enable", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("eoffset_clear", hal.HAL_BIT, hal.HAL_OUT)
-        self.h.newpin("eoffset_count", hal.HAL_S32, hal.HAL_OUT)
-        pin = self.h.newpin("eoffset_value", hal.HAL_FLOAT, hal.HAL_IN)
+        QHAL.newpin("eoffset-enable", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-clear", QHAL.HAL_BIT, QHAL.HAL_OUT)
+        QHAL.newpin("eoffset-count", QHAL.HAL_S32, QHAL.HAL_OUT)
+        pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -250,18 +250,9 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
-        if self.probe:
-            self.probe.closing_cleanup__()
 
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
-        self.w.slider_jog_linear.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
-        self.w.slider_jog_angular.setValue(INFO.DEFAULT_ANGULAR_JOG_VEL)
-        self.w.slider_maxv_ovr.setValue(INFO.MAX_LINEAR_JOG_VEL)
-        self.w.slider_feed_ovr.setValue(100)
-        self.w.slider_rapid_ovr.setValue(100)
-        self.w.slider_spindle_ovr.setMinimum(INFO.MIN_SPINDLE_OVERRIDE)
-        self.w.slider_spindle_ovr.setValue(100)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
@@ -388,18 +379,18 @@ class HandlerClass:
     def spindle_pwr_changed(self, data):
         # this calculation assumes the voltage is line to neutral
         # and that the synchronous motor spindle has a power factor of 0.9
-        power = self.h['spindle_volts'] * self.h['spindle_amps'] * 2.7 # 3 x V x I x PF
-        amps = "{:1.1f}".format(self.h['spindle_amps'])
+        power = self.h['spindle-volts'] * self.h['spindle-amps'] * 2.7 # 3 x V x I x PF
+        amps = "{:1.1f}".format(self.h['spindle-amps'])
         pwr = "{:1.1f}".format(power)
         self.w.lbl_spindle_amps.setText(amps)
         self.w.lbl_spindle_power.setText(pwr)
 
     def spindle_fault_changed(self, data):
-        fault = hex(self.h['spindle_fault'])
+        fault = hex(self.h['spindle-fault'])
         self.w.lbl_spindle_fault.setText(fault)
 
     def mb_errors_changed(self, data):
-        errors = self.h['modbus-errors']
+        errors = self.h['spindle-modbus-errors']
         self.w.lbl_mb_errors.setText(str(errors))
 
     def dialog_return(self, w, message):
@@ -414,7 +405,7 @@ class HandlerClass:
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
         elif wait_code and name == 'MESSAGE':
-            self.h['eoffset_clear'] = False
+            self.h['eoffset-clear'] = False
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
 
@@ -531,7 +522,7 @@ class HandlerClass:
     # gcode frame
     def cmb_gcode_history_clicked(self):
         if self.w.cmb_gcode_history.currentIndex() == 0: return
-        filename = self.w.cmb_gcode_history.currentText().encode('utf-8')
+        filename = self.w.cmb_gcode_history.currentText()
         if filename == self.last_loaded_program:
             self.add_status("Selected program is already loaded")
         else:
@@ -576,9 +567,9 @@ class HandlerClass:
             ACTION.CALL_DIALOG(mess)
 
     def btn_home_clicked(self):
-        joint = self.w.sender().property('joint')
-        axis = INFO.GET_NAME_FROM_JOINT.get(joint).lower()
-        if self.w["dro_axis_{}".format(axis)].property('isHomed') is True:
+        axisnum = self.w.sender().property('joint')
+        joint = INFO.get_jnum_from_axisnum(axisnum)
+        if STATUS.is_joint_homed(joint) == True:
             ACTION.SET_MACHINE_UNHOMED(joint)
         else:
             ACTION.SET_MACHINE_HOMING(joint)
@@ -589,14 +580,14 @@ class HandlerClass:
         self.w.action_step.setEnabled(not state)
         if state:
         # set external offsets to lift spindle
-            self.h['eoffset_enable'] = self.w.chk_eoffsets.isChecked()
+            self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
             fval = float(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset_count'] = int(fval)
-            self.h['spindle_pause'] = True
+            self.h['eoffset-count'] = int(fval)
+            self.h['spindle-inhibit'] = True
         else:
-            self.h['eoffset_count'] = 0
-            self.h['eoffset_clear'] = True
-            self.h['spindle_pause'] = False
+            self.h['eoffset-count'] = 0
+            self.h['eoffset-clear'] = True
+            self.h['spindle-inhibit'] = False
         # instantiate warning box
             info = "Wait for spindle at speed signal before resuming"
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_', 'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
@@ -739,7 +730,7 @@ class HandlerClass:
 
     def btn_save_status_clicked(self):
         text = self.w.machinelog.toPlainText()
-        filename = self.w.lbl_clock.text().encode('utf-8')
+        filename = self.w.lbl_clock.text()
         filename = 'status_' + filename.replace(' ','_') + '.txt'
         self.add_status("Saving Status file to {}".format(filename))
         with open(filename, 'w') as f:
@@ -847,8 +838,8 @@ class HandlerClass:
                 self.add_status("Loaded PDF file : {}".format(fname))
 
     def disable_spindle_pause(self):
-        self.h['eoffset_count'] = 0
-        self.h['spindle_pause'] = False
+        self.h['eoffset-count'] = 0
+        self.h['spindle-inhibit'] = False
         if self.w.btn_spindle_pause.isChecked():
             self.w.btn_spindle_pause.setChecked(False)
 
@@ -864,9 +855,9 @@ class HandlerClass:
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
-        rtn = ACTION.TOUCHPLATE_TOUCHOFF(max_probe, search_vel, probe_vel, z_offset)
+        rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, z_offset)
         if rtn == 0:
-            self.add_status("Touchplate touchoff routine is already running")
+            self.add_status("Touchoff routine is already running")
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
@@ -909,7 +900,7 @@ class HandlerClass:
         else:
             self.add_status("Machine OFF")
         self.w.btn_spindle_pause.setChecked(False)
-        self.h['eoffset_count'] = 0
+        self.h['eoffset-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
 

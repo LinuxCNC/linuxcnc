@@ -2,7 +2,7 @@
 * {
     color: #ffee06;
     background: #16160e;
-    font: 10pt Lato }
+    font: 10pt DejaVuSans }
 
 /****** BUTTONS ************/
 QPushButton {

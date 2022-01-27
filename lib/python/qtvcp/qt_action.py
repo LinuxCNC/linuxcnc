@@ -48,6 +48,17 @@ class _Lcnc_Action(object):
         else:
             self.cmd.state(linuxcnc.STATE_OFF)
 
+    def SET_MOTION_TELEOP(self, value):
+        # 1:teleop, 0: joint
+        #if value:
+        #    print('To telop (1)')
+        #else:
+        #    print('To joint (0)')
+
+        self.cmd.teleop_enable(value)
+        self.cmd.wait_complete()
+        STATUS.stat.poll()
+
     def SET_MACHINE_HOMING(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
@@ -102,8 +113,15 @@ class _Lcnc_Action(object):
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        # self.cmd.traj_mode(linuxcnc.TRAJ_MODE_FREE)
-        self.cmd.unhome(joint)
+
+        if joint < 0:
+            # unhome all joints
+            self.cmd.unhome(joint)
+        else:
+            # if you unhome a joint that is combined with another (to make an axis)
+            # then unhome both.
+            for j in (INFO.JOINT_RELATIONS_LIST[joint]):
+                self.cmd.unhome(j)
 
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -129,7 +147,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
 
     # sets up a python generator that goes through the MDI list of lists.
-    # if it's a command that we have to wait indefinately
+    # if it's a command that we have to wait indefinitely
     # ie like a manual tool change.
     # then we wait for STATUS to return 'command-stopped'
     # and then continue where we left off.
@@ -185,7 +203,7 @@ class _Lcnc_Action(object):
         mdi_list = mdi.split(';')
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
-            LOG.debug('CALL_INI_MDI comand:{}'.format(code))
+            LOG.debug('CALL_INI_MDI command:{}'.format(code))
             self.cmd.mdi('%s' % code)
 
     def CALL_OWORD(self, code, time=5):
@@ -227,7 +245,6 @@ class _Lcnc_Action(object):
 
     def OPEN_PROGRAM(self, fname):
         self.prefilter_path = str(fname)
-        self.ensure_mode(linuxcnc.MODE_AUTO)
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
@@ -780,7 +797,7 @@ class _Lcnc_Action(object):
             STATUS.handler_disconnect(self._a)
 
     # python generator that goes through the MDI list.
-    # if it's a command that we have to wait indefinately
+    # if it's a command that we have to wait indefinitely
     # ie like a manual tool change.
     # then we wait for STATUS to return 'command-stopped'
     # and then continue where we left off.
@@ -818,9 +835,9 @@ class _Lcnc_Action(object):
             self.SET_DISPLAY_MESSAGE("Touchplate touchoff routine returned successfully")
         elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
             LOG.debug(line[line.find('DEBUG')+6:])
-        # This also gets error text sent from logging of ACTION libray in the subprogram
+        # This also gets error text sent from logging of ACTION library in the subprogram
         elif "ERROR" in line:
-            # remove preceeding text
+            # remove preceding text
             s = line[line.find('ERROR')+6:]
             s = s[s.find(']')+1:]
             # remove (possible)trailing debug info
@@ -927,8 +944,7 @@ class FilterProgram:
             return True
         # process message from standard error
         stderr_line = self.p.stderr.readline()
-        if sys.version_info.major > 2:
-            stderr_line = stderr_line.decode("utf-8")
+        stderr_line = stderr_line.decode("utf-8")
         # compare to pre compiled re string
         # if true : update progress
         # else add it too error message string for later
@@ -944,8 +960,7 @@ class FilterProgram:
         self.progress.done()
         # .. might be something left on stderr
         for line in self.p.stderr:
-            if sys.version_info.major > 2:
-                line = line.decode("utf-8")
+            line = line.decode("utf-8")
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)

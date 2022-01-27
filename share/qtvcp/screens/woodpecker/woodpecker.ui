@@ -13214,7 +13214,7 @@ TO FILE</string>
                          </sizepolicy>
                         </property>
                         <property name="toolTip">
-                         <string>Eanable Webcam for work offset location</string>
+                         <string>Enable Webcam for work offset location</string>
                         </property>
                         <property name="styleSheet">
                          <string notr="true">font: 75 12pt &quot;Bebas Kai&quot;;</string>

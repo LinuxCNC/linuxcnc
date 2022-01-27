@@ -14,7 +14,7 @@ Choices are:
 
 -- max5triv.ini: Chris Radek's MaxNC which has been modified to have B and C angular axes.  This version uses trivkins, so does not provide proper multi-axis behavior.
 
--- max5kins.ini: Chris Radek's MaxNC which has been modified to have B and C angular axes.  This version uses maxkins, and allows full 9-axis g-code.
+-- max5kins.ini: Chris Radek's MaxNC which has been modified to have B and C angular axes.  This version uses maxkins, and allows full 9-axis G-code.
 
 -- hbm.ini: A large horizontal boring mill.  The quill is configured as the W axis.
 

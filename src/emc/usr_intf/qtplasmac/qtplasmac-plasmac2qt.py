@@ -54,7 +54,7 @@ class Converter(QMainWindow, object):
             self.commonPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac/qtplasmac')
             self.simPath = self.appPath.replace('bin', 'configs/by_machine/qtplasmac')
         self.setFixedWidth(600)
-        self.setFixedHeight(600)
+        self.setFixedHeight(400)
         wid = QWidget(self)
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -128,48 +128,12 @@ class Converter(QMainWindow, object):
         vBox.addLayout(estopHBox)
         vSpace3 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         vBox.addItem(vSpace3)
-        laserLabel = QLabel('LASER ALIGNMENT:   (Leave blank if not required)')
-        laserLabel.setAlignment(Qt.AlignBottom)
-        vBox.addWidget(laserLabel)
-        laserHBox = QHBoxLayout()
-        laserXLabel= QLabel('X OFFSET:')
-        self.laserX = QLineEdit()
-        self.laserX.setFixedWidth(120)
-        hSpace01 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        laserYLabel= QLabel('Y OFFSET:')
-        self.laserY = QLineEdit()
-        self.laserY.setFixedWidth(120)
-        laserHBox.addWidget(laserXLabel)
-        laserHBox.addWidget(self.laserX)
-        laserHBox.addItem(hSpace01)
-        laserHBox.addWidget(laserYLabel)
-        laserHBox.addWidget(self.laserY)
-        vBox.addLayout(laserHBox)
-        laserOnLabel = QLabel('Laser On HAL pin: (bit output)')
+        laserOnLabel = QLabel('OPTIONAL:\nLaser On HAL pin: (bit output)')
         vBox.addWidget(laserOnLabel)
         self.laserOnPin = QLineEdit()
         vBox.addWidget(self.laserOnPin)
         vSpace04 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         vBox.addItem(vSpace04)
-        cameraLabel = QLabel('CAMERA ALIGNMENT:   (leave blank if not required)')
-        cameraLabel.setAlignment(Qt.AlignBottom)
-        vBox.addWidget(cameraLabel)
-        cameraHBox = QHBoxLayout()
-        cameraXLabel= QLabel('X OFFSET:')
-        self.cameraX = QLineEdit()
-        self.cameraX.setFixedWidth(120)
-        hSpace02 = QSpacerItem(10, 10, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        cameraYLabel= QLabel('Y OFFSET:')
-        self.cameraY = QLineEdit()
-        self.cameraY.setFixedWidth(120)
-        cameraHBox.addWidget(cameraXLabel)
-        cameraHBox.addWidget(self.cameraX)
-        cameraHBox.addItem(hSpace02)
-        cameraHBox.addWidget(cameraYLabel)
-        cameraHBox.addWidget(self.cameraY)
-        vBox.addLayout(cameraHBox)
-        vSpace05 = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        vBox.addItem(vSpace05)
         buttonHBox = QHBoxLayout()
         convert = QPushButton('CONVERT')
         buttonHBox.addWidget(convert)
@@ -215,8 +179,6 @@ class Converter(QMainWindow, object):
             self.DIR = '{}'.format(os.path.expanduser('~'))
         self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
         self.estop = 'ESTOP_TYPE              = 0\n'
-        self.laserXOffset, self.laserYOffset = None, None
-        self.cameraXOffset, self.cameraYOffset = None, None
 
 # POPUP INFO DIALOG
     def dialog_ok(self, title, text):
@@ -228,7 +190,7 @@ class Converter(QMainWindow, object):
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
-        msgBox.setStyleSheet('QWidget {color: #ffee06; background: #16160e; font: 12pt Lato} \
+        msgBox.setStyleSheet('QWidget {color: #ffee06; background: #16160e; font: 12pt DejaVuSans} \
                               QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20} \
                              ')
         msgBox.setBaseSize(QSize(800, 800))
@@ -291,7 +253,7 @@ class Converter(QMainWindow, object):
     # CHECK IF VALID PLASMAC CONFIG
         if not os.path.exists('{}/plasmac'.format(os.path.dirname(self.iniIn))):
             msg  = '{}\n'.format(self.iniIn)
-            msg += '\n is not a PlasmaC configurtion\n'
+            msg += '\n is not a PlasmaC configuration\n'
             self.dialog_ok('CONFIG ERROR', msg)
             self.fromFile.setFocus()
             return
@@ -470,40 +432,8 @@ class Converter(QMainWindow, object):
                             if line.startswith('MODE'):
                                 outFile.write(line)
                                 outFile.write(self.estop)
-                                if self.laserX.text():
-                                    try:
-                                        self.laserXOffset = float(self.laserX.text())
-                                    except:
-                                        self.dialog_ok('ERROR','Laser X Offset is invalid and will be set to 0.0')
-                                        self.laserXOffset = 0.0
-                                if self.laserY.text():
-                                    try:
-                                        self.laserYOffset = float(self.laserY.text())
-                                    except:
-                                        self.dialog_ok('ERROR','Laser Y Offset is invalid and will be set to 0.0')
-                                        self.laserYOffset = 0.0
-                                if self.laserXOffset or self.laserYOffset:
-                                    outFile.write('LASER_TOUCHOFF          = X{:0.4f} Y{:0.4f}\n' \
-                                                           .format(self.laserXOffset, self.laserYOffset))
-                                else:
-                                    outFile.write('#LASER_TOUCHOFF          = X0.0 Y0.0\n')
-                                if self.cameraX.text():
-                                    try:
-                                        self.cameraXOffset = float(self.cameraX.text())
-                                    except:
-                                        self.dialog_ok('ERROR','Camera X Offset is invalid and will be set to 0.0')
-                                        self.cameraXOffset = 0.0
-                                if self.cameraY.text():
-                                    try:
-                                        self.cameraYOffset = float(self.cameraY.text())
-                                    except:
-                                        self.dialog_ok('ERROR','Camera Y Offset is invalid and will be set to 0.0')
-                                        self.cameraYOffset = 0.0
-                                if self.cameraXOffset or self.cameraYOffset:
-                                    outFile.write('CAMERA_TOUCHOFF         = X{:0.4f} Y{:0.4f}\n' \
-                                                           .format(self.cameraXOffset, self.cameraYOffset))
-                                else:
-                                    outFile.write('#CAMERA_TOUCHOFF         = X0.0 Y0.0\n')
+                                outFile.write('#LASER_TOUCHOFF          = X0.0 Y0.0\n')
+                                outFile.write('#CAMERA_TOUCHOFF         = X0.0 Y0.0\n')
                                 for n in range(1, 20):
                                     if self.buttons[n]:
                                         outFile.write('BUTTON_{}_NAME           = {}\n'.format(n, self.buttons[n][0]))

@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 	    samples--;
 	}
     }
-    /* run was succesfull */
+    /* run was successful */
     exitval = 0;
 
 out:

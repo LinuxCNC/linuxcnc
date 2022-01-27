@@ -10,8 +10,8 @@ ESTOP_TYPE = 0
 # estop is a button
 #ESTOP_TYPE = 2
 
-CAMERA_TOUCHOFF         =  1.0 0
-LASER_TOUCHOFF          =  -1  0
+CAMERA_TOUCHOFF         =  X1.0 Y0
+LASER_TOUCHOFF          =  X-1  Y0
 
 # user buttons in the main window
 BUTTON_1_NAME           = OHMIC\TEST
@@ -51,12 +51,14 @@ USER_M_PATH             = ./:./qtplasmac
 TWOPASS                 = ON
 # the base machine
 HALFILE                 = machine.tcl
-# the plasmac component connections
-HALFILE                 = plasmac.tcl
-# the plasmac machine connections
-HALFILE                 = qtplasmac_connections.hal
+# component connections
+HALFILE                 = qtplasmac_comp.hal
+# custom hal commands
+HALFILE                 = custom.hal
 # custom postgui hal
-POSTGUI_HALFILE         = postgui.hal
+POSTGUI_HALFILE         = custom_postgui.hal
+# sim postgui hal
+POSTGUI_HALFILE         = sim_postgui.hal
 # required
 HALUI                   = halui
 

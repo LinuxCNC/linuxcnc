@@ -559,7 +559,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkLabel" id="lbl_treshold">
+                          <object class="GtkLabel" id="lbl_threshold">
                             <property name="visible">True</property>
                             <property name="label" translatable="yes">Threshold %</property>
                           </object>
@@ -736,7 +736,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkHBox" id="hbx_programed_volt">
+                      <object class="GtkHBox" id="hbx_programmed_volt">
                         <property name="visible">True</property>
                         <child>
                           <object class="GtkLabel" id="lbl_prog_volt">

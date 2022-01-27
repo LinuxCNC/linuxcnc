@@ -59,7 +59,7 @@ o<spin> call [#<rpm>]
         (compute p3 for equilateral triangle)
         #<p3x>   = [#<x1> + #<len> * COS[#<theta> + 60]]
         #<p3y>   = [#<y1> + #<len> * SIN[#<theta> + 60]]
-        (threee sides of equilateral triangle)
+        (three sides of equilateral triangle)
         o<gosper_sub> call [#<level>][#<x1>] [#<y1>] [#<x2>] [#<y2>] [#<fr>]
         o<gosper_sub> call [#<level>][#<x2>] [#<y2>] [#<p3x>][#<p3y>][#<fr>]
         o<gosper_sub> call [#<level>][#<p3x>][#<p3y>][#<x1>] [#<y1>] [#<fr>]

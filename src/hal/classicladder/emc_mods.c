@@ -1,6 +1,6 @@
 // classicladder v7.124 adaptation for emc2 January 08
 
-// this is a collection of completely new functions added for the adaptation to EMC2
+// this is a collection of completely new functions added for the adaptation to LinuxCNC
 // it is easier to keep them all together in one place --I hope!
 // please add all new functions here!
 
@@ -294,7 +294,7 @@ void SymbolsAutoAssign (void)
 	                // scan all symbol variables
 		        while ( scansymb<NBR_SYMBOLS  ) 
 		                { 
-	                        // check for exsisting variable/symbol name
+	                        // check for existing variable/symbol name
 		                if (strcmp(SymbolArray[ scansymb ].VarName, Buffer) == FALSE)
 			                {
 				                found = TRUE ; // already a symbol for this variable

@@ -2,7 +2,8 @@
 * {
     color: foregnd;
     background: backgnd;
-    font: 10pt Lato }
+    font: 10pt DejaVuSans;
+    outline: none }
 
 *:disabled {
     color: inactive;
@@ -176,9 +177,14 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     background: e-stop;
     border-color: e-stop }
 
+/****** ERROR LABEL ************/
+#error_label {
+    color: e-stop;
+}
+
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
 #touch_x, #touch_y, #touch_z, #touch_a, #touch_b {
-    font: 20pt 'Lato' }
+    font: 20pt 'DejaVuSans' }
 
 /******    JOG BUTTON ************/
 #jog_x_minus, #jog_x_plus,
@@ -218,13 +224,17 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
     color: backgnd;
     background: frames;
     border: none;
-    border-top-left-radius: 2px;
+    border-top-left-radius: 0px;
     border-top-right-radius: 0px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px }
 
 #file_open:disabled {
     background: inactive }
+
+#file_open:pressed {
+    color: frames;
+    background: backgnd }
 
 /****** RELOAD BUTTON<<<<<<<<<<<<*/
 #file_reload {
@@ -239,12 +249,33 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #file_reload:disabled {
     background: inactive }
 
+#file_reload:pressed {
+    color: frames;
+    background: backgnd }
+
+/****** CLEAR BUTTON<<<<<<<<<<<<*/
+#file_clear {
+    color: backgnd;
+    background: frames;
+    border: none;
+    border-top-left-radius: 2px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px }
+
+#file_clear:disabled {
+    background: inactive }
+
+#file_clear:pressed {
+    color: frames;
+    background: backgnd }
+
 /****** DRO DISPLAY<<<<<<<<<<<<*/
 DROLabel {
     color: foregnd;
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 20pt 'Lato' }
+    font: 20pt 'DejaVuSans' }
 
 DROLabel[homed=false] {
     color: inactive;
@@ -260,7 +291,7 @@ DROLabel[homed=false] {
     background: foregnd;
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 20pt 'Lato' }
+    font: 20pt 'DejaVuSans' }
 
 #dro_label_x[homed=false],
 #dro_label_y[homed=false],
@@ -505,7 +536,7 @@ QHeaderView::section {
 #filemanager QTableView {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 11pt 'Lato';
+    font: 11pt 'DejaVuSans';
     alternate-background-color: backalt;
     padding: 2px }
 
@@ -534,7 +565,7 @@ QHeaderView::section {
 /* this also uses QHeaderView from FILEMANAGER */
 
 #originoffsetview {
-    font: 11pt 'Lato';
+    font: 11pt 'DejaVuSans';
     border: 1px solid foregnd;
     border-radius: 4px;
     alternate-background-color: backgnd;
@@ -556,7 +587,7 @@ QHeaderView::section {
 #mdihistory QListView {
     border: 1px solid foregnd;
     border-radius: 4px;
-    font: 11pt 'Lato';
+    font: 11pt 'DejaVuSans';
     alternate-background-color: backalt;
     padding: 2 }
 
@@ -662,15 +693,21 @@ QStatusBar::item {
 
 QProgressBar {
     color: foregnd;
-    border: 1px solid foregnd;
-    border-radius: 4px }
+    background: backalt;
+    border: 0px;
+    border-radius: 4px;
+    max-width: 20px; }
 
 QProgressBar::chunk {
-    background-color: foregnd }
+    background-color: foregnd;
+    height: 1px;
+    margin: 0.5px }
 
 /****** LED ************/
 LED {
     qproperty-color: l-e-d;
+    qproperty-off_color: backgnd;
+    qproperty-border_color: backgnd;
     qproperty-diameter: 20 }
 
 /****** TEXT ENTRY ************/
@@ -697,14 +734,19 @@ EditorBase {
     qproperty-styleColor2: foregnd;
     qproperty-styleColor3: foregnd;
     qproperty-styleColor4: foregnd;
+    qproperty-styleColor5: foregnd;
+    qproperty-styleColor6: foregnd;
+    qproperty-styleColor7: foregnd;
     qproperty-styleColorMarginText: foregnd;
     qproperty-styleColorMarginBackground: backgnd;
-    qproperty-styleFont0: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont1: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont2: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont3: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFont4: 'Lato,11,-1,0,60,0,0,0,0,0';
-    qproperty-styleFontMargin: 'Lato,11,-1,0,20,00,0,0,0,0';
+    qproperty-styleFont0: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont1: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont2: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont3: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont4: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont5: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont6: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
+    qproperty-styleFont7: 'DejaVuSansMono,11,-1,0,60,0,0,0,0,0';
     qproperty-styleColorSelectionText: backgnd;
     qproperty-styleColorSelectionBackground: foregnd }
 

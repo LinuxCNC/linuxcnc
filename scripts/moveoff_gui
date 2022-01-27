@@ -473,7 +473,7 @@ proc bye {} {
       return
     }
       set txt "Are you Sure?\n
-You probaly should resume in the main GUI"
+You probably should resume in the main GUI"
       set ans [tk_messageBox -type okcancel \
                     -title "Close $::MV(prog)" \
                     -icon question \

@@ -14,13 +14,13 @@
 
 /** This file, 'hal_evoreg.c', is a HAL component that provides a
     driver for the Siemens EVOREG motion control board.
-    This board privides three 16bit DAC's, three encoder inputs,
+    This board provides three 16bit DAC's, three encoder inputs,
     46 digital inputs and 21 digital outputs
 
     Fixme: error messages are not proper up to now
     ToDo: better error messages
           make inverted bits available
-          posibility to read back outputs
+          possibility to read back outputs
           check dac values for limits
           scale for every dacs
           scale for every encoder
@@ -104,7 +104,7 @@ typedef struct {
         hal_bit_t *digital_out[25];    /* ptrs for digital output pins 0 - 20 */
         __u16 raw_counts_old[3];
         __s32 counts[3];
-        hal_float_t pos_scale;         /*! \todo scale for position command FIXME schould be one per axis */
+        hal_float_t pos_scale;         /*! \todo scale for position command FIXME should be one per axis */
 } evoreg_t;
 
 /* pointer to array of evoreg_t structs in shared memory, 1 per port */

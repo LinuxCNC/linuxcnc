@@ -49,6 +49,7 @@ class Facing(QtWidgets.QWidget):
         self.tool_dia = 10
         self.safe_z = 20.0
         self.valid = True
+        self.units_text = ''
 
         # set valid input formats for lineEdits
         self.lineEdit_tool.setValidator(QtGui.QDoubleValidator(0, 999, 3))
@@ -97,7 +98,7 @@ class Facing(QtWidgets.QWidget):
         self.lbl_tool_unit.setText(text)
         self.lbl_stepover_unit.setText(text)
         self.lbl_size_unit.setText(text)
-        self.lbl_units_info.setText("**NOTE - All units are in {}".format(text))
+        self.units_text = ("**NOTE - All units are in {}".format(text))
 
     def raster_changed(self):
         if self.rbtn_raster_0.isChecked():
@@ -209,7 +210,7 @@ class Facing(QtWidgets.QWidget):
         # opening preamble
         self.file.write("%\n")
         self.file.write("({})\n".format(comment))
-        self.file.write("({})\n".format(self.lbl_units_info.text()))
+        self.file.write("({})\n".format(self.units_text))
         self.file.write("(Area: X {} by Y {})\n".format(self.size_x,self.size_x))
         self.file.write("({} Tool Diameter with {} Stepover)\n".format(self.tool_dia, self.stepover))
         self.file.write("\n")

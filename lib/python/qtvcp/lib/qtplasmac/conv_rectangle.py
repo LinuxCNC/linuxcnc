@@ -26,7 +26,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError: return
     xLB = yLR = xLT = yLL = 0
     if W.r1Button.text().split()[0] == _translate('Conversational', 'RADIUS'):
@@ -198,7 +198,7 @@ def preview(P, W):
                 elif '(postamble)' in line:
                     break
                 elif 'm2' in line.lower() or 'm30' in line.lower():
-                    break
+                    continue
                 outNgc.write(line)
             outTmp.write('\n(conversational rectangle)\n')
             outTmp.write('M190 P{}\n'.format(int(W.conv_material.currentText().split(':')[0])))
@@ -429,18 +429,17 @@ def preview(P, W):
             W.conv_preview.set_current_view()
             W.add.setEnabled(True)
         W.undo.setEnabled(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg0 = _translate('Conversational', 'A positive value is required for')
         msg1 = _translate('Conversational', 'LENGTH')
         error_set(P, '{0}:\n\nX {1}\nY {1}\n'.format(msg0, msg1))
 
 def error_set(P, msg):
-    P.conv_undo_shape()
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Rectangle Error'), msg)
 
-def rad_button_pressed(P, W, button, value):
-
+def rad_button_pressed(P, W, Conv, button, value):
     if button.text().split()[0] == _translate('Conversational', 'RADIUS'):
         text = _translate('Conversational', 'CHAMFER')
         button.setText('{} {}'.format(text, value))
@@ -452,10 +451,10 @@ def rad_button_pressed(P, W, button, value):
     else:
         text = _translate('Conversational', 'RADIUS')
         button.setText('{} {}'.format(text, value))
-    auto_preview(P, W)
+    auto_preview(P, W, Conv)
 
-def entry_changed(P, W, widget):
-    char = P.conv_entry_changed(widget)
+def entry_changed(P, W, Conv, widget):
+    char = Conv.conv_entry_changed(P, W, widget)
     msg = []
     try:
         li = float(W.liEntry.text())
@@ -478,63 +477,56 @@ def entry_changed(P, W, widget):
     else:
         W.kOffset.setEnabled(True)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.xlEntry.text() and W.ylEntry.text():
-        preview(P, W)
+        preview(P, W, Conv)
 
-def add_shape_to_file(P, W):
-    P.conv_add_shape_to_file()
-
-def undo_pressed(P, W):
-    P.conv_undo_shape()
-
-def widgets(P, W):
-    #widgets
-    W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
-    W.ctGroup = QButtonGroup(W)
-    W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
-    W.cExt.setChecked(True)
-    W.ctGroup.addButton(W.cExt)
-    W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
-    W.ctGroup.addButton(W.cInt)
-    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-    W.kOffset.setCheckable(True)
-    W.spLabel = QLabel(_translate('Conversational', 'START'))
+def widgets(P, W, Conv):
     W.spGroup = QButtonGroup(W)
     W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
     W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
     W.spGroup.addButton(W.bLeft)
-    text = _translate('Conversational', 'ORIGIN')
-    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
     W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.loEntry = QLineEdit(str(P.leadOut), objectName = 'loEntry')
-    text = _translate('Conversational', 'LENGTH')
-    W.xlLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-    W.xlEntry = QLineEdit()
-    W.ylLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-    W.ylEntry = QLineEdit()
-    W.angLabel = QLabel(_translate('Conversational', 'ANGLE'))
-    W.angEntry = QLineEdit('0.0', objectName='aEntry')
-    text = _translate('Conversational', 'RADIUS')
-    W.r1Button = QPushButton(_translate('Conversational', '{} 1'.format(text)))
-    W.r1Entry = QLineEdit()
-    W.r2Button = QPushButton(_translate('Conversational', '{} 2'.format(text)))
-    W.r2Entry = QLineEdit()
-    W.r3Button = QPushButton(_translate('Conversational', '{} 3'.format(text)))
-    W.r3Entry = QLineEdit()
-    W.r4Button = QPushButton(_translate('Conversational', '{} 4'.format(text)))
-    W.r4Entry = QLineEdit()
-    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    if not P.convSettingsChanged:
+        #widgets
+        W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
+        W.ctGroup = QButtonGroup(W)
+        W.cExt = QRadioButton(_translate('Conversational', 'EXTERNAL'))
+        W.cExt.setChecked(True)
+        W.ctGroup.addButton(W.cExt)
+        W.cInt = QRadioButton(_translate('Conversational', 'INTERNAL'))
+        W.ctGroup.addButton(W.cInt)
+        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
+        W.kOffset.setCheckable(True)
+        W.spLabel = QLabel(_translate('Conversational', 'START'))
+        text = _translate('Conversational', 'ORIGIN')
+        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
+        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
+        text = _translate('Conversational', 'LENGTH')
+        W.xlLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+        W.xlEntry = QLineEdit()
+        W.ylLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+        W.ylEntry = QLineEdit()
+        W.angLabel = QLabel(_translate('Conversational', 'ANGLE'))
+        W.angEntry = QLineEdit('0.0', objectName='aEntry')
+        text = _translate('Conversational', 'RADIUS')
+        W.r1Button = QPushButton(_translate('Conversational', '{} 1'.format(text)))
+        W.r1Entry = QLineEdit()
+        W.r2Button = QPushButton(_translate('Conversational', '{} 2'.format(text)))
+        W.r2Entry = QLineEdit()
+        W.r3Button = QPushButton(_translate('Conversational', '{} 3'.format(text)))
+        W.r3Entry = QLineEdit()
+        W.r4Button = QPushButton(_translate('Conversational', '{} 4'.format(text)))
+        W.r4Entry = QLineEdit()
     W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
     W.lDesc = QLabel(_translate('Conversational', 'CREATING RECTANGLE'))
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_rectangle_l.png'.format(P.IMAGES)).scaledToWidth(196)
@@ -564,7 +556,6 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
-    W.undo.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
@@ -572,24 +563,23 @@ def widgets(P, W):
     if not W.liEntry.text() or float(W.liEntry.text()) == 0:
         W.kOffset.setChecked(False)
         W.kOffset.setEnabled(False)
-    P.conv_undo_shape()
     #connections
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.cExt.toggled.connect(lambda:auto_preview(P, W))
-    W.kOffset.toggled.connect(lambda:auto_preview(P, W))
-    W.center.toggled.connect(lambda:auto_preview(P, W))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:undo_pressed(P, W))
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.cExt.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.kOffset.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.center.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'xlEntry', 'ylEntry', \
                'angEntry', 'r1Entry', 'r2Entry', 'r3Entry', 'r4Entry', ]
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
-    W.r1Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '1'))
-    W.r2Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '2'))
-    W.r3Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '3'))
-    W.r4Button.pressed.connect(lambda:rad_button_pressed(P, W, W.sender(), '4'))
+        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
+    W.r1Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '1'))
+    W.r2Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '2'))
+    W.r3Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '3'))
+    W.r4Button.pressed.connect(lambda:rad_button_pressed(P, W, Conv, W.sender(), '4'))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)
@@ -622,9 +612,10 @@ def widgets(P, W):
         W.entries.addWidget(W.r3Entry, 10, 1)
         W.entries.addWidget(W.r4Button, 10, 2)
         W.entries.addWidget(W.r4Entry, 10, 3)
-        W.s11 = QLabel('')
-        W.s11.setFixedHeight(24)
-        W.entries.addWidget(W.s11, 11, 0)
+        for r in [11]:
+            W['s{}'.format(r)] = QLabel('')
+            W['s{}'.format(r)].setFixedHeight(24)
+            W.entries.addWidget(W['s{}'.format(r)], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
@@ -668,3 +659,4 @@ def widgets(P, W):
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
     W.xlEntry.setFocus()
+    P.convSettingsChanged = False

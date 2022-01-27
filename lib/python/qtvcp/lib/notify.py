@@ -170,6 +170,7 @@ class Notify:
             n.addAction('close_clicked', 'jogPause', self.jogPauseClicked)
         n.show()
         self.notify_list.append(n)
+        return n
 
     ################################################
     # callback mechanism

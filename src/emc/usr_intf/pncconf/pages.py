@@ -81,7 +81,7 @@ class Pages:
         else:
             return True
 
-    # seaches (self._p.available_page) from the current page forward,
+    # searches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -124,13 +124,13 @@ class Pages:
         elif u == len(self._p.available_page):
             name,text,init_state,state = self._p.available_page[cur]
             self['%s_finish'%name]()
-        # if comming from page 0 to page 1 sensitize
+        # if coming from page 0 to page 1 sensitize
         # the back button and change fwd button text
         if cur == 0:
             self.w.button_back.set_sensitive(True)
             self.w.label_fwd.set_text(self._p.MESS_FWD)
 
-    # seaches (self._p.available_page) from the current page backward,
+    # searches (self._p.available_page) from the current page backward,
     # for the next page that is True or till first page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -472,11 +472,27 @@ class Pages:
             self.w.qtplasmac_estop_1.set_active(True)
         else:
             self.w.qtplasmac_estop.set_active(True)
+        if self.d.qtplasmacdro == 1:
+            self.w.qtplasmac_dro_1.set_active(True)
+        else:
+            self.w.qtplasmac_dro.set_active(True)
+        if self.d.qtplasmacerror == 1:
+            self.w.qtplasmac_error_1.set_active(True)
+        else:
+            self.w.qtplasmac_error.set_active(True)
+        if self.d.qtplasmacstart == 1:
+            self.w.qtplasmac_start_1.set_active(True)
+        else:
+            self.w.qtplasmac_start.set_active(True)
+        if self.d.qtplasmacpause == 1:
+            self.w.qtplasmac_pause_1.set_active(True)
+        else:
+            self.w.qtplasmac_pause.set_active(True)
+        if self.d.qtplasmacstop == 1:
+            self.w.qtplasmac_stop_1.set_active(True)
+        else:
+            self.w.qtplasmac_stop.set_active(True)
         # set the qtplasmac spinboxes
-        self.w.qtplasmac_cam_x.set_value(self.d.qtplasmacxcam)
-        self.w.qtplasmac_cam_y.set_value(self.d.qtplasmacycam)
-        self.w.qtplasmac_laser_x.set_value(self.d.qtplasmacxlaser)
-        self.w.qtplasmac_laser_y.set_value(self.d.qtplasmacylaser)
         self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
 
         for i in ("touchy","axis"):
@@ -526,10 +542,11 @@ class Pages:
         self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
         self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
         self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
-        self.d.qtplasmacxcam = self.w.qtplasmac_cam_x.get_value()
-        self.d.qtplasmacycam = self.w.qtplasmac_cam_y.get_value()
-        self.d.qtplasmacxlaser = self.w.qtplasmac_laser_x.get_value()
-        self.d.qtplasmacylaser = self.w.qtplasmac_laser_y.get_value()
+        self.d.qtplasmacdro = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_dro.get_group())) if r.get_active()][0]
+        self.d.qtplasmacerror = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_error.get_group())) if r.get_active()][0]
+        self.d.qtplasmacstart = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_start.get_group())) if r.get_active()][0]
+        self.d.qtplasmacpause = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_pause.get_group())) if r.get_active()][0]
+        self.d.qtplasmacstop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_stop.get_group())) if r.get_active()][0]
         self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
         if self.d.units == self._p._IMPERIAL:
             self.d.increments_imperial_qtplasmac = self.w.increments_qtplasmac.get_text()
@@ -651,7 +668,7 @@ class Pages:
         if self.w.laddertouchz.get_active():
             i = self.d.gladevcphaluicmds
             self.w["halui_cmd%d"%(i)].set_text("G38.2 Z-2 F16   ( search for touch off plate )")
-            self.w["halui_cmd%d"%(i+1)].set_text("G10 L20 P0 Z.25 ( Ofset current Origin by plate thickness )")
+            self.w["halui_cmd%d"%(i+1)].set_text("G10 L20 P0 Z.25 ( Offset current Origin by plate thickness )")
             self.w["halui_cmd%d"%(i+2)].set_text("G0 Z.5           ( Rapid away from touch off plate )")
 
     def on_xusecomp_toggled(self, *args): self.a.comp_toggle('x')
@@ -737,7 +754,7 @@ class Pages:
         model = self.w.gladevcptheme.get_model()
         active = self.w.gladevcptheme.get_active()
         self.d.gladevcptheme = model[active][0]
-        # make sure there is a copy of the choosen gladevcp panel in /tmp/
+        # make sure there is a copy of the chosen gladevcp panel in /tmp/
         # We will copy it later into our config folder
         self.t.gladevcptestpanel(self)
 
@@ -1019,7 +1036,7 @@ class Pages:
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
-    # This is because the page in not inialized/loaded until needed
+    # This is because the page in not initialized/loaded until needed
     # callbacks:
     def on_mesapanel_clicked(self, *args):
         self.t.launch_mesa_panel()
@@ -1070,7 +1087,7 @@ class Pages:
         self.page_set_state('s_motor',self.a.has_spindle_speed_control())
 
     # mesa page signals for callbacks must be built manually (look in pncconf.py init_mesa_signals() )
-    # This is because the page in not inialized/loaded until needed
+    # This is because the page in not initialized/loaded until needed
     # callbacks:
 
     def on_mesa1_discovery_clicked(self, *args):
@@ -1311,6 +1328,17 @@ class Pages:
 #************
     def x_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        if self.d.units: # metric
+            temp = self.w.xbacklash.get_adjustment()
+            temp.set_upper(1.0)
+            temp.set_lower(-1.0)
+            temp.set_step_increment(.05)
+        else:
+            temp = self.w.xbacklash.get_adjustment()
+            temp.set_upper(.05)
+            temp.set_lower(-.05)
+            temp.set_step_increment(.001)
+
     def x_axis_finish(self):
         self.a.axis_done('x')
 #************
@@ -1335,6 +1363,16 @@ class Pages:
 #************
     def y_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        if self.d.units: # metric
+            temp = self.w.ybacklash.get_adjustment()
+            temp.set_upper(1.0)
+            temp.set_lower(-1.0)
+            temp.set_step_increment(.05)
+        else:
+            temp = self.w.ybacklash.get_adjustment()
+            temp.set_upper(.05)
+            temp.set_lower(-.05)
+            temp.set_step_increment(.001)
     def y_axis_finish(self):
         self.a.axis_done('y')
 #************
@@ -1359,6 +1397,16 @@ class Pages:
 #************
     def z_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        if self.d.units: # metric
+            temp = self.w.zbacklash.get_adjustment()
+            temp.set_upper(1.0)
+            temp.set_lower(-1.0)
+            temp.set_step_increment(.05)
+        else:
+            temp = self.w.zbacklash.get_adjustment()
+            temp.set_upper(.05)
+            temp.set_lower(-.05)
+            temp.set_step_increment(.001)
         self.savable_flag = True
     def z_axis_finish(self):
         self.a.axis_done('z')
@@ -1384,6 +1432,10 @@ class Pages:
 #************
     def a_axis_prepare(self):
         self.d.help = "help-axisconfig.txt"
+        temp = self.w.abacklash.get_adjustment()
+        temp.set_upper(1.0)
+        temp.set_lower(-1.0)
+        temp.set_step_increment(.05)
         self.savable_flag = True
     def a_axis_finish(self):
         self.a.axis_done('a')

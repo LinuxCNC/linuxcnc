@@ -2,7 +2,7 @@
 
 '''
     This class is used to get information from a config.ini file,
-    It will return cleared informations, so the checks for valid values 
+    It will return cleared information, so the checks for valid values 
     is away from the GUI code
 
     Copyright 2014 Norbert Schechner
@@ -141,7 +141,7 @@ class GetIniInfo:
                 # OK we have a special case here, we need to take care off
                 # i.e. a Gantry XYYZ config
                 double_axis_letter.append(axisletter)
-                print("Fount double letter ", double_axis_letter)
+                print("Found double letter ", double_axis_letter)
 
         if self.get_joints() == len(coordinates):
             prev_double_axis_leter = ""

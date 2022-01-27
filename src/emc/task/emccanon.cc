@@ -2155,6 +2155,11 @@ void CHANGE_TOOL_NUMBER(int pocket_number)
     interp_list.append(emc_tool_set_number_msg);
 }
 
+void RELOAD_TOOLDATA(void)
+{
+    EMC_TOOL_LOAD_TOOL_TABLE load_tool_table_msg;
+    interp_list.append(load_tool_table_msg);
+}
 
 /* Misc Functions */
 
@@ -3177,7 +3182,7 @@ void CLEAR_MOTION_OUTPUT_BIT(int index)
   right away.
   The pin gets set with value 1 at the begin of motion, and stays 1 at the end of motion
   (this behaviour can be changed if needed)
-  you can use any number of these, as the effect is imediate  
+  you can use any number of these, as the effect is immediate  
 */
 void SET_AUX_OUTPUT_BIT(int index)
 {
@@ -3189,7 +3194,7 @@ void SET_AUX_OUTPUT_BIT(int index)
   dout_msg.index = index;
   dout_msg.start = 1;		// startvalue = 1
   dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
-  dout_msg.now = 1;		// immediate, we don't care about synching for AUX
+  dout_msg.now = 1;		// immediate, we don't care about syncing for AUX
 
   interp_list.append(dout_msg);
 
@@ -3203,7 +3208,7 @@ void SET_AUX_OUTPUT_BIT(int index)
   right away.
   The pin gets set with value 0 at the begin of motion, and stays 0 at the end of motion
   (this behaviour can be changed if needed)
-  you can use any number of these, as the effect is imediate  
+  you can use any number of these, as the effect is immediate  
 */
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
@@ -3214,7 +3219,7 @@ void CLEAR_AUX_OUTPUT_BIT(int index)
   dout_msg.index = index;
   dout_msg.start = 0;           // startvalue = 1
   dout_msg.end = 0;		// endvalue = 0, means it stays 0 after current motion
-  dout_msg.now = 1;		// immediate, we don't care about synching for AUX
+  dout_msg.now = 1;		// immediate, we don't care about syncing for AUX
 
   interp_list.append(dout_msg);
 

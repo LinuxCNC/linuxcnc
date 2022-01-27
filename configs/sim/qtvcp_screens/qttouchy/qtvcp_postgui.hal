@@ -15,17 +15,19 @@ show pin sim_panel
 
 net cs-sig            sim_panel.cyclestart     qttouchy.cycle-start-in
 net mpg-sig           axis.x.jog-counts       axis.y.jog-counts  axis.z.jog-counts     sim_panel.MPG-s
+net mpg-sig           joint.0.jog-counts           joint.1.jog-counts           joint.2.jog-counts
 net mpg-sig           qttouchy.mpg-in
+
 net feedhold          sim_panel.feedhold       motion.feed-hold
 net abort             sim_panel.abort          qttouchy.abort
 
-net jogSelectx        axis.x.jog-enable      qttouchy.jog.wheel.x
-net jogSelecty        axis.y.jog-enable      qttouchy.jog.wheel.y
-net jogSelectz        axis.z.jog-enable      qttouchy.jog.wheel.z
+net jogSelectx        axis.x.jog-enable     joint.0.jog-enable     qttouchy.jogwheel.x-enable
+net jogSelecty        axis.y.jog-enable     joint.1.jog-enable      qttouchy.jogwheel.y-enable
+net jogSelectz        axis.z.jog-enable     joint.2.jog-enable      qttouchy.jogwheel.z-enable
 
-net jogIncrement      qttouchy.jog.wheel.incement
+net jogIncrement      qttouchy.jogwheel.increment
 net jogIncrement      axis.x.jog-scale       axis.y.jog-scale      axis.z.jog-scale
-
+net jogIncrement      joint.0.jog-scale      joint.1.jog-scale      joint.2.jog-scale
 
 
 

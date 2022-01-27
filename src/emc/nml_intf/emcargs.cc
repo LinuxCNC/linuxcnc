@@ -61,7 +61,7 @@ int emcGetArgs(int argc, char *argv[])
 	    nmlSetHostAlias(qhost, "localhost");	/* If localhost
 							   appears in .nml
 							   file it will
-							   overriden by this
+							   overridden by this
 							   argument. */
 	    nmlForceRemoteConnection();
 	    /* The only good reason for aliasing the host that I know of is
@@ -79,7 +79,7 @@ int emcGetArgs(int argc, char *argv[])
 								   appears in 
 								   .nml file
 								   it will
-								   overriden
+								   overridden
 								   by this
 								   argument. */
 		nmlForceRemoteConnection();

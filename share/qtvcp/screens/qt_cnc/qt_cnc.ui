@@ -2560,7 +2560,7 @@ file</string>
      <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="is_limits_overriden_status" stdset="0">
+     <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
     </widget>

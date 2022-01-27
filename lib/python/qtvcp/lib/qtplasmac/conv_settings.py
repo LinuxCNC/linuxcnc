@@ -26,7 +26,7 @@ from PyQt5.QtGui import *
 
 _translate = QCoreApplication.translate
 
-def save(P, W):
+def save(P, W, Conv):
     if P.dialogError: return
     msg = []
     P.preAmble = W.preEntry.text()
@@ -69,6 +69,8 @@ def save(P, W):
     W.PREFS_.putpref('Hole speed', P.holeSpeed, int, 'CONVERSATIONAL')
     W.PREFS_.putpref('Grid Size', P.gridSize, float, 'CONVERSATIONAL')
     show(P, W)
+    P.convSettingsChanged = True
+    Conv.conv_restore_buttons(P, W)
     W[P.oldConvButton].click()
 
 def error_set(P, msg):
@@ -76,9 +78,11 @@ def error_set(P, msg):
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Scaling Error'), msg)
 
 #def reload(parent, ambles, unitCode):
-def reload(P, W):
+def reload(P, W, Conv):
     load(P, W)
     show(P, W)
+    P.convSettingsChanged = True
+    Conv.conv_restore_buttons(P, W)
     W[P.oldConvButton].click()
 
 def load(P, W):
@@ -104,12 +108,11 @@ def show(P, W):
     else:
         W.btLeft.setChecked(True)
     P.oSaved = P.origin
-    if P.gridSize:
-        # grid size is in inches
-        W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
-        W.conv_preview.set_current_view()
+    # grid size is in inches
+    W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
+    W.conv_preview.set_current_view()
 
-def widgets(P, W):
+def widgets(P, W, Conv):
     W.preLabel = QLabel(_translate('Conversational', 'PREAMBLE'))
     W.preLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
     W.entries.addWidget(W.preLabel, 0, 0)
@@ -130,10 +133,10 @@ def widgets(P, W):
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.entries.addWidget(W.liLabel, 5, 0)
     W.liEntry = QLineEdit()
-    W.liEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
+    W.liEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.entries.addWidget(W.liEntry, 5, 1)
     W.loEntry = QLineEdit()
-    W.loEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
+    W.loEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.entries.addWidget(W.loEntry, 5, 3)
     W.loLabel = QLabel(_translate('Conversational', 'LEAD OUT'))
     W.entries.addWidget(W.loLabel, 5, 4)
@@ -142,10 +145,10 @@ def widgets(P, W):
     W.hdLabel = QLabel(_translate('Conversational', 'DIAMETER'))
     W.entries.addWidget(W.hdLabel, 7, 0)
     W.hdEntry = QLineEdit()
-    W.hdEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
+    W.hdEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.entries.addWidget(W.hdEntry, 7, 1)
     W.hsEntry = QLineEdit()
-    W.hsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
+    W.hsEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.entries.addWidget(W.hsEntry, 7, 3)
     W.hsLabel = QLabel(_translate('Conversational', 'SPEED %'))
     W.entries.addWidget(W.hsLabel, 7, 4)
@@ -154,13 +157,13 @@ def widgets(P, W):
     W.gsLabel = QLabel(_translate('Conversational', 'GRID SIZE'))
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.gsEntry = QLineEdit()
-    W.gsEntry.textChanged.connect(lambda:P.conv_entry_changed(W.sender()))
+    W.gsEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
     W.entries.addWidget(W.gsEntry, 9, 1)
     W.save = QPushButton(_translate('Conversational', 'SAVE'))
-    W.save.pressed.connect(lambda:save(P, W))
+    W.save.pressed.connect(lambda:save(P, W, Conv))
     W.entries.addWidget(W.save, 12, 1)
     W.reload = QPushButton(_translate('Conversational', 'RELOAD'))
-    W.reload.pressed.connect(lambda:reload(P, W))
+    W.reload.pressed.connect(lambda:reload(P, W, Conv))
     W.entries.addWidget(W.reload, 12, 3)
     for blank in range(2):
         W['{}'.format(blank)] = QLabel('')

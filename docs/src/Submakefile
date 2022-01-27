@@ -1,7 +1,7 @@
-.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_cn
+.PHONY: docs docsclean checkref checkref_en checkref_es checkref_fr checkref_vi checkref_zh_CN
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
-# To make linuxcnc-python widely available
+# To make linuxcnc-checklink widely available
 export PATH:=$(BASEPWD)/../scripts:$(PATH)
 
 DOC_DIR=../docs
@@ -12,7 +12,7 @@ LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 
 GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 ifeq ($(BUILD_DOCS),yes)
-GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.txt, ../docs/man/%, $(wildcard ../docs/src/man/*/*.txt))
+GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildcard ../docs/src/man/*/*.adoc))
 endif
 
 MAN_SRCS = $(sort \
@@ -36,366 +36,198 @@ endif
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
-	code/code-notes.txt \
-	code/style-guide.txt \
-	code/nml-messages.txt \
-	code/rs274.txt \
-	code/adding-configs.txt \
-	code/contributing-to-linuxcnc.txt \
-	code/building-linuxcnc.txt \
-	common/emc-history.txt \
-	common/glossary.txt \
-	common/gpld-copyright.txt \
-	common/overleaf.txt \
-	config/core-components.txt \
-	config/ini-config.txt \
-	config/ini-homing.txt \
-  config/iov2.txt \
-	config/integrator-concepts.txt \
-	config/lathe-config.txt \
-	config/moveoff.txt \
-	config/pncconf.txt \
-	config/python-interface.txt \
-	config/stepconf.txt \
-	config/stepper-diagnostics.txt \
-	config/stepper.txt \
-	config/stepper-quickstart.txt \
-	drivers/ax5214h.txt \
-	drivers/vfs11.txt \
-	drivers/mitsub_vfd.txt \
-	drivers/gm.txt \
-	drivers/gs2.txt \
-	drivers/hostmot2.txt \
-	drivers/mb2hal.txt \
-	drivers/motenc.txt \
-	drivers/opto22.txt \
-	drivers/pico-ppmc.txt \
-	drivers/pluto-p.txt \
-	drivers/pmx485.txt \
-	drivers/servo-to-go.txt \
-	drivers/shuttle.txt \
-	examples/gcode.txt \
-	examples/gs2-example.txt \
-	examples/mpg.txt \
-	examples/pci-parallel-port.txt \
-	examples/spindle.txt \
-	gcode/coordinates.txt \
-	gcode/g-code.txt \
-	gcode/machining-center.txt \
-	gcode/m-code.txt \
-	gcode/o-code.txt \
-	gcode/other-code.txt \
-	gcode/overview.txt \
-	gcode/rs274ngc.txt \
-	gcode/tool-compensation.txt \
-	getting-started/about-linuxcnc.txt \
-	getting-started/getting-linuxcnc.txt \
-	common/linux-faq.txt \
-	getting-started/running-linuxcnc.txt \
-	getting-started/system-requirements.txt \
-	getting-started/updating-linuxcnc.txt \
-	gui/axis.txt \
-	gui/gladevcp.txt \
-	gui/gmoccapy.txt \
-	gui/gmoccapy-hu.txt \
-	gui/gscreen.txt \
-	gui/qtdragon.txt \
-	gui/qtvcp.txt \
-	gui/qtvcp_VCPpanels.txt \
-	gui/qtvcp_widgets.txt \
-	gui/qtvcp_libraries.txt \
-	gui/qtvcp_custom_widgets.txt \
-	gui/qtvcp_code_snippets.txt \
-	gui/qtvcp_development.txt \
-	gui/panelui.txt \
-	gui/halui.txt \
-	gui/image-to-gcode.txt \
-	gui/ngcgui.txt \
-	gui/tklinuxcnc.txt \
-	gui/tooledit.txt \
-	gui/touchy.txt \
-	gui/GStat.txt \
-	gui/vismach.txt \
-	hal/basic-hal.txt \
-	hal/canonical-devices.txt \
-	hal/comp.txt \
-	hal/components.txt \
-	hal/general-ref.txt \
-	hal/hal-examples.txt \
-	hal/halmodule.txt \
-	hal/halshow.txt \
-	hal/haltcl.txt \
-	hal/halui-examples.txt \
-	hal/intro.txt \
-	hal/parallel-port.txt \
-	gui/pyvcp.txt \
-	gui/pyvcp-examples.txt \
-	hal/rtcomps.txt \
-	hal/tools.txt \
-	hal/tutorial.txt \
-	hal/twopass.txt \
-	install/latency-test.txt \
-	integrator/steppers.txt \
-	integrator/stepper-timing.txt \
-	integrator/wiring.txt \
-	ladder/classic-ladder.txt \
-	ladder/ladder-examples.txt \
-	ladder/ladder-intro.txt \
-	lathe/lathe-user.txt \
-	motion/kinematics.txt \
-	motion/dh-parameters.txt \
-	motion/pid-theory.txt \
-	motion/tweaking-steppers.txt \
-	motion/5-axis-kinematics.txt \
-	motion/external-offsets.txt \
-	motion/switchkins.txt \
-	tooldatabase/tooldatabase.txt \
-	plasma/qtplasmac.txt \
-	plasma/plasma-cnc-primer.txt \
-	remap/remap.txt \
-	tooldatabase/tooldatabase.txt \
-	user/starting-linuxcnc.txt \
-	user/user-concepts.txt \
-	user/user-foreword.txt \
-	user/user-intro.txt \
-	Master_Getting_Started.txt \
-	Master_Documentation.txt \
-	Master_Developer.txt
+	code/code-notes.adoc \
+	code/style-guide.adoc \
+	code/nml-messages.adoc \
+	code/rs274.adoc \
+	code/adding-configs.adoc \
+	code/contributing-to-linuxcnc.adoc \
+	code/building-linuxcnc.adoc \
+	common/emc-history.adoc \
+	common/glossary.adoc \
+	common/gpld-copyright.adoc \
+	common/overleaf.adoc \
+	config/core-components.adoc \
+	config/ini-config.adoc \
+	config/ini-homing.adoc \
+  config/iov2.adoc \
+	config/integrator-concepts.adoc \
+	config/lathe-config.adoc \
+	config/moveoff.adoc \
+	config/pncconf.adoc \
+	config/python-interface.adoc \
+	config/stepconf.adoc \
+	config/stepper-diagnostics.adoc \
+	config/stepper.adoc \
+	config/stepper-quickstart.adoc \
+	drivers/ax5214h.adoc \
+	drivers/vfs11.adoc \
+	drivers/mitsub_vfd.adoc \
+	drivers/gm.adoc \
+	drivers/gs2.adoc \
+	drivers/hostmot2.adoc \
+	drivers/mb2hal.adoc \
+	drivers/motenc.adoc \
+	drivers/opto22.adoc \
+	drivers/pico-ppmc.adoc \
+	drivers/pluto-p.adoc \
+	drivers/pmx485.adoc \
+	drivers/servo-to-go.adoc \
+	drivers/shuttle.adoc \
+	examples/gcode.adoc \
+	examples/gs2-example.adoc \
+	examples/mpg.adoc \
+	examples/pci-parallel-port.adoc \
+	examples/spindle.adoc \
+	gcode/coordinates.adoc \
+	gcode/g-code.adoc \
+	gcode/machining-center.adoc \
+	gcode/m-code.adoc \
+	gcode/o-code.adoc \
+	gcode/other-code.adoc \
+	gcode/overview.adoc \
+	gcode/rs274ngc.adoc \
+	gcode/tool-compensation.adoc \
+	getting-started/about-linuxcnc.adoc \
+	getting-started/getting-linuxcnc.adoc \
+	common/linux-faq.adoc \
+	getting-started/running-linuxcnc.adoc \
+	getting-started/system-requirements.adoc \
+	getting-started/updating-linuxcnc.adoc \
+	gui/axis.adoc \
+	gui/filter_programs.adoc \
+	gui/gladevcp.adoc \
+	gui/gmoccapy.adoc \
+	gui/gscreen.adoc \
+	gui/qtdragon.adoc \
+	gui/qtvcp.adoc \
+	gui/qtvcp_VCPpanels.adoc \
+	gui/qtvcp_widgets.adoc \
+	gui/qtvcp_libraries.adoc \
+	gui/qtvcp_custom_widgets.adoc \
+	gui/qtvcp_code_snippets.adoc \
+	gui/qtvcp_development.adoc \
+	gui/panelui.adoc \
+	gui/halui.adoc \
+	gui/image-to-gcode.adoc \
+	gui/ngcgui.adoc \
+	gui/tklinuxcnc.adoc \
+	gui/tooledit.adoc \
+	gui/touchy.adoc \
+	gui/GStat.adoc \
+	gui/vismach.adoc \
+	hal/basic-hal.adoc \
+	hal/canonical-devices.adoc \
+	hal/comp.adoc \
+	hal/components.adoc \
+	hal/general-ref.adoc \
+	hal/hal-examples.adoc \
+	hal/halmodule.adoc \
+	hal/halshow.adoc \
+	hal/haltcl.adoc \
+	hal/halui-examples.adoc \
+	hal/intro.adoc \
+	hal/parallel-port.adoc \
+	gui/pyvcp.adoc \
+	gui/pyvcp-examples.adoc \
+	hal/rtcomps.adoc \
+	hal/tools.adoc \
+	hal/tutorial.adoc \
+	hal/twopass.adoc \
+	install/latency-test.adoc \
+	integrator/steppers.adoc \
+	integrator/stepper-timing.adoc \
+	integrator/wiring.adoc \
+	ladder/classic-ladder.adoc \
+	ladder/ladder-examples.adoc \
+	ladder/ladder-intro.adoc \
+	lathe/lathe-user.adoc \
+	motion/kinematics.adoc \
+	motion/dh-parameters.adoc \
+	motion/pid-theory.adoc \
+	motion/tweaking-steppers.adoc \
+	motion/5-axis-kinematics.adoc \
+	motion/external-offsets.adoc \
+	motion/switchkins.adoc \
+	tooldatabase/tooldatabase.adoc \
+	plasma/qtplasmac.adoc \
+	plasma/plasma-cnc-primer.adoc \
+	remap/remap.adoc \
+	user/starting-linuxcnc.adoc \
+	user/user-concepts.adoc \
+	user/user-foreword.adoc \
+	user/user-intro.adoc \
+	Master_Getting_Started.adoc \
+	Master_Documentation.adoc \
+	Master_Integrator.adoc \
+	Master_Developer.adoc
 
-DOC_SRCS_FR := \
-	common/Glossary_fr.txt \
-	common/GPLD_Copyright_fr.txt \
-	common/Integrator_Concepts_fr.txt \
-	common/outdated-notice_fr.txt \
-	common/overleaf_fr.txt \
-	common/Stepper_Diagnostics_fr.txt \
-	config/linuxcnc2hal_fr.txt \
-	config/ini_config_fr.txt \
-	config/ini_homing_fr.txt \
-	config/lathe_config_fr.txt \
-	config/stepper_fr.txt \
-	drivers/AX5214H_fr.txt \
-	drivers/GS2_fr.txt \
-	drivers/hostmot2_fr.txt \
-	drivers/motenc_fr.txt \
-	drivers/opto22_fr.txt \
-	drivers/pico_ppmc_fr.txt \
-	drivers/pluto_p_fr.txt \
-	drivers/servo_to_go_fr.txt \
-	examples/gcode_fr.txt \
-	examples/gs2_example_fr.txt \
-	examples/misc_fr.txt \
-	examples/mpg_fr.txt \
-	examples/pci_parallel_port_fr.txt \
-	examples/spindle_fr.txt \
-	gcode/coordinates_fr.txt \
-	gcode/gcode_fr.txt \
-	gcode/machining_center_fr.txt \
-	gcode/m-code_fr.txt \
-	gcode/o-code_fr.txt \
-	gcode/other-code_fr.txt \
-	gcode/overview_fr.txt \
-	gcode/rs274ngc_fr.txt \
-	gcode/tool_compensation_fr.txt \
-	gui/axis_fr.txt \
-	gui/filter_programs.txt \
-	gui/gladevcp_fr.txt \
-	gui/image-to-gcode_fr.txt \
-	gui/ngcgui_fr.txt \
-	gui/tklinuxcnc_fr.txt \
-	gui/tooledit_fr.txt\
-	gui/touchy_fr.txt \
-	hal/basic_hal_fr.txt \
-	hal/comp_fr.txt \
-	hal/components_fr.txt \
-	hal/general_ref_fr.txt \
-	hal/hal-examples_fr.txt \
-	hal/halmodule_fr.txt \
-	hal/halshow_fr.txt \
-	hal/haltcl_fr.txt \
-	hal/halui_fr.txt \
-	hal/intro_fr.txt \
-	hal/parallel_port_fr.txt \
-	gui/pyvcp_fr.txt \
-	gui/pyvcp_examples_fr.txt \
-	hal/rtcomps_fr.txt \
-	hal/tutorial_fr.txt \
-	install/Latency_Test_fr.txt \
-	ladder/classic_ladder_fr.txt \
-	ladder/ladder_examples_fr.txt \
-	ladder/ladder_intro_fr.txt \
-	lathe/lathe-user_fr.txt \
-	motion/kinematics_fr.txt \
-	motion/pid_theory_fr.txt \
-	motion/tweaking_steppers_fr.txt \
-	user/user-concepts-fr.txt \
-	user/user-foreword-fr.txt \
-	user/user-intro-fr.txt \
-	Master_Getting_Started_fr.txt \
-	getting-started/index-fr.txt \
-	Master_User_fr.txt \
-	Master_HAL_fr.txt \
-	Master_Integrator_fr.txt \
+DOC_SRCS_FR := $(subst $(DOC_SRCDIR)/,, \
+	$(wildcard $(DOC_SRCDIR)/*_fr.adoc) \
+	$(wildcard $(DOC_SRCDIR)/*/*_fr.adoc))
 
-DOC_SRCS_ES := \
-	code/adding-configs_es.txt \
-	code/building-linuxcnc_es.txt \
-	code/code-notes_es.txt \
-	code/contributing-to-linuxcnc_es.txt \
-	code/nml-messages_es.txt \
-	code/rs274_es.txt \
-	code/style-guide_es.txt \
-	common/emc-history_es.txt \
-	common/glossary_es.txt \
-	common/gpld-copyright_es.txt \
-	common/linux-faq_es.txt \
-	common/overleaf_es.txt \
-	config/core-components_es.txt \
-	config/ini-config_es.txt \
-	config/ini-homing_es.txt \
-	config/integrator-concepts_es.txt \
-	config/lathe-config_es.txt \
-	config/moveoff_es.txt \
-	config/pncconf_es.txt \
-	config/python-interface_es.txt \
-	config/stepconf_es.txt \
-	config/stepper_es.txt \
-	config/stepper-diagnostics_es.txt \
-	config/stepper-quickstart_es.txt \
-	examples/gcode_es.txt \
-	examples/gs2-example_es.txt \
-	examples/pci-parallel-port_es.txt \
-	examples/spindle_es.txt \
-	gcode/coordinates_es.txt \
-	gcode/g-code_es.txt \
-	gcode/m-code_es.txt \
-	gcode/machining-center_es.txt \
-	gcode/o-code_es.txt \
-	gcode/other-code_es.txt \
-	gcode/overview_es.txt \
-	gcode/rs274ngc_es.txt \
-	gcode/tool-compensation_es.txt \
-	getting-started/about-linuxcnc_es.txt \
-	getting-started/getting-linuxcnc_es.txt \
-	getting-started/running-linuxcnc_es.txt \
-	getting-started/system-requirements_es.txt \
-	getting-started/updating-linuxcnc_es.txt \
-	gui/axis_es.txt \
-	gui/gladevcp_es.txt \
-	gui/gmoccapy_es.txt \
-	gui/gscreen_es.txt \
-	gui/halui_es.txt \
-	gui/ngcgui_es.txt\
-	gui/pyvcp_es.txt \
-	gui/pyvcp-examples_es.txt \
-	gui/qtdragon_es.txt \
-	gui/qtvcp_es.txt \
-	gui/qtvcp_widgets_es.txt \
-	gui/qtvcp_custom_widgets_es.txt \
-	gui/qtvcp_code_snippets_es.txt \
-	gui/qtvcp_development_es.txt \
-	gui/tooledit_es.txt \
-	gui/touchy_es.txt \
-	hal/basic-hal_es.txt \
-	hal/canonical-devices_es.txt \
-	hal/comp_es.txt \
-	hal/components_es.txt \
-	hal/general-ref_es.txt \
-	hal/hal-examples_es.txt \
-	hal/halmodule_es.txt \
-	hal/halshow_es.txt \
-	hal/haltcl_es.txt \
-	hal/halui-examples_es.txt \
-	hal/intro_es.txt \
-	hal/parallel-port_es.txt \
-	hal/rtcomps_es.txt \
-	hal/tools_es.txt \
-	hal/tutorial_es.txt \
-	hal/twopass_es.txt \
-	install/latency-test_es.txt \
-	lathe/lathe-user_es.txt \
-	ladder/classic-ladder_es.txt \
-	motion/kinematics_es.txt \
-	motion/dh-parameters_es.txt \
-	motion/5-axis-kinematics_es.txt \
-	motion/external-offsets_es.txt \
-	motion/pid-theory_es.txt \
-	motion/tweaking-steppers_es.txt \
-	plasma/plasma-cnc-primer_es.txt \
-	remap/remap_es.txt \
-	user/starting-linuxcnc_es.txt \
-	user/user-concepts_es.txt \
-	user/user-foreword_es.txt \
-	user/user-intro_es.txt \
-	Master_Getting_Started_es.txt \
-	Master_Documentation_es.txt \
-	Master_Developer_es.txt \
+DOC_SRCS_ES := $(subst $(DOC_SRCDIR)/,, \
+	$(wildcard $(DOC_SRCDIR)/*_es.adoc) \
+	$(wildcard $(DOC_SRCDIR)/*/*_es.adoc))
 
+DOC_SRCS_HU := $(subst $(DOC_SRCDIR)/,, \
+	$(wildcard $(DOC_SRCDIR)/*_hu.adoc) \
+	$(wildcard $(DOC_SRCDIR)/*/*_hu.adoc))
 
-DOC_SRCS_CN := \
-	common/overleaf-cn.txt \
-	common/glossary-cn.txt \
-	common/gpld-copyright-cn.txt \
-	getting-started/getting-linuxcnc-cn.txt \
-	getting-started/system-requirements-cn.txt \
-	getting-started/running-linuxcnc-cn.txt \
-	getting-started/about-linuxcnc-cn.txt \
-	getting-started/updating-linuxcnc-cn.txt \
-	Master_Getting_Started_cn.txt \
+DOC_SRCS_ZH_CN := $(subst $(DOC_SRCDIR)/,, \
+	$(wildcard $(DOC_SRCDIR)*_zh_CN.adoc) \
+	$(wildcard $(DOC_SRCDIR)*/*_zh_CN.adoc))
 
-DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_CN)
-
-DOC_SRCS_TXT := $(patsubst %.txt, %.txt, $(DOC_SRCS))
+DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_HU) $(DOC_SRCS_ZH_CN)
 
 DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
 DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
 DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
-DOC_SRCS_CN_SMALL := $(filter-out Master_%,$(DOC_SRCS_CN))
+DOC_SRCS_HU_SMALL := $(filter-out Master_%,$(DOC_SRCS_HU))
+DOC_SRCS_ZH_CN_SMALL := $(filter-out Master_%,$(DOC_SRCS_ZH_CN))
 
-DOC_SRCS_HTML := $(patsubst %.txt, %.html, $(filter-out Master_%, $(DOC_SRCS)))
+DOC_SRCS_HTML := $(patsubst %.adoc, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
 DOC_TARGETS_XML_ES := $(filter %_es.xml, $(DOC_TARGETS_XML))
 DOC_TARGETS_XML_FR := $(filter %_fr.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_CN := $(filter %_cn.xml, $(DOC_TARGETS_XML))
-DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_CN), $(filter-out$(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(DOC_TARGETS_XML))))
-DOC_TARGETS_HTML_ES := $(filter %-es.html, $(DOC_TARGETS_HTML)) $(filter %_es.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_CN := $(filter %-cn.html, $(DOC_TARGETS_HTML)) $(filter %_cn.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_FR := $(filter %-fr.html, $(DOC_TARGETS_HTML)) $(filter %_fr.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_VI := $(filter %_vi.html, $(DOC_TARGETS_HTML)) $(filter %-vi.html, $(DOC_TARGETS_HTML))
-DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_CN), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_VI), $(DOC_TARGETS_HTML)))))
+DOC_TARGETS_XML_HU := $(filter %_hu.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_ZH_CN := $(filter %_zh_CN.xml, $(DOC_TARGETS_XML))
+DOC_TARGETS_XML_EN := $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(filter-out$(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_HU), $(DOC_TARGETS_XML)))))
+DOC_TARGETS_HTML_ES := $(filter %_es.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_ZH_CN := $(filter %_zh_CN.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_FR := $(filter %_fr.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_HU := $(filter %_hu.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_VI := $(filter %_vi.html, $(DOC_TARGETS_HTML))
+DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_HU), $(filter-out $(DOC_TARGETS_HTML_VI), $(DOC_TARGETS_HTML))))))
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
-PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
-	LinuxCNC_Getting_Started.pdf \
-	LinuxCNC_Documentation.pdf \
-	LinuxCNC_Developer_Manual.pdf \
-	LinuxCNC_Manual_Pages.pdf \
-	LinuxCNC_Integrator.pdf \
-	)
+PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
+        $(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_EN))))\
+        LinuxCNC_Manual_Pages.pdf \
+        ) \
 
-PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, \
-	LinuxCNC_Getting_Started_fr.pdf \
-	LinuxCNC_User_Manual_fr.pdf \
-	LinuxCNC_HAL_Manual_fr.pdf \
-	LinuxCNC_Integrator_Manual_fr.pdf \
-	)
+PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_FR)))))
 
-PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, \
-	LinuxCNC_Getting_Started_es.pdf \
-	LinuxCNC_Documentation_es.pdf \
-	LinuxCNC_Developer_Manual_es.pdf \
-	)
+PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_ES)))))
 
-PDF_TARGETS_CN := $(addprefix $(DOC_DIR)/, \
-	LinuxCNC_Getting_Started_cn.pdf \
-	)
+PDF_TARGETS_ZH_CN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_ZN_CN)))))
 
-# Chinese PDFs don't build with latex, they do with xetex but that is not on stretch
-#PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_CN)
+# Chinese PDFs only build with latex, which is missing in stretch
+ifneq (, $(shell command -v xetex))
+USING_XETEX = true
+endif
+ifdef USING_XETEX
+PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_ZH_CN)
+DBLATEX_OPTS=--backend xetex
+else
 PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
+endif
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
 
@@ -405,23 +237,23 @@ HTML_TARGETS := \
 	$(DOC_DIR)/html/index.html \
 	$(DOC_DIR)/html/index_es.html \
 	$(DOC_DIR)/html/index_fr.html \
-	$(DOC_DIR)/html/index_cn.html \
+	$(DOC_DIR)/html/index_zh_CN.html \
 
-# Add '--backend xetex' to the --dblatex-opts string to build Chinese PDF
 A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam toc.section.depth 3 \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
-	  --asciidoc-opts="-f $(DOC_SRCDIR)/docbook.conf -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
+	  --asciidoc-opts="-f $(DOC_SRCDIR)/docbook.conf" \
+	  --asciidoc-opts="-f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \
 	  --dblatex-opts "-P doc.publisher.show=0 -P latex.output.revhistory=0 -s $(DOC_SRCDIR)/emc2.sty \
 			  -P latex.hyperparam=colorlinks,linkcolor=blue,filecolor=blue,urlcolor=blue,citecolor=blue \
-                          $(A2X_LATEX_ENCODING)"
+                          $(A2X_LATEX_ENCODING) $(DBLATEX_OPTS)"
 
 ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
-Makefile: $(patsubst %.txt, depends/%.d, $(DOC_SRCS_TXT))
+-include $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
+Makefile: $(patsubst %.adoc, depends/%.d, $(DOC_SRCS))
 endif
 
 docs: manpages
@@ -432,6 +264,10 @@ clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
 
 
+DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
+.PHONY: svgs_made_from_dots
+svgs_made_from_dots: $(DOTFILES:.dot=.svg)
+
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
@@ -440,8 +276,8 @@ ifeq ($(BUILD_DOCS_HTML),yes)
 docs: htmldocs
 install-doc: install-doc-html
 endif
-pdfdocs: $(PDF_TARGETS)
-htmldocs: .htmldoc-stamp checkref
+pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
+htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .html-images-stamp
 	touch $@
@@ -451,7 +287,7 @@ copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
-checkref: checkref_en checkref_fr checkref_es checkref_vi checkref_cn
+checkref: checkref_en checkref_es checkref_fr checkref_hu checkref_vi checkref_zh_CN
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref English $^
@@ -459,10 +295,13 @@ checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/g
 checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/gcode_fr.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref French $^
 
+checkref_hu: $(DOC_TARGETS_HTML_HU) .htmldoc-stamp
+	@$(DOC_SRCDIR)/checkref Hungarian $^
+
 checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/gcode_es.html .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Spanish $^
 
-checkref_cn: $(DOC_TARGETS_HTML_CN) .htmldoc-stamp
+checkref_zh_CN: $(DOC_TARGETS_HTML_ZH_CN) .htmldoc-stamp
 	@$(DOC_SRCDIR)/checkref Chinese $^
 
 checkref_vi: $(DOC_TARGETS_HTML_VI) $(DOC_DIR)/html/gcode_vi.html .htmldoc-stamp
@@ -485,9 +324,8 @@ $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pd
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
-# Chinese PDFs do not build. They can be persuaded to build by using xetex
-# as the a2x backend. See line 403 but even then all characters display as boxes
-$(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf:$(DOC_SRCDIR)/Master_Getting_Started_cn.pdf
+# Chinese PDFs only build when xetex is available.
+$(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Started_zh_CN.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
@@ -497,15 +335,15 @@ $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/Master_Documentation_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
+$(DOC_DIR)/LinuxCNC_User_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
+$(DOC_DIR)/LinuxCNC_HAL_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_Manual.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
+$(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_Manual_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.pdf
+$(DOC_DIR)/LinuxCNC_Developer_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -549,7 +387,7 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 	$(call ADD_HTML_MANPAGES, 3rtapi, API calls: RTAPI)
 	$(call ADD_HTML_MANPAGES, 3hm2,  API calls: Hostmot2)
 	$(call ADD_HTML_MANPAGES, 3, API calls: General)
-	
+
 	# now make sure all manpages made it into the html index
 	FAIL=0; \
 	for F in $$(find $(DOC_DIR)/man/? -type f); do \
@@ -570,19 +408,19 @@ $(DOC_DIR)/html/index_%.html: $(DOC_SRCDIR)/index_%.tmpl ../VERSION $(DOC_SRCDIR
 $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot ../VERSION $(DOC_SRCDIR)/Submakefile
 	(cat $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SRCDIR)/index.foot) | sed "s/@VERSION@/`cat ../VERSION`/" > $@	
 
-$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.txt
+$(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc
 	$(ECHO) Building $@
 	@rm -f $@
 	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/asciideps
+depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
 	@mv $@.tmp $@
 
-objects/%.links-stamp: $(DOC_SRCDIR)/%.txt $(DOC_SRCDIR)/links.xslt
+objects/%.links-stamp: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/links.xslt
 	@mkdir -p `dirname $@`
 	asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm -f $@; exit $$X)
 	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
@@ -595,16 +433,19 @@ objects/%.links: objects/%.links-stamp
 # See http://www.gnu.org/software/make/manual/make.html#Chained-Rules
 .PRECIOUS: objects/%.links-stamp
 
-objects/xref_en.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_EN_SMALL))
+objects/xref_en.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_EN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_es.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_ES_SMALL))
+objects/xref_es.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ES_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_fr.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_FR_SMALL))
+objects/xref_fr.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_FR_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_cn.links: $(patsubst %.txt,objects/%.links,$(DOC_SRCS_CN_SMALL))
+objects/xref_hu.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_HU_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
+objects/xref_zh_CN.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ZH_CN_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
@@ -630,13 +471,13 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 # document tree (docs/html in the git repo).  This is where the CSS files
 # and javascript files will be installed.
 $(DOC_SRCDIR)/%.html: STYLES_SCRIPTS=$(shell \
-    D=$$($(BASEPWD)/../scripts/linuxcnc-python -c "print('../' * '$*'.count('/'))"); \
+    D=$$(python3 -c "print('../' * '$*'.count('/'))"); \
     if [ ! -z $$D ]; then \
         echo "-a 'scriptsdir=$$D' -a 'stylesdir=$$D'"; \
     fi \
 )
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_en.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_en.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -649,7 +490,7 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_fr.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_fr.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -662,7 +503,20 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_es.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_HU_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_hu.links $(LOC_LANG_MAP)
+	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+		 -a linkcss \
+		 $(STYLES_SCRIPTS) \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_hu.links" \
+		 -a stylesheet=linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_es.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -675,14 +529,14 @@ $(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.htm
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.txt,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.txt objects/xref_cn.links $(LOC_LANG_MAP)
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_zh_CN.links $(LOC_LANG_MAP)
 	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -a linkcss \
 		 $(STYLES_SCRIPTS) \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_cn.links" \
+	         -a "linksfile=objects/xref_zh_CN.links" \
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
@@ -691,13 +545,17 @@ $(DOC_DIR)/html/xref_fr.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_S
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
+$(DOC_DIR)/html/xref_hu.html: objects/xref_hu.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+	$(ECHO) Converting $< to HTML
+	@xsltproc --stringparam docname "xref_hu" --stringparam language hungarien --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+
 $(DOC_DIR)/html/xref_es.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
 	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
-$(DOC_DIR)/html/xref_cb.html: objects/xref_cn.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
+$(DOC_DIR)/html/xref_cb.html: objects/xref_zh_CN.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_cn" --stringparam language cjinese --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+	@xsltproc --stringparam docname "xref_zh_CN" --stringparam language cjinese --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 default: docs
 
@@ -714,15 +572,15 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_User_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_HAL_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_Manual_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Developer_Manual.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Developer_Manual_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_User_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_HAL_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_es.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
@@ -748,6 +606,7 @@ docclean:
 	-rm -f $(DOC_TARGETS_HTML) $(DOC_DIR)/html/xref*.html $(DOC_DIR)/html/index*.html $(DOC_DIR)/*.png $(DOC_DIR)/man/*.png
 	-rm -f .htmldoc-stamp
 	-rm -f .html-images-stamp
+	-rm -f $(DOTFILES:.dot=.svg)
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
@@ -782,8 +641,8 @@ endif
 # a2x spuriously warns that this --destination-dir is ignored.  It is *NOT*
 # ignored, don't remove it trying to fix the diagnostic.
 # For more information, see https://github.com/asciidoc/asciidoc/issues/44
-GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.txt, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.txt))
-$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.txt
+GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
+$(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 	@mkdir -p `dirname $@`
 	a2x -v --doctype manpage \
 		--format manpage \

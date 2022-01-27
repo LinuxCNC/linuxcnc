@@ -343,8 +343,8 @@ class StatusLabelDialog(QtWidgets.QDialog):
                   ('Tool Diameter', ['tool_diameter', 6], []),
                   ('Tool Offset', ['tool_offset', 3], []),
                   ('Tool Comment', ['tool_comment', 2], []))
-        node_6 = (('Active G Codes', ['gcodes', 2], []),
-                  ('Active M Codes', ['mcodes', 2], []),
+        node_6 = (('Active G-Codes', ['gcodes', 2], []),
+                  ('Active M-Codes', ['mcodes', 2], []),
                   ('Active G5X System', ['user_system', 2], []))
         node_7 = (('File Name', ['filename', 2], []),
                   ('File Path', ['filepath', 2], []))

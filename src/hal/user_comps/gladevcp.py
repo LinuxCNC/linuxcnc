@@ -226,7 +226,7 @@ def main():
     # it also forwards events to qtvcp
     if opts.push_XID:
         if not opts.debug:
-            # supress warnings when x window closes
+            # suppress warnings when x window closes
             warnings.filterwarnings("ignore")
         # block X errors since Gdk error handling silently exits the
         # program without even the atexit handler given a chance
@@ -240,7 +240,7 @@ def main():
     # it also forwards keyboard events from gladevcp to AXIS
     if opts.parent:
         if not opts.debug:
-            # supress warnings when x window closes
+            # suppress warnings when x window closes
             warnings.filterwarnings("ignore")
         # block X errors since Gdk error handling silently exits the
         # program without even the atexit handler given a chance

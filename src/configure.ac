@@ -33,12 +33,6 @@ fi
 AC_PROG_CXX
 AC_PROG_INSTALL
 
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADER([boost/lockfree/queue.hpp],
-    [], [RTAPI_APP_CFLAGS="$RTAPI_APP_CFLAGS -I external"])
-AC_LANG_POP([C++])
-AC_SUBST([RTAPI_APP_CFLAGS])
-
 m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
@@ -382,7 +376,7 @@ AC_DEFINE_UNQUOTED([RTDIR], "$RTDIR", [Directory of the installed realtime syste
 
 ##############################################################################
 # Section 3                                                                  #
-# aditional checking                                                         #
+# additional checking                                                        #
 # Subsection 3.1 - checking for a CC (we must use the same one used for RT)  #
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 # Subsection 3.3 - check the moduledir where modules can get installed       #
@@ -722,7 +716,7 @@ else
     esac
     LINUXCNC_CONFIG_PATH="~/linuxcnc/configs:/usr/local/etc/linuxcnc/configs:"$(eval echo $EMC2_HELP_DIR)"/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
-    REALTIME=/etc/init.d/realtime
+    REALTIME=${prefix}/lib/linuxcnc/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
     HALLIB_DIR=${prefix}/share/linuxcnc/hallib
 fi
@@ -1009,7 +1003,7 @@ AC_SUBST(YAPPS)
 AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
 AX_PYTHON
 AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
-AX_PYTHON_DEVEL([>='3.7'],,AC_MSG_ERROR([python-dev not found]))
+AX_PYTHON_DEVEL([>='3.6'],,AC_MSG_ERROR([python-dev not found]))
 AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
 
 AC_MSG_CHECKING([whether to build documentation])
@@ -1201,15 +1195,6 @@ AH_TOP([/********************************************************************
 ********************************************************************/
 #ifndef EMC2_CONFIG_H
 #define EMC2_CONFIG_H
-
-/* LINELEN is used throughout for buffer sizes, length of file name strings,
-   etc. Let's just have one instead of a multitude of defines all the same. */
-#define LINELEN 255
-/* Used in a number of places for sprintf() buffers. */
-#define BUFFERLEN 80
-
-#define MM_PER_INCH 25.4
-#define INCH_PER_MM (1.0/25.4)
 ])
 
 AC_CHECK_HEADERS([sys/io.h])
@@ -1414,12 +1399,14 @@ if test "$RUNTIME_CHECK" = "yes"; then
     install with "sudo apt-get install tclx"])
     fi
 
-    AC_MSG_CHECKING([for python pango and cairo modules])
+    AC_MSG_CHECKING([for python pango module])
     if $PYTHON -c "import gi;gi.require_version('Pango', '1.0');from gi.repository import Pango"; then
         AC_MSG_RESULT([found])
     else
         AC_MSG_RESULT(no)
-        AC_MSG_ERROR([Python pango and cairo modules not found!\ninstall with "sudo apt-get install python3-gi"])
+        AC_MSG_ERROR(
+[Python pango module not found!
+install with "sudo apt-get install python3-gi"])
     fi
 fi
 
@@ -1433,7 +1420,7 @@ AC_SUBST([WISH])
 AC_SUBST([TCLSH])
 
 ##############################################################################
-# Section 6 - Miscelaneous support                                           #
+# Section 6 - Miscellaneous support                                          #
 #                                                                            #
 # Subsection 6.1. - provides DATE to output it to the generated files        #
 # Subsection 6.2. - user option to convince make to be quiet during make     #
@@ -1653,7 +1640,6 @@ AC_SUBST([LDFLAGS])
 #AC_CONFIG_FILES([../configs/rtapi.conf ../configs/emc.conf ../configs/hal.conf config.h])
 AC_CONFIG_FILES([../scripts/rtapi.conf])
 AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
-AC_CONFIG_FILES([../scripts/linuxcnc-python], [chmod +x ../scripts/linuxcnc-python])
 AC_CONFIG_FILES([../scripts/linuxcnc_info], [chmod +x ../scripts/linuxcnc_info])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
@@ -1677,7 +1663,7 @@ AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_OUTPUT()
 
 ##############################################################################
-# message to the user what to do next, after a succesfull ./configure        #
+# message to the user what to do next, after a successful ./configure        #
 ##############################################################################
 bold () {
     if tty > /dev/null 2>&1 && type -path tput > /dev/null 2>&1;

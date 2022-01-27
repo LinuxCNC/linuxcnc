@@ -1,0 +1,4 @@
+= Guide de démarrage
+
+include::Getting-Started-with-LinuxCNC.contents_fr.adoc[]
+

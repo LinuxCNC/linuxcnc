@@ -15,12 +15,7 @@
 #
 # use open cv to do camera alignment
 
-import sys
-
-if sys.version_info.major > 2:
-    import _thread as Thread
-else:
-    import thread as Thread
+import _thread as Thread
 
 import hal
 
@@ -77,10 +72,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             self.text = 'Missing\npython-opencv\nLibrary'
         self.pix = None
         self.stopped = False
-        if sys.version_info.major > 2:
-            self.degree = str("\N{DEGREE SIGN}")
-        else:
-            self.degree = u"\N{DEGREE SIGN}".encode('utf-8')
+        self.degree = str("\N{DEGREE SIGN}")
         #self.blobInit()
 
     def _hal_init(self):
@@ -192,7 +184,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return CV.resize(frame, dims, interpolation=CV.INTER_CUBIC)
 
     def zoom(self, frame, scale):
-        # get orignal size of image
+        # get original size of image
         (oh, ow) = frame.shape[:2]
         #############################
         # scale image
@@ -321,13 +313,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         rady = self.diameter/2
         # draw red circles
         gp.setPen(self.circle_color)
-        center = QtCore.QPoint(w/2, h/2)
+        center = QtCore.QPoint(w//2, h//2)
         gp.drawEllipse(center, radx, rady)
 
     def drawCrossHair(self, event, gp):
         size = self.size()
-        w = size.width()/2
-        h = size.height()/2
+        w = size.width()//2
+        h = size.height()//2
         pen0 = QPen(self.cross_pointer_color, 1, QtCore.Qt.SolidLine)
         pen = QPen(self.cross_color, 1, QtCore.Qt.SolidLine)
         gp.translate(w, h)
@@ -371,10 +363,15 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         return self._noRotate
     def reset_wheel_rotation(self):
         self._noRotate = False
-
+    def set_camnum(self, value):
+        self._camNum = value
+    def get_camnum(self):
+        return self._camNum
+    def reset_camnum(self):
+        self._camNum = 0
     # designer will show these properties in this order:
     block_wheel_rotation = QtCore.pyqtProperty(bool, get_wheel_rotation, set_wheel_rotation, reset_wheel_rotation)
-    camera_number = QtCore.pyqtProperty(int, get_wheel_rotation, set_wheel_rotation, reset_wheel_rotation)
+    camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
     def __init__(self, src=0):

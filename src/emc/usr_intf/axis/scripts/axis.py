@@ -228,7 +228,7 @@ help2 = [
     ("", ""),
     ("O", _("Open program")),
     (_("Control-R"), _("Reload program")),
-    (_("Control-S"), _("Save g-code as")),
+    (_("Control-S"), _("Save G-code as")),
     ("R", _("Run program")),
     ("T", _("Step program")),
     ("P", _("Pause program")),
@@ -1495,7 +1495,7 @@ def jogspeed_incremental(dir=1):
         cursel = int(cursel)
     if dir == 1:
         if cursel > 0:
-            # If it was "Continous" just before, then don't change last jog increment!
+            # If it was "Continuous" just before, then don't change last jog increment!
             jogincr_index_last += 1
         if jogincr_index_last >= jogincr_size:
             jogincr_index_last = jogincr_size - 1
@@ -1608,7 +1608,7 @@ def prompt_areyousure(title, text):
     return t.run()
 
 class _prompt_float:
-    """ Prompt for a g-code floating point expression """
+    """ Prompt for a G-code floating point expression """
     def __init__(self, title, text, default, unit_str=''):
         self.unit_str = unit_str
         t = self.t = Toplevel(root_window, padx=7, pady=7)
@@ -4165,7 +4165,7 @@ if os.path.exists(rcfile):
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
 
-# call an empty function that can be overidden
+# call an empty function that can be overridden
 # by an .axisrc user_hal_pins() function
 # then set HAL component ready if the .axisui didn't
 if hal_present == 1 :

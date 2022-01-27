@@ -511,7 +511,7 @@ FUNCTION(read_inputs) {
 
 FUNCTION(write_outputs) {
     int r;
-    // move with limits on postion, velocity, acceleration
+    // move with limits on position, velocity, acceleration
     for (r = 0; r < personality; r++) {
         if (move_in_progress) {
             input.in = goal[r];

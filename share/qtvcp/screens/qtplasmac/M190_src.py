@@ -21,27 +21,27 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 import sys
 import time
-import hal
-from subprocess import Popen,PIPE
+from subprocess import run as RUN
 
-h = hal.component('dummy')
 materialNum = int(float(sys.argv[1]))
 timeout = 0.5
 
 def get_material():
-    return int(hal.get_value('qtplasmac.material_change_number'))
+    response = RUN(['halcmd', 'getp', 'qtplasmac.material_change_number'], capture_output = True)
+    return int(response.stdout.decode())
 
 def set_material(material):
-    hal.set_p('qtplasmac.material_change_number', '{}'.format(material))
+    RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', '{}'.format(material)])
 
 def get_change():
-    return int(hal.get_value('qtplasmac.material_change'))
+    response = RUN(['halcmd', 'getp', 'qtplasmac.material_change'], capture_output = True)
+    return int(response.stdout.decode())
 
 def set_change(value):
-    hal.set_p('qtplasmac.material_change', '{}'.format(value))
+    RUN(['halcmd', 'setp', 'qtplasmac.material_change', '{}'.format(value)])
 
 def set_timeout():
-    hal.set_p('qtplasmac.material_change_timeout', '1')
+    RUN(['halcmd', 'setp', 'qtplasmac.material_change_timeout', 1])
 
 try:
     if materialNum != get_material():

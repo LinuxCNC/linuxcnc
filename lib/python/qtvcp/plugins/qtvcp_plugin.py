@@ -25,7 +25,16 @@ from qtvcp.plugins.led_plugin import LEDPlugin
 from qtvcp.plugins.hal_label_plugin import HALLabelPlugin
 from qtvcp.plugins.detach_tabs_plugin import DetachTabWidgetPlugin
 from qtvcp.plugins.round_progress_bar_plugin import RoundProgressBarPlugin
-from qtvcp.plugins.joypad_plugin import HALPadPlugin
+from PyQt5.QtCore import PYQT_VERSION_STR
+try:
+    v = PYQT_VERSION_STR.split('.')
+    if int(v[1]) > 10:
+        from qtvcp.plugins.joypad_plugin import *
+except:
+    print('PyQt version {} to old for JoyPad widget'.format(PYQT_VERSION_STR))
+
+# plain widgets
+from qtvcp.plugins.nurbs_editor_plugin import NurbsEditorPlugin
 
 # Linuxcnc widgets
 from qtvcp.plugins.container_plugin import StateEnableGridLayoutPlugin

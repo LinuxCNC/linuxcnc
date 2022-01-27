@@ -61,7 +61,7 @@ net Xenable => motenc.0.out-08
 net Yenable => motenc.0.out-09
 net Zenable => motenc.0.out-10
 
-# Connect watchdog reset to mot ion controller.
+# Connect watchdog reset to motion controller.
 #newsig WatchdogRst bit
 #linksp WatchdogRst <= motenc.watchdog-reset
 #linksp WatchdogRst => motion.watchdog-reset-out

@@ -108,12 +108,13 @@ class FileManager(QWidget, _HalWidgetBase):
         self.table.activated.connect(self._getPathActivated)
         self.table.setAlternatingRowColors(True)
 
-        header = self.table.horizontalHeader()       
+        header = self.table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         header.setSectionResizeMode(1, QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QHeaderView.ResizeToContents)
         header.swapSections(1,3)
         header.setSortIndicator(1,Qt.AscendingOrder)
+
         self.table.setSortingEnabled(True)
         self.table.setColumnHidden(2, True) # type
         self.table.verticalHeader().setVisible(False) # row count header
@@ -177,6 +178,30 @@ class FileManager(QWidget, _HalWidgetBase):
         # install jump paths into toolbutton menu
         for i in self._jumpList:
             self.addAction(i)
+
+        # set recorded columns sort settings
+        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
+        sect = self.SETTINGS_.value('sortIndicatorSection', type = int)
+        order = self.SETTINGS_.value('sortIndicatorOrder', type = int)
+        self.SETTINGS_.endGroup()
+        if not None in(sect,order):
+            self.table.horizontalHeader().setSortIndicator(sect,order)
+
+    # when qtvcp closes this gets called
+    # record jump list paths
+    def _hal_cleanup(self):
+        if self.PREFS_:
+            for i, key in enumerate(self._jumpList):
+                if i in(0,1):
+                    continue
+                self.PREFS_.putpref(key, self._jumpList.get(key), str, 'FILEMANAGER_JUMPLIST')
+
+        # record sorted columns
+        h = self.table.horizontalHeader()
+        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
+        self.SETTINGS_.setValue('sortIndicatorSection', h.sortIndicatorSection())
+        self.SETTINGS_.setValue('sortIndicatorOrder', h.sortIndicatorOrder())
+        self.SETTINGS_.endGroup()
 
     #########################
     # callbacks
@@ -427,15 +452,6 @@ class FileManager(QWidget, _HalWidgetBase):
         if self.PREFS_:
             self.PREFS_.putpref('last_loaded_directory', self.model.rootPath(), str, 'BOOK_KEEPING')
             self.PREFS_.putpref('RecentPath_0', fname, str, 'BOOK_KEEPING')
-
-    # when qtvcp closes this gets called
-    # record jump list paths
-    def closing_cleanup__(self):
-        if self.PREFS_:
-            for i, key in enumerate(self._jumpList):
-                if i in(0,1):
-                    continue
-                self.PREFS_.putpref(key, self._jumpList.get(key), str, 'FILEMANAGER_JUMPLIST')
 
 if __name__ == "__main__":
     import sys

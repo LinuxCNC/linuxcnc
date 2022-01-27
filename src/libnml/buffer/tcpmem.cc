@@ -102,7 +102,7 @@ TCPMEM::TCPMEM(const char *_bufline, const char *_procline):CMS(_bufline, _procl
     }
     server_host_entry = NULL;
 
-    /* Set up the socket address stucture. */
+    /* Set up the socket address structure. */
     memset(&server_socket_address, 0, sizeof(server_socket_address));
     server_socket_address.sin_family = AF_INET;
     server_socket_address.sin_port = htons(((u_short) tcp_port_number));

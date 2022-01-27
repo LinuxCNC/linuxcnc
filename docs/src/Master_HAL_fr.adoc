@@ -1,0 +1,38 @@
+:lang: fr
+:toc:
+:ascii-ids:
+:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:revdate: 2021-10-28
+Manuel de HAL V{lversion}; {date}
+=================================
+:masterdir: {indir}
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+The LinuxCNC Team
+
+include::common/overleaf_fr.adoc[]
+
+include::common/outdated-notice_fr.adoc[]
+:leveloffset: 0
+= HAL
+:leveloffset: 1
+include::hal/intro_fr.adoc[]
+include::hal/general_ref_fr.adoc[]
+include::hal/basic_hal_fr.adoc[]
+include::hal/tutorial_fr.adoc[]
+include::hal/halshow_fr.adoc[]
+include::hal/components_fr.adoc[]
+include::hal/rtcomps_fr.adoc[]
+include::hal/hal-examples_fr.adoc[]
+include::hal/halui_fr.adoc[]
+include::hal/comp_fr.adoc[]
+include::hal/halmodule_fr.adoc[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

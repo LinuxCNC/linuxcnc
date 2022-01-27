@@ -18,7 +18,6 @@ from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status
-from functools import partial
 import hal
 
 AUX_PRGM = _loader()
@@ -36,17 +35,16 @@ LOG = logger.getLogger(__name__)
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent=None):
         super(LCDNumber, self).__init__(parent)
-        self._pin_name = ''
-        self._floatTemplate = '{:.4f}'
+        self._floatTemplate = ''
         self._bit_pin_type = False
         self._s32_pin_type = False
         self._float_pin_type = True
 
     def _hal_init(self):
-        if self._pin_name == '':
+        if self._pin_name_ == '':
             pname = self.HAL_NAME_
         else:
-            pname = self._pin_name
+            pname = self._pin_name_
         if self._bit_pin_type:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
@@ -86,11 +84,11 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
                 self[i+'_pin_type'] = False
 
     def set_pin_name(self, value):
-        self._pin_name = value
+        self._pin_name_ = value
     def get_pin_name(self):
-        return self._pin_name
+        return self._pin_name_
     def reset_pin_name(self):
-        self._pin_name = ''
+        self._pin_name_ = ''
 
     def set_bit_pin_type(self, value):
         self._bit_pin_type = value
@@ -124,7 +122,7 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def get_floatTemplate(self):
         return self._floatTemplate
     def reset_floatTemplate(self):
-        self._floatTemplate = '{:.4f}'
+        self._floatTemplate = ''
 
     # designer will show these properties in this order:
     pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
@@ -157,9 +155,13 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         super(Slider, self).__init__(parent)
 
     def _hal_init(self):
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
-        self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        if self._pin_name_ == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name_
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname +'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.HAL_GCOMP_.newpin(pname +'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.set(1)
         self.updateValue(self.value())
         self.valueChanged.connect(lambda data:self.updateValue(data))
@@ -168,6 +170,14 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         scale = self.hal_pin_scale.get()
         self.hal_pin_s.set(data)
         self.hal_pin_f.set(data*scale)
+
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class Dial(QtWidgets.QDial, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -180,10 +190,14 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.scale = 1
 
     def _hal_init(self):
-        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_+'-s'), hal.HAL_S32, hal.HAL_OUT)
-        self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_d = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-d', hal.HAL_FLOAT, hal.HAL_OUT)
-        self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
+        if self._pin_name_ == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name_
+        self.hal_pin_s = self.HAL_GCOMP_.newpin(str(pname +'-s'), hal.HAL_S32, hal.HAL_OUT)
+        self.hal_pin_f = self.HAL_GCOMP_.newpin(pname +'-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_d = self.HAL_GCOMP_.newpin(pname +'-d', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.hal_pin_scale = self.HAL_GCOMP_.newpin(pname +'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.value_changed.connect(lambda data: self.updateScale(data))
         self.hal_pin_scale.set(1)
         self.updateCount(self.value())
@@ -216,6 +230,14 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_f.set(self._currentTotalCount * self.scale)
         self.hal_pin_d.set(self._deltaScaled)
 
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+
 class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
     intOutput = QtCore.pyqtSignal(int)
     floatOutput = QtCore.pyqtSignal(float)
@@ -238,6 +260,14 @@ class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
         super(DoubleScale, self)._pin_update(data)
         self.intOutput.emit(int(self.hal_pin_s.get()))
         self.floatOutput.emit(self.hal_pin_f.get())
+
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 class GridLayout(QtWidgets.QWidget, _HalSensitiveBase):
     def __init__(self, parent=None):
@@ -284,9 +314,9 @@ class RichButton(QtWidgets.QPushButton):
     richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
 
 # LED indicator on the right corner
-class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
+class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(Indicated_PushButton, self).__init__(parent)
+        super(IndicatedPushButton, self).__init__(parent)
         self._indicator_state = False # Current State
 
         # changing text data
@@ -296,8 +326,8 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
 
         # python commands data
         self._python_command = False # use commands
-        self.true_python_command = '''print"true command"'''
-        self.false_python_command = '''print"false command"'''
+        self.true_python_command = '''print("true command")'''
+        self.false_python_command = '''print("false command")'''
 
         # indicator LED data
         self.draw_indicator = False # Show LED
@@ -345,27 +375,51 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     # Override setText function so we can toggle displayed text
     def setText(self, text):
         if not self._state_text:
-            super(Indicated_PushButton, self).setText(text)
+            super(IndicatedPushButton, self).setText(text)
             return
         if self.isCheckable():
             if self.isChecked():
-                super(Indicated_PushButton, self).setText(self._true_string)
+                super(IndicatedPushButton, self).setText(self._true_string)
             else:
-                super(Indicated_PushButton, self).setText(self._false_string)
+                super(IndicatedPushButton, self).setText(self._false_string)
         elif self._indicator_state:
-            super(Indicated_PushButton, self).setText(self._true_string)
+            super(IndicatedPushButton, self).setText(self._true_string)
         else:
-            super(Indicated_PushButton, self).setText(self._false_string)
+            super(IndicatedPushButton, self).setText(self._false_string)
 
     def _hal_init(self):
         if self._HAL_pin:
-            self.hal_pin_led = self.HAL_GCOMP_.newpin(self.HAL_NAME_ + '-led', hal.HAL_BIT, hal.HAL_IN)
+            if self._pin_name_ == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._pin_name_
+            self.hal_pin_led = self.HAL_GCOMP_.newpin(pname + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
         elif self._ind_status:
             self._init_state_change()
         self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
                                  'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal}
         self._localsParameter = {'dir': dir, 'True':True, 'False':False}
+
+        def _update(state):
+            self.setChecked(state)
+            if self._HAL_pin is False:
+                self.indicator_update(state)
+            # if using state labels option update the labels
+            if self._state_text:
+                self.setText(None)
+            # if python commands call them 
+            if self._python_command:
+                if state == None:
+                    state = self._indicator_state
+                self.python_command(state)
+
+        if self.isCheckable():
+            self.toggled[bool].connect(_update)
+        else:
+            self.pressed.connect(lambda: _update(True))
+            self.released.connect(lambda: _update(False))
+        _update(self.isChecked())
 
     def _init_state_change(self):
         def only_false(data):
@@ -488,7 +542,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     # override paint function to first paint the stock button
     # then our indicator paint routine
     def paintEvent(self, event):
-        super(Indicated_PushButton, self).paintEvent(event)
+        super(IndicatedPushButton, self).paintEvent(event)
         if self.draw_indicator:
             self.paintIndicator()
 
@@ -733,6 +787,14 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def reset_false_python_command(self):
         self.false_python_command = ''
 
+    def set_pin_name(self, value):
+        self._pin_name_ = value
+    def get_pin_name(self):
+        return self._pin_name_
+    def reset_pin_name(self):
+        self._pin_name_ = ''
+
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
     indicator_option = QtCore.pyqtProperty(bool, get_indicator, set_indicator, reset_indicator)
     indicator_HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
     indicator_status_option = QtCore.pyqtProperty(bool, get_ind_status, set_ind_status, reset_ind_status)
@@ -1025,7 +1087,7 @@ class Indicated_PushButton(QtWidgets.QPushButton, _HalWidgetBase):
         return setattr(self, item, value)
 
 
-class PushButton(Indicated_PushButton, _HalWidgetBase):
+class PushButton(IndicatedPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
 
@@ -1033,27 +1095,21 @@ class PushButton(Indicated_PushButton, _HalWidgetBase):
     # then the button pins
     def _hal_init(self):
         super(PushButton, self)._hal_init()
-        self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_BIT, hal.HAL_OUT)
+        if self._pin_name_ == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name_
+        self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_BIT, hal.HAL_OUT)
 
         def _update(state):
             self.hal_pin.set(state)
-            self.setChecked(state)
-            if self._HAL_pin is False:
-                self.indicator_update(state)
-            # if using state labels option update the labels
-            if self._state_text:
-                self.setText(None)
-            # if python commands call them 
-            if self._python_command:
-                if state == None:
-                    state = self._indicator_state
-                self.python_command(state)
 
         if self.isCheckable():
             self.toggled[bool].connect(_update)
         else:
-            self.pressed.connect(partial(_update, True))
-            self.released.connect(partial(_update, False))
+            self.pressed.connect(lambda: _update(True))
+            self.released.connect(lambda: _update(False))
+        _update(self.isChecked())
 
 class ScaledLabel(QtWidgets.QLabel):
     def __init__(self, parent=None):

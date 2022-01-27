@@ -102,19 +102,26 @@ QTabBar::tab:!selected {
     margin-top: 2px; /* make non-selected tabs look smaller */
 }
 EditorBase{
- background:lightblue;
+ background:black;
+qproperty-styleColorBackground:grey;
 qproperty-styleColor0: black;
-qproperty-styleColor1: black;
+qproperty-styleColor1: darkblue;
 qproperty-styleColor2: blue;
 qproperty-styleColor3: red;
-qproperty-styleColor4: green;
+qproperty-styleColor4: lightblue;
+qproperty-styleColor5: white;
+qproperty-styleColor6: lightGreen;
+qproperty-styleColor7: yellow ;
 qproperty-styleColorSelectionText: white;
 qproperty-styleColorSelectionBackground: blue;
-qproperty-styleFont0: "Times,12,-1,5,90,0,0,1,1,0";
-qproperty-styleFont1: "Times,12,-1,5,90,1,0,1,0,0";
-qproperty-styleFont2: "Times,12,-1,5,90,0,0,1,1,0";
-qproperty-styleFont3: "Times,12,-1,5,90,0,0,1,1,0";
-qproperty-styleFont4: "Times,12,-1,5,90,0,0,1,1,0";
+qproperty-styleFont0: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont1: "Times,15,-1,5,90,1,0,1,0,0";
+qproperty-styleFont2: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont3: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont4: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont5: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont6: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont7: "Times,15,-1,5,90,0,0,1,1,0";
 }
 
 QSpinBox {

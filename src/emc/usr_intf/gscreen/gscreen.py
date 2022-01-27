@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-#    Gscreen a GUI for linuxcnc cnc controller 
+#    Gscreen a GUI for linuxcnc cnc controller
 #    Chris Morley copyright 2012
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -20,7 +20,7 @@
 """
 # Gscreen is made for running linuxcnc CNC machines
 # Gscreen was built with touchscreens in mind though a mouse works too.
-# a keyboard is necessary for editting gcode
+# a keyboard is necessary for editing gcode
 # Gscreen is, at it's heart, a gladevcp program though loaded in a non standard way.
 # one can also use a second monitor to display a second glade panel
 # this would probably be most useful for user's custom status widgets.
@@ -76,7 +76,7 @@ update_spindle_bar_error_ct_max = 3
 #--------------------------------------------------------
 
 # try to add a notify system so messages use the
-# nice intergrated pop-ups
+# nice integrated pop-ups
 # Ubuntu kinda wrecks this be not following the
 # standard - you can't set how long the message stays up for.
 # I suggest fixing this with a PPA off the net
@@ -100,11 +100,11 @@ try:
     _AUDIO_AVAILABLE = True
     print("**** GSCREEN INFO: audio available!")
 except:
-    print("**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 libray installed?")
+    print("**** GSCREEN WARNING: no audio alerts available - Is python-gst0.10 library installed?")
 
 # BASE is the absolute path to linuxcnc base
 # libdir is the path to Gscreen python files
-# datadir is where the standarad GLADE files are
+# datadir is where the standard GLADE files are
 # imagedir is for icons
 # themedir is path to system's GTK2 theme folder
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
@@ -221,7 +221,7 @@ class Player:
             self.player.set_state(gst.STATE_NULL)
             self.loop.quit()
         elif t == gst.MESSAGE_ERROR:
-            #Error ocurred, print and stop
+            #Error occurred, print and stop
             self.player.set_state(gst.STATE_NULL)
             err, debug = message.parse_error()
             print( "Error: %s" % err, debug)
@@ -613,7 +613,7 @@ class Gscreen:
         self.xml.connect_signals(handlers)
 
         # Look for an optional preferece file path otherwise it uses ~/.gscreen_preferences
-        # then initiate access to saved prefernces
+        # then initiate access to saved preferences
         temp = self.inifile.find("DISPLAY","PREFERENCE_FILE_PATH")
         dbg("**** GSCREEN INFO: Preference file path: %s"%temp)
         self.prefs = preferences.preferences(temp)
@@ -653,12 +653,12 @@ class Gscreen:
         # jogging increments
         increments = self.inifile.find("DISPLAY", "INCREMENTS")
         if increments:
-            if not "continuous" in increments:
-                increments +=",continuous"
             if "," in increments:
                 self.data.jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.jog_increments = increments.split()
+            if not "continuous" in increments.lower():
+                self.data.jog_increments += ["continuous"]
         else:
             if self.machine_units_mm ==self.data._MM:
                 self.data.jog_increments = [".001 mm",".01 mm",".1 mm","1 mm","continuous"]
@@ -669,12 +669,12 @@ class Gscreen:
         # angular jogging increments
         increments = self.inifile.find("DISPLAY", "ANGULAR_INCREMENTS")
         if increments:
-            if not "continuous" in increments:
-                increments +=",continuous"
             if "," in increments:
                 self.data.angular_jog_increments = [i.strip() for i in increments.split(",")]
             else:
                 self.data.angular_jog_increments = increments.split()
+            if not "continuous" in increments.lower():
+                self.data.angular_jog_increments += ["continuous"]
         else:
             self.data.angular_jog_increments = ["1","45","180","360","continuous"]
             self.add_alarm_entry(_("No default angular jog increments entry found in [DISPLAY] of INI file"))
@@ -770,7 +770,7 @@ class Gscreen:
             self.initialize_keybindings()
 
         # TODO the user should be able to invoke this so they know what methods are available
-        # and what handers are registered
+        # and what handlers are registered
         #print handlers
         if "initialize_pins" in dir(self.handler_instance):
             self.handler_instance.initialize_pins()
@@ -923,7 +923,7 @@ class Gscreen:
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
 
     def initialize_preferences(self):
-        """Convience function, calls separate functions\n
+        """Convenience function, calls separate functions\n
         calls:
         self.init_dro_pref()
         self.init_theme_pref()
@@ -1054,7 +1054,7 @@ class Gscreen:
 
     # initialize default widgets
     def initialize_widgets(self):
-        """Convience function, calls separate functions\n
+        """Convenience function, calls separate functions\n
         calls:
         self.init_show_windows()
         self.init_dynamic_tabs()
@@ -1119,7 +1119,7 @@ class Gscreen:
 
 
     def show_try_errors(self):
-        """ Gscreen uses try/except alot to not show errors if a user deletes/renames a widget
+        """ Gscreen uses try/except a lot to not show errors if a user deletes/renames a widget
         But this makes it hard to see real errors,
         so in debug mode
         we print all those errors.
@@ -1209,7 +1209,7 @@ class Gscreen:
         self.set_dtg_color()
 
     def init_screen2(self):
-        """Sets the button that selects the optional second window visibilty
+        """Sets the button that selects the optional second window visibility
             the second window is meant to be placed on a second monitor
         """
         self.widgets.use_screen2.set_active(self.data.use_screen2)
@@ -1220,7 +1220,7 @@ class Gscreen:
         self.widgets.fullscreen1.set_active(self.data.fullscreen1)
 
     def init_gremlin(self):
-        """ initalizes the plot screen options from the data class
+        """ initializes the plot screen options from the data class
             expects the plot widget to be called gremlin
         """ 
         self.widgets.show_offsets.set_active( self.data.show_offsets )
@@ -1232,7 +1232,7 @@ class Gscreen:
 
     def init_manual_spindle_controls(self):
         """ set spindle default start rpm
-            set spindle control widgets to corespond to data class 
+            set spindle control widgets to correspond to data class 
         """
         self.widgets.spindle_start_rpm.set_value(self.data.spindle_start_rpm)
         self.block("s_display_fwd")
@@ -1438,7 +1438,7 @@ class Gscreen:
 
     # buttons that need to be sensitive based on the interpreter running or being idle
     def init_sensitive_run_idle(self):
-        """creates a list of widgets that need to be sensitive to interpeter run/idle
+        """creates a list of widgets that need to be sensitive to interpreter run/idle
            list is held in data.sensitive_run/idle
         """
         self.data.sensitive_run_idle = ["button_edit","button_load","button_mode","button_restart"]
@@ -1547,7 +1547,7 @@ class Gscreen:
     # select this if you want all the default pins or select each call for 
     # which ones you want
     def initialize_pins(self):
-        """convience function that calls all default functions for HAL pins
+        """convenience function that calls all default functions for HAL pins
            calls:
         self.init_spindle_pins()
         self.init_coolant_pins()
@@ -1660,7 +1660,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs X axis positively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_X,1,state)
@@ -1669,7 +1669,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs X axis negatively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_X,0,state)
@@ -1678,7 +1678,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs Y axis positively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Y,1,state)
@@ -1687,7 +1687,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs Y axis negatively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Y,0,state)
@@ -1696,7 +1696,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs Z axis positively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Z,1,state)
@@ -1705,7 +1705,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs Z axis negatively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_Z,0,state)
@@ -1714,7 +1714,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs A axis positively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_A,1,state)
@@ -1723,7 +1723,7 @@ class Gscreen:
         """This calls check_mode() for manual mode
            if in manual mode, jogs A axis negatively
            by calling do_key_jog()
-           It will ether start or stop the jog based on 'state'
+           It will either start or stop the jog based on 'state'
         """
         if self.data._MAN in self.check_mode(): # manual mode required
             self.do_key_jog(_A,0,state)
@@ -1756,7 +1756,7 @@ class Gscreen:
         """This sets the angular_jog adjustment flag
             then jog adjustment changes will adjust angular rather then linear rates.
             This is a callback function from a widget.
-            Tthe widget can be called anything but
+            The widget can be called anything but
             must have an active state such as a toggle button.
         """
         self.data.angular_jog_adjustment_flag = widget.get_active()
@@ -1876,7 +1876,7 @@ class Gscreen:
             If Gscreen is in AUTO mode it will cycle start.
             If Gscreen is in MDI mode it will submit the MDI entry.
             GScreen mode is from data.mode_oder[0]
-            Requires a run toogle action widget called hal_toogleaction_run
+            Requires a run toggle action widget called hal_toogleaction_run
             Requires a MDI widget called hal_mdihistory
             adds button press entries to the alarm page
         """
@@ -1901,7 +1901,7 @@ class Gscreen:
 
     def on_feed_hold_changed(self,hal_object):
         """This is Gscreen's feedhold HAL pin callback function.
-            Requires a toogle action pause widget called hal_action_stop
+            Requires a toggle action pause widget called hal_action_stop
         """
         print("feed-hold change")
         h = self.halcomp
@@ -1911,7 +1911,7 @@ class Gscreen:
     # This can be overridden in a handler file
     def on_tool_change(self,widget):
         """This is a callback function to launch a default manual tool change dialog.
-            This also manupulates the tool change pins:
+            This also manipulates the tool change pins:
             change-tool
             tool-number
             tool-changed
@@ -1979,11 +1979,7 @@ class Gscreen:
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.preset_spindle_dialog = Gtk.Dialog(_("Spindle Speed Preset Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
-
+                   0, destroy_with_parent = True)
         calc = gladevcp.Calculator()
         self.data.preset_spindle_dialog.vbox.pack_start(label, False, False, 0)
         self.data.preset_spindle_dialog.vbox.add(calc)
@@ -2015,10 +2011,7 @@ class Gscreen:
         if self.data.index_tool_dialog: return
         self.data.index_tool_dialog = Gtk.Dialog(_("Manual Tool Index Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         label = Gtk.Label(_("Manual Tool Index Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.index_tool_dialog.vbox.pack_start(label, False, False, 0)
@@ -2028,14 +2021,14 @@ class Gscreen:
         calc.set_property("font","sans 20")
         calc.set_editable(True)
         calc.entry.connect("activate", lambda w : self.data.index_tool_dialog.emit('response',Gtk.ResponseType.ACCEPT))
-        self.data.index_tool_dialog.parse_geometry("400x400")
-        self.data.index_tool_dialog.show_all()
-        calc.num_pad_only(True)
         calc.integer_entry_only(True)
+        calc.num_pad_only(True)
+        self.data.index_tool_dialog.parse_geometry("360x400")
+        self.data.index_tool_dialog.show_all()
         self.data.index_tool_dialog.connect("response", self.on_index_tool_return,calc)
 
     def on_index_tool_return(self,widget,result,calc):
-        """This is a callbck function from the maunal toolchange dialog.
+        """This is a callback function from the maunal toolchange dialog.
         """
         if result == Gtk.ResponseType.ACCEPT:
             raw = calc.get_value()
@@ -2049,7 +2042,7 @@ class Gscreen:
 
     def set_grid_size(self,widget):
         """ This is a callback function for setting the graphics display grid size
-            reguires the grahics display to be called gremlin.
+            reguires the graphics display to be called gremlin.
             requires the calling widget to return a float value
             records the preference in the preference file.
         """
@@ -2059,7 +2052,7 @@ class Gscreen:
 
     # from prefererence page
     def set_spindle_start_rpm(self,widget):
-        """This is a callbck function to set the preset spindle speed.
+        """This is a callback function to set the preset spindle speed.
             requires the calling widget to return a float value.
             calls preset_spindle_speed() function
         """
@@ -2083,7 +2076,7 @@ class Gscreen:
     def change_sound(self,widget,sound):
         """This is a callback function that changes the default sound selected.
             Requires the widget to return a filename.
-            records it in the peference file.
+            records it in the preference file.
         """
         file = widget.get_filename()
         if file:
@@ -2131,7 +2124,7 @@ class Gscreen:
     def on_eventbox_gremlin_enter_notify_event(self,widget,event):
         """This is a callback function facilitate zoom and rotate with touchscreen.
             Requires graphics plot widget to be called 'gremlin'.
-            Requires a graphics selection toogle button 'button_graphics'
+            Requires a graphics selection toggle button 'button_graphics'
             Requires a zoom selection toggle button 'button_zoom'
             Requires a rotate selection toggle button'button_rotate_v'
         """
@@ -2144,7 +2137,7 @@ class Gscreen:
 
     # for plot view controls with touchscreen
     def on_eventbox_gremlin_leave_notify_event(self,widget,event):
-        """This is a callbck function to facilitate touchscreen controls
+        """This is a callback function to facilitate touchscreen controls
         """
         self.widgets.gremlin.select_fire(event.x,event.y)
 
@@ -2155,10 +2148,10 @@ class Gscreen:
         """This is a callback function to control graphics adjustments using
             a mouse or a touchscreen, with selections from screen buttons.
             Requires graphics display to be called 'gremlin'
-            Requires a graphics selection toogle button 'button_graphics'
+            Requires a graphics selection toggle button 'button_graphics'
             Requires a zoom selection toggle button 'button_zoom'
-            Requires a pan vertical selection toogle button 'button_pan_v'
-            Requires a pan horizontal selection toogle button 'button_pan_h'
+            Requires a pan vertical selection toggle button 'button_pan_v'
+            Requires a pan horizontal selection toggle button 'button_pan_h'
             Requires a rotate vertical selection toggle button'button_rotate_v'
             Requires a rotate horixontal selection toggle button'button_rotate_h'
         """
@@ -2197,10 +2190,7 @@ class Gscreen:
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.entry_dialog = Gtk.Dialog(title,
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         calc = gladevcp.Calculator()
         calc.set_editable(True)
         self.data.entry_dialog.vbox.pack_start(label, False, False, 0)
@@ -2504,7 +2494,7 @@ class Gscreen:
             If button_override is active then an override adjustment dialog is launched
             otherwise set_axis_checks() is called.
         """
-        # adjust overrrides
+        # adjust overrides
         if self.widgets.button_override.get_active():
             self.launch_numerical_input("on_adj_overrides_entry_return",widget,True,title=_("Override Entry"))
         # offset origin
@@ -2665,14 +2655,14 @@ class Gscreen:
 
     # This is part of the user message system
     # There is status that prints to the status bar
-    # There is Okdialog that prints a dialog that the user must acknoledge
+    # There is Okdialog that prints a dialog that the user must acknowledge
     # there is yes/no dialog where the user must choose between yes or no
     # you can combine status and dialog messages so they print to the status bar 
     # and pop a dialog
     def on_printmessage(self, pin, pinname,boldtext,text,type):
         """This is a callback function that is part of the user message system
             There is 'status' option that prints to the status bar
-            There is 'okdialog' option that prints a dialog that the user must acknoledge
+            There is 'okdialog' option that prints a dialog that the user must acknowledge
             there is 'yes/no' option where the user must choose between yes or no
             you can combine status and dialog messages so they print to the status bar 
             and pop a dialog
@@ -2719,7 +2709,7 @@ class Gscreen:
         self.update_hal_override_pins()
 
     def toggle_graphic_overrides(self,widget,data):
-        """This is a callback function to toggle between grahic display adjustment buttons.
+        """This is a callback function to toggle between graphic display adjustment buttons.
             Requires toggle buttons widgets named:
             'zoom'
             'pan_v'
@@ -2737,7 +2727,7 @@ class Gscreen:
             self.unblock(button)
 
     def on_hal_status_interp_run(self,widget):
-        """This is a callback function called when linuxcnc's interpeter is running.
+        """This is a callback function called when linuxcnc's interpreter is running.
             It sensitives widgets in a string list called data.sensitive_run_idle
             calls function sensitize_widgets(self.data.sensitive_run_idle,False)
         """
@@ -2745,7 +2735,7 @@ class Gscreen:
         self.sensitize_widgets(self.data.sensitive_run_idle,False)
 
     def on_hal_status_interp_idle(self,widget):
-        """This is a callback function called when linuxcnc's interpeter is idle.
+        """This is a callback function called when linuxcnc's interpreter is idle.
             It un-sensitives widgets in a string list called data.sensitive_run_idle
             calls function sensitize_widgets(self.data.sensitive_run_idle,True)
             It un/sensitizes widgets in a string list called self.data.sensitive_all_homed.
@@ -2923,7 +2913,7 @@ class Gscreen:
         """This is a callback function to set state of gcode edit mode.
             Requires a calling widget that returns state
             Requires a notebook widget called notebook_main
-            Requires a toogle button called button_full_view
+            Requires a toggle button called button_full_view
             Requires a box widget called search_box
             if state False calls edited_gcode_check()
             Calls edit_mode(state)
@@ -2960,7 +2950,7 @@ class Gscreen:
 
     def check_mode(self):
         """This function checks if Gscreen is in jog mode and manual mode
-            Trys to call check_mode() in a handler file instead of this default function
+            Tries to call check_mode() in a handler file instead of this default function
             Requires a notebook widget called notebook_main
             Assumes page 0 is the manual page
             Requires a jog mode toggle button called button_jog_mode
@@ -3043,7 +3033,7 @@ class Gscreen:
     def launch_keyboard(self,args="",x="",y=""):
         """This is a function to show 'Onboard' or 'matchbox' virtual keyboard if available.
             check for key_box widget - if there is, and embedded flag, embed Onboard in it.
-            else launch an independant Onboard inside a dialog so it works in fullscreen
+            else launch an independent Onboard inside a dialog so it works in fullscreen
             (otherwise it hides when main screen is touched)
             else error message
         """
@@ -3132,8 +3122,8 @@ class Gscreen:
             except:
                 self.show_try_errors()
 
-    # this installs local signals unless overriden by custom handlers
-    # HAL pin signal call-backs are covered in the HAL pin initilization functions
+    # this installs local signals unless overridden by custom handlers
+    # HAL pin signal call-backs are covered in the HAL pin initialization functions
     def connect_signals(self, handlers):
 
         signal_list = [
@@ -3272,7 +3262,7 @@ class Gscreen:
                 print(e)
                 print ("**** GSCREEN WARNING: could not connect %s to %s"% (i[1],i[3]))
 
-        # setup signals that can be blocked but not overriden 
+        # setup signals that can be blocked but not overridden 
         for axis in self.data.axis_list:
             cb = "axis_%s"% axis
             i = "_sighandler_axis_%s"% axis
@@ -3789,9 +3779,7 @@ class Gscreen:
             return_method = self.restart_dialog_return
         self.data.restart_dialog = Gtk.Dialog(_("Restart Entry"),
                    self.widgets.window1,
-                   0,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT),
-                   destroy_with_parent = True)
+                   0, destroy_with_parent = True)
         label = Gtk.Label(_("Restart Entry"))
         label.modify_font(pango.FontDescription("sans 20"))
         self.data.restart_dialog.vbox.pack_start(label, False, False, 0)
@@ -3800,22 +3788,25 @@ class Gscreen:
         calc.set_value("%d"%self.data.last_line)
         calc.set_property("font","sans 20")
         calc.set_editable(True)
-        box = Gtk.HButtonBox()
-        upbutton = Gtk.Button(label = _("Up"))
-        box.add(upbutton)
-        enterbutton = Gtk.Button(label = _("Enter"))
-        box.add(enterbutton)
-        downbutton = Gtk.Button(label = _("Down"))
-        box.add(downbutton)
-        calc.calc_box.pack_end(box, expand=False, fill=False, padding=0)
+        calc.integer_entry_only(True)
+        calc.num_pad_only(True)
+        calc.entry.connect("activate",return_method,True,calc)
+        # add additional buttons
+        upbutton = Gtk.Button.new_with_mnemonic(_("_Up     "))
+        upbutton.set_image(Gtk.Image.new_from_icon_name("go-up", Gtk.IconSize.BUTTON))
+        downbutton = Gtk.Button.new_with_mnemonic(_("_Down"))
+        downbutton.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.BUTTON))
+        enterbutton = Gtk.Button.new_with_mnemonic(_("_Jump to"))
+        enterbutton.set_image(Gtk.Image.new_from_icon_name("go-jump", Gtk.IconSize.BUTTON))
+        calc.table.attach(upbutton,3,4,1,2)
+        calc.table.attach(downbutton,3,4,2,3)
+        calc.table.attach(enterbutton,3,4,3,4)
         upbutton.connect("clicked",self.restart_up,calc)
         downbutton.connect("clicked",self.restart_down,calc)
-        enterbutton.connect("clicked",lambda w:calc.entry.emit('activate'))
-        calc.entry.connect("activate",return_method,True,calc)
-        self.data.restart_dialog.parse_geometry("400x400+0+0")
+        enterbutton.connect("clicked", self.restart_set_line,calc)
+
+        self.data.restart_dialog.parse_geometry("410x400+0+0")
         self.data.restart_dialog.show_all()
-        calc.num_pad_only(True)
-        calc.integer_entry_only(True)
         self.data.restart_dialog.connect("response", return_method,calc)
 
     # either start the gcode at the line specified or cancel
@@ -3858,7 +3849,7 @@ class Gscreen:
         tab_cmd   = self.inifile.findall("DISPLAY", "EMBED_TAB_COMMAND")
 
         if len(tab_names) != len(tab_cmd):
-            print (_("Invalid embeded tab configuration")) # Complain somehow
+            print (_("Invalid embedded tab configuration")) # Complain somehow
         if len(tab_location) != len(tab_names):
             for num,i in enumerate(tab_names):
                 try:
@@ -4596,7 +4587,7 @@ class Gscreen:
         self.widgets.led_on.set_active(self.data.machine_on)
 
     def update_limit_override(self):
-        # ignore limts led
+        # ignore limits led
         self.widgets.led_ignore_limits.set_active(self.data.or_limits)
 
     def update_override_label(self):

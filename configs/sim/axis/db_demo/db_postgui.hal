@@ -1,0 +1,89 @@
+# display iocontrol tool prepare/change pins
+# and simulate an automatic toolchanger
+delsig tool:change-loop # remove basic_sim.tcl loops
+delsig tool:prep-loop   # remove basic_sim.tcl loops
+
+loadrt oneshot names=prepare_time,prepare_pulse,change_time,change_pulse
+addf prepare_time  servo-thread
+addf prepare_pulse servo-thread
+addf change_time   servo-thread
+addf change_pulse  servo-thread
+
+setp prepare_time.width     2.0 # simulate changer
+
+setp prepare_pulse.width    1   # (resets at tool-change)
+setp prepare_pulse.rising   0
+setp prepare_pulse.falling  1
+
+setp change_time.width      0.5 # simulate changer
+
+setp change_pulse.width     1   # (resets at tool-prepare)
+setp change_pulse.rising    0
+setp change_pulse.falling   1
+
+#==========================================================
+# simulate tool prepare,tool change
+net db:tool-prepare <= iocontrol.0.tool-prepare
+net db:tool-prepare => change_pulse.reset
+net db:tool-prepare => prepare_time.in
+net db:tool-prepare => pyvcp.tool-prepare
+
+net db:start_prepare_pulse <= prepare_time.out
+net db:start_prepare_pulse => prepare_pulse.in
+
+net db:tool-prepared <= prepare_pulse.out
+net db:tool-prepared => iocontrol.0.tool-prepared
+net db:tool-prepared => pyvcp.tool-prepared
+
+net db:tool-change <= iocontrol.0.tool-change
+net db:tool-change => prepare_pulse.reset
+net db:tool-change => change_time.in
+net db:tool-change => pyvcp.tool-change
+
+net db:start_change_pulse <= change_time.out
+net db:start_change_pulse => change_pulse.in
+
+net db:tool-changed <= change_pulse.out
+net db:tool-changed => iocontrol.0.tool-changed
+net db:tool-changed => pyvcp.tool-changed
+
+net db:tool-number <= iocontrol.0.tool-number
+net db:tool-number => pyvcp.tool-number
+
+net db:tool-prep-index <= iocontrol.0.tool-prep-index
+net db:tool-prep-index => pyvcp.tool-prep-index
+
+net db:tool-prep-number <= iocontrol.0.tool-prep-number
+net db:tool-prep-number => pyvcp.tool-prep-number
+
+net db:tool-prep-pocket <= iocontrol.0.tool-prep-pocket
+net db:tool-prep-pocket => pyvcp.tool-prep-pocket
+
+#==========================================================
+# tooloffsets
+net db:tooloffset.x <= motion.tooloffset.x
+net db:tooloffset.x => pyvcp.tooloffset.x
+
+net db:tooloffset.y <= motion.tooloffset.y
+net db:tooloffset.y => pyvcp.tooloffset.y
+
+net db:tooloffset.z <= motion.tooloffset.z
+net db:tooloffset.z => pyvcp.tooloffset.z
+
+net db:tooloffset.a <= motion.tooloffset.a
+net db:tooloffset.a => pyvcp.tooloffset.a
+
+net db:tooloffset.b <= motion.tooloffset.b
+net db:tooloffset.b => pyvcp.tooloffset.b
+
+net db:tooloffset.c <= motion.tooloffset.c
+net db:tooloffset.c => pyvcp.tooloffset.c
+
+net db:tooloffset.u <= motion.tooloffset.u
+net db:tooloffset.u => pyvcp.tooloffset.u
+
+net db:tooloffset.v <= motion.tooloffset.v
+net db:tooloffset.v => pyvcp.tooloffset.v
+
+net db:tooloffset.w <= motion.tooloffset.w
+net db:tooloffset.w => pyvcp.tooloffset.w

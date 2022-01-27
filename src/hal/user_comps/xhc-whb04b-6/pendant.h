@@ -583,7 +583,7 @@ private:
     ButtonsState mCurrentButtonsState;
     Handwheel    mHandWheel;
     Display      mDisplay;
-    //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed overide otherwise
+    //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed override otherwise
     bool         mIsLeadModeSpindle = false;
     bool         mIsLeadModeFeed = false;
     bool         mIsStepMode_5_10 = false;

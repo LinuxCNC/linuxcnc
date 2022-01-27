@@ -27,7 +27,7 @@
 #include "tooldata.hh"
 #include <sys/poll.h>
 
-#define DB_VERSION "v1.0"
+#define DB_VERSION "v2.0"
 #define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
 
 static bool db_live  = 0;
@@ -290,7 +290,10 @@ int tooldata_db_init(char progname[],int random_toolchanger)
 } // tooldata_db_init()
 
 
-int tooldata_db_notify(int toolno,int pocketno,CANON_TOOL_TABLE tdata)
+int tooldata_db_notify(tool_notify_t ntype,
+                       int toolno,
+                       int pocketno,
+                       CANON_TOOL_TABLE tdata)
 {
     if (!db_live) return 0;   //silently ignore
     char **ttcomments = NULL; //not used with db
@@ -300,12 +303,36 @@ int tooldata_db_notify(int toolno,int pocketno,CANON_TOOL_TABLE tdata)
     // make a tool line suitable for notifying db_program
     // caller may specify pocketno different from tdata.pocketno
     CANON_TOOL_TABLE notifydata;
-    notifydata          = tdata;
+    notifydata = tooldata_entry_init(); //nulls
     notifydata.toolno   = toolno;
     notifydata.pocketno = pocketno;
-    tooldata_format_toolline(pocketno, notifydata, ttcomments, buffer);
-    snprintf(msg,sizeof(msg),"p %s\n",buffer);
-    if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
+    switch (ntype) {
+    case SPINDLE_LOAD: // 'l' command
+         tooldata_format_toolline(pocketno,
+                                  1, // ignore_zero_values
+                                  notifydata, ttcomments, buffer);
+         snprintf(msg,sizeof(msg),"l %s\n",buffer);
+         if (db_debug) {fprintf(stderr,"SPINDLE_LOAD:%s\n",msg);}
+         break;
+    case SPINDLE_UNLOAD: // 'u' command
+         tooldata_format_toolline(pocketno,
+                                  1, // ignore_zero_values
+                                  notifydata, ttcomments, buffer);
+         snprintf(msg,sizeof(msg),"u %s\n",buffer);
+         if (db_debug) {fprintf(stderr,"SPINDLE_UNLOAD:%s\n",msg);}
+         break;
+    case TOOL_OFFSET: // 'p' command
+         notifydata          = tdata;  // from caller
+         notifydata.toolno   = toolno;
+         notifydata.pocketno = pocketno;
+         tooldata_format_toolline(pocketno,
+                                  0, // do not ignore_zero_values
+                                  notifydata, ttcomments, buffer);
+         snprintf(msg,sizeof(msg),"p %s\n",buffer);
+         if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
+         break;
+    default: UNEXPECTED_MSG;
+    }
     send_and_verify(msg);
 
     return 0;

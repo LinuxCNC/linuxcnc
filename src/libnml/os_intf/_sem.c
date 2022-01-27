@@ -23,7 +23,7 @@
 #include <inttypes.h>
 
 /* There are two types of posix semaphores named and unnamed.
-   unamed semaphores can either have the pshared flag set or not
+   unnamed semaphores can either have the pshared flag set or not
    determining whether it can be shared between processes.
    Currently (12/27/02), Linux implements only unnamed posix semaphores
    that are not shared between processes. This is useless to RCSLIB so
@@ -98,7 +98,7 @@ rcs_sem_t *rcs_sem_open(key_t name, int oflag, /* int mode */ ...)
     rcs_sem_t semid, *retval;	/* semaphore id returned */
     int semflg = 0;		/* flag for perms, create, etc. */
 
-    /* if IPC_CREAT is specified for creating the sempahore, then the
+    /* if IPC_CREAT is specified for creating the semaphore, then the
        optional arg is the mode */
     if (oflag & IPC_CREAT) {
 	va_start(ap, oflag);
@@ -173,7 +173,7 @@ int rcs_sem_trywait(rcs_sem_t * sem)
 }
 
 #ifndef _GNU_SOURCE
-#error Must compile with -D_GNU_SOURCE else impliment your own semtimedop() \
+#error Must compile with -D_GNU_SOURCE else implement your own semtimedop() \
        function. 
 #endif
 

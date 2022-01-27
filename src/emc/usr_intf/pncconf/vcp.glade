@@ -688,7 +688,7 @@ panel</property>
                                                     </child>
                                                     <child>
                                                       <object class="GtkRadioButton" id="sideembededgvcp">
-                                                        <property name="label" translatable="yes">Rightside Embeded</property>
+                                                        <property name="label" translatable="yes">Rightside Embedded</property>
                                                         <property name="use_action_appearance">False</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>
@@ -704,7 +704,7 @@ panel</property>
                                                     </child>
                                                     <child>
                                                       <object class="GtkRadioButton" id="centerembededgvcp">
-                                                        <property name="label" translatable="yes">Center Tab Embeded</property>
+                                                        <property name="label" translatable="yes">Center Tab Embedded</property>
                                                         <property name="use_action_appearance">False</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">True</property>

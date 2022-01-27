@@ -405,7 +405,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 
     /*
      * This part clears the list, then add all items back into the list.
-     * If a pin, signal or paramater is showing in the main window, that item
+     * If a pin, signal, or parameter is showing in the main window, that item
      * should be selected in the "Select item to probe" window, when the window
      * is displayed again.
      *
@@ -629,7 +629,7 @@ static void create_probe_window(probe_t * probe)
         gtk_widget_set_size_request(label, 70, -1);
         gtk_notebook_append_page(GTK_NOTEBOOK(probe->notebook), scrolled_window, label);
 
-        /* create and initalize the list to hold the data */
+        /* create and initialize the list to hold the data */
         probe->lists[n] = gtk_tree_view_new();
         gtk_tree_view_set_headers_visible(
                 GTK_TREE_VIEW(probe->lists[n]), FALSE);

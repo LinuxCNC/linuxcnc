@@ -528,6 +528,7 @@ class MyTableModel(QAbstractTableModel):
             #print(">>> setData() role = ", role)
             #print(">>> setData() index.column() = ", index.column())
             if value == Qt.Checked:
+                self.uncheckAllTools()
                 self.arraydata[index.row()][index.column()].setChecked(True)
                 #self.arraydata[index.row()][index.column()].setText("Delete")
                 #print 'selected',self.arraydata[index.row()][1]
@@ -575,11 +576,13 @@ class MyTableModel(QAbstractTableModel):
         """
         Sort table by given column number.
         """
-        self.layoutAboutToBeChanged.emit()
-        self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
-        if order == Qt.DescendingOrder:
-            self.arraydata.reverse()
-        self.layoutChanged.emit()
+        # don't sort checkbox column
+        if Ncol != 0:
+            self.layoutAboutToBeChanged.emit()
+            self.arraydata = sorted(self.arraydata, key=operator.itemgetter(Ncol))
+            if order == Qt.DescendingOrder:
+                self.arraydata.reverse()
+            self.layoutChanged.emit()
 
 if __name__ == "__main__":
     from PyQt5.QtWidgets import QApplication

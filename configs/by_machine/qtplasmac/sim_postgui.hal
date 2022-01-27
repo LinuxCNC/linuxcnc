@@ -1,0 +1,11 @@
+# SIMULATOR PANEL CONNECTIONS
+
+loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui
+net plasmac:torch-on                                    =>  qtplasmac_sim.torch_on
+net sim:arc-voltage-in  qtplasmac_sim.arc_voltage_out-f =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in
+net sim:arc-ok          qtplasmac_sim.arc_ok            =>  db_arc-ok.in
+net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  db_ohmic.in
+net sim:float           qtplasmac_sim.sensor_float      =>  db_float.in
+net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  db_breakaway.in
+net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up
+net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down

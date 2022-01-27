@@ -624,6 +624,10 @@ int main(int argc, char* argv[]) {
                 log_print("SET_AOUT\n");
                 break;
 
+            case EMCMOT_SET_SPINDLE_PARAMS:
+                log_print("SET_SPINDLE_PARAMS, %.2e, %.2e, %.2e, %.2e\n", c->maxLimit, c->min_pos_speed, c->minLimit, c->max_neg_speed);
+                break;
+
             case EMCMOT_SET_SPINDLESYNC:
                 log_print("SET_SPINDLESYNC sync=%06f, flags=0x%08x\n", c->spindlesync, c->flags);
                 break;

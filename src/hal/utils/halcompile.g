@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #    This is 'halcompile', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -15,7 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import print_function
 
 %%
 parser Hal:
@@ -514,7 +512,7 @@ static int comp_id;
             print("RTAPI_MP_ARRAY_INT(personality, %d, \"personality of each %s\");" %(MAX_PERSONALITIES,comp_name), file=f)
 
             # Return personality value.
-            # If requested index excedes MAX_PERSONALITIES, use modulo indexing and give message
+            # If requested index exceeds MAX_PERSONALITIES, use modulo indexing and give message
             print("""
             static int p_value(char* cname, char *name, int idx) {
                 int ans = personality[idx%%%d];

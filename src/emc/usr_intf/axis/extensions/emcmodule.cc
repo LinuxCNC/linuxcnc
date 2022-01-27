@@ -544,6 +544,10 @@ static PyObject *Stat_aout(pyStatChannel *s) {
     return double_array(s->status.motion.analog_output, EMCMOT_MAX_AIO);
 }
 
+static PyObject *Stat_misc_error(pyStatChannel *s){
+  return int_array(s->status.motion.misc_error, EMCMOT_MAX_MISC_ERROR);
+}
+
 static void dict_add(PyObject *d, const char *name, unsigned char v) {
     PyObject *o;
     PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
@@ -738,6 +742,7 @@ static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"homed", (getter)Stat_homed},
     {(char*)"limit", (getter)Stat_limit},
     {(char*)"mcodes", (getter)Stat_activemcodes},
+    {(char*)"misc_error", (getter)Stat_misc_error},
     {(char*)"g5x_offset", (getter)Stat_g5x_offset},
     {(char*)"g5x_index", (getter)Stat_g5x_index},
     {(char*)"g92_offset", (getter)Stat_g92_offset},
@@ -2064,6 +2069,19 @@ static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
     return Py_None;
 }
 
+static PyObject *Logger_get_colors(pyPositionLogger *s) {
+    struct color *c = s->colors;
+    PyObject *result = NULL;
+        result = Py_BuildValue("(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
+             c[0].r,c[0].g,c[0].b,c[0].a,
+             c[1].r,c[1].g,c[1].b,c[1].a,
+             c[2].r,c[2].g,c[2].b,c[2].a,
+             c[3].r,c[3].g,c[3].b,c[3].a,
+             c[4].r,c[4].g,c[4].b,c[4].a,
+             c[5].r,c[5].g,c[5].b,c[5].a);
+    return result;
+    }
+
 static double dist2(double x1, double y1, double x2, double y2) {
     double dx = x2-x1;
     double dy = y2-y1;
@@ -2285,6 +2303,8 @@ static PyMethodDef Logger_methods[] = {
         "set the Z and W depths for foam cutter"},
     {"set_colors", (PyCFunction)Logger_set_colors, METH_VARARGS,
         "set the plotting colors"},
+    {"get_colors", (PyCFunction)Logger_get_colors, METH_NOARGS,
+        "get the plotting colors"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
     {NULL, NULL, 0, NULL},

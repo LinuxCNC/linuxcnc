@@ -13,7 +13,7 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "config.h"     	/* LINELEN definition */
+#include "emc/linuxcnc.h"     	/* LINELEN definition */
 #include <stdlib.h>		/* exit() */
 #include <sys/stat.h>
 #include <string.h>		/* memcpy() */

@@ -55,19 +55,20 @@ TCLSRCS := \
 	../tcl/tooledit.tcl
 
 TOOLI18NSRCS := \
-    ../lib/python/gladevcp/iconview.py \
-    ../lib/python/gladevcp/hal_mdihistory.py \
+	../lib/python/gladevcp/iconview.py \
+	../lib/python/gladevcp/hal_mdihistory.py \
 	../lib/python/gladevcp/offsetpage_widget.py \
 	../lib/python/gladevcp/tooledit_widget.py \
-    ../lib/python/gladevcp/gladevcp-test.glade \
+	../lib/python/gladevcp/gladevcp-test.glade \
 	../lib/python/gladevcp/offsetpage.glade \
-	../lib/python/gladevcp/tooledit_gtk.glade
+	../lib/python/gladevcp/tooledit_gtk.glade \
+	../lib/python/gladevcp/calculator.glade \
+	../lib/python/gladevcp/hal_mdihistory.py
 
 po/linuxcnc.pot:
 	$(ECHO) Localizing linuxcnc.pot
 	$(Q)(cd ..; $(XGETTEXT) --from-code=UTF-8 -k_ -o src/$@ `$(PYTHON) src/po/fixpaths.py -j src $^`)
 	$(Q)touch $@
-TARGETS += po/linuxcnc.pot
 
 pofiles: po/linuxcnc.pot
 	set -x; for i in po/*.po; do msgmerge -U $$i po/linuxcnc.pot; done
@@ -83,7 +84,7 @@ po/linuxcnc.pot: hal/utils/meter.c \
     hal/utils/miscgtk.c
 po/linuxcnc.pot: emc/motion/control.c emc/motion/command.c emc/motion/motion.c emc/motion/homing.c
 
-  po/linuxcnc.pot: hal/classicladder/arithm_eval.c \
+po/linuxcnc.pot: hal/classicladder/arithm_eval.c \
     hal/classicladder/arithm_eval.c \
     hal/classicladder/arrays.c \
     hal/classicladder/calc.c \
@@ -137,7 +138,6 @@ po/gmoccapy/gmoccapy.pot: $(GMOCCAPY_I18N_SRCS)
 	$(XGETTEXT) --from-code=UTF-8 --language=Python \
 		--keyword=_ --keyword=N_ \
 		--output=$@ $^
-TARGETS += po/gmoccapy/gmoccapy.pot
 
 clean: gmoccapy_i18n_clean
 gmoccapy_i18n_clean:

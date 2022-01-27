@@ -7,10 +7,20 @@
     <property name="can_focus">False</property>
     <property name="icon_name">go-previous</property>
   </object>
+  <object class="GtkImage" id="cancel">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">gtk-cancel</property>
+  </object>
   <object class="GtkImage" id="clr">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="stock">gtk-clear</property>
+    <property name="icon_name">gtk-clear</property>
+  </object>
+  <object class="GtkImage" id="ok">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">gtk-ok</property>
   </object>
   <object class="GtkImage" id="pi">
     <property name="height_request">48</property>
@@ -42,14 +52,11 @@
             <signal name="activate" handler="on_displayText_activate" swapped="no"/>
           </object>
           <packing>
-            <property name="expand">True</property>
+            <property name="expand">False</property>
             <property name="fill">True</property>
             <property name="padding">5</property>
             <property name="position">0</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
         <child>
           <object class="GtkTable" id="table1">
@@ -61,14 +68,8 @@
             <property name="row_spacing">5</property>
             <property name="homogeneous">True</property>
             <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
               <object class="GtkButton" id="Left_bracket">
-                <property name="label" translatable="yes">(</property>
+                <property name="label">(</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -94,7 +95,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Right_bracket">
-                <property name="label" translatable="yes">)</property>
+                <property name="label">)</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -122,11 +123,10 @@
             </child>
             <child>
               <object class="GtkButton" id="Seven">
-                <property name="label" translatable="yes">7</property>
+                <property name="label">7</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="xalign">0.46000000834465027</property>
                 <signal name="clicked" handler="on_Seven_clicked" swapped="no"/>
               </object>
               <packing>
@@ -137,7 +137,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Eight">
-                <property name="label" translatable="yes">8</property>
+                <property name="label">8</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -153,7 +153,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Nine">
-                <property name="label" translatable="yes">9</property>
+                <property name="label">9</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -169,7 +169,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Divide">
-                <property name="label" translatable="yes">/</property>
+                <property name="label">/</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -184,22 +184,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="Four">
-                <property name="label" translatable="yes">4</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_Four_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkButton" id="Five">
-                <property name="label" translatable="yes">5</property>
+                <property name="label">5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -215,7 +201,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Six">
-                <property name="label" translatable="yes">6</property>
+                <property name="label">6</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -231,7 +217,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Multiply">
-                <property name="label" translatable="yes">x</property>
+                <property name="label">x</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -246,22 +232,8 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="One">
-                <property name="label" translatable="yes">1</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_One_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkButton" id="Two">
-                <property name="label" translatable="yes">2</property>
+                <property name="label">2</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -277,7 +249,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Three">
-                <property name="label" translatable="yes">3</property>
+                <property name="label">3</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -293,7 +265,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Minus">
-                <property name="label" translatable="yes">-</property>
+                <property name="label">-</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -304,20 +276,6 @@
                 <property name="right_attach">4</property>
                 <property name="top_attach">3</property>
                 <property name="bottom_attach">4</property>
-                <property name="y_options">GTK_FILL</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="Zero">
-                <property name="label" translatable="yes">0</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_Zero_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
                 <property name="y_options">GTK_FILL</property>
               </packing>
             </child>
@@ -339,7 +297,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Equal">
-                <property name="label" translatable="yes">=</property>
+                <property name="label">=</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -355,7 +313,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Add">
-                <property name="label" translatable="yes">+</property>
+                <property name="label">+</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -385,7 +343,7 @@
             </child>
             <child>
               <object class="GtkButton" id="mm_Inch">
-                <property name="label" translatable="yes">mm -&gt; Inch</property>
+                <property name="label" translatable="yes">mm → in</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -400,7 +358,7 @@
             </child>
             <child>
               <object class="GtkButton" id="Inch_mm">
-                <property name="label" translatable="yes">Inch -&gt; mm</property>
+                <property name="label" translatable="yes">in → mm</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -413,15 +371,88 @@
                 <property name="bottom_attach">2</property>
               </packing>
             </child>
+            <child>
+              <object class="GtkButton" id="cancel_button">
+                <property name="label" translatable="yes">_Cancel_</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="image">cancel</property>
+                <property name="use_underline">True</property>
+                <signal name="clicked" handler="on_cancel_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">4</property>
+                <property name="right_attach">5</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="ok_button">
+                <property name="label" translatable="yes">_Ok</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="image">ok</property>
+                <property name="use_underline">True</property>
+                <signal name="clicked" handler="on_ok_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="left_attach">4</property>
+                <property name="right_attach">5</property>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="Zero">
+                <property name="label">0</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_Zero_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+                <property name="y_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="Four">
+                <property name="label">4</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_Four_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="y_options">GTK_FILL</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="One">
+                <property name="label">1</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <signal name="clicked" handler="on_One_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+                <property name="y_options">GTK_FILL</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">True</property>
-            <property name="position">2</property>
+            <property name="position">1</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
         </child>
       </object>
     </child>

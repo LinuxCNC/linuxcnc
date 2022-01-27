@@ -243,7 +243,7 @@
                <enum>QFrame::Raised</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>2</number>
               </property>
               <widget class="QWidget" name="gcode_page">
                <property name="sizePolicy">
@@ -1297,6 +1297,9 @@ OFF</string>
                      <property name="checked">
                       <bool>false</bool>
                      </property>
+                     <property name="pin_name" stdset="0">
+                      <string>btn-laser-on</string>
+                     </property>
                      <property name="indicator_option" stdset="0">
                       <bool>false</bool>
                      </property>
@@ -1837,6 +1840,9 @@ SENSOR</string>
                    </item>
                    <item>
                     <widget class="LED" name="led_probe">
+                     <property name="pin_name" stdset="0">
+                      <string>led-probe</string>
+                     </property>
                      <property name="color">
                       <color>
                        <red>0</red>
@@ -1881,7 +1887,7 @@ SENSOR</string>
                     <number>0</number>
                    </property>
                    <item>
-                    <widget class="PushButton" name="btn_tool_add">
+                    <widget class="IndicatedPushButton" name="btn_tool_add">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -1918,7 +1924,7 @@ SENSOR</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="PushButton" name="btn_tool_delete">
+                    <widget class="IndicatedPushButton" name="btn_tool_delete">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -3322,7 +3328,7 @@ View</string>
                          </widget>
                         </item>
                         <item>
-                         <widget class="PushButton" name="btn_dimensions">
+                         <widget class="QPushButton" name="btn_dimensions">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -3756,8 +3762,8 @@ FILE</string>
                              <string/>
                             </property>
                             <property name="icon">
-                             <iconset>
-                              <normaloff>:/buttons/images/qtdragon/images/Right_arrow.png</normaloff>:/buttons/images/qtdragon/images/Right_arrow.png</iconset>
+                             <iconset resource="qtdragon.qrc">
+                              <normaloff>:/buttons/images/Right_arrow.png</normaloff>:/buttons/images/Right_arrow.png</iconset>
                             </property>
                             <property name="iconSize">
                              <size>
@@ -3794,8 +3800,8 @@ FILE</string>
                              <string/>
                             </property>
                             <property name="icon">
-                             <iconset>
-                              <normaloff>:/buttons/images/qtdragon/images/Left_arrow.png</normaloff>:/buttons/images/qtdragon/images/Left_arrow.png</iconset>
+                             <iconset resource="qtdragon.qrc">
+                              <normaloff>:/buttons/images/Left_arrow.png</normaloff>:/buttons/images/Left_arrow.png</iconset>
                             </property>
                             <property name="iconSize">
                              <size>
@@ -3821,8 +3827,8 @@ FILE</string>
                          </layout>
                         </widget>
                        </item>
-                       <item alignment="Qt::AlignBottom">
-                        <widget class="PushButton" name="btn_gcode_edit">
+                       <item>
+                        <widget class="QPushButton" name="btn_gcode_edit">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -3850,15 +3856,6 @@ GCODE</string>
                          </property>
                          <property name="checkable">
                           <bool>true</bool>
-                         </property>
-                         <property name="python_command_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="true_python_cmd_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="false_python_cmd_string" stdset="0">
-                          <string/>
                          </property>
                         </widget>
                        </item>
@@ -4304,7 +4301,7 @@ ROTATION</string>
                          <number>0</number>
                         </property>
                         <item>
-                         <widget class="PushButton" name="btn_select_log">
+                         <widget class="IndicatedPushButton" name="btn_select_log">
                           <property name="sizePolicy">
                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                             <horstretch>0</horstretch>
@@ -4454,7 +4451,7 @@ TO FILE</string>
                      <item>
                       <layout class="QVBoxLayout" name="probe_layout">
                        <property name="spacing">
-                        <number>4</number>
+                        <number>0</number>
                        </property>
                       </layout>
                      </item>
@@ -5081,7 +5078,7 @@ TO FILE</string>
                            </sizepolicy>
                           </property>
                           <property name="toolTip">
-                           <string>Eanable Webcam for work offset location</string>
+                           <string>Enable Webcam for work offset location</string>
                           </property>
                           <property name="text">
                            <string>USE CAMERA</string>
@@ -5863,6 +5860,201 @@ TO FILE</string>
                            </size>
                           </property>
                          </spacer>
+                        </item>
+                        <item>
+                         <widget class="ActionButton" name="actionbutton_lcnc_status_3">
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>90</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>90</width>
+                            <height>50</height>
+                           </size>
+                          </property>
+                          <property name="text">
+                           <string>CALIBRATION</string>
+                          </property>
+                          <property name="indicator_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="indicator_HAL_pin_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="indicator_status_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="checked_state_text_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="python_command_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="on_color" stdset="0">
+                           <color>
+                            <red>255</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </property>
+                          <property name="shape_option" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="off_color" stdset="0">
+                           <color>
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                           </color>
+                          </property>
+                          <property name="indicator_size" stdset="0">
+                           <double>0.300000000000000</double>
+                          </property>
+                          <property name="circle_diameter" stdset="0">
+                           <double>10.000000000000000</double>
+                          </property>
+                          <property name="right_edge_offset" stdset="0">
+                           <double>0.000000000000000</double>
+                          </property>
+                          <property name="top_edge_offset" stdset="0">
+                           <double>0.000000000000000</double>
+                          </property>
+                          <property name="corner_radius" stdset="0">
+                           <double>5.000000000000000</double>
+                          </property>
+                          <property name="height_fraction" stdset="0">
+                           <double>0.300000000000000</double>
+                          </property>
+                          <property name="width_fraction" stdset="0">
+                           <double>0.900000000000000</double>
+                          </property>
+                          <property name="true_state_string" stdset="0">
+                           <string>True</string>
+                          </property>
+                          <property name="false_state_string" stdset="0">
+                           <string>False</string>
+                          </property>
+                          <property name="true_python_cmd_string" stdset="0">
+                           <string>print&quot;true command&quot;</string>
+                          </property>
+                          <property name="false_python_cmd_string" stdset="0">
+                           <string>print&quot;false command&quot;</string>
+                          </property>
+                          <property name="invert_the_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_paused_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_estopped_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_on_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_idle_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_homed_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_flood_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_mist_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_block_delete_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_optional_stop_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_joint_homed_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_limits_overridden_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_manual_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_mdi_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_auto_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_spindle_stopped_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_spindle_fwd_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="is_spindle_rev_status" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number_status" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="launch_status_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="launch_calibration_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>0.300000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>P</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                          <property name="actionName" stdset="0">
+                           <string>tool.status</string>
+                          </property>
+                         </widget>
                         </item>
                         <item>
                          <widget class="ActionButton" name="actionbutton_lcnc_status">
@@ -7401,13 +7593,16 @@ MM/MIN</string>
                          <property name="orientation">
                           <enum>Qt::Vertical</enum>
                          </property>
+                         <property name="pin_name" stdset="0">
+                          <string>slider-jogspeed-linear</string>
+                         </property>
                          <property name="jograte_rate" stdset="0">
                           <bool>true</bool>
                          </property>
                         </widget>
                        </item>
                        <item alignment="Qt::AlignHCenter">
-                        <widget class="PushButton" name="btn_jog_l_slow">
+                        <widget class="IndicatedPushButton" name="btn_jog_l_slow">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -7743,7 +7938,7 @@ MM/MIN</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_43">
                  <item>
-                  <widget class="PushButton" name="btn_start">
+                  <widget class="IndicatedPushButton" name="btn_start">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -8398,7 +8593,7 @@ OFF</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="PushButton" name="btn_spindle_pause">
+                  <widget class="IndicatedPushButton" name="btn_spindle_pause">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -8430,11 +8625,14 @@ SPINDLE</string>
                    <property name="checked">
                     <bool>false</bool>
                    </property>
+                   <property name="pin_name" stdset="0">
+                    <string/>
+                   </property>
                    <property name="indicator_option" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="indicator_HAL_pin_option" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                    <property name="checked_state_text_option" stdset="0">
                     <bool>true</bool>
@@ -10103,7 +10301,7 @@ ZERO</string>
                        </widget>
                       </item>
                       <item row="1" column="5">
-                       <widget class="PushButton" name="btn_home_x">
+                       <widget class="IndicatedPushButton" name="btn_home_x">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -10135,6 +10333,9 @@ ZERO</string>
                          <bool>true</bool>
                         </property>
                         <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
                          <bool>true</bool>
                         </property>
                         <property name="checked_state_text_option" stdset="0">
@@ -10168,13 +10369,16 @@ ZERO</string>
                         <property name="is_homed_status" stdset="0">
                          <bool>false</bool>
                         </property>
+                        <property name="is_joint_homed_status" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="joint" stdset="0">
                          <number>0</number>
                         </property>
                        </widget>
                       </item>
                       <item row="2" column="5">
-                       <widget class="PushButton" name="btn_home_y">
+                       <widget class="IndicatedPushButton" name="btn_home_y">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -10203,6 +10407,9 @@ ZERO</string>
                          <bool>true</bool>
                         </property>
                         <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
                          <bool>true</bool>
                         </property>
                         <property name="checked_state_text_option" stdset="0">
@@ -10232,6 +10439,12 @@ ZERO</string>
                         </property>
                         <property name="false_state_string" stdset="0">
                          <string>HOME</string>
+                        </property>
+                        <property name="is_joint_homed_status" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="joint_number_status" stdset="0">
+                         <number>1</number>
                         </property>
                         <property name="joint" stdset="0">
                          <number>1</number>
@@ -10239,7 +10452,7 @@ ZERO</string>
                        </widget>
                       </item>
                       <item row="3" column="5">
-                       <widget class="PushButton" name="btn_home_z">
+                       <widget class="IndicatedPushButton" name="btn_home_z">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -10268,6 +10481,9 @@ ZERO</string>
                          <bool>true</bool>
                         </property>
                         <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_status_option" stdset="0">
                          <bool>true</bool>
                         </property>
                         <property name="checked_state_text_option" stdset="0">
@@ -10298,8 +10514,11 @@ ZERO</string>
                         <property name="false_state_string" stdset="0">
                          <string>HOME</string>
                         </property>
+                        <property name="is_joint_homed_status" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="joint_number_status" stdset="0">
-                         <number>0</number>
+                         <number>2</number>
                         </property>
                         <property name="joint" stdset="0">
                          <number>2</number>
@@ -10307,7 +10526,7 @@ ZERO</string>
                        </widget>
                       </item>
                       <item row="0" column="4" colspan="2">
-                       <widget class="PushButton" name="btn_home_all">
+                       <widget class="IndicatedPushButton" name="btn_home_all">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -10588,6 +10807,9 @@ ZERO</string>
                         <property name="orientation">
                          <enum>Qt::Horizontal</enum>
                         </property>
+                        <property name="pin_name" stdset="0">
+                         <string>slider-jogspeed-angular</string>
+                        </property>
                         <property name="jograte_rate" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -10637,7 +10859,7 @@ ZERO</string>
                        </widget>
                       </item>
                       <item>
-                       <widget class="PushButton" name="btn_jog_a_slow">
+                       <widget class="IndicatedPushButton" name="btn_jog_a_slow">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                           <horstretch>0</horstretch>
@@ -10802,6 +11024,9 @@ ZERO</string>
                              </property>
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="pin_name" stdset="0">
+                              <string>slider-override-maxv</string>
                              </property>
                              <property name="rapid_rate" stdset="0">
                               <bool>false</bool>
@@ -11101,6 +11326,9 @@ ZERO</string>
                              </property>
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="pin_name" stdset="0">
+                              <string>slider-override-rapid</string>
                              </property>
                              <property name="rapid_rate" stdset="0">
                               <bool>true</bool>
@@ -11406,6 +11634,9 @@ ZERO</string>
                              </property>
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="pin_name" stdset="0">
+                              <string>slider-override-feed</string>
                              </property>
                              <property name="feed_rate" stdset="0">
                               <bool>true</bool>
@@ -11738,6 +11969,9 @@ ZERO</string>
                              </property>
                              <property name="orientation">
                               <enum>Qt::Horizontal</enum>
+                             </property>
+                             <property name="pin_name" stdset="0">
+                              <string>slider-override-spindle</string>
                              </property>
                              <property name="rapid_rate" stdset="0">
                               <bool>false</bool>
@@ -13119,7 +13353,7 @@ ZERO</string>
                 </widget>
                </item>
                <item row="1" column="2" alignment="Qt::AlignHCenter">
-                <widget class="LED" name="led_at_speed">
+                <widget class="StateLED" name="led_at_speed">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -13141,6 +13375,12 @@ ZERO</string>
                  <property name="toolTip">
                   <string>Spindle at speed</string>
                  </property>
+                 <property name="pin_name" stdset="0">
+                  <string/>
+                 </property>
+                 <property name="halpin_option" stdset="0">
+                  <bool>false</bool>
+                 </property>
                  <property name="diameter">
                   <number>12</number>
                  </property>
@@ -13150,6 +13390,9 @@ ZERO</string>
                    <green>255</green>
                    <blue>0</blue>
                   </color>
+                 </property>
+                 <property name="is_spindle_at_speed_status" stdset="0">
+                  <bool>true</bool>
                  </property>
                 </widget>
                </item>
@@ -13605,7 +13848,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>12:04:45 AM</string>
+            <string>05:15:10 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -13663,8 +13906,13 @@ ZERO</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>PushButton</class>
+   <class>IndicatedPushButton</class>
    <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -13724,6 +13972,11 @@ ZERO</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
    <class>StatusLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.status_label</header>
@@ -13735,7 +13988,7 @@ ZERO</string>
   </customwidget>
   <customwidget>
    <class>ActionButton</class>
-   <extends>QPushButton</extends>
+   <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
   <customwidget>
@@ -13924,30 +14177,14 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_gcode_edit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_gcode_edit_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1088</x>
-     <y>-20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btn_copy_right</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>513</x>
+     <y>275</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -13962,8 +14199,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>513</x>
+     <y>341</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -14074,8 +14311,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>299</x>
-     <y>465</y>
+     <x>85</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>-3</x>
@@ -14090,8 +14327,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>465</y>
+     <x>85</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -14176,22 +14413,6 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>1098</x>
      <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_dimensions</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_dimensions_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>482</x>
-     <y>346</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>454</x>
-     <y>-54</y>
     </hint>
    </hints>
   </connection>
@@ -14464,6 +14685,38 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>719</x>
      <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_dimensions</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_dimensions_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>331</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_edit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gcode_edit_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>468</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>-88</y>
     </hint>
    </hints>
   </connection>

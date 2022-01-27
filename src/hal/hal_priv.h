@@ -265,7 +265,7 @@ typedef struct {
 
     The following structures implement the function/thread portion
     of the HAL API.  There are two linked lists, one of functions,
-    sorted by name, and one of threads, sorted by execution freqency.
+    sorted by name, and one of threads, sorted by execution frequency.
     Each thread has a linked list of 'function entries', structs
     that identify the functions connected to that thread.
 */

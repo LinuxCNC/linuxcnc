@@ -1,0 +1,17 @@
+:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+Integrator Information V{lversion}, {date}
+==========================================
+:lang: en
+:masterdir: {indir}
+:revdate: 2021-10-28
+
+:leveloffset: 1
+
+include::integrator/steppers.adoc[]
+
+include::integrator/stepper-timing.adoc[]
+
+include::integrator/wiring.adoc[]
+
+// vim: set syntax=asciidoc:

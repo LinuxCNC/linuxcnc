@@ -1,0 +1,68 @@
+:lang: fr
+:toc:
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:ascii-ids:
+:lversion: {sys: cat ../VERSION}
+:revdate: 2021-10-28
+Manuel de l'intégrateur V{lversion}, {date}
+===========================================
+:masterdir: {indir}
+:leveloffset: 1
+
+image::common/images/emc2-intro.png[]
+
+The LinuxCNC Team
+
+include::common/overleaf_fr.adoc[]
+
+include::common/outdated-notice_fr.adoc[]
+include::common/Integrator_Concepts_fr.adoc[]
+:leveloffset: 0
+= Configuration de LinuxCNC
+:leveloffset: 1
+include::install/Latency_Test_fr.adoc[]
+include::config/ini_config_fr.adoc[]
+include::config/ini_homing_fr.adoc[]
+include::config/lathe_config_fr.adoc[]
+include::hal/haltcl_fr.adoc[]
+include::config/linuxcnc2hal_fr.adoc[]
+include::config/stepper_fr.adoc[]
+:leveloffset: 0
+= Interfaces graphiques utilisateur
+:leveloffset: 1
+include::gui/pyvcp_fr.adoc[]
+include::gui/pyvcp_examples_fr.adoc[]
+include::gui/gladevcp_fr.adoc[]
+:leveloffset: 0
+
+= Notions avancées
+:leveloffset: 1
+include::config/python-interface.adoc[]
+include::motion/kinematics_fr.adoc[]
+include::motion/tweaking_steppers_fr.adoc[]
+include::motion/pid_theory_fr.adoc[]
+:leveloffset: 0
+= La logique Ladder
+:leveloffset: 1
+include::ladder/ladder_intro_fr.adoc[]
+include::ladder/classic_ladder_fr.adoc[]
+include::ladder/ladder_examples_fr.adoc[]
+:leveloffset: 0
+= Exemples d'utilisation
+:leveloffset: 1
+include::examples/pci_parallel_port_fr.adoc[]
+include::examples/spindle_fr.adoc[]
+include::examples/mpg_fr.adoc[]
+include::examples/gs2_example_fr.adoc[]
+:leveloffset: 0
+= Diagnostics
+:leveloffset: 1
+include::common/Stepper_Diagnostics_fr.adoc[]
+include::common/Glossary_fr.adoc[]
+include::common/gpld-copyright.adoc[]
+
+// = Index
+
+// vim: set syntax=asciidoc:
+
+

@@ -1,6 +1,4 @@
 
-from __future__ import division
-
 from PyQt5 import QtCore, QtGui, Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import pyqtSlot

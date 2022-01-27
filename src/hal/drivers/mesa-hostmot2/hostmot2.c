@@ -114,7 +114,7 @@ static void hm2_read(void *void_hm2, long period) {
     hm2_sserial_process_tram_read(hm2, period);
     hm2_bspi_process_tram_read(hm2, period);
     hm2_absenc_process_tram_read(hm2, period);
-    //UARTS PktUARTS need to be explicity handled by an external component
+    //UARTS PktUARTS need to be explicitly handled by an external component
 
     hm2_tp_pwmgen_process_read(hm2); // check the status of the fault bit
     hm2_dpll_process_tram_read(hm2, period);
@@ -143,7 +143,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
     hm2_ssr_prepare_tram_write(hm2);
-    //UARTS need to be explicity handled by an external component
+    //UARTS need to be explicitly handled by an external component
     hm2_tram_write(hm2);
 
     // these usually do nothing

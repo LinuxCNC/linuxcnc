@@ -100,7 +100,7 @@ net Xmtr-cmd scale_x.out => lowpass_x.in
 net Ymtr-cmd scale_y.out => lowpass_y.in
 net Zmtr-cmd scale_z.out => lowpass_z.in
 
-# set "inertia" here, probalby by trial and error
+# set "inertia" here, probably by trial and error
 setp lowpass_x.gain 0.1
 setp lowpass_y.gain 0.1
 setp lowpass_z.gain 0.1

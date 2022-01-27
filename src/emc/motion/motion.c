@@ -54,10 +54,28 @@ static int num_joints = EMCMOT_MAX_JOINTS;	/* default number of joints present *
 RTAPI_MP_INT(num_joints, "number of joints used in kinematics");
 static int num_extrajoints = 0;	/* default number of extra joints present */
 RTAPI_MP_INT(num_extrajoints, "number of extra joints (not used in kinematics)");
-static int num_dio = DEFAULT_DIO;	/* default number of motion synched DIO */
+static int num_dio = 0;	/* default number of motion synched DIO */
 RTAPI_MP_INT(num_dio, "number of digital inputs/outputs");
-static int num_aio = DEFAULT_AIO;	/* default number of motion synched AIO */
+
+#define MAX_IO 64
+static char *names_din[MAX_IO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_din, MAX_IO, "names of digital inputs");
+static char *names_dout[MAX_IO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_dout, MAX_IO, "names of digital outputs");
+
+static int num_aio = 0;	/* default number of motion synched AIO */
 RTAPI_MP_INT(num_aio, "number of analog inputs/outputs");
+
+
+static char *names_ain[MAX_IO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_ain, MAX_IO, "names of analog inputs");
+static char *names_aout[MAX_IO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_aout, MAX_IO, "names of analog outputs");
+static int num_misc_error = DEFAULT_MISC_ERROR;	/* default number of misc errors */
+RTAPI_MP_INT(num_misc_error, "number of misc error inputs");
+
+static char *names_misc_errors[MAX_IO] = {0,};
+RTAPI_MP_ARRAY_STRING(names_misc_errors, MAX_IO, "names of errors");
 
 static int unlock_joints_mask = 0;/* mask to select joints for unlock pins */
 RTAPI_MP_INT(unlock_joints_mask, "mask to select joints for unlock pins");
@@ -130,7 +148,7 @@ static int export_axis(char c, axis_hal_t  * addr);
 static int export_spindle(int num, spindle_hal_t * addr);
 
 /* init_comm_buffers() allocates and initializes the command,
-   status, and error buffers used to communicate witht the user
+   status, and error buffers used to communicate with the user
    space parts of emc.
 */
 static int init_comm_buffers(void);
@@ -206,6 +224,18 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
     va_end(apc);
 }
 
+int count_names(char *names[]){
+  int namecount = 0;
+  int i;
+  for (i = 0; i < MAX_IO; i++) {
+    if (((names[i] == NULL) || (*names[i] == 0))){
+      break;
+    }
+    namecount = i + 1;
+  }
+  return namecount;
+}
+
 int rtapi_app_main(void)
 {
     int retval;
@@ -250,12 +280,37 @@ int rtapi_app_main(void)
     }
     motion_num_spindles = num_spindles;
 
+    if(num_dio && (names_dout[0] || names_din[0])){
+      rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for digital pins\n"));
+      return -1;
+    }
+    else if(names_dout[0] || names_din[0]){
+      num_dio = count_names(names_dout);
+      num_dio = (num_dio > count_names(names_din)) ? num_dio : count_names(names_din);
+    }
+    else if(!num_dio){
+      num_dio = DEFAULT_DIO;
+    }
+
+
     if (( num_dio < 1 ) || ( num_dio > EMCMOT_MAX_DIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    _("MOTION: num_dio is %d, must be between 1 and %d\n"), num_dio, EMCMOT_MAX_DIO);
 	hal_exit(mot_comp_id);
 	return -1;
     }
+
+  if(num_aio && (names_aout[0] || names_ain[0])){
+    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for analog pins\n"));
+    return -1;
+  }
+  else if(names_aout[0] || names_ain[0]){
+    num_aio = count_names(names_aout);
+    num_aio = (num_aio > count_names(names_ain)) ? num_aio : count_names(names_ain);
+  }
+  else if(!num_aio){
+    num_aio = DEFAULT_AIO;
+  }
     
     if (( num_aio < 1 ) || ( num_aio > EMCMOT_MAX_AIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -263,6 +318,25 @@ int rtapi_app_main(void)
 	hal_exit(mot_comp_id);
 	return -1;
     }
+
+  if(num_misc_error && (names_misc_errors[0])){
+    rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for misc error\n"));
+    return -1;
+  }
+  else if(names_misc_errors[0]){
+    num_misc_error = count_names(names_dout);
+    num_misc_error = (num_misc_error > count_names(names_din)) ? num_misc_error : count_names(names_din);
+  }
+  else if(!num_misc_error){
+    num_misc_error = DEFAULT_MISC_ERROR;
+  }
+
+  if (( num_misc_error < 0 ) || ( num_misc_error > EMCMOT_MAX_MISC_ERROR )) {
+    rtapi_print_msg(RTAPI_MSG_ERR,
+                    _("MOTION: num_misc_error is %d, must be between 0 and %d\n"), num_misc_error, EMCMOT_MAX_MISC_ERROR);
+    hal_exit(mot_comp_id);
+    return -1;
+  }
 
     /* initialize/export HAL pins and parameters */
     retval = init_hal_io();
@@ -362,19 +436,70 @@ static int init_hal_io(void)
 
     /* export motion-synched digital output pins */
     /* export motion digital input pins */
-    for (n = 0; n < num_dio; n++) {
-	if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d", n)) != 0) goto error;
-	if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n)) != 0) goto error;
+    if(names_din[0]){
+      for (n = 0; n < num_dio; n++) {
+        if(names_din[n] == NULL || (*names_din[n] == 0)){break;}
+        if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.din-%s", names_din[n])) != 0) goto error;
+      }
+    }
+    else{
+      for (n = 0; n < num_dio; n++) {
+        if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_di[n]), mot_comp_id, "motion.digital-in-%02d", n)) != 0)
+          goto error;
+      }
     }
 
-    /* export motion-synched analog output pins */
-    /* export motion analog input pins */
+    if(names_dout[0]){
+      for (n = 0; n < num_dio; n++) {
+        if(names_dout[n] == NULL || (*names_dout[n] == 0)){break;}
+        if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.dout-%s", names_dout[n])) != 0) goto error;
+      }
+    }
+    else{
+      for (n = 0; n < num_dio; n++) {
+        if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->synch_do[n]), mot_comp_id, "motion.digital-out-%02d",n)) != 0) goto error;
+      }
+    }
+
+  /* export motion-synched analog output pins */
+  /* export motion analog input pins */
+  if(names_ain[0]){
     for (n = 0; n < num_aio; n++) {
-	if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.analog-out-%02d", n)) != 0) goto error;
-	if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) != 0) goto error;
+      if(names_ain[n] == NULL || (*names_ain[n] == 0)){break;}
+      if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.ain-%s", names_ain[n])) != 0) goto error;
     }
+  }
+  else{
+    for (n = 0; n < num_aio; n++) {
+    if ((retval = hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->analog_input[n]), mot_comp_id, "motion.analog-in-%02d", n)) != 0) goto error;
+    }
+  }
+  if(names_aout[0]){
+    for (n = 0; n < num_aio; n++) {
+      if(names_aout[n] == NULL || (*names_aout[n] == 0)){break;}
+      if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.aout-%s", names_aout[n])) != 0) goto error;
+    }
+  }
+  else{
+    for (n = 0; n < num_aio; n++) {
+  if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->analog_output[n]), mot_comp_id, "motion.analog-out-%02d", n)) != 0) goto error;
+    }
+  }
 
-    /* export machine wide hal pins */
+  if(names_misc_errors[0]){
+    for (n = 0; n < num_misc_error; n++) {
+      if(names_misc_errors[n] == NULL || (*names_misc_errors[n] == 0)){break;}
+      if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->misc_error[n]), mot_comp_id, "motion.err-%s", names_misc_errors[n])) != 0) goto error;
+    }
+  }
+  else {
+    /* export misc error input pins */
+    for (n = 0; n < num_misc_error; n++) {
+  if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->misc_error[n]), mot_comp_id, "motion.misc-error-%02d", n)) != 0) goto error;
+    }
+  }
+
+  /* export machine wide hal pins */
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->motion_enabled), mot_comp_id, "motion.motion-enabled")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->in_position), mot_comp_id, "motion.in-position")) != 0) goto error;
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->motion_type), mot_comp_id, "motion.motion-type")) != 0) goto error;
@@ -454,7 +579,11 @@ static int init_hal_io(void)
 	 *(emcmot_hal_data->analog_output[n]) = 0.0;
 	 *(emcmot_hal_data->analog_input[n]) = 0.0;
     }
-    
+
+    for (n = 0; n < num_misc_error; n++) {
+      *(emcmot_hal_data->misc_error[n]) = 0;
+    }
+
     /*! \todo FIXME - these don't really need initialized, since they are written
        with data from the emcmotStatus struct */
     *(emcmot_hal_data->motion_enabled) = 0;
@@ -770,6 +899,7 @@ static int init_comm_buffers(void)
     emcmotConfig->numSpindles = num_spindles;
     emcmotConfig->numDIO = num_dio;
     emcmotConfig->numAIO = num_aio;
+    emcmotConfig->numMiscError = num_misc_error;
 
     ZERO_EMC_POSE(emcmotStatus->carte_pos_cmd);
     ZERO_EMC_POSE(emcmotStatus->carte_pos_fb);

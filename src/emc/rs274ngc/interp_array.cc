@@ -321,6 +321,6 @@ const read_function_pointer Interp::default_readers[256] = {
 and _readers. */
 
 /* The notion of "global variables" is a misnomer - These last four should only
-   be accessable by the interpreter and not exported to the rest of emc */
+   be accessible by the interpreter and not exported to the rest of emc */
 
 

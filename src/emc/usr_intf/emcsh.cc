@@ -22,6 +22,7 @@
 #include <tcl.h>
 #include <tk.h>
 
+#include "emc/linuxcnc.h"
 #include "rcs.hh"
 #include "posemath.h"		// PM_POSE, TO_RAD
 #include "emc.hh"		// EMC NML
@@ -254,7 +255,7 @@
 
   emc_override_limit none | 0 | 1
   returns state of override, sets it or deactivates it (used to jog off hardware limit switches)
-  
+
   emc_optional_stop  none | 0 | 1
   returns state of optional setop, sets it or deactivates it (used to stop/continue on M1)
 
@@ -274,10 +275,10 @@
   1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
   For angular joints, something close to 1.000 is deemed "deg",
   PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
- 
+
   emc_program_units
   emc_program_linear_units
-  Returns "inch", "mm", "cm", or "none", for the corresponding linear 
+  Returns "inch", "mm", "cm", or "none", for the corresponding linear
   units that are active in the program interpreter.
 
   emc_program_angular_units
@@ -300,7 +301,7 @@
   emc_display_linear_units
   emc_display_angular_units
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the linear or angular units that are active in the display. 
+  for the linear or angular units that are active in the display.
   This is effectively the value of linearUnitConversion or
   angularUnitConversion, resp.
 
@@ -308,7 +309,7 @@
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
- 
+
   emc_angular_unit_conversion {deg | rad | grad | auto}
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
@@ -2259,7 +2260,7 @@ static int emc_program_codes(ClientData clientdata,
     if (emcUpdateType == EMC_UPDATE_AUTO) {
 	updateStatus();
     }
-    // fill in the active G codes
+    // fill in the active G-codes
     codes_string[0] = 0;
     for (t = 1; t < ACTIVE_G_CODES; t++) {
 	code = emcStatus->task.activeGCodes[t];
@@ -3547,16 +3548,16 @@ int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
     return TCL_OK;
 }
 
-extern "C" 
+extern "C"
 int Linuxcnc_Init(Tcl_Interp * interp);
 int Linuxcnc_Init(Tcl_Interp * interp)
 {
-    if (Tcl_InitStubs(interp, "8.1", 0) == NULL) 
+    if (Tcl_InitStubs(interp, "8.1", 0) == NULL)
     {
         return TCL_ERROR;
     }
 
-    /* 
+    /*
      * Call Tcl_CreateCommand for application-specific commands, if
      * they weren't already created by the init procedures called above.
      */
@@ -3854,7 +3855,7 @@ int Linuxcnc_Init(Tcl_Interp * interp)
     Tcl_CreateObjCommand(interp, "multihead", multihead, (ClientData) NULL,
                          (Tcl_CmdDeleteProc*) NULL);
 
-    /* 
+    /*
      * Specify a user-specific startup file to invoke if the application
      * is run interactively.  Typically the startup file is "~/.apprc"
      * where "app" is the name of the application.  If this line is deleted

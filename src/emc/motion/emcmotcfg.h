@@ -33,6 +33,7 @@
 #define EMCMOT_MAX_SPINDLES 8
 #define EMCMOT_MAX_DIO 64
 #define EMCMOT_MAX_AIO 64
+#define EMCMOT_MAX_MISC_ERROR 64
 
 #if (EMCMOT_MAX_DIO > 64) || (EMCMOT_MAX_AIO > 64)
 #error A 64 bit bitmask is used in the planner.  Don't increase these until that's fixed.
@@ -61,6 +62,7 @@
 /* default number of motion io pins */
 #define DEFAULT_DIO 4
 #define DEFAULT_AIO 4
+#define DEFAULT_MISC_ERROR 0
 
 /* size of motion queue
  * a TC_STRUCT is about 512 bytes so this queue is

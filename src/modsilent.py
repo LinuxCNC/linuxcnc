@@ -18,6 +18,6 @@ for line in kbuild.stderr:
     m = duplicate_warning.match(line.decode('utf-8'))
     if m and m.group(1) in permitted_duplicates: continue
 
-    sys.stderr.write(line)
+    sys.stderr.write(line.decode('utf8'))
 
 raise SystemExit(kbuild.wait())

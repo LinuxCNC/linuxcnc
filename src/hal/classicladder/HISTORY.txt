@@ -20,9 +20,9 @@ v0.3 (18 August 2001 - Editor completed)
     - Can modify label of the rung to jump to for -(J) coil.
     - Label / comment of rung saved when edited.
     - We must not allow to change of current rung when editing one.
-    - Add/Insert/Delete a rung, buttons usuable.
+    - Add/Insert/Delete a rung, buttons usable.
     - Load/Save/SaveAs/Run-Stop/About buttons added in main window
-    - Load/SaveAs using path selection requester (datas should be in a directory).
+    - Load/SaveAs using path selection requester (data should be in a directory).
     - Save rungs,timers,monostables parameters.
 
 v0.4 (20 October 2001 - Arithmetic expressions evaluator)
@@ -40,11 +40,11 @@ v0.4 (20 October 2001 - Arithmetic expressions evaluator)
 
 v0.5 (30 December 2001 - Real time support)
     - ClassicLadder_gtk.c created from file classic_ladder.c which keep only the
-      global variables + 2 fonctions for loading/saving directory datas.
+      global variables + 2 functions for loading/saving directory data.
     - Global variables are now allocated and freed.
     - RTLinux support added.
       The refresh of the rungs are done in a RTLinux module in real-time.
-      The Gtk application compiled for this version do not refreh the rungs.
+      The Gtk application compiled for this version do not refresh the rungs.
       The Gtk application and RTLinux module share the same global variables
       allocated with mbuff.
     - Physical inputs and outputs have the same memory as the bits (VarBits + offsets).
@@ -117,7 +117,7 @@ v0.5.5 (18 August 2002)
     - Show the duration of the last scan of the rungs in micro-seconds if calc of the
       rungs is done under RTLinux.
     - Program can be split in many sections : new window 'Sections manager' added.
-    - New format of the rungs files including Prev & Next rung informations. When saved,
+    - New format of the rungs files including Prev & Next rung information. When saved,
       the rung number do no more change.
       Warning, old classicladder versions will not be able to read these new files !
     - New (C)all coil for sub-routines.
@@ -147,14 +147,14 @@ v0.6.3 (15 April 2003)
       (comment GTK_INTERFACE in the Makefile).
 
 v0.6.4 (19 July 2003)
-    - Possibility to load a config file at startup with the sizes of differents
+    - Possibility to load a config file at startup with the sizes of different
       arrays to alloc. Interesting for really embedded system where there isn't a
       lot of memory. Patch send by Thomas Gleixner.
-    - Some big variables only usefull for editor no more allocated if compiled for an
+    - Some big variables only useful for editor no more allocated if compiled for an
       embedded target without GTK. Patch send by Thomas Gleixner.
     - Possibility to build a library with ClassicLadder. Patch send by Thomas Gleixner.
     - Parameters added to the RTLinux module to be able as in the normal version
-      to use the sizes choosen.
+      to use the sizes chosen.
     - Made a script (run_rt) to be able to launch the real-time version without having
       to use the Makefile for that, and made the necessary to pass the sizes parameters
       to the RT module.
@@ -164,7 +164,7 @@ v0.6.4 (19 July 2003)
     - In FindFreeRung( ) start to search from rung 0 instead of the FirstRung value !?
 
 v0.6.5 (17 August 2003)
-    - Physical inputs/outputs interface completly rewritten :
+    - Physical inputs/outputs interface completely rewritten :
       Removed the parallel ports access code.
       Added possibility to map the logicals I/O of classicladder with any addresses ports
       or a Comedi device (www.comedi.org). Thanks to Edouard Tisserand for that nice
@@ -173,7 +173,7 @@ v0.6.5 (17 August 2003)
       Parameters can be easily edited in the new tabs "Inputs" and "Outputs" in
       the configuration window.
       New file : ioconf.csv in the projects directories.
-    - Calling ioperm( ) to allow to read/write adresses ports directly
+    - Calling ioperm( ) to allow to read/write addresses ports directly
       even if not under RTLinux ! (but you must be root, so that it works...)
       A lot of people wanted it : no real-time, but hardware access under Linux, which
       is enough and easier in schools to learn ladder programming!
@@ -189,7 +189,7 @@ v0.6.5 (17 August 2003)
 
 v0.6.6 (10 November 2003)
    - RTAI support. Patch send by Paul Corner. Thanks to him for that nice work.
-   - Some adjustements so that RTLinux works again... I hope I have not broken
+   - Some adjustments so that RTLinux works again... I hope I have not broken
      something for RTAI. I've not take the time to install it for now, so
      can not say, if all is still working correctly...
    - File config_gtk.c failed to compile with old gcc 2.95, because of some
@@ -199,14 +199,14 @@ v0.6.6 (10 November 2003)
      to limited range of data type). Added (char) before -1.
    - Added a new define in Makefile (MAKE_IO_ACCESS) so that it works on some
      processors others than x86. For example, PowerPC !
-   - arrays.c bad test to verify alloc successfull for sequential array (Paul Corner).
+   - arrays.c bad test to verify alloc successful for sequential array (Paul Corner).
    - Script run_rt was not working if you don't give any configplc file as 2nd
      argument (RTLinux modules were not inserted).
 
 v0.7.0 (3 January 2004 - Sequential Editor added)
    - Added the sequential editor !
-     It's the first version of a big part of code, so do not be too much suprised
-     if somes cases do not work correctly as they should! ;-)
+     It's the first version of a big part of code, so do not be too much surprised
+     if some cases do not work correctly as they should! ;-)
      I've made some tests on little examples, and it is already possible to make
      some nice grafcets easily !!!
      With the editor, it will also be possible to test the calc part with another
@@ -247,7 +247,7 @@ v0.7.3 (28 December 2004)
    - InitTimers and InitMonostables at the start added. Else it was crashing if saving
      project from new (reported by J-Ch Dorian).
    - Directly edit of properties with keyboard possible (idea by J-Ch Dorian).
-     (window is closed then opened so that it is on top actived, GTK1.2 miss a present()
+     (window is closed then opened so that it is on top activated, GTK1.2 miss a present()
      function for windows...?)
    - Modbus/TCP server added (default port is 9502).
 
@@ -293,7 +293,7 @@ v0.7.71 (20 June 2006)
 v0.7.80 (18 July 2006)
    - Added the new following variables Tx,V & Tx,P & Mx,V & Mx,P
      (on the TODO list since nearly the start, but claimed by Jarl Stefansson, and so here it is!)
-   - Lot of modifications done in the generic variables parser to be able to use theses new
+   - Lot of modifications done in the generic variables parser to be able to use these new
      variables in the arithmetic evaluator.
    - Added verification that the type of variable is a boolean for contacts/coils.
    - Rename buttons "Validate" per "Apply" in properties and "Ok" in toolbar.
@@ -320,7 +320,7 @@ v0.7.91 (17 August 2006)
      increased vertically displaying many rungs) allow now you to select the "current" rung,
      the one that will be modified when edited.
    - Possible partial print of the grafcet (if the lifts not set at the left-top). Fixed.
-   - Modified color for the corners of comments in sequential (usefull to read long strings).
+   - Modified color for the corners of comments in sequential (useful to read long strings).
    - Confirmation quit message now displayed only if parameters modified (but no deep tests
      to verify that it isn't the same parameters than before!)
    - To delete a "big" element, you had to click on the top-right of it. No more necessary.
@@ -372,12 +372,12 @@ v0.7.110 (8 May 2007)
      parameter), was crashing (like in v0.7.101, where ConfigHardware must be called in the
      logic calc thread).
    - Reset button now init all the variables.
-   - When another section choosed (and under edit), current operation wasn't really properly
+   - When another section chosen (and under edit), current operation wasn't really properly
      canceled (discovered with the fact that the positions of properties window were lost).
    - Filter on projects names *.clp in load/save dialog (and for old csv directories).
    - Show symbols names (if checked) instead of %Tx, %Mx, %Cx for blocks.
    - Little modification in sequential edit (CommonSearchForManyStepsOrTransi) from emc2.
-   - Contant ARITHM_EXPR_SIZE more longer, otherwise too short with some variables...
+   - Constant ARITHM_EXPR_SIZE more longer, otherwise too short with some variables...
    - Display error messages gtk requester if hardware config failed (just a message in
      current console before...)
    - If an eval/compar was set with a blank arithmetic expression, its same buffer was then
@@ -392,7 +392,7 @@ v0.7.110 (8 May 2007)
    - More tooltips on the toolbar (again thanks to Chris Morley for idea and patch, but
      all strings helps stored in two arrays for ladder & sequential).
    - Period refresh value can be adjusted in the config window and is saved in the project file.
-   - Can now adjust the sizes contants in config window, values saved in the project file.
+   - Can now adjust the sizes constants in config window, values saved in the project file.
    - Some reorganisations and clean-up of code in general...
      (erased DYNAMIC_PLCSIZE constant, always used!)
    - Example parallel_port_direct had a blank I/O configuration since a long time...
@@ -432,11 +432,11 @@ v0.7.122 (26 August 2007)
 v0.7.123 (4 November 2007)
    - Define added to be able to compile (or not) the old timers/monostables blocks.
      (OLD_TIMERS_MONOS in Makefile) 
-     Usefull for compatibility with old projects. The new IEC timers can do all !
+     Useful for compatibility with old projects. The new IEC timers can do all !
    - Backported the Windows modifications done for the port.
    - When clicking on a ladder element, display its properties in the new status bar.
    - Modified color of the grid during edit.
-   - files.c splitted (new files_project.c for project part).
+   - files.c split (new files_project.c for project part).
    - Now saving only not blank arithmetic expressions (number added before) in file.
    - Some preparation works in files.c (xml comment format line+"cl_" prefix for file names).
    - Again some cleanups...
@@ -445,6 +445,6 @@ v0.7.123 (4 November 2007)
      displaying text functions).
      Lot of code changes behind, hope nothing broken...
    - In internal TimerIEC have preset an current value now in number of base units, and
-     using WriteVar() call to updates them (just usefull for me on another project).
+     using WriteVar() call to updates them (just useful for me on another project).
    - In internal Counters using WriteVar() call to updates public variables (same reason).
 

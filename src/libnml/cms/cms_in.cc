@@ -15,7 +15,7 @@
 *   CMS_HEADER before each message. Non-queuing buffers have only a
 *   CMS_HEADER before the only message.
 *   If they end in "encoded" they are for buffers that will neutrally
-*   encoded in some processor architecture independant data format such
+*   encoded in some processor architecture independent data format such
 *   as XDR (eXternal Data Representation), otherwise the buffer must be
 *   in the format used by the same compiler as this is compiled in and
 *   for the same processor architecture and the function name will end
@@ -48,7 +48,7 @@ int cms_print_queue_full_messages = 1;
 * the memory at _global.
 * Parameters:
 * _local - Address of local buffer where user has stored messages in or will
-* read messages from whithin this process.
+* read messages from within this process.
 * _global - Address of shared or global memory buffer used to communicate with
 * other  process.
 ************************************************************************/
@@ -1387,7 +1387,7 @@ CMS_STATUS CMS::write_raw(void *user_data, int *serial_number)
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the begining of the buffer. */
+/* 1. Read the qeuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
@@ -1600,7 +1600,7 @@ CMS_STATUS CMS::write_encoded()
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the begining of the buffer. */
+/* 1. Read the qeuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
@@ -1822,7 +1822,7 @@ CMS_STATUS CMS::write_if_read_raw(void *user_data, int *serial_number)
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the begining of the buffer. */
+/* 1. Read the qeuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
@@ -2044,7 +2044,7 @@ CMS_STATUS CMS::write_if_read_encoded()
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the begining of the buffer. */
+/* 1. Read the qeuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
