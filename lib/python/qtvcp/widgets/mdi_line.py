@@ -59,7 +59,7 @@ class MDI(QLineEdit):
         try:
             fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
             fp = open(fp, 'r')
-            self.mdiLast = fp.readlines()[-1].lower() or None
+            self.mdiLast = fp.readlines()[-1].lower().strip() or None
             fp.close()
         except:
             self.mdiLast = None
@@ -67,7 +67,7 @@ class MDI(QLineEdit):
 
     def submit(self):
         self.mdiError = False
-        text = str(self.text()).rstrip()
+        text = str(self.text()).strip()
         if text == '': return
         if text == 'HALMETER':
             AUX_PRGM.load_halmeter()
