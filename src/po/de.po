@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-28 13:41+0000\n"
+"PO-Revision-Date: 2022-01-28 16:17+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -2583,9 +2583,9 @@ msgid "joint %d following error"
 msgstr "Motor %d Positionssfehler"
 
 #: src/emc/motion/control.c:816
-#, fuzzy, c-format
+#, c-format
 msgid "Motion Stopped by misc error %d"
-msgstr "Bewegung gestoppt wegen unbestimmten Fehler %d"
+msgstr "Bewegung gestoppt wegen unbestimmten Fehlers %d"
 
 #: src/emc/motion/control.c:1410 src/emc/motion/control.c:1496
 #, c-format
@@ -2655,9 +2655,9 @@ msgid "positive"
 msgstr "Positiv"
 
 #: src/emc/motion/command.c:273
-#, fuzzy, c-format
+#, c-format
 msgid "%s move on line %d fails kinematicsInverse"
-msgstr "%s Bewegung in Zeile %d provoziert Fehler bei kinematicsInverse"
+msgstr "%s Bewegung in Zeile %d löste Fehler bei kinematicsInverse aus"
 
 #: src/emc/motion/command.c:288
 #, c-format
@@ -2700,7 +2700,6 @@ msgid "need to be enabled, in coord mode for linear move"
 msgstr ""
 
 #: src/emc/motion/command.c:1106
-#, fuzzy
 msgid "invalid params in linear command"
 msgstr "ungültige Parameter in linearem Kommando"
 
@@ -3087,7 +3086,6 @@ msgstr ""
 "FEHLER CLASSICLADDER-   Error initializing classicladder user module.\n"
 
 #: src/hal/classicladder/classicladder.c:255
-#, fuzzy
 msgid ""
 "INFO CLASSICLADDER-   No ladder GUI requested-Realtime runs till HAL "
 "closes.\n"
@@ -3105,12 +3103,10 @@ msgid "Project failed to load..."
 msgstr "Projekt konnte nicht geladen werden..."
 
 #: src/hal/classicladder/classicladder.c:286
-#, fuzzy
 msgid "GUI reloaded with existing ladder program"
 msgstr "GUI neu geladen mit bestehendem SPS Programm"
 
 #: src/hal/classicladder/classicladder.c:294
-#, fuzzy
 msgid ""
 "INFO CLASSICLADDER-   Ladder GUI closed. Realtime runs till HAL closes\n"
 msgstr ""
@@ -3146,7 +3142,6 @@ msgstr ""
 "SPS Programm angehalten - drücke run Button um es weiterlaufen zu lassen."
 
 #: src/hal/classicladder/classicladder_gtk.c:344
-#, fuzzy
 msgid "Started Ladder program - press stop to pause."
 msgstr "SPS Program gestartet - drücke stop zum Pausieren."
 
@@ -3368,7 +3363,6 @@ msgid "Display symbols"
 msgstr "Anzeigeoptionen"
 
 #: src/hal/classicladder/classicladder_gtk.c:816
-#, fuzzy
 msgid "Statusbar"
 msgstr "Statuszeile"
 
@@ -3423,7 +3417,7 @@ msgid "About"
 msgstr "Über"
 
 #: src/hal/classicladder/classicladder_gtk.c:938
-#, fuzzy, c-format
+#, c-format
 msgid "%d us"
 msgstr "%d µs"
 
@@ -6204,7 +6198,6 @@ msgid "Multiple Tabs with Features"
 msgstr "Mehrere Registerkarten mit Funktionen"
 
 #: tcl/ngcgui.tcl:1855
-#, fuzzy
 msgid "Finalize all Tabs?"
 msgstr "Alle Tabs finalisieren?"
 
@@ -6225,12 +6218,10 @@ msgid "Error: "
 msgstr "Fehler: "
 
 #: tcl/ngcgui.tcl:1874
-#, fuzzy
 msgid "Autosend disabled, Ctrl-A toggles autosend"
 msgstr "Automatisches Senden deaktiviert, Strg-A schaltet autosend ein/aus"
 
 #: tcl/ngcgui.tcl:1876
-#, fuzzy
 msgid "File saving enabled -- Finalize to save"
 msgstr "Datei speichern aktiviert -- Finalisiere zum Sichern"
 
@@ -6243,17 +6234,14 @@ msgid "Disallowed overwrite of"
 msgstr "Unzulässiges Überschreiben von"
 
 #: tcl/ngcgui.tcl:1930
-#, fuzzy
 msgid "FEATURE"
 msgstr "FEATURE"
 
 #: tcl/ngcgui.tcl:1937
-#, fuzzy
 msgid "feature line added"
 msgstr "Eigenschaft-Zeile hinzugefügt"
 
 #: tcl/ngcgui.tcl:1941
-#, fuzzy
 msgid "remaining_features line added"
 msgstr "verbleibende_Eigenschaften-Zeile hinzugefügt"
 
@@ -6266,12 +6254,10 @@ msgid "activated"
 msgstr "aktiviert"
 
 #: tcl/ngcgui.tcl:1955
-#, fuzzy
 msgid "restores"
 msgstr "stellt wieder her"
 
 #: tcl/ngcgui.tcl:1994
-#, fuzzy
 msgid "NOTREACHED mode"
 msgstr "NOTREACHED Modus"
 
@@ -6288,7 +6274,6 @@ msgid "call subroutine file"
 msgstr "Unterprogrammdatei aufrufen"
 
 #: tcl/ngcgui.tcl:2415
-#, fuzzy
 msgid "Enter parms for 1st feature"
 msgstr "Eingabe von Parametern für erstes Feature"
 
@@ -6303,12 +6288,10 @@ msgid "Ready to make New Outfile"
 msgstr "Bereit für Outfile zu erstellen"
 
 #: tcl/ngcgui.tcl:2440 tcl/ngcgui.tcl:2473
-#, fuzzy
 msgid "Enter parms for feature "
 msgstr "Eingabe von Parametern für Feature "
 
 #: tcl/ngcgui.tcl:2460
-#, fuzzy
 msgid "feature"
 msgstr "Feature"
 
@@ -6329,7 +6312,6 @@ msgid "Missing parameters"
 msgstr "Fehlende Parameter"
 
 #: tcl/ngcgui.tcl:2509
-#, fuzzy
 msgid "Parse Error"
 msgstr "Fehler beim Parsen"
 
@@ -6346,9 +6328,8 @@ msgid "Preamble Error"
 msgstr "Fehler in Preamble"
 
 #: tcl/ngcgui.tcl:2530
-#, fuzzy
 msgid "Null Postamble"
-msgstr "Null Postabmle"
+msgstr "Null Postamble"
 
 #: tcl/ngcgui.tcl:2535
 msgid "Read Postamble"
@@ -6359,7 +6340,6 @@ msgid "Postamble Error"
 msgstr "Fehler in Postamble"
 
 #: tcl/ngcgui.tcl:2544
-#, fuzzy
 msgid "Read Subfile"
 msgstr "Lese Unterdatei"
 
@@ -6399,7 +6379,6 @@ msgid "Expand sub"
 msgstr "Pins aufklappen"
 
 #: tcl/ngcgui.tcl:2585
-#, fuzzy
 msgid "Retain values"
 msgstr "Erhalte Werte"
 
@@ -6437,7 +6416,6 @@ msgid "OFF"
 msgstr "AUS"
 
 #: tcl/ngcgui.tcl:3002
-#, fuzzy
 msgid "Toggle autosend"
 msgstr "Autosend ein-/ausschalten"
 
@@ -6450,7 +6428,6 @@ msgid "Set entries to default values"
 msgstr "Einträge auf Standardwerte festlegen"
 
 #: tcl/ngcgui.tcl:3005 tcl/ngcgui.tcl:3019 tcl/ngcgui.tcl:3021
-#, fuzzy
 msgid "Open editor specified by"
 msgstr "Öffne Editor spezifiziert durch"
 
@@ -6460,7 +6437,6 @@ msgid "on last outfile"
 msgstr "auf letzter Ausgabedatei"
 
 #: tcl/ngcgui.tcl:3007
-#, fuzzy
 msgid "toggle expand subroutines"
 msgstr "Erweitern Unterroutinen ein-/ausschalten"
 
@@ -6482,7 +6458,6 @@ msgid "Restart (cancel pending)"
 msgstr "Neustart (cancel pending)"
 
 #: tcl/ngcgui.tcl:3012
-#, fuzzy
 msgid "(re)Read Preamble"
 msgstr "Lese Preambel"
 
@@ -6491,17 +6466,15 @@ msgid "(re)Read Postamble"
 msgstr "Lese Postambel"
 
 #: tcl/ngcgui.tcl:3014
-#, fuzzy
 msgid "(re)Read Subfile"
-msgstr "Lese Subfile"
+msgstr "Lese Unterdatei"
 
 #: tcl/ngcgui.tcl:3015
 #, fuzzy
 msgid "toggle retain values"
-msgstr "retain values ein-/ausschalten"
+msgstr "Eingaben erhalten ein-/ausschalten"
 
 #: tcl/ngcgui.tcl:3016
-#, fuzzy
 msgid "toggle output file verbosity"
 msgstr "Ausgabedatei Gesprächigkeit ein-/ausschalten"
 
@@ -6510,7 +6483,6 @@ msgid "Show status"
 msgstr "Status anzeigen"
 
 #: tcl/ngcgui.tcl:3018
-#, fuzzy
 msgid "Show full status (debug info)"
 msgstr "Vollständigen Statusbericht (Debuginformation)"
 
@@ -6519,17 +6491,14 @@ msgid "on current subfile"
 msgstr "in der aktuellen Unterdatei"
 
 #: tcl/ngcgui.tcl:3022
-#, fuzzy
 msgid "on current preamble"
 msgstr "auf aktueller Preambel"
 
 #: tcl/ngcgui.tcl:3025
-#, fuzzy
 msgid " Escape Return to Preview page"
 msgstr " Mit Escape zur Voransicht zurückkehren"
 
 #: tcl/ngcgui.tcl:3102
-#, fuzzy
 msgid "Editing requires setting for environmental variable VISUAL"
 msgstr "Für das Editieren muss die Umgebungsvariable VISUAL gesetzt sein"
 
@@ -6592,7 +6561,6 @@ msgid "Problem creating page"
 msgstr "Problem beim Seiten-Erstellung"
 
 #: tcl/ngcgui.tcl:3758
-#, fuzzy
 msgid "entrykeybindings not available"
 msgstr "Tastenbelegungen nicht verfügbar"
 
@@ -6610,7 +6578,6 @@ msgid "Warning"
 msgstr "Warnung"
 
 #: tcl/ngcgui.tcl:3812
-#, fuzzy
 msgid "File absolute path specifier conflicts with searchpath result"
 msgstr "Absoluter Datei-Pfadangabe in Konflikt mit Suchpfad"
 
@@ -6681,9 +6648,8 @@ msgid "not found"
 msgstr "nicht gefunden"
 
 #: tcl/ngcgui_ttt.tcl:68
-#, fuzzy
 msgid "found truetype-tracer v4 -OK"
-msgstr "gefundene truetype-tracer v4 -OK"
+msgstr "gefunden: truetype-tracer v4 -OK"
 
 #: tcl/ngcgui_ttt.tcl:71
 msgid "Note truetype-tracer v4 is required"
@@ -6772,7 +6738,6 @@ msgid "Allow Rotation"
 msgstr "Drehung erlauben"
 
 #: tcl/ngcgui_ttt.tcl:296
-#, fuzzy
 msgid "Make ngcgui-compatible subfile and new tab page"
 msgstr ""
 "Erstelle ngcgui-compatible Unterdatei und einen neuen Reiter zur Darstellung"
@@ -6811,7 +6776,6 @@ msgid "not readable"
 msgstr "Datei ist nicht lesbar"
 
 #: tcl/ngcgui_app.tcl:49 tcl/ngcgui_app.tcl:52
-#, fuzzy
 msgid "Unexpected: multiple startups for ngcgui"
 msgstr "Unerwartet: mehrere startups für ngcgui"
 
@@ -7570,7 +7534,6 @@ msgid "Coordinate System:"
 msgstr "Koordinatensystem:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1763
-#, fuzzy
 msgid "fixture"
 msgstr "Halterung"
 
@@ -7695,7 +7658,6 @@ msgid "rs274ngc files"
 msgstr "NC Dateien"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2212
-#, fuzzy
 msgid "axis cannot accept remote command while running"
 msgstr ""
 "Achse kann keinen entfernten (remote) Befehl während des Laufs entgegennehmen"
@@ -7732,7 +7694,6 @@ msgid "Custom Grid"
 msgstr "Benutzerdefiniertes Raster"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2593
-#, fuzzy
 msgid "Enter grid size"
 msgstr "Eingabe Gitter-Größe"
 
@@ -7748,7 +7709,7 @@ msgid "home_joint <%s> Use joint mode for homing"
 msgstr "home_joint <%s> Nutze Gelenk-Modus für Referenzfahrt"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2669
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "Individual axis homing disallowed for duplicated letter:<%s> "
@@ -7834,9 +7795,7 @@ msgstr "Gelenke"
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
 msgid "Home All"
-msgstr ""
-"Referenzfahrt\n"
-"aller Achsen"
+msgstr "Referenzfahrt aller Achsen"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3532
 #, python-format
@@ -8616,9 +8575,7 @@ msgstr "Achse:"
 
 #: share/axis/tcl/axis.tcl:932 src/emc/usr_intf/gscreen/gscreen.glade:2979
 msgid "Home Axis"
-msgstr ""
-"Referenzfahrt\n"
-"aktuelle Achse"
+msgstr "Referenzfahrt der aktuellen Achse"
 
 #: share/axis/tcl/axis.tcl:938
 msgid "Touch Off"
@@ -11607,23 +11564,18 @@ msgstr "Position:"
 
 #: src/emc/usr_intf/stepconf/options.glade:515
 #: src/emc/usr_intf/pncconf/screen.glade:3866
-#, fuzzy
 msgid "Flash Error Message:"
-msgstr "Fehler beim Speichern der Datei"
+msgstr "Flash Fehlermeldung:"
 
 #: src/emc/usr_intf/stepconf/options.glade:528
 #: src/emc/usr_intf/pncconf/screen.glade:3879
-#, fuzzy
-#| msgid "Left Button"
 msgid "Hide Start Button:"
-msgstr "Linke Maustaste"
+msgstr "Verstecke Start Button:"
 
 #: src/emc/usr_intf/stepconf/options.glade:541
 #: src/emc/usr_intf/pncconf/screen.glade:3892
-#, fuzzy
-#| msgid "Spindle Phase B"
 msgid "Hide Pause Button:"
-msgstr "Spindelencoder Kanal B"
+msgstr "Verstecke Pause Button:"
 
 #: src/emc/usr_intf/stepconf/options.glade:554
 #: src/emc/usr_intf/pncconf/screen.glade:3905
@@ -13010,10 +12962,8 @@ msgid "# -- BLDC setup --"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
-#, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---TPPWM Generator signals/setup---"
-msgstr "#  ---Notaus-Signale---"
+msgstr "# ---TPPWM Generator Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
@@ -13032,15 +12982,12 @@ msgid "# ---8i20 amplifier card signals/setup---"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
-#, fuzzy
 msgid "# ---digital potentionmeter output signals/setup---"
-msgstr "#  ---Digitale in / out Signale---"
+msgstr "# ---Digital-Potentiometer Ausgabe Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1358
-#, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---PWM Generator signals/setup---"
-msgstr "#  ---Notaus-Signale---"
+msgstr "# ---PWM Generator Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
 msgid "# enable _all_ sserial pwmgens"
@@ -13051,39 +12998,28 @@ msgid "# Step Gen signals/setup for tandem axis"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1415
-#, fuzzy
 msgid "# Step Gen signals/setup"
-msgstr "#  Notaus-Signale"
+msgstr "# Schritt-Gen Signale/Setup"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1446
-#, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---closedloop stepper signals---"
-msgstr "#  ---Notaus-Signale---"
+msgstr "# ---Closed-Loop Schrittmotor-Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1460
-#, fuzzy
-#| msgid "#  ---coolant signals---"
 msgid "# ---Encoder feedback signals/setup---"
-msgstr "#  ---Kühlmittel-Signale---"
+msgstr "# ---Encoder Feedback Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1483
-#, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---Resolver feedback signals/setup---"
-msgstr "#  ---Notaus-Signale---"
+msgstr "# ---Resolver Feedback Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1502
-#, fuzzy
-#| msgid "#  ---motion control signals---"
 msgid "# ---setup spindle control signals---"
-msgstr "#  ---Signale zur Bewegungs-Steuerung---"
+msgstr "# ---Setup Spindel Steuerungs-Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1518
-#, fuzzy
-#| msgid "#  ---estop signals---"
 msgid "# ---Setup spindle at speed signals---"
-msgstr "#  ---Notaus-Signale---"
+msgstr "# ---Einrichtung der Signale zur Spindel-Geschwindigkeits-Steuerung---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1539
 #, fuzzy
@@ -13110,20 +13046,16 @@ msgstr ""
 "#  ACTUAL Geschwindigkeit ist in RPS nicht RPM daher skalieren wir sie."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1558
-#, fuzzy
-#| msgid "#  ---manual tool change signals---"
 msgid "# ---setup home / limit switch signals---"
-msgstr "#  ---Signale zum manuellen Werkzeugwechsel---"
+msgstr "# ---Einrichtung Referenzfahrt / Signale der Endschalter---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1566
-#, fuzzy
 msgid "# external input signals"
-msgstr "#  Notaus-Signale"
+msgstr "# externe Signaleingänge"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1661
-#, fuzzy
 msgid "# external output signals"
-msgstr "#  Notaus-Signale"
+msgstr "# externe Signalausgänge"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1819
 msgid ""
