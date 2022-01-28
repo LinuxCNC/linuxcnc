@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-28 16:17+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-01-28 21:54+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -113,10 +113,8 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 is nicht zulässig mit G2 oder G3 denn beide nutzen P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
-#| msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "Zeile mit G10 hat kein L1, L10, L11, L2 oder L20"
+msgstr "Zeile mit G10 hat kein L0, L1, L10, L11, L2 oder L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -637,10 +635,9 @@ msgid "Chosen spindle (%i) not turning in G76"
 msgstr "Gewählte Spindel (%i) dreht sich nicht bei G76-Befehl"
 
 #: src/emc/rs274ngc/interp_convert.cc:4846
-#, fuzzy
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr ""
-"BUG: Eine Achse bewegte sich unkorrekterweise zusammen mit einem Indexer"
+"BUG: Eine Achse bewegte sich falschlicherweise zusammen mit einem Indexer"
 
 #: src/emc/rs274ngc/interp_convert.cc:4859
 msgid "BUG: trying to index incorrect axis"
@@ -1357,8 +1354,6 @@ msgid "File name too long"
 msgstr "Dateiname zu lang"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:83
-#, fuzzy
-#| msgid "G code out of range"
 msgid "G-code out of range"
 msgstr "G-Wort außerhalb des erlaubten Bereiches"
 
@@ -1396,8 +1391,7 @@ msgid "Left bracket missing after unary operation name"
 msgstr "Fehlende linke Klammer nach unärem Befehlssnamen"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:92
-#, fuzzy, c-format
-#| msgid "M code greater than 199: M%d"
+#, c-format
 msgid "M-code greater than 199: M%d"
 msgstr "M-Wort größer als 199: M%d"
 
@@ -1864,9 +1858,8 @@ msgid "Queue is not empty after external input"
 msgstr "Warteschlange ist nach externer Eingabe nicht leer"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:206
-#, fuzzy
 msgid "Can't select analog input with wait type != immediate return"
-msgstr "Kann analogen input nicht auswählen mit Warte-Typ != sofortiger Return"
+msgstr "Kann analogen input nicht auswählen mit Warte-Typ != immediate Return"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:207
 msgid "Zero timeout with wait type != immediate return"
@@ -2011,10 +2004,8 @@ msgid "O_pen Log File"
 msgstr "Lo_gdatei öffnen"
 
 #: src/hal/utils/scope.c:547
-#, fuzzy
-#| msgid "Save To File"
 msgid "S_ave Log File"
-msgstr "Speichern"
+msgstr "S_peichern Logdatei"
 
 #: src/hal/utils/scope.c:556 share/axis/tcl/axis.tcl:102
 msgid "_Quit"
@@ -2111,15 +2102,16 @@ msgid ""
 msgstr ""
 "HALSCOPE benutzt eine Echtzeit-Komponente namens scope_rt\n"
 "um Werte aufzuzeichnen. Diese wurde nicht geladen und der\n"
-"automatische Versuch die Komponente zu laden schlug fehl.\n"
-"Weitere Informationen könnten in der Konsole verfügbar sein,\n"
-"aus der der Befehl »halscope« gestartet wurde.\n"
+"automatische Versuch die Komponente zu laden schlug fehl. Weitere "
+"Informationen\n"
+"könnten in der Konsole verfügbar sein, aus der der Befehl »halscope« "
+"gestartet wurde.\n"
 "\n"
 "Wählen Sie eine der folgenden Möglichkeiten:\n"
 "\n"
 "Laden der Komponente (mittels »halcmd loadrt scope_rt«). Wählen Sie »OK«\n"
 "oder\n"
-"wählen Sie »Beenden« um HALSCOPE zu beenden"
+"wählen Sie »Beenden« um HALSCOPE zu verlassen"
 
 #: src/hal/utils/scope_horiz.c:485 src/hal/utils/scope_horiz.c:762
 #: tcl/bin/emccalib.tcl:276 tcl/bin/emcdebug.tcl:201 tcl/bin/genedit.tcl:180
@@ -2278,9 +2270,8 @@ msgstr ""
 "klicken Sie 'Beenden' um HALSCOPE zu verlassen"
 
 #: src/hal/utils/scope_horiz.c:793
-#, fuzzy
 msgid "No channels selected"
-msgstr "Keine Achse ausgewählt für jog"
+msgstr "Keine Kanäle ausgewählt"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
@@ -2305,7 +2296,7 @@ msgstr ""
 "um mehr Kanäle zu unterstützen."
 
 #: src/hal/utils/scope_horiz.c:1067
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "%s\n"
 "per div"
@@ -2384,7 +2375,6 @@ msgstr ""
 "%s"
 
 #: src/hal/utils/scope_vert.c:607
-#, fuzzy
 msgid "Gain"
 msgstr "Gewinn"
 
@@ -2530,9 +2520,9 @@ msgid "Source"
 msgstr "Quelle"
 
 #: src/emc/motion/control.c:516
-#, fuzzy, c-format
+#, c-format
 msgid "fault %d during orient in progress"
-msgstr "Fehler %d während der laufenden Orientierung"
+msgstr "Fehler %d während der laufenden Orientierungsfahrt"
 
 #: src/emc/motion/control.c:675
 msgid "G38.4 move finished without breaking contact."
@@ -2767,11 +2757,11 @@ msgstr ""
 "gefahren werden"
 
 #: src/emc/motion/command.c:1552 src/emc/motion/command.c:1580
-#, fuzzy, c-format
+#, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled"
 msgstr ""
 "Aufheben der Referenzierung von Extra-Achse/Gelenk <%d> nicht möglich "
-"solange EMCMOT_MOTION aktiv ist"
+"solange Bewegungen möglich sind"
 
 #: src/emc/motion/command.c:1594
 #, c-format
@@ -2820,10 +2810,8 @@ msgid "can't add rigid tap move at line %d, error code %d"
 msgstr "Kein Gewindebohren möglich in Zeile %d, Fehlercode %d"
 
 #: src/emc/motion/command.c:1759
-#, fuzzy
-#| msgid "Attempt to start non-existent spindle"
 msgid "Attempt to configure non-existent spindle"
-msgstr "Versuch eine nicht existierende Spindel einzuschalten"
+msgstr "Versuch eine nicht existierende Spindel zu konfigurieren"
 
 #: src/emc/motion/command.c:1777
 msgid "Attempt to start non-existent spindle"
@@ -3146,9 +3134,8 @@ msgid "Started Ladder program - press stop to pause."
 msgstr "SPS Program gestartet - drücke stop zum Pausieren."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
-#, fuzzy
 msgid "Load Error"
-msgstr "Fehler"
+msgstr "Ladefehler"
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Failed to load the project file..."
@@ -3203,9 +3190,8 @@ msgstr "Projekt geladen (angehalten)."
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
-#, fuzzy
 msgid "Save Error"
-msgstr "Fehler"
+msgstr "Fehler beim Speichern"
 
 #: src/hal/classicladder/classicladder_gtk.c:409
 #: src/hal/classicladder/classicladder_gtk.c:426
@@ -3345,9 +3331,8 @@ msgstr ""
 " Wollen Sie wirklich aufhören?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:731
-#, fuzzy
 msgid "Section Display"
-msgstr "Element zum Anzeigen auswählen"
+msgstr "Abschnitt zur Darstellung"
 
 #: src/hal/classicladder/classicladder_gtk.c:752
 msgid "Label of the current selected rung"
@@ -3467,12 +3452,12 @@ msgid "Failed MODBUS communications"
 msgstr "MODBUS Kommunication fehlgeschlagen"
 
 #: src/hal/classicladder/classicladder_gtk.c:1010
-#, fuzzy, c-format
+#, c-format
 msgid "Section Display of %s"
 msgstr "Sektion zur Anzeige von %s"
 
 #: src/hal/classicladder/config.c:83
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---Reading MODBUS config file -%s\n"
 msgstr "INFO CLASSICLADDER---Lese MODBUS Konfiguration von Datei -%s\n"
 
@@ -3547,7 +3532,7 @@ msgid "Number of Monostables            "
 msgstr "Anzahl der Monostabilen            "
 
 #: src/hal/classicladder/config_gtk.c:161
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Inputs HAL pins           "
 msgstr "Anzahl BIT Eingänge HAL Pins           "
 
@@ -3689,9 +3674,8 @@ msgstr ""
 "GUI neu"
 
 #: src/hal/classicladder/config_gtk.c:972
-#, fuzzy
 msgid "Updated Modbus configuration"
-msgstr "Eine neue Konfiguration erstellen"
+msgstr "Aktualisierte Modbus Konfiguration"
 
 #: src/hal/classicladder/config_gtk.c:995
 msgid "Opened Configuration window. Press again to update changes and close"
@@ -3704,9 +3688,8 @@ msgid "Period/object info"
 msgstr "Periode/Objekt Info"
 
 #: src/hal/classicladder/config_gtk.c:1030
-#, fuzzy
 msgid "Modbus communication setup"
-msgstr "Radiusausgleich links"
+msgstr "Modbus Kommunikationseinstellung"
 
 #: src/hal/classicladder/config_gtk.c:1033
 msgid "Modbus  I/O register setup "
@@ -3737,9 +3720,8 @@ msgstr "Basis"
 #: src/hal/classicladder/edit.c:164 src/hal/classicladder/edit.c:173
 #: src/hal/classicladder/edit.c:181 src/hal/classicladder/edit.c:190
 #: src/emc/usr_intf/stepconf/pport1.glade:1303
-#, fuzzy
 msgid "Preset"
-msgstr "Zurücksetzen"
+msgstr "Voreinstellung"
 
 #: src/hal/classicladder/edit.c:169
 msgid "MonostNbr"
@@ -3750,9 +3732,8 @@ msgid "CounterNbr"
 msgstr "CounterNbr"
 
 #: src/hal/classicladder/edit.c:192
-#, fuzzy
 msgid "TimerMode"
-msgstr "Modus"
+msgstr "TimerMode"
 
 #: src/hal/classicladder/edit.c:197
 msgid "Expression"
@@ -3808,9 +3789,8 @@ msgid "New expr=%s\n"
 msgstr "Neuer Ausruck=%s\n"
 
 #: src/hal/classicladder/edit.c:393
-#, fuzzy
 msgid "Expression too long"
-msgstr "Befehl zu lang"
+msgstr "Ausruck zu lang"
 
 #: src/hal/classicladder/edit.c:460
 msgid "You must select a boolean variable !"
@@ -3822,7 +3802,7 @@ msgid "Unknown variable..."
 msgstr "Unbekannte Variable..."
 
 #: src/hal/classicladder/edit.c:1082
-#, fuzzy, c-format
+#, c-format
 msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 
@@ -3835,9 +3815,8 @@ msgid "Current rung in edit mode..."
 msgstr ""
 
 #: src/hal/classicladder/edit_gtk.c:128
-#, fuzzy
 msgid "Edit mode..."
-msgstr "Bearbeiten..."
+msgstr "Bearbeiten Modus..."
 
 #: src/hal/classicladder/edit_gtk.c:186 src/hal/classicladder/edit_gtk.c:360
 #: tcl/tooledit.tcl:488 lib/python/gladevcp/tooledit_gtk.glade:295
@@ -3880,9 +3859,8 @@ msgid "Cancel"
 msgstr "Abbrechen"
 
 #: src/hal/classicladder/edit_sequential.c:68
-#, fuzzy
 msgid "Step Nbr"
-msgstr "Schritt"
+msgstr "Schritt Nr"
 
 #: src/hal/classicladder/edit_sequential.c:76
 msgid "Comment"
@@ -3931,7 +3909,6 @@ msgid "Do link : transi=%d (top=%d), step=%d\n"
 msgstr "Do link : transi=%d (top=%d), step=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:404
-#, fuzzy
 msgid "Not selected first and last transitions to be joined !!??"
 msgstr ""
 "Sollen nicht ausgewählte erste und letzte Transitionen verbunden werden !!??"
@@ -3947,7 +3924,6 @@ msgstr ""
 "Zeile!!??"
 
 #: src/hal/classicladder/edit_sequential.c:452
-#, fuzzy
 msgid "First and last transitions selected are not on the same line !!??"
 msgstr ""
 "Die ersten uns letzten ausgewählten Transitionen sind nicht in derselben "
@@ -3995,12 +3971,10 @@ msgid "=>step to activ=%d, step to desactiv=%d\n"
 msgstr "=>step to activ=%d, step to desactiv=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:621
-#, fuzzy
 msgid "Not found at least 2 transitions linked..."
 msgstr "Nicht gefunden bei wenigstens 2 verbundenen Transitionen..."
 
 #: src/hal/classicladder/edit_sequential.c:740
-#, fuzzy
 msgid "Sequential memory full for steps"
 msgstr "Sequentieller Speicher voll mit Schritten"
 
@@ -4028,13 +4002,11 @@ msgstr "nbr clicks=1!!! (posi=%s), wait next point to link...\n"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
-#, fuzzy
 msgid "top"
-msgstr "Stopp"
+msgstr "open"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #: src/hal/classicladder/edit_sequential.c:805
-#, fuzzy
 msgid "bottom"
 msgstr "unten"
 
@@ -4070,7 +4042,6 @@ msgid "Properties"
 msgstr "Eigenschaften"
 
 #: src/hal/classicladder/editproperties_gtk.c:180
-#, fuzzy
 msgid "Parameter"
 msgstr "Parameter"
 
@@ -4096,9 +4067,8 @@ msgid "None -Internal Memory"
 msgstr ""
 
 #: src/hal/classicladder/emc_mods.c:123
-#, fuzzy
 msgid "None -Internal Error Status"
-msgstr "Nichts - Interner Fehler-Status"
+msgstr "Keine - Interner Fehler-Status"
 
 #: src/hal/classicladder/emc_mods.c:128
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:618
@@ -4109,7 +4079,6 @@ msgid "None"
 msgstr "Keine"
 
 #: src/hal/classicladder/emc_mods.c:130
-#, fuzzy
 msgid "error"
 msgstr "Fehler"
 
@@ -4122,9 +4091,8 @@ msgid "Conv. HAL signal ERROR"
 msgstr "Conv. HAL Signal FEHLER"
 
 #: src/hal/classicladder/emc_mods.c:177
-#, fuzzy
 msgid "No expression"
-msgstr "Nicht abgeschlossener Ausdruck"
+msgstr "Kein Ausdruck"
 
 #: src/hal/classicladder/emc_mods.c:196
 #, c-format
@@ -4144,7 +4112,6 @@ msgid "New Timer"
 msgstr "Neuer Zähler"
 
 #: src/hal/classicladder/emc_mods.c:267
-#, fuzzy
 msgid "One-shot"
 msgstr "Einmalig"
 
@@ -4153,19 +4120,17 @@ msgid "Counter"
 msgstr "Zähler"
 
 #: src/hal/classicladder/emc_mods.c:277
-#, fuzzy
 msgid "Error Flag Bit"
-msgstr "Fehler-Schriftart"
+msgstr "Bit zur Fehleranzeige"
 
 #: src/hal/classicladder/emc_mods.c:280
-#, fuzzy
 msgid "Cannot auto assign symbol names-wrong variable name"
 msgstr "Kann Symbol-Namen nicht automatisch zuweisen - falscher Variablen-Name"
 
 #: src/hal/classicladder/files.c:182
 #, fuzzy, c-format
 msgid "Rung version not supported...\n"
-msgstr "Abeitszyklen werden nicht unterstützt\n"
+msgstr "Abeitszyklen werden nicht unterstützt...\n"
 
 #: src/hal/classicladder/files.c:260 src/hal/classicladder/files.c:299
 #, c-format
@@ -4174,7 +4139,6 @@ msgstr "Lade Datei: %s"
 
 #: src/hal/classicladder/files.c:277 src/hal/classicladder/files.c:303
 #: src/hal/classicladder/files.c:332
-#, fuzzy
 msgid " - ok.\n"
 msgstr " - ok.\n"
 
@@ -4192,7 +4156,7 @@ msgid " - failed.\n"
 msgstr " - fehlgeschlagen.\n"
 
 #: src/hal/classicladder/files.c:342
-#, fuzzy, c-format
+#, c-format
 msgid "Used=%d\n"
 msgstr "Genutzt=%d\n"
 
@@ -4208,7 +4172,7 @@ msgid "!!! Error loading parameter base in %s\n"
 msgstr "!!! Fehler beim Laden der Parameter Basis in %s\n"
 
 #: src/hal/classicladder/files.c:469
-#, fuzzy, c-format
+#, c-format
 msgid "Timer => Base = %d , Preset = %d\n"
 msgstr "Timer => Basis = %d , Voreinstellung = %d\n"
 
@@ -4218,14 +4182,14 @@ msgid " - result=%d\n"
 msgstr " - result=%d\n"
 
 #: src/hal/classicladder/files.c:539
-#, fuzzy, c-format
+#, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
 msgstr "Monostable => Basis = %d , Voreinstellung = %d\n"
 
 #: src/hal/classicladder/files.c:787
-#, fuzzy, c-format
+#, c-format
 msgid "Sections file version not supported...\n"
-msgstr "Datei-Version mit Sektionen nicht unterstützt...\n"
+msgstr "Datei-Version mit Abschnitten nicht unterstützt...\n"
 
 #: src/hal/classicladder/files.c:811
 #, c-format
@@ -4237,9 +4201,9 @@ msgstr ""
 "SequentialPage=%d\n"
 
 #: src/hal/classicladder/files.c:1043
-#, fuzzy, c-format
+#, c-format
 msgid "Symbols file version not supported...\n"
-msgstr "Datei-Vesrion mit Symbolen nicht unterstützt...\n"
+msgstr "Datei-Version mit Symbolen nicht unterstützt...\n"
 
 #: src/hal/classicladder/files.c:1056
 #, c-format
@@ -4247,9 +4211,9 @@ msgid "Symbol: %s - %s - %s\n"
 msgstr "Symbol: %s - %s - %s\n"
 
 #: src/hal/classicladder/files_project.c:86
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR with path directory given for project !!!\n"
-msgstr "FEHLER mit dem Verzeichnis dem Projekt zugewiesenen Verzeichnis !!!\n"
+msgstr "FEHLER mit dem dem Projekt zugewiesenen Verzeichnis !!!\n"
 
 #: src/hal/classicladder/files_project.c:184
 #, c-format
@@ -4264,7 +4228,6 @@ msgstr "Sequentielle Version nicht unterstützt...\n"
 #: src/hal/classicladder/manager_gtk.c:71
 #: src/hal/classicladder/manager_gtk.c:229
 #: src/emc/usr_intf/gscreen/gscreen.glade:2373
-#, fuzzy
 msgid "Ladder"
 msgstr "SPS"
 
@@ -4279,12 +4242,10 @@ msgid "Sequential"
 msgstr "Sequentiell"
 
 #: src/hal/classicladder/manager_gtk.c:131
-#, fuzzy
 msgid "This section name already exist or is incorrect !!!"
-msgstr "Dieser Abschnittsname existiert bereits oder ist inkorrekt !!!"
+msgstr "Ein Abschnitt diesen Namens existiert bereits oder ist inkorrekt !!!"
 
 #: src/hal/classicladder/manager_gtk.c:137
-#, fuzzy
 msgid "This sub-routine number for calls is already defined !!!"
 msgstr "Diese Unterroutinene-Nummer für Aufrufe ist bereits definiert !!!"
 
@@ -4301,9 +4262,8 @@ msgid "You can not delete the last section..."
 msgstr "Sie können die letzte Sektion nicht löschen..."
 
 #: src/hal/classicladder/manager_gtk.c:191
-#, fuzzy
 msgid "This section is already executed the first !"
-msgstr "Diese Sektion wird bereits ausgeführt !"
+msgstr "Dieser Abschnitt wird bereits ausgeführt !"
 
 #: src/hal/classicladder/manager_gtk.c:241
 msgid "Add a section..."
@@ -4335,34 +4295,29 @@ msgid "Type   "
 msgstr "Typ   "
 
 #: src/hal/classicladder/manager_gtk.c:314
-#, fuzzy
 msgid "debug"
-msgstr "Debug-Level"
+msgstr "Fehlersuche"
 
 #: src/hal/classicladder/manager_gtk.c:319
 msgid "Sections Manager"
 msgstr "Sektions-Manager"
 
 #: src/hal/classicladder/manager_gtk.c:335
-#, fuzzy
 msgid "Add section"
-msgstr "A Richtung"
+msgstr "Abschnitt hinzufügen"
 
 #: src/hal/classicladder/manager_gtk.c:340
-#, fuzzy
 msgid "Delete section"
-msgstr "Relative Position"
+msgstr "Abschnitt löschen"
 
 #: src/hal/classicladder/manager_gtk.c:345
 #: src/emc/usr_intf/pncconf/private_data.py:462
-#, fuzzy
 msgid "Move Up"
 msgstr "Nach Oben"
 
 #: src/hal/classicladder/manager_gtk.c:350
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
 #: src/emc/usr_intf/pncconf/private_data.py:462
-#, fuzzy
 msgid "Move Down"
 msgstr "Abwärts"
 
@@ -4415,7 +4370,7 @@ msgstr ""
 
 #: src/hal/classicladder/protocol_modbus_master.c:562
 #: src/hal/classicladder/protocol_modbus_master.c:587
-#, fuzzy, c-format
+#, c-format
 msgid "Slave: %X  "
 msgstr "Slave: %X  "
 
@@ -4450,16 +4405,16 @@ msgid "ERROR CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
 msgstr "FEHLER CLASSICLADDER-   MODBUS CRC error: calc=%x, frame=%x\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:644
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 msgstr ""
-"ERROR CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
+"FEHLER CLASSICLADDER-   MODBUS-INCORRECT RESPONSE RECEIVED FROM SLAVE!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:650
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
-msgstr "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
+msgstr "FEHLER CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 
 #: src/hal/classicladder/protocol_modbus_master.c:710
 #, c-format
@@ -4469,7 +4424,7 @@ msgstr ""
 "FEHLER CLASSICLADDER--- Variable not defined for MODBUS READ REQUEST mapping "
 
 #: src/hal/classicladder/protocol_modbus_master.c:757
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "ERROR CLASSICLADDER--- Variable not defined for MODBUS WRITE REQUEST mapping "
 msgstr ""
@@ -4477,9 +4432,9 @@ msgstr ""
 "Zuordnung "
 
 #: src/hal/classicladder/serial_linux.c:139
-#, fuzzy, c-format
+#, c-format
 msgid "Speed value not found for serial\n"
-msgstr "Geschwindigkeits-Angabe nicht gefunden für serial\n"
+msgstr "Geschwindigkeits-Angabe nicht gefunden für seriell\n"
 
 #: src/hal/classicladder/serial_linux.c:144
 #, c-format
@@ -4492,7 +4447,7 @@ msgid "Set RTS=%d\n"
 msgstr "Setze RTS=%d\n"
 
 #: src/hal/classicladder/serial_linux.c:185
-#, fuzzy, c-format
+#, c-format
 msgid "Serial writing...\n"
 msgstr "Serielles Schreiben...\n"
 
@@ -4507,17 +4462,17 @@ msgid "Writing done!\n"
 msgstr "Schreiben abgeschlossen!\n"
 
 #: src/hal/classicladder/serial_linux.c:215
-#, fuzzy, c-format
+#, c-format
 msgid "Serial config...\n"
 msgstr "Seriell konfigurieren...\n"
 
 #: src/hal/classicladder/serial_linux.c:236
-#, fuzzy, c-format
+#, c-format
 msgid "select() for serial reading...\n"
 msgstr "select() für serielles Lesen...\n"
 
 #: src/hal/classicladder/serial_linux.c:241
-#, fuzzy, c-format
+#, c-format
 msgid "Serial reading...\n"
 msgstr "Seriell lesen...\n"
 
@@ -4527,15 +4482,16 @@ msgid "%d chars found\n"
 msgstr "%d Zeichen gefunden\n"
 
 #: src/hal/classicladder/serial_linux.c:255
-#, fuzzy, c-format
+#, c-format
 msgid "Serial flush all!\n"
 msgstr "Alle seriellen Puffer leeren!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O modbus master...\n"
 msgstr ""
-"FEHLER CLASSICLADDER-   Create thread I/O modbus master fehlgeschlagen...\n"
+"FEHLER CLASSICLADDER-   Anlegen von thread I/O modbus master "
+"fehlgeschlagen...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:121
 #, c-format
@@ -4557,9 +4513,8 @@ msgstr "Seriell"
 #: src/emc/usr_intf/pncconf/dialogs.glade:36
 #: src/emc/usr_intf/pncconf/dialogs.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:328
-#, fuzzy
 msgid "Ethernet"
-msgstr "Benutzerdefiniert"
+msgstr "Ethernet"
 
 #: src/hal/classicladder/socket_modbus_master.c:168
 #, c-format
@@ -4577,9 +4532,9 @@ msgid "Connecting I/O module...\n"
 msgstr "Verbinde I/O Modul...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:220
-#, fuzzy, c-format
+#, c-format
 msgid "Not able to retrieve IP address in modbus table, huhh?!!!\n"
-msgstr "Konnte IP address in modbus Tabelle nicht finden, huhh?!!!\n"
+msgstr "Konnte IP Addresse in modbus Tabelle nicht finden, huhh?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:225
 #, c-format
@@ -4623,7 +4578,7 @@ msgid "ERROR CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
 msgstr "FEHLER CLASSICLADDER-  MODBUS NO RESPONSE (Errs=%d/%d) !?\n"
 
 #: src/hal/classicladder/socket_server.c:86
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
 msgstr "INFO CLASSICLADDER--- INIT SOCKET!!!\n"
 
@@ -4655,22 +4610,22 @@ msgstr ""
 "INFO CLASSICLADDER--- Server Socket Initialisierung ok (modbus - Port %d)!\n"
 
 #: src/hal/classicladder/socket_server.c:174
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
 msgstr "INFO CLASSICLADDER--- MODBUS RESPONSE LGT=%d+%d !\n"
 
 #: src/hal/classicladder/socket_server.c:204
-#, fuzzy, c-format
+#, c-format
 msgid "INFO MODBUS SERVER--- SOCKET WAITING...\n"
 msgstr "INFO MODBUS SERVER--- SOCKET WAITING...\n"
 
 #: src/hal/classicladder/socket_server.c:209
-#, fuzzy, c-format
+#, c-format
 msgid "INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"
 msgstr "INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"
 
 #: src/hal/classicladder/socket_server.c:215
-#, fuzzy, c-format
+#, c-format
 msgid "INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"
 msgstr "INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"
 
@@ -4681,7 +4636,7 @@ msgstr ""
 "FEHLER CLASSICLADDER--- Fehlschlag von recv vom Socket Server...(error=%s)\n"
 
 #: src/hal/classicladder/socket_server.c:232
-#, fuzzy, c-format
+#, c-format
 msgid "INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"
 msgstr "INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"
 
@@ -4695,7 +4650,6 @@ msgid "Bit Status Window"
 msgstr "Bit Status Fenster"
 
 #: src/hal/classicladder/spy_vars_gtk.c:202
-#, fuzzy
 msgid "Offset for vars displayed below (return to apply)"
 msgstr ""
 "Versatz für unten angzeigte Variablen (Drücke return um diesen zu setzen)"
@@ -4705,7 +4659,6 @@ msgid "Watch Window"
 msgstr "Beobachtungs-Fenster"
 
 #: src/hal/classicladder/spy_vars_gtk.c:484
-#, fuzzy
 msgid "opened BOOL (bit) variable window. press again for WORD window"
 msgstr "öffnete BOOL (bit) Variablen-Fenster. drücke nochmmal für WORD-Fenster"
 
@@ -4745,7 +4698,7 @@ msgid "Symbols names"
 msgstr "Symbol-Namen"
 
 #: src/hal/classicladder/vars_names.c:120
-#, fuzzy, c-format
+#, c-format
 msgid "infogene display symbols=&i\n"
 msgstr "infogene display symbols=&i\n"
 
@@ -4762,7 +4715,6 @@ msgstr "Unbekanntes Symbol für Variablen-Name"
 #: src/hal/classicladder/vars_names.c:402
 #: src/hal/classicladder/vars_names.c:413
 #: src/hal/classicladder/vars_names.c:621
-#, fuzzy
 msgid "Unknown variable (number value out of bound)"
 msgstr "Unbekannte Variable (numerischer Wert außerhalb von Grenzen)"
 
@@ -4783,18 +4735,16 @@ msgid "Unknown variable (unknown attribute)"
 msgstr "Unbekannte Variable (unbekanntes Attribut)"
 
 #: src/hal/classicladder/vars_names.c:438
-#, fuzzy
 msgid "Unknown variable (on first character following %)"
-msgstr "Unbekannte Variable (auf erstem Zeichen folgend dem %)"
+msgstr "Unbekannte Variable (an erstem Zeichen folgend dem %)"
 
 #: src/hal/classicladder/vars_names.c:452
 msgid "Unknown variable (global error)"
 msgstr "Unbekannte Variable (globaler Fehler)"
 
 #: tcl/bin/emccalib.tcl:95
-#, fuzzy
 msgid "LinuxCNC Calibration"
-msgstr "LinuxCNC Servoachsen-Kalibrierung"
+msgstr "LinuxCNC Kalibrierung"
 
 #: tcl/bin/emccalib.tcl:103
 msgid "Save To File"
@@ -5156,7 +5106,7 @@ msgid "Tune %d"
 msgstr "%d einstellen"
 
 #: tcl/bin/halconfig.tcl:883
-#, fuzzy, tcl-format
+#, tcl-format
 msgid ""
 "The HAL parameter \n"
 "  %s \n"
@@ -5164,7 +5114,7 @@ msgid ""
 " Really quit?"
 msgstr ""
 "Der HAL-Parameter \n"
-"»%s« \n"
+"  %s\n"
 "wurde geändert. \n"
 "Wirklich beenden?"
 
@@ -5184,7 +5134,6 @@ msgid "Click a highlighted entry where %s should go."
 msgstr "Klicke auf hervorgehobenen Eintrag wohin %s gehen sollte."
 
 #: tcl/bin/halconfig.tcl:1092
-#, fuzzy
 msgid "Nothing to be done for parameters here. Try the tuning page"
 msgstr ""
 "Für die Parameter gibt es hier nichts zu tun. Versuchen Sie die Optimierungs-"
@@ -5196,7 +5145,6 @@ msgid "%s is not a leaf, try again"
 msgstr "%s ist kein Blatt, versuchen Sie es nochmal"
 
 #: tcl/bin/halconfig.tcl:1281
-#, fuzzy
 msgid ""
 "Copyright Raymond E Henry. 2006\n"
 "License: GPL Version 2\n"
@@ -5210,14 +5158,13 @@ msgstr ""
 "Copyright Raymond E Henry. 2006\n"
 "LicenZ: GPL Version 2\n"
 "\n"
-"Halconfig is ein LinuxCNC Konfigurations-Werkezeug.  Es benötigt eine "
+"Halconfig is ein LinuxCNC Konfigurations-Werkzeug.  Es benötigt eine "
 "laufende Instanz von LinuxCNC.\n"
 "\n"
 "Dieses Skript kommt ohne Garantien oder Verantwortlichkeiten für dessen "
 "Nutzung im Rahmen der lokalen Gesetzgebung."
 
 #: tcl/bin/halshow.tcl:34 tcl/tklinuxcnc.tcl:814
-#, fuzzy
 msgid "HAL Show"
 msgstr "HAL Zeige"
 
@@ -5306,10 +5253,8 @@ msgid "Update interval for this session (ms)"
 msgstr "Aktualisierungsintervall für diese Session (ms)"
 
 #: tcl/bin/halshow.tcl:620
-#, fuzzy
-#| msgid "G code out of range"
 msgid "Value out of range"
-msgstr "G-Wort außerhalb des erlaubten Bereiches"
+msgstr "Wert außerhalb des erlaubten Bereiches"
 
 #: tcl/bin/halshow.tcl:706
 msgid "Load a watch list"
@@ -5434,7 +5379,6 @@ msgid "AXIS"
 msgstr "ACHSE"
 
 #: tcl/bin/tkbackplot.tcl:251
-#, fuzzy
 msgid "OFFSET"
 msgstr "VERSATZ"
 
@@ -5653,7 +5597,6 @@ msgid "Hal Scope"
 msgstr "HAL-Scope"
 
 #: tcl/tklinuxcnc.tcl:806
-#, fuzzy
 msgid "Set Coordinates"
 msgstr "Koordinaten setzen"
 
@@ -5989,9 +5932,8 @@ msgid "Offset Value "
 msgstr "Versatz-Wert "
 
 #: tcl/scripts/Set_Coordinates.tcl:86
-#, fuzzy
 msgid "What to Teach"
-msgstr "Was zu Trainieren"
+msgstr "Was zu Lehren"
 
 #: tcl/scripts/Set_Coordinates.tcl:95
 msgid "Teach"
@@ -6033,17 +5975,14 @@ msgid "bogus"
 msgstr "hier stimmt etwas nicht"
 
 #: tcl/ngcgui.tcl:509
-#, fuzzy
 msgid "can not include subroutines within ngcgui subfile"
 msgstr "kann keine Unterprogramme in ncgui Unterdatei einbinden"
 
 #: tcl/ngcgui.tcl:517
-#, fuzzy
 msgid "Multiple subroutines in file not allowed"
 msgstr "Mehrere Unterprogramme innerhalb nur einer Datei sind nicht gestattet"
 
 #: tcl/ngcgui.tcl:528
-#, fuzzy
 msgid "sub label"
 msgstr "sub Bezeichner"
 
@@ -6092,7 +6031,6 @@ msgid "Please Install in path"
 msgstr "Bitte installieren Sie in Pfad"
 
 #: tcl/ngcgui.tcl:823
-#, fuzzy
 msgid "not embedded, deriving outdir from:"
 msgstr "nicht eingebettet, leite outdir ab von:"
 
@@ -6101,9 +6039,8 @@ msgid "Choose Files"
 msgstr "Dateien auswählen"
 
 #: tcl/ngcgui.tcl:1191
-#, fuzzy
 msgid "Controls"
-msgstr "Strg-M"
+msgstr "Steuerungen"
 
 #: tcl/ngcgui.tcl:1200
 msgid "Preamble"
@@ -6118,7 +6055,6 @@ msgid "Postamble"
 msgstr "Postamble"
 
 #: tcl/ngcgui.tcl:1242
-#, fuzzy
 msgid "Retain values on Subfile read"
 msgstr "Erhalte Werte nach Lesen der Unterdatei"
 
@@ -6278,14 +6214,12 @@ msgid "Enter parms for 1st feature"
 msgstr "Eingabe von Parametern für erstes Feature"
 
 #: tcl/ngcgui.tcl:2422
-#, fuzzy
 msgid "New Outfile"
 msgstr "Neuer Outfile"
 
 #: tcl/ngcgui.tcl:2424
-#, fuzzy
 msgid "Ready to make New Outfile"
-msgstr "Bereit für Outfile zu erstellen"
+msgstr "Bereit neuen Outfile zu erstellen"
 
 #: tcl/ngcgui.tcl:2440 tcl/ngcgui.tcl:2473
 msgid "Enter parms for feature "
@@ -6344,12 +6278,10 @@ msgid "Read Subfile"
 msgstr "Lese Unterdatei"
 
 #: tcl/ngcgui.tcl:2549
-#, fuzzy
 msgid "Write Error"
-msgstr "Fehler"
+msgstr "Schreibfehler"
 
 #: tcl/ngcgui.tcl:2553
-#, fuzzy
 msgid "Outfile set"
 msgstr "Outfile gesetzt"
 
@@ -6374,9 +6306,8 @@ msgid "Ctrl-k for Key bindings"
 msgstr "Ctrl-k für Tastenbelegung"
 
 #: tcl/ngcgui.tcl:2581
-#, fuzzy
 msgid "Expand sub"
-msgstr "Pins aufklappen"
+msgstr "Unterprogramm aufklappen"
 
 #: tcl/ngcgui.tcl:2585
 msgid "Retain values"
@@ -12096,7 +12027,6 @@ msgid "Axis SCALE:"
 msgstr "Maßstab der Achse:"
 
 #: src/emc/usr_intf/stepconf/finished.glade:6
-#, fuzzy
 msgid ""
 "All the necessary information has now been gathered.\n"
 "Click \"Done\" to write your configuration files to disk.\n"
@@ -12116,20 +12046,21 @@ msgid ""
 "-run a more thorough latency test as described on the linuxcnc.org wiki:\n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
-"Alle notwendigen Informationen wurden erfasst. Bestätigen Sie mit "
-"»Anwenden«, um die Konfiguration zu speichern.\n"
-"Falls EMC2 nicht mehr reagieren sollte, verkleinern Sie die maximale "
-"Geschwindigkeit, was die Zeit für einen Systemtakt (BASE_PERIOD) "
-"vergrößert.\n"
+"Alle notwendigen Informationen wurden erfasst.\n"
+"Bestätigen Sie mit »Anwenden«, um die Konfiguration zu speichern.\n"
 "\n"
-"Falls Sie Schrittverluste bemerken sollten, überprüfen Sie zuerst die "
-"Zeiteinstellungen für ihre Endstufe. Wird das Problem hierdurch nicht "
-"behoben, dann führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki "
-"beschrieben werden:\n"
+"Falls LinuxCNC nicht mehr reagieren sollte,\n"
+"verkleinern Sie die maximale Geschwindigkeit, was die Zeit für einen\n"
+"Systemtakt (BASE_PERIOD) vergrößert.\n"
+"\n"
+"Falls Sie Schrittverluste bemerken sollten:\n"
+"- überprüfen Sie zuerst die Zeiteinstellungen für ihre Endstufe\n"
+"- dann führen Sie bitte weitere Tests durch wie beschrieben im LinuxCNC.org "
+"Wiki.\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting\n"
 "\n"
-"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten, dann "
-"führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben "
+"Falls Sie die Fehlermeldung »Unexpected Realtime Delay« erhalten,\n"
+"- führen bitte weiter Maßnahmen durch, wie sie im EMC2-Wiki beschrieben "
 "werden:\n"
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
@@ -19390,11 +19321,8 @@ msgstr "Maschine im Not-Aus!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2554
 #: lib/python/gladevcp/calculator.glade:33
-#, fuzzy
 msgid "Calculator"
-msgstr ""
-"Skala\n"
-"berechnen"
+msgstr "Rechner"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2785
 #, python-format
