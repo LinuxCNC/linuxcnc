@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-28 03:10+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-01-28 13:41+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -1785,19 +1785,19 @@ msgstr "Wähle die vorherige Datei"
 
 #: gmoccapy.glade.h:246 ../../../../lib/python/gladevcp/iconview.py:136
 msgid "Select the next file"
-msgstr "Wähle die nächste Datei"
+msgstr "Nächste Datei auswählen"
 
 #: gmoccapy.glade.h:247 ../../../../lib/python/gladevcp/iconview.py:160
 msgid "Jump to user defined directory"
-msgstr "Springe zu von Anwender angegebenen Verzeichnis"
+msgstr "Springe zu angegebenem Verzeichnis"
 
 #: gmoccapy.glade.h:248 ../../../../lib/python/gladevcp/iconview.py:168
 msgid "select the highlighted file and return the path"
-msgstr "Wählt die hervorgehobene Datei aus und gibt den Dateipfad zurück"
+msgstr "Ausgewählte Datei verwenden"
 
 #: gmoccapy.glade.h:249 ../../../../lib/python/gladevcp/iconview.py:176
 msgid "Close without returning a file path"
-msgstr "Schließe ohne einen Dateipfad zurückzuliefern"
+msgstr "Schließe ohne Datei zu verwenden"
 
 #: gmoccapy.glade.h:250
 msgid "Load File"
@@ -1809,7 +1809,7 @@ msgstr "Referenziere Achsen"
 
 #: ../../../../lib/python/gladevcp/iconview.py:120
 msgid "Move to parent directory"
-msgstr "Wechsle in das Stammverzeichnis"
+msgstr "Wechsle in das übergeordnete Verzeichnis"
 
 #: ../../../../lib/python/gladevcp/iconview.py:128
 msgid "Select the previous file"
