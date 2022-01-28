@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
 "PO-Revision-Date: 2022-01-28 13:41+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -2007,10 +2007,8 @@ msgid "_Save Configuration..."
 msgstr "Konfiguration _speichern..."
 
 #: src/hal/utils/scope.c:540
-#, fuzzy
-#| msgid "O_pen Data File..."
 msgid "O_pen Log File"
-msgstr "_Datendatei öffnen..."
+msgstr "Lo_gdatei öffnen"
 
 #: src/hal/utils/scope.c:547
 #, fuzzy
@@ -2849,12 +2847,11 @@ msgstr ""
 "Versuch die Geschwindigkeit einer nicht vorhandenen Spindel (%d) zu erhöhen"
 
 #: src/emc/motion/command.c:1929
-#, fuzzy, c-format
-#| msgid "Attempt to decreasenon-existent spindle <%d>"
+#, c-format
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr ""
-"Versuch die Geschwindigkeit einer nicht vorhandenen Spindel (%d) zu "
-"verringern"
+"Versuch die Geschwindigkeit einer nicht vorhandenen Spindel <%d> zu "
+"verringern."
 
 #: src/emc/motion/command.c:1953
 #, c-format
@@ -12754,9 +12751,9 @@ msgid "#  ---mpg signals---"
 msgstr "#  --- Signale der Handsteuerung---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:538
-#, fuzzy, python-format
+#, python-format
 msgid "#       for axis %s MPG"
-msgstr "      Spannung für Max RPM:"
+msgstr "#       for Achse %s Handsteuerung"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:551
 #, python-format
@@ -12766,7 +12763,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:570
 #, fuzzy
 msgid "# connect selectable mpg jog increments "
-msgstr "auswählbare MPG Schrittweiten"
+msgstr "# verbinde auswählbare Schrittweiten für das Handgerät "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:594
 msgid "# ---feed override signals to mesa encoder - mpg---"
@@ -12803,10 +12800,8 @@ msgid "# connect spindle override increments - MPG"
 msgstr "Spindelübersteuerung Inkr. A"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:722
-#, fuzzy
-#| msgid "Spindle Override incr A"
 msgid "# connect spindle override increments "
-msgstr "Spindelübersteuerung Inkr. A"
+msgstr "# verbinde Neusetzung der Spindel-Inkr. "
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:743
 msgid "#  ---motion control signals---"
@@ -13007,10 +13002,8 @@ msgid "pin# %(pinnum)d is connected to output signal:'%(data)s' %(mesag)s"
 msgstr "Pin# %(pinnum)d ist verbunden mit Ausgangssignal:'%(data)s' %(mesag)s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1245
-#, fuzzy
-#| msgid "SPINDLE ?"
 msgid "#  SPINDLE"
-msgstr "SPINDEL ?"
+msgstr "#  SPINDEL"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1255
 msgid "# -- BLDC setup --"
