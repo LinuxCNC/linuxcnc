@@ -935,7 +935,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 	{
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 		char TextBuffer[ 20 ];
-		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d us"), InfosGene->DurationOfLastScan/1000);
+		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d µs"), InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
 		ToggleManagerWindow();
