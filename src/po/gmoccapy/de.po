@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-28 16:17+0000\n"
+"PO-Revision-Date: 2022-01-28 21:54+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -1619,9 +1619,9 @@ msgid ""
 "the optional blocks will not be machined. The button will indicate this by a "
 "yellow background."
 msgstr ""
-"Sollen die optionale Blöcke ausgeführt werden oder nicht? Ein gedrückter "
-"Knopf bedeutet die optionalen Blöcke werden nicht ausgeführt. Der Knopf hat "
-"dann einen farbigen Hintergrund."
+"Sollen die optionalen Blöcke ausgeführt werden oder nicht? Ein gedrückter "
+"Knopf bedeutet, dass sie nicht ausgeführt werden. Der Knopf hat dann einen "
+"farbigen Hintergrund."
 
 #: gmoccapy.glade.h:207
 msgid "Edit the loaded program"
@@ -1773,7 +1773,7 @@ msgstr ""
 
 #: gmoccapy.glade.h:243 ../../../../lib/python/gladevcp/iconview.py:112
 msgid "Move to your home directory"
-msgstr "Springe ins Home Verzeichnis"
+msgstr "Zu Home-Verzeichnis wechseln"
 
 #: gmoccapy.glade.h:244
 msgid "Move to parrent directory"
@@ -1809,7 +1809,7 @@ msgstr "Referenziere Achsen"
 
 #: ../../../../lib/python/gladevcp/iconview.py:120
 msgid "Move to parent directory"
-msgstr "In das übergeordnete Verzeichnis wechseln"
+msgstr "In übergeordnetes Verzeichnis wechseln"
 
 #: ../../../../lib/python/gladevcp/iconview.py:128
 msgid "Select the previous file"
