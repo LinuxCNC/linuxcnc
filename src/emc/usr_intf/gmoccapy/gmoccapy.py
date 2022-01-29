@@ -468,10 +468,7 @@ class gmoccapy(object):
 
         # if limit switch active, activate ignore-checkbox
         if any(self.stat.limit):
-            self.widgets.ntb_jog.set_sensitive(True)
-            self.widgets.ntb_jog_JA.set_sensitive(False)
-            self.widgets.vbtb_jog_incr.set_sensitive(False)
-            self.widgets.hbox_jog_vel.set_sensitive(False)
+            self.sensitize_ntb_jog_only()
 
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
@@ -2555,6 +2552,13 @@ class gmoccapy(object):
         else:
             self.widgets.chk_ignore_limits.set_sensitive(False)
 
+    # This makes ntb_jog sensitive, but not jog buttons
+    def sensitize_ntb_jog_only(self):
+        self.widgets.ntb_jog.set_sensitive(True)
+        self.widgets.ntb_jog_JA.set_sensitive(False)
+        self.widgets.vbtb_jog_incr.set_sensitive(False)
+        self.widgets.hbox_jog_vel.set_sensitive(False)
+
     def on_hal_status_override_limits_changed(self, object, state, limits_list):
         # object = hal_status from glade file
         # state = true if override_limit is active
@@ -2566,7 +2570,10 @@ class gmoccapy(object):
         # state = true if limit has been tripped
         # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
         self.widgets.chk_ignore_limits.set_sensitive(state)
-
+        if state:
+            # when limit tripped in off state, sensitize also ntb_jog
+            self.sensitize_ntb_jog_only()
+            
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
