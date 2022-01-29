@@ -2549,6 +2549,12 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
+
     def on_hal_status_override_limits_changed(self, object, state, limits_list):
         # object = hal_status from glade file
         # state = true if override_limit is active
