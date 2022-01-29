@@ -2573,6 +2573,9 @@ class gmoccapy(object):
         if state:
             # when limit tripped in off state, sensitize also ntb_jog
             self.sensitize_ntb_jog_only()
+        else:
+            # refresh immediately when limit is no longer active
+            self.widgets.chk_ignore_limits.set_active(False)
             
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
