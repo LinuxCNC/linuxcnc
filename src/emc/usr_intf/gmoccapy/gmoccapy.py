@@ -2588,7 +2588,10 @@ class gmoccapy(object):
         # state = true if limit has been tripped
         # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
         self.widgets.chk_ignore_limits.set_sensitive(state)
-
+        if state:
+            # sensitize ntb_jog when limit tripped
+            self.widgets.ntb_jog.set_sensitive(True)
+            
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
