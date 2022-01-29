@@ -74,7 +74,10 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         self.add_mark_category('selected', '#96fef6')
 
         #TODO: how to set property background? but seems to work ok regardless.
-        self.found_text_tag = Gtk.TextTag()
+        # --> with 
+        # self.buf.create_tag(background_rgba=Gdk.RGBA(0.0, 0.0, 1.0, 1.0), 
+        #               background_set=True), but seems not to have any impact
+        self.found_text_tag = self.buf.create_tag()
 
         self.connect('button-release-event', self.button_pressed)
 
@@ -204,6 +207,7 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     def update_iter(self,widget=None):
         self.start_iter =  self.buf.get_start_iter()
         self.end_iter = self.buf.get_end_iter()
+        # get itter at current insertion point (cursor)
         self.current_iter = self.buf.get_iter_at_mark(self.buf.get_insert())
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
