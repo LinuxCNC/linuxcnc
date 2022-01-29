@@ -2533,6 +2533,12 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.set_sensitive(False)
         self.widgets.hbox_jog_vel.set_sensitive(False)
 
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
+
     def on_hal_status_state_off(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "ntb_jog_JA", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
@@ -2564,6 +2570,12 @@ class gmoccapy(object):
         if self.widgets.ntb_main.get_current_page() != 0:
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
+
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
 
     def on_hal_status_override_limits_changed(self, object, state, limits_list):
         # object = hal_status from glade file
