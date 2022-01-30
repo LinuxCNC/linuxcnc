@@ -451,8 +451,11 @@ class OffsetPage(Gtk.VBox):
 
     # converts a RGBA color to a string value like #00FF00
     def convert_color(self, color):
-        colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
-        return ('#' + ''.join(f'{i:02X}' for i in colortuple))
+        if color is None:
+            return None
+        else:
+            colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
+            return ('#' + ''.join(f'{i:02X}' for i in colortuple))
 
     # sets the color when editing is active
     def set_highlight_color(self, value):

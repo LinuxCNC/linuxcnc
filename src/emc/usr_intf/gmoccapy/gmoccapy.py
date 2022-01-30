@@ -609,7 +609,7 @@ class gmoccapy(object):
 
     def _get_joint_from_joint_axis_dic(self, value):
         # if the selected axis is a double axis we will get the joint from the
-        # master axis, witch should end with 0
+        # master axis, which should end with 0
         if value in self.double_axis_letter:
             value = value + "0"
         return list(self.joint_axis_dic.keys())[list(self.joint_axis_dic.values()).index(value)]
@@ -941,7 +941,7 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(lbl,True,True,0)
             lbl.show()
 
-        btn = Gtk.Button.new_with_label(_("zero\n G92"))
+        btn = Gtk.Button.new_with_label(_("zero\nG92"))
         btn.connect("clicked", self.on_btn_zero_g92_clicked)
         btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
         btn.set_property("name", "zero_offsets")
@@ -3596,7 +3596,7 @@ class gmoccapy(object):
                 self.dialogs.warning_dialog(self, _("Just to warn you"), message)
                 self.widgets.tbtn_setup.set_active(False)
         else:
-            # check witch button should be sensitive, depending on the state of the machine
+            # check which button should be sensitive, depending on the state of the machine
             if self.stat.task_state == linuxcnc.STATE_ESTOP:
                 # estopped no mode available
                 self.widgets.rbt_manual.set_sensitive(False)
@@ -3961,8 +3961,8 @@ class gmoccapy(object):
     # this are the MDI thinks we need
     def on_btn_delete_clicked(self, widget, data=None):
         message = _("Do you really want to delete the MDI history?\n")
-        message += _("this will not delete the MDI History file, but will\n")
-        message += _("delete the listbox entries for this session")
+        message += _("This will not delete the MDI History file, but will\n")
+        message += _("delete the listbox entries for this session.")
         result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
         if result:
             self.widgets.hal_mdihistory.model.clear()
@@ -4118,7 +4118,7 @@ class gmoccapy(object):
     def _on_btn_set_selected_clicked(self, widget, data=None):
         system, name = self.widgets.offsetpage1.get_selected()
         if not system:
-            message = _("you did not selected a system to be changed to, so nothing will be changed")
+            message = _("You did not select a system to be changed to, so nothing will be changed")
             self.dialogs.warning_dialog(self, _("Important Warning!"), message)
             return
         if system == self.system_list[self.stat.g5x_index]:
@@ -4457,8 +4457,12 @@ class gmoccapy(object):
             if toolnumber == 0:
                 message = _("Please remove the mounted tool and press OK when done")
             else:
-                tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
-                message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
+                try:
+                    tooldescr = self.widgets.tooledit1.get_toolinfo(toolnumber)[16]
+                    message = _("Please change to tool\n\n# {0:d}     {1}\n\n then click OK.").format(toolnumber, tooldescr)
+                except:
+                    message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
+
             result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
             if result:
                 self.halcomp["toolchange-changed"] = True
@@ -4498,14 +4502,14 @@ class gmoccapy(object):
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
-            message = _("No or more than one tool selected in tool table")
-            message += _("Please select only one tool in the table")
+            message = _("No or multiple tools selected in the tool table. ")
+            message += _("Please select only one tool in the table!")
             self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             return
 
         if self.widgets.tooledit1.get_selected_tool() != self.stat.tool_in_spindle:
-            message = _("you can not touch of a tool, witch is not mounted in the spindle")
-            message += _("your selection has been reset to the tool in spindle")
+            message = _("You can not touch off a tool, which is not mounted in the spindle! ")
+            message += _("Your selection has been reset to the tool in spindle.")
             self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             self.widgets.tooledit1.reload(self)
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
@@ -4513,7 +4517,7 @@ class gmoccapy(object):
 
         if "G41" in self.active_gcodes or "G42" in self.active_gcodes:
             message = _("Tool touch off is not possible with cutter radius compensation switched on!\n")
-            message += _("Please emit an G40 before tool touch off")
+            message += _("Please emit an G40 before tool touch off.")
             self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             return
 
@@ -4554,8 +4558,8 @@ class gmoccapy(object):
         value = self.dialogs.entry_dialog(self, data=None, header=_("Enter the tool number as integer "),
                                      label=_("Select the tool to change"), integer=True)
         if value == "ERROR":
-            message = _("Conversion error because of wrong entry for tool number\n")
-            message += _("enter only integer numbers")
+            message = _("Conversion error because of wrong entry for tool number.\n")
+            message += _("Enter only integer numbers!")
             self.dialogs.warning_dialog(self, _("Conversion error !"), message)
             return
         elif value == "CANCEL":
@@ -5166,7 +5170,7 @@ class gmoccapy(object):
 
 
 # We need extra HAL pins here is where we do it.
-# we make pins for the hardware buttons witch can be placed around the
+# we make pins for the hardware buttons which can be placed around the
 # screen to activate the corresponding buttons on the GUI
     def _make_hal_pins(self):
         # generate the horizontal button pins

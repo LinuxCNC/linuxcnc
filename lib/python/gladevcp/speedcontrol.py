@@ -4,7 +4,7 @@
 # GladeVcp Widget 
 # SpeedControl is a widget specially made to control an adjustment 
 # with a touch screen. It is a replacement to the normal scale widget
-# witch is difficult to slide on a touch screen.
+# which is difficult to slide on a touch screen.
 #
 # Copyright (c) 2016 Norbert Schechner
 # 

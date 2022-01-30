@@ -1338,7 +1338,7 @@ class HAL:
 
         if potpinname:
                 # sserial digital potentiometer outputs for spindle eg 7i76 board
-                print(_("# ---digital potentionmeter output signals/setup---"), file=file)
+                print(_("# ---digital potentiometer output signals/setup---"), file=file)
                 print(file=file)
                 print("setp   "+potpinname+"spinout-minlim    [%s_%d]OUTPUT_MIN_LIMIT"% (title, jnum), file=file)
                 print("setp   "+potpinname+"spinout-maxlim    [%s_%d]OUTPUT_MAX_LIMIT"% (title, jnum), file=file)

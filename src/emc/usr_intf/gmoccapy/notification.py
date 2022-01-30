@@ -102,11 +102,11 @@ class Notification(Gtk.Window):
         if message[2]:
             icon.set_from_file(icon_file_name)
         else:
-            icon.set_from_stock(Gtk.STOCK_DIALOG_ERROR, self.icon_size)
+            icon.set_from_icon_name("gtk-dialog-warning", self.icon_size)
         hbox.pack_start(icon, False, False, 0)
         label = Gtk.Label()
         label.set_line_wrap(True)
-        label.set_line_wrap_mode(Pango.WrapMode.CHAR)
+        label.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR)
         label.set_size_request(self.message_width, -1)
         font_desc = Pango.FontDescription(self.font)
         label.modify_font(font_desc)
@@ -130,7 +130,7 @@ class Notification(Gtk.Window):
         btn_close.set_image(image)
         btn_close.set_border_width(2)
         btn_close.connect('clicked', self._on_btn_close_clicked, labelnumber.get_text())
-        hbox.pack_start(btn_close, False, False, 0)
+        hbox.pack_end(btn_close, False, False, 0)
         if self.use_frames:
             widget = frame
         else:
@@ -151,7 +151,7 @@ class Notification(Gtk.Window):
 
     # add a message, the message is a string, it will be line wrapped
     # if to long for the frame
-    def add_message(self, message, icon_file_name):
+    def add_message(self, message, icon_file_name=None):
         '''Notification.add_message(messagetext, icon_file_name)
         
            messagetext = a string to display
@@ -286,7 +286,8 @@ def main():
 
     notification = Notification()
     notification.add_message('Halo World out there', '/usr/share/gmoccapy/images/applet-critical.png')
-    notification.add_message('Hallo World ', '/usr/share/gmoccapy/images/std_info.gif')
+    notification.add_message('Hallo World this is a long string that have a linebreak ', '/usr/share/gmoccapy/images/std_info.gif')
+    notification.add_message('This has a default icon')
     notification.show()
     #def debug(self, text):
     #    print("debug", text)
