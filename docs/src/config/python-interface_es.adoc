@@ -676,7 +676,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     establecer la velocidad máxima
 
 `mdi(string)`::
-    Enviar un comando MDI. Máximo 255 caracteres.
+    Enviar un comando MDI. Máximo 254 caracteres.
 
 `mist(int)`:: activa/desactiva la niebla. +
     Sintaxis: +

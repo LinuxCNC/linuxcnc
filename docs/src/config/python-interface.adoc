@@ -638,10 +638,10 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     set debug level via EMC_SET_DEBUG message.
 
 `display_msg(string)`::
-    sends a operator display message to the screen. (max 256 characters)
+    sends a operator display message to the screen. (max 254 characters)
 
 `error_msg(string)`::
-    sends a operator error message to the screen. (max 256 characters)
+    sends a operator error message to the screen. (max 254 characters)
 
 `feedrate(float)`::
     set the feedrate.
@@ -686,7 +686,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     set maximum velocity
 
 `mdi(string)`::
-    send an MDI command. Maximum 255 chars.
+    send an MDI command. Maximum 254 chars.
 
 `mist(int)`:: turn on/off mist. +
     Syntax: +
@@ -749,7 +749,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     SPINDLE_DECREASE, or SPINDLE_CONSTANT.
 
 `text_msg(string)`::
-    sends a operator text message to the screen. (max 256 characters)
+    sends a operator text message to the screen. (max 254 characters)
 
 [source, python]
 ---------------------------------------------------------------------
