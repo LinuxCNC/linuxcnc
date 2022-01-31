@@ -99,18 +99,15 @@ class Calculator( Gtk.VBox ):
         provider = Gtk.CssProvider()
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        provider.load_from_data("#small {padding: 0;}".encode())
-
-        objects = ["Left_bracket", "Right_bracket", "Pi", "Divide", "Multiply", 
-            "Add", "Minus", "Equal", "Inch_mm", "mm_Inch", "Backspace", "CLR", 
-            "Inch_mm", "mm_Inch", "cancel_button", "ok_button"]
-         
-        for i in objects:
-            try:
-                self.wTree.get_object(i).set_name('small')
-            except:
-                ptimt(i,"not found")
-
+        css = b"""
+            entry {
+                background: yellow;
+            }
+            button {
+                padding: 0;
+            }
+        """
+        provider.load_from_data(css)
               
 
 
