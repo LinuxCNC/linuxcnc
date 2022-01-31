@@ -1,4 +1,4 @@
-VERSION = '1.221.159'
+VERSION = '1.221.160'
 
 '''
 qtplasmac_handler.py
@@ -279,21 +279,23 @@ class HandlerClass:
         self.PIERCE_DELAY   =  8
         self.PUDDLE_JUMP    =  9
         self.CUT_HEGHT      = 10
-        self.CUTTING        = 11
-        self.PAUSE_AT_END   = 12
-        self.SAFE_HEIGHT    = 13
-        self.MAX_HEIGHT     = 14
-        self.FINISH         = 15
-        self.TORCH_PULSE    = 16
-        self.PAUSED_MOTION  = 17
-        self.OHMIC_TEST     = 18
-        self.PROBE_TEST     = 19
-        self.SCRIBING       = 20
-        self.CONS_CHNG_ON   = 21
-        self.CONS_CHNG_OFF  = 22
-        self.CUT_REC_ON     = 23
-        self.CUT_REC_OFF    = 24
-        self.DEBUG          = 25
+        self.CUT_MODE_01    = 11
+        self.CUT_MODE_2     = 12
+        self.PAUSE_AT_END   = 13
+        self.SAFE_HEIGHT    = 14
+        self.MAX_HEIGHT     = 15
+        self.END_CUT        = 16
+        self.END_JOB        = 17
+        self.TORCH_PULSE    = 18
+        self.PAUSED_MOTION  = 19
+        self.OHMIC_TEST     = 20
+        self.PROBE_TEST     = 21
+        self.SCRIBING       = 22
+        self.CONS_CHNG_ON   = 23
+        self.CONS_CHNG_OFF  = 24
+        self.CUT_REC_ON     = 25
+        self.CUT_REC_OFF    = 26
+        self.DEBUG          = 27
 
     def initialized__(self):
         # ensure we get all startup errors
