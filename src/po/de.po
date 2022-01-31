@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-31 18:35+0000\n"
+"PO-Revision-Date: 2022-02-01 07:13+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -2275,7 +2275,7 @@ msgstr "Keine Kanäle ausgewählt"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Sie müssen mindestens einen Kanal auswählen."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
@@ -2594,10 +2594,14 @@ msgstr "Negatives Softlimit bei (%.5f) Achse/Gelenk %d überschritten\n"
 #: src/emc/motion/control.c:1595 src/emc/motion/control.c:1604
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
+"Das Gelenkt muss die Referenzposition verlassen, in den Arbeitsbereich "
+"bewegt werden und die Referenzfahrt erneut ausführen"
 
 #: src/emc/motion/control.c:1597 src/emc/motion/control.c:1606
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
+"Tipp: Wechseln Sie in den Gelenkmodus für eine Schnellfahrt über die weichen "
+"Grenzen hinaus"
 
 #: src/emc/motion/control.c:1601
 #, c-format
@@ -2687,7 +2691,7 @@ msgstr "Keine Handsteuerung während der Referenzfahrt."
 
 #: src/emc/motion/command.c:1101
 msgid "need to be enabled, in coord mode for linear move"
-msgstr ""
+msgstr "muss aktiviert sein, im Koordinaten-Modus für lineare Bewegung"
 
 #: src/emc/motion/command.c:1106
 msgid "invalid params in linear command"
@@ -2704,7 +2708,7 @@ msgstr "Keine Linearbewegung möglich in Zeile %d, Fehlercode %d"
 
 #: src/emc/motion/command.c:1169
 msgid "need to be enabled, in coord mode for circular move"
-msgstr ""
+msgstr "muss aktiviert sein, im Koordinaten-Modus für zirkuläre Bewegung"
 
 #: src/emc/motion/command.c:1179
 msgid "can't do circular move with limits exceeded"
@@ -2778,7 +2782,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:1616
 msgid "need to be enabled, in coord mode for probe move"
-msgstr ""
+msgstr "muss aktiviert sein, im Koordinaten-Modus für Tastsensor"
 
 #: src/emc/motion/command.c:1626
 msgid "can't do probe move with limits exceeded"
@@ -2924,6 +2928,7 @@ msgstr "MOTION: num_spindles ist %d, muss zwischen 0 und %d liegen\n"
 #: src/emc/motion/motion.c:284
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
+"MOTION: Kann nicht sowohl Name als auch Nummer für digitale Pins angeben\n"
 
 #: src/emc/motion/motion.c:298
 #, c-format
@@ -2933,6 +2938,7 @@ msgstr "MOTION: num_dio ist %d, muss zwischen 1 und %d liegen\n"
 #: src/emc/motion/motion.c:304
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
+"MOTION: Kann nicht sowohl Name als auch Nummer für analoge Pins angeben\n"
 
 #: src/emc/motion/motion.c:317
 #, c-format
@@ -2941,7 +2947,7 @@ msgstr "MOTION: num_aio ist %d, muss zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:323
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr ""
+msgstr "MOTION: Kann nicht sowohl Name als auch Nummer für Fehler angeben\n"
 
 #: src/emc/motion/motion.c:336
 #, c-format
@@ -3629,19 +3635,19 @@ msgid "Read Coils/inputs map to"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:670
-#, c-format
+#, c-format, fuzzy
 msgid "Write Coils map from"
-msgstr ""
+msgstr "Schreibe Spulen Zuordnung von"
 
 #: src/hal/classicladder/config_gtk.c:674
-#, c-format
+#, c-format, fuzzy
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Lese register/holding Zuordnung für"
 
 #: src/hal/classicladder/config_gtk.c:678
 #, c-format
 msgid "Write registers map from"
-msgstr ""
+msgstr "Schreibe Register Zuordnung von"
 
 #: src/hal/classicladder/config_gtk.c:732
 msgid "NO"
@@ -3985,15 +3991,15 @@ msgstr "Dort ist bereits ein Element!"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Ein Schritt kann nicht auf geraden Zeilen angewiesen werden"
 
 #: src/hal/classicladder/edit_sequential.c:777
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Sequentieller Speicher voll mit Transitionen"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Eine Transition kann nicht auf ungeraden Zeilen angewiesen werden"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #, c-format
@@ -4017,7 +4023,7 @@ msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:843
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Sequenzieler Speicher voll mit Kommentaren"
 
 #: src/hal/classicladder/edit_sequential.c:848
 msgid "There is already an element on 4 horizontal blocks required!"
@@ -4064,7 +4070,7 @@ msgstr "Variablennummer außerhalb der Grenzen"
 
 #: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
 msgid "None -Internal Memory"
-msgstr ""
+msgstr "Nicht-Interner Speicher"
 
 #: src/hal/classicladder/emc_mods.c:123
 msgid "None -Internal Error Status"
@@ -4274,9 +4280,8 @@ msgid "Language"
 msgstr "Sprache"
 
 #: src/hal/classicladder/manager_gtk.c:257
-#, fuzzy
 msgid "Main/Sub-Routine"
-msgstr "Menübaum aufklappen"
+msgstr "Haupt/Unterroutine"
 
 #: src/hal/classicladder/manager_gtk.c:258
 msgid "Name"
@@ -6326,7 +6331,6 @@ msgid "ngcgui Error"
 msgstr "ngcgui-Fehler"
 
 #: tcl/ngcgui.tcl:2760
-#, fuzzy
 msgid "Declining support for tk send bug in ngcgui"
 msgstr "Lehne Support ab für tk schicke bug in ngcgui"
 
@@ -7760,7 +7764,6 @@ msgid "Joint"
 msgstr "Gelenk"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3628
-#, fuzzy
 msgid "Home Joint"
 msgstr "Referenzpunkt"
 
@@ -8052,7 +8055,6 @@ msgid "Interpreter List"
 msgstr "Interpreter-Liste"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:44
-#, fuzzy
 msgid "State Tags"
 msgstr "Status Markierungen"
 
@@ -8458,7 +8460,6 @@ msgid "Front view"
 msgstr "Vorderansicht"
 
 #: share/axis/tcl/axis.tcl:634
-#, fuzzy
 msgid "Inverted Front view"
 msgstr "Gespiegelte Vorderansicht"
 
@@ -8496,7 +8497,6 @@ msgid "Touch Off"
 msgstr "Antasten"
 
 #: share/axis/tcl/axis.tcl:944
-#, fuzzy
 msgid "Tool Touch Off"
 msgstr "Werkzeug Antasten"
 
@@ -9038,9 +9038,8 @@ msgid "wa"
 msgstr "wa"
 
 #: src/emc/usr_intf/touchy/touchy.glade:342
-#, fuzzy
 msgid "ad"
-msgstr "Ende"
+msgstr "ad"
 
 #: src/emc/usr_intf/touchy/touchy.glade:356
 msgid "bd"
@@ -9063,7 +9062,6 @@ msgid "wd"
 msgstr "wd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:458
-#, fuzzy
 msgid "Estop Reset"
 msgstr "Notaus Zurücksetzen"
 
@@ -9095,7 +9093,6 @@ msgid "Unhome All"
 msgstr "Referenzfahrt aufheben bei allen Achsen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:595
-#, fuzzy
 msgid "Home Selected"
 msgstr "Referenzfahrt der gewählten Achse"
 
@@ -9324,9 +9321,8 @@ msgid "Interpreted line:"
 msgstr "Interpretierte Zeile:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2486
-#, fuzzy
 msgid "Distance:"
-msgstr "Vorschub-Weg:"
+msgstr "Distanz:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2499
 #: src/emc/usr_intf/stepconf/main_page.glade:324
@@ -9484,9 +9480,8 @@ msgid "Listing Font:"
 msgstr "Quellcode Zeichensatz:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3125
-#, fuzzy
 msgid "Listing Font"
-msgstr "Schrift auswählen"
+msgstr "Listing Schriftart"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3145
 msgid "Hide pointer"
@@ -9570,7 +9565,7 @@ msgstr "MV: 100"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3568
 msgid "Jogging"
-msgstr ""
+msgstr "Schnellauf"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3582
 msgid "Start Point"
@@ -19629,7 +19624,6 @@ msgid "Graphics\n"
 msgstr "Grafiken\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2873
-#, fuzzy
 msgid ""
 "Menu\n"
 "Level"
@@ -19690,14 +19684,14 @@ msgstr ""
 "  system"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3095
-#, fuzzy
 msgid ""
 "Index\n"
 " Tool"
-msgstr "Werkzeug angelegt"
+msgstr ""
+"Werkzeug\n"
+"angelegt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3107
-#, fuzzy
 msgid ""
 "Spindle\n"
 "Controls"
@@ -19735,13 +19729,12 @@ msgstr ""
 "Darstellung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3300
-#, fuzzy
 msgid ""
 "Next\n"
 " Tab"
 msgstr ""
 "Nächste\n"
-" Registerkarte"
+"Registerkarte"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3320
 msgid ""
@@ -19782,7 +19775,6 @@ msgstr ""
 "schrittweite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3396
-#, fuzzy
 msgid ""
 "Adjust\n"
 "Rotary"
@@ -19791,7 +19783,6 @@ msgstr ""
 "Drehung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3418
-#, fuzzy
 msgid ""
 "Change\n"
 "  View"
@@ -19832,30 +19823,28 @@ msgstr ""
 "rotieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3526
-#, fuzzy
 msgid ""
 "Search\n"
 "  Bwd"
-msgstr "Suchpfad"
+msgstr ""
+"Suche\n"
+"Rückw."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3538
-#, fuzzy
 msgid ""
 "Search\n"
 "  Fwd"
-msgstr "Suchpfad"
+msgstr ""
+"Suche\n"
+"Vorw."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3550
 msgid "Undo"
-msgstr ""
-"Rück-\n"
-"gängig"
+msgstr "Rückgängig"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
-msgstr ""
-"Wieder-\n"
-"herstellen"
+msgstr "Wiederherstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
 msgid ""
@@ -19866,11 +19855,12 @@ msgstr ""
 "neu laden"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3609
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text"
-msgstr "Ersetzen"
+msgstr ""
+"Ersetze\n"
+"  Text"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3647
 msgid ""
@@ -20009,9 +19999,8 @@ msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "offsetpage_widget Fehler: kann das Koordinatensystem nicht auswählen"
 
 #: lib/python/gladevcp/tooledit_widget.py:227
-#, fuzzy
 msgid "tooledit_widget error: cannot select tool number"
-msgstr "tooledit_widget Fehler: Werkzeugnummer kann nicht ausgewählt werden"
+msgstr "tooledit_widget Fehler: Kann Werkzeug nicht ausgewählt mit Nummer"
 
 #: lib/python/gladevcp/tooledit_widget.py:246
 #, fuzzy
@@ -20103,7 +20092,6 @@ msgstr "G55"
 
 #: lib/python/gladevcp/offsetpage.glade:142
 #: lib/python/gladevcp/offsetpage.glade:156
-#, fuzzy
 msgid "G56"
 msgstr "G56"
 
@@ -20146,11 +20134,10 @@ msgid "Offset Name"
 msgstr "Offsetname"
 
 #: lib/python/gladevcp/offsetpage.glade:442
-#, fuzzy
 msgid ""
 "Zero\n"
 "G92"
-msgstr "G59.2 auf Null setzen"
+msgstr "G92 auf Null setzen"
 
 #: lib/python/gladevcp/offsetpage.glade:456
 msgid ""
