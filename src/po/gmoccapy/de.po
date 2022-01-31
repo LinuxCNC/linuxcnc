@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2021-05-14 10:21+0200\n"
-"PO-Revision-Date: 2022-01-28 21:54+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-02-01 07:13+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -992,9 +992,7 @@ msgstr "<b>Vorschubüberst.</b>"
 
 #: gmoccapy.glade.h:49
 msgid "Undo"
-msgstr ""
-"Rück-\n"
-"gängig"
+msgstr "Rückgängig"
 
 #: gmoccapy.glade.h:50
 msgid ""
@@ -1014,9 +1012,7 @@ msgstr ""
 
 #: gmoccapy.glade.h:54
 msgid "Redo"
-msgstr ""
-"Wieder-\n"
-"herstellen"
+msgstr "Wiederherstellen"
 
 #: gmoccapy.glade.h:55
 msgid ""
