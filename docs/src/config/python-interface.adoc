@@ -212,6 +212,9 @@ currently homed joints, 0 = not homed, 1 = homed.
 *id*:: '(returns integer)' -
 currently executing motion id.
 
+*ini_filename*:: '(returns string)' -
+path to the INI file passed to linuxcnc.
+
 *inpos*:: '(returns boolean)' -
 machine-in-position flag.
 
@@ -873,6 +876,26 @@ nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
     linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
 ---------------------------------------------------------------------
+
+Or for the same INI file as LinuxCNC:
+
+[source,python]
+---------------------------------------------------------------------
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# run as:
+# python ini-example2.py
+
+import linuxcnc
+
+stat = linuxcnc.stat()
+stat.poll()
+
+inifile = linuxcnc.ini(stat.ini_filename)
+
+# See example above for usage of 'inifile' object
+---------------------------------------------------------------------
+
 
 == The `linuxcnc.positionlogger` type
 

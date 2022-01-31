@@ -1967,6 +1967,7 @@ void EMC_TASK_STAT::update(CMS * cms)
     cms->update(readLine);
     cms->update(file, 256);
     cms->update(command, 256);
+    cms->update(ini_filename, 256);
     EmcPose_update(cms, &g5x_offset);
     EmcPose_update(cms, &g92_offset);
     EmcPose_update(cms, &toolOffset);
