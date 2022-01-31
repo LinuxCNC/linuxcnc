@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-30 22:55+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-01-31 18:35+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -10727,7 +10727,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:746
 #: src/emc/usr_intf/pncconf/build_HAL.py:1925
 msgid "# default = 0.0 (seconds)"
-msgstr ""
+msgstr "# default = 0.0 (Sekunden)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
 #: src/emc/usr_intf/pncconf/build_HAL.py:1927
@@ -10735,6 +10735,9 @@ msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
+"# Nur für Modus 0 Arc-OK, die Anzahl der aufeinanderfolgenden Messwerte "
+"innerhalb des Schwellenwerts, die erforderlich sind, um das Arc-OK-Signal zu "
+"setzen."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:749
 #: src/emc/usr_intf/pncconf/build_HAL.py:1928
@@ -10747,11 +10750,13 @@ msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
+"# Nur für Modus 0 Arc-OK, die maximale Spannungsabweichung, die für eine "
+"gültige Spannung zulässig ist, um das Arc-OK-Signal zu setzen."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:752
 #: src/emc/usr_intf/pncconf/build_HAL.py:1931
 msgid "# default = 10 (volts)"
-msgstr ""
+msgstr "# default = 10 (Volt)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
 #: src/emc/usr_intf/pncconf/build_HAL.py:1933
@@ -10759,6 +10764,8 @@ msgid ""
 "# The voltage above and below 0V that will display as 0V. Prevents small "
 "fluctuations from flickering the voltage display."
 msgstr ""
+"# Die Spannung über und unter 0 V, die als 0 V angezeigt wird. Verhindert, "
+"dass bei kleinen Schwankungen die Spannungsanzeige flackert."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:757
 #: src/emc/usr_intf/pncconf/build_HAL.py:1936
@@ -10766,11 +10773,13 @@ msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
 msgstr ""
+"# Der Abstand (in Millimetern) vom Z MAX_LIMIT, den QtPlasmaC der Z-Achse "
+"erlaubt, während sie von der Maschine gesteuert wird."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:758
 #: src/emc/usr_intf/pncconf/build_HAL.py:1937
 msgid "# default = 5 (mm)"
-msgstr ""
+msgstr "# default = 5 (mm)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
 #: src/emc/usr_intf/pncconf/build_HAL.py:1939
@@ -10778,6 +10787,8 @@ msgid ""
 "# The required number of consecutive times that the threshold has been "
 "exceeded before applying the void lock to the THC."
 msgstr ""
+"# Die erforderliche Anzahl aufeinanderfolgender Überschreitungen des "
+"Schwellenwerts, bevor die Brennerhöhensteuerung mit einer Sperre belegt wird."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:761
 #: src/emc/usr_intf/pncconf/build_HAL.py:1940
@@ -11937,8 +11948,9 @@ msgid "**** PNCCONF INFO:    Found extra firmware in file"
 msgstr "**** PNCCONF INFO:    Zusätzliche firmware in Datei gefunden"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:364
+#, fuzzy
 msgid "Discovery metadata update"
-msgstr ""
+msgstr "Aktualisierung der Metadaten für die Suche"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:408
 #, python-format
@@ -12079,6 +12091,8 @@ msgstr ""
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
+"Sie haben vergessen, ein Encoder-/Resolver-Signale für die Achse %s Servo zu "
+"bestimmen\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3853
 #, python-format
@@ -12099,6 +12113,8 @@ msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr ""
+"Wenn Sie einen Tandem-Achsen-Stepper verwenden, müssen Sie ein Master-"
+"Stepgen für die Achse %s auswählen.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3867
 msgid "Touchy require an external cycle start signal\n"
@@ -12356,48 +12372,57 @@ msgstr "# wird überschrieben sobald Sie PNCconf erneut ausführen"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:176
 msgid "# **** This is for info only ****"
-msgstr ""
+msgstr "# **** Nur zur Information ****"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:186
 msgid ""
 "# These are to ease setting custom component's parameters in a custom HAL "
 "file"
 msgstr ""
+"# Diese erleichtern die Einstellung der Parameter einer benutzerdefinierten "
+"Komponente in einer benutzerdefinierten HAL-Datei"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:411
 msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
 msgstr ""
+"# Die folgenden Werte sollten 25% größer sein als MAX_VELOCITY und "
+"MAX_ACCELERATION"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:412
 msgid ""
 "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
 msgstr ""
+"# Bei Verwendung der UMKEHRSPIEL-Kompensation sollte STEPGEN_MAXACCEL um "
+"100% größer sein."
 
 #: src/emc/usr_intf/pncconf/build_INI.py:464
 msgid "# these are in nanoseconds"
-msgstr ""
+msgstr "# diese sind in Nanosekunden"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:543
+#, fuzzy
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr ""
+"# MAX_VEL & MAX_ACC müssen doppelt so hoch sein wie der entsprechende "
+"gemeinsame Wert."
 
 #: src/emc/usr_intf/pncconf/build_INI.py:557
 msgid "# set the operating mode (default is 0)"
-msgstr ""
+msgstr "# Einstellen der Betriebsart (Standard ist 0)"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:559
 msgid "# set the estop type (0=indicator, 1=hidden, 2=button)"
-msgstr ""
+msgstr "# Art des Notaus festlegen (0=Anzeige, 1=versteckt, 2=Button)"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:570
 msgid "# laser touchoff"
-msgstr ""
+msgstr "# laser touchoff"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:572
 msgid "# camera touchoff"
-msgstr ""
+msgstr "# camera touchoff"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:574
 msgid "# powermax communications"
@@ -12409,7 +12434,7 @@ msgstr "# Anwender buttons"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
 msgid "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
-msgstr ""
+msgstr "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:437
 msgid "# connect miscellaneous signals"
@@ -12443,11 +12468,11 @@ msgstr "# ---USB Handsteuerungs-Tasten Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:494
 msgid "# connect selectable mpg jog speeds "
-msgstr ""
+msgstr "# Anschluss wählbarer Handrad-Schnellauf-Geschwindigkeiten"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:524
 msgid "# ---jogwheel signals to mesa encoder - shared MPG---"
-msgstr ""
+msgstr "# ---Schnellauf-Rad Signale zu Mesa Encoder - shared MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:533
 #: src/emc/usr_intf/pncconf/build_HAL.py:559
@@ -12462,7 +12487,7 @@ msgstr "#       for Achse %s Handsteuerung"
 #: src/emc/usr_intf/pncconf/build_HAL.py:551
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr ""
+msgstr "# ---Schnellauf-Rad Signale zu Mesa Encoder - %s Achse MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:570
 msgid "# connect selectable mpg jog increments "
@@ -12494,7 +12519,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:698
 msgid "# ---spindle override signals to mesa encoder - mpg---"
-msgstr ""
+msgstr "# ---Spindel Neufestetzung Signale an Mesa Encoder - Handrad (MPG) ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:707
 #, fuzzy
@@ -12547,6 +12572,8 @@ msgid ""
 "\n"
 "# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 msgstr ""
+"\n"
+"# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:849
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
@@ -12582,6 +12609,8 @@ msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
 msgstr ""
+"**** Z-Achsen-Touch-Off-Taster - erfordert das Touch-Off-classicladder (SPS) "
+"programm ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:935
 msgid "# Put custom HAL commands in custom_postgui.hal"
@@ -12606,39 +12635,50 @@ msgid ""
 "\n"
 "# --- PLASMAC:LASER-ON ---"
 msgstr ""
+"\n"
+"# --- PLASMAC:LASER-ON ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:971
 msgid "# These commands are required for Touchy GUI"
 msgstr "# These Kommandos werden benötigt für Touchy GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1045
+#, fuzzy
 msgid "#    Automation Direct GS2 VFD for spindle control"
-msgstr ""
+msgstr "# Automation Direct GS2 VFD für Spindelsteuerung"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid "#    The communications switches must be set to RS-232C"
-msgstr ""
+msgstr "# Die Kommunikationsschalter müssen auf RS-232C eingestellt sein"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1048
 msgid "#    The motor parameters must be set to match the motor"
 msgstr ""
+"# Die Motorparameter müssen so eingestellt werden, dass sie mit dem Motor "
+"übereinstimmen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
 "#    P3.00 (Source of Operation Command) must be set to Operation determined "
 "by RS-485 interface, 03 or 04"
 msgstr ""
+"#    P3.00 (Quelle der Operation/Befehl) muss für die Operation gesetzt "
+"sein, die durch die RS-485-Schnittstelle, 03 oder 04 festgelegt ist"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1050
 msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
 msgstr ""
+"# P4.00 (Quelle des Frequenzbefehls) muss auf Frequenz eingestellt sein, die "
+"bestimmt ist durch die RS232C/RS485-Kommunikationsschnittstelle, 05"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1051
 msgid ""
 "#    P9.01 (Transmission Speed) must be set to the specified baud, 9600 = 01"
 msgstr ""
+"#    P9.01 (Übertragungsgeschwindigkeit) muss auf die angegebene Baudrate "
+"eingestellt werden, 9600 = 01"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1052
 msgid ""
