@@ -146,6 +146,21 @@ class gmoccapy(object):
         locale.bindtextdomain("gmoccapy", LOCALEDIR)
         gettext.install("gmoccapy", localedir=LOCALEDIR)
 
+        # CSS styling
+        screen = Gdk.Screen.get_default()
+        provider = Gtk.CssProvider()
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        css = b"""
+            button {
+                padding: 0;
+            }
+            button:checked {
+                background: rgba(230,230,50,0.8);
+            }
+        """
+        provider.load_from_data(css)
+
         # needed components to communicate with hal and linuxcnc
         self.halcomp = hal.component("gmoccapy")
         self.command = linuxcnc.command()

@@ -94,22 +94,14 @@ class Calculator( Gtk.VBox ):
         self.window = self.calc_box.get_parent()
         self.window.remove(self.calc_box)
         self.add(self.calc_box)
-
+        
+        # Use CSS style fot buttons
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()
         style_context = Gtk.StyleContext()
         style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        css = b"""
-            entry {
-                background: yellow;
-            }
-            button {
-                padding: 0;
-            }
-        """
+        css = b"button {padding: 0;}"
         provider.load_from_data(css)
-              
-
 
     def num_pad_only( self, value ):
         self.has_num_pad_only = value
