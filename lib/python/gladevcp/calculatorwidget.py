@@ -30,6 +30,7 @@ locale.bindtextdomain("linuxcnc", LOCALEDIR)
 import gi
 gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GObject
 from gi.repository import Pango
 
@@ -93,6 +94,14 @@ class Calculator( Gtk.VBox ):
         self.window = self.calc_box.get_parent()
         self.window.remove(self.calc_box)
         self.add(self.calc_box)
+        
+        # Use CSS style for buttons
+        screen = Gdk.Screen.get_default()
+        provider = Gtk.CssProvider()
+        style_context = Gtk.StyleContext()
+        style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        css = b"button {padding: 0;}"
+        provider.load_from_data(css)
 
     def num_pad_only( self, value ):
         self.has_num_pad_only = value
