@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: fr\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2021-12-31 00:07+0000\n"
-"Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
+"PO-Revision-Date: 2022-01-27 20:45+0000\n"
+"Last-Translator: Jeff Epler <jepler@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.10.1\n"
+"X-Generator: Weblate 4.11-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -26,9 +26,9 @@ msgstr ""
 "de l'arrêt d'urgence et mise en marche"
 
 #: src/emc/task/emctaskmain.cc:1001
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "Commande (%s) impossible en mode manuel"
+msgstr "ne peut pas faire cela (%s:%d) en mode manuel"
 
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
@@ -51,18 +51,17 @@ msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr "(%s) impossible en mode auto avec l'interpréteur en attente"
 
 #: src/emc/task/emctaskmain.cc:1456
-#, fuzzy, c-format
+#, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "Commande (%s) impossible en mode MDI"
+msgstr "on ne peut pas faire ça (%s:%d) en mode MDI"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr "Impossible de quitter le mode AUTO si l'interpréteur est en charge"
 
 #: src/emc/task/emctaskmain.cc:2180
-#, fuzzy
 msgid "failed to close file"
-msgstr "Impossible d'ouvrir le fichier <%s>"
+msgstr "échec de la fermeture du fichier"
 
 #: src/emc/task/emctaskmain.cc:2194 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
@@ -83,14 +82,13 @@ msgid "Can't run a program when not homed"
 msgstr "Pas de départ cycle avant la prise d'origine machine"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c"
 "%.4f) r1=%.4f r2=%.4f"
 msgstr ""
 "Le rayon à la fin de l'arc diffère de celui du début: début=(%c%.4f,%c%.4f) "
-"centre=(%c%.4f,%c%.4f) fin=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
-"rel_err=%.4f%%"
+"centre=(%c%.4f,%c%.4f) fin=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -11937,7 +11935,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
