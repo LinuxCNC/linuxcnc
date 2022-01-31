@@ -104,8 +104,8 @@ class MDI(QLineEdit):
                 fp.close()
             except:
                 pass
-        self.mdiLast = text.lower()
         if not self.mdiError:
+            self.mdiLast = text.lower()
             STATUS.emit('mdi-history-changed')
 
     # Gcode widget can emit a signal to this
