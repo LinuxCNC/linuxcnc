@@ -34,6 +34,8 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
 set ::titlename [msgcat::mc "HAL Show"]
 wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
+image create photo applicationIcon -file [file join [file dirname [info script]] halshow_icon.png]
+wm iconphoto . -default applicationIcon
 set masterwidth 700
 set masterheight 475
 # set fixed size for configuration display and center
