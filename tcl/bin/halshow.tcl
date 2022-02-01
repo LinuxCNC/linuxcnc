@@ -78,6 +78,7 @@ set ::watchhal [$::nb insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMo
 proc placeFrames {ratio} {
     place configure $::leftf -in $::main -x 0 -y 0 -relheight 1 -relwidth $ratio
     place configure $::rightf -in $::main -relx $ratio -y 0 -relheight 1 -relwidth [expr 1-$ratio]
+    set ::ratio $ratio
 }
 
 placeFrames 0.3
@@ -181,13 +182,13 @@ set fh [frame $::tf.fh -borderwidth 0 -relief raised]
 pack $fh -fill x
 set tlbl [label $fh.tlbl -text [msgcat::mc "Tree View"]]
 pack $tlbl -side left
-set bh [button $fh.bh -borderwidth 0 -text « -padx 6 -pady 1]
+set bh [button $fh.bh -borderwidth 0 -text » -padx 6 -pady 1]
 pack $bh -side right
 bind $bh <Button-1> [list hideListview]
 
 # frame to show tree
-set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised]
-set bs [button $::fs.bs -borderwidth 0  -text » -padx 5 -pady 0] 
+set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width 24]
+set bs [button $::fs.bs -borderwidth 0  -text « -padx 5 -pady 0] 
 pack $bs -side top
 bind $bs <Button-1> [list showListview]
 # add canvas to create rotated text
@@ -198,14 +199,27 @@ $clbl create text 10 5 -angle 90 -anchor e -text [msgcat::mc "Tree View"] -font 
 proc hideListview {} {
     place $::fs -width 24 -relheight 1.0
     pack forget $::nb
-    place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -24 -relheight 1.0
-    placeFrames 0
+    place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -33 -relheight 1.0
+    placeFrames 0 
+    set ::old_w_leftf [winfo width $::leftf]
+    set new_w [expr [winfo width $::nb] + [$::fs cget -width] + 9 + 2* [.main cget -padx]]
+    set new_x [int [expr [winfo x .] + [winfo width .] - $new_w - 3]]
+    # offset added here because [winfo geometry .] differs from [wm geometry .]    
+    set y [expr [winfo y .] - 61]
+    wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
 }
 
 proc showListview {} {
     place forget $::fs
     place configure $::nb -relwidth 1.0 -width 0
-    placeFrames 0.3
+    # recalc ratio
+    set ratio [expr double($::old_w_leftf) / ([winfo width $::nb] + $::old_w_leftf)]
+    placeFrames $ratio
+    set new_w [int [expr  $::old_w_leftf + [winfo width $::nb] + 2*[.main cget -padx]]]
+    set new_x [int [expr [winfo x .] + [winfo width .] - $new_w - 3]] 
+    # offset added here because [winfo geometry .] differs from [wm geometry .]
+    set y [expr [winfo y .] - 61]
+    wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
 }
 
 proc scaleFrames {} {
@@ -930,3 +944,4 @@ if {[llength $::argv] > 0} {
      }
    }
 }
+
