@@ -830,6 +830,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
+            // cannot jog if jog-inhibit is TRUE
+            if (*(emcmot_hal_data->jog_inhibit)){
+                    reportError(_("Cannot jog while jog-inhibit is active."));
+                break;
+            }
 	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -920,6 +925,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
+            // cannot jog if jog-inhibit is TRUE
+            if (*(emcmot_hal_data->jog_inhibit)){
+                    reportError(_("Cannot jog while jog-inhibit is active."));
+                break;
+            }
 	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joint while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
@@ -1019,6 +1029,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
+            // cannot jog if jog-inhibit is TRUE
+            if (*(emcmot_hal_data->jog_inhibit)){
+                    reportError(_("Cannot jog while jog-inhibit is active."));
+                break;
+            }
 	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);

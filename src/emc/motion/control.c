@@ -339,6 +339,7 @@ static void process_inputs(void)
     double abs_ferror, scale;
     joint_hal_t *joint_data;
     emcmot_joint_t *joint;
+    emcmot_axis_t *axis;
     unsigned char enables;
     /* read spindle angle (for threading, etc) */
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){
@@ -527,6 +528,32 @@ static void process_inputs(void)
 				rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ORIENT complete, spindle locked");
 			}
 		}
+    }
+    // if jog in progress
+    if (enables & *(emcmot_hal_data->jog_inhibit) && *(emcmot_hal_data->jog_is_active)) {
+        // stop any joint jog
+        for (int jNum = 0; jNum < NO_OF_KINS_JOINTS; jNum++) {
+            joint = &joints[jNum];
+            if (joint->kb_jjog_active || joint->wheel_jjog_active) {
+                joint->free_tp.enable = 0;
+                joint->free_tp.curr_vel = 0.0;
+                joint->kb_jjog_active = 0;
+                joint->wheel_jjog_active = 0;
+                *(emcmot_hal_data->jog_is_active) = 0;
+            }
+        }
+        // stop any axis jog
+        for (int aNum = 0; aNum < EMCMOT_MAX_AXIS; aNum++) {
+            axis = &axes[aNum];
+            if (axis->kb_ajog_active || axis->wheel_ajog_active) {
+                axis->teleop_tp.enable = 0;
+                axis->teleop_tp.curr_vel = 0.0;
+                axis->kb_ajog_active = 0;
+                axis->wheel_ajog_active = 0;
+                *(emcmot_hal_data->jog_is_active) = 0;
+            }
+        }
+        reportError("Jog aborted by jog-inhibit");
     }
 }
 
@@ -1920,6 +1947,7 @@ static void output_to_hal(void)
     axis_hal_t *axis_data;
     static int old_motion_index[EMCMOT_MAX_SPINDLES] = {0};
     static int old_hal_index[EMCMOT_MAX_SPINDLES] = {0};
+    bool activeJog = 0;
 
     /* output machine info to HAL for scoping, etc */
     *(emcmot_hal_data->motion_enabled) = GET_MOTION_ENABLE_FLAG();
@@ -2118,6 +2146,10 @@ static void output_to_hal(void)
 	                                 + joint->motor_offset;
 	    continue;
 	}
+        // joint jog is in progress
+        if (joint->kb_jjog_active || joint->wheel_jjog_active) {
+                activeJog = 1;
+        }
     } // for joint_num
 
     /* output axis info to HAL for scoping, etc */
@@ -2137,7 +2169,12 @@ static void output_to_hal(void)
         // hal pins: axis.L.pos-cmd reported without applied offsets:
         *(axis_data->pos_cmd) = *pcmd_p[axis_num]
                               - axis->ext_offset_tp.curr_pos;
-     }
+        // axis jog is in progress
+        if (axis->kb_ajog_active || axis->wheel_ajog_active) {
+                activeJog = 1;
+        }
+    }
+    *(emcmot_hal_data->jog_is_active) = activeJog;
 }
 
 static void update_status(void)
