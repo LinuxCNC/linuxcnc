@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-01 14:33+0000\n"
+"PO-Revision-Date: 2022-02-01 15:18+0000\n"
 "Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -3629,9 +3629,9 @@ msgid "Debug level"
 msgstr "Debug-Ebene"
 
 #: src/hal/classicladder/config_gtk.c:666
-#, c-format
+#, c-format, fuzzy
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Lese Spulen/Eingänge Zuordnungen für"
 
 #: src/hal/classicladder/config_gtk.c:670
 #, c-format, fuzzy
@@ -5693,8 +5693,9 @@ msgid "Offset:"
 msgstr "Werkzeugkorrektur:"
 
 #: tcl/tklinuxcnc.tcl:942
+#, fuzzy
 msgid "Work Offsets:"
-msgstr ""
+msgstr "Werkstück Versatz:"
 
 #: tcl/tklinuxcnc.tcl:1126
 msgid "override limits"
@@ -6445,12 +6446,14 @@ msgid "Status items"
 msgstr "Statusmeldungen"
 
 #: tcl/ngcgui.tcl:3164
+#, fuzzy
 msgid "All-page opt items"
-msgstr ""
+msgstr "Optionale Einträge auf allen Seiten"
 
 #: tcl/ngcgui.tcl:3170
+#, fuzzy
 msgid "any-items"
-msgstr ""
+msgstr "alle Einträge"
 
 #: tcl/ngcgui.tcl:3203
 msgid "Set defaults"
@@ -6626,7 +6629,7 @@ msgstr "keine"
 
 #: tcl/ngcgui_ttt.tcl:193
 msgid "Subdiv"
-msgstr ""
+msgstr "Unterteilung"
 
 #: tcl/ngcgui_ttt.tcl:200 src/emc/usr_intf/touchy/touchy.glade:9
 msgid "default"
@@ -8040,7 +8043,7 @@ msgstr "RCS *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:40
 msgid "Task Issue"
-msgstr ""
+msgstr "Task Issue"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:41
 msgid "Motion Time"
@@ -8696,9 +8699,8 @@ msgid "Joint:"
 msgstr "Achse/Gelenk:"
 
 #: share/axis/tcl/axis.tcl:2230
-#, fuzzy
 msgid "_Clear Recents List"
-msgstr "Einträge _löschen"
+msgstr "Jüngste Einträge löschen"
 
 #: share/axis/tcl/axis.tcl:2250
 msgid "Turn spindle counterclockwise [F10]"
@@ -9526,7 +9528,7 @@ msgstr "Löschen / Zeilen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3421
 msgid "Keep / lines"
-msgstr ""
+msgstr "Beibehalten / Zeilen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3438
 msgid "Pause on M1"
@@ -9926,7 +9928,7 @@ msgstr "Ohmsches Plasma aktivieren"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Scribe Arm"
-msgstr ""
+msgstr "Plasma Gravieren Arm"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Scribe On"
@@ -10552,17 +10554,17 @@ msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64) "
 #: src/emc/usr_intf/stepconf/build_INI.py:405
 #: src/emc/usr_intf/pncconf/build_INI.py:561
 msgid "# set the dro position ('top' or 'bottom')"
-msgstr ""
+msgstr "# Setze Digitalanzeige-Position ('oben' or 'unten)"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:408
 #: src/emc/usr_intf/pncconf/build_INI.py:564
 msgid "# error message flash (0=no, 1=yes)"
-msgstr ""
+msgstr "# Fehlermeldungs-Flash (0=nein, 1=ja)"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:410
 #: src/emc/usr_intf/pncconf/build_INI.py:566
 msgid "# hide buttons (0=no, 1=yes)"
-msgstr ""
+msgstr "# verstecke Buttons (0=nein, 1=ja)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:292
 #: src/emc/usr_intf/pncconf/build_HAL.py:763
@@ -10583,7 +10585,7 @@ msgstr "# SPS Programm mit Modbus-Master laden (GUI muss für Modbus laufen)"
 #: src/emc/usr_intf/stepconf/build_HAL.py:333
 #: src/emc/usr_intf/pncconf/build_HAL.py:843
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
-msgstr ""
+msgstr "# Lade SPS ohne GUI (kann SPS \"LADDER\" GUI in AXIS GUI neu laden)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:343
 #: src/emc/usr_intf/pncconf/build_HAL.py:925
@@ -10632,7 +10634,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:394
 msgid "# **** set up spindle at speed indicator ****"
-msgstr ""
+msgstr "# **** Spindel bei Drehzahlanzeige einrichten ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:407
 msgid ""
@@ -10680,12 +10682,18 @@ msgid ""
 "\n"
 "########################################"
 msgstr ""
+"\n"
+"\n"
+"\n"
+"########################################"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:740
 #: src/emc/usr_intf/pncconf/build_HAL.py:1919
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
+"# Die folgenden Variablen sind für die Feinabstimmung einiger Parameter "
+"verfügbar."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
 #: src/emc/usr_intf/pncconf/build_HAL.py:1920
@@ -10693,18 +10701,20 @@ msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
+"# Um eine dieser Optionen zu verwenden, müssen Sie die entsprechende setp-"
+"Zeile auskommentieren und einen entsprechenden Wert eingeben.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
 #: src/emc/usr_intf/pncconf/build_HAL.py:1921
 msgid "# Dampen excessive noise on the arc voltage input"
-msgstr ""
+msgstr "# Dämpfen Sie übermäßiges Rauschen am Bogenspannungseingang"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
 #: src/emc/usr_intf/stepconf/build_HAL.py:755
 #: src/emc/usr_intf/pncconf/build_HAL.py:1922
 #: src/emc/usr_intf/pncconf/build_HAL.py:1934
 msgid "# default = 0 (volts)"
-msgstr ""
+msgstr "# default = 0 (Volt)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
 #: src/emc/usr_intf/pncconf/build_HAL.py:1924
@@ -10712,6 +10722,8 @@ msgid ""
 "# The time delay from losing the arc ok signal until QtPlasmaC reacts to the "
 "arc loss."
 msgstr ""
+"# Die Zeitverzögerung vom Verlust des Lichtbogen-OK-Signals bis zur Reaktion "
+"von QtPlasmaC auf den Lichtbogenverlust."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:746
 #: src/emc/usr_intf/pncconf/build_HAL.py:1925
@@ -12385,11 +12397,10 @@ msgid "# these are in nanoseconds"
 msgstr "# diese sind in Nanosekunden"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:543
-#, fuzzy
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr ""
 "# MAX_VEL & MAX_ACC müssen doppelt so hoch sein wie der entsprechende "
-"gemeinsame Wert."
+"gemeinsame Wert"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:557
 msgid "# set the operating mode (default is 0)"
@@ -12622,9 +12633,8 @@ msgid "# These commands are required for Touchy GUI"
 msgstr "# These Kommandos werden benötigt für Touchy GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1045
-#, fuzzy
 msgid "#    Automation Direct GS2 VFD for spindle control"
-msgstr "# Automation Direct GS2 VFD für Spindelsteuerung"
+msgstr "# Automation Direct GS2 Geschwindigkeitsregelung für Spindelsteuerung"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid "#    The communications switches must be set to RS-232C"
@@ -12664,6 +12674,8 @@ msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
 msgstr ""
+"# P9.02 (Kommunikationsprotokoll) muss auf \"Modbus RTU-Modus, 8 Datenbits, "
+"keine Parität, 2 Stoppbits\" eingestellt werden, 03"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1065
 msgid "#    Misubishi FR VFD for spindle control"
@@ -12720,7 +12732,7 @@ msgstr "#  SPINDEL"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1255
 msgid "# -- BLDC setup --"
-msgstr ""
+msgstr "# -- BLDC setup --"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# ---TPPWM Generator signals/setup---"
@@ -12728,19 +12740,20 @@ msgstr "# ---TPPWM Generator Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
-msgstr ""
+msgstr "# Sechs Ausgänge 3PWG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1326
+#, fuzzy
 msgid "# three output 3pwg"
-msgstr ""
+msgstr "# Drei Ausgänge 3PWG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1327
 msgid "# TODO write some commands!"
-msgstr ""
+msgstr "# TODO schreibe ein paar Kommandos!"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1331
 msgid "# ---8i20 amplifier card signals/setup---"
-msgstr ""
+msgstr "# ---8i20 Verstärker-Karte Signale/Einrichtung---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
 msgid "# ---digital potentionmeter output signals/setup---"
@@ -12751,12 +12764,13 @@ msgid "# ---PWM Generator signals/setup---"
 msgstr "# ---PWM Generator Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
+#, fuzzy
 msgid "# enable _all_ sserial pwmgens"
-msgstr ""
+msgstr "# aktiviere _alle_ sserial pwmgens"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1413
 msgid "# Step Gen signals/setup for tandem axis"
-msgstr ""
+msgstr "# Schrittgenerator Signale/Einrichtung für Tandem Achsen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1415
 msgid "# Step Gen signals/setup"
@@ -12824,48 +12838,56 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1820
 msgid "#values for these are in custom.hal"
-msgstr ""
+msgstr "#Werte für diese sind in custom.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1826
 msgid ""
 "\n"
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
+"\n"
+"---GELENK VERBUNDEN MIT DER Z-ACHSE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1837
 msgid ""
 "\n"
 "# ---PLASMA INPUTS---"
 msgstr ""
+"\n"
+"# ---PLASMA EINGÄNGE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1838
 #: src/emc/usr_intf/pncconf/build_HAL.py:1851
 msgid "# ---all modes---"
-msgstr ""
+msgstr "# ---alle Modi---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1843
 msgid "# ---modes 0 & 1"
-msgstr ""
+msgstr "# ---Modi 0 und 1"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1845
 msgid "# ---modes 1 & 2"
-msgstr ""
+msgstr "# ---Modi 1 und 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1847
 msgid "# ---mode 2"
-msgstr ""
+msgstr "# ---Modus 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1850
 msgid ""
 "\n"
 "# ---PLASMA OUTPUTS---"
 msgstr ""
+"\n"
+"# ---PLASMA AUSGÄNGE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1886
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
+"\n"
+"# ---BOGENSPANNUNG ENCODER---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1896
 msgid ""
@@ -12889,8 +12911,9 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1909
 #: src/emc/usr_intf/pncconf/build_HAL.py:1954
+#, fuzzy
 msgid "# set to zero if using internal ohmic sensing"
-msgstr ""
+msgstr "# setze auf 0 bei Nutzen von internem Ohmschen sensing"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1960
 msgid ""
@@ -13454,15 +13477,15 @@ msgstr "Schnellauf Inkr A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr B"
-msgstr ""
+msgstr "Schnellauf Inkr. B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr C"
-msgstr ""
+msgstr "Schnellauf Inkr. C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Jog incr D"
-msgstr ""
+msgstr "Schnellauf Inkr. D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Feed Override incr A"
@@ -13898,8 +13921,9 @@ msgid "Ohmic Contact"
 msgstr "Ohmscher Kontakt"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
+#, fuzzy
 msgid "Float Switch"
-msgstr ""
+msgstr "Float Schalter"
 
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Breakaway"
@@ -14195,7 +14219,7 @@ msgstr "Ohmisch Aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "Scribe Arm"
-msgstr ""
+msgstr "Gravieren Arm"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "Scribe On"
@@ -14231,27 +14255,27 @@ msgstr "Ungenutzte 8I20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "Unused Resolver"
-msgstr ""
+msgstr "Ungenutzter Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "X Resolver"
-msgstr ""
+msgstr "X Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Y Resolver"
-msgstr ""
+msgstr "Y Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Z Resolver"
-msgstr ""
+msgstr "Z Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:540
 msgid "A Resolver"
-msgstr ""
+msgstr "A Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:540
 msgid "S Resolver"
-msgstr ""
+msgstr "S Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
 msgid "Unused Analog Output"
@@ -14613,12 +14637,16 @@ msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
 msgstr ""
+" Sie müssen ein ENCODER / RESOLVER-Signal und ein ANALOG SPINDLE-Signal für "
+"diesen Achsentest bestimmen"
 
 #: src/emc/usr_intf/pncconf/tests.py:923
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
 msgstr ""
+" Sie müssen ein ENCODER / RESOLVER-Signal und ein PWM-Signal für diesen "
+"Achsentest bestimmen"
 
 #: src/emc/usr_intf/pncconf/tests.py:1212
 msgid ""
@@ -14964,7 +14992,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:324
 msgid "Shared Home Switch"
-msgstr ""
+msgstr "Geteilter Referenzpunkt-Schalter"
 
 #: src/emc/usr_intf/pncconf/help.glade:343
 msgid ""
@@ -14994,7 +15022,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:412
 msgid "Separate Homing Switches"
-msgstr ""
+msgstr "Getrennte Referenzpunkt-Schalter"
 
 #: src/emc/usr_intf/pncconf/help.glade:428
 msgid "Diagram"
@@ -16522,12 +16550,11 @@ msgstr "B JOG"
 
 #: src/emc/usr_intf/pncconf/external.glade:1580
 msgid "Shared MPG / selectable axis"
-msgstr ""
+msgstr "Geteiles Handrad/ auswählbare Achse"
 
 #: src/emc/usr_intf/pncconf/external.glade:1595
-#, fuzzy
 msgid "Mpg per axis"
-msgstr "Achse einzeln mit Handrad"
+msgstr "Handrad je Achse"
 
 #: src/emc/usr_intf/pncconf/external.glade:1610
 msgid "selectable MPG increments"
@@ -16682,8 +16709,9 @@ msgstr "Gray-Code verwenden"
 #: src/emc/usr_intf/pncconf/external.glade:3412
 #: src/emc/usr_intf/pncconf/external.glade:4338
 #: src/emc/usr_intf/pncconf/external.glade:5281
+#, fuzzy
 msgid "ignore all-inputs false"
-msgstr ""
+msgstr "ignorieren aller Eingänge falsch"
 
 #: src/emc/usr_intf/pncconf/external.glade:3458
 #: src/emc/usr_intf/pncconf/external.glade:4401
