@@ -37,7 +37,7 @@ Notes:
 ----
 
 Example to limit number of decimal points for floats
-and used a file named my.halshow in the current directory:
+and use a file named my.halshow in the current directory:
 
 ----
 $ halshow  --fformat "%.5f" ./my.halshow
