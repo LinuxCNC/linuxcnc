@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-30 22:55+0000\n"
+"PO-Revision-Date: 2022-02-01 15:18+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -2275,7 +2275,7 @@ msgstr "Keine Kanäle ausgewählt"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Sie müssen mindestens einen Kanal auswählen."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
@@ -2594,10 +2594,14 @@ msgstr "Negatives Softlimit bei (%.5f) Achse/Gelenk %d überschritten\n"
 #: src/emc/motion/control.c:1595 src/emc/motion/control.c:1604
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
+"Das Gelenkt muss die Referenzposition verlassen, in den Arbeitsbereich "
+"bewegt werden und die Referenzfahrt erneut ausführen"
 
 #: src/emc/motion/control.c:1597 src/emc/motion/control.c:1606
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
+"Tipp: Wechseln Sie in den Gelenkmodus für eine Schnellfahrt über die weichen "
+"Grenzen hinaus"
 
 #: src/emc/motion/control.c:1601
 #, c-format
@@ -2687,7 +2691,7 @@ msgstr "Keine Handsteuerung während der Referenzfahrt."
 
 #: src/emc/motion/command.c:1101
 msgid "need to be enabled, in coord mode for linear move"
-msgstr ""
+msgstr "muss aktiviert sein, im Koordinaten-Modus für lineare Bewegung"
 
 #: src/emc/motion/command.c:1106
 msgid "invalid params in linear command"
@@ -2704,7 +2708,7 @@ msgstr "Keine Linearbewegung möglich in Zeile %d, Fehlercode %d"
 
 #: src/emc/motion/command.c:1169
 msgid "need to be enabled, in coord mode for circular move"
-msgstr ""
+msgstr "muss aktiviert sein, im Koordinaten-Modus für zirkuläre Bewegung"
 
 #: src/emc/motion/command.c:1179
 msgid "can't do circular move with limits exceeded"
@@ -2778,7 +2782,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:1616
 msgid "need to be enabled, in coord mode for probe move"
-msgstr ""
+msgstr "muss aktiviert sein, im Koordinaten-Modus für Tastsensor"
 
 #: src/emc/motion/command.c:1626
 msgid "can't do probe move with limits exceeded"
@@ -2924,6 +2928,7 @@ msgstr "MOTION: num_spindles ist %d, muss zwischen 0 und %d liegen\n"
 #: src/emc/motion/motion.c:284
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
+"MOTION: Kann nicht sowohl Name als auch Nummer für digitale Pins angeben\n"
 
 #: src/emc/motion/motion.c:298
 #, c-format
@@ -2933,6 +2938,7 @@ msgstr "MOTION: num_dio ist %d, muss zwischen 1 und %d liegen\n"
 #: src/emc/motion/motion.c:304
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
+"MOTION: Kann nicht sowohl Name als auch Nummer für analoge Pins angeben\n"
 
 #: src/emc/motion/motion.c:317
 #, c-format
@@ -2941,7 +2947,7 @@ msgstr "MOTION: num_aio ist %d, muss zwischen 1 und %d liegen\n"
 
 #: src/emc/motion/motion.c:323
 msgid "MOTION: Can't specify both names and number for misc error\n"
-msgstr ""
+msgstr "MOTION: Kann nicht sowohl Name als auch Nummer für Fehler angeben\n"
 
 #: src/emc/motion/motion.c:336
 #, c-format
@@ -3343,9 +3349,8 @@ msgid "Comment of the current selected rung"
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:762
-#, fuzzy
 msgid "Display symbols"
-msgstr "Anzeigeoptionen"
+msgstr "Symbole anzeigen"
 
 #: src/hal/classicladder/classicladder_gtk.c:816
 msgid "Statusbar"
@@ -3614,9 +3619,9 @@ msgid "Use RTS to send"
 msgstr "Nutze RTS zum Senden"
 
 #: src/hal/classicladder/config_gtk.c:658
-#, fuzzy, c-format
+#, c-format
 msgid "Modbus element offset"
-msgstr "Werkzeug-Längen-Index zu groß"
+msgstr "Modbus Element Versatz"
 
 #: src/hal/classicladder/config_gtk.c:662
 #, c-format
@@ -3624,24 +3629,24 @@ msgid "Debug level"
 msgstr "Debug-Ebene"
 
 #: src/hal/classicladder/config_gtk.c:666
-#, c-format
+#, c-format, fuzzy
 msgid "Read Coils/inputs map to"
-msgstr ""
+msgstr "Lese Spulen/Eingänge Zuordnungen für"
 
 #: src/hal/classicladder/config_gtk.c:670
-#, c-format
+#, c-format, fuzzy
 msgid "Write Coils map from"
-msgstr ""
+msgstr "Schreibe Spulen Zuordnung von"
 
 #: src/hal/classicladder/config_gtk.c:674
-#, c-format
+#, c-format, fuzzy
 msgid "Read register/holding map to"
-msgstr ""
+msgstr "Lese register/holding Zuordnung für"
 
 #: src/hal/classicladder/config_gtk.c:678
 #, c-format
 msgid "Write registers map from"
-msgstr ""
+msgstr "Schreibe Register Zuordnung von"
 
 #: src/hal/classicladder/config_gtk.c:732
 msgid "NO"
@@ -3985,15 +3990,15 @@ msgstr "Dort ist bereits ein Element!"
 
 #: src/hal/classicladder/edit_sequential.c:751
 msgid "A step can't be placed on even lines"
-msgstr ""
+msgstr "Ein Schritt kann nicht auf geraden Zeilen angewiesen werden"
 
 #: src/hal/classicladder/edit_sequential.c:777
 msgid "Sequential memory full for transition"
-msgstr ""
+msgstr "Sequentieller Speicher voll mit Transitionen"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A transition can't be placed on odd lines"
-msgstr ""
+msgstr "Eine Transition kann nicht auf ungeraden Zeilen angewiesen werden"
 
 #: src/hal/classicladder/edit_sequential.c:797
 #, c-format
@@ -4017,7 +4022,7 @@ msgstr "nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:843
 msgid "Sequential memory full for comments"
-msgstr ""
+msgstr "Sequenzieler Speicher voll mit Kommentaren"
 
 #: src/hal/classicladder/edit_sequential.c:848
 msgid "There is already an element on 4 horizontal blocks required!"
@@ -4064,7 +4069,7 @@ msgstr "Variablennummer außerhalb der Grenzen"
 
 #: src/hal/classicladder/emc_mods.c:115 src/hal/classicladder/emc_mods.c:119
 msgid "None -Internal Memory"
-msgstr ""
+msgstr "Nicht-Interner Speicher"
 
 #: src/hal/classicladder/emc_mods.c:123
 msgid "None -Internal Error Status"
@@ -4274,9 +4279,8 @@ msgid "Language"
 msgstr "Sprache"
 
 #: src/hal/classicladder/manager_gtk.c:257
-#, fuzzy
 msgid "Main/Sub-Routine"
-msgstr "Menübaum aufklappen"
+msgstr "Haupt/Unterroutine"
 
 #: src/hal/classicladder/manager_gtk.c:258
 msgid "Name"
@@ -5529,7 +5533,6 @@ msgid "Diagnostics..."
 msgstr "Diagnose..."
 
 #: tcl/tklinuxcnc.tcl:771
-#, fuzzy
 msgid "Backplot..."
 msgstr "Backplot..."
 
@@ -5690,8 +5693,9 @@ msgid "Offset:"
 msgstr "Werkzeugkorrektur:"
 
 #: tcl/tklinuxcnc.tcl:942
+#, fuzzy
 msgid "Work Offsets:"
-msgstr ""
+msgstr "Werkstück Versatz:"
 
 #: tcl/tklinuxcnc.tcl:1126
 msgid "override limits"
@@ -6326,7 +6330,6 @@ msgid "ngcgui Error"
 msgstr "ngcgui-Fehler"
 
 #: tcl/ngcgui.tcl:2760
-#, fuzzy
 msgid "Declining support for tk send bug in ngcgui"
 msgstr "Lehne Support ab für tk schicke bug in ngcgui"
 
@@ -6379,7 +6382,6 @@ msgid "Show key bindings"
 msgstr "Zeige Tastenbelegung"
 
 #: tcl/ngcgui.tcl:3011
-#, fuzzy
 msgid "Restart (cancel pending)"
 msgstr "Neustart (cancel pending)"
 
@@ -6444,12 +6446,14 @@ msgid "Status items"
 msgstr "Statusmeldungen"
 
 #: tcl/ngcgui.tcl:3164
+#, fuzzy
 msgid "All-page opt items"
-msgstr ""
+msgstr "Optionale Einträge auf allen Seiten"
 
 #: tcl/ngcgui.tcl:3170
+#, fuzzy
 msgid "any-items"
-msgstr ""
+msgstr "alle Einträge"
 
 #: tcl/ngcgui.tcl:3203
 msgid "Set defaults"
@@ -6625,7 +6629,7 @@ msgstr "keine"
 
 #: tcl/ngcgui_ttt.tcl:193
 msgid "Subdiv"
-msgstr ""
+msgstr "Unterteilung"
 
 #: tcl/ngcgui_ttt.tcl:200 src/emc/usr_intf/touchy/touchy.glade:9
 msgid "default"
@@ -7640,7 +7644,6 @@ msgstr ""
 "erneut ausführen?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2716
-#, fuzzy
 msgid "Touch Off (system)"
 msgstr "Antasten (System)"
 
@@ -7760,7 +7763,6 @@ msgid "Joint"
 msgstr "Gelenk"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3628
-#, fuzzy
 msgid "Home Joint"
 msgstr "Referenzpunkt"
 
@@ -8041,7 +8043,7 @@ msgstr "RCS *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:40
 msgid "Task Issue"
-msgstr ""
+msgstr "Task Issue"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:41
 msgid "Motion Time"
@@ -8052,7 +8054,6 @@ msgid "Interpreter List"
 msgstr "Interpreter-Liste"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:44
-#, fuzzy
 msgid "State Tags"
 msgstr "Status Markierungen"
 
@@ -8458,7 +8459,6 @@ msgid "Front view"
 msgstr "Vorderansicht"
 
 #: share/axis/tcl/axis.tcl:634
-#, fuzzy
 msgid "Inverted Front view"
 msgstr "Gespiegelte Vorderansicht"
 
@@ -8496,7 +8496,6 @@ msgid "Touch Off"
 msgstr "Antasten"
 
 #: share/axis/tcl/axis.tcl:944
-#, fuzzy
 msgid "Tool Touch Off"
 msgstr "Werkzeug Antasten"
 
@@ -8700,9 +8699,8 @@ msgid "Joint:"
 msgstr "Achse/Gelenk:"
 
 #: share/axis/tcl/axis.tcl:2230
-#, fuzzy
 msgid "_Clear Recents List"
-msgstr "Einträge _löschen"
+msgstr "Jüngste Einträge löschen"
 
 #: share/axis/tcl/axis.tcl:2250
 msgid "Turn spindle counterclockwise [F10]"
@@ -9038,9 +9036,8 @@ msgid "wa"
 msgstr "wa"
 
 #: src/emc/usr_intf/touchy/touchy.glade:342
-#, fuzzy
 msgid "ad"
-msgstr "Ende"
+msgstr "ad"
 
 #: src/emc/usr_intf/touchy/touchy.glade:356
 msgid "bd"
@@ -9063,7 +9060,6 @@ msgid "wd"
 msgstr "wd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:458
-#, fuzzy
 msgid "Estop Reset"
 msgstr "Notaus Zurücksetzen"
 
@@ -9095,7 +9091,6 @@ msgid "Unhome All"
 msgstr "Referenzfahrt aufheben bei allen Achsen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:595
-#, fuzzy
 msgid "Home Selected"
 msgstr "Referenzfahrt der gewählten Achse"
 
@@ -9324,9 +9319,8 @@ msgid "Interpreted line:"
 msgstr "Interpretierte Zeile:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2486
-#, fuzzy
 msgid "Distance:"
-msgstr "Vorschub-Weg:"
+msgstr "Distanz:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:2499
 #: src/emc/usr_intf/stepconf/main_page.glade:324
@@ -9484,9 +9478,8 @@ msgid "Listing Font:"
 msgstr "Quellcode Zeichensatz:"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3125
-#, fuzzy
 msgid "Listing Font"
-msgstr "Schrift auswählen"
+msgstr "Listing Schriftart"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3145
 msgid "Hide pointer"
@@ -9535,7 +9528,7 @@ msgstr "Löschen / Zeilen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3421
 msgid "Keep / lines"
-msgstr ""
+msgstr "Beibehalten / Zeilen"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3438
 msgid "Pause on M1"
@@ -9570,7 +9563,7 @@ msgstr "MV: 100"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3568
 msgid "Jogging"
-msgstr ""
+msgstr "Schnellauf"
 
 #: src/emc/usr_intf/touchy/touchy.glade:3582
 msgid "Start Point"
@@ -9930,18 +9923,16 @@ msgid "Plasma Torch On"
 msgstr "Plasma Brenner Ein"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
-#, fuzzy
 msgid "Plasma Ohmic Enable"
 msgstr "Ohmsches Plasma aktivieren"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Scribe Arm"
-msgstr ""
+msgstr "Plasma Gravieren Arm"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
-#, fuzzy
 msgid "Plasma Scribe On"
-msgstr "Plasma Scribe Ein"
+msgstr "Plasma Gravur Ein"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:226
 msgid "Plasma Laser On"
@@ -10563,17 +10554,17 @@ msgstr "# HalUI-MDI-Befehle hier einfügen (max. 64) "
 #: src/emc/usr_intf/stepconf/build_INI.py:405
 #: src/emc/usr_intf/pncconf/build_INI.py:561
 msgid "# set the dro position ('top' or 'bottom')"
-msgstr ""
+msgstr "# Setze Digitalanzeige-Position ('oben' or 'unten)"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:408
 #: src/emc/usr_intf/pncconf/build_INI.py:564
 msgid "# error message flash (0=no, 1=yes)"
-msgstr ""
+msgstr "# Fehlermeldungs-Flash (0=nein, 1=ja)"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:410
 #: src/emc/usr_intf/pncconf/build_INI.py:566
 msgid "# hide buttons (0=no, 1=yes)"
-msgstr ""
+msgstr "# verstecke Buttons (0=nein, 1=ja)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:292
 #: src/emc/usr_intf/pncconf/build_HAL.py:763
@@ -10594,7 +10585,7 @@ msgstr "# SPS Programm mit Modbus-Master laden (GUI muss für Modbus laufen)"
 #: src/emc/usr_intf/stepconf/build_HAL.py:333
 #: src/emc/usr_intf/pncconf/build_HAL.py:843
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
-msgstr ""
+msgstr "# Lade SPS ohne GUI (kann SPS \"LADDER\" GUI in AXIS GUI neu laden)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:343
 #: src/emc/usr_intf/pncconf/build_HAL.py:925
@@ -10643,7 +10634,7 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:394
 msgid "# **** set up spindle at speed indicator ****"
-msgstr ""
+msgstr "# **** Spindel bei Drehzahlanzeige einrichten ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:407
 msgid ""
@@ -10691,12 +10682,18 @@ msgid ""
 "\n"
 "########################################"
 msgstr ""
+"\n"
+"\n"
+"\n"
+"########################################"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:740
 #: src/emc/usr_intf/pncconf/build_HAL.py:1919
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
+"# Die folgenden Variablen sind für die Feinabstimmung einiger Parameter "
+"verfügbar."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
 #: src/emc/usr_intf/pncconf/build_HAL.py:1920
@@ -10704,18 +10701,20 @@ msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
+"# Um eine dieser Optionen zu verwenden, müssen Sie die entsprechende setp-"
+"Zeile auskommentieren und einen entsprechenden Wert eingeben.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
 #: src/emc/usr_intf/pncconf/build_HAL.py:1921
 msgid "# Dampen excessive noise on the arc voltage input"
-msgstr ""
+msgstr "# Dämpfen Sie übermäßiges Rauschen am Bogenspannungseingang"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
 #: src/emc/usr_intf/stepconf/build_HAL.py:755
 #: src/emc/usr_intf/pncconf/build_HAL.py:1922
 #: src/emc/usr_intf/pncconf/build_HAL.py:1934
 msgid "# default = 0 (volts)"
-msgstr ""
+msgstr "# default = 0 (Volt)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
 #: src/emc/usr_intf/pncconf/build_HAL.py:1924
@@ -10723,11 +10722,13 @@ msgid ""
 "# The time delay from losing the arc ok signal until QtPlasmaC reacts to the "
 "arc loss."
 msgstr ""
+"# Die Zeitverzögerung vom Verlust des Lichtbogen-OK-Signals bis zur Reaktion "
+"von QtPlasmaC auf den Lichtbogenverlust."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:746
 #: src/emc/usr_intf/pncconf/build_HAL.py:1925
 msgid "# default = 0.0 (seconds)"
-msgstr ""
+msgstr "# default = 0.0 (Sekunden)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
 #: src/emc/usr_intf/pncconf/build_HAL.py:1927
@@ -10735,6 +10736,9 @@ msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
+"# Nur für Modus 0 Arc-OK, die Anzahl der aufeinanderfolgenden Messwerte "
+"innerhalb des Schwellenwerts, die erforderlich sind, um das Arc-OK-Signal zu "
+"setzen."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:749
 #: src/emc/usr_intf/pncconf/build_HAL.py:1928
@@ -10747,11 +10751,13 @@ msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
+"# Nur für Modus 0 Arc-OK, die maximale Spannungsabweichung, die für eine "
+"gültige Spannung zulässig ist, um das Arc-OK-Signal zu setzen."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:752
 #: src/emc/usr_intf/pncconf/build_HAL.py:1931
 msgid "# default = 10 (volts)"
-msgstr ""
+msgstr "# default = 10 (Volt)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
 #: src/emc/usr_intf/pncconf/build_HAL.py:1933
@@ -10759,6 +10765,8 @@ msgid ""
 "# The voltage above and below 0V that will display as 0V. Prevents small "
 "fluctuations from flickering the voltage display."
 msgstr ""
+"# Die Spannung über und unter 0 V, die als 0 V angezeigt wird. Verhindert, "
+"dass bei kleinen Schwankungen die Spannungsanzeige flackert."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:757
 #: src/emc/usr_intf/pncconf/build_HAL.py:1936
@@ -10766,11 +10774,13 @@ msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
 msgstr ""
+"# Der Abstand (in Millimetern) vom Z MAX_LIMIT, den QtPlasmaC der Z-Achse "
+"erlaubt, während sie von der Maschine gesteuert wird."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:758
 #: src/emc/usr_intf/pncconf/build_HAL.py:1937
 msgid "# default = 5 (mm)"
-msgstr ""
+msgstr "# default = 5 (mm)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
 #: src/emc/usr_intf/pncconf/build_HAL.py:1939
@@ -10778,11 +10788,11 @@ msgid ""
 "# The required number of consecutive times that the threshold has been "
 "exceeded before applying the void lock to the THC."
 msgstr ""
+"# Die erforderliche Anzahl aufeinanderfolgender Überschreitungen des "
+"Schwellenwerts, bevor die Brennerhöhensteuerung mit einer Sperre belegt wird."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:761
 #: src/emc/usr_intf/pncconf/build_HAL.py:1940
-#, fuzzy
-#| msgid "default"
 msgid "# default = 2"
 msgstr "# default = 2"
 
@@ -11430,9 +11440,8 @@ msgid "Number of digital in pins:"
 msgstr "Digitale Eingänge:"
 
 #: src/emc/usr_intf/stepconf/options.glade:964
-#, fuzzy
 msgid "Number of digital  out pins:"
-msgstr "Anzahl digitaler Ausgänge:"
+msgstr "Anzahl Pins für digitale Ausgänge:"
 
 #: src/emc/usr_intf/stepconf/options.glade:979
 #: src/emc/usr_intf/pncconf/options.glade:638
@@ -11492,7 +11501,6 @@ msgid "Set Ladder Options"
 msgstr "Setze SPS Einstellungen"
 
 #: src/emc/usr_intf/stepconf/options.glade:1297
-#, fuzzy
 msgid "Include Halui user interface component"
 msgstr "HalUI-Benutzerschnittstelle einbinden"
 
@@ -11938,7 +11946,7 @@ msgstr "**** PNCCONF INFO:    Zusätzliche firmware in Datei gefunden"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:364
 msgid "Discovery metadata update"
-msgstr ""
+msgstr "Aktualisierung der Metadaten für die Suche"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:408
 #, python-format
@@ -12079,6 +12087,8 @@ msgstr ""
 #, python-format
 msgid "You forgot to designate an encoder /resolver signal for axis %s servo\n"
 msgstr ""
+"Sie haben vergessen, ein Encoder-/Resolver-Signale für die Achse %s Servo zu "
+"bestimmen\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3853
 #, python-format
@@ -12099,6 +12109,8 @@ msgid ""
 "If using a tandem axis stepper, you must select a master stepgen for axis "
 "%s\n"
 msgstr ""
+"Wenn Sie einen Tandem-Achsen-Stepper verwenden, müssen Sie ein Master-"
+"Stepgen für die Achse %s auswählen.\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3867
 msgid "Touchy require an external cycle start signal\n"
@@ -12318,11 +12330,10 @@ msgstr ""
 "Für dieses SPS Programm muss ein Pin für den Notaus-Eingang festgelegt sein."
 
 #: src/emc/usr_intf/pncconf/pages.py:1521
-#, fuzzy
 msgid "You need to designate a probe input pin for this ladder program."
 msgstr ""
-"Für dieses Programm muss ein Notaus-Eingang auf der Seite zur Konfiguration "
-"der parallelen Schnitstelle festgelegt wein."
+"Für dieses SPS Programm muss ein Pin als Eingang für den Tastsensor "
+"festgelegt sein."
 
 #: src/emc/usr_intf/pncconf/pages.py:1531
 msgid ""
@@ -12356,48 +12367,56 @@ msgstr "# wird überschrieben sobald Sie PNCconf erneut ausführen"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:176
 msgid "# **** This is for info only ****"
-msgstr ""
+msgstr "# **** Nur zur Information ****"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:186
 msgid ""
 "# These are to ease setting custom component's parameters in a custom HAL "
 "file"
 msgstr ""
+"# Diese erleichtern die Einstellung der Parameter einer benutzerdefinierten "
+"Komponente in einer benutzerdefinierten HAL-Datei"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:411
 msgid ""
 "# The values below should be 25% larger than MAX_VELOCITY and "
 "MAX_ACCELERATION"
 msgstr ""
+"# Die folgenden Werte sollten 25% größer sein als MAX_VELOCITY und "
+"MAX_ACCELERATION"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:412
 msgid ""
 "# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."
 msgstr ""
+"# Bei Verwendung der UMKEHRSPIEL-Kompensation sollte STEPGEN_MAXACCEL um "
+"100% größer sein."
 
 #: src/emc/usr_intf/pncconf/build_INI.py:464
 msgid "# these are in nanoseconds"
-msgstr ""
+msgstr "# diese sind in Nanosekunden"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:543
 msgid "# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"
 msgstr ""
+"# MAX_VEL & MAX_ACC müssen doppelt so hoch sein wie der entsprechende "
+"gemeinsame Wert"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:557
 msgid "# set the operating mode (default is 0)"
-msgstr ""
+msgstr "# Einstellen der Betriebsart (Standard ist 0)"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:559
 msgid "# set the estop type (0=indicator, 1=hidden, 2=button)"
-msgstr ""
+msgstr "# Art des Notaus festlegen (0=Anzeige, 1=versteckt, 2=Button)"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:570
 msgid "# laser touchoff"
-msgstr ""
+msgstr "# laser touchoff"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:572
 msgid "# camera touchoff"
-msgstr ""
+msgstr "# camera touchoff"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:574
 msgid "# powermax communications"
@@ -12409,7 +12428,7 @@ msgstr "# Anwender buttons"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
 msgid "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
-msgstr ""
+msgstr "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:437
 msgid "# connect miscellaneous signals"
@@ -12432,22 +12451,20 @@ msgid "#  ---probe signal---"
 msgstr "#  ---Sonde/Taster Signal---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:487
-#, fuzzy
 msgid "# ---jog button signals---"
-msgstr "# -- Signale von Tasten des Handgeräts---"
+msgstr "# -- Signale von Tasten für den Schnellauf---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:492
-#, fuzzy
 msgid "# ---USB device jog button signals---"
-msgstr "# ---USB Handsteuerungs-Tasten Signale---"
+msgstr "# ---USB Schnellauf-Tasten Signale---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:494
 msgid "# connect selectable mpg jog speeds "
-msgstr ""
+msgstr "# Anschluss wählbarer Handrad-Schnellauf-Geschwindigkeiten"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:524
 msgid "# ---jogwheel signals to mesa encoder - shared MPG---"
-msgstr ""
+msgstr "# ---Schnellauf-Rad Signale zu Mesa Encoder - shared MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:533
 #: src/emc/usr_intf/pncconf/build_HAL.py:559
@@ -12462,7 +12479,7 @@ msgstr "#       for Achse %s Handsteuerung"
 #: src/emc/usr_intf/pncconf/build_HAL.py:551
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr ""
+msgstr "# ---Schnellauf-Rad Signale zu Mesa Encoder - %s Achse MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:570
 msgid "# connect selectable mpg jog increments "
@@ -12494,13 +12511,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:698
 msgid "# ---spindle override signals to mesa encoder - mpg---"
-msgstr ""
+msgstr "# ---Spindel Neufestetzung Signale an Mesa Encoder - Handrad (MPG) ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:707
-#, fuzzy
-#| msgid "Spindle Override incr A"
 msgid "# connect spindle override increments - MPG"
-msgstr "# verbinde Neufestlegung der Spindel Inkremente - MPG"
+msgstr "# verbinde Neufestlegung der Spindel Inkremente - Handrad (MPG)"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:722
 msgid "# connect spindle override increments "
@@ -12547,6 +12562,8 @@ msgid ""
 "\n"
 "# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 msgstr ""
+"\n"
+"# ---QTPLASMAC TOOLCHANGE PASSTHROUGH---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:849
 msgid "#  --- Classicladder signals for Z axis Auto touch off program---"
@@ -12582,6 +12599,8 @@ msgid ""
 "# **** Z axis touch-off button - requires the touch-off classicladder "
 "program ****"
 msgstr ""
+"**** Z-Achsen-Touch-Off-Taster - erfordert das Touch-Off-classicladder (SPS) "
+"programm ****"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:935
 msgid "# Put custom HAL commands in custom_postgui.hal"
@@ -12606,6 +12625,8 @@ msgid ""
 "\n"
 "# --- PLASMAC:LASER-ON ---"
 msgstr ""
+"\n"
+"# --- PLASMAC:LASER-ON ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:971
 msgid "# These commands are required for Touchy GUI"
@@ -12613,38 +12634,48 @@ msgstr "# These Kommandos werden benötigt für Touchy GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1045
 msgid "#    Automation Direct GS2 VFD for spindle control"
-msgstr ""
+msgstr "# Automation Direct GS2 Geschwindigkeitsregelung für Spindelsteuerung"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid "#    The communications switches must be set to RS-232C"
-msgstr ""
+msgstr "# Die Kommunikationsschalter müssen auf RS-232C eingestellt sein"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1048
 msgid "#    The motor parameters must be set to match the motor"
 msgstr ""
+"# Die Motorparameter müssen so eingestellt werden, dass sie mit dem Motor "
+"übereinstimmen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
 "#    P3.00 (Source of Operation Command) must be set to Operation determined "
 "by RS-485 interface, 03 or 04"
 msgstr ""
+"#    P3.00 (Quelle der Operation/Befehl) muss für die Operation gesetzt "
+"sein, die durch die RS-485-Schnittstelle, 03 oder 04 festgelegt ist"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1050
 msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
 msgstr ""
+"# P4.00 (Quelle des Frequenzbefehls) muss auf Frequenz eingestellt sein, die "
+"bestimmt ist durch die RS232C/RS485-Kommunikationsschnittstelle, 05"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1051
 msgid ""
 "#    P9.01 (Transmission Speed) must be set to the specified baud, 9600 = 01"
 msgstr ""
+"#    P9.01 (Übertragungsgeschwindigkeit) muss auf die angegebene Baudrate "
+"eingestellt werden, 9600 = 01"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1052
 msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
 msgstr ""
+"# P9.02 (Kommunikationsprotokoll) muss auf \"Modbus RTU-Modus, 8 Datenbits, "
+"keine Parität, 2 Stoppbits\" eingestellt werden, 03"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1065
 msgid "#    Misubishi FR VFD for spindle control"
@@ -12701,7 +12732,7 @@ msgstr "#  SPINDEL"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1255
 msgid "# -- BLDC setup --"
-msgstr ""
+msgstr "# -- BLDC setup --"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1323
 msgid "# ---TPPWM Generator signals/setup---"
@@ -12709,19 +12740,20 @@ msgstr "# ---TPPWM Generator Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
-msgstr ""
+msgstr "# Sechs Ausgänge 3PWG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1326
+#, fuzzy
 msgid "# three output 3pwg"
-msgstr ""
+msgstr "# Drei Ausgänge 3PWG"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1327
 msgid "# TODO write some commands!"
-msgstr ""
+msgstr "# TODO schreibe ein paar Kommandos!"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1331
 msgid "# ---8i20 amplifier card signals/setup---"
-msgstr ""
+msgstr "# ---8i20 Verstärker-Karte Signale/Einrichtung---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
 msgid "# ---digital potentionmeter output signals/setup---"
@@ -12732,12 +12764,13 @@ msgid "# ---PWM Generator signals/setup---"
 msgstr "# ---PWM Generator Signale/Setup---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
+#, fuzzy
 msgid "# enable _all_ sserial pwmgens"
-msgstr ""
+msgstr "# aktiviere _alle_ sserial pwmgens"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1413
 msgid "# Step Gen signals/setup for tandem axis"
-msgstr ""
+msgstr "# Schrittgenerator Signale/Einrichtung für Tandem Achsen"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1415
 msgid "# Step Gen signals/setup"
@@ -12805,48 +12838,56 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1820
 msgid "#values for these are in custom.hal"
-msgstr ""
+msgstr "#Werte für diese sind in custom.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1826
 msgid ""
 "\n"
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
+"\n"
+"---GELENK VERBUNDEN MIT DER Z-ACHSE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1837
 msgid ""
 "\n"
 "# ---PLASMA INPUTS---"
 msgstr ""
+"\n"
+"# ---PLASMA EINGÄNGE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1838
 #: src/emc/usr_intf/pncconf/build_HAL.py:1851
 msgid "# ---all modes---"
-msgstr ""
+msgstr "# ---alle Modi---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1843
 msgid "# ---modes 0 & 1"
-msgstr ""
+msgstr "# ---Modi 0 und 1"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1845
 msgid "# ---modes 1 & 2"
-msgstr ""
+msgstr "# ---Modi 1 und 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1847
 msgid "# ---mode 2"
-msgstr ""
+msgstr "# ---Modus 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1850
 msgid ""
 "\n"
 "# ---PLASMA OUTPUTS---"
 msgstr ""
+"\n"
+"# ---PLASMA AUSGÄNGE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1886
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
+"\n"
+"# ---BOGENSPANNUNG ENCODER---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1896
 msgid ""
@@ -12870,8 +12911,9 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1909
 #: src/emc/usr_intf/pncconf/build_HAL.py:1954
+#, fuzzy
 msgid "# set to zero if using internal ohmic sensing"
-msgstr ""
+msgstr "# setze auf 0 bei Nutzen von internem Ohmschen sensing"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1960
 msgid ""
@@ -13435,15 +13477,15 @@ msgstr "Schnellauf Inkr A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr B"
-msgstr ""
+msgstr "Schnellauf Inkr. B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:426
 msgid "Jog incr C"
-msgstr ""
+msgstr "Schnellauf Inkr. C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Jog incr D"
-msgstr ""
+msgstr "Schnellauf Inkr. D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Feed Override incr A"
@@ -13570,7 +13612,6 @@ msgid "Jog A -"
 msgstr "Schnellauf A -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
-#, fuzzy
 msgid "Jog button selected +"
 msgstr "Schnellauf Button ausgewählt +"
 
@@ -13880,8 +13921,9 @@ msgid "Ohmic Contact"
 msgstr "Ohmscher Kontakt"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
+#, fuzzy
 msgid "Float Switch"
-msgstr ""
+msgstr "Float Schalter"
 
 #: src/emc/usr_intf/pncconf/private_data.py:462
 msgid "Breakaway"
@@ -13922,7 +13964,6 @@ msgid "External Control"
 msgstr "Externe Steuerung"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
-#, fuzzy
 msgid "Axis rapid"
 msgstr "Achse schnell"
 
@@ -14109,7 +14150,6 @@ msgid "spindle Override"
 msgstr "Spindelübersteuerung"
 
 #: src/emc/usr_intf/pncconf/private_data.py:501
-#, fuzzy
 msgid "Max Vel Override"
 msgstr "Neufestsetzung Max Geschwindigkeit"
 
@@ -14179,12 +14219,11 @@ msgstr "Ohmisch Aktivieren"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "Scribe Arm"
-msgstr ""
+msgstr "Gravieren Arm"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
-#, fuzzy
 msgid "Scribe On"
-msgstr "Scribe An"
+msgstr "Gravieren An"
 
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "Torch On"
@@ -14216,27 +14255,27 @@ msgstr "Ungenutzte 8I20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "Unused Resolver"
-msgstr ""
+msgstr "Ungenutzter Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:538
 msgid "X Resolver"
-msgstr ""
+msgstr "X Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Y Resolver"
-msgstr ""
+msgstr "Y Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Z Resolver"
-msgstr ""
+msgstr "Z Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:540
 msgid "A Resolver"
-msgstr ""
+msgstr "A Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:540
 msgid "S Resolver"
-msgstr ""
+msgstr "S Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
 msgid "Unused Analog Output"
@@ -14533,7 +14572,6 @@ msgstr ""
 "- = bewegen auf negativer Seite der Startposition"
 
 #: src/emc/usr_intf/pncconf/tests.py:498
-#, fuzzy
 msgid "Servo tuning is not tested in PNCconf yet\n"
 msgstr "Servo tuning wurde noch nicht in PNCconf getestet\n"
 
@@ -14599,12 +14637,16 @@ msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
 msgstr ""
+" Sie müssen ein ENCODER / RESOLVER-Signal und ein ANALOG SPINDLE-Signal für "
+"diesen Achsentest bestimmen"
 
 #: src/emc/usr_intf/pncconf/tests.py:923
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
 msgstr ""
+" Sie müssen ein ENCODER / RESOLVER-Signal und ein PWM-Signal für diesen "
+"Achsentest bestimmen"
 
 #: src/emc/usr_intf/pncconf/tests.py:1212
 msgid ""
@@ -14950,7 +14992,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:324
 msgid "Shared Home Switch"
-msgstr ""
+msgstr "Geteilter Referenzpunkt-Schalter"
 
 #: src/emc/usr_intf/pncconf/help.glade:343
 msgid ""
@@ -14980,7 +15022,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:412
 msgid "Separate Homing Switches"
-msgstr ""
+msgstr "Getrennte Referenzpunkt-Schalter"
 
 #: src/emc/usr_intf/pncconf/help.glade:428
 msgid "Diagram"
@@ -16300,7 +16342,6 @@ msgid "Show Advanced Option Pages"
 msgstr "Zeige Erweiterte Optionen"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
-#, fuzzy
 msgid "Use INI substitution for Mesa board names."
 msgstr "Nutze INI Substitution für Mesa Board Namen."
 
@@ -16509,12 +16550,11 @@ msgstr "B JOG"
 
 #: src/emc/usr_intf/pncconf/external.glade:1580
 msgid "Shared MPG / selectable axis"
-msgstr ""
+msgstr "Geteiles Handrad/ auswählbare Achse"
 
 #: src/emc/usr_intf/pncconf/external.glade:1595
-#, fuzzy
 msgid "Mpg per axis"
-msgstr "Erste Achse verfahren"
+msgstr "Handrad je Achse"
 
 #: src/emc/usr_intf/pncconf/external.glade:1610
 msgid "selectable MPG increments"
@@ -16630,9 +16670,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3344
 #: src/emc/usr_intf/pncconf/external.glade:4287
 #: src/emc/usr_intf/pncconf/external.glade:5230
-#, fuzzy
 msgid "Mux options"
-msgstr "Achssteuerung"
+msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:2491
 #: src/emc/usr_intf/pncconf/external.glade:3429
@@ -16670,8 +16709,9 @@ msgstr "Gray-Code verwenden"
 #: src/emc/usr_intf/pncconf/external.glade:3412
 #: src/emc/usr_intf/pncconf/external.glade:4338
 #: src/emc/usr_intf/pncconf/external.glade:5281
+#, fuzzy
 msgid "ignore all-inputs false"
-msgstr ""
+msgstr "ignorieren aller Eingänge falsch"
 
 #: src/emc/usr_intf/pncconf/external.glade:3458
 #: src/emc/usr_intf/pncconf/external.glade:4401
@@ -16697,29 +16737,24 @@ msgid "Serial connected VFD"
 msgstr "Seriell angebundene Spindel-Einstellung"
 
 #: src/emc/usr_intf/pncconf/external.glade:5388
-#, fuzzy
 msgid "Mitsubishi FR Spindle VFD"
-msgstr "Mitsubishi FR Spindel VFD"
+msgstr "Mitsubishi FR Spindel Geschwindigkeitsregelung"
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
-#, fuzzy
 msgid "GS2 Spindle VFD"
-msgstr "Spindel rechts"
+msgstr "GS2 Spindel-Frequenzumrichter"
 
 #: src/emc/usr_intf/pncconf/external.glade:5429
-#, fuzzy
 msgid "Deacceleration Time"
 msgstr "Verzögerungs-Zeit"
 
 #: src/emc/usr_intf/pncconf/external.glade:5440
-#, fuzzy
 msgid "Acceleration Time"
-msgstr "Beschleunigungs Zeit"
+msgstr "Beschleunigungs-Zeit"
 
 #: src/emc/usr_intf/pncconf/external.glade:5452
-#, fuzzy
 msgid "Slave number"
-msgstr "Anwenden"
+msgstr "Slave Nummer"
 
 #: src/emc/usr_intf/pncconf/external.glade:5464
 msgid "Baud Rate"
@@ -16738,9 +16773,8 @@ msgid "VFD"
 msgstr "VFD"
 
 #: src/emc/usr_intf/pncconf/base.glade:18
-#, fuzzy
 msgid "XZ Lathe"
-msgstr "Drehmaschine"
+msgstr "XZ Drehmaschine"
 
 #: src/emc/usr_intf/pncconf/base.glade:97
 msgid "Machine Name:"
@@ -16751,9 +16785,8 @@ msgid "Axis configuration:"
 msgstr "Achsenkonfiguration:"
 
 #: src/emc/usr_intf/pncconf/base.glade:189
-#, fuzzy
 msgid "Include Spindle"
-msgstr "Spindel"
+msgstr "Spindel mit einbeziehen"
 
 #: src/emc/usr_intf/pncconf/base.glade:244
 msgid "Machine units:"
@@ -16772,66 +16805,57 @@ msgid "Recommend servo period:    1000000"
 msgstr "Empfohlene Servoperiode:    1000000"
 
 #: src/emc/usr_intf/pncconf/base.glade:413
-#, fuzzy
 msgid ""
 " Test Base\n"
 "Period Jitter "
 msgstr ""
 " Systemtakt-Abweichung\n"
-"(Jitter) er_mitteln "
+"(Jitter) ermitteln "
 
 #: src/emc/usr_intf/pncconf/base.glade:444
 msgid "<b>Computer Response Time</b>"
 msgstr "<b>Computer-Reaktionszeit</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:490
-#, fuzzy
 msgid "Mesa0 PCI/ Etho/ Parport Card:"
-msgstr "Mesa0 PCI- / Parallelportkarte:"
+msgstr "Mesa0 PCI- / Ethernet-/ Parallelportkarte:"
 
 #: src/emc/usr_intf/pncconf/base.glade:575
-#, fuzzy
 msgid "Mesa1 PCI/ Etho/ Parport Card:"
-msgstr "Mesa1 PCI- / Parallelportkarte:"
+msgstr "Mesa1 PCI- / Ethernet-/ Parallelportkarte:"
 
 #: src/emc/usr_intf/pncconf/base.glade:593
 msgid "<b>I/O Control Ports/ Boards</b>"
 msgstr "<b>I/O Steuerungs-Ports/-Boards</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:645
-#, fuzzy
 msgid "Force individual manual homing"
 msgstr "Erzwinge individuelle manuelle Referenzfahrt"
 
 #: src/emc/usr_intf/pncconf/base.glade:659
 #, fuzzy
 msgid "Random position toolchanger "
-msgstr "Position des Werkzeugwechslers ist zufällig "
+msgstr "Zufalls-Werkzeugwechsler"
 
 #: src/emc/usr_intf/pncconf/base.glade:675
-#, fuzzy
 msgid "Require homing before MDI / Running"
 msgstr "Referenzfahrt benötigt vor MDI / Lauf"
 
 #: src/emc/usr_intf/pncconf/base.glade:687
-#, fuzzy
 msgid "Popup Manual Toolchange Prompt"
-msgstr "AXIS Manueller Werkzeugwechsel"
+msgstr "Aufforderung zum manuellen Werkzeugwechsel"
 
 #: src/emc/usr_intf/pncconf/base.glade:702
-#, fuzzy
 msgid "Leave spindle on during tool change"
 msgstr "Lasse Spindel weiterlaufen während des Werkzeugwechsels"
 
 #: src/emc/usr_intf/pncconf/base.glade:716
-#, fuzzy
 msgid "Move spindle up before tool change"
-msgstr "_Bildschirmmitteilung bei Werkzeugwechsel"
+msgstr "Fahre Spindel nach oben vor Werkzeugwechsel"
 
 #: src/emc/usr_intf/pncconf/base.glade:730
-#, fuzzy
 msgid "Restore joint position after shutdown"
-msgstr "Stelle Gelenk-/Achsenposition nach dem Ausschalten wieder her"
+msgstr "Wiederherstellen von Gelenk-/Achsenposition nach dem Ausschalten"
 
 #: src/emc/usr_intf/pncconf/base.glade:750
 msgid "<b>Defaults and Options</b>"
@@ -16842,16 +16866,14 @@ msgid "QtDragon"
 msgstr "QtDragon"
 
 #: src/emc/usr_intf/pncconf/screen.glade:230
-#, fuzzy
 msgid "<b>GUI Screen list</b>"
-msgstr "<b>GUI-Frontend-Liste</b>"
+msgstr "<b>GUI Bildschirm Liste</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:398
 msgid "Position_offset"
 msgstr "Position_versatz"
 
 #: src/emc/usr_intf/pncconf/screen.glade:406
-#, fuzzy
 msgid "Position_feedback"
 msgstr "Position_feedback"
 
@@ -16873,9 +16895,8 @@ msgid "xyzabc"
 msgstr "xyzabc"
 
 #: src/emc/usr_intf/pncconf/screen.glade:572
-#, fuzzy
 msgid "Display Geometry"
-msgstr "Achsengeometrie"
+msgstr "Anzeige Geometrie"
 
 #: src/emc/usr_intf/pncconf/screen.glade:624
 msgid "<b>General GUI Defaults</b>"
@@ -16974,9 +16995,8 @@ msgid "Force Axis to Maximize"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1189
-#, fuzzy
 msgid "AXIS Defaults"
-msgstr "AXIS-Standardwerte"
+msgstr "AXIS Standardwerte"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1570
 msgid "Force Touchy to Maximize after positioning"
@@ -16990,12 +17010,10 @@ msgstr "GTK-Thema"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1859
 #: src/emc/usr_intf/gscreen/gscreen.glade:1892
-#, fuzzy
 msgid "Absolute Text Color"
 msgstr "Absolute Textfarbe"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1947
-#, fuzzy
 msgid "Absolute Textcolor"
 msgstr "Absolute Textfarbe"
 
@@ -17012,9 +17030,8 @@ msgid "Error Textcolor"
 msgstr "Fehler-Textfarbe"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2149
-#, fuzzy
 msgid "Touchy Defaults"
-msgstr "Standardwerte verwenden"
+msgstr "Standardwerte für Touchy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2767
 msgid "Force Gmoccapy to Maximize after positioning"
@@ -17029,9 +17046,8 @@ msgid "10 1 .1 .01 .001"
 msgstr "10 1 .1 .01 .001"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3919
-#, fuzzy
 msgid "QtPlasmaC Options"
-msgstr "SPS-Optionen"
+msgstr "QtPlasmaC Optionen"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:26
 msgid "<b>Virtual Control Panel</b>"
@@ -17050,9 +17066,8 @@ msgid "Pyvcp Details"
 msgstr "Pyvcp-Details"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:486
-#, fuzzy
 msgid "Sample display  "
-msgstr "Beispiel Bildschirm  "
+msgstr "Beispiel Anzeige  "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:674
 #, fuzzy
@@ -17068,7 +17083,6 @@ msgid "Center Tab Embedded"
 msgstr "Mittig eingebunden"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:723
-#, fuzzy
 msgid "Force Maximize"
 msgstr "Erzwinge Maximierung"
 
@@ -17085,7 +17099,6 @@ msgid "Spindle Speed Indicator"
 msgstr "Spindeldrehzahl-Anzeige"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:862
-#, fuzzy
 msgid "Spindle At Speed LED"
 msgstr "Spindel auf Geschwindigkeit LED"
 
@@ -17106,12 +17119,10 @@ msgid "Zero A Button"
 msgstr "Null-A-Taste"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:937
-#, fuzzy
 msgid "Auto Z Touch Off Button"
 msgstr "Auto Z Touch Off Button"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:943
-#, fuzzy
 msgid "Requires Classicladder touch-off program"
 msgstr "Benötigt SPS touch-off Programm"
 
@@ -17124,7 +17135,6 @@ msgid "Gladevcp Details"
 msgstr "Gladevcp-Details"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:1069
-#, fuzzy
 msgid "Include custom GladeVCP GUI panel"
 msgstr "Benutzerdefiniertes PyVCP-Panel einbinden"
 
@@ -17133,14 +17143,12 @@ msgid "Full Scale Frequency (kHz)"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/thcad.glade:152
-#, fuzzy
 msgid "0V Frequency (kHz)"
 msgstr "0V Frequenz (kHz)"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:256
-#, fuzzy
 msgid "Encoder"
-msgstr "Unicode"
+msgstr "Encoder"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:16
 #: src/emc/usr_intf/pncconf/y_axis.glade:16
@@ -17160,17 +17168,15 @@ msgstr "Typ 2"
 #: src/emc/usr_intf/pncconf/y_axis.glade:58
 #: src/emc/usr_intf/pncconf/z_axis.glade:58
 #: src/emc/usr_intf/pncconf/a_axis.glade:58
-#, fuzzy
 msgid "Towards Negative Limit"
-msgstr "In Richtung negative Begrenzung"
+msgstr "In Richtung der negativen Begrenzung"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:61
 #: src/emc/usr_intf/pncconf/y_axis.glade:61
 #: src/emc/usr_intf/pncconf/z_axis.glade:61
 #: src/emc/usr_intf/pncconf/a_axis.glade:61
-#, fuzzy
 msgid "Towards Positive Limit"
-msgstr "In Richtung positive Begrenzung"
+msgstr "In Richtung der positiven Begrenzung"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:152
 #: src/emc/usr_intf/pncconf/y_axis.glade:152
@@ -17183,9 +17189,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_axis.glade:166
 #: src/emc/usr_intf/pncconf/z_axis.glade:166
 #: src/emc/usr_intf/pncconf/a_axis.glade:166
-#, fuzzy
 msgid "Home Final Velocity:"
-msgstr "Gesch_windigkeit Referenzfahrt:"
+msgstr "Geschwindigkeit Referenzfahrt:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:179
 #: src/emc/usr_intf/pncconf/y_axis.glade:179
@@ -17193,7 +17198,7 @@ msgstr "Gesch_windigkeit Referenzfahrt:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:179
 #, fuzzy
 msgid "Home Latch Direction:"
-msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
+msgstr "Richtung beim Übernehmen des Referenzpunkt:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:194
 #: src/emc/usr_intf/pncconf/y_axis.glade:194
@@ -17201,7 +17206,7 @@ msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:194
 #, fuzzy
 msgid "Home Search Direction:"
-msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
+msgstr "Richtung beim Übernehmen des Referenzpunkt:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:209
 #: src/emc/usr_intf/pncconf/y_axis.glade:209
@@ -17209,13 +17214,12 @@ msgstr "Ric_htung beim Übernehmen des Referenzpunkt:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:209
 #, fuzzy
 msgid "Home latch Velocity:"
-msgstr "Gesch_windigkeit Referenzfahrt:"
+msgstr "Geschwindigkeit Referenzfahrt:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:240
 #: src/emc/usr_intf/pncconf/y_axis.glade:240
 #: src/emc/usr_intf/pncconf/z_axis.glade:240
 #: src/emc/usr_intf/pncconf/a_axis.glade:240
-#, fuzzy
 msgid "Use Compensation Filename:"
 msgstr "Kompensationsdatei verwenden:"
 
@@ -17230,7 +17234,6 @@ msgstr "Nutze Umkehrspiel-Kompensation:"
 #: src/emc/usr_intf/pncconf/y_axis.glade:274
 #: src/emc/usr_intf/pncconf/z_axis.glade:274
 #: src/emc/usr_intf/pncconf/a_axis.glade:274
-#, fuzzy
 msgid "Final Home Position location   (Offset from machine zero Origin):"
 msgstr ""
 "Finaler Referenzpunkt   (Angabe relativ zu Ursprung der "
@@ -17256,7 +17259,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:323
 #, fuzzy
 msgid "Home Search Velocity:"
-msgstr "Gesch_windigkeit Referenzfahrt:"
+msgstr "Geschwindigkeit Referenzfahrt:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:338
 #: src/emc/usr_intf/pncconf/y_axis.glade:338
@@ -17271,7 +17274,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:354
 #, fuzzy
 msgid "Home Search Sequence:"
-msgstr "Gesch_windigkeit Referenzfahrt:"
+msgstr "Geschwindigkeit Referenzfahrt:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:369
 #: src/emc/usr_intf/pncconf/y_axis.glade:369
@@ -17285,9 +17288,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:184
 #: src/emc/usr_intf/pncconf/a_motor.glade:182
 #: src/emc/usr_intf/pncconf/s_motor.glade:213
-#, fuzzy
 msgid "Max Output"
-msgstr "Ausgabe"
+msgstr "Max Ausgabe"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:259
 #: src/emc/usr_intf/pncconf/y_motor.glade:259
@@ -17359,35 +17361,31 @@ msgstr "D"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:471
 #: src/emc/usr_intf/pncconf/s_motor.glade:500
-#, fuzzy
 msgid "PID Info"
-msgstr "Info"
+msgstr "PID Info"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:551
 #: src/emc/usr_intf/pncconf/y_motor.glade:551
 #: src/emc/usr_intf/pncconf/z_motor.glade:551
 #: src/emc/usr_intf/pncconf/a_motor.glade:533
 #: src/emc/usr_intf/pncconf/s_motor.glade:586
-#, fuzzy
 msgid "3pwm Scale:"
-msgstr "3pwm Skalierung:"
+msgstr "3PWM Skalierung:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:563
 #: src/emc/usr_intf/pncconf/y_motor.glade:563
 #: src/emc/usr_intf/pncconf/z_motor.glade:563
 #: src/emc/usr_intf/pncconf/a_motor.glade:545
 #: src/emc/usr_intf/pncconf/s_motor.glade:598
-#, fuzzy
 msgid "3pwm Deadtime:"
-msgstr "3pwm Totzeit:"
+msgstr "3PWM Totzeit:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:577
 #: src/emc/usr_intf/pncconf/y_motor.glade:577
 #: src/emc/usr_intf/pncconf/z_motor.glade:577
 #: src/emc/usr_intf/pncconf/a_motor.glade:559
-#, fuzzy
 msgid "Quad Pulses / Rev:"
-msgstr "Quat Pulse / Umdrehung:"
+msgstr "Quad Pulse / Umdrehung:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:670
 #: src/emc/usr_intf/pncconf/y_motor.glade:670
@@ -17405,7 +17403,6 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/y_motor.glade:696
 #: src/emc/usr_intf/pncconf/z_motor.glade:696
 #: src/emc/usr_intf/pncconf/a_motor.glade:673
-#, fuzzy
 msgid "Analog Min Limit:"
 msgstr "Analoger Min Grenzwert:"
 
@@ -17413,7 +17410,6 @@ msgstr "Analoger Min Grenzwert:"
 #: src/emc/usr_intf/pncconf/y_motor.glade:711
 #: src/emc/usr_intf/pncconf/z_motor.glade:711
 #: src/emc/usr_intf/pncconf/a_motor.glade:688
-#, fuzzy
 msgid "Analog Max limit:"
 msgstr "Analoger Max Grenzwert:"
 
@@ -17461,9 +17457,8 @@ msgstr "Zeit zwischen Schritt und _Richtungswechsel"
 #: src/emc/usr_intf/pncconf/z_motor.glade:923
 #: src/emc/usr_intf/pncconf/a_motor.glade:890
 #: src/emc/usr_intf/pncconf/s_motor.glade:895
-#, fuzzy
 msgid "Direction Setup"
-msgstr "Zeit zwischen Richtungs_wechsel und Schritt"
+msgstr "Zeit zwischen Richtungswechsel und Schritt"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:973
 #: src/emc/usr_intf/pncconf/y_motor.glade:973
@@ -17566,7 +17561,6 @@ msgstr "6 Ausgaben statt 3 "
 #: src/emc/usr_intf/pncconf/z_motor.glade:1276
 #: src/emc/usr_intf/pncconf/a_motor.glade:1230
 #: src/emc/usr_intf/pncconf/s_motor.glade:1441
-#, fuzzy
 msgid "Force Trapezoid Mode"
 msgstr "Erzwinge Trapezoid Modus"
 
@@ -17583,7 +17577,6 @@ msgstr "Rückmeldung emulieren "
 #: src/emc/usr_intf/pncconf/z_motor.glade:1306
 #: src/emc/usr_intf/pncconf/a_motor.glade:1258
 #: src/emc/usr_intf/pncconf/s_motor.glade:1471
-#, fuzzy
 msgid "Emulated Hall sensors"
 msgstr "Emulierte Hall-Sensoren"
 
@@ -17656,18 +17649,16 @@ msgstr "Ausgangsmuster"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1623
 #: src/emc/usr_intf/pncconf/a_motor.glade:1554
 #: src/emc/usr_intf/pncconf/s_motor.glade:1788
-#, fuzzy
 msgid "Drive-offset"
-msgstr "Drive-Offset"
+msgstr "Drive-Versatz"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1634
 #: src/emc/usr_intf/pncconf/y_motor.glade:1634
 #: src/emc/usr_intf/pncconf/z_motor.glade:1634
 #: src/emc/usr_intf/pncconf/a_motor.glade:1565
 #: src/emc/usr_intf/pncconf/s_motor.glade:1799
-#, fuzzy
 msgid "Encoder-offset"
-msgstr "Encoder-Offset"
+msgstr "Encoder-Versatz"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1645
 #: src/emc/usr_intf/pncconf/y_motor.glade:1645
@@ -17698,7 +17689,6 @@ msgstr "Details"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1701
 #: src/emc/usr_intf/pncconf/a_motor.glade:1631
 #: src/emc/usr_intf/pncconf/s_motor.glade:1866
-#, fuzzy
 msgid "<b>Use BLDC Motor Commutation Control</b>"
 msgstr "<b>Nutze BLDC Motor Kommunikations-Kontrolle</b>"
 
@@ -17739,7 +17729,6 @@ msgstr "UPM"
 #: src/emc/usr_intf/pncconf/y_motor.glade:1848
 #: src/emc/usr_intf/pncconf/z_motor.glade:1848
 #: src/emc/usr_intf/pncconf/a_motor.glade:1773
-#, fuzzy
 msgid "<b>Use Spindle-At-Speed</b>"
 msgstr "<b>Nutze Spindel-Bei-Drehzahl</b>"
 
@@ -17784,7 +17773,6 @@ msgstr "Motor-Drehrichtung umkehren"
 #: src/emc/usr_intf/pncconf/z_motor.glade:2035
 #: src/emc/usr_intf/pncconf/a_motor.glade:1957
 #: src/emc/usr_intf/pncconf/s_motor.glade:1977
-#, fuzzy
 msgid "Invert Encoder Direction "
 msgstr "Invertiere Encoder Richung: "
 
@@ -17795,7 +17783,7 @@ msgstr "Invertiere Encoder Richung: "
 #: src/emc/usr_intf/pncconf/s_motor.glade:1993
 #, fuzzy
 msgid "Single Input Encoder"
-msgstr "Bild invertieren"
+msgstr "Einzel-Eingabe Encoder"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2224
 #: src/emc/usr_intf/pncconf/y_motor.glade:2224
@@ -17841,34 +17829,28 @@ msgid "Servo Info"
 msgstr "Servo-Info"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:648
-#, fuzzy
 msgid "analog Max Voltage:"
-msgstr "analoge maximale Spannung:"
+msgstr "analoge max. Spannung:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:717
-#, fuzzy
 msgid "Use +- voltage for direction"
-msgstr "Motor-Drehrichtung umkehren"
+msgstr "Nutze +- Spannung für Richtung"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:737
 #: src/emc/usr_intf/pncconf/s_motor.glade:1146
-#, fuzzy
 msgid "Range 1 Max RPM:"
 msgstr "Bereich 1 Max UPM:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:749
 #: src/emc/usr_intf/pncconf/s_motor.glade:1158
-#, fuzzy
 msgid "Range 2 Max RPM"
-msgstr "Max. UPM"
+msgstr "Bereich 2 Max. UPM"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:772
-#, fuzzy
 msgid "Output Voltage Info"
-msgstr "Ausgang-Info"
+msgstr "Ausgangsspannung Info"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1176
-#, fuzzy
 msgid "Slave number:"
 msgstr "Slave Nummer:"
 
@@ -17881,7 +17863,6 @@ msgid "Use At-Speed Calculation"
 msgstr "At-Speed-Berechnung verwenden"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2272
-#, fuzzy
 msgid "Spindle Display Filter:"
 msgstr "Spindel Anzeige Filter:"
 
@@ -17960,17 +17941,14 @@ msgid "Include Halui user interface component / commands"
 msgstr "HalUI-Fenster einbinden"
 
 #: src/emc/usr_intf/pncconf/options.glade:605
-#, fuzzy
 msgid "Number of digital (bit) in pins:"
-msgstr "Digitale Eingänge:"
+msgstr "Anzahl Pins (bits) für Digitale Eingänge:"
 
 #: src/emc/usr_intf/pncconf/options.glade:622
-#, fuzzy
 msgid "Number of digital (bit) out pins:"
-msgstr "Digitale Ausgänge:"
+msgstr "Anzahl Pins (bits) für digitale Ausgänge:"
 
 #: src/emc/usr_intf/pncconf/options.glade:703
-#, fuzzy
 msgid " Number of Internal bit memory:"
 msgstr " Anzahl der internen Bitspeicher:"
 
@@ -17987,9 +17965,8 @@ msgid "Z Auto Touch off program"
 msgstr "Z Auto Touch off Programm"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:126
-#, fuzzy
 msgid "Add HAL components with this page."
-msgstr "Füge HAL Komponents zu dieser Seite page hinzu."
+msgstr "Füge HAL Komponenten zu dieser Seite page hinzu."
 
 #: src/emc/usr_intf/pncconf/realtime.glade:151
 msgid "<b>Component</b>"
@@ -18024,7 +18001,6 @@ msgid "Servo Thread"
 msgstr "Servo-Gewinde"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:412
-#, fuzzy
 msgid "Load Command "
 msgstr "Lade Kommando "
 
@@ -18037,57 +18013,48 @@ msgid "Thread Command"
 msgstr "Gewinde Befehl"
 
 #: src/emc/usr_intf/pncconf/realtime.glade:483
-#, fuzzy
 msgid "<b>Custom Components Commands</b>"
-msgstr "<b>Eigens modifizierter Komponenten Kommandos</b>"
+msgstr "<b>Eigens modifizierte Komponenten Kommandos</b>"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:134
 #: src/emc/usr_intf/pncconf/pport2.glade:137
-#, fuzzy
 msgid "Pin 2:"
 msgstr "Pin _2:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:192
 #: src/emc/usr_intf/pncconf/pport2.glade:195
-#, fuzzy
 msgid "Pin 3:"
-msgstr "Pin _3:"
+msgstr "Pin 3:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:250
 #: src/emc/usr_intf/pncconf/pport2.glade:253
-#, fuzzy
 msgid "Pin 4:"
-msgstr "Pin _4:"
+msgstr "Pin 4:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:308
 #: src/emc/usr_intf/pncconf/pport2.glade:311
-#, fuzzy
 msgid "Pin 5:"
-msgstr "Pin _5:"
+msgstr "Pin 5:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:366
 #: src/emc/usr_intf/pncconf/pport2.glade:369
-#, fuzzy
 msgid "Pin 6:"
-msgstr "Pin _6:"
+msgstr "Pin 6:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:424
 #: src/emc/usr_intf/pncconf/pport2.glade:427
-#, fuzzy
 msgid "Pin 7:"
-msgstr "Pin _7:"
+msgstr "Pin 7:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:482
 #: src/emc/usr_intf/pncconf/pport2.glade:485
-#, fuzzy
 msgid "Pin 8:"
-msgstr "Pin _8:"
+msgstr "Pin 8:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:540
 #: src/emc/usr_intf/pncconf/pport2.glade:543
-#, fuzzy
 msgid "Pin 9:"
-msgstr "Pin _9:"
+msgstr "Pin 9:"
 
 #: src/emc/usr_intf/pncconf/pport1.glade:966
 #: src/emc/usr_intf/pncconf/pport2.glade:969
@@ -18149,7 +18116,6 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pport1.glade:1712
 #: src/emc/usr_intf/pncconf/pport2.glade:1715
-#, fuzzy
 msgid "Launch Test Panel"
 msgstr "Starte Test Panel"
 
@@ -18160,19 +18126,16 @@ msgstr "--addr"
 #: src/emc/usr_intf/pncconf/dialogs.glade:40
 #: src/emc/usr_intf/pncconf/dialogs.glade:306
 #: src/emc/usr_intf/pncconf/dialogs.glade:332
-#, fuzzy
 msgid "Pci"
-msgstr "Pin"
+msgstr "PCI"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:41
-#, fuzzy
 msgid "PCI"
-msgstr "PID"
+msgstr "PCI"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:44
-#, fuzzy
 msgid "Parallel Port"
-msgstr "Konfiguration der Druckerschnittstelle"
+msgstr "Parallelport"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:45
 msgid "--epp"
@@ -18184,7 +18147,6 @@ msgid "Interface type:"
 msgstr "Schnittstellen-Typ:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:128
-#, fuzzy
 msgid ""
 "\n"
 "Pncconf will try to discover the board connected to the system.\n"
@@ -18207,19 +18169,15 @@ msgid "192.168.1.121"
 msgstr "192.168.1.121"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:191
-#, fuzzy
 msgid "Card Name:"
-msgstr "Name:"
+msgstr "Karten-Name:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:215
-#, fuzzy
 msgid "Read hostmot2 PIN file From help's input tab"
 msgstr ""
 "Lese hostmot2 PIN Datei wie gezeigt in dem Input-Reiter der online-Hilfe"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:233
-#, fuzzy
-#| msgid "Mesa Board Disvovery<"
 msgid "Mesa Board Discovery<"
 msgstr "Mesa Board Erkennung<"
 
@@ -18235,9 +18193,8 @@ msgstr "hm2_pci"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:310
 #: src/emc/usr_intf/pncconf/dialogs.glade:336
-#, fuzzy
 msgid "Parallel Port -7i43"
-msgstr "Konfiguration der Druckerschnittstelle"
+msgstr "Parallelport -7i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:311
 #: src/emc/usr_intf/pncconf/dialogs.glade:337
@@ -18246,9 +18203,8 @@ msgstr "hm2_4i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-#, fuzzy
 msgid "Parellel Port- 7i90"
-msgstr "Konfiguration der Druckerschnittstelle"
+msgstr "Parellelport- 7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
 #: src/emc/usr_intf/pncconf/dialogs.glade:341
@@ -18256,32 +18212,28 @@ msgid "hm2_7i90"
 msgstr "hm2_7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:369
-#, fuzzy
 msgid "24"
-msgstr "2"
+msgstr "24"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:450
 msgid "Number of connectors:"
 msgstr "Anzahl der Kanäle:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:461
-#, fuzzy
 msgid "Number of pins per connector:"
-msgstr "Anzahl der PWM-Generatoren:"
+msgstr "Anzahl Pins je Verbindung:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:503
-#, fuzzy
 msgid ""
 "Pncconf doesn't recognize the board name.\n"
 "Please set the data and press ok"
 msgstr ""
-"PnCConf kennt den Namen des Boards nicht\n"
-"Bitte setze die Daten und drücke ok"
+"PnCConf kennt den Namen des Boards nicht.\n"
+"Bitte passen Sie die Daten an und drücken ok"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:536
-#, fuzzy
 msgid "<b>frame2</b>"
-msgstr "<b>Seite</b>"
+msgstr "<b>frame2</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:589
 msgid "Save & Quit"
@@ -18319,7 +18271,6 @@ msgid "Dac Offset:"
 msgstr "Dac Offset:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:966
-#, fuzzy
 msgid "Encoder Scale:"
 msgstr "Encoder Skalierung:"
 
@@ -18328,7 +18279,6 @@ msgid "Reset Encoder"
 msgstr "Reset Encoder"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1007
-#, fuzzy
 msgid "Enable Amp"
 msgstr "Aktiviere Verstärker"
 
@@ -18341,12 +18291,10 @@ msgid "Invert Motor"
 msgstr "Motor invertieren"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1361
-#, fuzzy
 msgid "Pulley teeth (motor:gearbox):"
-msgstr "_Untersetzung (Zähnezahl am Motor:Spindel):"
+msgstr "Zähnezahl (Motor:Getriebe):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1370
-#, fuzzy
 msgid "Gear ratio 1 (Input:Output)"
 msgstr "Übersetzungsverhälitnis 1 (Eingabe:Ausgabe)"
 
@@ -18361,9 +18309,8 @@ msgid "Motor steps per revolution:"
 msgstr "Motorschritte pro Umdrehung:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1472
-#, fuzzy
 msgid "      Voltage for Max RPM:"
-msgstr "      Spannung für Max RPM:"
+msgstr "      Spannung für Max UPM:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1482
 msgid "Use Negative voltage for reverse:"
@@ -18383,31 +18330,26 @@ msgstr "<b>Spindelencoder Index</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1640
 #: src/emc/usr_intf/pncconf/dialogs.glade:2440
-#, fuzzy
 msgid "X 4 = Pulses/Rev"
 msgstr "X 4 = Pulse/Umdrehung"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1651
 #: src/emc/usr_intf/pncconf/dialogs.glade:2453
-#, fuzzy
 msgid "Encoder lines per revolution:"
-msgstr "Encoder-_Takte pro Spindel-Umdrehung:"
+msgstr "Encoder Zeilen je Umdrehung:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1661
 #: src/emc/usr_intf/pncconf/dialogs.glade:2606
-#, fuzzy
 msgid "<b>Encoder Scale</b>"
 msgstr "<b>Encoder Skalierung</b>"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1729
-#, fuzzy
 msgid "Spindle RPM at Max Motor Speed -gear 1:"
-msgstr "Spindel RPM bei Max Motor Geschwindigkeit -Übersetzung 1:"
+msgstr "Spindel UPM bei Max Motor Geschwindigkeit -Übersetzung 1:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1736
-#, fuzzy
 msgid "Spindle RPM at Max Motor Speed -gear 2:"
-msgstr "Spindel RPM bei Max Motor Geschwindigkeit -Übersetzung 2:"
+msgstr "Spindel UPM bei Max Motor Geschwindigkeit -Übersetzung 2:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:1747
 msgid "500"
@@ -18429,7 +18371,7 @@ msgstr "TPI "
 #: src/emc/usr_intf/pncconf/dialogs.glade:2134
 #, fuzzy
 msgid "Pulley teeth (motor:Leadscrew):"
-msgstr "_Untersetzung (Zähnezahl am Motor:Spindel):"
+msgstr "Zähnezahl (Motor:Leitspindel):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2143
 #: src/emc/usr_intf/pncconf/dialogs.glade:2523
@@ -18452,16 +18394,15 @@ msgstr "TPI"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2536
 #, fuzzy
 msgid "Pulley teeth (encoder:Leadscrew):"
-msgstr "_Untersetzung (Zähnezahl am Motor:Spindel):"
+msgstr "Zähnezahl (Motor:Spindel):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2650
 msgid "                    "
 msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2691
-#, fuzzy
 msgid "encoder pulses per unit:"
-msgstr "Encoder Pulse pro Einheit:"
+msgstr "Encoder Pulse je Einheit:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2704
 msgid "motor steps per unit:"
@@ -18492,9 +18433,8 @@ msgid "Khz"
 msgstr "kHz"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2982
-#, fuzzy
 msgid "Calculated Axis SCALE:"
-msgstr "Maßstab der Achse:"
+msgstr "Berechnete Skalierung der Achse:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3033
 msgid "Motor RPM at max speed:"
@@ -18522,9 +18462,8 @@ msgstr "mm/Minute"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3904
 #: src/emc/usr_intf/pncconf/dialogs.glade:4698
-#, fuzzy
 msgid "Current"
-msgstr "Aktueller"
+msgstr "Strom"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3915
 msgid "P:"
@@ -18552,9 +18491,8 @@ msgid "PID Tuning"
 msgstr "PID-Einstellung"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4665
-#, fuzzy
 msgid "Step Time:"
-msgstr "Step Time:"
+msgstr "Schrittzeit:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4676
 msgid "Step Space:"
@@ -18640,22 +18578,19 @@ msgstr ""
 "installiert?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "Manual Mode"
-msgstr "Manuell"
+msgstr "Manueller Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "MDI Mode"
-msgstr "Modus"
+msgstr "Manuelle Dateneingabe Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:278
-#, fuzzy
 msgid "Auto Mode"
-msgstr "Modus"
+msgstr "Auto Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:393
-#, fuzzy, python-format
+#, python-format
 msgid "adding import dir %s"
 msgstr "für %s als Verzeichnis für Importe hinzu"
 
@@ -18665,7 +18600,6 @@ msgid "module '%s' imported OK"
 msgstr "Modul '%s' erfolgreich importiert"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:478
-#, fuzzy
 msgid ""
 "**** GSCREEN ERROR: INI file path missing from Gscreen launch command ****\n"
 msgstr ""
@@ -18680,7 +18614,7 @@ msgid "**** GSCREEN INFO: SKIN locale name ="
 msgstr "**** GSCREEN INFO: SKIN lokaler Name ="
 
 #: src/emc/usr_intf/gscreen/gscreen.py:504
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "**** GSCREEN INFO:  Using CUSTOM glade file from %s ****"
@@ -18738,7 +18672,6 @@ msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
 msgstr "Kein UNITS Eintrag gefunden in [TRAJ] oder [AXIS_X] der INI Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:596
-#, fuzzy
 msgid ""
 "*** Gscreen ERROR:    Asking for a HAL component using a name that already "
 "exists."
@@ -18747,18 +18680,17 @@ msgstr ""
 "existiert."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:667
-#, fuzzy
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"Keine Voreinstellungen gefunden für jog increments unter [DISPLAY] der INI "
-"Datei"
+"Keine Voreinstellungen gefunden für \" jog increments\" unter [DISPLAY] der "
+"INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:680
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:689
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
@@ -18776,7 +18708,6 @@ msgstr ""
 "interne Voreinstellung %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:707
-#, fuzzy
 msgid "No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"
 msgstr "Keine MAX_LINEAR_VELOCITY gefunden in [TRAJ] der INI Datei"
 
@@ -18812,7 +18743,6 @@ msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
 msgstr "Keinen MAX_FEED_OVERRIDE Eintrag gefunden in [DISPLAY] der INI Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:756
-#, fuzzy
 msgid "This screen will be orientated for Lathe options"
 msgstr "Dieser Bildschirm wird zusammengestellt für Optionen zur Drehbank"
 
@@ -18834,12 +18764,11 @@ msgid "Ready For Homing"
 msgstr "Bereit für Referenzfahrt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1316
-#, fuzzy
 msgid ""
 "**** WARNING GSCREEN: could not initialize vte terminal - is package vte "
 "installed? Is widget: terminal_window in GLADE file?"
 msgstr ""
-"**** WARNING GSCREEN: konnte vte terminal nicht initialisieren - is das "
+"**** WARNUNG GSCREEN: konnte vte terminal nicht initialisieren - is das "
 "Paket vte installiert? Ist widget: terminal_window in GLADE Datei?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1332
@@ -18847,7 +18776,6 @@ msgid "Local Config Theme"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1388
-#, fuzzy
 msgid ""
 "**** WARNING GSCREEN: could not understand the window geometry info in "
 "hidden preference file"
@@ -18860,14 +18788,12 @@ msgid "Control powered up and initialized"
 msgstr "Steuerung unter Strom und initialisiert"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1887
-#, fuzzy
 msgid "Cycle start pressed in AUTO mode"
 msgstr "Zyklus Start gedrückt in AUTO Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1890
-#, fuzzy
 msgid "Cycle start pressed in MDI mode"
-msgstr "%s kann im MDI-Modus nicht ausgeführt werden"
+msgstr "Zyklus-Start gedrückt in MDI-Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1925
 #, python-format
@@ -18900,15 +18826,13 @@ msgstr "INFO:"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1938
 #: src/emc/usr_intf/gscreen/gscreen.py:1957
-#, fuzzy
 msgid "Can't start spindle manually while MDI busy"
-msgstr "Kann die Spindel nicht manuell drehen während MDI busy ist"
+msgstr "Kann die Spindel nicht manuell starten während MDI beschäftigt ist"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1941
 #: src/emc/usr_intf/gscreen/gscreen.py:1960
-#, fuzzy
 msgid "can't start spindle manually in Auto mode"
-msgstr "%s kann im manuellen Modus nicht ausgeführt werden"
+msgstr "Kann Spindel im Auto Modus nicht manuell starten"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1966
 #: src/emc/usr_intf/gscreen/gscreen.py:4143
@@ -19086,17 +19010,15 @@ msgstr "Neustart Eingabe"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
 msgid "_Up     "
-msgstr ""
+msgstr "_Hoch"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3797
-#, fuzzy
-#| msgid "Down"
 msgid "_Down"
-msgstr "Abwärts"
+msgstr "_Runter"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3799
 msgid "_Jump to"
-msgstr ""
+msgstr "_Gehe zu"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3819
 #, fuzzy, python-format
@@ -19589,7 +19511,6 @@ msgid "Graphics\n"
 msgstr "Grafiken\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2873
-#, fuzzy
 msgid ""
 "Menu\n"
 "Level"
@@ -19650,14 +19571,14 @@ msgstr ""
 "  system"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3095
-#, fuzzy
 msgid ""
 "Index\n"
 " Tool"
-msgstr "Werkzeug angelegt"
+msgstr ""
+"Werkzeug\n"
+"angelegt"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3107
-#, fuzzy
 msgid ""
 "Spindle\n"
 "Controls"
@@ -19695,13 +19616,12 @@ msgstr ""
 "Darstellung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3300
-#, fuzzy
 msgid ""
 "Next\n"
 " Tab"
 msgstr ""
 "Nächste\n"
-" Registerkarte"
+"Registerkarte"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3320
 msgid ""
@@ -19742,7 +19662,6 @@ msgstr ""
 "schrittweite"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3396
-#, fuzzy
 msgid ""
 "Adjust\n"
 "Rotary"
@@ -19751,7 +19670,6 @@ msgstr ""
 "Drehung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3418
-#, fuzzy
 msgid ""
 "Change\n"
 "  View"
@@ -19792,30 +19710,28 @@ msgstr ""
 "rotieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3526
-#, fuzzy
 msgid ""
 "Search\n"
 "  Bwd"
-msgstr "Suchpfad"
+msgstr ""
+"Suche\n"
+"Rückw."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3538
-#, fuzzy
 msgid ""
 "Search\n"
 "  Fwd"
-msgstr "Suchpfad"
+msgstr ""
+"Suche\n"
+"Vorw."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3550
 msgid "Undo"
-msgstr ""
-"Rück-\n"
-"gängig"
+msgstr "Rückgängig"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
-msgstr ""
-"Wieder-\n"
-"herstellen"
+msgstr "Wiederherstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
 msgid ""
@@ -19826,11 +19742,12 @@ msgstr ""
 "neu laden"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3609
-#, fuzzy
 msgid ""
 "Replace\n"
 "  Text"
-msgstr "Ersetzen"
+msgstr ""
+"Ersetze\n"
+"  Text"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3647
 msgid ""
@@ -19969,9 +19886,8 @@ msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "offsetpage_widget Fehler: kann das Koordinatensystem nicht auswählen"
 
 #: lib/python/gladevcp/tooledit_widget.py:227
-#, fuzzy
 msgid "tooledit_widget error: cannot select tool number"
-msgstr "tooledit_widget Fehler: Werkzeugnummer kann nicht ausgewählt werden"
+msgstr "tooledit_widget Fehler: Kann Werkzeug nicht ausgewählt mit Nummer"
 
 #: lib/python/gladevcp/tooledit_widget.py:246
 #, fuzzy
@@ -20063,7 +19979,6 @@ msgstr "G55"
 
 #: lib/python/gladevcp/offsetpage.glade:142
 #: lib/python/gladevcp/offsetpage.glade:156
-#, fuzzy
 msgid "G56"
 msgstr "G56"
 
@@ -20106,11 +20021,10 @@ msgid "Offset Name"
 msgstr "Offsetname"
 
 #: lib/python/gladevcp/offsetpage.glade:442
-#, fuzzy
 msgid ""
 "Zero\n"
 "G92"
-msgstr "G59.2 auf Null setzen"
+msgstr "G92 auf Null setzen"
 
 #: lib/python/gladevcp/offsetpage.glade:456
 msgid ""
@@ -20220,10 +20134,8 @@ msgid "_Cancel_"
 msgstr "_Abbrechen"
 
 #: lib/python/gladevcp/calculator.glade:393
-#, fuzzy
-#| msgid "Ok"
 msgid "_Ok"
-msgstr "Ok"
+msgstr "_Ok"
 
 #~ msgid "S_ave Data File..."
 #~ msgstr "D_atendatei speichern..."
