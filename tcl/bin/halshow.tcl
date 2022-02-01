@@ -575,6 +575,7 @@ proc entrybox {defVal buttonText label} {
         set ypos "[ expr {[winfo rooty [winfo parent $wn]]+ \
             ([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
         wm geometry $wn "+$xpos+$ypos"
+        wm attributes $wn -topmost yes
         variable entryVal
         set entryVal $defVal
         label .top.lbl -text $label
