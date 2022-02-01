@@ -44,7 +44,24 @@ and run the following command:
 latency-test
 ----
 
-You should see something like this:
+This will start the latency test with a base-thread period of 25uS and a 
+servo-thread period of 1mS. The period times may be specified on the command
+line:
+
+----
+latency-test 50000 1000000
+----
+
+This will start the latency test with a base-thread period of 50uS and a 
+servo-thread period of 1mS.
+
+For available options, on the command line enter:
+
+----
+latency-test -h
+----
+
+After stating a latency test you should see something like this:
 
 .HAL Latency Test
 
@@ -95,8 +112,10 @@ LinuxCNC does not require bleeding edge hardware.
 For more information on stepper tuning see the 
 <<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
 
-Additional command line tools are available for examining latency
-when LinuxCNC is not running.
+*Additional command line tools are available for examining latency
+when LinuxCNC is not running.*
+
+= Latency Plot
 
 latency-plot makes a strip chart recording for a base and a servo
 thread.  It may be useful to see spikes in latency when other
@@ -117,6 +136,7 @@ Options:
 ----
 image::../config/images/latency-plot.png[alt="latency-plot makes a strip chart recording for a base and a servo thread"]
 
+= Latency Histogram
 
 latency-histogram displays a histogram of latency (jitter) for
 a base and servo thread.
