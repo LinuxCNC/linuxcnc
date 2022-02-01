@@ -532,7 +532,8 @@ static void process_inputs(void)
     // if jog in progress
     if (enables & *(emcmot_hal_data->jog_inhibit) && *(emcmot_hal_data->jog_is_active)) {
         // stop any joint jog
-        for (int jNum = 0; jNum < NO_OF_KINS_JOINTS; jNum++) {
+        int jNum,aNum;
+        for (jNum = 0; jNum < NO_OF_KINS_JOINTS; jNum++) {
             joint = &joints[jNum];
             if (joint->kb_jjog_active || joint->wheel_jjog_active) {
                 joint->free_tp.enable = 0;
@@ -543,7 +544,7 @@ static void process_inputs(void)
             }
         }
         // stop any axis jog
-        for (int aNum = 0; aNum < EMCMOT_MAX_AXIS; aNum++) {
+        for (aNum = 0; aNum < EMCMOT_MAX_AXIS; aNum++) {
             axis = &axes[aNum];
             if (axis->kb_ajog_active || axis->wheel_ajog_active) {
                 axis->teleop_tp.enable = 0;
