@@ -64,17 +64,20 @@ set ::main [frame .main -padx 6 -pady 6]
 pack $::main -fill both -expand yes
 
 # build frames from left side
-set ::tf [frame $::main.maint]
-set ::top [NoteBook $::main.note]
+set ::leftf [frame $::main.left]
+set ::tf [frame $::leftf.tf]
+set ::rightf [frame $::main.right]
+set ::nb [NoteBook $::rightf.note]
+pack $::nb -side right -fill both -expand yes
 
 # Each mode has a unique set of widgets inside tab
-set showhal [$::top insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
-set ::watchhal [$::top insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
+set showhal [$::nb insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
+set ::watchhal [$::nb insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
 
 # use place manager to fix locations of frames within top
 proc placeFrames {ratio} {
-    place configure $::tf -in $::main -x 0 -y 0 -relheight 1 -relwidth $ratio
-    place configure $::top -in $::main -relx $ratio -y 0 -relheight 1 -relwidth [expr 1-$ratio]
+    place configure $::leftf -in $::main -x 0 -y 0 -relheight 1 -relwidth $ratio
+    place configure $::rightf -in $::main -relx $ratio -y 0 -relheight 1 -relwidth [expr 1-$ratio]
 }
 
 placeFrames 0.3
@@ -86,7 +89,7 @@ proc sSlide {f a b} {
 
 # Build menu
 # fixme clean up the underlines so they are unique under each set
-set menubar [menu $::top.menubar -tearoff 0]
+set menubar [menu $::rightf.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
@@ -155,14 +158,55 @@ proc addToWatch {type name} {
     }   
 }
 
-# frame as grip for scaling
-set grip [frame $::tf.grip -borderwidth 3 -relief raise -width 8]
-pack $grip -side right -fill y
-$grip configure -cursor sb_h_double_arrow 
+# frame for scaling ratio
+set gripf [frame $::leftf.grip -borderwidth 3 -width 8 -cursor sb_h_double_arrow]
+pack $gripf -side right -fill y
+pack $::tf -fill both -expand yes
+
+# grip symbol
+set grip [frame $gripf.grip -relief groove -borderwidth 2 -width 2 -height 20]
+pack [frame $gripf.topfill] -side top -expand y ;# add frames to center grip
+pack $grip
+pack [frame $gripf.bottomfill] -side bottom -expand y
 set ::grip_clicked false
+bind $gripf <Motion> [list scaleFrames]
+bind $gripf <ButtonPress-1> {set ::grip_clicked true}
+bind $gripf <ButtonRelease-1> {set ::grip_clicked false}
 bind $grip <Motion> [list scaleFrames]
 bind $grip <ButtonPress-1> {set ::grip_clicked true}
 bind $grip <ButtonRelease-1> {set ::grip_clicked false}
+
+# frame to hide tree
+set fh [frame $::tf.fh -borderwidth 0 -relief raised]
+pack $fh -fill x
+set tlbl [label $fh.tlbl -text [msgcat::mc "Tree View"]]
+pack $tlbl -side left
+set bh [button $fh.bh -borderwidth 0 -text « -padx 6 -pady 1]
+pack $bh -side right
+bind $bh <Button-1> [list hideListview]
+
+# frame to show tree
+set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised]
+set bs [button $::fs.bs -borderwidth 0  -text » -padx 5 -pady 0] 
+pack $bs -side top
+bind $bs <Button-1> [list showListview]
+# add canvas to create rotated text
+set clbl [canvas $::fs.clbl -width 20]
+pack $clbl
+$clbl create text 10 5 -angle 90 -anchor e -text [msgcat::mc "Tree View"] -font [list "" 10]
+
+proc hideListview {} {
+    place $::fs -width 24 -relheight 1.0
+    pack forget $::nb
+    place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -24 -relheight 1.0
+    placeFrames 0
+}
+
+proc showListview {} {
+    place forget $::fs
+    place configure $::nb -relwidth 1.0 -width 0
+    placeFrames 0.3
+}
 
 proc scaleFrames {} {
     if {$::grip_clicked} {
@@ -175,8 +219,9 @@ proc scaleFrames {} {
     }
 }
 # build the tree widgets left side
-set ::treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
-set str $tf.sc
+
+set ::treew [Tree $::tf.t  -width 10 -yscrollcommand "sSlide $::tf" ]
+set str $::tf.sc
 scrollbar $str -orient vert -command "$::treew yview"
 pack $str -side right -fill y
 pack $::treew -side right -fill both -expand yes
@@ -333,7 +378,7 @@ proc makeShow {} {
     pack [scrollbar $f1.top.sc -orient vert -command "$::disp yview"]\
          -side left -fill y
 
-    set f2 [frame .f2 -borderwidth 5]
+    set f2 [frame .f2 -borderwidth 0]
     pack $f2 -fill x -expand 0
     pack [frame $f2.b] \
          -side top -fill x -anchor w
@@ -354,8 +399,8 @@ proc makeShow {} {
          -side top -fill both -expand 1
     set ::showtext [text $f2.show.txt \
                  -width 0 -height 1 -bg grey85 \
-                 -borderwidth 2 -relief sunken ]
-    pack $::showtext -side left -fill both -anchor w -expand 1
+                 -borderwidth 2 -relief sunken]
+    pack $::showtext -side left -fill both -anchor w -expand 1 -pady 5 -padx 5
     pack [ttk::sizegrip $f2.show.grip] -side right -anchor se
 
     bind $::disp <Button-3> {popupmenu_text %X %Y}
@@ -798,7 +843,7 @@ proc loadwatchlist {filename} {
   wm title . "$::last_watchfile_tail - $::titlename"
   if {"$wl" == ""} return
   watchReset all
-  $::top raise pw
+  $::nb raise pw
   foreach item $wl { watchHAL $item }
   setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"]"
 }
@@ -833,7 +878,7 @@ proc savewatchlist { {fmt oneline} } {
 makeShow
 makeWatch
 refreshHAL
-$::top raise ps
+$::nb raise ps
 
 proc setStatusbar {message} {
     $::showtext config -state normal
