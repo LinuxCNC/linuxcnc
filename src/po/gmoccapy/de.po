@@ -7,10 +7,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 18:54+0100\n"
-"PO-Revision-Date: 2022-02-01 07:13+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-02-02 16:55+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
 "Language: de\n"
@@ -81,10 +81,7 @@ msgid "**** GMOCCAPY ERROR ****\n"
 msgstr "**** GMOCCAPY FEHLER ****\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:740
-#, fuzzy, python-brace-format
-#| msgid ""
-#| "**** could not resolv the image path '{0}' given for macro button '{1}' "
-#| "****"
+#, python-brace-format
 msgid "**** could not resolv the image path '{0}' given for button '{1}' ****"
 msgstr ""
 "**** Konnte den Pfad für das Bild '{0}' des Makros '{1}' nicht auflösen ****"
@@ -107,16 +104,12 @@ msgid "Press to set touch off value for axis {0}"
 msgstr "Drücken um Antastwert für Achse {0} zu übernehmen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:944
-#, fuzzy
-#| msgid ""
-#| "zero\n"
-#| " G92"
 msgid ""
 "zero\n"
 "G92"
 msgstr ""
-"Nulle\n"
-" G92"
+"G92\n"
+"nullen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:946
 msgid "Press to reset all G92 offsets"
@@ -310,8 +303,6 @@ msgid "**** no audio available! ****"
 msgstr "**** Keine Audio Meldung möglich ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1902
-#, fuzzy
-#| msgid "**** PYGST libray not installed? ****"
 msgid "**** PYGST library not installed? ****"
 msgstr "**** PYGST library nicht installiert? ****"
 
@@ -337,19 +328,14 @@ msgid "**** virtual keyboard program found : <onboard>"
 msgstr "**** Virtuelle Tastatur gefunden : <onboard>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1979
-#, fuzzy
-#| msgid ""
-#| "**** No virtual keyboard installed, we checked for <onboard> and "
-#| "<matchbox-keyboard>."
 msgid "**** No virtual keyboard installed, we checked for <onboard> ."
 msgstr ""
-"**** Keine virtuelle Tastatur installiert, geprüft wurde nach <onboard> und "
-"<matchbox-keyboard>."
+"**** Keine virtuelle Tastatur installiert, geprüft wurde nach <onboard>."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1980
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1995
 msgid "**** try sudo apt-get install onboard"
-msgstr ""
+msgstr "**** versuche 'sudo apt-get install onboard'"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1992
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3180
@@ -362,10 +348,8 @@ msgid "**** Error with launching virtual keyboard,"
 msgstr "**** Fehler beim Aktivieren der Bildschirmtastatur,"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1994
-#, fuzzy
-#| msgid "**** is python-gstX.XX installed? ****"
 msgid "**** is onboard installed? ****"
-msgstr "**** PYGST library nicht installiert? ****"
+msgstr "**** ist 'onboard' installiert? ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2027
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2859
@@ -492,16 +476,12 @@ msgid "Do you really want to delete the MDI history?\n"
 msgstr "Wollen Sie wirklich die MDI Historie löschen?\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3964
-#, fuzzy
-#| msgid "this will not delete the MDI History file, but will\n"
 msgid "This will not delete the MDI History file, but will\n"
 msgstr "dies wird nicht die History Datei löschen, sondern \n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3965
-#, fuzzy
-#| msgid "delete the listbox entries for this session"
 msgid "delete the listbox entries for this session."
-msgstr "nur die Einträge der Listbox werden entfernt"
+msgstr "Nur die Einträge der Listbox werden entfernt."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3966
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4015
@@ -547,14 +527,9 @@ msgid "Please enter only numerical values. Values have not been applied"
 msgstr "Bitte nur numerische Werte eingeben. Die Werte wurden nicht übernommen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4121
-#, fuzzy
-#| msgid ""
-#| "you did not selected a system to be changed to, so nothing will be changed"
 msgid ""
 "You did not select a system to be changed to, so nothing will be changed"
-msgstr ""
-"Sie haben kein zu setzendes Koordinatensystem gewählt, es wird nicht "
-"gewechselt"
+msgstr "Sie haben kein Koordinatensystem gewählt, es wird nicht gewechselt"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4122
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4569
@@ -612,6 +587,11 @@ msgid ""
 "\n"
 " not in the tool table!"
 msgstr ""
+"Werkzeug\n"
+"\n"
+"# {0:d}\n"
+"\n"
+"nicht in der Werkzeugtabelle!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4466
 msgid "Manual Tool change"
@@ -640,16 +620,12 @@ msgid "Warning Tool can not be deleted!"
 msgstr "Warnung: Werkzeug kann nicht gelöscht werden!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4505
-#, fuzzy
-#| msgid "No or more than one tool selected in tool table"
 msgid "No or multiple tools selected in the tool table. "
-msgstr "Sie haben kein oder mehr als ein Werkzeug ausgewählt. –"
+msgstr "Sie haben kein oder mehr als ein Werkzeug ausgewählt. "
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4506
-#, fuzzy
-#| msgid "Please select only one tool in the table"
 msgid "Please select only one tool in the table!"
-msgstr "Bitte nur ein Werkzeug auswählen."
+msgstr "Bitte nur ein Werkzeug auswählen!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4507
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4513
@@ -658,16 +634,12 @@ msgid "Warning Tool Touch off not possible!"
 msgstr "Warnung: Antasten des Werkzeugs nicht möglich!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4511
-#, fuzzy
-#| msgid "you can not touch of a tool, witch is not mounted in the spindle"
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
-msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist. –"
+msgstr "Sie können kein Werkzeug antasten, das nicht eingebaut ist. "
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4512
-#, fuzzy
-#| msgid "your selection has been reseted to the tool in spindle"
 msgid "Your selection has been reset to the tool in spindle."
-msgstr "Ihre Auswahl wurde zurückgesetzt auf das Werkzeug in der Spindel"
+msgstr "Ihre Auswahl wurde zurückgesetzt auf das Werkzeug in der Spindel."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4519
 msgid ""
@@ -677,10 +649,8 @@ msgstr ""
 "möglich.\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4520
-#, fuzzy
-#| msgid "Please emit an G40 before tool touch off"
 msgid "Please emit an G40 before tool touch off."
-msgstr "Bitte G40 vor dem Antasten setzen"
+msgstr "Bitte G40 vor dem Antasten setzen."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4529
 msgid "Real big error!"
@@ -719,17 +689,13 @@ msgid "Select the tool to change"
 msgstr "Wähle das einzuwechselnde Werkzeug"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4561
-#, fuzzy
-#| msgid "Conversion error because of wrong entry for tool number\n"
 msgid "Conversion error because of wrong entry for tool number.\n"
 msgstr ""
-"Umwandlungsfehler, verursacht durch falsche Eingabe bei der Werkzeugnummer\n"
+"Umwandlungsfehler, verursacht durch falsche Eingabe bei der Werkzeugnummer.\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4562
-#, fuzzy
-#| msgid "enter only integer numbers"
 msgid "Enter only integer numbers!"
-msgstr "Bitte nur Ganzzahlen eingeben"
+msgstr "Bitte nur Ganzzahlen eingeben!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4568
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4586
@@ -746,13 +712,10 @@ msgstr ""
 "muss die Auswahl eindeutig sein"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4601
-#, fuzzy
-#| msgid ""
-#| "Could not understand the entered tool number. Will not change anything"
 msgid "Could not understand the entered tool number. Will not change anything!"
 msgstr ""
 "Die eingegebene Werkzeugnummer wurde nicht verstanden. Es wird nichts "
-"geändert"
+"geändert!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4885
 msgid ""
@@ -769,8 +732,7 @@ msgstr ""
 "im Gemeinsam-Modus!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:5107
-#, fuzzy, python-brace-format
-#| msgid "Recieved a not clasified signal from pin {0}"
+#, python-brace-format
 msgid "Received a not classified signal from pin {0}"
 msgstr "Nicht registriertes Signal von Pin {0} erhalten"
 
@@ -825,15 +787,15 @@ msgstr "Anwenderhinweis"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:141
 msgid "_Yes"
-msgstr ""
+msgstr "_Ja"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:142
 msgid "_No"
-msgstr ""
+msgstr "_Nein"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:168
 msgid "_Ok"
-msgstr ""
+msgstr "_Ok"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:205 emc/usr_intf/gmoccapy/dialogs.py:207
 msgid "Restart Entry"
@@ -841,17 +803,15 @@ msgstr "Neustart Eingabe"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:219
 msgid "_Up     "
-msgstr ""
+msgstr "_Hoch"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:221
-#, fuzzy
-#| msgid "Down"
 msgid "_Down"
-msgstr "Runter"
+msgstr "_Runter"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:223
 msgid "_Jump to"
-msgstr ""
+msgstr "_Gehe zu"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:98
 msgid "**** GMOCCAPY GETINIINFO : ****"
@@ -886,10 +846,9 @@ msgstr ""
 "gefunden ****\n"
 
 #: emc/usr_intf/gmoccapy/notification.py:209
-#, fuzzy, python-brace-format
-#| msgid "Error trying to delet the message with number {0}"
+#, python-brace-format
 msgid "Error trying to delete the message with number {0}"
-msgstr "Fehler, konnte die Meldung mit Nummer {0} nicht löschen"
+msgstr "Fehler beim Versuch die Meldung Nummer {0} zu löschen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:1
 msgid "left rotate,  middle move,  right zoom"
@@ -1005,7 +964,7 @@ msgstr "<b>Verfahren</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "Shows the code to execute"
-msgstr ""
+msgstr "Zeigt den auszuführenden Code an"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "Information over the tool in spindle"
@@ -1072,8 +1031,6 @@ msgid "<b>Rapid Override</b>"
 msgstr "<b>Eilgangüberst. [%]</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
-#, fuzzy
-#| msgid "Displayes the programmed feed rate"
 msgid "Displays the programmed feed rate"
 msgstr "Zeigt die programmierte Vorschubgeschwindigkeit"
 
@@ -1087,7 +1044,9 @@ msgstr "<b>Vorschubüberst.</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "Undo"
-msgstr "Rückgängig"
+msgstr ""
+"Rück-\n"
+"gängig"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid ""
@@ -1107,7 +1066,9 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "Redo"
-msgstr "Wiederherstellen"
+msgstr ""
+"Wieder-\n"
+"herstellen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid ""
@@ -1254,16 +1215,12 @@ msgid "Digits"
 msgstr "Nachkommast."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
-#, fuzzy
-#| msgid ""
-#| "toggle DRO mode \n"
-#| "clicking on the DRO"
 msgid ""
 "toggle DRO mode\n"
 "clicking on the DRO"
 msgstr ""
 "DRO Modus wechseln \n"
-"durch klicken auf den DRO"
+"durch klicken auf DRO"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid "<b>DRO</b>"
@@ -1311,7 +1268,7 @@ msgstr "<b>Bei Start zu ladende Datei</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "Select user dir"
-msgstr "Wähle Nutzerverz."
+msgstr "Nutzerverz. wählen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "<b>Select jump to dir</b>"
@@ -1434,10 +1391,8 @@ msgid "Max. Probe"
 msgstr "max. Tastweg"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
-#, fuzzy
-#| msgid "<b>Probe Informations</b>"
 msgid "<b>Probe Information</b>"
-msgstr "<b>Werkzeugtaster Infos</b>"
+msgstr "<b>Werkzeugtaster Info</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "Search Vel."
@@ -1452,13 +1407,6 @@ msgid "<b>Probe velocitys</b>"
 msgstr "<b>Tastgeschwindigk.</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:140
-#, fuzzy
-#| msgid ""
-#| "No valid configuration\n"
-#| "found in your INI file,\n"
-#| "please take a look at \n"
-#| "the WIKI to check how\n"
-#| "to configure the settings."
 msgid ""
 "No valid configuration\n"
 "found in your INI file,\n"
@@ -1466,10 +1414,10 @@ msgid ""
 "the WIKI to check how\n"
 "to configure the settings."
 msgstr ""
-"Keine gültige Konfiguration\n"
-"in der INI Datei gefunden.\n"
-"Bitte sehen Sie im WIKI nach,\n"
-"um die Grundeinstellungen\n"
+"Keine gültige Konfiguration in\n"
+"der INI-Datei gefunden. Bitte\n"
+"sehen Sie in der Dokumentation\n"
+"nach, um die Grundeinstellungen\n"
 "richtig vorzunehmen."
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:145
@@ -1481,13 +1429,6 @@ msgid "Reload Tool on Start"
 msgstr "Werkzeug beim Start neu laden"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:147
-#, fuzzy
-#| msgid ""
-#| "If checked, the tool in spindle\n"
-#| "will be saved on each change\n"
-#| "and the last tool will be reloaded\n"
-#| "at start of the GUI. Also it's \n"
-#| "length offset will be reloaded.\n"
 msgid ""
 "If checked, the tool in spindle\n"
 "will be saved on each change\n"
@@ -1635,15 +1576,11 @@ msgstr ""
 "[F3]"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:186
-#, fuzzy
-#| msgid ""
-#| "enter MDI mode to launch g-code commands\n"
-#| "[F5]"
 msgid ""
 "enter MDI mode to launch G-code commands\n"
 "[F5]"
 msgstr ""
-"MDI Mode aufrufen um G-Code Befehle absetzen zu können\n"
+"In MDI-Modus wechseln, um G-Code Befehle absetzen zu können\n"
 "[F5]"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:188
@@ -1721,16 +1658,13 @@ msgid "Run the  loaded program step by step"
 msgstr "Programm schrittweise ablaufen lassen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:206
-#, fuzzy
-#| msgid ""
-#| "run the program from a certain line, attention, that is dangerous, "
-#| "because the previous lines will not checed!"
 msgid ""
 "run the program from a certain line, attention, that is dangerous, because "
 "the previous lines will not checked!"
 msgstr ""
 "Starte das geladene Programm von einer bestimmten Zeile aus. Achtung, dies "
-"ist gefährlich, da die Zeilen vor der Startzeile nicht ausgewertet werden!"
+"ist gefährlich, da die Zeilen vor der gewählten Zeile nicht ausgewertet "
+"werden!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:207
 msgid ""
@@ -1851,14 +1785,9 @@ msgid "Apply"
 msgstr "Anwenden"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
-#, fuzzy
-#| msgid ""
-#| "apply the changes you made, G43 will be excecuted only if it is active g-"
-#| "code"
 msgid ""
 "apply the changes you made, G43 will be executed only if it is active G-code"
-msgstr ""
-"Änderungen anwenden, G43 wird nur ausgeführt wenn es aktiver G-Code ist"
+msgstr "Änderungen anwenden, G43 wird nur ausgeführt wenn es aktiver G-Code ist"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "Select a tool by number"
