@@ -428,6 +428,7 @@ static int init_hal_io(void)
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_hold), mot_comp_id, "motion.feed-hold")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->feed_inhibit), mot_comp_id, "motion.feed-inhibit")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->homing_inhibit), mot_comp_id, "motion.homing-inhibit")) != 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->jog_inhibit), mot_comp_id, "motion.jog-inhibit")) != 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->tp_reverse), mot_comp_id, "motion.tp-reverse")) < 0) goto error;
     if ((retval = hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->enable), mot_comp_id, "motion.enable")) != 0) goto error;
 
@@ -511,6 +512,7 @@ static int init_hal_io(void)
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->requested_vel), mot_comp_id, "motion.requested-vel")) != 0) goto error;
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->distance_to_go), mot_comp_id, "motion.distance-to-go")) != 0) goto error;
     if ((retval = hal_pin_s32_newf(HAL_OUT, &(emcmot_hal_data->program_line), mot_comp_id, "motion.program-line")) != 0) goto error;
+    if ((retval = hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->jog_is_active), mot_comp_id, "motion.jog-is-active")) != 0) goto error;
 
     /* export debug parameters */
     /* these can be used to view any internal variable, simply change a line
@@ -563,6 +565,7 @@ static int init_hal_io(void)
     *(emcmot_hal_data->feed_hold) = 0;
     *(emcmot_hal_data->feed_inhibit) = 0;
     *(emcmot_hal_data->homing_inhibit) = 0;
+    *(emcmot_hal_data->jog_inhibit) = 0;
 
     *(emcmot_hal_data->probe_input) = 0;
     /* default value of enable is TRUE, so simple machines
