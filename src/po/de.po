@@ -4,7 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
 "PO-Revision-Date: 2022-02-01 15:18+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -16742,7 +16742,7 @@ msgstr "Mitsubishi FR Spindel Geschwindigkeitsregelung"
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
 msgid "GS2 Spindle VFD"
-msgstr "GS2 Spindle Geschwindigkeitsregelung"
+msgstr "GS2 Spindel-Frequenzumrichter"
 
 #: src/emc/usr_intf/pncconf/external.glade:5429
 msgid "Deacceleration Time"
@@ -16786,7 +16786,7 @@ msgstr "Achsenkonfiguration:"
 
 #: src/emc/usr_intf/pncconf/base.glade:189
 msgid "Include Spindle"
-msgstr "Einbeziehe Spindel"
+msgstr "Spindel mit einbeziehen"
 
 #: src/emc/usr_intf/pncconf/base.glade:244
 msgid "Machine units:"
@@ -16833,8 +16833,9 @@ msgid "Force individual manual homing"
 msgstr "Erzwinge individuelle manuelle Referenzfahrt"
 
 #: src/emc/usr_intf/pncconf/base.glade:659
+#, fuzzy
 msgid "Random position toolchanger "
-msgstr "Zufällige Position des Werkzeugwechslers "
+msgstr "Zufalls-Werkzeugwechsler"
 
 #: src/emc/usr_intf/pncconf/base.glade:675
 msgid "Require homing before MDI / Running"
@@ -17384,7 +17385,7 @@ msgstr "3PWM Totzeit:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:577
 #: src/emc/usr_intf/pncconf/a_motor.glade:559
 msgid "Quad Pulses / Rev:"
-msgstr "Quat Puls / Umdrehung:"
+msgstr "Quad Pulse / Umdrehung:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:670
 #: src/emc/usr_intf/pncconf/y_motor.glade:670
@@ -18370,7 +18371,7 @@ msgstr "TPI "
 #: src/emc/usr_intf/pncconf/dialogs.glade:2134
 #, fuzzy
 msgid "Pulley teeth (motor:Leadscrew):"
-msgstr "Anzahl Zähne (Motor:Leitspindel):"
+msgstr "Zähnezahl (Motor:Leitspindel):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2143
 #: src/emc/usr_intf/pncconf/dialogs.glade:2523
@@ -18393,7 +18394,7 @@ msgstr "TPI"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2536
 #, fuzzy
 msgid "Pulley teeth (encoder:Leadscrew):"
-msgstr "Anzahl Zähnezahl (Motor:Spindel):"
+msgstr "Zähnezahl (Motor:Spindel):"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2650
 msgid "                    "
@@ -18679,11 +18680,10 @@ msgstr ""
 "existiert."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:667
-#, fuzzy
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
-"Keine Voreinstellungen gefunden für Schnellauf increments unter [DISPLAY] "
-"der INI Datei"
+"Keine Voreinstellungen gefunden für \" jog increments\" unter [DISPLAY] der "
+"INI-Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:680
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
@@ -18793,7 +18793,7 @@ msgstr "Zyklus Start gedrückt in AUTO Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1890
 msgid "Cycle start pressed in MDI mode"
-msgstr "Zyklus-Start gedrückt in MDI (manuelle Dateneingabe) Modus"
+msgstr "Zyklus-Start gedrückt in MDI-Modus"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1925
 #, python-format
@@ -18827,7 +18827,7 @@ msgstr "INFO:"
 #: src/emc/usr_intf/gscreen/gscreen.py:1938
 #: src/emc/usr_intf/gscreen/gscreen.py:1957
 msgid "Can't start spindle manually while MDI busy"
-msgstr "Kann die Spindel nicht manuell drehen während MDI beschäftigt ist"
+msgstr "Kann die Spindel nicht manuell starten während MDI beschäftigt ist"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1941
 #: src/emc/usr_intf/gscreen/gscreen.py:1960
@@ -19010,17 +19010,15 @@ msgstr "Neustart Eingabe"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
 msgid "_Up     "
-msgstr ""
+msgstr "_Hoch"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3797
-#, fuzzy
-#| msgid "Down"
 msgid "_Down"
-msgstr "Abwärts"
+msgstr "_Runter"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3799
 msgid "_Jump to"
-msgstr ""
+msgstr "_Gehe zu"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3819
 #, fuzzy, python-format
@@ -20136,10 +20134,8 @@ msgid "_Cancel_"
 msgstr "_Abbrechen"
 
 #: lib/python/gladevcp/calculator.glade:393
-#, fuzzy
-#| msgid "Ok"
 msgid "_Ok"
-msgstr "Ok"
+msgstr "_Ok"
 
 #~ msgid "S_ave Data File..."
 #~ msgstr "D_atendatei speichern..."
