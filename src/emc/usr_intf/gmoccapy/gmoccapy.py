@@ -234,20 +234,20 @@ class gmoccapy(object):
             if arg == "-user_mode":
                 self.user_mode = True
                 self.widgets.tbtn_setup.set_sensitive(False)
-                message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("user mode selected")
+                message = _("**** GMOCCAPY INI Entry ****")
+                message += "\n" + _("user mode selected")
                 print (message)
             if arg == "-logo":
                 self.logofile = str(argv[ index + 1 ])
-                message = _("**** GMOCCAPY INI Entry **** \n")
-                message += _("logo entry found = {0}").format(self.logofile)
+                message = _("**** GMOCCAPY INI Entry ****")
+                message += "\n" + _("logo entry found = {0}").format(self.logofile)
                 print (message)
                 self.logofile = self.logofile.strip("\"\'")
                 if not os.path.isfile(self.logofile):
                     self.logofile = None
-                    message = _("**** GMOCCAPY INI Entry Error **** \n")
-                    message += _("Logofile entry found, but could not be converted to path.\n")
-                    message += _("The file path should not contain any spaces")
+                    message = _("**** GMOCCAPY INI Entry Error ****")
+                    message += "\n" + _("Logofile entry found, but could not be converted to path.")
+                    message += "\n" + _("The file path should not contain any spaces")
                     print(message)
 
         # check if the user want a Logo (given as command line argument)
