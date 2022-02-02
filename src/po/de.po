@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-02 16:55+0000\n"
+"PO-Revision-Date: 2022-02-03 19:54+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -12461,7 +12461,7 @@ msgstr "# Anschluss wählbarer Handrad-Schnellauf-Geschwindigkeiten"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:524
 msgid "# ---jogwheel signals to mesa encoder - shared MPG---"
-msgstr "# ---Schnellauf-Rad Signale zu Mesa Encoder - shared MPG---"
+msgstr "# ---Handrad-Signale zu Mesa Encoder - shared MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:533
 #: src/emc/usr_intf/pncconf/build_HAL.py:559
@@ -12476,7 +12476,7 @@ msgstr "#       for Achse %s Handsteuerung"
 #: src/emc/usr_intf/pncconf/build_HAL.py:551
 #, python-format
 msgid "# ---jogwheel signals to mesa encoder - %s axis MPG---"
-msgstr "# ---Schnellauf-Rad Signale zu Mesa Encoder - %s Achse MPG---"
+msgstr "# ---Handrad-Signale zu Mesa Encoder - %s Achse MPG---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:570
 msgid "# connect selectable mpg jog increments "
@@ -12508,7 +12508,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:698
 msgid "# ---spindle override signals to mesa encoder - mpg---"
-msgstr "# ---Spindel Neufestetzung Signale an Mesa Encoder - Handrad (MPG) ---"
+msgstr "# ---Spindelübersteuerung-Signale an Mesa Encoder - Handrad (MPG) ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:707
 msgid "# connect spindle override increments - MPG"
@@ -14883,7 +14883,7 @@ msgid ""
 "    Note that there is distance between the limit switches and actual "
 "physical hard contact for coasting after the amplifier is disabled.\n"
 msgstr ""
-"Getrennte Schalter für Referenzfahrt und Limit Beispiel\n"
+"Beispiel für getrennte Referenz- und Endschalter\n"
 "\n"
 "    Die negativen und positiven Richtungen basieren auf der "
 "Werkzeugbewegung, die sich von der tatsächlichen Maschinenbewegung "
@@ -14891,7 +14891,8 @@ msgstr ""
 "    z.B. bei einer Fräsmaschine bewegt sich normalerweise der Tisch und "
 "nicht das Werkzeug.\n"
 "\n"
-"    Soft(ware)-Grenzen befinden sich innerhalb des Endschalterbereichs.\n"
+"    Soft(ware)-Begrenzungen (Soft-Limits) befinden sich innerhalb des "
+"Endschalterbereichs.\n"
 "\n"
 "    (Bei Verwendung der schalterbasierten Referenzfahrt nutzen die "
 "Referenzschalter die Endschalter (gemeinsame Referenzfahrt/Endschalter)\n"
@@ -14899,27 +14900,26 @@ msgstr ""
 "Referenzschalter verwendet wird.\n"
 "\n"
 "    Der G53 Nullpunkt der Maschine liegt in der Regel innerhalb des Bereichs "
-"der weichen Begrenzungen, muss aber nicht.\n"
+"der Soft-Limits, muss aber nicht.\n"
 "\n"
-"    Bei Verwendung eines separaten Referenzfahrtschalters ist es möglich, "
-"dass die Referenzfahrt auf der falschen Seite des Referenzfahrtschalters "
-"beginnt,\n"
-"    was in Verbindung mit der Option HOME_IGNORE_LIMITS zu einem harten "
-"Absturz führt.\n"
+"    Bei Verwendung eines separaten Referenzschalters ist es möglich, dass "
+"die Referenzfahrt auf der falschen Seite des Referenzschalters beginnt,\n"
+"    was in Verbindung mit der Option HOME_IGNORE_LIMITS zu einer harten "
+"Kollision führt.\n"
 "    Man kann dies vermeiden, indem man den Home-Schalter so lange seinen "
 "Zustand umschalten lässt, bis der Mitnehmer/Auslöser auf einer bestimmten "
 "Seite ist und den Auslöser wieder passiert.\n"
-"    Anders ausgedrückt: Der Zustand des Home-Schalters muss die Position des "
-"Auslösers relativ zum Schalter darstellen (also vor oder nach dem Schalter),"
+"    Anders ausgedrückt: Der Zustand des Referenzschalters muss die Position "
+"des Auslösers relativ zum Schalter darstellen (also vor oder nach dem "
+"Schalter),\n"
+"    und muss diesen Zustand auch dann beibehalten, wenn der Nocken in "
+"derselben Richtung am Schalter vorbeiläuft.\n"
 "\n"
-"    und muss diesen Zustand auch dann beibehalten, wenn der dog in derselben "
-"Richtung am Schalter vorbeiläuft.\n"
-"\n"
-"    Der Abstand zwischen den Endschaltern und den Soft Limits (-L<->A und "
-"D<-+L) wird in diesem Beispiel vergrößert dargestellt\n"
-"    Beachten Sie, dass der Abstand zwischen den Endschaltern und dem "
+"    Der Abstand zwischen den Endschaltern und den Soft-Limits (-L<->A und "
+"D<-+L) wird in diesem Beispiel vergrößert dargestellt.\n"
+"    Beachten Sie, dass es einen Abstand zwischen den Endschaltern und dem "
 "tatsächlichen harten Kontakt für den Auslauf nach der Deaktivierung des "
-"Verstärkers vorhanden ist.\n"
+"Verstärkers gibt.\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
@@ -16984,7 +16984,7 @@ msgstr "H"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1164
 msgid "Force Axis to Maximize"
-msgstr "Achse zur Maximierung zwingen"
+msgstr "Maximierung von Axis erzwingen"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1189
 msgid "AXIS Defaults"
@@ -17196,7 +17196,7 @@ msgstr "Richtung beim Übernehmen des Referenzpunkt:"
 #: src/emc/usr_intf/pncconf/z_axis.glade:194
 #: src/emc/usr_intf/pncconf/a_axis.glade:194
 msgid "Home Search Direction:"
-msgstr "Richtung des Referenzpunkts:"
+msgstr "Richtung Referenzpunktssuche:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:209
 #: src/emc/usr_intf/pncconf/y_axis.glade:209
@@ -17261,7 +17261,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_axis.glade:354
 #: src/emc/usr_intf/pncconf/a_axis.glade:354
 msgid "Home Search Sequence:"
-msgstr "Geschwindigkeit bei Suche des Referenzpunktes:"
+msgstr "Abfolge Referenzpunktsuche:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:369
 #: src/emc/usr_intf/pncconf/y_axis.glade:369
@@ -18485,6 +18485,7 @@ msgid "Direction Hold:"
 msgstr "Zeit zwischen Schritt und Richtungswechsel:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4724
+#, fuzzy
 msgid "Direction Setup:"
 msgstr "Zeit zwischen Richtungswechsel und Schritt:"
 
@@ -19943,7 +19944,9 @@ msgstr "Offsetname"
 msgid ""
 "Zero\n"
 "G92"
-msgstr "G92 auf Null setzen"
+msgstr ""
+"G92 auf\n"
+"Null setzen"
 
 #: lib/python/gladevcp/offsetpage.glade:456
 msgid ""
@@ -20045,7 +20048,7 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:376
 msgid "_Cancel_"
-msgstr "_Abbrechen_"
+msgstr "_Abbr."
 
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
