@@ -431,6 +431,7 @@ typedef struct StrSymbol
 
 void ClassicLadderEndOfAppli( void );
 void DoPauseMilliSecs( int Time );
+void DoFlipFlopRunStop( void );
 void StopRunIfRunning( void );
 void RunBackIfStopped( void );
 

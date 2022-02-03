@@ -452,7 +452,9 @@ void LoadNewLadder()
 	StoreDirectorySelected( GTK_FILE_CHOOSER(FileSelector) , TRUE/*cForLoadingProject*/);
 
     if (InfosGene->LadderState==STATE_RUN)
-        ButtonRunStop_click();
+    {
+        DoFlipFlopRunStop( );
+	}
     InfosGene->LadderState = STATE_LOADING;
 	ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
 	if ( !ProjectLoadedOk )
@@ -616,6 +618,13 @@ void DoActionSaveAs()
 	CreateFileSelection("Please select the project to save",TRUE);
 }
 
+void DoActionResetAndConfirmIfRunning( )
+{
+	if (InfosGene->LadderState==STATE_RUN)
+		ShowConfirmationBox("Warning!","Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?",DoReset);
+	else
+		DoReset();
+}
 void DoReset()
 {
 	StopRunIfRunning( );

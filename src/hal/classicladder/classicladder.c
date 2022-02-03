@@ -70,6 +70,7 @@
 #include <rtapi_string.h>
 #ifdef GTK_INTERFACE
 #include <gtk/gtk.h>
+#include "menu_and_toolbar_gtk.h"
 #include <libintl.h>
 #include <locale.h>
 #endif
@@ -206,6 +207,31 @@ void DoPauseMilliSecs( int Time )
 	nanosleep( &time, NULL );
 	//usleep( Time*1000 );
 }
+
+void DoFlipFlopRunStop( void )
+{
+	if (InfosGene->LadderState==STATE_RUN)
+	{
+		InfosGene->LadderState = STATE_STOP;
+#ifdef GTK_INTERFACE
+//		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Run");
+		MessageInStatusBar("Stopped program - press run button to continue.");
+//		SetToggleMenuForRunStop( TRUE );
+		SetMenuStateForRunStopSwitch( FALSE );
+#endif
+	}
+	else
+	{
+		InfosGene->LadderState = STATE_RUN;
+#ifdef GTK_INTERFACE
+//		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Stop");
+		MessageInStatusBar("Started program - press stop to pause."); 
+//		SetToggleMenuForRunStop( FALSE );
+		SetMenuStateForRunStopSwitch( TRUE );
+#endif
+	}
+}
+
 void StopRunIfRunning( void )
 {
 	if (InfosGene->LadderState==STATE_RUN)

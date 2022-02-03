@@ -54,8 +54,8 @@ static GtkActionEntry ActionEntriesArray[ ] =
 	{ "ViewMenuAction", NULL, "View" },
 
 	{ "PLCAction", NULL, "PLC" },
-	//{ "RunStopAction", GTK_STOCK_EXECUTE, "RunStop", NULL, "Start/stop logic", G_CALLBACK( DoFlipFlopRunStop ) },
-	//{ "ResetAction", GTK_STOCK_REFRESH, "Reset", NULL, "Reset logic", G_CALLBACK( DoActionResetAndConfirmIfRunning ) },
+	{ "RunStopAction", GTK_STOCK_EXECUTE, "RunStop", NULL, "Start/stop logic", G_CALLBACK( DoFlipFlopRunStop ) },
+	{ "ResetAction", GTK_STOCK_REFRESH, "Reset", NULL, "Reset logic", G_CALLBACK( DoActionResetAndConfirmIfRunning ) },
 	{ "ConfigurationAction", GTK_STOCK_PREFERENCES, "Configuration", NULL, "Configuration (sizes, i/o, ...)", G_CALLBACK( OpenConfigWindowGtk ) },
 
 	{ "HelpMenuAction", NULL, "Help" },
