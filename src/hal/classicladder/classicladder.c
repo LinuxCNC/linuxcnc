@@ -50,6 +50,7 @@
 #include "socket_modbus_master.h"
 
 #if !defined( MODULE )
+#include <gtk/gtk.h>
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include <sys/types.h>

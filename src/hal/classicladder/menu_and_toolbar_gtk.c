@@ -62,7 +62,7 @@ static GtkActionEntry ActionEntriesArray[ ] =
 	{ "AboutAction", NULL, "About", "F1", NULL, G_CALLBACK( DoActionAboutClassicLadder ) },	
 };
 static GtkToggleActionEntry ToggleActionEntriesArray[ ] =
-{//	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, "Sections window", "F2", "View sections manager window", G_CALLBACK( OpenManagerWindow ), TRUE },
+{	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, "Sections window", "F2", "View sections manager window", G_CALLBACK( OpenManagerWindow ), TRUE },
 	{ "ViewEditorAction", GTK_STOCK_EDIT, "Editor window", "F3", "View editor window", G_CALLBACK( OpenEditWindow ), FALSE },
 	{ "ViewSymbolsAction", GTK_STOCK_INDEX, "Symbols window", "F4", "View symbols window", G_CALLBACK( OpenSymbolsWindow ), FALSE },
 	{ "ViewBoolVarsAction", NULL, "Bools vars window", "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
