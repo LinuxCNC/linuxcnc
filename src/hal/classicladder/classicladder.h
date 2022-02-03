@@ -201,6 +201,10 @@ typedef struct plc_sizeinfo_s {
 #define BASE_SECS 1
 #define BASE_100MS 2
 
+//default variables depending of the element placed
+#define DEFAULT_VAR_FOR_CONTACT VAR_PHYS_INPUT
+#define DEFAULT_VAR_FOR_COIL VAR_PHYS_OUTPUT
+
 #define TIME_UPDATE_GTK_DISPLAY_MS 100
 
 // attribute separator for variable names.
