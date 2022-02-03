@@ -692,6 +692,101 @@ void DoActionAboutClassicLadder()
 	}
 }
 
+
+cairo_surface_t *ExportSurface;
+cairo_t * InitExportSurface( int SurfaceWidth, int SurfaceHeight, char * SvgFileToCreate )
+{
+	cairo_t *cr;
+	if ( SvgFileToCreate )
+	{
+		ExportSurface = cairo_svg_surface_create( SvgFileToCreate, SurfaceWidth, SurfaceHeight );
+		cr = cairo_create( ExportSurface );
+	}
+	else
+	{
+		ExportSurface = cairo_image_surface_create( CAIRO_FORMAT_RGB24, SurfaceWidth, SurfaceHeight );
+		cr = cairo_create( ExportSurface );
+		//cleanup
+		cairo_set_source_rgb( cr, 1.0, 1.0, 1.0 );
+		cairo_paint( cr );
+	}
+	return cr;	
+}
+
+void ExportSvgOrPngFile( char * FileToCreate, char GoForSvgExport )
+{
+	cairo_t *cr;
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+	{
+		int SvgWidthTotal = RUNG_WIDTH*BLOCK_WIDTH_DEF+30;
+		int SvgHeightTotal = RUNG_HEIGHT*BLOCK_HEIGHT_DEF+BLOCK_HEIGHT_DEF/2;
+		int LeftRightBarsWidth = BLOCK_WIDTH_DEF/16;
+		cr = InitExportSurface( SvgWidthTotal, SvgHeightTotal, GoForSvgExport?FileToCreate:NULL );
+		DrawLeftRightBars( cr, 0, 0, BLOCK_WIDTH_DEF, BLOCK_HEIGHT_DEF, BLOCK_HEIGHT_DEF/2, LeftRightBarsWidth, FALSE );
+		DrawRung( cr, &RungArray[ InfosGene->CurrentRung ], LeftRightBarsWidth, 0, BLOCK_WIDTH_DEF, BLOCK_HEIGHT_DEF, BLOCK_HEIGHT_DEF/2, DRAW_FOR_PRINT );
+	}
+	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
+	{
+		int SvgWidthTotal = SEQ_PAGE_WIDTH*SEQ_SIZE_DEF;
+		int SvgHeightTotal = SEQ_PAGE_HEIGHT*SEQ_SIZE_DEF;
+		cr = InitExportSurface(  SvgWidthTotal, SvgHeightTotal, GoForSvgExport?FileToCreate:NULL );
+		DrawSequentialPage( cr, SectionArray[ InfosGene->CurrentSection ].SequentialPage, SEQ_SIZE_DEF, DRAW_FOR_PRINT );
+	}
+	if ( !GoForSvgExport )
+		cairo_surface_write_to_png( ExportSurface, FileToCreate );
+	cairo_surface_destroy( ExportSurface );
+	cairo_destroy( cr );
+}
+void FileRequestToExportSvgOrPng(char GoForSvg)
+{
+	GtkWidget *dialog;
+	dialog = gtk_file_chooser_dialog_new (GoForSvg?"Save SVG File":"Save PNG File",
+										GTK_WINDOW(MainSectionWindow),
+										GTK_FILE_CHOOSER_ACTION_SAVE,
+										GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+										GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT,
+										NULL);
+	gtk_file_chooser_set_do_overwrite_confirmation( GTK_FILE_CHOOSER (dialog), TRUE );
+	gtk_file_chooser_set_current_name( GTK_FILE_CHOOSER (dialog), GoForSvg?"classicladder_export.svg":"classicladder_export.png" );
+	if ( gtk_dialog_run( GTK_DIALOG (dialog) ) == GTK_RESPONSE_ACCEPT )
+	{
+		char *filename;
+		filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) );
+		ExportSvgOrPngFile( filename, GoForSvg );
+		g_free( filename );
+	}
+	gtk_widget_destroy( dialog );
+}
+void DoActionExportSvg( void )
+{
+	FileRequestToExportSvgOrPng( TRUE );
+}
+void DoActionExportPng( void )
+{
+	FileRequestToExportSvgOrPng( FALSE );
+}
+// use a temp .png file to make it... (Cairo Surface -> png file -> pixbuf -> clipboard)
+void DoActionCopyToClipboard( void )
+{
+	GError * err = NULL;
+	GtkClipboard * pClipboard = gtk_clipboard_get( GDK_SELECTION_CLIPBOARD );
+	ExportSvgOrPngFile( "cl_clipboard_tmp.png", FALSE/*GoForSvgExport*/ );
+printf("Creating gdk pixpuf from tmp png file\n");
+	GdkPixbuf * pPixBuf = gdk_pixbuf_new_from_file( "cl_clipboard_tmp.png", &err );
+	if ( pPixBuf )
+	{
+		remove( "cl_clipboard_tmp.png" );
+printf("Set pixbuf image to clipboard\n");
+		gtk_clipboard_set_image( pClipboard, pPixBuf );
+		g_object_unref( pPixBuf );
+	}
+	else
+	{
+		printf("Error clipboard_set_image() : %s\n", err->message);
+	}
+}
+
 void ShowMessageBox(const char * title, const char * text, const char * button)
 {
 	/* From the example in gtkdialog help */
