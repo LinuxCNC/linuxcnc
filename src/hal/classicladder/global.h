@@ -52,6 +52,8 @@ extern GtkWidget *MainSectionWindow;
 //Cairo extern GdkPixmap *pixmap;
 extern GtkWidget *drawing_area;
 extern GtkWidget *EditWindow;
+extern int PrintRightMarginPosiX;
+extern int PrintRightMarginWidth;
 #endif
 
 extern char TmpDirectory[ 400 ];

@@ -27,7 +27,7 @@
 
 #include "classicladder.h"
 #include "classicladder_gtk.h"
-//#include "print_gtk.h"
+#include "print_gtk.h"
 #include "edit_gtk.h"
 #include "symbols_gtk.h"
 #include "manager_gtk.h"
@@ -43,12 +43,12 @@ static GtkActionEntry ActionEntriesArray[ ] =
 	{ "LoadAction", GTK_STOCK_OPEN, "Load", "<Control>L", "Load an existing project", G_CALLBACK( DoActionLoadProject ) },
 	{ "SaveAction", GTK_STOCK_SAVE, "Save", "<Control>S", "Save current project", G_CALLBACK( DoActionSave ) },
 	{ "SaveAsAction", NULL, "Save As...", "<Control>A", "Save project to another file", G_CALLBACK( DoActionSaveAs ) },
-	//{ "ExportMenuAction", NULL, "Export to", NULL, NULL, NULL },
 	//{ "ExportSvgAction", NULL, "Svg", NULL, NULL, G_CALLBACK( DoActionExportSvg ) },
 	//{ "ExportPngAction", NULL, "Png", NULL, NULL, G_CALLBACK( DoActionExportPng ) },
 	//{ "CopyToClipboardAction", NULL, "Clipboard", "<Control>C", NULL, G_CALLBACK( DoActionCopyToClipboard ) },
-	//{ "PreviewAction", GTK_STOCK_PRINT_PREVIEW, "Preview", NULL, NULL, G_CALLBACK( PrintPreviewGtk ) },
-	//{ "PrintAction", GTK_STOCK_PRINT, "Print", "<Control>P", "Print current section", G_CALLBACK( PrintGtk ) },
+	{ "ExportMenuAction", NULL, "Export to", NULL, NULL, NULL },
+	{ "PreviewAction", GTK_STOCK_PRINT_PREVIEW, "Preview", NULL, NULL, G_CALLBACK( PrintPreviewGtk ) },
+	{ "PrintAction", GTK_STOCK_PRINT, "Print", "<Control>P", "Print current section", G_CALLBACK( PrintGtk ) },
 	{ "QuitAction", GTK_STOCK_QUIT, "Quit", "<Control>Q", NULL, G_CALLBACK( ConfirmQuit ) },
 
 	{ "ViewMenuAction", NULL, "View" },

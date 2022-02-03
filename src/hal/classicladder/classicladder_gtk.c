@@ -79,11 +79,12 @@ gint StatusBarContextId;
 #ifdef SEQUENTIAL_SUPPORT
 #include "calc_sequential.h"
 #endif
-#ifdef GNOME_PRINT_USE
-#include "print_gnome.h"
-#endif
+//#ifdef GNOME_PRINT_USE
+//#include "print_gnome.h"
+//#endif
 #include "symbols_gtk.h"
 #include "spy_vars_gtk.h"
+#include "print_gtk.h"
 
 void CairoDrawCurrentSectionOnDrawingArea( void )
 {

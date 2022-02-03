@@ -22,6 +22,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	manager.c \
 	manager_gtk.c \
 	menu_and_toolbar_gtk.c \
+	print_gtk.c \
 	protocol_modbus_master.c \
 	protocol_modbus_slave.c \
 	serial_linux.c \
@@ -34,12 +35,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	vars_access.c \
         )
 	
-GTK2_CFLAGS += -DGTK_INTERFACE -DGTK2 -Wno-deprecated-declarations
-ifeq ($(HAVE_GNOMEPRINT),yes)
-CLASSICLADDERSRCS += hal/classicladder/print_gnome.c
-GTK2_CFLAGS += -DGNOME_PRINT_USE
-endif
-
+GTK2_CFLAGS += -DGTK_INTERFACE -DGTK2
 
 $(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK2_CFLAGS) -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 $(call TOOBJS, $(CLASSICLADDERSRCS)): Makefile.inc
