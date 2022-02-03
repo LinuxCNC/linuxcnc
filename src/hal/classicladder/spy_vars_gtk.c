@@ -25,7 +25,6 @@
 
 #include <locale.h>
 #include <libintl.h>
-#define _(x) gettext(x)
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>

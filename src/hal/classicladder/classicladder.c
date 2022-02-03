@@ -28,7 +28,6 @@
 #include "../config.h"
 #include <locale.h>
 #include <libintl.h>
-#define _(x) gettext(x)
 #ifdef MODULE
 #include <linux/string.h>
 #else
