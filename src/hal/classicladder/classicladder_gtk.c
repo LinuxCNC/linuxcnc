@@ -129,39 +129,50 @@ static gint expose_event( GtkWidget	  *widget,
 	return FALSE;
 }
 
-void UpdateVScrollBar()
+void GetCurrentNumAndNbrRungsForASection( int * pCurrNumRung, int * pNbrRungs )
 {
 	int iSecurityBreak = 0;
+	int NbrRungs = 1;
+	int ScanRung = InfosGene->FirstRung;
+	int NumCurrentRung = 0;
+	while ( ScanRung!=InfosGene->LastRung && iSecurityBreak++<=NBR_RUNGS )
+	{
+		NbrRungs++;
+		ScanRung = RungArray[ ScanRung ].NextRung;
+	}
+	ScanRung = InfosGene->FirstRung;
+	iSecurityBreak = 0;
+	while ( ScanRung!=InfosGene->CurrentRung && iSecurityBreak++<=NBR_RUNGS )
+	{
+		NumCurrentRung++;
+		ScanRung = RungArray[ ScanRung ].NextRung;
+	}
+	if ( iSecurityBreak>=NBR_RUNGS )
+		debug_printf("!!!error loop in UpdateVScrollBar()!\n");
+	if ( pCurrNumRung!=NULL )
+		*pCurrNumRung = NumCurrentRung;
+	if ( pNbrRungs!=NULL )
+		*pNbrRungs = NbrRungs;
+}
+
+void UpdateVScrollBar()
+{
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
 	{
 		int NbrRungs = 1;
-		int ScanRung = InfosGene->FirstRung;
 		int NumCurrentRung = 0;
-		while ( ScanRung!=InfosGene->LastRung && iSecurityBreak++<=NBR_RUNGS )
-		{
-			NbrRungs++;
-			ScanRung = RungArray[ ScanRung ].NextRung;
-		}
-		ScanRung = InfosGene->FirstRung;
-		iSecurityBreak = 0;
-		while ( ScanRung!=InfosGene->CurrentRung && iSecurityBreak++<=NBR_RUNGS )
-		{
-			NumCurrentRung++;
-			ScanRung = RungArray[ ScanRung ].NextRung;
-		}
-		if ( iSecurityBreak>=NBR_RUNGS )
-			printf(_("!!!error loop in UpdateVScrollBar()!\n"));
+		GetCurrentNumAndNbrRungsForASection( &NumCurrentRung, &NbrRungs );
 //printf("Nbr rungs=%d , NumRung=%d\n", NbrRungs, NumCurrentRung);
 		AdjustVScrollBar->lower = 0;
-		AdjustVScrollBar->upper = NbrRungs * InfosGene->BlockHeight*RUNG_HEIGHT;
-		AdjustVScrollBar->value = NumCurrentRung *  InfosGene->BlockHeight*RUNG_HEIGHT;
+		AdjustVScrollBar->upper = NbrRungs * TOTAL_PX_RUNG_HEIGHT;
+		AdjustVScrollBar->value = NumCurrentRung *  TOTAL_PX_RUNG_HEIGHT;
 		while( AdjustVScrollBar->value+InfosGene->PageHeight > AdjustVScrollBar->upper )
 		{
-			AdjustVScrollBar->value = AdjustVScrollBar->value - InfosGene->BlockHeight*RUNG_HEIGHT;
+			AdjustVScrollBar->value = AdjustVScrollBar->value - TOTAL_PX_RUNG_HEIGHT;
 		}
 		AdjustVScrollBar->step_increment = InfosGene->BlockHeight;
-		AdjustVScrollBar->page_increment = InfosGene->BlockHeight*RUNG_HEIGHT;
+		AdjustVScrollBar->page_increment = TOTAL_PX_RUNG_HEIGHT;
 		AdjustVScrollBar->page_size = InfosGene->PageHeight;
 		gtk_adjustment_changed( AdjustVScrollBar );
 		gtk_adjustment_value_changed( AdjustVScrollBar );
@@ -215,9 +226,9 @@ void ChoiceOfTheCurrentRung( int NbrOfRungsAfterTopRung )
 		DecptNbrRungs--;
 	}
 
-//printf("-> CurrentRung=%d , OffsetCurrentRungDisplayed=%d\n", InfosGene->CurrentRung, InfosGene->OffsetCurrentRungDisplayed);
-	if ( InfosGene->OffsetCurrentRungDisplayed<0 )
-		printf( _("Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n"), NbrOfRungsAfterTopRung, InfosGene->OffsetCurrentRungDisplayed );
+//printf("=> In %s, CurrentRung=%d , NbrOfRungsAfterTopRung=%d, OffsetCurrentRungDisplayed=%d\n", __FUNCTION__, InfosGene->CurrentRung, NbrOfRungsFnd, InfosGene->OffsetCurrentRungDisplayed);
+//////test	if ( InfosGene->OffsetCurrentRungDisplayed<0 )
+//////test		debug_printf( "Error in ChoiceOfTheCurrentRung( %d ) with OffsetCurrentRungDisplayed=%d\n", NbrOfRungsFnd, InfosGene->OffsetCurrentRungDisplayed );
 	refresh_label_comment( );
 }
 
@@ -251,6 +262,42 @@ static gint HScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * no
 	return TRUE;
 }
 
+// function called for keys up/down and mouse scroll with increment height (positive or negative)...
+// if increment=0, just update display with new value modified before.
+static void IncrementVScrollBar( int IncrementValue )
+{
+//printf("%s(): inc=%d\n", __FUNCTION__, IncrementValue );
+	if ( IncrementValue!=0 )
+	{
+		gtk_adjustment_set_value( AdjustVScrollBar, gtk_adjustment_get_value(AdjustVScrollBar)+IncrementValue );
+		if ( IncrementValue>0 )
+		{
+			if ( gtk_adjustment_get_value(AdjustVScrollBar) > (gtk_adjustment_get_upper(AdjustVScrollBar)-InfosGene->PageHeight) )
+				gtk_adjustment_set_value( AdjustVScrollBar, gtk_adjustment_get_upper(AdjustVScrollBar)-InfosGene->PageHeight );
+		}
+		else
+		{
+			if ( gtk_adjustment_get_value(AdjustVScrollBar) < gtk_adjustment_get_lower(AdjustVScrollBar) )
+				gtk_adjustment_set_value( AdjustVScrollBar, gtk_adjustment_get_lower(AdjustVScrollBar) );
+		}
+	}
+	gtk_adjustment_changed( AdjustVScrollBar );
+	InfosGene->OffsetHiddenTopRungDisplayed	= gtk_adjustment_get_value(AdjustVScrollBar);
+	VScrollBar_value_changed_event( AdjustVScrollBar, 0 );
+}
+
+static gboolean mouse_scroll_event( GtkWidget *widget, GdkEventScroll *event )
+{
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+	{
+		if (event->direction == GDK_SCROLL_DOWN)
+			IncrementVScrollBar( gtk_adjustment_get_step_increment(AdjustVScrollBar) );
+		else  if (event->direction == GDK_SCROLL_UP )
+			IncrementVScrollBar( -1*gtk_adjustment_get_step_increment(AdjustVScrollBar) );
+	}
+	return TRUE;
+}
 static gint button_press_event( GtkWidget *widget, GdkEventButton *event )
 {
 	if (event->button == 1 /*Cairo && pixmap != NULL*/)
@@ -914,10 +961,13 @@ void RungWindowInitGtk()
 						GTK_SIGNAL_FUNC(motion_notify_event), NULL);
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "button_release_event",
 						GTK_SIGNAL_FUNC(button_release_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (drawing_area), "scroll_event",
+						GTK_SIGNAL_FUNC(mouse_scroll_event), NULL);
 	gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK
 							| GDK_LEAVE_NOTIFY_MASK
 							| GDK_BUTTON_PRESS_MASK
 							| GDK_BUTTON_RELEASE_MASK
+                                                        | GDK_SCROLL_MASK  // mouse scroll
 							| GDK_POINTER_MOTION_MASK
 							| GDK_POINTER_MOTION_HINT_MASK);
 

@@ -47,6 +47,7 @@
 #endif
 
 
+void GetCurrentNumAndNbrRungsForASection( int * pCurrNumRung, int * pNbrRungs );
 void UpdateVScrollBar();
 void save_label_comment_edited();
 void refresh_label_comment( void );
