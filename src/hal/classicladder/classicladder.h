@@ -348,6 +348,7 @@ typedef struct StrInfosGene
 	StrIOConf OutputsConf[ NBR_OUTPUTS_CONF ];
 
 	char AskConfirmationToQuit;
+	char HasBeenModifiedForExitCode;
 	char HardwareErrMsgToDisplay[ 100 ];
 	char DisplaySymbols;
         char CurrentProjectFileName[ 400 ];

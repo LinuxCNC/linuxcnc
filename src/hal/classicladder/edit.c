@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
@@ -132,13 +132,12 @@ void LoadElementProperties(StrElement * Element)
 	StrCounter * Counter = NULL;
 	StrTimerIEC * TimerIEC = NULL;
 	for(NumParam=0;NumParam<NBR_PARAMS_PER_OBJ;NumParam++)
-		SetProperty(NumParam,"---","");
+		SetProperty(NumParam,"---","",FALSE);
 	if (Element)
 	{
 		switch(Element->Type)
 		{
 			case ELE_INPUT:
-				
 			case ELE_INPUT_NOT:
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
@@ -146,58 +145,59 @@ void LoadElementProperties(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-//  			rtapi_strxcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
-				SetProperty(0,_("Variable"),TextToWrite);
+				rtapi_strxcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum, InfosGene->DisplaySymbols));
+//				CreateVarNameForElement( TextToWrite, Element, InfosGene->DisplaySymbols );
+//				SetProperty(0,_("Variable"),TextToWrite,TRUE);
 				break;
 			case ELE_OUTPUT_JUMP:
-				SetProperty(0,_("JumpToLabel"),RungArray[Element->VarNum].Label);
+				SetProperty(0,_("JumpToLabel"),RungArray[Element->VarNum].Label,TRUE);
 				break;
 			case ELE_OUTPUT_CALL:
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
-				SetProperty(0,_("Sub-Routine"),TextToWrite);
+				SetProperty(0,_("Sub-Routine"),TextToWrite,TRUE);
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 			case ELE_TIMER:
 				Timer = &TimerArray[Element->VarNum];
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
-				SetProperty(0,_("TimerNbr"),TextToWrite);
+				SetProperty(0,_("TimerNbr"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Timer->Base) ].ParamSelect);
-				SetProperty(1,_("Base"),TextToWrite);
+				SetProperty(1,_("Base"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Timer->Preset/Timer->Base);
-				SetProperty(2,_("Preset"),TextToWrite);
+				SetProperty(2,_("Preset"),TextToWrite,TRUE);
 				break;
 			case ELE_MONOSTABLE:
 				Monostable = &MonostableArray[Element->VarNum];
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
-				SetProperty(0,_("MonostNbr"),TextToWrite);
+				SetProperty(0,_("MonostNbr"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(Monostable->Base) ].ParamSelect);
-				SetProperty(1,_("Base"),TextToWrite);
+				SetProperty(1,_("Base"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Monostable->Preset/Monostable->Base);
-				SetProperty(2,_("Preset"),TextToWrite);
+				SetProperty(2,_("Preset"),TextToWrite,TRUE);
 				break;
 #endif
 			case ELE_COUNTER:
 				Counter = &CounterArray[Element->VarNum];
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
-				SetProperty(0,_("CounterNbr"),TextToWrite);
+				SetProperty(0,_("CounterNbr"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Counter->Preset);
-				SetProperty(1,_("Preset"),TextToWrite);
+				SetProperty(1,_("Preset"),TextToWrite,TRUE);
 				break;
 			case ELE_TIMER_IEC:
 				TimerIEC = &NewTimerArray[Element->VarNum];
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",Element->VarNum);
-				SetProperty(0,_("TimerNbr"),TextToWrite);
+				SetProperty(0,_("TimerNbr"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%s",CorresDatasForBase[ ConvBaseInMilliSecsToId(TimerIEC->Base) ].ParamSelect);
-				SetProperty(1,_("Base"),TextToWrite);
+				SetProperty(1,_("Base"),TextToWrite,FALSE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%d",TimerIEC->Preset);
-				SetProperty(2,_("Preset"),TextToWrite);
+				SetProperty(2,_("Preset"),TextToWrite,TRUE);
 				snprintf(TextToWrite, sizeof(TextToWrite),"%s",TimersModesStrings[ (int)TimerIEC->TimerMode ]);
-				SetProperty(3,_("TimerMode"),TextToWrite);
+				SetProperty(3,_("TimerMode"),TextToWrite,FALSE);
 				break;
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
-				rtapi_strxcpy(TextToWrite,DisplayArithmExpr(EditArithmExpr[Element->VarNum].Expr,0));
-				SetProperty(0,_("Expression"),TextToWrite);
+				rtapi_strxcpy(TextToWrite,DisplayArithmExpr(EditArithmExpr[Element->VarNum].Expr,InfosGene->DisplaySymbols));
+				SetProperty(0,_("Expression"),TextToWrite,TRUE);
 				break;
 		}
 	}
@@ -219,14 +219,14 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 	{
 		switch(Element->Type)
 		{
-			case ELE_INPUT:                             	
+			case ELE_INPUT:
 			case ELE_INPUT_NOT:
 			case ELE_RISING_INPUT:
 			case ELE_FALLING_INPUT:
-			case ELE_OUTPUT:				
+			case ELE_OUTPUT:
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
-			case ELE_OUTPUT_RESET:				
+			case ELE_OUTPUT_RESET:
 				snprintf(PropertiesText, sizeof(PropertiesText), _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum,InfosGene->DisplaySymbols),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum,InfosGene->DisplaySymbols)));
 //				CreateVarNameForElement( BufTxt, Element, TRUE/*SymbolsVarsNamesIfAvail*/ );
 //				CreateVarNameForElement( BufTxt2, Element, FALSE/*SymbolsVarsNamesIfAvail*/ );
@@ -262,7 +262,6 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 //				//DisplayArithmExpr() returns pointer on static buffer 
 //				strcpy( BufTxt, DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,TRUE/*SymbolsVarsNamesIfAvail*/) );
 //				snprintf(PropertiesText, sizeof(PropertiesText), "Expression: %s (%s)", BufTxt, DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,FALSE/*SymbolsVarsNamesIfAvail*/));
-							
 				break;
 		}
 	}
@@ -294,7 +293,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 	int VarType;
 	int VarOffset;
 	char * ptr = text;
-	int StringLength;
+	int StringLength = 0;
 	char VarIndexedIsFound = FALSE;
 	ErrorMessageVarParser = NULL;
 
@@ -323,7 +322,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 			{
 				CharIn = FALSE;
 				End++;
-				if ( *End==VAR_ATTRIBUTE_SEP || ( *End>='A' && *End<='Z' ) || ( *End>='a' && *End<='z' ) || ( *End>='0' && *End<='9' ) )
+				if ( *End==VAR_ATTRIBUTE_SEP || ( *End>='A' && *End<='Z' ) || ( *End>='a' && *End<='z' ) || ( *End>='0' && *End<='9' ) || *End=='_' )
 					CharIn = TRUE;
 				if ( CharIn )
 					SymbolLength++;
@@ -365,7 +364,6 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 			{
 //printf("parser var give FALSE!\n");
 				SimpleCharCopy = TRUE;
-//				break;
 			}
 		}
 		else
@@ -402,7 +400,7 @@ char * TextParserForArithmExpr(char * text, int TypeElement)
 			ErrorMessageVarParser = _("Expression too long");
 		}
 	}
-//printf("Parser Arithm ; ItIsOk=%d ; OriExpr=%s ; NewExpr=%s\n",ItIsOk, text, NewExpr);
+//printf("Parser Arithm Expr; ItIsOk=%d ; OriExpr=%s ; NewExpr=%s\n",ItIsOk, text, NewExpr);
 	/* Verify expression converted */
 	if (ItIsOk)
 	{
@@ -439,6 +437,7 @@ void SaveElementProperties()
 	char * NewArithmExpr;
 	int SubRoutineToCall;
 	int VarTypeEntered,VarNumEntered;
+	int IndexedVarTypeEntered=-1,IndexedVarNumEntered=0;
 
 #ifdef SEQUENTIAL_SUPPORT
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
@@ -461,17 +460,53 @@ void SaveElementProperties()
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-				if ( TextParserForAVar(GetProperty(0),&VarTypeEntered,&VarNumEntered,NULL,FALSE/*PartialNames*/) )
+				if ( TextParserForAVar( GetProperty(0),&VarTypeEntered,&VarNumEntered,NULL,FALSE/*PartialNames*/) )
 				{
+					char cCorrectRules = TRUE;
+					char * pStartIndexed = GetProperty(0);
+					// verify if an index seems to be present... 
+					while( *pStartIndexed!='\0' && *pStartIndexed!='[' )
+					{
+						pStartIndexed++;
+					}
+					if ( *pStartIndexed++ =='[' )
+					{
+						if ( pStartIndexed[strlen(pStartIndexed)-1]==']')
+							pStartIndexed[strlen(pStartIndexed)-1] = '\0';
+						if ( TextParserForAVar( pStartIndexed,&IndexedVarTypeEntered,&IndexedVarNumEntered,NULL,FALSE/*PartialNames*/) )
+						{
+							if ( TEST_VAR_IS_A_BOOL( IndexedVarTypeEntered, IndexedVarNumEntered ) )
+							{
+								ShowMessageBox(_("Error"),_("Incompatible type of variable for index (must be an integer!)"),_("Ok"));
+								cCorrectRules = FALSE;
+							}
+						}
+						else
+						{
+							ShowMessageBox(_("Error"),_("Parser error for indexed variable !"),_("Ok"));
+							cCorrectRules = FALSE;
+						}
+					}
 					if ( !TEST_VAR_IS_A_BOOL( VarTypeEntered,VarNumEntered ) )
-
 					{
 						ShowMessageBox(_("Error"),_("You must select a boolean variable !"),_("Ok"));
+						cCorrectRules = FALSE;
 					}
-					else
+					if ( (EditDatas.ElementUnderEdit->Type==ELE_OUTPUT ||
+							 EditDatas.ElementUnderEdit->Type==ELE_OUTPUT_NOT ||
+							 EditDatas.ElementUnderEdit->Type==ELE_OUTPUT_SET ||
+							 EditDatas.ElementUnderEdit->Type==ELE_OUTPUT_RESET )
+							&& !TestVarIsReadWrite( VarTypeEntered, VarNumEntered ) )
+					{
+						ShowMessageBox(_("Error"),_("You must select a read/write variable for a coil!"),_("Ok"));
+						cCorrectRules = FALSE;
+					}
+					if ( cCorrectRules )
 					{
 						EditDatas.ElementUnderEdit->VarType = VarTypeEntered;
 						EditDatas.ElementUnderEdit->VarNum = VarNumEntered;
+						EditDatas.ElementUnderEdit->IndexedVarType = IndexedVarTypeEntered;
+						EditDatas.ElementUnderEdit->IndexedVarNum = IndexedVarNumEntered;
 					}
 				}
 				else
@@ -514,7 +549,7 @@ void SaveElementProperties()
 				IdBase = ConvBaseInTextToId(GetProperty(1));
 				TimerIEC->Base = CorresDatasForBase[IdBase].ValueInMS;
 				rtapi_strxcpy(TimerIEC->DisplayFormat,CorresDatasForBase[IdBase].DisplayFormat);
-				if (TextToNumber(GetProperty(2),0,999,&Preset))
+				if (TextToNumber(GetProperty(2),0,9999,&Preset))
 					TimerIEC->Preset = Preset;
 				TimerIEC->TimerMode = ConvTimerModeInTextToId( GetProperty(3) );
 				break;
@@ -534,20 +569,20 @@ void SaveElementProperties()
 				NewArithmExpr = TextParserForArithmExpr(GetProperty(0), ELE_COMPAR);
 				if (NewArithmExpr)
 					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
-				else
-					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
+//keep old!				else
+//keep old!					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
 				break;
 			case ELE_OUTPUT_OPERATE:
 				NewArithmExpr = TextParserForArithmExpr(GetProperty(0), ELE_OUTPUT_OPERATE);
+//printf( "expr=%s\n",EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr );
 				if (NewArithmExpr)
 					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,NewArithmExpr);
-				else
-					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
+//keep old!				else
+//keep old!					rtapi_strxcpy(EditArithmExpr[EditDatas.ElementUnderEdit->VarNum].Expr,"#"); //used but invalid!
 				break;
 		}
 		/* display back to show what we have really understand... */
-
-		LoadElementProperties (EditDatas.ElementUnderEdit);
+		LoadElementProperties(EditDatas.ElementUnderEdit);
 	}
 }
 
@@ -718,6 +753,8 @@ void InitBufferRungEdited( StrRung * pRung )
 			pRung->Element[x][y].ConnectedWithTop = 0;
 			pRung->Element[x][y].VarType = 0;
 			pRung->Element[x][y].VarNum = 0;
+			pRung->Element[x][y].IndexedVarType = -1;
+			pRung->Element[x][y].IndexedVarNum = 0;
 			pRung->Element[x][y].DynamicState = 0;
 		}
 	}
@@ -825,6 +862,7 @@ void DeleteCurrentRung()
 		RungArray[InfosGene->CurrentRung].Used = FALSE;
 		InfosGene->CurrentRung = NewCurrent;
 //		DrawRungs();
+RedrawSignalDrawingArea( );
 		UpdateVScrollBar();
 		refresh_label_comment( );
 		/* save infos for the current section */
@@ -852,6 +890,7 @@ void CancelRungEdited()
 	EditDatas.NumElementSelectedInToolBar = -1;
 	LoadElementProperties(NULL);
 //	DrawRungs();
+RedrawSignalDrawingArea( );
 	refresh_label_comment( );
 	autorize_prevnext_buttons(TRUE);
 }
@@ -924,8 +963,10 @@ void ApplyRungEdited()
 	EditDatas.NumElementSelectedInToolBar = -1;
 	LoadElementProperties(NULL);
 //	DrawRungs();
+RedrawSignalDrawingArea( );
 	autorize_prevnext_buttons(TRUE);
 	InfosGene->AskConfirmationToQuit = TRUE;
+	InfosGene->HasBeenModifiedForExitCode = TRUE;
 }
 
 
@@ -935,7 +976,6 @@ we return new posix and posiy of the "alive" block */
 void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY )
 {
 	int ScanX,ScanY;
-	int ScanForRule;
 	/* on an "unusable" ? */
 	if (pRungToCheck->Element[*PosiX][*PosiY].Type==ELE_UNUSABLE)
 	{
@@ -945,28 +985,23 @@ void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY )
 		{
 			for(ScanX=0;ScanX<RUNG_WIDTH;ScanX++)
 			{
-				ScanForRule = 0;
-				do
+				int RuleSizeX,RuleSizeY;
+				/* Is is an element with a rule ? */
+				if ( GetSizesOfAnElement( pRungToCheck->Element[ScanX][ScanY].Type, &RuleSizeX, &RuleSizeY ) )
 				{
-					/* Is it an element with a rule ? */
-					if (pRungToCheck->Element[ScanX][ScanY].Type == RulesForSpecialElements[ScanForRule][TYPEELERULE])
+					/* Have we clicked in it ? */
+					if ( (*PosiX>=ScanX-RuleSizeX-1)
+						&& (*PosiX<=ScanX)
+						&& (*PosiY>=ScanY)
+						&& (*PosiY<=ScanY+RuleSizeY-1) )
 					{
-						/* Have we clicked in it ? */
-						if ( (*PosiX>=ScanX-RulesForSpecialElements[ScanForRule][XSIZEELERULE]-1)
-							&& (*PosiX<=ScanX)
-							&& (*PosiY>=ScanY)
-							&& (*PosiY<=ScanY+RulesForSpecialElements[ScanForRule][YSIZEELERULE]-1) )
-						{
-							/* We've got it ! */
-							/* We make as we have clicked on the "alive" block ! */
-							*PosiX = ScanX;
-							*PosiY = ScanY;
-							return;
-						}
+						/* We've got it ! */
+						/* We make as we have clicked on the "alive" block ! */
+						*PosiX = ScanX;
+						*PosiY = ScanY;
+						return;
 					}
-					ScanForRule++;
 				}
-				while(RulesForSpecialElements[ScanForRule][0]!=-1);
 			}
 		}
 	}
@@ -1042,80 +1077,30 @@ int VerifyConstraintsAndRulesForElement(short int NumEle,int PosiX,int PosiY)
 	return ItIsOk;
 }
 
-int VerifyRulesForElement(short int NumEle,int PosiX,int PosiY)
-{
-	int RulePass;
-	int ItIsOk = TRUE;
-	int ItIsAnOutputEle = FALSE;
-
-	if ( (NumEle==ELE_OUTPUT) || (NumEle==ELE_OUTPUT_NOT)
-			|| (NumEle==ELE_OUTPUT_SET) || (NumEle==ELE_OUTPUT_RESET)
-			|| (NumEle==ELE_OUTPUT_JUMP) || (NumEle==ELE_OUTPUT_CALL)
-			|| (NumEle==ELE_OUTPUT_OPERATE) )
-		ItIsAnOutputEle = TRUE;
-
-	/* verify for outputs if we are under output zone (right column) */
-	if ( (PosiX==RUNG_WIDTH-1) && !ItIsAnOutputEle )
-	{
-			ItIsOk = FALSE;
-	}
-	/* verify for inputs if we are under input zone (not right column) */
-	if ( (PosiX<RUNG_WIDTH-1) && ItIsAnOutputEle )
-	{
-			ItIsOk = FALSE;
-	}
-
-	/* verify if for elements bigger than one block it will fit */
-	RulePass = 0;
-	do
-	{
-		if ( RulesForSpecialElements[RulePass][TYPEELERULE] == NumEle )
-		{
-			if ( (PosiX-RulesForSpecialElements[RulePass][XSIZEELERULE]+1 < 0)
-				|| (PosiY+RulesForSpecialElements[RulePass][YSIZEELERULE]-1 >= RUNG_HEIGHT) )
-				ItIsOk = FALSE;
-		}
-		RulePass++;
-	}
-	while(RulesForSpecialElements[RulePass][0]!=-1);
-
-	/* verify if we are not on another part of a big element ! */
-	if (EditDatas.Rung.Element[PosiX][PosiY].Type==ELE_UNUSABLE)
-		ItIsOk = FALSE;
-
-	return ItIsOk;
-}
-
 /* used for destroying or adding a big element */
 /* when destroying : filling all the blocks with ELE_FREE */
 /* when adding : filling all the blocks with ELE_UNUSABLE */
 /* the block "alive" is written elsewhere */
 void CleanForBigElement(short int NumEle,int PosiX,int PosiY,short int FillWithThis)
 {
-	int RulePass;
 	int PassX,PassY;
-	RulePass = 0;
-	do
+	int RuleSizeX,RuleSizeY;
+	if ( GetSizesOfAnElement( NumEle, &RuleSizeX, &RuleSizeY ) )
 	{
-		if (RulesForSpecialElements[RulePass][TYPEELERULE] == NumEle )
+		for (PassX = PosiX - RuleSizeX +1 ; PassX<=PosiX ; PassX++)
 		{
-			for (PassX = PosiX - RulesForSpecialElements[RulePass][XSIZEELERULE] +1 ; PassX<=PosiX ; PassX++)
+			for (PassY = PosiY ; PassY<=PosiY + RuleSizeY -1 ; PassY++)
 			{
-				for (PassY = PosiY ; PassY<=PosiY + RulesForSpecialElements[RulePass][YSIZEELERULE] -1 ; PassY++)
-				{
-					CheckForFreeingArithmExpr(PassX,PassY);
+				CheckForFreeingArithmExpr(PassX,PassY);
 
-					SetUsedStateFunctionBlock( EditDatas.Rung.Element[PassX][PassY].Type, EditDatas.Rung.Element[PassX][PassY].VarNum, FALSE );
+				SetUsedStateFunctionBlock( EditDatas.Rung.Element[PassX][PassY].Type, EditDatas.Rung.Element[PassX][PassY].VarNum, FALSE );
 
-					EditDatas.Rung.Element[PassX][PassY].Type = FillWithThis;
-					EditDatas.Rung.Element[PassX][PassY].ConnectedWithTop = 0;
-					EditDatas.Rung.Element[PassX][PassY].DynamicOutput = 0;
-				}
+				EditDatas.Rung.Element[PassX][PassY].Type = FillWithThis;
+				EditDatas.Rung.Element[PassX][PassY].ConnectedWithTop = 0;
+				EditDatas.Rung.Element[PassX][PassY].DynamicOutput = 0;
 			}
 		}
-		RulePass++;
 	}
-	while(RulesForSpecialElements[RulePass][0]!=-1);
 }
 
 void MovePosiForBigElementToAliveBlock(short int NumEle,int * PosiX)
@@ -1129,25 +1114,6 @@ void MovePosiForBigElementToAliveBlock(short int NumEle,int * PosiX)
 			*PosiX = RUNG_WIDTH-1;
 		}
 	}
-}
-
-void CheckBigElementTopLeft(short int NumEle,int * PosiX)
-{
-	int RulePass;
-	RulePass = 0;
-	do
-	{
-		if (RulesForSpecialElements[RulePass][TYPEELERULE] == NumEle )
-		{
-			*PosiX = *PosiX + RulesForSpecialElements[RulePass][XSIZEELERULE] - 1;
-			if ( *PosiX>=RUNG_WIDTH )
-			{
-				*PosiX = RUNG_WIDTH-1;
-			}
-		}
-		RulePass++;
-	}
-	while(RulesForSpecialElements[RulePass][0]!=-1);
 }
 
 /* return TRUE if a rule is defined */
@@ -1208,16 +1174,65 @@ int IsASimpleElement(int Element)
 	return Res;
 }
 
+// this sets the variable based on the type of edit-element (NumElement) being used
+int SetDefaultVariableForElement(int NumElement)
+{
+	switch( NumElement )
+	{
+			case ELE_INPUT:
+			case ELE_INPUT_NOT:
+			case ELE_RISING_INPUT:
+			case ELE_FALLING_INPUT:
+				return DEFAULT_VAR_FOR_CONTACT; //variables %I
+				break;
+			case ELE_OUTPUT:
+			case ELE_OUTPUT_NOT:
+			case ELE_OUTPUT_SET:
+			case ELE_OUTPUT_RESET:
+				return DEFAULT_VAR_FOR_COIL; //variables %Q
+				break;
+	}
+	return -1;
+}
+
+void VerticalCleanupWhenErasingElement( int PosiX, int PosiY )
+{
+	char CleanUp = TRUE;
+	// do not delete if there is a connexion at x & y+1
+	if ( PosiY<RUNG_HEIGHT-1 )
+	{
+		if ( EditDatas.Rung.Element[PosiX][PosiY+1].ConnectedWithTop )
+			CleanUp = FALSE;
+	}
+	// do not delete if there is an element at x & y
+	// (usefull when trying to erase second right vertical)
+	if ( PosiX<RUNG_WIDTH-1 )
+	{
+		if ( EditDatas.Rung.Element[PosiX][PosiY].Type!=ELE_FREE )
+			CleanUp = FALSE;
+	}
+	// do not delete if there is an element at x-1 & y
+	if ( PosiX>0 )
+	{
+		if ( EditDatas.Rung.Element[PosiX-1][PosiY].Type!=ELE_FREE )
+			CleanUp = FALSE;
+	}
+	if ( CleanUp )
+		EditDatas.Rung.Element[ PosiX ][ PosiY ].ConnectedWithTop = 0;
+}
 
 char ConvertDoublesToRungCoor( double coorx, double coory, int * pRungX, int * pRungY )
 {
 	char cOk = FALSE;
-	/* correspond to which block ? */
-	*pRungX = coorx/InfosGene->BlockWidth;
-	*pRungY = coory/InfosGene->BlockHeight;
-	if ( (*pRungX<RUNG_WIDTH) && (*pRungY<RUNG_HEIGHT) )
+	if ( coory>=InfosGene->HeaderLabelCommentHeight )
 	{
-		cOk = TRUE;
+		/* correspond to which block ? */
+		*pRungX = coorx/InfosGene->BlockWidth;
+		*pRungY = (coory-InfosGene->HeaderLabelCommentHeight)/InfosGene->BlockHeight;
+		if ( (*pRungX<RUNG_WIDTH) && (*pRungY<RUNG_HEIGHT) )
+		{
+			cOk = TRUE;
+		}
 	}
 	return cOk;
 }
@@ -1259,7 +1274,6 @@ void EditElementInRung(double x,double y)
 	if ( ConvertDoublesToRungCoor( x, y, &RungX, &RungY )
 		&& (EditDatas.NumElementSelectedInToolBar!=-1) )
 	{
-                 //printf ("x:%f Y:%f xx%f yy%f rungX=%d rungY=%d\n",x,y,x-RungX*InfosGene->BlockWidth, y-RungY*InfosGene->BlockHeight, RungX, RungY);
 		/* check for "unusable" blocks */
 		if (EditDatas.NumElementSelectedInToolBar==EDIT_POINTER || EditDatas.NumElementSelectedInToolBar==EDIT_ERASER )
 			CheckForBlocksOfBigElement( &EditDatas.Rung, &RungX,&RungY );
@@ -1269,7 +1283,8 @@ void EditElementInRung(double x,double y)
 		{
 			NumElement = EditDatas.NumElementSelectedInToolBar;
 			/* For big element, click insert top-left of the element */
-			CheckBigElementTopLeft(NumElement,&RungX);
+			if ( NumElement<EDIT_CNX_WITH_TOP )
+				MovePosiForBigElementToAliveBlock(NumElement,&RungX);
 			/* already the same element ? => if yes kill it! */
 			if (NumElement==EditDatas.Rung.Element[RungX][RungY].Type)
 			{
@@ -1278,52 +1293,64 @@ void EditElementInRung(double x,double y)
 			/* apply the new element */
 			if (NumElement==EDIT_ERASER)
 			{
-				/* the blocks other than the "alive" are now free... */
-				CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
-			        EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
-                                if (((x-RungX*InfosGene->BlockWidth)>=0) && ((x-RungX*InfosGene->BlockWidth)<=15) 
-                                   && (EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop))
-				      {			                   
-				            EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop = 0;
-			              }else{
-				           EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
-			                   }
-			}else{
-				if (VerifyRulesForElement(NumElement,RungX,RungY))
+//printf("erasing...\n");
+				if ( EditDatas.Rung.Element[RungX][RungY].Type!=ELE_FREE )
 				{
 					/* the blocks other than the "alive" are now free... */
 					CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
-					/* for big element with only one block "alive" we must mark the others */
-					/* blocks as unusable */
-					CleanForBigElement(NumElement,RungX,RungY,ELE_UNUSABLE);
-					// if not a simple element (contact/coil) replaced by a simple element, clean VarNum
-					if ( !(IsASimpleElement(NumElement) && IsASimpleElement(EditDatas.Rung.Element[RungX][RungY].Type)) )
-					{
-						EditDatas.Rung.Element[RungX][RungY].VarNum = 0;
-					}
-					// function block element, set directly a free number one...
-					if ( !(IsASimpleElement(NumElement) ) )
-					{
-						EditDatas.Rung.Element[RungX][RungY].VarNum = GetFreeNumberFunctionBlock( NumElement );
-						//TODO: better error handling here (not creating element after...)
-						if ( EditDatas.Rung.Element[RungX][RungY].VarNum==-1 )
-						{
-							ShowMessageBox( _("Error"), _("No more free function block available...please delete!"), _("Ok") );
-							EditDatas.Rung.Element[RungX][RungY].VarNum = 0;
-						}
-						SetUsedStateFunctionBlock( NumElement, EditDatas.Rung.Element[RungX][RungY].VarNum, TRUE );
-					}
-					// if the area was free before then set the default variable letter based on edit type
-					if (EditDatas.Rung.Element[RungX][RungY].Type == ELE_FREE)
-					{    int defaultvarname= SetDefaultVariableType(NumElement); 
-  						if (defaultvarname!=ELE_NO_DEFAULT_NAME)
-						{   EditDatas.Rung.Element[RungX][RungY].VarType =defaultvarname ;   }
-					}
-
-					EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
-                    //TODO some more changes here
-					//CheckForAllocatingArithmExpr(RungX,RungY);
+					EditDatas.Rung.Element[RungX][RungY].DynamicOutput = 0;
+					EditDatas.Rung.Element[RungX][RungY].Type = ELE_FREE;
+					// delete verticals connexions associated to that element if seems no more necessary !
+					VerticalCleanupWhenErasingElement( RungX, RungY );
+					VerticalCleanupWhenErasingElement( RungX+1, RungY );
 				}
+				else
+				{
+					// if free, perhaps user just whants to delete a vertical cnx...
+					EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop = 0;
+				}
+			}
+			else
+			{
+				
+				if (VerifyConstraintsAndRulesForElement(NumElement,RungX,RungY))
+				{
+					/* the blocks other than the "alive" are now free... */
+//v0.8.3: no more necessary, as we do not more kill big		CleanForBigElement(EditDatas.Rung.Element[RungX][RungY].Type,RungX,RungY,ELE_FREE);
+					//v0.8.9, moved prep() here to not do anything if type no more available!
+					// if function block, getting a free one, if expr, allocating a string...
+					// failed if no more function block available or arthmetic expressions...
+					if ( PrepBeforeSettingTypeEleForComplexBlocsAndExpr( NumElement, RungX, RungY ) )
+					{
+						
+						/* for big element with only one block "alive" we must mark the others */
+						/* blocks as unusable */
+						CleanForBigElement(NumElement,RungX,RungY,ELE_UNUSABLE);
+						// if not a simple element (contact/coil) replaced by a simple element, clean VarNum
+						//v0.8.9if ( !(IsASimpleElement(NumElement) && IsASimpleElement(EditDatas.Rung.Element[RungX][RungY].Type)) )
+						//v0.8.9{
+						//v0.8.9	EditDatas.Rung.Element[RungX][RungY].VarNum = 0;
+						//v0.8.9}
+						// if the area was free before then set the default variable based on type of element edited
+						if (EditDatas.Rung.Element[RungX][RungY].Type == ELE_FREE)
+						{
+							int DefaultVarForIt = SetDefaultVariableForElement(NumElement);
+							if (DefaultVarForIt!=-1)
+							{
+#ifdef IDVAR_IS_TYPE_AND_OFFSET
+								EditDatas.Rung.Element[RungX][RungY].VarType = DefaultVarForIt;
+#else
+								EditDatas.Rung.Element[RungX][RungY].VarType = VAR_DEFAULT_TYPE;
+								EditDatas.Rung.Element[RungX][RungY].VarNum = DefaultVarForIt;
+#endif
+							}
+						}
+						// set type to the "alive" block
+						EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
+						
+					}
+				}//if (VerifyConstraintsAndRulesForElement(
+				
 			}
 		}
 		if (EditDatas.NumElementSelectedInToolBar==EDIT_CNX_WITH_TOP)
@@ -1346,8 +1373,7 @@ void EditElementInRung(double x,double y)
 				EditDatas.Rung.Element[ScanX++][RungY].Type = ELE_CONNECTION;
 			}
 		}
-// printf("current type = %d\n",EditDatas.Rung.Element[RungX][RungY].Type);
-// if (EditDatas.Rung.Element[RungX][RungY].Type == ELE_FREE)  {printf("is free\n");}
+//printf("current type = %d\n",EditDatas.Rung.Element[RungX][RungY].Type);
 		LoadElementProperties(&EditDatas.Rung.Element[RungX][RungY]);
 		EditDatas.ElementUnderEdit = &EditDatas.Rung.Element[RungX][RungY];
 		// infos used to display the "selected element" box
@@ -1386,8 +1412,19 @@ void EditElementInThePage(double x,double y)
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
 	{
-		if ( ( y >= InfosGene->OffsetCurrentRungDisplayed ) && ( y < InfosGene->OffsetCurrentRungDisplayed+InfosGene->BlockHeight*RUNG_HEIGHT ) )
-			EditElementInRung( x, y - InfosGene->OffsetCurrentRungDisplayed );
+		if ( ( y >= InfosGene->OffsetCurrentRungDisplayed ) && ( y < InfosGene->OffsetCurrentRungDisplayed+TOTAL_PX_RUNG_HEIGHT ) )
+		{
+			if ( EditDatas.NumElementSelectedInToolBar==EDIT_SELECTION )
+				StartOrMotionPartSelection( x, y - InfosGene->OffsetCurrentRungDisplayed, TRUE/*StartToClick*/ );
+			else if ( EditDatas.NumElementSelectedInToolBar==EDIT_COPY )
+				CopyNowPartSelected( x, y - InfosGene->OffsetCurrentRungDisplayed );
+			else
+				EditElementInRung( x, y - InfosGene->OffsetCurrentRungDisplayed );
+		}
+		else
+		{
+			ShowMessageBox( _("Error"), _("You clicked outside of the current rung actually selected..."), _("Ok") );
+		}
 	}
 #ifdef SEQUENTIAL_SUPPORT
 	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
@@ -1430,7 +1467,7 @@ void EditButtonReleaseEventOnThePage( void )
 
 char * GetLadderElePropertiesForStatusBar(double x,double y)
 {
-	if ( ( y >= InfosGene->OffsetCurrentRungDisplayed ) && ( y < InfosGene->OffsetCurrentRungDisplayed+InfosGene->BlockHeight*RUNG_HEIGHT ) )
+	if ( ( y >= InfosGene->OffsetCurrentRungDisplayed ) && ( y < InfosGene->OffsetCurrentRungDisplayed+TOTAL_PX_RUNG_HEIGHT ) )
 	{
 		int RungX,RungY;
 		if ( ConvertDoublesToRungCoor( x, y - InfosGene->OffsetCurrentRungDisplayed, &RungX, &RungY ) )
@@ -1443,24 +1480,4 @@ char * GetLadderElePropertiesForStatusBar(double x,double y)
 	}
 	return "";
 }
-// this sets the variable type based on the type of edit-element (NumElement) being used  
-int SetDefaultVariableType(int NumElement)
-{
-	switch  ( NumElement)
-	{
-			case ELE_INPUT:
-			case ELE_INPUT_NOT:
-			case ELE_RISING_INPUT:
-			case ELE_FALLING_INPUT:
-					 return 50; //letter I
-			break;
-			case ELE_OUTPUT:
-			case ELE_OUTPUT_NOT:
-			case ELE_OUTPUT_SET:
-			case ELE_OUTPUT_RESET:
-			 		return 60; //letter Q
-		break;
-		default:;
-	}
-return ELE_NO_DEFAULT_NAME;
-}
+

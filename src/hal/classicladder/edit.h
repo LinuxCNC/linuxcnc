@@ -19,6 +19,9 @@
 
 int TextToNumber(char * text,int ValMin,int ValMaxi,int *ValFound);
 void SaveElementProperties(void);
+char CheckForAllocatingArithmExpr(int NumTypeEle, int PosiX,int PosiY);
+void SetUsedStateFunctionBlock( int Type, int Num, char Val );
+int GetFreeNumberFunctionBlock( int Type );
 void InitBufferRungEdited( StrRung * pRung );
 int GetNbrRungsDefined(void);
 int FindFreeRung(void);
@@ -39,3 +42,4 @@ char * GetLadderElePropertiesForStatusBar(double x,double y);
 char * ConvVarNameToHalSigName (char *);
 char * FirstVariableInArithm(char *);
 int SetDefaultVariableType(int NumElement);
+
