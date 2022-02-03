@@ -21,6 +21,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	files_sequential.c \
 	manager.c \
 	manager_gtk.c \
+	menu_and_toolbar_gtk.c \
 	protocol_modbus_master.c \
 	protocol_modbus_slave.c \
 	serial_linux.c \

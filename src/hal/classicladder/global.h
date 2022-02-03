@@ -48,7 +48,8 @@ extern StrDatasForBase CorresDatasForBase[3];
 extern char * TimersModesStrings[ NBR_TIMERSMODES ];
 
 #ifdef __GTK_H__
-extern GdkPixmap *pixmap;
+extern GtkWidget *MainSectionWindow;
+//Cairo extern GdkPixmap *pixmap;
 extern GtkWidget *drawing_area;
 extern GtkWidget *EditWindow;
 #endif

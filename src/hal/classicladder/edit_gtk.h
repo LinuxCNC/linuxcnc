@@ -15,5 +15,5 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 void EditorButtonsAccordingSectionType( );
 void ButtonCancelCurrentRung();
-void OpenEditWindow( void );
+void OpenEditWindow( GtkAction * ActionOpen, gboolean OpenIt );
 void EditorInitGtk();

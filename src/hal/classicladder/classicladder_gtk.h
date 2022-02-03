@@ -63,6 +63,7 @@ void UpdateAllLabelsBoolsVars( );
 void DoQuitGtkApplication( void );
 void DoReset( );
 void MessageInStatusBar( char * msg );
+void RedrawSignalDrawingArea( void );
 void InitGtkWindows( int argc, char *argv[] );
 void UpdateAllGtkWindows( void );
 void UpdateWindowTitleWithProjectName( void );

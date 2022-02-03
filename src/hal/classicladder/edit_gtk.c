@@ -1,11 +1,11 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
-/* --------------------------- */
-/* Editor - GTK interface part */
-/* --------------------------- */
+/* ------------------------------------- */
+/* Editor - GTK interface part (Toolbar) */
+/* ------------------------------------- */
 /* This library is free software; you can redistribute it and/or */
 /* modify it under the terms of the GNU Lesser General Public */
 /* License as published by the Free Software Foundation; either */
@@ -22,8 +22,9 @@
 
 #include <locale.h>
 #include <libintl.h>
-#include <gtk/gtk.h>
 #include <stdio.h>
+#include <gtk/gtk.h>
+
 #include "classicladder.h"
 #include "global.h"
 #include "drawing.h"
@@ -31,6 +32,9 @@
 #include "classicladder_gtk.h"
 #include "edit_gtk.h"
 #include "editproperties_gtk.h"
+#include "manager_gtk.h"
+#include "edit_copy.h"
+#include "menu_and_toolbar_gtk.h"
 
 static GtkWidget *EditorButtonOk,*EditorButtonCancel;
 static GtkWidget *EditorButtonAdd,*EditorButtonIns,*EditorButtonDel;
@@ -43,7 +47,9 @@ static GtkWidget * ToolbarBtnRadio[ NBR_ELE_IN_TOOLBAR ];
 static GtkWidget * ToolbarImage[ NBR_ELE_IN_TOOLBAR ];
 static GdkPixmap * ToolbarPixmap[ NBR_ELE_IN_TOOLBAR ];
 #define NUM_TOOLBAR_FOR_RUNGS 0
+#ifdef SEQUENTIAL_SUPPORT
 #define NUM_TOOLBAR_FOR_SEQ 1
+#endif
 static GtkWidget * ToolbarTable[ 2 ];
 static int NumWidgetEditPointer[ 2 ];
 GtkTooltips * TheTooltips;
@@ -51,7 +57,7 @@ GtkTooltips * TheTooltips;
 #define PIXELS_SIZE_IN_TOOLBAR 32
 
 static short int ToolBarElementsLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
-            { {EDIT_POINTER , EDIT_ERASER, 0 , 0} ,
+            { {EDIT_POINTER , EDIT_ERASER, EDIT_SELECTION , EDIT_COPY} ,
               {ELE_INPUT , ELE_INPUT_NOT , ELE_RISING_INPUT , ELE_FALLING_INPUT} ,
               {ELE_CONNECTION , EDIT_CNX_WITH_TOP, EDIT_LONG_CONNECTION , 0} ,
               {ELE_TIMER_IEC , ELE_COUNTER , ELE_COMPAR , 0} ,
@@ -62,12 +68,12 @@ static short int ToolBarElementsLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
               {ELE_OUTPUT_JUMP, ELE_OUTPUT_CALL , ELE_OUTPUT_OPERATE , 0} ,
               {-1,-1}/*end*/ };
 char * ToolBarToolTipsTextLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
-            { { "Object\nSelector", "Eraser", NULL, NULL },
+            { { "Current Object\nSelector", "Eraser", "Select a rung part (drag and release)", "Copy rung part selected" },
               { "N.O. Input", "N.C. Input", "Rising Edge\n Input", "Falling Edge\n Input" },
               { "Horizontal\nConnection", "Vertical\nConnection", "Long Horizontal\nConnection", NULL },
-              { "Timer IEC Block", "Counter Block",  "Variable\nComparison", NULL },
+              { "Timer IEC Block", "Counter Block", "Variable\nComparison", NULL },
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-              { "Old Timer Block", "Monostable Block", NULL, NULL },
+              { "Old Timer Block", "Old Monostable Block", NULL, NULL },
 #endif
               { "N.O. Output", "N.C. Output", "Set Output", "Reset Output" },
               { "Jump Coil", "Call Coil", "Variable\nAssignment", NULL },
@@ -98,6 +104,7 @@ char * ToolBarToolTipsTextSequential[ ][NBR_ELE_TOOLBAR_X_MAX] =
 #endif
 
 GtkWidget *EditWindow;
+static char FirstOpenToSetPosition = FALSE;
 
 
 void ButtonsForStart()
@@ -118,13 +125,16 @@ void ButtonsForStart()
 		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] ]), TRUE );
 		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], TRUE );
 	}
+#ifdef SEQUENTIAL_SUPPORT
 	// ...in sequential toolbar
 	if ( NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ]!=-1 )
 	{
 		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] ]), TRUE );
 		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], TRUE );
 	}
+#endif
 	MessageInStatusBar( iCurrentLanguage==SECTION_IN_LADDER?_("Current rung in edit mode..."):_("Edit mode...") );
+	ManagerEnableActionsSectionsList( FALSE );
 }
 void ButtonsForEnd( char ForRung )
 {
@@ -140,13 +150,16 @@ void ButtonsForEnd( char ForRung )
 		gtk_widget_hide (EditorButtonAdd);
 		gtk_widget_hide (EditorButtonIns);
 		gtk_widget_hide (EditorButtonDel);
+#ifdef SEQUENTIAL_SUPPORT
 		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], FALSE );
+#endif
 	}
 	gtk_widget_show (EditorButtonModify);
 	gtk_widget_hide (EditorButtonOk);
 	gtk_widget_hide (EditorButtonCancel);
 	ShowPropertiesWindow( FALSE );
 	MessageInStatusBar( "" );
+	ManagerEnableActionsSectionsList( TRUE );
 }
 
 void EditorButtonsAccordingSectionType( )
@@ -155,18 +168,21 @@ void EditorButtonsAccordingSectionType( )
 	// if under edit, cancel current operation
 	if ( EditDatas.ModeEdit )
 		ButtonCancelCurrentRung( );
-#ifdef SEQUENTIAL_SUPPORT
 	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
 	{
 		gtk_widget_hide( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+#ifdef SEQUENTIAL_SUPPORT
 		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ] );
+#endif
 	}
     else
 	{
+#ifdef SEQUENTIAL_SUPPORT
 		gtk_widget_hide( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ] );
+#endif
 		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
 	}
-#endif
+	ButtonsForEnd( iCurrentLanguage==SECTION_IN_LADDER );
 	MessageInStatusBar( "" );
 }
 
@@ -226,18 +242,44 @@ void ButtonCancelCurrentRung()
 gint EditorWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( EditWindow );
+	SetToggleMenuForEditorWindow( FALSE/*OpenedWin*/ );
 	// we do not want that the window be destroyed.
 	return TRUE;
 }
 
-void OpenEditWindow( void )
+void OpenEditWindow( GtkAction * ActionOpen, gboolean OpenIt )
 {
-	if ( !GTK_WIDGET_VISIBLE( EditWindow ) )
+	if ( ActionOpen!=NULL )
+		OpenIt = gtk_toggle_action_get_active( GTK_TOGGLE_ACTION(ActionOpen) );
+	if ( OpenIt )
 	{
 		gtk_widget_show (EditWindow);
-#ifdef GTK2
 		gtk_window_present( GTK_WINDOW(EditWindow) );
-#endif
+		if ( !FirstOpenToSetPosition )
+		{
+			// try to move at a nice place the window (to left or right of the main window)
+			int mainx,mainy,mainw,mainh;
+			int winw,winh;
+			int winx=0,winy=0;
+			gtk_window_get_size( GTK_WINDOW(MainSectionWindow), &mainw, &mainh );
+			gtk_window_get_position( GTK_WINDOW(MainSectionWindow), &mainx, &mainy );
+			gtk_window_get_size( GTK_WINDOW(EditWindow), &winw, &winh );
+			// place on the left ?
+			if ( mainx>winw+10 )
+			{
+				winx = mainx-winw-10;
+				winy = mainy;
+			}
+			else
+			{
+				// move the window on the right
+				winx = mainx+mainw+10;
+				winy = mainy;
+			}
+			printf("to move edit window: x%d,y%d,w%d,h%d => x%d,y%d,w%d,h%d\n",mainx,mainy,mainw,mainh,winx,winy,winw,winh);
+			gtk_window_move( GTK_WINDOW(EditWindow), winx,winh );
+			FirstOpenToSetPosition = TRUE;
+		}
 	}
 	else
 	{
@@ -247,7 +289,19 @@ void OpenEditWindow( void )
 
 void ButtonToolbarSignal( GtkWidget * widget, gpointer data )
 {
-	EditDatas.NumElementSelectedInToolBar = GPOINTER_TO_INT( data );
+	// this callback is called 2 times:
+	// firstly for the element unselected (not taken into account here), and secondly for the selected (used!)
+	if ( gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( widget ) ) )
+	{
+		EditDatas.NumElementSelectedInToolBar = GPOINTER_TO_INT( data );
+		EditDatas.GhostZonePosiX = -1;
+		EditDatas.GhostZonePosiY = -1;
+		if ( EditDatas.NumElementSelectedInToolBar<EDIT_CNX_WITH_TOP || EditDatas.NumElementSelectedInToolBar==EDIT_COPY )
+		{
+			GetSizesOfAnElement( EditDatas.NumElementSelectedInToolBar, &EditDatas.GhostZoneSizeX, &EditDatas.GhostZoneSizeY );
+printf( "Ghost Size %d,%d for type=%d\n", EditDatas.GhostZoneSizeX, EditDatas.GhostZoneSizeY, EditDatas.NumElementSelectedInToolBar );
+		}
+	}
 }
 
 void InitAllForToolbar( void )
@@ -260,7 +314,9 @@ void InitAllForToolbar( void )
 		ToolbarPixmap[ Search ] = NULL;
 	}
 	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = -1;
+#ifdef SEQUENTIAL_SUPPORT
 	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = -1;
+#endif
 }
 
 void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElementsList[][NBR_ELE_TOOLBAR_X_MAX], char * PtrOnToolTipsText[][NBR_ELE_TOOLBAR_X_MAX] )
@@ -283,10 +339,12 @@ void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElem
 			ToolBarEle.ConnectedWithTop = 0;
 			if ( ToolBarEle.Type==EDIT_POINTER )
 			{
-				if ( PtrOnToolBarElementsList!=ToolBarElementsSequential )
-					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = CurrentAvail;
-				else
+#ifdef SEQUENTIAL_SUPPORT
+				if ( PtrOnToolBarElementsList==ToolBarElementsSequential )
 					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = CurrentAvail;
+				else
+#endif
+					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = CurrentAvail;
 			}
 
 			if ( ToolBarEle.Type!=0 )
@@ -295,14 +353,17 @@ void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElem
 				char * pHelpText = PtrOnToolTipsText[ ScanToolBarY ][ ScanToolBarX ];
 				ToolbarPixmap[ CurrentAvail ] = gdk_pixmap_new( GDK_DRAWABLE(drawing_area->window), PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, -1 );
 				gdk_draw_rectangle (GDK_DRAWABLE(ToolbarPixmap[ CurrentAvail ]), gc, TRUE, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR);
-	
-	#ifdef SEQUENTIAL_SUPPORT
+
+				cairo_t *cr = gdk_cairo_create( ToolbarPixmap[ CurrentAvail ] );
+				CreateFontPangoLayout( cr, PIXELS_SIZE_IN_TOOLBAR, DRAW_FOR_TOOLBAR );
+
+#ifdef SEQUENTIAL_SUPPORT
 				if ( PtrOnToolBarElementsList==ToolBarElementsSequential )
-					DrawSeqElementForToolBar(ToolbarPixmap[ CurrentAvail ], 0, 0, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle.Type );
+					DrawSeqElementForToolBar(cr, 0, 0, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle.Type );
 				else
-	#endif
-					DrawElement(ToolbarPixmap[ CurrentAvail ], 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle, TRUE);
-	
+#endif
+					DrawElement( cr, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle, TRUE);
+
 				ToolbarImage[ CurrentAvail ] = gtk_image_new_from_pixmap( ToolbarPixmap[ CurrentAvail ], NULL );
 				ToolbarBtnRadio[ CurrentAvail ] = gtk_radio_button_new( PtrListRadiosBtn );
 				PtrListRadiosBtn = gtk_radio_button_get_group (GTK_RADIO_BUTTON(ToolbarBtnRadio[ CurrentAvail ]));
@@ -320,6 +381,9 @@ void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElem
 					gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], pHelpText, NULL);
 
 				gtk_widget_show( ToolbarBtnRadio[ CurrentAvail ] );
+
+				cairo_destroy( cr );
+
 				CurrentAvail++;
 			}//if ( ToolBarEle.Type!=0 )
 
@@ -394,5 +458,9 @@ void EditorInitGtk()
 //gtk_widget_show (EditWindow);
 
 	EditDatas.NumElementSelectedInToolBar = -1;
+	EditDatas.GhostZonePosiX = -1;
+	EditDatas.GhostZonePosiY = -1;
+	EditDatas.GhostZoneSizeX = -1;
+	EditDatas.GhostZoneSizeY = -1;
 }
 

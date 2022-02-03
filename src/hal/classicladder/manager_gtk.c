@@ -32,14 +32,18 @@
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include "edit_gtk.h"
+#include "menu_and_toolbar_gtk.h"
+
 #include <rtapi_string.h>
 
 GtkWidget *ManagerWindow;
+
 GtkWidget *SectionsList;
 GtkWidget *ButtonAddSection;
 GtkWidget *ButtonDelSection;
 GtkWidget *ButtonMoveUpSection;
 GtkWidget *ButtonMoveDownSection;
+GtkWidget *ButtonPropertiesSection;
 
 GtkWidget *AddSectionWindow;
 GtkWidget * EditName;
@@ -108,6 +112,28 @@ void ButtonAddClickSignal( )
 	gtk_entry_set_text( GTK_ENTRY(EditName), "" );
 	gtk_widget_grab_focus( EditName );
 	gtk_widget_show( AddSectionWindow );
+}
+void ButtonPropertiesClickSignal( )
+{
+	// we open the requester to modify some properties of the current section...
+	gtk_entry_set_text( GTK_ENTRY(EditName), pNameSectionSelected );
+	//int NumSec = SearchSectionWithName( pNameSectionSelected );
+	//if ( NumSec>=0 )
+	//{
+		//char Buff[10];
+		//StrSection * pSection = &SectionArray[ NumSec ];
+		//gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleLanguage)->entry,pSection->Language== SECTION_IN_LADDER?"Ladder":"Sequential");
+		//strcpy( Buff, "Main");
+		//if ( pSection->SubRoutineNumber>=0 )
+			//sprintf( Buff, "SR%d", pSection->SubRoutineNumber );
+		//gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleSubRoutineNbr)->entry,Buff);
+	//}
+	gtk_widget_set_sensitive( CycleLanguage, FALSE );
+	gtk_widget_set_sensitive( CycleSubRoutineNbr, FALSE );
+	gtk_widget_grab_focus( EditName );
+	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Modify current section");
+	gtk_widget_show( AddSectionWindow );
+	//ModifyNotAdding = TRUE;
 }
 void ButtonAddSectionDoneClickSignal( )
 {
@@ -206,6 +232,16 @@ void ButtonMoveDownClickSignal( )
 //		ShowMessageBox( "Error", "This section is already executed the last !", "Ok" );
 //	}
 	ManagerDisplaySections( );
+}
+
+void ManagerEnableActionsSectionsList( char cState )
+{
+	gtk_widget_set_sensitive( SectionsList, cState );
+	gtk_widget_set_sensitive( ButtonAddSection, cState );
+	gtk_widget_set_sensitive( ButtonDelSection, cState );
+	gtk_widget_set_sensitive( ButtonMoveUpSection, cState );
+	gtk_widget_set_sensitive( ButtonMoveDownSection, cState );
+	gtk_widget_set_sensitive( ButtonPropertiesSection, cState );
 }
 
 gint ManagerWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
@@ -351,6 +387,11 @@ void ManagerInitGtk()
 	gtk_signal_connect(GTK_OBJECT (ButtonMoveDownSection), "clicked",
 		(GtkSignalFunc) ButtonMoveDownClickSignal, 0);
 	gtk_widget_show (ButtonMoveDownSection);
+	ButtonPropertiesSection = gtk_button_new_with_label("Properties");
+	gtk_box_pack_start (GTK_BOX (hbox), ButtonPropertiesSection, TRUE, FALSE, 0);
+	gtk_signal_connect(GTK_OBJECT (ButtonPropertiesSection), "clicked",
+		(GtkSignalFunc) ButtonPropertiesClickSignal, 0);
+	gtk_widget_show (ButtonPropertiesSection);
 
 	ManagerDisplaySections( );
 	gtk_signal_connect( GTK_OBJECT(ManagerWindow), "delete_event",

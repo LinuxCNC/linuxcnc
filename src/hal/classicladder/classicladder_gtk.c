@@ -30,6 +30,7 @@
 #include <gdk/gdk.h>
 #include <cairo.h>
 #include <cairo-svg.h>
+
 #include <gdk/gdkkeysyms.h>  // GDK keys codes
 #include <gdk/gdktypes.h> // GDK keys masks
 #include <libintl.h> // i18n
@@ -38,6 +39,10 @@
 #include "classicladder.h"
 #include "global.h"
 #include "classicladder_gtk.h"
+#ifdef SEQUENTIAL_SUPPORT
+#include "drawing_sequential.h"
+#endif
+#include "menu_and_toolbar_gtk.h"
 
 #include <rtapi_string.h>
 
@@ -55,7 +60,7 @@ GtkAdjustment * AdjustVScrollBar;
 GtkAdjustment * AdjustHScrollBar;
 GtkWidget *FileSelector;
 GtkWidget *ConfirmDialog;
-GtkWidget *RungWindow;
+GtkWidget *MainSectionWindow;
 GtkWidget *StatusBar;
 GtkWidget *dialog,*label, *okay_button;
 gint StatusBarContextId;
@@ -724,7 +729,7 @@ void QuitAppliGtk()
 
 void DoQuitGtkApplication( void )
 {
-	gtk_widget_destroy( RungWindow ); //sends signal "destroy" that will call QuitAppliGtk()...
+	gtk_widget_destroy( MainSectionWindow ); //sends signal "destroy" that will call QuitAppliGtk()...
 }
 void ConfirmQuit( void )
 {
@@ -739,7 +744,7 @@ void ConfirmQuit( void )
                      }
             }
 }
-gint RungWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+gint MainSectionWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	ConfirmQuit( );
 	// we do not want that the window be destroyed.
@@ -752,27 +757,32 @@ void MessageInStatusBar( char * msg )
   gtk_statusbar_push(GTK_STATUSBAR(StatusBar), StatusBarContextId, msg);
 }
 
-void RungWindowInitGtk()
+void MainSectionWindowInitGtk()
 {
-	GtkWidget *vbox,*hboxtop,*hboxbottom,*hboxbottom2;
+	GtkWidget *vbox,*hboxtop; //,*hboxbottom,*hboxbottom2;
 	GtkWidget *hboxmiddle;
-	GtkWidget *ButtonQuit;
-	GtkWidget *ButtonNew,*ButtonLoad,*ButtonSave,*ButtonSaveAs,*ButtonReset,*ButtonConfig,*ButtonAbout;
-	GtkWidget *ButtonEdit,*ButtonSymbols,*ButtonSpyVars;
-#ifdef GNOME_PRINT_USE
-	GtkWidget *ButtonPrint,*ButtonPrintPreview;
-#endif
+//	GtkWidget *ButtonQuit;
+//	GtkWidget *ButtonNew,*ButtonLoad,*ButtonSave,*ButtonSaveAs,*ButtonReset,*ButtonConfig,*ButtonAbout;
+//	GtkWidget *ButtonEdit,*ButtonSymbols,*ButtonSpyVars,*ButtonLogBook;
+//#ifdef GNOME_PRINT_USE
+//	GtkWidget *ButtonPrint,*ButtonPrintPreview,*ButtonExportSVG,*ButtonExportPNG,*ButtonCopyToClipboard;
+//#endif
 	GtkTooltips * TooltipsEntryLabel, * TooltipsEntryComment;
+	GtkUIManager * PtrUIManager;
 
-	RungWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)RungWindow, _("Section Display"));
+	MainSectionWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title ((GtkWindow *)MainSectionWindow, _("Section Display"));
 
 	vbox = gtk_vbox_new (FALSE, 0);
-	gtk_container_add (GTK_CONTAINER (RungWindow), vbox);
+	gtk_container_add (GTK_CONTAINER (MainSectionWindow), vbox);
 	gtk_widget_show (vbox);
 
-	gtk_signal_connect (GTK_OBJECT (RungWindow), "destroy",
+	gtk_signal_connect (GTK_OBJECT (MainSectionWindow), "destroy",
 						GTK_SIGNAL_FUNC (QuitAppliGtk), NULL);
+
+	PtrUIManager = InitMenusAndToolBar( vbox );
+	gtk_window_add_accel_group( GTK_WINDOW( MainSectionWindow ), 
+				  gtk_ui_manager_get_accel_group(PtrUIManager) );
 
 	hboxtop = gtk_hbox_new (FALSE,0);
 	gtk_container_add (GTK_CONTAINER (vbox), hboxtop);
@@ -824,8 +834,8 @@ void RungWindowInitGtk()
 	/* Create the drawing area */
 	drawing_area = gtk_drawing_area_new ();
 	gtk_drawing_area_size (GTK_DRAWING_AREA (drawing_area) ,
-							BLOCK_WIDTH_DEF*RUNG_WIDTH+OFFSET_X+5 ,
-							BLOCK_HEIGHT_DEF*RUNG_HEIGHT+OFFSET_Y+30);
+							BLOCK_WIDTH_DEF*RUNG_WIDTH+20 ,
+							BLOCK_HEIGHT_DEF*RUNG_HEIGHT+45);
 	gtk_box_pack_start (GTK_BOX (hboxmiddle), drawing_area, TRUE, TRUE, 0);
 	gtk_widget_show (drawing_area);
 
@@ -853,6 +863,8 @@ void RungWindowInitGtk()
     StatusBarContextId = gtk_statusbar_get_context_id( GTK_STATUSBAR(StatusBar), _("Statusbar") );
 
 
+//no more used since menu/toolbar added...
+#ifdef AAAAAAAAAAAAAAAAAAAAAA
 	hboxbottom = gtk_hbox_new (FALSE,0);
 	gtk_container_add (GTK_CONTAINER (vbox), hboxbottom);
 	gtk_widget_show(hboxbottom);
@@ -916,7 +928,7 @@ void RungWindowInitGtk()
 	gtk_signal_connect(GTK_OBJECT (ButtonConfig), "clicked",
 						(GtkSignalFunc) ButtonConfig_click, 0);
 	gtk_widget_show (ButtonConfig);
-#ifdef GNOME_PRINT_USE
+//#ifdef GNOME_PRINT_USE
 	ButtonPrintPreview = gtk_button_new_with_label (_("Preview"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonPrintPreview, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonPrintPreview), "clicked",
@@ -927,7 +939,7 @@ void RungWindowInitGtk()
 	gtk_signal_connect(GTK_OBJECT (ButtonPrint), "clicked",
 						(GtkSignalFunc) PrintGnome, 0);
 	gtk_widget_show (ButtonPrint);
-#endif
+//#endif
 	ButtonAbout = gtk_button_new_with_label (_("About"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonAbout, TRUE, TRUE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonAbout), "clicked",
@@ -941,6 +953,7 @@ void RungWindowInitGtk()
 	gtk_signal_connect_object (GTK_OBJECT (ButtonQuit), "clicked",
 								ConfirmQuit, NULL);
 	gtk_widget_show (ButtonQuit);
+#endif
 
 
 	/* Signal used to redraw */
@@ -971,11 +984,20 @@ void RungWindowInitGtk()
 							| GDK_POINTER_MOTION_MASK
 							| GDK_POINTER_MOTION_HINT_MASK);
 
-	gtk_signal_connect( GTK_OBJECT(RungWindow), "delete_event",
-		(GtkSignalFunc)RungWindowDeleteEvent, NULL );
-	gtk_widget_show (RungWindow);
+	gtk_signal_connect( GTK_OBJECT(MainSectionWindow), "delete_event",
+		(GtkSignalFunc)MainSectionWindowDeleteEvent, 0 );
+	gtk_widget_show (MainSectionWindow);
 
 	GetTheSizesForRung();
+}
+
+void RedrawSignalDrawingArea( void )
+{
+	GdkRegion * region = gdk_drawable_get_clip_region( drawing_area->window );
+	// redraw completely by exposing it
+	gdk_window_invalidate_region( drawing_area->window, region, TRUE );
+	gdk_window_process_updates( drawing_area->window, TRUE );
+	gdk_region_destroy( region );
 }
 
 static gint PeriodicUpdateDisplay(gpointer data)
@@ -1034,33 +1056,37 @@ static gint PeriodicUpdateDisplay(gpointer data)
 		//}
 	}
 	if (InfosGene->LadderState!=STATE_LOADING )
-		//DrawCurrentSection( );
+	{
+//		DrawCurrentSection( );
+//		CairoDrawCurrentSection( );
+		RedrawSignalDrawingArea( );
+	}
 	if ( InfosGene->HardwareErrMsgToDisplay[ 0 ]!='\0' )
 	{
 		ShowMessageBox( _("Config hardware error occurred!"), InfosGene->HardwareErrMsgToDisplay, _("Ok") );
 		InfosGene->HardwareErrMsgToDisplay[ 0 ] = '\0';
 	}
-        CheckForErrors ( );
 	return 1;
 }
 
 
 void InitGtkWindows( int argc, char *argv[] )
 {
-	//printf( _("Your GTK+ version is %d.%d.%d\n"), gtk_major_version, gtk_minor_version,gtk_micro_version );
+	debug_printf( "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,
+			gtk_micro_version );
 //ProblemWithPrint	g_thread_init (NULL);
 //ProblemWithPrint	gdk_threads_init ();
     gtk_init (&argc, &argv);
 
 	VarsWindowInitGtk();
-	RungWindowInitGtk();
+	MainSectionWindowInitGtk();
 //moved before, else crashing when adding tooltips...?
 //	VarsWindowInitGtk();
 	EditorInitGtk();
 	PropertiesInitGtk();
 	ManagerInitGtk( );
 	SymbolsInitGtk( );
-        IntConfigWindowGtk( );
+SetMenuStateForRunStopSwitch( TRUE );
         ShowErrorMessage( _("Error"), _("Failed MODBUS communications"), _("Ok") );
     gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
 }
@@ -1068,13 +1094,12 @@ void InitGtkWindows( int argc, char *argv[] )
 void UpdateAllGtkWindows( void )
 {
 	//DrawCurrentSection( );
+	RedrawSignalDrawingArea( );
 	refresh_label_comment( );
 	autorize_prevnext_buttons( TRUE );
 	UpdateVScrollBar();
 	ManagerDisplaySections( );
 	DisplaySymbols( );
-        destroyConfigWindow();
-        IntConfigWindowGtk( );
 }
 
 void UpdateWindowTitleWithProjectName( void )
@@ -1088,7 +1113,7 @@ void UpdateWindowTitleWithProjectName( void )
 			ScanFileNameOnly--;
 	}
 	snprintf(Buff, sizeof(Buff), _("Section Display of %s"), &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );
-	gtk_window_set_title ((GtkWindow *)RungWindow, Buff );
+	gtk_window_set_title ((GtkWindow *)MainSectionWindow, Buff );
 }
 
 gint ErrorMessageDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
