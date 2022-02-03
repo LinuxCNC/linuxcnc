@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* May 2001 */
@@ -39,8 +39,9 @@ GtkWidget *PropEntryTimerModeParam[NBR_PARAMS_PER_OBJ];
 GtkWidget *ButtonApplyProperties;
 int SavePosX = -1;
 int SavePosY = -1;
+static char FirstOpenToSetPosition = FALSE;
 
-void SetProperty(int NumParam,char * LblParam,char * ValParam)
+void SetProperty(int NumParam,char * LblParam,char * ValParam,char SetFocus)
 {
 	gtk_label_set_text((GtkLabel *)PropLabelParam[NumParam],LblParam);
 	if (strcmp(LblParam,"Base")==0)
@@ -49,8 +50,8 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam)
 		gtk_widget_show(PropEntryBaseParam[NumParam]);
 		gtk_widget_hide(PropEntryTimerModeParam[NumParam]);
 		gtk_entry_set_text((GtkEntry*)((GtkCombo *)PropEntryBaseParam[NumParam])->entry,ValParam);
-		if (NumParam==0)
-			gtk_widget_grab_focus( PropEntryBaseParam[0] );
+		if (SetFocus)
+			gtk_widget_grab_focus( PropEntryBaseParam[NumParam] );
 	}
 	else
 	{
@@ -60,8 +61,8 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam)
 			gtk_widget_hide(PropEntryBaseParam[NumParam]);
 			gtk_widget_show(PropEntryTimerModeParam[NumParam]);
 			gtk_entry_set_text((GtkEntry*)((GtkCombo *)PropEntryTimerModeParam[NumParam])->entry,ValParam);
-			if (NumParam==0)
-				gtk_widget_grab_focus( PropEntryTimerModeParam[0] );
+			if (SetFocus)
+				gtk_widget_grab_focus( PropEntryTimerModeParam[NumParam] );
 		}
 		else
 		{
@@ -70,8 +71,8 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam)
 			gtk_widget_hide(PropEntryBaseParam[NumParam]);
 			gtk_widget_hide(PropEntryTimerModeParam[NumParam]);
 			gtk_entry_set_text(GTK_ENTRY(PropEntryParam[NumParam]),ValParam);
-			if (NumParam==0)
-				gtk_widget_grab_focus( PropEntryParam[0] );
+			if (SetFocus)
+				gtk_widget_grab_focus( PropEntryParam[NumParam] );
 		}
 	}
 	/* if no first param, means no params at all */
@@ -80,11 +81,13 @@ void SetProperty(int NumParam,char * LblParam,char * ValParam)
 	{
 		if (strcmp(LblParam,"---")==0)
 		{
-			gtk_widget_hide(ButtonApplyProperties);
+//			gtk_widget_hide(ButtonApplyProperties);
+			gtk_widget_set_sensitive( ButtonApplyProperties, FALSE );
 		}
 		else
 		{
-			gtk_widget_show(ButtonApplyProperties);
+//			gtk_widget_show(ButtonApplyProperties);
+			gtk_widget_set_sensitive( ButtonApplyProperties, TRUE );
 #ifndef GTK2
 			// no gtk_window_present() function available with GTK1.2
 			//not beautiful but it works...
@@ -134,8 +137,40 @@ void ShowPropertiesWindow( int Visible )
 	if ( Visible )
 	{
 		gtk_widget_show(PropertiesWindow);
-		if ( SavePosX!=-1 && SavePosY!=-1 )
+		if ( !FirstOpenToSetPosition )
+		{
+			// try to move at a nice place the window (to top or bottom of the edit window)
+			int editx,edity,editw,edith;
+			int mainx,mainy;
+			int winw,winh;
+			int winx=0,winy=0;
+			int offsetx = 0;
+			gtk_window_get_size( GTK_WINDOW(EditWindow), &editw, &edith );
+			gtk_window_get_position( GTK_WINDOW(EditWindow), &editx, &edity );
+			gtk_window_get_position( GTK_WINDOW(MainSectionWindow), &mainx, &mainy );
+			gtk_window_get_size( GTK_WINDOW(PropertiesWindow), &winw, &winh );
+			// if edit on left of the main
+			if ( editx<mainx && editw<winw )
+			  offsetx = winw-editw;
+			// place on the top ?
+			if ( edity>winh+10 )
+			{
+				winx = editx-offsetx;
+				winy = edity-winh-10;
+			}
+			else
+			{
+				// move the window on the bottom
+				winx = editx-offsetx;
+				winy = edity+edith+10;
+			}
+			printf("to move properties window: x%d,y%d,w%d,h%d => x%d,y%d,w%d,h%d\n",editx,edity,editw,edith,winx,winy,winw,winh);
+			gtk_window_move( GTK_WINDOW(PropertiesWindow), winx,winh );
+			FirstOpenToSetPosition = TRUE;
+		}
+		else if ( SavePosX!=-1 && SavePosY!=-1 )
 			gtk_window_move( GTK_WINDOW(PropertiesWindow), SavePosX, SavePosY );
+
 	}
 	else
 	{
@@ -177,7 +212,7 @@ void PropertiesInitGtk()
 		gtk_container_add (GTK_CONTAINER (vbox), hbox[NumParam]);
 		gtk_widget_show (hbox[NumParam]);
 
-		PropLabelParam[NumParam] = gtk_label_new(_("Parameter"));
+		PropLabelParam[NumParam] = gtk_label_new("---");
 		gtk_widget_set_usize((GtkWidget *)PropLabelParam[NumParam],85,0);
 		gtk_box_pack_start (GTK_BOX (hbox[NumParam]), PropLabelParam[NumParam], FALSE, FALSE, 0);
 		gtk_widget_show (PropLabelParam[NumParam]);
@@ -214,6 +249,8 @@ void PropertiesInitGtk()
 	gtk_box_pack_start (GTK_BOX (hbox[NumParam]), ButtonApplyProperties, TRUE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (ButtonApplyProperties), "clicked",
 						(GtkSignalFunc) SaveElementProperties, 0);
+	gtk_widget_set_sensitive( ButtonApplyProperties, FALSE );
+	gtk_widget_show( ButtonApplyProperties );
 
 //    gtk_widget_show (PropertiesWindow);
 
