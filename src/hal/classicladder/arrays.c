@@ -49,10 +49,11 @@
 
 
 #ifdef GTK_INTERFACE
+#include <gtk/gtk.h>
 #include "classicladder_gtk.h"
 #include "manager_gtk.h"
 #include "symbols_gtk.h"
-//#include <gtk/gtk.h>/
+//#include <gtk/gtk.h>
 #endif
 
 

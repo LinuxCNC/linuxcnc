@@ -168,7 +168,21 @@ gint BoolVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer d
 	return TRUE;
 }
 
-
+// called per toggle action menu, or at startup (if window saved open or not)...
+void OpenSpyBoolVarsWindow( GtkAction * ActionOpen, gboolean OpenIt )
+{
+	if ( ActionOpen!=NULL )
+		OpenIt = gtk_toggle_action_get_active( GTK_TOGGLE_ACTION(ActionOpen) );
+	if ( OpenIt )
+	{
+		gtk_widget_show( SpyBoolVarsWindow );
+		gtk_window_present( GTK_WINDOW(SpyBoolVarsWindow) );
+	}
+	else
+	{
+		gtk_widget_hide( SpyBoolVarsWindow );
+	}
+}
 
 void BoolVarsWindowInitGtk()
 {
@@ -317,6 +331,22 @@ gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer d
 	gtk_widget_hide( SpyFreeVarsWindow );
 	if (toggle==2) {  toggle=0;  }else{  toggle=3;  }
 	return TRUE;
+}
+
+// called per toggle action menu, or at startup (if window saved open or not)...
+void OpenSpyFreeVarsWindow( GtkAction * ActionOpen, gboolean OpenIt )
+{
+	if ( ActionOpen!=NULL )
+		OpenIt = gtk_toggle_action_get_active( GTK_TOGGLE_ACTION(ActionOpen) );
+	if ( OpenIt )
+	{
+		gtk_widget_show( SpyFreeVarsWindow );
+		gtk_window_present( GTK_WINDOW(SpyFreeVarsWindow) );
+	}
+	else
+	{
+		gtk_widget_hide( SpyFreeVarsWindow );
+	}
 }
 
 // modified this to have 3 columns so we can display variable type

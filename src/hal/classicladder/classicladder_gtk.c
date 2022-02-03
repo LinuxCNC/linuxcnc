@@ -467,14 +467,10 @@ void LoadNewLadder()
 #endif
     InfosGene->LadderState = STATE_STOP;
 }
-void ButtonSave_click()
+void DoActionSave()
 {
 	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
-		{
 		ShowMessageBox( _("Save Error"), _("Failed to save the project file..."), _("Ok") );
-	}else{ MessageInStatusBar(InfosGene->CurrentProjectFileName);}
-		
-
 }
 
 void SaveAsLadder(void)
@@ -569,6 +565,11 @@ void DoNewProject( void )
 	InfosGene->AskConfirmationToQuit = TRUE;
 }
 
+void DoActionConfirmNewProject()
+{
+	ShowConfirmationBox("New","Do you really want to clear all datas ?",DoNewProject);
+}
+
 void ButtonNew_click()
 {
 	ShowConfirmationBox(_("New"),_("Do you really want to clear all data ?"),DoNewProject);
@@ -601,6 +602,19 @@ if (InfosGene->LadderState==STATE_RUN)
              }
 }
 
+void DoActionLoadProject()
+{
+	if ( InfosGene->AskConfirmationToQuit )
+		ShowConfirmationBox( "Sure?", "Do you really want to load another project ?\nIf not saved, all modifications on the current project will be lost  \n", DoLoadProject );
+	else
+		DoLoadProject( );
+}
+
+void DoActionSaveAs()
+{
+	CreateFileSelection("Please select the project to save",TRUE);
+}
+
 void DoReset()
 {
 	StopRunIfRunning( );
@@ -614,16 +628,17 @@ void DoReset()
 	MessageInStatusBar(_("Reset ladder data "));
 }
 
-void ButtonConfig_click( )
-{
-    OpenConfigWindowGtk( );
-}
+//void ButtonConfig_click( )
+//{
+    //OpenConfigWindowGtk( );
+//}
 
-void ButtonAbout_click( )
+void DoActionAboutClassicLadder()
 {
-	/* From the example in gtkdialog help */
+	/*
+	// From the example in gtkdialog help //
 	GtkWidget *dialog, *label, *okay_button;
-	/* Create the widgets */
+	// Create the widgets //
 	dialog = gtk_dialog_new();
 	label = gtk_label_new ( CL_PRODUCT_NAME " v" CL_RELEASE_VER_STRING "\n" CL_RELEASE_DATE_STRING "\n"
 						"Copyright (C) 2001-2008 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
@@ -636,18 +651,44 @@ void ButtonAbout_click( )
 						"emc-users@lists.sourceforge.net");
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
 	okay_button = gtk_button_new_with_label(_("Okay"));
-	/* Ensure that the dialog box is destroyed when the user clicks ok. */
+	// Ensure that the dialog box is destroyed when the user clicks ok. //
 	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
 							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area),
 					okay_button);
 	gtk_widget_grab_focus(okay_button);
-	/* Add the label, and show everything we've added to the dialog. */
+	// Add the label, and show everything we've added to the dialog. //
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
 					label);
 	gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
 	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER);
 	gtk_widget_show_all (dialog);
+*/
+	char * static_comments = "Released under the terms of the\nGNU Lesser General Public License v3\n\n"
+							"Latest software version at:\nhttp://www.sourceforge.net/projects/classicladder\n"
+							"Original site:\nhttp://membres.lycos.fr/mavati/classicladder"
+                            "\nAs adapted to EMC2\n"
+                            "(Chris Morley)\n"
+                            "emc-users@lists.sourceforge.net";
+	char * comments = malloc( strlen( static_comments )+80 );
+	if ( comments )
+	{
+		char GtkVersionString[ 30 ];
+		sprintf( GtkVersionString, "GTK+ version %d.%d.%d\n\n", gtk_major_version, gtk_minor_version, gtk_micro_version );
+		strcpy( comments, "("CL_RELEASE_DATE_STRING")\n\n" );
+		strcat( comments, GtkVersionString );
+		strcat( comments, static_comments );
+		gtk_show_about_dialog ( GTK_WINDOW( MainSectionWindow ),
+							"program-name", CL_PRODUCT_NAME ,
+							"version", CL_RELEASE_VER_STRING ,
+							"copyright", "Copyright (C) " CL_RELEASE_COPYRIGHT_YEARS " Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net" ,
+//							"logo", example_logo,
+							"title", "About ClassicLadder",
+							"website", "http://sites.google.com/site/classicladder" ,
+							"comments", comments ,
+                       NULL );
+		free( comments );
+	}
 }
 
 void ShowMessageBox(const char * title, const char * text, const char * button)
@@ -735,7 +776,7 @@ void ConfirmQuit( void )
 {
 	if ( InfosGene->AskConfirmationToQuit )
 		ShowConfirmationBox( _("Warning!"), _("If not saved, all modifications will be lost.\nDo you really want to quit ?\n"), DoQuitGtkApplication );
-	else{
+	else if (EditDatas.ModeEdit==TRUE ) {
              if (!modmaster)  
                 {  
                  ShowConfirmationBox( _("Confirm!"), _("Do you really want to quit ?\n"), DoQuitGtkApplication );
@@ -743,6 +784,8 @@ void ConfirmQuit( void )
                       ShowConfirmationBox( _("Warning!"), _("MODBUS will stop if you quit.\n Do you really want to quit ?\n"), DoQuitGtkApplication );
                      }
             }
+	else
+		DoQuitGtkApplication( );
 }
 gint MainSectionWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {

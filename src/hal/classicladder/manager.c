@@ -194,6 +194,17 @@ int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNb
 	return FreeFound;
 }
 
+void ModifySectionProperties( char * OriginalSectionName, char * NewSectionName )
+{
+	StrSection * pSection;
+	int NumSec = SearchSectionWithName( OriginalSectionName );
+	if ( NumSec>=0 )
+	{
+		pSection = &SectionArray[ NumSec ];
+		rtapi_strxcpy( pSection->Name, NewSectionName );
+	}
+}
+
 int NbrSectionsDefined( void )
 {
 	StrSection * pSection;

@@ -27,8 +27,9 @@
 #endif
 
 #define CL_PRODUCT_NAME "ClassicLadder"
-#define CL_RELEASE_VER_STRING "0.7.124-EMC"
-#define CL_RELEASE_DATE_STRING "2 MAR 2008"
+#define CL_RELEASE_VER_STRING "0.8.10-EMC"
+#define CL_RELEASE_DATE_STRING "31 December 2010"
+#define CL_RELEASE_COPYRIGHT_YEARS "2001-2010"
 
 // defaults values
 #define NBR_RUNGS_DEF 100

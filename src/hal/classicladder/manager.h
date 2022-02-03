@@ -15,8 +15,10 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 void InitSections( void );
 int SearchSubRoutineWithItsNumber( int SubRoutineNbrToFind );
+int SearchSectionWithName( char * SectionNameToFind );
 void SectionSelected( char * SectionName );
 int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNbr );
+void ModifySectionProperties( char * OriginalSectionName, char * NewSectionName );
 int NbrSectionsDefined( void );
 int VerifyIfSectionNameAlreadyExist( char * Name );
 int VerifyIfSubRoutineNumberExist( int SubRoutineNbr );

@@ -39,17 +39,17 @@ GtkUIManager * uiManager;
 
 static GtkActionEntry ActionEntriesArray[ ] =
 {	{ "FileMenuAction", NULL, "File" },
-	//{ "NewAction", GTK_STOCK_NEW, "New", "<Control>N", "Create a new project", G_CALLBACK( DoActionConfirmNewProject ) },
-	//{ "LoadAction", GTK_STOCK_OPEN, "Load", "<Control>L", "Load an existing project", G_CALLBACK( DoActionLoadProject ) },
-	//{ "SaveAction", GTK_STOCK_SAVE, "Save", "<Control>S", "Save current project", G_CALLBACK( DoActionSave ) },
-	//{ "SaveAsAction", NULL, "Save As...", "<Control>A", "Save project to another file", G_CALLBACK( DoActionSaveAs ) },
+	{ "NewAction", GTK_STOCK_NEW, "New", "<Control>N", "Create a new project", G_CALLBACK( DoActionConfirmNewProject ) },
+	{ "LoadAction", GTK_STOCK_OPEN, "Load", "<Control>L", "Load an existing project", G_CALLBACK( DoActionLoadProject ) },
+	{ "SaveAction", GTK_STOCK_SAVE, "Save", "<Control>S", "Save current project", G_CALLBACK( DoActionSave ) },
+	{ "SaveAsAction", NULL, "Save As...", "<Control>A", "Save project to another file", G_CALLBACK( DoActionSaveAs ) },
 	//{ "ExportMenuAction", NULL, "Export to", NULL, NULL, NULL },
 	//{ "ExportSvgAction", NULL, "Svg", NULL, NULL, G_CALLBACK( DoActionExportSvg ) },
 	//{ "ExportPngAction", NULL, "Png", NULL, NULL, G_CALLBACK( DoActionExportPng ) },
 	//{ "CopyToClipboardAction", NULL, "Clipboard", "<Control>C", NULL, G_CALLBACK( DoActionCopyToClipboard ) },
 	//{ "PreviewAction", GTK_STOCK_PRINT_PREVIEW, "Preview", NULL, NULL, G_CALLBACK( PrintPreviewGtk ) },
 	//{ "PrintAction", GTK_STOCK_PRINT, "Print", "<Control>P", "Print current section", G_CALLBACK( PrintGtk ) },
-	//{ "QuitAction", GTK_STOCK_QUIT, "Quit", "<Control>Q", NULL, G_CALLBACK( ConfirmQuit ) },
+	{ "QuitAction", GTK_STOCK_QUIT, "Quit", "<Control>Q", NULL, G_CALLBACK( ConfirmQuit ) },
 
 	{ "ViewMenuAction", NULL, "View" },
 
@@ -58,16 +58,15 @@ static GtkActionEntry ActionEntriesArray[ ] =
 	//{ "ResetAction", GTK_STOCK_REFRESH, "Reset", NULL, "Reset logic", G_CALLBACK( DoActionResetAndConfirmIfRunning ) },
 	{ "ConfigurationAction", GTK_STOCK_PREFERENCES, "Configuration", NULL, "Configuration (sizes, i/o, ...)", G_CALLBACK( OpenConfigWindowGtk ) },
 
-	//{ "HelpMenuAction", NULL, "Help" },
-	//{ "AboutAction", NULL, "About", "F1", NULL, G_CALLBACK( DoActionAboutClassicLadder ) },	
+	{ "HelpMenuAction", NULL, "Help" },
+	{ "AboutAction", NULL, "About", "F1", NULL, G_CALLBACK( DoActionAboutClassicLadder ) },	
 };
 static GtkToggleActionEntry ToggleActionEntriesArray[ ] =
-{
-//{	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, "Sections window", "F2", "View sections manager window", G_CALLBACK( OpenManagerWindow ), TRUE },
-	//{ "ViewEditorAction", GTK_STOCK_EDIT, "Editor window", "F3", "View editor window", G_CALLBACK( OpenEditWindow ), FALSE },
-	//{ "ViewSymbolsAction", GTK_STOCK_INDEX, "Symbols window", "F4", "View symbols window", G_CALLBACK( OpenSymbolsWindow ), FALSE },
-	//{ "ViewBoolVarsAction", NULL, "Bools vars window", "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
-	//{ "ViewFreeVarsAction", NULL, "Free vars window", "F6", NULL, G_CALLBACK( OpenSpyFreeVarsWindow ), FALSE },
+{//	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, "Sections window", "F2", "View sections manager window", G_CALLBACK( OpenManagerWindow ), TRUE },
+	{ "ViewEditorAction", GTK_STOCK_EDIT, "Editor window", "F3", "View editor window", G_CALLBACK( OpenEditWindow ), FALSE },
+	{ "ViewSymbolsAction", GTK_STOCK_INDEX, "Symbols window", "F4", "View symbols window", G_CALLBACK( OpenSymbolsWindow ), FALSE },
+	{ "ViewBoolVarsAction", NULL, "Bools vars window", "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
+	{ "ViewFreeVarsAction", NULL, "Free vars window", "F6", NULL, G_CALLBACK( OpenSpyFreeVarsWindow ), FALSE },
 	//{ "ViewLogAction", NULL, "Log window", "F7", NULL, G_CALLBACK( OpenLogBookWindow ), FALSE },
 };
 

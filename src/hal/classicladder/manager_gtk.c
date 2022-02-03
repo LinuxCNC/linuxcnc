@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* August 2002 */
@@ -52,6 +52,8 @@ GtkWidget * CycleSubRoutineNbr;
 
 char * pNameSectionSelected;
 int RowSectionSelected;
+
+char ModifyNotAdding = FALSE;
 
 void ManagerDisplaySections( )
 {
@@ -110,65 +112,78 @@ void ButtonAddClickSignal( )
 {
 	// we open the requester to add a new section...
 	gtk_entry_set_text( GTK_ENTRY(EditName), "" );
+	gtk_widget_set_sensitive( CycleLanguage, TRUE );
+	gtk_widget_set_sensitive( CycleSubRoutineNbr, TRUE );
 	gtk_widget_grab_focus( EditName );
+	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Add a new section...");
 	gtk_widget_show( AddSectionWindow );
+	ModifyNotAdding = FALSE;
 }
 void ButtonPropertiesClickSignal( )
 {
 	// we open the requester to modify some properties of the current section...
 	gtk_entry_set_text( GTK_ENTRY(EditName), pNameSectionSelected );
-	//int NumSec = SearchSectionWithName( pNameSectionSelected );
-	//if ( NumSec>=0 )
-	//{
-		//char Buff[10];
-		//StrSection * pSection = &SectionArray[ NumSec ];
-		//gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleLanguage)->entry,pSection->Language== SECTION_IN_LADDER?"Ladder":"Sequential");
-		//strcpy( Buff, "Main");
-		//if ( pSection->SubRoutineNumber>=0 )
-			//sprintf( Buff, "SR%d", pSection->SubRoutineNumber );
-		//gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleSubRoutineNbr)->entry,Buff);
-	//}
+	int NumSec = SearchSectionWithName( pNameSectionSelected );
+	if ( NumSec>=0 )
+	{
+		char Buff[13];
+		StrSection * pSection = &SectionArray[ NumSec ];
+		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleLanguage)->entry,pSection->Language== SECTION_IN_LADDER?"Ladder":"Sequential");
+		strcpy( Buff, "Main");
+		if ( pSection->SubRoutineNumber>=0 )
+			sprintf( Buff, "SR%d", pSection->SubRoutineNumber );
+		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleSubRoutineNbr)->entry,Buff);
+	}
 	gtk_widget_set_sensitive( CycleLanguage, FALSE );
 	gtk_widget_set_sensitive( CycleSubRoutineNbr, FALSE );
 	gtk_widget_grab_focus( EditName );
 	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Modify current section");
 	gtk_widget_show( AddSectionWindow );
-	//ModifyNotAdding = TRUE;
+	ModifyNotAdding = TRUE;
 }
 void ButtonAddSectionDoneClickSignal( )
 {
-	char SubNbrValue[ 10 ];
-	int SubNbr = -1;
-	char BuffLanguage[ 30 ];
-	int Language = SECTION_IN_LADDER;
-	// get language type
-	rtapi_strxcpy( BuffLanguage , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleLanguage)->entry) );
-	if ( strcmp( BuffLanguage, "Sequential" )==0 )
-		Language = SECTION_IN_SEQUENTIAL;
-	// get if main or sub-routine (and which number if sub, used in the 'C'all coils)
-	rtapi_strxcpy( SubNbrValue , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleSubRoutineNbr)->entry) );
-	if ( SubNbrValue[ 0 ]=='S' && SubNbrValue[ 1 ]=='R' )
-		SubNbr = atoi( &SubNbrValue[2] );
-
-	// verify if name already exist...
-	if (VerifyIfSectionNameAlreadyExist(   (char *)gtk_entry_get_text( GTK_ENTRY(EditName) )   ) )
+	char * pSectionNameEntered = (char *)gtk_entry_get_text( GTK_ENTRY(EditName) );
+	// verify if name already exists...
+	if ( VerifyIfSectionNameAlreadyExist( pSectionNameEntered ) )
 	{
 		ShowMessageBox( _("Error"), _("This section name already exist or is incorrect !!!"), _("Ok") );
 	}
 	else
 	{
-		if ( SubNbr>=0 && VerifyIfSubRoutineNumberExist( SubNbr ))
+		if ( ModifyNotAdding )
 		{
-			ShowMessageBox( _("Error"), _("This sub-routine number for calls is already defined !!!"), _("Ok") );
+			ModifySectionProperties( pNameSectionSelected, pSectionNameEntered );
+			gtk_widget_hide( AddSectionWindow );
+			ManagerDisplaySections( );
 		}
 		else
 		{
-			// create the new section
-			if ( !AddSection( (char *)gtk_entry_get_text( GTK_ENTRY(EditName) ) , Language , SubNbr ) )
-				ShowMessageBox( _("Error"), _("Failed to add a new section. Full?"), _("Ok") );
-			gtk_widget_hide( AddSectionWindow );
-
-			ManagerDisplaySections( );
+			char SubNbrValue[ 10 ];
+			int SubNbr = -1;
+			char BuffLanguage[ 30 ];
+			int Language = SECTION_IN_LADDER;
+			// get language type
+			rtapi_strxcpy( BuffLanguage , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleLanguage)->entry) );
+			if ( strcmp( BuffLanguage, "Sequential" )==0 )
+				Language = SECTION_IN_SEQUENTIAL;
+			// get if main or sub-routine (and which number if sub, used in the 'C'all coils)
+			rtapi_strxcpy( SubNbrValue , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)CycleSubRoutineNbr)->entry) );
+			if ( SubNbrValue[ 0 ]=='S' && SubNbrValue[ 1 ]=='R' )
+				SubNbr = atoi( &SubNbrValue[2] );
+		
+			if ( SubNbr>=0 && VerifyIfSubRoutineNumberExist( SubNbr ))
+			{
+                ShowMessageBox( _("Error"), _("This sub-routine number for calls is already defined !!!"), _("Ok") );
+			}
+			else
+			{
+				// create the new section
+				if ( !AddSection( pSectionNameEntered , Language , SubNbr ) )
+                    ShowMessageBox( _("Error"), _("Failed to add a new section. Full?"), _("Ok") );
+				gtk_widget_hide( AddSectionWindow );
+				ManagerDisplaySections( );
+			}
 		}
 	}
 }
@@ -233,7 +248,21 @@ void ButtonMoveDownClickSignal( )
 //	}
 	ManagerDisplaySections( );
 }
-
+// called per toggle action menu, or at startup (if window saved open or not)...
+void OpenManagerWindow( GtkAction * ActionOpen, gboolean OpenIt )
+{
+	if ( ActionOpen!=NULL )
+		OpenIt = gtk_toggle_action_get_active( GTK_TOGGLE_ACTION(ActionOpen) );
+	if ( OpenIt )
+	{
+		gtk_widget_show( ManagerWindow );
+		gtk_window_present( GTK_WINDOW(ManagerWindow) );
+	}
+	else
+	{
+		gtk_widget_hide( ManagerWindow );
+	}
+}
 void ManagerEnableActionsSectionsList( char cState )
 {
 	gtk_widget_set_sensitive( SectionsList, cState );
