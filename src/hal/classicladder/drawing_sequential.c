@@ -1,11 +1,13 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2002 */
-/* --------------------- */
-/* Draw sequential pages */
-/* --------------------- */
+/* ---------------------------------------- */
+/* Draw sequential pages                    */
+/* ======================================== */
+/* Switched to CAIRO library in august 2008 */
+/* ---------------------------------------- */
 /* This library is free software; you can redistribute it and/or */
 /* modify it under the terms of the GNU Lesser General Public */
 /* License as published by the Free Software Foundation; either */
