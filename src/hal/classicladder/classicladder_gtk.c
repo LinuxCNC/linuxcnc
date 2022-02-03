@@ -351,22 +351,12 @@ void CheckDispSymbols_toggled( )
 }
 
 
-void StoreDirectorySelected(
-	#ifndef GTK2
-GtkFileSelection *selector, 
-	#else
-GtkFileChooser *selector,	
-#endif
-char cForLoadingProject)
+void StoreDirectorySelected( GtkFileChooser *selector, char cForLoadingProject)
 {
     char * TempDir;
-	
-    TempDir = 
-	#ifndef GTK2
-	gtk_file_selection_get_filename (GTK_FILE_SELECTION(FileSelector));
-	#else
-	gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector));
-	#endif
+
+	TempDir = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector));
+
     if ( cForLoadingProject )
         VerifyDirectorySelected( TempDir );
     else
@@ -377,23 +367,17 @@ char cForLoadingProject)
 void LoadNewLadder()
 {
 	char ProjectLoadedOk;
-    StoreDirectorySelected(
-	#ifndef GTK2
-	GTK_FILE_SELECTION(FileSelector)
-	#else
-	GTK_FILE_CHOOSER(FileSelector)
-	#endif
-	
-, TRUE/*cForLoadingProject*/);
-	
+	StoreDirectorySelected( GTK_FILE_CHOOSER(FileSelector) , TRUE/*cForLoadingProject*/);
+
     if (InfosGene->LadderState==STATE_RUN)
         ButtonRunStop_click();
     InfosGene->LadderState = STATE_LOADING;
 	ProjectLoadedOk = LoadProjectFiles( InfosGene->CurrentProjectFileName );
 	if ( !ProjectLoadedOk )
 		ShowMessageBox( _("Load Error"), _("Failed to load the project file..."), _("Ok") );
+
 	UpdateAllGtkWindows( );
-        UpdateWindowTitleWithProjectName( );
+	UpdateWindowTitleWithProjectName( );
 	MessageInStatusBar( ProjectLoadedOk?_("Project loaded (stopped)."):_("Project failed to load..."));
 #ifndef RT_SUPPORT
         OpenHardware( 0 );
@@ -414,67 +398,41 @@ void ButtonSave_click()
 
 void SaveAsLadder(void)
 {
-    StoreDirectorySelected(
-	#ifndef GTK2
-	GTK_FILE_SELECTION(FileSelector)
-	#else
-	GTK_FILE_CHOOSER(FileSelector)
-	#endif
-	
-	, FALSE/*cForLoadingProject*/);
+	StoreDirectorySelected( GTK_FILE_CHOOSER(FileSelector), FALSE/*cForLoadingProject*/);
+
 	if ( !SaveProjectFiles( InfosGene->CurrentProjectFileName ) )
 		ShowMessageBox( _("Save Error"), _("Failed to save the project file..."), _("Ok") );
         UpdateWindowTitleWithProjectName( );
 }
 
-#ifdef GTK2
-void
-on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
+void on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
 {
-	printf(_("SAVE %s %d\n"),gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
+	debug_printf("SAVE %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);
 
 	if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)
 		SaveAsLadder();
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 }
-void
-on_filechooserdialog_load_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
+void on_filechooserdialog_load_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
 {
-	printf(_("LOAD %s %d\n"),gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);	
+	debug_printf("LOAD %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);
 
 	if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)
 		LoadNewLadder();
 	gtk_widget_destroy(GTK_WIDGET(dialog));
 }
-#endif
 
 
-void CreateFileSelection(char * Prompt,int Save)
+void CreateFileSelection(char * Prompt,int CreateFileSelectionType)
 {
-    /* From the example in gtkfileselection help */
-    /* Create the selector */
-	#ifndef GTK2
-	FileSelector = gtk_file_selection_new(Prompt);
-	if (Save)
-        gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(FileSelector)->ok_button),
-                            "clicked", GTK_SIGNAL_FUNC (SaveAsLadder), NULL);
-    else
-        gtk_signal_connect (GTK_OBJECT (GTK_FILE_SELECTION(FileSelector)->ok_button),
-                           "clicked", GTK_SIGNAL_FUNC (LoadNewLadder), NULL);
-    /* Ensure that the dialog box is destroyed when the user clicks a button. */
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(FileSelector)->ok_button),
-                                           "clicked", GTK_SIGNAL_FUNC (gtk_widget_destroy),
-                                           (gpointer) FileSelector);
-    gtk_signal_connect_object (GTK_OBJECT (GTK_FILE_SELECTION(FileSelector)->cancel_button),
-                                           "clicked", GTK_SIGNAL_FUNC (gtk_widget_destroy),
-                                           (gpointer) FileSelector);
-	#else
+	/* Create the selector */
 	GtkFileFilter *FilterOldProjects, *FilterProjects;
-	if(Save)
+	if(CreateFileSelectionType==CREATE_FILE_SELECTION_TO_SAVE_PROJECT)
 	{
 		FileSelector = gtk_file_chooser_dialog_new (Prompt, NULL, GTK_FILE_CHOOSER_ACTION_SAVE,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 			GTK_STOCK_SAVE, GTK_RESPONSE_ACCEPT, NULL);
+		gtk_file_chooser_set_do_overwrite_confirmation( GTK_FILE_CHOOSER(FileSelector), TRUE );
 	}
 	else
 	{
@@ -490,7 +448,11 @@ void CreateFileSelection(char * Prompt,int Save)
 	gtk_file_chooser_add_filter( GTK_FILE_CHOOSER(FileSelector), FilterOldProjects );
 	FilterProjects = gtk_file_filter_new( );
 	gtk_file_filter_set_name( FilterProjects, _("ClassicLadder projects") );
+        //XXX Upstream has added two new supported formats, for simplicity
+        // we will continue to only use the old one.
+	//gtk_file_filter_add_pattern( FilterProjects, "*.clprj" );
 	gtk_file_filter_add_pattern( FilterProjects, "*.clp" );
+	//gtk_file_filter_add_pattern( FilterProjects, "*.clprjz" );
 	gtk_file_chooser_add_filter( GTK_FILE_CHOOSER(FileSelector), FilterProjects );
 	gtk_file_chooser_set_filter( GTK_FILE_CHOOSER(FileSelector), FilterProjects );
 
@@ -498,23 +460,22 @@ void CreateFileSelection(char * Prompt,int Save)
 
 /*
   g_signal_connect ((gpointer) filechooserdialog, "file_activated",
-                    G_CALLBACK (on_filechooserdialog_file_activated),
-                    NULL);
+					G_CALLBACK (on_filechooserdialog_file_activated),
+					NULL);
 					*/
 
-	if(Save)
+	if( CreateFileSelectionType==CREATE_FILE_SELECTION_TO_SAVE_PROJECT )
 		g_signal_connect ((gpointer) FileSelector, "response",
-                    G_CALLBACK (on_filechooserdialog_save_response),
-                    NULL);
+					G_CALLBACK (on_filechooserdialog_save_response),
+					NULL);
 	else
 		g_signal_connect ((gpointer) FileSelector, "response",
-                    G_CALLBACK (on_filechooserdialog_load_response),
-                    NULL);
+					G_CALLBACK (on_filechooserdialog_load_response),
+					NULL);
 
 	g_signal_connect_swapped ((gpointer) FileSelector, "close",
-                            G_CALLBACK (gtk_widget_destroy),
-                            GTK_OBJECT (FileSelector));
-	#endif
+							G_CALLBACK (gtk_widget_destroy),
+							GTK_OBJECT (FileSelector));
 
 	/* Display that dialog */
 	gtk_widget_show (FileSelector);
