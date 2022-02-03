@@ -26,8 +26,6 @@
 // this adaptation was started Jan 2008 by Chris Morley  
 
 #include "../config.h"
-#include <locale.h>
-#include <libintl.h>
 #ifdef MODULE
 #include <linux/string.h>
 #else
@@ -72,6 +70,8 @@
 #include <rtapi_string.h>
 #ifdef GTK_INTERFACE
 #include <gtk/gtk.h>
+#include <libintl.h>
+#include <locale.h>
 #endif
 
 #ifdef MAT_CONNECTION

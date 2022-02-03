@@ -23,16 +23,17 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
-#include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gtk/gtk.h>
+
+#include <locale.h>
+#include <libintl.h>
+
 #include "classicladder.h"
 #include "global.h"
 #include "drawing.h"
-#include "edit.h"
 #include "editproperties_gtk.h"
 #include "calc.h"
 #include "files.h"
@@ -44,6 +45,9 @@
 #endif
 #include "symbols.h"
 #include "vars_names.h"
+#include "edit_copy.h"
+#include "edit.h"
+
 #include <rtapi_string.h>
 
 /* This array give for each special elements the size used */
@@ -142,7 +146,7 @@ void LoadElementProperties(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-				rtapi_strxcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
+//  			rtapi_strxcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum));
 				SetProperty(0,_("Variable"),TextToWrite);
 				break;
 			case ELE_OUTPUT_JUMP:
@@ -201,16 +205,16 @@ void LoadElementProperties(StrElement * Element)
 
 char * GetElementPropertiesForStatusBar(StrElement * Element)
 {
-	static char PropertiesText[100];
+//	char BufTxt[ARITHM_EXPR_SIZE+30];
+//	char BufTxt2[ARITHM_EXPR_SIZE+30];
+	static char PropertiesText[ARITHM_EXPR_SIZE+100];
+	rtapi_strxcpy( PropertiesText, "" );
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 	StrTimer * Timer = NULL;
 	StrMonostable * Monostable = NULL;
 #endif
 	StrCounter * Counter = NULL;
 	StrTimerIEC * TimerIEC = NULL;
-
-	rtapi_strxcpy( PropertiesText, "" );
-
 	if (Element)
 	{
 		switch(Element->Type)
@@ -223,7 +227,10 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:				
-				snprintf(PropertiesText, sizeof(PropertiesText), _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum)));
+				snprintf(PropertiesText, sizeof(PropertiesText), _("Variable: %s    Hal sig: %s"),CreateVarName(Element->VarType,Element->VarNum,InfosGene->DisplaySymbols),ConvVarNameToHalSigName(CreateVarName(Element->VarType,Element->VarNum,InfosGene->DisplaySymbols)));
+//				CreateVarNameForElement( BufTxt, Element, TRUE/*SymbolsVarsNamesIfAvail*/ );
+//				CreateVarNameForElement( BufTxt2, Element, FALSE/*SymbolsVarsNamesIfAvail*/ );
+//				snprintf(PropertiesText, sizeof(PropertiesText), "Variable: %s (%s)",BufTxt,BufTxt2);
 				break;
 			case ELE_OUTPUT_JUMP:
 				snprintf(PropertiesText, sizeof(PropertiesText), _("Label: %s"), RungArray[Element->VarNum].Label);
@@ -252,6 +259,9 @@ char * GetElementPropertiesForStatusBar(StrElement * Element)
 			case ELE_COMPAR:
 			case ELE_OUTPUT_OPERATE:
 				snprintf(PropertiesText, sizeof(PropertiesText),_("HAL sig: %s"),FirstVariableInArithm(DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,0)));
+//				//DisplayArithmExpr() returns pointer on static buffer 
+//				strcpy( BufTxt, DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,TRUE/*SymbolsVarsNamesIfAvail*/) );
+//				snprintf(PropertiesText, sizeof(PropertiesText), "Expression: %s (%s)", BufTxt, DisplayArithmExpr(ArithmExpr[Element->VarNum].Expr,FALSE/*SymbolsVarsNamesIfAvail*/));
 							
 				break;
 		}
@@ -565,12 +575,12 @@ void CheckForFreeingArithmExpr(int PosiX,int PosiY)
 		EditArithmExpr[ EditDatas.Rung.Element[PosiX][PosiY].VarNum ].Expr[0] = '\0';
 	}
 }
-void CheckForAllocatingArithmExpr(int PosiX,int PosiY)
+char CheckForAllocatingArithmExpr(int NumTypeEle, int PosiX,int PosiY)
 {
-	int TypeElement = EditDatas.Rung.Element[PosiX][PosiY].Type;
 	int NumExpr = 0;
 	int Found = FALSE;
-	if ( (TypeElement==ELE_COMPAR) || (TypeElement==ELE_OUTPUT_OPERATE) )
+	char ResultOk = TRUE;
+	if ( (NumTypeEle==ELE_COMPAR) || (NumTypeEle==ELE_OUTPUT_OPERATE) )
 	{
 		do
 		{
@@ -585,7 +595,10 @@ void CheckForAllocatingArithmExpr(int PosiX,int PosiY)
 			NumExpr++;
 		}
 		while( (NumExpr<NBR_ARITHM_EXPR) && (!Found) );
+		if ( !Found )
+			ResultOk = FALSE;
 	}
+	return ResultOk;
 }
 
 void SetUsedStateFunctionBlock( int Type, int Num, char Val )
@@ -811,7 +824,7 @@ void DeleteCurrentRung()
 		OldCurrent = InfosGene->CurrentRung;
 		RungArray[InfosGene->CurrentRung].Used = FALSE;
 		InfosGene->CurrentRung = NewCurrent;
-		DrawRungs();
+//		DrawRungs();
 		UpdateVScrollBar();
 		refresh_label_comment( );
 		/* save infos for the current section */
@@ -838,7 +851,7 @@ void CancelRungEdited()
 	EditDatas.ElementUnderEdit = NULL;
 	EditDatas.NumElementSelectedInToolBar = -1;
 	LoadElementProperties(NULL);
-	DrawRungs();
+//	DrawRungs();
 	refresh_label_comment( );
 	autorize_prevnext_buttons(TRUE);
 }
@@ -910,7 +923,7 @@ void ApplyRungEdited()
 	EditDatas.ElementUnderEdit = NULL;
 	EditDatas.NumElementSelectedInToolBar = -1;
 	LoadElementProperties(NULL);
-	DrawRungs();
+//	DrawRungs();
 	autorize_prevnext_buttons(TRUE);
 	InfosGene->AskConfirmationToQuit = TRUE;
 }
@@ -957,6 +970,76 @@ void CheckForBlocksOfBigElement(StrRung *pRungToCheck, int * PosiX,int * PosiY )
 			}
 		}
 	}
+}
+
+int VerifyConstraintsAndRulesForElement(short int NumEle,int PosiX,int PosiY)
+{
+	int ItIsOk = TRUE;
+	int ItIsAnOutputEle = FALSE;
+	int RuleSizeX = 1,RuleSizeY = 1;
+	int OldEleType = EditDatas.Rung.Element[PosiX][PosiY].Type;
+//printf("Verify rules: typeele=%d x=%d,y=%d\n", NumEle, PosiX, PosiY );
+
+	if ( (NumEle==ELE_OUTPUT) || (NumEle==ELE_OUTPUT_NOT)
+			|| (NumEle==ELE_OUTPUT_SET) || (NumEle==ELE_OUTPUT_RESET)
+			|| (NumEle==ELE_OUTPUT_JUMP) || (NumEle==ELE_OUTPUT_CALL)
+			|| (NumEle==ELE_OUTPUT_OPERATE) )
+		ItIsAnOutputEle = TRUE;
+	if ( NumEle==EDIT_COPY && GetIsOutputEleLastColumnSelection( ) )
+		ItIsAnOutputEle = TRUE;
+
+	/* verify for outputs if we are under output zone (right column) */
+	if ( (PosiX==RUNG_WIDTH-1) && !ItIsAnOutputEle )
+	{
+		ItIsOk = FALSE;
+	}
+	/* verify for inputs if we are under input zone (not right column) */
+	if ( (PosiX<RUNG_WIDTH-1) && ItIsAnOutputEle )
+	{
+		ItIsOk = FALSE;
+	}
+
+	/* verify if for elements bigger than one block it will fit */
+	if ( GetSizesOfAnElement( NumEle, &RuleSizeX, &RuleSizeY ) )
+	{
+		if ( (PosiX-RuleSizeX+1 < 0) || (PosiY+RuleSizeY-1 >= RUNG_HEIGHT) )
+			ItIsOk = FALSE;
+	}
+
+	//v0.8.3: now we don't allow a "one" block (or big) element to destroy a big
+	if ( RuleSizeX<=1 && RuleSizeY<=1 )
+	{
+		int SizeElementToDestroyX;
+		int SizeElementToDestroyY;
+		/* verify if already a big element here ? */
+		GetSizesOfAnElement( OldEleType, &SizeElementToDestroyX, &SizeElementToDestroyY );
+		if ( SizeElementToDestroyX>1 || SizeElementToDestroyY>1 )
+		{
+			ItIsOk = FALSE;
+		}
+		else
+		{
+			// just verify not on part of a big
+			if ( OldEleType==ELE_UNUSABLE )
+				ItIsOk = FALSE;
+		}
+	}
+	else
+	{
+		/* We are a big element, verify all blocks under it are available... */
+		int PassX,PassY;
+		for (PassX = PosiX - RuleSizeX +1 ; PassX<=PosiX ; PassX++)
+		{
+			for (PassY = PosiY ; PassY<=PosiY + RuleSizeY -1 ; PassY++)
+			{
+				int PassTypeEle = EditDatas.Rung.Element[PassX][PassY].Type; 
+//v0.8.3				if (EditDatas.Rung.Element[PassX][PassY].Type==ELE_UNUSABLE)
+				if ( ! (PassTypeEle==ELE_FREE || PassTypeEle==ELE_CONNECTION) )
+					ItIsOk = FALSE;
+			}
+		}
+	}
+	return ItIsOk;
 }
 
 int VerifyRulesForElement(short int NumEle,int PosiX,int PosiY)
@@ -1035,6 +1118,19 @@ void CleanForBigElement(short int NumEle,int PosiX,int PosiY,short int FillWithT
 	while(RulesForSpecialElements[RulePass][0]!=-1);
 }
 
+void MovePosiForBigElementToAliveBlock(short int NumEle,int * PosiX)
+{
+	int RuleSizeX,RuleSizeY;
+	if ( GetSizesOfAnElement( NumEle, &RuleSizeX, &RuleSizeY ) )
+	{
+		*PosiX = *PosiX + RuleSizeX - 1;
+		if ( *PosiX>=RUNG_WIDTH )
+		{
+			*PosiX = RUNG_WIDTH-1;
+		}
+	}
+}
+
 void CheckBigElementTopLeft(short int NumEle,int * PosiX)
 {
 	int RulePass;
@@ -1054,34 +1150,49 @@ void CheckBigElementTopLeft(short int NumEle,int * PosiX)
 	while(RulesForSpecialElements[RulePass][0]!=-1);
 }
 
-void GetSizesOfAnElement(short int NumEle,int * pSizeX, int * pSizeY)
+/* return TRUE if a rule is defined */
+char GetSizesOfAnElement(short int NumTypeEle,int * pSizeX, int * pSizeY)
 {
-	int RulePass;
-	// default size of an element	
-	*pSizeX = 1;
-	*pSizeY = 1;
-	RulePass = 0;
-	do
+	char cRuleDefined = FALSE;
+	// size for the current part selected ?
+	if ( NumTypeEle==EDIT_COPY )
 	{
-		if (RulesForSpecialElements[RulePass][TYPEELERULE] == NumEle )
+		GetSizesOfTheSelectionToCopy( pSizeX, pSizeY );
+		cRuleDefined = TRUE;
+printf( "Size for selection = %d,%d\n", *pSizeX, *pSizeY );
+	}
+	else
+	{
+		int RulePass;
+		// default size of an element	
+		*pSizeX = 1;
+		*pSizeY = 1;
+		RulePass = 0;
+		do
 		{
-			*pSizeX = RulesForSpecialElements[RulePass][XSIZEELERULE];
-			*pSizeY = RulesForSpecialElements[RulePass][YSIZEELERULE];
+			if (RulesForSpecialElements[RulePass][TYPEELERULE] == NumTypeEle )
+			{
+				*pSizeX = RulesForSpecialElements[RulePass][XSIZEELERULE];
+				*pSizeY = RulesForSpecialElements[RulePass][YSIZEELERULE];
+				cRuleDefined = TRUE;
+			}
+			RulePass++;
 		}
-		RulePass++;
+		while( RulesForSpecialElements[RulePass][0]!=-1 && *pSizeX==1 && *pSizeY==1 );
+		if ( NumTypeEle==ELE_FREE || NumTypeEle==ELE_CONNECTION || NumTypeEle==ELE_UNUSABLE )
+		{
+			*pSizeX = 0;
+			*pSizeY = 0;
+		}
+//printf( "GetSizesOfAnElement:%d = %d/%d\n",NumTypeEle, *pSizeX, *pSizeY );
+		if ( NumTypeEle>=EDIT_CNX_WITH_TOP )
+		{
+			printf("!!!Abnormal current type=%d in rung...(file %s,line %d)\n", NumTypeEle, __FILE__, __LINE__ );
+			*pSizeX = 0;
+			*pSizeY = 0;
+		}
 	}
-	while( RulesForSpecialElements[RulePass][0]!=-1 && *pSizeX==1 && *pSizeY==1 );
-	if ( NumEle==ELE_FREE || NumEle==ELE_CONNECTION || NumEle==ELE_UNUSABLE )
-	{
-		*pSizeX = 0;
-		*pSizeY = 0;
-	}
-	if ( NumEle>=EDIT_CNX_WITH_TOP )
-	{
-		printf(_("!!!Abnormal current type=%d in rung...(file %s,line %d)\n"), NumEle, __FILE__, __LINE__ );
-		*pSizeX = 0;
-		*pSizeY = 0;
-	}
+	return cRuleDefined;
 }
 
 /* return TRUE if contact or coil element */
@@ -1109,6 +1220,35 @@ char ConvertDoublesToRungCoor( double coorx, double coory, int * pRungX, int * p
 		cOk = TRUE;
 	}
 	return cOk;
+}
+
+// return TRUE if ok (noting to do, or things to do for complex ones ok :
+// if function block, getting a free number one ; if expr, allocating a string)
+char PrepBeforeSettingTypeEleForComplexBlocsAndExpr( int NumTypeEle, int PosiX, int PosiY )
+{
+	char ResultOk = TRUE;
+	// function block element, set directly a free number one...
+	if ( !(IsASimpleElement(NumTypeEle) ) )
+	{
+		int BlockNumber = GetFreeNumberFunctionBlock( NumTypeEle );
+		if ( BlockNumber==-1 )
+		{
+			ShowMessageBox( "Error", "No more free function block of this type available...", "Ok" );
+			ResultOk = FALSE;
+		}
+		else
+		{
+//printf( "free block nbr=%d\n", BlockNumber );
+			EditDatas.Rung.Element[PosiX][PosiY].VarNum = BlockNumber;
+			SetUsedStateFunctionBlock( NumTypeEle, EditDatas.Rung.Element[PosiX][PosiY].VarNum, TRUE );
+		}
+	}
+	if ( !CheckForAllocatingArithmExpr( NumTypeEle, PosiX, PosiY ) )
+	{
+		ShowMessageBox( "Error", "No more free arithmetic expression for this type available...", "Ok" );
+		ResultOk = FALSE;
+	}
+	return ResultOk;
 }
 
 /* click with the mouse in x and y pixels of the rung */
@@ -1181,7 +1321,8 @@ void EditElementInRung(double x,double y)
 					}
 
 					EditDatas.Rung.Element[RungX][RungY].Type = NumElement;
-					CheckForAllocatingArithmExpr(RungX,RungY);
+                    //TODO some more changes here
+					//CheckForAllocatingArithmExpr(RungX,RungY);
 				}
 			}
 		}
@@ -1216,6 +1357,29 @@ void EditElementInRung(double x,double y)
 	}
 }
 
+void MouseMotionOnRung(double x,double y)
+{
+	if ( EditDatas.NumElementSelectedInToolBar<EDIT_CNX_WITH_TOP || EditDatas.NumElementSelectedInToolBar==EDIT_COPY )
+	{
+		int RungX,RungY;
+		if ( ConvertDoublesToRungCoor( x, y, &RungX, &RungY ) )
+		{
+//printf( "Motion Position %d,%d for ghost\n", RungX, RungY );
+			MovePosiForBigElementToAliveBlock( EditDatas.NumElementSelectedInToolBar, &RungX );
+//printf( "Position to alive one %d,%d for ghost\n", RungX, RungY );
+			if (VerifyConstraintsAndRulesForElement( EditDatas.NumElementSelectedInToolBar, RungX, RungY) )
+			{
+				EditDatas.GhostZonePosiX = RungX-EditDatas.GhostZoneSizeX+1;
+				EditDatas.GhostZonePosiY = RungY;
+//printf( "Ok rules Position %d,%d for ghost\n", EditDatas.GhostZonePosiX, EditDatas.GhostZonePosiY );
+				return;
+			}
+		}
+	}
+	EditDatas.GhostZonePosiX = -1;
+	EditDatas.GhostZonePosiY = -1;
+}
+
 /* click with the mouse in x and y pixels of the section display */
 void EditElementInThePage(double x,double y)
 {
@@ -1229,6 +1393,39 @@ void EditElementInThePage(double x,double y)
 	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
 		EditElementInSeqPage( x+InfosGene->HScrollValue, y+InfosGene->VScrollValue );
 #endif
+}
+
+/* move of the mouse in x and y pixels in the section display */
+void MouseMotionOnThePage( double x, double y )
+{
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+	{
+		if ( ( y >= InfosGene->OffsetCurrentRungDisplayed ) && ( y < InfosGene->OffsetCurrentRungDisplayed+TOTAL_PX_RUNG_HEIGHT ) )
+		{
+			if ( EditDatas.NumElementSelectedInToolBar==EDIT_SELECTION )
+				StartOrMotionPartSelection( x, y - InfosGene->OffsetCurrentRungDisplayed, FALSE/*StartToClick*/ );
+			else
+				MouseMotionOnRung( x, y - InfosGene->OffsetCurrentRungDisplayed );
+		}
+		else
+		{
+			if ( EditDatas.NumElementSelectedInToolBar!=EDIT_SELECTION )
+			{
+				EditDatas.GhostZonePosiX = -1;
+				EditDatas.GhostZonePosiY = -1;
+			}
+		}
+	}
+}
+void EditButtonReleaseEventOnThePage( void )
+{
+	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
+	if ( iCurrentLanguage==SECTION_IN_LADDER )
+	{
+		if ( EditDatas.NumElementSelectedInToolBar==EDIT_SELECTION )
+			EndPartSelection( );
+	}
 }
 
 char * GetLadderElePropertiesForStatusBar(double x,double y)

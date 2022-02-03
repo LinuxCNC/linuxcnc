@@ -68,7 +68,7 @@ void LoadSeqElementProperties( void )
 				break;
 			case ELE_SEQ_TRANSITION:
 				rtapi_strxcpy( TextToWrite, CreateVarName( EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarTypeCondi,
-					EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarNumCondi ) );
+					EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarNumCondi, InfosGene->DisplaySymbols ) );
 				SetProperty(0,_("Variable"),TextToWrite);
 				break;
 			case ELE_SEQ_COMMENT:

@@ -11,6 +11,7 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	drawing.c \
 	drawing_sequential.c \
 	edit.c \
+	edit_copy.c \
 	edit_gtk.c \
 	edit_sequential.c \
 	editproperties_gtk.c \

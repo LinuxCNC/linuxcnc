@@ -126,6 +126,10 @@ typedef struct plc_sizeinfo_s {
 /* size of lines activated (comment to not use) */
 #define THICK_LINE_ELE_ACTIVATED 3
 
+/* convenient calcs used many time... */
+#define TOTAL_PX_RUNG_HEIGHT ( InfosGene->HeaderLabelCommentHeight + InfosGene->BlockHeight*RUNG_HEIGHT )
+#define TOTAL_PX_RUNG_WIDTH ( InfosGene->BlockWidth*RUNG_WIDTH )
+
 /* elements in the rungs */
 #define ELE_FREE 0
 #define ELE_INPUT 1
@@ -155,6 +159,8 @@ typedef struct plc_sizeinfo_s {
 #define EDIT_POINTER 101
 #define EDIT_LONG_CONNECTION 102
 #define EDIT_ERASER 103
+#define EDIT_SELECTION 104
+#define EDIT_COPY 105
 
 
 /* Type of vars */
@@ -206,6 +212,8 @@ typedef struct StrElement
 	char ConnectedWithTop;
 	int VarType;
 	int VarNum;     /* or NumRung (for jump), NumTimer, NumMonostable,... */
+	int IndexedVarType;
+	int IndexedVarNum;
 	
 	char DynamicInput;
 	char DynamicState;
@@ -323,6 +331,7 @@ typedef struct StrInfosGene
 	int OffsetCurrentRungDisplayed;
 	int HScrollValue;
 	int VScrollValue;
+	int HeaderLabelCommentHeight;
 	
 	/* how time for the last scan of the rungs in ns (if calc on RTLinux side) */
 	int DurationOfLastScan;
@@ -357,6 +366,11 @@ typedef struct StrEditRung
 	int CurrentElementPosiY;
 	int CurrentElementSizeX;
 	int CurrentElementSizeY;
+	/* used to see size of element type selected, or selected zone for copy function */
+	int GhostZonePosiX;
+	int GhostZonePosiY;
+	int GhostZoneSizeX;
+	int GhostZoneSizeY;
 }StrEditRung;
 
 #define NBR_PARAMS_PER_OBJ 4

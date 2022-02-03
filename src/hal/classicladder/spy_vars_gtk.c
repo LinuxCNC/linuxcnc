@@ -256,99 +256,23 @@ char * ConvToBin( unsigned int Val )
 // If Displays variable names or symbol names depending on the check box in the section display window
 void DisplayFreeVarSpy()
 {
-	static int LastTime;
-	int NumVarSpy,i=NBR_FREE_VAR_SPY;
+	int NumVarSpy;
 	int Value;
 	char BufferValue[50];
 	char DisplayFormat[10];
-	char  * VarName;
-	if ( NBR_WORDS < NBR_FREE_VAR_SPY) { i=NBR_WORDS ;}
-	for (NumVarSpy=0; NumVarSpy<i; NumVarSpy++)
+	for (NumVarSpy=0; NumVarSpy<NBR_FREE_VAR_SPY; NumVarSpy++)
 	{
 		Value = ReadVar(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
 		rtapi_strxcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
 		rtapi_strxcpy( BufferValue, "" );
 		if (strcmp( DisplayFormat,"Dec" )==0 )
-			snprintf(BufferValue, sizeof(BufferValue),"%d",Value);
+			sprintf(BufferValue,"%d",Value);
 		if (strcmp( DisplayFormat,"Hex" )==0 )
-			snprintf(BufferValue, sizeof(BufferValue),"%X",Value);
+			sprintf(BufferValue,"%X",Value);
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			rtapi_strxcpy( BufferValue, ConvToBin( Value ) );
-		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NumVarSpy+(2*NBR_FREE_VAR_SPY)],BufferValue);
-                VarName= "<span foreground=\"gray\" weight=\"bold\" >Other       </span>";
-               
-                switch (VarSpy[NumVarSpy][0])
-                     
-                      {
-                       case VAR_TIMER_VALUE :
-                       case VAR_TIMER_PRESET :
-                       case VAR_TIMER_RUNNING :
-                       case VAR_TIMER_DONE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Timer       </span>";
-                            break;
-                       case VAR_TIMER_IEC_VALUE :
-                       case VAR_TIMER_IEC_PRESET :
-                       case VAR_TIMER_IEC_DONE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >IEC Timer   </span>";
-                            break;
-                       case VAR_COUNTER_VALUE :
-                       case VAR_COUNTER_PRESET :
-                       case VAR_COUNTER_FULL :
-                       case VAR_COUNTER_EMPTY :
-                       case VAR_COUNTER_DONE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Counter     </span>";
-                            break;
-                       case VAR_MONOSTABLE_RUNNING :
-                       case VAR_MONOSTABLE_PRESET :
-                       case VAR_MONOSTABLE_VALUE :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Monostable  </span>";
-                            break;
-                       case VAR_MEM_WORD :
-                            VarName= "<span foreground=\"black\" weight=\"bold\" >Memory      </span>";
-                            break;
-                       case VAR_PHYS_INPUT :
-                            VarName= "<span foreground=\"red\" weight=\"bold\" >Bit In Pin  </span>";
-                            break;
-                       case VAR_PHYS_OUTPUT :
-                            VarName= "<span foreground=\"blue\" weight=\"bold\" >Bit Out Pin </span>";
-                            break;
-                       case VAR_PHYS_FLOAT_INPUT :
-                            VarName= "<span foreground=\"red\" weight=\"bold\" >Floatin Pin </span>";
-                            break;
-                       case VAR_PHYS_FLOAT_OUTPUT :
-                            VarName= "<span foreground=\"blue\" weight=\"bold\" >Floatout Pin</span>";
-                            break;
-                       case VAR_PHYS_WORD_INPUT :
-                            VarName= "<span foreground=\"red\" weight=\"bold\" >S32in Pin   </span>";
-                            break;
-                       case VAR_PHYS_WORD_OUTPUT :
-                            VarName= "<span foreground=\"blue\" weight=\"bold\" >S32out Pin  </span>";
-                            break;
-                       case VAR_MEM_BIT :
-                            VarName= "<span foreground=\"black\" weight=\"bold\" >Bit Memory  </span>";
-                            break;
-                       case VAR_ERROR_BIT :
-                            VarName= "<span foreground=\"gold\" weight=\"bold\" >Error Bit   </span>";
-                            break;
-                       case VAR_STEP_ACTIVITY :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Active  </span>";
-                            break;
-                       case VAR_STEP_TIME :
-                            VarName= "<span foreground=\"brown\" weight=\"bold\" >Step Run Time</span>";
-                            break;
-                      }
-		gtk_label_set_markup (GTK_LABEL (LabelFreeVars[NumVarSpy]),VarName);
-
-		if (InfosGene->DisplaySymbols!=LastTime) 
-		{		 	
-		gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumVarSpy+(1 *NBR_FREE_VAR_SPY)],CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]));
-		}
+		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NBR_FREE_VAR_SPY+NumVarSpy],BufferValue);
 	}
-	// we do this check after the FOR loop
-    	// so it does not toggle each time thru loop
-        // Toggle LastTime to match InfoGene  
-	if (InfosGene->DisplaySymbols!=LastTime) 
-		{ LastTime=((LastTime-1)*-1); } 		
 }
 
 static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
@@ -380,7 +304,7 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 		OldType = *NumVarSpy++;
 		OldOffset = *NumVarSpy;
 		/* put back old correct var */
-		gtk_entry_set_text((GtkEntry *)widget,CreateVarName(OldType,OldOffset));
+		gtk_entry_set_text((GtkEntry *)widget,CreateVarName(OldType,OldOffset,InfosGene->DisplaySymbols));
 	      }
 	return TRUE;
 }
@@ -399,7 +323,6 @@ gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer d
 void FreeVarsWindowInitGtk( )
 {
 	GtkWidget * hboxfreevars[ NBR_FREE_VAR_SPY ], *vboxMain;
-	char * VarName= NULL;
 	long ColumnVar;
 	int NumVarSpy,NumEntry,i=NBR_FREE_VAR_SPY;
 	GList *DisplayFormatItems = NULL;
@@ -437,7 +360,7 @@ void FreeVarsWindowInitGtk( )
 			        gtk_widget_show(EntryVarSpy[NumEntry]);
 				gtk_box_pack_start (GTK_BOX( hboxfreevars[ NumVarSpy ] ), EntryVarSpy[ NumEntry ], TRUE, TRUE, 0);
 				gtk_widget_set_usize((GtkWidget *)EntryVarSpy[ NumEntry ],(ColumnVar==1)?80:110,0);	
-				VarName = CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1]);
+				char * VarName = CreateVarName(VarSpy[NumVarSpy][0],VarSpy[NumVarSpy][1],InfosGene->DisplaySymbols);
 				TooltipsEntryVarSpy[ NumVarSpy ] = gtk_tooltips_new();
 				gtk_entry_set_text((GtkEntry *)EntryVarSpy[ NumEntry ],VarName);
 				gtk_signal_connect(GTK_OBJECT (EntryVarSpy[ NumEntry ]), "activate",

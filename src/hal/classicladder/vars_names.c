@@ -699,7 +699,7 @@ StrConvIdVarName * ConvIdVarEnPtrSurEleConv( int iTypeVarToSearch, int iIdVarChe
 
 /* Convert a Type/Id variable into a default base name */
 /* return the string character or ??? if not found */
-char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
+char * CreateVarName( int TypeVarSearched, int OffsetVarSearched, char SymbolNameIfAvail )
 {
 	static char tcBuffer[ 100 ];
 	static char tcBuffer2[ 100 ];
@@ -726,11 +726,12 @@ char * CreateVarName( int TypeVarSearched, int OffsetVarSearched )
 		}
 		rtapi_strxcat(tcBuffer,tcBuffer2);
 
-		if ( InfosGene->DisplaySymbols )
+		if ( SymbolNameIfAvail/*InfosGene->DisplaySymbols*/ )
 		{
 			// verify if a symbol has been defined for the variable...
 			char * Symbol = ConvVarNameToSymbol( tcBuffer );
-			if ( (Symbol!=NULL ) && ((Symbol[0]!=' ') || (Symbol[0]!='\0'))) {return Symbol;}
+			if ( Symbol!=NULL )
+				return Symbol;
 		}
 		return tcBuffer;
 	}

@@ -22,14 +22,18 @@
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 // Chris Morley (LinuxCNC) Jan 08
 
-#include <locale.h>
-#include <libintl.h>
-#include <gtk/gtk.h>
-#include <gdk/gdk.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <gtk/gtk.h>
+#include <gdk/gdk.h>
+#include <cairo.h>
+#include <cairo-svg.h>
+#include <gdk/gdkkeysyms.h>  // GDK keys codes
+#include <gdk/gdktypes.h> // GDK keys masks
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include "classicladder.h"
 #include "global.h"
@@ -37,7 +41,7 @@
 
 #include <rtapi_string.h>
 
-GdkPixmap *pixmap = NULL;
+//Cairo GdkPixmap *pixmap = NULL;
 GtkWidget *drawing_area = NULL;
 GtkWidget *entrylabel,*entrycomment;
 GtkWidget *CheckDispSymbols;
@@ -76,9 +80,23 @@ gint StatusBarContextId;
 #include "symbols_gtk.h"
 #include "spy_vars_gtk.h"
 
+void CairoDrawCurrentSectionOnDrawingArea( void )
+{
+	cairo_t *cr = gdk_cairo_create( drawing_area->window );
+	/* clean up */
+	double w,h;
+	w = drawing_area->allocation.width;
+	h = drawing_area->allocation.height;
+	cairo_set_source_rgb( cr, 1, 1 ,1 );
+	cairo_rectangle( cr, 0.0, 0.0, w, h );
+	cairo_fill( cr );
+	DrawCurrentSection( cr );
+	cairo_destroy( cr );
+}
+
 /* Create a new backing pixmap of the appropriate size */
-static gint configure_event( GtkWidget         *widget,
-                            GdkEventConfigure *event )
+/*static gint configure_event( GtkWidget		 *widget,
+							GdkEventConfigure *event )
 {
 	if (pixmap)
 		gdk_pixmap_unref(pixmap);
@@ -94,19 +112,20 @@ static gint configure_event( GtkWidget         *widget,
 						widget->allocation.width,
 						widget->allocation.height);
 	return TRUE;
-}
+}*/
 
-/* Redraw the screen from the backing pixmap */
-static gint expose_event( GtkWidget      *widget,
-                        GdkEventExpose *event )
+/* Redraw the screen with Cairo */
+static gint expose_event( GtkWidget	  *widget,
+						GdkEventExpose *event )
 {
-	gdk_draw_pixmap(widget->window,
+/*	gdk_draw_pixmap(widget->window,
 					widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
 					pixmap,
 					event->area.x, event->area.y,
 					event->area.x, event->area.y,
 					event->area.width, event->area.height);
-
+*/
+	CairoDrawCurrentSectionOnDrawingArea( );
 	return FALSE;
 }
 
@@ -234,7 +253,7 @@ static gint HScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * no
 
 static gint button_press_event( GtkWidget *widget, GdkEventButton *event )
 {
-	if (event->button == 1 && pixmap != NULL)
+	if (event->button == 1 /*Cairo && pixmap != NULL*/)
 	{
 		if (EditDatas.ModeEdit)
 		{
@@ -250,40 +269,51 @@ static gint button_press_event( GtkWidget *widget, GdkEventButton *event )
 				char DoSelection = TRUE;
 				if ( InfosGene->OffsetHiddenTopRungDisplayed>0 )
 				{
-					if ( event->y<InfosGene->BlockHeight*RUNG_HEIGHT-InfosGene->OffsetHiddenTopRungDisplayed )
+					if ( event->y<TOTAL_PX_RUNG_HEIGHT-InfosGene->OffsetHiddenTopRungDisplayed )
 						DoSelection = FALSE;
 				}
 				if ( DoSelection )
 				{
-					int NbrRungsShift =  (event->y+InfosGene->OffsetHiddenTopRungDisplayed)/(InfosGene->BlockHeight*RUNG_HEIGHT);
+					int NbrRungsShift =  (event->y+InfosGene->OffsetHiddenTopRungDisplayed)/TOTAL_PX_RUNG_HEIGHT;
 //printf("Select the current rung, with a shift of rungs=%d\n", NbrRungsShift );
 					ChoiceOfTheCurrentRung( NbrRungsShift );
-					MessageInStatusBar( GetLadderElePropertiesForStatusBar( event->x,event->y ) );
+//DisplayedNowDirectlyOnMotion					MessageInStatusBar( GetLadderElePropertiesForStatusBar( event->x,event->y ) );
 				}
 			}
 		}
 	}
 	return TRUE;
 }
-
-/* Draw a rectangle on the screen */
-/*static void draw_brush( GtkWidget *widget,
-                        gdouble    x,
-                        gdouble    y)
+static gboolean motion_notify_event( GtkWidget *widget, GdkEventMotion *event, gpointer user_data )
 {
-    GdkRectangle update_rect;
-
-    update_rect.x = x - 5;
-    update_rect.y = y - 5;
-    update_rect.width = 100;
-    update_rect.height = 100;
-    gdk_draw_rectangle (pixmap,
-                        widget->style->black_gc,
-                        TRUE,
-                        update_rect.x, update_rect.y,
-                        update_rect.width, update_rect.height);
-    gtk_widget_draw (widget, &update_rect);
-}*/
+	//v0.9.20
+	if( SectionArray==NULL )
+		return TRUE;
+		
+	if (EditDatas.ModeEdit)
+	{
+		MouseMotionOnThePage( event->x, event->y );
+	}
+	else
+	{
+		if ( SectionArray[ InfosGene->CurrentSection ].Language==SECTION_IN_LADDER )
+		{
+			char * pLadderProperties = GetLadderElePropertiesForStatusBar( event->x,event->y );
+			if ( pLadderProperties )
+				MessageInStatusBar( pLadderProperties );
+		}
+	}
+	return TRUE;
+}
+static gboolean button_release_event( GtkWidget *widget, GdkEventButton *event )
+{
+	if (event->button == 1 /*Cairo && pixmap != NULL*/)
+	{
+		if (EditDatas.ModeEdit)
+			EditButtonReleaseEventOnThePage( );
+	}
+	return TRUE;
+}
 
 void refresh_label_comment( void )
 {
@@ -866,19 +896,28 @@ void RungWindowInitGtk()
 	gtk_widget_show (ButtonQuit);
 
 
-	/* Signals used to handle backing pixmap */
+	/* Signal used to redraw */
+#if GTK_MAJOR_VERSION>=3
+	gtk_signal_connect (GTK_OBJECT (drawing_area), "draw",
+						GTK_SIGNAL_FUNC(draw_callback), NULL);
+#else
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "expose_event",
 						(GtkSignalFunc) expose_event, NULL);
-	gtk_signal_connect (GTK_OBJECT(drawing_area),"configure_event",
-						(GtkSignalFunc) configure_event, NULL);
+#endif
+//Cairo	gtk_signal_connect (GTK_OBJECT(drawing_area),"configure_event",
+//Cairo						(GtkSignalFunc) configure_event, NULL);
 
 	/* Event signals */
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "button_press_event",
 						(GtkSignalFunc) button_press_event, NULL);
-
+	gtk_signal_connect (GTK_OBJECT (drawing_area), "motion_notify_event",
+						GTK_SIGNAL_FUNC(motion_notify_event), NULL);
+	gtk_signal_connect (GTK_OBJECT (drawing_area), "button_release_event",
+						GTK_SIGNAL_FUNC(button_release_event), NULL);
 	gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK
 							| GDK_LEAVE_NOTIFY_MASK
 							| GDK_BUTTON_PRESS_MASK
+							| GDK_BUTTON_RELEASE_MASK
 							| GDK_POINTER_MOTION_MASK
 							| GDK_POINTER_MOTION_HINT_MASK);
 
@@ -898,23 +937,54 @@ static gint PeriodicUpdateDisplay(gpointer data)
 		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d µs"), InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
-		ToggleManagerWindow();
-		if (InfosGene->HideGuiState == GTK_WIDGET_VISIBLE( RungWindow ) )
-		{
-			if ( GTK_WIDGET_VISIBLE( RungWindow ) )
-			{	gtk_widget_hide (RungWindow);
-			}else{	gtk_widget_show (RungWindow);
-			}
-		}
 		if (InfosGene->CmdRefreshVarsBits)
 		{
 			RefreshAllBoolsVars();
 			InfosGene->CmdRefreshVarsBits = FALSE;
 		}
-		DisplayFreeVarSpy();
+		//DisplayFreeVarSpy();
+                //XXX These lines is for features that is not implemented.
+		//if ( InfosGene->LogContentModified )
+		//{
+			//DisplayLogBookEvents( TRUE/*OnLogContentModified*/ );
+			//InfosGene->LogContentModified = FALSE;
+		//}
+		//if ( InfosGene->DefaultLogListModified )
+		//{
+			//int NbrDefs = FindCurrentDefaults( );
+			//InfosGene->DefaultLogListModified = FALSE;
+			//if ( NbrDefs>0 )
+			//{
+				//char * ListDefaultsText = (char *)malloc( NbrDefs*(EVENT_SYMBOL_LGT+10)+10 );
+				//if ( ListDefaultsText )
+				//{
+					//StrConfigEventLog * pCfgEvtLog;
+					//int ScanList;
+					//char OneEventText[ EVENT_SYMBOL_LGT+10 ];
+					//sprintf( ListDefaultsText, "DEFAULT%s : ", NbrDefs>1?"S":"");
+//printf("nbr defaults=%d\n", NbrDefs);
+					//for( ScanList=0; ScanList<NbrDefs; ScanList++ )
+					//{
+						//pCfgEvtLog = &ConfigEventLog[ ListCurrentDefType[ ScanList ] ];
+						//display value parameter after symbol name if many variables configured for the same event !
+						//if ( ListCurrentDefParam[ ScanList ]!=-1 )
+							//sprintf( OneEventText, "%s%d ", pCfgEvtLog->Symbol, ListCurrentDefParam[ ScanList ] );
+						//else
+							//sprintf( OneEventText, "%s ", pCfgEvtLog->Symbol );
+						//strcat( ListDefaultsText, OneEventText );
+					//}
+					//MessageInStatusBar( ListDefaultsText );
+					//free( ListDefaultsText );
+				//}
+			//}
+			//else
+			//{
+				//MessageInStatusBar( "No default." );
+			//}
+		//}
 	}
 	if (InfosGene->LadderState!=STATE_LOADING )
-		DrawCurrentSection( );
+		//DrawCurrentSection( );
 	if ( InfosGene->HardwareErrMsgToDisplay[ 0 ]!='\0' )
 	{
 		ShowMessageBox( _("Config hardware error occurred!"), InfosGene->HardwareErrMsgToDisplay, _("Ok") );
@@ -942,12 +1012,12 @@ void InitGtkWindows( int argc, char *argv[] )
 	SymbolsInitGtk( );
         IntConfigWindowGtk( );
         ShowErrorMessage( _("Error"), _("Failed MODBUS communications"), _("Ok") );
-	gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
+    gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
 }
 
 void UpdateAllGtkWindows( void )
 {
-	DrawCurrentSection( );
+	//DrawCurrentSection( );
 	refresh_label_comment( );
 	autorize_prevnext_buttons( TRUE );
 	UpdateVScrollBar();

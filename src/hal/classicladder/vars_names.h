@@ -15,7 +15,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-char * CreateVarName(int Type, int Offset);
+char * CreateVarName(int Type, int Offset, char SymbolNameIfAvail);
 char TextParserForAVar( char * TextToParse, int * VarTypeFound, int * VarOffsetFound, int * pNumberOfChars, char PartialNames );
 char TestVarIsReadWrite( int TypeVarTested, int OffsetVarTested );
 
