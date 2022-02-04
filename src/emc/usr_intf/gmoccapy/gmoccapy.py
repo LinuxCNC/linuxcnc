@@ -905,7 +905,11 @@ class gmoccapy(object):
             # we will have 3 buttons on the right side
             end -= 1
 
-        btn = Gtk.ToggleButton.new_with_label(_("  edit\noffsets"))
+        lbl = Gtk.Label.new(_("edit\noffsets"))
+        lbl.set_visible(True)
+        lbl.set_justify(Gtk.Justification.CENTER)
+        btn = Gtk.ToggleButton.new()
+        btn.add(lbl)      
         btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
         btn.set_property("tooltip-text", _("Press to edit the offsets"))
         btn.set_property("name", "edit_offsets")
@@ -953,7 +957,8 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(lbl,True,True,0)
             lbl.show()
 
-        btn = Gtk.Button.new_with_label(_("zero\nG92"))
+        btn = self.widgets.offsetpage1.wTree.get_object("zero_g92_button")
+        self.widgets.offsetpage1.buttonbox.remove(btn)
         btn.connect("clicked", self.on_btn_zero_g92_clicked)
         btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
         btn.set_property("name", "zero_offsets")

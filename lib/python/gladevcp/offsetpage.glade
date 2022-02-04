@@ -439,8 +439,14 @@
             <property name="visible">True</property>
             <child>
               <object class="GtkButton" id="zero_g92_button">
-                <property name="label" translatable="yes">Zero
+                <child>
+                  <object class="GtkLabel" id="zero_g92_button_label">
+                    <property name="label" translatable="yes">Zero
 G92</property>
+                    <property name="visible">1</property>
+                    <property name="justify">center</property>
+                  </object>
+                </child>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -453,8 +459,14 @@ G92</property>
             </child>
             <child>
               <object class="GtkButton" id="zero_rot_button">
-                <property name="label" translatable="yes">    Zero
+                <child>
+                  <object class="GtkLabel" id="zero_rot_button_label">
+                  <property name="label" translatable="yes">Zero
 Rotational</property>
+                  <property name="visible">1</property>
+                  <property name="justify">center</property>
+                  </object>
+                </child>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
