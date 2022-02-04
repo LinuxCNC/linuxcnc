@@ -8830,8 +8830,14 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_tool_touchoff_z">
-                    <property name="label" translatable="yes">touchoff
-  tool z</property>
+                    <child>
+                      <object class="GtkLabel" id="btn_tool_touchoff_z_label">
+                        <property name="label" translatable="yes">touchoff
+tool z</property>
+                        <property name="visible">1</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>                   
                     <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
