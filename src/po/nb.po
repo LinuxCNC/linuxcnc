@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-22 07:55+0000\n"
+"PO-Revision-Date: 2022-02-04 08:09+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -11192,7 +11192,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -17868,20 +17869,20 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2499
 msgid "Override Entry"
-msgstr ""
+msgstr "Overstyr oppføring"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2543
 msgid "Machine powered on"
-msgstr ""
+msgstr "Maskinen er påslått"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2548
 msgid "Machine Estopped!"
-msgstr ""
+msgstr "Maskinen er avslått!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2554
 #: lib/python/gladevcp/calculator.glade:33
 msgid "Calculator"
-msgstr ""
+msgstr "Regnemaskin"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2785
 #, python-format
@@ -17900,25 +17901,25 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:2821
 #, python-format
 msgid "Program loaded: %s"
-msgstr ""
+msgstr "Lastet program: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2974
 msgid "Manual Spindle Control"
-msgstr ""
+msgstr "Manuell spindelkontroll"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3054
 #: src/emc/usr_intf/gscreen/gscreen.py:3055
 msgid "Error with launching on-screen keyboard program -can't find program."
-msgstr ""
+msgstr "Klarte ikke starte skjermtastaturprogram - kunne ikke finne programmet."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3065
 msgid "Keyboard"
-msgstr ""
+msgstr "Tastatur"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3098
 #, python-format
 msgid "Error with launching 'Onboard' on-screen keyboard program %s"
-msgstr ""
+msgstr "Klarte ikke starte «Onboard» skjermtastaturprogram %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3247
 #, python-format
@@ -17930,6 +17931,8 @@ msgid ""
 "Zero\n"
 " "
 msgstr ""
+"Null\n"
+" "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3680
 msgid ""
@@ -17976,7 +17979,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3744
 msgid "Manual Toolchange"
-msgstr ""
+msgstr "Manuelt verktøybytte"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3746
 msgid "Operator Message"
@@ -17989,26 +17992,24 @@ msgstr "Start oppføring på nytt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3795
 msgid "_Up     "
-msgstr ""
+msgstr "_Opp     "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3797
-#, fuzzy
-#| msgid "Down"
 msgid "_Down"
-msgstr "Ned"
+msgstr "Ne_d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3799
 msgid "_Jump to"
-msgstr ""
+msgstr "Hopp ti_l"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3819
 #, python-format
 msgid "Ready to Restart program from line %d"
-msgstr ""
+msgstr "Klar til å starte programmet på nytt fra linje %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3852
 msgid "Invalid embedded tab configuration"
-msgstr ""
+msgstr "Ugyldig innbakt faneoppsett"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4096
 #: src/emc/usr_intf/gscreen/gscreen.py:4163
@@ -18021,7 +18022,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4166
 msgid "No axis selected to move"
-msgstr ""
+msgstr "Ingen valgt akse for bevegelse"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4236
 msgid "Can't home multiple axis - select HOME ALL instead"
@@ -18977,7 +18978,7 @@ msgstr "Avbrutt"
 
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
-msgstr ""
+msgstr "_Ok"
 
 #~ msgid "Up"
 #~ msgstr "Opp"
