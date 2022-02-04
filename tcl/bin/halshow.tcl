@@ -42,7 +42,7 @@ set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y"
-wm  minsize . $masterwidth $masterheight
+wm minsize . [int [expr $masterwidth*0.3]] [int [expr $masterheight*0.5]]
 wm attributes . -topmost yes
 
 # trap mouse click on window manager delete and ask to save
