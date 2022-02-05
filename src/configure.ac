@@ -23,8 +23,8 @@
 # Autoconf initialisation                                                    #
 ##############################################################################
 
-AC_PREREQ(2.53)
-AC_INIT(LinuxCNC, m4_normalize(esyscmd([cat ../VERSION])), emc-developers@lists.sourceforge.net)
+AC_PREREQ(2.69)
+AC_INIT([LinuxCNC],[m4_normalize(esyscmd(cat ../VERSION))],[emc-developers@lists.sourceforge.net])
 AC_CONFIG_SRCDIR(emc/motion/motion.c)
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
@@ -45,7 +45,7 @@ AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
 AC_MSG_RESULT($BUILD_TOPLEVEL)
 
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 # Support some of the standard configure options for directories
 AC_PREFIX_DEFAULT(run-in-place)
@@ -407,18 +407,14 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
 fi
 
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
-AC_TRY_LINK(
-    [
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
 #include <linux/hidraw.h>
 long hidiocgrawinfo = HIDIOCGRAWINFO;
-    ],
-    [],
-    [
+    ]], [[]])],[
 	HIDRAW_H_USABLE=yes
         AC_DEFINE([HIDRAW_H_USABLE], [], [Define to 1 if linux/hidraw.h is usable and defines HIDIOCGRAWINFO])
-],
-    [HIDRAW_H_USABLE=no])
+],[HIDRAW_H_USABLE=no])
 AC_MSG_RESULT($HIDRAW_H_USABLE)
 AC_SUBST([HIDRAW_H_USABLE])
 
@@ -427,22 +423,18 @@ AC_SUBST([HIDRAW_H_USABLE])
 #
 
 AC_MSG_CHECKING([for usability of rpc/rpc.h])
-AC_TRY_LINK(
-    [
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <rpc/rpc.h>
-    ],
-    [
+    ]], [[
 struct sockaddr_in *foo;
 get_myaddress(foo);
-    ],
-    [
+    ]])],[
         AC_MSG_RESULT(yes)
-    ],
-    [
+    ],[
         AC_MSG_RESULT(no)
         AC_MSG_ERROR([Unable to use rpc.h])
-    ]
-)
+    
+])
 
 #
 # check for libmodbus3
@@ -1206,22 +1198,17 @@ AH_VERBATIM([_GNU_SOURCE],
 #endif
 ])
 
-AC_HEADER_STDC
 AC_HEADER_SYS_WAIT
 AC_CHECK_FUNCS(semtimedop)
 
 AC_MSG_CHECKING([for optreset])
-AC_TRY_LINK(
-    [
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <unistd.h>
 extern int optreset;
-    ],
-    [ optreset = 1; ],
-    [
+    ]], [[ optreset = 1; ]])],[
 	HAVE_OPTRESET=yes
         AC_DEFINE([HAVE_OPTRESET], [], [Define to 1 if getopt has the BSD 'optreset' extension])
-],
-    [HAVE_OPTRESET=no])
+],[HAVE_OPTRESET=no])
 AC_MSG_RESULT($HAVE_OPTRESET)
 AC_SUBST([HAVE_OPTRESET])
 
@@ -1474,14 +1461,14 @@ else
 fi
 
 AC_MSG_CHECKING([whether readline license is compatible with GPL-2])
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
         #include <stdio.h>
         #include <readline/readline.h>
-    ],[
+    ]], [[
         #if RL_VERSION_MAJOR > 5
         #error Readline version 6 and up are not compatible with GPL-2
         #endif
-    ],[AC_MSG_RESULT(yes)],[
+    ]])],[AC_MSG_RESULT(yes)],[
         AC_MSG_RESULT(no)
         AC_MSG_WARN(
 [The LinuxCNC binary you are building may not be
@@ -1613,15 +1600,13 @@ SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_py
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)
-AC_TRY_COMPILE([
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #include <GL/gl.h>
 #include <GL/glu.h>
-],
-    [GLUquadric *q;],
-    [AC_MSG_RESULT(yes)],[
-            AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])]
+]], [[GLUquadric *q;]])],[AC_MSG_RESULT(yes)],[
+            AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of LinuxCNC that depend on Python])
 
-)
+])
 
 AC_MSG_CHECKING(for Xmu headers)
 AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of LinuxCNC that depend on Python])])
@@ -1660,7 +1645,7 @@ AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-cnc.directory)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-ref.directory)
 AC_CONFIG_FILES(../share/desktop-directories/linuxcnc-doc.directory)
 AC_CONFIG_FILES(../share/menus/CNC.menu)
-AC_OUTPUT()
+AC_OUTPUT
 
 ##############################################################################
 # message to the user what to do next, after a successful ./configure        #
