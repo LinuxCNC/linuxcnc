@@ -713,6 +713,7 @@ extern "C" {
 // FIXME setting this to be an order of magnitude smaller than canon's shortest
 // allowed segment. This is still larger than TP's smallest position, so it may
 // be silently causing trouble.
+// andypugh 5/2/22 This seems to be interpreted to be in config units.
 #define CART_FUZZ (1.0e-8)
 /* how close a cartesian vector's magnitude must be for it to be considered
    a zero vector */
