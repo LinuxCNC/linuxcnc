@@ -1812,6 +1812,7 @@ int pmCircleInit(PmCircle * const circle,
     } else {
         circle->angle = acos(dot);
     }
+
     /* now angle is in range 0..PI . Check if cross is antiparallel to
        normal. If so, true angle is between PI..2PI. Need to subtract from
        2PI. */
@@ -1820,8 +1821,10 @@ int pmCircleInit(PmCircle * const circle,
     if (d < 0.0) {
         circle->angle = PM_2_PI - circle->angle;
     }
-
-    if (circle->angle > -(CIRCLE_FUZZ) && circle->angle < (CIRCLE_FUZZ)) {
+    /* Issue #1528 24-Jan-2022. Additional test for nearly-straight   *
+     * short arcs of very large radius becoming circles               */
+    pmCartCartDisp(start, end, &d);
+    if (d < CART_FUZZ){
         circle->angle = PM_2_PI;
     }
 
@@ -1829,6 +1832,9 @@ int pmCircleInit(PmCircle * const circle,
     if (turn > 0) {
         circle->angle += turn * 2.0 * PM_PI;
     }
+
+    /* FIXME: some code has an unguarded division by circle->angle */
+    if (circle->angle == 0) circle->angle += CIRCLE_FUZZ;
 
     //Default to invalid
 /* if 0'ed out while not debugging*/
