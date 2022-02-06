@@ -1493,7 +1493,7 @@ int pmPosePoseCompare(PmPose const * const p1, PmPose const * const p2)
     }
 #endif
 
-    return pmErrno = (pmQuatQuatCompare(&p1->rot, &p2->rot) && pmCartCartCompare(&p1->tran, &p2->tran));
+    return pmQuatQuatCompare(&p1->rot, &p2->rot) && pmCartCartCompare(&p1->tran, &p2->tran);
 }
 
 int pmPoseInv(PmPose const * const p1, PmPose * const p2)
