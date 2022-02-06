@@ -89,7 +89,7 @@ void pmPerror(const char *s)
 #endif /* PM_PRINT_ERROR */
 
 /* fuzz checker */
-#define IS_FUZZ(a,fuzz) (fabs(a) < (fuzz) ? 1 : 0)
+#define IS_FUZZ(a,fuzz) (fabs(a) < (fuzz))
 
 /* Pose Math Basis Functions */
 
@@ -1056,7 +1056,7 @@ int pmCartNorm(PmCartesian const * const v, PmCartesian * const vout)
 
 int pmCartIsNorm(PmCartesian const * const v)
 {
-    return (pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z)) - 1.0 < UNIT_VEC_FUZZ) ? 1 : 0;
+    return pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z)) - 1.0 < UNIT_VEC_FUZZ;
 }
 
 int pmCartCartProj(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * const vout)
