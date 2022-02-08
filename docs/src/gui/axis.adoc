@@ -1,8 +1,8 @@
 :lang: en
 :toc:
 
-
-= [[cha:axis-gui]](((axis-gui)))AXIS GUI
+[[cha:axis-gui]]
+= (((axis-gui)))AXIS GUI
 
 == Introduction
 

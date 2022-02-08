@@ -1,6 +1,7 @@
 :lang: es
 
-= [[cha:axis-gui]]GUI AXIS
+[[cha:axis-gui]]
+= GUI AXIS
 
 == Introducción
 
@@ -947,11 +948,10 @@ del capítulo de Configuración INI.
 
 AXIS puede mostrar un panel de control virtual personalizado en la zona derecha.
 Puede programar botones, indicadores, pantallas de datos y más cosas.
-Para más información, consulte los capitulos <<cha:pyvcp,PyVCP y
-<<cha:glade-vcp,GladeVCP.
+Para más información, consulte los capitulos PyVCP y GladeVCP.
+//glade-vcp
 
 [[axis:preview-control]]
-
 === Control de vista previa
 
 Se pueden insertar comentarios especiales en el archivo de Código G para controlar cómo

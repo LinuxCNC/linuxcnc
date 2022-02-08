@@ -80,7 +80,8 @@ Como se mencionó anteriormente, muchas de las GUI de LinuxCNC pueden ser person
 
 image::../gui/images/axis-pyvcp.png["PyVCP en Axis",align="center"]
 
-<<cha:glade-vcp,'GladeVCP'>> un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
+//cha:glade-vcp
+'GladeVCP' un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
 
 image::../gui/images/axis-gladevcp.png["GladeVCP con Axis",align="center"]
 

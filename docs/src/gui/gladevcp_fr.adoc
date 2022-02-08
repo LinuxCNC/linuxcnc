@@ -1,7 +1,8 @@
 :lang: fr
 :toc:
 
-= [[cha:GladeVCP]]Création d'interfaces graphiques avec GladeVCP
+[[cha:GladeVCP]]
+= Création d'interfaces graphiques avec GladeVCP
 
 == Qu'est-ce que GladeVCP?
 
@@ -60,11 +61,11 @@ Une fenêtre de panneau GladeVCP peut démarrer avec trois différentes
 configuration:
 
 * Toujours visible, intégré dans Axis, du côté droit, exactement comme
-un panneau PyVCP.
+  un panneau PyVCP.
 * Dans un onglet dans Axis ou Touchy; dans Axis un troisième onglet sera créé
-   à côté des deux d'origine, ils doivent être choisis explicitement.
+  à côté des deux d'origine, ils doivent être choisis explicitement.
 * Comme une fenêtre indépendante, qui peut être iconisée ou agrandie,
-   indépendamment de la fenêtre principale.
+  indépendamment de la fenêtre principale.
 
 Lancer un panneau GladeVCP simple, intégré dans Axis comme PyVCP, taper les
 commandes suivantes:

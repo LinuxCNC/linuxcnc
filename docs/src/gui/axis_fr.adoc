@@ -1,7 +1,8 @@
 :lang: fr
 :toc:
 
-= [[cha:Axis]]L'interface graphique AXIS
+[[cha:Axis]]
+= L'interface graphique AXIS
 
 == Introduction
 
@@ -12,7 +13,6 @@ afficher son interface graphique.
 
 [[cap:Fenetre-AXIS]]
 .Fenêtre d'AXIS
-
 image::../user/images/axis_25_fr.png["Fenêtre d'AXIS"]
 
 == Commencer avec AXIS

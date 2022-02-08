@@ -308,7 +308,8 @@ Las descripciones de las interfaces se encuentran en la sección Interfaces del 
 
 [NOTE]
 GladeVCP utiliza los siguientes elementos [DISPLAY], consulte la sección
-<<gladevcp:embeding-tab,incrustando una pestaña>> del Capítulo GladeVCP.
+gladevcp:embeding-tab,incrustando una pestaña // document was removed since "all english"
+del Capítulo GladeVCP.
 
 * 'EMBED_TAB_NAME=Demo GladeVCP'
 

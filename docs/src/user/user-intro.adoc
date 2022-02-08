@@ -126,7 +126,7 @@ excellent choice if the user wants to add a Virtual Control Panel with minimal f
 
 image::../gui/images/axis-pyvcp.png["PyVCP with Axis",align="center"]
 
-<<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel that can be added to the Axis or Touchy
+'GladeVCP', a Glade-based virtual control panel that can be added to the Axis or Touchy
 GUIs. GladeVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL
 virtual signals, but can include other external interfaces outside LinuxCNC such as window or network
 events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
