@@ -1,4 +1,4 @@
-VERSION = '1.221.160'
+VERSION = '1.221.161'
 
 '''
 qtplasmac_handler.py
@@ -1044,28 +1044,35 @@ class HandlerClass:
         return KEYBIND.manage_function_calls(self, event, is_pressed, key, shift, cntrl)
 
     def size_changed(self, object):
-        rows = int((object.height() - 24) / 44)
+        bHeight = self.w.file_edit.height() + 4
+        rows = int((object.height() - 24) / bHeight)
         if self.landscape:
-            if rows == 5:
+            if rows == 4:
+                self.buttons_hide(7, 20)
+            elif rows == 5:
                 self.buttons_hide(9, 20)
+                self.buttons_show(7, 8)
             elif rows == 6:
                 self.buttons_hide(11, 20)
-                self.buttons_show(9, 10)
+                self.buttons_show(7, 10)
             elif rows == 7:
                 self.buttons_hide(13, 20)
-                self.buttons_show(9, 12)
+                self.buttons_show(7, 12)
             elif rows == 8:
                 self.buttons_hide(15, 20)
-                self.buttons_show(9, 14)
+                self.buttons_show(7, 14)
             elif rows == 9:
                 self.buttons_hide(17, 20)
-                self.buttons_show(9, 16)
+                self.buttons_show(7, 16)
             elif rows == 10:
                 self.buttons_hide(19, 20)
-                self.buttons_show(9, 18)
+                self.buttons_show(7, 18)
             else:
-                self.buttons_show(9, 20)
+                self.buttons_show(7, 20)
         else:
+            if rows == 15:
+                self.buttons_hide(16, 20)
+                self.buttons_show(9, 15)
             if rows == 16:
                 self.buttons_hide(17, 20)
                 self.buttons_show(9, 16)
@@ -1076,7 +1083,7 @@ class HandlerClass:
                 self.buttons_hide(19, 20)
                 self.buttons_show(9, 18)
             elif rows == 19:
-                self.buttons_hide(12, 20)
+                self.buttons_hide(19, 20)
                 self.buttons_show(9, 19)
             else:
                 self.buttons_show(9, 20)
