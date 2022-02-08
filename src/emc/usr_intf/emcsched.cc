@@ -190,7 +190,7 @@ void SchedEntry::setTool(int t) {
 
 static void crcInit() {
   crc rmdr;
-  int i;
+  unsigned int i;
   uint32_t bit;
 
   for (i = 0; i < 256; ++i)

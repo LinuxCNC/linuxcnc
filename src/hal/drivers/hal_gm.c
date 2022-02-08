@@ -1126,14 +1126,15 @@ read(void *arg, long period)
 {
     	gm_device_t	*device = (gm_device_t *)arg;
     	card	*pCard = device->pCard;
+	unsigned int i;
 	hal_u32_t temp;
-	
+
       //basic card functionality: watchdog, switches, estop
 	card_mgr(arg, period);
 
       //read parallel IOs
 	temp=pCard->gpio;
-    	for(unsigned int i = 0; i < 32; i++)
+    	for(i = 0; i < 32; i++)
 	{
 		*(device->gpio[i].in) = (hal_bit_t)((temp & ((unsigned int) 1 << i)) == 0 ? 0 : 1);
 		*(device->gpio[i].inNot) = (hal_bit_t)((temp & ((unsigned int) 1 << i)) == 0 ? 1 : 0);
