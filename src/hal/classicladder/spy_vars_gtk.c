@@ -1,10 +1,11 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
 /* -------------------------------------------------------------------------------------------- */
 /* Spy variables windows (booleans with checkboxes, and any with entry widgets) - GTK interface */
+/* + Modify current value of a spy variable                                                     */
 /* -------------------------------------------------------------------------------------------- */
 /* This library is free software; you can redistribute it and/or */
 /* modify it under the terms of the GNU Lesser General Public */
@@ -25,11 +26,11 @@
 
 #include <locale.h>
 #include <libintl.h>
-#include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <gtk/gtk.h>
 
 #include "classicladder.h"
 #include "global.h"
@@ -39,6 +40,7 @@
 #include "classicladder_gtk.h"
 #include "vars_names.h"
 #include "symbols.h"
+#include "menu_and_toolbar_gtk.h"
 #include <rtapi_string.h>
 
 #include "spy_vars_gtk.h"
@@ -47,9 +49,9 @@
 #define NBR_TYPE_BOOLS_SPY 3
 #define NBR_FREE_VAR_SPY 15
 
-static int toggle=0;
 GtkWidget *SpyBoolVarsWindow;
 GtkWidget *SpyFreeVarsWindow;
+GtkWidget *ModifyVarValueWindow;
 
 GtkWidget *offsetboolvar[ NBR_TYPE_BOOLS_SPY ];
 int ValOffsetBoolVar[ NBR_TYPE_BOOLS_SPY ] = { 0, 0, 0 };
@@ -61,6 +63,13 @@ GtkTooltips * TooltipsEntryVarSpy[ NBR_FREE_VAR_SPY ];
 /* defaults vars to spy list */
 int VarSpy[NBR_FREE_VAR_SPY][2] = { {VAR_MEM_WORD,0}, {VAR_MEM_WORD,1}, {VAR_MEM_WORD,2}, {VAR_MEM_WORD,3}, {VAR_MEM_WORD,4}, {VAR_MEM_WORD,5}, {VAR_MEM_WORD,6}, {VAR_MEM_WORD,7}, {VAR_MEM_WORD,8}, {VAR_MEM_WORD,9}, {VAR_MEM_WORD,10}, {VAR_MEM_WORD,11}, {VAR_MEM_WORD,12}, {VAR_MEM_WORD,13}, {VAR_MEM_WORD,14} }; 
 GtkWidget *DisplayFormatVarSpy[NBR_FREE_VAR_SPY];
+GtkWidget *ModifyVarSpy[NBR_FREE_VAR_SPY];
+
+GtkWidget * ModifyVariableNameEdit;
+GtkWidget * ModifyVariableValueEdit;
+int CurrentModifyVarType, CurrentModifyVarOffset;
+int SaveModifyVarPosX = -1;
+int SaveModifyVarPosY = -1;
 
 static gint chkvar_press_event( GtkWidget      *widget, void * numcheck )
 {
@@ -157,14 +166,11 @@ static gint OffsetBoolVar_activate_event(GtkWidget *widget, void * NumVarSpy)
 	return TRUE;
 }
 
-// return true so window is not destroyed
-// set toggle to 3 so hitting vars button again will hide everything
-// unless we were only showing BoolVars window then start from the beginning
 gint BoolVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( SpyBoolVarsWindow );
-	if (toggle==1) {toggle=0;
-	}else{toggle=3;}
+	SetToggleMenuForBoolVarsWindow( FALSE/*OpenedWin*/ );
+	// we do not want that the window be destroyed.
 	return TRUE;
 }
 
@@ -239,6 +245,82 @@ void BoolVarsWindowInitGtk()
 }
 
 
+static gint OpenModifyVarWindow_clicked_event(GtkWidget *widget, int NumSpy)
+{
+	char BuffValue[ 30 ];
+	CurrentModifyVarType = VarSpy[NumSpy][0];
+	CurrentModifyVarOffset = VarSpy[NumSpy][1];
+
+	gtk_entry_set_text( GTK_ENTRY(ModifyVariableNameEdit), CreateVarName(CurrentModifyVarType,CurrentModifyVarOffset,InfosGene->DisplaySymbols) );
+	sprintf( BuffValue, "%d", ReadVar(CurrentModifyVarType, CurrentModifyVarOffset) );
+	gtk_entry_set_text( GTK_ENTRY(ModifyVariableValueEdit), BuffValue );
+	gtk_widget_grab_focus( ModifyVariableValueEdit );
+
+	gtk_widget_show( ModifyVarValueWindow );
+	if ( SaveModifyVarPosX!=-1 && SaveModifyVarPosY!=-1 )
+		gtk_window_move( GTK_WINDOW(ModifyVarValueWindow), SaveModifyVarPosX, SaveModifyVarPosY );
+
+	return TRUE;
+}
+gint ModifyVarWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+	gtk_window_get_position( GTK_WINDOW(ModifyVarValueWindow), &SaveModifyVarPosX, &SaveModifyVarPosY );
+	gtk_widget_hide( ModifyVarValueWindow );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
+gint ApplyModifiedVar( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+	int NewValue = atoi( gtk_entry_get_text( GTK_ENTRY(ModifyVariableValueEdit) ) );
+	WriteVar( CurrentModifyVarType, CurrentModifyVarOffset, NewValue );
+	gtk_window_get_position( GTK_WINDOW(ModifyVarValueWindow), &SaveModifyVarPosX, &SaveModifyVarPosY );
+	gtk_widget_hide( ModifyVarValueWindow );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
+void ModifyVarWindowInitGtk( )
+{
+	GtkWidget *vboxMain,*hboxOkCancel;
+	GtkWidget *ButtonOk,*ButtonCancel;
+	ModifyVarValueWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title ((GtkWindow *)ModifyVarValueWindow, "Modify variable value");
+	vboxMain = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (ModifyVarValueWindow), vboxMain);
+	gtk_widget_show (vboxMain);
+
+	ModifyVariableNameEdit = gtk_entry_new();
+//	gtk_widget_set_usize( GTK_WIDGET(ModifyVariableValueEdit),110,0);
+	gtk_box_pack_start (GTK_BOX( vboxMain ), ModifyVariableNameEdit, TRUE, TRUE, 0);
+	gtk_editable_set_editable( GTK_EDITABLE(ModifyVariableNameEdit), FALSE );
+	gtk_widget_show( ModifyVariableNameEdit );
+
+	ModifyVariableValueEdit = gtk_entry_new();
+//	gtk_widget_set_usize( GTK_WIDGET(ModifyVariableValueEdit),110,0);
+	gtk_box_pack_start (GTK_BOX( vboxMain ), ModifyVariableValueEdit, TRUE, TRUE, 0);
+	gtk_widget_show( ModifyVariableValueEdit );
+	gtk_signal_connect( GTK_OBJECT(ModifyVariableValueEdit), "activate",
+                                        (GtkSignalFunc) ApplyModifiedVar, (void *)NULL );
+
+	hboxOkCancel = gtk_hbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (vboxMain), hboxOkCancel);
+	gtk_widget_show (hboxOkCancel);
+
+	ButtonOk = gtk_button_new_from_stock( GTK_STOCK_OK );
+	gtk_box_pack_start( GTK_BOX(hboxOkCancel), ButtonOk, FALSE, FALSE, 0 );
+	gtk_widget_show( ButtonOk );
+	gtk_signal_connect( GTK_OBJECT(ButtonOk), "clicked",
+                                        (GtkSignalFunc)ApplyModifiedVar, (void *)NULL );
+	ButtonCancel = gtk_button_new_from_stock( GTK_STOCK_CANCEL );
+	gtk_box_pack_start( GTK_BOX(hboxOkCancel), ButtonCancel, FALSE, FALSE, 0 );
+	gtk_widget_show( ButtonCancel );
+	gtk_signal_connect( GTK_OBJECT(ButtonCancel), "clicked",
+                                        (GtkSignalFunc)ModifyVarWindowDeleteEvent, NULL );
+
+	gtk_signal_connect( GTK_OBJECT(ModifyVarValueWindow), "delete_event",
+		(GtkSignalFunc)ModifyVarWindowDeleteEvent, 0 );
+}
+
+
 
 char * ConvToBin( unsigned int Val )
 {
@@ -300,36 +382,35 @@ static gint EntryVarSpy_activate_event(GtkWidget *widget, int NumSpy)
 		char * OtherVarName = NULL;
 		*NumVarSpy++ = NewVarType;
 		*NumVarSpy = NewVarOffset;
-
-		if ( BufferVar[ 0 ]=='%' ) 
-                       {       OtherVarName = ConvVarNameToSymbol( BufferVar );
-                       }else{  
-                               OtherVarName = ConvSymbolToVarName( BufferVar );
-                            }
-		if ( OtherVarName ) {    gtk_tooltips_set_tip ( TooltipsEntryVarSpy[ NumSpy ], widget, OtherVarName, NULL );    }
-	}else{
+		if ( BufferVar[ 0 ]=='%' )
+			OtherVarName = ConvVarNameToSymbol( BufferVar );
+		else
+			OtherVarName = ConvSymbolToVarName( BufferVar );
+		if ( OtherVarName )
+				gtk_tooltips_set_tip ( TooltipsEntryVarSpy[ NumSpy ], widget, OtherVarName, NULL );
+		gtk_widget_set_sensitive( GTK_WIDGET(ModifyVarSpy[ NumSpy ]), TestVarIsReadWrite( NewVarType, NewVarOffset ) );
+	}
+	else
+	{
 		int OldType,OldOffset;
 		/* Error Message */
 		if (ErrorMessageVarParser)
-                       {       ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
-		       }else{
-			       ShowMessageBox( _("Error"), "Unknown variable...", _("Ok") );
-                            }
+			ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
+		else
+			ShowMessageBox( _("Error"), "Unknown variable...", _("Ok") );
 		OldType = *NumVarSpy++;
 		OldOffset = *NumVarSpy;
 		/* put back old correct var */
 		gtk_entry_set_text((GtkEntry *)widget,CreateVarName(OldType,OldOffset,InfosGene->DisplaySymbols));
-	      }
+	}
 	return TRUE;
 }
 
-//return true so window is not destroyed
-//set toggle to 3 so hitting vars button again will hide everything
-//unless we were only showing FreeVars window then start from the beginning
 gint FreeVarsWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
 	gtk_widget_hide( SpyFreeVarsWindow );
-	if (toggle==2) {  toggle=0;  }else{  toggle=3;  }
+	SetToggleMenuForFreeVarsWindow( FALSE/*OpenedWin*/ );
+	// we do not want that the window be destroyed.
 	return TRUE;
 }
 
@@ -413,40 +494,24 @@ void FreeVarsWindowInitGtk( )
 		gtk_widget_set_usize((GtkWidget *)DisplayFormatVarSpy[NumVarSpy],65,0);
 		gtk_box_pack_start (GTK_BOX(hboxfreevars[ NumVarSpy ]), DisplayFormatVarSpy[NumVarSpy], FALSE, FALSE, 0);
 		gtk_widget_show(DisplayFormatVarSpy[NumVarSpy]);
+
+		ModifyVarSpy[NumVarSpy] = gtk_button_new();
+		gtk_button_set_image( GTK_BUTTON ( ModifyVarSpy[NumVarSpy] ),
+                        gtk_image_new_from_stock (GTK_STOCK_EDIT, GTK_ICON_SIZE_SMALL_TOOLBAR) );
+		gtk_box_pack_start (GTK_BOX(hboxfreevars[ NumVarSpy ]), ModifyVarSpy[NumVarSpy], FALSE, FALSE, 0);
+		gtk_widget_show(ModifyVarSpy[NumVarSpy]);
+		gtk_signal_connect( GTK_OBJECT(ModifyVarSpy[ NumVarSpy ]), "clicked",
+                                        (GtkSignalFunc)OpenModifyVarWindow_clicked_event, (void *)(intptr_t)NumVarSpy );
 	}
 	gtk_signal_connect( GTK_OBJECT(SpyFreeVarsWindow), "delete_event",
 		(GtkSignalFunc)FreeVarsWindowDeleteEvent, 0 );
 }
 
+
 void VarsWindowInitGtk()
 {
 	FreeVarsWindowInitGtk( );
 	BoolVarsWindowInitGtk( );
+	ModifyVarWindowInitGtk( );
 }
 
-// This is modified to toggle the vars windows
-// be click the spyvars button multiple times
-// one, the other, both, then none of the windows will be shown
-void OpenSpyVarsWindow( )
-{
-	
-	switch (toggle)
-	{
-	case 0 :	gtk_widget_show( SpyBoolVarsWindow ); gtk_widget_hide( SpyFreeVarsWindow );
-			MessageInStatusBar(_("opened BOOL (bit) variable window. press again for WORD window"));
-		break;
-	case 1 :        gtk_widget_hide( SpyBoolVarsWindow ); gtk_widget_show( SpyFreeVarsWindow );
-			MessageInStatusBar(_("opened WORD (s32) variable window. press again for both windows"));
-		break;
-	case 2 :	gtk_widget_show( SpyBoolVarsWindow ); gtk_widget_show( SpyFreeVarsWindow );
-			MessageInStatusBar(_("opened BOTH variable windows. press again to close them."));
-		break;
-	case 3 :	gtk_widget_hide( SpyBoolVarsWindow ); gtk_widget_hide( SpyFreeVarsWindow );
-			MessageInStatusBar("");
-		break;
-	default:;
-	}
-	toggle++;
-	if (toggle==4) {toggle=0;}
-
-}
