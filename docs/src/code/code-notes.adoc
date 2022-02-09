@@ -97,6 +97,34 @@ HAL Manual. Another chapter of this document will
 eventually go into the internals of the HAL itself, but in this
 chapter, we only use the HAL API as defined in src/hal/hal.h.
 
+=== Motion Controller Modules
+
+The realtime functions of the motion controller are implemented
+with modules -- shared objects for rtpreempt systems or kernel
+modules for some implementations (RTAI):
+
+* 'tpmod' - trajectory planning
+
+* 'homemod' - homing functions
+
+* 'motmod' - processes NML commands and controls hardware via hal
+
+* 'kinematics module' - performs foward (joints-->coordinates) and
+inverse (coordinates->joints) kinematics calculations
+
+LinuxCNC is started by a *linuxcnc* script which reads a
+configuration ini file and starts all needed processes.  For
+realtime motion control, the script first loads the default tpmod
+and homemod modules and then loads the kinematics and motion
+modules according to settings in halfiles specified by the ini
+file.
+
+Custom (user-built) homing or trajectory-planning modules can
+be used in place of the default modules via ini file settings
+or command line options.  Custom modules must implement all
+functions used by the default modules.  The halcompile utility
+can be used to create a custom module.
+
 image::LinuxCNC-motion-controller-small.png[align="center"]
 
 == Block diagrams and Data Flow

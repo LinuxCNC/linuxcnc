@@ -1376,6 +1376,22 @@ The userspace test program has not been actively maintained and
 its use is deprecated.  The ugenserkins.c file may be removed
 in the future.
 
+==== Trajectory Planner
+
+The trajectory planner is now implemented as a loadable module
+(default:tpmod).  An alternate (user-built) planner can be loaded using
+ini setting [TRAJ]TPMOD= modulename or the 'linuxcnc -t modulename' option.
+The example file src/hal/components/tpcomp.com illustrates a method for
+creating a module using halcompile.
+
+==== Homing
+
+Homing functions are now implemented by a loadable module
+(default:homemod).  An alternate (user-built) planner can be loaded using
+ini setting [EMCMOT]HOMEMOD=modulename or the 'linuxcnc -m modulename' option.
+The example file src/hal/components/homecomp.comp is a minimal example
+of a homing module that can be built with halcompile.
+
 ==== Other
 
 lib/hallib/sim_lib.tcl: simulate encoder index if [JOINT_n]HOME_USE_INDEX
