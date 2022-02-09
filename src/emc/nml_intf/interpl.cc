@@ -85,8 +85,8 @@ int NML_INTERP_LIST::append(NMLmsg * nml_msg_ptr)
 #ifdef DEBUG_INTERPL
     if (sizeof(temp_node) < MAX_NML_COMMAND_SIZE + 4 ||
 	sizeof(temp_node) > MAX_NML_COMMAND_SIZE + 16 ||
-	((void *) &temp_node.line_number) >
-	((void *) &temp_node.command.commandbuf)) {
+	((uintptr_t) &temp_node.line_number) >
+	((uintptr_t) &temp_node.command.commandbuf)) {
 	rcs_print_error
 	    ("NML_INTERP_LIST::append : assumptions about NML_INTERP_LIST_NODE have been violated.");
 	return -1;
