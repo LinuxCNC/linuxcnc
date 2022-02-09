@@ -49,13 +49,12 @@ void update_joint_homing_params (int    jno,
 // CONTROL routines
 
 // one-time initialization:
-void homing_init(void);
-int  export_joint_home_pins(int njoints,int id);
+int  homing_init(int id, int njoints);
 
 // once-per-servo-period functions:
 void read_homing_in_pins(int njoints);
 void do_homing_sequence(void);
-void do_homing(void);
+bool do_homing(void);
 void write_homing_out_pins(int njoints);
 
 // overall sequence control:
@@ -75,9 +74,9 @@ void set_joint_at_home(int jno, bool value);
 // QUERIES
 
 // overall status:
+bool get_allhomed(void);
 home_sequence_state_t get_home_sequence_state(void);
 bool get_homing_is_active(void);
-bool get_allhomed(void);
 
 // per-joint information:
 int  get_home_sequence(int jno);
@@ -89,6 +88,14 @@ bool get_home_needs_unlock_first(int jno);
 bool get_home_is_idle(int jno);
 bool get_homing_at_index_search_wait(int jno);
 bool get_home_is_synchronized(int jno);
-//---------------------------------------------------------------------
 
+//---------------------------------------------------------------------
+// Module interface
+void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
+                     ,int( *pGetRotaryUnlock)(int)
+                     );
+
+void homeMotData(emcmot_config_t*
+                ,emcmot_joint_t*
+                );
 #endif /* HOMING_H */

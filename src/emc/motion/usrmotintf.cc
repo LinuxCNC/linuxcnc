@@ -161,8 +161,8 @@ printf("ReadEmcmotConfig COMM_SPLIT_READ_TIMEOUT\n" );
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
-/* copies debug to s */
-int usrmotReadEmcmotDebug(emcmot_internal_t * s)
+/* copies internal to s */
+int usrmotReadEmcmotInternal(emcmot_internal_t * s)
 {
     int split_read_count;
     
@@ -181,7 +181,7 @@ int usrmotReadEmcmotDebug(emcmot_internal_t * s)
 	}
 	/* inc counter and try again, max three times */
     } while ( ++split_read_count < 3 );
-printf("ReadEmcmotDebug COMM_SPLIT_READ_TIMEOUT\n" );
+printf("ReadEmcmotInternal COMM_SPLIT_READ_TIMEOUT\n" );
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
@@ -263,89 +263,6 @@ void printTPstruct(TP_STRUCT * tp)
     printf("activeDepth=%d\n", tp->activeDepth);
     printf("aborting=%d\n", tp->aborting);
     printf("pausing=%d\n", tp->pausing);
-}
-
-void usrmotPrintEmcmotDebug(emcmot_internal_t *d, int which)
-{
-//    int t;
-
-    printf("running time: \t%f\n", d->running_time);
-    switch (which) {
-/*! \todo Another #if 0 */
-#if 0
-	printf("\nferror:        ");
-	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d->ferrorCurrent[t]);
-	}
-	printf("\n");
-
-	printf("\nferror High:        ");
-	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d->ferrorHighMark[t]);
-	}
-	printf("\n");
-	break;
-    case 5:
-	printf("traj  m/m/a:\t%f\t%f\t%f\n", d->tMin, d->tMax, d->tAvg);
-	printf("\n");
-	printf("servo m/m/a:\t%f\t%f\t%f\n", d->sMin, d->sMax, d->sAvg);
-	printf("\n");
-	printf("(off) m/m/a:\t%f\t%f\t%f\n", d->nMin, d->nMax, d->nAvg);
-	printf("\n");
-	printf("(cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n", d->yMin, d->yMax,
-	    d->yAvg);
-	printf("\n");
-	printf("(frequency compute  time) m/m/a:\t%f\t%f\t%f\n", d->fMin,
-	    d->fMax, d->fAvg);
-	printf("\n");
-	printf("(frequecy cycle to cycle  time) m/m/a:\t%f\t%f\t%f\n",
-	    d->fyMin, d->fyMax, d->fyAvg);
-	printf("\n");
-	break;
-#endif
-
-    case 6:
-    case 7:
-    case 8:
-    case 9:
-    case 10:
-    case 11:
-//      printf("jointPos[%d]: %f\n", which - 6, d->jointPos[(which - 6)]);
-/*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
-				   structures */
-	printf("coarseJointPos[%d]: %f\n",
-	    which - 6, d->coarseJointPos[(which - 6)]);
-	printf("jointVel[%d]: %f\n", which - 6, d->jointVel[(which - 6)]);
-	printf("rawInput[%d]: %f\n", which - 6, d->rawInput[(which - 6)]);
-	printf("rawOutput[%d]: %f\n", which - 6, d->rawOutput[(which - 6)]);
-#endif
-//      printf("bcompincr[%d]: %f\n", which - 6, d->bcompincr[(which - 6)]);
-	break;
-
-    case 12:
-/*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
-				   structures */
-	printf("\noldInput:  ");
-	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d->oldInput[t]);
-	}
-	printf("\nrawInput:  ");
-	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d->rawInput[t]);
-	}
-	printf("\ninverseInputScale:  ");
-	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
-	    printf("\t%f", d->inverseInputScale[t]);
-	}
-#endif
-	printf("\n");
-
-    default:
-	break;
-    }
-
 }
 
 void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)

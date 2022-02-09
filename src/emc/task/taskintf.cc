@@ -892,7 +892,7 @@ int emcJointLoadComp(int joint, const char *file, int type)
 }
 
 static emcmot_config_t emcmotConfig;
-int get_emcmot_debug_info = 0;
+int get_emcmot_internal_info = 0;  // debug usage
 
 /*
   these globals are set in emcMotionUpdate(), then referenced in
@@ -2017,8 +2017,8 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
 	new_config = 1;
     }
 
-    if (get_emcmot_debug_info) {
-	if (0 != usrmotReadEmcmotDebug(&emcmotInternal)) {
+    if (get_emcmot_internal_info) {
+	if (0 != usrmotReadEmcmotInternal(&emcmotInternal)) {
 	    return -1;
 	}
     }

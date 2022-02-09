@@ -594,6 +594,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 */
 
     typedef struct emcmot_status_t {
+	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
+	emcmot_axis_t  axes[EMCMOT_MAX_AXIS];	    /* axis data */
 	unsigned char head;	/* flag count for mutex detect */
 	/* these three are updated only when a new command is handled */
 	cmd_code_t commandEcho;	/* echo of input command */
@@ -675,6 +677,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int external_offsets_applied;
 	EmcPose eoffset_pose;
 	int numExtraJoints;
+    int stepping;
     } emcmot_status_t;
 
 /*********************************
@@ -748,55 +751,6 @@ Suggestion: Split this in to an Error and a Status flag register..
         int inhibit_probe_home_error;
     } emcmot_config_t;
 
-/*********************************
-      INTERNAL STRUCTURE
-*********************************/
-
-/* This is the internal structure.  It contains stuff that is used
-   internally by the motion controller that does not need to be in
-   shared memory.  It will wind up with a lot of the stuff that got
-   tossed into the debug structure.
-
-   FIXME - so far most if the stuff that was tossed in here got
-   moved back out, maybe don't need it after all?
-*/
-
-    typedef struct emcmot_internal_t {
-	unsigned char head;	/* flag count for mutex detect */
-
-	int probe_debounce_cntr;
-	unsigned char tail;	/* flag count for mutex detect */
-
-
-/*! \todo FIXME - all structure members beyond this point are in limbo */
-
-	int split;		/* number of split command reads */
-
-	TP_STRUCT coord_tp;	/* coordinated mode planner */
-
-/* space for trajectory planner queues, plus 10 more for safety */
-/*! \todo FIXME-- default is used; dynamic is not honored */
-	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
-
-	int enabling;		/* starts up disabled */
-	int coordinating;	/* starts up in free mode */
-	int teleoperating;	/* starts up in free mode */
-
-	int overriding;		/* non-zero means we've initiated an joint
-				   move while overriding limits */
-
-	int stepping;
-	int idForStep;
-
-	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
-	emcmot_axis_t axes[EMCMOT_MAX_AXIS];	        /* axis data */
-
-	double start_time;
-	double running_time;
-	double cur_time;
-	double last_time;
-    } emcmot_internal_t;
-
 /* error structure - A ring buffer used to pass formatted printf strings to usr space */
     typedef struct emcmot_error_t {
 	unsigned char head;	/* flag count for mutex detect */
@@ -806,6 +760,20 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int num;		/* number of items */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_error_t;
+
+
+typedef struct emcmot_internal_t {
+    unsigned char head; /* flag count for mutex detect */
+    unsigned char tail; /* flag count for mutex detect */
+    int split;          /* number of split command reads */
+    int enabling;       /* starts up disabled */
+    int coordinating;   /* starts up in free mode */
+    int teleoperating;  /* starts up in free mode */
+    int overriding;     /* non-zero means we've initiated an joint
+                           move while overriding limits */
+    TP_STRUCT coord_tp; /* coordinated mode planner */
+    int idForStep;      /* status id while stepping */
+    } emcmot_internal_t;
 
 /*
   function prototypes for emcmot code
@@ -817,6 +785,12 @@ Suggestion: Split this in to an Error and a Status flag register..
     extern int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap);
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
+
+    extern void emcmotDioWrite(int index, char value);
+    extern void emcmotAioWrite(int index, double value);
+
+    extern void emcmotSetRotaryUnlock(int axis, int unlock);
+    extern int emcmotGetRotaryIsUnlocked(int axis);
 
 #define ALL_JOINTS emcmotConfig->numJoints
 // number of kinematics-only joints:
@@ -831,4 +805,4 @@ Suggestion: Split this in to an Error and a Status flag register..
 #ifdef __cplusplus
 }
 #endif
-#endif	/* MOTION_H */
+#endif    /* MOTION_H */

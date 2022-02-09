@@ -60,7 +60,6 @@
 #include "hal.h"
 #include "motion.h"
 #include "tp.h"
-#include "motion_struct.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
 #include "motion_types.h"
@@ -1289,7 +1288,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* resume paused motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RESUME");
-	    emcmotInternal->stepping = 0;
+	    emcmotStatus->stepping = 0;
 	    tpResume(&emcmotInternal->coord_tp);
 	    emcmotStatus->paused = 0;
 	    break;
@@ -1300,7 +1299,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
             rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
             if(emcmotStatus->paused) {
                 emcmotInternal->idForStep = emcmotStatus->id;
-                emcmotInternal->stepping = 1;
+                emcmotStatus->stepping = 1;
                 tpResume(&emcmotInternal->coord_tp);
                 emcmotStatus->paused = 1;
             } else {

@@ -192,8 +192,6 @@ static int init_comm_buffers(void) {
 	axis->wheel_ajog_active = 0;
     }
 
-    emcmotInternal->start_time = time(NULL);
-
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_comm_buffers() complete\n");
     return 0;
 }

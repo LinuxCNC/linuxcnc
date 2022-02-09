@@ -14,14 +14,42 @@
 #include "rtapi.h"
 #include "rtapi_math.h"
 #include "motion.h"
-#include "hal.h"
-#include "mot_priv.h"
 #include "homing.h"
+#include "hal.h"
+
+static double servo_freq;
+static emcmot_config_t * emcmotConfig;
+static emcmot_joint_t  * joints;
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
+
+//========================================================
+// homing module interface
+// motmod function ptrs for functions called by homeing:
+static void(*SetRotaryUnlock)(int,int);
+static int (*GetRotaryIsUnlocked)(int);
+
+void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
+                     ,int (*pGetRotaryIsUnlocked)(int)
+                     )
+{
+    SetRotaryUnlock     = *pSetRotaryUnlock;
+    GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
+}
+
+// struct ptrs from motmod:
+void homeMotData(emcmot_config_t *pconfig
+                ,emcmot_joint_t  *pjoints
+                )
+{
+    // retrieve emcmot pointers from motmod
+    emcmotConfig = pconfig;  // ->servoCycleTime
+    joints       = pjoints;
+}
+//========================================================
 
 /***********************************************************************
 *                         LOCAL CONSTANTS                              *
@@ -160,7 +188,7 @@ static void home_do_moving_checks(emcmot_joint_t * joint,int jno)
         /* on limit, check to see if we should trip */
         if (!(H[jno].home_flags & HOME_IGNORE_LIMITS)) {
             /* not ignoring limits, time to quit */
-            reportError(_("hit limit in home state %d"), H[jno].home_state);
+            rtapi_print_msg(RTAPI_MSG_ERR, _("hit limit in home state %d"), H[jno].home_state);
             H[jno].home_state = HOME_ABORT;
             immediate_state = 1;
             return;
@@ -170,7 +198,7 @@ static void home_do_moving_checks(emcmot_joint_t * joint,int jno)
     if (!joint->free_tp.active) {
         /* reached end of move without hitting switch */
         joint->free_tp.enable = 0;
-        reportError(_("end of move in home state %d"), H[jno].home_state);
+        rtapi_print_msg(RTAPI_MSG_ERR,_("end of move in home state %d"), H[jno].home_state);
         H[jno].home_state = HOME_ABORT;
         immediate_state = 1;
         return;
@@ -200,29 +228,10 @@ static void update_home_is_synchronized(void) {
         }
     }
 }
-/***********************************************************************
-*                      PUBLIC FUNCTIONS                                *
-************************************************************************/
 
-void homing_init(void)
+static int make_joint_home_pins(int id,int njoints)
 {
-    int i;
-    homing_active = 0;
-    for (i=0; i < EMCMOT_MAX_JOINTS; i++) {
-        H[i].home_state      =  HOME_IDLE;
-        H[i].home_search_vel =  0;
-        H[i].home_latch_vel  =  0;
-        H[i].home_final_vel  =  0;
-        H[i].home_offset     =  0;
-        H[i].home            =  0;
-        H[i].home_flags      =  0;
-        H[i].home_sequence   = -1;
-        H[i].volatile_home   =  0;
-    }
-}
-
-int export_joint_home_pins(int njoints,int id)
-{
+//NOTE: motmod supplies the component id
     int jno,retval;
     one_joint_home_data_t *addr;
 
@@ -236,19 +245,60 @@ int export_joint_home_pins(int njoints,int id)
     for (jno = 0; jno < njoints; jno++) {
         addr = &(joint_home_data->jhd[jno]);
 
-        if ((retval = hal_pin_bit_newf(HAL_IN, &(addr->home_sw), id,
-                      "joint.%d.home-sw-in", jno)) != 0) break;
-        if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->homing), id,
-                      "joint.%d.homing", jno)) != 0) break;
-        if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->homed), id,
-                      "joint.%d.homed", jno)) != 0) break;
-        if ((retval = hal_pin_s32_newf(HAL_OUT, &(addr->home_state), id,
-                      "joint.%d.home-state", jno)) != 0) break;
-        if ((retval = hal_pin_bit_newf(HAL_IO, &(addr->index_enable), id,
-                      "joint.%d.index-enable", jno)) != 0) break;
+        retval += hal_pin_bit_newf(HAL_IN, &(addr->home_sw), id,
+                                  "joint.%d.home-sw-in", jno);
+        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homing), id,
+                                  "joint.%d.homing", jno);
+        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homed), id,
+                                  "joint.%d.homed", jno);
+        retval += hal_pin_s32_newf(HAL_OUT, &(addr->home_state), id,
+                                  "joint.%d.home-state", jno);
+        retval += hal_pin_bit_newf(HAL_IO, &(addr->index_enable), id,
+                                  "joint.%d.index-enable", jno);
     }
     return retval;
-} // export_joint_home_pins()
+} // make_joint_home_pins()
+
+/***********************************************************************
+*                      PUBLIC FUNCTIONS                                *
+************************************************************************/
+
+int homing_init(int id, int njoints)
+{
+#ifdef USE_HOME_PARMS
+    if (home_parms) {
+        rtapi_print("%s:%s: home_parms=%s\n",__FILE__,__FUNCTION__,home_parms);
+    }
+#endif
+
+    int i;
+    if (emcmotConfig->servoCycleTime < 1e-9) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: bad servoCycleTime:%g\n",
+                        __FUNCTION__,
+                        emcmotConfig->servoCycleTime);
+        return -1;
+    }
+    if (make_joint_home_pins(id,njoints)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: make_joint_home_pins fail\n",
+                        __FUNCTION__);
+        return -1;
+    }
+
+    servo_freq = 1/emcmotConfig->servoCycleTime;
+    homing_active = 0;
+    for (i=0; i < njoints; i++) {
+        H[i].home_state      =  HOME_IDLE;
+        H[i].home_search_vel =  0;
+        H[i].home_latch_vel  =  0;
+        H[i].home_final_vel  =  0;
+        H[i].home_offset     =  0;
+        H[i].home            =  0;
+        H[i].home_flags      =  0;
+        H[i].home_sequence   = -1;
+        H[i].volatile_home   =  0;
+    }
+    return 0;
+}
 
 void read_homing_in_pins(int njoints)
 {
@@ -417,7 +467,6 @@ void do_homing_sequence(void)
     case HOME_SEQUENCE_DO_ONE_JOINT:
         // Expect one joint with home_state==HOME_START
         for (i=0; i < ALL_JOINTS; i++) {
-            joint = &joints[i];
             if (H[i].home_state == HOME_START) {
                H[i].joint_in_sequence = 1;
                home_sequence = ABS(H[i].home_sequence);
@@ -439,13 +488,12 @@ void do_homing_sequence(void)
         // based on home_state[i] == HOME_START
         if (!sequence_is_set) {
             for (i=0; i < ALL_JOINTS; i++) {
-                joint = &joints[i];
                 if (H[i].home_state == HOME_START) {
                     if (   sequence_is_set
                         && (ABS(H[i].home_sequence) != home_sequence)) {
-                            reportError(
-                        "homing.c Unexpected joint=%d jsequence=%d seq=%d\n"
-                        ,i,H[i].home_sequence,home_sequence);
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                           _("homing.c Unexpected joint=%d jsequence=%d seq=%d\n")
+                           ,i,H[i].home_sequence,home_sequence);
                     }
                     home_sequence = ABS(H[i].home_sequence);
                     sequence_is_set = 1;
@@ -455,7 +503,7 @@ void do_homing_sequence(void)
                      || (home_sequence     != ABS(H[i].home_sequence))
                     ) {
                     H[i].joint_in_sequence = 0;
-                } 
+                }
             }
         }
         sequence_state = HOME_SEQUENCE_START;
@@ -466,9 +514,8 @@ void do_homing_sequence(void)
         // Request to home all joints or a single sequence
         // A negative H[i].home_sequence means sync final move
         if (!sequence_is_set) {
-            // sequence_is_set not otherwise established: home-all 
+            // sequence_is_set not otherwise established: home-all
             for (i=0; i < EMCMOT_MAX_JOINTS; i++) {
-                joint = &joints[i];
                 H[i].joint_in_sequence = 1;
                 // unspecified joints have an unrealizable home_sequence:
                 if (H[i].home_sequence >100) {
@@ -486,7 +533,6 @@ void do_homing_sequence(void)
         }
         for(i=0; i < ALL_JOINTS; i++) {
             if (!H[i].joint_in_sequence) continue;
-            joint = &joints[i];
             if (   (H[i].home_flags & HOME_NO_REHOME)
                 &&  H[i].homed
                ) {
@@ -509,7 +555,6 @@ void do_homing_sequence(void)
         */
         special_case_sync_all = 1; // disprove
         for(i=0; i < ALL_JOINTS; i++) {
-            joint = &joints[i];
             if (H[i].home_sequence != -1) {special_case_sync_all = 0;}
         }
         if (special_case_sync_all) {
@@ -517,7 +562,6 @@ void do_homing_sequence(void)
         }
         for(i=0; i < ALL_JOINTS; i++) {
             if (!H[i].joint_in_sequence) continue;
-            joint = &joints[i];
             if  ( H[i].home_state != HOME_IDLE && H[i].home_state != HOME_START) {
                 /* a home is already in progress, abort the home-all */
                 sequence_state = HOME_SEQUENCE_IDLE;
@@ -553,7 +597,6 @@ void do_homing_sequence(void)
     case HOME_SEQUENCE_WAIT_JOINTS:
         for(i=0; i < ALL_JOINTS; i++) {
             if (!H[i].joint_in_sequence) continue;
-            joint = &joints[i];
             // negative H[i].home_sequence means sync final move
             if(ABS(H[i].home_sequence) != home_sequence) {
                 /* this joint is not at the current sequence number, ignore it */
@@ -581,8 +624,8 @@ void do_homing_sequence(void)
 
     default:
         /* should never get here */
-        reportError(_("unknown state '%d' during homing sequence"),
-            sequence_state);
+        rtapi_print_msg(RTAPI_MSG_ERR, _("unknown state '%d' during homing sequence"),
+                        sequence_state);
         sequence_state = HOME_SEQUENCE_IDLE;
         homing_active = 0;
         break;
@@ -590,18 +633,15 @@ void do_homing_sequence(void)
 } // do_homing_sequence()
 
 // HOMING management
-void do_homing(void)
+bool do_homing(void)
 {
+    int allhomed = 0;
     int joint_num;
     emcmot_joint_t *joint;
     double offset, tmp;
     int home_sw_active, homing_flag;
 
     homing_flag = 0;
-    if (emcmotStatus->motion_state != EMCMOT_MOTION_FREE) {
-        /* can't home unless in free mode */
-        return;
-    }
     /* loop thru joints, treat each one individually */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
         if (!H[joint_num].joint_in_sequence) continue;
@@ -615,7 +655,7 @@ void do_homing(void)
         if (H[joint_num].home_state != HOME_IDLE) {
             homing_flag = 1; /* at least one joint is homing */
         }
-        
+
         /* when an joint is homing, 'check_for_faults()' ignores its limit
            switches, so that this code can do the right thing with them. Once
            the homing process is finished, the 'check_for_faults()' resumes
@@ -643,9 +683,8 @@ void do_homing(void)
                    started.  It doesn't actually do anything, it simply
                    determines what state is next */
                 if (H[joint_num].home_flags & HOME_IS_SHARED && home_sw_active) {
-                    reportError(
-                        _("Cannot home while shared home switch is closed j=%d"),
-                         joint_num);
+                    rtapi_print_msg(RTAPI_MSG_ERR, _("Cannot home while shared home switch is closed j=%d"),
+                                    joint_num);
                     H[joint_num].home_state = HOME_IDLE;
                     break;
                 }
@@ -678,19 +717,19 @@ void do_homing(void)
                 } else {
                     H[joint_num].home_state = HOME_UNLOCK_WAIT;
                     immediate_state = 1;
-                }                     
+                }
                 break;
 
             case HOME_UNLOCK:
                 // unlock now
-                emcmotSetRotaryUnlock(joint_num, 1);
+                SetRotaryUnlock(joint_num, 1);
                 H[joint_num].home_state = HOME_UNLOCK_WAIT;
                 break;
 
             case HOME_UNLOCK_WAIT:
                 // if not yet unlocked, continue waiting
                 if ((H[joint_num].home_flags & HOME_UNLOCK_FIRST) &&
-                    !emcmotGetRotaryIsUnlocked(joint_num)) break;
+                    !GetRotaryIsUnlocked(joint_num)) break;
 
                 // either we got here without an unlock needed, or the
                 // unlock is now complete.
@@ -704,7 +743,8 @@ void do_homing(void)
                         H[joint_num].home_state = HOME_INDEX_ONLY_START;
                         immediate_state = 1;
                     } else {
-                        reportError(_("invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or USE_INDEX"));
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                             _("invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or USE_INDEX"));
                         H[joint_num].home_state = HOME_IDLE;
                     }
                 } else {
@@ -713,7 +753,8 @@ void do_homing(void)
                         H[joint_num].home_state = HOME_INITIAL_SEARCH_START;
                         immediate_state = 1;
                     } else {
-                        reportError(_("invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"));
+                        rtapi_print_msg(RTAPI_MSG_ERR,
+                             _("invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"));
                         H[joint_num].home_state = HOME_IDLE;
                     }
                 }
@@ -860,8 +901,8 @@ void do_homing(void)
                 H[joint_num].pause_timer = 0;
                 /* we should still be on the switch */
                 if (! home_sw_active) {
-                    reportError(
-                        _("Home switch inactive before start of backoff move j=%d"),
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                         _("Home switch inactive before start of backoff move j=%d"),
                          joint_num);
                     H[joint_num].home_state = HOME_IDLE;
                     break;
@@ -909,9 +950,8 @@ void do_homing(void)
                 H[joint_num].pause_timer = 0;
                 /* we should still be off of the switch */
                 if (home_sw_active) {
-                    reportError(
-                        _("Home switch active before start of latch move j=%d"),
-                         joint_num);
+                    rtapi_print_msg(RTAPI_MSG_ERR, _("Home switch active before start of latch move j=%d"),
+                                    joint_num);
                     H[joint_num].home_state = HOME_IDLE;
                     break;
                 }
@@ -966,8 +1006,8 @@ void do_homing(void)
                 H[joint_num].pause_timer = 0;
                 /* we should still be on the switch */
                 if (!home_sw_active) {
-                    reportError(
-                        _("Home switch inactive before start of latch move j=%d"),
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                         _("Home switch inactive before start of latch move j=%d"),
                          joint_num);
                     H[joint_num].home_state = HOME_IDLE;
                     break;
@@ -1110,7 +1150,7 @@ void do_homing(void)
 
             case HOME_SET_INDEX_POSITION:
                 /* This state is called when the encoder has been reset at
-                   the index pulse position.  It sets the current joint 
+                   the index pulse position.  It sets the current joint
                    position to 'home_offset', which is the location of the
                    index pulse in joint coordinates. */
                 /* set the current position to 'home_offset' */
@@ -1192,7 +1232,7 @@ void do_homing(void)
                     /* clamp on max vel for this joint */
                     if (joint->free_tp.max_vel > joint->vel_limit)
                         joint->free_tp.max_vel = joint->vel_limit;
-                } else { 
+                } else {
                     joint->free_tp.max_vel = joint->vel_limit;
                 }
                 /* start the move */
@@ -1202,7 +1242,7 @@ void do_homing(void)
 
             case HOME_FINAL_MOVE_WAIT:
                 /* This state is called while the machine makes its final
-                   move to the home position.  It terminates when the machine 
+                   move to the home position.  It terminates when the machine
                    arrives at the final location. If the move hits a limit
                    before it arrives, the home is aborted. */
                 /* have we arrived (and stopped) at home? */
@@ -1218,7 +1258,7 @@ void do_homing(void)
                     /* on limit, check to see if we should trip */
                     if (!(H[joint_num].home_flags & HOME_IGNORE_LIMITS)) {
                         /* not ignoring limits, time to quit */
-                        reportError(_("hit limit in home state j=%d"),joint_num);
+                        rtapi_print_msg(RTAPI_MSG_ERR, _("hit limit in home state j=%d"),joint_num);
                         H[joint_num].home_state = HOME_ABORT;
                         immediate_state = 1;
                         break;
@@ -1228,7 +1268,7 @@ void do_homing(void)
 
             case HOME_LOCK:
                 if (H[joint_num].home_flags & HOME_UNLOCK_FIRST) {
-                    emcmotSetRotaryUnlock(joint_num, 0);
+                    SetRotaryUnlock(joint_num, 0);
                 } else {
                     immediate_state = 1;
                 }
@@ -1238,7 +1278,7 @@ void do_homing(void)
             case HOME_LOCK_WAIT:
                 // if not yet locked, continue waiting
                 if ((H[joint_num].home_flags & HOME_UNLOCK_FIRST) &&
-                    emcmotGetRotaryIsUnlocked(joint_num)) break;
+                    GetRotaryIsUnlocked(joint_num)) break;
 
                 // either we got here without a lock needed, or the
                 // lock is now complete.
@@ -1256,9 +1296,8 @@ void do_homing(void)
                 // This joint just finished homing.  See if this is the
                 // final one and all joints are now homed, and switch to
                 // Teleop mode if so.
-                if (get_allhomed()) { // Note: not in homing api
-                    switch_to_teleop_mode();
-                    homing_flag = 0;
+                if (get_allhomed()) {
+                    allhomed = 1;
                 }
                 break;
 
@@ -1275,8 +1314,8 @@ void do_homing(void)
 
             default:
                 /* should never get here */
-                reportError(_("unknown state '%d' during homing j=%d"),
-                    H[joint_num].home_state,joint_num);
+                rtapi_print_msg(RTAPI_MSG_ERR, _("unknown state '%d' during homing j=%d"),
+                                H[joint_num].home_state,joint_num);
                 H[joint_num].home_state = HOME_ABORT;
                 immediate_state = 1;
                 break;
@@ -1294,8 +1333,41 @@ void do_homing(void)
             homing_active = 0;
         }
     }
+    if (allhomed) {return 1;}
+    return 0;
 } // do_homing()
 
 bool get_home_is_synchronized(int jno) {
     return H[jno].home_is_synchronized;
 }
+//========================================================
+// all home functions for homing api
+EXPORT_SYMBOL(homeMotFunctions);
+EXPORT_SYMBOL(homeMotData);
+
+EXPORT_SYMBOL(do_homing);
+EXPORT_SYMBOL(do_homing_sequence);
+EXPORT_SYMBOL(get_allhomed);
+EXPORT_SYMBOL(get_homed);
+EXPORT_SYMBOL(get_home_is_idle);
+EXPORT_SYMBOL(get_home_is_synchronized);
+EXPORT_SYMBOL(get_home_is_volatile);
+EXPORT_SYMBOL(get_home_needs_unlock_first);
+EXPORT_SYMBOL(get_home_sequence);
+EXPORT_SYMBOL(get_home_sequence_state);
+EXPORT_SYMBOL(get_homing);
+EXPORT_SYMBOL(get_homing_at_index_search_wait);
+EXPORT_SYMBOL(get_homing_is_active);
+EXPORT_SYMBOL(get_index_enable);
+EXPORT_SYMBOL(homing_init);
+EXPORT_SYMBOL(read_homing_in_pins);
+EXPORT_SYMBOL(set_home_abort);
+EXPORT_SYMBOL(set_home_idle);
+EXPORT_SYMBOL(set_home_sequence_state);
+EXPORT_SYMBOL(set_home_start);
+EXPORT_SYMBOL(set_joint_at_home);
+EXPORT_SYMBOL(set_joint_homed);
+EXPORT_SYMBOL(set_joint_homing);
+EXPORT_SYMBOL(set_joint_homing_params);
+EXPORT_SYMBOL(update_joint_homing_params);
+EXPORT_SYMBOL(write_homing_out_pins);

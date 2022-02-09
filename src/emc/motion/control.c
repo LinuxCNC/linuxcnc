@@ -27,7 +27,6 @@
 #include "mot_priv.h"
 #include "rtapi_math.h"
 #include "tp.h"
-#include "tc.h"
 #include "simple_tp.h"
 #include "config.h"
 #include "motion_types.h"
@@ -45,9 +44,6 @@ static int    switchkins_type = 0;
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
-
-/* 1/servo cycle time */
-double servo_freq;
 
 /*! \todo FIXME - debugging - uncomment the following line to log changes in
    JOINT_FLAG and MOTION_FLAG */
@@ -244,9 +240,6 @@ void emcmotController(void *arg, long period)
         last_period = period;
     }
 
-    /* calculate servo frequency for calcs like vel = Dpos / period */
-    /* it's faster to do vel = Dpos * freq */
-    servo_freq = 1.0 / servo_period;
     /* increment head count to indicate work in progress */
     emcmotStatus->head++;
     /* here begins the core of the controller */
@@ -261,7 +254,11 @@ void emcmotController(void *arg, long period)
     handle_jjogwheels();
     handle_ajogwheels();
     do_homing_sequence();
-    do_homing();
+    if (   (emcmotStatus->motion_state == EMCMOT_MOTION_FREE)
+        && do_homing()) {
+        switch_to_teleop_mode();
+    }
+
     get_pos_cmds(period);
     compute_screw_comp();
     plan_external_offsets();
@@ -2272,11 +2269,11 @@ static void update_status(void)
     emcmotStatus->queueFull = tcqFull(&emcmotInternal->coord_tp.queue);
 
     /* check to see if we should pause in order to implement
-       single emcmotInternal->stepping */
+       single emcmotStatus->stepping */
 
-    if (emcmotInternal->stepping && emcmotInternal->idForStep != emcmotStatus->id) {
+    if (emcmotStatus->stepping && emcmotInternal->idForStep != emcmotStatus->id) {
       tpPause(&emcmotInternal->coord_tp);
-      emcmotInternal->stepping = 0;
+      emcmotStatus->stepping = 0;
       emcmotStatus->paused = 1;
     }
 #ifdef WATCH_FLAGS

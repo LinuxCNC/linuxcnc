@@ -236,7 +236,6 @@ extern emcmot_axis_t *axes;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 /* these variable have the 1/servo cycle time */
-extern double servo_freq;
 
 /* Struct pointers */
 extern struct emcmot_struct_t *emcmotStruct;
