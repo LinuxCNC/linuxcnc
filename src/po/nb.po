@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-04 08:09+0000\n"
+"PO-Revision-Date: 2022-02-10 23:08+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -11194,6 +11194,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -13255,7 +13256,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:487
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Main Axis"
-msgstr ""
+msgstr "Hovedakse"
 
 #: src/emc/usr_intf/pncconf/private_data.py:458
 #: src/emc/usr_intf/pncconf/private_data.py:459
@@ -13264,7 +13265,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:487
 #: src/emc/usr_intf/pncconf/private_data.py:503
 msgid "Tandem Axis"
-msgstr ""
+msgstr "Tandemakse"
 
 #: src/emc/usr_intf/pncconf/private_data.py:461
 msgid "Arc OK"
@@ -13297,16 +13298,16 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:466
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Digital"
-msgstr ""
+msgstr "Digital"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 #: src/emc/usr_intf/pncconf/private_data.py:913
 msgid "Axis Selection"
-msgstr ""
+msgstr "Aksevalg"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Overrides"
-msgstr ""
+msgstr "Overstyringer"
 
 #: src/emc/usr_intf/pncconf/private_data.py:467
 msgid "Operation"
@@ -13314,7 +13315,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/private_data.py:467
 msgid "External Control"
-msgstr ""
+msgstr "Ekstern styring"
 
 #: src/emc/usr_intf/pncconf/private_data.py:468
 msgid "Axis rapid"
@@ -13347,7 +13348,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/private_data.py:471
 #: src/emc/usr_intf/pncconf/private_data.py:533
 msgid "Plasma"
-msgstr ""
+msgstr "Plasma"
 
 #: src/emc/usr_intf/pncconf/private_data.py:471
 #: src/emc/usr_intf/pncconf/private_data.py:480
@@ -18960,21 +18961,19 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:332
 msgid "DEL"
-msgstr ""
+msgstr "DEL"
 
 #: lib/python/gladevcp/calculator.glade:346
 msgid "mm → in"
-msgstr ""
+msgstr "mm → tomme"
 
 #: lib/python/gladevcp/calculator.glade:361
 msgid "in → mm"
-msgstr ""
+msgstr "tomme → mm"
 
 #: lib/python/gladevcp/calculator.glade:376
-#, fuzzy
-#| msgid "Canceled"
 msgid "_Cancel_"
-msgstr "Avbrutt"
+msgstr "_Avbryt_"
 
 #: lib/python/gladevcp/calculator.glade:393
 msgid "_Ok"
