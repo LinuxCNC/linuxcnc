@@ -541,7 +541,7 @@ int genhexKinematicsSetup(const  int   comp_id,
                           const  char* coordinates,
                           kparms*      kp)
 {
-    int i,res;
+    int i,res=0;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) {
