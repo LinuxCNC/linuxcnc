@@ -30,7 +30,6 @@
 #include <unistd.h>
 
 #include "hal.h"
-#include "motion_debug.h"
 #include "motion.h"
 #include "motion_struct.h"
 #include "motion_types.h"
@@ -48,7 +47,6 @@ emcmot_struct_t *emcmotStruct = 0;
 struct emcmot_command_t *c = 0;
 struct emcmot_status_t *emcmotStatus = 0;
 struct emcmot_config_t *emcmotConfig = 0;
-struct emcmot_debug_t *emcmotDebug = 0;
 struct emcmot_internal_t *emcmotInternal = 0;
 struct emcmot_error_t *emcmotError = 0;
 
@@ -84,7 +82,7 @@ static int init_comm_buffers(void) {
 	"MOTION: init_comm_buffers() starting...\n");
 
     emcmotStruct = 0;
-    emcmotDebug = 0;
+    emcmotInternal = 0;
     emcmotStatus = 0;
     c = 0;
     emcmotConfig = 0;
@@ -110,7 +108,6 @@ static int init_comm_buffers(void) {
     c = &emcmotStruct->command;
     emcmotStatus = &emcmotStruct->status;
     emcmotConfig = &emcmotStruct->config;
-    emcmotDebug = &emcmotStruct->debug;
     emcmotInternal = &emcmotStruct->internal;
     emcmotError = &emcmotStruct->error;
 
@@ -195,7 +192,7 @@ static int init_comm_buffers(void) {
 	axis->wheel_ajog_active = 0;
     }
 
-    emcmotDebug->start_time = time(NULL);
+    emcmotInternal->start_time = time(NULL);
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_comm_buffers() complete\n");
     return 0;

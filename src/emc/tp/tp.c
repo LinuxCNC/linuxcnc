@@ -17,7 +17,6 @@
 #include "emcpose.h"
 #include "rtapi_math.h"
 #include "mot_priv.h"
-#include "motion_debug.h"
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
@@ -46,7 +45,7 @@
 #define TP_OPTIMIZATION_LAZY
 
 extern emcmot_status_t *emcmotStatus;
-extern emcmot_debug_t *emcmotDebug;
+extern emcmot_internal_t *emcmotInternal;
 extern emcmot_config_t *emcmotConfig;
 
 /** static function primitives (ugly but less of a pain than moving code around)*/
@@ -135,9 +134,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotDebug->axes[0].acc_limit; //0==>x
-    acc_bound->y = emcmotDebug->axes[1].acc_limit; //1==>y
-    acc_bound->z = emcmotDebug->axes[2].acc_limit; //2==>z
+    acc_bound->x = emcmotInternal->axes[0].acc_limit; //0==>x
+    acc_bound->y = emcmotInternal->axes[1].acc_limit; //1==>y
+    acc_bound->z = emcmotInternal->axes[2].acc_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -147,9 +146,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotDebug->axes[0].vel_limit; //0==>x
-    vel_bound->y = emcmotDebug->axes[1].vel_limit; //1==>y
-    vel_bound->z = emcmotDebug->axes[2].vel_limit; //2==>z
+    vel_bound->x = emcmotInternal->axes[0].vel_limit; //0==>x
+    vel_bound->y = emcmotInternal->axes[1].vel_limit; //1==>y
+    vel_bound->z = emcmotInternal->axes[2].vel_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -272,7 +271,7 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
     /* If we're stepping, then it doesn't matter what the optimization says, we want to end at a stop.
      * If the term_cond gets changed out from under us, detect this and force final velocity to zero
      */
-    if (emcmotDebug->stepping || tc->term_cond != TC_TERM_COND_TANGENT || tp->reverse_run) {
+    if (emcmotInternal->stepping || tc->term_cond != TC_TERM_COND_TANGENT || tp->reverse_run) {
         return 0.0;
     } 
     

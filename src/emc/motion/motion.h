@@ -57,17 +57,6 @@ to another.
 
 */
 
-/* the following line can be used to control where some of the
-   "internal" motion controller data is stored.  By default,
-   it is stored in staticlly allocated kernel memory.  However,
-   if STRUCTS_IN_SHMEM is defined, it will be stored in the
-   emcmotStruct shared memory area, for debugging purposes.
-*/
-
-#define STRUCTS_IN_SHMEM
-
-
-
 #ifndef MOTION_H
 #define MOTION_H
 
@@ -81,6 +70,7 @@ to another.
 #include <stdarg.h>
 #include "rtapi_bool.h"
 #include "state_tag.h"
+#include "tp_types.h"
 
 // define a special value to denote an invalid motion ID
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
@@ -776,6 +766,35 @@ Suggestion: Split this in to an Error and a Status flag register..
 
 	int probe_debounce_cntr;
 	unsigned char tail;	/* flag count for mutex detect */
+
+
+/*! \todo FIXME - all structure members beyond this point are in limbo */
+
+	int split;		/* number of split command reads */
+
+	TP_STRUCT coord_tp;	/* coordinated mode planner */
+
+/* space for trajectory planner queues, plus 10 more for safety */
+/*! \todo FIXME-- default is used; dynamic is not honored */
+	TC_STRUCT queueTcSpace[DEFAULT_TC_QUEUE_SIZE + 10];
+
+	int enabling;		/* starts up disabled */
+	int coordinating;	/* starts up in free mode */
+	int teleoperating;	/* starts up in free mode */
+
+	int overriding;		/* non-zero means we've initiated an joint
+				   move while overriding limits */
+
+	int stepping;
+	int idForStep;
+
+	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
+	emcmot_axis_t axes[EMCMOT_MAX_AXIS];	        /* axis data */
+
+	double start_time;
+	double running_time;
+	double cur_time;
+	double last_time;
     } emcmot_internal_t;
 
 /* error structure - A ring buffer used to pass formatted printf strings to usr space */
@@ -798,6 +817,16 @@ Suggestion: Split this in to an Error and a Status flag register..
     extern int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap);
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
+
+#define ALL_JOINTS emcmotConfig->numJoints
+// number of kinematics-only joints:
+#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
+#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
+// 0-based Joint numbering:
+// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
+// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
+
+#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
 
 #ifdef __cplusplus
 }

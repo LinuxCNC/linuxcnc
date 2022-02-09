@@ -18,7 +18,7 @@
 struct emcmot_status_t;
 struct emcmot_command_t;
 struct emcmot_config_t;
-struct emcmot_debug_t;
+struct emcmot_internal_t;
 struct emcmot_error_t;
 
 #ifdef __cplusplus
@@ -39,7 +39,7 @@ extern "C" {
 
 /* usrmotReadEmcmotDebug() gets the debug info out of
    the emcmot controller and puts it in arg */
-    extern int usrmotReadEmcmotDebug(emcmot_debug_t * s);
+    extern int usrmotReadEmcmotDebug(emcmot_internal_t * s);
 
 /* usrmotReadEmcmotError() gets the earliest queued error string out of
    the emcmot controller and puts it in arg */
@@ -55,7 +55,7 @@ extern "C" {
 
 /* usrmotPrintEmcmotDebug() prints the debug in s, using which
    arg to select sub-prints */
-    extern void usrmotPrintEmcmotDebug(emcmot_debug_t *s, int which);
+    extern void usrmotPrintEmcmotDebug(emcmot_internal_t *s, int which);
 
 /* values returned by usrmotWriteEmcmotCommand; negative values
    are all errors */

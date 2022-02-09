@@ -19,7 +19,6 @@
 #include <string.h>		/* memcpy() */
 #include <float.h>		/* DBL_MIN */
 #include "motion.h"		/* emcmot_status_t,CMD */
-#include "motion_debug.h"       /* emcmot_debug_t */
 #include "motion_struct.h"      /* emcmot_struct_t */
 #include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
 #include "emcmotglb.h"		/* SHMEM_KEY */
@@ -42,7 +41,7 @@ static int inited = 0;		/* flag if inited */
 static emcmot_command_t *emcmotCommand = 0;
 static emcmot_status_t *emcmotStatus = 0;
 static emcmot_config_t *emcmotConfig = 0;
-static emcmot_debug_t *emcmotDebug = 0;
+static emcmot_internal_t *emcmotInternal = 0;
 static emcmot_error_t *emcmotError = 0;
 static emcmot_struct_t *emcmotStruct = 0;
 
@@ -163,18 +162,18 @@ printf("ReadEmcmotConfig COMM_SPLIT_READ_TIMEOUT\n" );
 }
 
 /* copies debug to s */
-int usrmotReadEmcmotDebug(emcmot_debug_t * s)
+int usrmotReadEmcmotDebug(emcmot_internal_t * s)
 {
     int split_read_count;
     
     /* check for shmem still around */
-    if (0 == emcmotDebug) {
+    if (0 == emcmotInternal) {
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
 	/* copy debug struct from shmem to local memory */
-	memcpy(s, emcmotDebug, sizeof(emcmot_debug_t));
+	memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
 	/* got it, now check head-tail matches */
 	if (s->head == s->tail) {
 	    /* head and tail match, done */
@@ -266,7 +265,7 @@ void printTPstruct(TP_STRUCT * tp)
     printf("pausing=%d\n", tp->pausing);
 }
 
-void usrmotPrintEmcmotDebug(emcmot_debug_t *d, int which)
+void usrmotPrintEmcmotDebug(emcmot_internal_t *d, int which)
 {
 //    int t;
 
@@ -665,7 +664,7 @@ int usrmotInit(const char *modname)
     /* got it */
     emcmotCommand = &(emcmotStruct->command);
     emcmotStatus = &(emcmotStruct->status);
-    emcmotDebug = &(emcmotStruct->debug);
+    emcmotInternal = &(emcmotStruct->internal);
     emcmotConfig = &(emcmotStruct->config);
     emcmotError = &(emcmotStruct->error);
 

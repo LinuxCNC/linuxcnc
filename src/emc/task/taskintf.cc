@@ -20,7 +20,6 @@
 #include "usrmotintf.h"		// usrmotInit(), usrmotReadEmcmotStatus(),
 				// etc.
 #include "motion.h"		// emcmot_command_t,STATUS, etc.
-#include "motion_debug.h"
 #include "homing.h"
 #include "emc.hh"
 #include "emccfg.h"		// EMC_INIFILE
@@ -899,7 +898,7 @@ int get_emcmot_debug_info = 0;
   these globals are set in emcMotionUpdate(), then referenced in
   emcJointUpdate(), emcTrajUpdate() to save calls to usrmotReadEmcmotStatus
  */
-static emcmot_debug_t emcmotDebug;
+static emcmot_internal_t emcmotInternal;
 static char errorString[EMCMOT_ERROR_LEN];
 static int new_config = 0;
 
@@ -2019,7 +2018,7 @@ int emcMotionUpdate(EMC_MOTION_STAT * stat)
     }
 
     if (get_emcmot_debug_info) {
-	if (0 != usrmotReadEmcmotDebug(&emcmotDebug)) {
+	if (0 != usrmotReadEmcmotDebug(&emcmotInternal)) {
 	    return -1;
 	}
     }
