@@ -1,7 +1,7 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001 Marc Le Douarain */
-/* mavati@club-internet.fr */
-/* http://www.multimania.com/mavati/classicladder */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* http://membres.lycos.fr/mavati/classicladder/ */
+/* http://www.sourceforge.net/projects/classicladder */
 /* August 2002 */
 /* ---------------------------- */
 /* Sections functions utilities */
@@ -29,7 +29,9 @@
 
 #include "classicladder.h"
 #include "global.h"
+#ifdef GTK_INTERFACE
 #include "edit.h"
+#endif
 #include "manager.h"
 
 void InitSections( void )
@@ -48,8 +50,9 @@ void InitSections( void )
 		pSection->SequentialPage = 0;
 	}
 
-	// we directly create one section in ladder...
+	// We directly create one section in ladder...
 	// at least for compatibility with our old progs !
+	// The rung associated is defined in InitRungs() of calc.c
 	pSection = &SectionArray[ 0 ];
 	pSection->Used = TRUE;
 	rtapi_strxcpy( pSection->Name, "Prog1" );
@@ -190,10 +193,11 @@ int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNb
 			}
 		}
 #endif
+		InfosGene->AskConfirmationToQuit = TRUE;
+		InfosGene->HasBeenModifiedForExitCode = TRUE;
 	}
 	return FreeFound;
 }
-
 void ModifySectionProperties( char * OriginalSectionName, char * NewSectionName )
 {
 	StrSection * pSection;
@@ -255,6 +259,8 @@ void DelSection( char * SectionNameToErase )
 			}
 			RungArray[ InfosGene->LastRung ].Used = FALSE;
 		}
+		InfosGene->AskConfirmationToQuit = TRUE;
+		InfosGene->HasBeenModifiedForExitCode = TRUE;
 	}
 }
 
@@ -276,6 +282,9 @@ void SwapSections( char * SectionName1, char * SectionName2 )
 		memcpy( pSectionTemp, pSection1, sizeof(StrSection) );
 		memcpy( pSection1, pSection2, sizeof(StrSection) );
 		memcpy( pSection2, pSectionTemp, sizeof(StrSection) );
+		
+		InfosGene->AskConfirmationToQuit = TRUE;
+		InfosGene->HasBeenModifiedForExitCode = TRUE;
 	}
 }
 
@@ -314,3 +323,4 @@ int FindFreeSequentialPage( void )
 #endif
 
 #endif
+

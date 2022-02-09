@@ -108,39 +108,6 @@ void SelectRowSignal( GtkCList *clist, gint row, gint column, GdkEventButton *ev
 	}
 }
 
-void ButtonAddClickSignal( )
-{
-	// we open the requester to add a new section...
-	gtk_entry_set_text( GTK_ENTRY(EditName), "" );
-	gtk_widget_set_sensitive( CycleLanguage, TRUE );
-	gtk_widget_set_sensitive( CycleSubRoutineNbr, TRUE );
-	gtk_widget_grab_focus( EditName );
-	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Add a new section...");
-	gtk_widget_show( AddSectionWindow );
-	ModifyNotAdding = FALSE;
-}
-void ButtonPropertiesClickSignal( )
-{
-	// we open the requester to modify some properties of the current section...
-	gtk_entry_set_text( GTK_ENTRY(EditName), pNameSectionSelected );
-	int NumSec = SearchSectionWithName( pNameSectionSelected );
-	if ( NumSec>=0 )
-	{
-		char Buff[13];
-		StrSection * pSection = &SectionArray[ NumSec ];
-		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleLanguage)->entry,pSection->Language== SECTION_IN_LADDER?"Ladder":"Sequential");
-		strcpy( Buff, "Main");
-		if ( pSection->SubRoutineNumber>=0 )
-			sprintf( Buff, "SR%d", pSection->SubRoutineNumber );
-		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleSubRoutineNbr)->entry,Buff);
-	}
-	gtk_widget_set_sensitive( CycleLanguage, FALSE );
-	gtk_widget_set_sensitive( CycleSubRoutineNbr, FALSE );
-	gtk_widget_grab_focus( EditName );
-	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Modify current section");
-	gtk_widget_show( AddSectionWindow );
-	ModifyNotAdding = TRUE;
-}
 void ButtonAddSectionDoneClickSignal( )
 {
 	char * pSectionNameEntered = (char *)gtk_entry_get_text( GTK_ENTRY(EditName) );
@@ -186,6 +153,39 @@ void ButtonAddSectionDoneClickSignal( )
 			}
 		}
 	}
+}
+void ButtonAddClickSignal( )
+{
+	// we open the requester to add a new section...
+	gtk_entry_set_text( GTK_ENTRY(EditName), "" );
+	gtk_widget_set_sensitive( CycleLanguage, TRUE );
+	gtk_widget_set_sensitive( CycleSubRoutineNbr, TRUE );
+	gtk_widget_grab_focus( EditName );
+	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Add a new section...");
+	gtk_widget_show( AddSectionWindow );
+	ModifyNotAdding = FALSE;
+}
+void ButtonPropertiesClickSignal( )
+{
+	// we open the requester to modify some properties of the current section...
+	gtk_entry_set_text( GTK_ENTRY(EditName), pNameSectionSelected );
+	int NumSec = SearchSectionWithName( pNameSectionSelected );
+	if ( NumSec>=0 )
+	{
+		char Buff[10];
+		StrSection * pSection = &SectionArray[ NumSec ];
+		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleLanguage)->entry,pSection->Language== SECTION_IN_LADDER?"Ladder":"Sequential");
+		strcpy( Buff, "Main");
+		if ( pSection->SubRoutineNumber>=0 )
+			sprintf( Buff, "SR%d", pSection->SubRoutineNumber );
+		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleSubRoutineNbr)->entry,Buff);
+	}
+	gtk_widget_set_sensitive( CycleLanguage, FALSE );
+	gtk_widget_set_sensitive( CycleSubRoutineNbr, FALSE );
+	gtk_widget_grab_focus( EditName );
+	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Modify current section");
+	gtk_widget_show( AddSectionWindow );
+	ModifyNotAdding = TRUE;
 }
 gint AddSectionWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
@@ -248,6 +248,14 @@ void ButtonMoveDownClickSignal( )
 //	}
 	ManagerDisplaySections( );
 }
+
+gint ManagerWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
+{
+	gtk_widget_hide( ManagerWindow );
+	SetToogleMenuForSectionsManagerWindow( FALSE/*OpenedWin*/ );
+	// we do not want that the window be destroyed.
+	return TRUE;
+}
 // called per toggle action menu, or at startup (if window saved open or not)...
 void OpenManagerWindow( GtkAction * ActionOpen, gboolean OpenIt )
 {
@@ -273,12 +281,6 @@ void ManagerEnableActionsSectionsList( char cState )
 	gtk_widget_set_sensitive( ButtonPropertiesSection, cState );
 }
 
-gint ManagerWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
-{
-	// we do not want that the window be destroyed.
-	return TRUE;
-}
-
 void AddSectionWindowInit( )
 {
 	GtkWidget *vbox;
@@ -302,7 +304,6 @@ void AddSectionWindowInit( )
 	}
 
 	AddSectionWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)AddSectionWindow, _("Add a section..."));
 
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (AddSectionWindow), vbox);
@@ -361,16 +362,6 @@ void AddSectionWindowInit( )
 		(GtkSignalFunc)AddSectionWindowDeleteEvent, 0 );
 }
 
-void ToggleManagerWindow()
-{
-	if (InfosGene->HideGuiState == GTK_WIDGET_VISIBLE( ManagerWindow ))
-	{
-		if ( GTK_WIDGET_VISIBLE( ManagerWindow ) )
-		{	gtk_widget_hide (ManagerWindow);
-		}else{	gtk_widget_show (ManagerWindow);
-		}
-	}
-}
 void ManagerInitGtk()
 {
 	GtkWidget *vbox;
