@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:canonical-device-interfaces]]
-
 = Interfaces de dispositivos canónicos
 
 == Introducción
@@ -119,4 +118,4 @@ A/D bipolar de 12 bits puede necesitar escribir 0x1FF (escala intermedia) para o
 voltios desde el pin de hardware. Si el pin enable es verdadero, lee scale, offset y
 value y pone a la salida del ADC (*scale* * *value*) + *offset*.
 
-
+// vim: set syntax=asciidoc:

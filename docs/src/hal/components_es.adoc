@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:componentes-hal]]
-
 = Componentes HAL
 
 == Comandos y componentes de espacio de usuario
@@ -34,7 +33,6 @@ pyvcp:: Panel de control virtual para LinuxCNC.
 shuttle:: controla los pines HAL con los dispositivos ShuttleXpress y ShuttlePRO fabricados por Contour Design.
 
 [[sec:realtime-components]]
-
 == Lista de componentes en tiempo real
 
 Todos los comandos en la siguiente lista tienen páginas de manual.
@@ -407,3 +405,4 @@ rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
 .... 
 
+// vim: set syntax=asciidoc:

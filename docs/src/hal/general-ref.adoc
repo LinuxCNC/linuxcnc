@@ -157,3 +157,5 @@ generic8255.0.din.09-15.read::
 ppmc.0.write::
       -- writes all outputs (step generators, pwm, DACs, and digital) on
     the first Pico Systems ppmc board.
+
+// vim: set syntax=asciidoc:

@@ -204,7 +204,8 @@ value = hal.get_value("iocontrol.0.emc-enable-in") +
 
 === get_info_pins()
 
-returns a list of dicts of all system pins. +
+returns a list of dicts of all system pins.
+
 [source,python]
 ----
 listOfDicts = hal.get_info_pins()
@@ -214,7 +215,8 @@ pinDirection1 = listOfDicts[0].get('DIRECTION')
 ----
 
 === get_info_signals()
-returns a list of dicts of all system signals. +
+returns a list of dicts of all system signals.
+
 [source,python]
 ----
 listOfDicts = hal.get_info_signals()
@@ -222,9 +224,11 @@ signalName1 = listOfDicts[0].get('NAME')
 signalValue1 = listOfDicts[0].get('VALUE')
 driverPin1 = listOfDicts[0].get('DRIVER')
 ----
+
 === get_info_params()
 
-returns a list of dicts of all system parameters. +
+returns a list of dicts of all system parameters.
+
 [source,python]
 ----
 listOfDicts = hal.get_info_params()
@@ -234,8 +238,7 @@ paramValue1 = listOfDicts[0].get('VALUE')
 
 === new_signal
 
-Create a New signal of the type specified. +
-example" +
+Create a New signal of the type specified. Example: +
 hal.new_sig("signalname",hal.HAL_BIT)
 
 === pin_has_writer
@@ -348,6 +351,7 @@ import hal
 ----
 
 Then make a pin and connect a 'value-changed' (the watcher) signal to a function call:
+
 [source,python]
 ----
 class HandlerClass:
@@ -427,3 +431,5 @@ This shows ways to get the pin value and information.
   (Ubuntu package name “lcdproc”, in the universe repository)
 * Create a virtual control panel using any GUI library supported by
   Python (gtk, qt, wxwindows, etc)
+
+// vim: set syntax=asciidoc:

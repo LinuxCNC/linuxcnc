@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:hal-examples]]
-
 = Ejemplos HAL
 
 Todos estos ejemplos suponen que se comienza con una configuración basada
@@ -314,6 +313,4 @@ stop
 unloadrt all
 ----
 
-
-
-
+// vim: set syntax=asciidoc:

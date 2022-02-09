@@ -514,3 +514,5 @@ connected to the in0 bit of the and gate. Next pin 12 is connected to
 the in1 bit of the and gate. Last we connect the and2 out bit to the
 parallel port pin 14. So following the truth table for and2 if pin 11
 and pin 12 are on then the output pin 14 will be on.
+
+// vim: set syntax=asciidoc:

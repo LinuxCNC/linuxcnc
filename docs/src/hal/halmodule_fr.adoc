@@ -173,4 +173,4 @@ d'arrêt.
    librairie d'interface graphique supportée par Python (gtk, qt,
    wxwindows, etc)
 
-
+// vim: set syntax=asciidoc:

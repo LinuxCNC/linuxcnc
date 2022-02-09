@@ -118,3 +118,4 @@ volts from the hardware pin. If enable is true, read scale, offset and
 value and output to the adc (*scale* * *value*) + *offset*. If enable
 is false, then output 0.
 
+// vim: set syntax=asciidoc:

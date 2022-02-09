@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:basic-hal-reference]]
-
 = Referencia básica HAL
 
 Este documento proporciona una referencia de los conceptos básicos de HAL.
@@ -551,3 +550,5 @@ Owner   Type  Dir         Value  Name
     10  s32   I/O             0  wsum.0.offset
     10  s32   Out             5  wsum.0.sum
 -----------------------------------------------------------
+
+// vim: set syntax=asciidoc:

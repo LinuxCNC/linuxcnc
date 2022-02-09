@@ -342,11 +342,11 @@ The result of using any other option is undefined.
   module's license is GPL v2 or later,
 
         license "GPL"; // indicates GPL v2 or later
-+   
+   
 For additional information on the meaning of MODULE_LICENSE() and
 additional license identifiers, see '<linux/module.h>'. or the manual page
 'rtapi_module_param(3)'
-+   
+   
 This declaration is required.
 
 * 'AUTHOR' - Specify the author of the module for the documentation.
@@ -360,23 +360,23 @@ This declaration is required.
 * 'variable CTYPE STARREDNAME = DEFAULT;'
 
 * 'variable CTYPE STARREDNAME[SIZE] = DEFAULT;'
-+
+
 Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
 an array of 'SIZE' items, and optionally with a default value
 'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
 'CTYPE' is a simple one-word C type, such as 'float', 'u32', 's32',
 int, etc. Access to array variables uses square brackets. 
-+
+
 If a variable is to be of a pointer type, there may not be any space
 between the "*" and the variable name. 
 Therefore, the following is acceptable: 
-+
+
 ----
 variable int *example;
 ----
-+
+
 but the following are not: 
-+
+
 ----
 variable int* badexample;
 variable int * badexample;
@@ -445,7 +445,7 @@ of 'halcompile' to the next.
   array, it is only legal to refer to items up to its 'condsize'.
 +
 When the item is a conditional item, it is only legal to refer to it
-    when its 'condition' evaluated to a nonzero value.
+when its 'condition' evaluated to a nonzero value.
 
 * 'variable_name' - For each variable 'variable_name'  there is a macro which allows the
   name to be used on its own to refer
@@ -504,7 +504,6 @@ loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
 ----
 
 [NOTE]
-
 If a loadrt line specifies more instances than personalities, the
 instances with unspecified personalities are assigned a
 personality of 0.  If the requested number of instances
@@ -533,7 +532,6 @@ module directory:
 ----
 
 [NOTE]
-
 sudo (for root permission) is needed when using LinuxCNC from
 a deb package install.  When using a Run-In-Place (RIP) build,
 root privileges should not be needed.
@@ -788,6 +786,7 @@ A typical load line for this component might be
 ----
 loadrt logic count=3 personality=0x102,0x305,0x503
 ----
+
 which creates the following pins:
 
  - A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
@@ -853,3 +852,5 @@ A brief summary of halcompile usage is given by:
 ----
 $ halcompile --help
 ----
+
+// vim: set syntax=asciidoc:

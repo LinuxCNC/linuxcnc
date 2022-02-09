@@ -288,3 +288,5 @@ in halshow can be set up to watch a parport much as IO_Show did.
 [[cap:watch-tab-context-menu]]
 .Watch Tab context menu
 image::images/halshow-5.png["Watch Tab context menu",align="center"]
+
+// vim: set syntax=asciidoc:

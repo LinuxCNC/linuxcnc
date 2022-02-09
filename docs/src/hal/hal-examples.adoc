@@ -295,3 +295,5 @@ stop
 # unload HAL all components before exiting
 unloadrt all
 ----
+
+// vim: set syntax=asciidoc:
