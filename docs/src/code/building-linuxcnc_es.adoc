@@ -146,10 +146,7 @@ Los argumentos más utilizados son:
     Los ejecutables LinuxCNC resultantes se ejecutarán tanto en un kernel de Linux
     con parches Preempt-RT (que proporcionan control de la máquina en tiempo real) o
     en un núcleo Linux original (sin parches) (que proporciona simulación de código G
-    pero sin control de máquina en tiempo real). Si los archivos de desarrollo están instalados
-    para Xenomai (típicamente del paquete libxenomai-dev) o RTAI (típicamente
-    desde un paquete con un nombre que comienza por "rtai-modules"), también estarán habilitado
-    soporte para estos núcleos en tiempo real.
+    pero sin control de máquina en tiempo real).
 
 `--with-realtime=/usr/realtime-$VERSION`::
 
@@ -287,7 +284,7 @@ Los valores normales para este argumento son:
 `$KERNEL_VERSION`::
 
     Configura el paquete debian para la versión de kernel RTAI especificada
-    (por ejemplo, "3.4.9-rtai-686-pae"). Los encabezados del kernel 
+    (por ejemplo, "3.4.9-rtai-686-pae"). Los encabezados del kernel
     del paquete debian coincidente debe estar instalado en su máquina de compilación (por ejemplo
     "linux-headers-3.4.9-rtai-686-pae"). Tenga en cuenta que puede _construir_
     LinuxCNC en esta configuración, pero si no está ejecutando el

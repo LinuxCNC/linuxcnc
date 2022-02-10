@@ -143,14 +143,11 @@ The most commonly used arguments are:
 
 `--with-realtime=uspace`::
 
-    Build for any realtime platform, or for non-realtime.
+    Build for Preempt-RT realtime platform, or for non-realtime.
     The resulting LinuxCNC executables will run on both a Linux kernel
     with Preempt-RT patches (providing realtime machine control) and
     on a vanilla (un-patched) Linux kernel (providing G-code simulation
-    but no realtime machine control).  If development files are installed
-    for Xenomai (typically from package libxenomai-dev) or RTAI (typically
-    from a package with a name starting "rtai-modules"), support for
-    these real-time kernels will also be enabled.
+    but no realtime machine control).
 
 `--with-realtime=/usr/realtime-$VERSION`::
 
