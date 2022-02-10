@@ -59,14 +59,14 @@ usage () {
 BASE=$(parse_time 25us); SERVO=$(parse_time 1ms)
 
 case $1 in
-  -h|--help) usage;;
+    -h|--help) usage;;
 esac
 
 case $# in
-0) ;;
-1) BASE=$(parse_time $1) ;;
-2) BASE=$(parse_time $1); SERVO=$(parse_time $2) ;;
-*) usage;;
+    0) ;;
+    1) BASE=$(parse_time $1) ;;
+    2) BASE=$(parse_time $1); SERVO=$(parse_time $2) ;;
+    *) usage;;
 esac
 
 if [ "$BASE" -gt "$SERVO" ]; then TEMP=$BASE; BASE=$SERVO; SERVO=$TEMP; fi
@@ -74,8 +74,10 @@ if [ "$BASE" -eq "$SERVO" ]; then BASE=0; fi
 
 BASE_HUMAN=$(human_time $BASE)
 SERVO_HUMAN=$(human_time $SERVO)
+
 if [ $BASE -eq 0 ]; then
-cat > lat.hal <<EOF
+
+    cat > lat.hal <<EOF
 loadrt threads name1=slow period1=$SERVO
 loadrt timedelta count=1
 addf timedelta.0 slow
@@ -89,7 +91,7 @@ waitusr lat
 loadusr -w bash latexit.sh
 EOF
 
-cat > latexit.sh <<EOF
+    cat > latexit.sh <<EOF
 L=\$((halcmd gets sj
     if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
     ) | sort -n | tail -1)
@@ -97,7 +99,8 @@ echo \$L > $HOME/.latency
 EOF
 
 else
-cat > lat.hal <<EOF
+
+    cat > lat.hal <<EOF
 loadrt threads name1=fast period1=$BASE name2=slow period2=$SERVO
 loadrt timedelta count=2
 addf timedelta.0 fast
@@ -114,6 +117,14 @@ net reset lat.reset => timedelta.0.reset timedelta.1.reset
 waitusr lat
 loadusr -w bash latexit.sh
 EOF
+
+    cat > latexit.sh <<EOF
+L=\$((halcmd gets sj; halcmd gets bj;
+    if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
+    ) | sort -n | tail -1)
+echo \$L > $HOME/.latency
+EOF
+
 fi
 
 cat > lat.xml <<EOF
@@ -151,13 +162,5 @@ While the test is running, you should "abuse" the computer. Move windows around 
 </table>
 </pyvcp>
 EOF
-
-cat > latexit.sh <<EOF
-L=\$((halcmd gets sj; halcmd gets bj;
-    if [ -f $HOME/.latency ]; then cat $HOME/.latency; fi
-    ) | sort -n | tail -1)
-echo \$L > $HOME/.latency
-EOF
-
 
 halrun lat.hal
