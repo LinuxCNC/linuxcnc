@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-10 23:08+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-02-11 22:09+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -3636,12 +3636,12 @@ msgstr "Spulen/Eingänge Zuordnungen lesen für"
 #: src/hal/classicladder/config_gtk.c:670
 #, c-format
 msgid "Write Coils map from"
-msgstr "Spulen-Zuordnung schreiben von"
+msgstr "Coil-Zuordnung schreiben von"
 
 #: src/hal/classicladder/config_gtk.c:674
 #, c-format
 msgid "Read register/holding map to"
-msgstr "Lese register/bewahre Zuordnung für"
+msgstr "Lese Register/Holding-Zuordnung für"
 
 #: src/hal/classicladder/config_gtk.c:678
 #, c-format
@@ -8839,7 +8839,7 @@ msgstr "Syncrongeschwindigkeit Spindel"
 
 #: src/emc/usr_intf/touchy/mdi.py:69 src/emc/usr_intf/gscreen/mdi.py:65
 msgid "Rigid tap"
-msgstr "Ohne Ausgleichsfutter"
+msgstr "Gewindebohren ohne Ausgleichsfutter"
 
 #: src/emc/usr_intf/touchy/mdi.py:70 src/emc/usr_intf/touchy/mdi.py:71
 #: src/emc/usr_intf/touchy/mdi.py:72 src/emc/usr_intf/touchy/mdi.py:73
@@ -19649,7 +19649,7 @@ msgid ""
 "  Bwd"
 msgstr ""
 "Suche\n"
-"Rückw"
+"Rückw."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3538
 msgid ""
@@ -19657,7 +19657,7 @@ msgid ""
 "  Fwd"
 msgstr ""
 "Suche\n"
-"Vorw"
+"Vorw."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3550
 msgid "Undo"
