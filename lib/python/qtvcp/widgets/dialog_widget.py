@@ -222,7 +222,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             callback = message.get('CALLBACK') # this needs testing
             self.showdialog(messtext, more, details, mtype, 
                                     icon, pin, ftext, fcolor, alert,
-                                    nblock, title = t, return_callback = callbck)
+                                    nblock, title = t, return_callback = callback)
 
     # This actually builds and displays the dialog.
     # there are three ways to get results:
