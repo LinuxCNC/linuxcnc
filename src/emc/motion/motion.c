@@ -148,8 +148,8 @@ static int init_comm_buffers(void);
 static int init_threads(void);
 
 /* functions called by init_threads() */
-static int setTrajCycleTime(double secs);
-static int setServoCycleTime(double secs);
+static int setTrajCycleTime(const double secs);
+static int setServoCycleTime(const double secs);
 
 static int module_intfc(void);
 static int tp_init(void);
@@ -157,7 +157,7 @@ static int tp_init(void);
 *                     PUBLIC FUNCTION CODE                             *
 ************************************************************************/
 int joint_is_lockable(int joint_num) {
-    return (unlock_joints_mask & (1 << joint_num) );
+    return (unlock_joints_mask & ((unsigned int) 1 << joint_num) );
 }
 
 void switch_to_teleop_mode(void) {
@@ -199,21 +199,24 @@ void reportError(const char *fmt, ...)
     va_end(args);
 }
 
-#ifndef va_copy
-#define va_copy(dest, src) ((dest)=(src))
-#endif
-
 static rtapi_msg_handler_t old_handler = NULL;
 static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
 {
-    va_list apc;
-    va_copy(apc, ap);
-    if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
-    if(old_handler) old_handler(level, fmt, ap);
-    va_end(apc);
+   if(level == RTAPI_MSG_ERR) {
+        va_list apc;
+        //va_start(ap,fmt) - prepared by calling function
+        va_copy(apc, ap);
+	emcmotErrorPutfv(emcmotError, fmt, apc);
+        va_end(apc);
+        va_end(ap);
+    }
+
+    if (old_handler) {
+	old_handler(level, fmt, ap);
+    }
 }
 
-int count_names(char *names[]){
+int count_names(char * names[]){
   int namecount = 0;
   int i;
   for (i = 0; i < MAX_IO; i++) {
@@ -1075,7 +1078,7 @@ void emcmotSetCycleTime(unsigned long nsec )
 }
 
 /* call this when setting the trajectory cycle time */
-static int setTrajCycleTime(double secs)
+static int setTrajCycleTime(const double secs)
 {
     static int t;
 
@@ -1112,7 +1115,7 @@ static int setTrajCycleTime(double secs)
 }
 
 /* call this when setting the servo cycle time */
-static int setServoCycleTime(double secs)
+static int setServoCycleTime(const double secs)
 {
     static int t;
 
