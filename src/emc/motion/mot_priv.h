@@ -212,7 +212,11 @@ typedef struct {
     hal_bit_t   *eoffset_active; /* ext offsets active */
     hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
 
-    hal_float_t *feed_upm; /* feed units per minute*/
+    hal_float_t *feed_upm; /* feed gcode units per minute*/
+    hal_float_t *feed_inches_per_minute; /* feed inches per minute*/
+    hal_float_t *feed_inches_per_second; /* feed inches per second*/
+    hal_float_t *feed_mm_per_minute; /* feed mm per minute*/
+    hal_float_t *feed_mm_per_second; /* feed mm per second*/
 
     hal_float_t *switchkins_type;
 } emcmot_hal_data_t;
