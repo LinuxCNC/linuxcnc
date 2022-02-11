@@ -70,6 +70,7 @@ po/linuxcnc.pot:
 	$(Q)(cd ..; $(XGETTEXT) --from-code=UTF-8 -k_ -o src/$@ `$(PYTHON) src/po/fixpaths.py -j src $^`)
 	$(Q)touch $@
 
+.PHONY: pofiles
 pofiles: po/linuxcnc.pot po/gmoccapy/gmoccapy.pot
 	set -x; for i in po/*.po; do msgmerge -U $$i po/linuxcnc.pot; done
 	set -x; for i in po/gmoccapy/*.po; do msgmerge -U $$i po/gmoccapy/gmoccapy.pot; done
