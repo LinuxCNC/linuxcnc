@@ -204,6 +204,14 @@ License: GFDL-1.1+
  "/usr/share/common-licenses/GFDL-1.3".
 
 Files:
+ docs/src/hal/images/stepgen-type5-10.svg
+ docs/src/hal/images/stepgen-type2-4.svg
+ docs/src/hal/images/stepgen-type0.svg
+ docs/src/hal/images/stepgen-type11-14.svg
+Copyright: 2011 LinuxCNC.org
+License: GPL-3+
+
+Files:
  src/emc/nml_intf/*
  src/emc/kinematics/*
  src/emc/motion/*
