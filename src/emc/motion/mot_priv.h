@@ -236,28 +236,14 @@ extern emcmot_axis_t *axes;
 extern KINEMATICS_FORWARD_FLAGS fflags;
 extern KINEMATICS_INVERSE_FLAGS iflags;
 /* these variable have the 1/servo cycle time */
-extern double servo_freq;
 
 /* Struct pointers */
 extern struct emcmot_struct_t *emcmotStruct;
 extern struct emcmot_command_t *emcmotCommand;
 extern struct emcmot_status_t *emcmotStatus;
 extern struct emcmot_config_t *emcmotConfig;
-extern struct emcmot_debug_t *emcmotDebug;
+extern struct emcmot_internal_t *emcmotInternal;
 extern struct emcmot_error_t *emcmotError;
-
-
-// total number of joints (typically set with [KINS]JOINTS)
-#define ALL_JOINTS emcmotConfig->numJoints
-
-// number of kinematics-only joints:
-#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
-
-#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
-
-// 0-based Joint numbering:
-// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
-// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
 
 /***********************************************************************
 *                    PUBLIC FUNCTION PROTOTYPES                        *
@@ -285,8 +271,6 @@ extern int emcmotGetRotaryIsUnlocked(int axis);
 //
 void switch_to_teleop_mode(void);
 
-/* loops through the active joints and checks if any are not homed */
-extern bool checkAllHomed(void);
 /* recalculates jog limits */
 extern void refresh_jog_limits(emcmot_joint_t *joint,int joint_num);
 /* handles 'homed' flags, see command.c for details */
