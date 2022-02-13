@@ -29,6 +29,47 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     option add *$class.borderWidth 1  100
 }
 
+ if {[info exists ::env(CONFIG_DIR)]} {
+    set ::INIFILE "$::env(CONFIG_DIR)/halshow.preferences"
+ } else {
+    set ::INIFILE "~/.halshow_preferences"
+ }
+# puts stderr "Halshow inifile: $::INIFILE"
+
+
+proc readIni {} {
+    # check that the file is readable
+    if { ![file readable $::INIFILE]} {
+        # puts stderr "\[halshow\] Settings file not found, using defaults"
+        return -1
+    } elseif { [catch {source $::INIFILE}] } { 
+        puts stderr "\[halshow\] Error in settings file $::INIFILE, using defaults.\n" 
+        return -1
+    } else {
+        return 0
+    }
+}
+
+set ::initPhase true
+proc saveIni {} {
+    # The flag 'initPhase' prevents saving on the first FocusIn event
+    if {!$::initPhase} {
+        # open the file for writin0g (truncates if file exists)
+        if { [catch {set fc [open $::INIFILE w]}] } {
+            puts stder "\[halshow\] Unable to save settings to \"$INIFILE\"."
+        } else {
+            # write file
+            puts $fc "# Halshow settings"
+            puts $fc "# This file is generated automatically."
+            puts $fc [list wm geometry . [wm geometry .]]
+            puts $fc [list placeFrames $::ratio]
+            puts $fc [list set ::ratio $::ratio]
+            puts $fc [list set ::old_w_leftf $::old_w_leftf]
+            close $fc
+        }
+    }
+}
+
 #----------start toplevel----------
 #
 set ::titlename [msgcat::mc "HAL Show"]
@@ -43,15 +84,21 @@ set xmax [winfo screenwidth .]
 set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
-wm geometry . "${masterwidth}x${masterheight}+$x+$y"
+wm geometry . "${masterwidth}x${masterheight}+$x+$y" 
 wm minsize . [int [expr $masterwidth*0.3]] [int [expr $masterheight*0.5]]
-wm attributes . -topmost yes
+wm attributes . -topmost no
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
+    saveIni
     killHalConfig
 }
+
+# save settings after switching to another window
+bind . <FocusOut> {checkSizeChanged %W}
+# save settings after resize
+bind . <FocusIn> {checkSizeChanged %W}
 
 # clean up a possible problems during shutdown
 proc killHalConfig {} {
@@ -85,6 +132,28 @@ proc placeFrames {ratio} {
 }
 
 placeFrames 0.3
+
+set ::geometryOld [wm geometry .]
+proc checkSizeChanged {w} {
+    if {$w == "." || $w == ".f2.show.grip"} {
+        if {[wm geometry .] == $::geometryOld} {
+            return
+        }
+    } elseif {$w == "force"} {
+    } else {
+        return
+    }
+    saveIni
+    set ::geometryOld [wm geometry .]
+}
+
+set ::ratioOld $::ratio
+proc checkRatioChanged {} {
+    if {$::ratio != $::ratioOld} {
+        saveIni
+    }
+    set ::ratioOld $::ratio
+}
 
 # slider process is used for several widgets
 proc sSlide {f a b} {
@@ -167,27 +236,34 @@ set gripf [frame $::leftf.grip -borderwidth 3 -width 8 -cursor sb_h_double_arrow
 pack $gripf -side right -fill y
 pack $::tf -fill both -expand yes
 
-# grip symbol
+# grip symbol for changing the ratio of left and right frame
 set grip [frame $gripf.grip -relief groove -borderwidth 2 -width 2 -height 20]
-pack [frame $gripf.topfill] -side top -expand y ;# add frames to center grip
+pack [frame $gripf.topfill] -side top -expand y ; # add frames to center grip
 pack $grip
 pack [frame $gripf.bottomfill] -side bottom -expand y
 set ::grip_clicked false
 bind $gripf <Motion> [list scaleFrames]
 bind $gripf <ButtonPress-1> {set ::grip_clicked true}
-bind $gripf <ButtonRelease-1> {set ::grip_clicked false}
+bind $gripf <ButtonRelease-1> {
+    set ::grip_clicked false
+    checkRatioChanged
+}
 bind $grip <Motion> [list scaleFrames]
 bind $grip <ButtonPress-1> {set ::grip_clicked true}
-bind $grip <ButtonRelease-1> {set ::grip_clicked false}
+bind $grip <ButtonRelease-1> {
+    set ::grip_clicked false
+    checkRatioChanged
+}
 
 # frame to hide tree
 set fh [frame $::tf.fh -borderwidth 0 -relief raised]
 pack $fh -fill x
-set tlbl [label $fh.tlbl -text [msgcat::mc "Tree View"]]
-pack $tlbl -side left
+
 set bh [button $fh.bh -borderwidth 0 -text » -padx 6 -pady 1]
 pack $bh -side right
-bind $bh <Button-1> [list hideListview]
+set tlbl [label $fh.tlbl -text [msgcat::mc "Tree View"]]
+pack $tlbl -side left
+bind $bh <Button-1> [list hideListview true]
 
 # frame to show tree
 set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width 24]
@@ -199,19 +275,24 @@ set clbl [canvas $::fs.clbl -width 20]
 pack $clbl
 $clbl create text 10 5 -angle 90 -anchor e -text [msgcat::mc "Tree View"] -font [list "" 10]
 
-proc hideListview {} {
+proc hideListview {resizeWindow} {
     place $::fs -width 24 -relheight 1.0
     pack forget $::nb
     place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -33 -relheight 1.0
-    placeFrames 0 
-    set ::old_w_leftf [winfo width $::leftf]
-    set new_w [expr [winfo width $::nb] + [$::fs cget -width] + 9 + 2* [.main cget -padx]]
-    set new_x [int [expr [winfo x .] + [winfo width .] - $new_w - 3]]
-    # offset added here because [winfo geometry .] differs from [wm geometry .]    
-    set y [expr [winfo y .] - 61]
-    wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
+    placeFrames 0
+    if {$resizeWindow} {
+        set ::old_w_leftf [winfo width $::leftf]
+        set new_w [expr [winfo width $::nb] + [$::fs cget -width] + 9 + 2* [.main cget -padx]]
+        set new_x [int [expr [winfo x .] + [winfo width .] - $new_w - 3]]
+        # offset added here because [winfo geometry .] differs from [wm geometry .]    
+        set y [expr [winfo y .] - 61]
+        wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
+        tkwait visibility $::fs
+        saveIni
+   }
 }
 
+set ::old_w_leftf 160
 proc showListview {} {
     place forget $::fs
     place configure $::nb -relwidth 1.0 -width 0
@@ -223,8 +304,11 @@ proc showListview {} {
     # offset added here because [winfo geometry .] differs from [wm geometry .]
     set y [expr [winfo y .] - 61]
     wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
+    tkwait visibility $::tf
+    saveIni
 }
 
+# scale left and right frame while dragging
 proc scaleFrames {} {
     if {$::grip_clicked} {
         set xpos [expr {[winfo pointerx .] - [winfo x .]}]
@@ -235,14 +319,21 @@ proc scaleFrames {} {
         }
     }
 }
-# build the tree widgets left side
 
+# build the tree widgets left side
 set ::treew [Tree $::tf.t  -width 10 -yscrollcommand "sSlide $::tf" ]
 set str $::tf.sc
 scrollbar $str -orient vert -command "$::treew yview"
 pack $str -side right -fill y
 pack $::treew -side right -fill both -expand yes
 $::treew bindText <Button-1> {workMode   }
+
+# Loading the settings from the file.
+# This overrides the default settings above.
+readIni
+if {$::ratio == 0} {
+    hideListview false
+}
 
 #----------tree widget handlers----------
 # a global var -- ::treenodes -- holds the names of existing nodes
@@ -422,6 +513,7 @@ proc makeShow {} {
 
     bind $::disp <Button-3> {popupmenu_text %X %Y}
     bind . <Control-KeyPress-c> {copySelection 0}
+    bind $f2.show.grip <ButtonRelease-1> {checkSizeChanged %W}
 }
 
 proc copySelection {clear} {
@@ -709,7 +801,7 @@ proc entrybox {defVal buttonText label} {
         set ypos "[ expr {[winfo rooty [winfo parent $wn]]+ \
             ([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
         wm geometry $wn "+$xpos+$ypos"
-        wm attributes $wn -topmost yes
+        wm attributes $wn -topmost no
         variable entryVal
         set entryVal $defVal
         label .top.lbl -text $label
@@ -949,3 +1041,5 @@ if {[llength $::argv] > 0} {
    }
 }
 
+tkwait visibility .
+set ::initPhase false
