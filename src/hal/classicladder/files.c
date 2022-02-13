@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* Copyright (C) 2001-2009 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
-// for mkdir( ) Linux
+// for mkdir( ) Linux + unistd.h for rmdir()
 #if !defined(__WIN32__)
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -45,6 +45,9 @@
 #include "files.h"
 #include "vars_access.h"
 #include "protocol_modbus_master.h"
+#include "manager.h"
+//#include "log.h"
+
 #include "emc_mods.h"
 #include <rtapi_string.h>
 
@@ -83,66 +86,95 @@ char *cl_fgets(char *s, int size, FILE *stream)
 
 char ConvRawLineOfElements(char * RawLine,int y,StrRung * StorageRung)
 {
-    char * StartOfValue;
-    char * EndOfValue;
-    int x = 0;
+	char * StartOfValue;
+	char * EndOfValue;
+	int x = 0;
 
-    char EndOfLine;
+	char EndOfLine;
+	char IndexedVarFound;
 
-    StartOfValue = RawLine;
-    EndOfValue = RawLine;
+	StartOfValue = RawLine;
+	EndOfValue = RawLine;
 
-    do
-    {
-        /* Extract Element Type */
-        StartOfValue = EndOfValue;
-        do
-        {
-            EndOfValue++;
-        }
-        while(*EndOfValue!='-');
-        *EndOfValue++ = '\0';
-        StorageRung->Element[x][y].Type = atoi(StartOfValue);
+	do
+	{
+		/* Extract Element Type */
+		StartOfValue = EndOfValue;
+		do
+		{
+			EndOfValue++;
+		}
+		while(*EndOfValue!='-');
+		*EndOfValue++ = '\0';
+		StorageRung->Element[x][y].Type = atoi(StartOfValue);
 
-        /* Extract ConnectedWithTop */
-        StartOfValue = EndOfValue;
-        do
-        {
-            EndOfValue++;
-        }
-        while(*EndOfValue!='-');
-        *EndOfValue++ = '\0';
-        StorageRung->Element[x][y].ConnectedWithTop = atoi(StartOfValue);
+		/* Extract ConnectedWithTop */
+		StartOfValue = EndOfValue;
+		do
+		{
+			EndOfValue++;
+		}
+		while(*EndOfValue!='-');
+		*EndOfValue++ = '\0';
+		StorageRung->Element[x][y].ConnectedWithTop = atoi(StartOfValue);
 
-        /* Extract Var Type */
-        StartOfValue = EndOfValue;
-        do
-        {
-            EndOfValue++;
-        }
-        while(*EndOfValue!='/');
-        *EndOfValue++ = '\0';
-        StorageRung->Element[x][y].VarType = atoi(StartOfValue);
+		IndexedVarFound = FALSE;
+		/* Extract Var Type */
+		StartOfValue = EndOfValue;
+		do
+		{
+			EndOfValue++;
+		}
+		while(*EndOfValue!='/');
+		*EndOfValue++ = '\0';
+		StorageRung->Element[x][y].VarType = atoi(StartOfValue);
 
-        /* Extract Var Offset in the type table */
-        StartOfValue = EndOfValue;
-        do
-        {
-            EndOfValue++;
-        }
-        while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
-        EndOfLine = TRUE;
-        if (*EndOfValue==',')
-            EndOfLine = FALSE;
-        *EndOfValue++ = '\0';
-        StorageRung->Element[x][y].VarNum = atoi(StartOfValue);
+		/* Extract Var Offset in the type table */
+		StartOfValue = EndOfValue;
+		do
+		{
+			EndOfValue++;
+		}
+		while( (*EndOfValue!=',') && (*EndOfValue!='[') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
+		EndOfLine = TRUE;
+		if (*EndOfValue==',')
+			EndOfLine = FALSE;
+		if ( *EndOfValue=='[' )
+			IndexedVarFound = TRUE;
+		*EndOfValue++ = '\0';
+		StorageRung->Element[x][y].VarNum = atoi(StartOfValue);
+		if ( IndexedVarFound )
+		{
+			/* Extract Indexed Var Type */
+			StartOfValue = EndOfValue;
+			do
+			{
+				EndOfValue++;
+			}
+			while(*EndOfValue!='/');
+			*EndOfValue++ = '\0';
+			StorageRung->Element[x][y].IndexedVarType = atoi(StartOfValue);
 
-        /* Next Element */
-        x++;
+			/* Extract Indexed Var Offset in the type table */
+			StartOfValue = EndOfValue;
+			do
+			{
+				EndOfValue++;
+			}
+			while( (*EndOfValue!=',') && (*EndOfValue!=10) && (*EndOfValue!='\0') );
+			EndOfLine = TRUE;
+			if (*EndOfValue==',')
+				EndOfLine = FALSE;
+			*EndOfValue++ = '\0';
+			StorageRung->Element[x][y].IndexedVarNum = atoi(StartOfValue);
+		}
 
-    }
-    while(!EndOfLine);
-    return (x);
+		/* Next Element */
+		x++;
+
+	}
+	while(!EndOfLine);
+	return (x);
 }
 
 /*void RemoveEndLine( char * line )
@@ -235,6 +267,8 @@ char SaveRung(char * FileName,StrRung * BufRung)
             {
                 fprintf(File,"%d-%d-%d/%d",BufRung->Element[x][y].Type, BufRung->Element[x][y].ConnectedWithTop ,
                                     BufRung->Element[x][y].VarType , BufRung->Element[x][y].VarNum);
+                if ( BufRung->Element[x][y].IndexedVarType!=-1 )
+                    fprintf( File, "[%d/%d]", BufRung->Element[x][y].IndexedVarType, BufRung->Element[x][y].IndexedVarNum );
                 if (x<RUNG_WIDTH-1)
                     fprintf(File," , ");
             }
@@ -398,14 +432,14 @@ int ConvBaseInMilliSecsToId(int NbrMilliSecs)
 	}
 }
 
-char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStringsFnd)
+char * ConvRawLineOfStringsOrNumbers(char * RawLine,int * LgtParams,char ** ParamsStringsFnd,int ** ParamsIntFnd)
 {
 	char * StartOfValue;
 	char * EndOfValue;
 	int Num = 0;
 	
 	char EndOfLine;
-	
+
 	StartOfValue = RawLine;
 	EndOfValue = RawLine;
 	EndOfLine = FALSE;
@@ -422,8 +456,16 @@ char * ConvRawLineOfStrings(char * RawLine,int * LgtParams,char ** ParamsStrings
 		if (*EndOfValue==10 || *EndOfValue=='\0')
 			EndOfLine = TRUE;
 		*EndOfValue++ = '\0';
-		if ( strlen( StartOfValue )<(unsigned int)LgtParams[ Num ] )
-			strcpy( ParamsStringsFnd[Num], StartOfValue );
+		if ( ParamsStringsFnd[Num]!=NULL )
+		{
+			if ( strlen( StartOfValue )<(unsigned int)LgtParams[ Num ] )
+				strcpy( ParamsStringsFnd[Num], StartOfValue );
+		}
+		else if ( ParamsIntFnd!=NULL )
+		{
+			if ( ParamsIntFnd[ Num ]!=NULL )
+				*ParamsIntFnd[ Num ] = atoi( StartOfValue );
+		}
 		Num++;
 		StartOfValue = EndOfValue;
 	}
@@ -932,7 +974,7 @@ char LoadModbusIOConfParams(char * FileName)
 	FILE * File;
 	char Okay = FALSE;
 	char Line[300];
-	int IntDatas[] = {0,0,0,0,0,0};
+	int IntDatas[ 6 ];
 	char * LineOk;
 	StrModbusMasterReq * pConf = &ModbusMasterReq[ 0 ];
 	File = fopen(FileName,"rt");
@@ -1051,7 +1093,7 @@ char LoadSymbols(char * FileName)
 						PtrStrings[ 1 ] = pSymbol->Symbol; LgtMaxStrings[ 1 ] = LGT_SYMBOL_STRING;
 						PtrStrings[ 2 ] = pSymbol->Comment; LgtMaxStrings[ 2 ] = LGT_SYMBOL_COMMENT;
 						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 0;
-						ConvRawLineOfStrings( Line, LgtMaxStrings, PtrStrings );
+						ConvRawLineOfStringsOrNumbers( Line, LgtMaxStrings, PtrStrings, NULL );
 //						RemoveEndLine( pSymbol->Comment );
 						dbg_printf(_("Symbol: %s - %s - %s\n"), pSymbol->VarName, pSymbol->Symbol, pSymbol->Comment);
 						NumSymbol++;
@@ -1149,6 +1191,27 @@ char LoadGeneralParameters(char * FileName)
 				pParameter = "SIZE_NBR_SYMBOLS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
 					GeneralParamsMirror.SizesInfos.nbr_symbols = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "SIZE_NBR_PHYS_WORDS_INPUTS=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "SIZE_NBR_PHYS_WORDS_OUTPUTS=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_SERIAL_PORT=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					strcpy( ModbusConfig.ModbusSerialPortNameUsed, &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusConfig.ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_SERIAL_DATABITS=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusConfig.ModbusSerialDataBits = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_SERIAL_PARITY=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusConfig.ModbusSerialParity = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MASTER_SERIAL_STOPBITS=";
+				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
+					ModbusConfig.ModbusSerialStopBits = atoi( &Line[ strlen( pParameter) ] );
 			}
 		}
 		while(LineOk);
@@ -1180,6 +1243,13 @@ char SaveGeneralParameters(char * FileName)
 		fprintf( File,S_LINE "SIZE_NBR_ARITHM_EXPR=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_arithm_expr );
 		fprintf( File,S_LINE "SIZE_NBR_SECTIONS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_sections );
 		fprintf( File,S_LINE "SIZE_NBR_SYMBOLS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_symbols );
+		fprintf( File,S_LINE "SIZE_NBR_PHYS_WORDS_INPUTS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_phys_words_inputs );
+		fprintf( File,S_LINE "SIZE_NBR_PHYS_WORDS_OUTPUTS=%d" E_LINE "\n", GeneralParamsMirror.SizesInfos.nbr_phys_words_outputs );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n", ModbusConfig.ModbusSerialPortNameUsed );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n", ModbusConfig.ModbusSerialSpeed );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_DATABITS=%d" E_LINE "\n", ModbusConfig.ModbusSerialDataBits );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PARITY=%d" E_LINE "\n", ModbusConfig.ModbusSerialParity );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_STOPBITS=%d" E_LINE "\n", ModbusConfig.ModbusSerialStopBits );
 		fclose(File);
 		Okay = TRUE;
 	}
@@ -1192,7 +1262,6 @@ char LoadComParameters(char * FileName)
 	char Okay = FALSE;
 	char Line[300];
 	char * LineOk;
-
 	File = fopen(FileName,"rt");
 	if (File)
 	{
@@ -1292,9 +1361,92 @@ char SaveComParameters(char * FileName)
 	return (Okay);
 }
 
+//XXX log functionality is not implemented.
+/*
+char LoadConfigEventsLog(char * FileName)
+{
+	FILE * File;
+	char Okay = FALSE;
+	char Line[300];
+	char * LineOk;
+	int NumConfigEvtLog = 0;
+	char *PtrStrings[ 7 ];
+	int LgtMaxStrings[ 7 ];
+	int *PtrInts[ 7 ];
+	StrConfigEventLog * pCfgEvtLog;
+	File = fopen(FileName,"rt");
+	if (File)
+	{
+		do
+		{
+			LineOk = cl_fgets(Line,300,File);
+			if (LineOk)
+			{
+				switch(Line[0])
+				{
+					case ';':
+						break;
+					case '#':
+						if(strncmp(&Line[1],"VER=",4)==0)
+						{
+							if (atoi(&Line[5])>1)
+							{
+								printf("Config Events file version not supported...\n");
+								LineOk = FALSE;
+							}
+						}
+						break;
+					default:
+						NumConfigEvtLog = atoi( Line );
+						pCfgEvtLog = &ConfigEventLog[ NumConfigEvtLog ];
+						PtrStrings[ 0 ] = NULL; LgtMaxStrings[ 0 ] = 1; PtrInts[ 0 ] = NULL; //first field already read in previous atoi()
+						PtrStrings[ 1 ] = NULL; LgtMaxStrings[ 1 ] = 1; PtrInts[ 1 ] = &pCfgEvtLog->FirstVarNum;
+						PtrStrings[ 2 ] = NULL; LgtMaxStrings[ 2 ] = 1; PtrInts[ 2 ] = &pCfgEvtLog->NbrVars;
+						PtrStrings[ 3 ] = NULL; LgtMaxStrings[ 3 ] = 1; PtrInts[ 3 ] = &pCfgEvtLog->EventType;
+						PtrStrings[ 4 ] = pCfgEvtLog->Symbol; LgtMaxStrings[ 4 ] = EVENT_SYMBOL_LGT; PtrInts[ 4 ] = NULL;
+						PtrStrings[ 5 ] = pCfgEvtLog->Text; LgtMaxStrings[ 5 ] = EVENT_TEXT_LGT; PtrInts[ 5 ] = NULL;
+						PtrStrings[ 6 ] = NULL; LgtMaxStrings[ 6 ] = 0; PtrInts[ 6 ] = NULL;
+						ConvRawLineOfStringsOrNumbers( Line, LgtMaxStrings, PtrStrings, PtrInts );
+dbg_printf("CfgEvt: %d: %d - %d - %s - %s\n", NumConfigEvtLog, pCfgEvtLog->FirstVarNum, pCfgEvtLog->NbrVars, pCfgEvtLog->Symbol, pCfgEvtLog->Text);
+						break;
+				}
+			}
+		}
+		while(LineOk);
+		fclose(File);
+		Okay = TRUE;
+	}
+	return (Okay);
+}
+
+char SaveConfigEventsLog(char * FileName)
+{
+	FILE * File;
+	char Okay = FALSE;
+	int Scan = 0;
+	StrConfigEventLog * pCfgEvtLog;
+	File = fopen(FileName,"wt");
+	if (File)
+	{
+		fprintf(File,S_LINE "#VER=1.0" E_LINE "\n");
+		do
+		{
+			pCfgEvtLog = &ConfigEventLog[ Scan ];
+			if ( pCfgEvtLog->FirstVarNum!=-1 && pCfgEvtLog->NbrVars!=0 )
+				fprintf(File,S_LINE "%d,%d,%d,%d,%s,%s" E_LINE "\n", Scan, pCfgEvtLog->FirstVarNum, pCfgEvtLog->NbrVars, pCfgEvtLog->EventType, pCfgEvtLog->Symbol, pCfgEvtLog->Text );
+			Scan++;
+		}
+		while(Scan<NBR_CONFIG_EVENTS_LOG);
+		fclose(File);
+		Okay = TRUE;
+	}
+	return (Okay);
+}
+*/
+
 void DeleteTheDefaultSection( )
 {
-	RungArray[0].Used = FALSE;
+	RungArray[ 0 ].Used = FALSE;
 	SectionArray[ 0 ].Used = FALSE;
 }
 
@@ -1367,9 +1519,19 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols data from %s\n",FileName);
 	LoadSymbols(FileName);
+	//sprintf(FileName,"%s/"FILE_PREFIX"config_events.csv",DatasDirectory);
+	//LoadConfigEventsLog(FileName);
+
+	// security if empty file...
+#ifdef GTK_INTERFACE
+	if ( NbrSectionsDefined()==0 )
+		AddSection("Prog1", SECTION_IN_LADDER, -1 );
+#endif	
 
 //printf("Prepare all data before run...\n");
 	PrepareAllDatasBeforeRun( );
+	// update the tags list of the variables that the user want to log (after to have load the config file...)
+	//InitVarsArrayLogTags( );
 }
 
 void SaveAllLadderDatas(char * DatasDirectory)
@@ -1407,6 +1569,8 @@ void SaveAllLadderDatas(char * DatasDirectory)
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 	SaveSymbols( FileName );
+	//sprintf(FileName,"%s/"FILE_PREFIX"config_events.csv",DatasDirectory);
+	//SaveConfigEventsLog( FileName );
 	InfosGene->AskConfirmationToQuit = FALSE;
 }
 
@@ -1443,8 +1607,8 @@ void CleanTmpLadderDirectory( char DestroyDir )
 					}
 				}
 			}
-			closedir(pDir);
 		}
+		closedir(pDir);
 		/* delete the temp directory if wanted */
 #ifndef __WIN32__
 		if ( DestroyDir )
