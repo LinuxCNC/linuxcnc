@@ -59,6 +59,9 @@ char * ConvVarNameToHalSigName( char * VarNameParam )
 {
     if( (VarNameParam[0]=='\0') ||  (VarNameParam[0]==' ')) {return _("Error blank symbol name");}
     if( VarNameParam[0] != '%') {VarNameParam= ConvSymbolToVarName(VarNameParam);}
+    // We need to test for 'NULL', since ConvSymbolToVarName()
+    // returns NULL, if no symbols is found.
+    if( VarNameParam == NULL) {return _("Error unknown symbol name");}
     if( VarNameParam[0] == '%'){
         char pin_name[100] = {0};
         int arrowside=0;
