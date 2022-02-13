@@ -78,14 +78,14 @@ RTAPI_MP_STRING(tp_parms,"Example tp parms");
 // rtapi_app_main() supplied by halcompile
 // EXTRA_SETUP is executed before rtapi_app_main()
 EXTRA_SETUP() {
-#ifndef TOPDIR
-#warning No TOPDIR defined, module provides no tp functions
-    rtapi_print("\n%s Using default tp functions\n",__FILE__);
-#else
-    rtapi_print("\n%s TOPDIR=%s\n",__FILE__,XSTR(TOPDIR));
-#endif
     if (!tp_parms) {tp_parms="no_tp_parms";}
     rtapi_print("@@@%s:%s: tp_parms=%s\n",__FILE__,__FUNCTION__,tp_parms);
+#ifndef TOPDIR
+#warning No TOPDIR defined, module provides no tp functions
+    rtapi_print("\n!!!%s: NO Trajectory Planning symbols provided\n\n",__FILE__);
+#else
+    rtapi_print("\n@@@%s: TOPDIR=%s\n",__FILE__,XSTR(TOPDIR));
+#endif
     return 0;
 }
 #undef USE_TOPDIR
