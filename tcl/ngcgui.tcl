@@ -736,10 +736,10 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
 
   # error checks
   if {![info exists found_sub_start]} {
-    lappend emsg "[_ "no sub found in file"]"
+    lappend emsg "[_ "no 'sub' found in file"]"
   }
   if {[info exists found_sub_start] && ![info exists found_sub_end]} {
-    lappend emsg "[_ "no endsub found in file"]"
+    lappend emsg "[_ "no 'endsub' found in file"]"
   }
   if [info exists emsg] {
     set ay($hdl,parse,msg) $emsg
