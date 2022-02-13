@@ -9,6 +9,7 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
+MODULE_LICENSE("GPL");
 
 #define HOMEMOD_DEBUG
 #undef  HOMEMOD_DEBUG
