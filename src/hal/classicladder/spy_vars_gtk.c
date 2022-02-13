@@ -252,7 +252,7 @@ static gint OpenModifyVarWindow_clicked_event(GtkWidget *widget, int NumSpy)
 	CurrentModifyVarOffset = VarSpy[NumSpy][1];
 
 	gtk_entry_set_text( GTK_ENTRY(ModifyVariableNameEdit), CreateVarName(CurrentModifyVarType,CurrentModifyVarOffset,InfosGene->DisplaySymbols) );
-	sprintf( BuffValue, "%d", ReadVar(CurrentModifyVarType, CurrentModifyVarOffset) );
+	snprintf( BuffValue, sizeof(BuffValue), "%d", ReadVar(CurrentModifyVarType, CurrentModifyVarOffset) );
 	gtk_entry_set_text( GTK_ENTRY(ModifyVariableValueEdit), BuffValue );
 	gtk_widget_grab_focus( ModifyVariableValueEdit );
 
@@ -362,9 +362,9 @@ void DisplayFreeVarSpy()
 		rtapi_strxcpy( DisplayFormat , (char *)gtk_entry_get_text((GtkEntry *)((GtkCombo *)DisplayFormatVarSpy[NumVarSpy])->entry) );
 		rtapi_strxcpy( BufferValue, "" );
 		if (strcmp( DisplayFormat,"Dec" )==0 )
-			sprintf(BufferValue,"%d",Value);
+			snprintf(BufferValue, sizeof(BufferValue),"%d",Value);
 		if (strcmp( DisplayFormat,"Hex" )==0 )
-			sprintf(BufferValue,"%X",Value);
+			snprintf(BufferValue, sizeof(BufferValue),"%X",Value);
 		if (strcmp( DisplayFormat,"Bin" )==0 )
 			rtapi_strxcpy( BufferValue, ConvToBin( Value ) );
 		gtk_entry_set_text((GtkEntry *)EntryVarSpy[NBR_FREE_VAR_SPY+NumVarSpy],BufferValue);

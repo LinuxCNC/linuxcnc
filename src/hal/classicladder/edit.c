@@ -1153,7 +1153,7 @@ printf( "Size for selection = %d,%d\n", *pSizeX, *pSizeY );
 //printf( "GetSizesOfAnElement:%d = %d/%d\n",NumTypeEle, *pSizeX, *pSizeY );
 		if ( NumTypeEle>=EDIT_CNX_WITH_TOP )
 		{
-			printf("!!!Abnormal current type=%d in rung...(file %s,line %d)\n", NumTypeEle, __FILE__, __LINE__ );
+			printf(_("!!!Abnormal current type=%d in rung...(file %s,line %d)\n"), NumTypeEle, __FILE__, __LINE__ );
 			*pSizeX = 0;
 			*pSizeY = 0;
 		}
@@ -1248,7 +1248,7 @@ char PrepBeforeSettingTypeEleForComplexBlocsAndExpr( int NumTypeEle, int PosiX, 
 		int BlockNumber = GetFreeNumberFunctionBlock( NumTypeEle );
 		if ( BlockNumber==-1 )
 		{
-			ShowMessageBox( "Error", "No more free function block of this type available...", "Ok" );
+			ShowMessageBox( _("Error"), _("No more free function block of this type available..."), _("Ok") );
 			ResultOk = FALSE;
 		}
 		else
@@ -1260,7 +1260,7 @@ char PrepBeforeSettingTypeEleForComplexBlocsAndExpr( int NumTypeEle, int PosiX, 
 	}
 	if ( !CheckForAllocatingArithmExpr( NumTypeEle, PosiX, PosiY ) )
 	{
-		ShowMessageBox( "Error", "No more free arithmetic expression for this type available...", "Ok" );
+		ShowMessageBox( _("Error"), _("No more free arithmetic expression for this type available..."), _("Ok") );
 		ResultOk = FALSE;
 	}
 	return ResultOk;

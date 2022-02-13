@@ -356,20 +356,20 @@ GtkWidget * CreateIOConfPage( char ForInputs )
 						{
 							case 0:
 								if ( pConf->FirstClassicLadderIO==-1 )
-									strcpy( BuffValue, "" );
+									rtapi_strxcpy( BuffValue, "" );
 								else
-									sprintf( BuffValue, "%d", pConf->FirstClassicLadderIO );
+									snprintf( BuffValue, sizeof(BuffValue), "%d", pConf->FirstClassicLadderIO );
 								break;
 							case 2:
 								if ( pConf->DeviceType==DEVICE_TYPE_DIRECT_ACCESS )
-									sprintf( BuffValue, "%X", pConf->SubDevOrAdr );
+									snprintf( BuffValue, sizeof(BuffValue), "%X", pConf->SubDevOrAdr );
 								else
-									sprintf( BuffValue, "%d", pConf->SubDevOrAdr );
+									snprintf( BuffValue, sizeof(BuffValue), "%d", pConf->SubDevOrAdr );
 								break;
 							case 3:
-								sprintf( BuffValue, "%d", pConf->FirstChannel ); break;
+								snprintf( BuffValue, sizeof(BuffValue), "%d", pConf->FirstChannel ); break;
 							case 4:
-								sprintf( BuffValue, "%d", pConf->NbrConsecutivesChannels ); break;
+								snprintf( BuffValue, sizeof(BuffValue), "%d", pConf->NbrConsecutivesChannels ); break;
 						}
 						{
 							GtkWidget **IOParamEntry = ForInputs?&InputParamEntry[ NumLine ][ NumObj ]:&OutputParamEntry[ NumLine ][ NumObj ];
@@ -909,7 +909,7 @@ int GetRadioButValueSelected( int NumLineToSee )
 }
 void GetModbusComParameters( void )
 {
-	strcpy( ModbusConfig.ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )));
+	rtapi_strxcpy( ModbusConfig.ModbusSerialPortNameUsed, gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 0 ] )));
 	ModbusConfig.ModbusSerialSpeed = atoi( gtk_entry_get_text(GTK_ENTRY( EntryComParam[ 1 ] )) );
 	ModbusConfig.ModbusSerialDataBits = GetRadioButValueSelected( 2 )+5;
 	ModbusConfig.ModbusSerialParity = GetRadioButValueSelected( 3 ); 

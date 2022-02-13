@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -31,8 +31,6 @@
 #include <cairo.h>
 #include <cairo-svg.h>
 
-#include <gdk/gdkkeysyms.h>  // GDK keys codes
-#include <gdk/gdktypes.h> // GDK keys masks
 #include <libintl.h> // i18n
 #include <locale.h> // i18n
 
@@ -53,7 +51,7 @@ GtkWidget *CheckDispSymbols;
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 GtkWidget *DurationOfLastScan;
 #endif
-GtkWidget *ButtonRunStop;
+//Since menu/toolbar... GtkWidget *ButtonRunStop;
 GtkWidget *VScrollBar;
 GtkWidget *HScrollBar;
 GtkAdjustment * AdjustVScrollBar;
@@ -85,6 +83,7 @@ gint StatusBarContextId;
 #include "symbols_gtk.h"
 #include "spy_vars_gtk.h"
 #include "print_gtk.h"
+//#include "vars_system.h"
 
 void CairoDrawCurrentSectionOnDrawingArea( void )
 {
@@ -101,8 +100,8 @@ void CairoDrawCurrentSectionOnDrawingArea( void )
 }
 
 /* Create a new backing pixmap of the appropriate size */
-/*static gint configure_event( GtkWidget		 *widget,
-							GdkEventConfigure *event )
+/*static gint configure_event( GtkWidget         *widget,
+                            GdkEventConfigure *event )
 {
 	if (pixmap)
 		gdk_pixmap_unref(pixmap);
@@ -121,8 +120,8 @@ void CairoDrawCurrentSectionOnDrawingArea( void )
 }*/
 
 /* Redraw the screen with Cairo */
-static gint expose_event( GtkWidget	  *widget,
-						GdkEventExpose *event )
+static gint expose_event( GtkWidget      *widget,
+                        GdkEventExpose *event )
 {
 /*	gdk_draw_pixmap(widget->window,
 					widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
@@ -228,7 +227,7 @@ void ChoiceOfTheCurrentRung( int NbrOfRungsAfterTopRung )
 	while( DecptNbrRungs>0 && InfosGene->CurrentRung!=InfosGene->LastRung )
 	{
 		InfosGene->CurrentRung = RungArray[ InfosGene->CurrentRung ].NextRung;
-		InfosGene->OffsetCurrentRungDisplayed += InfosGene->BlockHeight*RUNG_HEIGHT;
+		InfosGene->OffsetCurrentRungDisplayed += TOTAL_PX_RUNG_HEIGHT;
 		DecptNbrRungs--;
 	}
 
@@ -243,7 +242,7 @@ static gint VScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * no
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
 	{
-		int NumRung = ((int)ScrollBar->value)/(InfosGene->BlockHeight*RUNG_HEIGHT);
+		int NumRung = ((int)ScrollBar->value)/TOTAL_PX_RUNG_HEIGHT;
 		int ScanRung = 0;
 		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
 		if ( NumRung<0 )
@@ -253,7 +252,7 @@ static gint VScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * no
 			InfosGene->TopRungDisplayed = RungArray[ InfosGene->TopRungDisplayed ].NextRung;
 			ScanRung++;
 		}
-		InfosGene->OffsetHiddenTopRungDisplayed = ((int)ScrollBar->value)%(InfosGene->BlockHeight*RUNG_HEIGHT);
+		InfosGene->OffsetHiddenTopRungDisplayed = ((int)ScrollBar->value)%TOTAL_PX_RUNG_HEIGHT;
 
 		// if top rung displayed entirely (no vertical offset), it's the current rung => give '0'.
 		// else, search the next one => give '1'.
@@ -304,7 +303,7 @@ static gboolean mouse_scroll_event( GtkWidget *widget, GdkEventScroll *event )
 	}
 	return TRUE;
 }
-static gint button_press_event( GtkWidget *widget, GdkEventButton *event )
+static gboolean button_press_event( GtkWidget *widget, GdkEventButton *event )
 {
 	if (event->button == 1 /*Cairo && pixmap != NULL*/)
 	{
@@ -367,7 +366,6 @@ static gboolean button_release_event( GtkWidget *widget, GdkEventButton *event )
 	}
 	return TRUE;
 }
-
 void refresh_label_comment( void )
 {
 	StrRung * RfhRung;
@@ -411,22 +409,6 @@ void autorize_prevnext_buttons(int Yes)
 	}
 }
 
-void ButtonRunStop_click()
-{
-	if (InfosGene->LadderState==STATE_RUN)
-	{
-		InfosGene->LadderState = STATE_STOP;
-		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),_("Run"));
-		MessageInStatusBar(_("Stopped ladder program - press run button to continue."));
-	}
-	else
-	{
-		InfosGene->LadderState = STATE_RUN;
-		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),_("Stop"));
-		MessageInStatusBar(_("Started Ladder program - press stop to pause.")); 
-	}
-}
-
 void CheckDispSymbols_toggled( )
 {
 	InfosGene->DisplaySymbols = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( CheckDispSymbols ) );
@@ -435,7 +417,7 @@ void CheckDispSymbols_toggled( )
 
 void StoreDirectorySelected( GtkFileChooser *selector, char cForLoadingProject)
 {
-    char * TempDir;
+	char * TempDir;
 
 	TempDir = gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector));
 
@@ -487,7 +469,7 @@ void SaveAsLadder(void)
 
 void on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
 {
-	debug_printf("SAVE %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);
+	debug_printf(_("SAVE %s %d\n"),gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);
 
 	if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)
 		SaveAsLadder();
@@ -495,7 +477,7 @@ void on_filechooserdialog_save_response(GtkDialog  *dialog,gint response_id,gpoi
 }
 void on_filechooserdialog_load_response(GtkDialog  *dialog,gint response_id,gpointer user_data)
 {
-	debug_printf("LOAD %s %d\n",gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);
+	debug_printf(_("LOAD %s %d\n"),gtk_file_chooser_get_filename (GTK_FILE_CHOOSER(FileSelector)),response_id);
 
 	if(response_id==GTK_RESPONSE_ACCEPT || response_id==GTK_RESPONSE_OK)
 		LoadNewLadder();
@@ -566,14 +548,10 @@ void DoNewProject( void )
 	ClassicLadder_InitAllDatas( );
 	UpdateAllGtkWindows( );
 	InfosGene->AskConfirmationToQuit = TRUE;
+	InfosGene->HasBeenModifiedForExitCode = TRUE;
 }
 
 void DoActionConfirmNewProject()
-{
-	ShowConfirmationBox("New","Do you really want to clear all datas ?",DoNewProject);
-}
-
-void ButtonNew_click()
 {
 	ShowConfirmationBox(_("New"),_("Do you really want to clear all data ?"),DoNewProject);
 }
@@ -582,7 +560,7 @@ void DoLoadProject()
 	CreateFileSelection(_("Please select the project to load"),FALSE);
 }
 
-void ButtonLoad_click()
+void DoActionLoadProject()
 {
 	if ( InfosGene->AskConfirmationToQuit )
 		ShowConfirmationBox( _("Sure?"), _("Do you really want to load another project ?\nIf not saved, all modifications on the current project will be lost  \n"), DoLoadProject );
@@ -590,101 +568,87 @@ void ButtonLoad_click()
 		DoLoadProject( );
 }
 
-void ButtonSaveAs_click( )
-{
-	CreateFileSelection(_("Please select the project to save"),TRUE);
-}
-
-void ButtonReset_click( )
-{
-if (InfosGene->LadderState==STATE_RUN)
-	{
-         ShowConfirmationBox(_("Warning!"),_("Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?"),DoReset);
-        }else{
-              DoReset();
-             }
-}
-
-void DoActionLoadProject()
-{
-	if ( InfosGene->AskConfirmationToQuit )
-		ShowConfirmationBox( "Sure?", "Do you really want to load another project ?\nIf not saved, all modifications on the current project will be lost  \n", DoLoadProject );
-	else
-		DoLoadProject( );
-}
-
 void DoActionSaveAs()
 {
-	CreateFileSelection("Please select the project to save",TRUE);
+	CreateFileSelection(_("Please select the project to save"),TRUE);
 }
 
 void DoActionResetAndConfirmIfRunning( )
 {
 	if (InfosGene->LadderState==STATE_RUN)
-		ShowConfirmationBox("Warning!","Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?",DoReset);
+		ShowConfirmationBox(_("Warning!"),_("Resetting a running program\ncan cause unexpected behavior\n Do you really want to reset?"),DoReset);
 	else
 		DoReset();
 }
 void DoReset()
 {
+//////	int StateBefore = InfosGene->LadderState;
+//////	InfosGene->LadderState = STATE_STOP;
+//////	// wait, to be sure calcs have ended...
+//////	usleep( 100000 );
 	StopRunIfRunning( );
-	InitVars( );
+
+	InitVars();
+	//InitSystemVars( FALSE );
 	PrepareAllDatasBeforeRun( );
+
+//////	if ( StateBefore==STATE_RUN )
+//////		InfosGene->LadderState = STATE_RUN;
 	RunBackIfStopped( );
 //closing and opening modbus again creates double requests for some reason...
 #ifdef MODBUS_IO_MASTER
-// if (modmaster) {    PrepareModbusMaster( );    }
+ //if (modmaster) {    InitModbusMasterBeforeReadConf( );    }
 #endif
 	MessageInStatusBar(_("Reset ladder data "));
 }
 
-//void ButtonConfig_click( )
+//void ButtonConfig_click()
 //{
-    //OpenConfigWindowGtk( );
+//    OpenConfigWindowGtk( );
 //}
 
 void DoActionAboutClassicLadder()
 {
 	/*
-	// From the example in gtkdialog help //
+	// From the example in gtkdialog help
 	GtkWidget *dialog, *label, *okay_button;
-	// Create the widgets //
+	// Create the widgets
 	dialog = gtk_dialog_new();
 	label = gtk_label_new ( CL_PRODUCT_NAME " v" CL_RELEASE_VER_STRING "\n" CL_RELEASE_DATE_STRING "\n"
-						"Copyright (C) 2001-2008 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
-
+						"Copyright (C) " CL_RELEASE_COPYRIGHT_YEARS " Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
 						"http://www.sourceforge.net/projects/classicladder\n"
 						"https://github.com/MaVaTi56/classicladder\n"
 						"Released under the terms of the\nGNU Lesser General Public License v2.1\n"
 						"\nAs adapted to LinuxCNC\n"
 						"(Chris Morley)\n"
 						"emc-users@lists.sourceforge.net");
+
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
-	okay_button = gtk_button_new_with_label(_("Okay"));
-	// Ensure that the dialog box is destroyed when the user clicks ok. //
+	okay_button = gtk_button_new_with_label("Okay");
+	// Ensure that the dialog box is destroyed when the user clicks ok.
 	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
 							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area),
 					okay_button);
 	gtk_widget_grab_focus(okay_button);
-	// Add the label, and show everything we've added to the dialog. //
+	// Add the label, and show everything we've added to the dialog.
 	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
 					label);
 	gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
 	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER);
 	gtk_widget_show_all (dialog);
 */
-	char * static_comments = "Released under the terms of the\nGNU Lesser General Public License v3\n\n"
+	char * static_comments = "Released under the terms of the\nGNU Lesser General Public License v2.1\n\n"
 							"Latest software version at:\nhttp://www.sourceforge.net/projects/classicladder\n"
 							"Original site:\nhttp://membres.lycos.fr/mavati/classicladder"
-                            "\nAs adapted to EMC2\n"
+                            "\nAs adapted to LinuxCNC\n"
                             "(Chris Morley)\n"
                             "emc-users@lists.sourceforge.net";
 	char * comments = malloc( strlen( static_comments )+80 );
 	if ( comments )
 	{
 		char GtkVersionString[ 30 ];
-		sprintf( GtkVersionString, "GTK+ version %d.%d.%d\n\n", gtk_major_version, gtk_minor_version, gtk_micro_version );
+		snprintf( GtkVersionString, sizeof(GtkVersionString), "GTK+ version %d.%d.%d\n\n", gtk_major_version, gtk_minor_version, gtk_micro_version );
 		strcpy( comments, "("CL_RELEASE_DATE_STRING")\n\n" );
 		strcat( comments, GtkVersionString );
 		strcat( comments, static_comments );
@@ -1060,6 +1024,16 @@ void MainSectionWindowInitGtk()
 	gtk_signal_connect(GTK_OBJECT (ButtonSpyVars), "clicked",
 						(GtkSignalFunc) OpenSpyVarsWindow, 0);
 	gtk_widget_show (ButtonSpyVars);
+	//ButtonLogBook = gtk_button_new_with_label ("Log");
+	//gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonLogBook, TRUE, TRUE, 0);
+	//gtk_signal_connect(GTK_OBJECT (ButtonLogBook), "clicked",
+						//(GtkSignalFunc) OpenLogBookWindow, 0);
+	//gtk_widget_show (ButtonLogBook);
+	ButtonAbout = gtk_button_new_with_label (_("About"));
+	gtk_box_pack_start (GTK_BOX (hboxbottom), ButtonAbout, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT (ButtonAbout), "clicked",
+						(GtkSignalFunc) ButtonAbout_click, 0);
+	gtk_widget_show (ButtonAbout);
 
 	ButtonEdit = gtk_button_new_with_label (_("Editor"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonEdit, TRUE, TRUE, 0);
@@ -1076,6 +1050,22 @@ void MainSectionWindowInitGtk()
 	gtk_signal_connect(GTK_OBJECT (ButtonConfig), "clicked",
 						(GtkSignalFunc) ButtonConfig_click, 0);
 	gtk_widget_show (ButtonConfig);
+	ButtonExportSVG = gtk_button_new_with_label ("ExportSVG");
+	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonExportSVG, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT (ButtonExportSVG), "clicked",
+						(GtkSignalFunc) ButtonExportSvgOrPng_click, (void *)1);
+	gtk_widget_show (ButtonExportSVG);
+	ButtonExportPNG = gtk_button_new_with_label ("PNG");
+	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonExportPNG, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT (ButtonExportPNG), "clicked",
+						(GtkSignalFunc) ButtonExportSvgOrPng_click, 0);
+	gtk_widget_show (ButtonExportPNG);
+
+	ButtonCopyToClipboard = gtk_button_new_with_label ("ToClipboard");
+	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonCopyToClipboard, TRUE, TRUE, 0);
+	gtk_signal_connect(GTK_OBJECT (ButtonCopyToClipboard), "clicked",
+						(GtkSignalFunc) ButtonCopyToClipboard_click, 0);
+	gtk_widget_show (ButtonCopyToClipboard);
 //#ifdef GNOME_PRINT_USE
 	ButtonPrintPreview = gtk_button_new_with_label (_("Preview"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonPrintPreview, TRUE, TRUE, 0);
@@ -1088,11 +1078,6 @@ void MainSectionWindowInitGtk()
 						(GtkSignalFunc) PrintGnome, 0);
 	gtk_widget_show (ButtonPrint);
 //#endif
-	ButtonAbout = gtk_button_new_with_label (_("About"));
-	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonAbout, TRUE, TRUE, 0);
-	gtk_signal_connect(GTK_OBJECT (ButtonAbout), "clicked",
-						(GtkSignalFunc) ButtonAbout_click, 0);
-	gtk_widget_show (ButtonAbout);
 	ButtonQuit = gtk_button_new_with_label (_("Quit"));
 	gtk_box_pack_start (GTK_BOX (hboxbottom2), ButtonQuit, TRUE, TRUE, 0);
 //    gtk_signal_connect_object (GTK_OBJECT (ButtonQuit), "clicked",
@@ -1220,8 +1205,8 @@ static gint PeriodicUpdateDisplay(gpointer data)
 
 void InitGtkWindows( int argc, char *argv[] )
 {
-	debug_printf( "Your GTK+ version is %d.%d.%d\n", gtk_major_version, gtk_minor_version,
-			gtk_micro_version );
+	//debug_printf( _("Your GTK+ version is %d.%d.%d\n"), gtk_major_version, gtk_minor_version,
+			//gtk_micro_version );
 //ProblemWithPrint	g_thread_init (NULL);
 //ProblemWithPrint	gdk_threads_init ();
     gtk_init (&argc, &argv);
@@ -1254,10 +1239,10 @@ void UpdateWindowTitleWithProjectName( void )
 {
 	char Buff[ 250 ];
 	int ScanFileNameOnly = 0;
-	if ( strlen(InfosGene->CurrentProjectFileName )>2 )
+	if ( strlen(InfosGene->CurrentProjectFileName)>2 )
 	{
-		ScanFileNameOnly = strlen(InfosGene->CurrentProjectFileName )-1;
-		while( ScanFileNameOnly>0 && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='/' && InfosGene->CurrentProjectFileName [ScanFileNameOnly-1]!='\\')
+		ScanFileNameOnly = strlen(InfosGene->CurrentProjectFileName)-1;
+		while( ScanFileNameOnly>0 && InfosGene->CurrentProjectFileName[ScanFileNameOnly-1]!='/' && InfosGene->CurrentProjectFileName[ScanFileNameOnly-1]!='\\')
 			ScanFileNameOnly--;
 	}
 	snprintf(Buff, sizeof(Buff), _("Section Display of %s"), &InfosGene->CurrentProjectFileName [ScanFileNameOnly] );

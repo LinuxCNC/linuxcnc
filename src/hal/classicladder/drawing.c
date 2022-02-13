@@ -59,7 +59,7 @@ void CreateVarNameForElement( char * pBuffToWrite, StrElement * pElem, char Symb
 	{
 		// buffer for index required as CreateVarName() returns on a static buffer !
 		rtapi_strxcpy( VarIndexBuffer, CreateVarName(pElem->IndexedVarType,pElem->IndexedVarNum,SymbolsVarsNamesIfAvail) );
-		sprintf( pBuffToWrite, "%s", CreateVarName(pElem->VarType,pElem->VarNum,SymbolsVarsNamesIfAvail) );
+		snprintf( pBuffToWrite, sizeof(pBuffToWrite), "%s", CreateVarName(pElem->VarType,pElem->VarNum,SymbolsVarsNamesIfAvail) );
 	}
 	else
 	{
@@ -219,7 +219,7 @@ char * DrawExprForCompareOperate( cairo_t * cr, int BaseX, int BaseY, int Width,
 			if ( pReportNumAndText )
 			{
 				int Hgt;
-				sprintf( pReportNumAndText, "(*%d) ", PrintRightMarginNumExpr );
+				snprintf( pReportNumAndText, sizeof(pReportNumAndText), "(*%d) ", PrintRightMarginNumExpr );
 				strcat( pReportNumAndText, Text );
 				Hgt = DrawPangoTextOptions( cr, PrintRightMarginPosiX, PrintRightMarginExprPosiY, PrintRightMarginWidth, 0/*Height*/, pReportNumAndText, FALSE/*CenterAlignment*/ );
 				PrintRightMarginExprPosiY += Hgt;

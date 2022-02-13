@@ -50,11 +50,9 @@
 
 #include "classicladder.h"
 #include "global.h"
-
 #include "socket_modbus_master.h"
 #include "protocol_modbus_master.h"
 #include "serial_common.h"
-
 
 #ifdef __WIN32__
 #define SOCK_FD SOCKET

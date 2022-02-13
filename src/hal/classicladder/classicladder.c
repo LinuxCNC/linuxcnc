@@ -97,8 +97,10 @@ void ClassicLadderEndOfAppli( void )
 
 void display_help (void)
 {
-	printf("\nClassicLadder v"CL_RELEASE_VER_STRING"\n"CL_RELEASE_DATE_STRING"\n"
-	       "Copyright (C) 2001-2010 Marc Le Douarain\nmavati@club-internet.fr\n"
+	printf( CL_PRODUCT_NAME " v" CL_RELEASE_VER_STRING "\n" CL_RELEASE_DATE_STRING "\n"
+	       "\n"
+               "Copyright (C) " CL_RELEASE_COPYRIGHT_YEARS " Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
+	       "\n"
 	       "Adapted to LinuxCNC\n"
 			"\n"
 	       "ClassicLadder comes with NO WARRANTY\n"
@@ -106,7 +108,7 @@ void display_help (void)
 	       "\n"
 	       "You may redistribute copies of ClassicLadder\n"
 	       "under the terms of the GNU Lesser General Public Licence.\n"
-	       "See the file `lesserGPL.txt' for more information.\n");	
+	       "See the file `lesserGPL.txt' for more information.\n");
 	
     printf("This version of Classicladder is adapted for use with LinuxCNC and HAL\n"
 	       "\nUsage: classicladder [OPTIONS] [PATH]\n"
@@ -188,18 +190,25 @@ static void do_exit(int unused) {
 		printf(_("ERROR CLASSICLADDER-   Error initializing classicladder user module.\n"));
 		exit(0);
 }
-void DoPauseMilliSecs( int Time )
+
+void DoPauseMilliSecs( int MilliSecsTime )
 {
+#ifdef __WIN32__
+	Sleep( MilliSecsTime );
+#else
 	struct timespec time;
-	time.tv_sec = 0;
-	if (Time>=1000) 
-		       {
-			time.tv_sec=Time/1000;
-			Time=Time%1000;
-		       }
-	time.tv_nsec = Time*1000000;
+	int NbrSecs =0;
+	int NbrNanos = MilliSecsTime*1000000;
+	if ( MilliSecsTime>=1000 )
+	{
+		NbrSecs = MilliSecsTime/1000;
+		NbrNanos = (MilliSecsTime%1000)*1000000;
+	}
+	time.tv_sec = NbrSecs;
+	time.tv_nsec = NbrNanos;
 	nanosleep( &time, NULL );
 	//usleep( Time*1000 );
+#endif
 }
 
 void DoFlipFlopRunStop( void )
@@ -230,18 +239,21 @@ void StopRunIfRunning( void )
 {
 	if (InfosGene->LadderState==STATE_RUN)
 	{
+		debug_printf("Stopping...");
 		InfosGene->LadderStoppedToRunBack = TRUE;
 		InfosGene->LadderState = STATE_STOP;
 		while( InfosGene->UnderCalculationPleaseWait==TRUE )
 		{
 			DoPauseMilliSecs( 100 );
 		}
+		debug_printf("done.\n");
 	}
 }
 void RunBackIfStopped( void )
 {
 	if ( InfosGene->LadderStoppedToRunBack )
 	{
+		debug_printf("Start running!\n");
 		InfosGene->LadderState = STATE_RUN;
 		InfosGene->LadderStoppedToRunBack = FALSE;
 	}

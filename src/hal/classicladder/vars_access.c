@@ -142,6 +142,7 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			break;
 		case VAR_ERROR_BIT:
 			VarArray[NBR_STEPS+NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NumVar] = Value;
+            break;
 		case VAR_PHYS_INPUT:
 			VarArray[NBR_BITS+NumVar] = Value;
 			break;

@@ -193,7 +193,7 @@ void SerialSend( char *Buff, int BuffLength )
 			printf(_("Serial writing...\n"));
 		write(fd,Buff,BuffLength);
 		if ( ModbusConfig.ModbusDebugLevel>=2 )
-			printf("Writing done!\n");
+			printf(_("Writing done!\n"));
 		if ( ModbusConfig.ModbusSerialUseRtsToSend )
 		{
 			// wait until everything has been transmitted

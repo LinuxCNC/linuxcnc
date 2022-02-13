@@ -208,7 +208,6 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				AskFrame[ FrameSize++ ] = FirstEle >> 8;
 				AskFrame[ FrameSize++ ] = FirstEle & 0xff;
 				Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle );
-//				printf("INFO MODBUS writing: WORD value =%d \n",Value);
 				AskFrame[ FrameSize++ ] = Value >> 8;
 				AskFrame[ FrameSize++ ] = Value & 0xff;
 			}	
@@ -224,7 +223,6 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 				for (i=0; i <NbrEles; i++)
 				{
 					int Value = GetVarForModbus( &ModbusMasterReq[ CurrentReq ], FirstEle +i );
-//					printf("INFO MODBUS writing: WORD value =%d \n",Value);
 					AskFrame[ FrameSize++ ] = Value >> 8;
 					AskFrame[ FrameSize++ ] = Value & 0xff;
 				}

@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -27,7 +27,7 @@
 #endif
 
 #define CL_PRODUCT_NAME "ClassicLadder"
-#define CL_RELEASE_VER_STRING "0.8.10-EMC"
+#define CL_RELEASE_VER_STRING "0.8.10-LinuxCNC"
 #define CL_RELEASE_DATE_STRING "31 December 2010"
 #define CL_RELEASE_COPYRIGHT_YEARS "2001-2010"
 

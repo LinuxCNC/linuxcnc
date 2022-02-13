@@ -161,7 +161,7 @@ void ButtonAddClickSignal( )
 	gtk_widget_set_sensitive( CycleLanguage, TRUE );
 	gtk_widget_set_sensitive( CycleSubRoutineNbr, TRUE );
 	gtk_widget_grab_focus( EditName );
-	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Add a new section...");
+	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), _("Add a new section..."));
 	gtk_widget_show( AddSectionWindow );
 	ModifyNotAdding = FALSE;
 }
@@ -175,15 +175,15 @@ void ButtonPropertiesClickSignal( )
 		char Buff[10];
 		StrSection * pSection = &SectionArray[ NumSec ];
 		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleLanguage)->entry,pSection->Language== SECTION_IN_LADDER?"Ladder":"Sequential");
-		strcpy( Buff, "Main");
+		rtapi_strxcpy( Buff, "Main");
 		if ( pSection->SubRoutineNumber>=0 )
-			sprintf( Buff, "SR%d", pSection->SubRoutineNumber );
+			snprintf( Buff, sizeof(Buff), "SR%d", pSection->SubRoutineNumber );
 		gtk_entry_set_text((GtkEntry*)((GtkCombo *)CycleSubRoutineNbr)->entry,Buff);
 	}
 	gtk_widget_set_sensitive( CycleLanguage, FALSE );
 	gtk_widget_set_sensitive( CycleSubRoutineNbr, FALSE );
 	gtk_widget_grab_focus( EditName );
-	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), "Modify current section");
+	gtk_window_set_title( GTK_WINDOW(AddSectionWindow), _("Modify current section"));
 	gtk_widget_show( AddSectionWindow );
 	ModifyNotAdding = TRUE;
 }

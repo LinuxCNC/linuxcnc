@@ -60,7 +60,7 @@ void DrawSeqStep( cairo_t * cr,int x,int y,int Size,StrStep * pStep,char Drawing
 		cairo_stroke( cr );
 	}
 	// step number
-	sprintf(BufTxt,"%d",pStep->StepNumber);
+	snprintf(BufTxt, sizeof(BufTxt),"%d",pStep->StepNumber);
 	DrawPangoText( cr, x, y, Size, Size, BufTxt );
 }
 
@@ -217,7 +217,7 @@ void DrawSeqTransition( cairo_t * cr,int x,int y,int Size,StrTransition * pTrans
 					x+Size-SizeDiv3, y+Size-SizeDiv3, x+SizeDiv2, y+Size-SizeDiv3+SizeDiv4);
 				my_cairo_draw_color_line(cr, 0,
 					x+SizeDiv2, y+Size-SizeDiv3, x+SizeDiv2, y+Size-SizeDiv3+SizeDiv4);
-				sprintf( BufTxt, "%d", pStep->StepNumber );
+				snprintf( BufTxt, sizeof(BufTxt), "%d", pStep->StepNumber );
 				cairo_set_source_rgb( cr, 0.0, 0.0, 0.0 );
 				DrawPangoText( cr, x,y+Size+SizeDiv2, Size, -1, BufTxt );
 
@@ -232,9 +232,9 @@ void DrawSeqTransition( cairo_t * cr,int x,int y,int Size,StrTransition * pTrans
 				my_cairo_draw_color_line(cr, 0,
 					StepX+SizeDiv2, StepY-SizeDiv4, StepX+SizeDiv2, StepY+1);
 				if ( pStep->OffDrawCrossStep==0 )
-					sprintf( BufTxt, "%d", pStep2->StepNumber );
+					snprintf( BufTxt, sizeof(BufTxt), "%d", pStep2->StepNumber );
 				else
-					sprintf( BufTxt, ";%d", pStep2->StepNumber );
+					snprintf( BufTxt, sizeof(BufTxt), ";%d", pStep2->StepNumber );
 				DrawPangoText( cr, StepX+pStep->OffDrawCrossStep,StepY-SizeDiv2, Size, -1, BufTxt );
 //printf("CrossStep nbr=%d, offX=%d\n", pStep->StepNumber, pStep->OffDrawCrossStep );
 				pStep->OffDrawCrossStep = pStep->OffDrawCrossStep+((pStep->OffDrawCrossStep!=0)?3:0)+15; // TODO: add length in pixels of the text written

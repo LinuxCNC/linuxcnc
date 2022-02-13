@@ -98,7 +98,7 @@ static void draw_page( GtkPrintOperation *operation, GtkPrintContext   *context,
 	cr = gtk_print_context_get_cairo_context( context );
 
 	CreateFontPangoLayout( cr, (iCurrentLanguage==SECTION_IN_SEQUENTIAL)?PrintSeqSize:PrintLadderBlockHeight, DRAW_FOR_PRINT );
-	sprintf( Buffer, CL_PRODUCT_NAME CL_RELEASE_VER_STRING "  -  Section:%s  -  Page:%d/%d", SectionArray[ InfosGene->CurrentSection ].Name, page_nr+1, NbrPagesToPrint );
+	snprintf( Buffer, sizeof(Buffer), CL_PRODUCT_NAME CL_RELEASE_VER_STRING "  -  Section:%s  -  Page:%d/%d", SectionArray[ InfosGene->CurrentSection ].Name, page_nr+1, NbrPagesToPrint );
 	DrawPangoText( cr, OffsetPrintX, gtk_print_context_get_height(context)-10, -1, -1, Buffer );
 
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
