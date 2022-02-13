@@ -6,15 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 18:54+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2022-02-13 01:34+0000\n"
+"Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
 "Language: vi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 4.11-dev\n"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:237 emc/usr_intf/gmoccapy/gmoccapy.py:242
 msgid "**** GMOCCAPY INI Entry **** \n"
@@ -164,7 +166,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1026
 msgid "Continuous"
-msgstr ""
+msgstr "Liên tục"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:1145
 #, python-brace-format
@@ -361,7 +363,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2429
 msgid "No file loaded"
-msgstr ""
+msgstr "Chưa có tập tin nào được tải"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:2621
 msgid "It is not possible to change to MDI Mode at the moment"
@@ -432,7 +434,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3736
 msgid "INFO:"
-msgstr ""
+msgstr "THÔNG TIN:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:3737
 msgid "Classicladder real-time component not detected"
@@ -724,7 +726,7 @@ msgstr ""
 #: emc/usr_intf/gmoccapy/dialogs.py:111 emc/usr_intf/gmoccapy/dialogs.py:133
 #: emc/usr_intf/gmoccapy/dialogs.py:160
 msgid "Operator Message"
-msgstr ""
+msgstr "Thông báo thao tác"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:141
 msgid "_Yes"
@@ -736,23 +738,23 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/dialogs.py:168
 msgid "_Ok"
-msgstr ""
+msgstr "Đồn_g ý"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:205 emc/usr_intf/gmoccapy/dialogs.py:207
 msgid "Restart Entry"
-msgstr ""
+msgstr "Khởi động lại mục"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:219
 msgid "_Up     "
-msgstr ""
+msgstr "_Lên     "
 
 #: emc/usr_intf/gmoccapy/dialogs.py:221
 msgid "_Down"
-msgstr ""
+msgstr "_Xuống"
 
 #: emc/usr_intf/gmoccapy/dialogs.py:223
 msgid "_Jump to"
-msgstr ""
+msgstr "_Nhảy tới"
 
 #: emc/usr_intf/gmoccapy/getiniinfo.py:98
 msgid "**** GMOCCAPY GETINIINFO : ****"
@@ -823,11 +825,11 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:10
 msgid "Zoom in"
-msgstr ""
+msgstr "Phóng to"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:11
 msgid "Zoom out"
-msgstr ""
+msgstr "Thu nhỏ"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:12
 msgid "view perspective"
@@ -861,7 +863,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:19
 msgid "Preview"
-msgstr ""
+msgstr "Xem trước"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:20
 msgid "Offset Page"
@@ -909,7 +911,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Diameter"
-msgstr ""
+msgstr "Đường kính"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid "offset z"
@@ -977,7 +979,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "Undo"
-msgstr ""
+msgstr "Hoàn lại"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid ""
@@ -993,25 +995,31 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "Redo"
-msgstr ""
+msgstr "Làm lại"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid ""
 "Replace\n"
 "  Text:"
 msgstr ""
+"Thay thế\n"
+"  Chữ:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:58
 msgid ""
 "Replace\n"
 "   All"
 msgstr ""
+"Thay thế\n"
+"   tất cả"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
 msgid ""
 "Ignore\n"
 " Case"
 msgstr ""
+"Bỏ qua\n"
+" Hoa thường"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:62
 msgid "Replace"
@@ -1022,10 +1030,12 @@ msgid ""
 "Search\n"
 "  Text:"
 msgstr ""
+"Tìm kiếm\n"
+"  Chữ:"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:65
 msgid "Main"
-msgstr ""
+msgstr "Chính"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:66
 msgid "Start as fullscreen"
@@ -1125,7 +1135,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "Size"
-msgstr ""
+msgstr "Kích thước"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "Digits"
@@ -1173,7 +1183,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "none"
-msgstr ""
+msgstr "không gì cả"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid "<b>File to load on start</b>"
@@ -1189,15 +1199,15 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "Themes"
-msgstr ""
+msgstr "Sắc thái"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "Warning Audio"
-msgstr ""
+msgstr "Cảnh báo bằng âm thanh"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "Alert Audio"
-msgstr ""
+msgstr "Âm thanh báo động"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "<b>Themes and sound</b>"
@@ -1253,7 +1263,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "Starting RPM"
-msgstr ""
+msgstr "RPM bắt đầu"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Spindle bar min"
@@ -1265,7 +1275,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "<b>Spindle</b>"
-msgstr ""
+msgstr "<b>Trục chính</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Hide turtle Jog Button"
@@ -1380,7 +1390,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:163
 msgid "Font"
-msgstr ""
+msgstr "Phông chữ"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:164
 msgid "max."
@@ -1430,7 +1440,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
 msgid "Settings"
-msgstr ""
+msgstr "Cài đặt"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid "User tab 1"
@@ -1575,7 +1585,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:215
 msgid "Status"
-msgstr ""
+msgstr "Trạng thái"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:216
 msgid "launch linuxcnc status"
@@ -1583,7 +1593,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:217
 msgid "Hal Meter"
-msgstr ""
+msgstr "Đồng hồ Hal"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "launch hal meter"
@@ -1591,7 +1601,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "Calibration"
-msgstr ""
+msgstr "Cân chỉnh"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:220
 msgid "launch calibration"
@@ -1627,7 +1637,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:228
 msgid "Delete"
-msgstr ""
+msgstr "Xóa"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:229
 msgid "delete selected tool or tools"
@@ -1635,7 +1645,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:230
 msgid "Add"
-msgstr ""
+msgstr "Thêm"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "add a new tool to tool table"
@@ -1643,7 +1653,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "Reload"
-msgstr ""
+msgstr "Tải lại"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "reload tool table from file"
@@ -1651,7 +1661,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "Apply"
-msgstr ""
+msgstr "Áp dụng"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid ""
@@ -1688,19 +1698,19 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:244
 msgid "Move to your home directory"
-msgstr ""
+msgstr "Chuyển đến thư mục cá nhân"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:245
 msgid "Move to parent directory"
-msgstr ""
+msgstr "Di chuyển đến thư mục cha"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:246
 msgid "Select the previous file"
-msgstr ""
+msgstr "Chọn tập tin kế trước"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:247
 msgid "Select the next file"
-msgstr ""
+msgstr "Chọn dòng tiếp theo"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:248
 msgid "Jump to user defined directory"
@@ -1712,7 +1722,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:250
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Đóng mà không trả về một đường dẫn tập tin"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:251
 msgid "Load File"
