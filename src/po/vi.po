@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-14 01:56+0000\n"
+"PO-Revision-Date: 2022-02-15 03:51+0000\n"
 "Last-Translator: Trần Ngọc Quân <vnwildman@gmail.com>\n"
 "Language-Team: none\n"
 "Language: vi\n"
@@ -7291,6 +7291,7 @@ msgstr ""
 "Bạn có thể Sửa-chỉ-đọc\n"
 "\n"
 "hoặc\n"
+"\n"
 "Lưu nó vào thư mục bạn sở hữu\n"
 "rồi mở lại cái đã lưu đó, tập tin ghi được"
 
@@ -7657,7 +7658,7 @@ msgstr "Hộp biên"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:677
 msgid "Contact Angle (degrees)"
-msgstr "Góc tiếp cận (độ):"
+msgstr "Góc tiếp cận (độ)"
 
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:678
 msgid "Spindle Speed (RPM)"
