@@ -20,10 +20,13 @@
 #define TYPE_FOR_BOOL_VAR char
 #endif
 
+#ifdef MODBUS_IO_MASTER
 #include "protocol_modbus_master.h"
+#endif
 
 extern StrRung * RungArray;
 extern TYPE_FOR_BOOL_VAR * VarArray;
+//extern unsigned char * LogVarArray;
 extern int * VarWordArray;
 extern double * VarFloatArray;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
@@ -62,26 +65,15 @@ extern StrGeneralParams GeneralParamsMirror;
 
 #ifdef MODBUS_IO_MASTER
 extern StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
-// if '\0' => IP mode used for I/O Modbus modules
-extern char ModbusSerialPortNameUsed[ 30 ];
-extern int ModbusSerialSpeed;
-extern int ModbusSerialDataBits;
-extern int ModbusSerialStopBits;
-extern int ModbusSerialParity;
-extern int ModbusSerialUseRtsToSend;
-extern int ModbusTimeInterFrame;
-extern int ModbusTimeOutReceipt;
-extern int ModbusTimeAfterTransmit;
-extern int ModbusEleOffset;
-extern int ModbusDebugLevel;
-// Variables for Mapping MODBUS
-extern int MapCoilRead;
-extern int MapCoilWrite;
-extern int MapInputs;
-extern int MapHolding;
-extern int MapRegisterRead;
-extern int MapRegisterWrite;
+extern StrModbusConfig ModbusConfig;
 #endif
 
 extern char * ErrorMessageVarParser;
+
+//XXX log functionality not implemented.
+//extern StrLog Log;
+//extern StrConfigEventLog ConfigEventLog[ NBR_CONFIG_EVENTS_LOG ]; 
+//extern unsigned char ListCurrentDefType[ NBR_CURRENT_DEFS_MAX ];
+//extern int ListCurrentDefParam[ NBR_CURRENT_DEFS_MAX ];
+
 

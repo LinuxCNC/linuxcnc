@@ -27,8 +27,9 @@
 #include "classicladder.h"
 #include "global.h"
 #include "vars_access.h"
+#include "protocol_modbus_defines.h"
 #include "protocol_modbus_slave.h"
-#include "protocol_modbus_master.h" // some Modbus defines shared
+//////#include "protocol_modbus_master.h" // some Modbus defines shared
 
 
 

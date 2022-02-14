@@ -359,6 +359,10 @@ typedef struct StrInfosGene
 	char DisplaySymbols;
         char CurrentProjectFileName[ 400 ];
 	char AskToConfHard;
+
+	//XXX log functionality not implemented.
+	//char LogContentModified;
+	//char DefaultLogListModified;
 }StrInfosGene;
 
 /* Different states of Ladder */
@@ -428,6 +432,43 @@ typedef struct StrSymbol
 
 #define CREATE_FILE_SELECTION_TO_LOAD_PROJECT 0
 #define CREATE_FILE_SELECTION_TO_SAVE_PROJECT 1
+#define TypeTime unsigned long
+
+//XXX log functionality not implemented.
+/*
+#define NBR_EVENTS_IN_LOG 100
+#define NBR_CONFIG_EVENTS_LOG 20
+//for current defaults list
+#define NBR_CURRENT_DEFS_MAX 30
+typedef struct StrEventLog
+{
+	int iIdEvent;
+	TypeTime StartTime;
+	TypeTime EndTime;
+//TODO: add ms time for start/end...?
+	int ConfigArrayNum;
+	int Parameter;
+	char OldEventThatCouldNotBeDestroyed; //very old, but still not finished...
+}StrEventLog;
+typedef struct StrLog
+{
+	StrEventLog Event[ NBR_EVENTS_IN_LOG ];
+	int LastEvent;
+	int NbrEvents;
+}StrLog;
+#define EVENT_SYMBOL_LGT 10
+#define EVENT_TEXT_LGT 40
+typedef struct StrConfigEventLog
+{
+//	int VarType; //only %Bxxx type, else difficult in WriteVar() to know which vars have to be logged
+	int FirstVarNum;
+	int NbrVars;
+	int EventType; //(0=simple event, 1=default, 2=big default, perhaps we could work here per bit....?)
+	char Symbol[ EVENT_SYMBOL_LGT ];
+	char Text[ EVENT_TEXT_LGT ];
+}StrConfigEventLog;
+*/
+
 
 #ifdef SEQUENTIAL_SUPPORT
 #include "sequential.h"
@@ -472,3 +513,9 @@ extern int compId;
 extern int nogui;
 extern int modmaster;
 extern int modslave;
+
+// for EMC to be able to have specific headers in the many (rt or not) debug printf
+//#define DBG_HEADER_INFO "ClassicLadder Info --- "
+//#define DBG_HEADER_ERR "ClassicLadder Error --- "
+#define DBG_HEADER_INFO ""
+#define DBG_HEADER_ERR ""

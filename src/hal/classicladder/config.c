@@ -56,7 +56,7 @@ static struct cfg_cfg maincfg[] = {
 	{ "NBR_PHYS_OUTPUTS", TYPE_INT, (void *) &GeneralParamsMirror.SizesInfos.nbr_phys_outputs },
 	{ "NBR_ARITHM_EXPR", TYPE_INT, (void *) &GeneralParamsMirror.SizesInfos.nbr_arithm_expr },
 	{ "NBR_SECTIONS", TYPE_INT, (void *) &GeneralParamsMirror.SizesInfos.nbr_sections },
-#ifdef MODBUS_IO_MASTER
+#ifndef MODBUS_IO_MASTER
 	{ "MODBUS_MASTER_SERIAL_PORT", TYPE_STRING, (void *) ModbusSerialPortNameUsed },
 	{ "MODBUS_MASTER_SERIAL_SPEED", TYPE_INT, (void *) &ModbusSerialSpeed },
 	{ "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND", TYPE_INT, (void *) &ModbusSerialUseRtsToSend },
@@ -74,12 +74,10 @@ static struct cfg_cfg maincfg[] = {
 */
 static int read_configfile (char *fname, struct cfg_cfg *cfg)
 {
-       
 	FILE	*fp;
 	char	line[255];
 	char	*val;
 	int	i;
-	
 	 printf(_("INFO CLASSICLADDER---Reading MODBUS config file -%s\n"),fname);
 	fp = fopen (fname, "r");
 	if (fp == NULL) {

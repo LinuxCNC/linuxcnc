@@ -1204,57 +1204,56 @@ char LoadComParameters(char * FileName)
 				char * pParameter;
 				pParameter = "MODBUS_MASTER_SERIAL_PORT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					 rtapi_strxcpy(ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
+					 rtapi_strxcpy(ModbusConfig.ModbusSerialPortNameUsed,&Line[strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_SPEED=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusSerialSpeed = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_DATABITS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusSerialDataBits = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusSerialDataBits = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_STOPBITS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusSerialStopBits = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusSerialStopBits = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_MASTER_SERIAL_PARITY=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusSerialParity = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusSerialParity = atoi( &Line[ strlen( pParameter) ] );
                                 pParameter = "MODBUS_ELEMENT_OFFSET=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusEleOffset = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusEleOffset = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusSerialUseRtsToSend = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusSerialUseRtsToSend = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_TIME_INTER_FRAME=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusTimeInterFrame = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusTimeInterFrame = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_TIME_OUT_RECEIPT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusTimeOutReceipt = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusTimeOutReceipt = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_MASTER_TIME_AFTER_TRANSMIT=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusTimeAfterTransmit = atoi( &Line[ strlen( pParameter) ] );
+					ModbusConfig.ModbusTimeAfterTransmit = atoi( &Line[ strlen( pParameter) ] );
 				pParameter = "MODBUS_DEBUG_LEVEL=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] ); 
-                                pParameter = "MODBUS_MAP_COIL_READ=";
+					ModbusConfig.ModbusDebugLevel = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_TYPE_FOR_READ_INPUTS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					MapCoilRead = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_MAP_COIL_WRITE=";
+					ModbusConfig.MapTypeForReadInputs = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_TYPE_FOR_READ_COILS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-				        MapCoilWrite = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_MAP_INPUT=";
+					ModbusConfig.MapTypeForReadCoils = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_TYPE_FOR_WRITE_COILS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					MapInputs = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_MAP_HOLDING=";
+					ModbusConfig.MapTypeForWriteCoils = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_TYPE_FOR_READ_INPUT_REGS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					MapHolding = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_MAP_REGISTER_READ=";
+					ModbusConfig.MapTypeForReadInputRegs = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_TYPE_FOR_READ_HOLD_REGS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					MapRegisterRead = atoi( &Line[ strlen( pParameter) ] );
-				pParameter = "MODBUS_MAP_REGISTER_WRITE=";
+					ModbusConfig.MapTypeForReadHoldRegs = atoi( &Line[ strlen( pParameter) ] );
+				pParameter = "MODBUS_MAP_TYPE_FOR_WRITE_HOLD_REGS=";
 				if ( strncmp( Line, pParameter, strlen( pParameter) )==0 )
-					MapRegisterWrite = atoi( &Line[ strlen( pParameter) ] );
-
-                         }
+					ModbusConfig.MapTypeForWriteHoldRegs = atoi( &Line[ strlen( pParameter) ] );
+			}
 		}
 		while(LineOk);
 		fclose(File);
@@ -1270,30 +1269,29 @@ char SaveComParameters(char * FileName)
 	File = fopen(FileName,"wt");
 	if (File)
 	{
-		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n",ModbusSerialPortNameUsed  );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n",ModbusSerialSpeed  );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_DATABITS=%d" E_LINE "\n",ModbusSerialDataBits );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_STOPBITS=%d" E_LINE "\n",ModbusSerialStopBits  );
-                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PARITY=%d" E_LINE "\n",ModbusSerialParity  );
-                fprintf( File,S_LINE "MODBUS_ELEMENT_OFFSET=%d" E_LINE "\n", ModbusEleOffset );
-		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=%d" E_LINE "\n", ModbusSerialUseRtsToSend );
-		fprintf( File,S_LINE "MODBUS_MASTER_TIME_INTER_FRAME=%d" E_LINE "\n", ModbusTimeInterFrame );
-		fprintf( File,S_LINE "MODBUS_MASTER_TIME_OUT_RECEIPT=%d" E_LINE "\n", ModbusTimeOutReceipt );
-		fprintf( File,S_LINE "MODBUS_MASTER_TIME_AFTER_TRANSMIT=%d" E_LINE "\n", ModbusTimeAfterTransmit );
-		fprintf( File,S_LINE "MODBUS_DEBUG_LEVEL=%d" E_LINE "\n", ModbusDebugLevel );
-
-                fprintf( File,S_LINE "MODBUS_MAP_COIL_READ=%d" E_LINE "\n", MapCoilRead );
-		fprintf( File,S_LINE "MODBUS_MAP_COIL_WRITE=%d" E_LINE "\n", MapCoilWrite );
-		fprintf( File,S_LINE "MODBUS_MAP_INPUT=%d" E_LINE "\n", MapInputs );
-		fprintf( File,S_LINE "MODBUS_MAP_HOLDING=%d" E_LINE "\n", MapHolding );
-		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_READ=%d" E_LINE "\n", MapRegisterRead );
-		fprintf( File,S_LINE "MODBUS_MAP_REGISTER_WRITE=%d" E_LINE "\n", MapRegisterWrite );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PORT=%s" E_LINE "\n",ModbusConfig.ModbusSerialPortNameUsed  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_SPEED=%d" E_LINE "\n",ModbusConfig.ModbusSerialSpeed  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_DATABITS=%d" E_LINE "\n",ModbusConfig.ModbusSerialDataBits );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_STOPBITS=%d" E_LINE "\n",ModbusConfig.ModbusSerialStopBits  );
+                fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_PARITY=%d" E_LINE "\n",ModbusConfig.ModbusSerialParity  );
+                fprintf( File,S_LINE "MODBUS_ELEMENT_OFFSET=%d" E_LINE "\n", ModbusConfig.ModbusEleOffset );
+		fprintf( File,S_LINE "MODBUS_MASTER_SERIAL_USE_RTS_TO_SEND=%d" E_LINE "\n", ModbusConfig.ModbusSerialUseRtsToSend );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_INTER_FRAME=%d" E_LINE "\n", ModbusConfig.ModbusTimeInterFrame );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_OUT_RECEIPT=%d" E_LINE "\n", ModbusConfig.ModbusTimeOutReceipt );
+		fprintf( File,S_LINE "MODBUS_MASTER_TIME_AFTER_TRANSMIT=%d" E_LINE "\n", ModbusConfig.ModbusTimeAfterTransmit );
+		fprintf( File,S_LINE "MODBUS_DEBUG_LEVEL=%d" E_LINE "\n", ModbusConfig.ModbusDebugLevel );
+		fprintf( File,S_LINE "MODBUS_MAP_TYPE_FOR_READ_INPUTS=%d" E_LINE "\n", ModbusConfig.MapTypeForReadInputs );
+		fprintf( File,S_LINE "MODBUS_MAP_TYPE_FOR_READ_COILS=%d" E_LINE "\n", ModbusConfig.MapTypeForReadCoils );
+		fprintf( File,S_LINE "MODBUS_MAP_TYPE_FOR_WRITE_COILS=%d" E_LINE "\n", ModbusConfig.MapTypeForWriteCoils );
+		fprintf( File,S_LINE "MODBUS_MAP_TYPE_FOR_READ_INPUT_REGS=%d" E_LINE "\n", ModbusConfig.MapTypeForReadInputRegs );
+		fprintf( File,S_LINE "MODBUS_MAP_TYPE_FOR_READ_HOLD_REGS=%d" E_LINE "\n", ModbusConfig.MapTypeForReadHoldRegs );
+		fprintf( File,S_LINE "MODBUS_MAP_TYPE_FOR_WRITE_HOLD_REGS=%d" E_LINE "\n", ModbusConfig.MapTypeForWriteHoldRegs );
 		fclose(File);
 		Okay = TRUE;
 	}
-        
 	return (Okay);
 }
+
 void DeleteTheDefaultSection( )
 {
 	RungArray[0].Used = FALSE;
@@ -1364,7 +1362,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration data from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
-        if (modmaster) {    PrepareModbusMaster( );    }
+        if (modmaster) {   InitModbusMasterParams( );    }
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols data from %s\n",FileName);
