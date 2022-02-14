@@ -144,10 +144,48 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-upm\fR OUT FLOAT
-Current feed rate in machine units per minute for motion.motion-types
+Current feed rate in G-code program units per minute for motion.motion-types
 feed(2) and arc(3).
-Value is the program F value multiplied by the current feed override
+Value is the G-code program F value multiplied by the current feed override
 value and the motion.adaptive-feed setting (if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+If units (G20 or G21) are not specified in the G-code file then units will
+be the last units used.
+
+.TP
+\fBmotion.feed\-inches-per-minute\fR OUT FLOAT
+Current feed rate in inches per minute for motion.motion-types
+feed(2) and arc(3).
+Value is the inch equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
+\fBmotion.feed\-inches-per-second\fR OUT FLOAT
+Current feed rate in inches per second for motion.motion-types
+feed(2) and arc(3).
+Value is the inch equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
+\fBmotion.feed\-mm-per-minute\fR OUT FLOAT
+Current feed rate in mm per minute for motion.motion-types
+feed(2) and arc(3).
+Value is the mm equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
+\fBmotion.feed\-mm-per-second\fR OUT FLOAT
+Current feed rate in mm per second for motion.motion-types
+feed(2) and arc(3).
+Value is the mm equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
