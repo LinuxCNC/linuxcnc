@@ -1938,6 +1938,7 @@ static void compute_screw_comp(void)
 static void output_to_hal(void)
 {
     int joint_num, axis_num, spindle_num;
+    double inch_mult;
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
     joint_hal_t *joint_data;
@@ -1957,11 +1958,24 @@ static void output_to_hal(void)
     switch (emcmotStatus->motionType) {
         case EMC_MOTION_TYPE_FEED: //fall thru
         case EMC_MOTION_TYPE_ARC:
+            if (emcmotStatus->tag.packed_flags & 1 << GM_FLAG_UNITS) {
+                inch_mult = 1;
+            } else {
+                inch_mult = 1 / 25.4;
+            }
             *(emcmot_hal_data->feed_upm) = emcmotStatus->tag.fields_float[GM_FIELD_FLOAT_FEED]
                                          * emcmotStatus->net_feed_scale;
+            *(emcmot_hal_data->feed_inches_per_minute) = *emcmot_hal_data->feed_upm * inch_mult;
+            *(emcmot_hal_data->feed_inches_per_second) = *emcmot_hal_data->feed_inches_per_minute / 60;
+            *(emcmot_hal_data->feed_mm_per_minute) = *emcmot_hal_data->feed_inches_per_minute * 25.4;
+            *(emcmot_hal_data->feed_mm_per_second) = *emcmot_hal_data->feed_mm_per_minute / 60;
             break;
         default:
             *(emcmot_hal_data->feed_upm) = 0;
+            *(emcmot_hal_data->feed_inches_per_minute) = 0;
+            *(emcmot_hal_data->feed_inches_per_second) = 0;
+            *(emcmot_hal_data->feed_mm_per_minute) = 0;
+            *(emcmot_hal_data->feed_mm_per_second) = 0;
     }
 
     for (spindle_num = 0; spindle_num < emcmotConfig->numSpindles; spindle_num++){

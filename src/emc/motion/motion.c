@@ -475,6 +475,10 @@ static int init_hal_io(void)
 
     /* state tags pins */
     if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_upm), mot_comp_id, "motion.feed-upm")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_inches_per_minute), mot_comp_id, "motion.feed-inches-per-minute")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_inches_per_second), mot_comp_id, "motion.feed-inches-per-second")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_mm_per_minute), mot_comp_id, "motion.feed-mm-per-minute")) < 0) goto error;
+    if ((retval = hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->feed_mm_per_second), mot_comp_id, "motion.feed-mm-per-second")) < 0) goto error;
 
     /* export motion-synched digital output pins */
     /* export motion digital input pins */
