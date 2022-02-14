@@ -38,9 +38,11 @@
 
 
 
-//old code with names directly in it...
+//===OLD CODE NO MORE USED===
+//with names directly in it...
 //to be deleted, but some precise errors codes aren't present in the new function...
 #ifdef AAAAAAAAA
+
 char * CreateVarName(int Type, int Offset)
 {
 	static char Buffer[20];
@@ -117,13 +119,12 @@ char * CreateVarName(int Type, int Offset)
 			snprintf(Buffer, sizeof(Buffer),"???");
 			break;
 	}
-printf(_("infogene display symbols=&i\n"),InfosGene->DisplaySymbols);
 	if ( InfosGene->DisplaySymbols )
-	{ 
+	{
 		// verify if a symbol has been defined for the variable...
 		char * Symbol = ConvVarNameToSymbol( Buffer );
-		if ( (Symbol!=NULL )||(Symbol[0]!=' ')||(Symbol[0]!='\0')){
-			return Symbol;}
+		if ( Symbol!=NULL )
+			return Symbol;
 	}
     return Buffer;
 }
@@ -506,6 +507,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 	// pass the start '%' before parsing
 	pVarCherch++;
 
+//printf( "TextParserForAVar:identifing var...%s\n", pVarCherch );
 	// scanning the base name variables table
 	do
 	{
@@ -653,6 +655,7 @@ char TextParserForAVar( char * TextToParse, int * VarTypeFound,int * VarOffsetFo
 		}
 	}
 
+//printf( "TextParserForAVar:end. found=%d (type=%d,offset=%d)\n", bFound, pConv->iTypeVar, iIdVar );
 	return bFound;
 }
 
@@ -695,6 +698,33 @@ StrConvIdVarName * ConvIdVarEnPtrSurEleConv( int iTypeVarToSearch, int iIdVarChe
 		return pConv;
 	else
 		return NULL;
+}
+
+int GetSizeVarsForTypeVar( int iTypeVarToSearch )
+{
+	int iSize = -1;
+#ifdef IDVAR_IS_TYPE_AND_OFFSET
+	int iBalayTable = 0;
+	StrConvIdVarName * pConv;
+	// research in the table list
+	do
+	{
+		pConv = &TableConvIdVarName[ iBalayTable ];
+		// same type ?
+		if ( pConv->iTypeVar==iTypeVarToSearch )
+		{
+			iSize = (pConv->iSize2<=0)?pConv->iSize1:pConv->iSize1*pConv->iSize2;
+			if ( pConv->iSize3>0 )
+				iSize *= pConv->iSize3;
+		}
+		else
+		{
+			iBalayTable++;
+		}
+	}
+	while (iSize==-1 && TableConvIdVarName[ iBalayTable].StringBaseVarName);
+#endif
+	return iSize;
 }
 
 /* Convert a Type/Id variable into a default base name */

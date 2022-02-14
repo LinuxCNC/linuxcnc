@@ -49,8 +49,12 @@
 #define NBR_PHYS_FLOAT_INPUTS_DEF 10
 #define NBR_PHYS_FLOAT_OUTPUTS_DEF 10
 #define NBR_ERROR_BITS_DEF 10
+
 #define NBR_INPUTS_CONF 5
 #define NBR_OUTPUTS_CONF 5
+
+#define NBR_VARS_SYSTEM 20
+#define NBR_VARS_WORDS_SYSTEM 20
 
 typedef struct plc_sizeinfo_s {
 	int	nbr_rungs;
@@ -66,8 +70,8 @@ typedef struct plc_sizeinfo_s {
 	int	nbr_phys_outputs;
 	int	nbr_arithm_expr;
 	int	nbr_sections;
-	int     nbr_symbols;
-        int	nbr_phys_words_inputs;
+	int nbr_symbols;
+	int	nbr_phys_words_inputs;
 	int	nbr_phys_words_outputs;
         int     nbr_phys_float_inputs;
         int     nbr_phys_float_outputs;
@@ -177,7 +181,8 @@ typedef struct plc_sizeinfo_s {
 #define VAR_STEP_ACTIVITY 30
 #define VAR_PHYS_INPUT 50
 #define VAR_PHYS_OUTPUT 60
-#define VAR_ERROR_BIT 70
+#define VAR_SYSTEM 70
+#define VAR_ERROR_BIT 75
 #define VAR_ARE_WORD 199    /* after it, all vars are no more booleans */
 /* integers */
 #define VAR_MEM_WORD 200
@@ -192,6 +197,7 @@ typedef struct plc_sizeinfo_s {
 #define VAR_TIMER_IEC_VALUE 261
 #define VAR_PHYS_WORD_INPUT 270
 #define VAR_PHYS_WORD_OUTPUT 280
+#define VAR_WORD_SYSTEM 290
 #define VAR_PHYS_FLOAT_INPUT 300
 #define VAR_PHYS_FLOAT_OUTPUT 310
 
