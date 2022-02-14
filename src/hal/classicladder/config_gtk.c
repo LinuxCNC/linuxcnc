@@ -204,7 +204,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 		gtk_widget_show (ValueParam[NumObj]);
 		gtk_entry_set_text( GTK_ENTRY(ValueParam[NumObj]), BuffValue);
                 // make all the entries non editable for EMC
-		gtk_editable_set_editable( GTK_EDITABLE(ValueParam[NumObj]),FALSE);
+		gtk_widget_set_sensitive( ValueParam[NumObj],FALSE);
 	}
 	return vbox;
 }

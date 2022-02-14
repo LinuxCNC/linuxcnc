@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -48,6 +48,7 @@
 // #include "hardware.h"
 #include "socket_server.h"
 #include "socket_modbus_master.h"
+//#include "vars_system.h"
 
 #if !defined( MODULE )
 #include <gtk/gtk.h>
@@ -81,7 +82,7 @@
 #endif
 
 int cl_remote;
-int nogui = 0,modmaster=0,modslave=0,pathswitch=0;;
+int nogui = 0,modmaster=0,modslave=0,pathswitch=0;
 int ModbusServerPort = 9502; // Standard "502" requires root privileges...
 int CyclicThreadRunning = 0;
 char  *NewPath;
@@ -97,8 +98,8 @@ void ClassicLadderEndOfAppli( void )
 void display_help (void)
 {
 	printf("\nClassicLadder v"CL_RELEASE_VER_STRING"\n"CL_RELEASE_DATE_STRING"\n"
-	       "Copyright (C) 2001-2004 Marc Le Douarain\nmavati@club-internet.fr\n"
-	       "Adapted to EMC\n"
+	       "Copyright (C) 2001-2010 Marc Le Douarain\nmavati@club-internet.fr\n"
+	       "Adapted to LinuxCNC\n"
 			"\n"
 	       "ClassicLadder comes with NO WARRANTY\n"
 	       "to the extent permitted by law.\n"
@@ -107,7 +108,7 @@ void display_help (void)
 	       "under the terms of the GNU Lesser General Public Licence.\n"
 	       "See the file `lesserGPL.txt' for more information.\n");	
 	
-    printf("This version of Classicladder is adapted for use with EMC and HAL\n"
+    printf("This version of Classicladder is adapted for use with LinuxCNC and HAL\n"
 	       "\nUsage: classicladder [OPTIONS] [PATH]\n"
 	       "eg: loadusr -w classicladder  ladtest.clp\n"
 	       "eg: loadusr -w classicladder  --nogui ladtest.clp\n"
@@ -121,7 +122,7 @@ void display_help (void)
 	       "Please also note that the classicladder realtime module must be loaded first\n"
 	       "eg: loadrt classicladder_rt    for default number of ladder objects\n"  
 			    );
-	hal_exit(compId); // add for emc
+	hal_exit(compId); // add for LinuxCNC
 	exit(0);
 }
 
