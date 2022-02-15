@@ -542,16 +542,26 @@ static void thisQuit()
 static int initSockets()
 {
   int optval = 1;
-
+  int err;
+  
   server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
   setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);
   server_len = sizeof(server_address);
-  bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
-  listen(server_sockfd, 5);
+  err = bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
+  if (err) {
+      rcs_print_error("error initializing sockets: %s\n", strerror(errno));
+      return err;
+  }
 
+  err = listen(server_sockfd, 5);
+  if (err) {
+      rcs_print_error("error listening on socket: %s\n", strerror(errno));
+      return err;
+  }
+  
   // ignore SIGCHLD
   {
     struct sigaction act;
@@ -2950,7 +2960,10 @@ int main(int argc, char *argv[])
     }
     // get configuration information
     iniLoad(emc_inifile);
-    initSockets();
+    if (initSockets()) {
+        rcs_print_error("error initializing sockets\n");  
+        exit(1);
+    }
     // init NML
     if (tryNml() != 0) {
 	rcs_print_error("can't connect to LinuxCNC\n");
