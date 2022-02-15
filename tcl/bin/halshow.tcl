@@ -61,10 +61,17 @@ proc saveIni {} {
             # write file
             puts $fc "# Halshow settings"
             puts $fc "# This file is generated automatically."
-            puts $fc [list wm geometry . [wm geometry .]]
-            puts $fc [list placeFrames $::ratio]
-            puts $fc [list set ::ratio $::ratio]
-            puts $fc [list set ::old_w_leftf $::old_w_leftf]
+            puts $fc "wm geometry . [wm geometry .]"
+            puts $fc "placeFrames $::ratio"
+            puts $fc "set ::ratio $::ratio"
+            puts $fc "set ::old_w_leftf $::old_w_leftf"            
+            puts $fc "set ::watchlist {"
+            foreach elem $::watchlist {
+                puts $fc "    $elem"
+            }
+            puts $fc "}"
+            puts $fc "set ::workmode $::workmode"
+            puts $fc "set ::last_watchfile_tail $::last_watchfile_tail"
             close $fc
         }
     }
@@ -89,8 +96,8 @@ wm minsize . 230 240
 wm attributes . -topmost no
 
 # save settings after switching to another window
-bind . <FocusOut> {checkSizeChanged %W}
-# save settings after resize
+bind . <FocusOut> {saveIni}
+# save settings after resize (occurs also after start)
 bind . <FocusIn> {checkSizeChanged %W}
 
 # trap mouse click on window manager delete and ask to save
@@ -327,13 +334,6 @@ scrollbar $str -orient vert -command "$::treew yview"
 pack $str -side right -fill y
 pack $::treew -side right -fill both -expand yes
 $::treew bindText <Button-1> {workMode   }
-
-# Loading the settings from the file.
-# This overrides the default settings above.
-readIni
-if {$::ratio == 0} {
-    hideListview false
-}
 
 #----------tree widget handlers----------
 # a global var -- ::treenodes -- holds the names of existing nodes
@@ -982,6 +982,7 @@ proc savewatchlist { {fmt oneline} } {
   close $f
   set ::last_watchfile_tail [file tail    $sfile]
   set ::last_watchfile_dir  [file dirname $sfile]
+  wm title . "$::last_watchfile_tail - $::titlename"
 }
 
 #----------start up the displays----------
@@ -1041,5 +1042,14 @@ if {[llength $::argv] > 0} {
    }
 }
 
+# Loading the settings from the file.
+# This overrides the default settings above.
+readIni
+if {$::ratio == 0} {
+    hideListview false
+}
+if {$::workmode == "watchhal"} {
+    $::nb raise pw  
+}
 tkwait visibility .
 set ::initPhase false
