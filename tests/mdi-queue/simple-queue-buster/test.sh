@@ -2,6 +2,11 @@
 
 rm -f gcode-output
 
+if nc -z localhost 5007; then
+    echo "Process already listening on port 5007. Exiting"
+    exit 1
+fi
+
 linuxcnc -r linuxcncrsh-test.ini &
 
 
