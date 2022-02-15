@@ -86,11 +86,10 @@ RTAPI_MP_INT(unlock_joints_mask, "mask to select joints for unlock pins");
 /* pointer to emcmot_hal_data_t struct in HAL shmem, with all HAL data */
 emcmot_hal_data_t *emcmot_hal_data = 0;
 
-/* pointer to joint data */
-emcmot_joint_t *joints = 0;
-
-/* pointer to axis data */
-emcmot_axis_t *axes = 0;
+/* allocate array for joint data */
+emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
+/* allocate array for axis data */
+emcmot_axis_t axes[EMCMOT_MAX_AXIS];
 
 /*
   Principles of communication:
@@ -244,6 +243,7 @@ static int module_intfc() {
 
     tpMotData(emcmotStatus
              ,emcmotConfig
+             ,axes
              );
     return 0;
 }
@@ -963,10 +963,6 @@ static int init_comm_buffers(void)
     /* record the kinematics type of the machine */
     emcmotConfig->kinType = kinematicsType();
     emcmot_config_change();
-
-    /* init pointer to joints and axes structs */
-    joints = &(emcmotStatus->joints[0]);
-    axes   = &(emcmotStatus->axes[0]);
 
     for (spindle_num = 0; spindle_num < EMCMOT_MAX_SPINDLES; spindle_num++){
         emcmotStatus->spindle_status[spindle_num].scale = 1.0;

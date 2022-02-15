@@ -56,6 +56,7 @@
 
 static emcmot_status_t *emcmotStatus;
 static emcmot_config_t *emcmotConfig;
+static emcmot_axis_t *emcmotAxis;
 
 //==========================================================
 // tp module interface
@@ -79,10 +80,12 @@ void tpMotFunctions(void(*pDioWrite)(int,char)
 
 void tpMotData(emcmot_status_t *pstatus
               ,emcmot_config_t *pconfig
+              ,emcmot_axis_t *paxis
               )
 {
     emcmotStatus = pstatus;
     emcmotConfig = pconfig;
+    emcmotAxis = paxis;
 }
 //=========================================================
 
@@ -171,9 +174,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotStatus->axes[0].acc_limit; //0==>x
-    acc_bound->y = emcmotStatus->axes[1].acc_limit; //1==>y
-    acc_bound->z = emcmotStatus->axes[2].acc_limit; //2==>z
+    acc_bound->x = emcmotAxis[0].acc_limit; //0==>x
+    acc_bound->y = emcmotAxis[1].acc_limit; //1==>y
+    acc_bound->z = emcmotAxis[2].acc_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -183,9 +186,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotStatus->axes[0].vel_limit; //0==>x
-    vel_bound->y = emcmotStatus->axes[1].vel_limit; //1==>y
-    vel_bound->z = emcmotStatus->axes[2].vel_limit; //2==>z
+    vel_bound->x = emcmotAxis[0].vel_limit; //0==>x
+    vel_bound->y = emcmotAxis[1].vel_limit; //1==>y
+    vel_bound->z = emcmotAxis[2].vel_limit; //2==>z
     return TP_ERR_OK;
 }
 
