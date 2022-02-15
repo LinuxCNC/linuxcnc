@@ -337,7 +337,7 @@ int rtapi_app_main(void)
   else if(!num_aio){
     num_aio = DEFAULT_AIO;
   }
-    
+
     if (( num_aio < 1 ) || ( num_aio > EMCMOT_MAX_AIO )) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    _("MOTION: num_aio is %d, must be between 1 and %d\n"), num_aio, EMCMOT_MAX_AIO);
@@ -379,7 +379,7 @@ int rtapi_app_main(void)
 	hal_exit(mot_comp_id);
 	return -1;
     }
-    
+
     if (module_intfc()) {
 	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: module_intfc() failed\n"));
 	return -1;
@@ -616,7 +616,7 @@ static int init_hal_io(void)
     /* default value of enable is TRUE, so simple machines
        can leave it disconnected */
     *(emcmot_hal_data->enable) = 1;
-    
+
     /* motion synched dio, init to not enabled */
     for (n = 0; n < num_dio; n++) {
 	 *(emcmot_hal_data->synch_do[n]) = 0;
@@ -949,7 +949,7 @@ static int init_comm_buffers(void)
     emcmotStatus->feed_scale = 1.0;
     emcmotStatus->rapid_scale = 1.0;
     emcmotStatus->net_feed_scale = 1.0;
-    /* adaptive feed is off by default, feed override, spindle 
+    /* adaptive feed is off by default, feed override, spindle
        override, and feed hold are on */
     emcmotStatus->enables_new = FS_ENABLED | SS_ENABLED | FH_ENABLED;
     emcmotStatus->enables_queued = emcmotStatus->enables_new;
@@ -1090,14 +1090,14 @@ static int init_threads(void)
 	return -1;
     }
     /* export realtime functions that do the real work */
-    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg 
+    retval = hal_export_funct("motion-controller", emcmotController, 0	/* arg
 	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "MOTION: failed to export controller function\n");
 	return -1;
     }
-    retval = hal_export_funct("motion-command-handler", emcmotCommandHandler, 0	/* arg 
+    retval = hal_export_funct("motion-command-handler", emcmotCommandHandler, 0	/* arg
 	 */ , 1 /* uses_fp */ , 0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1108,7 +1108,7 @@ static int init_threads(void)
 #if 0
     /*! \todo FIXME - currently the traj planner is called from the controller */
     /* eventually it will be a separate function */
-    retval = hal_export_funct("motion-traj-planner", emcmotTrajPlanner, 0	/* arg 
+    retval = hal_export_funct("motion-traj-planner", emcmotTrajPlanner, 0	/* arg
 	 */ , 1 /* uses_fp */ ,
 	0 /* reentrant */ , mot_comp_id);
     if (retval < 0) {
