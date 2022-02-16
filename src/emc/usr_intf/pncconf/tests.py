@@ -604,7 +604,7 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write("addf simple-tp.0.update servo-thread \n")
         halrun.write("addf pid.0.do-pid-calcs servo-thread \n")
         halrun.write("addf scale_to_rpm servo-thread \n")
-        # do I/O write comands
+        # do I/O write commands
         for i in write:
             halrun.write('%s\n'%i)
         halrun.write( "newsig estop-out bit\n")

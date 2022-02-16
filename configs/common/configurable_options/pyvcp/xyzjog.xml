@@ -133,7 +133,7 @@
         <label>
                 <width>1</width>
         </label>
-        <labelframe text="MDI comands"> 
+        <labelframe text="MDI commands"> 
        <font>("Helvetica",20)</font>
 		<hbox>
                      <button>

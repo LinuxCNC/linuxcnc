@@ -458,8 +458,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EMCMOT_JOINT_FLAG flag;	/* see above for bit details */
 	double coarse_pos;	/* trajectory point, before interp */
 	double pos_cmd;		/* commanded joint position */
-	double vel_cmd;		/* comanded joint velocity */
-	double acc_cmd;		/* comanded joint acceleration */
+	double vel_cmd;		/* commanded joint velocity */
+	double acc_cmd;		/* commanded joint acceleration */
 	double backlash_corr;	/* correction for backlash */
 	double backlash_filt;	/* filtered backlash correction */
 	double backlash_vel;	/* backlash velocity variable */
@@ -552,7 +552,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 
     typedef struct {
 	double pos_cmd;		/* commanded axis position */
-	double teleop_vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* commanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
 	double vel_limit;	/* upper limit of axis speed */
@@ -571,7 +571,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     } emcmot_axis_t;
 
     typedef struct {
-	double teleop_vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* commanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
     } emcmot_axis_status_t;

@@ -1,7 +1,7 @@
 
 # ***** plasmac component connections for a QtPlasmaC configuration *****
 
-# do not make any changes to this file, it may be overwitten by future updates
+# do not make any changes to this file, it may be overwritten by future updates
 # make all customizations in custom.hal or custom_postgui.hal
 
 # ---PLASMAC COMPONENT INPUTS---

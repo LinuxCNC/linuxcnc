@@ -429,7 +429,7 @@ Tool Measurement in QtDragon is done with the following steps:
 * Go to auto mode and start your program
 
 [NOTE]
-When fist setting up auto tool measurement, please use caution untill you confirm +
+When fist setting up auto tool measurement, please use caution until you confirm +
 tool change and probe locations - it's easy to break a tool/probe. Abort will be honoured +
 while the probe is in motion.
 

@@ -1269,7 +1269,7 @@ void Hal::setMacro9(bool enabled)
 // ----------------------------------------------------------------------
 void Hal::setMacro10(bool enabled)
 {
-    setPin(enabled, KeyCodes::Buttons.macro10.text);                        // Hardcoded Absolue/relative Dro
+    setPin(enabled, KeyCodes::Buttons.macro10.text);                        // Hardcoded Absolute/relative Dro
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro11(bool enabled)

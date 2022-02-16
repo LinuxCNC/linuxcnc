@@ -83,10 +83,10 @@ The commands issued for tool data changes are:
     The tool data line will include all elements of a tool table
     text line.
 
-  * "'l'" spindle_load (TnM6). The tool data line inclues only the 'T' and
+  * "'l'" spindle_load (TnM6). The tool data line includes only the 'T' and
     'P' items identifying the relevant tool number and pocket number.
 
-  * "'u'" spindle_unload (T0M6).  The tool data line inclues only the 'T'
+  * "'u'" spindle_unload (T0M6).  The tool data line includes only the 'T'
     and 'P' items identifying the relevant tool number and pocket number
 
 [NOTE]
