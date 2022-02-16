@@ -519,7 +519,7 @@ KEYBIND = Keylookup()
 === adding key bndings
 Note keybindings require code under the _processed_key_event_ function +
 to call _KEYBIND.call()_ - most handler file already have this code. +
-In the handler file, under the _initialed_ function use this general syntaxt: +
+In the handler file, under the _initialed_ function use this general syntax: +
  +
 KEYBINDING.add_call("DEFINED_KEY","FUNCTION TO CALL", USER DATA) +
  +

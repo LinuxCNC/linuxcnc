@@ -1712,7 +1712,7 @@ The widget will emit the following signals:
         It will return the buttonname and the new state. Buttonname is one of "btn_home", "btn_dir_up", "btn_sel_prev",
         "btn_sel_next", "btn_jump_to" or "btn_select". State is a boolean and will be True or False.
     exit
-        This signal is Emmit, when the exit button has been pressed to close the IconView
+        This signal is emitted, when the exit button has been pressed to close the IconView
         mostly needed if the application is started as stand alone.
 
 

@@ -48,7 +48,7 @@
 #undef  MAKE_TP_HAL_PINS
 
 // api for tpCreate() inherits a component id  provision to include hal pins:
-// (not used by the this default tp implemenation but may
+// (not used by the this default tp implementation but may
 //  be used in alternate user-built implementations)
 #ifdef  MAKE_TP_HAL_PINS // {
 #include "hal.h"

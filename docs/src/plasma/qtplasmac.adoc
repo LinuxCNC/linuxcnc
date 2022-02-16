@@ -1293,7 +1293,7 @@ If the user intends to place the material randomly on the table then the user mu
 
 === Cut Feed Rate
 
-QtPlasmaC is able to read a material file to load all the required cut paramaters. To enable to G-Code file to use the cut feed rate setting from the cut parameters use the following code in the G-Code file:
+QtPlasmaC is able to read a material file to load all the required cut parameters. To enable to G-Code file to use the cut feed rate setting from the cut parameters use the following code in the G-Code file:
 
 ----
 F#<_hal[plasmac.cut-feed-rate]>
