@@ -1562,14 +1562,14 @@ class GlCanonDraw:
 
     # N.B. no conversion here because joint positions are unitless
     #      joint_mode and display_joint
-    # Note: this is overriden in other guis (then AXIS) for different dro behavior
+    # Note: this is overridden in other guis (then AXIS) for different dro behavior
     def joint_dro_format(self,s,spd,num_of_joints,limit, homed):
         posstrs = ["  %s:% 9.4f" % i for i in
             zip(list(range(num_of_joints)), s.joint_actual_position)]
         droposstrs = posstrs
         return limit, homed, posstrs, droposstrs
 
-    # Note: this is overriden in other guis (then AXIS) for different dro behavior
+    # Note: this is overridden in other guis (then AXIS) for different dro behavior
     def dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
             if self.get_show_metric():
                 format = "% 6s:" + self.dro_mm

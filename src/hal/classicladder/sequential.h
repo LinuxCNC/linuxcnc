@@ -77,7 +77,7 @@ typedef struct StrTransition
 	/* number of the steps to activate if condition true
 	   >1 if start of 'AND' */
 	short int NumStepToActiv[ NBR_SWITCHS_MAX ];
-	/* number of the steps to desactivate if condition true
+	/* number of the steps to deactivate if condition true
 	   >1 if end of 'AND' */
 	short int NumStepToDesactiv[ NBR_SWITCHS_MAX ];
 	/* if start of 'OR' */

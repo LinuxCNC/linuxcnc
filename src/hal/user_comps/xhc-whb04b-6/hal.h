@@ -523,7 +523,7 @@ public:
     void setMacro9(bool enabled);
     //! \sa setMacro9(bool, size_t)
     void setMacro10(bool enabled);
-    //! \sa setMacro10(bool, size_t)        // Hardcoded Absolue/relative Dro
+    //! \sa setMacro10(bool, size_t)        // Hardcoded Absolute/relative Dro
     void setMacro11(bool enabled);
     //! \sa setMacro11(bool, size_t)
     void setMacro12(bool enabled);

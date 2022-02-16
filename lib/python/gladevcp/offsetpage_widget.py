@@ -264,7 +264,7 @@ class OffsetPage(Gtk.VBox):
         except:
             return None, None, None, None, None, None, None, None, None
 
-    # This allows hiding or showing columns from a text string of columnns
+    # This allows hiding or showing columns from a text string of columns
     # eg list ='ab'
     # default, all the columns are shown
     def set_col_visible(self, list, bool):

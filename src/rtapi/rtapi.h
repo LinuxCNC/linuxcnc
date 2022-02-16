@@ -341,7 +341,7 @@ RTAPI_BEGIN_DECLS
     for all subsequent calls that need to act on the task.  On failure,
     returns a negative error code as listed above.  'taskcode' is the
     name of a function taking one int and returning void, which contains
-    the task code.  'arg' will be passed to 'taskcode' as an abitrary
+    the task code.  'arg' will be passed to 'taskcode' as an arbitrary
     void pointer when the task is started, and can be used to pass
     any amount of data to the task (by pointing to a struct, or other
     such tricks).

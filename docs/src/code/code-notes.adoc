@@ -109,7 +109,7 @@ modules for some implementations (RTAI):
 
 * 'motmod' - processes NML commands and controls hardware via hal
 
-* 'kinematics module' - performs foward (joints-->coordinates) and
+* 'kinematics module' - performs forward (joints-->coordinates) and
 inverse (coordinates->joints) kinematics calculations
 
 LinuxCNC is started by a *linuxcnc* script which reads a
