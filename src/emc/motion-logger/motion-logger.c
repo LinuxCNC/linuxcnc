@@ -52,14 +52,12 @@ struct emcmot_error_t *emcmotError = 0;
 
 int mot_comp_id;
 
-emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
+emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
 int num_joints = EMCMOT_MAX_JOINTS;
-emcmot_joint_t *joints = 0;
 int num_spindles = EMCMOT_MAX_SPINDLES;
 
-emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
+emcmot_axis_t axes[EMCMOT_MAX_AXIS];
 int num_axes = EMCMOT_MAX_AXIS;
-emcmot_axis_t *axes = 0;
 
 void emcmot_config_change(void) {
     if (emcmotConfig->head == emcmotConfig->tail) {
@@ -121,7 +119,7 @@ static int init_comm_buffers(void) {
     emcmotStatus->rapid_scale = 1.0;
     for (int n = 0; n < EMCMOT_MAX_SPINDLES; n++) emcmotStatus->spindle_status[n].scale = 1.0;
     emcmotStatus->net_feed_scale = 1.0;
-    /* adaptive feed is off by default, feed override, spindle 
+    /* adaptive feed is off by default, feed override, spindle
        override, and feed hold are on */
     emcmotStatus->enables_new = FS_ENABLED | SS_ENABLED | FH_ENABLED;
     emcmotStatus->enables_queued = emcmotStatus->enables_new;
@@ -129,9 +127,6 @@ static int init_comm_buffers(void) {
     emcmotConfig->kinType = KINEMATICS_IDENTITY;
 
     emcmot_config_change();
-
-    /* init pointer to joint structs */
-    joints = joint_array;
 
     /* init per-joint stuff */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
@@ -172,9 +167,6 @@ static int init_comm_buffers(void) {
 
 	SET_JOINT_INPOS_FLAG(joint, 1);
     }
-
-    /* init pointer to axes structs */
-    axes = axis_array;
 
     /* init per-axis stuff */
     for (axis_num = 0; axis_num < num_axes; axis_num++) {

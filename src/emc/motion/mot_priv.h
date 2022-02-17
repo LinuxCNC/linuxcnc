@@ -2,10 +2,10 @@
 * Description: mot_priv.h
 *   Macros and declarations local to the realtime sources.
 *
-* Author: 
+* Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 #ifndef MOT_PRIV_H
@@ -175,7 +175,7 @@ typedef struct {
     hal_float_t debug_float_3;	/* RPA: generic param, for debugging */
     hal_s32_t debug_s32_0;	/* RPA: generic param, for debugging */
     hal_s32_t debug_s32_1;	/* RPA: generic param, for debugging */
-    
+
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
     hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
     hal_float_t *analog_input[EMCMOT_MAX_AIO]; /* RPI array: input pins for analog Inputs */
@@ -231,10 +231,10 @@ extern emcmot_hal_data_t *emcmot_hal_data;
 /* pointer to array of joint structs with all joint data */
 /* the actual array may be in shared memory or in kernel space, as
    determined by the init code in motion.c */
-extern emcmot_joint_t *joints;
+extern emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
 
 /* pointer to array of axis structs with all axis data */
-extern emcmot_axis_t *axes;
+extern emcmot_axis_t axes[EMCMOT_MAX_AXIS];
 
 /* Variable defs */
 extern KINEMATICS_FORWARD_FLAGS fflags;
