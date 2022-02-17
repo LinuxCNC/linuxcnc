@@ -218,23 +218,23 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
     emcmot_joint_t *joint;
     int in_range = 1;
 
-    if(check_axis_constraint(pos.tran.x, id, move_type, 0, 'X') == 0) 
+    if(check_axis_constraint(pos.tran.x, id, move_type, 0, 'X') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.tran.y, id, move_type, 1, 'Y') == 0) 
+    if(check_axis_constraint(pos.tran.y, id, move_type, 1, 'Y') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.tran.z, id, move_type, 2, 'Z') == 0) 
+    if(check_axis_constraint(pos.tran.z, id, move_type, 2, 'Z') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.a, id, move_type, 3, 'A') == 0) 
+    if(check_axis_constraint(pos.a, id, move_type, 3, 'A') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.b, id, move_type, 4, 'B') == 0) 
+    if(check_axis_constraint(pos.b, id, move_type, 4, 'B') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.c, id, move_type, 5, 'C') == 0) 
+    if(check_axis_constraint(pos.c, id, move_type, 5, 'C') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.u, id, move_type, 6, 'U') == 0) 
+    if(check_axis_constraint(pos.u, id, move_type, 6, 'U') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.v, id, move_type, 7, 'V') == 0) 
+    if(check_axis_constraint(pos.v, id, move_type, 7, 'V') == 0)
         in_range = 0;
-    if(check_axis_constraint(pos.w, id, move_type, 8, 'W') == 0) 
+    if(check_axis_constraint(pos.w, id, move_type, 8, 'W') == 0)
         in_range = 0;
 
     /* Now, check that the endpoint puts the joints within their limits too */
@@ -336,11 +336,11 @@ int emcmotGetRotaryIsUnlocked(int jnum) {
 
 /*! \function emcmotDioWrite()
 
-  sets or clears a HAL DIO pin, 
+  sets or clears a HAL DIO pin,
   pins get exported at runtime
-  
+
   index is valid from 0 to emcmotConfig->num_dio <= EMCMOT_MAX_DIO, defined in emcmotcfg.h
-  
+
 */
 void emcmotDioWrite(int index, char value)
 {
@@ -357,11 +357,11 @@ void emcmotDioWrite(int index, char value)
 
 /*! \function emcmotAioWrite()
 
-  sets or clears a HAL AIO pin, 
+  sets or clears a HAL AIO pin,
   pins get exported at runtime
-  
+
   index is valid from 0 to emcmotConfig->num_aio <= EMCMOT_MAX_AIO, defined in emcmotcfg.h
-  
+
 */
 void emcmotAioWrite(int index, double value)
 {
@@ -395,7 +395,7 @@ STATIC int is_feed_type(int motion_type)
 void emcmotCommandHandler(void *arg, long servo_period)
 {
     int joint_num, axis_num, spindle_num;
-    int n,s0,s1; 
+    int n,s0,s1;
     emcmot_joint_t *joint;
     emcmot_axis_t *axis;
     double tmp1;
@@ -420,7 +420,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
 	/* clear status value by default */
 	emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
-	
+
 	/* ...and process command */
 
         joint = 0;
@@ -1097,9 +1097,9 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
 	    int res_addline = tpAddLine(&emcmotInternal->coord_tp,
 					emcmotCommand->pos,
-					emcmotCommand->motion_type, 
+					emcmotCommand->motion_type,
 					emcmotCommand->vel,
-					emcmotCommand->ini_maxvel, 
+					emcmotCommand->ini_maxvel,
 					emcmotCommand->acc,
 					emcmotStatus->enables_new,
 					issue_atspeed,
@@ -1492,7 +1492,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
             /* unhome the specified joint, or all joints if -1 */
             rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-            
+
             if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
                 && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
                 reportError(_("must be in joint mode or disabled to unhome"));
@@ -1604,7 +1604,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
                 if (probeval != probe_whenclears) {
                     // the probe is already in the state we're seeking.
-                    if(probe_whenclears) 
+                    if(probe_whenclears)
                         reportError(_("Probe is already clear when starting G38.4 or G38.5 move"));
                     else
                         reportError(_("Probe is already tripped when starting G38.2 or G38.3 move"));
@@ -1675,7 +1675,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
                                     emcmotCommand->ini_maxvel,
                                     emcmotCommand->acc,
                                     emcmotStatus->enables_new,
-                                    emcmotCommand->scale, 
+                                    emcmotCommand->scale,
                                     emcmotCommand->tag);
         if (res_addtap < 0) {
             emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
