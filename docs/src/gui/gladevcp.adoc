@@ -1061,7 +1061,7 @@ led_shape::
 led_blink_rate::
    if set and LED is ON then it's blinking. Blink
    period is equal to "led_blink_rate" specified in milliseconds.
-create hal pin::
+create_hal_pin::
     select/deselect making of HAL pin to control LED. With no HAL pin created
     LED can be controlled with a python function.
 As an input widget, LED also supports the +hal-pin-changed signal+. If
