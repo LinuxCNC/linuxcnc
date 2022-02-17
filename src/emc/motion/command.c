@@ -181,31 +181,31 @@ void apply_spindle_limits(spindle_status_t *s){
     }
 }
 
-static int check_axis_constraint(double target, int id, char *move_type,
-                                 int axis_no, char axis_name) {
-    int in_range = 1;
-    double nl = axes[axis_no].min_pos_limit;
-    double pl = axes[axis_no].max_pos_limit;
 
+void axis_check_constraints(double pos[], int failing_axes[])
+{
+    int axis_num;
     double eps = 1e-308;
 
-    if (    (fabs(target) < eps)
-         && (fabs(axes[axis_no].min_pos_limit) < eps)
-         && (fabs(axes[axis_no].max_pos_limit) < eps) ) { return 1;}
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
+        double nl = axes[axis_num].min_pos_limit;
+        double pl = axes[axis_num].max_pos_limit;
+        failing_axes[axis_num] = 0;
 
-    if(target < (nl - 0.000000000001)) { // see pull request #1047
-        in_range = 0;
-        reportError(_("%s move on line %d would exceed %c's %s limit"),
-                    move_type, id, axis_name, _("negative"));
+        if (   (fabs(pos[axis_num]) < eps)
+            && (fabs(axes[axis_num].min_pos_limit) < eps)
+            && (fabs(axes[axis_num].max_pos_limit) < eps) ) {
+            continue;
+        }
+
+        if (pos[axis_num] < (nl - 0.000000000001)) { // see pull request #1047
+            failing_axes[axis_num] = -1;
+        }
+
+        if (pos[axis_num] > (pl + 0.000000000001)) { // see pull request #1047
+            failing_axes[axis_num] = 1;
+        }
     }
-
-    if(target > (pl + 0.000000000001)) { // see pull request #1047
-        in_range = 0;
-        reportError(_("%s move on line %d would exceed %c's %s limit"),
-                    move_type, id, axis_name, _("positive"));
-    }
-
-    return in_range;
 }
 
 /* inRange() returns non-zero if the position lies within the joint
@@ -214,28 +214,39 @@ static int check_axis_constraint(double target, int id, char *move_type,
 STATIC int inRange(EmcPose pos, int id, char *move_type)
 {
     double joint_pos[EMCMOT_MAX_JOINTS];
-    int joint_num;
+    int joint_num, axis_num;
     emcmot_joint_t *joint;
     int in_range = 1;
+    int failing_axes[EMCMOT_MAX_AXIS];
+    double targets[EMCMOT_MAX_AXIS];
+    const char axis_letters[] = "XYZABCUVW";
 
-    if(check_axis_constraint(pos.tran.x, id, move_type, 0, 'X') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.tran.y, id, move_type, 1, 'Y') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.tran.z, id, move_type, 2, 'Z') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.a, id, move_type, 3, 'A') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.b, id, move_type, 4, 'B') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.c, id, move_type, 5, 'C') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.u, id, move_type, 6, 'U') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.v, id, move_type, 7, 'V') == 0)
-        in_range = 0;
-    if(check_axis_constraint(pos.w, id, move_type, 8, 'W') == 0)
-        in_range = 0;
+    if (EMCMOT_MAX_AXIS != 9) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "BUG: %s(): invalid number of axes defined", __func__);
+    } else {
+        targets[0] = pos.tran.x;
+        targets[1] = pos.tran.y;
+        targets[2] = pos.tran.z;
+        targets[3] = pos.a;
+        targets[4] = pos.b;
+        targets[5] = pos.c;
+        targets[6] = pos.u;
+        targets[7] = pos.v;
+        targets[8] = pos.w;
+        axis_check_constraints(targets, failing_axes);
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
+            if (failing_axes[axis_num] == -1) {
+                reportError(_("%s move on line %d would exceed %c's %s limit"),
+                                move_type, id, axis_letters[axis_num], _("negative"));
+                in_range = 0;
+            }
+            if (failing_axes[axis_num] == 1) {
+                reportError(_("%s move on line %d would exceed %c's %s limit"),
+                                move_type, id, axis_letters[axis_num], _("positive"));
+                in_range = 0;
+            }
+        }
+    }
 
     /* Now, check that the endpoint puts the joints within their limits too */
 

@@ -536,7 +536,6 @@ static void process_inputs(void)
                 joint->free_tp.curr_vel = 0.0;
                 joint->kb_jjog_active = 0;
                 joint->wheel_jjog_active = 0;
-                *(emcmot_hal_data->jog_is_active) = 0;
             }
         }
         // stop any axis jog
@@ -547,9 +546,9 @@ static void process_inputs(void)
                 axis->teleop_tp.curr_vel = 0.0;
                 axis->kb_ajog_active = 0;
                 axis->wheel_ajog_active = 0;
-                *(emcmot_hal_data->jog_is_active) = 0;
             }
         }
+        *(emcmot_hal_data->jog_is_active) = 0;
         reportError("Jog aborted by jog-inhibit");
     }
 }
@@ -1254,7 +1253,6 @@ static void get_pos_cmds(long period)
     /* used in teleop mode to compute the max accell requested */
     int onlimit = 0;
     int joint_limit[EMCMOT_MAX_JOINTS][2];
-    int violated_teleop_limit = 0;
 
     /* copy joint position feedback to local array */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
@@ -1472,6 +1470,7 @@ static void get_pos_cmds(long period)
 	break;
 
     case EMCMOT_MOTION_TELEOP:
+        ext_offset_teleop_limit = 0;
         for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
             axis = &axes[axis_num];
             // teleop_tp.max_vel is always positive
@@ -1479,7 +1478,6 @@ static void get_pos_cmds(long period)
                 axis->teleop_tp.max_vel = axis->vel_limit;
             }
             if (update_teleop_with_check(axis_num,&(axis->teleop_tp) )) {
-                violated_teleop_limit = 1;
                 ext_offset_teleop_limit = 1;
             } else {
                 axis->teleop_vel_cmd = axis->teleop_tp.curr_vel;
@@ -1493,13 +1491,11 @@ static void get_pos_cmds(long period)
 
             if (axis->ext_offset_tp.enable) {
                 if (update_teleop_with_check(axis_num,&(axis->ext_offset_tp)) ) {
-                    violated_teleop_limit = 1;
                     ext_offset_teleop_limit = 1;
                 }
             }
         }
-        if (!violated_teleop_limit) {
-            ext_offset_teleop_limit = 0;
+        if (!ext_offset_teleop_limit) {
             ext_offset_coord_limit = 0; //in case was set in prior coord motion
         }
 
@@ -2400,7 +2396,6 @@ static void plan_external_offsets(void)
                 && GET_MOTION_ENABLE_FLAG()
                 && axis->ext_offset_tp.enable
                ) {
-#if 1
                // to stdout only:
                rtapi_print_msg(RTAPI_MSG_NONE,
                            "*** Axis_%c External Offset=%.4g eps=%.4g\n"
@@ -2409,15 +2404,6 @@ static void plan_external_offsets(void)
                            "XYZABCUVW"[axis_num],
                            *(axis_data->external_offset),
                            ext_offset_epsilon);
-#else
-               // as error message:
-               reportError("Axis_%c External Offset=%.4g eps=%.4g\n"
-                           "External Offset disabled while NON-zero\n"
-                           "To clear: re-enable & zero or use Machine-Off",
-                           "XYZABCUVW"[axis_num],
-                           *(axis_data->external_offset),
-                           ext_offset_epsilon);
-#endif
             }
             last_eoffset_enable[axis_num] = 0;
             continue; // Note: if   not eoffset_enable
