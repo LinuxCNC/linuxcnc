@@ -594,8 +594,6 @@ Suggestion: Split this in to an Error and a Status flag register..
 */
 
     typedef struct emcmot_status_t {
-	emcmot_joint_t joints[EMCMOT_MAX_JOINTS];	/* joint data */
-	emcmot_axis_t  axes[EMCMOT_MAX_AXIS];	    /* axis data */
 	unsigned char head;	/* flag count for mutex detect */
 	/* these three are updated only when a new command is handled */
 	cmd_code_t commandEcho;	/* echo of input command */
@@ -635,7 +633,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
 
-	
+
 	int synch_di[EMCMOT_MAX_DIO]; /* inputs to the motion controller, queried by G-code */
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by G-code */
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by G-code */

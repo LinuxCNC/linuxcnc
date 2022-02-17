@@ -56,6 +56,7 @@
 
 static emcmot_status_t *emcmotStatus;
 static emcmot_config_t *emcmotConfig;
+static emcmot_axis_t *emcmotAxis;
 
 //==========================================================
 // tp module interface
@@ -79,10 +80,12 @@ void tpMotFunctions(void(*pDioWrite)(int,char)
 
 void tpMotData(emcmot_status_t *pstatus
               ,emcmot_config_t *pconfig
+              ,emcmot_axis_t *paxis
               )
 {
     emcmotStatus = pstatus;
     emcmotConfig = pconfig;
+    emcmotAxis = paxis;
 }
 //=========================================================
 
@@ -171,9 +174,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotStatus->axes[0].acc_limit; //0==>x
-    acc_bound->y = emcmotStatus->axes[1].acc_limit; //1==>y
-    acc_bound->z = emcmotStatus->axes[2].acc_limit; //2==>z
+    acc_bound->x = emcmotAxis[0].acc_limit; //0==>x
+    acc_bound->y = emcmotAxis[1].acc_limit; //1==>y
+    acc_bound->z = emcmotAxis[2].acc_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -183,9 +186,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotStatus->axes[0].vel_limit; //0==>x
-    vel_bound->y = emcmotStatus->axes[1].vel_limit; //1==>y
-    vel_bound->z = emcmotStatus->axes[2].vel_limit; //2==>z
+    vel_bound->x = emcmotAxis[0].vel_limit; //0==>x
+    vel_bound->y = emcmotAxis[1].vel_limit; //1==>y
+    vel_bound->z = emcmotAxis[2].vel_limit; //2==>z
     return TP_ERR_OK;
 }
 
@@ -311,8 +314,8 @@ STATIC inline double tpGetRealFinalVel(TP_STRUCT const * const tp,
 
     if (emcmotStatus->stepping || tc->term_cond != TC_TERM_COND_TANGENT || tp->reverse_run) {
         return 0.0;
-    } 
-    
+    }
+
     // Get target velocities for this segment and next segment
     double v_target_this = tpGetRealTargetVel(tp, tc);
     double v_target_next = 0.0;
@@ -405,7 +408,7 @@ int tpCreate(TP_STRUCT * const tp, int _queueSize,int id)
     if (-1 == tcqCreate(&tp->queue, tp->queueSize, tcSpace)) {
         return TP_ERR_FAIL;
     }
-    
+
 #ifdef MAKE_TP_HAL_PINS // {
     if (-1 == makepins(id)) {
         return TP_ERR_FAIL;
@@ -807,7 +810,7 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
 
     // Copy over state data from TP
     tcSetupState(blend_tc, tp);
-    
+
     // Set kinematics parameters from blend calculations
     tcSetupMotion(blend_tc,
             vel,
@@ -939,7 +942,7 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     tp_debug_print("-- Starting LineArc blend arc --\n");
 
     PmCartesian acc_bound, vel_bound;
-    
+
     //Get machine limits
     tpGetMachineAccelBounds(&acc_bound);
     tpGetMachineVelBounds(&vel_bound);
@@ -975,10 +978,10 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     int res_param = blendComputeParameters(&param);
 
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
-    
+
     int res_post = blendLineArcPostProcess(&points_exact,
             &points_approx,
-            &param, 
+            &param,
             &geom, &prev_tc->coords.line.xyz,
             &tc->coords.circle.xyz);
 
@@ -991,7 +994,7 @@ STATIC tp_err_t tpCreateLineArcBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
                 res_post);
         return TP_ERR_FAIL;
     }
-    
+
     /* If blend calculations were successful, then we're ready to create the
      * blend arc.
      */
@@ -1097,7 +1100,7 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
 
     tp_debug_print("-- Starting ArcLine blend arc --\n");
     PmCartesian acc_bound, vel_bound;
-    
+
     //Get machine limits
     tpGetMachineAccelBounds(&acc_bound);
     tpGetMachineVelBounds(&vel_bound);
@@ -1133,10 +1136,10 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
     int res_param = blendComputeParameters(&param);
 
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
-    
+
     int res_post = blendArcLinePostProcess(&points_exact,
             &points_approx,
-            &param, 
+            &param,
             &geom, &prev_tc->coords.circle.xyz,
             &tc->coords.line.xyz);
 
@@ -1149,7 +1152,7 @@ STATIC tp_err_t tpCreateArcLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pre
                 res_post);
         return TP_ERR_FAIL;
     }
-    
+
     blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
 
     /* If blend calculations were successful, then we're ready to create the
@@ -1247,7 +1250,7 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
     }
 
     PmCartesian acc_bound, vel_bound;
-    
+
     //Get machine limits
     tpGetMachineAccelBounds(&acc_bound);
     tpGetMachineVelBounds(&vel_bound);
@@ -1290,10 +1293,10 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
 
     int res_param = blendComputeParameters(&param);
     int res_points = blendFindPoints3(&points_approx, &geom, &param);
-    
+
     int res_post = blendArcArcPostProcess(&points_exact,
             &points_approx,
-            &param, 
+            &param,
             &geom, &prev_tc->coords.circle.xyz,
             &tc->coords.circle.xyz);
 
@@ -1309,7 +1312,7 @@ STATIC tp_err_t tpCreateArcArcBlend(TP_STRUCT * const tp, TC_STRUCT * const prev
     }
 
     blendCheckConsume(&param, &points_exact, prev_tc, emcmotConfig->arcBlendGapCycles);
-    
+
     /* If blend calculations were successful, then we're ready to create the
      * blend arc. Begin work on temp copies of each circle here:
      */
@@ -1408,11 +1411,11 @@ STATIC tp_err_t tpCreateLineLineBlend(TP_STRUCT * const tp, TC_STRUCT * const pr
 
     tp_debug_print("-- Starting LineLine blend arc --\n");
     PmCartesian acc_bound, vel_bound;
-    
+
     //Get machine limits
     tpGetMachineAccelBounds(&acc_bound);
     tpGetMachineVelBounds(&vel_bound);
-    
+
     // Setup blend data structures
     BlendGeom3 geom;
     BlendParameters param;
@@ -2597,7 +2600,7 @@ STATIC int tpUpdateMovementStatus(TP_STRUCT * const tp, TC_STRUCT const * const 
         emcmotStatus->requested_vel = 0;
         emcmotStatus->current_vel = 0;
         emcmotStatus->spindleSync = 0;
-        
+
         emcPoseZero(&emcmotStatus->dtg);
 
         tp->motionType = 0;
@@ -3078,7 +3081,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
     // Run cycle update with stored cycle time
     int res_accel = 1;
     double acc=0, vel_desired=0;
-    
+
     // If the slowdown is not too great, use velocity ramping instead of trapezoidal velocity
     // Also, don't ramp up for parabolic blends
     if (tc->accel_mode && tc->term_cond == TC_TERM_COND_TANGENT) {
