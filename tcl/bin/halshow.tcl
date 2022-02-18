@@ -34,7 +34,14 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
  } else {
     set ::INIFILE "~/.halshow_preferences"
  }
-# puts stderr "Halshow inifile: $::INIFILE"
+# puts "Halshow inifile: $::INIFILE"
+
+# This overwrites the default error message dialog to be able to set it on top
+proc bgerror {message} {
+    tk_messageBox -title "Application Error" -message [msgcat::mc "Error"] \
+    -detail $message -icon error -type ok 
+    wm attributes . -topmost $::alwaysOnTop
+}
 
 
 proc readIni {} {
@@ -51,6 +58,7 @@ proc readIni {} {
 }
 
 set ::initPhase true
+set ::autoSaveWatchlist 1
 proc saveIni {} {
     # The flag 'initPhase' prevents saving on the first FocusIn event
     if {!$::initPhase} {
@@ -64,14 +72,21 @@ proc saveIni {} {
             puts $fc "wm geometry . [wm geometry .]"
             puts $fc "placeFrames $::ratio"
             puts $fc "set ::ratio $::ratio"
-            puts $fc "set ::old_w_leftf $::old_w_leftf"            
-            puts $fc "set ::watchlist {"
-            foreach elem $::watchlist {
-                puts $fc "    $elem"
+            puts $fc "set ::old_w_leftf $::old_w_leftf"
+            if {$::autoSaveWatchlist} {
+                puts $fc "set ::watchlist {"
+                foreach elem $::watchlist {
+                    puts $fc "    $elem"
+                }
+                puts $fc "}"
             }
-            puts $fc "}"
             puts $fc "set ::workmode $::workmode"
-            puts $fc "set ::last_watchfile_tail $::last_watchfile_tail"
+            puts $fc "set ::watchInterval $::watchInterval"
+            puts $fc "set ::col1_width $::col1_width"
+            puts $fc "set ::ffmts $::ffmts"
+            puts $fc "set ::ifmts $::ifmts"
+            puts $fc "set ::alwaysOnTop $::alwaysOnTop"
+            puts $fc "set ::autoSaveWatchlist $::autoSaveWatchlist"
             close $fc
         }
     }
@@ -93,7 +108,6 @@ set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
 wm geometry . "${masterwidth}x${masterheight}+$x+$y" 
 wm minsize . 230 240
-wm attributes . -topmost no
 
 # save settings after switching to another window
 bind . <FocusOut> {saveIni}
@@ -130,6 +144,7 @@ pack $::nb -side right -fill both -expand yes
 # Each mode has a unique set of widgets inside tab
 set showhal [$::nb insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
 set ::watchhal [$::nb insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
+set ::settings [$::nb insert 2 set -text [msgcat::mc " SETTINGS "] -raisecmd {showMode settings}]
 
 # use place manager to fix locations of frames within top
 proc placeFrames {ratio} {
@@ -535,6 +550,43 @@ proc makeWatch {} {
     }
 }
 
+proc makeSettings {} {
+    proc addTextSetting {frame var descr} {
+        pack [frame $frame.$var] -fill x -anchor w -pady 2
+        pack [entry $frame.$var.entry -textvariable $var -width 5] -side right
+        pack [label $frame.$var.label -text [msgcat::mc $descr] -justify left]\
+            -side left -padx 2
+    }
+    proc addBoolSetting {frame var descr} {
+        pack [frame $frame.$var] -fill x -anchor w -pady 2
+        pack [checkbutton $frame.$var.checkbox -variable $var] -side right
+        pack [label $frame.$var.label -text [msgcat::mc $descr] -justify left]\
+            -side left -padx 0
+    }
+    set f1 [frame $::settings.f1]
+    pack $f1 -expand 0 -side left
+    addTextSetting $f1 ::watchInterval [msgcat::mc "Update interval (in ms)"]
+    addTextSetting $f1 ::col1_width [msgcat::mc "Column width for value in watch tab"]
+    pack [label $f1.label -text [msgcat::mc "Override format string (leave empty for default)"] \
+        -justify left]  -anchor w -pady 2 -padx 2
+    addTextSetting $f1 ::ffmts "    [msgcat::mc "Float"]"
+    addTextSetting $f1 ::ifmts "    [msgcat::mc "Integer"]"
+    addBoolSetting $f1 ::alwaysOnTop [msgcat::mc "Always on top\n(Note: May not\
+        working with all desktop environments)"]
+    addBoolSetting $f1 ::autoSaveWatchlist [msgcat::mc "Remember watchlist"]
+    pack [button $f1.apply -text [msgcat::mc "Apply"] \
+        -command {
+            wm attributes . -topmost $::alwaysOnTop
+            reloadWatch
+            }] -side right -padx 5 -pady 10
+    set infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
+    $infotext insert end [msgcat::mc "Settings are saved in the configuration\
+    directory when halshow is invoked from a LinuxCNC GUI. Otherwise they are saved in\
+    ~/.halshow_preferences."]
+    $infotext config -state disabled
+    pack $infotext -pady 10 -side left
+}
+
 # showmode handles the tab selection of mode
 proc showMode {mode} {
     set ::workmode $mode
@@ -617,7 +669,8 @@ set ::filetypes { {{HALSHOW} {.halshow}}\
 
 set ::watchlist ""
 set ::watchstring ""
-set ::canvaswidth 438 
+set ::canvaswidth 438
+set ::col1_width 100
 proc watchHAL {which} {
     if {$which == "zzz"} {
         $::cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
@@ -678,7 +731,7 @@ proc watchHAL {which} {
         }
     }
 
-    $::cisp create text 100 [expr $i * 20 + 13] -text $label \
+    $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
             -anchor w -tag $label
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
@@ -801,7 +854,7 @@ proc entrybox {defVal buttonText label} {
         set ypos "[ expr {[winfo rooty [winfo parent $wn]]+ \
             ([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
         wm geometry $wn "+$xpos+$ypos"
-        wm attributes $wn -topmost no
+        wm attributes $wn -topmost $::alwaysOnTop
         variable entryVal
         set entryVal $defVal
         label .top.lbl -text $label
@@ -876,7 +929,14 @@ proc refreshItem {cnum vartype varname} {
         if [catch { set value [expr $ret] } ] {
             set value $ret ;# allow display of a nan
         } else {
-            # use format if provided
+            # use format if provided via settings
+            if {$::ffmts != "" && ("$varnumtype" == "float")} {
+                set value [format "$::ffmts" $ret]
+            }
+            if {$::ifmts != "" && ("$varnumtype" == "int")} {
+                set value [format "$::ifmts" $ret]
+            }
+            # use format if provided via command line
             if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
                 set value [format "$::ffmt" $ret]
             }
@@ -988,6 +1048,7 @@ proc savewatchlist { {fmt oneline} } {
 #----------start up the displays----------
 makeShow
 makeWatch
+makeSettings
 refreshHAL
 $::nb raise ps
 
@@ -1051,5 +1112,6 @@ if {$::ratio == 0} {
 if {$::workmode == "watchhal"} {
     $::nb raise pw  
 }
+wm attributes . -topmost $::alwaysOnTop
 tkwait visibility .
 set ::initPhase false
