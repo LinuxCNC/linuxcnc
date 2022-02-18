@@ -94,7 +94,7 @@ proc saveIni {} {
 
 #----------start toplevel----------
 #
-set ::titlename [msgcat::mc "HAL Show"]
+set ::titlename [msgcat::mc "Halshow"]
 wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
 image create photo applicationIcon -file [file join [file dirname [info script]] halshow_icon.png]
@@ -232,8 +232,6 @@ set watchmenu [menu $menubar.watch -tearoff 1]
         $watchmenu add command -label [msgcat::mc "Add parameter"] \
             -command {addToWatch param [msgcat::mc "Parameter"]}
         $watchmenu add separator
-        $watchmenu add command -label [msgcat::mc "Set Watch interval"] \
-            -command {setWatchInterval}
         $watchmenu add command -label [msgcat::mc "Reload Watch"] \
             -command {reloadWatch}
         $watchmenu add command -label [msgcat::mc "Erase Watch"] \
