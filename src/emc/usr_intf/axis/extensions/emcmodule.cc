@@ -362,7 +362,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"queue", T_INT, O(motion.traj.queue), READONLY},
     {(char*)"active_queue", T_INT, O(motion.traj.activeQueue), READONLY},
     {(char*)"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY},
-    {(char*)"id", T_INT, O(motion.traj.id), READONLY},
+    {(char*)"motion_id", T_INT, O(motion.traj.id), READONLY},
     {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY},
     {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
     {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY},

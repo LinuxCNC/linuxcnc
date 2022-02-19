@@ -813,7 +813,7 @@ class LivePlotter:
 
         self.after = self.win.after(update_ms, self.update)
 
-        self.win.set_current_line(self.stat.id or self.stat.motion_line)
+        self.win.set_current_line(self.stat.motion_id or self.stat.motion_line)
 
         speed = self.stat.current_vel
 
