@@ -55,7 +55,7 @@ def print_status(status):
     print("g92_offset: {}".format(status.g92_offset))
     print("gcodes: {}".format(status.gcodes))
     print("homed: {}".format(status.homed))
-    print("id: {}".format(status.id))
+    print("id: {}".format(status.motion_id))
     print("inpos: {}".format(status.inpos))
     print("input_timeout: {}".format(status.input_timeout))
     print("interp_state: {}".format(status.interp_state))
