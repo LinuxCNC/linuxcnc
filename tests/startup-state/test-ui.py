@@ -245,7 +245,7 @@ assert(s.g92_offset[3:] == (0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
 assert(s.gcodes == (0, 800, -1, 170, 400, 200, 900, 940, 540, 490, 990, 640, -1, 970, 911, 80, 923))
 
 assert(not (1 in s.homed))
-assert(s.id == 0)
+assert(s.motion_id == 0)
 assert(s.inpos == True)
 assert(s.input_timeout == False)
 assert(s.interp_state == linuxcnc.INTERP_IDLE)
