@@ -39,8 +39,7 @@ DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 	dh $@ --parallel
 
 override_dh_auto_configure:
-	cp /usr/share/autoconf/build-aux/config.guess src/
-	cp /usr/share/autoconf/build-aux/config.sub src/
+	cp /usr/share/misc/config.sub /usr/share/misc/config.guess src/
 	cd src && ./autogen.sh
 	cd src && PYTHON=/usr/bin/python3 ./configure \
 	    --prefix=/usr --sysconfdir=/etc \
