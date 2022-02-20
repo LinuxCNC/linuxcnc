@@ -82,7 +82,6 @@ void tpMotFunctions(void(*pDioWrite)(int,char)
 
 void tpMotData(emcmot_status_t *
               ,emcmot_config_t *
-              ,emcmot_axis_t *
               );
 //---------------------------------------------------------------------
 

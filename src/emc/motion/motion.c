@@ -20,6 +20,7 @@
 #include "tp.h"
 #include "rtapi_math.h"
 #include "homing.h"
+#include "axis.h"
 
 // Mark strings for translation, but defer translation to userspace
 #define _(s) (s)
@@ -88,8 +89,6 @@ emcmot_hal_data_t *emcmot_hal_data = 0;
 
 /* allocate array for joint data */
 emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
-/* allocate array for axis data */
-emcmot_axis_t axes[EMCMOT_MAX_AXIS];
 
 /*
   Principles of communication:
@@ -135,7 +134,6 @@ static int export_joint(int num,           joint_hal_t * addr);
 // additional halpins for extrajoints:
 static int export_extrajoint(int num, extrajoint_hal_t * addr);
 
-static int export_axis(char c, axis_hal_t  * addr);
 static int export_spindle(int num, spindle_hal_t * addr);
 
 /* init_comm_buffers() allocates and initializes the command,
@@ -243,7 +241,6 @@ static int module_intfc() {
 
     tpMotData(emcmotStatus
              ,emcmotConfig
-             ,axes
              );
     return 0;
 }
@@ -458,7 +455,6 @@ static int init_hal_io(void)
     int n, retval;
     joint_hal_t      *joint_data;
     extrajoint_hal_t *ejoint_data;
-    axis_hal_t       *axis_data;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_hal_io() starting...\n");
 
@@ -684,30 +680,8 @@ static int init_hal_io(void)
         }
     }
 
-    /* export axis pins and parameters */
-    for (n = 0; n < EMCMOT_MAX_AXIS; n++) {
-        char c = "xyzabcuvw"[n];
-        axis_data = &(emcmot_hal_data->axis[n]);
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].pos_cmd), mot_comp_id, "axis.%c.pos-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_cmd), mot_comp_id, "axis.%c.teleop-vel-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_pos_cmd), mot_comp_id, "axis.%c.teleop-pos-cmd", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_vel_lim), mot_comp_id, "axis.%c.teleop-vel-lim", c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->axis[n].teleop_tp_enable), mot_comp_id, "axis.%c.teleop-tp-enable",c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_enable), mot_comp_id, "axis.%c.eoffset-enable", c));
-        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_clear), mot_comp_id, "axis.%c.eoffset-clear", c));
+    CALL_CHECK(axis_init_hal_io(mot_comp_id));
 
-        CALL_CHECK(hal_pin_s32_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_counts), mot_comp_id, "axis.%c.eoffset-counts", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->axis[n].eoffset_scale), mot_comp_id, "axis.%c.eoffset-scale", c));
-
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].external_offset), mot_comp_id, "axis.%c.eoffset", c));
-        CALL_CHECK(hal_pin_float_newf(HAL_OUT, &(emcmot_hal_data->axis[n].external_offset_requested), mot_comp_id, "axis.%c.eoffset-request", c));
-
-        retval = export_axis(c, axis_data);
-        if (retval != 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: axis %c pin/param export failed\n"), c);
-            return -1;
-        }
-    }
     CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->eoffset_limited), mot_comp_id, "motion.eoffset-limited"));
     CALL_CHECK(hal_pin_bit_newf(HAL_OUT, &(emcmot_hal_data->eoffset_active), mot_comp_id, "motion.eoffset-active"));
 
@@ -826,33 +800,13 @@ static int export_extrajoint(int num, extrajoint_hal_t * addr)
     return 0;
 }
 
-static int export_axis(char c, axis_hal_t * addr)
-{
-    int retval, msg;
-    msg = rtapi_get_msg_level();
-    rtapi_set_msg_level(RTAPI_MSG_WARN);
-
-    if ((retval = hal_pin_bit_newf(HAL_IN,  &(addr->ajog_enable),      mot_comp_id,"axis.%c.jog-enable", c)) != 0) return retval;
-    if ((retval = hal_pin_float_newf(HAL_IN,&(addr->ajog_scale),       mot_comp_id,"axis.%c.jog-scale", c)) != 0) return retval;
-    if ((retval = hal_pin_s32_newf(HAL_IN,  &(addr->ajog_counts),      mot_comp_id,"axis.%c.jog-counts", c)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_IN,  &(addr->ajog_vel_mode),    mot_comp_id,"axis.%c.jog-vel-mode", c)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->kb_ajog_active),   mot_comp_id,"axis.%c.kb-jog-active", c)) != 0) return retval;
-    if ((retval = hal_pin_bit_newf(HAL_OUT, &(addr->wheel_ajog_active),mot_comp_id,"axis.%c.wheel-jog-active", c)) != 0) return retval;
-
-    if ((retval = hal_pin_float_newf(HAL_IN,&(addr->ajog_accel_fraction),       mot_comp_id,"axis.%c.jog-accel-fraction", c)) != 0) return retval;
-    *addr->ajog_accel_fraction = 1.0; // fraction of accel for wheel ajogs
-
-    rtapi_set_msg_level(msg);
-    return 0;
-}
-
 /* init_comm_buffers() allocates and initializes the command,
    status, and error buffers used to communicate with the user
    space parts of emc.
 */
 static int init_comm_buffers(void)
 {
-    int joint_num, axis_num, spindle_num, n;
+    int joint_num, spindle_num, n;
     emcmot_joint_t *joint;
     int retval;
 
@@ -951,11 +905,8 @@ static int init_comm_buffers(void)
         emcmotStatus->spindle_status[spindle_num].speed = 0.0;
     }
 
-   for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-      emcmot_axis_t *axis;
-      axis = &axes[axis_num];
-      axis->locking_joint = -1;
-   }
+    axis_init_all();
+
     /* init per-joint stuff */
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to structure for this joint */
