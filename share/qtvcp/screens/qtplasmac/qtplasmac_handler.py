@@ -1,4 +1,4 @@
-VERSION = '1.221.161'
+VERSION = '1.221.162'
 
 '''
 qtplasmac_handler.py
@@ -3667,11 +3667,11 @@ class HandlerClass:
             return
         try:
             cmd = 'gsettings get org.onboard.window.landscape width'
-            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             cmd = 'gsettings get org.onboard.window.landscape height'
-            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             cmd = 'gsettings get org.onboard layout'
-            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             if '/numpad' in layout or '/keyboard' in layout:
                 self.obLayout = 'compact'
             else:
@@ -3682,12 +3682,12 @@ class HandlerClass:
             self.obLayout = 'compact'
 
     def vkb_show(self, numpad=False):
+        if self.firstRun: return
         if os.path.isfile('/usr/bin/onboard'):
             if self.w.chk_soft_keyboard.isChecked():
                 w = '240' if numpad else '740'
                 h = '240'
                 l = 'numpad' if numpad else 'keyboard'
-                self.vkb_hide(True)
                 self.vkb_setup(w, h, os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac', l))
                 cmd  = 'dbus-send'
                 cmd += ' --type=method_call'
@@ -3709,14 +3709,11 @@ class HandlerClass:
 
     def vkb_setup(self, w, h, l):
         if os.path.isfile('/usr/bin/onboard'):
-            Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)-1), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)-1), stdout=PIPE, shell=True)
-            time.sleep(0.25)
             Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape width {}'.format(w), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape height {}'.format(h), stdout=PIPE, shell=True)
-#            time.sleep(0.5)
+            Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)), stdout=PIPE, shell=True)
+            Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)), stdout=PIPE, shell=True)
 
 
 #########################################################################################################################
