@@ -34,22 +34,6 @@ endif
 .SUFFIXES:
 .PHONY: default userspace modules clean modclean depclean install python pythonclean cscope cscopeclean
 
-# A "trivial build" is one which should not include dependency information
-# either because it should be usable before dependency information can be
-# generated or when it is invalid (clean, docclean) or when running as root
-# when the user must guarantee in advance that everything is built
-# (setuid, install)
-ifeq ($(MAKECMDGOALS),)
-TRIVIAL_BUILD=no
-else
-ifeq ($(filter-out docclean clean setuid install tags swish,$(MAKECMDGOALS)),)
-TRIVIAL_BUILD=yes
-else
-TRIVIAL_BUILD=no
-endif
-endif
-
-
 # Beautify output
 # ---------------------------------------------------------------------------
 #
@@ -212,7 +196,6 @@ CXXUSERSRCS := $(filter %.cc,$(USERSRCS))
 CUSEROBJS := $(call TOOBJS,$(CUSERSRCS))
 CXXUSEROBJS += $(call TOOBJS,$(CXXUSERSRCS))
 
-ifeq ($(TRIVIAL_BUILD),no)
 # Find the dependency filenames, then include them all
 DEPS := $(sort $(patsubst %.o,%.d,$(CUSEROBJS) $(CXXUSEROBJS)))
 READ_DEPS = $(wildcard $(DEPS))
@@ -220,7 +203,6 @@ $(shell $(VECHO) 1>&2 Reading $(words $(READ_DEPS))/$(words $(DEPS)) dependency 
 -include $(READ_DEPS)
 UNREAD_DEPS = $(filter-out $(READ_DEPS), $(DEPS))
 $(shell $(VECHO) 1>&2 Done reading dependencies)
-endif
 
 # Each directory in $(INCLUDES) is passed as a -I directory when compiling.
 INCLUDE := $(patsubst %,-I%, $(INCLUDES)) -I$(RTDIR)/include
@@ -270,24 +252,6 @@ $(sort $(patsubst %.c,%.i,$(CUSERSRCS))): %.i: %.c
 $(sort $(patsubst %.cc,%.ii,$(CXXUSERSRCS))): %.ii: %.cc
 	$(ECHO) Preprocessing $< to $@
 	$(Q)$(CXX) -dD $(CXXFLAGS) $(EXTRAFLAGS) -E $< -o $@
-
-ifeq ($(TRIVIAL_BUILD),no)
-configure: configure.ac
-	AUTOGEN_TARGET=configure ./autogen.sh
-
-config.h.in: configure.ac
-	AUTOGEN_TARGET=config.h.in ./autogen.sh
-
-config.status: configure
-	if [ -f config.status ]; then ./config.status --recheck; else \
-	    echo 1>&2 "*** linuxcnc is not configured.	Run './configure' with appropriate flags."; \
-	    exit 1; \
-	fi
-endif
-
-Makefile: config.h
-config.h: config.h.in config.status
-	@./config.status -q --header=$@
 
 INFILES = \
         ../scripts/linuxcnc ../scripts/realtime \
@@ -452,7 +416,7 @@ TARGETS += $(patsubst po/%.po, objects/%.msg, $(wildcard po/*.po))
 
 # tooledit as standalone app:
 TARGETS += ../bin/tooledit
-../bin/tooledit: Makefile
+../bin/tooledit: makefile
 	$(Q)rm -f $@
 	$(Q)(echo "#!$(TCLSH)")>|$@
 	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/tooledit.tcl")>>$@
@@ -461,7 +425,7 @@ TARGETS += ../bin/tooledit
 
 # ngcgui as standalone app:
 TARGETS += ../bin/ngcgui
-../bin/ngcgui: Makefile
+../bin/ngcgui: makefile
 	$(Q)rm -f $@
 	$(Q)(echo "#!$(TCLSH)")>|$@
 	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/ngcgui.tcl")>>$@
@@ -470,7 +434,7 @@ TARGETS += ../bin/ngcgui
 
 # pyngcgui as standalone app:
 TARGETS += ../bin/pyngcgui
-../bin/pyngcgui: Makefile
+../bin/pyngcgui: makefile
 	$(Q)rm -f $@
 	$(Q)(echo "#!$(PYTHON)")>|$@
 	$(Q)(echo "import pyngcgui")>>$@
@@ -479,7 +443,7 @@ TARGETS += ../bin/pyngcgui
 
 # gremlin_view as standalone app:
 TARGETS += ../bin/gremlin_view
-../bin/gremlin_view: Makefile
+../bin/gremlin_view: makefile
 	$(Q)rm -f $@
 	$(Q)(echo "#!$(PYTHON)")>|$@
 	$(Q)(echo "import gremlin_view")>>$@
@@ -488,7 +452,7 @@ TARGETS += ../bin/gremlin_view
 
 # halshow as standalone app:
 TARGETS += ../bin/halshow
-../bin/halshow: Makefile
+../bin/halshow: makefile
 	$(Q)rm -f $@
 	$(Q)(echo "#!$(TCLSH)")>|$@
 	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/bin/halshow.tcl")>>$@
@@ -1300,12 +1264,10 @@ endif
 ../rtlib/pumakins$(MODULE_EXT):       $(addprefix objects/rt,$(pumakins-objs))
 #----------------------------------------------------------------
 
-ifeq ($(TRIVIAL_BUILD),no)
 READ_RTDEPS = $(wildcard $(RTDEPS))
 $(shell $(VECHO) 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime dependency files)
 -include $(READ_RTDEPS)
 $(shell $(VECHO) 1>&2 Done reading realtime dependencies)
-endif
 endif
 
 # Phony so that it is always rebuilt when requested, not because it
@@ -1349,9 +1311,9 @@ swish:
 		$(dir $(BASEPWD))docs/man/man1
 
 # When you depend on objects/var-ZZZ you are depending on the contents of the
-# variable ZZZ, which is assumed to depend on a Makefile, a Submakefile, or
+# variable ZZZ, which is assumed to depend on a makefile, a Submakefile, or
 # Makefile.inc
-objects/var-%: Makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
+objects/var-%: makefile $(wildcard $(SUBMAKEFILES)) Makefile.inc
 	@mkdir -p $(dir $@)
 	@echo $($*) > $@.tmp
 	@sh move-if-change $@.tmp $@
