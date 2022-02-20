@@ -36,7 +36,7 @@ DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
 %:
 	# With debhelper 10 the --parallel becomes the default
-	dh $@ --parallel
+	dh $@
 
 override_dh_auto_configure:
 	cd src && ./autogen.sh
@@ -45,7 +45,8 @@ override_dh_auto_configure:
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
             $(enable_build_documentation) \
-	    --disable-check-runtime-deps
+	    --disable-check-runtime-deps \
+	    --with-boost-python=39
 
 override_dh_auto_build-arch:
 	$(MAKE) PYTHON=/usr/bin/python3 -C src
