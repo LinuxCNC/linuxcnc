@@ -42,7 +42,7 @@ and used a file named my.halshow in the current directory:
 ----
 $ halshow  --fformat "%.5f" ./my.halshow
 ----
-For more information regarding the format, please refer to https://www.tcl.tk/man/tcl8.6.11/TclCmd/format.html
+For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html
 
 == HAL Tree Area
 
