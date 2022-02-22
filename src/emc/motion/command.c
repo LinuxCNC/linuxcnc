@@ -861,26 +861,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP  JOG_CONT
-                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
-                axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
-                if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
-                    /* here: set pos_cmd to a big number so that with combined
-                    *        teleop jog plus external offsets the soft limits
-                    *        can always be reached
-                    */
-                    if (emcmotCommand->vel > 0.0) {
-                        axis->teleop_tp.pos_cmd =  1e12; // 1T halscope limit
-                    } else {
-                        axis->teleop_tp.pos_cmd = -1e12; // 1T halscope limit
-                    }
+                if (emcmotCommand->vel > 0.0) {
+                    axis->teleop_tp.pos_cmd = axis->max_pos_limit;
                 } else {
-                    if (emcmotCommand->vel > 0.0) {
-                        axis->teleop_tp.pos_cmd = axis->max_pos_limit;
-                    } else {
-                        axis->teleop_tp.pos_cmd = axis->min_pos_limit;
-                    }
+                    axis->teleop_tp.pos_cmd = axis->min_pos_limit;
                 }
 
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
@@ -964,24 +949,14 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP JOG_INCR
-                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
 	        if (emcmotCommand->vel > 0.0) {
 		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
 	        } else {
 		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
 	        }
-                axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
-                // a fixed epsilon is used here for convenience
-                // it is not the same as the epsilon used as a stopping 
-                // criterion in control.c
-                if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
-                    // external_offsets: soft limit enforcement is in control.c
-                } else {
-                    if (tmp1 > axis->max_pos_limit) { break; }
-                    if (tmp1 < axis->min_pos_limit) { break; }
-                }
+                if (tmp1 > axis->max_pos_limit) { break; }
+                if (tmp1 < axis->min_pos_limit) { break; }
 
 	        axis->teleop_tp.pos_cmd = tmp1;
 	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
