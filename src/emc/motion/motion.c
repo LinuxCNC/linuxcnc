@@ -237,6 +237,8 @@ static int module_intfc() {
                   ,emcmotAioWrite
                   ,emcmotSetRotaryUnlock
                   ,emcmotGetRotaryIsUnlocked
+                  ,axis_get_vel_limit
+                  ,axis_get_acc_limit
                   );
 
     tpMotData(emcmotStatus
