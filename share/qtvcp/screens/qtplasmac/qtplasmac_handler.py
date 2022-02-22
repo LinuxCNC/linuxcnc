@@ -1,4 +1,4 @@
-VERSION = '1.221.162'
+VERSION = '1.221.163'
 
 '''
 qtplasmac_handler.py
@@ -249,7 +249,6 @@ class HandlerClass:
         self.preClearFile = ''
         self.rflActive = False
         self.jogInhibit = ''
-        self.isJogging = {0:False, 1:False, 2:False, 3:False}
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
         self.ovButton, self.llButton, self.tlButton = '', '', ''
@@ -341,6 +340,7 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
+        STATUS.connect('current_feed_rate', lambda w, v: self.feed_rate_changed(v))
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
@@ -1245,6 +1245,12 @@ class HandlerClass:
             if STATUS.is_auto_running():
                 self.set_tab_jog_states(False)
 
+    def feed_rate_changed(self, rate):
+        if not rate:
+            for joint in range(len(self.coordinates)):
+                if self.isJogging[joint]:
+                    self.isJogging[joint] = False
+
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')
         self.w.jogs_label.setText('{}\n{:.0f}'.format(msg0, STATUS.get_jograte()))
@@ -1919,8 +1925,9 @@ class HandlerClass:
 #########################################################################################################################
 
     def update_check(self):
-        # use qtplasmac_comp.hal for component connections (pre V1.221.154)
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
+        prefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
+    # use qtplasmac_comp.hal for component connections (pre V1.221.154)
         if halfiles and not 'qtplasmac_comp.hal' in halfiles and not 'plasmac.tcl' in halfiles:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
 
@@ -2352,8 +2359,9 @@ class HandlerClass:
         for axis in self.axisList:
             self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
             self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
-        # check if home all button required
+        self.isJogging = {}
         for joint in range(len(self.coordinates)):
+            # check if home all button required
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
             # check if not joggable before homing
@@ -2363,6 +2371,8 @@ class HandlerClass:
                     self.jogSyncList.append('jog_{}_minus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
+            # set jogging status
+            self.isJogging[joint] = False
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
