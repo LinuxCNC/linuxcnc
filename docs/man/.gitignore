@@ -133,6 +133,7 @@ man9/sim_axis_hardware.9
 man9/sim_home_switch.9
 man9/sim_matrix_kb.9
 man9/sim_parport.9
+man9/sim_torch.9
 man9/simple_tp.9
 man9/sim_spindle.9
 man9/sphereprobe.9
