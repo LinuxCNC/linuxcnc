@@ -89,9 +89,9 @@ QtPlasmaC requires the selection of one of following three operating modes:
 |*Mode*|*Description*
 |0|Uses an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK.
 |1|Uses an external arc voltage input to calculate Arc Voltage (for Torch Height Control). +
-   Uses an external Arc OK input for Arc OK.
+    Uses an external Arc OK input for Arc OK.
 |2|Uses an external Arc OK input for Arc OK. +
-   Use external up/down signals for Torch Height Control.
+    Use external up/down signals for Torch Height Control.
 |===
 
 IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0. It may also be possible to use a <<qt_reed-arc-ok, reed relay>> as an alternative method to establish an Arc OK signal when the power source does not provide one.
@@ -106,55 +106,55 @@ NOTE: This section only touches on the hardware I/O's required for QtPlasmaC. Ba
 |===
 |*Name*|*Modes*|*Description*
 |Arc Voltage|0, 1|Analog input; *optional.* +
-                  HAL pin name plasmac.arc-voltage-in +
-                  Connected to the velocity output of an encoder equipped breakout board.
-                  This signal is used to read the arc voltage to determine the necessary corrections to maintain the torch distance from the work piece during cutting.
+    HAL pin name plasmac.arc-voltage-in +
+    Connected to the velocity output of an encoder equipped breakout board.
+    This signal is used to read the arc voltage to determine the necessary corrections to maintain the torch distance from the work piece during cutting.
 |Arc OK|1, 2|Digital input; *optional.* +
-            HAL pin name plasmac.arc-ok-in +
-             Connected from the Arc OK output of the plasma power source to an input on the breakout board.
-             This signal is used to determine if the cutting arc has been established and it is ok for the machine to move (sometimes called arc transfer).
+    HAL pin name plasmac.arc-ok-in +
+    Connected from the Arc OK output of the plasma power source to an input on the breakout board.
+    This signal is used to determine if the cutting arc has been established and it is ok for the machine to move (sometimes called arc transfer).
 |Float Switch|0, 1, 2|Digital input; *optional, see info below table:* +
-                      HAL pin name plasmac.float-switch +
-                      Connected from a breakout board input to a switch on the floating head.
-                      This signal is used to mechanically probe the work piece with the torch and set Z zero at the top of the work piece. +
-                      If used and no ohmic probe is configured, this is the probing method. +
-                      If used and an ohmic probe is configured, this is the fallback probing method.
+    HAL pin name plasmac.float-switch +
+    Connected from a breakout board input to a switch on the floating head.
+    This signal is used to mechanically probe the work piece with the torch and set Z zero at the top of the work piece. +
+    If used and no ohmic probe is configured, this is the probing method. +
+    If used and an ohmic probe is configured, this is the fallback probing method.
 |Ohmic Probe|0, 1, 2|Digital input; *optional, see info below table:* +
-                     HAL pin name plasmac.ohmic-probe +
-                     Connected from to the ohmic probe's output to a breakout board input.
-                     This signal is used to probe electronically by completing a circuit using the work piece and the torch consumables and set Z zero at the top of the work piece. +
-                     If used, this is the primary probing method.
-                     If an ohmic probe fails to locate the work piece, and there is no float switch is present, probing will continue until the torch breaks away or the minimum Z limit is reached.
+    HAL pin name plasmac.ohmic-probe +
+    Connected from to the ohmic probe's output to a breakout board input.
+    This signal is used to probe electronically by completing a circuit using the work piece and the torch consumables and set Z zero at the top of the work piece. +
+    If used, this is the primary probing method.
+    If an ohmic probe fails to locate the work piece, and there is no float switch is present, probing will continue until the torch breaks away or the minimum Z limit is reached.
 |Ohmic Probe Enable|0, 1, 2|Digital output; *optional, see info below table:* +
-                            HAL pin name plasmac.ohmic-enable +
-                            Connected from a breakout board output to an input to control the ohmic probe's power.
+    HAL pin name plasmac.ohmic-enable +
+    Connected from a breakout board output to an input to control the ohmic probe's power.
 |Breakaway Switch|0, 1, 2|Digital input; *optional, see info below table:* +
-                          HAL pin name plasmac.breakaway +
-                          Connected from a breakout board input to a torch breakaway detection switch. +
-                          This signal senses if the torch has broken away from its cradle.
+    HAL pin name plasmac.breakaway +
+    Connected from a breakout board input to a torch breakaway detection switch. +
+    This signal senses if the torch has broken away from its cradle.
 |Torch On|0, 1, 2|Digital output; *required.* +
-                  HAL pin name plasmac.torch-on +
-                  Connected from a breakout board output to the torch-on input of the plasma power supply.
-                  This signal is used to control the plasma power supply and start the arc.
+    HAL pin name plasmac.torch-on +
+    Connected from a breakout board output to the torch-on input of the plasma power supply.
+    This signal is used to control the plasma power supply and start the arc.
 |Move Up|2|Digital input; *optional.* +
-           HAL pin name plasmac.move-up +
-           Connected from the up output of the external THC control to a break out board input.
-		   This signal is used to control the Z axis in an upward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
+    HAL pin name plasmac.move-up +
+    Connected from the up output of the external THC control to a break out board input.
+    This signal is used to control the Z axis in an upward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
 |Move Down|2|Digital input; *optional.* +
-             HAL pin name plasmac.move-down +
-             Connected from the down output of the external THC control to a break out board input.
-             This signal is used to control the Z axis in a downward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
+    HAL pin name plasmac.move-down +
+    Connected from the down output of the external THC control to a break out board input.
+    This signal is used to control the Z axis in a downward motion and make necessary corrections to maintain the torch distance from the work piece during cutting.
 |Scribe Arming|0, 1, 2|Digital output; *optional.* +
-                       HAL pin name plasmac.scribe-arm +
-                       Connected from a breakout board output to the scribe arming circuit.
-					   This signal is used to place the scribe into position on the work piece .
+    HAL pin name plasmac.scribe-arm +
+    Connected from a breakout board output to the scribe arming circuit.
+    This signal is used to place the scribe into position on the work piece .
 |Scribe On|0, 1, 2|Digital output; *optional.* +
-                   HAL pin name plasmac.scribe-on +
-                   Connected from a breakout board output to the scribe-on circuit.
-                   This signal is used to turn the scribing device on.
+    HAL pin name plasmac.scribe-on +
+    Connected from a breakout board output to the scribe-on circuit.
+    This signal is used to turn the scribing device on.
 |Laser On|0, 1, 2|Digital output; *optional.* +
-                  HAL pin name qtplasmac.laser_on +
-                  This signal is used to turn the alignment laser on.
+    HAL pin name qtplasmac.laser_on +
+    This signal is used to turn the alignment laser on.
 |===
 
 Only one of either *Float Switch* or *Ohmic Probe* is required. If both are used then *Float Switch* will be a fallback if *Ohmic Probe* is not sensed.
@@ -384,9 +384,9 @@ image::images/qtplasmac_plasmac2qt.png[width=500,align="center"]
 |INI FILE IN EXISTING PLASMAC CONFIG|This is the .ini file of the PlasmaC config that requires migrating.|<machine_name>.ini
 |MONITOR ASPECT RATIO|This is the <<qt_formats, aspect ratio format>> for the GUI.|16:9
 |ESTOP|Selects the required Estop type based on the following criteria: +
-      0 - Estop is an indicator only. +
-      1 - Estop indicator is hidden. +
-      2 - Estop is a button.|ESTOP:1
+    0 - Estop is an indicator only. +
+    1 - Estop indicator is hidden. +
+    2 - Estop is a button.|ESTOP:1
 |===
 
 *Optional Setting*
@@ -399,7 +399,7 @@ Leave this blank if it is not used/required.
 |===
 |*Field*|*Description*|*Examples*
 |Laser On Hal Pin|Power on a laser crosshair for sheet alignment.|*Parallel Port Example:* parport.0.pin-16-out +
-                                                                  *Mesa 7i96 Example:* hm2_7i96.0.ssr.00.out-00
+    *Mesa 7i96 Example:* hm2_7i96.0.ssr.00.out-00
 |===
 
 After filling in the appropriate entries, press *CONVERT*.
@@ -738,6 +738,14 @@ NOTE: QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion
 
 The following sections will give a general overview of the QtPlasmaC layout.
 
+=== Exiting QtPlasmaC
+
+Exiting or shuting down QtPlasmaC is done by either of:
+
+. Click the window shutdown button on the window title bar
+. Long press the *POWER* button on the MAIN Tab.
+
+A shutdown warning can be displayed on every shutdown by checking the *Exit
 [[qt_main-tab]]
 
 === MAIN Tab
@@ -781,26 +789,27 @@ Some functions/features are only used for particular modes and are not displayed
 If ESTOP_TYPE = 1 in the <machine_name>.ini file, this button will not be visible. +
 If ESTOP_TYPE = 2 in the <machine_name>.ini file, this button will act as a GUI ESTOP. +
 If ESTOP_TYPE is omitted from the <machine_name>.ini file, this button will default to being an indicator of the hardware ESTOP's status only.
-|POWER|This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware.
+|POWER|This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
+    Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START|This button starts the cycle for any loaded G-Code file.
 |CYCLE PAUSE|This button pauses the cycle for any loaded G-Code file. +
-If a cycle is paused, this button will display *CYCLE RESUME* and flash. +
-Pressing *CYCLE RESUME* will resume the cycle.
+    If a cycle is paused, this button will display *CYCLE RESUME* and flash. +
+    Pressing *CYCLE RESUME* will resume the cycle.
 |CYCLE STOP|This button stops any actively running or paused cycle. +
-This includes: +
-- G-Code Programs +
-- Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-Code program execution as well) +
-- Probe Test +
-- Framing +
-- Manual Cut
+    This includes: +
+    - G-Code Programs +
+    - Torch pulse if the pulse was started during *CYCLE PAUSE* (this will cancel the paused G-Code program execution as well) +
+    - Probe Test +
+    - Framing +
+    - Manual Cut
 |FEED|This slider overrides the feed rate for all feed moves. +
-Any value other than 100% will cause the label to flash. +
-Clicking the label will return the slider to 100%.
+    Any value other than 100% will cause the label to flash. +
+    Clicking the label will return the slider to 100%.
 |RAPID|This slider overrides the rapid rate for all rapid moves. +
-Any value other than 100% will cause the label to flash. +
-Clicking the label will return the slider to 100%.
+    Any value other than 100% will cause the label to flash. +
+    Clicking the label will return the slider to 100%.
 |JOG|This slider sets the jog rate. +
-Clicking the label will return the slider to the default linear velocity as set in the <machine_name).ini file.
+    Clicking the label will return the slider to the default linear velocity as set in the <machine_name).ini file.
 |===
 
 [underline]*BUTTONS*
@@ -816,11 +825,11 @@ See <<qt_custom-user-buttons, custom user buttons>> for detailed information on 
 |*Name*|*Description*
 |EDIT|This button opens a G-Code editor for the currently loaded program.
 |MDI|This button places QtPlasmaC into Manual Data Input (MDI) mode which will display the MDI HISTORY and an entry box over top of the G-Code window. +
-Once pressed, this button will display "MDI CLOSE". +
-Pressing *MDI CLOSE* will close the MDI. +
-Please see the <<qt_mdi, MDI>> section for additional MDI information.
+    Once pressed, this button will display "MDI CLOSE". +
+    Pressing *MDI CLOSE* will close the MDI. +
+    Please see the <<qt_mdi, MDI>> section for additional MDI information.
 |OHMIC TEST|This button will enable the Ohmic Probe Enable output signal and if the Ohmic Probe input is sensed, the LED indicator in the SENSOR Panel will light. +
-The main purpose of this is to allow a quick test for a shorted torch tip.
+    The main purpose of this is to allow a quick test for a shorted torch tip.
 |PROBE TEST|This button will initiate a <<qt_probe-test, Probe Test>>.
 |SINGLE CUT|This button will show the dialog box to start an automatic <<qt_single-cut, Single Cut>>.
 |NORMAL CUT|This button will toggle between <<qt_cut-types, Cut Types>> (NORMAL CUT and PIERCE ONLY).
@@ -848,33 +857,33 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 |*Name*|*Modes*|*Description*
 |TORCH ON|0, 1, 2|Indicates the status of the Torch On output signal.
 |TORCH ON ENABLE|0, 1, 2|This box toggles between Enabling and Disabling the torch. +
-This box defaults to unfilled (disabled) when QtPlasmaC is first run. +
-This box must be filled to change it to "Torch Enabled" before material cutting can commence. +
-If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
+    This box defaults to unfilled (disabled) when QtPlasmaC is first run. +
+    This box must be filled to change it to "Torch Enabled" before material cutting can commence. +
+    If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
 |VELOCITY ANTI DIVE|0, 1, 2|Indicates that the THC is locked at the current height due to the cut velocity falling below the Velocity Anti Dive (VAD) Threshold percentage set on the <<qt_parameters-tab, PARAMETERS Tab>>.
 |VELOCITY ANTI DIVE ENABLE|0, 1, 2|This box toggles between Enabling and Disabling VELOCITY ANTI DIVE.
 |VOID ANTI DIVE|0, 1|Indicates that the THC is locked due to a void being sensed.
 |VOID ANTI DIVE ENABLE|0, 1|This box toggles between Enabling and Disabling VOID ANTI DIVE.
 |MESH MODE|0, 1, 2|This box will enable or disable <<qt_mesh-mode, Mesh Mode>> for the cutting of expanded metal. This check box may be enabled or disabled at any time during normal cutting. +
-Mesh mode: +
-- Will require an Arc OK signal to start machine motion. +
-- Will disable the THC. +
-- Will not stop machine motion if the Arc OK signal is lost. +
-- Will automatically select CPA mode if PowerMax communications are being used. +
-For more information see <<qt_mesh-mode, Mesh Mode (expanded metal)>>.
+    Mesh mode: +
+    - Will require an Arc OK signal to start machine motion. +
+    - Will disable the THC. +
+    - Will not stop machine motion if the Arc OK signal is lost. +
+    - Will automatically select CPA mode if PowerMax communications are being used. +
+    For more information see <<qt_mesh-mode, Mesh Mode (expanded metal)>>.
 |AUTO VOLTS|0, 1|This box will enable or disable <<qt_thc, Auto Volts>>.
 |IGNORE OK|0, 1, 2|This box will determine if QtPlasmaC ignores the Arc OK signal. This check box may be enabled or disabled at any time during normal cutting. Additionally this mode may be enabled or disabled via proper M codes in a running program. +
-Ignore Arc OK mode: +
-- Will not require an Arc OK signal be received before starting machine motion after the "Torch On" signal is given. +
-- Will disable the THC. +
-- Will not stop machine motion if the Arc OK signal is lost. +
-For more information see <<qt_ignore-ok, Ignore Arc Ok>>.
+    Ignore Arc OK mode: +
+    - Will not require an Arc OK signal be received before starting machine motion after the "Torch On" signal is given. +
+    - Will disable the THC. +
+    - Will not stop machine motion if the Arc OK signal is lost. +
+    For more information see <<qt_ignore-ok, Ignore Arc Ok>>.
 |OHMIC PROBE|0, 1, 2|This box enables or disables the ohmic probe input. +
-If the Ohmic Probe input is disabled, the Ohmic Probe LED will still show the status of the probe input, but the Ohmic Probe results will be ignored.
+    If the Ohmic Probe input is disabled, the Ohmic Probe LED will still show the status of the probe input, but the Ohmic Probe results will be ignored.
 |RS485|0, 1, 2|This box will enable or disable the communications to a PowerMax. This button is only visible if a PM_PORT is configured in the [QTPLASMAC] section of the <machine_name>.ini file.
 |Status|0, 1, 2|When PowerMax communications are enabled, this will display one of the following: +
-*CONNECTING*, *CONNECTED*, *COMMS ERROR*, or a *Fault Code*. +
-For more information, see the <<qt_pm_comms, PowerMax Communications>> section.
+    *CONNECTING*, *CONNECTED*, *COMMS ERROR*, or a *Fault Code*. +
+    For more information, see the <<qt_pm_comms, PowerMax Communications>> section.
 |===
 
 [underline]*SENSOR*
@@ -924,14 +933,14 @@ NOTE: During Paused Motion, this section will be shown on top of the JOGGING pan
 |===
 |*Name*|*Description*
 |PAUSED MOTION FEED SLIDER|In the event of a paused program, this interface allows X/Y motion to follow the programmed path in the reverse or forward direction. +
-This slider's range is from 1%-100% of the Cut Feed Rate for the currently selected material.
+    This slider's range is from 1%-100% of the Cut Feed Rate for the currently selected material.
 |FEED|This displays the paused motion feed rate.
 |REV|In the event of a paused program, this button will move the machine in reverse along the programmed path until it reaches the last M3 command that was either executed or that QtPlasmaC was attempting to execute before the program became paused.
 |FWD|In the event of a paused program, this button will move the machine forward along the programmed path indefinitely until the program's end, skipping over M3 commands.
 |CANCEL MOVE|This button will cancel any Cut Recovery movement that was made, and return the torch to the position the Cut Recovery movement was initiated. +
-Note that if FWD or REV were used to move the torch, CANCEL will not return to the position of the torch when the pause occurred.
+    Note that if FWD or REV were used to move the torch, CANCEL will not return to the position of the torch when the pause occurred.
 |MOVE x.xxx|This displays the amount of travel that will be incurred with each press of an arrow key, in the direction the arrow key was pressed. +
-This value displayed below MOVE represents the Kerf Width of the currently selected material.
+    This value displayed below MOVE represents the Kerf Width of the currently selected material.
 |DIRECTIONAL ARROWS|These buttons will move the torch in the direction indicated by a distance of one Kerf Width (of the currently selected material) per press.
 |===
 
@@ -941,7 +950,7 @@ This value displayed below MOVE represents the Kerf Width of the currently selec
 |===
 |*Name*|*Description*
 |CLEAR|This button will clear the currently opened program. +
-The torch (T0) will be selected if it was not the active tool.
+    The torch (T0) will be selected if it was not the active tool.
 |OPEN|This button will open a FILE OPEN panel over the PREVIEW WINDOW.
 |RELOAD|This button will reload the currently loaded G-Code File.
 |===
@@ -958,10 +967,10 @@ The torch (T0) will be selected if it was not the active tool.
 |X0 Y0|This button will set the current position to X0 Y0.
 |HOME [AXIS]|This button will home the corresponding axis.
 |0 [AXIS]|This drop down button will display the following options: +
-*Zero* - zeros the axis. +
-*Set* - launches a dialog box to manually input the axis' coordinate. +
-*Divide By 2* - divides the currently displayed coordinate in the DRO by two. +
-*Set To Last* - sets the axis to the previously set coordinate.
+    *Zero* - zeros the axis. +
+    *Set* - launches a dialog box to manually input the axis' coordinate. +
+    *Divide By 2* - divides the currently displayed coordinate in the DRO by two. +
+    *Set To Last* - sets the axis to the previously set coordinate.
 |===
 
 [[qt_preview-view]]
@@ -1025,11 +1034,11 @@ setp qtplasmac.param_disable 1
 |Max Starts|0, 1, 2|This sets the number of times QtPlasmaC will attempt to start the arc.
 |Retry Delay|0, 1, 2|This sets the time (in seconds) between an arc failure and another arc start attempt.
 |Voltage Scale|0, 1|This sets the arc voltage input scale and is used to display the correct arc voltage. +
-					For initial setup, see <<qt_calibration-values, Calibration Values>>.
+    For initial setup, see <<qt_calibration-values, Calibration Values>>.
 |Voltage Offset|0, 1|This sets the arc voltage offset and is used to display zero volts when there is zero arc voltage input. +
-                    For initial setup, see <<qt_calibration-values, Calibration Values>>.
+    For initial setup, see <<qt_calibration-values, Calibration Values>>.
 |Height Per Volt|0, 1, 2|This sets the distance the torch would need to move to change the arc voltage by one volt. +
-                       Used for manual height manipulation only.
+    Used for manual height manipulation only.
 |OK High Volts|0|This sets the voltage threshold below which Arc OK signal is valid.
 |OK Low Volts|0|This sets the voltage threshold above which the Arc OK signal is valid.
 |===
@@ -1057,7 +1066,7 @@ NOTE: If the amount of time between the torch contacting the material and when t
 |===
 |*Name*|*Description*
 |Safe Height|This sets the height above the material that the torch will retract to before executing rapid moves. +
-                   If set to Zero then Z axis maximum height will be used for the safe height. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
+    If set to Zero then Z axis maximum height will be used for the safe height. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |===
 
 [[qt_scribe-config]]
@@ -1077,7 +1086,7 @@ NOTE: If the amount of time between the torch contacting the material and when t
 |===
 |*Name*|*Description*
 |Threshold|This sets the arc voltage at which the delay timer will begin. +
-           0V starts the delay when the torch on signal is activated.
+    0V starts the delay when the torch on signal is activated.
 |Time On|This sets the length of time (in milliseconds) the torch is on after threshold voltage is reached.
 |===
 
@@ -1130,22 +1139,22 @@ This section shows the parameters which are active for the current cut.
 |Cut Height|This sets the cut height for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |Cut Feed Rate|This sets the cut feed rate for the currently selected material.
 |Cut Amps|This sets the cut amperage for the currently selected material. +
-          This is a visual indicator to the operator only, unless PowerMax communications are being used.
+    This is a visual indicator to the operator only, unless PowerMax communications are being used.
 |Cut Volts|This sets the cut voltage for the currently selected material.
 |Puddle Height|Expressed as a percentage of Pierce Height, this sets the Puddle Jump height for the currently selected material. +
-          Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
-          If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
+    Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
+    If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
 |Puddle Delay|This sets the Puddle Jump delay (in seconds) for the currently selected material. +
-         This value is mandatory if P-Jump Height is set as it sets the length of time the torch will stay at the P-Jump Height before proceeding to Cut Height.
+    This value is mandatory if P-Jump Height is set as it sets the length of time the torch will stay at the P-Jump Height before proceeding to Cut Height.
 |Pause At End|This sets the amount of time (in seconds) the torch will stay on at the end of the cut before proceeding with the M5 command to turn off and raise the torch. For more information see <<qt_pause-at-end, Pause At End Of Cut>>.
 |Gas Pressure|This sets the gas pressure for the currently selected material. +
-              This setting is only valid if PowerMax communications are being used. +
-              0 = Use the PowerMax's automatic pressure mode.
+    This setting is only valid if PowerMax communications are being used. +
+    0 = Use the PowerMax's automatic pressure mode.
 |Cut Mode|This sets the cut mode for the currently selected material. +
-          This setting is only valid if PowerMax communications are being used. +
-          1 = Normal +
-          2 = CPA (Constant Pilot Arc) +
-          3 = Gouge/Mark
+    This setting is only valid if PowerMax communications are being used. +
+    1 = Normal +
+    2 = CPA (Constant Pilot Arc) +
+    3 = Gouge/Mark
 |===
 
 [underline]*SAVE, RELOAD, NEW, & DELETE Buttons*
@@ -1177,11 +1186,12 @@ To return any of the color changes to their default values, see the <<qt_default
 |Disabled|This button allows the user to change the color of the GUI's Disabled features.
 |Preview|This button allows the user to change the color of the GUI Preview Window Background.
 |Soft Keyboard|This radio button allows the user to enable or disable the soft touchscreen keyboard. +
-               If the "onboard" virtual keyboard is installed then the <<custom_kb_layouts, custom layouts>> will be enabled .
+    If the "onboard" virtual keyboard is installed then the <<custom_kb_layouts, custom layouts>> will be enabled .
 |KB Shortcuts|This radio button allows the user to enable or disable <<qt_keyboard-shortcuts, Keyboard Shortcuts>> within the GUI (such as keyboard jogging). +
-              In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
+    In addition to the standard jog keys, a list of the additional shortcuts is available in the <<qt_keyboard-shortcuts, keyboard shortcuts>> section.
 |View Material|This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<qt_main-tab, MAIN>> and <<qt_conversational-tab, CONVERSATIONAL>> tabs. +
-               Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
+    Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
+|Exit Warning|This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown.
 |Optional Stop|This radio button allows the user to enable or disable whether or not a running program will pause at an *M1* command.
 |Run From Line|This radio button allows the user to enable or disable <<qt_run-from-line, Run From Line>>. If enabled, the user can click on a line of G-Code and have the program start from that line.
 |Override Limits|This radio button allows the user to temporarily Override the input from a Limit Switch in the event the limit switch becomes tripped during operation. This button will also allow jogging while jogging is inhibited due to a float or breakaway switch activation. This button can only be clicked when a limit switch is tripped or a jog is inhibited.
@@ -1438,10 +1448,10 @@ The options are:
 |===
 |*Option*|*Description*
 |0|Creates a temporary default material. +
-     Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new G-Code file that has temporary materials.
+    Material information added with this option will be discarded by a LinuxCNC restart or materials reload. They may also be overwritten by a new G-Code file that has temporary materials.
 |1|Adds a new material if the number specified does not exist.
 |2|Overwrites an existing material if the number specified exists. +
-     Adds a new material if the number specified does not exist.
+    Adds a new material if the number specified does not exist.
 |===
 
 Mandatory parameters are:
@@ -2170,16 +2180,16 @@ image::images/qtplasmac_run_from_line.png[width=350,align="center"]
 |USE LEADIN|This radio button will allow the user to start the selected line with a leadin.
 |LEADIN LENGTH|If USE LEADIN is selected, this will set the length of the lead in the machine units.
 |LEADIN ANGLE|If USE LEADIN is selected, this will set the angle of approach for the leadin. +
-            The angle is measured such that positive increases in value move the leadin counter-clockwise: +
-            0 Degrees = 3 o'clock position +
-            90 Degrees = 12 o'clock position +
-            180 Degrees = 9 o'clock position +
-            270 Degrees = 6 o'clock position
+    The angle is measured such that positive increases in value move the leadin counter-clockwise: +
+    0 Degrees = 3 o'clock position +
+    90 Degrees = 12 o'clock position +
+    180 Degrees = 9 o'clock position +
+    270 Degrees = 6 o'clock position
 |CANCEL|This button will cancel the Run From Line dialog box and any selections.
 |LOAD|This button will load a temporary "rfl.ngc" program with any selected leadin parameters applied. +
-        If the leadin cannot be calculated for the selected line, the following error message will be displayed: +
-        "Unable to calculate a leadin for this cut +
-        Program will run from selected line with no leadin applied"
+      If the leadin cannot be calculated for the selected line, the following error message will be displayed: +
+      "Unable to calculate a leadin for this cut +
+      Program will run from selected line with no leadin applied"
 |===
 
 After pressing *LOAD*, the blinking "SELECTED nn" button will change to *RUN FROM LINE CYCLE START* button. Click this button to start the program from the beginning of the selected line.
@@ -2327,8 +2337,8 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |F9|Toggles the "Cutting" command, used to begin or end a manual cut.
 |F12|Show stylesheet editor.
 |ALT + RETURN|Places QtPlasmaC into Manual Data Input (MDI) mode. +
-Note that ALT + ENTER will achieve the same result. +
-In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.
+    Note that ALT + ENTER will achieve the same result. +
+    In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.
 |1|Changes jog speed to 10% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |2|Changes jog speed to 20% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
 |3|Changes jog speed to 30% of the value present in the DEFAULT_LINEAR_VELOCITY variable in the [DISPLAY] section of the <machine_name>.ini file.
@@ -2378,7 +2388,7 @@ In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the 
 |SHIFT (+ Jog Key)|The shift key is used with any jog key to invoke a rapid jog.
 |+ (+ Jog Key)|The plus key can be used with any jog key to invoke a rapid jog (behaves the same as SHIFT).
 |- (+ Jog Key)|The minus key can be used with any jog key to invoke a slow jog (10% of the displayed jog speed) +
-   If SLOW jogging is already active, the axis will jog at the displayed jog speed.
+               If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 |===
 
 [[qt_mdi]]
@@ -2417,8 +2427,8 @@ The general functions are as follows:
 |===
 |*Name*|*Description*
 |Material Drop Down|Allows the user to select the desired material for cutting. +
-                    If "VIEW MATERIAL" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
-                    Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
+    If "VIEW MATERIAL" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
+    Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
 |NEW|Removes the current G-Code file and load a blank G-Code file.
 |SAVE|Opens a dialog box allowing the current shape to be saved as a G-Code file.
 |SETTINGS|Allows the changing of the global settings.
@@ -2816,17 +2826,17 @@ The above colors are used for the following widgets. So any custom styling will 
 |===
 |*Color*|*Parameter*|*Affects*
 |color1 (#ffee06)|Foreground|foreground of jog buttons +
-                  foreground of latching user buttons +
-                  foreground of camera/laser buttons +
-                  foreground of conversational shape buttons +
-                  background of active conversational shape buttons
+    foreground of latching user buttons +
+    foreground of camera/laser buttons +
+    foreground of conversational shape buttons +
+    background of active conversational shape buttons
 |color2 (#16160e)|Background|background of latching user buttons +
-                  background of camera/laser buttons +
-                  background of G-Code editor active line +
-                  background of conversational shape buttons
+    background of camera/laser buttons +
+    background of G-Code editor active line +
+    background of conversational shape buttons
 |color3 (#ffee06)|Highlight|background of active latching user buttons +
-                  background of active camera/laser buttons +
-                  foreground of G-Code editor cursor
+    background of active camera/laser buttons +
+    foreground of G-Code editor cursor
 |color4 (#36362e)|Alt Background|background of G-Code display active line
 |color5 (#b0b0b0)|foreground of disabled buttons
 |===
@@ -3655,102 +3665,73 @@ press 'SELECT' which will open a file dialog box, select the .ini file of the Qt
 [width="100%",cols="1,2"]
 |===
 |*Description*|*Code*
-|Begin <<qt_multi-tool, cut>>
-   |M3 $0 S1
+|Begin <<qt_multi-tool, cut>> |M3 $0 S1
 |End <<qt_multi-tool, cut>>|M5 $0
-|Begin <<qt_scribe, scribe>>
-   |M3 $1 S1
-|End <<qt_scribe, scribe>>
-   |M5 $1
-|Begin <<qt_spotting, center spot>>
-   |M3 $2 S1
-|End <<qt_spotting, center spot>>
-   |M5 $2
-|End all the above
-   |M5 $-1
-|Select a <<qt_material-handling, material>>
-   |M190 Pn +
+|Begin <<qt_scribe, scribe>> |M3 $1 S1
+|End <<qt_scribe, scribe>> |M5 $1
+|Begin <<qt_spotting, center spot>> |M3 $2 S1
+|End <<qt_spotting, center spot>> |M5 $2
+|End all the above |M5 $-1
+|Select a <<qt_material-handling, material>> |M190 Pn +
     n denotes the material number
-|Wait for <<qt_material-handling, material>> change confirmation
-   |M66 P3 L3 Qn +
-    n is delay time (in seconds)
+|Wait for <<qt_material-handling, material>> change confirmation |M66 P3 L3 Qn +
+    n is delay time (in seconds) +
     This value may need to be increased for very
     large material files
-|Set feed rate from <<qt_material-handling, material>>
-   |F#<_hal[plasmac.cut-feed-rate]>
-|Enable <<qt_ignore-ok, Ignore Arc OK>>
-   |M62 P1 (synchronized with motion) +
+|Set feed rate from <<qt_material-handling, material>> |F#<_hal[plasmac.cut-feed-rate]>
+|Enable <<qt_ignore-ok, Ignore Arc OK>> |M62 P1 (synchronized with motion) +
     M64 P1 (immediate)
-|Disable <<qt_ignore-ok, Ignore Arc OK>>
-   |M63 P1 (synchronized with motion) +
+|Disable <<qt_ignore-ok, Ignore Arc OK>> |M63 P1 (synchronized with motion) +
     M65 P1 (immediate)
-|Disable <<qt_thc, THC>>
-   |M62 P2 (synchronized with motion) +
+|Disable <<qt_thc, THC>> |M62 P2 (synchronized with motion) +
     M64 P2 (immediate)
-|Enable <<qt_thc, THC>>
-   |M63 P2 (synchronized with motion) +
+|Enable <<qt_thc, THC>> |M63 P2 (synchronized with motion) +
     M65 P2 (immediate)
-|Disable <<qt_overcut, Torch>>
-   |M62 P3 (synchronized with motion) +
+|Disable <<qt_overcut, Torch>> |M62 P3 (synchronized with motion) +
     M64 P3 (immediate)
-|Enable <<qt_overcut, Torch>>
-   |M63 P3 (synchronized with motion) +
+|Enable <<qt_overcut, Torch>> |M63 P3 (synchronized with motion) +
     M65 P3 (immediate)
-|Set <<qt_velocity_thc, velocity>> to a percentage of feed rate
-   |M67 E3 Qn (synchronized with motion) +
+|Set <<qt_velocity_thc, velocity>> to a percentage of feed rate |M67 E3 Qn (synchronized with motion) +
     M68 E3 Qn (immediate) +
     n is the percentage to set +
     10 is the minimum, below this will be set to 100% +
-    100 is the maximum, above this will be set to 100%
+    100 is the maximum, above this will be set to 100% +
     *It is recommended to have M68 E3 Q0 in both the preamble and postamble*
-|Cutter <<qt_cutter-compensation, compensation>> - left of path
-   |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
-|Cutter <<qt_cutter-compensation, compensation>> - right of path
-   |G42.1 D#<_hal[plasmac_run.kerf-width-f]>
-|Cutter <<qt_cutter-compensation, compensation>> off
-   |G40 +
+|Cutter <<qt_cutter-compensation, compensation>> - left of path |G41.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<qt_cutter-compensation, compensation>> - right of path |G42.1 D#<_hal[plasmac_run.kerf-width-f]>
+|Cutter <<qt_cutter-compensation, compensation>> off |G40 +
     *Note that M62 through M68 are invalid while cutter compensation is on*
-|Cut <<qt_hole-cutting, holes>> at 60% feed rate
-   |#<holes> = 1 +
+|Cut <<qt_hole-cutting, holes>> at 60% feed rate |#<holes> = 1 +
     for holes less than 32mm (1.26") diameter
-|Cut <<qt_hole-cutting, holes>> at 60% feed rate, +
-turn torch off at hole end, +
-continue hole path for overcut
-   |#<holes> = 2 +
-    for holes less than 32mm (1.26") diameter
+|Cut <<qt_hole-cutting, holes>> at 60% feed rate, turn torch off at hole end, continue hole path for overcut |#<holes> = 2 +
+    for holes less than 32mm (1.26") diameter +
     overcut length = 4mm (0.157")
-|Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate
-   |#<holes> = 3 +
+|Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate |#<holes> = 3 +
     for holes less than 32mm (1.26") diameter +
     for arcs less than 16mm (0.63") radius
-|Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate, +
-turn torch off at hole end, +
-continue hole path for overcut
-   |#<holes> = 4 +
+|Cut <<qt_hole-cutting, holes>> and arcs at 60% feed rate, turn torch off at hole end, continue hole path for overcut |#<holes> = 4 +
     for holes less than 32mm (1.26") diameter +
     for arcs less than 16mm (0.63") radius +
     overcut length = 4mm (0.157")
 |Specify <<qt_hole-cutting, hole>> diameter for +
-#<holes> = 1-4
-   |#<h_diameter> = n (n is the diameter, use the same units system as the rest of the G-Code file)
+ #<holes> = 1-4 |#<h_diameter> = n +
+    (n is the diameter, use the same units system as the rest of the G-Code file)
 |Specify <<qt_hole-cutting, hole>> velocity for +
-#<holes> = 1-4
-   |#<h_velocity> = n (n is the percentage, set the percentage of the current feed rate)
-|Specify <<qt_overcut, overcut>> length
-   |#<oclength> = n (n is the length, use the same units system as the rest of the G-Code file)
-|Specify <<qt_cut-types, pierce-only>> mode
-   |#<pierce-only> = n (n is the mode, 0=normal cut mode, 1=pierce only mode)
+ #<holes>=1-4 |#<h_velocity> = n +
+    (n is the percentage, set the percentage of the current feed rate)
+|Specify <<qt_overcut, overcut>> length |#<oclength> = n +
+    (n is the length, use the same units system as the rest of the G-Code file)
+|Specify <<qt_cut-types, pierce-only>> mode |#<pierce-only> = n +
+    (n is the mode, 0=normal cut mode, 1=pierce only mode)
 |Create or edit materials. +
-options: +
-1 - Create temporary default +
-2 - Add if not existing +
-3 - Overwrite if existing else add new +
-   |mandatory parameters: +
+ options: +
+ 1 - Create temporary default +
+ 2 - Add if not existing +
+ 3 - Overwrite if existing else add new |mandatory parameters: +
     (o=<option>, nu=<nn>, na=<ll>, ph=<nn>, pd=<nn>, ch=<nn>, fr=<nn>) +
     optional parameters: +
     (kw=<nn>, th=<nn>, ca=<nn>, cv=<nn>, pe=<nn>, gp=<nn>, cm=<nn>, jh=<nn>, jd=<nn>)
-|<<qt_magic-comments, Keep Z Motion>>
-   |#<keep-z-motion> = 1
+|<<qt_magic-comments, Keep Z Motion>> |#<keep-z-motion> = 1
 |===
 
 === QtPlasmaC G-code Examples
@@ -3758,22 +3739,17 @@ options: +
 [width="100%",cols="1,2"]
 |===
 |*Description*|*Example*
-|Select material and do a normal cut
-   |M190 P3 +
+|Select material and do a normal cut |M190 P3 +
     M66 P3 L3 Q1 +
     F#<_hal[plasmac.cut-feed-rate]> +
     M3 $0 S1 +
     . +
     . +
     M5 $0
-|Set velocity to 100% of CutFeedRate
-   |M67 E3 Q0 or M67 E3 Q100
-|Set velocity to 60% of CutFeedRate
-   |M67 E3 Q60
-|Set velocity to 40% of CutFeedRate
-   |M67 E3 Q40
-|Cut a hole with 60% reduced speed using velocity setting
-   |G21 (metric) +
+|Set velocity to 100% of CutFeedRate |M67 E3 Q0 or M67 E3 Q100
+|Set velocity to 60% of CutFeedRate |M67 E3 Q60
+|Set velocity to 40% of CutFeedRate |M67 E3 Q40
+|Cut a hole with 60% reduced speed using velocity setting |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
     F#<_hal[plasmac.cut-feed-rate]> +
@@ -3786,8 +3762,7 @@ options: +
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job)
-|Cut a hole with 60% reduced speed using the #<holes> command
-   |G21 (metric) +
+|Cut a hole with 60% reduced speed using the #<holes> command |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
     \#<holes> = 1 (velocity reduction for holes) +
@@ -3799,8 +3774,7 @@ options: +
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job)
-|Cut a hole with overcut using torch disable
-   |G21 (metric) +
+|Cut a hole with overcut using torch disable |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
     F#<_hal[plasmac.cut-feed-rate]> +
@@ -3816,8 +3790,7 @@ options: +
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job) +
-|Cut a hole with overcut using the #<holes> command
-   |G21 (metric) +
+|Cut a hole with overcut using the #<holes> command |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
     \#<holes> = 2 (overcut for holes) +
@@ -3829,8 +3802,7 @@ options: +
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job) +
-|Cut a hole with 6.5mm overcut using the #<holes> command
-   |G21 (metric) +
+|Cut a hole with 6.5mm overcut using the #<holes> command |G21 (metric) +
     G64 P0.05 +
     M52 P1 (allow paused motion) +
     \#<holes> = 2 (overcut for holes) +
@@ -3843,8 +3815,7 @@ options: +
     M5 $0 (end cut) +
     G0 X0 Y0 +
     M2 (end job)
-|Select scribe and select torch at end of scribing
-   |. +
+|Select scribe and select torch at end of scribing |. +
     . +
     M52 P1 (paused motion on) +
     F#<_hal[plasmac.cut-feed-rate]> +
@@ -3870,10 +3841,8 @@ options: +
     G0 X0 Y0 +
     G90 +
     M2 +
-|Create temporary default material
-   |(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
-|Edit material, if not existing create a new one
-   |(o=3, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
+|Create temporary default material |(o=1, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000)
+|Edit material, if not existing create a new one |(o=3, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=1.0)
 |===
 
 [[qt_mesa-thcad]]
