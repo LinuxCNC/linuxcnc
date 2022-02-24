@@ -231,7 +231,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>2</number>
+          <number>0</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -2381,7 +2381,7 @@ ORIGIN</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="ActionButton" name="power">
+                        <widget class="QPushButton" name="power">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -2419,50 +2419,6 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="checkable">
-                          <bool>true</bool>
-                         </property>
-                         <property name="indicator_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="indicator_HAL_pin_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="indicator_status_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="checked_state_text_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="on_color" stdset="0">
-                          <color>
-                           <red>255</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </property>
-                         <property name="off_color" stdset="0">
-                          <color>
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </property>
-                         <property name="indicator_size" stdset="0">
-                          <double>0.200000000000000</double>
-                         </property>
-                         <property name="true_state_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="false_state_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="is_estopped_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_on_status" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="machine_on_action" stdset="0">
                           <bool>true</bool>
                          </property>
                         </widget>
@@ -4940,7 +4896,7 @@ HOME</string>
                           </size>
                          </property>
                          <property name="currentIndex">
-                          <number>1</number>
+                          <number>0</number>
                          </property>
                          <widget class="QWidget" name="jog_page">
                           <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -13006,6 +12962,47 @@ MOVE</string>
                     <enum>QFrame::Plain</enum>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_6">
+                    <item row="0" column="1">
+                     <widget class="QLabel" name="color_foregrnd_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Foreground</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="0">
+                     <widget class="PushButton" name="color_led">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="0" column="0">
                      <widget class="PushButton" name="color_foregrnd">
                       <property name="sizePolicy">
@@ -13028,8 +13025,14 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="1">
-                     <widget class="QLabel" name="color_foregrnd_lbl">
+                    <item row="3" column="6">
+                     <widget class="QCheckBox" name="chk_override_limits">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -13039,29 +13042,19 @@ MOVE</string>
                       <property name="maximumSize">
                        <size>
                         <width>16777215</width>
-                        <height>16777215</height>
+                        <height>30</height>
                        </size>
                       </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
                       <property name="text">
-                       <string>Foreground</string>
+                       <string/>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="2">
-                     <spacer name="horizontalSpacer_10">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="0" column="3">
-                     <widget class="PushButton" name="color_frams">
+                    <item row="1" column="0">
+                     <widget class="PushButton" name="color_foregalt">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -13082,8 +13075,34 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="4">
-                     <widget class="QLabel" name="color_frams_lbl">
+                    <item row="3" column="4">
+                     <widget class="QLabel" name="color_preview_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Preview</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="7">
+                     <widget class="QLabel" name="label_26">
+                      <property name="text">
+                       <string>Soft Keyboard</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="3">
+                     <widget class="PushButton" name="color_estop">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
                       <property name="minimumSize">
                        <size>
                         <width>0</width>
@@ -13096,23 +13115,29 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
-                      <property name="text">
-                       <string>Frames</string>
-                      </property>
                      </widget>
                     </item>
-                    <item row="0" column="5">
-                     <spacer name="horizontalSpacer_15">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
+                    <item row="4" column="0">
+                     <widget class="PushButton" name="color_backgalt">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
                       </property>
-                      <property name="sizeHint" stdset="0">
+                      <property name="minimumSize">
                        <size>
-                        <width>40</width>
-                        <height>20</height>
+                        <width>0</width>
+                        <height>0</height>
                        </size>
                       </property>
-                     </spacer>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                     </widget>
                     </item>
                     <item row="0" column="6">
                      <widget class="QCheckBox" name="chk_soft_keyboard">
@@ -13142,118 +13167,6 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="0" column="7">
-                     <widget class="QLabel" name="label_26">
-                      <property name="text">
-                       <string>Soft Keyboard</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="8">
-                     <spacer name="horizontalSpacer_16">
-                      <property name="orientation">
-                       <enum>Qt::Horizontal</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>40</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
-                    <item row="0" column="9">
-                     <widget class="QLabel" name="label_13">
-                      <property name="text">
-                       <string>Grid Size</string>
-                      </property>
-                      <property name="alignment">
-                       <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="0">
-                     <widget class="PushButton" name="color_foregalt">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="1">
-                     <widget class="QLabel" name="color_foregalt_lbl">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>Highlight</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="3">
-                     <widget class="PushButton" name="color_estop">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="4">
-                     <widget class="QLabel" name="color_estop_lbl">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>Estop</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="1" column="6">
                      <widget class="QCheckBox" name="chk_keyboard_shortcuts">
                       <property name="sizePolicy">
@@ -13273,13 +13186,6 @@ MOVE</string>
                       </property>
                       <property name="text">
                        <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="1" column="7">
-                     <widget class="QLabel" name="label_33">
-                      <property name="text">
-                       <string>KB Shorccuts</string>
                       </property>
                      </widget>
                     </item>
@@ -13329,49 +13235,15 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="0">
-                     <widget class="PushButton" name="color_led">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="1">
-                     <widget class="QLabel" name="color_led_lbl">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
+                    <item row="5" column="7">
+                     <widget class="QLabel" name="label_5">
                       <property name="text">
-                       <string>LED</string>
+                       <string>Tool Tips</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="2" column="3">
-                     <widget class="PushButton" name="color_disabled">
+                    <item row="8" column="6">
+                     <widget class="ActionButton" name="opt_blk">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -13389,73 +13261,37 @@ MOVE</string>
                         <width>16777215</width>
                         <height>16777215</height>
                        </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="4">
-                     <widget class="QLabel" name="color_disabled_lbl">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>Disabled</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="6">
-                     <widget class="QCheckBox" name="chk_run_from_line">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
                       </property>
                       <property name="text">
                        <string/>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="7">
-                     <widget class="QLabel" name="label_39">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
+                      <property name="checkable">
+                       <bool>true</bool>
                       </property>
-                      <property name="text">
-                       <string>Run From Line</string>
+                      <property name="indicator_option" stdset="0">
+                       <bool>false</bool>
                       </property>
-                     </widget>
-                    </item>
-                    <item row="2" column="9">
-                     <widget class="QLabel" name="label_20">
-                      <property name="minimumSize">
-                       <size>
-                        <width>120</width>
-                        <height>0</height>
-                       </size>
+                      <property name="indicator_HAL_pin_option" stdset="0">
+                       <bool>false</bool>
                       </property>
-                      <property name="text">
-                       <string>Cone Size</string>
+                      <property name="indicator_status_option" stdset="0">
+                       <bool>false</bool>
                       </property>
-                      <property name="alignment">
-                       <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+                      <property name="on_color" stdset="0">
+                       <color>
+                        <red>255</red>
+                        <green>0</green>
+                        <blue>0</blue>
+                       </color>
+                      </property>
+                      <property name="indicator_size" stdset="0">
+                       <double>0.200000000000000</double>
+                      </property>
+                      <property name="is_block_delete_status" stdset="0">
+                       <bool>false</bool>
+                      </property>
+                      <property name="block_delete_action" stdset="0">
+                       <bool>true</bool>
                       </property>
                      </widget>
                     </item>
@@ -13481,6 +13317,152 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
+                    <item row="0" column="2">
+                     <spacer name="horizontalSpacer_10">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="1" column="7">
+                     <widget class="QLabel" name="label_33">
+                      <property name="text">
+                       <string>KB Shorccuts</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="4">
+                     <widget class="QLabel" name="color_disabled_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Disabled</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="9">
+                     <widget class="QLabel" name="label_20">
+                      <property name="minimumSize">
+                       <size>
+                        <width>120</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Cone Size</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="7">
+                     <widget class="QLabel" name="label_39">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string>Run From Line</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="6">
+                     <widget class="QCheckBox" name="chk_run_from_line">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="9">
+                     <widget class="QLabel" name="label_13">
+                      <property name="text">
+                       <string>Grid Size</string>
+                      </property>
+                      <property name="alignment">
+                       <set>Qt::AlignBottom|Qt::AlignRight|Qt::AlignTrailing</set>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="9" column="6">
+                     <spacer name="verticalSpacer_10">
+                      <property name="orientation">
+                       <enum>Qt::Vertical</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>20</width>
+                        <height>40</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="0" column="5">
+                     <spacer name="horizontalSpacer_15">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="7" column="7">
+                     <widget class="QLabel" name="label">
+                      <property name="text">
+                       <string>Optional Stop</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="4" column="6">
+                     <widget class="QCheckBox" name="chk_overlay">
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>30</height>
+                       </size>
+                      </property>
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
                     <item row="3" column="1">
                      <widget class="QLabel" name="color_backgrnd_lbl">
                       <property name="minimumSize">
@@ -13497,76 +13479,6 @@ MOVE</string>
                       </property>
                       <property name="text">
                        <string>Background</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="3">
-                     <widget class="PushButton" name="color_preview">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="4">
-                     <widget class="QLabel" name="color_preview_lbl">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string>Preview</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="6">
-                     <widget class="QCheckBox" name="chk_override_limits">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>30</height>
-                       </size>
-                      </property>
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="3" column="7">
-                     <widget class="QLabel" name="label_42">
-                      <property name="text">
-                       <string>Override Limits</string>
                       </property>
                      </widget>
                     </item>
@@ -13622,8 +13534,92 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="0">
-                     <widget class="PushButton" name="color_backgalt">
+                    <item row="1" column="1">
+                     <widget class="QLabel" name="color_foregalt_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Highlight</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="3">
+                     <widget class="PushButton" name="color_frams">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="8" column="7">
+                     <widget class="QLabel" name="label_2">
+                      <property name="text">
+                       <string>Optional Block</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="5" column="6">
+                     <widget class="QCheckBox" name="chk_tool_tips">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="7">
+                     <widget class="QLabel" name="label_42">
+                      <property name="text">
+                       <string>Override Limits</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="1">
+                     <widget class="QLabel" name="color_led_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>LED</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="3" column="3">
+                     <widget class="PushButton" name="color_preview">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -13663,29 +13659,6 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="4" column="6">
-                     <widget class="QCheckBox" name="chk_overlay">
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>30</height>
-                       </size>
-                      </property>
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="4" column="7">
-                     <widget class="QLabel" name="label_3">
-                      <property name="text">
-                       <string>View Material</string>
-                      </property>
-                     </widget>
-                    </item>
                     <item row="4" column="9">
                      <widget class="QLabel" name="label_38">
                       <property name="minimumSize">
@@ -13702,24 +13675,14 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="5" column="6">
-                     <widget class="QCheckBox" name="chk_tool_tips">
-                      <property name="layoutDirection">
-                       <enum>Qt::RightToLeft</enum>
-                      </property>
+                    <item row="4" column="7">
+                     <widget class="QLabel" name="label_3">
                       <property name="text">
-                       <string/>
+                       <string>View Material</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="5" column="7">
-                     <widget class="QLabel" name="label_5">
-                      <property name="text">
-                       <string>Tool Tips</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="6" column="6">
+                    <item row="7" column="6">
                      <widget class="ActionButton" name="opt_stp">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -13772,86 +13735,6 @@ MOVE</string>
                       </property>
                      </widget>
                     </item>
-                    <item row="6" column="7">
-                     <widget class="QLabel" name="label">
-                      <property name="text">
-                       <string>Optional Stop</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="6">
-                     <widget class="ActionButton" name="opt_blk">
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>0</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>16777215</width>
-                        <height>16777215</height>
-                       </size>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                      <property name="checkable">
-                       <bool>true</bool>
-                      </property>
-                      <property name="indicator_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="indicator_HAL_pin_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="indicator_status_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="on_color" stdset="0">
-                       <color>
-                        <red>255</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                       </color>
-                      </property>
-                      <property name="indicator_size" stdset="0">
-                       <double>0.200000000000000</double>
-                      </property>
-                      <property name="is_block_delete_status" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="block_delete_action" stdset="0">
-                       <bool>true</bool>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="7" column="7">
-                     <widget class="QLabel" name="label_2">
-                      <property name="text">
-                       <string>Optional Block</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="8" column="6">
-                     <spacer name="verticalSpacer_10">
-                      <property name="orientation">
-                       <enum>Qt::Vertical</enum>
-                      </property>
-                      <property name="sizeHint" stdset="0">
-                       <size>
-                        <width>20</width>
-                        <height>40</height>
-                       </size>
-                      </property>
-                     </spacer>
-                    </item>
                     <item row="5" column="9">
                      <widget class="DoubleScale" name="table_zoom_scale">
                       <property name="sizePolicy">
@@ -13901,6 +13784,96 @@ MOVE</string>
                       </property>
                       <property name="value">
                        <double>0.500000000000000</double>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="2" column="3">
+                     <widget class="PushButton" name="color_disabled">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="4">
+                     <widget class="QLabel" name="color_frams_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Frames</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="4">
+                     <widget class="QLabel" name="color_estop_lbl">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="text">
+                       <string>Estop</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="8">
+                     <spacer name="horizontalSpacer_16">
+                      <property name="orientation">
+                       <enum>Qt::Horizontal</enum>
+                      </property>
+                      <property name="sizeHint" stdset="0">
+                       <size>
+                        <width>40</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                     </spacer>
+                    </item>
+                    <item row="6" column="7">
+                     <widget class="QLabel" name="label_47">
+                      <property name="text">
+                       <string>Exit Warning</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="6" column="6">
+                     <widget class="QCheckBox" name="chk_exit_warning">
+                      <property name="layoutDirection">
+                       <enum>Qt::RightToLeft</enum>
+                      </property>
+                      <property name="text">
+                       <string/>
                       </property>
                      </widget>
                     </item>
