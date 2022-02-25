@@ -252,8 +252,8 @@ REMOTE_READ_REPLY *NML_SERVER_LOCAL_PORT::blocking_read(REMOTE_READ_REQUEST *
 	    orig_bytes_moved);
 	nml->cms->first_diag_store = cmscopy->first_diag_store;
     }
-    breq->_nml = NULL;
-    delete nmlcopy;
+    delete breq->_nml;
+    breq->_nml=nmlcopy=NULL;
 
     /* Reply structure contains the latest shared memory info-- now return it 
        to cms_dispatch for return to caller */

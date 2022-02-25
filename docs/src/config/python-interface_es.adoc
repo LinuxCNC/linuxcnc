@@ -210,6 +210,9 @@ articulaciones actualmente con/sin home, 0 = sin home, 1 = con home.
 *id*:: '(devuelve entero)' -
 ID de movimiento actualmente en ejecución.
 
+*ini_filename*:: '(devuelve string)' -
+ruta al archivo INI pasado a linuxcnc.
+
 *inpos*:: '(devuelve boolean)' -
 bandera machine-in-position.
 
@@ -676,7 +679,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     establecer la velocidad máxima
 
 `mdi(string)`::
-    Enviar un comando MDI. Máximo 255 caracteres.
+    Enviar un comando MDI. Máximo 254 caracteres.
 
 `mist(int)`:: activa/desactiva la niebla. +
     Sintaxis: +

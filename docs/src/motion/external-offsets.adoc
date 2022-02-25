@@ -3,7 +3,7 @@
 = External Axis Offsets
 
 External axis offsets are supported during teleop (world) jogs
-and coordinated (gcode) motion.  External axis offsets are
+and coordinated (G-code) motion.  External axis offsets are
 enabled on a per-axis basis by ini file settings and controlled
 dynamically by hal input pins.  The hal interface is similar to
 that used for wheel jogging.  This type of interface is
@@ -98,8 +98,8 @@ zero when the machine is off.
 External axis offset movements are independently planned with
 velocity and acceleration settings specified by the
 '[AXIS_L]OFFSET_AV_RATIO'.  The offsetting motion is not
-coordinated with teleop jogs nor with coordinated (gcode)
-motion.  During teleop  jogging and coordinated (gcode) motion,
+coordinated with teleop jogs nor with coordinated (G-code)
+motion.  During teleop  jogging and coordinated (G-code) motion,
 axis soft limits ('[AXIS_L]MIN_LIMIT,MAX_LIMIT') restrict
 movement of the axis.
 
@@ -263,7 +263,7 @@ The sim config 'sim/configs/axis/external_offsets/eoffsets.ini'
 demonstrates a cartesian XYZ machine with controls to enable external
 offsets on any axis.
 
-Displays are provided to show all important position and offset 
+Displays are provided to show all important position and offset
 values.
 
 A sim_pin gui provides controls for the axis offset pins: eoffset-scale
@@ -280,7 +280,7 @@ demonstrates a jog-while-pause capability for a single (Z) coordinate:
 
 Panel LEDs are provided to show important status items.
 
-Controls are provided to set the eoffset scale factor and to 
+Controls are provided to set the eoffset scale factor and to
 increment/decrement/clear the eoffset counts.
 
 === dynamic_offsets.ini

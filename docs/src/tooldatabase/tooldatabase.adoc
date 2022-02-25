@@ -69,7 +69,7 @@ changes include:
   * c) tool substitutions (M61Qn).
 
 When a tool data change occurs, LinuxCNC sends a command to the
-*db_program* consisting of a identifying command letter followed by a
+*db_program* consisting of an identifying command letter followed by a
 full or abbreviated tool data line.  The *db_program* must respond with
 a reply to confirm receipt.  If the reply includes the text "'NAK'", a
 message is printed to stdout but execution continues.  The "'NAK'"
@@ -79,32 +79,32 @@ the fault.
 
 The commands issued for tool data changes are:
 
-  * "'p'" put data changes caused by G10L1, G10L10, G10L11 gcodes.
+  * "'p'" put data changes caused by G10L1, G10L10, G10L11 G-codes.
     The tool data line will include all elements of a tool table
     text line.
 
-  * "'l'" spindle_load (TnM6). The tool data line inclues only the 'T' and
+  * "'l'" spindle_load (TnM6). The tool data line includes only the 'T' and
     'P' items identifying the relevant tool number and pocket number.
 
-  * "'u'" spindle_unload (T0M6).  The tool data line inclues only the 'T'
+  * "'u'" spindle_unload (T0M6).  The tool data line includes only the 'T'
     and 'P' items identifying the relevant tool number and pocket number
 
 [NOTE]
 
 When a NON_RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=0 (the default), the spindle_load command
-issued for TnM6 is: 'l Tn P0' (pocket '0' is the spindle).  The
-spindle_unload command issued for T0M6 is 'u T0 P0'.
+issued for TnM6 (or M61Qn) is: 'l Tn P0' (pocket '0' is the spindle).
+The spindle_unload command issued for T0M6 is 'u T0 P0'.
 
 [NOTE]
 
 When a RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=1, a pair of spindle_unload/spindle_load
-commands are issued at each tool exchange.  The pair of commands issued
-for TnM6 are 'u Tu Pm' followed by 'l Tn P0' where 'u' is the current
-tool to be sent to pocket 'm' and 'n' is the new tool to load in the
-spindle (pocket '0').  By convention, a tool number of '0' is used to
-specify an empty tool,
+commands are issued at each tool exchange.  The pair of commands
+issued for TnM6 (or M61Qn) are 'u Tu Pm' followed by 'l Tn P0' where
+'u' is the current tool to be sent to pocket 'm' and 'n' is the new
+tool to load in the spindle (pocket '0').  By convention, a tool
+number of '0' is used to specify an empty tool,
 
 === Usage
 
@@ -122,8 +122,8 @@ appropriate pocket based on tool usage history.
 By default, requests for tool data are made at startup only.  A database
 program may update tool usage data on a continuous basis so long-lived
 LinuxCNC applications may benefit by refreshing the tool data.  The
-gcode command *G10 L0* can be used to request a tool data reload ('g'
-command) from within gcode programs or by MDI.
+G-code command *G10 L0* can be used to request a tool data reload ('g'
+command) from within G-code programs or by MDI.
 
 A reload operation is also typically provided by a Graphical User
 Interface (GUI) so that on-demand reloads can be requested.  For
@@ -147,7 +147,7 @@ stdout) for additional debugging information about interface activity.
 === Example program
 
 An example *db_program* (implemented as a python script) is provided
-with the simulation examples.  The program databasetrates the
+with the simulation examples.  The program demonsrates the
 required operations to:
 
 . acknowledge startup version
@@ -171,7 +171,7 @@ following python code:
 user_tools = list(...)   # list of available tool numbers
 
 def user_get_tool(toolno):
-    # function to respond to 'g' (get) commands 
+    # function to respond to 'g' (get) commands
     # called once for each toolno in user_tools
     ...
 def user_put_tool(toolno,params):
@@ -210,7 +210,7 @@ python-based applications that interface with an external database.
 
 Simulation configs using the axis gui:
 
-. configs/sim/axis/db_demo/*db_ran*.ini    (   random_toolchanger)
+. configs/sim/axis/db_demo/*db_ran*.ini    (random_toolchanger)
 . configs/sim/axis/db_demo/*db_nonran*.ini (nonrandom_toolchanger)
 
 Each sim config simulates a *db_program* implementing a database

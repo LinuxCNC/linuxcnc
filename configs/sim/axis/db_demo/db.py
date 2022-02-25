@@ -181,16 +181,14 @@ def update_tool(tno,update_line):
     # NOTE: host uses 'R'(radius) but tool table uses 'D'(diameter)
     D = toolline_to_dict(tools[tno],all_letters)
     savep = D['P']
-    if 'M' in D: savem = D['M']
     for item in toolline_to_list(update_line):
         # g10l1 reports radius 'R' but tool table uses diameter 'D':
         if "R" in item.upper():
             item = "D" + str(float(item.upper().strip("R"))*2.0)
-        for l in all_letters:
+        for l in tletters:
             if l in item: D[l]=item.lstrip(l) #supersede by update_line
-    if 'M' in D: D['M'] = savem
+    if not random_toolchanger: D['P'] = savep # nonran handle p0 case
     if D['P'] != savep: umsg("update_tool(): %s %s\n"%(D['P'],savep))
-    D['P'] = savep
     tools[tno] = dict_to_toolline(D,all_letters)
 
 def apply_db_rules():

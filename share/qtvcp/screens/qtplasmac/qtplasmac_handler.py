@@ -1,4 +1,4 @@
-VERSION = '1.221.147'
+VERSION = '1.221.165'
 
 '''
 qtplasmac_handler.py
@@ -58,6 +58,9 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 from qtvcp.lib.qtplasmac import run_from_line as RFL
+from qtvcp.lib.qtplasmac import updater as UPDATER
+from OpenGL.GL import glTranslatef
+from rs274.glcanon import GlCanonDraw
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -110,7 +113,7 @@ class HandlerClass:
         self.w = widgets
         self.h.comp.setprefix('qtplasmac')
         self.PATHS = paths
-        self.iniFile = linuxcnc.ini(INIPATH)
+        self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
 # changes sim common folder to a link so sims keep up to date
         if 'by_machine.qtplasmac' in self.PATHS.CONFIGPATH:
@@ -121,6 +124,7 @@ class HandlerClass:
                     linkFolder = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac/qtplasmac/')
                 os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
                 os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+        self.update_check()
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
@@ -168,6 +172,10 @@ class HandlerClass:
         KEYBIND.add_call('Key_Period', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_Greater', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_End', 'on_keycall_END')
+        KEYBIND.add_call('Alt+Key_Return', 'on_keycall_ALTRETURN')
+        KEYBIND.add_call('Alt+Key_Enter', 'on_keycall_ALTRETURN')
+        KEYBIND.add_call('Key_Return', 'on_keycall_RETURN')
+        KEYBIND.add_call('Key_Enter', 'on_keycall_RETURN')
         self.axisList = [x.lower() for x in INFO.AVAILABLE_AXES]
         self.systemList = ['G53','G54','G55','G56','G57','G58','G59','G59.1','G59.2','G59.3']
         self.slowJogFactor = 10
@@ -175,7 +183,7 @@ class HandlerClass:
         self.jogSlow = False
         self.lastLoadedProgram = 'None'
         self.estopOnList = []
-        self.idleList = ['file_clear', 'file_open', 'file_reload', 'file_edit']
+        self.idleList = ['file_clear', 'file_open', 'file_reload']
         self.idleOnList = ['home_x', 'home_y', 'home_z', 'home_a', 'home_all']
         self.idleHomedList = ['touch_x', 'touch_y', 'touch_z', 'touch_a', 'touch_b', 'touch_xy', \
                               'mdi_show', 'height_lower', 'height_raise', 'wcs_button']
@@ -191,6 +199,8 @@ class HandlerClass:
         self.yMax = float(self.iniFile.find('AXIS_Y', 'MAX_LIMIT'))
         self.zMin = float(self.iniFile.find('AXIS_Z', 'MIN_LIMIT'))
         self.zMax = float(self.iniFile.find('AXIS_Z', 'MAX_LIMIT'))
+        self.xLen = float(self.xMax - self.xMin)
+        self.yLen = float(self.yMax - self.yMin)
         self.thcFeedRate = float(self.iniFile.find('AXIS_Z', 'MAX_VELOCITY')) * \
                            float(self.iniFile.find('AXIS_Z', 'OFFSET_AV_RATIO')) * 60
         self.maxHeight = self.zMax - self.zMin
@@ -239,10 +249,9 @@ class HandlerClass:
         self.preClearFile = ''
         self.rflActive = False
         self.jogInhibit = ''
-        self.isJogging = {0:False, 1:False, 2:False, 3:False}
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
-        self.ovButton, self.llButton = '', ''
+        self.ovButton, self.llButton, self.tlButton = '', '', ''
         self.halTogglePins = {}
         self.halPulsePins = {}
         self.torchOn = False
@@ -256,6 +265,7 @@ class HandlerClass:
         self.notifyColor = 'normal'
         self.firstHoming = False
         self.droScale = 1
+        self.mdiError = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -268,21 +278,23 @@ class HandlerClass:
         self.PIERCE_DELAY   =  8
         self.PUDDLE_JUMP    =  9
         self.CUT_HEGHT      = 10
-        self.CUTTING        = 11
-        self.PAUSE_AT_END   = 12
-        self.SAFE_HEIGHT    = 13
-        self.MAX_HEIGHT     = 14
-        self.FINISH         = 15
-        self.TORCH_PULSE    = 16
-        self.PAUSED_MOTION  = 17
-        self.OHMIC_TEST     = 18
-        self.PROBE_TEST     = 19
-        self.SCRIBING       = 20
-        self.CONS_CHNG_ON   = 21
-        self.CONS_CHNG_OFF  = 22
-        self.CUT_REC_ON     = 23
-        self.CUT_REC_OFF    = 24
-        self.DEBUG          = 25
+        self.CUT_MODE_01    = 11
+        self.CUT_MODE_2     = 12
+        self.PAUSE_AT_END   = 13
+        self.SAFE_HEIGHT    = 14
+        self.MAX_HEIGHT     = 15
+        self.END_CUT        = 16
+        self.END_JOB        = 17
+        self.TORCH_PULSE    = 18
+        self.PAUSED_MOTION  = 19
+        self.OHMIC_TEST     = 20
+        self.PROBE_TEST     = 21
+        self.SCRIBING       = 22
+        self.CONS_CHNG_ON   = 23
+        self.CONS_CHNG_OFF  = 24
+        self.CUT_REC_ON     = 25
+        self.CUT_REC_OFF    = 26
+        self.DEBUG          = 27
 
     def initialized__(self):
         # ensure we get all startup errors
@@ -292,9 +304,10 @@ class HandlerClass:
         self.init_preferences()
         self.hide_widgets()
         self.init_widgets()
+        # hijack the qtvcp shutdown to our own close event
+        self.w.screen_options.QTVCP_INSTANCE_.closeEvent = self.closeEvent
         self.w.button_frame.installEventFilter(self.w)
         self.link_hal_pins()
-        self.set_signal_connections()
         self.statistics_init()
         self.set_axes_and_joints()
         self.set_spinbox_parameters()
@@ -308,6 +321,8 @@ class HandlerClass:
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
         self.widgetsLoaded = 1
+        STATUS.connect('state-estop', lambda w:self.estop_state(True))
+        STATUS.connect('state-estop-reset', lambda w:self.estop_state(False))
         STATUS.connect('state-on', lambda w:self.power_state(True))
         STATUS.connect('state-off', lambda w:self.power_state(False))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
@@ -328,6 +343,7 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
+        STATUS.connect('current_feed_rate', lambda w, v: self.feed_rate_changed(v))
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
@@ -341,6 +357,9 @@ class HandlerClass:
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
+        self.shutdownTimer = QTimer()
+        self.shutdownTimer.timeout.connect(self.shutdown_timeout)
+        self.shutdownTime = 2000
         self.laserTimer = QTimer()
         self.laserTimer.timeout.connect(self.laser_timeout)
         self.laserTimer.setSingleShot(True)
@@ -349,7 +368,6 @@ class HandlerClass:
         # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
         self.thcFeedRatePin.set(self.thcFeedRate)
-        self.startupTimer.start(250)
         if self.iniFile.find('QTPLASMAC', 'PM_PORT'):
             self.pmx485_startup(self.iniFile.find('QTPLASMAC', 'PM_PORT'))
         else:
@@ -358,8 +376,14 @@ class HandlerClass:
             self.w.cut_mode.hide()
             self.w.cut_mode_label.hide()
             self.w.pmx485_frame.hide()
+        if self.w.mdihistory.rows:
+            self.mdiLast = self.w.mdihistory.model.item(self.w.mdihistory.rows - 1).text()
+        else:
+            self.mdiLast = None
+        self.w.mdihistory.MDILine.spindle_inhibit(True)
         if self.firstRun is True:
             self.firstRun = False
+        self.startupTimer.start(250)
 
 
 #########################################################################################################################
@@ -368,7 +392,6 @@ class HandlerClass:
     def class_patch__(self):
         self.gcode_editor_patch()
         self.camview_patch()
-        self.mdi_line_patch()
         self.offset_table_patch()
 
 # patched gcode editor functions
@@ -408,6 +431,7 @@ class HandlerClass:
             msg1 = _translate('HandlerClass', 'Do you want to exit')
             if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
                 return
+        self.w.preview_stack.setCurrentIndex(0)
         if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
             self.file_reload_clicked()
         elif self.fileOpened == True and not self.w.gcode_editor.editor.isModified():
@@ -415,8 +439,8 @@ class HandlerClass:
         elif self.fileOpened == False:
             self.w.gcode_editor.editor.new_text()
             self.w.gcode_editor.editor.setModified(False)
+            self.view_t_pressed()
         self.w.gcode_editor.editMode()
-        self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
         if self.w.chk_overlay.isChecked():
             self.overlayPreview.show()
@@ -481,49 +505,6 @@ class HandlerClass:
             self.w.camview.scale = 1
         elif event.button() & QtCore.Qt.MiddleButton:
             self.w.camview.diameter = 20
-
-# patched mdi_line functions
-    def mdi_line_patch(self):
-        self.old_submit = MDI_LINE.submit
-        MDI_LINE.submit = self.new_submit
-
-    # don't allow M3 or M5 in MDI codes
-    def new_submit(self):
-        intext = str(self.w.mdihistory.MDILine.text()).rstrip()
-        if intext == '': return
-        if intext.upper() == 'HALMETER':
-            AUX_PRGM.load_halmeter()
-        elif intext.upper() == 'STATUS':
-            AUX_PRGM.load_status()
-        elif intext.upper() == 'HALSHOW':
-            AUX_PRGM.load_halshow()
-        elif intext.upper() == 'CLASSICLADDER':
-            AUX_PRGM.load_ladder()
-        elif intext.upper() == 'HALSCOPE':
-            AUX_PRGM.load_halscope()
-        elif intext.upper() == 'CALIBRATION':
-            AUX_PRGM.load_calibration()
-        elif intext.upper() == 'PREFERENCE':
-            self.new_openReturn(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs'))
-            self.w.gcode_editor.readOnlyMode()
-            self.w.preview_stack.setCurrentIndex(2)
-        else:
-            head = _translate('HandlerClass', 'MDI ERROR')
-            if 'm3' in intext.lower().replace(' ',''):
-                msg0 = _translate('HandlerClass', 'M3 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-                return
-            elif 'm5' in intext.lower().replace(' ',''):
-                msg0 = _translate('HandlerClass', 'M5 commands are not allowed in MDI mode')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
-                return
-            ACTION.CALL_MDI(intext + '\n')
-            try:
-                with open(os.path.expanduser(INFO.MDI_HISTORY_PATH), 'a') as fp:
-                    fp.write(intext + '\n')
-            except:
-                pass
-            STATUS.emit('mdi-history-changed')
 
 # patched offset table functions
     def offset_table_patch(self):
@@ -624,6 +605,7 @@ class HandlerClass:
         self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
         self.gcodeScalePin = self.h.newpin('gcode_scale', hal.HAL_FLOAT, hal.HAL_OUT)
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
+        self.tabsAlwaysEnabled = self.h.newpin('tabs_always_enabled', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -720,9 +702,9 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:gcode-scale', 'plasmac.gcode-scale', 'qtplasmac.gcode_scale'])
 
 # *** add system hal pin changes here that may affect existing configs ***
+# *** these may be removed after auto updating is implemented          ***
         if not hal.pin_has_writer('plasmac.feed-upm'): # if feed-upm is not yet connected in hal
             CALL(['halcmd', 'net', 'plasmac:feed-upm', 'motion.feed-upm', 'plasmac.feed-upm'])
-
 
     def init_preferences(self):
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
@@ -731,8 +713,11 @@ class HandlerClass:
         self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.chk_tool_tips.setChecked(self.w.PREFS_.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
+        self.w.chk_exit_warning.setChecked(self.w.PREFS_.getpref('Exit warning', False, bool, 'GUI_OPTIONS'))
+        self.exitMessage = self.w.PREFS_.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
+        self.w.table_zoom_scale.setValue(self.w.PREFS_.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
         self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
         self.w.color_led.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('LED', '#ffee06', str, 'COLOR_OPTIONS')))
@@ -772,8 +757,6 @@ class HandlerClass:
         self.w.preview_stack.setCurrentIndex(0)
         self.w.gcode_stack.setCurrentIndex(0)
         self.w.jog_stack.setCurrentIndex(0)
-        self.w.jog_slider.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
-        self.w.jog_slider.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.thc_enable.setChecked(self.w.PREFS_.getpref('THC enable', True, bool, 'ENABLE_OPTIONS'))
@@ -829,6 +812,7 @@ class HandlerClass:
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
         self.w.gcode_editor.label.setText('')
         self.w.gcodegraphics.set_alpha_mode(True)
+        self.w.gcodegraphics.setdro(False)
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
         self.w.conv_preview.set_alpha_mode(True)
@@ -906,6 +890,10 @@ class HandlerClass:
                         self.laserOffsetX = float(parms[0].replace('x', ''))
                     elif parm.startswith('y'):
                         self.laserOffsetY = float(parms[1].replace('y', ''))
+                    else:
+                        self.laserOffsetX = 0.0
+                        self.laserOffsetY = 0.0
+                        break
             except:
                 self.w.laser.hide()
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
@@ -927,6 +915,10 @@ class HandlerClass:
                         self.camOffsetX = float(parms[0].replace('x', ''))
                     elif parm.startswith('y'):
                         self.camOffsetY = float(parms[1].replace('y', ''))
+                    else:
+                        self.camOffsetX = 0.0
+                        self.camOffsetY = 0.0
+                        break
             except:
                 self.w.camera.hide()
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
@@ -959,6 +951,10 @@ class HandlerClass:
         self.w.pmx485_enable.setChecked(False)
         # close soft keyboard
         self.vkb_hide()
+        # turn autorepeat back on for the OS
+        self.autorepeat_keys(True)
+        # save the log files
+        self.save_logfile(5)
         # save preferences
         if not self.w.PREFS_: return
         self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
@@ -966,15 +962,16 @@ class HandlerClass:
         self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('Exit warning', self.w.chk_exit_warning.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('shutdown_msg_detail', self.exitMessage, str, 'SHUTDOWN_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('T view zoom scale', self.w.table_zoom_scale.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Corner lock enable', self.w.cornerlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
         self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.autorepeat_keys(True)
-        self.save_logfile(5)
 
     def save_logfile(self, numLogs):
             logPre = 'machine_log_'
@@ -999,6 +996,7 @@ class HandlerClass:
             # then check if it's one we want the keypress events to go to
             flag = False
             conversational = False
+            mdiBlank = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
                 if isinstance(receiver2, QtWidgets.QDialog):
@@ -1011,9 +1009,13 @@ class HandlerClass:
                     flag = True
                     break
                 if isinstance(receiver2, MDI_LINE):
+                    if self.w.mdihistory.MDILine.text().rstrip() == '':
+                        mdiBlank = True
                     flag = True
                     break
                 if isinstance(receiver2, MDI_HISTORY):
+                    if self.w.mdihistory.MDILine.text().rstrip() == '':
+                        mdiBlank = True
                     flag = True
                     break
                 if isinstance(receiver2, EDITOR):
@@ -1040,6 +1042,8 @@ class HandlerClass:
                         self.keyPressEvent(event)
                     else:
                         receiver.keyPressEvent(event)
+                    if mdiBlank and (code == Qt.Key_Return or code == Qt.Key_Enter):
+                        self.keyPressEvent(event)
                     event.accept()
                     return True
                 else:
@@ -1050,28 +1054,35 @@ class HandlerClass:
         return KEYBIND.manage_function_calls(self, event, is_pressed, key, shift, cntrl)
 
     def size_changed(self, object):
-        rows = int((object.height() - 24) / 44)
+        bHeight = self.w.file_edit.height() + 4
+        rows = int((object.height() - 24) / bHeight)
         if self.landscape:
-            if rows == 5:
+            if rows == 4:
+                self.buttons_hide(7, 20)
+            elif rows == 5:
                 self.buttons_hide(9, 20)
+                self.buttons_show(7, 8)
             elif rows == 6:
                 self.buttons_hide(11, 20)
-                self.buttons_show(9, 10)
+                self.buttons_show(7, 10)
             elif rows == 7:
                 self.buttons_hide(13, 20)
-                self.buttons_show(9, 12)
+                self.buttons_show(7, 12)
             elif rows == 8:
                 self.buttons_hide(15, 20)
-                self.buttons_show(9, 14)
+                self.buttons_show(7, 14)
             elif rows == 9:
                 self.buttons_hide(17, 20)
-                self.buttons_show(9, 16)
+                self.buttons_show(7, 16)
             elif rows == 10:
                 self.buttons_hide(19, 20)
-                self.buttons_show(9, 18)
+                self.buttons_show(7, 18)
             else:
-                self.buttons_show(9, 20)
+                self.buttons_show(7, 20)
         else:
+            if rows == 15:
+                self.buttons_hide(16, 20)
+                self.buttons_show(9, 15)
             if rows == 16:
                 self.buttons_hide(17, 20)
                 self.buttons_show(9, 16)
@@ -1082,7 +1093,7 @@ class HandlerClass:
                 self.buttons_hide(19, 20)
                 self.buttons_show(9, 18)
             elif rows == 19:
-                self.buttons_hide(12, 20)
+                self.buttons_hide(19, 20)
                 self.buttons_show(9, 19)
             else:
                 self.buttons_show(9, 20)
@@ -1099,6 +1110,21 @@ class HandlerClass:
 #########################################################################################################################
 # CALLBACKS FROM STATUS #
 #########################################################################################################################
+    def estop_state(self, state):
+        if state:
+            self.w.power.setChecked(False)
+            self.w.power.setStyleSheet(' \
+                    QPushButton {{ color: {2}; background: {1}; border-color: {2} }} \
+                    QPushButton:pressed {{ color: {2}; background: {1}; border-color: {0} }}' \
+                    .format(self.foreColor, self.backColor, self.disabledColor))
+        else:
+            self.w.power.setStyleSheet(' \
+                    QPushButton {{ color: {0}; background: {1}; border-color: {0} }} \
+                    QPushButton:pressed {{ color: {1}; background: {3}; border-color: {0} }} \
+                    QPushButton:checked {{ color: {1}; background: {3}; border-color: {0} }} \
+                    QPushButton:checked:pressed {{ color: {0}; background: {1}; border-color: {0} }}' \
+                    .format(self.foreColor, self.backColor, self.disabledColor, self.fore1Color))
+
     def power_state(self, state):
         if state:
             self.set_buttons_state([self.idleOnList], True)
@@ -1132,8 +1158,6 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('G91')
         if not self.manualCut:
             self.set_buttons_state([self.idleList], True)
-        if self.fileOpened == False:
-            self.w.file_edit.setEnabled(False)
         if self.lastLoadedProgram == 'None':
             self.w.file_reload.setEnabled(False)
         if STATUS.machine_is_on() and not self.manualCut:
@@ -1223,6 +1247,8 @@ class HandlerClass:
 
     def pause_changed(self, obj, state):
         if state:
+            # time delay workaround to ensure userspace pins/variables have time to set
+            time.sleep(0.1)
             if self.ccButton and not hal.get_value('plasmac.cut-recovering') and hal.get_value('plasmac.stop-type-out'):
                 self.w[self.ccButton].setEnabled(True)
             if self.tpButton and self.w.torch_enable.isChecked():
@@ -1243,6 +1269,12 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
             if STATUS.is_auto_running():
                 self.set_tab_jog_states(False)
+
+    def feed_rate_changed(self, rate):
+        if not rate:
+            for joint in range(len(self.coordinates)):
+                if self.isJogging[joint]:
+                    self.isJogging[joint] = False
 
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')
@@ -1289,7 +1321,6 @@ class HandlerClass:
                 self.w.gcode_stack.setCurrentIndex(0)
             self.w.file_reload.setEnabled(True)
         self.w.gcodegraphics.logger.clear()
-        self.w.file_edit.setEnabled(True)
         if self.preRflFile and self.preRflFile != ACTION.prefilter_path:
             self.rflActive = False
             self.startLine = 0
@@ -1335,6 +1366,15 @@ class HandlerClass:
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex():
             self.w.main_tab_widget.setCurrentIndex(0)
+        if self.fileOpened:
+            if self.w.view_p.isChecked():
+                self.w.gcodegraphics.set_view('P')
+            elif self.w.view_z.isChecked():
+                self.w.gcodegraphics.set_view('Z')
+            else:
+                self.view_t_pressed()
+        else:
+            self.view_t_pressed()
 
     def joints_all_homed(self, obj):
         hal.set_p('plasmac.homed', '1')
@@ -1345,6 +1385,8 @@ class HandlerClass:
             self.firstHoming = True
         if not self.fileOpened:
             self.set_blank_gcodeprops()
+        self.w.gcodegraphics.setdro(False)
+        self.w.conv_preview.setdro(False)
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
@@ -1438,18 +1480,16 @@ class HandlerClass:
                     STATUS.emit('metric-mode-changed', True)
 
     def error_update(self, obj, kind, error):
-        if kind == linuxcnc.OPERATOR_ERROR or kind == linuxcnc.NML_ERROR:
+        if kind == linuxcnc.OPERATOR_ERROR:
+            self.error_status(True)
+            self.mdiError = True
+        if kind == linuxcnc.NML_ERROR:
             self.error_status(True)
 
 
 #########################################################################################################################
 # CALLBACKS FROM FORM #
 #########################################################################################################################
-
-    def ext_power(self, state):
-        if self.w.power.isEnabled() and state:
-            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
-
     def ext_run(self, state):
         if self.w.run.isEnabled() and state:
             self.run_pressed()
@@ -1475,6 +1515,25 @@ class HandlerClass:
             self.run_pressed()
         elif self.w.pause.isEnabled() and state:
             ACTION.PAUSE()
+
+    def power_button(self, action, state):
+        if action == 'pressed':
+            self.shutdownTimer.start(self.shutdownTime)
+        elif action == 'released':
+            self.shutdownTimer.stop()
+        elif action == 'clicked':
+            if STATUS.estop_is_clear():
+                ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
+            else:
+                self.w.power.setChecked(False)
+        elif action == 'external' and self.w.power.isEnabled() and not self.firstRun:
+            if state:
+                self.shutdownTimer.start(self.shutdownTime)
+                self.w.power.setDown(True)
+            else:
+                self.shutdownTimer.stop()
+                self.w.power.setDown(False)
+                self.w.power.click()
 
     def run_pressed(self):
         self.wcs_rotation('get')
@@ -1589,6 +1648,38 @@ class HandlerClass:
         else:
             self.kb_jog(state, ['x','y','z','a','b'].index(joint), direction, shift)
 
+    def view_t_pressed(self):
+        t = time.time() + 0.01
+        while time.time() < t:
+            QApplication.processEvents()
+        self.w.gcodegraphics.set_view('Z')
+        mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
+        if self.gcodeProps:
+            mult = 1
+            if self.units == 'inch':
+                if self.gcodeProps['Units'] == 'mm':
+                    mult = 0.03937
+            else:
+                if self.gcodeProps['Units'] == 'in':
+                    mult = 25.4
+            x = (round(float(self.gcodeProps['X'].split()[0]) * mult, 4))
+            y = (round(float(self.gcodeProps['Y'].split()[0]) * mult, 4))
+            xl = (round(float(self.gcodeProps['X'].split('=')[1].split()[0]) * mult, 4))
+            yl = (round(float(self.gcodeProps['Y'].split('=')[1].split()[0]) * mult, 4))
+        else:
+            x = y = xl = yl = 0
+        if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
+           self.w.view_t.isChecked() or self.w.view_t.isDown() or self.fileClear:
+            mult = 1 if self.units == 'inch' else 25.4
+            zoomScale = (self.w.table_zoom_scale.value() * 2)
+            mid = [(self.xLen - (x * 2) - xl) / mult / 2, (self.yLen - (y * 2) - yl) / mult / 2, 0]
+            size = [self.xLen / mult / zoomScale, self.yLen / mult / zoomScale, 0]
+        glTranslatef(-mid[0], -mid[1], -mid[2])
+        self.w.gcodegraphics.set_eyepoint_from_extents(size[0], size[1])
+        self.w.gcodegraphics.perspective = False
+        self.w.gcodegraphics.lat = self.w.gcodegraphics.lon = 0
+        self.w.gcodegraphics.updateGL()
+
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
 
@@ -1649,6 +1740,8 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('T0 M6')
                 ACTION.CALL_MDI_WAIT('G43 H0')
                 ACTION.SET_MANUAL_MODE()
+        else:
+            self.view_t_pressed()
 
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
@@ -1662,20 +1755,21 @@ class HandlerClass:
             self.overlayPreview.hide()
             self.w.run.setEnabled(False)
             self.w.gcode_editor.editor.setFocus()
-            self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
-            text = _translate('HandlerClass', 'EDIT')
-            self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
-            self.w.gcode_editor.editor.setModified(False)
-            try:
-                if os.path.getsize(self.gcodeErrorFile):
-                    with open(self.gcodeErrorFile, 'r') as inFile:
-                        self.w.gcode_editor.select_line(int(inFile.readline().rstrip()) - 1)
-                        inFile.seek(0)
-                        for line in inFile:
-                            self.w.gcode_editor.editor.userHandle = \
-                            self.w.gcode_editor.editor.markerAdd(int(line) - 1, self.w.gcode_editor.editor.USER_MARKER_NUM)
-            except:
-                pass
+            if self.fileOpened:
+                self.w.gcode_editor.editor.load_text(ACTION.prefilter_path)
+                text = _translate('HandlerClass', 'EDIT')
+                self.w.edit_label.setText('{}: {}'.format(text, ACTION.prefilter_path))
+                self.w.gcode_editor.editor.setModified(False)
+                try:
+                    if os.path.getsize(self.gcodeErrorFile):
+                        with open(self.gcodeErrorFile, 'r') as inFile:
+                            self.w.gcode_editor.select_line(int(inFile.readline().rstrip()) - 1)
+                            inFile.seek(0)
+                            for line in inFile:
+                                self.w.gcode_editor.editor.userHandle = \
+                                self.w.gcode_editor.editor.markerAdd(int(line) - 1, self.w.gcode_editor.editor.USER_MARKER_NUM)
+                except:
+                    pass
             self.vkb_show()
         else:
             self.new_exitCall()
@@ -1703,17 +1797,25 @@ class HandlerClass:
         self.w.gcodegraphics.grid_size = grid
 
     def main_tab_changed(self, tab):
+        t = time.time() + 0.01
+        while time.time() < t:
+            QApplication.processEvents()
         if tab == 0:
-            if self.w.view_p.isChecked():
-                self.w.gcodegraphics.set_view('P')
+            if self.fileOpened:
+                if self.w.view_p.isChecked():
+                    self.w.gcodegraphics.set_view('P')
+                elif self.w.view_z.isChecked():
+                    self.w.gcodegraphics.set_view('Z')
+                else:
+                    self.view_t_pressed()
             else:
-                self.w.gcodegraphics.set_view('Z')
-            self.w.gcodegraphics.set_current_view()
+                self.view_t_pressed()
             if self.w.preview_stack.currentIndex() == 2:
                 self.vkb_show()
             else:
                 self.vkb_hide()
-            self.autorepeat_keys(False)
+            if self.w.gcode_stack.currentIndex() == 0 and self.w.preview_stack.currentIndex() == 0:
+                self.autorepeat_keys(False)
         elif tab == 1:
             self.w.conv_preview.logger.clear()
             self.w.conv_preview.set_current_view()
@@ -1860,6 +1962,46 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+    # def closeEvent(self, event):
+    #     if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
+    #         icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
+    #         head = _translate('HandlerClass', 'Shutdown')
+    #         if self.exitMessage:
+    #             msg0 = '{}\n\n'.format(self.exitMessage)
+    #         else:
+    #             msg0 = ''
+    #         if not STATUS.is_interp_idle():
+    #             msg0 += _translate('HandlerClass', 'Current operation is not complete')
+    #             msg0 += '!\n\n'
+    #         msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
+    #         if self.dialog_show_yesno(icon, head, '{}?\n'.format(msg0)):
+    #             event.accept()
+    #         else:
+    #             event.ignore()
+
+    def closeEvent(self, event):
+        if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
+            icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
+            head = _translate('HandlerClass', 'Shutdown')
+            if not STATUS.is_interp_idle():
+                msg0 = _translate('HandlerClass', 'Current operation is not complete')
+                msg0 += '!\n\n'
+            else:
+                msg0 = ''
+            if self.exitMessage:
+                msg0 += '{}\n\n'.format(self.exitMessage)
+            msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
+            if self.dialog_show_yesno(icon, head, '{}?\n'.format(msg0)):
+                event.accept()
+            else:
+                event.ignore()
+
+    def update_check(self):
+        halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
+        prefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
+    # use qtplasmac_comp.hal for component connections (pre V1.221.154)
+        if halfiles and not 'qtplasmac_comp.hal' in halfiles and not 'plasmac.tcl' in halfiles:
+            UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file
@@ -2020,6 +2162,9 @@ class HandlerClass:
         self.w.thc_threshold.setValue(self.w.PREFS_.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
+        self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
+        self.w.power.released.connect(lambda:self.power_button("released", False))
+        self.w.power.clicked.connect(lambda:self.power_button("clicked", None))
         self.w.run.pressed.connect(self.run_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
@@ -2156,6 +2301,7 @@ class HandlerClass:
         self.w.cam_dia_minus.pressed.connect(self.cam_dia_minus_pressed)
         self.w.view_p.pressed.connect(self.view_p_pressed)
         self.w.view_z.pressed.connect(self.view_z_pressed)
+        self.w.view_t.pressed.connect(self.view_t_pressed)
         self.w.view_clear.pressed.connect(self.view_clear_pressed)
         self.w.pan_left.pressed.connect(self.pan_left_pressed)
         self.w.pan_right.pressed.connect(self.pan_right_pressed)
@@ -2190,7 +2336,7 @@ class HandlerClass:
         self.w.rapid_time_reset.pressed.connect(self.rapid_time_reset)
         self.w.probe_time_reset.pressed.connect(self.probe_time_reset)
         self.w.all_reset.pressed.connect(self.all_reset)
-        self.extPowerPin.value_changed.connect(lambda v:self.ext_power(v))
+        self.extPowerPin.value_changed.connect(lambda v:self.power_button("external", v))
         self.extRunPin.value_changed.connect(lambda v:self.ext_run(v))
         self.extPausePin.value_changed.connect(lambda v:self.ext_pause(v))
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
@@ -2288,8 +2434,9 @@ class HandlerClass:
         for axis in self.axisList:
             self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
             self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
-        # check if home all button required
+        self.isJogging = {}
         for joint in range(len(self.coordinates)):
+            # check if home all button required
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
             # check if not joggable before homing
@@ -2299,6 +2446,8 @@ class HandlerClass:
                     self.jogSyncList.append('jog_{}_minus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
+            # set jogging status
+            self.isJogging[joint] = False
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
@@ -2548,6 +2697,12 @@ class HandlerClass:
             else:
                 if color != self.w.color_backgrnd.palette().color(QPalette.Background):
                     self.button_normal(self.halPulsePins[halpin][0])
+        if self.tlButton:
+            if self.laserOnPin.get():
+                self.button_active(self.tlButton)
+            else:
+                self.button_normal(self.tlButton)
+
 
     def run_critical_check(self):
         rcButtonList = []
@@ -2632,9 +2787,12 @@ class HandlerClass:
                 if n > 1:
                     self.w.main_tab_widget.setTabEnabled(n, state)
         else:
-            for n in range(self.w.main_tab_widget.count()):
-                if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
-                     self.w.main_tab_widget.setTabEnabled(n, state)
+            if self.tabsAlwaysEnabled.get():
+                self.w.main_tab_widget.setTabEnabled(1, state)
+            else:
+                for n in range(self.w.main_tab_widget.count()):
+                    if n != 0 and (not self.probeTest or n != self.w.main_tab_widget.currentIndex()):
+                         self.w.main_tab_widget.setTabEnabled(n, state)
             self.w.jog_slider.setEnabled(state)
             self.w.jogs_label.setEnabled(state)
             self.w.jog_slow.setEnabled(state)
@@ -2657,15 +2815,20 @@ class HandlerClass:
 #########################################################################################################################
 # TIMER FUNCTIONS #
 #########################################################################################################################
+    def shutdown_timeout(self):
+        self.w.close()
+
     def startup_timeout(self):
         if STATUS.stat.estop:
-            self.w.power.setEnabled(False)
+            self.estop_state(True)
         self.w.run.setEnabled(False)
         if self.frButton:
             self.w[self.frButton].setEnabled(False)
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.view_t_pressed()
+        self.set_signal_connections()
 
     def update_periodic(self):
         if self.framing and STATUS.is_interp_idle():
@@ -3000,6 +3163,10 @@ class HandlerClass:
                         continue
                 # halTogglePins format is: button name, run critical flag, button text
                 self.halTogglePins[halpin] = ['button_{}'.format(str(bNum)), critical, bLabel]
+            elif 'toggle-laser' in bCode:
+                self.tlButton = 'button_{}'.format(str(bNum))
+                self.idleHomedList.append('button_{}'.format(str(bNum)))
+                continue
             elif 'pulse-halpin' in bCode:
                 if len(bCode.split()) < 4:
                     try:
@@ -3119,6 +3286,12 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}\n"{}" {}\n'.format(head, msg0, bNum, msg1, halpin, err))
+        elif 'toggle-laser' in commands.lower():
+            self.laserOnPin.set(not self.laserOnPin.get())
+            for command in commands.split('\\'):
+                command = command.strip()
+                if command != 'toggle-laser':
+                    self.user_button_command(command)
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL PIN ERROR')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
@@ -3179,34 +3352,46 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n'.format(head, msg0, bNum))
         else:
+            self.reloadRequired = False
             for command in commands.split('\\'):
                 command = command.strip()
-                if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
-                    if '{' in command:
-                        newCommand = subCommand = ''
-                        for char in command:
-                            if char == '{':
-                                subCommand = ':'
-                            elif char == '}':
-                                f1, f2 = subCommand.replace(':','').split()
-                                newCommand += self.iniFile.find(f1,f2)
-                                subCommand = ''
-                            elif subCommand.startswith(':'):
-                                subCommand += char
-                            else:
-                                newCommand += char
-                        command = newCommand
-                    ACTION.CALL_MDI(command)
-                    if command.lower().replace(' ', '').startswith('g10l20'):
-                        self.file_reload_clicked()
-                elif command and command[0] == '%':
-                    command = command.lstrip('%').lstrip() + '&'
-                    msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
-                else:
-                    head = _translate('HandlerClass', 'CODE ERROR')
-                    msg0 = _translate('HandlerClass', 'Invalid code for user button')
-                    msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
+                self.user_button_command(command)
+                while not STATUS.is_interp_idle():
+                    self.w.gcodegraphics.updateGL()
+                if command.lower().replace(' ', '').startswith('g10l20') and self.fileOpened:
+                    self.reloadRequired = True
+            if self.reloadRequired:
+                self.file_reload_clicked()
+            else:
+                self.w.gcodegraphics.logger.clear()
+            ACTION.SET_MANUAL_MODE()
+
+    # for G-code commands and external commands
+    def user_button_command(self, command):
+        if command and command[0].lower() in 'xyzabgmfsto' and command.replace(' ','')[1] in '0123456789<':
+            if '{' in command:
+                newCommand = subCommand = ''
+                for char in command:
+                    if char == '{':
+                        subCommand = ':'
+                    elif char == '}':
+                        f1, f2 = subCommand.replace(':','').split()
+                        newCommand += self.iniFile.find(f1,f2)
+                        subCommand = ''
+                    elif subCommand.startswith(':'):
+                        subCommand += char
+                    else:
+                        newCommand += char
+                command = newCommand
+            ACTION.CALL_MDI(command)
+        elif command and command[0] == '%':
+            command = command.lstrip('%').lstrip() + '&'
+            msg = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+        else:
+            head = _translate('HandlerClass', 'CODE ERROR')
+            msg0 = _translate('HandlerClass', 'Invalid code for user button')
+            msg1 = self.w['button_{}'.format(str(bNum))].text().replace('\n',' ')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{}: "{}"\n'.format(head, msg0, bNum, msg1, command))
 
     def user_button_up(self, bNum):
         commands = self.iniButtonCodes[bNum]
@@ -3561,7 +3746,6 @@ class HandlerClass:
 #########################################################################################################################
 # ONBOARD VIRTUAL KEYBOARD FUNCTIONS #
 #########################################################################################################################
-
     def vkb_check(self):
         if self.w.chk_soft_keyboard.isChecked() and not os.path.isfile('/usr/bin/onboard'):
             head = _translate('HandlerClass', 'VIRTUAL KB ERROR')
@@ -3571,11 +3755,11 @@ class HandlerClass:
             return
         try:
             cmd = 'gsettings get org.onboard.window.landscape width'
-            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             cmd = 'gsettings get org.onboard.window.landscape height'
-            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             cmd = 'gsettings get org.onboard layout'
-            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             if '/numpad' in layout or '/keyboard' in layout:
                 self.obLayout = 'compact'
             else:
@@ -3586,12 +3770,12 @@ class HandlerClass:
             self.obLayout = 'compact'
 
     def vkb_show(self, numpad=False):
+        if self.firstRun: return
         if os.path.isfile('/usr/bin/onboard'):
             if self.w.chk_soft_keyboard.isChecked():
                 w = '240' if numpad else '740'
                 h = '240'
                 l = 'numpad' if numpad else 'keyboard'
-                self.vkb_hide(True)
                 self.vkb_setup(w, h, os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac', l))
                 cmd  = 'dbus-send'
                 cmd += ' --type=method_call'
@@ -3613,14 +3797,11 @@ class HandlerClass:
 
     def vkb_setup(self, w, h, l):
         if os.path.isfile('/usr/bin/onboard'):
-            Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)-1), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)-1), stdout=PIPE, shell=True)
-            time.sleep(0.25)
             Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape width {}'.format(w), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape height {}'.format(h), stdout=PIPE, shell=True)
-#            time.sleep(0.5)
+            Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)), stdout=PIPE, shell=True)
+            Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)), stdout=PIPE, shell=True)
 
 
 #########################################################################################################################
@@ -4119,9 +4300,9 @@ class HandlerClass:
                             c_mode = float(line.split('=')[1].strip())
                 except:
                     msg0 = _translate('Material file processing was aborted')
-                    msg1 += _translate('The following line in the material file')
-                    msg2 += _translate('contains an erroneous character')
-                    msg3 += _translate('Fix the line and reload the material file')
+                    msg1 = _translate('The following line in the material file')
+                    msg2 = _translate('contains an erroneous character')
+                    msg3 = _translate('Fix the line and reload the material file')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n{}:\n{}{}\n'.format(head, msg0, msg1, msg2, line, msg3))
                     material_error = True
                     break
@@ -4300,7 +4481,9 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT('G10 L20 P0 X{} Y{}'.format(offsetX, offsetY))
             ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(zAngle))
             if not self.boundsError['align']:
-                ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+                ACTION.CALL_MDI('G0 X0 Y0')
+                while not STATUS.is_interp_idle():
+                    self.w.gcodegraphics.updateGL()
             if self.fileOpened == True:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -4322,6 +4505,8 @@ class HandlerClass:
         msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('align', 0, 0)
         if not self.boundsError['align']:
             ACTION.CALL_MDI_WAIT('G0 X0 Y0')
+            while not STATUS.is_interp_idle():
+                self.w.gcodegraphics.updateGL()
             ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
@@ -4878,6 +5063,8 @@ class HandlerClass:
             hal.set_p('plasmac.paused-motion-speed',str(speed))
 
     def cutrec_move(self, state, x, y):
+        if not STATUS.is_interp_paused():
+            return
         if state:
             maxMove = 10
             if self.units == 'inch':
@@ -5281,6 +5468,14 @@ class HandlerClass:
     def on_keycall_END(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.w.touch_xy.isEnabled():
             self.touch_xy_clicked()
+
+    def on_keycall_ALTRETURN(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.mdi_show.isEnabled():
+            self.mdi_show_clicked()
+
+    def on_keycall_RETURN(self, event, state, shift, cntrl):
+        if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.gcode_stack.currentIndex() and self.w.mdi_show.isEnabled():
+            self.mdi_show_clicked()
 
 #########################################################################################################################
 # required class boiler code #

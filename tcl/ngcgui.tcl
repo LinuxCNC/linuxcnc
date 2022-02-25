@@ -736,10 +736,10 @@ proc ::ngcgui::parse_ngc {hdl ay_name filename args} {
 
   # error checks
   if {![info exists found_sub_start]} {
-    lappend emsg "[_ "no sub found in file"]"
+    lappend emsg "[_ "no 'sub' found in file"]"
   }
   if {[info exists found_sub_start] && ![info exists found_sub_end]} {
-    lappend emsg "[_ "no endsub found in file"]"
+    lappend emsg "[_ "no 'endsub' found in file"]"
   }
   if [info exists emsg] {
     set ay($hdl,parse,msg) $emsg
@@ -783,8 +783,17 @@ proc retain_or_unset {hdl ay_name} {
   }
 } ;# retain_or_unset
 #-----------------------------------------------------------------------
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc ::ngcgui::find_gcmc {} {
-  if [catch {set found [exec which gcmc]} msg] {
+  if [catch {set found [which_exe gcmc]} msg] {
     puts stdout "find_gcmc:NOTfound:<$msg>"
     return ""
   } else {

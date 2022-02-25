@@ -537,17 +537,17 @@ static void define_menubar(GtkWidget *vboxtop) {
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep1);
     gtk_widget_show(sep1);
 
-    fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Data File..."));
+    fileopendatafile = gtk_menu_item_new_with_mnemonic(_("O_pen Log File"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), fileopendatafile);
     g_signal_connect_swapped(fileopendatafile, "activate",
             G_CALLBACK(menuitem_response), "file/open datafile");
     gtk_widget_set_sensitive(GTK_WIDGET(fileopendatafile), FALSE); // XXX
     gtk_widget_show(fileopendatafile);
 
-    filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Data File..."));
+    filesavedatafile = gtk_menu_item_new_with_mnemonic(_("S_ave Log File"));
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), filesavedatafile);
     g_signal_connect_swapped(filesavedatafile, "activate",
-            G_CALLBACK(log_popup), 0);
+            G_CALLBACK(save_log_cb), 0);
     gtk_widget_show(filesavedatafile);
 
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), sep2);

@@ -320,7 +320,7 @@ class _GStat(GObject.GObject):
         self.old['hard-limits-list'] = hard_limit_list
         self.old['ferror-current'] = ferror
 
-        # active G codes
+        # active G-codes
         active_gcodes = []
         codes =''
         for i in sorted(self.stat.gcodes[1:]):
@@ -332,7 +332,7 @@ class _GStat(GObject.GObject):
         for i in active_gcodes:
             codes = codes +('%s '%i)
         self.old['g-code'] = codes
-        # extract specific G code modes
+        # extract specific G-code modes
         itime = fpm = fpr = css = rpm = metric = False
         radius = diameter = adm = idm = False
         for num,i in enumerate(active_gcodes):
@@ -364,7 +364,7 @@ class _GStat(GObject.GObject):
         else:
             self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
-        # active M codes
+        # active M-codes
         active_mcodes = []
         mcodes = ''
         for i in sorted(self.stat.mcodes[1:]):
@@ -613,7 +613,7 @@ class _GStat(GObject.GObject):
         #############################
         # Gcodes
         #############################
-        # G codes
+        # G-codes
         g_code_old = old.get('g-code', None)
         g_code_new = self.old['g-code']
         if g_code_new != g_code_old:
@@ -679,7 +679,7 @@ class _GStat(GObject.GObject):
         ####################################
         # Mcodes
         ####################################
-        # M codes
+        # M-codes
         m_code_old = old.get('m-code', None)
         m_code_new = self.old['m-code']
         if m_code_new != m_code_old:
@@ -798,7 +798,7 @@ class _GStat(GObject.GObject):
         tool_off_new = self.old['current-tool-offset']
         self.emit('current-tool-offset',tool_off_new)
 
-        # M codes
+        # M-codes
         m_code_new = self.old['m-code']
         self.emit('m-code-changed',m_code_new)
         flood_new = self.old['flood']
@@ -806,7 +806,7 @@ class _GStat(GObject.GObject):
         mist_new = self.old['mist']
         self.emit('mist-changed',mist_new)
 
-        # G codes
+        # G-codes
         g_code_new = self.old['g-code']
         self.emit('g-code-changed',g_code_new)
         # metric units G21

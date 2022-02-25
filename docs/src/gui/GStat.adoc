@@ -51,9 +51,12 @@ of G20/G21.
 ----
 #!/usr/bin/env python3
 
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import GObject
+from gi.repository import GLib
 import hal
 from hal_glib import GStat
-import gobject
 GSTAT = GStat()
 
 # callback to change HAL pin state
@@ -75,7 +78,7 @@ GSTAT.forced_update()
 
 # loop till exit
 try:
-        gobject.MainLoop().run()
+        GLib.MainLoop().run()
 except KeyboardInterrupt:
     raise SystemExit
 ----
@@ -366,10 +369,10 @@ Sent when flood coolant state changes.
 Sent when mist coolant state changes.
 
 *m-code-changed* :: '(returns string)' -
-Sent when active M codes change
+Sent when active M-codes change
 
 *g-code-changed* :: '(returns string)' -
-Sent when active G code change
+Sent when active G-code change
 
 *metric-mode-changed* :: '(returns bool)' -
 Sent when G21 status changes
@@ -382,7 +385,7 @@ intended to be sent when an MDI line is selected by user. +
 This depends on the widget/libraries used. +
 
 *gcode-line-selected* :: '(returns integer)' -
-intended to be sent when a gcode line is selected by user. +
+intended to be sent when a G-code line is selected by user. +
 This depends on the widget/libraries used. +
 
 *graphics-line-selected* :: '(returns integer)' -
@@ -394,11 +397,11 @@ intended to return percentage done of loading a program or running a program. +
 This depends on the widget/libraries used. +
 
 *graphics-gcode-error* :: '(returns string)' -
-intended to be sent when a gcode error is found when loading. +
+intended to be sent when a G-code error is found when loading. +
 This depends on the widget/libraries used. +
 
 *graphics-gcode-properties* :: '(returns string)' -
-intended to be sent when gcode is loaded. +
+intended to be sent when G-code is loaded. +
 This depends on the widget/libraries used. +
 
 *graphics-view-changed* :: '(returns string, python Dict or None)' -
@@ -418,11 +421,11 @@ intended to be sent when updating the machine. +
 This depends on the widget/libraries used. +
 
 *move-text-lineup* :: '(returns None)' -
-intended to be sent when moving the cursor one line up in gcode display. +
+intended to be sent when moving the cursor one line up in G-code display. +
 This depends on the widget/libraries used. +
 
 *move-text-linedown* :: '(returns None)' -
-intended to be sent when moving the cursor one line down in gcode display. +
+intended to be sent when moving the cursor one line down in G-code display. +
 This depends on the widget/libraries used. +
 
 *dialog-request* :: '(returns python dict)' -

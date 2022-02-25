@@ -99,11 +99,11 @@ class GcodeLexer(QsciLexerCustom):
             self.setPaper(color, style)
 
     def language(self):
-        return"G code"
+        return"G-code"
 
     def description(self, style):
         if style < len(self._styles):
-            description = "Custom lexer for the G code programming languages"
+            description = "Custom lexer for the G-code programming languages"
         else:
             description = ""
         return description

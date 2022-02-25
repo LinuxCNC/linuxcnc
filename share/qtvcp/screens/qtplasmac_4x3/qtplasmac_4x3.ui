@@ -2327,7 +2327,7 @@ HOME</string>
                      </widget>
                     </item>
                     <item>
-                     <widget class="ActionButton" name="power">
+                     <widget class="QPushButton" name="power">
                       <property name="sizePolicy">
                        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                         <horstretch>0</horstretch>
@@ -2365,52 +2365,6 @@ HOME</string>
                        </size>
                       </property>
                       <property name="checkable">
-                       <bool>true</bool>
-                      </property>
-                      <property name="indicator_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="indicator_HAL_pin_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="indicator_status_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="checked_state_text_option" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="on_color" stdset="0">
-                       <color>
-                        <red>255</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                       </color>
-                      </property>
-                      <property name="off_color" stdset="0">
-                       <color>
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>0</blue>
-                       </color>
-                      </property>
-                      <property name="indicator_size" stdset="0">
-                       <double>0.200000000000000</double>
-                      </property>
-                      <property name="true_state_string" stdset="0">
-                       <string>MACHINE
-OFF</string>
-                      </property>
-                      <property name="false_state_string" stdset="0">
-                       <string>MACHINE
-ON</string>
-                      </property>
-                      <property name="is_estopped_status" stdset="0">
-                       <bool>false</bool>
-                      </property>
-                      <property name="is_on_status" stdset="0">
-                       <bool>true</bool>
-                      </property>
-                      <property name="machine_on_action" stdset="0">
                        <bool>true</bool>
                       </property>
                      </widget>
@@ -3846,17 +3800,29 @@ ON</string>
                             <number>2</number>
                            </property>
                            <item>
-                            <spacer name="verticalSpacer_12">
-                             <property name="orientation">
-                              <enum>Qt::Vertical</enum>
-                             </property>
-                             <property name="sizeHint" stdset="0">
+                            <widget class="QPushButton" name="view_t">
+                             <property name="minimumSize">
                               <size>
-                               <width>20</width>
-                               <height>1</height>
+                               <width>40</width>
+                               <height>28</height>
                               </size>
                              </property>
-                            </spacer>
+                             <property name="maximumSize">
+                              <size>
+                               <width>40</width>
+                               <height>28</height>
+                              </size>
+                             </property>
+                             <property name="text">
+                              <string>T</string>
+                             </property>
+                             <property name="checkable">
+                              <bool>true</bool>
+                             </property>
+                             <property name="autoExclusive">
+                              <bool>true</bool>
+                             </property>
+                            </widget>
                            </item>
                            <item>
                             <widget class="QPushButton" name="view_p">
@@ -3916,7 +3882,7 @@ ON</string>
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
-                               <height>10</height>
+                               <height>2</height>
                               </size>
                              </property>
                              <property name="maximumSize">
@@ -4023,7 +3989,7 @@ ON</string>
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
-                               <height>10</height>
+                               <height>2</height>
                               </size>
                              </property>
                              <property name="maximumSize">
@@ -4086,7 +4052,7 @@ ON</string>
                              <property name="minimumSize">
                               <size>
                                <width>0</width>
-                               <height>10</height>
+                               <height>2</height>
                               </size>
                              </property>
                              <property name="maximumSize">
@@ -4910,7 +4876,7 @@ EDGE</string>
                     </size>
                    </property>
                    <property name="currentIndex">
-                    <number>1</number>
+                    <number>0</number>
                    </property>
                    <widget class="QWidget" name="jog_page">
                     <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -6863,7 +6829,7 @@ MOVE</string>
                             </property>
                             <property name="font">
                              <font>
-                              <family>Lato</family>
+                              <family>DejaVuSans</family>
                               <pointsize>40</pointsize>
                              </font>
                             </property>
@@ -12925,7 +12891,7 @@ MOVE</string>
              <property name="frameShadow">
               <enum>QFrame::Plain</enum>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_44">
+             <layout class="QVBoxLayout" name="verticalLayout_15">
               <property name="spacing">
                <number>10</number>
               </property>
@@ -13433,32 +13399,6 @@ MOVE</string>
                  <property name="verticalSpacing">
                   <number>10</number>
                  </property>
-                 <item row="0" column="1">
-                  <widget class="QLabel" name="label_26">
-                   <property name="text">
-                    <string>Soft Keyboard</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="0">
-                  <widget class="QCheckBox" name="chk_soft_keyboard">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
                  <item row="1" column="4">
                   <widget class="QCheckBox" name="chk_override_limits">
                    <property name="sizePolicy">
@@ -13484,14 +13424,14 @@ MOVE</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
-                  <widget class="QLabel" name="label_33">
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_26">
                    <property name="text">
-                    <string>KB Shortcuts</string>
+                    <string>Soft Keyboard</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="4">
+                 <item row="4" column="4">
                   <widget class="ActionButton" name="opt_blk">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -13544,53 +13484,20 @@ MOVE</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
-                  <widget class="QLabel" name="label_36">
-                   <property name="text">
-                    <string>Optional Stop</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="3">
-                  <widget class="QLabel" name="label_37">
-                   <property name="text">
-                    <string>Optional Block</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QCheckBox" name="chk_keyboard_shortcuts">
+                 <item row="2" column="4">
+                  <widget class="QCheckBox" name="chk_tool_tips">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
                    </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>16777215</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
                    <property name="text">
                     <string/>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="3">
-                  <widget class="QLabel" name="label_42">
-                   <property name="text">
-                    <string>Override Limits</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="0">
+                 <item row="4" column="0">
                   <widget class="ActionButton" name="opt_stp">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -13643,8 +13550,67 @@ MOVE</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="4">
-                  <widget class="QCheckBox" name="chk_run_from_line">
+                 <item row="1" column="3">
+                  <widget class="QLabel" name="label_42">
+                   <property name="text">
+                    <string>Override Limits</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="2">
+                  <spacer name="horizontalSpacer_16">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLabel" name="label_2">
+                   <property name="text">
+                    <string>View Material</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="3">
+                  <widget class="QLabel" name="label_5">
+                   <property name="text">
+                    <string>Tool Tips</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QCheckBox" name="chk_keyboard_shortcuts">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="0">
+                  <widget class="QCheckBox" name="chk_soft_keyboard">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -13672,18 +13638,48 @@ MOVE</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="2">
-                  <spacer name="horizontalSpacer_16">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                 <item row="4" column="1">
+                  <widget class="QLabel" name="label_36">
+                   <property name="text">
+                    <string>Optional Stop</string>
                    </property>
-                   <property name="sizeHint" stdset="0">
+                  </widget>
+                 </item>
+                 <item row="4" column="3">
+                  <widget class="QLabel" name="label_37">
+                   <property name="text">
+                    <string>Optional Block</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLabel" name="label_33">
+                   <property name="text">
+                    <string>KB Shortcuts</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="4">
+                  <widget class="QCheckBox" name="chk_run_from_line">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="maximumSize">
                     <size>
-                     <width>40</width>
-                     <height>20</height>
+                     <width>16777215</width>
+                     <height>16777215</height>
                     </size>
                    </property>
-                  </spacer>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
                  </item>
                  <item row="2" column="0">
                   <widget class="QCheckBox" name="chk_overlay">
@@ -13692,31 +13688,15 @@ MOVE</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
-                  <widget class="QLabel" name="label_2">
+                 <item row="3" column="1">
+                  <widget class="QLabel" name="label_47">
                    <property name="text">
-                    <string>View Material</string>
+                    <string>Exit Warning</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="3">
-                  <widget class="QLabel" name="label_5">
-                   <property name="text">
-                    <string>Tool Tips</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="4">
-                  <widget class="QCheckBox" name="chk_tool_tips">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
+                 <item row="3" column="0">
+                  <widget class="QCheckBox" name="chk_exit_warning">
                    <property name="text">
                     <string/>
                    </property>
@@ -13874,6 +13854,65 @@ MOVE</string>
                   <widget class="QLabel" name="label_10">
                    <property name="text">
                     <string>Cone Size</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0">
+                  <widget class="DoubleScale" name="table_zoom_scale">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>120</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="wrapping">
+                    <bool>true</bool>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::PlusMinus</enum>
+                   </property>
+                   <property name="accelerated">
+                    <bool>true</bool>
+                   </property>
+                   <property name="suffix">
+                    <string/>
+                   </property>
+                   <property name="decimals">
+                    <number>2</number>
+                   </property>
+                   <property name="minimum">
+                    <double>0.100000000000000</double>
+                   </property>
+                   <property name="maximum">
+                    <double>10.000000000000000</double>
+                   </property>
+                   <property name="singleStep">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="value">
+                    <double>0.500000000000000</double>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLabel" name="label_40">
+                   <property name="text">
+                    <string>Table Zoom</string>
                    </property>
                   </widget>
                  </item>

@@ -80,8 +80,8 @@ class _IStat(object):
             self.CYCLE_TIME = int(ct * 1000)
         else:
             self.CYCLE_TIME = int(ct)
-        self.GRAPHICS_CYCLE_TIME = float(self.INI.find('DISPLAY', 'GRAPHICS_CYCLE_TIME') or 100) # in seconds
-        self.HALPIN_CYCLE_TIME = float(self.INI.find('DISPLAY', 'HALPIN_CYCLE_TIME') or 100) # in seconds
+        self.GRAPHICS_CYCLE_TIME =int(self.INI.find('DISPLAY', 'GRAPHICS_CYCLE_TIME') or 100) # in seconds
+        self.HALPIN_CYCLE_TIME = int(self.INI.find('DISPLAY', 'HALPIN_CYCLE_TIME') or 100) # in seconds
         self.MDI_HISTORY_PATH = self.INI.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.QTVCP_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
@@ -368,10 +368,20 @@ class _IStat(object):
             log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] sectioN')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
             log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_ICON):
+            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] sectioN')
+            if self.USRMESS_ICON == []:
+                temp = 'INFO'
+            else:
+                temp = self.USRMESS_ICON[0]
+                self.USRMESS_ICON = []
+            for i in self.USRMESS_TEXT:
+                self.USRMESS_ICON.append(temp)
+
         try:
             self.ZIPPED_USRMESS = list(
                 zip(self.USRMESS_BOLDTEXT, self.USRMESS_TEXT, self.USRMESS_DETAILS, self.USRMESS_TYPE,
-                    self.USRMESS_PINNAME))
+                    self.USRMESS_PINNAME, self.USRMESS_ICON))
         except:
             self.ZIPPED_USRMESS = None
 
@@ -398,7 +408,26 @@ class _IStat(object):
         except:
             self.ZIPPED_TABS = None
 
-        self.MDI_COMMAND_LIST = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        # users can specify a label for the MDI action button by adding ',Some\nText'
+        # to the end of the MDI command
+        # here we separate them to two lists
+        # action_button takes it from there.
+        self.MDI_COMMAND_LIST = []
+        self.MDI_COMMAND_LABEL_LIST = []
+        temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        if temp is None:
+            self.MDI_COMMAND_LABEL_LIST.append(None)
+            self.MDI_COMMAND_LABEL_LIST.append(None)
+        else:
+            for i in temp:
+                for num,k in enumerate(i.split(',')):
+                    if num == 0:
+                        self.MDI_COMMAND_LIST.append(k)
+                        if len(i.split(',')) <2:
+                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                    else:
+                        self.MDI_COMMAND_LABEL_LIST.append(k)
+
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.INI.findall("HAL", "POSTGUI_HALFILE")) or None
         self.POSTGUI_HAL_COMMANDS = (self.INI.findall("HAL", "POSTGUI_HALCMD")) or None

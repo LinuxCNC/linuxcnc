@@ -50,7 +50,7 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
         if get_reply(P, STATUS, P.laserOffsetX, P.laserOffsetY):
             P.laserOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.laserOffsetY = round(STATUS.get_position()[1][1], 4) + 0
-            do_ini_file(P, W, iniPath, P.laserOffsetX, P.laserOffsetY, None, 'LASER_TOUCHOFF', '# laser touchoff')
+            do_ini_file(P, W, iniPath, P.laserOffsetX, P.laserOffsetY, '', 'LASER_TOUCHOFF', '# laser touchoff')
             if P.laserOffsetX or P.laserOffsetY:
                 W.laser.show()
             else:
@@ -59,7 +59,7 @@ def dialog_show(P, W, iniPath, STATUS, ACTION, TOOL, foreColor, backColor):
         if get_reply(P, STATUS, P.camOffsetX, P.camOffsetY):
             P.camOffsetX = round(STATUS.get_position()[1][0], 4) + 0
             P.camOffsetY = round(STATUS.get_position()[1][1], 4) + 0
-            do_ini_file(P, W, iniPath, P.camOffsetX, P.camOffsetY, None, 'CAMERA_TOUCHOFF', '# camera touchoff')
+            do_ini_file(P, W, iniPath, P.camOffsetX, P.camOffsetY, '', 'CAMERA_TOUCHOFF', '# camera touchoff')
             if P.camOffsetX or P.camOffsetY:
                 W.camera.show()
             else:

@@ -77,6 +77,16 @@ typedef struct AxisConfig_t {
     double MaxLimit;
 } AxisConfig_t;
 
+typedef struct SpindleConfig_t {
+    int Inited;
+    double max_pos_speed;
+    double max_neg_speed;
+    double min_pos_speed;
+    double min_neg_speed;
+    int home_sequence;
+    double home_search_velocity;
+} SpindleConfig_t;
+
 typedef struct TrajConfig_t {
     int Inited;	// non-zero means traj called init
     int Joints;

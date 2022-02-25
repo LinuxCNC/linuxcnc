@@ -51,7 +51,7 @@ Beta 1 version</property>
   possible</property>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1">
-    <property name="text" translatable="yes">Separate Home and Limt Switches Example
+    <property name="text" translatable="yes">Separate Home and Limit Switches Example
 
     The negative and positive directions are based on Tool Movement which can be different
     then the actual machine movement. ie on a mill typically the table moves rather then the tool.

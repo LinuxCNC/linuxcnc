@@ -713,6 +713,7 @@ extern "C" {
 // FIXME setting this to be an order of magnitude smaller than canon's shortest
 // allowed segment. This is still larger than TP's smallest position, so it may
 // be silently causing trouble.
+// andypugh 5/2/22 This seems to be interpreted to be in config units.
 #define CART_FUZZ (1.0e-8)
 /* how close a cartesian vector's magnitude must be for it to be considered
    a zero vector */
@@ -768,6 +769,7 @@ extern "C" {
 /* global error number and errors */
     extern int pmErrno;
     extern void pmPerror(const char *fmt);
+#define PM_OK               0	/* no error */
 #define PM_ERR             -1	/* unspecified error */
 #define PM_IMPL_ERR        -2	/* not implemented */
 #define PM_NORM_ERR        -3	/* arg should have been norm */

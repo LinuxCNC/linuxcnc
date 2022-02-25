@@ -56,13 +56,13 @@ You can discover the kernel version of your system with the command
  uname -a
 
 If you see (as above) `-rt-` in the kernel name then you are running the
-preempt-rt kernel and should install the "uspace" version of linuxcnc.
+preempt-rt kernel and should install the "uspace" version of LinuxCNC.
 You should also install uspace for "sim" configs on non-realtime kernels
 
 If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the linuxcnc version to install.
+realtime. See below for the LinuxCNC version to install.
 
-=== Preempt-RT with linuxcnc-uspace
+=== Preempt-RT with 'linuxcnc-uspace' package
 
 Preempt-RT is the newst of the realtime systems, and is also the version
 that is closest to a mainline kernel. Preempt-RT kernels are available
@@ -74,7 +74,7 @@ option for systems using the Mesa ethernet-connected hardware driver
 cards. In general preempt-rt has the worst latency of the available
 systems, but there are exceptions.
 
-=== RTAI with linuxcnc
+=== RTAI with 'linuxcnc' package
 
 RTAI has been the mainstay of LinuxCNC distributions for many years. It
 will generally give the best realtime performance in terms of low
@@ -83,14 +83,14 @@ resolutions. An RTAI kernel is available from the LinuxCNC package
 repository. If you installed from the Live/Install image then switching
 kernel and LinuxCNC flavour is described in [Installing-RTAI].
 
-=== Xenomai with linuxcnc-uspace
+=== Xenomai with 'linuxcnc-uspace' package
 
 Xenomai is also supported, but you will have to find or build the kernel
 and compile LinuxCNC from source to utilise it.
 
-=== RTAI with linuxcnc-uspace
+=== RTAI with 'linuxcnc-uspace' package
 
-It is also possible to run linuxCNC with RTAI in user-space mode. As
+It is also possible to run LinuxCNC with RTAI in user-space mode. As
 with Xenomai you will need to compile from source to do this.
 
 

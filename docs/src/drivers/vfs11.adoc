@@ -293,7 +293,7 @@ set. Operating parameters are still read while bus control is
 disabled. Exiting the vfs11_vfd driver in a controlled way will release
 the VFD from the bus and restore panel control.
 
-See the EMC2 Integrators Manual for more information. For a detailed
+See the LinuxCNC Integrators Manual for more information. For a detailed
 register description of the Toshiba VFD's, see the "TOSVERT VF-S11
 Communications Function Instruction Manual" (Toshiba document number
 E6581222) and the "TOSVERT VF-S11 Instruction manual" (Toshiba

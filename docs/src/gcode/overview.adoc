@@ -1,6 +1,6 @@
 [[cha:g-code-overview]]
 
-= G Code Overview
+= G-Code Overview
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -12,7 +12,7 @@
 
 == Overview
 
-The LinuxCNC G Code language is based on the RS274/NGC language. The G
+The LinuxCNC G-code language is based on the RS274/NGC language. The G
 Code language is based on lines of code. Each line (also called a
 'block') may include commands to do several different things. Lines of
 code may be collected in a file to make a program.
@@ -25,9 +25,9 @@ example, 'G1 X3' is a valid line of code with two words. 'G1' is a
 command meaning 'move in a straight line at the programmed feed
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
-Most LinuxCNC G Code commands start with either G or M (for
+Most LinuxCNC G-code commands start with either G or M (for
 General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M codes.'
+codes' and 'M-codes.'
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -42,7 +42,7 @@ has a percent line at the beginning but not at the end. The useful
 contents of a file demarcated by percents stop after the second percent
 line. Anything after that is ignored.
 
-The LinuxCNC G Code language has two commands ('M2' or 'M30'), either of
+The LinuxCNC G-code language has two commands ('M2' or 'M30'), either of
 which ends a program. A program may end before the end of
 a file. Lines of a file that occur after the end of a program are not
 to be executed. The interpreter does not even read them.
@@ -163,7 +163,7 @@ Numbers used for specific purposes in RS274/NGC are often restricted
 to some finite set of values or some to some range of values. In many
 uses, decimal numbers must be close to integers; this includes the
 values of indices (for parameters and carousel slot numbers, for
-example), M codes, and G codes multiplied by ten. A decimal number
+example), M-codes, and G-codes multiplied by ten. A decimal number
 which is intended to represent an integer is considered close enough if
 it is within 0.0001 of an integer value.
 
@@ -271,7 +271,7 @@ example '##2'  means the value of the parameter whose index is the
 (integer) value of parameter 2.
 
 
-* '31-5000' - G code user parameters. These parameters are global in the G
+* '31-5000' - G-code user parameters. These parameters are global in the G
   code file, and available for general use. Volatile.
 
 * '5061-5069' - Coordinates of a <<gcode:g38,G38>> probe result (X, Y,
@@ -954,7 +954,7 @@ Many commands cause the controller to change from one mode to another,
 and the mode stays active until some other command changes it
 implicitly or explicitly. Such commands are called 'modal'. For
 example, if coolant is turned on, it stays on until it is explicitly
-turned off. The G codes for motion are also modal. If a G1 (straight
+turned off. The G-codes for motion are also modal. If a G1 (straight
 move) command is given on one line, for example, it will be executed
 again on the next line if one or more axis words is available on the
 line, unless an explicit command is given on that next line using the
@@ -1079,7 +1079,7 @@ settings for these modal groups. When the machining center is turned on
 or otherwise re-initialized, the default values are automatically in
 effect.
 
-Group 1, the first group on the table, is a group of G codes for
+Group 1, the first group on the table, is a group of G-codes for
 motion. One of these is always in effect. That one is called the
 current motion mode.
 
@@ -1097,7 +1097,7 @@ control.
 [[gcode:comments]]
 == Comments
 
-Comments can be added to lines of G code to help clear up the
+Comments can be added to lines of G-code to help clear up the
 intention of the programmer. Comments can be embedded in a line using
 parentheses () or for the remainder of a line using a semi-colon. The
 semi-colon is not treated as the start of a comment when enclosed in
@@ -1168,7 +1168,7 @@ NOTE: Inline comments on O words should not be used see the O Code
   Supports expansion of parameters as described below.
 
 Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
-'nc_files/ngcgui_lib/rectange_probe.ngc' sample G code files.
+'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
 
 [[gcode:debug]]
 == Debug Messages
@@ -1210,17 +1210,17 @@ will be converted to '#<namedparameter>'.
 
 == File Requirements
 
-A G code file must contain one or more lines of G code and be terminated
-with a <<mcode:m2-m30,Program End>>. Any G code past the program end
+A G-code file must contain one or more lines of G-code and be terminated
+with a <<mcode:m2-m30,Program End>>. Any G-code past the program end
 is not evaluated. 
 
 If a program end code is not used a pair of percent signs '%' with the first
 percent sign on the first line of the file followed by one or more lines of
-G code and a second percent sign. Any code past the second percent sign is not
+G-code and a second percent sign. Any code past the second percent sign is not
 evaluated.
 
 [WARNING]
-Using % to wrap a G code file will not do the same thing as using a program
+Using % to wrap a G-code file will not do the same thing as using a program
 end. The machine will be in what ever state the program left it in using %,
 the spindle and coolant may still be on and things like G90/91 are left as the
 last program set them. If you don't use a proper preamble the next program
@@ -1241,9 +1241,9 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
-[[gcode:order-of-execution]](((G Code Order of Execution)))
+[[gcode:order-of-execution]](((G-Code Order of Execution)))
 
-== G Code Order of Execution
+== G-Code Order of Execution
 
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
@@ -1277,9 +1277,9 @@ position of each item on the line, but by the following list:
   (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
 
-(((G Code Best Practices)))
+(((G-Code Best Practices)))
 
-== G Code Best Practices
+== G-Code Best Practices
 
 .Use an appropriate decimal precision
 
@@ -1347,17 +1347,17 @@ material removal rate.
 
 == Common Error Messages
 
-* 'G code out of range' - A G code greater than G99 was used, the scope of G
+* 'G-code out of range' - A G-code greater than G99 was used, the scope of G
   codes in LinuxCNC is 0 - 99. Not every number between 0 and 99 is a valid
-  G code.
-* 'Unknown g code used' - A G code was used that is not part of the LinuxCNC
-  G code language.
+  G-code.
+* 'Unknown g code used' - A G-code was used that is not part of the LinuxCNC
+  G-code language.
 * 'i,j,k word with no Gx to use it' - i, j and k words must be used on the same
-  line as the G code.
+  line as the G-code.
 * 'Cannot use axis values without a g code that uses them' - Axis values can
-  not be used on a line without either a modal G code in effect or a G code
+  not be used on a line without either a modal G-code in effect or a G-code
   on the same line.
-* 'File ended with no percent sign or program end' - Every G code file must
+* 'File ended with no percent sign or program end' - Every G-code file must
   end in a M2 or M30 or be wrapped with the percent sign %.
 
 

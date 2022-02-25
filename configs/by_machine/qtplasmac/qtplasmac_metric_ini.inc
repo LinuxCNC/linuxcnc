@@ -51,6 +51,8 @@ USER_M_PATH             = ./:./qtplasmac
 TWOPASS                 = ON
 # the base machine
 HALFILE                 = machine.tcl
+# component connections
+HALFILE                 = qtplasmac_comp.hal
 # custom hal commands
 HALFILE                 = custom.hal
 # custom postgui hal

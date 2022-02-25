@@ -112,7 +112,7 @@ def clear_tool_tips(W):
         'color_backgalt','color_frams','color_estop','color_disabled',
         'color_preview','chk_soft_keyboard','chk_keyboard_shortcuts',
         'chk_overlay','opt_stp','chk_run_from_line','chk_override_limits',
-        'chk_tool_tips','opt_blk','grid_size','cone_size']
+        'chk_tool_tips','opt_blk','grid_size','cone_size','chk_exit_warning']
 
     parameters_utilities_widgets = [
         'actionbutton_halshow','actionbutton_halscope','actionbutton_halmeter',
@@ -170,7 +170,7 @@ def clear_tool_tips(W):
 
 def set_tool_tips(W):
     # main widgets
-    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G and M Codes'))
+    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G- and M-Codes'))
 
     # main_preview_widgets
     text0 = _translate('ToolTips', 'Shows the currently loaded material')
@@ -189,7 +189,7 @@ def set_tool_tips(W):
 
     # main_machine_widgets
     W.estop.setToolTip(_translate('ToolTips', 'Shows the Estop status'))
-    W.power.setToolTip(_translate('ToolTips', 'Switches the GUI on or off'))
+    W.power.setToolTip(_translate('ToolTips', 'Switches the GUI on or off\n\nA long press displays the GUI shutdown dialog'))
     W.run.setToolTip(_translate('ToolTips', 'Runs the currently loaded G-Code program'))
     W.pause.setToolTip(_translate('ToolTips', 'Pauses or resume the currently running G-Code program'))
     W.abort.setToolTip(_translate('ToolTips', 'Stops the currently running process'))
@@ -421,6 +421,7 @@ def set_tool_tips(W):
     W.chk_run_from_line.setToolTip(_translate('ToolTips', 'Toggles the use of run from line'))
     W.chk_override_limits.setToolTip(_translate('ToolTips', 'Toggles the override of limit switches'))
     W.chk_tool_tips.setToolTip(_translate('ToolTips', 'Toggles the display of tooltips'))
+    W.chk_exit_warning.setToolTip(_translate('ToolTips', 'Toggles always display an exit warning'))
     W.opt_blk.setToolTip(_translate('ToolTips', 'Toggles the execution of G-Code lines starting with "/"'))
     W.grid_size.setToolTip(_translate('ToolTips', 'Changes the size of the grid in the preview screen'))
     W.cone_size.setToolTip(_translate('ToolTips', 'Changes the size of the cone in the preview screen'))

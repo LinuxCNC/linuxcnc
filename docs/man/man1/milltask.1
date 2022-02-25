@@ -13,7 +13,7 @@ in an inifile.
 The \fBinihal\fR pins are sampled in every task cycle, however, commands
 affected by their values typically use the value present at the time
 when the command is processed.  Such commands include all codes handled
-by the interpreter (\fBGcode\fR programs and \fBMDI\fR commands) and NML
+by the interpreter (\fBG-code\fR programs and \fBMDI\fR commands) and NML
 \fBjogging\fR commands issued by a GUI (including \fBhalui\fR).
 \fBWheel jogging\fR is implemented in the realtime motion module so
 \fBinihal\fR pin changes (e.g., ini.*.max_velocity,

@@ -1769,6 +1769,8 @@ PyMODINIT_FUNC PyInit__hal(void)
 
 #ifdef RTAPI_KERNEL_VERSION
     PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
+#else
+    PyModule_AddStringConstant(m, "kernel_version", (char*)"Not Available");
 #endif
 
     PyRun_SimpleString(

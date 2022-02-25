@@ -329,7 +329,7 @@ You should take a look at the MAT project. Classicladder has been integrated to 
 have a relay ladder logic to program this PLC.
 http://mat.sourceforge.net/
 
-Another project using ClassicLadder: EMC2, used to control machine tools.
+Another project using ClassicLadder: LinuxCNC, used to control machine tools.
 http://www.linuxcnc.org/
 
 Comedi project at www.comedi.org

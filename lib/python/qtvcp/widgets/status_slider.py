@@ -18,7 +18,7 @@
 import hal
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import pyqtProperty
+from PyQt5.QtCore import pyqtProperty, pyqtSignal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
@@ -37,7 +37,42 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
-class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
+# Based on https://stackoverflow.com/questions/42820380/use-float-for-qslider
+class DoubleSlider(QtWidgets.QSlider):
+
+    # create our our signal that we can connect to if necessary
+    doubleValueChanged = pyqtSignal(float)
+
+    def __init__(self, *args, **kargs):
+        super(DoubleSlider, self).__init__( *args, **kargs)
+        self._multi = 1 ** 2 # arbitrarily set
+
+        # not needed at this time
+        self.valueChanged.connect(self.emitDoubleValueChanged)
+
+    def emitDoubleValueChanged(self):
+        value = float(super(DoubleSlider, self).value())/self._multi
+        self.doubleValueChanged.emit(value)
+
+    def value(self):
+        return float(super(DoubleSlider, self).value()) / self._multi
+
+    def setMinimum(self, value):
+        return super(DoubleSlider, self).setMinimum(int(value * self._multi))
+
+    def setMaximum(self, value):
+        return super(DoubleSlider, self).setMaximum(int(value * self._multi))
+
+    def setSingleStep(self, value):
+        return super(DoubleSlider, self).setSingleStep(value * self._multi)
+
+    def singleStep(self):
+        return float(super(DoubleSlider, self).singleStep()) / self._multi
+
+    def setValue(self, value):
+        super(DoubleSlider, self).setValue(int(value * self._multi))
+
+class StatusSlider(DoubleSlider, _HalWidgetBase):
     def __init__(self, parent=None):
         super(StatusSlider, self).__init__(parent)
         self._block_signal = False
@@ -86,15 +121,9 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_FLOAT, hal.HAL_OUT)
 
         # connect a signal and callback function to the button
-        self.valueChanged.connect(self._action)
+        self.doubleValueChanged.connect(self._action)
         # If the widget uses dynamic properties in stylesheet...
         self._style_polish(state= self.get_alert_cmd(self.value()))
-
-    # catch any programmed settings and update HAL pin
-    def setValue(self, v):
-        super(StatusSlider, self).setValue(v)
-        if self._halpin_option:
-            self.hal_pin.set(v)
 
     # catch any programmed settings and update HAL pin
     def setValue(self, v):

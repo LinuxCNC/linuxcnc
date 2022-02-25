@@ -87,7 +87,7 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.addToMemoryButton, 5, 0)
 
         for i in range(1, Calculator.NumDigitButtons):
-            row = ((9 - i) / 3) + 2
+            row = ((9 - i) // 3) + 2
             column = ((i - 1) % 3) + 1
             mainLayout.addWidget(self.digitButtons[i], row, column)
 

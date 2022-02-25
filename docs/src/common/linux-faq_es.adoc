@@ -9,7 +9,7 @@ las páginas del manual con el comando man.
 
 == Login automatico (((Automatic Login)))
 
-Al instalar linuxCNC con el CD de Ubuntu por defecto se tiene que iniciar
+Al instalar LinuxCNC con el CD de Ubuntu por defecto se tiene que iniciar
 sesión cada vez que encienda el ordenador. Para activar autentificacion automática
 vaya a 'System > Administration > Login Window'. Si se trata
 de una instalación nueva, la ventana de inicio de sesión puede tardar
@@ -41,7 +41,7 @@ $ /usr/sbin/lightdm --show-config
 
 == Inicio automatico de LinuxCNC (((Automatic Startup)))
 
-Para tener un inicio automático de linuxCNC con su configuración después
+Para tener un inicio automático de LinuxCNC con su configuración después
 de encender el equipo vaya a 'System > Preferences > Sessions > Startup Applications',
 seleccione la opcion agregar nuevo.
 Vaya a su carpeta de configuración y

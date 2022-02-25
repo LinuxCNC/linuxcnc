@@ -3343,6 +3343,7 @@ int main(int argc, char *argv[])
 
     // inistantiate task methods object, too
     emcTaskOnce(emc_inifile);
+    rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
 	rcs_print_error("can't initialize Task methods\n");

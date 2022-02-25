@@ -30,13 +30,127 @@
 </table>
 <br>
 <!--- ****** ADD NEXT VERSION BELOW THIS LINE ****** --->
+<br><b><u>v1.221.165 2021 Feb 23</u></b>
+<ul style="margin:0;">
+  <li>9x16 gui change parameters tab layout</li>
+</ul>
 
-<br><b><u>v1.220.147 2021 Dec 22</u></b>
+<br><b><u>v1.221.164 2021 Feb 23</u></b>
+<ul style="margin:0;">
+  <li>allow shutdown from power button</li>
+  <li>change shutdown messages</li>
+</ul>
+
+<br><b><u>v1.221.163 2021 Feb 22</u></b>
+<ul style="margin:0;">
+  <li>fix incorrect error after incremental jog</li>
+</ul>
+
+<br><b><u>v1.221.162 2021 Feb 20</u></b>
+<ul style="margin:0;">
+  <li>fix onboard keyboard error switching</li>
+</ul>
+
+<br><b><u>v1.221.161 2021 Feb 07</u></b>
+<ul style="margin:0;">
+  <li>allow user button resize in stylesheets</li>
+</ul>
+
+<br><b><u>v1.221.160 2021 Jan 30</u></b>
+<ul style="margin:0;">
+  <li>update handler states to match component states</li>
+</ul>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
+
+<br><b><u>v1.221.159 2021 Jan 27</u></b>
+<ul style="margin:0;">
+  <li>remove mdi patch</li>
+  <li>docs updates</li>
+</ul>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
+
+<br><b><u>v1.221.158 2021 Jan 24</u></b>
+<ul style="margin:0;">
+  <li>MDI enhancements:</li>
+    <ol>
+      <li>alt+return (or enter) opens the MDI</li>
+      <li>return (or enter) with no entry closes the MDI</li>
+      <li>add the ability to 'clear history'</li>
+      <li>add the ability to 'setp' pins/params</li>
+      <li>inhibit M4 commands in MDI</li>
+      <li>history doesn't log entries with errors (thanks phillc54)</li>
+      <li>history doesn't log consecutive duplicate entries (thanks phillc54)</li>
+    </ol>
+  <li>file editor now opens blank after file_clear</li>
+  <li>show table view if editor is closed with no file loaded and no changes</li>
+  <li>fix autorepeat turning off when MDI or editor were open and the main tab was left and returned to</li>
+  <li>edit button is always active</li>
+  <li>add hal pin to enable some tabs during run</li>
+  <li>docs updates</li>
+</ul>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
+
+<br><b><u>v1.221.157 2021 Jan 22</u></b>
+<ul style="margin:0;">
+  <li>fix update check</li>
+  <li>update sim configs</li>
+</ul>
+
+<br><b><u>v1.221.156 2021 Jan 19</u></b>
+<ul style="margin:0;">
+  <li>add table view to the preview window</li>
+</ul>
+<i>A snowgoer540 and phillc54 collaboration</i><br>
+
+<br><b><u>v1.221.155 2021 Jan 18</u></b>
+<ul style="margin:0;">
+  <li>inhibit external cut recovery functions when not paused</li>
+</ul>
+
+<br><b><u>v1.221.154 2021 Jan 18</u></b>
+<ul style="margin:0;">
+  <li>prep work for simpler updating</li>
+</ul>
+
+<br><b><u>v1.221.153 2021 Jan 11</u></b>
+<ul style="margin:0;">
+  <li>ensure OS autorepeat is on and log files are saved on close</li>
+  <li>docs update</li>
+</ul>
+<i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
+
+<br><b><u>v1.221.152 2022 Jan 08</u></b>
+<ul style="margin:0;">
+  <li>don't reload file if not previously loaded</li>
+</ul>
+
+<br><b><u>v1.221.151 2022 Jan 08</u></b>
+<ul style="margin:0;">
+  <li>fix user button gcode motion</li>
+</ul>
+
+<br><b><u>v1.221.150 2022 Jan 02</u></b>
+<ul style="margin:0;">
+  <li>ensure preview joint dro is removed after homing</li>
+</ul>
+
+<br><b><u>v1.221.149 2022 Jan 01</u></b>
+<ul style="margin:0;">
+  <li>remove redundant parameter</li>
+</ul>
+
+<br><b><u>v1.221.148 2022 Jan 01</u></b>
+<ul style="margin:0;">
+  <li>add toggle laser to user buttons</li>
+  <li>change default font</li>
+</ul>
+
+<br><b><u>v1.221.147 2021 Dec 22</u></b>
 <ul style="margin:0;">
   <li>improve bounds checking</li>
 </ul>
 
-<br><b><u>v1.220.146 2021 Dec 20</u></b>
+<br><b><u>v1.221.146 2021 Dec 20</u></b>
 <ul style="margin:0;">
   <li>add exception handling for pulse-halpin</li>
 </ul>
@@ -81,8 +195,8 @@
 <br><b><u>v1.220.140 2021 Dec 07</u></b>
 <ul style="margin:0;">
   <li>improve powermax comms error checking</li>
-  <li>g-code filter fix cut recovery bug</li>
-  <li>g-code filter add more illegal character checks</li>
+  <li>G-code filter fix cut recovery bug</li>
+  <li>G-code filter add more illegal character checks</li>
   <li>update example wrenches</li>
 </ul>
 
@@ -150,7 +264,7 @@
 <br><b><u>v1.217.131 2021 Nov 27</u></b>
 <ul style="margin:0;">
   <li>move conversational to a module</li>
-  <li>improve z motion handling in g-code filter and conversational block</li>
+  <li>improve z motion handling in G-code filter and conversational block</li>
 </ul>
 
 <br><b><u>v1.217.130 2021 Nov 27</u></b>
@@ -312,7 +426,7 @@
 <br><b><u>v1.214.104 2021 Oct 18</u></b>
 <ul style="margin:0;">
   <li>add external hal pins for:</li>
-    <ul>
+    <ol>
       <li>thc enable</li>
       <li>torch enable</li>
       <li>corner lock enable</li>
@@ -322,8 +436,7 @@
       <li>mesh mode</li>
       <li>ignore arc ok</li>
       <li>cut recovery</li>
-    </ul>
-  </li>
+    </ol>
 </ul>
 <i>Changes submitted by fupeama (Martin Kaplan)</i><br>
 
@@ -397,7 +510,6 @@
   <li>fix text error in conversational triangle</li>
 </ul>
 
-</ul>
 <br><b><u>v1.0.93 2021 Sep 13</u></b>
 <ul style="margin:0;">
   <li>fix disabled states if cycle stopped while cycle paused</li>
@@ -726,7 +838,7 @@
 
 <br><b><u>v1.0.44 2021 Jun 24</u></b>
 <ul style="margin:0;">
-  <li>g-code parser - limit first Z move number of decimal places to 3</li>
+  <li>G-code parser - limit first Z move number of decimal places to 3</li>
 </ul>
 <i>Changes submitted by snowgoer540 (Greg Carl)</i><br>
 

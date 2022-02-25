@@ -6,7 +6,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -119,14 +119,14 @@ Returned Value:
       NCE_CANNOT_USE_AXIS_VALUES_WITH_G80
    2. A g52 g92 is in the block and no axis value is given:
       NCE_ALL_AXES_MISSING_WITH_G52_OR_G92
-   3. One g-code from group 1 and one from group 0, both of which can use
+   3. One G-code from group 1 and one from group 0, both of which can use
       axis values, are in the block:
       NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES
-   4. A g-code (other than 0 or 1, for which we are allowing all axes
+   4. A G-code (other than 0 or 1, for which we are allowing all axes
       missing) from group 1 which can use axis values is in the block,
       but no axis value is given: NCE_ALL_AXES_MISSING_WITH_MOTION_CODE
-   5. Axis values are given, but there is neither a g-code in the block
-      nor an active previously given modal g-code that uses axis values:
+   5. Axis values are given, but there is neither a G-code in the block
+      nor an active previously given modal G-code that uses axis values:
       NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM
 
 Side effects:
@@ -134,9 +134,9 @@ Side effects:
 
 Called by: parse_line
 
-If there is a g-code for motion in the block (in g_modes[1]),
+If there is a G-code for motion in the block (in g_modes[1]),
 set motion_to_be to that. Otherwise, if there is an axis value in the
-block and no g-code to use it (any such would be from group 0 in
+block and no G-code to use it (any such would be from group 0 in
 g_modes[0]), set motion_to_be to be the last motion saved (in
 settings->motion mode).
 
@@ -144,8 +144,8 @@ This also make the checks described above.
 
 */
 
-int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be checked 
-                         setup_pointer settings)        //!< pointer to machine settings      
+int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be checked
+                         setup_pointer settings)        //!< pointer to machine settings
 {
   int axis_flag;
   int ijk_flag;
@@ -186,8 +186,8 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
     } else {
       CHKS(mode_zero_covets_axes,
           NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
-      CHKS(((!axis_flag && !polar_flag) && 
-            mode1 != G_0 && mode1 != G_1 && 
+      CHKS(((!axis_flag && !polar_flag) &&
+            mode1 != G_0 && mode1 != G_1 &&
             mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2 &&
             mode1 != G_70 &&
             mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
@@ -337,9 +337,9 @@ Called by:  Interp::read
 
 */
 
-int Interp::parse_line(char *line,       //!< array holding a line of RS274 code  
-                      block_pointer block,      //!< pointer to a block to be filled     
-                      setup_pointer settings)   //!< pointer to machine settings         
+int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
+                      block_pointer block,      //!< pointer to a block to be filled
+                      setup_pointer settings)   //!< pointer to machine settings
 {
   CHP(init_block(block));
   CHP(read_items(block, line, settings->parameters));
@@ -407,7 +407,7 @@ int Interp::precedence(int an_operator)
 }
 
 
-int Interp::refresh_actual_position(setup_pointer settings) 
+int Interp::refresh_actual_position(setup_pointer settings)
 {
   settings->current_x = GET_EXTERNAL_POSITION_X();
   settings->current_y = GET_EXTERNAL_POSITION_Y();

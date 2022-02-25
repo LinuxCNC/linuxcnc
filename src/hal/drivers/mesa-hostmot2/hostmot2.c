@@ -142,7 +142,8 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
-    hm2_ssr_prepare_tram_write(hm2);
+    hm2_ssr_prepare_tram_write(hm2);    
+    hm2_outm_prepare_tram_write(hm2);
     //UARTS need to be explicitly handled by an external component
     hm2_tram_write(hm2);
 
@@ -312,6 +313,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_HM2DPLL:         return "Hostmot2 DPLL";
         case HM2_GTAG_INMUX:           return "InMux Input Mux";
         case HM2_GTAG_INM:             return "InM Input Module";
+        case HM2_GTAG_OUTM:             return "OutM Output Module";
         case HM2_GTAG_XY2MOD:          return "xy2mod Galvo interface";
         case HM2_GTAG_DPAINTER:        return "Data Painter";
         case HM2_GTAG_SSR:             return "SSR";
@@ -391,6 +393,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_xy2mods = -1;
     hm2->config.num_leds = -1;
     hm2->config.num_ssrs = -1;
+    hm2->config.num_outms = -1;
     hm2->config.enable_raw = 0;
     hm2->config.firmware = NULL;
 
@@ -444,6 +447,14 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
         } else if (strncmp(token, "num_inms=", 9) == 0) {
             token += 9;
             hm2->config.num_inms = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "num_outms=", 10) == 0) {
+            token += 10;
+            hm2->config.num_outms = simple_strtol(token, NULL, 0);
+
+        } else if (strncmp(token, "num_ssrs=", 9) == 0) {
+            token += 9;
+            hm2->config.num_ssrs = simple_strtol(token, NULL, 0);
 
         } else if (strncmp(token, "num_xy2mods=", 12) == 0) {
             token += 12;
@@ -535,6 +546,8 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     HM2_DBG("    num_rcpwmgens=%d\n",  hm2->config.num_rcpwmgens);
     HM2_DBG("    num_inmuxs=%d\n",  hm2->config.num_inmuxs);
     HM2_DBG("    num_inms=%d\n",  hm2->config.num_inms);
+    HM2_DBG("    num_outms=%d\n",  hm2->config.num_outms);
+    HM2_DBG("    num_ssrs=%d\n",  hm2->config.num_ssrs);
     HM2_DBG("    num_xy2mods=%d\n",  hm2->config.num_xy2mods);
     HM2_DBG("    num_3pwmgens=%d\n", hm2->config.num_tp_pwmgens);
     HM2_DBG("    sserial_port_0=%8.8s\n"
@@ -1029,6 +1042,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
             case HM2_GTAG_SSR:
                 md_accepted = hm2_ssr_parse_md(hm2, md_index);
                 break;
+
+            case HM2_GTAG_OUTM:
+                md_accepted = hm2_outm_parse_md(hm2, md_index);
+                break;
   
           case HM2_GTAG_RCPWMGEN:
                 md_accepted = hm2_rcpwmgen_parse_md(hm2, md_index);
@@ -1106,6 +1123,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_sserial_cleanup(hm2);
     hm2_bspi_cleanup(hm2);
     hm2_ssr_cleanup(hm2);
+    hm2_outm_cleanup(hm2);
     hm2_rcpwmgen_cleanup(hm2);
 
     // free all the tram entries
@@ -1126,6 +1144,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_bspi_print_module(hm2);
     hm2_ioport_print_module(hm2);
     hm2_ssr_print_module(hm2);
+    hm2_outm_print_module(hm2);
     hm2_watchdog_print_module(hm2);
     hm2_inmux_print_module(hm2);
     hm2_inm_print_module(hm2);
@@ -1792,5 +1811,6 @@ void hm2_force_write(hostmot2_t *hm2) {
     // ioport is written.  Initialization of the SSR requires that
     // the IO Port pin directions is set appropriately.
     hm2_ssr_force_write(hm2);
+    hm2_outm_force_write(hm2);
 }
 

@@ -139,6 +139,7 @@ class emc_control:
 
         def continuous_jog_velocity(self, velocity,angular=None):
                 if self.masked: return
+                if self.is_machine_off(): return
                 self.set_motion_mode()
                 if velocity == None:
                     rate = self.angular_jog_velocity = angular / 60.0
@@ -151,6 +152,7 @@ class emc_control:
         
         def continuous_jog(self, axis, direction):
                 if self.masked: return
+                if self.is_machine_off(): return
                 self.set_motion_mode()
                 if direction == 0:
                         self.isjogging[axis] = 0
@@ -170,6 +172,7 @@ class emc_control:
 
         def incremental_jog(self, axis, direction, distance):
                 if self.masked: return
+                if self.is_machine_off(): return
                 self.set_motion_mode()
                 self.isjogging[axis] = direction
                 if axis in (3,4,5):
@@ -292,6 +295,15 @@ class emc_control:
             self.emcstat.poll()
             return self.emcstat.task_mode
 
+        def is_machine_off(self):
+            self.emcstat.poll()
+            state = self.emcstat.task_state != self.emc.STATE_ON
+            if state:
+                # kill any jogging state
+                for i in range(0,len(self.isjogging)):
+                    self.isjogging[i] = 0
+            return state
+
 class emc_status:
         def __init__(self, data, emc):
             self.data = data
@@ -411,7 +423,7 @@ class emc_status:
                 self.data["%s_abs"% letter] = p[count]
                 self.data["%s_rel"% letter] = relp[count]
                 self.data["%s_dtg"% letter] = dtg[count]
-            # active G codes
+            # active G-codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.gcodes[1:]):
                 if i == -1: continue
@@ -426,7 +438,7 @@ class emc_status:
                 if i == '95': ipr = True
             self.data.IPR_mode = ipr
             self.data.active_gcodes = active_codes
-            # M codes
+            # M-codes
             temp = []; active_codes = []
             for i in sorted(self.emcstat.mcodes[1:]):
                 if i == -1: continue

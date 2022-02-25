@@ -190,7 +190,7 @@ class Converter(QMainWindow, object):
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
-        msgBox.setStyleSheet('QWidget {color: #ffee06; background: #16160e; font: 12pt Lato} \
+        msgBox.setStyleSheet('QWidget {color: #ffee06; background: #16160e; font: 12pt DejaVuSans} \
                               QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20} \
                              ')
         msgBox.setBaseSize(QSize(800, 800))

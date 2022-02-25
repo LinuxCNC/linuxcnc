@@ -313,13 +313,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         rady = self.diameter/2
         # draw red circles
         gp.setPen(self.circle_color)
-        center = QtCore.QPoint(w/2, h/2)
+        center = QtCore.QPoint(w//2, h//2)
         gp.drawEllipse(center, radx, rady)
 
     def drawCrossHair(self, event, gp):
         size = self.size()
-        w = size.width()/2
-        h = size.height()/2
+        w = size.width()//2
+        h = size.height()//2
         pen0 = QPen(self.cross_pointer_color, 1, QtCore.Qt.SolidLine)
         pen = QPen(self.cross_color, 1, QtCore.Qt.SolidLine)
         gp.translate(w, h)

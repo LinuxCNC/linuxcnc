@@ -4,6 +4,8 @@ pmx485.py
 Copyright (C) 2019, 2020, 2021 Phillip A Carter
 Copyright (C) 2020, 2021  Gregory D Carl
 
+pmx485.py makes use of some code from hpmx.py by Pedro Grijalva Mireles
+
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
 Free Software Foundation; either version 2 of the License, or

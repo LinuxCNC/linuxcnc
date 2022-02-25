@@ -580,7 +580,7 @@ linuxcnc (1:2.7.9) unstable; urgency=medium
   * Interp: fix a typo in a cutter-comp error message
   * Task: set the stat struct member queuedMDIcommands
 
-  * example g-code: fix Z value reported by rectangle_probe.ngc
+  * example G-code: fix Z value reported by rectangle_probe.ngc
   * example configs: fix hal pin names in gmoccapy_plasma
   * example configs: limit led without off color in gmoccapy_plasma
   * example configs: xhc-hb04.tcl: if prior connects, continue with msg
@@ -736,7 +736,7 @@ linuxcnc (1:2.7.5) unstable; urgency=medium
   * docs: add info to pncconfig docs about editing a config
   * hm2_eth manpage: note the irq-coalesce trick
   * hal_input manpage: don't try to document udev rules syntax
-  * linuxcncrsh manpage: remove wrong info about open g-code files
+  * linuxcncrsh manpage: remove wrong info about open G-code files
 
   * Axis GUI: fix File/Open on ini files with no [DISPLAY]PROGRAM_PREFIX
   * gmoccapy: small bug fixes (iconview and handlers)
@@ -2353,7 +2353,7 @@ linuxcnc (1:2.5.0) lucid; urgency=low
   * Interpreter: new unary function EXISTS tells whether a certain
     parameter exists
   * Interpreter: search path for subroutines: [RS274NGC]SUBROUTINE_PATH
-  * Interpreter: search path for user M codes: [RS274NGC]USER_M_PATH
+  * Interpreter: search path for user M-codes: [RS274NGC]USER_M_PATH
   * Interpreter: detect and error on malformed O-if[] statements
 
   * IOcontrol: make aborting tool changes work
@@ -2402,7 +2402,7 @@ linuxcnc (1:2.5.0) lucid; urgency=low
   * Touchy: turning the wheel during a continuous jog changes the current
     jog speed
 
-  * add a G code language spec for gedit
+  * add a G-code language spec for gedit
   * add latencyplot, a strip-chart type display of latency test results
 
  -- Chris Radek <chris@timeguy.com>  Fri, 30 Mar 2012 13:20:02 -0500

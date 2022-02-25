@@ -21,7 +21,7 @@ at tool changes.
 
 [NOTE]
 QtDragon and QtVcp are relatively new programs added into linuxcnc.
-Bugs and oddities are possible. Please test carefully when using a 
+Bugs and oddities are possible. Please test carefully when using a
 dangerous machine. Please forward reports to the forum or maillist.
 
 .qtdragon - 3 or 4 Axis Sample (1440x860) in silver theme
@@ -32,7 +32,7 @@ image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
 
 == Getting Started
 
-If your configuration is not currently set up to use QtDragon, 
+If your configuration is not currently set up to use QtDragon,
 you can change it by editing the INI file. +
 This is not an exhaustive list of options. +
 <<sec:display-section,Display Section>>
@@ -228,7 +228,7 @@ Clicking on any input field, such as probe parameters or tool table entries, wil
 It can also be shown by clicking the KEYBD button on the top of the screen, +
 unless the machine is in AUTO mode. To hide the keyboard, do one of the following: +
   -  click the MAIN page button +
-  - click the KEYBD button 
+  - click the KEYBD button
   - go into AUTO mode +
 
 It should be noted that keyboard jogging is disabled when using the virtual keyboard. +
@@ -240,12 +240,12 @@ that must be connected for linuxcnc to function. +
 If you need a manual tool change prompt, add these lines in your postgui file.
 [source,{hal}]
 ----
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
-This input pin should be connected to indicate probe state: 
+This input pin should be connected to indicate probe state:
 [source,{hal}]
 ----
 qtdragon.led-probe
@@ -264,7 +264,7 @@ qtdragon.spindle-volts
 ----
 
 This bit pin is an output to the spindle control to pause it: +
-You would connect it to spindle.0.inhibit. 
+You would connect it to spindle.0.inhibit.
 [source,{hal}]
 ----
 qtdragon.spindle-inhibit
@@ -328,14 +328,14 @@ You must connect the proper HAL pin in the postgui HAL file.
 For example:
 [source,{hal}]
 ----
-net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
 == Spindle
 
-The screen is intended to interface to a VFD, but will still work without it. There are a number of VFD drivers included 
+The screen is intended to interface to a VFD, but will still work without it. There are a number of VFD drivers included
 in the linuxcnc distribution. It is up to the end user to supply the appropriate driver and HAL file connections according
 to his own machine setup.
 
@@ -372,7 +372,7 @@ setp axis.z.eoffset-scale 1.0
 == Probing
 
 The probe screen has been through basic testing but there could still be some minor bugs. +
-When running probing routines, use extreme caution until you are familiar with how everything works. + 
+When running probing routines, use extreme caution until you are familiar with how everything works. +
 Probe routines run without blocking the main GUI. This gives the operator the opportunity +
 to watch the DROs and stop the routine at any time. +
 
@@ -429,7 +429,7 @@ Tool Measurement in QtDragon is done with the following steps:
 * Go to auto mode and start your program
 
 [NOTE]
-When fist setting up auto tool measurement, please use caution untill you confirm +
+When fist setting up auto tool measurement, please use caution until you confirm +
 tool change and probe locations - it's easy to break a tool/probe. Abort will be honoured +
 while the probe is in motion.
 
@@ -451,7 +451,7 @@ The Gmoccapy screen pioneered the technique.
 === Tool Measurement Pins
 
 Versaprobe offers 5 pins for tool measurement purpose. The pins are used +
-to be read from a remap gcode subroutine, so the code can react to different values. +
+to be read from a remap G-code subroutine, so the code can react to different values. +
 
 * qtversaprobe.toolmeasurement HAL_BIT enable or not tool measurement
 * qtversaprobe.blockheight HAL_FLOAT the measured value of the top face of the
@@ -570,7 +570,7 @@ net probe  motion.probe-input <= <your_input_pin>
 
 == Run from Line
 
-A gcode program can be started at any line by clicking on the desired line in the gcode display while in AUTO mode. +
+A G-code program can be started at any line by clicking on the desired line in the G-code display while in AUTO mode. +
 It is the operator's responsibility to ensure the machine is in the desired operational mode. +
 A dialog will be shown allowing the spindle direction and speed to be preset. +
 The start line is indicated in the box labelled LINE, next to the CYCLE START button. +
@@ -590,14 +590,14 @@ the X and Y offsets to the values indicated by the LASER OFFSET fields in the Se
 It's possible to load Html or PDF file (.html ending) with setup notes. +
 HTML docs will be displayed in the setup tab and PDF will launch the system PDF Viewer. +
 Some program, such as Fusion and Aspire will create this files for you. +
-If you load a gcode program and there is an HTML/PDF file of the same name, it will load automatically.
+If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically.
 
 .qtdragon - Setup Tab Sample
 image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
 
 == Styles
 
-Nearly all aspects of the GUI appearance are configurable via the qtdragon.qss stylesheet file. The file can be edited manually or 
+Nearly all aspects of the GUI appearance are configurable via the qtdragon.qss stylesheet file. The file can be edited manually or
 through the stylesheet dialog widget in the GUI. To call up the dialog, press F12 on the main window. New styles can be applied
 temporarily and then saved to a new qss file, or overwrite the current qss file.
 

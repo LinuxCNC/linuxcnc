@@ -86,7 +86,7 @@ class LED(QWidget, _HalWidgetBase):
         elif self._alignment & Qt.AlignRight:
             x = self.width() - self._diameter
         elif self._alignment & Qt.AlignHCenter:
-            x = (self.width() - self._diameter) / 2
+            x = (self.width() - self._diameter) // 2
         elif self._alignment & Qt.AlignJustify:
             x = 0
 
@@ -95,7 +95,7 @@ class LED(QWidget, _HalWidgetBase):
         elif self._alignment & Qt.AlignBottom:
             y = self.height() - self._diameter
         elif self._alignment & Qt.AlignVCenter:
-            y = (self.height() - self._diameter) / 2
+            y = (self.height() - self._diameter) // 2
 
         gradient = QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
                                    self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)

@@ -21,13 +21,15 @@ set ::DEFAULT_AXIS_MIN_LIMIT -1e99
 set ::DEFAULT_AXIS_MAX_LIMIT +1e99
 #----------------------------------------------------------------------
 proc warnings msg {
-  puts "\n$::progname: ($::kins(module) kinematics) WARNING:"
+  puts -nonewline "\n$::progname:\n"
+  catch {puts ($::kins(module) kinematics) WARNING:"}
   foreach m $msg {puts "  $m"}
   puts ""
 } ;# warnings
 
 proc err_exit msg {
-  puts "\n$::progname: ($::kins(module) kinematics) ERROR:"
+  puts -nonewline "\n$::progname:\n"
+  catch {puts ($::kins(module) kinematics) ERROR:"}
   foreach m $msg {puts "  $m"}
   puts ""
   exit 1

@@ -4,12 +4,12 @@
 
 == Lathe Mode
 
-If your CNC machine is a lathe, there are some specific changes you 
-will probably want to make to your ini file in order to get the 
-best results from LinuxCNC. 
+If your CNC machine is a lathe, there are some specific changes you
+will probably want to make to your ini file in order to get the
+best results from LinuxCNC.
 
-If you are using the AXIS display, 
-have Axis display your lathe tools properly. 
+If you are using the AXIS display,
+have Axis display your lathe tools properly.
 See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
@@ -17,18 +17,18 @@ To set up AXIS for Lathe Mode.
 ---------------------------------------
 [DISPLAY]
 
-# Tell the Axis Display our machine is a lathe. 
+# Tell the Axis Display our machine is a lathe.
 LATHE = TRUE
 ---------------------------------------
 
 Lathe Mode in Axis does not set your default plane to G18 (XZ). You
-must program that in the preamble of each gcode file or 
-(better) add it to your ini file, like this: 
+must program that in the preamble of each G-code file or
+(better) add it to your ini file, like this:
 
 ---------------------------------------
 [RS274NGC]
 
-# g-code modal codes (modes) that the interpreter is initialized with on startup
+# G-code modal codes (modes) that the interpreter is initialized with on startup
 RS274NGC_STARTUP_CODE = G18 G20 G90
 ---------------------------------------
 
@@ -37,25 +37,25 @@ If your using Gmoccapy then see the
 
 == Lathe Tool Table [[sec:lathe-tool-table]]
 
-The "Tool Table" is a text file that contains information about each tool. 
-The file is located in the same directory as your configuration and is called "tool.tbl" by default. 
-The tools might be in a tool changer or just changed manually. 
-The file can be edited with a text editor or be updated using G10 L1,L10,L11. 
-There is also a built-in tool table editor in the Axis display. 
-The maximum number of entries in the tool table is 56. 
-The maximum tool and pocket number is 99999. 
+The "Tool Table" is a text file that contains information about each tool.
+The file is located in the same directory as your configuration and is called "tool.tbl" by default.
+The tools might be in a tool changer or just changed manually.
+The file can be edited with a text editor or be updated using G10 L1,L10,L11.
+There is also a built-in tool table editor in the Axis display.
+The maximum number of entries in the tool table is 56.
+The maximum tool and pocket number is 99999.
 
-Earlier versions of LinuxCNC had two different tool table formats for mills and lathes, 
-but since the 2.4.x release, one tool table format is used for all machines. 
-Just ignore the parts of the tool table that don't pertain to your machine, 
-or which you don't need to use. 
-For more information on the specifics of the tool table format, 
+Earlier versions of LinuxCNC had two different tool table formats for mills and lathes,
+but since the 2.4.x release, one tool table format is used for all machines.
+Just ignore the parts of the tool table that don't pertain to your machine,
+or which you don't need to use.
+For more information on the specifics of the tool table format,
 see the <<sec:tool-table,Tool Table>> Section.
 
 == Lathe Tool Orientation[[lathe-tool-orientation]]
 
-The following figure shows the lathe tool orientations 
-with the center line angle of each orientation and 
+The following figure shows the lathe tool orientations
+with the center line angle of each orientation and
 info on FRONTANGLE and BACKANGLE.
 The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.
 
@@ -85,26 +85,26 @@ When running in lathe mode in AXIS you can set the X and Z in the tool
 table using the Touch Off window. If you have a tool turret you normally
 have 'Touch off to fixture' selected when setting up your turret. When
 setting the material Z zero you have 'Touch off to material' selected.
-For more information on the G codes used for tools see
+For more information on the G-codes used for tools see
 <<mcode:m6,M6>>, <<sec:select-tool,Tn>>, and <<gcode:g43,G43>>.
-For more information on tool touch off options in Axis see 
+For more information on tool touch off options in Axis see
 <<axis:tool-touch-off,Tool Touch Off>>.
 
 === X Touch Off
 
-The X axis offset for each tool is normally an offset 
+The X axis offset for each tool is normally an offset
 from the center line of the spindle.
 
-One method is to take your normal turning tool and 
-turn down some stock to a known diameter. 
-Using the Tool Touch Off window enter the measured diameter 
-(or radius if in radius mode) for that tool. 
-Then using some layout fluid or a marker to coat the part 
+One method is to take your normal turning tool and
+turn down some stock to a known diameter.
+Using the Tool Touch Off window enter the measured diameter
+(or radius if in radius mode) for that tool.
+Then using some layout fluid or a marker to coat the part
 bring each tool up
-till it just touches the dye and set it's X offset to 
-the diameter of the part used using the tool touch off. 
-Make sure any tools in the corner quadrants have the nose radius 
-set properly in the tool table so the control point is correct. 
+till it just touches the dye and set it's X offset to
+the diameter of the part used using the tool touch off.
+Make sure any tools in the corner quadrants have the nose radius
+set properly in the tool table so the control point is correct.
 Tool touch off automatically adds a G43
 so the current tool is the current offset.
 
@@ -113,22 +113,22 @@ A typical session might be:
  . Home each axis if not homed.
  . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
  . Select the X axis in the Manual Control window.
- . Move the X to a known position or take a test cut and measure the diameter. 
- . Select Touch Off and pick Tool Table then enter the position or the diameter. 
+ . Move the X to a known position or take a test cut and measure the diameter.
+ . Select Touch Off and pick Tool Table then enter the position or the diameter.
  . Follow the same sequence to correct the Z axis.
 
-Note: if you are in Radius Mode you must enter the radius, not the diameter. 
+Note: if you are in Radius Mode you must enter the radius, not the diameter.
 
 === Z Touch Off
 
-The Z axis offsets can be a bit confusing at first 
-because there are two elements to the Z offset. 
-There is the tool table offset, and the machine coordinate offset. 
-First we will look at the tool table offsets. 
-One method is to use a fixed point on your lathe and 
-set the Z offset for all tools from this point. 
+The Z axis offsets can be a bit confusing at first
+because there are two elements to the Z offset.
+There is the tool table offset, and the machine coordinate offset.
+First we will look at the tool table offsets.
+One method is to use a fixed point on your lathe and
+set the Z offset for all tools from this point.
 Some use the spindle nose or chuck face.
-This gives you the ability to change to a new tool and 
+This gives you the ability to change to a new tool and
 set its Z offset without having to reset all the tools.
 
 A typical session might be:
@@ -139,23 +139,23 @@ A typical session might be:
  . Select the Z axis in the Manual Control window.
  . Bring the tool close to the control surface. Using a cylinder move the
    Z away from the control surface until the cylinder just passes between
-   the tool and the control surface. 
+   the tool and the control surface.
  . Select Touch Off and pick Tool Table and set the position to 0.0.
  . Repeat for each tool using the same cylinder.
 
-Now all the tools are offset the same distance from a standard position. 
-If you change a tool like a drill bit you repeat the above and 
-it is now in sync with the rest of the tools for Z offset. 
-Some tools might require a bit of cyphering to determine 
-the control point from the touch off point. 
-For example, if you have a 0.125" wide parting tool and 
-you touch the left side off but want the right to be Z0, 
+Now all the tools are offset the same distance from a standard position.
+If you change a tool like a drill bit you repeat the above and
+it is now in sync with the rest of the tools for Z offset.
+Some tools might require a bit of cyphering to determine
+the control point from the touch off point.
+For example, if you have a 0.125" wide parting tool and
+you touch the left side off but want the right to be Z0,
 then enter 0.125" in the touch off window.
 
 === The Z Machine Offset
 
-Once all the tools have the Z offset entered into the tool table, 
-you can use any tool to set the machine offset 
+Once all the tools have the Z offset entered into the tool table,
+you can use any tool to set the machine offset
 using the machine coordinate system.
 
 A typical session might be:
@@ -166,8 +166,8 @@ A typical session might be:
  . Bring the tool to the work piece and set the machine Z offset.
 
 If you forget to set the G43 for the current tool when you set the
-machine coordinate system offset, you will not get what you expect, 
-as the tool offset will be added to the current offset when 
+machine coordinate system offset, you will not get what you expect,
+as the tool offset will be added to the current offset when
 the tool is used in your program.
 
 == Spindle Synchronized Motion
@@ -211,16 +211,16 @@ typically set up with the imaginary Y axis (+) pointing at the floor.
 The following will be true on this type of setup:
 
  - The Z axis (+) points to the right, away from the spindle.
- - The X axis (+) points toward the operator, and when on the operator 
+ - The X axis (+) points toward the operator, and when on the operator
    side of the spindle the X values are positive.
 
-Some lathes with tools on the back side have the imaginary Y axis (+) 
-pointing up. 
+Some lathes with tools on the back side have the imaginary Y axis (+)
+pointing up.
 
 G2/G3 Arc directions are based on the axis they rotate around. In the
-case of lathes, it is the imaginary Y axis. If the Y axis (+) points 
-toward the floor, you have to look up for the arc to appear to go in the 
-correct direction. So looking from above you reverse the G2/G3 for the 
+case of lathes, it is the imaginary Y axis. If the Y axis (+) points
+toward the floor, you have to look up for the arc to appear to go in the
+correct direction. So looking from above you reverse the G2/G3 for the
 arc to appear to go in the correct direction.
 
 === Radius & Diameter Mode

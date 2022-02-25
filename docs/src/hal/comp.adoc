@@ -325,6 +325,12 @@ The currently defined options are:
    'no'.  When compiling a userspace component, the arguments given are inserted
    in the compiler command line. 
 
+* 'option homemod yes' - (default: no)
+   Module is a custom Homing module loaded using [EMCMOT]HOMEMOD=modulename
+
+* 'option tpmod yes' - (default: no)
+   Module is a custom Trajectory Planning (tp) module loaded using [TRAJ]TPMOD=modulename
+
 If an option's VALUE is not specified, then it is equivalent to 
 specifying 'option … yes'. 
 The result of assigning an inappropriate value to an option is undefined. 

@@ -401,6 +401,26 @@ class Pages:
             self.w.qtplasmac_estop_1.set_active(True)
         else:
             self.w.qtplasmac_estop.set_active(True)
+        if self.d.qtplasmacdro == 1:
+            self.w.qtplasmac_dro_1.set_active(True)
+        else:
+            self.w.qtplasmac_dro.set_active(True)
+        if self.d.qtplasmacerror == 1:
+            self.w.qtplasmac_error_1.set_active(True)
+        else:
+            self.w.qtplasmac_error.set_active(True)
+        if self.d.qtplasmacstart == 1:
+            self.w.qtplasmac_start_1.set_active(True)
+        else:
+            self.w.qtplasmac_start.set_active(True)
+        if self.d.qtplasmacpause == 1:
+            self.w.qtplasmac_pause_1.set_active(True)
+        else:
+            self.w.qtplasmac_pause.set_active(True)
+        if self.d.qtplasmacstop == 1:
+            self.w.qtplasmac_stop_1.set_active(True)
+        else:
+            self.w.qtplasmac_stop.set_active(True)
         # set the qtplasmac spinboxes
         self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
 
@@ -475,6 +495,11 @@ class Pages:
         self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
         self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
         self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
+        self.d.qtplasmacdro = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_dro.get_group())) if r.get_active()][0]
+        self.d.qtplasmacerror = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_error.get_group())) if r.get_active()][0]
+        self.d.qtplasmacstart = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_start.get_group())) if r.get_active()][0]
+        self.d.qtplasmacpause = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_pause.get_group())) if r.get_active()][0]
+        self.d.qtplasmacstop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_stop.get_group())) if r.get_active()][0]
         self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
         self.page_set_state('spindle',((self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) \
                                         and not self.d.select_qtplasmac))

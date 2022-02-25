@@ -432,10 +432,6 @@ class HAL:
                     print(file=f1)
                     f1.close()
 
-        # qtplasmac requires connections to the plasmac hal component
-        if self.d.select_qtplasmac:
-            self.plasmac_hal_component(file)
-
         file.close()
         self.sim_hardware_halfile(base)
         self.d.add_md5sum(filename)
@@ -505,6 +501,8 @@ class HAL:
                 print("setp sim-hardware.{:14}[JOINT_{}]MIN_LIMIT".format(j.upper() + "minsw-upper", self.d.axislist.index(j)), file=f1)
                 print("setp sim-hardware.{:14}-{}".format(j.upper() + "minsw-lower", limit), file=f1)
                 print("setp sim-hardware.{:14}[JOINT_{}]HOME_OFFSET".format(j.upper() + "homesw-pos", self.d.axislist.index(j)), file=f1)
+                if self.d.units: # change sim home switch hysteresis for metric configs
+                    print("setp sim-hardware.{:14}{}".format(j.upper() + "homesw-hyst", 0.6), file=f1)
                 print(file=f1)
             for port in range(0,self.d.number_pports):
                 if port==0 or not self.d.pp2_direction: # output option
@@ -732,14 +730,36 @@ class HAL:
             print("setp db_ohmic.delay     5", file=f1)
         print("setp db_breakaway.delay 5", file=f1)
         print("setp db_arc-ok.delay    5", file=f1)
-        print("\n# ---ARC VOLTAGE LOWPASS FILTER---", file=f1)
-        print("# Only use this if comprehensive testing shows that it is required", file=f1)
-        print("#setp plasmac.lowpass-frequency 0", file=f1)
         # if ohmic sensing contact
         if self.d.ohmiccontact:
             print("\n# ---OHMIC SENSE CONTACT DEBOUNCE---", file=f1)
             print("setp plasmac.ohmic-sense-off-delay  3", file=f1)
             print("setp plasmac.ohmic-sense-on-delay   3", file=f1)
+        # hints for fine tuning
+        print(_("\n\n\n########################################"), file=f1)
+        print(_("# The following variables are available for fine tuning some parameters."), file=f1)
+        print(_("# To use any of these, uncomment the required setp line and set an appropriate value.\n"), file=f1)
+        print(_("# Dampen excessive noise on the arc voltage input"), file=f1)
+        print(_("# default = 0 (volts)"), file=f1)
+        print("#setp plasmac.lowpass-frequency 0\n", file=f1)
+        print(_("# The time delay from losing the arc ok signal until QtPlasmaC reacts to the arc loss."), file=f1)
+        print(_("# default = 0.0 (seconds)"), file=f1)
+        print("#setp plasmac.arc-lost-delay 0.0\n", file=f1)
+        print(_("# For mode 0 Arc-OK only, the number of consecutive readings within the threshold that are required to set the Arc-OK signal."), file=f1)
+        print(_("# default = 6"), file=f1)
+        print("#setp plasmac.arc-ok-counts 6\n", file=f1)
+        print(_("# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for a valid voltage to set the Arc OK signal."), file=f1)
+        print(_("# default = 10 (volts)"), file=f1)
+        print("#setp plasmac.arc-ok-threshold 10\n", file=f1)
+        print(_("# The voltage above and below 0V that will display as 0V. Prevents small fluctuations from flickering the voltage display."), file=f1)
+        print(_("# default = 0 (volts)"), file=f1)
+        print("#setp plasmac.zero-window 0\n", file=f1)
+        print(_("# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC will allow the Z axis to travel while under machine control."), file=f1)
+        print(_("# default = 5 (mm)"), file=f1)
+        print("#setp plasmac.max-offset 5\n", file=f1)
+        print(_("# The required number of consecutive times that the threshold has been exceeded before applying the void lock to the THC."), file=f1)
+        print(_("# default = 2"), file=f1)
+        print("#setp plasmac.kerf-error-max 2\n", file=f1)
         f1.close()
         # add custom_postgui.hal if not existing
         custom = os.path.join(base, "custom_postgui.hal")
@@ -760,17 +780,25 @@ class HAL:
                 dratio = (self.d.voltsrdiv + 100000) / 100000
             vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
             voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
-            # prefs file if not existing
+            # arc voltage settings in prefs file
             prefsfile = os.path.join(base, "qtplasmac.prefs")
+            # edit existing prefs file
             if os.path.exists(prefsfile):
-                # else make a file with new values
-                prefsfile = os.path.join(base, "qtplasmac.prefs.new_values")
-            f1 = open(prefsfile, "w")
-            print(("[PLASMA_PARAMETERS]"), file=f1)
-            print("Arc Voltage Offset = %.3f" % voffset, file=f1)
-            print("Arc Voltage Scale = %.6f" % vscale, file=f1)
-            f1.close()
-
+                with open(prefsfile, "r") as f1:
+                    prefs = f1.readlines()
+                with open(prefsfile, "w") as f1:
+                    for line in prefs:
+                        if line.startswith("Arc Voltage Offset"):
+                            line = "Arc Voltage Offset = {:.3f}\n".format(voffset)
+                        elif line.startswith("Arc Voltage Scal"):
+                            line = "Arc Voltage Scale = {:.6f}\n".format(vscale)
+                        f1.write(line)
+            # create new prefs file
+            else:
+                with open(prefsfile, "w") as f1:
+                    print(("[PLASMA_PARAMETERS]"), file=f1)
+                    print("Arc Voltage Offset = %.3f" % voffset, file=f1)
+                    print("Arc Voltage Scale = %.6f" % vscale, file=f1)
         # qtplasmac has a shutdown.hal
         sdfilename = os.path.join(base, "shutdown.hal")
         f1 = open(sdfilename, "w")
@@ -782,62 +810,25 @@ class HAL:
             # make a sim_postgui.hal file
             spfilename = os.path.join(base, "sim_postgui.hal")
             f1 = open(spfilename, "w")
-            print("# QtPlasmaC simulator panel connections", file=f1)
-            print("\nloadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui", file=f1)
-            print("net plasmac:torch-on                                    =>  qtplasmac_sim.torch_on", file=f1)
-            print("net sim:arc-voltage-in  qtplasmac_sim.arc_voltage_out-f =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in", file=f1)
-            print("net sim:arc-ok          qtplasmac_sim.arc_ok            =>  db_arc-ok.in", file=f1)
-            print("net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  db_ohmic.in", file=f1)
-            print("net sim:float           qtplasmac_sim.sensor_float      =>  db_float.in", file=f1)
-            print("net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  db_breakaway.in", file=f1)
-            print("net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up", file=f1)
-            print("net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down", file=f1)
+            print("# QTPLASMAC SIMULATOR PANEL", file=f1)
+            print("\n# load the simulated torch", file=f1)
+            print("loadrt sim_torch", file=f1)
+            print("addf sim-torch servo-thread", file=f1)
+            print("\n# load the sim GUI", file=f1)
+            print("loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui", file=f1)
+            print("\n# connect to existing plasmac connections", file=f1)
+            print("net plasmac:torch-on        =>  qtplasmac_sim.torch_on  sim-torch.start", file=f1)
+            print("net plasmac:cut-volts       =>  sim-torch.voltage-in", file=f1)
+            print("\n# create new sim connections", file=f1)
+            print("net sim:arc-ok              qtplasmac_sim.arc_ok                =>  db_arc-ok.in", file=f1)
+            print("net sim:arc-voltage-in      sim-torch.voltage-out               =>  plasmac.arc-voltage-in", file=f1)
+            print("net sim:arc_voltage_offset  qtplasmac_sim.arc_voltage_offset-f  =>  sim-torch.offset-in", file=f1)
+            print("net sim:breakaway           qtplasmac_sim.sensor_breakaway      =>  db_breakaway.in", file=f1)
+            print("net sim:float               qtplasmac_sim.sensor_float          =>  db_float.in", file=f1)
+            print("net sim:move-down           qtplasmac_sim.move_down             =>  plasmac.move-down", file=f1)
+            print("net sim:move-up             qtplasmac_sim.move_up               =>  plasmac.move-up", file=f1)
+            print("net sim:ohmic               qtplasmac_sim.sensor_ohmic          =>  db_ohmic.in", file=f1)
             f1.close()
-
-    def plasmac_hal_component(self, file):
-        print("\n# ---PLASMAC COMPONENT INPUTS---", file=file)
-        print("net plasmac:arc-ok               db_arc-ok.out               =>  plasmac.arc-ok-in", file=file)
-        print("net plasmac:axis-x-position      axis.x.pos-cmd              =>  plasmac.axis-x-position", file=file)
-        print("net plasmac:axis-y-position      axis.y.pos-cmd              =>  plasmac.axis-y-position", file=file)
-        print("net plasmac:breakaway-switch-out db_breakaway.out            =>  plasmac.breakaway", file=file)
-        print("net plasmac:current-velocity     motion.current-vel          =>  plasmac.current-velocity", file=file)
-        print("net plasmac:cutting-start        spindle.0.on                =>  plasmac.cutting-start", file=file)
-        print("net plasmac:feed-override        halui.feed-override.value   =>  plasmac.feed-override", file=file)
-        print("net plasmac:feed-reduction       motion.analog-out-03        =>  plasmac.feed-reduction", file=file)
-        print("net plasmac:float-switch-out     db_float.out                =>  plasmac.float-switch", file=file)
-        print("net plasmac:ignore-arc-ok-0      motion.digital-out-01       =>  plasmac.ignore-arc-ok-0", file=file)
-        print("net machine-is-on                halui.machine.is-on         =>  plasmac.machine-is-on", file=file)
-        print("net plasmac:motion-type          motion.motion-type          =>  plasmac.motion-type", file=file)
-        print("net plasmac:offsets-active       motion.eoffset-active       =>  plasmac.offsets-active", file=file)
-        print("net plasmac:ohmic-probe-out      db_ohmic.out                =>  plasmac.ohmic-probe", file=file)
-        print("net plasmac:program-is-idle      halui.program.is-idle       =>  plasmac.program-is-idle", file=file)
-        print("net plasmac:program-is-paused    halui.program.is-paused     =>  plasmac.program-is-paused", file=file)
-        print("net plasmac:program-is-running   halui.program.is-running    =>  plasmac.program-is-running", file=file)
-        print("net plasmac:feed-upm             motion.feed-upm             =>  plasmac.feed-upm", file=file)
-        print("net plasmac:scribe-start         spindle.1.on                =>  plasmac.scribe-start", file=file)
-        print("net plasmac:spotting-start       spindle.2.on                =>  plasmac.spotting-start", file=file)
-        print("net plasmac:thc-disable          motion.digital-out-02       =>  plasmac.thc-disable", file=file)
-        print("net plasmac:torch-off            motion.digital-out-03       =>  plasmac.torch-off", file=file)
-        print("net plasmac:units-per-mm         halui.machine.units-per-mm  =>  plasmac.units-per-mm", file=file)
-        print("net plasmac:x-offset-current     axis.x.eoffset              =>  plasmac.x-offset-current", file=file)
-        print("net plasmac:y-offset-current     axis.y.eoffset              =>  plasmac.y-offset-current", file=file)
-        print("net plasmac:z-offset-current     axis.z.eoffset              =>  plasmac.z-offset-current", file=file)
-
-        print("\n# ---PLASMAC COMPONENT OUTPUTS---", file=file)
-        print("net plasmac:adaptive-feed        plasmac.adaptive-feed       =>  motion.adaptive-feed", file=file)
-        print("net plasmac:cutting-stop         halui.spindle.0.stop        =>  plasmac.cutting-stop", file=file)
-        print("net plasmac:feed-hold            plasmac.feed-hold           =>  motion.feed-hold", file=file)
-        print("net plasmac:offset-scale         plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale", file=file)
-        print("net plasmac:program-pause        plasmac.program-pause       =>  halui.program.pause", file=file)
-        print("net plasmac:program-resume       plasmac.program-resume      =>  halui.program.resume", file=file)
-        print("net plasmac:program-run          plasmac.program-run         =>  halui.program.run", file=file)
-        print("net plasmac:program-stop         plasmac.program-stop        =>  halui.program.stop", file=file)
-        print("net plasmac:torch-on             plasmac.torch-on", file=file)
-        print("net plasmac:x-offset-counts      plasmac.x-offset-counts     =>  axis.x.eoffset-counts", file=file)
-        print("net plasmac:y-offset-counts      plasmac.y-offset-counts     =>  axis.y.eoffset-counts", file=file)
-        print("net plasmac:xy-offset-enable     plasmac.xy-offset-enable    =>  axis.x.eoffset-enable axis.y.eoffset-enable", file=file)
-        print("net plasmac:z-offset-counts      plasmac.z-offset-counts     =>  axis.z.eoffset-counts", file=file)
-        print("net plasmac:z-offset-enable      plasmac.z-offset-enable     =>  axis.z.eoffset-enable", file=file)
 
     # Boiler code
     def __getitem__(self, item):

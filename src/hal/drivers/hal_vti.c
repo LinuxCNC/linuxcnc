@@ -200,7 +200,7 @@ typedef struct {
 
 /* dio data */
     io_pin port[MAX_IO_PORTS][PINS_PER_PORT];	/* Holds MAX_IO_PORTS X PINS_PER_PORT
-						   number of discreet I/O points */
+						   number of discrete I/O points */
     unsigned char dir_bits[MAX_IO_PORTS * 2];	/* remembers config (which port is input which is output) */
 
     unsigned char model;

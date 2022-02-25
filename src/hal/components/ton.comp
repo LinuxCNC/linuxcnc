@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: ton.comp
-*   IEC_61131-3 Time On timer for HAL bit signals.
+*   IEC_61131-3 Time On timer for LinuxCNC HAL bit signals.
 *
 *   This is a HAL component that can be used to delay rising edge signals
 *   for a certain amount of time.

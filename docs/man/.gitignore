@@ -82,6 +82,7 @@ man9/gantry.9
 man9/gearchange.9
 man9/gray2bin.9
 man9/histobins.9
+man9/homecomp.9
 man9/hypot.9
 man9/ilowpass.9
 man9/integ.9
@@ -132,6 +133,7 @@ man9/sim_axis_hardware.9
 man9/sim_home_switch.9
 man9/sim_matrix_kb.9
 man9/sim_parport.9
+man9/sim_torch.9
 man9/simple_tp.9
 man9/sim_spindle.9
 man9/sphereprobe.9
@@ -148,6 +150,7 @@ man9/timedelay.9
 man9/timedelta.9
 man9/toggle2nist.9
 man9/toggle.9
+man9/tpcomp.9
 man9/tristate_bit.9
 man9/tristate_float.9
 man9/updown.9

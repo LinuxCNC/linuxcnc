@@ -513,7 +513,7 @@ MDI_COMMAND = G53 G0 X0 Y0 Z0
 ----
 
 [NOTE]
-Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G codes
+Information about <<gcode:g53,G53>> and <<gcode:g0,G0>> G-codes
 
 In the [HAL] section if you don't have a post gui file add the following and
 create a file called 'postgui.hal'.

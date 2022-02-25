@@ -69,11 +69,11 @@ try:
     s = linuxcnc.stat() # create a connection to the status channel
     s.poll() # get current values
 except linuxcnc.error, detail:
-    print "error", detail
+    print("error", detail)
     sys.exit(1)
 for x in dir(s):
     if not x.startswith("_"):
-        print x, getattr(s,x)
+        print(x, getattr(s,x))
 ---------------------------------------------------------------------
 
 Linuxcnc uses the default compiled-in path to the NML configuration
@@ -181,7 +181,7 @@ enable flag for feed override.
 current feedrate override, 1.0 = 100%.
 
 *file*:: '(returns string)' -
-currently loaded gcode filename with path.
+currently loaded G-code filename with path.
 
 *flood*:: '(returns integer)' -
 Flood status, either FLOOD_OFF or FLOOD_ON.
@@ -197,7 +197,7 @@ pose of the current g92 offset.
 
 *gcodes*:: '(returns tuple of integers)' -
 Active G-codes for each modal group.
-G code constants
+G-code constants
 G_0, G_1, G_2, G_3, G_4, G_5, G_5_1, G_5_2, G_5_3, G_7, G_8, G_100, G_17,
 G_17_1, G_18, G_18_1, G_19, G_19_1, G_20, G_21, G_28, G_28_1, G_30, G_30_1,
 G_33, G_33_1, G_38_2, G_38_3, G_38_4, G_38_5, G_40, G_41, G_41_1, G_42, G_42_1,
@@ -211,6 +211,9 @@ currently homed joints, 0 = not homed, 1 = homed.
 
 *id*:: '(returns integer)' -
 currently executing motion id.
+
+*ini_filename*:: '(returns string)' -
+path to the INI file passed to linuxcnc.
 
 *inpos*:: '(returns boolean)' -
 machine-in-position flag.
@@ -262,10 +265,10 @@ machine linear units per mm, reflects [TRAJ]LINEAR_UNITS ini value.
 reflects 'iocontrol.0.lube_level'.
 
 *max_acceleration*:: '(returns float)' -
-maximum  acceleration. reflects [TRAJ]MAX_ACCELERATION.
+maximum  acceleration. Reflects [TRAJ]MAX_ACCELERATION.
 
 *max_velocity*:: '(returns float)' -
-maximum  velocity. reflects the current maximum velocity. If not modified by halui.max-velocity or similar it should reflect [TRAJ]MAX_VELOCITY.
+maximum  velocity. Reflects the current maximum velocity. If not modified by halui.max-velocity or similar it should reflect [TRAJ]MAX_VELOCITY.
 
 *mcodes*:: '(returns tuple of 10 integers)' -
 currently active M-codes.
@@ -386,9 +389,9 @@ s = linuxcnc.stat()
 s.poll()
 # to find the loaded tool information it is in tool table index 0
 if s.tool_table[0].id != 0: # a tool is loaded
-    print s.tool_table[0].zoffset
+    print(s.tool_table[0].zoffset)
 else:
-    print "no tool loaded"
+    print("no tool loaded")
 ----
 
 *velocity*:: '(returns float)' -
@@ -399,17 +402,6 @@ This property is defined, but it does not have a useful interpretation.
 The axis configuration and status values are available through a list
 of per-axis dictionaries. Here's an example how to access an attribute
 of a particular axis:
-
-[source,python]
----------------------------------------------------------------------
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-import linuxcnc
-s = linuxcnc.stat()
-s.poll()
-print "Joint 1 homed: ", s.joint[1]["homed"]
----------------------------------------------------------------------
-
 Note that many properties that were formerly in the `axis` dictionary are
 now in the `joint` dictionary, because on nontrivial kinematics machines
 these items (such as backlash) are not the properties of an axis.
@@ -426,6 +418,16 @@ parameter, reflects [JOINT_n]MIN_LIMIT.
 current velocity.
 
 === The `joint` dictionary [[sec:the-joint-dictionary]]
+
+[source,python]
+---------------------------------------------------------------------
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import linuxcnc
+s = linuxcnc.stat()
+s.poll()
+print("Joint 1 homed: ", s.joint[1]["homed"])
+---------------------------------------------------------------------
 
 For each joint, the following dictionary keys are available:
 
@@ -638,10 +640,10 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     set debug level via EMC_SET_DEBUG message.
 
 `display_msg(string)`::
-    sends a operator display message to the screen. (max 256 characters)
+    sends a operator display message to the screen. (max 254 characters)
 
 `error_msg(string)`::
-    sends a operator error message to the screen. (max 256 characters)
+    sends a operator error message to the screen. (max 254 characters)
 
 `feedrate(float)`::
     set the feedrate.
@@ -686,7 +688,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     set maximum velocity
 
 `mdi(string)`::
-    send an MDI command. Maximum 255 chars.
+    send an MDI command. Maximum 254 chars.
 
 `mist(int)`:: turn on/off mist. +
     Syntax: +
@@ -749,7 +751,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     SPINDLE_DECREASE, or SPINDLE_CONSTANT.
 
 `text_msg(string)`::
-    sends a operator text message to the screen. (max 256 characters)
+    sends a operator text message to the screen. (max 254 characters)
 
 [source, python]
 ---------------------------------------------------------------------
@@ -866,13 +868,33 @@ print "machine name: ", machine_name
 # if the key wasn't found:
 
 extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
-print "extensions: ", extensions
+print("extensions: ", extensions)
 
 # override default NML file by ini parameter if given
 nmlfile = inifile.find("EMC", "NML_FILE")
 if nmlfile:
     linuxcnc.nmlfile = os.path.join(os.path.dirname(sys.argv[1]), nmlfile)
 ---------------------------------------------------------------------
+
+Or for the same INI file as LinuxCNC:
+
+[source,python]
+---------------------------------------------------------------------
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# run as:
+# python ini-example2.py
+
+import linuxcnc
+
+stat = linuxcnc.stat()
+stat.poll()
+
+inifile = linuxcnc.ini(stat.ini_filename)
+
+# See example above for usage of 'inifile' object
+---------------------------------------------------------------------
+
 
 == The `linuxcnc.positionlogger` type
 

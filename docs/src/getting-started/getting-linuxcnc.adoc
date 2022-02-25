@@ -357,6 +357,7 @@ uname -v
 +
 ----
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
@@ -399,6 +400,7 @@ at system shut-down.
 +
 ----
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
@@ -429,6 +431,7 @@ Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai ke
 +
 ----
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 . Add the apt repository:
 +
@@ -473,6 +476,7 @@ sudo apt-get dist-upgrade
 +
 ----
 sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add a new apt source

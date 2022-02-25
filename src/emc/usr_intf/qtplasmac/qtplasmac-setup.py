@@ -129,7 +129,7 @@ class ConfSwitch(QMainWindow, object):
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
-        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt DejaVuSans} \
                              QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20}' \
                          )
         ret = msgBox.exec_()

@@ -58,7 +58,7 @@ directions.
 === Coolant (((coolant)))
 
 If a CNC machine has components to provide mist coolant and/or flood
-coolant they can be controlled by G codes.
+coolant they can be controlled by G-codes.
 
 === Feed and Speed Override
 
@@ -258,7 +258,7 @@ information.
 
 === Block Delete Switch
 
-If the block delete switch is on, lines of G code which start
+If the block delete switch is on, lines of G-code which start
 with a slash (the block delete character) are not interpreted. If the
 switch is off, such lines are interpreted. Normally the block delete
 switch should be set before starting the NGC program.
@@ -313,7 +313,7 @@ Interpreter the responsibility for maintaining the file. The
 Interpreter reads the file when it starts up, and writes the file when
 it exits.
 
-All parameters are available for use in G code programs.
+All parameters are available for use in G-code programs.
 
 The format of a parameter file is shown in the following table.
 The file consists of any number of

@@ -126,7 +126,7 @@ class JogWheel(Gtk.DrawingArea, _HalJogWheelBase):
         self.dot_pitch_radius = self.inner_radius - self.dot_radius
 
         # create the cairo window
-        # I do not know why this workes without importing cairo
+        # I do not know why this works without importing cairo
         self.cr = widget.get_property('window').cairo_create()
 
         # the area of reactions

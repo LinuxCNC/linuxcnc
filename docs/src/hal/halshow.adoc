@@ -37,11 +37,12 @@ Notes:
 ----
 
 Example to limit number of decimal points for floats
-and used a file named my.halshow in the current directory:
+and use a file named my.halshow in the current directory:
 
 ----
 $ halshow  --fformat "%.5f" ./my.halshow
 ----
+For more information regarding the format, please refer to https://www.tcl.tk/man/tcl8.6.11/TclCmd/format.html
 
 == HAL Tree Area
 
@@ -252,7 +253,7 @@ available in this area. That is where the HAL Watch Area is of value.
   - Copy name
   - Set value
   - Unlink pin
-  - Remove Delete from view
+  - Remove from view
 * Menu entries for
   - Add signals/pins/parameters by name
   - Set watch interval

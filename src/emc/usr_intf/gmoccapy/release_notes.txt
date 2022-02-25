@@ -1789,7 +1789,7 @@ ver. 0.8.9
 - entering the edit mode sets the focus in the hal_sourceview widget, so working with keyboard
   is possible without any cklick
 - After editing the tool offsets in table, the button "Apply" will not only apply the changes to
-  tool table, but also to the tool in spindle, but only if G43 is in active g-codes
+  tool table, but also to the tool in spindle, but only if G43 is in active G-codes
 - speeded up the tool change screen refresh, by adding self.on_hal_status_interp_idle(self)
   in the button press event
 - added hal pins for jogging the axis with hardware buttons for each axis in self.data.axis_list
@@ -2003,7 +2003,7 @@ ver. 0.6.06
   include cursor keys
 
 ver. 0.6.05
-- begin to include the edit mode for g-code programs
+- begin to include the edit mode for G-code programs
   not working jet, still work to do
   The graphics part is finished, just the icon are not very nice
 

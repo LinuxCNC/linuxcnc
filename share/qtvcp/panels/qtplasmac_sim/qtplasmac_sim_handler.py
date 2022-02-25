@@ -2,8 +2,8 @@
 '''
 qtplasmac_sim_handler.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -52,12 +52,21 @@ class HandlerClass:
         self.torchPin = self.hal.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
         self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
         self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
-        self.arcVoltsPin = self.hal.newpin('arc_voltage_out-f', hal.HAL_FLOAT, hal.HAL_OUT)
-        CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
+        self.arcVoltsOffsetPin = self.hal.newpin('arc_voltage_offset-f', hal.HAL_FLOAT, hal.HAL_OUT)
+        simStepconf = False
+        for sig in hal.get_info_signals():
+            if sig['NAME'] == 'Zjoint-pos-fb':
+                simStepconf = True
+                break
+        if simStepconf:
+            CALL(['halcmd', 'net', 'Zjoint-pos-fb', 'qtplasmac_sim.z_position'])
+        else:
+            CALL(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
         CALL(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
         self.torchPin.value_changed.connect(self.torch_changed)
         self.zPosPin.value_changed.connect(lambda v:self.z_position_changed(v))
-        self.w.arc_voltage_out.valueChanged.connect(lambda v:self.arc_volts_changed(v))
+        self.statePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
+        self.w.arc_voltage_offset.valueChanged.connect(lambda v:self.arc_volts_offset_changed(v))
         self.w.sensor_flt.pressed.connect(self.float_pressed)
         self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
         self.w.sensor_brk.pressed.connect(self.break_pressed)
@@ -110,7 +119,7 @@ class HandlerClass:
             '* {{\n'\
             '    color: {0};\n'\
             '    background: {1};\n'\
-            '    font: 10pt Lato }}\n'\
+            '    font: 10pt DejaVuSans }}\n'\
             '\n/****** BUTTONS ************/\n'\
             'QPushButton {{\n'\
             '    color: {0};\n'\
@@ -128,6 +137,8 @@ class HandlerClass:
             '    border: 0px solid {0};\n'\
             '    border-radius: 4px;\n'\
             '    width: 24px }}\n'\
+            '\nQSlider::handle:horizontal:disabled {{\n'\
+            '    background: {1} }}\n'\
             '\nQSlider::add-page:horizontal {{\n'\
             '    background: {2};\n'\
             '    border: 1px solid {2};\n'\
@@ -243,7 +254,7 @@ class HandlerClass:
                  self.w.move_up, self.w.move_down, self.w.move_label]
         mode1 = [self.w.arc_ok_line, \
                  self.w.move_up, self.w.move_down, self.w.move_label]
-        mode2 = [self.w.arc_voltage_in, self.w.arc_voltage_out, \
+        mode2 = [self.w.offset_label, self.w.arc_voltage_offset, \
                   self.w.arc_voltage_label, self.w.arc_voltage_line]
         if mode == 1:
             self.w.mode_label.setText('Mode 1')
@@ -257,31 +268,24 @@ class HandlerClass:
 
     def torch_changed(self, halpin):
         if halpin:
-            time.sleep(0.1)
-            if hal.get_value('plasmac.mode') == 0 or hal.get_value('plasmac.mode') == 1:
-                self.w.arc_voltage_out.setValue(1000)
-                self.w.arc_voltage_out.setMinimum(900)
-                self.w.arc_voltage_out.setMaximum(1100)
-                self.w.arc_voltage_out.setSingleStep(1)
-                self.w.arc_voltage_out.setPageStep(1)
             if (hal.get_value('plasmac.mode') == 1 or hal.get_value('plasmac.mode') == 2) and not self.w.arc_ok.isChecked():
                 self.w.arc_ok.toggle()
                 self.w.arc_ok_clicked()
         else:
-            self.w.arc_voltage_out.setMinimum(0)
-            self.w.arc_voltage_out.setMaximum(3000)
-            self.w.arc_voltage_out.setValue(0)
-            self.w.arc_voltage_out.setSingleStep(10)
-            self.w.arc_voltage_out.setPageStep(100)
             if self.w.arc_ok.isChecked():
                 self.w.arc_ok.toggle()
                 self.w.arc_ok_clicked()
 
-    def arc_volts_changed(self, value):
-        if self.w.arc_voltage_out.maximum() == 3000:
-            self.arcVoltsPin.set(int(value * 0.1))
+    def arc_volts_offset_changed(self, value):
+            self.arcVoltsOffsetPin.set(value * 0.1)
+            self.w.offset_label.setText('{:0.1f} V'.format(self.arcVoltsOffsetPin.get()))
+
+    def plasmac_state_changed(self, state):
+        if state == 11 and self.torchPin.get():
+            self.w.arc_voltage_offset.setEnabled(True)
         else:
-            self.arcVoltsPin.set(value * 0.1)
+            self.w.arc_voltage_offset.setEnabled(False)
+            self.w.arc_voltage_offset.setValue(0)
 
     def z_position_changed(self, height):
         if self.w.auto_flt.isChecked():

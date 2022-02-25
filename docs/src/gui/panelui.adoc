@@ -38,7 +38,7 @@ A typical HAL file will have these commands added:
 [source,{hal}]
 ----
 # commands needed for panelui loading
-# 
+#
 # sampler is needed for panelui
 # cfg= must always be u for panelui. depth sets the available buffer
 loadrt sampler cfg=u depth=1025
@@ -69,7 +69,7 @@ addf sampler.0          servo-thread
 
 .*Key words*
 * KEY= This is used to designate the key that the button responds to. It can be NONE or
-ROW number and column number eg R1C2. A row and column can only be used once.
+  ROW number and column number eg R1C2. A row and column can only be used once.
 * OUTPUT= This sets the Button's output type, eg S32, U32, FLOAT, BIT, NONE, COMMAND, ZMQ.
 * DEFAULT= This sets the starting output of the group or button.
 * GROUP= In radiobuttons, designates the group the button interacts with.
@@ -86,7 +86,7 @@ ROW number and column number eg R1C2. A row and column can only be used once.
 [source,{ini}]
 ----
 [HAL_PREFIX]
-    NAME= Yourname 
+    NAME= Yourname
 ----
 This allows one to change the prefix of the HAL pins from 'panelui' to an arbitrary name.
 
@@ -137,7 +137,7 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
                 TRUE_COMMAND = NONE, NONE
                 FALSE_COMMAND = NONE, NONE
                 DEFAULT = false
-            # This button, named 'large' is controller by the row 0 column 2 key. 
+            # This button, named 'large' is controller by the row 0 column 2 key.
             # It will cause the group output to be 1000 when it is pressed.
             # It has a S32 output of it's own, will be 20 on true and 0 on false.
             # It also has a status pin which will follow it's current state.
@@ -242,8 +242,8 @@ There are a number of internal commands you may use. +
 .*spindle_forward_adjust*
 * optional argument: starting RPM (int) - default 100
 * Description: If the spindle is stopped it will start in the forward direction.
-If it is already running it will increase or decrease the rpm depending on what direction 
-the spindle is running in.
+  If it is already running it will increase or decrease the rpm depending on what direction
+  the spindle is running in.
 
 .*spindle_forward*
 * optional argument: starting RPM (int) - default 100
@@ -256,8 +256,8 @@ the spindle is running in.
 .*spindle_reverse_adjust*
 * optional argument: starting RPM (int) - default 100
 * Description: If the spindle is stopped it will start in the reverse direction.
-If it is already running it will increase or decrease the rpm depending on what direction 
-the spindle is running in.
+  If it is already running it will increase or decrease the rpm depending on what direction
+  the spindle is running in.
 
 .*spindle_faster*
 * Description: increases spindle speed by 100 RPM
@@ -316,17 +316,17 @@ the spindle is running in.
 * required argument: state (bool 0 or 1)
 
 .*smart_cycle_start*
-* Description: If idle, starts gcode program, if paused runs one line.
+* Description: If idle, starts G-code program, if paused runs one line.
 
 .*re_start line*
 * required argument: line number (int)
 
 .*mdi_and_return*
-* required argument: Gcode command(s)
+* required argument: G-code command(s)
 * Description: records the current mode, calls commands and then returns to mode.
 
 .*mdi*
-* required argument: Gcode command(s)
+* required argument: G-code command(s)
 * Description: sets mode to MDI, calls commands.
 
 == ZMQ Messages

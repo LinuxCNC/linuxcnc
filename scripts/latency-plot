@@ -49,8 +49,20 @@ if [catch {package require BLT} msg] {
   exit 1
 }
 
+proc which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
+
 proc setdefaults {} {
-  set           ::sc(halrun) [exec which halrun]
+  if [catch { set ::sc(halrun) [which_exe halrun]} msg] {
+    puts $msg
+    exit 1
+  }
   set         ::sc(realtime) [exec linuxcnc_var REALTIME]
 
   # note: program updates at 1 second intervals

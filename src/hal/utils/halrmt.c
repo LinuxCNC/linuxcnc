@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: halrmt.cc
-*   Simple telnet interface to EMC2 HAL commands (halcmd)
+*   Simple telnet interface to LinuxCNC HAL commands (halcmd)
 *
 *   Derived from work by jmkasunich
 *

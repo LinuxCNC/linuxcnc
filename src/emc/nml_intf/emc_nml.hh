@@ -1505,6 +1505,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     bool input_timeout;		// has a timeout happened on digital input
     char file[LINELEN];
     char command[LINELEN];
+    char ini_filename[LINELEN];
     EmcPose g5x_offset;		// in user units, currently active
     int g5x_index;              // index of active g5x system
     EmcPose g92_offset;		// in user units, currently active
