@@ -398,7 +398,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         elif self._ind_status:
             self._init_state_change()
         self._globalParameter = {'__builtins__' : None, 'INSTANCE':self.QTVCP_INSTANCE_,
-                                 'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal}
+                                 'PROGRAM_LOADER':AUX_PRGM, 'ACTION':ACTION, 'HAL':hal, 'print':print}
         self._localsParameter = {'dir': dir, 'True':True, 'False':False}
 
         def _update(state):
@@ -520,13 +520,22 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self.style().polish(self)
 
     # arbitraray python commands are possible using 'INSTANCE' in the string
-    # gives access to widgets and handler functions 
+    # gives access to widgets and handler functions
+    # builtin python commands are restricted see self._globalParameter
     def python_command(self, state = None):
         if self._python_command:
             if state:
-                exec(self.true_python_command, self._globalParameter, self._localsParameter)
+                try:
+                    exec(self.true_python_command, self._globalParameter, self._localsParameter)
+                except TypeError as e:
+                    LOG.error('({} called exec in error:{}'.format(self.objectName(),e))
+                    LOG.warning('   Command was {}'.format(self.true_python_command))
             else:
-                exec(self.false_python_command, self._globalParameter, self._localsParameter)
+                try:
+                    exec(self.false_python_command, self._globalParameter, self._localsParameter)
+                except TypeError as e:
+                    LOG.error('({} called exec in error:{}'.format(self.objectName(),e))
+                    LOG.warning('   Command was {}'.format(self.false_python_command))
 
     # callback to toggle text when button is toggled
     def toggle_text(self, state=None):
