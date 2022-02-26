@@ -960,9 +960,11 @@ proc watchReset {del} {
                 set ::watchlist [lreplace $::watchlist $place $place]
                 set watchlist_copy $::watchlist
                 set ::watchlist ""
+                set scrollbar_pos [lindex [$::cisp yview] 0]
                 foreach var $watchlist_copy {
                     watchHAL $var
                 }
+                $::cisp yview moveto [expr $scrollbar_pos * (1 + 1/double([llength $watchlist_copy]))]
                 setStatusbar "'$del' [msgcat::mc "removed from list"]"
             } else {            
                 watchHAL zzz
@@ -973,8 +975,10 @@ proc watchReset {del} {
 
 proc reloadWatch {} {
     set watchlist_copy $::watchlist
+    set scrollbar_pos [lindex [$::cisp yview] 0]
     watchReset all
     foreach item $watchlist_copy { watchHAL $item }
+    $::cisp yview moveto $scrollbar_pos
 }
 
 # proc switches the insert and removal of upper right text
