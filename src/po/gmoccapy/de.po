@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 18:54+0100\n"
-"PO-Revision-Date: 2022-02-02 16:55+0000\n"
+"PO-Revision-Date: 2022-02-14 01:56+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -956,7 +956,7 @@ msgstr "Logo"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:26
 msgid "Ignore limits"
-msgstr "Ignoriere Grenzen"
+msgstr "Endschalter ignorieren"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "<b>Jogging</b>"
@@ -1044,9 +1044,7 @@ msgstr "<b>Vorschubüberst.</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "Undo"
-msgstr ""
-"Rück-\n"
-"gängig"
+msgstr "Rückgängig"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid ""
@@ -1066,9 +1064,7 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "Redo"
-msgstr ""
-"Wieder-\n"
-"herstellen"
+msgstr "Wiederherstellen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid ""

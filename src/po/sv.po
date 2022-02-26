@@ -9,15 +9,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2006-04-12 21:33+0200\n"
-"Last-Translator: Jonathan Lock <lerneaen.hydra@gmail.com>\n"
+"PO-Revision-Date: 2022-02-14 01:56+0000\n"
+"Last-Translator: JanneK <janne.kronback@gmail.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.11-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -29,32 +31,32 @@ msgstr ""
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr ""
+msgstr "går ej att utföra (%s:%d) i manuellt läge"
 
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr ""
+msgstr "går ej att utföra (%s) i autoläge med tolken i vänteläge"
 
 #: src/emc/task/emctaskmain.cc:1177
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr ""
+msgstr "går ej att utföra (%s) i autoläge medan tolken läser"
 
 #: src/emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr ""
+msgstr "går ej att utföra (%s) i autoläge medan tolken är pausad"
 
 #: src/emc/task/emctaskmain.cc:1335
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr ""
+msgstr "går ej att utföra (%s) i autoläge medan tolken är i vänteläge"
 
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "går ej att utföra (%s:%d) i MDI-läge"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
@@ -11504,7 +11506,8 @@ msgstr "Position:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

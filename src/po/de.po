@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-11 22:09+0000\n"
-"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2022-02-14 01:56+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -12504,14 +12504,20 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:644
 msgid "# ---max velocity override signals to mesa encoder - mpg---"
 msgstr ""
+"# ---max Geschwindigkeit Neufestsetzungs-Signale an Mesa Encoder - mpg (max "
+"velocity override signals to mesa encoder - mpg)---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:658
 msgid "# connect max velocity override increments - MPG"
 msgstr ""
+"# verbinde max Geschwindigkeit Neufestetzung Inkrement - MPG (connect max "
+"velocity override increments - MPG)"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:673
 msgid "# connect max velocity override increments - switches"
 msgstr ""
+"# verbinde max Geschwindigkeit Neufestetzung Inkrement - Schalter (connect "
+"max velocity override increments - switches)"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:698
 msgid "# ---spindle override signals to mesa encoder - mpg---"
@@ -17242,6 +17248,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:291
 msgid "Negative Travel Distance  (Machine zero Origin to end of - travel): "
 msgstr ""
+"Negativer Verfahr-Weg  (Maschinen Ursprung liegt am Ende der - Richtung): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:307
 #: src/emc/usr_intf/pncconf/y_axis.glade:307
@@ -17263,6 +17270,7 @@ msgstr "Geschwindigkeit bei Anfahrt Referenzpunkt:"
 #: src/emc/usr_intf/pncconf/a_axis.glade:338
 msgid "Positive Travel Distance  (Machine zero Origin to end of + travel): "
 msgstr ""
+"Positiver Verfahr-Weg  (Maschinen Ursprung liegt am Ende der + Richtung)"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:354
 #: src/emc/usr_intf/pncconf/y_axis.glade:354
@@ -17413,7 +17421,7 @@ msgstr "Analoger Max Grenzwert:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:726
 #: src/emc/usr_intf/pncconf/a_motor.glade:703
 msgid "Analog Max Scale:"
-msgstr ""
+msgstr "Analoge Max Skalierung:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:801
 #: src/emc/usr_intf/pncconf/y_motor.glade:801
@@ -17443,7 +17451,6 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_motor.glade:909
 #: src/emc/usr_intf/pncconf/a_motor.glade:876
 #: src/emc/usr_intf/pncconf/s_motor.glade:881
-#, fuzzy
 msgid "Direction Hold"
 msgstr "Zeit zwischen Schritt und Richtungswechsel"
 
@@ -17517,7 +17524,7 @@ msgstr "Hall-Sensoren"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1119
 #: src/emc/usr_intf/pncconf/s_motor.glade:1326
 msgid "Fanuc Red Cap "
-msgstr ""
+msgstr "Fanuc 'Red Cap' "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1176
 #: src/emc/usr_intf/pncconf/y_motor.glade:1176
@@ -17525,7 +17532,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1133
 #: src/emc/usr_intf/pncconf/s_motor.glade:1341
 msgid "Use encoder Index"
-msgstr ""
+msgstr "Nutze Encoder Index"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1219
 #: src/emc/usr_intf/pncconf/y_motor.glade:1219
@@ -17581,7 +17588,7 @@ msgstr "Emulierte Hall-Sensoren"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1273
 #: src/emc/usr_intf/pncconf/s_motor.glade:1487
 msgid "Emulated Fanuc Red Cap"
-msgstr ""
+msgstr "Emulierter Fanuc 'Red Cap'"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1358
 #: src/emc/usr_intf/pncconf/y_motor.glade:1358
@@ -17746,14 +17753,15 @@ msgstr "<b>Filtereinstellungen für die Spindelanzeige</b>"
 #: src/emc/usr_intf/pncconf/z_motor.glade:1993
 #: src/emc/usr_intf/pncconf/a_motor.glade:1916
 msgid "Rapid Speed Following Error:"
-msgstr ""
+msgstr "Geschwindigkeit des Schnellgangs nach Fehler:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2006
 #: src/emc/usr_intf/pncconf/y_motor.glade:2006
 #: src/emc/usr_intf/pncconf/z_motor.glade:2006
 #: src/emc/usr_intf/pncconf/a_motor.glade:1929
+#, fuzzy
 msgid "Feed Speed Following Error:"
-msgstr ""
+msgstr "Geschwindigkeit des Arbeitsgangs nach Fehler:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:2019
 #: src/emc/usr_intf/pncconf/y_motor.glade:2019
@@ -17850,7 +17858,7 @@ msgstr "Slave Nummer:"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:1197
 msgid "Serial Spindle VFD Info"
-msgstr ""
+msgstr "Serielle Spindel Geschwindigkeits Info"
 
 #: src/emc/usr_intf/pncconf/s_motor.glade:2006
 msgid "Use At-Speed Calculation"
@@ -18486,7 +18494,7 @@ msgstr "Schrittzeit:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4676
 msgid "Step Space:"
-msgstr ""
+msgstr "Schwittweite:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4687
 msgid "Direction Hold:"
@@ -19577,7 +19585,9 @@ msgstr ""
 msgid ""
 "  Rapid\n"
 "Override"
-msgstr "  Eilgangübersteuerung"
+msgstr ""
+"  Eilgang\n"
+"Übersteuerung"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3367
 msgid ""
@@ -19661,15 +19671,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3550
 msgid "Undo"
-msgstr ""
-"Rück-\n"
-"gängig"
+msgstr "Rückgängig"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
-msgstr ""
-"Wieder-\n"
-"herstellen"
+msgstr "Wiederherstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
 msgid ""
