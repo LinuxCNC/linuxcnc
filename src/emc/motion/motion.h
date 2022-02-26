@@ -764,12 +764,6 @@ typedef struct emcmot_internal_t {
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
-    extern void emcmotDioWrite(int index, char value);
-    extern void emcmotAioWrite(int index, double value);
-
-    extern void emcmotSetRotaryUnlock(int axis, int unlock);
-    extern int emcmotGetRotaryIsUnlocked(int axis);
-
 #define ALL_JOINTS emcmotConfig->numJoints
 // number of kinematics-only joints:
 #define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
