@@ -1259,7 +1259,8 @@ class HandlerClass:
             if hal.get_value('plasmac.stop-type-out') or hal.get_value('plasmac.cut-recovering'):
                 self.w.set_cut_recovery()
             self.set_tab_jog_states(True)
-        elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
+        elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown() \
+             and not self.extCutRecFwdPin.get() and not self.extCutRecRevPin.get():
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
                 self.w[self.ccButton].setEnabled(False)
