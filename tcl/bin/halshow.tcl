@@ -540,8 +540,8 @@ proc copySelection {clear} {
 proc makeWatch {} {
     set ::cisp [canvas $::watchhal.c -yscrollcommand [list $::watchhal.s set]]
     scrollbar $::watchhal.s -command [list $::cisp yview] -orient v
-    pack $::cisp -side left -fill both -expand yes
-    pack $::watchhal.s -side left -fill y -expand no
+    pack $::watchhal.s -side right -fill y -expand no
+    pack $::cisp -side right -fill both -expand yes  
     bind $::cisp <Configure> {
         set ::canvaswidth %w
         reloadWatch
