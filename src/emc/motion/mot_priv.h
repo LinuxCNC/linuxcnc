@@ -119,29 +119,6 @@ typedef struct {
     hal_float_t *posthome_cmd; //  IN pin extrajoint
 } extrajoint_hal_t;
 
-typedef struct {
-    hal_float_t *pos_cmd;        /* RPI: commanded position */
-    hal_float_t *teleop_vel_cmd; /* RPI: commanded velocity */
-    hal_float_t *teleop_pos_cmd; /* RPI: teleop traj planner pos cmd */
-    hal_float_t *teleop_vel_lim; /* RPI: teleop traj planner vel limit */
-    hal_bit_t   *teleop_tp_enable; /* RPI: teleop traj planner is running */
-
-    hal_s32_t   *ajog_counts;	/* WPI: jogwheel position input */
-    hal_bit_t   *ajog_enable;	/* RPI: enable jogwheel */
-    hal_float_t *ajog_scale;	/* RPI: distance to jog on each count */
-    hal_float_t *ajog_accel_fraction;	/* RPI: to limit wheel jog accel */
-    hal_bit_t   *ajog_vel_mode;	/* RPI: true for "velocity mode" jogwheel */
-    hal_bit_t   *kb_ajog_active;   /* RPI: executing keyboard jog */
-    hal_bit_t   *wheel_ajog_active;/* RPI: executing handwheel jog */
-
-    hal_bit_t   *eoffset_enable;
-    hal_bit_t   *eoffset_clear;
-    hal_s32_t   *eoffset_counts;
-    hal_float_t *eoffset_scale;
-    hal_float_t *external_offset;
-    hal_float_t *external_offset_requested;
-} axis_hal_t;
-
 /* machine data */
 
 typedef struct {
@@ -207,7 +184,6 @@ typedef struct {
     spindle_hal_t spindle[EMCMOT_MAX_SPINDLES];     /*spindle data */
     joint_hal_t joint[EMCMOT_MAX_JOINTS];	/* data for each joint */
     extrajoint_hal_t ejoint[EMCMOT_MAX_EXTRAJOINTS]; /* data for each extrajoint */
-    axis_hal_t axis[EMCMOT_MAX_AXIS];	        /* data for each axis */
 
     hal_bit_t   *eoffset_active; /* ext offsets active */
     hal_bit_t   *eoffset_limited; /* ext offsets exceed limit */
@@ -232,9 +208,6 @@ extern emcmot_hal_data_t *emcmot_hal_data;
 /* the actual array may be in shared memory or in kernel space, as
    determined by the init code in motion.c */
 extern emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
-
-/* pointer to array of axis structs with all axis data */
-extern emcmot_axis_t axes[EMCMOT_MAX_AXIS];
 
 /* Variable defs */
 extern KINEMATICS_FORWARD_FLAGS fflags;

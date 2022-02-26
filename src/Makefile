@@ -1139,6 +1139,7 @@ obj-m += 5axiskins.o
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
+motmod-objs += emc/motion/axis.o
 motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o
@@ -1158,6 +1159,8 @@ tpmod-objs += emc/tp/tcq.o
 tpmod-objs += emc/tp/tp.o
 tpmod-objs += emc/tp/spherical_arc.o
 tpmod-objs += emc/tp/blendmath.o
+tpmod-objs += emc/motion/simple_tp.o
+tpmod-objs += emc/motion/axis.o
 tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
