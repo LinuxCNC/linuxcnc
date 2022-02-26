@@ -1,8 +1,7 @@
 # QTPLASMAC SIMULATOR PANEL
 
 # load the simulated torch
-loadrt sim_torch
-addf sim-torch servo-thread
+loadusr -Wn sim-torch sim-torch
 
 # load the sim GUI
 loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui
