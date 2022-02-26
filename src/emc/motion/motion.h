@@ -551,26 +551,6 @@ Suggestion: Split this in to an Error and a Status flag register..
     } spindle_status_t;
 
     typedef struct {
-	double pos_cmd;		/* commanded axis position */
-	double teleop_vel_cmd;		/* commanded axis velocity */
-	double max_pos_limit;	/* upper soft limit on axis pos */
-	double min_pos_limit;	/* lower soft limit on axis pos */
-	double vel_limit;	/* upper limit of axis speed */
-	double acc_limit;	/* upper limit of axis accel */
-	simple_tp_t teleop_tp;	/* planner for teleop mode motion */
-
-	int old_ajog_counts;	/* prior value, used for deltas */
-	int kb_ajog_active;	/* non-zero during a keyboard jog */
-	int wheel_ajog_active;	/* non-zero during a wheel jog */
-	int locking_joint;	/* locking_joint number, -1 ==> notused*/
-
-	double      ext_offset_vel_limit;	/* upper limit of axis speed for ext offset */
-	double      ext_offset_acc_limit;	/* upper limit of axis accel for ext offset */
-	int         old_eoffset_counts;
-	simple_tp_t ext_offset_tp;/* planner for external coordinate offsets*/
-    } emcmot_axis_t;
-
-    typedef struct {
 	double teleop_vel_cmd;		/* commanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
@@ -783,12 +763,6 @@ typedef struct emcmot_internal_t {
     extern int emcmotErrorPutfv(emcmot_error_t * errlog, const char *fmt, va_list ap);
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
-
-    extern void emcmotDioWrite(int index, char value);
-    extern void emcmotAioWrite(int index, double value);
-
-    extern void emcmotSetRotaryUnlock(int axis, int unlock);
-    extern int emcmotGetRotaryIsUnlocked(int axis);
 
 #define ALL_JOINTS emcmotConfig->numJoints
 // number of kinematics-only joints:

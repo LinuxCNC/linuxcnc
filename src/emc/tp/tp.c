@@ -20,6 +20,7 @@
 #include "motion_types.h"
 #include "spherical_arc.h"
 #include "blendmath.h"
+#include "axis.h"
 //KLUDGE Don't include all of emc.hh here, just hand-copy the TERM COND
 //definitions until we can break the emc constants out into a separate file.
 //#include "emc.hh"
@@ -56,36 +57,39 @@
 
 static emcmot_status_t *emcmotStatus;
 static emcmot_config_t *emcmotConfig;
-static emcmot_axis_t *emcmotAxis;
 
 //==========================================================
 // tp module interface
 // motmod function ptrs for functions called by tp:
-static void(*DioWrite)(int,char);
-static void(*AioWrite)(int,double);
-static void(*SetRotaryUnlock)(int,int);
-static int (*GetRotaryIsUnlocked)(int);
+static void(  *_DioWrite)(int,char);
+static void(  *_AioWrite)(int,double);
+static void(  *_SetRotaryUnlock)(int,int);
+static int (  *_GetRotaryIsUnlocked)(int);
+static double(*_axis_get_vel_limit)(int);
+static double(*_axis_get_acc_limit)(int);
 
-void tpMotFunctions(void(*pDioWrite)(int,char)
-                   ,void(*pAioWrite)(int,double)
-                   ,void(*pSetRotaryUnlock)(int,int)
-                   ,int (*pGetRotaryIsUnlocked)(int)
+void tpMotFunctions(void(  *pDioWrite)(int,char)
+                   ,void(  *pAioWrite)(int,double)
+                   ,void(  *pSetRotaryUnlock)(int,int)
+                   ,int (  *pGetRotaryIsUnlocked)(int)
+                   ,double(*paxis_get_vel_limit)(int)
+                   ,double(*paxis_get_acc_limit)(int)
                    )
 {
-    DioWrite            = *pDioWrite;
-    AioWrite            = *pAioWrite;
-    SetRotaryUnlock     = *pSetRotaryUnlock;
-    GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
+    _DioWrite            = *pDioWrite;
+    _AioWrite            = *pAioWrite;
+    _SetRotaryUnlock     = *pSetRotaryUnlock;
+    _GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
+    _axis_get_vel_limit  = *paxis_get_vel_limit;
+    _axis_get_acc_limit  = *paxis_get_acc_limit;
 }
 
 void tpMotData(emcmot_status_t *pstatus
               ,emcmot_config_t *pconfig
-              ,emcmot_axis_t *paxis
               )
 {
     emcmotStatus = pstatus;
     emcmotConfig = pconfig;
-    emcmotAxis = paxis;
 }
 //=========================================================
 
@@ -174,9 +178,9 @@ STATIC int tpGetMachineAccelBounds(PmCartesian  * const acc_bound) {
         return TP_ERR_FAIL;
     }
 
-    acc_bound->x = emcmotAxis[0].acc_limit; //0==>x
-    acc_bound->y = emcmotAxis[1].acc_limit; //1==>y
-    acc_bound->z = emcmotAxis[2].acc_limit; //2==>z
+    acc_bound->x = _axis_get_acc_limit(0); //0==>x
+    acc_bound->y = _axis_get_acc_limit(1); //1==>y
+    acc_bound->z = _axis_get_acc_limit(2); //2==>z
     return TP_ERR_OK;
 }
 
@@ -186,9 +190,9 @@ STATIC int tpGetMachineVelBounds(PmCartesian  * const vel_bound) {
         return TP_ERR_FAIL;
     }
 
-    vel_bound->x = emcmotAxis[0].vel_limit; //0==>x
-    vel_bound->y = emcmotAxis[1].vel_limit; //1==>y
-    vel_bound->z = emcmotAxis[2].vel_limit; //2==>z
+    vel_bound->x = _axis_get_vel_limit(0); //0==>x
+    vel_bound->y = _axis_get_vel_limit(1); //1==>y
+    vel_bound->z = _axis_get_vel_limit(2); //2==>z
     return TP_ERR_OK;
 }
 
@@ -2487,12 +2491,12 @@ void tpToggleDIOs(TC_STRUCT * const tc) {
     if (tc->syncdio.anychanged != 0) { // we have DIO's to turn on or off
         for (i=0; i < emcmotConfig->numDIO; i++) {
             if (!(tc->syncdio.dio_mask & (1 << i))) continue;
-            if (tc->syncdio.dios[i] > 0) DioWrite(i, 1); // turn DIO[i] on
-            if (tc->syncdio.dios[i] < 0) DioWrite(i, 0); // turn DIO[i] off
+            if (tc->syncdio.dios[i] > 0) _DioWrite(i, 1); // turn DIO[i] on
+            if (tc->syncdio.dios[i] < 0) _DioWrite(i, 0); // turn DIO[i] off
         }
         for (i=0; i < emcmotConfig->numAIO; i++) {
             if (!(tc->syncdio.aio_mask & (1 << i))) continue;
-            AioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
+            _AioWrite(i, tc->syncdio.aios[i]); // set AIO[i]
         }
         tc->syncdio.anychanged = 0; //we have turned them all on/off, nothing else to do for this TC the next time
     }
@@ -2683,12 +2687,12 @@ STATIC void tpHandleEmptyQueue(TP_STRUCT * const tp)
 
 /** Wrapper function to unlock rotary axes */
 STATIC void tpSetRotaryUnlock(int axis, int unlock) {
-    SetRotaryUnlock(axis, unlock);
+    _SetRotaryUnlock(axis, unlock);
 }
 
 /** Wrapper function to check rotary axis lock */
 STATIC int tpGetRotaryIsUnlocked(int axis) {
-    return GetRotaryIsUnlocked(axis);
+    return _GetRotaryIsUnlocked(axis);
 }
 
 
