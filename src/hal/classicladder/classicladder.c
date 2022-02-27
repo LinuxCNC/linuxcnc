@@ -44,7 +44,7 @@
 #include "manager.h"
 #include "calc_sequential.h"
 #include "files_sequential.h"
-#include "config.h"
+//#include "config.h"
 // #include "hardware.h"
 #include "socket_server.h"
 #include "socket_modbus_master.h"
@@ -114,7 +114,6 @@ void display_help (void)
 	       "eg: loadusr -w classicladder  --modmaster ladtest.clp\n"
 	       "\n"
 	       "   --nogui            do not create a GUI, only load a configuration\n"
-	       "   --config=filename  initialize modbus master I/O & load config file-( deprecated- use --modmaster)\n"
 	       "   --modmaster        initialize modbus master I/O ( modbus config is loaded with other objects )\n"
 	       "   --modslave         initialize modbus slave I/O (TCP only- B and W variables accessible\n"
 	       "   --modbus_port=portnumber  used for modbus slave using TCP ( ethernet )\n"
@@ -126,18 +125,15 @@ void display_help (void)
 	exit(0);
 }
 
-
-
 void process_options (int argc, char *argv[])
 {
 	int error = 0;
+
 	for (;;)
 	{
 		int option_index = 0;
-		static const char *short_options = "c:";
 		static const struct option long_options[] = {
 			{"nogui", no_argument, 0, 'n'},
-			{"config", required_argument, 0, 'c'},
 			{"modmaster",no_argument,0,'m'},
 			{"modslave",no_argument,0,'s'},
 			{"debug",no_argument,0,'d'},
@@ -146,7 +142,7 @@ void process_options (int argc, char *argv[])
 			{0, 0, 0, 0},
 		};
 
-		int c = getopt_long(argc, argv, short_options,
+		int c = getopt_long(argc, argv, "",
 				    long_options, &option_index);
 		if (c == EOF)
 			break;
@@ -156,10 +152,6 @@ void process_options (int argc, char *argv[])
 			
 			case 'n':
 				nogui = 1;
-				break;
-			case 'c':
-				read_config (optarg);
-				modmaster=1;
 				break;
 			case 'm':
 				modmaster=1;
