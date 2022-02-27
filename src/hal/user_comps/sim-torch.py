@@ -70,11 +70,8 @@ def random_noise(cycle, volume):
     else:
         return 0
 
-print("MAIN LOOP STARTS HERE")
-
 # main loop
-#while hal.component_exists('motmod') and :
-while not h['close']:
+while hal.component_exists('motmod') and not h['close']:
     # validate the inputs
     cut_noise = abs(h['cut-noise-in'])
     cycles = abs(h['cycles-in'])
