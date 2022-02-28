@@ -1,5 +1,5 @@
 [[cha:hal-components]]
-:tab_options: cols="20s,80,0,0", frame="none", grid="none"
+:tab_options: cols="15s,85,0,0", frame="none", grid="none"
 
 [[cha:hal-components]]
 = HAL Component List((("HAL Component List")))
@@ -17,29 +17,55 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 ----
 
 
+=== User interface
+
 [{tab_options}]
 |=======================
 | axis | AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface. ||
 | axis-remote | AXIS Remote Interface. ||
-| comp | Build, compile and install LinuxCNC HAL components. ||
 | gladevcp | Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets. ||
+| gladevcp | Displays Virtual Control Panels built with GTK/Glade. ||
+| halui | Observe HAL pins and command LinuxCNC through NML. ||
+| pyvcp | Virtual Control Panel for LinuxCNC. ||
+
+|=======================
+
+=== Hardware Drivers
+
+[{tab_options}]
+|=======================
 | gs2 | HAL userspace component for Automation Direct GS2 VFD's. ||
+| mb2hal | ||
+|=======================
+
+=== Diagnostic and Configuration Tools
+
+[{tab_options}]
+|=======================
+| halmeter | Observe HAL pins, signals, and parameters. ||
+| halshow |||
+| halscope |||
+|=======================
+
+=== Other
+
+[{tab_options}]
+|=======================
+| comp | Build, compile and install LinuxCNC HAL components. ||
 | halcmd | Manipulate the Enhanced Machine Controller HAL from the command line. ||
 | hal_input | Control HAL pins with any Linux input device, including USB HID devices. ||
-| halmeter | Observe HAL pins, signals, and parameters. ||
 | halrun | Manipulate the Enhanced Machine Controller HAL from the command line. ||
 | halsampler | Sample data from HAL in realtime. ||
 | halstreamer | Stream file data into HAL in real time. ||
-| halui | Observe HAL pins and command LinuxCNC through NML. ||
 | io | Accepts NML I/O commands, interacts with HAL in userspace. ||
 | iocontrol | Accepts NML I/O commands, interacts with HAL in userspace. ||
 | linuxcnc | LinuxCNC (The Enhanced Machine Controller). ||
-| pyvcp | Virtual Control Panel for LinuxCNC. ||
 | shuttle | control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design. ||
 |=======================
 
 [[sec:realtime-components]]
-== Realtime Components List
+
+== Realtime Components
 
 Some of these will have expanded descriptions from the man pages.
 Some will have limited descriptions. All of the components have man pages.
@@ -52,35 +78,17 @@ man motion
 man 9 motion
 ----
 
-[NOTE]
-If component requires a thread with a float, it is usually the slowest,
-thus _servo-thread_.
+See also the 'Man Pages' section of the link:../index.html[docs main page] or the
+link:../man/man9/[directory listing of man9].
 
-[NOTE]
-See also the 'Man Pages' section of the link:../index.html[docs main page]
-or the link:../man/man9/[directory listing of man9].
-
-[[sec:core-realtime-components]]
-=== Core LinuxCNC components
-[{tab_options}]
-|=======================
-| motion | Accepts NML motion commands, interacts with HAL in realtime. ||
-| axis | Accepts NML motion commands, interacts with HAL in realtime. ||
-| classicladder | Realtime software PLC based on ladder logic.
-See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
-| gladevcp | Displays Virtual Control Panels built with GTK/Glade. ||
-| threads | Creates hard realtime HAL threads. ||
-|=======================
-
-[[sec:Realtime-Components-logic]]
 === Logic and Bitwise components
 
-[{tab_options}]
+[cols="15s,85,0,0", frame="none", grid="none"]
 |=======================
-|and2|Two-input AND gate. For out to be true both inputs must be true. |link:../man/man9/and2.9.html[and2] |
-|not|Inverter|link:../man/man9/not.9.html[not] |
-|or2|Two-input OR gate|link:../man/man9/or2.9.html[or2] |
-|xor2|Two-input XOR (exclusive OR) gate|link:../man/man9/xor2.9.html[xor2] |
+| and2 | Two-input AND gate. For out to be true both inputs must be true. (link:../man/man9/and2.9.html[and2]) ||
+| not  | Inverter ||
+| or2  | Two-input OR gate ||
+| xor2 | Two-input XOR (exclusive OR) gate ||
 | dbounce | Filter noisy digital inputs. link:../man/man9/dbounce.9.html[Details].                                   | |
 | debounce | Filter noisy digital inputs. link:../man/man9/debounce.9.html[Details]. <<sec:debounce, Description>>  | |
 | edge | Edge detector. | |
@@ -95,6 +103,7 @@ See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 
 [[sec:Realtime-Components-flottant]]
 === Arithmetic and float-components
+
 [{tab_options}]
 |=======================
 | abs | Compute the absolute value and sign of the input signal.                                  | |
@@ -149,7 +158,6 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 [[sec:Realtime-Components-pilotes]]
 === Hardware Drivers
 
-
 [{tab_options}]
 |=======================
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller. ||
@@ -165,6 +173,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 
 [[sec:Realtime-Components-cinematiques]]
 === Kinematics
+
 [{tab_options}]
 |=======================
 | kins | kinematics definitions for LinuxCNC. ||
@@ -192,6 +201,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 |=======================
 
 === BLDC and 3-phase motor control
+
 [{tab_options}]
 |=======================
 | bldc_hall3 | 3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors. ||
