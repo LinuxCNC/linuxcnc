@@ -907,7 +907,11 @@ def document(filename, outfilename):
             print(rest, file=f)
         else:
             print(".HP", file=f)
-            if options.get("singleton") or options.get("count_function"):
+            if options.get("homemod"):
+                print("Custom Homing module loaded with \\fB[EMCMOT]HOMEMOD=%s\\fR"%comp_name, file=f)
+            elif options.get("tpmod"):
+                print("Custom Trajectory Planning module loaded with \\fB[TRAJ]TPMOD=%s\\fR"%comp_name, file=f)
+            elif options.get("singleton") or options.get("count_function"):
                 if has_personality:
                     print(".B loadrt %s personality=\\fIP\\fB" % comp_name, end='', file=f)
                 else:
@@ -1041,6 +1045,9 @@ def process(filename, mode, outfilename):
             raise SystemExit("Component name (%s) does not match filename (%s)" % (comp_name, base_name))
 
         f = open(outfilename, "w")
+
+        if options.get("homemod"): options["singleton"] = 1
+        if options.get("tpmod"):   options["singleton"] = 1
 
         if options.get("userinit") and not options.get("userspace"):
             print("Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename, file=sys.stderr)

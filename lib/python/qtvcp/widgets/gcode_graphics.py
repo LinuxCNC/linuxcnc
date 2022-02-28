@@ -71,7 +71,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.inhibit_selection = False
         self._block_line_selected = False
 
-        # stop respons to external STATUS signals
+        # stop response to external STATUS signals
         self._disable_STATUS_signals = False
         self._block_autoLoad = None
         self._block_reLoad = None

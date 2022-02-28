@@ -11,8 +11,39 @@ linuxcnc [options] [<ini-file>]
 ----
 
 .linuxcnc script options
-* '-v' = verbose - prints info as it works
-* '-d' = echoes script commands to screen for debugging
+
+----
+linuxcnc: Run LINUXCNC
+
+Usage:
+  $ linuxcnc -h
+    This help
+
+  $ linuxcnc [Options]
+    Choose the configuration inifile graphically
+
+  $ linuxcnc [Options] path/to/your_ini_file
+    Name the configuration inifile using its path
+
+  $ linuxcnc [Options] -l
+    Use the previously used configuration inifile
+
+Options:
+    -d: Turn on "debug" mode
+    -v: Turn on "verbose" mode
+    -k: Continue in the presence of errors in .hal files
+    -t "tpmodulename [parameters]"
+            specify custom trajectory_planning_module
+            overrides optional ini setting [TRAJ]TPMOD
+    -m "homemodulename [parameters]"
+            specify custom homing_module
+            overrides optional ini setting [EMCMOT]HOMEMOD
+    -H "dirname": search dirname for Halfiles before searching
+                  ini directory and system library:
+                  /home/git/linuxcnc-dev/lib/hallib
+Note:
+    The -H "dirname" option may be specified multiple times
+----
 
 If the linuxcnc script is passed an ini file it reads the ini file and starts
 LinuxCNC. The ini file [HAL] section specifies the order of loading up HAL
@@ -26,7 +57,7 @@ INI configuration for more information.
 
 === Configuration Selector
 
-If no ini file is passed to the linuxcnc script it loads the configuration 
+If no ini file is passed to the linuxcnc script it loads the configuration
 selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.
 The configuration files are saved in linuxcnc/configs directory.

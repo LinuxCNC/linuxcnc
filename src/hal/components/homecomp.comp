@@ -1,0 +1,201 @@
+component homecomp"homing module template";
+
+description """
+Example of a homing module buildable with halcompile.
+Demonstrates required code for #includes, function definitions, etc.
+
+An  actual homing scheme is \\fBnot\\fR implemented but all necessary
+functions are included as skeleton code.   (All joints are
+effectively homed at all times and cannot be unhomed).
+
+See the source code file: src/emc/motion/homing.c for the baseline
+implementation that includes all functions for the default \\fBhomemod\\fR
+module.
+
+To avoid updates that overwrite homecomp.comp, best practice is
+to rename the file and its component name (example:
+\\fBuser_homecomp.comp, user_homecomp\\fR).
+
+The (renamed) component can be built and installed with
+halcompile and then substituted for the default homing module
+(\\fBhomemod\\fR) using:\n
+  $ linuxcnc \\fB-m user_homecomp\\fR someconfig.ini\n
+or by inifile setting: \\fB[EMCMOT]HOMEMOD=user_homecomp\\fR
+
+\\fBNote:\\fRIf using a deb install:\n
+1) halcompile is provided by the package linuxcnc-dev\n
+2) This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:\n
+https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/homecomp.comp
+""";
+
+pin out bit is_module=1; //one pin is required to use halcompile)
+
+license "GPL";
+option  homemod;
+option  extra_setup;
+;;
+
+#include "motion.h"
+#include "homing.h"
+
+static char *home_parms;
+RTAPI_MP_STRING(home_parms,"Example home parms");
+
+// rtapi_app_main() supplied by halcompile
+// EXTRA_SETUP is executed before rtapi_app_main()
+EXTRA_SETUP() {
+    if (!home_parms) {home_parms = "no_home_parms";}
+    rtapi_print("@@@%s:%s: home_parms=%s\n",__FILE__,__FUNCTION__,home_parms);
+    return 0;
+}
+
+// retrieved from motmod.so:
+static emcmot_config_t *emcmotConfig;
+static emcmot_joint_t  *joints;
+
+//========================================================
+// motmod function ptrs for functions called BY homecomp:
+static void(*SetRotaryUnlock)(int,int);
+static int (*GetRotaryIsUnlocked)(int);
+
+//========================================================
+// functions ptrs received from motmod:
+void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
+                     ,int (*pGetRotaryIsUnlocked)(int)
+                     )
+{
+    SetRotaryUnlock     = *pSetRotaryUnlock;
+    GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
+}
+
+// emcmot pointers received from motmod
+void homeMotData(emcmot_config_t * pconfig
+                ,emcmot_joint_t  * pjoints
+                )
+{
+    emcmotConfig = pconfig;
+    joints       = pjoints;
+}
+//========================================================
+
+// data for per-joint homing-specific hal pins:
+typedef struct {
+    hal_bit_t *home_sw;      // home switch input
+    hal_bit_t *homing;       // joint is homing
+    hal_bit_t *homed;        // joint was homed
+    hal_bit_t *index_enable; // motmod sets: request reset on index
+                             //        encoder clears: index arrived
+    hal_s32_t *home_state;   // homing state machine state
+} one_joint_home_data_t;
+
+typedef struct {
+    one_joint_home_data_t jhd[EMCMOT_MAX_JOINTS];
+} all_joints_home_data_t;
+
+static all_joints_home_data_t *joint_home_data = 0;
+
+static int makepins(int id,int njoints)
+{
+    // home_pins needed to work with configs expecting them:
+    int jno,retval;
+    one_joint_home_data_t *addr;
+
+    joint_home_data = hal_malloc(sizeof(all_joints_home_data_t));
+    if (joint_home_data == 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "HOMING: all_joints_home_data_t malloc failed\n");
+        return -1;
+    }
+
+    retval = 0;
+    for (jno = 0; jno < njoints; jno++) {
+        addr = &(joint_home_data->jhd[jno]);
+
+        retval += hal_pin_bit_newf(HAL_IN, &(addr->home_sw), id,
+                                  "joint.%d.home-sw-in", jno);
+        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homing), id,
+                                  "joint.%d.homing", jno);
+        retval += hal_pin_bit_newf(HAL_OUT, &(addr->homed), id,
+                                  "joint.%d.homed", jno);
+        retval += hal_pin_s32_newf(HAL_OUT, &(addr->home_state), id,
+                                  "joint.%d.home-state", jno);
+        retval += hal_pin_bit_newf(HAL_IO, &(addr->index_enable), id,
+                                  "joint.%d.index-enable", jno);
+    }
+    return retval;
+}
+
+//========================================================
+// All functions required for homing api
+// For homecomp.comp: most are skeleton
+
+bool do_homing(void)                                 {return 1;}
+void do_homing_sequence(void)                        {return;}
+bool get_allhomed()                                  {return 1;}
+bool get_homed(int jno)                              {return 1;}
+bool get_home_is_idle(int jno)                       {return 1;}
+bool get_home_is_synchronized(int jno)               {return 0;}
+bool get_home_is_volatile(int jno)                   {return 0;}
+bool get_home_needs_unlock_first(int jno)            {return 0;}
+int  get_home_sequence(int jno)                      {return 0;}
+home_sequence_state_t get_home_sequence_state() {return HOME_SEQUENCE_IDLE;}
+bool get_homing(int jno)                             {return 0;}
+bool get_homing_at_index_search_wait(int jno)        {return 0;}
+bool get_homing_is_active()                          {return 0;}
+int  homing_init(int id,int njoints)          {return makepins(id,njoints);}
+bool get_index_enable(int jno)                       {return 0;}
+void read_homing_in_pins(int njoints)                {return;}
+void set_home_abort(int jno)                         {return;}
+void set_home_idle(int jno)                          {return;}
+void set_home_sequence_state(home_sequence_state_t s_state) {return;}
+void set_home_start(int jno)                         {return;}
+void set_joint_at_home(int jno, bool value)          {return;}
+void set_joint_homed(int jno,bool value)             {return;}
+void set_joint_homing(int jno,bool value)            {return;}
+void set_joint_homing_params(int    jno,
+                             double offset,
+                             double home,
+                             double home_final_vel,
+                             double home_search_vel,
+                             double home_latch_vel,
+                             int    home_flags,
+                             int    home_sequence,
+                             bool   volatile_home
+                             )                       {return;}
+void update_joint_homing_params (int    jno,
+                                 double offset,
+                                 double home,
+                                 int    home_sequence
+                                )                    {return;}
+void write_homing_out_pins(int njoints)              {return;}
+
+//========================================================
+// all home functions for homing api
+EXPORT_SYMBOL(homeMotFunctions);
+EXPORT_SYMBOL(homeMotData);
+
+EXPORT_SYMBOL(do_homing);
+EXPORT_SYMBOL(do_homing_sequence);
+EXPORT_SYMBOL(get_allhomed);
+EXPORT_SYMBOL(get_homed);
+EXPORT_SYMBOL(get_home_is_idle);
+EXPORT_SYMBOL(get_home_is_synchronized);
+EXPORT_SYMBOL(get_home_is_volatile);
+EXPORT_SYMBOL(get_home_needs_unlock_first);
+EXPORT_SYMBOL(get_home_sequence);
+EXPORT_SYMBOL(get_home_sequence_state);
+EXPORT_SYMBOL(get_homing);
+EXPORT_SYMBOL(get_homing_at_index_search_wait);
+EXPORT_SYMBOL(get_homing_is_active);
+EXPORT_SYMBOL(get_index_enable);
+EXPORT_SYMBOL(homing_init);
+EXPORT_SYMBOL(read_homing_in_pins);
+EXPORT_SYMBOL(set_home_abort);
+EXPORT_SYMBOL(set_home_idle);
+EXPORT_SYMBOL(set_home_sequence_state);
+EXPORT_SYMBOL(set_home_start);
+EXPORT_SYMBOL(set_joint_at_home);
+EXPORT_SYMBOL(set_joint_homed);
+EXPORT_SYMBOL(set_joint_homing);
+EXPORT_SYMBOL(set_joint_homing_params);
+EXPORT_SYMBOL(update_joint_homing_params);
+EXPORT_SYMBOL(write_homing_out_pins);

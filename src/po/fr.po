@@ -3,10 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-01-27 20:45+0000\n"
-"Last-Translator: Jeff Epler <jepler@gmail.com>\n"
+"PO-Revision-Date: 2022-02-14 01:56+0000\n"
+"Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -106,10 +106,8 @@ msgid "G4 not allowed with G2 or G3 because they both use P"
 msgstr "G4 non autorisé avec G2 ou G3 qui utilisent tous les deux P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
-#| msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "Ligne avec G10 qui n'a pas de L1, L10, L11, L2 ou L20"
+msgstr "Les lignes avec des G10 n'ont pas de L1, L10, L11, L2 ou L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
@@ -11937,6 +11935,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

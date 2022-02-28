@@ -669,6 +669,12 @@ Section.
   realtime part of the motion controller) to acknowledge receipt of
   messages from Task (the non-realtime part of the motion controller).
 
+* HOMEMOD = alternate_homing_module [home_parms=value]
+The HOMEMOD variable is optional.  If specified, use a specified (user-built)
+module instead of the default (homemod).  Module parameters (home_parms) may be
+included if supported by the named module.  The setting may be overridden
+from the command line using the -m option ($linuxcnc -h)
+
 [[sec:task-section]](((INI File, TASK Section)))
 
 === [TASK] Section
@@ -1003,6 +1009,10 @@ small, tight corners, since you're limited by cornering acceleration.
    using identity kinematics without homing ability will need to have this
    option set to 1.
 
+[WARNING]
+
+LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
+
 * 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
    that compute world coordinates using kinematicsForward() when switching
    from joint to teleop mode.  Up to nine coordinate values (X Y Z A B C U V W)
@@ -1011,8 +1021,11 @@ small, tight corners, since you're limited by cornering acceleration.
    kinematics (mill, lathe, gantry types) this value is ignored.
    Note: the sim hexapod config requires a non-zero value for the Z coordinate.
 
-[WARNING]
-LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
+* TPMOD = alternate_trajectory_planning module [tp_parms=value]
+The TPMOD variable is optional.  If specified, use a specified (user-built)
+module instead of the default (tpmod).  Module parameters (tp_parms) may be
+included if supported by the named module.  The setting may be overridden
+from the command line using the -t option ($linuxcnc -h)
 
 [[sec:kins-section]](((INI File, KINS Section)))
 

@@ -57,17 +57,6 @@ to another.
 
 */
 
-/* the following line can be used to control where some of the
-   "internal" motion controller data is stored.  By default,
-   it is stored in staticlly allocated kernel memory.  However,
-   if STRUCTS_IN_SHMEM is defined, it will be stored in the
-   emcmotStruct shared memory area, for debugging purposes.
-*/
-
-#define STRUCTS_IN_SHMEM
-
-
-
 #ifndef MOTION_H
 #define MOTION_H
 
@@ -81,6 +70,7 @@ to another.
 #include <stdarg.h>
 #include "rtapi_bool.h"
 #include "state_tag.h"
+#include "tp_types.h"
 
 // define a special value to denote an invalid motion ID
 // NB: do not ever generate a motion id of  MOTION_INVALID_ID
@@ -468,8 +458,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EMCMOT_JOINT_FLAG flag;	/* see above for bit details */
 	double coarse_pos;	/* trajectory point, before interp */
 	double pos_cmd;		/* commanded joint position */
-	double vel_cmd;		/* comanded joint velocity */
-	double acc_cmd;		/* comanded joint acceleration */
+	double vel_cmd;		/* commanded joint velocity */
+	double acc_cmd;		/* commanded joint acceleration */
 	double backlash_corr;	/* correction for backlash */
 	double backlash_filt;	/* filtered backlash correction */
 	double backlash_vel;	/* backlash velocity variable */
@@ -561,27 +551,7 @@ Suggestion: Split this in to an Error and a Status flag register..
     } spindle_status_t;
 
     typedef struct {
-	double pos_cmd;		/* commanded axis position */
-	double teleop_vel_cmd;		/* comanded axis velocity */
-	double max_pos_limit;	/* upper soft limit on axis pos */
-	double min_pos_limit;	/* lower soft limit on axis pos */
-	double vel_limit;	/* upper limit of axis speed */
-	double acc_limit;	/* upper limit of axis accel */
-	simple_tp_t teleop_tp;	/* planner for teleop mode motion */
-
-	int old_ajog_counts;	/* prior value, used for deltas */
-	int kb_ajog_active;	/* non-zero during a keyboard jog */
-	int wheel_ajog_active;	/* non-zero during a wheel jog */
-	int locking_joint;	/* locking_joint number, -1 ==> notused*/
-
-	double      ext_offset_vel_limit;	/* upper limit of axis speed for ext offset */
-	double      ext_offset_acc_limit;	/* upper limit of axis accel for ext offset */
-	int         old_eoffset_counts;
-	simple_tp_t ext_offset_tp;/* planner for external coordinate offsets*/
-    } emcmot_axis_t;
-
-    typedef struct {
-	double teleop_vel_cmd;		/* comanded axis velocity */
+	double teleop_vel_cmd;		/* commanded axis velocity */
 	double max_pos_limit;	/* upper soft limit on axis pos */
 	double min_pos_limit;	/* lower soft limit on axis pos */
     } emcmot_axis_status_t;
@@ -643,7 +613,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	EmcPose probedPos;	/* Axis positions stored as soon as possible
 				   after last probeTripped */
 
-	
+
 	int synch_di[EMCMOT_MAX_DIO]; /* inputs to the motion controller, queried by G-code */
 	int synch_do[EMCMOT_MAX_DIO]; /* outputs to the motion controller, queried by G-code */
 	double analog_input[EMCMOT_MAX_AIO]; /* inputs to the motion controller, queried by G-code */
@@ -685,6 +655,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int external_offsets_applied;
 	EmcPose eoffset_pose;
 	int numExtraJoints;
+    int stepping;
     } emcmot_status_t;
 
 /*********************************
@@ -758,26 +729,6 @@ Suggestion: Split this in to an Error and a Status flag register..
         int inhibit_probe_home_error;
     } emcmot_config_t;
 
-/*********************************
-      INTERNAL STRUCTURE
-*********************************/
-
-/* This is the internal structure.  It contains stuff that is used
-   internally by the motion controller that does not need to be in
-   shared memory.  It will wind up with a lot of the stuff that got
-   tossed into the debug structure.
-
-   FIXME - so far most if the stuff that was tossed in here got
-   moved back out, maybe don't need it after all?
-*/
-
-    typedef struct emcmot_internal_t {
-	unsigned char head;	/* flag count for mutex detect */
-
-	int probe_debounce_cntr;
-	unsigned char tail;	/* flag count for mutex detect */
-    } emcmot_internal_t;
-
 /* error structure - A ring buffer used to pass formatted printf strings to usr space */
     typedef struct emcmot_error_t {
 	unsigned char head;	/* flag count for mutex detect */
@@ -787,6 +738,20 @@ Suggestion: Split this in to an Error and a Status flag register..
 	int num;		/* number of items */
 	unsigned char tail;	/* flag count for mutex detect */
     } emcmot_error_t;
+
+
+typedef struct emcmot_internal_t {
+    unsigned char head; /* flag count for mutex detect */
+    unsigned char tail; /* flag count for mutex detect */
+    int split;          /* number of split command reads */
+    int enabling;       /* starts up disabled */
+    int coordinating;   /* starts up in free mode */
+    int teleoperating;  /* starts up in free mode */
+    int overriding;     /* non-zero means we've initiated an joint
+                           move while overriding limits */
+    TP_STRUCT coord_tp; /* coordinated mode planner */
+    int idForStep;      /* status id while stepping */
+    } emcmot_internal_t;
 
 /*
   function prototypes for emcmot code
@@ -799,7 +764,17 @@ Suggestion: Split this in to an Error and a Status flag register..
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
+#define ALL_JOINTS emcmotConfig->numJoints
+// number of kinematics-only joints:
+#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
+#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
+// 0-based Joint numbering:
+// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
+// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
+
+#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
+
 #ifdef __cplusplus
 }
 #endif
-#endif	/* MOTION_H */
+#endif    /* MOTION_H */

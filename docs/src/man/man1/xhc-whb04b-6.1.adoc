@@ -501,7 +501,7 @@ net pdnt.macro-6                          whb.button.macro-6                    
 net pdnt.macro-7                          whb.button.macro-7                    halui.mdi-command-07             # use MDI command from main.ini
 net pdnt.reserved.for.spindle.dir         whb.button.macro-8                                                     # Hardcoded for spindle direction inside pendant
 net pdnt.macro-9                          whb.button.macro-9                    halui.mdi-command-09             # use MDI command from main.ini
-net pdnt.reserved.for.ABS-REL             whb.button.macro-10                                                    # Hardcoded for swap Dro  Relative/Absolue
+net pdnt.reserved.for.ABS-REL             whb.button.macro-10                                                    # Hardcoded for swap Dro  Relative/Absolute
 net pdnt.macro-14                         whb.button.macro-14                   halui.mdi-command-14             # use MDI command from main.ini
 net pdnt.reserved.for.flood               whb.button.macro-15                                                    # Hardcoded for halui.flood on/off
 net pdnt.reserved.for.mist                whb.button.macro-16                                                    # Hardcoded for halui.mist on/off
@@ -559,7 +559,7 @@ net pdnt.spindle.forward                  whb.halui.spindle.forward             
 net pdnt.spindle.reverse                  whb.halui.spindle.reverse             halui.spindle.0.reverse
 net pdnt.spindle.increase                 whb.halui.spindle.increase            halui.spindle.0.increase         # reserved whb.button.macro-3
 net pdnt.spindle.decrease                 whb.halui.spindle.decrease            halui.spindle.0.decrease         # reserved whb.button.macro-4
-net pdnt.spindle-speed-abs                whb.halui.spindle-speed-cmd           spindle.0.speed-out-abs          # speed cmd from motion in rpm absolue
+net pdnt.spindle-speed-abs                whb.halui.spindle-speed-cmd           spindle.0.speed-out-abs          # speed cmd from motion in rpm absolute
 
 
 # spindle speed override signals

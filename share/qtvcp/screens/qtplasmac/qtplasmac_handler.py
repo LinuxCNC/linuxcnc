@@ -1,4 +1,4 @@
-VERSION = '1.221.161'
+VERSION = '1.221.165'
 
 '''
 qtplasmac_handler.py
@@ -249,7 +249,6 @@ class HandlerClass:
         self.preClearFile = ''
         self.rflActive = False
         self.jogInhibit = ''
-        self.isJogging = {0:False, 1:False, 2:False, 3:False}
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
         self.ovButton, self.llButton, self.tlButton = '', '', ''
@@ -305,9 +304,10 @@ class HandlerClass:
         self.init_preferences()
         self.hide_widgets()
         self.init_widgets()
+        # hijack the qtvcp shutdown to our own close event
+        self.w.screen_options.QTVCP_INSTANCE_.closeEvent = self.closeEvent
         self.w.button_frame.installEventFilter(self.w)
         self.link_hal_pins()
-        self.set_signal_connections()
         self.statistics_init()
         self.set_axes_and_joints()
         self.set_spinbox_parameters()
@@ -321,6 +321,8 @@ class HandlerClass:
         self.set_probe_offset_pins()
         self.wcs_rotation('get')
         self.widgetsLoaded = 1
+        STATUS.connect('state-estop', lambda w:self.estop_state(True))
+        STATUS.connect('state-estop-reset', lambda w:self.estop_state(False))
         STATUS.connect('state-on', lambda w:self.power_state(True))
         STATUS.connect('state-off', lambda w:self.power_state(False))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
@@ -341,6 +343,7 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
+        STATUS.connect('current_feed_rate', lambda w, v: self.feed_rate_changed(v))
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
@@ -354,6 +357,9 @@ class HandlerClass:
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
         self.startupTimer.setSingleShot(True)
+        self.shutdownTimer = QTimer()
+        self.shutdownTimer.timeout.connect(self.shutdown_timeout)
+        self.shutdownTime = 2000
         self.laserTimer = QTimer()
         self.laserTimer.timeout.connect(self.laser_timeout)
         self.laserTimer.setSingleShot(True)
@@ -707,6 +713,8 @@ class HandlerClass:
         self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.chk_tool_tips.setChecked(self.w.PREFS_.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
+        self.w.chk_exit_warning.setChecked(self.w.PREFS_.getpref('Exit warning', False, bool, 'GUI_OPTIONS'))
+        self.exitMessage = self.w.PREFS_.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
         self.w.table_zoom_scale.setValue(self.w.PREFS_.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
@@ -954,6 +962,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('Exit warning', self.w.chk_exit_warning.isChecked(), bool, 'GUI_OPTIONS')
+        self.w.PREFS_.putpref('shutdown_msg_detail', self.exitMessage, str, 'SHUTDOWN_OPTIONS')
         self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
         self.w.PREFS_.putpref('T view zoom scale', self.w.table_zoom_scale.value(), float, 'GUI_OPTIONS')
@@ -1100,6 +1110,21 @@ class HandlerClass:
 #########################################################################################################################
 # CALLBACKS FROM STATUS #
 #########################################################################################################################
+    def estop_state(self, state):
+        if state:
+            self.w.power.setChecked(False)
+            self.w.power.setStyleSheet(' \
+                    QPushButton {{ color: {2}; background: {1}; border-color: {2} }} \
+                    QPushButton:pressed {{ color: {2}; background: {1}; border-color: {0} }}' \
+                    .format(self.foreColor, self.backColor, self.disabledColor))
+        else:
+            self.w.power.setStyleSheet(' \
+                    QPushButton {{ color: {0}; background: {1}; border-color: {0} }} \
+                    QPushButton:pressed {{ color: {1}; background: {3}; border-color: {0} }} \
+                    QPushButton:checked {{ color: {1}; background: {3}; border-color: {0} }} \
+                    QPushButton:checked:pressed {{ color: {0}; background: {1}; border-color: {0} }}' \
+                    .format(self.foreColor, self.backColor, self.disabledColor, self.fore1Color))
+
     def power_state(self, state):
         if state:
             self.set_buttons_state([self.idleOnList], True)
@@ -1234,7 +1259,8 @@ class HandlerClass:
             if hal.get_value('plasmac.stop-type-out') or hal.get_value('plasmac.cut-recovering'):
                 self.w.set_cut_recovery()
             self.set_tab_jog_states(True)
-        elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown():
+        elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown() \
+             and not self.extCutRecFwdPin.get() and not self.extCutRecRevPin.get():
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
                 self.w[self.ccButton].setEnabled(False)
@@ -1244,6 +1270,12 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
             if STATUS.is_auto_running():
                 self.set_tab_jog_states(False)
+
+    def feed_rate_changed(self, rate):
+        if not rate:
+            for joint in range(len(self.coordinates)):
+                if self.isJogging[joint]:
+                    self.isJogging[joint] = False
 
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')
@@ -1459,11 +1491,6 @@ class HandlerClass:
 #########################################################################################################################
 # CALLBACKS FROM FORM #
 #########################################################################################################################
-
-    def ext_power(self, state):
-        if self.w.power.isEnabled() and state:
-            ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
-
     def ext_run(self, state):
         if self.w.run.isEnabled() and state:
             self.run_pressed()
@@ -1489,6 +1516,25 @@ class HandlerClass:
             self.run_pressed()
         elif self.w.pause.isEnabled() and state:
             ACTION.PAUSE()
+
+    def power_button(self, action, state):
+        if action == 'pressed':
+            self.shutdownTimer.start(self.shutdownTime)
+        elif action == 'released':
+            self.shutdownTimer.stop()
+        elif action == 'clicked':
+            if STATUS.estop_is_clear():
+                ACTION.SET_MACHINE_STATE(not STATUS.machine_is_on())
+            else:
+                self.w.power.setChecked(False)
+        elif action == 'external' and self.w.power.isEnabled() and not self.firstRun:
+            if state:
+                self.shutdownTimer.start(self.shutdownTime)
+                self.w.power.setDown(True)
+            else:
+                self.shutdownTimer.stop()
+                self.w.power.setDown(False)
+                self.w.power.click()
 
     def run_pressed(self):
         self.wcs_rotation('get')
@@ -1917,10 +1963,44 @@ class HandlerClass:
 #########################################################################################################################
 # GENERAL FUNCTIONS #
 #########################################################################################################################
+    # def closeEvent(self, event):
+    #     if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
+    #         icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
+    #         head = _translate('HandlerClass', 'Shutdown')
+    #         if self.exitMessage:
+    #             msg0 = '{}\n\n'.format(self.exitMessage)
+    #         else:
+    #             msg0 = ''
+    #         if not STATUS.is_interp_idle():
+    #             msg0 += _translate('HandlerClass', 'Current operation is not complete')
+    #             msg0 += '!\n\n'
+    #         msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
+    #         if self.dialog_show_yesno(icon, head, '{}?\n'.format(msg0)):
+    #             event.accept()
+    #         else:
+    #             event.ignore()
+
+    def closeEvent(self, event):
+        if self.w.chk_exit_warning.isChecked() or not STATUS.is_interp_idle():
+            icon = QMessageBox.Question if STATUS.is_interp_idle() else QMessageBox.Critical
+            head = _translate('HandlerClass', 'Shutdown')
+            if not STATUS.is_interp_idle():
+                msg0 = _translate('HandlerClass', 'Current operation is not complete')
+                msg0 += '!\n\n'
+            else:
+                msg0 = ''
+            if self.exitMessage:
+                msg0 += '{}\n\n'.format(self.exitMessage)
+            msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
+            if self.dialog_show_yesno(icon, head, '{}?\n'.format(msg0)):
+                event.accept()
+            else:
+                event.ignore()
 
     def update_check(self):
-        # use qtplasmac_comp.hal for component connections (pre V1.221.154)
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
+        prefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
+    # use qtplasmac_comp.hal for component connections (pre V1.221.154)
         if halfiles and not 'qtplasmac_comp.hal' in halfiles and not 'plasmac.tcl' in halfiles:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
 
@@ -2083,6 +2163,9 @@ class HandlerClass:
         self.w.thc_threshold.setValue(self.w.PREFS_.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
+        self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
+        self.w.power.released.connect(lambda:self.power_button("released", False))
+        self.w.power.clicked.connect(lambda:self.power_button("clicked", None))
         self.w.run.pressed.connect(self.run_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
@@ -2254,7 +2337,7 @@ class HandlerClass:
         self.w.rapid_time_reset.pressed.connect(self.rapid_time_reset)
         self.w.probe_time_reset.pressed.connect(self.probe_time_reset)
         self.w.all_reset.pressed.connect(self.all_reset)
-        self.extPowerPin.value_changed.connect(lambda v:self.ext_power(v))
+        self.extPowerPin.value_changed.connect(lambda v:self.power_button("external", v))
         self.extRunPin.value_changed.connect(lambda v:self.ext_run(v))
         self.extPausePin.value_changed.connect(lambda v:self.ext_pause(v))
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
@@ -2352,8 +2435,9 @@ class HandlerClass:
         for axis in self.axisList:
             self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
             self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
-        # check if home all button required
+        self.isJogging = {}
         for joint in range(len(self.coordinates)):
+            # check if home all button required
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
                 self.w.home_all.hide()
             # check if not joggable before homing
@@ -2363,6 +2447,8 @@ class HandlerClass:
                     self.jogSyncList.append('jog_{}_minus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
+            # set jogging status
+            self.isJogging[joint] = False
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
@@ -2730,9 +2816,12 @@ class HandlerClass:
 #########################################################################################################################
 # TIMER FUNCTIONS #
 #########################################################################################################################
+    def shutdown_timeout(self):
+        self.w.close()
+
     def startup_timeout(self):
         if STATUS.stat.estop:
-            self.w.power.setEnabled(False)
+            self.estop_state(True)
         self.w.run.setEnabled(False)
         if self.frButton:
             self.w[self.frButton].setEnabled(False)
@@ -2740,6 +2829,7 @@ class HandlerClass:
         self.w.abort.setEnabled(False)
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view_t_pressed()
+        self.set_signal_connections()
 
     def update_periodic(self):
         if self.framing and STATUS.is_interp_idle():
@@ -3657,7 +3747,6 @@ class HandlerClass:
 #########################################################################################################################
 # ONBOARD VIRTUAL KEYBOARD FUNCTIONS #
 #########################################################################################################################
-
     def vkb_check(self):
         if self.w.chk_soft_keyboard.isChecked() and not os.path.isfile('/usr/bin/onboard'):
             head = _translate('HandlerClass', 'VIRTUAL KB ERROR')
@@ -3667,11 +3756,11 @@ class HandlerClass:
             return
         try:
             cmd = 'gsettings get org.onboard.window.landscape width'
-            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            self.obWidth = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             cmd = 'gsettings get org.onboard.window.landscape height'
-            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            self.obHeight = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             cmd = 'gsettings get org.onboard layout'
-            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].strip()
+            layout = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True).communicate()[0].decode().strip()
             if '/numpad' in layout or '/keyboard' in layout:
                 self.obLayout = 'compact'
             else:
@@ -3682,12 +3771,12 @@ class HandlerClass:
             self.obLayout = 'compact'
 
     def vkb_show(self, numpad=False):
+        if self.firstRun: return
         if os.path.isfile('/usr/bin/onboard'):
             if self.w.chk_soft_keyboard.isChecked():
                 w = '240' if numpad else '740'
                 h = '240'
                 l = 'numpad' if numpad else 'keyboard'
-                self.vkb_hide(True)
                 self.vkb_setup(w, h, os.path.join(self.PATHS.IMAGEDIR, 'qtplasmac', l))
                 cmd  = 'dbus-send'
                 cmd += ' --type=method_call'
@@ -3709,14 +3798,11 @@ class HandlerClass:
 
     def vkb_setup(self, w, h, l):
         if os.path.isfile('/usr/bin/onboard'):
-            Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)-1), stdout=PIPE, shell=True)
             Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)-1), stdout=PIPE, shell=True)
-            time.sleep(0.25)
             Popen('gsettings set org.onboard layout {}'.format(l), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape width {}'.format(w), stdout=PIPE, shell=True)
-            Popen('gsettings set org.onboard.window.landscape height {}'.format(h), stdout=PIPE, shell=True)
-#            time.sleep(0.5)
+            Popen('gsettings set org.onboard.window.landscape width {}'.format(int(w)), stdout=PIPE, shell=True)
+            Popen('gsettings set org.onboard.window.landscape height {}'.format(int(h)), stdout=PIPE, shell=True)
 
 
 #########################################################################################################################

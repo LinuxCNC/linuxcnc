@@ -81,7 +81,7 @@
 /// as well as power and ground pins. Not all GPIO pins on the BCM 2835 are available on the
 /// IDE header.
 ///
-/// The functions in this librray are designed to be passed the BCM 2835 GPIO pin number and _not_
+/// The functions in this library are designed to be passed the BCM 2835 GPIO pin number and _not_
 /// the RPi pin number. There are symbolic definitions for each of the available pins
 /// that you should use for convenience. See \ref RPiGPIOPin.
 ///

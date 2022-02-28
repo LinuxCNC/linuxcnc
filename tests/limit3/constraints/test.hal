@@ -2,7 +2,7 @@ setexact_for_test_suite_only
 
 
 #
-# This siggen produces test patters for limit3 to try to follow.
+# This siggen produces test patterns for limit3 to try to follow.
 #
 
 loadrt siggen

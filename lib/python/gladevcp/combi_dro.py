@@ -86,7 +86,7 @@ class Combi_DRO(Gtk.VBox):
                         GObject.ParamFlags.READWRITE),
         'font_size' : (GObject.TYPE_INT, 'Font Size', 'The font size of the big numbers, the small ones will be 2.5 times smaller',
                     8, 96, 25, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
-        'toggle_readout' : (GObject.TYPE_BOOLEAN, 'Enable toggling readout with click', 'The DRO will toggle between Absolute , Relativ and DTG with each mouse click.',
+        'toggle_readout' : (GObject.TYPE_BOOLEAN, 'Enable toggling readout with click', 'The DRO will toggle between Absolute, Relative and DTG with each mouse click.',
                     True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'cycle_time' : (GObject.TYPE_INT, 'Cycle Time', 'Time, in milliseconds, that display will sleep between polls',
                     100, 1000, 150, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),

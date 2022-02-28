@@ -30,11 +30,11 @@
 #include <unistd.h>
 
 #include "hal.h"
-#include "motion_debug.h"
 #include "motion.h"
 #include "motion_struct.h"
 #include "motion_types.h"
 #include "mot_priv.h"
+#include "axis.h"
 
 static struct motion_logger_data_t {
     hal_bit_t *reopen;
@@ -48,20 +48,14 @@ emcmot_struct_t *emcmotStruct = 0;
 struct emcmot_command_t *c = 0;
 struct emcmot_status_t *emcmotStatus = 0;
 struct emcmot_config_t *emcmotConfig = 0;
-struct emcmot_debug_t *emcmotDebug = 0;
 struct emcmot_internal_t *emcmotInternal = 0;
 struct emcmot_error_t *emcmotError = 0;
 
 int mot_comp_id;
 
-emcmot_joint_t joint_array[EMCMOT_MAX_JOINTS];
+emcmot_joint_t joints[EMCMOT_MAX_JOINTS];
 int num_joints = EMCMOT_MAX_JOINTS;
-emcmot_joint_t *joints = 0;
 int num_spindles = EMCMOT_MAX_SPINDLES;
-
-emcmot_axis_t axis_array[EMCMOT_MAX_AXIS];
-int num_axes = EMCMOT_MAX_AXIS;
-emcmot_axis_t *axes = 0;
 
 void emcmot_config_change(void) {
     if (emcmotConfig->head == emcmotConfig->tail) {
@@ -76,7 +70,6 @@ void emcmot_config_change(void) {
 static int init_comm_buffers(void) {
     int joint_num, axis_num, n;
     emcmot_joint_t *joint;
-    emcmot_axis_t *axis;
     int retval;
     int shmem_id;
 
@@ -84,7 +77,7 @@ static int init_comm_buffers(void) {
 	"MOTION: init_comm_buffers() starting...\n");
 
     emcmotStruct = 0;
-    emcmotDebug = 0;
+    emcmotInternal = 0;
     emcmotStatus = 0;
     c = 0;
     emcmotConfig = 0;
@@ -110,7 +103,6 @@ static int init_comm_buffers(void) {
     c = &emcmotStruct->command;
     emcmotStatus = &emcmotStruct->status;
     emcmotConfig = &emcmotStruct->config;
-    emcmotDebug = &emcmotStruct->debug;
     emcmotInternal = &emcmotStruct->internal;
     emcmotError = &emcmotStruct->error;
 
@@ -124,7 +116,7 @@ static int init_comm_buffers(void) {
     emcmotStatus->rapid_scale = 1.0;
     for (int n = 0; n < EMCMOT_MAX_SPINDLES; n++) emcmotStatus->spindle_status[n].scale = 1.0;
     emcmotStatus->net_feed_scale = 1.0;
-    /* adaptive feed is off by default, feed override, spindle 
+    /* adaptive feed is off by default, feed override, spindle
        override, and feed hold are on */
     emcmotStatus->enables_new = FS_ENABLED | SS_ENABLED | FH_ENABLED;
     emcmotStatus->enables_queued = emcmotStatus->enables_new;
@@ -132,9 +124,6 @@ static int init_comm_buffers(void) {
     emcmotConfig->kinType = KINEMATICS_IDENTITY;
 
     emcmot_config_change();
-
-    /* init pointer to joint structs */
-    joints = joint_array;
 
     /* init per-joint stuff */
     for (joint_num = 0; joint_num < num_joints; joint_num++) {
@@ -176,26 +165,14 @@ static int init_comm_buffers(void) {
 	SET_JOINT_INPOS_FLAG(joint, 1);
     }
 
-    /* init pointer to axes structs */
-    axes = axis_array;
-
     /* init per-axis stuff */
-    for (axis_num = 0; axis_num < num_axes; axis_num++) {
-	/* point to structure for this axis */
-	axis = &axes[axis_num];
-	axis->pos_cmd = 0.0;
-	axis->teleop_vel_cmd = 0.0;
-	axis->max_pos_limit = 1.0;
-	axis->min_pos_limit = -1.0;
-	axis->vel_limit = 1.0;
-	axis->acc_limit = 1.0;
-	//simple_tp_t teleop_tp
-	axis->old_ajog_counts = 0;
-	axis->kb_ajog_active = 0;
-	axis->wheel_ajog_active = 0;
+    axis_init_all();
+    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+        axis_set_max_pos_limit(axis_num,  1.0);
+        axis_set_min_pos_limit(axis_num, -1.0);
+        axis_set_vel_limit(axis_num, 1.0);
+        axis_set_acc_limit(axis_num, 1.0);
     }
-
-    emcmotDebug->start_time = time(NULL);
 
     rtapi_print_msg(RTAPI_MSG_INFO, "MOTION: init_comm_buffers() complete\n");
     return 0;
@@ -521,8 +498,8 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_POSITION_LIMITS axis=%d, min=%.6g, max=%.6g\n",
                     c->axis, c->minLimit, c->maxLimit
                 );
-                axes[c->axis].max_pos_limit = c->maxLimit;
-                axes[c->axis].min_pos_limit = c->minLimit;
+                axis_set_min_pos_limit(c->axis, c->minLimit);
+                axis_set_max_pos_limit(c->axis, c->maxLimit);
                 break;
 
             case EMCMOT_SET_AXIS_LOCKING_JOINT:
@@ -530,7 +507,7 @@ int main(int argc, char* argv[]) {
                     "SET_AXIS_LOCKING_JOINT axis=%d, locking_joint=%d\n",
                     c->axis, c->joint
                 );
-                axes[c->axis].locking_joint = c->joint;
+                axis_set_locking_joint(c->axis, c->joint);
                 break;
 
             case EMCMOT_SET_JOINT_BACKLASH:

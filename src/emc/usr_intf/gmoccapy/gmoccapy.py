@@ -475,7 +475,8 @@ class gmoccapy(object):
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "ntb_jog", "ntb_jog_JA", "vbtb_jog_incr", "hbox_jog_vel", 
+                      "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
                       "btn_select_tool_by_no", "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -483,6 +484,10 @@ class gmoccapy(object):
         #
         self._sensitize_widgets(widgetlist, False)
 
+        # if limit switch active, activate ignore-checkbox
+        if any(self.stat.limit):
+            self.widgets.ntb_jog.set_sensitive(True)
+            
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
         self._init_notification()
@@ -562,10 +567,6 @@ class gmoccapy(object):
         self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
         self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
         self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
-
-        # holds the max velocity value and is needed to be able to jog at
-        # at max velocity if <SHIFT> is hold during jogging
-        self.max_velocity = self.stat.max_velocity
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
@@ -1098,7 +1099,7 @@ class gmoccapy(object):
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_property("max") / 60
             else:
-                value = self.stat.max_velocity
+                value = self.jog_rate_max
         else:
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_value() / 60
@@ -2545,6 +2546,12 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.set_sensitive(False)
         self.widgets.hbox_jog_vel.set_sensitive(False)
 
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
+
     def on_hal_status_state_off(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "ntb_jog_JA", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
@@ -2577,6 +2584,12 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
+
     def on_hal_status_override_limits_changed(self, object, state, limits_list):
         # object = hal_status from glade file
         # state = true if override_limit is active
@@ -2588,7 +2601,13 @@ class gmoccapy(object):
         # state = true if limit has been tripped
         # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
         self.widgets.chk_ignore_limits.set_sensitive(state)
-
+        if state:
+            # sensitize ntb_jog when limit tripped
+            self.widgets.ntb_jog.set_sensitive(True)
+        else:
+            # refresh immediately when limit is no longer active
+            self.widgets.chk_ignore_limits.set_active(False)
+            
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
