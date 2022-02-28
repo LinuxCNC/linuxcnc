@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget - MDI edit line widget
 # Copyright (c) 2017 Chris Morley
@@ -15,8 +15,11 @@
 ###############################################################################
 
 import os
+import linuxcnc
+import hal
+import time
 
-from PyQt5.QtWidgets import QLineEdit
+from PyQt5.QtWidgets import QLineEdit, QApplication
 from PyQt5.QtCore import Qt, QEvent, pyqtProperty
 
 from qtvcp.core import Status, Action, Info
@@ -49,10 +52,22 @@ class MDI(QLineEdit):
         STATUS.connect('interp-run', lambda w: self.setEnabled(not STATUS.is_auto_mode()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(STATUS.machine_is_on()))
         STATUS.connect('mdi-line-selected', self.external_line_selected)
+        STATUS.connect('general',self.return_value)
+        STATUS.connect('error', self.error_update)
         self.returnPressed.connect(self.submit)
+        self.spindleInhibit = False
+        try:
+            fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+            fp = open(fp, 'r')
+            self.mdiLast = fp.readlines()[-1].lower().strip() or None
+            fp.close()
+        except:
+            self.mdiLast = None
+            pass
 
     def submit(self):
-        text = str(self.text()).rstrip()
+        self.mdiError = False
+        text = str(self.text()).strip()
         if text == '': return
         if text == 'HALMETER':
             AUX_PRGM.load_halmeter()
@@ -68,8 +83,20 @@ class MDI(QLineEdit):
             AUX_PRGM.load_calibration()
         elif text == 'PREFERENCE':
             STATUS.emit('show-preference')
+        elif text == 'CLEAR HISTORY':
+            fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+            fp = open(fp, 'w')
+            fp.close()
+        elif text.lower().startswith('setp'):
+            self.setp(text)
+        elif self.spindleInhibit and self.inhibit_spindle_commands(text):
+            return
         else:
             ACTION.CALL_MDI(text+'\n')
+        t = time.time() + 0.1
+        while time.time() < t:
+            QApplication.processEvents()
+        if not self.mdiError and text.lower() != self.mdiLast and text != 'CLEAR HISTORY':
             try:
                 fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
                 fp = open(fp, 'a')
@@ -77,6 +104,8 @@ class MDI(QLineEdit):
                 fp.close()
             except:
                 pass
+        if not self.mdiError:
+            self.mdiLast = text.lower()
             STATUS.emit('mdi-history-changed')
 
     # Gcode widget can emit a signal to this
@@ -100,11 +129,80 @@ class MDI(QLineEdit):
         LOG.debug('down')
         STATUS.emit('move-text-linedown')
 
+    def setp(self, setpString):
+        arguments = len(setpString.lower().replace('setp ','').split(' '))
+        if arguments == 2:
+            halpin, value = setpString.lower().replace('setp ','').split(' ')
+        else:
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nsetp requires 2 arguments, {} given\n'.format(arguments))
+            return
+        try:
+            hal.get_value(halpin)
+        except Exception as err:
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\n{}\n'.format(err))
+            return
+        try:
+            hal.set_p(halpin, value)
+        except Exception as err:
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\n"{}" {}\n'.format(halpin, err))
+            return
+        if type(hal.get_value(halpin)) == bool:
+            if value.lower() in ['true', '1']:
+                value = True
+            elif value.lower() in ['false', '0']:
+                value = False
+            else:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nValue "{}" invalid for a BIT pin/parameter\n'.format(value))
+                return
+            if hal.get_value(halpin) != value:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nBIT value comparison error\n')
+                return
+        elif type(hal.get_value(halpin)) == float:
+            try:
+                value = float(value)
+            except:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nValue "{}" invalid for a Float pin/parameter\n'.format(value))
+                return
+            if hal.get_value(halpin) != value:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nFloat value comparison error\n')
+                return
+        else:
+            try:
+                value = int(value)
+            except:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nValue "{}" invalid for S32 or U32 pin/parameter\n'.format(value))
+                return
+            if hal.get_value(halpin) != value:
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nS32 or U32 value comparison error\n')
+                return
+
+    def spindle_inhibit(self, state):
+        self.spindleInhibit = state
+
+    # inhibit m3, m4, and m5 commands for plasma configs using the plasmac component
+    def inhibit_spindle_commands(self, text):
+        if 'm3' in text.lower().replace(' ',''):
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\nM3 commands are not allowed in MDI mode\n')
+            return(1)
+        elif 'm4' in text.lower().replace(' ',''):
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\nM4 commands are not allowed in MDI mode\n')
+            return(1)
+        elif 'm5' in text.lower().replace(' ',''):
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\nM5 commands are not allowed in MDI mode\n')
+            return(1)
+        return(0)
+
+    def error_update(self, obj, kind, error):
+        if kind == linuxcnc.OPERATOR_ERROR:
+            self.mdiError = True
+
 class MDILine(MDI):
     def __init__(self, parent=None):
         super(MDILine, self).__init__(parent)
         self._PARENT_WIDGET = parent
-        self.soft_keyboard = True
+        self.dialog_code = 'KEYBOARD'
+        self.soft_keyboard = False
+        self.dialog_keyboard = False
         self._input_panel_full = SoftInputWidget(self, 'default')
         self.installEventFilter(self)
 
@@ -113,11 +211,33 @@ class MDILine(MDI):
         if self.focusWidget() == widget and event.type() == QEvent.MouseButtonPress:
             if self.soft_keyboard:
                 self._input_panel_full.show_input_panel(widget)
+            elif self.dialog_keyboard:
+                self.request_keyboard()
             try:
                 ACTION.SET_MDI_MODE()
             except:
                 pass
         return False
+
+    def request_keyboard(self):
+            mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+            'TITLE':'MDI',
+            'GEONAME':'MDI_Keyboard_Dialog_{}'.format(self.dialog_code),
+            }
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        text = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and text is not None:
+            self.setFocus()
+            self.setText(text)
+            self.submit()
+            LOG.debug('message return:{}'.format (message))
+            STATUS.emit('update-machine-log', 'Set MDI {}'.format(text), 'TIME')
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -130,10 +250,20 @@ class MDILine(MDI):
     def get_soft_keyboard(self):
         return self.soft_keyboard
     def reset_soft_keyboard(self):
-        self.soft_keyboard = True
+        self.soft_keyboard = False
 
     # designer will show these properties in this order:
     soft_keyboard_option = pyqtProperty(bool, get_soft_keyboard, set_soft_keyboard, reset_soft_keyboard)
+
+    def set_dialog_keyboard(self, data):
+        self.dialog_keyboard = data
+    def get_dialog_keyboard(self):
+        return self.dialog_keyboard
+    def reset_dialog_keyboard(self):
+        self.dialog_keyboard = False
+
+    # designer will show these properties in this order:
+    dialog_keyboard_option = pyqtProperty(bool, get_dialog_keyboard, set_dialog_keyboard, reset_dialog_keyboard)
 
 # for testing without editor:
 def main():

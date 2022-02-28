@@ -1,0 +1,389 @@
+:lang: es
+
+[[cha:halmodule]]
+
+= Crear Componentes Python de Espacio de Usuario
+
+== Uso Básico
+
+Un componente de espacio de usuario comienza creando sus pines y parámetros. Luego
+entra en un bucle que manejara periódicamente todas las salidas segun las
+entradas. El siguiente componente copia el valor visto en su pin de entrada
+('passthrough.in') a su pin de salida ('passthrough.out') aproximadamente
+una vez por segundo.
+
+[source,c]
+----
+#!/usr/bin/env python3
+import hal, time
+h = hal.component("passthrough")
+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+h.newpin("out", hal.HAL_FLOAT, hal.HAL_OUT)
+h.ready()
+try:
+    while 1:
+        time.sleep(1)
+        h['out'] = h['in']
+except KeyboardInterrupt:
+    raise SystemExit
+----
+
+Copie el listado anterior en un archivo llamado "passthrough", hágalo
+ejecutable ('chmod +x'), y colóquelo en su '$PATH'. Luego, pruébelo:
+
+----
+Halrun
+
+halcmd: loadusr passthrough
+
+halcmd: show pin
+
+    Component Pins: 
+    Owner Type  Dir     Value  Name 
+     03   float IN          0  passthrough.in 
+     03   float OUT         0  passthrough.out 
+
+halcmd: setp passthrough.in 3.14
+
+halcmd: show pin
+
+    Component Pins: 
+    Owner Type  Dir     Value  Name 
+     03   float IN       3.14  passthrough.in 
+     03   float OUT      3.14  passthrough.out 
+----
+
+== Componentes de espacio de usuario y retrasos
+
+Si escribió el segundo "show pin" rápidamente, puede ver que 'passthrough.out'
+todavía tenía su valor anterior de 0. Esto se debe a la llamada a
+'time.sleep(1)', que hace que la asignación al pin de salida ocurra al
+menos una vez por segundo. Como este es un componente de espacio de usuario, la demora real
+entre asignaciones puede ser mucho más larga si
+la memoria utilizada por el componente passthrough se intercambia en el disco; la 
+asignación se puede retrasar hasta que la memoria se intercambie nuevamente.
+
+Por lo tanto, los componentes del espacio de usuario son adecuados para elementos interactivos con el usuario
+como los paneles de control (los retrasos en el rango de milisegundos no seran
+notados, y son aceptables demoras más largas), pero no para enviar pulsos de paso
+a una placa de control paso a paso (los retrasos siempre deben estar en el rango de
+microsegundos).
+
+== Crear pines y parámetros
+
+----
+h = hal.component("passthrough")
+----
+
+El componente en sí es creado por una llamada al constructor
+'hal.component'. Los argumentos son el nombre del componente HAL y
+(opcionalmente) el
+prefijo utilizado para los nombres de los pines y los parámetros. Si el prefijo no se
+especifica, se usa el nombre del componente.
+
+----
+h.newpin("in", hal.HAL_FLOAT, hal.HAL_IN)
+----
+
+Los pines se crean mediante llamadas a métodos en el objeto componente. Los
+argumentos son: sufijo del nombre del pin, tipo de pin y dirección del pin. Para
+parámetros, los argumentos son: sufijo del nombre del parámetro, tipo de parámetro,
+y dirección del parámetro.
+
+.Nombres de la opción .HAL
+[width="100%",cols="<3s,4*<"]
+|===========================================================
+|Tipos Pines y Parametros:  |HAL_BIT |HAL_FLOAT |HAL_S32 |HAL_U32
+|Direcciones de Pin:        |HAL_IN  |HAL_OUT   |HAL_IO  |
+|Direcciones de Parametros: |HAL_RO  |HAL_RW    |        |
+|===========================================================
+
+El nombre completo del pin o parámetro se forma uniendo el prefijo y el
+sufijo con un ".", por lo que en el ejemplo, el pin creado se llama
+'passthrough.in'.
+
+----
+h.ready()
+----
+
+Una vez que se hayan creado todos los pines y parámetros, llame al
+método '.ready()'.
+
+=== Cambiar el Prefijo
+
+El prefijo se puede cambiar llamando al método '.setprefix()'. Los
+prefijo actuales se puede recuperar llamando al método '.getprefix()'.
+
+== Lectura y Escritura de Pines y Parámetros
+
+Para los pines y parámetros que también sean identificadores adecuados de Python, el
+valor puede ser accedido o establecido usando la sintaxis de atributo:
+
+----
+h.out = h.in
+----
+
+Para todos los pines, sean o no identificadores adecuados de Python,
+el valor puede ser accedido o establecido usando la sintaxis de subíndice:
+
+----
+h['out'] = h['in']
+----
+
+=== Manejo de Pines de Salida (HAL_OUT)
+
+Periódicamente, generalmente en respuesta a un temporizador, todos los pines HAL_OUT deben
+ser "manejados" al asignarles un nuevo valor. Esto debe hacerse, sea
+o no el valor diferente al último asignado. Cuando un pin es
+conectado a una señal, su valor de salida anterior no se copia en la
+señal, por lo que el valor correcto solo aparecerá en la señal una vez que el
+componente asigna un nuevo valor.
+
+=== Manejo de pines bidireccionales (HAL_IO)
+
+La regla anterior no se aplica a los pines bidireccionales. En cambio, un
+pin bidireccional solo debe ser manejado por el componente cuando el
+componente desea cambiar el valor. Por ejemplo, en el 
+interfaz canónico de encoder, el componente solo establece el pin 'index-enable'
+a *FALSE* (cuando se produce un pulso de índice y el valor anterior es
+*TRUE*), pero nunca, por si mismo, lo establece en *TRUE*. Llevando repetidamente el pin
+a *FALSE* puede hacer que el otro componente conectado actúe como si
+hubiese sido visto otro impulso de índice.
+
+== Salida
+
+Una solicitud 'halcmd unload' para el componente se entrega como una
+excepción 'KeyboardInterrupt'. Cuando llega una solicitud de descarga, el
+proceso debe o bien salir en poco tiempo o llamar al método '.exit()' en el componente,
+si un trabajo sustancial (como lectura o escritura de archivos) debe hacerse 
+para completar el proceso de apagado.
+
+== Funciones útiles
+
+=== component_exists
+
+Existencia del componente especificado en este momento +
+Ejemplo: +
+hal.component_exists("testpanel") +
+
+=== component_is_ready
+
+Componente especificado listo en este momento +
+Ejemplo: +
+hal.component_is_ready("testpanel") +
+
+=== get_msg_level
+
+Nivel msg de tiempo real actual.
+
+=== set_msg_level
+
+Establecer nivel msg de tiempo real. +
+usado para informacion de depuracion. +
+
+=== connect
+
+Conecta un pin a una señal. +
+ejemplo: +
+hal.connect("pinname","signal_name")
+
+=== get_value
+
+leer pin, parametro o señal directamente. +
+ejemplo: +
+value = hal.get_value("iocontrol.0.emc-enable-in") +
+
+=== new_signal
+Crea una nueva señal del tipo especificado. +
+ejemplo "+
+hal.new_sig("nombre-de-la-señal",hal.HAL_BIT)
+
+=== pin_has_writer
+
+El pin especificado tiene un pin de manejo conectado +
+Devuelve verdadero o falso. +
+h.in.pin_has_writer()
+
+=== get_name
+Obtener nombre de objeto HAL +
+h.in.get_name() +
+devuelve una cadena
+
+=== get_type
+Obtener tipo de objeto HAL +
+h.in.get_type() +
+devuelve un entero
+
+=== get_dir
+Obtener tipo de direccion de objeto HAL +
+h.in.get_dir() +
+devuelve un entero
+
+=== get
+Obtener valor del objeto HAL +
+h.in.get()
+
+=== set
+Establecer valor del objeto HAL +
+h.out.set(10)
+
+=== is_pin
+el objeto es pin o parametro? +
+h.in.is_pin() +
+devuelve bool
+
+=== sampler_base
+
+TODO +
+
+=== stream_base
+
+TODO +
+
+=== stream
+
+TODO +
+
+
+=== set_p
+
+Establecer un valor en cualquier pin HAL. +
+ejemplo: +
+hal.set_p("pinname","10") +
+
+== Constantes
+
+Úselas para especificar detalles con el valor que representan.
+
+* HAL_BIT
+
+* HAL_FLOAT
+
+* HAL_S32
+
+* HAL_U32
+
+* HAL_IN
+
+* HAL_OUT
+
+* HAL_RO
+
+* HAL_RW
+
+* MSG_NONE
+
+* MSG_ALL
+
+* MSG_DBG
+
+* MSG_ERR
+
+* MSG_INFO
+
+* MSG_WARN
+
+== Información del sistema
+
+Leer estas variables para obtener información sobre el sistema en tiempo real.
+
+* is_kernelspace
+
+* is_rt
+
+* is_sim
+
+* is_userspace
+
+== Usar con hal_glib en el handler GladeVCP
+GladeVCP usa la biblioteca hal_glib, que puede usarse para conectar una señal "observador" en un pin de entrada HAL. +
+Esta señal se puede usar para registrar una función a llamar cuando el pin HAL cambia de estado. +
+
+Uno debe importar el módulo y el módulo hal:
+
+[source,python]
+----
+import hal_glib
+import hal
+----
+
+Luego haga un pin y conecte una señal 'value-changed' (el observador) a una llamada de función:
+[source,python]
+----
+class HandlerClass:
+    def __init__(self, halcomp,builder,useropts):
+        self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
+        self.example_trigger.connect('value-changed', self._on_example_trigger_change)
+----
+
+Y tener una función que se llamará:
+[source,python]
+----
+    def _on_example_trigger_change(self,pin,userdata=None):
+        print "pin value changed to:" % (pin.get())
+        print "pin name= %s" % (pin.get_name())
+        print "pin type= %d" % (pin.get_type())
+
+        # esto se puede llamar fuera de la función
+        self.example_trigger.get()
+----
+
+== Usar con hal_glib en el handler QtVCP
+QtVCP usa la biblioteca hal_glib, que puede usarse para conectar una señal "observador" en un pin de entrada HAL. +
+Esta señal se puede usar para registrar una función a llamar cuando el pin HAL cambia de estado. +
+
+Uno debe importar el módulo hal:
+
+[source,python]
+----
+import hal
+----
+
+Luego haga un pin y conecte una señal 'value_changed' (el observador) a una llamada de función:
+[source,python]
+----
+    ########################
+    # **** INICIALIZAR **** #
+    ########################
+    # widgets permite el acceso a widgets desde los archivos qtvcp
+    # en este punto, los widgets y los pines hal no están instanciados
+    def __init__(self, halcomp,widgets,paths):
+        self.hal = halcomp
+        self.testPin = self.hal.newpin('test-pin', hal.HAL_BIT, hal.HAL_IN)
+        self.testPin.value_changed.connect(lambda s: self.setTestPin(s))
+----
+
+Y tener una función que se llamará. +
+Esto muestra formas de obtener el valor y la información del pin. +
+[source,python]
+----
+    #######################
+    # funciones generales #
+    #######################
+    def setTestPin(self, data):
+        print "Test pin value changed to:" % (data)
+        print 'halpin object =', self.w.sender()
+        print 'Halpin name: ',self.sender().text()
+        print 'Halpin type: ',self.sender().get_type()
+
+        # esto se puede llamar fuera de la función
+        print self.testPin.get()
+----
+
+
+== Ideas de proyectos
+
+* Crea un panel de control externo con botones, interruptores y
+   indicadores. Conecte todo a un microcontrolador, y conecte el
+   microcontrolador a la PC con una interfaz serie. Python tiene un muy
+   eficaz módulo de interfaz serie llamado
+   http://pyserial.sourceforge.net/[pyserial]
+   (Nombre del paquete de Ubuntu "python-serial", en el repositorio universo)
+* Adjunte un módulo LCD compatible con http://lcdproc.omnipotent.net/[LCDProc]-
+   y úselo para mostrar una lectura digital con la información que elija
+   (Nombre del paquete de Ubuntu "lcdproc", en el repositorio universo)
+* Crear un panel de control virtual utilizando cualquier biblioteca GUI compatible con
+   Python (gtk, qt, wxwindows, etc.)
+
+
+

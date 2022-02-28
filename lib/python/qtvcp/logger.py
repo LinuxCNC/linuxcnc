@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # QTVcp Logging Module
 # Provides a consistent and easy to use logging facility.  Log messages printed
@@ -25,8 +25,22 @@ from linuxcnc import ini
 # logging to set the log level within other modules.
 from logging import DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+# add a new verbose level
+VERBOSE = 5
+logging.VERBOSE = 5
+logging.addLevelName(logging.VERBOSE, "VERBOSE")
+
+
+def verbose(self, message, *args, **kws):
+    if self.isEnabledFor(VERBOSE):
+        # Yes, logger takes its '*args' as 'args'.
+        # cant get 'VERBOSE' to work in this function
+        self._log(logging.DEBUG, message, args, **kws)
+
+logging.Logger.verbose = verbose
+
 # Our custom colorizing formatter for the terminal handler
-from lib.colored_formatter import ColoredFormatter
+from .lib.colored_formatter import ColoredFormatter
 
 
 # Global name of the base logger

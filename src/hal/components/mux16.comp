@@ -7,7 +7,7 @@ for each increment only one select input changes at a time.
 pin in bit suppress_no_input"""\
 This suppresses changing the output if all select lines are false.
 This stops unwanted jumps in output between transitions of input.
-but make in00 unavaliable.
+but make in00 unavailable.
 """;
 pin in float debounce_time"""\
 sets debouce time in seconds.  eg. .10 = a tenth of a second

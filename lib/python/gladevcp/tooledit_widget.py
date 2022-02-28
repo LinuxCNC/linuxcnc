@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # GladeVcp Widget - tooledit
 #
 # Copyright (c) 2012 Chris Morley
@@ -14,14 +14,17 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import sys, os, pango, linuxcnc, hashlib, glib
+import sys, os, linuxcnc, hashlib
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
-try:
-    import gobject,gtk
-except:
-    print('GTK not available')
-    sys.exit(1)
+
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import GLib
 
 # localization
 import locale
@@ -36,15 +39,15 @@ try:
 except:
     INIPATH = None
 
-class ToolEdit(gtk.VBox):
+class ToolEdit(Gtk.VBox):
     __gtype_name__ = 'ToolEdit'
     __gproperties__ = {
-        'font' : ( gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
-                "sans 12", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'hide_columns' : (gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options',
-                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'lathe_display_type' : ( gobject.TYPE_BOOLEAN, 'Display Type', 'True: Lathe layout, False standard layout',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'font' : ( GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
+                "sans 12", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of columns to hide: stpxyzabcuvwdijq and ; are the options',
+                    "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'lathe_display_type' : ( GObject.TYPE_BOOLEAN, 'Display Type', 'True: Lathe layout, False standard layout',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
@@ -59,7 +62,7 @@ class ToolEdit(gtk.VBox):
         self.hide_columns =''
         self.toolinfo_num = 0
         self.toolinfo = []
-        self.wTree = gtk.Builder()
+        self.wTree = Gtk.Builder()
         self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "tooledit_gtk.glade") )
         # connect the signals from Glade
@@ -80,7 +83,7 @@ class ToolEdit(gtk.VBox):
         # toggle button useable
         renderer = self.wTree.get_object("cell_toggle1")
         renderer.set_property('activatable', True)
-        # make colums editable
+        # make columns editable
         self.tool_cell_list = "cell_tool#","cell_pos","cell_x","cell_y","cell_z","cell_a","cell_b","cell_c","cell_u","cell_v","cell_w","cell_d", \
                 "cell_front","cell_back","cell_orient","cell_comments"
         for col,name in enumerate(self.tool_cell_list):
@@ -135,7 +138,7 @@ class ToolEdit(gtk.VBox):
         #self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
         self.view2.connect("key-release-event", self.on_tree_navigate_key_press, 'wear')
         self.selection = self.view2.get_selection()
-        self.selection.set_mode(gtk.SELECTION_SINGLE)
+        self.selection.set_mode(Gtk.SelectionMode.SINGLE)
         self.view3 = self.wTree.get_object("treeview3")
         #self.view3.connect('button_press_event', self.on_treeview2_button_press_event)
         self.view3.connect("key-release-event", self.on_tree_navigate_key_press, 'tool')
@@ -165,7 +168,7 @@ class ToolEdit(gtk.VBox):
             pass
 
         # check linuxcnc status every second
-        gobject.timeout_add(1000, self.periodic_check)
+        GLib.timeout_add(1000, self.periodic_check)
 
     # used to split tool and wear data by the tool number
     # if the tool number is above 10000 then its a wear offset (as per fanuc)
@@ -221,7 +224,7 @@ class ToolEdit(gtk.VBox):
                 liststore.set_value(liststore.get_iter(pathlist[0]),0,1)
                 treeselection.select_path(pathlist[0])
         except:
-            print _("tooledit_widget error: cannot select tool number"),toolnumber
+            print(_("tooledit_widget error: cannot select tool number"),toolnumber)
 
     def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0','0',"comment"]):
         self.model.append(data)
@@ -240,7 +243,7 @@ class ToolEdit(gtk.VBox):
         self.model.clear()
         #print "toolfile:",self.toolfile
         if not os.path.exists(self.toolfile):
-            print _("Toolfile does not exist")
+            print(_("Toolfile does not exist"))
             return
         logfile = open(self.toolfile, "r").readlines()
         self.toolinfo = []
@@ -274,12 +277,12 @@ class ToolEdit(gtk.VBox):
                             try:
                                 array[offset]= int(word.lstrip(i))
                             except:
-                                print _("Tooledit widget int error")
+                                print(_("Tooledit widget int error"))
                         else:
                             try:
                                 array[offset]= locale.format("%10.4f", float(word.lstrip(i)))
                             except:
-                                print _("Tooledit_widget float error")
+                                print(_("Tooledit_widget float error"))
                         break
             if toolinfo_flag:
                 self.toolinfo = array
@@ -307,8 +310,8 @@ class ToolEdit(gtk.VBox):
                     test = i.lstrip() # localized floats
                     line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
 
-            print >>file,line
-        # Theses lines are required to make sure the OS doesn't cache the data
+            print(line, file=file)
+        # These lines are required to make sure the OS doesn't cache the data
         # That would make linuxcnc and the widget to be out of synch leading to odd errors
         file.flush()
         os.fsync(file.fileno())
@@ -316,7 +319,7 @@ class ToolEdit(gtk.VBox):
         try:
             linuxcnc.command().load_tool_table()
         except:
-            print _("Reloading tooltable into linuxcnc failed")
+            print(_("Reloading tooltable into linuxcnc failed"))
 
         # This is for changing the display after tool editor was loaded using the style button
         # note that it toggles the display
@@ -331,7 +334,7 @@ class ToolEdit(gtk.VBox):
     def set_lathe_display(self,value):
         #print "    lathe_display    ",value
         self.lathe_display_type = value
-        #if self.all_window.flags() & gtk.VISIBLE:
+        #if self.all_window.flags() & Gtk.VISIBLE:
         self.notebook.set_show_tabs(value)
         if value:
             self.wear_window.show()
@@ -361,8 +364,8 @@ class ToolEdit(gtk.VBox):
             if tab[i] in ('1','2','3'):
                 for j in objectlist:
                     column = self.wTree.get_object(j+tab[i])
-                    label = gtk.Label(column.get_title())
-                    label.modify_font(pango.FontDescription(value))
+                    label = Gtk.Label(column.get_title())
+                    label.modify_font(Pango.FontDescription(value))
                     label.show()
                     column.set_widget(label)
 
@@ -370,11 +373,11 @@ class ToolEdit(gtk.VBox):
         for i in range(0, len(tab)):
             if tab[i] in ('1','2','3'):
                 if tab[i] =='1':
-                    self.all_label.modify_font(pango.FontDescription(value))
+                    self.all_label.modify_font(Pango.FontDescription(value))
                 elif tab[i] =='2':
-                    self.wear_label.modify_font(pango.FontDescription(value))
+                    self.wear_label.modify_font(Pango.FontDescription(value))
                 elif tab[i] =='3':
-                    self.tool_label.modify_font(pango.FontDescription(value))
+                    self.tool_label.modify_font(Pango.FontDescription(value))
                 else:
                     pass
 
@@ -382,7 +385,7 @@ class ToolEdit(gtk.VBox):
     def set_visible(self,list,bool):
         self.set_col_visible(list, bool, tab= '1')
 
-    # This allows hiding or showing columns from a text string of columnns
+    # This allows hiding or showing columns from a text string of columns
     # eg list ='xyz'
     # tab= selects what tabs to apply it to
     def set_col_visible(self, list, bool= False, tab= '1'):
@@ -409,7 +412,7 @@ class ToolEdit(gtk.VBox):
             except:
                 pass
 
-        # depending what is editted add the right type of info integer,float or text
+        # depending what is edited add the right type of info integer,float or text
         # If it's a filtered display then we must convert the path 
     def col_editted(self, widget, path, new_text, col, filter):
         if filter == 'wear':
@@ -476,7 +479,7 @@ class ToolEdit(gtk.VBox):
 
         # you could overload this to do something else.
     def toolfile_stale(self):
-        print _("Tool file was modified since it was last read")
+        print(_("Tool file was modified since it was last read"))
         self.reload(None)
         self.set_selected_tool(self.toolinfo_num)
 
@@ -500,16 +503,16 @@ class ToolEdit(gtk.VBox):
         else:
             self.buttonbox.show()
 
-        # standard Gobject method
+        # standard GObject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
 
-        # standard Gobject method
-        # changing the Gobject property 'display_type' will actually change the display
+        # standard GObject method
+        # changing the GObject property 'display_type' will actually change the display
         # This is so that in the Glade editor, you can change the display
         # Note this sets the display absolutely vrs the display_toggle method that toggles the display
     def do_set_property(self, property, value):
@@ -535,12 +538,12 @@ class ToolEdit(gtk.VBox):
 
     # define the callback for keypress events
     def on_tree_navigate_key_press(self, treeview, event, filter):
-        keyname = gtk.gdk.keyval_name(event.keyval)
+        keyname = Gdk.keyval_name(event.keyval)
         path, col = treeview.get_cursor()
         columns = [c for c in treeview.get_columns()]
         colnum = columns.index(col)
 
-        focuschild = treeview.focus_child
+        focuschild = treeview.get_focus_child()
 
         if filter == 'wear':
             store_path = self.wear_filter.convert_path_to_child_path(path)
@@ -576,9 +579,9 @@ class ToolEdit(gtk.VBox):
 
             if keyname == 'Right':
                 renderer = columns[colnum].get_cell_renderers()
-                if type(focuschild) is gtk.Entry:
-                    self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, filter)
-            glib.timeout_add(50,
+                if type(focuschild) is Gtk.Entry:
+                    self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
+            GLib.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
@@ -608,9 +611,9 @@ class ToolEdit(gtk.VBox):
                     cont = False
 
             renderer = columns[colnum].get_cell_renderers()
-            if type(focuschild) is gtk.Entry:
-                self.col_editted(renderer[0], path, treeview.focus_child.props.text, colnum, filter)
-            glib.timeout_add(50,
+            if type(focuschild) is Gtk.Entry:
+                self.col_editted(renderer[0], path, treeview.get_focus_child().props.text, colnum, filter)
+            GLib.timeout_add(50,
                              treeview.set_cursor,
                              path, next_column, True)
 
@@ -621,13 +624,13 @@ class ToolEdit(gtk.VBox):
             if path[0] + 1 == len(model):
                 path = (0, )
                 # treeview.set_cursor(path, columns[colnum], True)
-                glib.timeout_add(50,
+                GLib.timeout_add(50,
                                  treeview.set_cursor,
                                  path, columns[colnum], True)
             else:
                 newpath = path[0] + 1
                 # treeview.set_cursor(path, columns[colnum], True)
-                glib.timeout_add(50,
+                GLib.timeout_add(50,
                                  treeview.set_cursor,
                                  newpath, columns[colnum], True)
 
@@ -637,7 +640,7 @@ class ToolEdit(gtk.VBox):
                 newpath = len(model)-1
             else:
                 newpath = path[0] - 1
-            glib.timeout_add(50,
+            GLib.timeout_add(50,
                              treeview.set_cursor,
                              newpath, columns[colnum], True)
 
@@ -652,27 +655,26 @@ class ToolEdit(gtk.VBox):
 # you can specify a tool table file at the command line
 # or uncomment the line and set the path correctly.
 def main(filename=None):
-    window = gtk.Dialog("My dialog",
+    window = Gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     tooledit = ToolEdit(filename)
     
     window.vbox.add(tooledit)
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
     tooledit.set_col_visible("abcUVW", False, tab='1')
     # uncommented the below line for testing.
-    tooledit.set_filename("/home/jim/linuxcnc/configs/sim.gmoccapy/tool.tbl")
-    #tooledit.set_filename("/home/chris/emc2-dev/configs/sim/lathe.tbl")
+    tooledit.set_filename("../../../configs/sim/sim.tbl")
     tooledit.set_font("sans 16",tab='23')
     window.show_all()
     #tooledit.set_lathe_display(True)
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
-       print "True"
+    if response == Gtk.ResponseType.ACCEPT:
+       print("True")
     else:
-       print "False"
+       print("False")
 
 if __name__ == "__main__":
     # if there are two arguments then specify the path

@@ -2,7 +2,7 @@
 
 /*
   Compile this with "gcc M102.c -o M102" to build an M102 executable
-  program in the emc/programs/ directory. M102 in your G code program
+  program in the emc/programs/ directory. M102 in your G-code program
   will execute this code, passing the P and Q variables as command
   line arguments.
  */

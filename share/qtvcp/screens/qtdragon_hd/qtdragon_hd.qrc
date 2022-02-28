@@ -1,0 +1,34 @@
+<RCC>
+  <qresource prefix="buttons">
+    <file>images/unchecked.png</file>
+    <file>images/spindle_ccw.gif</file>
+    <file>images/spindle_cw.gif</file>
+    <file>images/E-Stop.gif</file>
+    <file>images/estopred.png</file>
+    <file>images/Estop.png</file>
+    <file>images/Estop_reset.png</file>
+    <file>images/spindle_rev.png</file>
+    <file>images/spindle_fwd.png</file>
+    <file>images/spindle_pause.png</file>
+    <file>images/spindle_stop.png</file>
+    <file>images/slide_off.png</file>
+    <file>images/slide_on.png</file>
+    <file>images/checked.png</file>
+    <file>images/Right_arrow.png</file>
+    <file>images/Left_arrow.png</file>
+    <file>images/a_minus_jog_button.png</file>
+    <file>images/a_plus_jog_button.png</file>
+    <file>images/x_plus_jog_button.png</file>
+    <file>images/x_minus_jog_button.png</file>
+    <file>images/z_minus_jog_button.png</file>
+    <file>images/z_plus_jog_button.png</file>
+    <file>images/y_minus_jog_button.png</file>
+    <file>images/y_plus_jog_button.png</file>
+  </qresource>
+  <qresource prefix="images">
+    <file>images/atc_spindle_tool.png</file>
+    <file>images/brushed_metal.png</file>
+    <file>images/silver_dragon.png</file>
+    <file>images/tool_probe.png</file>
+  </qresource>
+</RCC>

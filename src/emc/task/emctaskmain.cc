@@ -60,6 +60,7 @@
 #include <locale.h>
 #include "usrmotintf.h"
 #include <rtapi_string.h>
+#include "tooldata.hh"
 
 #if 0
 // Enable this to niftily trap floating point exceptions for debugging
@@ -67,6 +68,7 @@
 fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM);
 #endif
 
+#include "config.h"
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
@@ -84,14 +86,10 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 #include "motion.h"             // EMCMOT_ORIENT_*
 #include "inihal.hh"
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-static int stop_if_eoffsets_at_synch = 0;
-#endif
-
 static emcmot_config_t emcmotConfig;
 
 /* time after which the user interface is declared dead
- * because it would'nt read any more messages
+ * because it wouldn't read any more messages
  */
 #define DEFAULT_EMC_UI_TIMEOUT 5.0
 
@@ -121,7 +119,7 @@ static int emcTaskNoDelay = 0;
 static int emcTaskEager = 0;
 
 static int no_force_homing = 0; // forces the user to home first before allowing MDI and Program run
-//can be overriden by [TRAJ]NO_FORCE_HOMING=1
+//can be overridden by [TRAJ]NO_FORCE_HOMING=1
 
 static double EMC_TASK_CYCLE_TIME_ORIG = 0.0;
 
@@ -560,9 +558,6 @@ interpret_again:
 				emcTaskPlanSetWait();
 				// and resynch interp WM
 				emcTaskQueueCommand(&taskPlanSynchCmd);
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-				stop_if_eoffsets_at_synch = 1;
-#endif
 			    } else if (execRetval != 0) {
 				// end of file
 				emcStatus->task.interpState =
@@ -774,6 +769,15 @@ static int emcTaskPlan(void)
     } else {
 	// no new command-- reset local flag
 	type = 0;
+    }
+
+    // Always display messages
+	switch (type) {
+        case EMC_OPERATOR_ERROR_TYPE:
+        case EMC_OPERATOR_TEXT_TYPE:
+        case EMC_OPERATOR_DISPLAY_TYPE:
+		retval = emcTaskIssueCommand(emcCommand);
+		return retval;
     }
 
     // handle any new command
@@ -1070,7 +1074,7 @@ static int emcTaskPlan(void)
 
 		case EMC_TASK_PLAN_STEP_TYPE:
 		    // handles case where first action is to step the program
-		    taskPlanRunCmd.line = 1;	// run from start
+		    taskPlanRunCmd.line = 0;	// run from start
 		    /*! \todo FIXME-- can have GUI set this; send a run instead of a 
 		       step */
 		    retval = emcTaskIssueCommand(&taskPlanRunCmd);
@@ -1413,12 +1417,6 @@ static int emcTaskPlan(void)
 		break;
 
 	    case EMC_TASK_PLAN_EXECUTE_TYPE:
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-                if (GET_EXTERNAL_OFFSET_APPLIED()) {
-                    emcOperatorError(0,"Disallow MDI start with External Offsets");
-                    break;
-                }
-#endif
                 // If there are no queued MDI commands, no commands in
                 // interp_list, and waitFlag isn't set, then this new
                 // incoming MDI command can just be issued directly.
@@ -1736,12 +1734,13 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 					set_homing_params_msg->search_vel,
 					set_homing_params_msg->latch_vel,
 					set_homing_params_msg->use_index,
+					set_homing_params_msg->encoder_does_not_reset,
 					set_homing_params_msg->ignore_limits,
 					set_homing_params_msg->is_shared,
 					set_homing_params_msg->home_sequence,
 					set_homing_params_msg->volatile_home,
-                                        set_homing_params_msg->locking_indexer,
-                                        set_homing_params_msg->absolute_encoder);
+					set_homing_params_msg->locking_indexer,
+					set_homing_params_msg->absolute_encoder);
 	break;
 
     case EMC_JOINT_SET_FERROR_TYPE:
@@ -1832,14 +1831,16 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_LINEAR_MOVE_TYPE:
+	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
                                    emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
-                                   emcTrajLinearMoveMsg->indexrotary);
+                                   emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
     case EMC_TRAJ_CIRCULAR_MOVE_TYPE:
+	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	emcTrajCircularMoveMsg = (EMC_TRAJ_CIRCULAR_MOVE *) cmd;
         retval = emcTrajCircularMove(emcTrajCircularMoveMsg->end,
                 emcTrajCircularMoveMsg->center, emcTrajCircularMoveMsg->normal,
@@ -1937,6 +1938,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TRAJ_RIGID_TAP_TYPE:
+	emcTrajUpdateTag(((EMC_TRAJ_LINEAR_MOVE *) cmd)->tag);
 	retval = emcTrajRigidTap(((EMC_TRAJ_RIGID_TAP *) cmd)->pos,
 	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
         	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
@@ -2103,6 +2105,11 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
     case EMC_TASK_ABORT_TYPE:
 	// abort everything
 	emcTaskAbort();
+	// KLUDGE call motion abort before state restore to make absolutely sure no
+	// stray restore commands make it down to motion
+	emcMotionAbort();
+	// Then call state restore to update the interpreter
+	emcTaskStateRestore();
         emcIoAbort(EMC_ABORT_TASK_ABORT);
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
@@ -2233,7 +2240,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    mdi_execute_level = -1;
 		} else if (level > 0) {
 		    // Still insude call. Need another execute(0) call
-		    // but only if we didnt encounter an error
+		    // but only if we didn't encounter an error
 		    if (execRetval == INTERP_ERROR) {
 			mdi_execute_next = 0;
 		    } else {
@@ -2585,21 +2592,8 @@ static int emcTaskExecute(void)
 	stepping = 0;
 	steppingWait = 0;
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-        if (GET_EXTERNAL_OFFSET_APPLIED()) {
-            if (   stop_if_eoffsets_at_synch
-                || emcStatus->task.mode == EMC_TASK_MODE_MDI) {
-                        emcOperatorError(0,"Stopping at synch() with External Offsets");
-            }
-        } else {
-	    // now queue up command to resynch interpreter
-            emcTaskQueueCommand(&taskPlanSynchCmd);
-        }
-        stop_if_eoffsets_at_synch = 0;
-#else
-        // now queue up command to resynch interpreter
-        emcTaskQueueCommand(&taskPlanSynchCmd);
-#endif
+	// now queue up command to resynch interpreter
+	emcTaskQueueCommand(&taskPlanSynchCmd);
 
 	retval = -1;
 	break;
@@ -3339,10 +3333,17 @@ int main(int argc, char *argv[])
     // moved up from emc_startup so we can expose it in Python right away
     emcStatus = new EMC_STAT;
 
+#ifdef TOOL_NML //{
+    tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+    // initialize database tool finder:
+#endif //}
     // get the Python plugin going
 
     // inistantiate task methods object, too
     emcTaskOnce(emc_inifile);
+    rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
 	rcs_print_error("can't initialize Task methods\n");
@@ -3577,11 +3578,13 @@ int main(int argc, char *argv[])
         else if (deltaTime > maxTime)
             maxTime = deltaTime;
         startTime = endTime;
-        if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
-            if (num_latency_warnings < 10) {
-                rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+        if (!getenv( (char*)"QUIET_TASK") ) {
+            if (deltaTime > (latency_excursion_factor * emc_task_cycle_time)) {
+                if (num_latency_warnings < 10) {
+                    rcs_print("task: main loop took %.6f seconds\n", deltaTime);
+                }
+                num_latency_warnings ++;
             }
-            num_latency_warnings ++;
         }
 
 	if ((emcTaskNoDelay) || (emcTaskEager)) {

@@ -10,7 +10,8 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-
+#we need this _soley_ to define colours.
+from gi.repository import Gdk
 
 class listing:
     def __init__(self, gtk, emc, labels, eventboxes):
@@ -28,7 +29,7 @@ class listing:
         self.populate()
 
     def populate(self):
-        program = self.program[self.lineoffset:self.lineoffset + self.numlabels]
+        program = self.program[int(self.lineoffset):int(self.lineoffset + self.numlabels)]
         for i in range(self.numlabels):
             l = self.labels[i]
             e = self.eventboxes[i]
@@ -36,13 +37,12 @@ class listing:
                 l.set_text(program[i].rstrip())
             else:
                 l.set_text('')
-            
             if self.start_line == self.lineoffset + i:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#66f'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#66F"))
             elif self.selected == self.lineoffset + i:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#fff'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#FFF"))
             else:
-                e.modify_bg(self.gtk.STATE_NORMAL, self.gtk.gdk.color_parse('#ccc'))
+                e.modify_bg(self.gtk.StateFlags.NORMAL, Gdk.color_parse("#CCC"))
 
     def show_line(self, n):
         if len(self.program) <= self.numlabels:
@@ -69,7 +69,7 @@ class listing:
 
     def readfile(self, fn):
         self.filename = fn
-        f = file(fn, 'r')
+        f = open(fn, 'r')
         self.program = f.readlines()
         f.close()
         self.lines = len(self.program)
@@ -81,27 +81,30 @@ class listing:
         pass
 
     def previous(self, b,count=1):
-	for i in range(count):
-	    while True:
-		if self.start_line <= 0:
-		    break
-		self.start_line -= 1
-		if (self.program[self.start_line][0] == 'N' or
-		    self.program[self.start_line][0] == 'n' ):
-		    break
+        for i in range(int(count)):
+            while True:
+                if self.start_line <= 0:
+                    break
+                self.start_line -= 1
+                if (self.program[self.start_line][0] == 'N' or
+                    self.program[self.start_line][0] == 'n' ):
+                    break
         self.show_line(self.start_line)
 
     def next(self,b,count=1):
-        if count < 0: return self.previous(b, -count)
-	for i in range(count):
-	    while True:
-		if self.start_line >= len(self.program)-1:
-		    break
-		self.start_line += 1
-		if (self.program[self.start_line][0] == 'N' or
-		    self.program[self.start_line][0] == 'n' ):
-		    break
+        if count < 0: return self.previous(b, int(-count))
+        for i in range(int(count)):
+            while True:
+                if self.start_line >= len(self.program)-1:
+                    break
+                self.start_line += 1
+                if (self.program[self.start_line][0] == 'N' or
+                    self.program[self.start_line][0] == 'n' ):
+                    break
         self.show_line(self.start_line)
+        
+    def on_select(self, b):
+        pass
 
     def clear_startline(self):
         self.start_line = -1

@@ -20,6 +20,7 @@
 #include "emctool.h"
 #include "canon_position.hh"
 #include "emcmotcfg.h" // Just for EMCMOT_NUM_SPINDLES
+#include "modal_state.hh"
 
 /*
   This is the header file that all applications that use the
@@ -585,8 +586,9 @@ number of the selected tool. */
 extern void SELECT_TOOL(int tool);
 
 extern void CHANGE_TOOL_NUMBER(int number);
+extern void RELOAD_TOOLDATA(void);
 
-/* In extention to the comment above - for CHANGE_TOOL, sometimes on 
+/* In extension to the comment above - for CHANGE_TOOL, sometimes on 
 startup one would want to tell emc2 what tool it has loaded. As the last
 toolnumber before shutdown isn't currently written, there is no provision
 to allow emc2 to safely restart knowing what tool is in the spindle.
@@ -793,6 +795,9 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE();
 // Returns the current motion path-following tolerance
 extern double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
 
+// Returns the current motion naive CAM tolerance
+extern double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
+
 /* The interpreter is not using these six GET_EXTERNAL_ORIGIN functions
 
 // returns the current a-axis origin offset
@@ -892,9 +897,6 @@ extern double GET_EXTERNAL_TOOL_LENGTH_UOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_VOFFSET();
 extern double GET_EXTERNAL_TOOL_LENGTH_WOFFSET();
 
-// Returns number of slots in carousel
-extern int GET_EXTERNAL_POCKETS_MAX();
-
 // Returns the system value for the carousel slot in which the tool
 // currently in the spindle belongs. Return value zero means there is no
 // tool in the spindle.
@@ -965,11 +967,8 @@ extern void PLUGIN_CALL(int len, const char *call);
 
 // same for IoTask context
 extern void IO_PLUGIN_CALL(int len, const char *call);
-
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
-
-#define STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-#undef  STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
+extern void UPDATE_TAG(StateTag tag);
 
 #endif				/* ifndef CANON_HH */

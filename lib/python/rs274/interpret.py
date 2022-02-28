@@ -98,38 +98,42 @@ class ArcsToSegmentsMixin:
 
 class PrintCanon:
     def set_g5x_offset(self, *args):
-        print "set_g5x_offset", args
+        print("set_g5x_offset", args)
 
     def set_g92_offset(self, *args):
-        print "set_g92_offset", args
+        print("set_g92_offset", args)
 
     def next_line(self, state):
-        print "next_line", state.sequence_number
+        print("next_line", state.sequence_number)
         self.state = state
 
     def set_plane(self, plane):
-        print "set plane", plane
+        print("set plane", plane)
 
     def set_feed_rate(self, arg):
-        print "set feed rate", arg
+        print("set feed rate", arg)
 
     def comment(self, arg):
-        print "#", arg
+        print("#", arg)
 
     def straight_traverse(self, *args):
-        print "straight_traverse %.4g %.4g %.4g  %.4g %.4g %.4g" % args
+        print("straight_traverse %.4g %.4g %.4g  %.4g %.4g %.4g" % args)
 
     def straight_feed(self, *args):
-        print "straight_feed %.4g %.4g %.4g  %.4g %.4g %.4g" % args
+        print("straight_feed %.4g %.4g %.4g  %.4g %.4g %.4g" % args)
 
     def dwell(self, arg):
         if arg < .1:
-            print "dwell %f ms" % (1000 * arg)
+            print("dwell %f ms" % (1000 * arg))
         else:
-            print "dwell %f seconds" % arg
+            print("dwell %f seconds" % arg)
 
     def arc_feed(self, *args):
-        print "arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args
+        print("arc_feed %.4g %.4g  %.4g %.4g %.4g  %.4g  %.4g %.4g %.4g" % args)
+
+global tool_in_spindle, empty_spindle_data
+tool_in_spindle = -1
+empty_spindle_data = -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
 
 class StatMixin:
     def __init__(self, s, r):
@@ -137,18 +141,23 @@ class StatMixin:
         self.tools = list(s.tool_table)
         self.random = r
 
-    def change_tool(self, pocket):
+    def change_tool(self, idx):
+        global tool_in_spindle
         if self.random:
-            self.tools[0], self.tools[pocket] = self.tools[pocket], self.tools[0]
-        elif pocket==0:
-            self.tools[0] = -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+            self.tools[0], self.tools[idx] = self.tools[idx], self.tools[0]
+            tool_in_spindle = idx
+        elif idx==0:
+            self.tools[0] = empty_spindle_data
         else:
-            self.tools[0] = self.tools[pocket]
+            self.tools[0] = self.tools[idx]
 
-    def get_tool(self, pocket):
-        if pocket >= 0 and pocket < len(self.tools):
-            return tuple(self.tools[pocket])
-        return -1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0
+    def get_tool(self, idx):
+        global tool_in_spindle
+        if idx >= 0 and idx < len(self.tools):
+            if (idx == tool_in_spindle):
+                return tuple(self.tools[0])
+            return tuple(self.tools[idx])
+        return empty_spindle_data
 
     def get_external_angular_units(self):
         return self.s.angular_units or 1.0

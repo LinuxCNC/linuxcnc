@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 #    This is a component of AXIS, a front-end for linuxcnc
 #    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net>
 #                         and Chris Radek <chris@timeguy.com>
@@ -23,7 +23,7 @@ import rs274.options
 
 import gettext
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"), unicode=True)
+gettext.install("linuxcnc", localedir=os.path.join(BASE, "share", "locale"))
 
 if len(sys.argv) > 1 and sys.argv[1] == '-ini':
     ini = linuxcnc.ini(sys.argv[2])
@@ -119,14 +119,15 @@ if s.kinematics_type == 1:
     maps['joint_actual_position'] = None
 
 def gui():
-    import Tkinter
+    import tkinter
+
     from _tkinter import TclError
-    root = Tkinter.Tk(className="LinuxCNCTop")
+    root = tkinter.Tk(className="LinuxCNCTop")
     rs274.options.install(root)
     root.title(_("LinuxCNC Status"))
 
-    t = Tkinter.Text(wrap="word")
-    sb = Tkinter.Scrollbar(command=t.yview)
+    t = tkinter.Text(wrap="word")
+    sb = tkinter.Scrollbar(command=t.yview)
     t.configure(yscrollcommand=sb.set)
     t.configure(tabs=150)
 
@@ -139,7 +140,7 @@ def gui():
     t.tag_raise("sel")
     t.bind("<KeyPress>", "break")
 
-    b = Tkinter.Button(text=_("Copy All"),
+    b = tkinter.Button(text=_("Copy All"),
         command="%s tag add sel 0.0 end; tk_textCopy %s" % (t, t))
     b.pack(side="bottom", anchor="sw")
 
@@ -165,9 +166,9 @@ def gui():
         now = time.time()
         for k in dir(s):
             if k.startswith("_"): continue
-            if maps.has_key(k) and maps[k] == None: continue
+            if k in maps and maps[k] == None: continue
             v = getattr(s, k)
-            if maps.has_key(k):
+            if k in maps:
                 m = maps[k]
                 if callable(m):
                     v = m(v)
@@ -209,15 +210,15 @@ def text():
     s.poll()
     for k in dir(s):
         if k.startswith("_"): continue
-        if maps.has_key(k) and maps[k] == None: continue
+        if k in maps and maps[k] == None: continue
         v = getattr(s, k)
-        if maps.has_key(k):
+        if k in maps:
             m = maps[k]
             if callable(m):
                 v = m(v)
             else:
                 v = m.get(v, v)
-        print "%-20s %-.58s" % (k, v)
+        print("%-20s %-.58s" % (k, v))
 
 if len(sys.argv) > 1 and sys.argv[1] == '-t':
     text()

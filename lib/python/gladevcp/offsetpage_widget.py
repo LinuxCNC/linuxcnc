@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # GladeVcp Widget - offsetpage
 #
 # Copyright (c) 2013 Chris Morley
@@ -21,18 +21,22 @@
 # set the var file to search
 # set the text formatting for metric/imperial separately
 
-import sys, os, pango, linuxcnc
+import sys, os, linuxcnc
 from hal_glib import GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'name']
 # we need to know if linuxcnc isn't running when using the GLADE editor
 # as it causes big delays in response
 lncnc_running = False
-try:
-    import gobject, gtk
-except:
-    print('GTK not available')
-    sys.exit(1)
+
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
+from gi.repository import Pango
+from gi.repository import GLib
 
 # localization
 import locale
@@ -47,32 +51,32 @@ try:
 except:
     pass
 
-class OffsetPage(gtk.VBox):
+class OffsetPage(Gtk.VBox):
     __gtype_name__ = 'OffsetPage'
     __gproperties__ = {
-        'display_units_mm' : (gobject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
-                    False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'mm_text_template' : (gobject.TYPE_STRING, 'Text template for Metric Units',
+        'display_units_mm' : (GObject.TYPE_BOOLEAN, 'Display Units', 'Display in metric or not',
+                    False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'mm_text_template' : (GObject.TYPE_STRING, 'Text template for Metric Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%10.3f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'imperial_text_template' : (gobject.TYPE_STRING, 'Text template for Imperial Units',
+                "%10.3f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'imperial_text_template' : (GObject.TYPE_STRING, 'Text template for Imperial Units',
                 'Text template to display. Python formatting may be used for one variable',
-                "%9.4f", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'font' : (gobject.TYPE_STRING, 'Pango Font', 'Display font to use',
-                "sans 12", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'highlight_color'  : (gtk.gdk.Color.__gtype__, 'Highlight color', "",
-                    gobject.PARAM_READWRITE),
-        'foreground_color'  : (gtk.gdk.Color.__gtype__, 'Active text color', "",
-                    gobject.PARAM_READWRITE),
-        'hide_columns' : (gobject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvw and t are the options',
-                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'hide_rows' : (gobject.TYPE_STRING, 'Hidden Rows', 'A no-spaces list of rows to hide: 0123456789abc are the options' ,
-                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+                "%9.4f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'font' : (GObject.TYPE_STRING, 'Pango Font', 'Display font to use',
+                "sans 12", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'highlight_color'  : (Gdk.RGBA.__gtype__, 'Highlight color', "",
+                    GObject.ParamFlags.READWRITE),
+        'foreground_color'  : (Gdk.RGBA.__gtype__, 'Active text color', "",
+                    GObject.ParamFlags.READWRITE),
+        'hide_columns' : (GObject.TYPE_STRING, 'Hidden Columns', 'A no-spaces list of axes to hide: xyzabcuvw and t are the options',
+                    "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'hide_rows' : (GObject.TYPE_STRING, 'Hidden Rows', 'A no-spaces list of rows to hide: 0123456789abc are the options' ,
+                    "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     __gsignals__ = {
-                    'selection_changed': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, (gobject.TYPE_STRING, gobject.TYPE_STRING,)),
+                    'selection_changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING, GObject.TYPE_STRING,)),
                    }
 
 
@@ -90,12 +94,16 @@ class OffsetPage(gtk.VBox):
         self.display_follows_program = False # display units are chosen indepenadently of G20/G21
         self.font = "sans 12"
         self.editing_mode = False
-        self.highlight_color = gtk.gdk.Color("lightblue")
-        self.foreground_color = gtk.gdk.Color("red")
-        self.unselectable_color = gtk.gdk.Color("lightgray")
+        color = Gdk.RGBA()
+        color.parse("lightblue")
+        self.highlight_color = color
+        color.parse("red")
+        self.foreground_color = color
+        color.parse("lightgray")
+        self.unselectable_color = color
         self.hidejointslist = []
         self.hidecollist = []
-        self.wTree = gtk.Builder()
+        self.wTree = Gtk.Builder()
         self.wTree.set_translation_domain("linuxcnc") # for locale translations
         self.wTree.add_from_file(os.path.join(datadir, "offsetpage.glade"))
         self.current_system = None
@@ -108,7 +116,7 @@ class OffsetPage(gtk.VBox):
         self.view2 = self.wTree.get_object("treeview2")
         self.view2.connect('button_press_event', self.on_treeview2_button_press_event)
         self.selection = self.view2.get_selection()
-        self.selection.set_mode(gtk.SELECTION_SINGLE)
+        #self.selection.set_mode(Gtk.SelectionMode.SINGLE) TODO:
         self.selection.connect("changed", self.on_selection_changed)
         self.modelfilter = self.wTree.get_object("modelfilter")
         self.edit_button = self.wTree.get_object("edit_button")
@@ -139,7 +147,7 @@ class OffsetPage(gtk.VBox):
             if units == None:
                 units = self.inifile.find("AXIS_X", "UNITS")
         except:
-            print _("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section")
+            print(("**** Offsetpage widget ERROR: LINEAR_UNITS not found in INI's TRAJ section"))
             units = "inch"
 
         # now setup the conversion array depending on the machine native units
@@ -151,7 +159,7 @@ class OffsetPage(gtk.VBox):
             self.conversion = [25.4] * 3 + [1] * 3 + [25.4] * 3
 
         # check linuxcnc status every half second
-        gobject.timeout_add(500, self.periodic_check)
+        GLib.timeout_add(500, self.periodic_check)
 
     # Reload the offsets into display
     def reload_offsets(self):
@@ -186,24 +194,24 @@ class OffsetPage(gtk.VBox):
 
         degree_tmpl = "%11.2f"
 
-        # fill each row of the liststore fron the offsets arrays
+        # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([tool, g5x, rot, g92, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 2:
                     if column == 2:
-                        self.store[row][column + 1] = locale.format(degree_tmpl, rot)
+                        self.store[row][column + 1] = locale.format_string(degree_tmpl, rot)
                     else:
                         self.store[row][column + 1] = " "
                 else:
-                    self.store[row][column + 1] = locale.format(tmpl, i[column])
+                    self.store[row][column + 1] = locale.format_string(tmpl, i[column])
             # set the current system's label's color - to make it stand out a bit
             if self.store[row][0] == self.current_system:
-                self.store[row][13] = self.foreground_color
+                self.store[row][13] = str(self.foreground_color)
             else:
                 self.store[row][13] = None
             # mark unselectable rows a dirrerent color
             if self.store[row][0] in self.selection_mask:
-                self.store[row][12] = self.unselectable_color
+                self.store[row][12] = str(self.unselectable_color)
 
     # This is for adding a filename path after the offsetpage is already loaded.
     def set_filename(self, filename):
@@ -256,7 +264,7 @@ class OffsetPage(gtk.VBox):
         except:
             return None, None, None, None, None, None, None, None, None
 
-    # This allows hiding or showing columns from a text string of columnns
+    # This allows hiding or showing columns from a text string of columns
     # eg list ='ab'
     # default, all the columns are shown
     def set_col_visible(self, list, bool):
@@ -285,10 +293,11 @@ class OffsetPage(gtk.VBox):
     # it just multiplies the two arrays
     def convert_units(self, v):
         c = self.conversion
-        return map(lambda x, y: x * y, v, c)
+        return list(map(lambda x, y: x * y, v, c))
 
     # make the cells editable and highlight them
     def set_editing(self, widget):
+        print("set editing")
         state = widget.get_active()
         # stop updates from linuxcnc
         self.editing_mode = state
@@ -302,14 +311,17 @@ class OffsetPage(gtk.VBox):
             if not self.store[i][0] in('G5x', 'Rot', 'G92', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3'): continue
             if self.store[i][0] in self.selection_mask: continue
             self.store[i][11] = state
-            self.store[i][12] = color
+            self.store[i][12] = self.convert_color(color)
         self.queue_draw()
 
     # When the column is edited this does the work
-    # TODO the edited column does not end up showing the editted number even though linuxcnc
+    # TODO the edited column does not end up showing the edited number even though linuxcnc
     # registered the change
     def col_editted(self, widget, filtered_path, new_text, col):
-        (store_path,) = self.modelfilter.convert_path_to_child_path(filtered_path)
+        print("col edited")
+        model, treeiter = self.view2.get_selection().get_selected()
+        path = self.modelfilter.get_path(treeiter)
+        (store_path,) = self.modelfilter.convert_path_to_child_path(path)
         row = store_path
         axisnum = col - 1
         # print "EDITED:", new_text, col, int(filtered_path), row, "axis num:", axisnum
@@ -339,7 +351,7 @@ class OffsetPage(gtk.VBox):
         try:
             self.store[row][col] = locale.format("%10.4f", locale.atof(new_text))
         except:
-            print _("offsetpage widget error: unrecognized float input")
+            print(_("offsetpage widget error: unrecognized float input"))
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
             if not self.display_units_mm == self.program_units and not row == 2:
@@ -351,7 +363,7 @@ class OffsetPage(gtk.VBox):
             else:
                 qualified = float(locale.atof(new_text))
         except:
-            print 'error'
+            print('error')
         # now update linuxcnc to the change
         try:
             global lncnc_runnning
@@ -376,7 +388,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
         except:
-            print _("offsetpage widget error: MDI call error")
+            print(_("offsetpage widget error: MDI call error"))
             self.reload_offsets()
 
 
@@ -395,7 +407,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
-                print _("MDI error in offsetpage widget -zero G92")
+                print(_("MDI error in offsetpage widget -zero G92"))
 
     # callback to zero rotational offset when button pressed
     def zero_rot(self, widget):
@@ -412,7 +424,7 @@ class OffsetPage(gtk.VBox):
                 self.cmd.wait_complete()
                 self.gstat.emit('reload-display')
             except:
-                print _("MDI error in offsetpage widget-zero rotational offset")
+                print(_("MDI error in offsetpage widget-zero rotational offset"))
 
     # check for linnuxcnc ON and IDLE which is the only safe time to edit the tool file.
     # if in editing mode don't update else you can't actually edit
@@ -437,13 +449,21 @@ class OffsetPage(gtk.VBox):
             self.reload_offsets()
         return True
 
+    # converts a RGBA color to a string value like #00FF00
+    def convert_color(self, color):
+        if color is None:
+            return None
+        else:
+            colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
+            return ('#' + ''.join(f'{i:02X}' for i in colortuple))
+
     # sets the color when editing is active
     def set_highlight_color(self, value):
-        self.highlight_color = gtk.gdk.Color(value)
+        self.highlight_color = self.convert_color(value)
 
     # sets the text color of the current system description name
     def set_foreground_color(self, value):
-        self.foreground_color = gtk.gdk.Color(value)
+        self.foreground_color = self.convert_color(value)
 
     # Allows you to set the text font of all the rows and columns
     def set_font(self, value):
@@ -483,7 +503,7 @@ class OffsetPage(gtk.VBox):
             if len(pathlist) == 1:
                 self.selection.select_path(pathlist[0])
         except:
-            print _("offsetpage_widget error: cannot select coordinate system"), system
+            print(_("offsetpage_widget error: cannot select coordinate system"), system)
 
     # Get the selected row the user clicked
     def get_selected(self):
@@ -524,15 +544,15 @@ class OffsetPage(gtk.VBox):
             except:
                 pass
 
-    # standard Gobject method
+    # standard GObject method
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
 
-    # standard Gobject method
+    # standard GObject method
     # This is so that in the Glade editor, you can change the display
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
@@ -547,7 +567,7 @@ class OffsetPage(gtk.VBox):
         if name == 'hide_rows':
             self.set_row_visible("0123456789abc", True)
             self.set_row_visible("%s" % value, False)
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
 
     # boiler code for variable access
@@ -560,35 +580,40 @@ class OffsetPage(gtk.VBox):
 # for testing without glade editor:
 # Must linuxcnc running to see anything
 def main(filename = None):
-    window = gtk.Dialog("My dialog",
+    window = Gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   modal = True , destroy_with_parent = True,)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
+    
     offsetpage = OffsetPage()
 
     window.vbox.add(offsetpage)
-    # offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
-    # offsetpage.set_col_visible("Yabuvw", False)
-    # offsetpage.set_row_visible("456789abc", False)
-    # offsetpage.set_row_visible("89abc", True)
-    # offsetpage.set_to_mm()
-    # offsetpage.set_font("sans 20")
-    # offsetpage.set_property("highlight_color", gtk.gdk.Color('blue'))
-    # offsetpage.set_highlight_color("violet")
-    # offsetpage.set_foreground_color("yellow")
-    # offsetpage.mark_active("G55")
-    # offsetpage.selection_mask = ("Tool", "Rot", "G5x")
-    # offsetpage.set_names([['G54', 'Default'], ["G55", "Vice1"], ['Rot', 'Rotational']])
-    # print offsetpage.get_names()
+    offsetpage.set_filename("../../../configs/sim/gscreen_custom/sim.var")
+    offsetpage.set_col_visible("Yabuvw", False)
+    offsetpage.set_row_visible("456789abc", False)
+    offsetpage.set_row_visible("89abc", True)
+    offsetpage.set_to_mm()
+    offsetpage.set_font("sans 20")
+    color = Gdk.RGBA()
+    color.parse("lightblue")
+    offsetpage.set_property("highlight_color", color)
+    color.parse("violet")
+    offsetpage.set_highlight_color(color)
+    color.parse("yellow")
+    offsetpage.set_foreground_color(color)
+    offsetpage.mark_active("G55")
+    offsetpage.selection_mask = ("Tool", "Rot", "G5x")
+    offsetpage.set_names([['G54', 'Default'], ["G55", "Vice1"], ['Rot', 'Rotational']])
+    print(offsetpage.get_names())
 
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
-       print "True"
+    if response == Gtk.ResponseType.ACCEPT:
+       print("True")
     else:
-       print "False"
+       print("False")
 
 if __name__ == "__main__":
     main()

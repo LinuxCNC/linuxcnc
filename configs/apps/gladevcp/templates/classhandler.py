@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of LinuxCNC
 #    classhandler.py  Copyright 2010 Michael Haberler
@@ -22,21 +22,22 @@
     no persistence support
 '''
 
-import glib
+import gi
+from gi.repository import GLib
 
 class HandlerClass:
 
 
     def on_button_press(self,widget,data=None):
-        print "on_button_press"
+        print("on_button_press")
 
 
     def on_destroy(self,obj,data=None):
-        print "on_destroy"
+        print("on_destroy")
 
 
     def _on_timer_tick(self,userdata=None):
-        print "timer tick"
+        print("timer tick")
         return True
 
 
@@ -48,12 +49,12 @@ class HandlerClass:
         # demonstrate a slow background timer - granularity is one second
         # for a faster timer, use this:
         # glib.timeout_add(5000,  self._on_timer_tick)
-        glib.timeout_add_seconds(1, self._on_timer_tick)
+        GLib.timeout_add_seconds(1, self._on_timer_tick)
 
 
 def get_handlers(halcomp,builder,useropts):
 
     for cmd in useropts:
-        exec cmd in globals()
+        exec(cmd, globals())
 
     return [HandlerClass(halcomp,builder,useropts)]

@@ -112,7 +112,7 @@ Open loop servo test Button:
     to switch between slow speed and fast speed. Set them to what you like - 
     remember there is no ramping.
     Bias - used to add / subtract a constant value to the dac. It can only be 
-    used for this test to tempararily stabilize a drifting motor - it will not 
+    used for this test to temporarily stabilize a drifting motor - it will not 
     be used in the regular PID control.
 
     For testing purposes if you require an output true, for instance to force

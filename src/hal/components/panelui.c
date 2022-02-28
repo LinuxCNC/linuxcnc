@@ -35,7 +35,7 @@
     The default is channel zero.
 
     'num_samples', if present, specifies the number of samples
-    to be printed, after which the program will exit.  If ommitted
+    to be printed, after which the program will exit.  If omitted
     it will print continuously until killed.
 
     '-t' tells sampler to print the sample number at the start
@@ -206,7 +206,9 @@ int main(int argc, char **argv)
 
     /* import the python module and get references for needed function */
     PyObject *pModule, *pFunc, *pPeriodicFunc, *pClass;
-    Py_SetProgramName("panelui");  /* optional but recommended */
+    char name[] = "panelui"; 
+    wchar_t *wname = Py_DecodeLocale(name, NULL);
+    Py_SetProgramName(wname);
     Py_Initialize();
     PyRun_SimpleString("import pyui\n"
                      "pyui.instance = pyui.master.keyboard()\n"
@@ -356,7 +358,7 @@ skip:
             if (PyErr_Occurred()) PyErr_Print();
         }
     }
-    /* run was succesfull */
+    /* run was successful */
     exitval = 0;
 
 out:
@@ -365,7 +367,7 @@ out:
     if ( comp_id >= 0 ) {
         hal_exit(comp_id);
     }
-    PyRun_SimpleString("print '''Exiting panelui's python module '''");
+    PyRun_SimpleString("print ('''Exiting panelui's python module ''')");
     pValue = PyObject_CallObject(pExit, NULL);
     if (PyErr_Occurred()) {
         PyErr_Print();

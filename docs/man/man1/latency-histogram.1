@@ -28,12 +28,12 @@ latency-histogram \- plot a histogram of machine latency
 .SH SYNOPSIS
 .B latency-histogram
 .RB [ \-?|\-\-help ]
-.RB [ \-\-base " " \fInS\fP ]
-.RB [ \-\-servo " " \fInS\fP ]
-.RB [ \-\-bbinsize " " \fInS\fP ]
-.RB [ \-\-sbinsize " " \fInS\fP ]
-.RB [ \-\-bbins " " \fInS\fP ]
-.RB [ \-\-sbins " " \fInS\fP ]
+.RB [ \-\-base " " \fIns\fP ]
+.RB [ \-\-servo " " \fIns\fP ]
+.RB [ \-\-bbinsize " " \fIns\fP ]
+.RB [ \-\-sbinsize " " \fIns\fP ]
+.RB [ \-\-bbins " " \fIns\fP ]
+.RB [ \-\-sbins " " \fIns\fP ]
 .RB [ \-\-logscale " " \fI0|1\fP ]
 .RB [ \-\-text " " \fInote\fP ]
 .RB [ \-\-show ]
@@ -65,22 +65,22 @@ More details:
 .BR \-? ", " \-\-help
 Show options and exit.
 .TP
-.BI \-\-base " nS"
+.BI \-\-base " ns"
 base thread interval, default: 25000, min: 5000
 .TP
-.BI \-\-servo " nS"
+.BI \-\-servo " ns"
 servo thread interval, default: 1000000, min: 25000
 .TP
-.BI \-\-bbinsize " nS"
+.BI \-\-bbinsize " ns"
 base bin size, default: 100
 .TP
-.BI \-\-sbinsize " nS"
+.BI \-\-sbinsize " ns"
 servo bin size, default: 100
 .TP
-.BI \-\-bbins " nS"
+.BI \-\-bbins " ns"
 base bins, default: 200
 .TP
-.BI \-\-sbins " nS"
+.BI \-\-sbins " ns"
 servo bins, default: 200
 .TP
 .BI \-\-logscale " 0|1"

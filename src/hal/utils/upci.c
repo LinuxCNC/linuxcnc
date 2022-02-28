@@ -51,7 +51,7 @@ information, go to www.linuxcnc.org.
 
 /* Assorted typedefs */
 
-/* this is an standarized struct that is present in the
+/* this is a standardized struct that is present in the
    configuration space of every PCI card */
 struct cfg_info {
     __u16 vendor_id;
@@ -357,7 +357,7 @@ static int incr_io_usage ( void )
     /* make sure we can do I/O */
     if ( ioaccess == 0 ) {
 	/* enable access */
-	/* this needs priviliges */
+	/* this needs privileges */
 	if (seteuid(0) != 0) {
 	    errmsg(__func__, "need root privilges (or setuid root)");
 	    return -1;
@@ -365,7 +365,7 @@ static int incr_io_usage ( void )
 	/* do it */
 	retval = iopl(3);
 	eno = errno;
-	/* drop priviliges */
+	/* drop privileges */
 	if(seteuid(getuid()) != 0)
 	{
 	    errmsg(__func__, "unable to drop root privileges");
@@ -394,7 +394,7 @@ static void decr_io_usage ( void )
     /* decrement reference count */
     ioaccess--;
     if ( ioaccess == 0 ) {
-	/* release I/O priveleges */
+	/* release I/O privileges */
 	iopl(0);
     }
 }
@@ -406,7 +406,7 @@ static int incr_mem_usage ( void )
     /* make sure /dev/mem is open */
     if ( memaccess == 0 ) {
 	/* open it */
-	/* this needs priviliges */
+	/* this needs privileges */
 	if (seteuid(0) != 0) {
 	    errmsg(__func__, "need root privilges (or setuid root)");
 	    return -1;
@@ -414,7 +414,7 @@ static int incr_mem_usage ( void )
 	/* do it */
 	memfd = open("/dev/mem", O_RDWR);
 	eno = errno;
-	/* drop priviliges */
+	/* drop privileges */
 	if(seteuid(getuid()) != 0)
 	{
 	    errmsg(__func__, "unable to drop root privileges");

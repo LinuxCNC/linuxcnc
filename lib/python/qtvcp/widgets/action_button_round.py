@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp widget
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -13,10 +13,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-# This is an extention of action buttons to show a round button image.
+# This is an extension of action buttons to show a round button image.
 # Action buttons are used to control linuxcnc behaivor by pressing.
 # By making the button 'checkable' in the designer editor,
-# the buton will toggle.
+# the button will toggle.
 # In the designer editor, it is possible to select what the button will do.
 ###############################################################################
 

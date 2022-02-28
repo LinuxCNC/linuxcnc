@@ -23,6 +23,7 @@
 #include "rtapi_math.h"
 #include "rtapi_app.h"
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsInverse);
 EXPORT_SYMBOL(kinematicsForward);

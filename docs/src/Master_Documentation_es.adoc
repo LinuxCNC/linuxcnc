@@ -1,0 +1,302 @@
+:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+LinuxCNC V{lversion}, {date}
+============================
+:ascii-ids:
+:lang: es
+:revdate: 2021-10-28
+
+= Contenido
+
+:masterdir: {indir}
+
+:leveloffset: 0
+
+= Acerca de LinuxCNC
+
+:leveloffset: 1
+
+= Introduccion
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf_es.adoc[]
+
+= LinuxCNC History
+
+include::common/emc-history_es.adoc[]
+
+:leveloffset: 0
+
+= Usando LinuxCNC
+
+:leveloffset: 1
+
+= Informacion General
+
+:leveloffset: 2
+
+include::user/user-foreword_es.adoc[]
+
+include::user/user-intro_es.adoc[]
+
+include::user/user-concepts_es.adoc[]
+
+include::user/starting-linuxcnc_es.adoc[]
+
+include::gcode/machining-center_es.adoc[]
+
+include::getting-started/running-linuxcnc_es.adoc[]
+
+include::config/stepconf_es.adoc[]
+
+include::config/pncconf_es.adoc[]
+
+include::common/linux-faq_es.adoc[]
+
+include::lathe/lathe-user_es.adoc[]
+
+include::plasma/plasma-cnc-primer_es.adoc[]
+
+:leveloffset: 1
+
+= Interfaces de usuario
+
+:leveloffset: 2
+
+include::gui/axis_es.adoc[]
+
+include::gui/gmoccapy_es.adoc[]
+
+include::gui/ngcgui_es.adoc[]
+
+include::gui/touchy_es.adoc[]
+
+include::gui/gscreen_es.adoc[]
+
+include::gui/tklinuxcnc_es.adoc[]
+
+:leveloffset: 1
+
+= Programacion
+
+:leveloffset: 2
+
+include::gcode/coordinates_es.adoc[]
+
+// include::gcode/overview_es.adoc[]
+
+include::gcode/g-code_es.adoc[]
+
+include::gcode/m-code_es.adoc[]
+
+include::gcode/o-code_es.adoc[]
+
+include::gcode/other-code_es.adoc[]
+
+include::examples/gcode_es.adoc[]
+
+include::gcode/rs274ngc_es.adoc[]
+
+// include::gui/image-to-gcode_es.adoc[]
+
+:leveloffset: 1
+
+= Compensacion de Herramientas
+
+:leveloffset: 2
+
+include::gcode/tool-compensation_es.adoc[]
+
+include::gui/tooledit_es.adoc[]
+
+:leveloffset: 0
+
+= Configuracion
+
+:leveloffset: 1
+
+= Informacion General
+
+:leveloffset: 2
+
+include::config/integrator-concepts_es.adoc[]
+
+include::install/latency-test_es.adoc[]
+
+include::motion/tweaking-steppers_es.adoc[]
+
+include::config/stepper-diagnostics_es.adoc[]
+
+:leveloffset: 1
+
+= Configuracion
+
+:leveloffset: 2
+
+// include::config/stepper-quickstart_es.adoc[]
+
+include::config/ini-config_es.adoc[]
+
+include::config/ini-homing_es.adoc[]
+
+include::config/lathe-config_es.adoc[]
+
+include::hal/haltcl_es.adoc[]
+
+include::remap/remap_es.adoc[]
+
+include::config/moveoff_es.adoc[]
+
+include::config/stepper_es.adoc[]
+
+:leveloffset: 1
+
+= Paneles de Control
+
+:leveloffset: 2
+
+// include::gui/pyvcp_es.adoc[]
+
+// include::gui/pyvcp-examples_es.adoc[]
+
+// include::gui/gladevcp_es.adoc[]
+
+:leveloffset: 1
+
+= Interfaces de Usuario
+
+:leveloffset: 2
+
+// include::gui/panelui_es.adoc[]
+
+// include::gui/halui_es.adoc[]
+
+include::hal/halui-examples_es.adoc[]
+
+include::config/python-interface_es.adoc[]
+
+// include::gui/vismach_es.adoc[]
+
+:leveloffset: 1
+
+= Drivers
+
+:leveloffset: 2
+
+include::hal/parallel-port_es.adoc[]
+
+// include::drivers/ax5214h_es.adoc[]
+
+// include::drivers/gs2_es.adoc[]
+
+// include::drivers/hostmot2_es.adoc[]
+
+// include::drivers/motenc_es.adoc[]
+
+// include::drivers/mb2hal_es.adoc[]
+
+// include::drivers/opto22_es.adoc[]
+
+// include::drivers/pico-ppmc_es.adoc[]
+
+// include::drivers/pluto-p_es.adoc[]
+
+// include::drivers/pmx485_es.adoc[]
+
+// include::drivers/servo-to-go_es.adoc[]
+
+// include::drivers/shuttle_es.adoc[]
+
+// include::drivers/gm_es.adoc[]
+
+// include::drivers/vfs11_es.adoc[]
+
+:leveloffset: 1
+
+= Ejemplos de Drivers
+
+:leveloffset: 2
+
+include::examples/pci-parallel-port_es.adoc[]
+
+include::examples/spindle_es.adoc[]
+
+// include::examples/mpg_es.adoc[]
+
+include::examples/gs2-example_es.adoc[]
+
+:leveloffset: 1
+
+= PLC
+
+:leveloffset: 2
+
+// include::ladder/ladder-intro_es.adoc[]
+
+// include::ladder/classic-ladder_es.adoc[]
+
+// include::ladder/ladder-examples_es.adoc[]
+
+:leveloffset: 1
+
+= HAL
+
+:leveloffset: 2
+
+include::hal/intro_es.adoc[]
+
+include::hal/basic-hal_es.adoc[]
+
+include::hal/twopass_es.adoc[]
+
+include::hal/tutorial_es.adoc[]
+
+include::hal/general-ref_es.adoc[]
+
+include::config/core-components_es.adoc[]
+
+include::hal/canonical-devices_es.adoc[]
+
+include::hal/tools_es.adoc[]
+
+include::hal/halshow_es.adoc[]
+
+include::hal/components_es.adoc[]
+
+include::hal/rtcomps_es.adoc[]
+
+include::hal/hal-examples_es.adoc[]
+
+include::hal/comp_es.adoc[]
+
+include::hal/halmodule_es.adoc[]
+
+
+:leveloffset: 0
+
+= Advanced Topics
+
+:leveloffset: 1
+
+include::motion/kinematics_es.adoc[]
+
+include::motion/dh-parameters_es.adoc[]
+
+include::motion/5-axis-kinematics_es.adoc[]
+
+include::motion/pid-theory_es.adoc[]
+
+include::motion/external-offsets_es.adoc[]
+
+include::code/rs274_es.adoc[]
+
+:leveloffset: 0
+
+include::common/glossary_es.adoc[]
+
+include::common/gpld-copyright_es.adoc[]
+
+// = Index
+
+// vim: set syntax=asciidoc:

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2019 Chris Morley
@@ -34,8 +34,8 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class OffsetToolButton(QToolButton, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -176,12 +176,22 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
     #
     ########################################################################
 
+    def set_axis(self, data):
+        if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
+            self._axis = str(data.upper())
+    def get_axis(self):
+        return self._axis
+    def reset_axis(self):
+        self._axis = ''
+    axis_letter = pyqtProperty(str, get_axis, set_axis, reset_axis)
+
+
     def set_dialog_code(self, data):
         self.dialog_code = data
     def get_dialog_code(self):
         return self.dialog_code
     def reset_dialog_code(self):
-        self.dialog_code = 'ENTRY'
+        self.dialog_code = 'CALCULATOR'
     dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def __getitem__(self, item):

@@ -1,0 +1,4 @@
+net Xpos => test-ui.Xpos
+net Ypos => test-ui.Ypos
+net Zpos => test-ui.Zpos
+net counter <= motion.analog-out-00 => test-ui.counter

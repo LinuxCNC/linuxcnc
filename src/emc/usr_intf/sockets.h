@@ -1,6 +1,6 @@
 /********************************************************************
 * Description: sockets.c
-*   socket utilites
+*   socket utilities
 *
 * Copyright(c) 2001, Joris Robijn
 *          (c) 2003, Rene Wagner
@@ -21,10 +21,6 @@
 #define SOCKETS_H
 
 #include <stdlib.h>
-
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
 
 #ifndef LCDPORT
 # define LCDPORT 13666

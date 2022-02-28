@@ -87,7 +87,7 @@ int init(int argc, char* argv[]){
     me = hal_malloc(sizeof(sendkeys));
     codes = malloc(sizeof(int));
     pins = malloc(sizeof(int));
-    // This is all because RTAPI_MP_ARRAY_** macros do not appear to work in usersapce
+    // This is all because RTAPI_MP_ARRAY_** macros do not appear to work in userspace
     for (i = 1; i < argc; i++){
         static int index = -1;
         static int type = -1;

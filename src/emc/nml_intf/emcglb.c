@@ -13,13 +13,15 @@
 * Last change:
 ********************************************************************/
 
+#include "config.h"
 #include "emcglb.h"		/* these decls */
 #include "emccfg.h"		/* their initial values */
 #include "emcpos.h"		/* EmcPose */
 
 char emc_inifile[LINELEN] = DEFAULT_EMC_INIFILE;
 
-char emc_nmlfile[LINELEN] = DEFAULT_EMC_NMLFILE;
+const char * DEFAULT_EMC_NMLFILE = EMC2_DEFAULT_NMLFILE;
+char emc_nmlfile[LINELEN] = EMC2_DEFAULT_NMLFILE;
 
 char rs274ngc_startup_code[LINELEN] =
     DEFAULT_RS274NGC_STARTUP_CODE;
@@ -31,8 +33,6 @@ double emc_task_cycle_time = DEFAULT_EMC_TASK_CYCLE_TIME;
 double emc_io_cycle_time = DEFAULT_EMC_IO_CYCLE_TIME;
 
 int emc_task_interp_max_len = DEFAULT_EMC_TASK_INTERP_MAX_LEN;
-
-char tool_table_file[LINELEN] = DEFAULT_TOOL_TABLE_FILE;
 
 EmcPose tool_change_position;	/* no defaults */
 unsigned char have_tool_change_position = 0;	/* default is 'not there' */

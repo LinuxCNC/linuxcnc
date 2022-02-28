@@ -13,29 +13,35 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gobject
-import gtk
+import gi
+gi.require_version('Gtk', '3.0')
+from gi.repository import Gtk
+from gi.repository import GObject
 
 import hal
-from hal_widgets import _HalWidgetBase
+if __name__ == "__main__":
+    from hal_widgets import _HalWidgetBase
+else:
+    from .hal_widgets import _HalWidgetBase
+
 from hal_glib import GStat
 
 GSTAT = GStat()
 
-class Status_Label(gtk.Label, _HalWidgetBase):
+class Status_Label(Gtk.Label, _HalWidgetBase):
     __gtype_name__ = "Status_Label"
     __gproperties__ = {
-        'label_type'  : ( gobject.TYPE_INT, 'Label type',
+        'label_type'  : ( GObject.TYPE_INT, 'Label type',
                  '0:user system 1:loaded file path 2:feed override 3:rapid override 4:spindle override',
-                0, 4, 0, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'text_template' : ( gobject.TYPE_STRING, 'text template',
+                0, 4, 0, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'text_template' : ( GObject.TYPE_STRING, 'text template',
                 'Text template to display. Python formatting may be used for one variable',
-                "%s", gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
+                "%s", GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
     }
     __gproperties = __gproperties__
 
     def __init__(self, *a, **kw):
-        gobject.GObject.__init__(self)
+        GObject.GObject.__init__(self)
         self.label_type = 0
 
     def _hal_init(self):
@@ -54,7 +60,7 @@ class Status_Label(gtk.Label, _HalWidgetBase):
         try:
             self.set_text(self.text_template % data)
         except:
-            print 'GLADEVCP: Error converting text template in status widget'
+            print('GLADEVCP: Error converting text template in status widget')
 
     def _set_user_system_text(self, data):
         convert = { 1:"54", 2:"55", 3:"56", 4:"57", 5:"58", 6:"59", 7:"59.1", 8:"59.2", 9:"59.3"}
@@ -62,14 +68,14 @@ class Status_Label(gtk.Label, _HalWidgetBase):
 
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
 
     def do_set_property(self, property, value):
         name = property.name.replace('-', '_')
-        if name in self.__gproperties.keys():
+        if name in list(self.__gproperties.keys()):
             return setattr(self, name, value)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -77,22 +83,22 @@ class Status_Label(gtk.Label, _HalWidgetBase):
 
 # for testing without glade editor:
 def main():
-    window = gtk.Dialog("My dialog",
+    window = Gtk.Dialog("My dialog",
                    None,
-                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                   (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                    gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
     widget = Status_Label()
     widget._hal_init()
     window.vbox.add(widget)
-    window.connect("destroy", gtk.main_quit)
+    window.connect("destroy", Gtk.main_quit)
 
     window.show_all()
     response = window.run()
-    if response == gtk.RESPONSE_ACCEPT:
-       print "ok"
+    if response == Gtk.ResponseType.ACCEPT:
+       print("ok")
     else:
-       print "cancel"
+       print("cancel")
 
-if __name__ == "__main__":	
+if __name__ == "__main__":
     main()

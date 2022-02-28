@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Qtvcp action widget
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -15,7 +15,7 @@
 
 # Action buttons are used to change linuxcnc behaivor do to button pushing.
 # By making the button 'checkable' in the designer editor,
-# the buton will toggle.
+# the button will toggle.
 # In the designer editor, it is possible to select what the button will do.
 ###############################################################################
 
@@ -23,7 +23,7 @@ from PyQt5 import QtCore, QtWidgets
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.simple_widgets import Indicated_PushButton
+from qtvcp.widgets.simple_widgets import IndicatedPushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
@@ -39,10 +39,10 @@ INFO = Info()
 AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class ActionButton(Indicated_PushButton, _HalWidgetBase):
+class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False
@@ -106,6 +106,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self.dro_dtg = False
         self.exit = False
         self.template_label = False
+        self.lathe_mirror_x = False
 
         self.toggle_float = False
         self._toggle_state = 0
@@ -122,6 +123,11 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self._textTemplate = '%1.3f in'
         self._alt_textTemplate = '%1.2f mm'
         self._run_from_line_int = 0
+
+    # only called from designer plugin when widget built in editor
+    def _designer_init(self):
+        self._designer_block_signal = True
+        self._designer_running = True
 
     ##################################################
     # This gets called by qtvcp_makepins
@@ -247,8 +253,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 self.pressed.connect(lambda: self.jog_selected_action(-1))
                 self.released.connect(lambda: self.jog_selected_action(0))
 
-            # jog button use diferent action signals so
-            # leave early to aviod the standard 'clicked' signal
+            # jog button use different action signals so
+            # leave early to avoid the standard 'clicked' signal
             return
 
         elif True in(self.zero_axis, self.zero_g5x,self.zero_g92, self.run, self.zero_zrot,
@@ -316,12 +322,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('state-on', lambda w: self.setEnabled(True))
             if self.spindle_fwd or self.spindle_rev:
-                STATUS.connect('spindle-control-changed', lambda w, e, d: spindle_control_test(e,d))
+                STATUS.connect('spindle-control-changed', lambda w, num, e, d, upto: spindle_control_test(e,d))
         elif self.spindle_stop:
             STATUS.connect('mode-auto', lambda w: self.setEnabled(False))
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('spindle-control-changed', lambda w, e, d: self.setEnabled(e and not STATUS.is_auto_mode()))
+            STATUS.connect('spindle-control-changed', lambda w,num, e, d, upto: self.setEnabled(e and not STATUS.is_auto_mode()))
         elif self.limits_override:
             self.setEnabled(False)
             #STATUS.connect('override-limits-changed', lambda w, data, group: limits_override_test(data))
@@ -353,12 +359,22 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         elif self.mdi_command or self.ini_mdi_command:
             STATUS.connect('state-off', lambda w: self.setEnabled(False))
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
+            if self.ini_mdi_command:
+                self.setMDILabel()
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
         elif True in(self.exit, self.machine_log_dialog):
             pass
+        elif self.lathe_mirror_x:
+            STATUS.connect('state-off', lambda w: self.setEnabled(False))
+            STATUS.connect('state-estop', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
+            STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
+            STATUS.connect('interp-run', lambda w: self.setEnabled(False))
 
         # connect a signal and callback function to the button
         if self.isCheckable():
@@ -509,7 +525,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 try:
                     ACTION.SET_GRAPHICS_VIEW(self.view_type)
                 except Exception as e:
-                    print e
+                    print(e)
                     pass
         elif True in (self.spindle_fwd, self.spindle_rev):
             if self.spindle_fwd:
@@ -604,7 +620,12 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             self.QTVCP_INSTANCE_.close()
         elif self.machine_log_dialog:
             STATUS.emit('dialog-request',{'NAME':'MACHINELOG', 'ID':'_%s_'% self.objectName()})
-        # defult error case
+        elif self.lathe_mirror_x:
+            if state:
+                ACTION.SET_LATHE_MIRROR_X()
+            else:
+                ACTION.UNSET_LATHE_MIRROR_X()
+        # default error case
         else:
             if state is not None:
                 self.safecheck(state)
@@ -671,7 +692,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 text = '%s mm' % str(self.jog_incr_mm)
             else:
                 incr = 0
-                text = 'Continous'
+                text = 'Continuous'
             if self.template_label:
                 self._set_alt_text(self.jog_incr_mm)
         else:
@@ -681,7 +702,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 text = '''%s "''' % str(self.jog_incr_imperial)
             else:
                 incr = 0
-                text = 'Continous'
+                text = 'Continuous'
             if self.template_label:
                 self._set_text(self.jog_incr_imperial)
         ACTION.SET_JOG_INCR(incr , text)
@@ -690,16 +711,16 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         if self.jog_incr_angle < 0: return
         elif self.jog_incr_angle == 0:
             incr = 0
-            text = 'Continous'
+            text = 'Continuous'
         else:
             incr = self.jog_incr_angle
             text = '''%s deg''' % str(self.jog_incr_angle)
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
     def setText(self,data):
-        #print 'set text:',data, self._designer_running
+        #print ('set text:',data, self._designer_running)
         if self._designer_running:
-            #print 'update'
+            #print('update')
             self.set_textTemplate(data)
         super(ActionButton, self).setText(data)
 
@@ -712,6 +733,19 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         tmpl = lambda s: str(self._alt_textTemplate) % s
         self.setText(tmpl(data))
 
+    # see if the INI specified an optional new label
+    # if so apply it, otherwise skip and use the original text
+    def setMDILabel(self):
+        try:
+            label = INFO.MDI_COMMAND_LABEL_LIST[self.ini_mdi_num]
+            self.setToolTip(INFO.MDI_COMMAND_LIST[self.ini_mdi_num].replace(';', '\n'))
+            if label is None:
+                return
+            label = label.replace(r'\n', '\n')
+            self.setText(label)
+
+        except:
+            return
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -735,7 +769,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 'dro_relative', 'dro_dtg','max_velocity_over', 'launch_halscope',
                 'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
-                 'origin_offset_dialog', 'run_from_status', 'run_from_slot')
+                 'origin_offset_dialog', 'run_from_status', 'run_from_slot',
+                 'lathe_mirror_x')
 
         for i in data:
             if not i == picked:
@@ -1270,6 +1305,15 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     def reset_machine_log_dialog(self):
         self.machine_log_dialog = False
 
+    def set_lathe_mirror_x(self, data):
+        self.lathe_mirror_x = data
+        if data:
+            self._toggle_properties('lathe_mirror_x')
+    def get_lathe_mirror_x(self):
+        return self.lathe_mirror_x
+    def reset_lathe_mirror_x(self):
+        self.lathe_mirror_x = False
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1405,6 +1449,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
     dro_dtg_action = QtCore.pyqtProperty(bool, get_dro_dtg, set_dro_dtg, reset_dro_dtg)
     exit_action = QtCore.pyqtProperty(bool, get_exit, set_exit, reset_exit)
     machine_log_dialog_action = QtCore.pyqtProperty(bool, get_machine_log_dialog, set_machine_log_dialog, reset_machine_log_dialog)
+    lathe_mirror_x_action = QtCore.pyqtProperty(bool, get_lathe_mirror_x, set_lathe_mirror_x, reset_lathe_mirror_x)
 
     def set_template_label(self, data):
         self.template_label = data

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    This is stepconf, a graphical configuration editor for LinuxCNC
@@ -28,14 +28,12 @@
 # add GLADE callbacks for the page here.
 # add large or common function calls to stepconf.py
 
-#import gtk
 import os
 from gi.repository import Gtk
-#import gobject
 from gi.repository import GObject
 import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
+import importlib
+importlib.reload(sys)
 
 class Pages:
     def __init__(self, app):
@@ -58,7 +56,7 @@ class Pages:
         else:
             return True
 
-    # seaches (self._p.available_page) from the current page forward,
+    # searches (self._p.available_page) from the current page forward,
     # for the next page that is True or till second-to-last page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -86,13 +84,13 @@ class Pages:
         elif u == len(self._p.available_page):
             name,text,state = self._p.available_page[cur]
             self['%s_finish'%name]()
-        # if comming from page 0 to page 1 sensitize 
+        # if coming from page 0 to page 1 sensitize 
         # the back button and change fwd button text
         if cur == 0:
             self.w.button_back.set_sensitive(True)
             self.w.label_fwd.set_text(self._p.MESS_FWD)
 
-    # seaches (self._p.available_page) from the current page backward,
+    # searches (self._p.available_page) from the current page backward,
     # for the next page that is True or till first page.
     # if state found True: call current page finish function.
     # If that returns False then call the next page prepare function and show page
@@ -174,6 +172,15 @@ class Pages:
         model = self.w.input_list
         model.clear()
         for name in self._p.human_input_names: model.append((name,))
+        # parport io preset
+        self.w.pp1_preset_io_liststore.clear()
+        if(self.d.lparport):
+            for myport in self.d.lparport:
+                treeiter = self.w.pp1_preset_io_liststore.append([myport])
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr):
+                    self.w.pp1_preset_io_combo.set_active(count)
+
         # pport2 comboboxes
         model = self.w.pp2_output_list
         model.clear()
@@ -183,6 +190,15 @@ class Pages:
         model = self.w.pp2_input_list
         model.clear()
         for name in self._p.human_input_names: model.append((name,))
+        # parport2 io preset
+        self.w.pp2_preset_io_liststore.clear()
+        if(self.d.lparport):
+            for myport in self.d.lparport:
+                treeiter = self.w.pp2_preset_io_liststore.append([myport])
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr):
+                    self.w.pp2_preset_io_combo.set_active(count)
+
         self.intro_prepare()
 
 #************
@@ -203,7 +219,7 @@ class Pages:
 
     def start_finish(self):
         if self.w.importmach.get_active():
-            print 'Import Mach config'
+            print('Import Mach config')
             from stepconf import import_mach
             self.d.load('/tmp/temp.stepconf', self)
             if not debug:
@@ -212,10 +228,12 @@ class Pages:
             filter = Gtk.FileFilter()
             filter.add_pattern("*.stepconf")
             filter.set_name(_("LinuxCNC 'stepconf' configuration files"))
-            dialog = Gtk.FileChooserDialog(_("Modify Existing Configuration"),
-                self.w.window1, Gtk.FileChooserAction.OPEN,
-                (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
-                Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+            dialog = Gtk.FileChooserDialog(
+                title=_("Modify Existing Configuration"),
+                parent=self.w.window1,
+                action=Gtk.FileChooserAction.OPEN)
+            dialog.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
+            dialog.add_button(Gtk.STOCK_OPEN, Gtk.ResponseType.OK)
             dialog.set_default_response(Gtk.ResponseType.OK)
             dialog.add_filter(filter)
             if not self.d._lastconfigname == "" and self.d._chooselastconfig:
@@ -256,9 +274,10 @@ class Pages:
         self.w.dirsetup.set_value(self.d.dirsetup)
         self.w.dirhold.set_value(self.d.dirhold)
         self.w.drivertype.set_active(self.a.drivertype_toindex())
-        self.w.ioaddr.set_text(self.d.ioaddr)
+        #self.w.ioaddr.set_text(self.d.ioaddr)
         self.w.machinename.grab_focus()
-        self.w.ioaddr2.set_text(self.d.ioaddr2) 
+        #self.w.ioaddr2.set_text(self.d.ioaddr2)
+        
         #self.w.ioaddr3.set_text(self.d.ioaddr3)
         #self.w.pp3_direction.set_active(self.d.pp3_direction)
         if self.d.number_pports>2:
@@ -336,8 +355,11 @@ class Pages:
         if  not self.w.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                 self.w.radiobutton8.set_active(True)
-        self.w.select_axis.set_active(self.d.select_axis)
-        self.w.select_gmoccapy.set_active(self.d.select_gmoccapy)
+        if self.d.select_axis: temp = 0
+        elif self.d.select_gmoccapy: temp = 1
+        elif self.d.select_qtdragon: temp = 2
+        else: temp = 3
+        self.w.combobox_screens.set_active(temp)
         self.w.classicladder.set_active(self.d.classicladder)
         self.w.modbus.set_active(self.d.modbus)
         self.w.digitsin.set_value(self.d.digitsin)
@@ -355,12 +377,66 @@ class Pages:
         if  not self.w.createconfig.get_active():
            if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custom.clp" % self.d.machinename)):
                 self.w.radiobutton4.set_active(True)
+        # set the qtplasmac radiobuttons
+        if self.d.sim_hardware:
+            self.d.qtplasmacestop = 0
+            self.w.qtplasmac_estop_2.set_sensitive(False)
+        else:
+            self.w.qtplasmac_estop_2.set_sensitive(True)
+        if self.d.qtplasmacmode == 2:
+            self.w.qtplasmac_mode_2.set_active(True)
+        elif self.d.qtplasmacmode == 1:
+            self.w.qtplasmac_mode_1.set_active(True)
+        else:
+            self.w.qtplasmac_mode.set_active(True)
+        if self.d.qtplasmacscreen == 2:
+            self.w.qtplasmac_screen_2.set_active(True)
+        elif self.d.qtplasmacscreen == 1:
+            self.w.qtplasmac_screen_1.set_active(True)
+        else:
+            self.w.qtplasmac_screen.set_active(True)
+        if self.d.qtplasmacestop == 2:
+            self.w.qtplasmac_estop_2.set_active(True)
+        elif self.d.qtplasmacestop == 1:
+            self.w.qtplasmac_estop_1.set_active(True)
+        else:
+            self.w.qtplasmac_estop.set_active(True)
+        if self.d.qtplasmacdro == 1:
+            self.w.qtplasmac_dro_1.set_active(True)
+        else:
+            self.w.qtplasmac_dro.set_active(True)
+        if self.d.qtplasmacerror == 1:
+            self.w.qtplasmac_error_1.set_active(True)
+        else:
+            self.w.qtplasmac_error.set_active(True)
+        if self.d.qtplasmacstart == 1:
+            self.w.qtplasmac_start_1.set_active(True)
+        else:
+            self.w.qtplasmac_start.set_active(True)
+        if self.d.qtplasmacpause == 1:
+            self.w.qtplasmac_pause_1.set_active(True)
+        else:
+            self.w.qtplasmac_pause.set_active(True)
+        if self.d.qtplasmacstop == 1:
+            self.w.qtplasmac_stop_1.set_active(True)
+        else:
+            self.w.qtplasmac_stop.set_active(True)
+        # set the qtplasmac spinboxes
+        self.w.qtplasmac_pmx_port.set_text(self.d.qtplasmacpmx)
 
     def options_finish(self):
         SIG = self._p
-        self.d.select_axis = self.w.select_axis.get_active()
-        self.d.select_gmoccapy = self.w.select_gmoccapy.get_active()
-        self.d.pyvcp = self.w.pyvcp.get_active()
+        self.d.select_axis = self.d.select_gmoccapy = self.d.select_qtdragon = self.d.select_qtplasmac = False
+        choice = self.w.combobox_screens.get_active()
+        if choice == 0:
+            self.d.select_axis = True
+        elif choice == 1:
+            self.d.select_gmoccapy = True
+        elif choice == 2:
+            self.d.select_qtdragon = True
+        else:
+            self.d.select_qtplasmac = True
+        self.d.pyvcp = self.w.pyvcp.get_active() and not self.d.select_qtplasmac
         self.d.classicladder = self.w.classicladder.get_active()
         self.d.modbus = self.w.modbus.get_active()
         self.d.digitsin = self.w.digitsin.get_value()
@@ -369,10 +445,10 @@ class Pages:
         self.d.s32out = self.w.s32out.get_value()
         self.d.floatsin = self.w.floatsin.get_value()
         self.d.floatsout = self.w.floatsout.get_value()
-        self.d.halui = self.w.halui.get_active()
-        self.d.pyvcpconnect = self.w.pyvcpconnect.get_active()  
+        self.d.halui = self.w.halui.get_active() and not self.d.select_qtplasmac
+        self.d.pyvcpconnect = self.w.pyvcpconnect.get_active() and not self.d.select_qtplasmac
         self.d.ladderconnect = self.w.ladderconnect.get_active()   
-        self.d.manualtoolchange = self.w.manualtoolchange.get_active()       
+        self.d.manualtoolchange = self.w.manualtoolchange.get_active() and not self.d.select_qtplasmac
         if self.d.classicladder:
            if self.w.radiobutton1.get_active() == True:
               if self.d.tempexists:
@@ -415,6 +491,18 @@ class Pages:
               if os.path.exists(os.path.expanduser("~/linuxcnc/configs/%s/custompanel.xml" % self.d.machinename)):
                  if not self.a.warning_dialog(self._p.MESS_PYVCP_REWRITE,False):
                    return True
+        # set the qtplasmac variables
+        self.d.qtplasmacmode = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_mode.get_group())) if r.get_active()][0]
+        self.d.qtplasmacscreen = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_screen.get_group())) if r.get_active()][0]
+        self.d.qtplasmacestop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_estop.get_group())) if r.get_active()][0]
+        self.d.qtplasmacdro = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_dro.get_group())) if r.get_active()][0]
+        self.d.qtplasmacerror = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_error.get_group())) if r.get_active()][0]
+        self.d.qtplasmacstart = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_start.get_group())) if r.get_active()][0]
+        self.d.qtplasmacpause = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_pause.get_group())) if r.get_active()][0]
+        self.d.qtplasmacstop = [int(i) for i,r in enumerate(reversed(self.w.qtplasmac_stop.get_group())) if r.get_active()][0]
+        self.d.qtplasmacpmx = self.w.qtplasmac_pmx_port.get_text()
+        self.page_set_state('spindle',((self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) \
+                                        and not self.d.select_qtplasmac))
 
     # options page callback
     def on_loadladder_clicked(self, *args):
@@ -443,6 +531,22 @@ class Pages:
 
     def on_halui_toggled(self, *args):
         self.page_set_state('halui_page', self.w.halui.get_active())
+
+    def on_combobox_screens_changed(self, widget):
+        index = self.w.combobox_screens.get_active()
+        item = self.w.liststore_screens[index][0]
+        if item == "QtPlasmaC":
+            for item in ["manualtoolchange", "halui", "pyvcp"]:
+                self.w[item].set_active(False)
+            for item in ["manualtoolchange", "halui", "pyvcp", "vbox6"]:
+                self.w[item].hide()
+            self.w.qtplasmac_table.show()
+            self.page_set_state('ubuttons', True)
+        else:
+            self.w.qtplasmac_table.hide()
+            for item in ["manualtoolchange", "halui", "pyvcp", "vbox6"]:
+                self.w[item].show()
+            self.page_set_state('ubuttons', False)
 
 #***************
 # halui PAGE
@@ -531,6 +635,8 @@ class Pages:
 #************
     def pport1_prepare(self):
         self._p.in_pport_prepare = True
+        self.jointcount = {"x": 0, "y": 0, "z": 0, "a": 0, "u": 0, "w": 0}
+        self.d.tandemjoints = []
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.w[p].set_wrap_width(3)
@@ -544,21 +650,46 @@ class Pages:
             p = 'pin%dinv' % pin
             self.w[p].set_active(self.d[p])
         self.w.pin1.grab_focus()
-        self.w.ioaddr.set_text(self.d.ioaddr)
+        if(self.d.lparport):
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr):
+                    self.w.pp1_preset_io_combo.set_active(count)
+        #self.w.ioaddr.set_text(self.d.ioaddr)
         self._p.in_pport_prepare = False
 
     def pport1_finish(self):
+        self.page_set_state('thcad', False)
+        self.d.thcadenc = 0
+        self.d.ohmiccontact = 0
         for pin in (10,11,12,13,15):
             p = 'pin%d' % pin
             self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
+            if self.d[p] == "plasmac:arc-voltage-raw":
+                self.page_set_state('thcad', True)
+                self.d.thcadenc = 1
+            if self.d[p] == "plasmac:ohmic-sense-in":
+                self.d.ohmiccontact = 1
         for pin in (1,2,3,4,5,6,7,8,9,14,16,17):
             p = 'pin%d' % pin
             self.d[p] = self._p.hal_output_names[self.w[p].get_active()]
+            if "dir" in self.d[p][-3:]:
+                if self.jointcount[self.d[p][0]] == 0 or \
+                   ("2" in self.d[p] and self.jointcount[self.d[p][0]] < 2):
+                    self.jointcount[self.d[p][0]] += 1
         for pin in (1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17):
             p = 'pin%dinv' % pin
             self.d[p] = self.w[p].get_active()
-        self.d.ioaddr = self.w.ioaddr.get_text()
+        #self.d.ioaddr = self.w.ioaddr.get_text()
+        state = self.w.pp1_preset_io_combo.get_active()
+        if(state > -1):
+            path = Gtk.TreePath(state)
+            treeiter = self.w.pp1_preset_io_liststore.get_iter(path)
+            value = self.w.pp1_preset_io_liststore.get_value(treeiter, 0)
+            self.d.ioaddr = value
         self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
+        for j in "xyzauw":
+            if self.jointcount[j] > 1:
+                self.d.tandemjoints.append(j[0])
 
     # pport1 callbacks
     def on_exclusive_check_pp1(self, widget):
@@ -566,7 +697,7 @@ class Pages:
 
     def on_preselect_button_clicked(self, widget):
         state = self.w.preset_combo.get_active()
-        print state
+        print(state)
         if state == 0:
             self.a.preset_sherline_outputs()
         elif state ==1:
@@ -597,7 +728,11 @@ class Pages:
         self.w.pp2_pin1.grab_focus()
         self.w.pp2_direction.set_active(self.d.pp2_direction)
         self.on_pp2_direction_changed(self.w.pp2_direction)
-        self.w.ioaddr2.set_text(self.d.ioaddr2)
+        if(self.d.lparport):
+            for count, current_port in enumerate(self.d.lparport):
+                if(current_port == self.d.ioaddr2):
+                    self.w.pp2_preset_io_combo.set_active(count)
+        #self.w.ioaddr2.set_text(self.d.ioaddr2)
         self._p.in_pport_prepare = False
 
     def pport2_finish(self):
@@ -609,10 +744,21 @@ class Pages:
         for pin in (2,3,4,5,6,7,8,9,10,11,12,13,15):
             p = 'pp2_pin%d_in' % pin
             self.d[p] = self._p.hal_input_names[self.w[p].get_active()]
+            if self.d[p] == "plasmac:arc-voltage-raw":
+                self.page_set_state('thcad', True)
+                self.d.thcadenc = 1
+            if self.d[p] == "plasmac:ohmic-sense-in":
+                self.d.ohmiccontact = 1
             p = 'pp2_pin%d_in_inv' % pin
             self.d[p] = self.w[p].get_active()
         self.d.pp2_direction = self.w.pp2_direction.get_active()
-        self.d.ioaddr2 = self.w.ioaddr2.get_text()
+        #self.d.ioaddr2 = self.w.ioaddr2.get_text()
+        state = self.w.pp2_preset_io_combo.get_active()
+        if(state > -1):
+            path = Gtk.TreePath(state)
+            treeiter = self.w.pp2_preset_io_liststore.get_iter(path)
+            value = self.w.pp2_preset_io_liststore.get_value(treeiter, 0)
+            self.d.ioaddr2 = value
         self.page_set_state('spindle',(self.a.has_spindle_speed_control() or self.a.has_spindle_encoder()) )
 
     # pport2 callbacks:
@@ -625,6 +771,35 @@ class Pages:
     def on_exclusive_check_pp2(self, widget):
         self.a.do_exclusive_inputs(widget,2)
 
+#************
+# UBUTTONS (QtPlasmaC User Buttons)
+#************
+    def ubuttons_prepare(self):
+        for ub in range(1, 21):
+            self.w["bname_{}".format(ub)].set_text(self.d.qtplasmac_bnames[ub-1])
+            self.w["bcode_{}".format(ub)].set_text(self.d.qtplasmac_bcodes[ub-1])
+
+    def ubuttons_finish(self):
+        for ub in range(1, 21):
+            self.d.qtplasmac_bnames[ub-1] = self.w["bname_{}".format(ub)].get_text()
+            self.d.qtplasmac_bcodes[ub-1] = self.w["bcode_{}".format(ub)].get_text()
+
+#************
+# THCAD (QtPlasmaC THCAD)
+#************
+    def thcad_prepare(self):
+        self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
+        self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
+        self.w.voltszerof.set_value(self.d.voltszerof)
+        self.w.voltsfullf.set_value(self.d.voltsfullf)
+        self.w.voltsrdiv.set_value(self.d.voltsrdiv)
+
+    def thcad_finish(self):
+        self.d.voltsmodel = ["5", "10", "300"][self.w.voltsmodel.get_active()]
+        self.d.voltsfjumper = ["1", "32", "64", "128"][self.w.voltsfjumper.get_active()]
+        self.d.voltszerof = self.w.voltszerof.get_value()
+        self.d.voltsfullf = self.w.voltsfullf.get_value()
+        self.d.voltsrdiv = self.w.voltsrdiv.get_value()
 
 #*******************
 # AXIS X PAGE
@@ -775,19 +950,19 @@ class Pages:
         if axis == "a":
             self.w[axis + "screwunits"].set_text(_("degree / rev"))
             self.w[axis + "velunits"].set_text(_("deg / s"))
-            self.w[axis + "accunits"].set_text(_(u"deg / s²"))
+            self.w[axis + "accunits"].set_text(_("deg / s²"))
             self.w[axis + "accdistunits"].set_text(_("deg"))
             self.w[axis + "scaleunits"].set_text(_("Steps / deg"))
         elif self.d.units:
             self.w[axis + "screwunits"].set_text(_("mm / rev"))
             self.w[axis + "velunits"].set_text(_("mm / s"))
-            self.w[axis + "accunits"].set_text(_(u"mm / s²"))
+            self.w[axis + "accunits"].set_text(_("mm / s²"))
             self.w[axis + "accdistunits"].set_text(_("mm"))
             self.w[axis + "scaleunits"].set_text(_("Steps / mm"))
         else:
             self.w[axis + "screwunits"].set_text(_("rev / in"))
             self.w[axis + "velunits"].set_text(_("in / s"))
-            self.w[axis + "accunits"].set_text(_(u"in / s²"))
+            self.w[axis + "accunits"].set_text(_("in / s²"))
             self.w[axis + "accdistunits"].set_text(_("in"))
             self.w[axis + "scaleunits"].set_text(_("Steps / in"))
 

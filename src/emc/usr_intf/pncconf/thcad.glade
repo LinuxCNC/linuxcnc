@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.0"/>
+  <object class="GtkListStore" id="voltsfjumpervalue">
+    <columns>
+      <!-- column-name voltsfjumpername -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">1</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">32</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">64</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">128</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="voltsfullfadj">
+    <property name="lower">800</property>
+    <property name="upper">1000</property>
+    <property name="value">999</property>
+    <property name="step-increment">0.10</property>
+    <property name="page-increment">1</property>
+  </object>
+  <object class="GtkListStore" id="voltsmodelname">
+    <columns>
+      <!-- column-name voltsmodelname -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">5</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">10</col>
+      </row>
+      <row>
+        <col id="0" translatable="yes">300</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkAdjustment" id="voltsrdivadj">
+    <property name="upper">1000000000</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="voltszerofadj">
+    <property name="lower">100</property>
+    <property name="upper">200</property>
+    <property name="value">100</property>
+    <property name="step-increment">0.10</property>
+    <property name="page-increment">1</property>
+  </object>
+  <object class="GtkVBox" id="thcad">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <child>
+      <object class="GtkVBox" id="voltsbox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="spacing">4</property>
+        <child>
+          <object class="GtkAlignment" id="volts1">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="xalign">0.15000000596046448</property>
+            <property name="xscale">0.38999998569488525</property>
+            <child>
+              <object class="GtkFrame" id="voltsframe">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="label-xalign">0</property>
+                <child>
+                  <object class="GtkAlignment" id="volts2">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="xalign">0.25</property>
+                    <property name="xscale">0.5</property>
+                    <child>
+                      <object class="GtkTable" id="voltstable">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="n-rows">3</property>
+                        <property name="n-columns">4</property>
+                        <child>
+                          <object class="GtkLabel" id="voltslbl4">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Full Scale Frequency (kHz)</property>
+                            <property name="xalign">1</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">2</property>
+                            <property name="right-attach">3</property>
+                            <property name="top-attach">1</property>
+                            <property name="bottom-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="voltslbl2">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">F Jumper</property>
+                            <property name="xalign">1</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">2</property>
+                            <property name="right-attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="voltslbl5">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Divider Ratio or Series Resistance</property>
+                            <property name="xalign">1</property>
+                          </object>
+                          <packing>
+                            <property name="right-attach">3</property>
+                            <property name="top-attach">2</property>
+                            <property name="bottom-attach">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="voltslbl3">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">0V Frequency (kHz)</property>
+                            <property name="xalign">1</property>
+                          </object>
+                          <packing>
+                            <property name="top-attach">1</property>
+                            <property name="bottom-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="voltslbl1">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">Model</property>
+                            <property name="xalign">1</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="voltsmodel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <items>
+                              <item id="1" translatable="yes">5</item>
+                              <item id="2" translatable="yes">10</item>
+                              <item id="3" translatable="yes">300</item>
+                            </items>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="right-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="voltsfjumper">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <items>
+                              <item id="1" translatable="yes">1</item>
+                              <item id="2" translatable="yes">32</item>
+                              <item id="3" translatable="yes">64</item>
+                              <item id="4" translatable="yes">128</item>
+                            </items>
+                          </object>
+                          <packing>
+                            <property name="left-attach">3</property>
+                            <property name="right-attach">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="voltszerof">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="invisible-char">•</property>
+                            <property name="primary-icon-activatable">False</property>
+                            <property name="secondary-icon-activatable">False</property>
+                            <property name="adjustment">voltszerofadj</property>
+                            <property name="climb-rate">1</property>
+                            <property name="digits">1</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="right-attach">2</property>
+                            <property name="top-attach">1</property>
+                            <property name="bottom-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="voltsfullf">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="invisible-char">•</property>
+                            <property name="primary-icon-activatable">False</property>
+                            <property name="secondary-icon-activatable">False</property>
+                            <property name="adjustment">voltsfullfadj</property>
+                            <property name="climb-rate">1</property>
+                            <property name="digits">1</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">3</property>
+                            <property name="right-attach">4</property>
+                            <property name="top-attach">1</property>
+                            <property name="bottom-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="voltsrdiv">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="invisible-char">•</property>
+                            <property name="primary-icon-activatable">False</property>
+                            <property name="secondary-icon-activatable">False</property>
+                            <property name="adjustment">voltsrdivadj</property>
+                            <property name="climb-rate">10</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">3</property>
+                            <property name="right-attach">4</property>
+                            <property name="top-attach">2</property>
+                            <property name="bottom-attach">3</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel" id="voltslabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">THCAD For Arc Voltage</property>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="expand">True</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+  </object>
+</interface>

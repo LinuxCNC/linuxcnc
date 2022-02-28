@@ -32,18 +32,21 @@ char *get_cpuinfo_revision(char *revision)
 {
     FILE *fp;
     char buffer[1024];
+    char *r;
 
     if ((fp = fopen("/sys/firmware/devicetree/base/model", "r")) == NULL)
-        return 0;
+        return NULL;
 
-    fgets(buffer, sizeof(buffer) , fp);
+    r = fgets(buffer, sizeof(buffer) , fp);
+    fclose(fp);
+
+    if (!r) return NULL;
 
     if (strncmp(buffer, "Raspberry",9) != 0)
         return NULL;
-    fclose(fp);
 
     if ((fp = fopen("/proc/cpuinfo", "r")) == NULL)
-        return 0;
+        return NULL;
 
     while(!feof(fp)) {
         if (fgets(buffer, sizeof(buffer) , fp)){

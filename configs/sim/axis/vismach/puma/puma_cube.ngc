@@ -23,6 +23,7 @@ g10l2p0 z  -495
 g10l2p0 a   180
 g10l2p0 b     0
 g10l2p0 c     0
+(debug, puma_cube.ngc Set G54 offsets)
 
     #<xmin> = -100
     #<xmax> =  100

@@ -63,6 +63,7 @@ class HandlerClass:
         w.toolDialog_ = ToolDialog()
         w.toolDialog_.setObjectName('toolDialog_')
         w.toolDialog_.hal_init(HAL_NAME='')
+        w.toolDialog_.removeButton( w.toolDialog_._actionbutton)
         if self.w.USEROPTIONS_ is not None:
             if 'notify_on' in self.w.USEROPTIONS_:
                 w.toolDialog_.setProperty('useDesktopNotify', True)

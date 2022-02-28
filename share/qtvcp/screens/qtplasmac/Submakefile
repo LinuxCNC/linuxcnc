@@ -1,0 +1,14 @@
+PYTARGETS += ../bin/qtvcp ../configs/by_machine/qtplasmac/qtplasmac/qtplasmac_gcode.py
+PYTARGETS += ../bin/qtvcp ../configs/by_machine/qtplasmac/qtplasmac/M190
+
+../configs/by_machine/qtplasmac/qtplasmac/qtplasmac_gcode.py: ../share/qtvcp/screens/qtplasmac/qtplasmac_gcode_src.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+../configs/by_machine/qtplasmac/qtplasmac/M190: ../share/qtvcp/screens/qtplasmac/M190_src.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

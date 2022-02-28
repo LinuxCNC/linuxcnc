@@ -1,7 +1,7 @@
 /********************************************************************
 * Description:  pid.c
 *               This file, 'pid.c', is a HAL component that provides 
-*               Proportional/Integeral/Derivative control loops.
+*               Proportional/Integral/Derivative control loops.
 *
 * Author: John Kasunich
 * License: GPL Version 2
@@ -11,7 +11,7 @@
 * Last change: 
 ********************************************************************/
 /** This file, 'pid.c', is a HAL component that provides Proportional/
-    Integeral/Derivative control loops.  It is a realtime component.
+    Integral/Derivative control loops.  It is a realtime component.
 
     It supports a maximum of 16 PID loops.
 
@@ -31,7 +31,7 @@
     The three most important pins are 'command', 'feedback', and
     'output'.  For a position loop, 'command' and 'feedback' are
     in position units.  For a linear axis, this could be inches,
-    mm, metres, or whatever is relavent.  Likewise, for a angular
+    mm, metres, or whatever is relevant.  Likewise, for a angular
     axis, it could be degrees, radians, etc.  The units of the
     'output' pin represent the change needed to make the feedback
     match the command.  As such, for a position loop 'Output' is

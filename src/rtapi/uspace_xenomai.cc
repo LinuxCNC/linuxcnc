@@ -46,6 +46,10 @@ struct XenomaiApp : RtapiApp {
         memset(&param, 0, sizeof(param));
         param.sched_priority = task->prio;
 
+        // limit PLL correction values to +/-1% of cycle time
+        task->pll_correction_limit = period_nsec / 100;
+        task->pll_correction = 0;
+
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
         int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
@@ -83,7 +87,7 @@ struct XenomaiApp : RtapiApp {
         // "xenomai: watchdog triggered" and rtapi_app was killed.
         //
         // encountered on: 3.18.20-xenomai-2.6.5 with a 2-thread SMP system
-        rtapi_timespec_advance(task->nextstart, now, task->period);
+        rtapi_timespec_advance(task->nextstart, now, task->period + task->pll_correction);
 
         (task->taskcode) (task->arg);
 
@@ -99,13 +103,28 @@ struct XenomaiApp : RtapiApp {
         return -ENOSYS;
     }
 
+    long long task_pll_get_reference(void) {
+        struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+        if(!task) return 0;
+        return task->nextstart.tv_sec * 1000000000LL + task->nextstart.tv_nsec;
+    }
+
+    int task_pll_set_correction(long value) {
+        struct rtapi_task *task = reinterpret_cast<rtapi_task*>(pthread_getspecific(key));
+        if(!task) return -EINVAL;
+        if (value > task->pll_correction_limit) value = task->pll_correction_limit;
+        if (value < -(task->pll_correction_limit)) value = -(task->pll_correction_limit);
+        task->pll_correction = value;
+        return 0;
+    }
+
     void wait() {
         int task_id = task_self();
         auto task = ::rtapi_get_task<RtaiTask>(task_id);
         if(task->cancel) {
             pthread_exit(nullptr);
         }
-        rtapi_timespec_advance(task->nextstart, task->nextstart, task->period);
+        rtapi_timespec_advance(task->nextstart, task->nextstart, task->period + task->pll_correction);
         struct timespec now;
         clock_gettime(CLOCK_MONOTONIC, &now);
         if(rtapi_timespec_less(task->nextstart, now))

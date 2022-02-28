@@ -849,7 +849,7 @@ VIEW</string>
        </rect>
       </property>
       <property name="text">
-       <string>ORGIN
+       <string>ORIGIN
 OFFSETS</string>
       </property>
       <property name="checkable">
@@ -6977,7 +6977,7 @@ DEC</string>
               </property>
               <property name="text">
                <string>Go to
-Origion Zero</string>
+Origin Zero</string>
               </property>
               <property name="checkable">
                <bool>false</bool>

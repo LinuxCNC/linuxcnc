@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #    QT_VCP
 #    Copyright 2016 Chris Morley
@@ -18,20 +18,24 @@
 #    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import gobject
+import gi
+from gi.repository import GObject as gobject
 from qtvcp.widgets.simple_widgets import _HalWidgetBase
 from qtvcp.widgets.screen_options import ScreenOptions
 from PyQt5.QtCore import QObject
 from PyQt5.QtWidgets import QDesktopWidget
 
 # Set up logging
-import logger
+from . import logger
+
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
-LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+
+# Force the log level for this module
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
-    def __init__(self,halcomp,path,window,debug):
+    def __init__(self, halcomp, path, window, debug):
         xmlname = path.XML
         self.window = window
         self.window['PREFS_'] = None
@@ -39,7 +43,7 @@ class QTPanel():
         self._geo_string = ''
 
         # see if a screenoptions widget is present
-        # if is is then initiate the preference file
+        # if it is then initiate the preference file
         # and pass a preference object to the window
         # it's then available to all HALified objects
         # also allow screenoptions to inject data into
@@ -49,11 +53,21 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
+
+                    # change HAL base name to screenOptions setting if
+                    # a new base name was not specified on the command line
+                    # and screenOptions name is not blank 
+                    oldHALName = halcomp.comp.getprefix()
+                    if oldHALName == path.BASENAME:
+                        newHALName = widget.property('halCompBaseName')
+                        if not newHALName == '':
+                            halcomp.comp.setprefix(newHALName)
+                            LOG.info('Changed HAL Component basename to {}, as specified in screenOptions: '.format(newHALName))
                     try:
                         self.window['PREFS_'], pref_fn = widget._pref_init()
                     except Exception as e:
                         LOG.warning('Preference instance error: {}'.format(e))
-                        self.window['PREFS_'], pref_fn = (None,None)
+                        self.window['PREFS_'], pref_fn = (None, None)
                     path.PREFS_FILENAME = pref_fn
                     try:
                         widget._VCPObject_injection(window)
@@ -66,27 +80,32 @@ class QTPanel():
         LOG.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
-                self.window.registerHalWidget(widget)
                 idname = widget.objectName()
-                LOG.debug('HAL-ified instance found: {}'.format(idname))
+                LOG.verbose('HAL-ified instance found: {}'.format(idname))
                 widget.hal_init()
 
-    # Search all hal-ifed widgets for closing clean up functions and call them
+    # Search all hal-ifed widgets for _hal_cleanup functions and call them
     # used for such things as preference recording current settings
     def shutdown(self):
         if self.window['PREFS_']:
             self.record_preference_geometry()
-        LOG.debug('search for widget closing cleanup functions')
+        LOG.debug("calling widget's _hal_cleanup functions")
         for widget in self.window.getRegisteredHalWidgetList():
+            try:
+                widget._hal_cleanup()
+            except Exception as e:
+                print(e)
+            # old way - will remove in future.
             if 'closing_cleanup__' in dir(widget):
                 idname = widget.objectName()
                 LOG.info('Closing cleanup on: {}'.format(idname))
+                LOG.info('"closing_cleanup__" function name is depreciated, please using "_hal_cleanup"')
                 widget.closing_cleanup__()
 
     # if there is a prefrence file and it is has digits (so no key word), then record
     # the window geometry
     def record_preference_geometry(self):
-        temp = self._geo_string.replace(' ','')
+        temp = self._geo_string.replace(' ', '')
         temp = temp.strip('-')
         if temp == '' or temp.isdigit():
             LOG.debug('Saving Main Window geometry to preference file.')
@@ -94,7 +113,7 @@ class QTPanel():
             y = self.window.geometry().y()
             w = self.window.geometry().width()
             h = self.window.geometry().height()
-            geo = '%s %s %s %s'% (x,y,w,h)
+            geo = '%s %s %s %s' % (x, y, w, h)
             self.window['PREFS_'].putpref('mainwindow_geometry', geo, str, 'SCREEN_OPTIONS')
 
     # if there is a screen option widget and we haven't set INI switch geometry
@@ -106,13 +125,14 @@ class QTPanel():
             LOG.info('No preference file - can not set preference geometry.')
 
     def geometry_parsing(self):
-        def go(x,y,w,h):
-            self.window.setGeometry(x,y,w,h)
+        def go(x, y, w, h):
+            self.window.setGeometry(x, y, w, h)
+
         try:
             self._geo_string = self.window.PREFS_.getpref('mainwindow_geometry', '', str, 'SCREEN_OPTIONS')
             LOG.debug('Calculating geometry of main window using natural placement:{}'.format(self._geo_string))
             # If there is a preference file object use it to load the geometry
-            if self._geo_string in('default',''):
+            if self._geo_string in ('default', ''):
                 return
             elif 'center' in self._geo_string.lower():
                 geom = self.window.frameGeometry()
@@ -129,11 +149,12 @@ class QTPanel():
             y = self.window.geometry().y()
             w = self.window.geometry().width()
             h = self.window.geometry().height()
-            go( x,y,w,h)
+            go(x, y, w, h)
+
 
 if __name__ == "__main__":
-    print "qtvcp_make_pins cannot be run on its own"
-    print "It must be called by qtscreen or a python program"
-    print "that loads and displays the QT panel and creates a HAL component"
+    print("qtvcp_make_pins cannot be run on its own")
+    print("It must be called by qtscreen or a python program")
+    print("that loads and displays the QT panel and creates a HAL component")
 
 # vim: sts=4 sw=4 et

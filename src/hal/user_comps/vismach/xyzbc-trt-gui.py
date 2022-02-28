@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #**************************************************************************
 # Copyright 2016 Rudy du Preez <rudy@asmsa.co.za>
 #
@@ -44,7 +44,7 @@ c.newpin("x-offset", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("tool-offset", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 tooltip = Capture()
 
@@ -178,6 +178,6 @@ base = Color([0,1,0,0], [base] )
 model = Collection([yslide, base])
 
 myhud = Hud()
-myhud.show("xyzbc: 3/4/16")
+myhud.show("XYZBC")
 
-main(model, tooltip, work, 500, hud=myhud)
+main(model, tooltip, work, size=500, hud=myhud, lat=-60, lon=25)

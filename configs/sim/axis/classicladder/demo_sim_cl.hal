@@ -32,7 +32,7 @@ net gui-estop iocontrol.0.user-enable-out classicladder.0.in-00
 net estop-strobe iocontrol.0.user-request-enable  classicladder.0.in-02
 # this bit is an external estop button connected to parport pin 11 and ground
 net ext-estop classicladder.0.in-01
-# This bit signal is comand to estop from CL to EMC
+# This bit signal is command to estop from CL to EMC
 net estop-all-ok iocontrol.0.emc-enable-in classicladder.0.out-00 
 
 # lube signals

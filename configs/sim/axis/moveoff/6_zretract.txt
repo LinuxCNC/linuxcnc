@@ -28,7 +28,7 @@ Demo:
 
 The ini file sets:
   1) offset amount and its velocity and acceleration
-  2) state of the external-enable signal at starup
+  2) state of the external-enable signal at startup
   3) autoresume delay interval
   4) location and size of the moveoff_gui display
 

@@ -1,3 +1,3 @@
 #!/bin/bash
 set -e
-halcompile --compile mesa_uart.comp
+halcompile --compile mesa_uart_test.comp

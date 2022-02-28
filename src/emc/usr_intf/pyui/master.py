@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import hal,time,os,sys
 import traceback
 from configobj import ConfigObj
@@ -17,7 +17,7 @@ except:
             CONFIGPATH = os.path.expanduser("~")
             CONFIGDIR = os.path.join(CONFIGPATH, '_panelui.ini')
         except:
-            print 'PANELUI ERROR: No _panelui.ini found.'
+            print('PANELUI ERROR: No _panelui.ini found.')
             sys.exit(0)
 
 P='Pressed'
@@ -25,7 +25,7 @@ R='Released'
 DBG_state = 0
 def DBG(str,level=1):
     if DBG_state >= level:
-        print str
+        print(str)
 
 class keyboard():
     def __init__(self, filename=CONFIGDIR):
@@ -38,12 +38,14 @@ class keyboard():
     def build(self,dbg_state=0):
         global DBG_state
         DBG_state = self._dbg = dbg_state
+
         def build_widget(widget,array,idname):
             # get attributes of the widget
             metadata={}
             for attribute in array:
                 value = array[attribute]
                 DBG( '      >> %s = %s'%(attribute,value),2)
+
                 # if attribute is a list, make it a single list
                 # the widgets.command method will decode that list later
                 if isinstance(value,list) and len(value) > 2:
@@ -53,13 +55,15 @@ class keyboard():
                         temp2.append(value[i])
                     temp.append(temp2)
                     value = temp
+
                 # key is how we sort the dict of commands
                 # by the unigue key position or group name
                 if attribute.upper() == 'KEY':
                     self.r_c[value] = idname
                 metadata[attribute.upper()] = value
-            # intialize the widget
-            widget.hal_init(self.hal, idname, metadata, 
+
+            # initialize the widget
+            widget.hal_init(self, self.hal, idname, metadata, 
                     self.cmd, self.widgets, DBG_state)
             self.widgets[idname] = widget
 
@@ -67,13 +71,42 @@ class keyboard():
         self.widgets = {}
         self.r_c = {}
         self.config = ConfigObj(self.filename)
+        self._zmq_output_enabled = False
+
         try:
             self.hal.setprefix(self.config['HAL_PREFIX']['NAME'])
         except:
             self.hal.setprefix('panelui')
+
+        # call after HAL prefix has been changed
         self.cmd = commands.CNC_COMMANDS(self)
+
+        # setup ZMQ output if enabled
+        try:
+            if self.config['ZMQ_SETUP'].as_bool('ENABLE'):
+                self._zmq_output_enabled = True
+                try:
+                    self._topic = self.config['ZMQ_SETUP']['TOPIC']
+                except Exception as e:
+                    print(e)
+                    self._topic = None
+                try:
+                    import zmq
+                    self._socket = zmq.Context().socket(zmq.PUB)
+                    self._socket.bind(self.config['ZMQ_SETUP']['SOCKET'])
+                except Exception as e:
+                    print('Problem importing zmq - Is python3-zmg installed?')
+                    print(e)
+                    self._socket = None
+        except Exception as e:
+            print(e)
+            self._topic = None
+            self._socket = None
+
         for basewidget in self.config:
             if basewidget == 'HAL_PREFIX': continue
+            if basewidget == 'ZMQ_SETUP': continue
+
             DBG('\n List of %s:'% (basewidget),2 )
             if basewidget in dir(WIDGETS):
                 for idname in self.config[basewidget]:
@@ -103,7 +136,7 @@ class keyboard():
                     else:
                         continue
             else:
-                print 'PANELUI INFO: %s not defined'% basewidget
+                print(('PANELUI INFO: %s not defined'% basewidget))
 
         self.hal.ready()
         for k in self.r_c:
@@ -117,17 +150,17 @@ class keyboard():
         try:
             DBG('%s %s %s'% ( button, self.r_c[button], P if state else R ),1)
             self.widgets[self.r_c[button]].toggle_state(state)
-        except  Exception, e:
+        except  Exception as e:
             if DBG_state >1:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 formatted_lines = traceback.format_exc().splitlines()
-                print
-                print "****PYUI verbose debugging:",formatted_lines[0]
+                print()
+                print(("****PYUI verbose debugging:",formatted_lines[0]))
                 traceback.print_tb(exc_traceback, limit=1, file=sys.stdout)
-                print formatted_lines[-1]
+                print((formatted_lines[-1]))
             elif DBG_state >0:
-                print 'PYUI ERROR: no button or command assigned to keycode %s?'% button
-                print e
+                print(('PYUI ERROR: no button or command assigned to keycode %s?'% button))
+                print(e)
             else:
                 pass
 
@@ -138,7 +171,7 @@ class keyboard():
             self.cmd.periodic()
 
     def exit(self):
-        print 'Python exit'
+        print('Python exit')
         self.hal.exit()
 
     def __getitem__(self, item):
@@ -148,7 +181,7 @@ class keyboard():
 
 
 def main():
-    print 'main'
+    print('main')
     key=keyboard()
     a=key.build()
     b=key.loop()

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2018 Chris Morley
@@ -36,7 +36,7 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
+# Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class SystemToolButton(QToolButton, _HalWidgetBase):
@@ -101,7 +101,7 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         ACTION.SET_USER_SYSTEM('G59.3')
 
     def _set_user_system_text(self, w, data):
-        convert = { 1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}
+        convert = { 0:'None',1:"G54", 2:"G55", 3:"G56", 4:"G57", 5:"G58", 6:"G59", 7:"G59.1", 8:"G59.2", 9:"G59.3"}
         if self._auto_label_flag:
             self.setText(convert[int(data)])
 

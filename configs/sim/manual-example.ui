@@ -412,7 +412,7 @@ current system
                     </child>
                     <child>
                       <object class="GtkToggleButton" id="togglebutton1">
-                        <property name="label" translatable="yes">Excute Oword
+                        <property name="label" translatable="yes">Execute Oword
   subroutine</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>

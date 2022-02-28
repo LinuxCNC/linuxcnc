@@ -273,7 +273,7 @@ int pmCircleTangentVector(PmCircle const * const circle,
 
 
 /**
- * Calulate the unit tangent vector at the start of a move for any segment.
+ * Calculate the unit tangent vector at the start of a move for any segment.
  */
 int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
@@ -295,7 +295,7 @@ int tcGetStartTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const 
 }
 
 /**
- * Calulate the unit tangent vector at the end of a move for any segment.
+ * Calculate the unit tangent vector at the end of a move for any segment.
  */
 int tcGetEndTangentUnitVector(TC_STRUCT const * const tc, PmCartesian * const out) {
 
@@ -637,7 +637,7 @@ int tcInit(TC_STRUCT * const tc,
     tc->id = -1; //ID to be set when added to queue (may change before due to blend arcs)
 
     /** Segment settings (given values later during setup / optimization) */
-    tc->indexrotary = -1;
+    tc->indexer_jnum = -1;
 
     tc->active_depth = 1;
 

@@ -7,13 +7,13 @@
 * pc says:
 *
 *   Most of the configs would be better off being passed via an ioctl
-*   implimentation leaving pure realtime data to be handled by
+*   implementation leaving pure realtime data to be handled by
 *   emcmotCommandHandler() - This would provide a small performance
 *   increase on slower systems.
 *
 * jmk says:
 *
-*   Using commands to set config parameters is "undesireable", because
+*   Using commands to set config parameters is "undesirable", because
 *   of the large amount of code needed for each parameter.  Today you
 *   need to do the following to add a single new parameter called foo:
 *
@@ -42,7 +42,7 @@
 *       there are about 6 switch statements that need at least a
 *       case label added.
 *   12) Add cases to two giant switch statements in emc.cc, associated
-*       with looking up and formating the command.
+*       with looking up and formatting the command.
 *
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
@@ -59,11 +59,12 @@
 #include "rtapi.h"
 #include "hal.h"
 #include "motion.h"
-#include "motion_debug.h"
-#include "motion_struct.h"
+#include "tp.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
 #include "motion_types.h"
+#include "homing.h"
+#include "axis.h"
 
 #include "tp_debug.h"
 
@@ -76,28 +77,6 @@ extern int motion_num_spindles;
 
 static int rehomeAll;
 
-/* loops through the active joints and checks if any are not homed */
-int checkAllHomed(void)
-{
-    int joint_num;
-    emcmot_joint_t *joint;
-
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-	/* point to joint data */
-	joint = &joints[joint_num];
-	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
-	    /* if joint is not active, don't even look at its limits */
-	    continue;
-	}
-	if (!GET_JOINT_HOMED_FLAG(joint)) {
-	    /* if any of the joints is not homed return false */
-	    return 0;
-	}
-    }
-    /* return true if all active joints are homed*/
-    return 1;
-}
-
 /* limits_ok() returns 1 if none of the hard limits are set,
    0 if any are set. Called on a linear and circular move. */
 STATIC int limits_ok(void)
@@ -105,7 +84,7 @@ STATIC int limits_ok(void)
     int joint_num;
     emcmot_joint_t *joint;
 
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 	if (!GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -141,7 +120,7 @@ STATIC int joint_jog_ok(int joint_num, double vel)
 	   we skip the following tests... */
 	return 1;
     }
-    if (joint_num < 0 || joint_num >= emcmotConfig->numJoints) {
+    if (joint_num < 0 || joint_num >= ALL_JOINTS) {
 	reportError(_("Can't jog invalid joint number %d."), joint_num);
 	return 0;
     }
@@ -155,7 +134,7 @@ STATIC int joint_jog_ok(int joint_num, double vel)
 	    joint_num);
 	return 0;
     }
-    refresh_jog_limits(joint);
+    refresh_jog_limits(joint,joint_num);
     if ( vel > 0.0 && (joint->pos_cmd > joint->max_jog_limit) ) {
 	reportError(_("Can't jog joint %d further past max soft limit."),
 	    joint_num);
@@ -174,12 +153,14 @@ STATIC int joint_jog_ok(int joint_num, double vel)
    or not.  If not homed, the limits are relative to the current
    position by +/- the full range of travel.  Once homed, they
    are absolute.
+
+   homing api requires joint_num
 */
-void refresh_jog_limits(emcmot_joint_t *joint)
+void refresh_jog_limits(emcmot_joint_t *joint, int joint_num)
 {
     double range;
 
-    if (GET_JOINT_HOMED_FLAG(joint)) {
+    if (get_homed(joint_num) ) {
 	/* if homed, set jog limits using soft limits */
 	joint->max_jog_limit = joint->max_pos_limit;
 	joint->min_jog_limit = joint->min_pos_limit;
@@ -191,32 +172,16 @@ void refresh_jog_limits(emcmot_joint_t *joint)
     }
 }
 
-static int check_axis_constraint(double target, int id, char *move_type,
-                                 int axis_no, char axis_name) {
-    int in_range = 1;
-    double nl = axes[axis_no].min_pos_limit;
-    double pl = axes[axis_no].max_pos_limit;
-
-    double eps = 1e-308;
-
-    if (    (fabs(target) < eps)
-         && (fabs(axes[axis_no].min_pos_limit) < eps)
-         && (fabs(axes[axis_no].max_pos_limit) < eps) ) { return 1;}
-
-    if(target < (nl - 0.000000000001)) { // see pull request #1047
-        in_range = 0;
-        reportError(_("%s move on line %d would exceed %c's %s limit"),
-                    move_type, id, axis_name, _("negative"));
+void apply_spindle_limits(spindle_status_t *s){
+    if (s->speed > 0) {
+        if (s->speed > s->max_pos_speed) s->speed = s->max_pos_speed;
+        if (s->speed < s->min_pos_speed) s->speed = s->min_pos_speed;
+    } else if (s->speed < 0) {
+        if (s->speed < s->min_neg_speed) s->speed = s->min_neg_speed;
+        if (s->speed > s->max_neg_speed) s->speed = s->max_neg_speed;
     }
-
-    if(target > (pl + 0.000000000001)) { // see pull request #1047
-        in_range = 0;
-        reportError(_("%s move on line %d would exceed %c's %s limit"),
-                    move_type, id, axis_name, _("positive"));
-    }
-
-    return in_range;
 }
+
 
 /* inRange() returns non-zero if the position lies within the joint
    limits, or 0 if not.  It also reports an error for each joint limit
@@ -224,45 +189,57 @@ static int check_axis_constraint(double target, int id, char *move_type,
 STATIC int inRange(EmcPose pos, int id, char *move_type)
 {
     double joint_pos[EMCMOT_MAX_JOINTS];
-    int joint_num;
+    int joint_num, axis_num;
     emcmot_joint_t *joint;
     int in_range = 1;
+    int failing_axes[EMCMOT_MAX_AXIS];
+    double targets[EMCMOT_MAX_AXIS];
+    const char axis_letters[] = "XYZABCUVW";
 
-    if(check_axis_constraint(pos.tran.x, id, move_type, 0, 'X') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.tran.y, id, move_type, 1, 'Y') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.tran.z, id, move_type, 2, 'Z') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.a, id, move_type, 3, 'A') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.b, id, move_type, 4, 'B') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.c, id, move_type, 5, 'C') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.u, id, move_type, 6, 'U') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.v, id, move_type, 7, 'V') == 0) 
-        in_range = 0;
-    if(check_axis_constraint(pos.w, id, move_type, 8, 'W') == 0) 
-        in_range = 0;
+    if (EMCMOT_MAX_AXIS != 9) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "BUG: %s(): invalid number of axes defined", __func__);
+    } else {
+        targets[0] = pos.tran.x;
+        targets[1] = pos.tran.y;
+        targets[2] = pos.tran.z;
+        targets[3] = pos.a;
+        targets[4] = pos.b;
+        targets[5] = pos.c;
+        targets[6] = pos.u;
+        targets[7] = pos.v;
+        targets[8] = pos.w;
+        axis_check_constraints(targets, failing_axes);
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num += 1) {
+            if (failing_axes[axis_num] == -1) {
+                reportError(_("%s move on line %d would exceed %c's %s limit"),
+                                move_type, id, axis_letters[axis_num], _("negative"));
+                in_range = 0;
+            }
+            if (failing_axes[axis_num] == 1) {
+                reportError(_("%s move on line %d would exceed %c's %s limit"),
+                                move_type, id, axis_letters[axis_num], _("positive"));
+                in_range = 0;
+            }
+        }
+    }
 
     /* Now, check that the endpoint puts the joints within their limits too */
 
     /* fill in all joints with 0 */
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
-	joint_pos[joint_num] = 0.0;
+    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
+        joint = &joints[joint_num];
+        joint_pos[joint_num] = joint->pos_cmd;
     }
 
     /* now fill in with real values, for joints that are used */
-    if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) < 0)
+    if (kinematicsInverse(&pos, joint_pos, &iflags, &fflags) != 0)
     {
 	reportError(_("%s move on line %d fails kinematicsInverse"),
 		    move_type, id);
 	return 0;
     }
 
-    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
 
@@ -292,31 +269,27 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
     return in_range;
 }
 
-/* clearHomes() will clear the homed flags for joints that have moved
+/* legacy note:
+   clearHomes() will clear the homed flags for joints that have moved
    since homing, outside coordinated control, for machines with no
    forward kinematics. This is used in conjunction with the rehomeAll
    flag, which is set for any coordinated move that in general will
    result in all joints moving. The flag is consulted whenever a joint
    is jogged in joint mode, so that either its flag can be cleared if
-   no other joints have moved, or all have to be cleared. */
+   no other joints have moved, or all have to be cleared.
+
+   NOTE: dubious usefulness (inverse-only kins etc.)
+*/
 void clearHomes(int joint_num)
 {
     int n;
-    emcmot_joint_t *joint;
-
     if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
 	if (rehomeAll) {
-	    for (n = 0; n < emcmotConfig->numJoints; n++) {
-		/* point at joint data */
-		joint = &(joints[n]);
-		/* clear flag */
-		SET_JOINT_HOMED_FLAG(joint, 0);
+	    for (n = 0; n < ALL_JOINTS; n++) {
+                set_joint_homed(joint_num,0);
 	    }
 	} else {
-	    /* point at joint data */
-	    joint = &joints[joint_num];
-	    /* clear flag */
-	    SET_JOINT_HOMED_FLAG(joint, 0);
+            set_joint_homed(joint_num,0);
 	}
     }
 }
@@ -349,11 +322,11 @@ int emcmotGetRotaryIsUnlocked(int jnum) {
 
 /*! \function emcmotDioWrite()
 
-  sets or clears a HAL DIO pin, 
+  sets or clears a HAL DIO pin,
   pins get exported at runtime
-  
+
   index is valid from 0 to emcmotConfig->num_dio <= EMCMOT_MAX_DIO, defined in emcmotcfg.h
-  
+
 */
 void emcmotDioWrite(int index, char value)
 {
@@ -370,11 +343,11 @@ void emcmotDioWrite(int index, char value)
 
 /*! \function emcmotAioWrite()
 
-  sets or clears a HAL AIO pin, 
+  sets or clears a HAL AIO pin,
   pins get exported at runtime
-  
+
   index is valid from 0 to emcmotConfig->num_aio <= EMCMOT_MAX_AIO, defined in emcmotcfg.h
-  
+
 */
 void emcmotAioWrite(int index, double value)
 {
@@ -407,10 +380,9 @@ STATIC int is_feed_type(int motion_type)
   */
 void emcmotCommandHandler(void *arg, long servo_period)
 {
-    int joint_num, axis_num, spindle_num;
-    int n,s0,s1; 
+    int joint_num, spindle_num;
+    int n,s0,s1;
     emcmot_joint_t *joint;
-    emcmot_axis_t *axis;
     double tmp1;
     emcmot_comp_entry_t *comp_entry;
     char issue_atspeed = 0;
@@ -419,13 +391,13 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
     /* check for split read */
     if (emcmotCommand->head != emcmotCommand->tail) {
-	emcmotDebug->split++;
+	emcmotInternal->split++;
 	return;			/* not really an error */
     }
     if (emcmotCommand->commandNum != emcmotStatus->commandNumEcho) {
 	/* increment head count-- we'll be modifying emcmotStatus */
 	emcmotStatus->head++;
-	emcmotDebug->head++;
+	emcmotInternal->head++;
 
 	/* got a new command-- echo command and number... */
 	emcmotStatus->commandEcho = emcmotCommand->command;
@@ -433,13 +405,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
 	/* clear status value by default */
 	emcmotStatus->commandStatus = EMCMOT_COMMAND_OK;
-	
+
 	/* ...and process command */
 
         joint = 0;
-        axis  = 0;
         joint_num = emcmotCommand->joint;
-        axis_num  = emcmotCommand->axis;
 
 //-----------------------------------------------------------------------------
 // joints_axes test for unexpected conditions
@@ -449,7 +419,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
             || emcmotCommand->command == EMCMOT_JOG_INCR
             || emcmotCommand->command == EMCMOT_JOG_ABS
            ) {
-           if (GET_MOTION_TELEOP_FLAG() && axis_num < 0) {
+           if (GET_MOTION_TELEOP_FLAG() && (emcmotCommand->axis < 0)) {
                emsg = "command.com teleop: unexpected negative axis_num";
                if (joint_num >= 0) {
                    emsg = "Mode is TELEOP, cannot jog joint";
@@ -458,25 +428,24 @@ void emcmotCommandHandler(void *arg, long servo_period)
            }
            if (!GET_MOTION_TELEOP_FLAG() && joint_num < 0) {
                emsg = "command.com !teleop: unexpected negative joint_num";
-               if (axis_num >= 0) {
+               if (emcmotCommand->axis >= 0) {
                    emsg = "Mode is NOT TELEOP, cannot jog axis coordinate";
                }
                abort = 1;
            }
            if (   !GET_MOTION_TELEOP_FLAG()
-               && (joint_num >= emcmotConfig->numJoints || joint_num <  0)
+               && (joint_num >= ALL_JOINTS || joint_num <  0)
               ) {
                rtapi_print_msg(RTAPI_MSG_ERR,
                     "Joint jog requested for undefined joint number=%d (min=0,max=%d)",
-                    joint_num,emcmotConfig->numJoints-1);
+                    joint_num,ALL_JOINTS-1);
                return;
            }
            if (GET_MOTION_TELEOP_FLAG()) {
-                axis = &axes[axis_num];
-                if ( (axis_num >= 0) && (axis->locking_joint >= 0) ) {
+                if ( (emcmotCommand->axis >= 0) && (axis_get_locking_joint(emcmotCommand->axis) >= 0) ) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
                     "Cannot jog a locking indexer AXIS_%c,joint_num=%d\n",
-                    "XYZABCUVW"[axis_num],axis->locking_joint);
+                    "XYZABCUVW"[emcmotCommand->axis], axis_get_locking_joint(emcmotCommand->axis));
                     return;
                 }
            }
@@ -497,7 +466,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
           return;
         }
 
-        if (joint_num >= 0 && joint_num < emcmotConfig->numJoints) {
+        if (joint_num >= 0 && joint_num < ALL_JOINTS) {
             joint = &joints[joint_num];
             if (   (   emcmotCommand->command == EMCMOT_JOG_CONT
                     || emcmotCommand->command == EMCMOT_JOG_INCR
@@ -505,23 +474,20 @@ void emcmotCommandHandler(void *arg, long servo_period)
                    )
                 && !(GET_MOTION_TELEOP_FLAG())
                 && get_home_is_synchronized(joint_num)
-                && !emcmotStatus->homing_active
+                && !get_homing_is_active()
                ) {
                   if (emcmotConfig->kinType == KINEMATICS_IDENTITY) {
                       rtapi_print_msg(RTAPI_MSG_ERR,
                       "Homing is REQUIRED to jog requested coordinate\n"
                       "because joint (%d) home_sequence is synchronized (%d)\n"
-                      ,joint_num,joint->home_sequence);
+                      ,joint_num,get_home_sequence(joint_num));
                   } else {
                       rtapi_print_msg(RTAPI_MSG_ERR,
                       "Cannot jog joint %d because home_sequence is synchronized (%d)\n"
-                      ,joint_num,joint->home_sequence);
+                      ,joint_num,get_home_sequence(joint_num));
                   }
                   return;
             }
-        }
-        if (axis_num >= 0 && axis_num < EMCMOT_MAX_AXIS) {
-            axis = &axes[axis_num];
         }
 	switch (emcmotCommand->command) {
 	case EMCMOT_ABORT:
@@ -537,29 +503,24 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    /* check for coord or free space motion active */
 	    if (GET_MOTION_TELEOP_FLAG()) {
-		for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-		    /* point to joint struct */
-		    axis = &axes[axis_num];
-		    /* tell teleop planner to stop */
-		    axis->teleop_tp.enable = 0;
-                }
+                axis_jog_abort_all();
 	    } else if (GET_MOTION_COORD_FLAG()) {
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 	    } else {
-		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+		for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 		    /* point to joint struct */
 		    joint = &joints[joint_num];
 		    /* tell joint planner to stop */
 		    joint->free_tp.enable = 0;
 		    /* stop homing if in progress */
-		    if ( joint->home_state != HOME_IDLE ) {
-			joint->home_state = HOME_ABORT;
+		    if ( ! get_home_is_idle(joint_num)) {
+			set_home_abort(joint_num);
 		    }
 		}
 	    }
             SET_MOTION_ERROR_FLAG(0);
 	    /* clear joint errors (regardless of mode) */
-	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+	    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 		/* point to joint struct */
 		joint = &joints[joint_num];
 		/* update status flags */
@@ -576,8 +537,9 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 	    if (GET_MOTION_TELEOP_FLAG()) {
 		/* tell teleop planner to stop */
-		if (axis != 0) axis->teleop_tp.enable = 0;
-		/* do nothing in teleop mode */
+		if ((emcmotCommand->axis >= 0) && (emcmotCommand->axis < EMCMOT_MAX_AXIS)) {
+                    axis_jog_abort(emcmotCommand->axis);
+                }
 	    } else if (GET_MOTION_COORD_FLAG()) {
 		/* do nothing in coord mode */
 	    } else {
@@ -586,8 +548,8 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		/* validate joint */
 		if (joint == 0) { break; }
 		/* stop homing if in progress */
-		if ( joint->home_state != HOME_IDLE ) {
-		    joint->home_state = HOME_ABORT;
+		if ( !get_home_is_idle(joint_num) ) {
+                    set_home_abort(joint_num);
 		}
 		/* update status flags */
 		SET_JOINT_ERROR_FLAG(joint, 0);
@@ -595,19 +557,16 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_FREE:
-            for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-              axis = &axes[axis_num];
-              if (axis != 0) { axis->teleop_tp.enable = 0; }
-            }
+            axis_jog_abort_all();
 	    /* change the mode to free mode motion (joint mode) */
 	    /* can be done at any time */
 	    /* this code doesn't actually make the transition, it merely
 	       requests the transition by clearing a couple of flags */
-	    /* reset the emcmotDebug->coordinating flag to defer transition
+	    /* reset the emcmotInternal->coordinating flag to defer transition
 	       to controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "FREE");
-	    emcmotDebug->coordinating = 0;
-	    emcmotDebug->teleoperating = 0;
+	    emcmotInternal->coordinating = 0;
+	    emcmotInternal->teleoperating = 0;
 	    break;
 
 	case EMCMOT_COORD:
@@ -616,17 +575,17 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* this code doesn't actually make the transition, it merely
 	       tests a condition and then sets a flag requesting the
 	       transition */
-	    /* set the emcmotDebug->coordinating flag to defer transition to
+	    /* set the emcmotInternal->coordinating flag to defer transition to
 	       controller cycle */
 
 	    rtapi_print_msg(RTAPI_MSG_DBG, "COORD");
-	    emcmotDebug->coordinating = 1;
-	    emcmotDebug->teleoperating = 0;
+	    emcmotInternal->coordinating = 1;
+	    emcmotInternal->teleoperating = 0;
 	    if (emcmotConfig->kinType != KINEMATICS_IDENTITY) {
-		if (!checkAllHomed()) {
+		if (!get_allhomed()) {
 		    reportError
 			(_("all joints must be homed before going into coordinated mode"));
-		    emcmotDebug->coordinating = 0;
+		    emcmotInternal->coordinating = 0;
 		    break;
 		}
 	    }
@@ -639,14 +598,17 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
 	case EMCMOT_SET_NUM_JOINTS:
 	    /* set the global NUM_JOINTS, which must be between 1 and
-	       EMCMOT_MAX_JOINTS, inclusive */
+	       EMCMOT_MAX_JOINTS, inclusive.
+	       Called  by task using [KINS]JOINTS= which is typically
+	       the same value as the motmod num_joints= parameter
+	    */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_NUM_JOINTS");
 	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->joint);
 	    if (( emcmotCommand->joint <= 0 ) ||
 		( emcmotCommand->joint > EMCMOT_MAX_JOINTS )) {
 		break;
 	    }
-	    emcmotConfig->numJoints = emcmotCommand->joint;
+	    ALL_JOINTS = emcmotCommand->joint;
 	    break;
 
 	case EMCMOT_SET_NUM_SPINDLES:
@@ -687,14 +649,16 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    if (joint == 0) {
 		break;
 	    }
-	    joint->home_offset = emcmotCommand->offset;
-	    joint->home = emcmotCommand->home;
-	    joint->home_final_vel = emcmotCommand->home_final_vel;
-	    joint->home_search_vel = emcmotCommand->search_vel;
-	    joint->home_latch_vel = emcmotCommand->latch_vel;
-	    joint->home_flags = emcmotCommand->flags;
-	    joint->home_sequence = emcmotCommand->home_sequence;
-	    joint->volatile_home = emcmotCommand->volatile_home;
+	    set_joint_homing_params(joint_num,
+	                            emcmotCommand->offset,
+	                            emcmotCommand->home,
+	                            emcmotCommand->home_final_vel,
+	                            emcmotCommand->search_vel,
+	                            emcmotCommand->latch_vel,
+	                            emcmotCommand->flags,
+	                            emcmotCommand->home_sequence,
+	                            emcmotCommand->volatile_home
+	                           );
 	    break;
 
 	case EMCMOT_UPDATE_JOINT_HOMING_PARAMS:
@@ -704,9 +668,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    if (joint == 0) {
 		break;
 	    }
-	    joint->home_offset = emcmotCommand->offset;
-	    joint->home = emcmotCommand->home;
-	    joint->home_sequence = emcmotCommand->home_sequence;
+	    update_joint_homing_params(joint_num,
+	                               emcmotCommand->offset,
+	                               emcmotCommand->home,
+	                               emcmotCommand->home_sequence
+	                               );
 	    break;
 
 	case EMCMOT_OVERRIDE_LIMITS:
@@ -722,7 +688,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    } else {
 		rtapi_print_msg(RTAPI_MSG_DBG, "override on");
 		emcmotStatus->overrideLimitMask = 0;
-		for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+		for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 		    /* point at joint data */
 		    joint = &joints[joint_num];
 		    /* only override limits that are currently tripped */
@@ -734,8 +700,8 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    }
 		}
 	    }
-	    emcmotDebug->overriding = 0;
-	    for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+	    emcmotInternal->overriding = 0;
+	    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 		/* point at joint data */
 		joint = &joints[joint_num];
 		/* clear joint errors */
@@ -814,7 +780,12 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (emcmotStatus->homing_active) {
+            // cannot jog if jog-inhibit is TRUE
+            if (*(emcmot_hal_data->jog_inhibit)){
+                    reportError(_("Cannot jog while jog-inhibit is active."));
+                break;
+            }
+	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -824,7 +795,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    /* can't do two kinds of jog at once */
 		    break;
 	        }
-                if (joint->home_flags & HOME_UNLOCK_FIRST) {
+                if (get_home_needs_unlock_first(joint_num) ) {
                     reportError("Can't jog locking joint_num=%d",joint_num);
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
@@ -835,7 +806,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    break;
 	        }
 	        /* set destination of jog */
-	        refresh_jog_limits(joint);
+	        refresh_jog_limits(joint,joint_num);
 	        if (emcmotCommand->vel > 0.0) {
 		    joint->free_tp.pos_cmd = joint->max_jog_limit;
 	        } else {
@@ -849,10 +820,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        joint->kb_jjog_active = 1;
 	        /* and let it go */
 	        joint->free_tp.enable = 1;
-                for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-                    axis = &axes[axis_num];
-                    if (axis != 0) { axis->teleop_tp.enable = 0; }
-                }
+                axis_jog_abort_all();
 	        /*! \todo FIXME - should we really be clearing errors here? */
 	        SET_JOINT_ERROR_FLAG(joint, 0);
 	        /* clear joints homed flag(s) if we don't have forward kins.
@@ -862,36 +830,12 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP  JOG_CONT
-                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
-                axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
-                if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
-                    /* here: set pos_cmd to a big number so that with combined
-                    *        teleop jog plus external offsets the soft limits
-                    *        can always be reached
-                    */
-                    if (emcmotCommand->vel > 0.0) {
-                        axis->teleop_tp.pos_cmd =  1e12; // 1T halscope limit
-                    } else {
-                        axis->teleop_tp.pos_cmd = -1e12; // 1T halscope limit
-                    }
-                } else {
-                    if (emcmotCommand->vel > 0.0) {
-                        axis->teleop_tp.pos_cmd = axis->max_pos_limit;
-                    } else {
-                        axis->teleop_tp.pos_cmd = axis->min_pos_limit;
-                    }
-                }
-
-	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
-	        axis->teleop_tp.max_acc = axis->acc_limit;
-	        axis->kb_ajog_active = 1;
-                for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+                for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
                     joint = &joints[joint_num];
                     if (joint != 0) { joint->free_tp.enable = 0; }
                 }
-	        axis->teleop_tp.enable = 1;
+                axis_jog_cont(emcmotCommand->axis, emcmotCommand->vel, servo_period);
             }
 	    break;
 
@@ -904,7 +848,12 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (emcmotStatus->homing_active) {
+            // cannot jog if jog-inhibit is TRUE
+            if (*(emcmot_hal_data->jog_inhibit)){
+                    reportError(_("Cannot jog while jog-inhibit is active."));
+                break;
+            }
+	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joint while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -914,7 +863,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    /* can't do two kinds of jog at once */
 		    break;
 	        }
-                if (joint->home_flags & HOME_UNLOCK_FIRST) {
+                if (get_home_needs_unlock_first(joint_num) ) {
                     reportError("Can't jog locking joint_num=%d",joint_num);
                     SET_JOINT_ERROR_FLAG(joint, 1);
                     break;
@@ -931,7 +880,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    tmp1 = joint->free_tp.pos_cmd - emcmotCommand->offset;
 	        }
 	        /* don't jog past limits */
-	        refresh_jog_limits(joint);
+	        refresh_jog_limits(joint,joint_num);
 	        if (tmp1 > joint->max_jog_limit) {
 		    break;
 	        }
@@ -948,10 +897,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        joint->kb_jjog_active = 1;
 	        /* and let it go */
 	        joint->free_tp.enable = 1;
-                for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-                    axis = &axes[axis_num];
-                    if (axis != 0) { axis->teleop_tp.enable = 0; }
-                }
+                axis_jog_abort_all();
 	        SET_JOINT_ERROR_FLAG(joint, 0);
 	        /* clear joint homed flag(s) if we don't have forward kins.
 	           Otherwise, a transition into coordinated mode will incorrectly
@@ -960,31 +906,9 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        clearHomes(joint_num);
             } else {
                 // TELEOP JOG_INCR
-                double ext_offset_epsilon = TINY_DP(axis->ext_offset_tp.max_acc,servo_period);
                 if (GET_MOTION_ERROR_FLAG()) { break; }
-	        if (emcmotCommand->vel > 0.0) {
-		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
-	        } else {
-		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
-	        }
-                axis_hal_t *axis_data = &(emcmot_hal_data->axis[axis_num]);
-                // a fixed epsilon is used here for convenience
-                // it is not the same as the epsilon used as a stopping 
-                // criterion in control.c
-                if (   axis->ext_offset_tp.enable
-                    && (fabs(*(axis_data->external_offset)) > ext_offset_epsilon)) {
-                    // external_offsets: soft limit enforcement is in control.c
-                } else {
-                    if (tmp1 > axis->max_pos_limit) { break; }
-                    if (tmp1 < axis->min_pos_limit) { break; }
-                }
-
-	        axis->teleop_tp.pos_cmd = tmp1;
-	        axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
-	        axis->teleop_tp.max_acc = axis->acc_limit;
-	        axis->kb_ajog_active = 1;
-	        axis->teleop_tp.enable = 1;
-                for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+                axis_jog_incr(emcmotCommand->axis, emcmotCommand->offset, emcmotCommand->vel, servo_period);
+                for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
                     joint = &joints[joint_num];
                     if (joint != 0) { joint->free_tp.enable = 0; }
                 }
@@ -1003,7 +927,12 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
 	    }
-	    if (emcmotStatus->homing_active) {
+            // cannot jog if jog-inhibit is TRUE
+            if (*(emcmot_hal_data->jog_inhibit)){
+                    reportError(_("Cannot jog while jog-inhibit is active."));
+                break;
+            }
+	    if ( get_homing_is_active() ) {
 		reportError(_("Can't jog any joints while homing."));
 		SET_JOINT_ERROR_FLAG(joint, 1);
 		break;
@@ -1022,7 +951,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
                 /*! \todo FIXME-- use 'goal' instead */
                 joint->free_tp.pos_cmd = emcmotCommand->offset;
                 /* don't jog past limits */
-                refresh_jog_limits(joint);
+                refresh_jog_limits(joint,joint_num);
                 if (joint->free_tp.pos_cmd > joint->max_jog_limit) {
                     joint->free_tp.pos_cmd = joint->max_jog_limit;
                 }
@@ -1044,22 +973,9 @@ void emcmotCommandHandler(void *arg, long servo_period)
                    since homing, otherwise just do this one */
                 clearHomes(joint_num);
             } else {
-                axis->kb_ajog_active = 1;
                 // TELEOP JOG_ABS
-                if (axis->wheel_ajog_active) { break; }
-	        if (emcmotCommand->vel > 0.0) {
-		    tmp1 = axis->teleop_tp.pos_cmd + emcmotCommand->offset;
-	        } else {
-		    tmp1 = axis->teleop_tp.pos_cmd - emcmotCommand->offset;
-	        }
-	        if (tmp1 > axis->max_pos_limit) { break; }
-	        if (tmp1 < axis->min_pos_limit) { break; }
-                axis->teleop_tp.pos_cmd = tmp1;
-                axis->teleop_tp.max_vel = fabs(emcmotCommand->vel);
-                axis->teleop_tp.max_acc = axis->acc_limit;
-                axis->kb_ajog_active = 1;
-                axis->teleop_tp.enable = 1;
-                for (joint_num = 0; joint_num < emcmotConfig->numJoints; joint_num++) {
+                axis_jog_abs(emcmotCommand->axis, emcmotCommand->offset, emcmotCommand->vel);
+                for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
                    joint = &joints[joint_num];
                    if (joint != 0) { joint->free_tp.enable = 0; }
                 }
@@ -1068,17 +984,17 @@ void emcmotCommandHandler(void *arg, long servo_period)
             break;
 
 	case EMCMOT_SET_TERM_COND:
-	    /* sets termination condition for motion emcmotDebug->coord_tp */
+	    /* sets termination condition for motion emcmotInternal->coord_tp */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_TERM_COND");
-	    tpSetTermCond(&emcmotDebug->coord_tp, emcmotCommand->termCond, emcmotCommand->tolerance);
+	    tpSetTermCond(&emcmotInternal->coord_tp, emcmotCommand->termCond, emcmotCommand->tolerance);
 	    break;
 
 	case EMCMOT_SET_SPINDLESYNC:
-		tpSetSpindleSync(&emcmotDebug->coord_tp, emcmotCommand->spindle, emcmotCommand->spindlesync, emcmotCommand->flags);
+		tpSetSpindleSync(&emcmotInternal->coord_tp, emcmotCommand->spindle, emcmotCommand->spindlesync, emcmotCommand->flags);
 		break;
 
 	case EMCMOT_SET_LINE:
-	    /* emcmotDebug->coord_tp up a linear move */
+	    /* emcmotInternal->coord_tp up a linear move */
 	    /* requires motion enabled, coordinated mode, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_LINE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
@@ -1089,13 +1005,13 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Linear")) {
 		reportError(_("invalid params in linear command"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do linear move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
@@ -1109,18 +1025,24 @@ void emcmotCommandHandler(void *arg, long servo_period)
 			emcmotStatus->atspeed_next_feed = 1;
 		}
 
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-        int res_addline = tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, 
-                                emcmotCommand->vel, emcmotCommand->ini_maxvel, 
-                                emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed,
-                                emcmotCommand->turn);
+	    /* append it to the emcmotInternal->coord_tp */
+	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
+	    int res_addline = tpAddLine(&emcmotInternal->coord_tp,
+					emcmotCommand->pos,
+					emcmotCommand->motion_type,
+					emcmotCommand->vel,
+					emcmotCommand->ini_maxvel,
+					emcmotCommand->acc,
+					emcmotStatus->enables_new,
+					issue_atspeed,
+					emcmotCommand->turn,
+					emcmotCommand->tag);
         //KLUDGE ignore zero length line
         if (res_addline < 0) {
             reportError(_("can't add linear move at line %d, error code %d"),
                     emcmotCommand->id, res_addline);
             emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-            tpAbort(&emcmotDebug->coord_tp);
+            tpAbort(&emcmotInternal->coord_tp);
             SET_MOTION_ERROR_FLAG(1);
             break;
         } else if (res_addline != 0) {
@@ -1140,7 +1062,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_SET_CIRCLE:
-	    /* emcmotDebug->coord_tp up a circular move */
+	    /* emcmotInternal->coord_tp up a circular move */
 	    /* requires coordinated mode, enable on, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_CIRCLE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
@@ -1150,13 +1072,13 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Circular")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do circular move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
@@ -1164,18 +1086,19 @@ void emcmotCommandHandler(void *arg, long servo_period)
                 issue_atspeed = 1;
                 emcmotStatus->atspeed_next_feed = 0;
             }
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    int res_addcircle = tpAddCircle(&emcmotDebug->coord_tp, emcmotCommand->pos,
+	    /* append it to the emcmotInternal->coord_tp */
+	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
+	    int res_addcircle = tpAddCircle(&emcmotInternal->coord_tp, emcmotCommand->pos,
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                            emcmotCommand->acc, emcmotStatus->enables_new, issue_atspeed);
+                            emcmotCommand->acc, emcmotStatus->enables_new,
+			    issue_atspeed, emcmotCommand->tag);
         if (res_addcircle < 0) {
             reportError(_("can't add circular move at line %d, error code %d"),
                     emcmotCommand->id, res_addcircle);
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
         } else if (res_addcircle != 0) {
@@ -1200,7 +1123,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_VEL");
 	    emcmotStatus->vel = emcmotCommand->vel;
-	    tpSetVmax(&emcmotDebug->coord_tp, emcmotStatus->vel, emcmotCommand->ini_maxvel);
+	    tpSetVmax(&emcmotInternal->coord_tp, emcmotStatus->vel, emcmotCommand->ini_maxvel);
 	    break;
 
 	case EMCMOT_SET_VEL_LIMIT:
@@ -1209,7 +1132,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* set the absolute max velocity for all subsequent moves */
 	    /* can do it at any time */
 	    emcmotConfig->limitVel = emcmotCommand->vel;
-	    tpSetVlimit(&emcmotDebug->coord_tp, emcmotConfig->limitVel);
+	    tpSetVlimit(&emcmotInternal->coord_tp, emcmotConfig->limitVel);
 	    break;
 
 	case EMCMOT_SET_JOINT_VEL_LIMIT:
@@ -1243,14 +1166,14 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* can do it at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_ACCEL");
 	    emcmotStatus->acc = emcmotCommand->acc;
-	    tpSetAmax(&emcmotDebug->coord_tp, emcmotStatus->acc);
+	    tpSetAmax(&emcmotInternal->coord_tp, emcmotStatus->acc);
 	    break;
 
 	case EMCMOT_PAUSE:
 	    /* pause the motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PAUSE");
-	    tpPause(&emcmotDebug->coord_tp);
+	    tpPause(&emcmotInternal->coord_tp);
 	    emcmotStatus->paused = 1;
 	    break;
 
@@ -1258,22 +1181,22 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* run motion in reverse*/
 	    /* only allowed during a pause */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "REVERSE");
-	    tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_REVERSE);
+	    tpSetRunDir(&emcmotInternal->coord_tp, TC_DIR_REVERSE);
 	    break;
 
 	case EMCMOT_FORWARD:
 	    /* run motion in reverse*/
 	    /* only allowed during a pause */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "FORWARD");
-	    tpSetRunDir(&emcmotDebug->coord_tp, TC_DIR_FORWARD);
+	    tpSetRunDir(&emcmotInternal->coord_tp, TC_DIR_FORWARD);
 	    break;
 
 	case EMCMOT_RESUME:
 	    /* resume paused motion */
 	    /* can happen at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RESUME");
-	    emcmotDebug->stepping = 0;
-	    tpResume(&emcmotDebug->coord_tp);
+	    emcmotStatus->stepping = 0;
+	    tpResume(&emcmotInternal->coord_tp);
 	    emcmotStatus->paused = 0;
 	    break;
 
@@ -1282,9 +1205,9 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* can happen at any time */
             rtapi_print_msg(RTAPI_MSG_DBG, "STEP");
             if(emcmotStatus->paused) {
-                emcmotDebug->idForStep = emcmotStatus->id;
-                emcmotDebug->stepping = 1;
-                tpResume(&emcmotDebug->coord_tp);
+                emcmotInternal->idForStep = emcmotStatus->id;
+                emcmotStatus->stepping = 1;
+                tpResume(&emcmotInternal->coord_tp);
                 emcmotStatus->paused = 1;
             } else {
 		reportError(_("MOTION: can't STEP while already executing"));
@@ -1372,29 +1295,29 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	case EMCMOT_DISABLE:
 	    /* go into disable */
 	    /* can happen at any time */
-	    /* reset the emcmotDebug->enabling flag to defer disable until
+	    /* reset the emcmotInternal->enabling flag to defer disable until
 	       controller cycle (it *will* be honored) */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "DISABLE");
-	    emcmotDebug->enabling = 0;
+	    emcmotInternal->enabling = 0;
 	    if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
-		emcmotDebug->teleoperating = 0;
-		emcmotDebug->coordinating = 0;
+		emcmotInternal->teleoperating = 0;
+		emcmotInternal->coordinating = 0;
 	    }
 	    break;
 
 	case EMCMOT_ENABLE:
 	    /* come out of disable */
 	    /* can happen at any time */
-	    /* set the emcmotDebug->enabling flag to defer enable until
+	    /* set the emcmotInternal->enabling flag to defer enable until
 	       controller cycle */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "ENABLE");
 	    if ( *(emcmot_hal_data->enable) == 0 ) {
 		reportError(_("can't enable motion, enable input is false"));
 	    } else {
-		emcmotDebug->enabling = 1;
+		emcmotInternal->enabling = 1;
 		if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
-		    emcmotDebug->teleoperating = 0;
-		    emcmotDebug->coordinating = 0;
+		    emcmotInternal->teleoperating = 0;
+		    emcmotInternal->coordinating = 0;
 		}
 	    }
 	    break;
@@ -1468,8 +1391,8 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
 
 	    if(joint_num == -1) { // -1 means home all
-                if(emcmotStatus->homingSequenceState == HOME_SEQUENCE_IDLE) {
-                    emcmotStatus->homingSequenceState = HOME_SEQUENCE_START;
+                if(get_home_sequence_state() == HOME_SEQUENCE_IDLE) {
+                    set_home_sequence_state(HOME_SEQUENCE_START);
                 } else {
                     reportError(_("homing sequence already in progress"));
                 }
@@ -1481,21 +1404,19 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
             // ********************************************************
             // support for other homing modes (one sequence, one joint)
-            if (joint->home_sequence < 0) {
+            if (get_home_sequence(joint_num) < 0) {
                int jj;
-               emcmot_joint_t *syncjoint;
-               emcmotStatus->homingSequenceState = HOME_SEQUENCE_DO_ONE_SEQUENCE;
-               for (jj = 0; jj < emcmotConfig->numJoints; jj++) {
-                  syncjoint = &joints[jj];
-                  if (ABS(syncjoint->home_sequence) == ABS(joint->home_sequence)) {
+               set_home_sequence_state(HOME_SEQUENCE_DO_ONE_SEQUENCE);
+               for (jj = 0; jj < ALL_JOINTS; jj++) {
+                  if (ABS(get_home_sequence(jj)) == ABS(get_home_sequence(joint_num))) {
                       // set home_state for all joints at same neg sequence
-                      syncjoint->home_state = HOME_START;
+                      set_home_start(jj);
                   }
                }
                break;
             } else {
-               emcmotStatus->homingSequenceState = HOME_SEQUENCE_DO_ONE_JOINT;
-               joint->home_state = HOME_START; // one joint only
+               set_home_sequence_state(HOME_SEQUENCE_DO_ONE_JOINT);
+               set_home_start(joint_num); //one joint only
             }
 	    break;
 
@@ -1503,7 +1424,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
             /* unhome the specified joint, or all joints if -1 */
             rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-            
+
             if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
                 && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
                 reportError(_("must be in joint mode or disabled to unhome"));
@@ -1514,10 +1435,10 @@ void emcmotCommandHandler(void *arg, long servo_period)
                 /* we want all or none, so these checks need to all be done first.
                  * but, let's only report the first error.  There might be several,
                  * for instance if a homing sequence is running. */
-                for (n = 0; n < emcmotConfig->numJoints; n++) {
+                for (n = 0; n < ALL_JOINTS; n++) {
                     joint = &joints[n];
                     if(GET_JOINT_ACTIVE_FLAG(joint)) {
-                        if (GET_JOINT_HOMING_FLAG(joint)) {
+                        if (get_homing(n)) {
                             reportError(_("Cannot unhome while homing, joint %d"), n);
                             return;
                         }
@@ -1526,21 +1447,41 @@ void emcmotCommandHandler(void *arg, long servo_period)
                             return;
                         }
                     }
-                }
-                /* we made it through the checks, so unhome them all */
-                for (n = 0; n < emcmotConfig->numJoints; n++) {
-                    joint = &joints[n];
-                    if(GET_JOINT_ACTIVE_FLAG(joint)) {
-                        /* if -2, only unhome the volatile_home joints */
-                        if(joint_num != -2 || joint->volatile_home) {
-                            SET_JOINT_HOMED_FLAG(joint, 0);
-                        }
+                    if (   (n >= NO_OF_KINS_JOINTS)
+                        && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
+                        reportError(_("Cannot unhome extrajoint <%d> with motion enabled"), n);
+                        return;
                     }
                 }
-            } else if (joint_num < emcmotConfig->numJoints) {
+                /* we made it through the checks, so unhome them all */
+                for (n = 0; n < ALL_JOINTS; n++) {
+                    joint = &joints[n];
+                    if(GET_JOINT_ACTIVE_FLAG(joint)) {
+                        /* legacy notes:
+                        4aa4791cd1 (Chris Radek 2008-02-27 21:07:02 +0000 1310)
+                        Unhome support, partly based on a patch by Bryant.
+                        Allow unhoming one joint or all (-1) via nml message.
+                        A special unhome mode (-2) unhomes only the joints
+                        marked as VOLATILE_HOME in the ini.  task could use this
+                        to unhome some joints, based on policy, at various state changes.
+                        This part is unimplemented so far.
+                        */
+                        /* if -2, only unhome the volatile_home joints */
+                        if( (joint_num != -2) || get_home_is_volatile(n) ) {
+                            set_joint_homed(n, 0);
+                        }
+
+                    }
+                }
+            } else if (joint_num < ALL_JOINTS) {
                 /* request was for only one joint */
+                if (   (joint_num >= NO_OF_KINS_JOINTS)
+                    && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
+                    reportError(_("Cannot unhome extrajoint <%d> with motion enabled"), joint_num);
+                    return;
+                }
                 if(GET_JOINT_ACTIVE_FLAG(joint)) {
-                    if (GET_JOINT_HOMING_FLAG(joint)) {
+                    if (get_homing(joint_num) ) {
                         reportError(_("Cannot unhome while homing, joint %d"), joint_num);
                         return;
                     }
@@ -1548,13 +1489,13 @@ void emcmotCommandHandler(void *arg, long servo_period)
                         reportError(_("Cannot unhome while moving, joint %d"), joint_num);
                         return;
                     }
-                    SET_JOINT_HOMED_FLAG(joint, 0);
+                    set_joint_homed(joint_num, 0);
                 } else {
                     reportError(_("Cannot unhome inactive joint %d"), joint_num);
                 }
             } else {
                 /* invalid joint number specified */
-                reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (emcmotConfig->numJoints-1));
+                reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (ALL_JOINTS-1));
                 return;
             }
 
@@ -1568,7 +1509,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
 	case EMCMOT_PROBE:
 	    /* most of this is taken from EMCMOT_SET_LINE */
-	    /* emcmotDebug->coord_tp up a linear move */
+	    /* emcmotInternal->coord_tp up a linear move */
 	    /* requires coordinated mode, enable off, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "PROBE");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
@@ -1578,13 +1519,13 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Probe")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do probe move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!(emcmotCommand->probe_type & 1)) {
@@ -1595,24 +1536,33 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
                 if (probeval != probe_whenclears) {
                     // the probe is already in the state we're seeking.
-                    if(probe_whenclears) 
+                    if(probe_whenclears)
                         reportError(_("Probe is already clear when starting G38.4 or G38.5 move"));
                     else
                         reportError(_("Probe is already tripped when starting G38.2 or G38.3 move"));
 
                     emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-                    tpAbort(&emcmotDebug->coord_tp);
+                    tpAbort(&emcmotInternal->coord_tp);
                     SET_MOTION_ERROR_FLAG(1);
                     break;
                 }
             }
 
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    if (-1 == tpAddLine(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->motion_type, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, 0, -1)) {
+	    /* append it to the emcmotInternal->coord_tp */
+	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
+	    if (-1 == tpAddLine(&emcmotInternal->coord_tp,
+				emcmotCommand->pos,
+				emcmotCommand->motion_type,
+				emcmotCommand->vel,
+				emcmotCommand->ini_maxvel,
+				emcmotCommand->acc,
+				emcmotStatus->enables_new,
+				0,
+				-1,
+				emcmotCommand->tag)) {
 		reportError(_("can't add probe move"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_BAD_EXEC;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
@@ -1628,7 +1578,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 
 	case EMCMOT_RIGID_TAP:
 	    /* most of this is taken from EMCMOT_SET_LINE */
-	    /* emcmotDebug->coord_tp up a linear move */
+	    /* emcmotInternal->coord_tp up a linear move */
 	    /* requires coordinated mode, enable off, not on limits */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "RIGID_TAP");
 	    if (!GET_MOTION_COORD_FLAG() || !GET_MOTION_ENABLE_FLAG()) {
@@ -1638,25 +1588,32 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		break;
 	    } else if (!inRange(emcmotCommand->pos, emcmotCommand->id, "Rigid tap")) {
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else if (!limits_ok()) {
 		reportError(_("can't do rigid tap move with limits exceeded"));
 		emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_PARAMS;
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    }
 
-	    /* append it to the emcmotDebug->coord_tp */
-	    tpSetId(&emcmotDebug->coord_tp, emcmotCommand->id);
-	    int res_addtap = tpAddRigidTap(&emcmotDebug->coord_tp, emcmotCommand->pos, emcmotCommand->vel, emcmotCommand->ini_maxvel, emcmotCommand->acc, emcmotStatus->enables_new, emcmotCommand->scale);
+	    /* append it to the emcmotInternal->tp */
+	    tpSetId(&emcmotInternal->coord_tp, emcmotCommand->id);
+        int res_addtap = tpAddRigidTap(&emcmotInternal->coord_tp,
+                                    emcmotCommand->pos,
+                                    emcmotCommand->vel,
+                                    emcmotCommand->ini_maxvel,
+                                    emcmotCommand->acc,
+                                    emcmotStatus->enables_new,
+                                    emcmotCommand->scale,
+                                    emcmotCommand->tag);
         if (res_addtap < 0) {
             emcmotStatus->atspeed_next_feed = 0; /* rigid tap always waits for spindle to be at-speed */
             reportError(_("can't add rigid tap move at line %d, error code %d"),
                     emcmotCommand->id, res_addtap);
-		tpAbort(&emcmotDebug->coord_tp);
+		tpAbort(&emcmotInternal->coord_tp);
 		SET_MOTION_ERROR_FLAG(1);
 		break;
 	    } else {
@@ -1676,7 +1633,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotAioWrite(emcmotCommand->out, emcmotCommand->minLimit);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
-		tpSetAout(&emcmotDebug->coord_tp, emcmotCommand->out,
+		tpSetAout(&emcmotInternal->coord_tp, emcmotCommand->out,
 		    emcmotCommand->minLimit, emcmotCommand->maxLimit);
 	    }
 	    break;
@@ -1686,11 +1643,32 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    if (emcmotCommand->now) { //we set it right away
 		emcmotDioWrite(emcmotCommand->out, emcmotCommand->start);
 	    } else { // we put it on the TP queue, warning: only room for one in there, any new ones will overwrite
-		tpSetDout(&emcmotDebug->coord_tp, emcmotCommand->out,
+		tpSetDout(&emcmotInternal->coord_tp, emcmotCommand->out,
 		    emcmotCommand->start, emcmotCommand->end);
 	    }
 	    break;
 
+    case EMCMOT_SET_SPINDLE_PARAMS:
+	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_SETUP: spindle %d/%d max_pos %f min_pos %f"
+                "max_neg %f min_neg %f, home: %f, %f, %d\n",
+                        emcmotCommand->spindle, emcmotConfig->numSpindles, emcmotCommand->maxLimit,
+                        emcmotCommand->min_pos_speed, emcmotCommand->max_neg_speed, emcmotCommand->minLimit,
+                        emcmotCommand->search_vel, emcmotCommand->home, emcmotCommand->home_sequence);
+	    spindle_num = emcmotCommand->spindle;
+        if (spindle_num >= emcmotConfig->numSpindles){
+            reportError(_("Attempt to configure non-existent spindle"));
+            emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
+            break;
+        }
+        emcmotStatus->spindle_status[spindle_num].max_pos_speed = emcmotCommand->maxLimit;
+        emcmotStatus->spindle_status[spindle_num].min_neg_speed = emcmotCommand->minLimit;
+        emcmotStatus->spindle_status[spindle_num].max_neg_speed = emcmotCommand->max_neg_speed;
+        emcmotStatus->spindle_status[spindle_num].min_pos_speed = emcmotCommand->min_pos_speed;
+        emcmotStatus->spindle_status[spindle_num].home_search_vel = emcmotCommand->search_vel;
+        emcmotStatus->spindle_status[spindle_num].home_sequence = emcmotCommand->home_sequence;
+        emcmotStatus->spindle_status[spindle_num].increment = emcmotCommand->offset;
+
+        break;
 	case EMCMOT_SPINDLE_ON:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON: spindle %d/%d speed %d\n",
                         emcmotCommand->spindle, emcmotConfig->numSpindles, (int) emcmotCommand->vel);
@@ -1717,11 +1695,13 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_NONE;
 
 	        /* if (emcmotStatus->spindle.orient) { */
-	        /* 	reportError(_("cant turn on spindle during orient in progress")); */
+	        /* 	reportError(_("can\'t turn on spindle during orient in progress")); */
 	        /* 	emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-	        /* 	tpAbort(&emcmotDebug->tp); */
+	        /* 	tpAbort(&emcmotInternal->tp); */
 	        /* 	SET_MOTION_ERROR_FLAG(1); */
 	        /* } else {...} */
+	        rtapi_print_msg(RTAPI_MSG_DBG, "command state %d\n", emcmotCommand->state);
+	        emcmotStatus->spindle_status[n].state = emcmotCommand->state;
 	        emcmotStatus->spindle_status[n].speed = emcmotCommand->vel;
 	        emcmotStatus->spindle_status[n].css_factor = emcmotCommand->ini_maxvel;
 	        emcmotStatus->spindle_status[n].xoffset = emcmotCommand->acc;
@@ -1731,10 +1711,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    emcmotStatus->spindle_status[n].direction = -1;
 	        }
 	        emcmotStatus->spindle_status[n].brake = 0; //disengage brake
+            apply_spindle_limits(&emcmotStatus->spindle_status[n]);
         }
         emcmotStatus->atspeed_next_feed = emcmotCommand->wait_for_spindle_at_speed;
 
-       // check wether it's passed correctly
+       // check whether it's passed correctly
        if (!emcmotStatus->atspeed_next_feed){
            rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_ON without wait-for-atspeed");
        }
@@ -1756,6 +1737,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
         }
         for (n = s0; n<=s1; n++){
 
+	        emcmotStatus->spindle_status[n].state = 0;
 	        emcmotStatus->spindle_status[n].speed = 0;
 	        emcmotStatus->spindle_status[n].direction = 0;
 	        emcmotStatus->spindle_status[n].brake = 1; // engage brake
@@ -1793,10 +1775,10 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	        if (*(emcmot_hal_data->spindle[n].spindle_orient)) {
 		    rtapi_print_msg(RTAPI_MSG_DBG, "orient already in progress");
 
-		    // mah:FIXME unsure wether this is ok or an error
+		    // mah:FIXME unsure whether this is ok or an error
 		    /* reportError(_("orient already in progress")); */
 		    /* emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND; */
-		    /* tpAbort(&emcmotDebug->tp); */
+		    /* tpAbort(&emcmotInternal->tp); */
 		    /* SET_MOTION_ERROR_FLAG(1); */
 	        }
 	        emcmotStatus->spindle_status[n].orient_state = EMCMOT_ORIENT_IN_PROGRESS;
@@ -1832,10 +1814,11 @@ void emcmotCommandHandler(void *arg, long servo_period)
         }
         for (n = s0; n<=s1; n++){
 	        if (emcmotStatus->spindle_status[n].speed > 0) {
-	    	emcmotStatus->spindle_status[n].speed += 100; //FIXME - make the step a HAL parameter
+		    emcmotStatus->spindle_status[n].speed += emcmotStatus->spindle_status[n].increment;
 	        } else if (emcmotStatus->spindle_status[n].speed < 0) {
-		    emcmotStatus->spindle_status[n].speed -= 100;
+		    emcmotStatus->spindle_status[n].speed -= emcmotStatus->spindle_status[n].increment;
 	        }
+            apply_spindle_limits(&emcmotStatus->spindle_status[n]);
         }
 	    break;
 
@@ -1843,16 +1826,25 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_DECREASE");
 	    spindle_num = emcmotCommand->spindle;
         if (spindle_num >= emcmotConfig->numSpindles){
-            reportError(_("Attempt to decreasenon-existent spindle <%d>"),spindle_num);
+            reportError(_("Attempt to decrease non-existent spindle <%d>."),spindle_num);
             emcmotStatus->commandStatus = EMCMOT_COMMAND_INVALID_COMMAND;
             break;
         }
-	    if (emcmotStatus->spindle_status[spindle_num].speed > 100) {
-		emcmotStatus->spindle_status[spindle_num].speed -= 100; //FIXME - make the step a HAL parameter
-	    } else if (emcmotStatus->spindle_status[spindle_num].speed < -100) {
-		emcmotStatus->spindle_status[spindle_num].speed += 100;
-	    }
-	    break;
+        s0 = spindle_num;
+        s1 = spindle_num;
+        if (spindle_num ==-1){
+            s0 = 0;
+            s1 = motion_num_spindles - 1;
+        }
+        for (n = s0; n<=s1; n++){
+            if (emcmotStatus->spindle_status[n].speed > emcmotStatus->spindle_status[n].increment) {
+                emcmotStatus->spindle_status[n].speed -= emcmotStatus->spindle_status[n].increment;
+            } else if (emcmotStatus->spindle_status[n].speed < -1.0 * emcmotStatus->spindle_status[n].increment) {
+                emcmotStatus->spindle_status[n].speed += emcmotStatus->spindle_status[n].increment;
+            }
+            apply_spindle_limits(&emcmotStatus->spindle_status[n]);
+        }
+        break;
 
 	case EMCMOT_SPINDLE_BRAKE_ENGAGE:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SPINDLE_BRAKE_ENGAGE");
@@ -1939,49 +1931,49 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	    /* set the position limits for axis */
 	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_POSITION_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
-	    if (axis == 0) {
-		break;
-	    }
-	    axis->min_pos_limit = emcmotCommand->minLimit;
-	    axis->max_pos_limit = emcmotCommand->maxLimit;
+            if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
+                break;
+            }
+            axis_set_min_pos_limit(emcmotCommand->axis, emcmotCommand->minLimit);
+            axis_set_max_pos_limit(emcmotCommand->axis, emcmotCommand->maxLimit);
 	    break;
 
         case EMCMOT_SET_AXIS_VEL_LIMIT:
 	    /* set the max axis vel */
 	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_VEL_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
-	    if (axis == 0) {
-		break;
-	    }
-	    axis->vel_limit = emcmotCommand->vel;
-	    axis->ext_offset_vel_limit = emcmotCommand->ext_offset_vel;
+            if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
+                break;
+            }
+            axis_set_vel_limit(emcmotCommand->axis, emcmotCommand->vel);
+            axis_set_ext_offset_vel_limit(emcmotCommand->axis, emcmotCommand->ext_offset_vel);
             break;
 
         case EMCMOT_SET_AXIS_ACC_LIMIT:
  	    /* set the max axis acc */
 	    /* can be done at any time */
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LIMITS");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
-	    if (axis == 0) {
-		break;
-	    }
-	    axis->acc_limit = emcmotCommand->acc;
-	    axis->ext_offset_acc_limit = emcmotCommand->ext_offset_acc;
+            if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
+                break;
+            }
+            axis_set_acc_limit(emcmotCommand->axis, emcmotCommand->acc);
+            axis_set_ext_offset_acc_limit(emcmotCommand->axis, emcmotCommand->ext_offset_acc);
             break;
 
         case EMCMOT_SET_AXIS_LOCKING_JOINT:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LOCKING_JOINT");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", axis_num);
+	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", emcmotCommand->axis);
 	    emcmot_config_change();
-	    if (axis == 0) {
-		break;
-	    }
-	    axis->locking_joint = joint_num;
+            if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
+                break;
+            }
+            axis_set_locking_joint(emcmotCommand->axis, joint_num);
             break;
 
 	default:
@@ -2014,7 +2006,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 	/* synch tail count */
 	emcmotStatus->tail = emcmotStatus->head;
 	emcmotConfig->tail = emcmotConfig->head;
-	emcmotDebug->tail = emcmotDebug->head;
+	emcmotInternal->tail = emcmotInternal->head;
 
     }
     /* end of: if-new-command */

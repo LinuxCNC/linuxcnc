@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <signal.h>
 #include <math.h>
 
@@ -35,6 +37,7 @@
 #include "nml_oi.hh"
 #include "timer.hh"
 #include <rtapi_string.h>
+#include "tooldata.hh"
 
 /* Using halui: see the man page */
 
@@ -69,13 +72,13 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,mode_is_joint) /* pin for joint mode is on */ \
 \
     FIELD(hal_bit_t,mist_on) /* pin for starting mist */ \
-    FIELD(hal_bit_t,mist_off) /* pin for stoping mist */ \
+    FIELD(hal_bit_t,mist_off) /* pin for stopping mist */ \
     FIELD(hal_bit_t,mist_is_on) /* pin for mist is on */ \
     FIELD(hal_bit_t,flood_on) /* pin for starting flood */ \
-    FIELD(hal_bit_t,flood_off) /* pin for stoping flood */ \
+    FIELD(hal_bit_t,flood_off) /* pin for stopping flood */ \
     FIELD(hal_bit_t,flood_is_on) /* pin for flood is on */ \
     FIELD(hal_bit_t,lube_on) /* pin for starting lube */ \
-    FIELD(hal_bit_t,lube_off) /* pin for stoping lube */ \
+    FIELD(hal_bit_t,lube_off) /* pin for stopping lube */ \
     FIELD(hal_bit_t,lube_is_on) /* pin for lube is on */ \
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
@@ -106,7 +109,7 @@ static int axis_mask = 0;
     FIELD(hal_float_t,tool_diameter) /* current tool diameter (0 if no tool) */ \
 \
     ARRAY(hal_bit_t,spindle_start,EMCMOT_MAX_SPINDLES+1) /* pin for starting the spindle */ \
-    ARRAY(hal_bit_t,spindle_stop,EMCMOT_MAX_SPINDLES+1) /* pin for stoping the spindle */ \
+    ARRAY(hal_bit_t,spindle_stop,EMCMOT_MAX_SPINDLES+1) /* pin for stopping the spindle */ \
     ARRAY(hal_bit_t,spindle_is_on,EMCMOT_MAX_SPINDLES+1) /* status pin for spindle is on */ \
     ARRAY(hal_bit_t,spindle_forward,EMCMOT_MAX_SPINDLES+1) /* pin for making the spindle go forward */ \
     ARRAY(hal_bit_t,spindle_runs_forward,EMCMOT_MAX_SPINDLES+1) /* status pin for spindle running forward */ \
@@ -258,7 +261,7 @@ static NML *emcErrorBuffer = 0;
 static int emcCommandSerialNumber = 0;
 
 // how long to wait for Task to report that it has received our command
-static double receiveTimeout = 5.0;
+static double receiveTimeout = 10.0;
 
 // how long to wait for Task to finish running our command
 static double doneTimeout = 60.;
@@ -497,7 +500,6 @@ static enum {
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
 #define ANGULAR_CLOSENESS 0.0001
-#define INCH_PER_MM (1.0/25.4)
 #define CM_PER_MM 0.1
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
@@ -1619,7 +1621,7 @@ static bool jogging_selected_axis(local_halui_str &hal) {
 
 
 // this function looks if any of the hal pins has changed
-// and sends appropiate messages if so
+// and sends appropriate messages if so
 static void check_hal_changes()
 {
     hal_s32_t counts;
@@ -2093,7 +2095,7 @@ static void check_hal_changes()
 }
 
 // this function looks at the received NML status message
-// and modifies the appropiate HAL pins
+// and modifies the appropriate HAL pins
 static void modify_hal_pins()
 {
     int joint;
@@ -2183,14 +2185,18 @@ static void modify_hal_pins()
     if (emcStatus->io.tool.toolInSpindle == 0) {
         *(halui_data->tool_diameter) = 0.0;
     } else {
-        int pocket;
-        for (pocket = 0; pocket < CANON_POCKETS_MAX; pocket ++) {
-            if (emcStatus->io.tool.toolTable[pocket].toolno == emcStatus->io.tool.toolInSpindle) {
-                *(halui_data->tool_diameter) = emcStatus->io.tool.toolTable[pocket].diameter;
+        int idx;
+        for (idx = 0; idx <= tooldata_last_index_get(); idx ++) { // note <=
+            CANON_TOOL_TABLE tdata;
+            if (tooldata_get(&tdata,idx) != IDX_OK) {
+                fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+            }
+            if (tdata.toolno == emcStatus->io.tool.toolInSpindle) {
+                *(halui_data->tool_diameter) = tdata.diameter;
                 break;
             }
         }
-        if (pocket == CANON_POCKETS_MAX) {
+        if (idx == CANON_POCKETS_MAX) {
             // didn't find the tool
             *(halui_data->tool_diameter) = 0.0;
         }
@@ -2215,15 +2221,21 @@ static void modify_hal_pins()
     }
 
     if (axis_mask & 0x0001) {
-      *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;	
-      *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;	
-      *(halui_data->axis_pos_relative[0]) = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.g92_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      *(halui_data->axis_pos_commanded[0]) = emcStatus->motion.traj.position.tran.x;
+      *(halui_data->axis_pos_feedback[0]) = emcStatus->motion.traj.actualPosition.tran.x;
+      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      x = x * cos(-emcStatus->task.rotation_xy * TO_RAD) - y * sin(-emcStatus->task.rotation_xy * TO_RAD);
+      *(halui_data->axis_pos_relative[0]) = x - emcStatus->task.g92_offset.tran.x;
     }
 
     if (axis_mask & 0x0002) {
-      *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;	
-      *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;	
-      *(halui_data->axis_pos_relative[1]) = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.g92_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      *(halui_data->axis_pos_commanded[1]) = emcStatus->motion.traj.position.tran.y;
+      *(halui_data->axis_pos_feedback[1]) = emcStatus->motion.traj.actualPosition.tran.y;
+      double x = emcStatus->motion.traj.actualPosition.tran.x - emcStatus->task.g5x_offset.tran.x - emcStatus->task.toolOffset.tran.x;
+      double y = emcStatus->motion.traj.actualPosition.tran.y - emcStatus->task.g5x_offset.tran.y - emcStatus->task.toolOffset.tran.y;
+      y = y * cos(-emcStatus->task.rotation_xy * TO_RAD) + x * sin(-emcStatus->task.rotation_xy * TO_RAD);
+      *(halui_data->axis_pos_relative[1]) = y - emcStatus->task.g92_offset.tran.y;
     }
 
     if (axis_mask & 0x0004) {
@@ -2309,6 +2321,13 @@ int main(int argc, char *argv[])
 	thisQuit();
 	exit(1);
     }
+
+#ifdef TOOL_NML //{
+    //fprintf(stderr,"%8d HALUI REGISTER %p\n",getpid(),
+    tool_nml_register((CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
+#else //}{
+    tool_mmap_user();
+#endif //}
 
     // get current serial number, and save it for restoring when we quit
     // so as not to interfere with real operator interface

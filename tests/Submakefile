@@ -1,0 +1,37 @@
+# Prepare tests to run even when separated from the rest of
+# the sources
+
+userspace:  test-inputs
+
+PERSONALITIES_MOD_COMPS = \
+    $(patsubst %,../tests/halcompile/personalities_mod/%_test.comp,\
+    lincurve logic bitslice)
+$(PERSONALITIES_MOD_COMPS): ../tests/halcompile/personalities_mod/%_test.comp: \
+		hal/components/%.comp
+	$(ECHO) Copying test input $<
+	$(Q)sed $< -e "1 s/$(*)/$(*)_test/" > $@
+
+
+../tests/halcompile/serial-out-of-tree/mesa_uart_test.comp: \
+		hal/drivers/mesa_uart.comp
+	sed $< -e "1 s/mesa_uart/mesa_uart_test/" > $@
+
+../tests/halcompile/userspace/rand_test.comp: \
+		../docs/src/hal/rand.comp
+	sed $< -e "1 s/rand/rand_test/" > $@
+
+../tests/uspace/spawnv-root/rtapi.conf: ../scripts/rtapi.conf
+	cp $< $@
+
+test-inputs:  $(PERSONALITIES_MOD_COMPS) \
+	../tests/halcompile/serial-out-of-tree/mesa_uart_test.comp \
+	../tests/halcompile/userspace/rand_test.comp \
+	../tests/uspace/spawnv-root/rtapi.conf
+
+clean:  test-inputs-clean
+
+test-inputs-clean:
+	rm -f $(PERSONALITIES_MOD_COMPS) \
+	    ../tests/halcompile/serial-out-of-tree/mesa_uart_test.comp \
+	    ../tests/halcompile/userspace/rand_test.comp \
+	    ../tests/uspace/spawnv-root/rtapi.conf

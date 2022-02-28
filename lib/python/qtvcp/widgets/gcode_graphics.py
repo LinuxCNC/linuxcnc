@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #
 #    Copyright 2016 Chris Morley
@@ -23,7 +23,8 @@ PyQt5 widget for plotting gcode.
 import sys
 import os
 import gcode
-from PyQt5.QtCore import pyqtProperty
+import linuxcnc
+from PyQt5.QtCore import pyqtProperty, QTimer, Qt
 from PyQt5.QtGui import QColor
 
 from qt5_graphics import Lcnc_3dGraphics
@@ -39,7 +40,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -54,8 +55,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._overlayColor = QColor(0, 0, 0, 0)
 
         self.colors['back'] = (0.0, 0.0, 0.75)  # blue
-        self._backgroundColor = QColor(0, 0, 0.75, 150)
-
+        self._backgroundColor = QColor(0, 0, 191, 150)
+        self._jogColor = QColor(0, 0, 0, 0)
+        self._feedColor = QColor(0, 0, 0, 0)
+        self._rapidColor = QColor(0, 0, 0, 0)
         self.use_gradient_background = False
         # color1 is the bottom color that blends up to color2
         self.gradient_color1 = (0.,0,.5)
@@ -66,15 +69,65 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self._view_incr = 20
         self.inhibit_selection = False
+        self._block_line_selected = False
+
+        # stop response to external STATUS signals
+        self._disable_STATUS_signals = False
+        self._block_autoLoad = None
+        self._block_reLoad = None
+        self._block_viewChanged = None
+        self._block_lineSelect = None
+
+        self._mouseMode = 0
+
+    def addTimer(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.poll)
+        self.timer.start(INFO.GRAPHICS_CYCLE_TIME)
 
     def _hal_init(self):
-        STATUS.connect('file-loaded', self.load_program)
-        STATUS.connect('reload-display', self.reloadfile)
+        self._block_autoLoad = STATUS.connect('file-loaded', self.load_program)
+        self._block_reLoad = STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
-        STATUS.connect('graphics-view-changed', self.set_view_signal)
+        self._block_viewChanged = STATUS.connect('graphics-view-changed', lambda w, v, a: self.set_view_signal(v, a))
+        self._block_lineSelect = STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
+        # we do this in this function because the property InhibitControls
+        # is set before the STATUS (GObject) signal ids can be recorded
+        if self._disable_STATUS_signals:
+            self.updateSignals(True)
 
-    def set_view_signal(self, w, view, args):
+        # If there is a preference file object use it to load the user view position data
+        if self.PREFS_:
+            v,z,x,y,lat,lon = self.getCurrentViewSettings()
+            v = self.PREFS_.getpref(self.HAL_NAME_+'-user-view', v, str, 'SCREEN_CONTROL_LAST_SETTING')
+            z = self.PREFS_.getpref(self.HAL_NAME_+'-user-zoom', z, float, 'SCREEN_CONTROL_LAST_SETTING')
+            x = self.PREFS_.getpref(self.HAL_NAME_+'-user-panx', x, float, 'SCREEN_CONTROL_LAST_SETTING')
+            y = self.PREFS_.getpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
+            lat = self.PREFS_.getpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
+            lon = self.PREFS_.getpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.presetViewSettings(v,z,x,y,lat,lon)
+
+    # when qtvcp closes this gets called
+    def _hal_cleanup(self):
+        if self.PREFS_:
+            v,z,x,y,lat,lon = self.getRecordedViewSettings()
+            LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-view', v, str, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-zoom', z, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-panx', x, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
+
+    # external source asked for highlight,
+    # make sure we block the propagation
+    def highlight_graphics(self, line):
+        if self._current_file is None: return
+        self._block_line_selected = True
+        self.set_highlight_line(line)
+
+    def set_view_signal(self, view, args):
         v = view.lower()
         if v == 'clear':
             self.logger.clear()
@@ -135,6 +188,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'dimensions-off':
             self.show_extents_option = False
             self.updateGL()
+        elif v == 'record-view':
+            self.recordCurrentViewSettings()
+        elif v == 'set-recorded-view':
+            self.setRecordedView()
         else:
             self.set_view(v)
 
@@ -171,9 +228,39 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.load(self._reload_filename)
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
-            print 'error', self._reload_filename
+            print('error', self._reload_filename)
             pass
 
+    def updateSignals(self, state):
+        if self._block_autoLoad == None:
+            return
+        if state:
+            STATUS.handler_block(self._block_autoLoad)
+            STATUS.handler_block(self._block_reLoad)
+            STATUS.handler_block(self._block_viewChanged)
+            STATUS.handler_block(self._block_lineSelect)
+        else:
+            STATUS.handler_unblock(self._block_autoLoad)
+            STATUS.handler_unblock(self._block_reLoad)
+            STATUS.handler_unblock(self._block_viewChanged)
+            STATUS.handler_unblock(self._block_lineSelect)
+
+    def updateMouseMode(self, value):
+        if value == 0:
+            m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
+        elif value == 1:
+            r = Qt.LeftButton; m = Qt.MiddleButton; z = Qt.RightButton
+        elif value == 2:
+            z = Qt.LeftButton; m = Qt.MiddleButton; r = Qt.RightButton
+        elif value == 3:
+            m = Qt.LeftButton; r = Qt.MiddleButton; z = Qt.RightButton
+        elif value == 4:
+            m = Qt.LeftButton; z = Qt.MiddleButton; r = Qt.RightButton
+        elif value == 5:
+            r = Qt.LeftButton; z = Qt.MiddleButton; m = Qt.RightButton
+        else:
+            return
+        self._buttonList =[m,z,r]
 
 
     ####################################################
@@ -183,12 +270,17 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         error_str = gcode.strerror(result)
         errortext = "G-Code error in " + os.path.basename(filename) + "\n" + "Near line " \
                     + str(seq) + " of\n" + filename + "\n" + error_str + "\n"
-        print(errortext)
         STATUS.emit("graphics-gcode-error", errortext)
 
     # Override qt5_graphics / glcannon.py function so we can emit a GObject signal
+    # block sending out signal if the highlight request
+    # came from an external source - we only send it out
+    # if someone clicked on us
     def update_highlight_variable(self, line):
         self.highlight_line = line
+        if self._block_line_selected:
+            self._block_line_selected = False
+            return
         if line is None:
             line = -1
         STATUS.emit('graphics-line-selected', line)
@@ -209,6 +301,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         super( GCodeGraphics, self).emit_percent(f)
         STATUS.emit('graphics-loading-progress',f)
 
+    def get_joints_mode(self):
+        return STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE
     #########################################################################
     # This is how designer can interact with our widget properties.
     # property getter/setters
@@ -273,7 +367,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.colors['overlay_background'] = (value.redF(), value.greenF(), value.blueF())
         self.updateGL()
     def resetOverlayColor(self):
-        self._overlayColor = QColor(0, 0, .75, 150)
+        self._overlayColor = QColor(0, 0, 191, 150)
     overlay_color = pyqtProperty(QColor, getOverlayColor, setOverlayColor, resetOverlayColor)
 
     def getBackgroundColor(self):
@@ -300,6 +394,71 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getGradientBackground(self):
         return self.use_gradient_background
     _use_gradient_background = pyqtProperty(bool, getGradientBackground, setGradientBackground)
+
+    def getJogColor(self):
+        return self._jogColor
+    def setJogColor(self, value):
+        self._jogColor = value
+        if value.alpha() == 0:
+            c = self.get_default_plot_colors()
+            self.set_plot_colors(jog = c[0])
+        else:
+            self.set_plot_colors(jog = (value.red(), value.green(), value.blue(),value.alpha()))
+    def resetJogColor(self):
+        self._jogColor = QColor(0, 0, 0, 0)
+
+    jog_color = pyqtProperty(QColor, getJogColor, setJogColor, resetJogColor)
+
+    def getFeedColor(self):
+        return self._feedColor
+    def setFeedColor(self, value):
+        self._feedColor = value
+        if value.alpha() == 0:
+            c = self.get_default_plot_colors()
+            self.set_plot_colors(feed = c[2], arc = c[3])
+        else:
+            self.set_plot_colors(feed = (value.red(), value.green(), value.blue(),value.alpha()),
+                                arc = (value.red(), value.green(), value.blue(),value.alpha()))
+    def resetFeedColor(self):
+        self._feedColor = QColor(0, 0, 0, 0)
+
+    Feed_color = pyqtProperty(QColor, getFeedColor, setFeedColor, resetFeedColor)
+
+    def getRapidColor(self):
+        return self._rapidColor
+    def setRapidColor(self, value):
+        self._rapidColor = value
+        if value.alpha() == 0:
+            c = self.get_default_plot_colors()
+            self.set_plot_colors(traverse = c[1])
+        else:
+            self.set_plot_colors(traverse = (value.red(), value.green(), value.blue(),value.alpha()))
+    def resetRapidColor(self):
+        self._rapidColor = QColor(0, 0, 0, 0)
+
+    Rapid_color = pyqtProperty(QColor, getRapidColor, setRapidColor, resetRapidColor)
+
+    # Inhibit external controls
+    def setInhibitControls(self, state):
+        self._disable_STATUS_signals = state
+        self.updateSignals(state)
+    def getInhibitControls(self):
+        return self._disable_STATUS_signals
+    def resetInhibitControls(self):
+        self._disable_STATUS_signals = False
+        self.updateSignals(False)
+    InhibitControls = pyqtProperty(bool, getInhibitControls, setInhibitControls,resetInhibitControls)
+
+    # set Mouse button controls
+    def setMouseButtonMode(self, value):
+        self._mouseMode = value
+        self.updateMouseMode(value)
+    def getMouseButtonMode(self):
+        return self._mouseMode
+    def resetMouseButtonMode(self):
+        self._mouseMode = 0
+        self.updateMouseMode(0)
+    MouseButtonMode = pyqtProperty(int, getMouseButtonMode, setMouseButtonMode,resetMouseButtonMode)
 
 # For testing purposes, include code to allow a widget to be created and shown
 # if this file is run.

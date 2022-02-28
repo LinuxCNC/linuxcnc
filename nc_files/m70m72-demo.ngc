@@ -1,4 +1,4 @@
-; Demonstrate saving and explicitely restoring the global state around
+; Demonstrate saving and explicitly restoring the global state around
 ; a subroutine call using  M70 - save state and M72 - restore state
 ;
 ; note that the subroutine itself is not aware of the M7x features
@@ -33,7 +33,7 @@ M70 (save caller state in at global level)
 ;
 O<imperialsub> call
 ;
-M72 (explicitely restore state)
+M72 (explicitly restore state)
 ;
 (debug, back in main, state now:)
 o<showstate> call

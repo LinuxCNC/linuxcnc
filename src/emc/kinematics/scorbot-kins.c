@@ -297,6 +297,7 @@ KINEMATICS_TYPE kinematicsType(void) {
 #include "rtapi_app.h"
 #include "hal.h"
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);

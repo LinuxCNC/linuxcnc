@@ -1,0 +1,10 @@
+GUI de Qtvcp para PlasmaC basada en un tema del usuario pinder en el foro LinuxCNC
+
+Esta GUI está en desarrollo y aún no es completamente funcional, pero se puede abrir como una simulación LinuxCNC para tener una idea de cómo actua.
+
+Hay tres versiones disponibles en unidades métricas e imperiales:
+1. qtplasmac_l - formato 16:9, resolución mínima 1366x768
+2. qtplasmac_p - formato 9:16, resolución mínima 768x1366
+3. qtplasmac_s - formato 4:3, resolución mínima 1024 x 768
+
+Si cambia entre tipos de unidades, deberá eliminar el archivo .prefs antes de abrir una versión diferente.

@@ -93,11 +93,11 @@ function setup_page(){
 <div style="margin-top: 0em; margin-bottom: 1em; line-height: 150%">
 <p>Translated Documents <a href="index_es.html">Espa&ntilde;ol</a>  *  
 <a href="index_fr.html">Fran&ccedil;ais</a>
-<a href="index_cn.html">中文</a>
+<a href="index_zh_CN.html">中文</a>
 </p>
 <p><a href="http://linuxcnc.org">LinuxCNC Home Page</a>  *  
 <a href="http://wiki.linuxcnc.org/cgi-bin/wiki.pl">Wiki Community</a>  *  
-<a href="gcode.html">G Code Quick Reference</a></p>
+<a href="gcode.html">G-Code Quick Reference</a></p>
 </div>
 <p><input type="button" id="docExpand" value="Expand Documents" onclick="return toggle_section(this);"/>
    <input type="button" id="docCollapse" value="Collapse Documents" onclick="return toggle_section(this);"/></p>
@@ -139,29 +139,29 @@ function setup_page(){
 <div id="sec3">
 	<ul>
 		<li><a href="gui/axis.html">Axis, Keyboard GUI</a></li>
-		<li><a href="gui/gmoccapy.html">Gmoccapy, Touchscreen GUI</a> <a href="gui/gmoccapy-hu.html"> hu(Magyar)</a></li>
+		<li><a href="gui/gmoccapy.html">Gmoccapy, Touchscreen GUI</a> <a href="gui/gmoccapy_hu.html"> hu(Magyar)</a></li>
 		<li><a href="gui/touchy.html">Touchy, Touchscreen GUI</a></li>
 		<li><a href="gui/gscreen.html">Gscreen, Customizable Touchscreen GUI</a></li>
-		<li><a href="gui/qtdragon.html">SilverDragon, Customizable QT based GUI</a></li>
+		<li><a href="gui/qtdragon.html">QtDragon, Customizable QT based GUI</a></li>
 		<li><a href="gui/ngcgui.html">NGCGUI, Subroutine GUI</a></li>
 		<li><a href="gui/tklinuxcnc.html">TkLinuxCNC, (no opengl) GUI</a></li>
-		<li><a href="plasma/plasmac-user-guide.html">PlasmaC, A Complete Plasma Cutting Configuration</a></li>
+		<li><a href="plasma/qtplasmac.html">QtPlasmaC, A Complete Plasma Cutting Configuration</a></li>
 	</ul>
 </div>
 
-<p><a onclick="return toggle('sec4')"><img id="sec4_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;"/>G code Programming</a></p>
+<p><a onclick="return toggle('sec4')"><img id="sec4_image" src="plus.png" alt="plus" style="border:0;margin-right:5px;vertical-align:middle;"/>G-code Programming</a></p>
 <div id="sec4">
 	<ul>
 		<li><a href="gcode/coordinates.html">Coordinate System</a></li>
 		<li><a href="gcode/tool-compensation.html">Tool Compensation</a></li>
 		<li><a href="gui/tooledit.html">Tool Table Editor</a></li>
-		<li><a href="gcode/overview.html">G Code Overview</a></li>
-		<li><a href="gcode/g-code.html">G Codes</a></li>
-		<li><a href="gcode/m-code.html">M Codes</a></li>
-		<li><a href="gcode/o-code.html">O Codes</a></li>
+		<li><a href="gcode/overview.html">G-Code Overview</a></li>
+		<li><a href="gcode/g-code.html">G-Codes</a></li>
+		<li><a href="gcode/m-code.html">M-Codes</a></li>
+		<li><a href="gcode/o-code.html">O-Codes</a></li>
 		<li><a href="gcode/other-code.html">Other Codes</a></li>
-		<li><a href="examples/gcode.html">G Code Examples</a></li>
-		<li><a href="gui/image-to-gcode.html">Image to G Code</a></li>
+		<li><a href="examples/gcode.html">G-Code Examples</a></li>
+		<li><a href="gui/image-to-gcode.html">Image to G-Code</a></li>
 		<li><a href="gcode/rs274ngc.html">RS274/NGC Differences</a></li>
 	</ul>
 </div>
@@ -190,6 +190,7 @@ function setup_page(){
 		<li><a href="gui/gladevcp.html">Glade Virtual Control Panel</a></li>
 		<li><a href="gui/gscreen.html">Gscreen</a></li>
 		<li><a href="gui/qtvcp.html">QTvcp</a></li>
+		<li><a href="gui/qtvcp_VCPpanels.html">QTvcp -VCP Panels</a></li>
 		<li><a href="gui/qtvcp_widgets.html">QTvcp -widgets</a></li>
 		<li><a href="gui/qtvcp_libraries.html">QTvcp -libraries</a></li>
 		<li><a href="gui/qtvcp_custom_widgets.html">QTvcp -Custom Widgets</a></li>
@@ -202,6 +203,7 @@ function setup_page(){
 <div id="sec7">
 	<ul>
 		<li><a href="gui/panelui.html">Panelui</a></li>
+		<li><a href="gui/filter_programs.html">Filter Programs</a></li>
 		<li><a class="tooltips" href="gui/halui.html">HALUI, Hardware Abstract Layer User Interface</a></li>
 		<li><a href="hal/halui-examples.html">HALUI examples</a></li>
 		<li><a href="config/python-interface.html">Python Interface</a></li>
@@ -277,11 +279,13 @@ into LinuxCNC.
 		<li><a href="motion/kinematics.html">Kinematics</a></li>
 		<li><a href="motion/dh-parameters.html">DH Parameters</a></li>
 		<li><a href="motion/5-axis-kinematics.html">5-Axis-Kinematics</a></li>
+		<li><a href="motion/switchkins.html">Switchable Kinematics</a></li>
 		<li><a href="motion/pid-theory.html">PID theory</a></li>
 		<li><a href="remap/remap.html">Remap: Extending LinuxCNC</a></li>
 		<li><a href="config/moveoff.html">Moveoff Component</a></li>
 		<li><a href="code/rs274.html">Stand Alone Interpreter</a></li>
 		<li><a href="motion/external-offsets.html">External Offsets</a></li>
+		<li><a href="tooldatabase/tooldatabase.html">Tool Database Interface</a></li>
 	</ul>
 </div>
 

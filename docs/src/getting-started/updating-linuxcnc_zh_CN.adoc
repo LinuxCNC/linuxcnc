@@ -1,0 +1,1084 @@
+﻿[[cha:updating-linuxcnc]]
+
+= 更新LinuxCNC
+
+如果您的PC已连接到Internet，则将LinuxCNC更新到新的小更新版本
+（即，从相同的稳定系列更新到新版本，例如从2.7.0到2.7.1）是一个自动过程。
+在小更新版本以及其他软件更新之后，您将看到更新提示。
+如果您没有与PC的互联网连接，
+请参考<<getting-started:update-no-network,不通过网络进行更新>>.。
+
+== 升级到新版本
+
+本节介绍如何将LinuxCNC从2.7版升级到最新版。假定您已经安装了需要更新的2.7版本。
+
+要将LinuxCNC从2.7之前的版本升级到最新版，您必须首先
+http://linuxcnc.org/docs/2.7/html/getting-started/updating-linuxcnc.html[升级到2.7]，
+然后按照以下说明升级到最新版。
+
+如果您没有要升级的旧版本LinuxCNC，则建议参照<<cha:getting-linuxcnc,获取LinuxCNC>>一节全新安装新版本。
+
+要在计算机具有网络连接时将2.6的主要版本升级到2.7，您需要禁用旧的linuxcnc.org APT源，并为2.7添加新的linuxcnc.org APT源，再然后升级LinuxCNC。
+
+具体操作取决于您在哪个系统上运行。打开一个终端然后键入 `lsb_release -ic` 获取系统信息：
+
+----
+lsb_release -ic
+Distributor ID: Debian
+Codename:       wheezy
+----
+
+您应该在Debian Wheezy（如上例），Ubuntu Precise或Ubuntu Lucid上运行此命令。
+[[_setting_apt_sources]]
+=== 设置APT源
+
+打开 `软件源（Software Sources）` 窗口。在上述三个受支持的平台上，操作此过程的流程略有不同：
+
+** Debian Wheezy:
+
+*** 单击 `应用程序菜单（Applications Menu）`，然后单击 `系统（System）`，然后单击 `Synaptic软件包管理器（Synaptic Package Manager）`。
+*** 在Synaptic中，单击 `设置（Settings）` 菜单，然后单击 `仓库（Repositories）` 以打开 `软件源（Software Sources）` 窗口。
+
+** Ubuntu Precise:
+
+*** 单击左上方的 `Dash Home` 图标。
+*** 在 `Search` 输入框中，输入"software"，然后单击 `Ubuntu Software Center` 图标。
+*** 在Ubuntu软件中心窗口中，单击 `Edit` 菜单，然后单击 `Software Sources...` 以打开软件源窗口。
+
+** Ubuntu Lucid:
+
+*** 单击 `系统（System）` 菜单，然后单击 `管理（Administration）`，
+    然后单击 `Synaptic软件包管理器（Synaptic Package Manager）`。
+*** 在Synaptic中，单击 `设置（Settings）` 菜单，然后单击 `存储库（Repositories）` 以打开 `软件源（Software Sources）` 窗口。
+
+* 在 `软件源（Software Sources）` 窗口中，选择 `其他软件（Other Software）` 选项卡。
+
+* 删除或取消选中所有旧的linuxcnc.org条目（保留所有非linuxcnc.org条目）。
+
+* 单击 `添加（Add）` 按钮并添加新的APT行。在不同的平台上，该行会略有不同：
+
+[options="header"]
+|====
+| Platform                | apt source line
+| Debian Stretch          | `deb http://linuxcnc.org stretch base 2.8-rtpreempt`
+| Debian Wheezy           | `deb http://linuxcnc.org wheezy base 2.8-rt`
+| Ubuntu Precise          | `deb http://linuxcnc.org precise base 2.8-rt`
+| Debian Jessie - preempt | `deb http://linuxcnc.org jessie base 2.8-rtpreempt`
+| Debian Jessie - RTAI    | `deb http://linuxcnc.org jessie base 2.8-rt`
+| Debian Buster - preempt | `deb http://linuxcnc.org buster base 2.8-rtpreempt`
+| Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
+|====
+
+image::images/upgrading-to-2.8.png[align="left", alt="Setting apt sources"]
+
+* 单击 `添加源（Add Source）`，然后在软件源窗口中单击关闭。
+  如果它弹出一个窗口，通知您有关可用软件的信息已过期，
+  请单击 `重新加载（Reload）` 按钮。
+
+=== 升级到新版本
+
+现在您的计算机知道从何处可以获取该软件的新版本，接下来我们需要安装它。
+
+该流程再次因各平台而异。
+
+==== Debian Wheezy和Ubuntu Lucid
+
+Debian Wheezy和Ubuntu Lucid都使用Synaptic软件包管理器。
+
+* 使用上面的<<_setting_apt_sources,设置APT源>>中的说明打开Synaptic。
+
+* 单击 `重新加载（Reload）` 按钮。
+
+* 使用搜索功能搜索 `linuxcnc`。
+
+* 单击复选框，将新的linuxcnc和linuxcnc-doc- *软件包标记为要升级。
+  软件包管理器可能会选择要安装的许多其他软件包，
+  以满足新linuxcnc软件包的依赖。
+* 单击 `应用（Apply）` 按钮，然后您的计算机将会安装新软件包。
+  旧的linuxcnc软件包将自动升级到新的软件包。
+
+=== Ubuntu Precise
+
+* 单击左上方的 `Dash Home` 图标。
+
+* 输入框中，输入"update"，然后单击 `更新管理器（Update Manager）`图标。
+
+* 单击 `检查（Check）` 按钮以获取可用软件包的列表。
+
+* 单击 `安装更新（Install Updates）` 按钮以安装所有软件包的新版本。
+
+== 无网络更新
+[[getting-started:update-no-network]]
+
+需要在没有网络连接的情况下进行更新，您需要下载deb，
+然后使用dpkg安装它。每次更新时，buildbot都会构建新的Deb，
+并将其存放在http://linuxcnc.org/dists/
+
+您必须从上面的链接中从上至下翻找，以找到适合您的安装的deb。
+打开 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]，
+然后输入'lsb_release -ic'查找操作系统的名称。
+
+----
+> lsb_release -ic
+Distributor ID: Debian
+Codename:       buster
+----
+
+从列表中选择操作系统，然后选择所需的主要版本，
+例如用于实时的2.7-rt或仅用于模拟的2.7-sim。
+
+接下来，选择32位（i386）或者64位（amd64）的计算机类型。
+
+接下来，从列表底部选择所需的版本，例如'linuxcnc-uspace_2.8.0_amd64.deb'。
+下载deb并将其复制到您的主目录。您可以使用文件管理器将文件重命名为更短的名字（如linuxcnc_2.8.0.deb），
+然后打开终端，并使用软件包管理器安装命令'sudo dpkg -i linuxcnc_2.8.0.deb'安装
+
+----
+sudo dpkg -i linuxcnc_2.8.0.deb
+----
+
+== 更新配置文件（对于2.8.x）
+
+新版本的LinuxCNC在某些方面与2.7版有所不同，可能需要更改您的计算机配置。
+
+=== 配置分布（joints_axes的更新）
+
+LinuxCNC发行版包括许多示例配置，
+这些配置以名为by_machine，by_interface和sim（模拟机器）的目录层次结构组织。
+这些配置通常用作进行新配置的起点，
+研究示例或无需特殊硬件或实时内核即可运行完整模拟器。
+
+这些目录树中的配置文件已针对joints_axes更新所需的更改进行了更新。
+
+=== 自动更新（joints_axes的update_ini脚本）
+
+由于joints_axes更新需要对用户ini文件及其相关的halfiles进行大量更改，因此提供了一个名为update_ini的脚本来自动转换用户配置。
+
+用户在更新LinuxCNC之后首次启动现有配置时，将会调用此脚本。
+该脚本在用户ini文件中搜索[EMC]VERSION项。如果此项1）不存在，或2）
+存在且被设置为CVS历史值"$Revision$"，或者是小于1.0的数值，
+则update_ini脚本将弹出一个对话框，供您编辑用户文件以创建更新的配置。
+如果用户接受，则配置将被更新。
+
+例如，如果用户配置名为bigmill.ini，那么将对bigmill.ini文件及其本地关联的hal文件进行编辑以合并joints_axes更改。
+初始配置的所有文件将保存在以原始配置命名的新目录中，后缀名为".old"（示例中为bigmill.old）。
+
+update_ini脚本处理在采用特征运动学的基础机器中找到的所有常见用户选项。
+在较复杂的机器中使用的不太常见的项目可能不会自动转换。
+复杂机的器配置的示例包括：
+
+* 单轴上具有两个联合的龙门架
+* 带齿轮的机器
+* 具有非特征运动学的机器人
+* 使用haltcl文件进行配置
+
+以下小节和'Hal Changes'部分列出了可能需要其他用户编辑ini或hal文件的项目。
+
+=== Multiple Spindle Support
+多主轴支持
+
+LinuxCNC now supports up to 8 spindles (and can be recompiled for more)
+Existing G-code will run without modification and most configurations
+will default to single spindles. To specify more than one spindle
+set the [TRAJ]SPINDLES= entry in the INI file *and* include the num_spindles=
+parameter for the motion module (set with either [EMCMOT]EMCMOT = motmod num_spindles=
+or included in a halfile loadrt entry for motmod).
+LinuxCNC现在最多支持8个心轴（并且可以重新编译以获取更多心轴）。现有G代码将在不做任何修改的情况下运行，并且大多数配置将默认为单心轴。要指定多个主轴，请在INI文件中设置[TRAJ] SPINDLES =条目，并包括运动模块的num_spindles =参数（通过[EMCMOT] EMCMOT = motmod num_spindles =设置，或包含在motmod的Halfile loadrt条目中）。
+
+运动模块num_spindles= parameter和[TRAJ]SPINDLES= settings *必须* 匹配。
+
+更改了主轴控制引脚的名称，使主轴看起来更像是轴和接头。
+例如，motion.spindle-speed-out就是spindle.0.speed-out。
+自动更新脚本将负责这些更改。
+为了控制额外的主轴，控制主轴速度的G代码和M代码现在接受附加的"$"参数，例如M3 $2以启动第三个主轴。
+选择"$"是为了避免与任何现有的代码字符冲突。可以创建自定义的G代码以匹配任何其他多主轴控制器。
+有关代码更改，请参见G代码和M代码手册，以及有关HAL引脚更改的手动操作。
+
+=== TRAJ速度，加速度名称
+ 
+通过合并joints_axes功能，更改了一些名称以阐明可用功能。
+
+----
+was: [TRAJ]MAX_VELOCITY         is: [TRAJ]MAX_LINEAR_VELOCITY
+was: [TRAJ]DEFAULT_VELOCITY     is: [TRAJ]DEFAULT_LINEAR_VELOCITY
+
+was: [TRAJ]MAX_ACCELERATION     is: [TRAJ]MAX_LINEAR_ACCELERATION
+was: [TRAJ]DEFAULT_ACCELERATION is: [TRAJ]DEFAULT_LINEAR_ACCELERATION
+----
+
+=== Kinematics modules 运动学模块
+
+gentrivkins和gantrykins运动学模块已被删除，因为它们的功能现在在更新的trivkins模块中可用。
+
+gentrivkins模块仅在先前的joints_axes分支中可用。要进行转换，必须更改名称。
+
+Hal文件示例：
+
+----
+was: loadrt gentrivkins
+ is: loadrt trivkins
+
+was: loadrt gentrivkins coordinates=xyyz
+ is: loadrt trivkins    coordinates=xyyz
+----
+
+使用gantrykins的配置应更新为使用kinstype= parameter设置为BOTH的trivkins配置（对于KINEMATICS_BOTH）。
+
+Hal文件示例：
+
+----
+was: loadrt gantrykins coordinates=xyyz
+ is: loadrt trivkins   coordinates=xyyz kinstype=BOTH
+----
+
+有关更多信息，请参见trivkins手册页（'$ man trivkins'）
+
+注意：在joints_axes中指定运动学的最受支持的用法是在配置ini文件[KINS}部分中设置值，
+然后在指定的[HAL]HALFILES（.hal .tcl文件）中引用它们。
+
+例如：
+
+----
+inifile:    [KINS]
+            KINEMATICS = trivkins
+            JOINTS = 3
+            ...
+
+halfile:    loadrt [KINS]KINEMATICS
+
+haltclfile: loadrt $::KINS(KINEMATICS)
+----
+
+=== 车床配置
+
+在合并joints_axes之前，通常将车床配置为三轴（XYZ）机床，且轴（Y）未使用。
+这对于共享Hal文件非常方便（尤其是对于模拟配置），
+但是需要指定[TRAJ]AXES =3，一个伪装的AXIS_Y部分，以及用于归零未使用的Y坐标的规定。
+且这些配置排列不再需要或建议。
+
+历史车床配置使用trivkins运动学模块的默认选项。这些默认选项配置所有轴字母（XYZABCUVW）。
+通过并入joints_axes，更合适的运动学规范将坐标设置为所使用的精确坐标（XZ），
+并将接头数相应地设置为2。不再需要ini文件[AXIS_Y]部分，仅需要两个[JOINT_N]部门被定义。
+
+车床的ini文件示例（仅显示与运动学有关的部分）：
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=xz
+JOINTS = 2
+
+[TRAJ]
+COORDINATES = XZ
+...
+
+[AXIS_X]
+...
+
+[AXIS_Z]
+...
+
+[JOINT_0]
+...
+
+[JOINT_1]
+...
+----
+
+请注意，某些模拟配置可能仍会使用历史车床配置的例子。
+
+=== 一致的接头/轴规格
+
+影响接头和轴使用的Ini文件项必须保持一致。
+
+通常配置有'[KINS]KINEMATICS='的运动运动学模块必须使用与'[KINS]JOINTS='指定的接头数相等的数目。
+
+运动学模块必须实现与任务模块选项'[TRAJ]COORDINATES='使用的规范相一致的轴字母。
+
+示例:
+
+使用trivkin（KINEMATICS_IDENTITY）的三轴直角坐标系：
+-----
+  [KINS]KINEMATICS  = trivkins
+  [KINS]JOINTS      = 3
+  [TRAJ]COORDINATES = XYZ
+-----
+
+使用带有非连续轴字母的trivkin（KINEMATICS_IDENTITY）的两轴车床：
+-----
+  [KINS]KINEMATICS  = trivkins coordinates=XZ
+  [KINS]JOINTS      = 2
+  [TRAJ]COORDINATES = XZ
+-----
+
+龙门使用带有重复的轴字母，和KINEMATICS_BOTH的trivkins进行单个接头定位（用于归位）：
+-----
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZ kinstype=BOTH
+  [KINS]JOINTS      = 4
+  [TRAJ]COORDINATES = XYYZ
+-----
+
+龙门使用三轴（KINEMATICS_BOTH）带有重复的轴字母和一个旋转轴带有跳过的轴字母（跳过了A，B）：
+-----
+  [KINS]KINEMATICS  = trivkins coordinates=XYYZC kinstype=BOTH
+  [KINS]JOINTS      = 5
+  [TRAJ]COORDINATES = XYYZC
+-----
+
+具有非相同kin（KINEMATICS_BOTH）的线性Delta机器人在笛卡尔框架中工作，并带有附加的旋转坐标：
+-----
+  [KINS]KINEMATICS  = lineardeltakins
+  [KINS]JOINTS      = 4
+  [TRAJ]COORDINATES = XYZA
+-----
+
+注意：某些通用运动学模块（例如trivkins）实现了支持坐标指定（轴字母）的特征运动学。
+轴字母可以省略。轴字母可能重复。
+接头以定义的方式分配给轴字母（'$ man trivkins'）。
+
+注意：对于trivkins模块加载，请勿在=符号或字母之间包含空格：
+
+      正确:     [KINS]KINEMATICS = trivkins coordinates=XZ
+      错误:     [KINS]KINEMATICS = trivkins coordinates = X Z
+
+注意：实现非特征运动学的自定义运动学模块（例如lineardeltakins）定义了一组坐标和一组接头之间特定于机器的关系。
+通常，自定义运动学模块将计算自定义模块内的接头-轴关系，
+但是对相关ini项目使用一致的设置很重要：'[KINS]JOINTS'和'[TRAJ]COORDINATES'。
+通常将在模块手册页中解释这些详细信息（例如，'$ man lineardeltakins'）。
+
+=== 归位序列
+
+*负值* 可用于名为[JOINT_n]HOME_SEQUENCE的ini文件选项。
+在joints_axes合并之前，值为-1或省略该项目表示没有适用的序列。
+现在，仅省略该选项用于此目的。
+有关更多信息，请参见章节： http://linuxcnc.org/docs/2.8/html/config/ini-homing.html['归位配置'] 。
+
+=== 锁定旋转分度器（joints_axes的更新）
+
+对于joints_axes，分度器是可以归位的接头（接头模式），但还必须从gcode中解锁。
+这需要单个接头和一条轴之间一一对应。
+
+使用该轴的ini文件设置，指定与旋转轴（L = A,B,或者C）相对应的接头编号：
+
+----
+  [AXIS_L]LOCKING_INDEXER_JOINT = joint_number_for_indexer
+----
+
+指定接头是带有该接头的ini文件设置的锁定分度器（N是joint_number_for_indexer）：
+
+----
+  [JOINT_N]LOCKING_INDEXER = 1
+----
+
+可以创建Hal引脚来协调锁定指示器接头的使用：
+
+----
+   joint.N.unlock      (BIT output from Hal)
+   joint.N.is-unlocked (BIT input  to   Hal)
+----
+
+要创建用于锁定接头的这些hal销，请使用motmod模块的'unlock_joints_mask'参数指定用作锁定索引器的所有接头。
+（bit0（LSB）==>joint0，bit1==>joint1，依此类推）
+
+----
+  [EMCMOT]
+  EMCMOT = motmod unlock_joints_mask=BITMASK
+----
+
+例如，考虑一台使用trivkins运动学且坐标为XYZB的机器，其中B是锁定分度器。
+对于trivkin，接头编号（从0开始）被连续分配给指定的坐标（可以省略轴坐标字母）。
+对于此示例，X==>oint0，Y==>joint1，Z==>joint2，B==>joint3。
+指定接头3的掩码为000001000（二进制）== 0x08（十六进制）
+
+此trivkins XYZB示例所需的ini文件选项为：
+----
+  [KINS]
+  JOINTS = 4
+  KINEMATICS = trivkins coordinates=XYZB
+  ...
+
+  [TRAJ]
+  COORDINATES = XYZB
+  ...
+
+  [EMCMOT]
+  EMCMOT = motmod unlock_joints_mask=0x08
+  ...
+
+  [AXIS_B]
+  LOCKING_INDEXER_JOINT = 3
+  ...
+
+  [JOINT_3]
+  LOCKING_INDEXER = 1
+  ...
+----
+
+对于更复杂的运动学，请根据需要选择接头编号-旋转轴和接头编号之间必须一一对应。
+
+（有关motmod的更多信息，请参见运动手册页（'$ man motion'））
+
+=== 更加严格的INI文件语法
+
+带有数字INI变量的行不再允许行尾跟随其他文本。
+在早期版本的LinuxCNC中，数字后的任何文本都被默认忽略，
+但是从此版本开始，此类文本完全被禁止。
+这包括哈希字符（"#"），在此位置是值的一部分，而不是注释字符。
+
+例如，以下行将不再被接受：
+-----
+MAX_VELOCITY = 7.5 # This is the max velocity of the axis.
+-----
+
+它们可以转换成如下行样式：
+-----
+# This is the max velocity of the axis.
+MAX_VELOCITY = 7.5
+-----
+
+=== [Trail]设置
+
+在2.7.x版本中，轨迹规划（[TRAJ]）设置包括：
+
+----
+[TRAJ]
+DEFAULT_ACCELERATION
+MAX_ACCELERATION
+----
+
+为不同的线性和角度选项准备的过渡工作,　如下重命名：
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCEL
+MAX_LINEAR_ACCEL
+----
+
+由于这些缩写名称与其他名称约定和update_ini脚本的实现不一致，
+因此临时命名已更正为使用：
+
+----
+[TRAJ]
+DEFAULT_LINEAR_ACCELERATION
+MAX_LINEAR_ACCELERATION
+----
+
+[NOTE]
+
+支持指定轨迹规划角度默认值和最大加速度的支持尚未实现。
+
+== Hal更改（joints_axes 2.8.x的更新）
+
+=== 滚轮或MPG（手动脉冲发生器）点动
+
+在合并joints_axes更新之前，仅在接头模式下支持车轮慢跑，并通过hal引脚控制：
+
+----
+   bit   IN  axis.M.jog-enable
+   float IN  axis.M.jog-scale
+   s32   IN  axis.M.jog-counts
+   bit   IN  axis.M.jog-vel-mode
+----
+
+其中'M'是与轴字母相对应的数字（0==>X，1==>Y等）
+
+通过合并joints_axes更新，可以在接头模式下对接头和伸缩模式下的每个轴坐标进行点动。
+提供的控制hal引脚是：
+
+----
+   bit   IN  joint.N.jog-enable
+   float IN  joint.N.jog-scale
+   s32   IN  joint.N.jog-counts
+   bit   IN  joint.N.jog-vel-mode
+
+   bit   IN  axis.L.jog-enable
+   float IN  axis.L.jog-scale
+   s32   IN  axis.L.jog-counts
+   bit   IN  axis.L.jog-vel-mode
+----
+
+其中'N'是接头编号，'L'是轴字母。
+
+要在标识号配置中使用MPG，其中接头编号和轴字母一一对应，
+则可以方便地连接相应的hal引脚。
+例如，如果接头1恰好对应于轴字母y：
+
+----
+   net jora_1_y_enable   => joint.1.jog-enable => axis.y.jog-enable
+   net jora_1_y_scale    => joint.1.jog-scale  => axis.y.jog-scale
+   net jora_1_y_counts   => joint.1.jog-counts => axis.y.jog-counts
+   net jora_1_y_vel-mode => joint.1.jog-counts => axis.y.jog-vel-mode
+----
+
+（信号名称jora_1_y_*是示例，joints_axes转换之前的名称将取决于特定的配置详细信息。）
+
+具有非特征运动学的配置以及使用重复的轴字母的配置（例如，对于一个轴坐标，使用多个接头的龙门架）
+将需要适当的独立控制逻辑来支持接头和伸缩（全局）点动。
+
+=== Ini Hal引脚
+
+为接头（[JOINT_N]部分）和轴（[AXIS_L]部分）的ini文件项创建Hal引脚：
+
+  For N = 0 ... [KINS](JOINTS -1)
+  Ini File Item              hal pin name
+  [JOINT_N]BACKLASH          ini.N.backlash
+  [JOINT_N]FERROR            ini.N.ferror
+  [JOINT_N]MIN_FERROR        ini.N.min_ferror
+  [JOINT_N]MIN_LIMIT         ini.N.min_limit
+  [JOINT_N]MAX_LIMIT         ini.N.max_limit
+  [JOINT_N]MAX_VELOCITY      ini.N.max_velocity
+  [JOINT_N]MAX_ACCELERATION  ini.N.max_acceleration
+  [JOINT_N]HOME              ini.N.home
+  [JOINT_N]HOME_OFFSET       ini.N.home_offset
+
+  For L = x y z a b c u v w:
+  Ini File Item              hal pin name
+  [AXIS_L]MIN_LIMIT          ini.L.min_limit
+  [AXIS_L]MAX_LIMIT          ini.L.max_limit
+  [AXIS_L]MAX_VELOCITY       ini.L.max_velocity
+  [AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
+
+注意：在LinuxCNC的先前版本中（在joints_axes更新之前），
+hal引脚名称'ini.N.*'所指的轴为0==>x，1==>y等
+（所有9个轴都创建了引脚）页面（'$ man milltask'）以获取更多信息
+
+== Hal变化（其他2.8.x）
+
+=== halcompile
+
+names=实例数量以前限制为16。
+现在，对于实时组件（loadrt），实例是动态分配的，没有内置限制。
+16个限制仍然适用于用户空间names=选项（loadusr）组件的项目。
+
+对于使用'个性'的组件，最大数量现在可以通过命令行选项-P|--personalities设置。
+
+=== 更改引脚参数
+
+以下hal输出引脚已从参数更改为引脚，以便可以将其连接到信号：
+
+----
+   motion.servo.last-period    (servo last period in clks)
+   motion.servo.last-period_ns (kernel-dependent availability)
+----
+
+== joints_axes 2.8.x的接口更改
+
+=== python linuxcnc模块
+
+jog()接口包含一个'joint-flag'，用于指定接头（True）或伸缩（False）点动：
+
+----
+jog(command, joint-flag, axis-or-joint-number, velocity[, distance]])
+
+jog(linuxcnc.JOG_STOP, joint-flag, axis-or-joint-number)
+jog(linuxcnc.JOG_CONTINUOUS, joint-flag, joint-flag, velocity)
+jog(linuxcnc.JOG_INCREMENT, joint-flag, axis-or-joint-number, velocity, distance)
+----
+
+== GUI（joints_axes 2.8.x的更新）
+
+=== 关于接头/轴点动，归位和运动学的注意事项
+
+通过结合joints_axes更新，LinuxCNC强制执行接头和轴（坐标字母）的区别，
+但是某些gui（如轴gui）可能隐藏了一些简单机器的区别。
+
+在大多数情况下，您可以将接头视为‘电机’。
+
+接头和轴坐标之间的关系由描述机器运动的数学运动学函数确定。
+
+世界坐标（X，Y，Z，A，B，C，U，V，W）是通过对接头（电机）位置进行正向运动学运算来确定的。
+
+在世界空间中移动（例如gcode运动）时，
+所需的接头（马达）位置是通过将‘反向’运动学操作应用于在世界空间中请求运动的坐标来确定的。
+
+归位 *后* 才有可能在世界空间中移动。
+
+对于简单的机器（例如铣床和车床），接头和轴坐标字母是一一对应的。
+例如，在XYZ铣床上，这些关系通常为：axisX==joint0，axisY==joint1，axisZ=joint2。
+这种对应关系被称为“特征”运动学，通常使用的运动学模块是trivkins运动学（通用的运动学）。
+（请参见trivkins手册页'$ man trivkins'）
+
+在接头模式下使用接头点动（接头编号为0,1，…）（通常仅在归位之前使用）。
+归位完成后，点动模式会自动从接头模式切换为世界模式，并使用轴点动（坐标字母X，Y，...）。
+这适用于MDI命令或gcode程序请求的所有gcode移动。
+
+尽管归位后通常不需要在联合模式下慢跑，但是某些GUI（如轴）会提供键盘快捷键（'$'），
+以允许使用非特征运动学的机器在联合模式和世界（teleop）模式之间切换。
+
+在许多常见情况下，由于使用归位交换机和/或LinuxCNC提供的各种归位方法完成了归位，
+因此不再需要联合点动。只需打开机器，发出Home-All命令，
+机器就自动归位并更改为世界模式。
+请参阅 http://linuxcnc.org/docs/2.8/html/config/ini-homing.html[归位配置]
+
+不使用归位开关的机器可能需要在联合模式下手动进行点动，然后再建立每个接头。
+对于不需要归位到固定位置的接头，也可以使用立即归位（请参阅归位文档）。
+
+尽管GUI可能会隐藏特征运动学机器的接头/轴区别，
+但完成归位通常很重要，以便运行程序或使用GUI提供的功能。
+
+默认情况下，trivkins模块声明自己具有特征运动学。
+通过使用'kinstype=both'将运动学类型设置为非特征类型，
+可以在使用trivkins时使联合/世界操作的区别在gui轴上可见。
+两种设置均指示正向和反向运动学功能均可用，并且不应使用隐藏接头和轴字母区别的gui规定。
+例如，对于xyz配置，请指定：
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=xyz kinstype=both
+----
+
+通过此设置，将使用特征运动学，但轴gui将：
+
+. 在归位之前显示接头编号
+. 成功归位后显示轴字母
+. 支持使用'$'键在联合和teleop模式之间切换
+
+=== Halui
+
+Halui现在支持慢跑，从而更改了一些引脚名称，并为与慢跑相关的引脚提供了许多新名称。
+
+有关所有引脚名，请参见手册页（'$ man halui'）。
+
+==== 慢跑（也称为轴慢跑或全局慢跑）
+
+慢跑的新引脚是：
+
+----
+      新: halui.axis.jog-speed
+      新: halui.axis.jog-deadband
+
+      新: halui.axis.L.plus
+      新: halui.axis.L.minus
+           ... 等等.
+----
+
+其中'L'是与[TRAJ]COORDINATES指定的轴字母之一相对应的字母，或为halui.axis.L.select引脚选择的轴选择的字母。
+
+==== 联合慢跑
+
+出于特殊性，所有用于联合点动的引脚都已重命名：
+
+----
+      曾经: halui.jog-speed          现在: halui.joint.jog-speed
+      曾经: halui.jog-deadband       现在: halui.joint.jog-deadband
+
+      曾经: halui.jog.N.plus         现在: halui.joint.N.plus
+      曾经: halui.jog.N.minus        现在: halui.joint.N.minus
+           ...  等等.                    ... 等等.
+----
+
+其中'N'是接头编号（0…num_noints-1）或由halui.joint.N.select引脚选择的接头选择'selected'。
+
+====  额外的引脚重命名
+
+所选接头的hal引脚已重命名，以与相关引脚保持一致。
+
+----
+      曾经: halui.joint.selected.is_homed
+      现在: halui.joint.selected.is-homed
+
+      曾经: halui.joint.selected.on-soft-limit
+      现在: halui.joint.selected.on-soft-min-limit
+----
+
+=== 轴GUI
+
+==== 特征运动学
+
+轴gui继续支持特征运动学配置。
+该gui隐藏了轴和接头的区别，以简化简单机器的显示和使用。
+
+==== 特例运动学
+
+一些机器，通常是龙门，可能使用一种配置，其中多个接头分配给一个轴字母。
+这可以通过trivkins运动学模块使用重复的坐标字母来完成。
+例如，配置了ini设置的计算机：
+
+----
+[KINS]
+KINEMATICS = trivkins coordinates=XYYZ kinstype=BOTH
+...
+[TRAJ]
+COORDINATES = XYYZ
+...
+----
+
+归位后，该机器在单轴字母（Y）和一对接头（1,2）之间具有一对一的对应关系。
+如果需要的话，使用kinematics=BOTH可以在接头模式下控制单个接头。
+
+==== 非特征运动学
+
+轴gui支持使用非特征运动学进行以下配置：
+
+. 按键绑定（'$'）切换联合或遥控模式
+. 根据接头或伸缩模式的接头或轴的预览选项卡显示
+. 在联合模式下预览“主页”和“限制”图标的选项卡
+. Preview Tab display of 'All-homed' and 'Any-limit icons in teleop mode伸缩模式下“全宿”和“任意限制”图标的“预览”选项卡显示
+. DRO Tab display of joint or axes according to joint or teleop mode根据关节或伸缩模式的关节或轴的DRO标签显示
+. Jogging is supported in both joint and teleop motion modes联合和伸缩运动模式均支持慢跑
+. External changes to the joint/teleop motion mode are detected.检测到关节/远距运动模式的外部变化。
+
+==== Home icons
+
+For identity kinematics, 'Home' icons are shown for the corresponding
+(one-to-one) axis letter when a joint is homed.
+
+For non-identity kinematics, 'Home' icons are shown for individual joints when
+a joint is homed in joint display mode.  An 'All-homed' icon is displayed for
+all axis letters when ALL joints are homed in world display mode.
+
+==== Limit icons
+
+For identity kinematics, 'Limit' icons are shown for the corresponding
+(one-to-one) axis letter when a joint limit is active.
+
+For non-identity kinematics, 'Limit' icons are shown for individual joints when
+the joint limit is active in joint display mode.  An 'Any-Limit' icon is displayed
+if any joint is at a limit in teleop display mode.
+
+==== Key bindings for a fourth axis
+
+In the AXIS gui, jogging keys are assigned to axes in a configurable
+fashion.  For 3-axis machines, XYZA machines, and lathes the default is
+the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
+assigned to the first 4 axes that exist in the order XYZ ABC UVW.
+These assignments can be controlled by new inifile directives in the
+http://linuxcnc.org/docs/2.8/html/config/ini-config.html#sec:display-section[[DISPLAY] section of the inifile]
+
+Note that the parameters used for jogging may not be appropriate for both modes
+for machines with non-identity kinematics.
+
+
+=== tklinuxcnc
+
+tklinuxcnc gui支持特征和非特征运动学，
+包括gui单选按钮和用于切换联合和伸缩模式的键绑定（'$'）。
+检测到接头或伸缩运动模式的外部变化。
+接头和伸缩运动模式均支持慢跑。
+请注意，用于慢速运动的参数可能不适用于运动模式不相同的两种模式。
+
+tklinuxcnc不使用OpenGL，因此可用于隔离问题和系统依赖关系，而这些问题和依赖关系是由更现代的GUI（如axis）暴露的。
+
+提供的基本backplot gui可用于特征运动学（xyz）机器配置。
+
+==== emcsh命令
+
+emcsh.cc的代码提供了tklinuxcnc使用的tcl命令集。
+这些命令可作为名为Linuxcnc的tcl软件包提供给tcl应用程序。
+以前有许多命令需要使用数字参数来指定轴坐标（0-→X，1-→Y，…，8-→W）。
+这些命令已简化为使用只是坐标字母的参数。
+
+现在使用坐标字母参数的命令是：
+
+. emc_pos_offset
+. emc_abs_cmd_pos
+. emc_abs_act_pos
+. emc_rel_cmd_pos
+. emc_rel_act_pos
+. emc_tool_offset
+. emc_probed_pos
+
+=== touchy
+
+touchy　gui继续支持在joints_axes合并之前所支持的特征运动学配置。
+慢跑在遥控模式下完成。
+
+=== gscreen
+
+gscreen gui继续支持在joints_axes合并之前它支持的身份运动学配置。
+慢跑在遥控模式下完成。
+
+=== gmoccapy
+
+The gmoccapy gui continues to support the identity kinematics configurations
+that it supported prior to joints_axes incorporation.  Jogging is done in
+teleop mode.
+gmoccapy gui继续支持在joints_axes合并之前所支持的身份运动学配置。
+慢跑在遥控模式下完成。
+
+=== `shuttlexpress` 驱动已重命名为 `shuttle`
+
+Contour Designs ShuttleXpress设备的HAL驱动程序已从"shuttlexpress"重命名为"shuttle"。
+如果您的hal文件包含"loadusr shuttlexpress"的某些变体，则将"shuttlexpress"替换为"shuttle"。
+
+增加了对ShuttlePRO（ShuttleXpress的较大版本）的支持，因此旧的驱动程序名称不再准确。
+
+=== linuxcncrsh
+
+现在，通过使用-1作为联合号，set home子命令支持“Home All”
+
+更改了慢跑命令以适应联合（自由）和遥控（世界）慢跑。
+
+----
+    was: set jog      joint_number             speed
+     is: set jog      joint_number|axis_letter speed
+
+    was: set jog_incr joint_number             speed increment
+     is: set jog_incr joint_number|axis_letter speed increment
+
+    was: set jog_stop
+     is: set jog_stop joint_number|axis_letter
+----
+
+注意：使用以下命令测试Teleop模式：如果TELEOP_ENABLE=YES，则teleop_enable，使用axis_letter，否则使用joint_number
+
+注意：以前，命令'set jog 0 1.234'将在任何模式（自由或伸缩）下以请求的速度=1.234点动第零轴（X）。
+现在，如果模式为自由（非远程），则此命令尝试点动第0关节（Joint0）。
+要点动X轴，模式必须为远程，并且相应的命令为：'set jog x 1.234'
+
+== 工具
+
+=== 校准（emccalib.tcl）
+
+校准/调整工具现在支持部分：
+
+  [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
+
+其中N是接头编号（0 ..（[KINS]JOINTS-1）），L是轴坐标字母（X，Y，Z，A，B，C，U，V，W），S是主轴号（0 .. 9）
+
+[NOTE]
+
+允许的主轴数为8，但是传统配置可能包含与实际主轴号无关的部分[SPINDLE_9]。
+
+[NOTE]
+
+[TUNE]部分可用于指定与其他受支持部分无关的可调项。
+
+== 过时的Gui（针对2.8.x版本已删除）
+
+GUI 'mini'，'keystick'和'xlinuxcnc'已与joints_axes的更新一起删除。
+git存储库中提供了所有相关的源代码，示例和文档。
+
+== 不推荐使用的Guis（在2.8.x标记）
+
+'linuxcnclcd' GUI是可以删除的候选对象。
+如果删除此组件，则所有相关的源代码，示例和文档都将在git存储库中提供。
+
+== 模拟器配置（接头轴2.8.x的更新）
+
+=== Pre-joints_axes
+
+在加入joints_axes之前，在sim配置中使用的halfiles通常支持一台普通铣床，即具有传统的运动学和三个名为'X Y Z'的轴的笛卡尔系统。
+典型的半身条目：
+
+----
+[HAL]
+HALFILE = core_sim.hal
+HALFILE = sim_spindle_encoder.hal
+HALFILE = axis_manualtoolchange.hal
+HALFILE = simulated_home.hal
+----
+
+车床配置通常共享相同的halfiles，并使用了方便的方法来指定3个未使用'Y'轴。
+更复杂的sim config根据配置目的提供了特定的halfiles。
+
+=== Post-joints_axes
+
+通过结合joints_axes功能，该发行版中提供的许多模拟现在都利用了通用halfile，该halfile自动支持多种配置。
+典型的sim config HALFILE规范为：
+
+----
+[HAL]
+HALFILE = LIB:basic_sim.tcl
+----
+
+basic_sim.tcl HALFILE支持任意数量的接头的许多常用功能，这些功能由以下方式指定：
+
+----
+[KINS]
+...
+JOINTS = number_of_joints
+...
+----
+
+支持的功能包括：
+
+. 'ddts' -- 为每个接头加载并连接微分器hal组件（对于trivkins机器，则为xy，xyz）
+
+. 'simulated_home' -- 将为每个接头加载并连接一个sim_home_switch hal组件。归位条件由通常的[JOINT_n]HOME_* ini文件项指定。
+
+. 'use_hal_manualtoolchange' --　用户空间hal_manualtoolchange组件已加载并连接。
+
+. 'sim_spindle' -- sim_spindle组件已加载并连接到其他已加载的hal组件，以模拟旋转主轴质量的惯性。
+
+这些功能默认情况下处于激活状态，但可以使用以下选项将其排除：'-no_make_ddts', '-no_simulated_home', '-no_use_hal_manualtoolchange',
+'-no_sim_spindle'。
+
+例如，要省略ddts的创建：
+
+----
+HALFILE = LIB:basic_sim.tcl -no_make_ddts
+----
+
+省略一个或多个核心功能可进行测试，而无需添加功能或添加新的HALFILE来实现或扩展功能。
+
+==== 等效的Hal命令文件
+
+使用LIB：basic_sim.tcl时，将在配置目录中创建等效的halfile以显示发出的halcmd命令。
+文件名基于inifile的名称，基本名称后附加'_cmds'和常规的'.hal'文件扩展名。
+例：
+
+----
+inifilename:            example.ini
+equivalent_halfilename: example_cmds.hal
+----
+
+等效的halfile替代了具有相同文件名的文件的先前实例。
+在inifile中指定并由halcmd解释的inifile变量替换会自动在创建的Halfile中替换。
+如果在LIB：basic_sim.tcl之前指定了[HAL] HALFILE，则它们的halcmd命令也将包括在内。
+
+等效的halfile可用于基于LIB：basic_sim.tcl进行的原始配置来创建新配置，包括以下步骤：
+
+1）运行模拟器配置以创建新的等效halfile，例如：'example_cmds.hal'。
+
+要在原始模拟器配置infile（或它的副本）中使用这个等效的新halfile，请进行更改以进行以下更改：
+
+----
+[HAL]
+HALFILE = LIB:basic_sim.tcl other_parameters
+----
+
+至：
+
+----
+[HAL]
+HALFILE = ./example_cmds.hal
+----
+
+==== 注意
+
+可以使用halcmd查看LIB：basic_sim.tcl建立的所有组件和连接。
+可以使用以下方法将整个hal配置（加载了loadusr的用户空间组件除外）保存到文件中：
+
+----
+$ halcmd save > hal.save
+----
+
+LIB：basic_sim.tcl的使用减少了进行模拟配置所需的工作量，
+因为它可以处理大多数所需的组件加载和hal连接。
+
+sim config示例配置 'Sample Configurations/sim/axis/minimal_xyz.ini' 演示了一个有效的xyz配置，
+该配置使用LIB：basic_sim.tcl以及最少的ini文件设置。
+
+== 2.8.x的其他更新
+
+提交更改到未发布分支，可能会影响测试人员和未发布软件的早期试用者。
+
+=== 运动引脚
+
+新引脚（有关更多信息，请参见运动手册页）：
+
+----
+axis.L.jog-accel-fraction
+joint.N.jog-accel-fraction
+----
+
+=== Hal引脚
+
+名称更改：
+
+----
+was: axis.L.vel-cmd
+ is: axis.l.teleop-vel-cmd
+----
+
+新引脚:
+
+----
+motion.homing-inhibit (参见运动手册)
+----
+
+=== Hal组件更新
+
+. siggen: 新引脚'reset'以将输出信号值设置为预定义状态
+. biquad: 引脚 'type,f0,Q,s1,s2' 以前是参数
+
+=== XHC-HB04 Pendant支持
+
+==== xhc_hb04_util.comp（帮助程序组件）
+
+移除未使用的引脚'jogenable-off'
+
+添加引脚 'amux-enable' ，以便现在通过对这些引脚进行与操作，
+来实现多路加速降低： 'is-manual' 和 'amux-enable'。
+这两个引脚通常分别连接到 'halui.mode.is-manual' 和 'halui.mode.is-teleop' 。
+
+==== xhc_hb04.tcl（可选的LIB配置halfile）
+
+卸下信号pendant： jogenable-off，以除去引脚 'pendant_util.jogenable-off'
+
+支持新的运动引脚，以降低加速度（axis.L.jog-accel-fraction, joint.N.jog-accel-fraction），
+以实现车轮点动。不再支持使用[APPLICATIONS]APP=xhc-hb04-accels。
+减小的加速度仅适用于车轮慢跑（不适用于gui发出的nml命令）。
+
+=== [JOINT_n]HOME_SEQUENCE起始值
+
+起始序列值只能是0，1（或-1）。有关更多信息，请参见“归位配置”文档。
+
+=== [JOINT_n]HOME_SEQUENCE负值
+
+不允许使用负HOME_SEQUENCE的接头在接头模式下慢跑，以防止常见龙门配置中的未对准（倾斜）。
+与往常一样，必须启用任何运动学类型的机器，然后才能进行常规的世界模式点动。
+
+=== TWOPASS支持复杂的loadrt config=选项
+
+其中多个设置用空格分隔并用引号引起来。例：
+
+----
+loadrt hm2_eth board_ip=10.10.10.10 config="num_encoders=2 num_pwmgens=2 num_stepgens=3"
+----
+
+== 2.8.x之后的更改（主分支开发）
+
+master分支带有预发行标记的版本标记，通常为2.9〜pre*
+
+=== 配置更新
+
+==== Inifile设置
+
+New: [JOINT_n]HOME_INDEX_NO_ENCODER_RESET -- support encoder with
+index that does not reset upon receipt of index pulse following
+assertion of index_enable.
+新增：[JOINT_n]HOME_INDEX_NO_ENCODER_RESET-支持具有索引的编码器，该索引在声明index_enable之后在收到索引脉冲后不会复位。
+
+=== 代码更新
+
+==== 反向运行
+
+在路径调度器，任务和运动模块，python接口，轴界面和测试套件中增加了对反向运行的支持。
+
+==== 接头数
+
+接头的最大数量（EMCMOT_MAX_JOINTS）从9增加到16。
+轴界面现在支持最多显示16个接头。
+
+==== 扩展接头
+
+新的motmod参数（num_extrajoints）指定通过常规接头归位方法归位，
+但在归位后由新的hal引脚（joint.N.posthome-cmd）控制的接头。
+此类接头可以由独立的运动调度器/控制器控制，并且可以使用自定义M代码从gcode中进行操纵。
+有关更多信息，请参见运动手册页。
+
+==== 归位
+
+src/emc/motion/homing.h提供了一个归位api，以支持用户的自定义归位代码，
+该代码将src/emc/motion/homing.c替换为用户自定义的homing.c文件。
+
+==== 其他
+
+lib/hallib/sim_lib.tcL：如果指定了[JOINT_n]HOME_USE_INDEX，则模拟编码器索引。
+
+lib/python/vismach.py​​：新的hal pin vismach.plotclear
+
+=== Hal
+
+==== 组件
+
+sim_home_switch：为index-enable添加了I/O引脚
+
+=== 配置
+
+==== 仿真配置
+
+sim/configs/axis/axis_9axis：演示模拟编码器索引
+
+// vim: set syntax=asciidoc:

@@ -1,0 +1,225 @@
+[[cha:running-emc]]
+
+= 运行LinuxCNC
+
+== 调用LinuxCNC
+
+安装后，LinuxCNC就像其他任何Linux程序一样启动：
+在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]通过运行命令'linuxcnc'运行，
+或在菜单“应用程序-CNC”中选择。
+
+[[sec:config-launcher]] (((Configuration Launcher)))
+
+== 配置启动器
+
+当从CNC菜单或命令行启动LinuxCNC而未指定ini文件时，将启动“配置选择器”对话框。
+
+The Configuration Selector dialog allows the user to pick one of their
+existing configurations (My Configurations) or select a new one (from the Sample
+Configurations) to be copied to their home directory. Copied configurations
+will appear under My Configurations on the next invocation of the Configuration
+Selector.
+使用“配置选择器”对话框，用户可以选择一个现有配置（“我的配置”）或选择一个新配置（从“示例配置”中复制到其主目录）。
+下次调用配置选择器时，复制的配置将显示在“我的配置”下。
+
+The Configuration Selector offers a selection of configurations
+organized:
+配置选择器提供了以下组织的配置选择：
+
+* “我的配置”-用户配置位于~/linuxcnc/configs中
+
+* 'Sample Configurations' - Sample configurations, when selected are copied to
+    ~/linuxcnc/configs. Once you copy a sample configuration if you use the
+    launcher pick it from 'My Configurations' “示例配置”-选择示例配置后，将其复制到~/linuxcnc/configs。
+    复制示例配置（如果使用启动器）后，请从“我的配置”中进行选择
+
+** 'sim' - Configurations that include simulated hardware. These can be used
+   for testing or learning how LinuxCNC works. “sim”-包含硬件模拟的配置。这些可用于测试或了解LinuxCNC的工作方式。
+
+** 'by_interface' - Configurations organized by GUI. “by_interface”-由GUI组织的配置。
+
+** 'by_machine' - Configurations organized by machine. “by_machine”-按机器组织的配置。
+
+** 'apps' - Applications that do not require starting linuxcnc but may be
+   useful for testing or trying applications like http://linuxcnc.org/docs/2.8/html/gui/pyvcp.html[PyVCP] or
+   http://linuxcnc.org/docs/2.8/html/gui/gladevcp.html[GladeVCP]. “apps”-不需要启动linuxcnc，但对测试或尝试 http://linuxcnc.org/docs/2.8/html/gui/pyvcp.html[PyVCP]
+   或 http://linuxcnc.org/docs/2.8/html/gui/gladevcp.html[GladeVCP]之类的应用程序可能有用的应用程序。
+
+** 'attic' - Obsolete or historical configurations. “attic”-过时或历史配置。
+
+
+The sim configurations are often the most useful starting point for
+new users and are organized around supported guis:
+对新用户而言，“sim”配置通常是最有用的入门，并且围绕受支持的图形界面进行规划：
+
+* axis - Keyboard and Mouse Gui 轴-键盘和鼠标Gui
+* gmoccapy - Touch Screen Gui gmoccapy-触摸屏Gui
+* gscreen - Touch Screen Gui  gscreen-触摸屏Gui
+* low_graphics - Keyboard Gui low_graphics-键盘Gui
+* tklinuxcnc - Keyboard and Mouse Gui(no longer maintained) tklinuxcnc-键盘和鼠标Gui（不再维护）
+* touchy - Touch Screen Gui touchy-触摸屏Gui
+
+A gui configuration directory may contain subdirectories with
+configurations that illustrate special situations or the embedding
+of other applications.
+图形界面配置目录可能包含子目录，这些子目录的配置说明了特殊情况或其他应用程序的嵌入。
+
+The by_interface configurations are organized around common, supported
+interfaces like:
+by_interface配置围绕常见的受支持接口进行组织，例如：
+
+* general mechatronics
+* mesa
+* parport
+* pico
+* pluto
+* servotogo
+* vigilant
+* vitalsystems
+
+Related hardware may be required to use these configurations as
+starting points for a system.
+可能需要相关的硬件才能将这些配置用作系统的起点。
+
+The by_machine configurations are organized around complete, known
+systems like:
+by_machine配置围绕完整的已知系统进行组织，例如：
+
+* boss
+* cooltool
+* sherline
+* smithy
+* tormach
+
+A complete system may be required to use these configurations.
+使用这些配置可能需要一个完整的系统。
+
+The apps items are typically 1) utilities that don't require
+starting linuxcnc or 2) demonstrations of applications that can
+be used with linuxcnc:
+应用项目通常是1）不需要启动linuxcnc的实用程序或2）可以与linuxcnc一起使用的应用程序的演示：
+
+* info - creates a file with system information that may be useful for
+  problem diagnosis. 创建包含系统信息的文件，该文件可能对问题诊断很有用。
+* gladevcp - Example gladevcp applications. 示例glaevevcp应用程序。
+* halrun  - Starts halrun in a terminal. 在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]中启动halrun。
+* latency - Applications to investigate latency 测试延迟的应用程序
+** latency-test - standard test 标准测试
+** latency-plot - stripchart    带状图
+** latency-histogram - histogram 直方图
+* parport - Applications to test parport. 应用程序测试parport。
+* pyvcp - Example pyvcp applications. 示例pyvcp应用程序。
+* xhc-hb04 - Applications to test an xhc-hb04 USB wireless MPG 测试xhc-hb04 USB无线MPG的应用程序
+
+[NOTE] 注意
+Under the Apps directory, only applications that are usefully modified
+by the user are offered for copying to the user's directory.
+在应用程序目录下，仅提供经用户有用修改的应用程序才能复制到用户目录。
+
+.LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]
+
+image::images/configuration-selector.png[alt="LinuxCNC配置选择器"]
+
+Click any of the listed configurations 
+to display specific information about it. 
+Double-click a configuration or click OK 
+to start the configuration. 
+Select 'Create Desktop Shortcut' and then click OK 
+to add an icon on the Ubuntu desktop 
+to directly launch this configuration 
+without showing the Configuration Selector screen. 
+单击任何列出的配置以显示有关它的特定信息。
+双击配置或单击“确定”以启动配置。
+选择“创建桌面快捷方式”，
+然后单击“确定”在Ubuntu桌面上添加图标以直接启动此配置，
+而不显示“配置选择器”屏幕。
+
+When you select a configuration from the Sample Configurations section, 
+it will automatically place a copy of that config in the
+linuxcnc/configs directory.
+当从“示例配置”选择配置时，它将自动将该配置的副本放置在linuxcnc/configs目录下。
+
+== Next steps in configuration 配置的后续步骤
+
+After finding the sample configuration that uses 
+the same interface hardware as your machine (or a simulator
+configuration), and saving a copy to your home directory, 
+you can customize it according to the details of your machine. 
+Refer to the Integrator Manual for topics on configuration.
+找到使用与计算机相同的接口硬件的示例配置（或模拟器配置），
+并将副本保存到主目录后，您可以根据计算机的具体信息对其进行自定义。
+有关配置的主题，请参阅《集成商手册》。
+
+== Simulator Configurations 模拟器配置
+
+All configurations listed under Sample Configurations/sim
+are intended to run on any computer.  No specific hardware is
+required and real-time support is not needed.
+
+Configurations/sim下列出的所有配置均可在任何计算机上运行。
+不需要特定的硬件，也不需要实时支持。
+
+These configurations are useful for studying individual
+capabilities or options.  The sim configurations are organized
+according to the graphical user interface used in the
+demonstration.  The directory for axis contains the most
+choices and subdirectories because it is the most tested GUI.
+The capabilities demonstrated with any specific GUI may be
+available in other GUIs as well.
+这些配置对于研究独立功能或选项很有用。sim配置根据演示中使用的图形用户界面进行适配。
+axis的目录包含最多的选择和子目录，因为它是经过最多测试的图形界面。
+任何特定图形界面演示的功能也可以在其他图形界面中使用。
+
+== Configuration Resources配置资源
+
+The Configuration Selector copies all files needed for
+a configuration to a new subdirectory of ~/linuxcnc/configs
+(equivalently: /home/username/linuxcnc/configs).  Each
+created directory will include at least one ini file (iniflename.ini)
+that is used to describe a specific configuration.
+配置选择器将配置所需的所有文件复制到~/linuxcnc/configs的新子目录（等效于：/home/username/linuxcnc/configs）。
+每个创建的目录将至少包含一个ini文件（iniflename.ini），该文件用于描述特定的配置。
+
+File resources within the copied directory will typically
+include one or more ini file (filename.ini) for related
+configurations and a tool table file (toolfilename.tbl).
+Additionally, resources may include halfiles (filename.hal,
+filename.tcl), a README file for describing the directory, and
+configuration specific information in a text file named after
+a specific configuration (inifilename.txt).  That latter two
+files are displayed when using the Configuration Selector.
+复制的目录中的文件资源通常包括一个或多个用于相关配置的ini文件（filename.ini）
+和一个工具表文件（toolfilename.tbl）。
+另外，资源可能包括hal文件（filename.hal，filename.tcl），用于描述目录的自述文件，
+以及以特定配置命名的文本文件（inifilename.txt）中的特定配置信息。
+使用配置选择器时，将显示后两个文件。
+
+The supplied sample configurations may specify HALFILEs
+in the configuration ini file that are not present in the
+copied directory because they are found in the system
+Halfile library.  These files can be copied to the user
+configuration directory and altered as required by the
+user for modification or test.  Since the user configuration
+directory is searched first when finding Halfiles, local
+modifications will then prevail.
+提供的示例配置可能会在配置ini文件中指定在复制的目录中不存在的HALFILE，
+因为它们是在系统Halfile库中找到的。这些文件可以复制到用户配置目录，
+并可以根据用户的要求进行更改以进行修改或测试。
+由于在查找Halfile时会首先搜索用户配置目录，因此将以本地修改为准。
+
+The Configuration selector makes a symbolic link in the
+user configuration directory (named hallib) that points to
+the system Halfile library.  This link simplifies copying
+a library file.  For example, to copy the library core_sim.hal
+file in order to make local modifications:
+配置选择器在用户配置目录（名为hallib）中建立指向系统Halfile库的符号链接。
+该链接简化了库文件的复制。例如，复制库core_sim.hal文件以进行本地修改：
+
+====
+  cd ~/linuxcnc/configs/name_of_configuration
+  cp hallib/core_sim.hal core_sim.hal
+====
+
+// vim: set syntax=asciidoc:
+
+

@@ -17,6 +17,7 @@
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
+#include "state_tag.h"
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
@@ -138,6 +139,7 @@ typedef struct {
     double acc_ratio_tan;// ratio between normal and tangential accel
     
     int id;                 // segment's serial number
+    struct state_tag_t tag; // state tag corresponding to running motion
 
     union {                 // describes the segment's start and end positions
         PmLine9 line;
@@ -165,7 +167,7 @@ typedef struct {
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     int atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
-    int indexrotary;        // which rotary axis to unlock to make this move, -1 for none
+    int indexer_jnum;  // which joint to unlock (for a locking indexer) to make this move, -1 for none
     int optimization_state;             // At peak velocity during blends)
     int on_final_decel;
     int blend_prev;

@@ -1,4 +1,4 @@
-; MACROCOMMAND= Drill Diameter,Finsh Depth,SFM,FPR,Tool Number,Peck Depth,Retract Depth
+; MACROCOMMAND= Drill Diameter,Finish Depth,SFM,FPR,Tool Number,Peck Depth,Retract Depth
 ; MACRODEFAULTS=1,-1,300,.007,1,0.2,.1
 ; MACROSVG=LatheMacro.svg,6
 ; O<drill> call [${drill.diameter-f}] [${drill.zdepth-f}] [${drill.sf-f}] [${drill.feed-f}] [${drill.tool-s}] [${drill.peck-f}] [${drill.retract-f}]

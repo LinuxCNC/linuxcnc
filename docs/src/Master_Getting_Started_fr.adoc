@@ -1,0 +1,32 @@
+:lang: fr
+:ascii-ids:
+:toc:
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+:lversion: {sys: cat ../VERSION}
+:revdate: 2021-10-28
+Guide de démarrage V{lversion}, {date}
+======================================
+
+[NOTE]
+Cette documentation n'a pas été mise à jour depuis LinuxCNC version 2.5,
+publiée en 2012.
+C'est très dépassé. Veuillez utiliser la documentation en anglais.
+Si vous souhaitez mettre à jour cette traduction, veuillez contacter
+l'équipe LinuxCNC via le forum ou la liste de diffusion.
+
+:masterdir: {indir}
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+The LinuxCNC Team
+
+include::common/overleaf_fr.adoc[]
+
+// include::common/outdated-notice_fr.adoc[]
+
+include::getting-started/Getting-Started-with-LinuxCNC.contents_fr.adoc[]
+
+include::common/GPLD_Copyright_fr.adoc[]
+
+// vim: set syntax=asciidoc:

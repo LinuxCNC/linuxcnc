@@ -1,0 +1,35 @@
+PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-setup
+PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-materials
+PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-plasmac2qt
+PYTARGETS += ../bin/qtvcp ../bin/qtplasmac-cfg2prefs
+PYTARGETS += ../bin/qtvcp ../bin/pmx485-test
+
+../bin/qtplasmac-setup: emc/usr_intf/qtplasmac/qtplasmac-setup.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+../bin/qtplasmac-materials: emc/usr_intf/qtplasmac/qtplasmac-materials.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+../bin/qtplasmac-plasmac2qt: emc/usr_intf/qtplasmac/qtplasmac-plasmac2qt.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+../bin/qtplasmac-cfg2prefs: emc/usr_intf/qtplasmac/qtplasmac-cfg2prefs.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+
+../bin/pmx485-test: emc/usr_intf/qtplasmac/pmx485-test.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@

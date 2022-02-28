@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<!--
+Copyright © 2020 Phillip A Carter. This file is part of LinuxCNC.
+LinuxCNC is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+Onboard is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+-->
+<keyboard format="3.2" id="numpad" section="system" summary="Number pad for QtPlasmaC parameters and conversational">
+  <include file="key_defs.xml"/>
+  <box border="0.5" orientation="vertical" spacing="1.5">
+    <panel filename="numpad.svg" layer="alpha">
+	  <key id="TAB"  action="single-stroke" label_x_align="0.5"/>
+	  <key id="AE01" action="single-stroke"/>
+	  <key id="AE02" action="single-stroke"/>
+	  <key id="AE03" action="single-stroke"/>
+	  <key group="bottomrow" id="move"/>
+	  <key id="bktb" action="single-stroke" keysym="0xfe20" label="⇤"/>
+	  <key id="AE04" action="single-stroke"/>
+	  <key id="AE05" action="single-stroke"/>
+	  <key id="AE06" action="single-stroke"/>
+	  <key id="LEFT" action="single-stroke"/>
+	  <key id="AE07" action="single-stroke"/>
+	  <key id="AE08" action="single-stroke"/>
+	  <key id="AE09" action="single-stroke"/>
+	  <key id="RGHT" action="single-stroke"/>
+	  <key id="AE11" action="single-stroke"/>
+	  <key id="AE10" action="single-stroke"/>
+	  <key id="AB09" action="single-stroke"/>
+	  <key id="BKSP" action="single-stroke"/>
+	  <key id="RTRN" action="single-stroke" label_x_align="0.5"/>
+	  <key group="bottomrow" id="DELE.next-to-backspace"/>
+    </panel>
+  </box>
+</keyboard>

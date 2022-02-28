@@ -1,8 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
     This class is used to get information from a config.ini file,
-    It will return cleared informations, so the checks for valid values 
+    It will return cleared information, so the checks for valid values 
     is away from the GUI code
 
     Copyright 2014 Norbert Schechner
@@ -51,9 +51,7 @@ class GetIniInfo:
             return 150
 
     def get_postgui_halfile(self):
-        postgui_halfile = self.inifile.find("HAL", "POSTGUI_HALFILE")
-        if not postgui_halfile:
-            postgui_halfile = None
+        postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile
 
     def get_preference_file_path(self):
@@ -143,7 +141,7 @@ class GetIniInfo:
                 # OK we have a special case here, we need to take care off
                 # i.e. a Gantry XYYZ config
                 double_axis_letter.append(axisletter)
-                print("Fount double letter ", double_axis_letter)
+                print("Found double letter ", double_axis_letter)
 
         if self.get_joints() == len(coordinates):
             prev_double_axis_leter = ""
@@ -169,7 +167,7 @@ class GetIniInfo:
             for joint, axisletter in enumerate(["x", "y", "z", "a", "b", "c", "u", "v", "w"]):
                 if axisletter in coordinates:
                     joint_axis_dic[joint] = axisletter
-        print joint_axis_dic
+        print(joint_axis_dic)
         #return sorted(joint_axis_dic, key=joint_axis_dic.get, reverse=False)
         return joint_axis_dic, double_axis_letter
 
@@ -463,7 +461,7 @@ class GetIniInfo:
                 if " " in element:
                     print("**** GMOCCAPY GETINIINFO **** \nERROR in user message setup \nPinname should not contain spaces")
                     return None
-            messages = zip(message_text, message_type, message_pinname)
+            messages = list(zip(message_text, message_type, message_pinname))
             return messages
 
     def get_machine_units(self):

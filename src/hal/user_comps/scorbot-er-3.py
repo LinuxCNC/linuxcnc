@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright (C) 2013-2016 Sebastian Kuzminsky <seb@highlab.com>
 #
@@ -45,8 +45,8 @@ def serial_read(num_bytes):
     data = serial.read(num_bytes)
     if len(data) != num_bytes:
         serial_read.warned = True
-        print "*** Error reading Scorbot-ER III serial port"
-        print "*** Is the cable plugged in and the control box powered on?"
+        print("*** Error reading Scorbot-ER III serial port")
+        print("*** Is the cable plugged in and the control box powered on?")
     else:
         serial_read.warned = False
     return data

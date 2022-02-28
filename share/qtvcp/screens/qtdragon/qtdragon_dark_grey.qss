@@ -47,7 +47,7 @@ ActionButton#action_machine_on {
     color: #FF0000;
 }
 
-ActionButton#action_machine_on:checked {
+ActionButton#action_machine_on[isStateOn=true] {
     border-color: #9ad58d;
     color: #9ad58d;
 }
@@ -80,11 +80,11 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-    image: url(:/images/images/qtdragon/unchecked.png);
+    image: url(:/buttons/images/unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(:/images/images/qtdragon/checked.png);
+    image: url(:/buttons/images/checked.png);
 }
 
 /** ComboBoxes **/
@@ -151,7 +151,7 @@ DROLabel {
     color: #9ad58d;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 
@@ -407,7 +407,10 @@ ToolDialog QPushButton{
     width: 100px;
     height: 40px;
 }
-CalculatorDialog  QPushButton, EntryDialog QPushButton, CloseDialog QPushButton{
+RunFromLineDialog QPushButton,
+CalculatorDialog  QPushButton,
+ EntryDialog QPushButton,
+ CloseDialog QPushButton{
     width: 80px;
     height: 40px;
 }
@@ -425,4 +428,32 @@ QMenu::item {
 
 QMenu::item:selected { /* when user selects item using mouse or keyboard */
     background-color: blue;
+}
+GcodeDisplay{
+background-color: #CAF9C7
+}
+QSpinBox {
+    padding-right: 15px; /* make room for the arrows */
+    border-width: 3px;
+    height: 40px;
+}
+
+QSpinBox::down-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::down-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-button {
+    width: 20px;
+    height: 20px;
+}
+
+QSpinBox::up-arrow {
+    width: 20px;
+    height: 20px;
 }

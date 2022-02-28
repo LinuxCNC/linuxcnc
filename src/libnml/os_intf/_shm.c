@@ -13,6 +13,7 @@
 * Last change: 
 ********************************************************************/
 
+#include "config.h"
 #include "_shm.h"
 #include "rcs_print.hh"
 #include <stdio.h>		/* NULL */

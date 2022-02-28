@@ -1,4 +1,4 @@
-( AXIS "splash g-code" Not intended for actual milling )
+( AXIS "splash G-code" Not intended for actual milling )
 ( To run this code anyway you might have to Touch Off the Z axis)
 ( depending on your setup. As if you had some material in your mill... )
 ( Hint jog the Z axis down a bit then touch off )

@@ -20,7 +20,7 @@ instance
 
 .HP
 \fParg\fR
-An argument that may be used by the component to customize this istance.
+An argument that may be used by the component to customize this instance.
 
 .SH DESCRIPTION
 As an experimental feature in HAL 2.1, components may be \fIconstructable\fR.

@@ -33,6 +33,11 @@ In this mode, the \fBphase\-B\fR input is ignored; the counts increase on
 each rising edge of \fBphase\-A\fR.  This mode may be useful for counting
 a unidirectional spindle with a single input line, though the noise-resistant
 characteristics of quadrature are lost.
+.P
+If used in counter-mode it is also possible to enable the missing-teeth
+index mode, where a gap in the pulse train of one or more teeth is used
+as in index marker. This system is used extensively for automotive crank
+position sensors.
 
 .SH FUNCTIONS
 .TP 
@@ -101,6 +106,11 @@ not use for position control.
 Scale factor, in counts per length unit.  For example, if \fBposition\-scale\fR
 is 500, then 1000 counts of the encoder will be reported as a position of 2.0
 units.
+.TP
+\fBencoder.\fIN\fB.missing\-teeth\fR s32 in
+The number of teeth missing from the index gap. For example a 60 tooth
+gear with two teeth shortened to form an index so that there are 58 pulses
+per revolution would use a position-scale of 60 and a missing-teeth of 2.
 .TP
 \fBencoder.\fIN\fB.rawcounts\fR s32 out
 The raw count, as determined by \fBupdate\-counters\fR.  This value is updated

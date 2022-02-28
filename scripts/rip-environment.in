@@ -97,10 +97,10 @@ else
     MANPATH=$EMC2_HOME/docs/man:"$MANPATH"
 fi
 
-if [ -z "$GLADE_CATALOG_PATH" ]; then
-    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp
+if [ -z "$GLADE_CATALOG_SEARCH_PATH" ]; then
+    GLADE_CATALOG_SEARCH_PATH=$EMC2_HOME/lib/python/gladevcp
 else
-    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp:"$GLADE_CATALOG_PATH"
+    GLADE_CATALOG_SEARCH_PATH=$EMC2_HOME/lib/python/gladevcp:"$GLADE_CATALOG_SEARCH_PATH"
 fi
 
 if ! $as_command; then
@@ -130,6 +130,6 @@ if ! $as_command; then
     fi
 fi
 
-export PYTHONPATH MANPATH LD_LIBRARY_PATH TCLLIBPATH GLADE_CATALOG_PATH
+export PYTHONPATH MANPATH LD_LIBRARY_PATH TCLLIBPATH GLADE_CATALOG_SEARCH_PATH
 
 if $as_command; then exec "$@"; fi

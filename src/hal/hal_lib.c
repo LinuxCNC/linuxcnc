@@ -109,7 +109,7 @@ static int init_hal_data(void);
     is used to allocate data that will be accessed by realtime
     code, while 'shmalloc_dn()' is used to allocate the much
     larger structures that are accessed only occaisionally during
-    init.  This groups all the realtime data together, inproving
+    init.  This groups all the realtime data together, improving
     cache performance.
 */
 static void *shmalloc_up(long int size);
@@ -261,10 +261,10 @@ int hal_init(const char *name)
     /* initialize the structure */
     comp->comp_id = comp_id;
 #ifdef RTAPI
-    comp->type = 1;
+    comp->type = COMPONENT_TYPE_REALTIME;
     comp->pid = 0;
 #else /* ULAPI */
-    comp->type = 0;
+    comp->type = COMPONENT_TYPE_USER;
     comp->pid = getpid();
 #endif
     comp->ready = 0;
@@ -541,6 +541,13 @@ int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
+int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
+    hal_port_t ** data_ptr_addr, int comp_id)
+{
+    return hal_pin_new(name, HAL_PORT, dir, (void **)data_ptr_addr, comp_id);
+}
+
+
 static int hal_pin_newfv(hal_type_t type, hal_pin_dir_t dir,
     void ** data_ptr_addr, int comp_id, const char *fmt, va_list ap)
 {
@@ -600,6 +607,17 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
     return ret;
 }
 
+int hal_pin_port_newf(hal_pin_dir_t dir,
+    hal_port_t **data_ptr_addr, int comp_id, const char *fmt, ...)
+{
+    va_list ap;
+    int ret;
+    va_start(ap, fmt);
+    ret = hal_pin_newfv(HAL_PORT, dir, (void**)data_ptr_addr, comp_id, fmt, ap);
+    va_end(ap);
+    return ret;
+}
+
 
 /* this is a generic function that does the majority of the work. */
 
@@ -623,9 +641,9 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
             "HAL: ERROR: pin_new(%s) called with already-initialized memory\n",
             name);
     }
-    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32) {
+    if (type != HAL_BIT && type != HAL_FLOAT && type != HAL_S32 && type != HAL_U32 && type != HAL_PORT) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32 or HAL_U32\n");
+	    "HAL: ERROR: pin type not one of HAL_BIT, HAL_FLOAT, HAL_S32, HAL_U32 or HAL_PORT\n");
 	return -EINVAL;
     }
     
@@ -633,6 +651,11 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "HAL: ERROR: pin direction not one of HAL_IN, HAL_OUT, or HAL_IO\n");
 	return -EINVAL;
+    }
+    if(type == HAL_PORT && dir == HAL_IO) {
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL: ERROR: pin direction must be one of HAL_IN or HAL_OUT for hal port\n");
+    return -EINVAL;
     }
     if (strlen(name) > HAL_NAME_LEN) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -903,8 +926,9 @@ with the C standard.
     case HAL_S32:
     case HAL_U32:
     case HAL_FLOAT:
+    case HAL_PORT:
         data_addr = shmalloc_up(sizeof(hal_data_u));
-	break;
+    break;
     default:
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -934,6 +958,9 @@ with the C standard.
         break;
     case HAL_FLOAT:
 	*((hal_float_t *) data_addr) = 0.0;
+	break;
+    case HAL_PORT:
+	*((int *) data_addr) = 0;
 	break;
     default:
 	break;
@@ -1097,6 +1124,13 @@ int hal_link(const char *pin_name, const char *sig_name)
 	    "HAL: ERROR: signal '%s' already has output or I/O pin(s)\n", sig_name);
 	return -EINVAL;
     }
+    /* linking bidir pin to sig that is a port?*/
+    if ((pin->dir == HAL_IO) && (pin->type == HAL_PORT)) {
+    rtapi_mutex_give(&(hal_data->mutex));
+    rtapi_print_msg(RTAPI_MSG_ERR,
+        "HAL: ERROR: signal '%s' is a port and cannot have I/O pin(s)\n", sig_name);
+    return -EINVAL;
+    }
     /* linking bidir pin to sig that already has output pin? */
     if ((pin->dir == HAL_IO) && (sig->writers > 0)) {
 	/* yes, can't do that */
@@ -1105,13 +1139,26 @@ int hal_link(const char *pin_name, const char *sig_name)
 	    "HAL: ERROR: signal '%s' already has output pin\n", sig_name);
 	return -EINVAL;
     }
+
+    /* linking input pin to port sig that already has an input port? */
+    if ((pin->type == HAL_PORT) && (pin->dir == HAL_IN) && (sig->readers > 0)) {
+	/* ports can only have one reader */
+	rtapi_mutex_give(&(hal_data->mutex));
+	rtapi_print_msg(RTAPI_MSG_ERR,
+	    "HAL: ERROR: siganl '%s' can only have one input pin\n", sig_name);
+	return -EINVAL;
+    }
+    
     /* everything is OK, make the new link */
     data_ptr_addr = SHMPTR(pin->data_ptr_addr);
     comp = SHMPTR(pin->owner_ptr);
     data_addr = comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
+
+    /* if the pin is a HAL_PORT the buffer belongs to the signal, port pins not linked
+      to a signal will always be empty (unreadable and unwritable)*/
     bool drive_pin_default_value_onto_signal =
-        ( pin->dir != HAL_IN || sig->readers == 0 )
+        (pin->type != HAL_PORT) && (pin->dir != HAL_IN || sig->readers == 0 )
             && ( sig->writers == 0 ) && ( sig->bidirs == 0 );
     if (drive_pin_default_value_onto_signal) {
 	/* this is the first pin for this signal, copy value from pin's "dummy" field */
@@ -1627,6 +1674,57 @@ int hal_param_alias(const char *param_name, const char *alias)
 }
 
 /***********************************************************************
+*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
+************************************************************************/
+
+int hal_get_pin_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected)
+{
+    hal_pin_t *pin;
+    hal_sig_t *sig;
+    if ((pin = halpr_find_pin_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (connected != NULL)
+        *connected = pin && pin->signal;
+    *type = pin->type;
+    if (pin->signal != 0) {
+        sig = (hal_sig_t *) SHMPTR(pin->signal);
+        *data = (hal_data_u *) SHMPTR(sig->data_ptr);
+    } else {
+        *data = (hal_data_u *) &(pin->dummysig);
+    }
+    return 0;
+}
+
+int hal_get_signal_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers)
+{
+    hal_sig_t *sig;
+    if ((sig = halpr_find_sig_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (has_writers != NULL)
+        *has_writers = !!sig->writers;
+    *type = sig->type;
+    *data = (hal_data_u *) SHMPTR(sig->data_ptr);
+    return 0;
+}
+
+int hal_get_param_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data)
+{
+    hal_param_t *param;
+    if ((param = halpr_find_param_by_name(hal_name)) == NULL)
+        return -1;
+
+    *type = param->type;
+    *data = (hal_data_u *) SHMPTR(param->data_ptr);
+    return 0;
+}
+
+
+/***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
 
@@ -1670,7 +1768,7 @@ int hal_export_funct(const char *name, void (*funct) (void *, long),
 	    "HAL: ERROR: component %d not found\n", comp_id);
 	return -EINVAL;
     }
-    if (comp->type == 0) {
+    if (comp->type == COMPONENT_TYPE_USER) {
 	/* not a realtime component */
 	rtapi_mutex_give(&(hal_data->mutex));
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -2796,6 +2894,7 @@ static int init_hal_data(void)
             rtapi_mutex_give(&(hal_data->mutex));
             return 0;
         } else {
+            rtapi_print("HAL: version:%d expected:%d\n",hal_data->version,HAL_VER);
             rtapi_print_msg(RTAPI_MSG_ERR, "HAL: ERROR: version code mismatch\n");
             rtapi_mutex_give(&(hal_data->mutex));
             return -1;
@@ -2922,7 +3021,7 @@ hal_comp_t *halpr_alloc_comp_struct(void)
 	p->next_ptr = 0;
 	p->comp_id = 0;
 	p->mem_id = 0;
-	p->type = 0;
+	p->type = COMPONENT_TYPE_USER;
 	p->shmem_base = 0;
 	p->name[0] = '\0';
     }
@@ -3188,7 +3287,7 @@ static void free_comp_struct(hal_comp_t * comp)
     /* clear contents of struct */
     comp->comp_id = 0;
     comp->mem_id = 0;
-    comp->type = 0;
+    comp->type = COMPONENT_TYPE_USER;
     comp->shmem_base = 0;
     comp->name[0] = '\0';
     /* add it to free list */
@@ -3205,49 +3304,53 @@ static void unlink_pin(hal_pin_t * pin)
 
     /* is this pin linked to a signal? */
     if (pin->signal != 0) {
-	/* yes, need to unlink it */
-	sig = SHMPTR(pin->signal);
-	/* make pin's 'data_ptr' point to its dummy signal */
-	data_ptr_addr = SHMPTR(pin->data_ptr_addr);
-	comp = SHMPTR(pin->owner_ptr);
-	dummy_addr = comp->shmem_base + SHMOFF(&(pin->dummysig));
-	*data_ptr_addr = dummy_addr;
+    /* yes, need to unlink it */
+    sig = SHMPTR(pin->signal);
+    /* make pin's 'data_ptr' point to its dummy signal */
+    data_ptr_addr = SHMPTR(pin->data_ptr_addr);
+    comp = SHMPTR(pin->owner_ptr);
+    dummy_addr = comp->shmem_base + SHMOFF(&(pin->dummysig));
+    *data_ptr_addr = dummy_addr;
 
-	/* copy current signal value to dummy */
-	sig_data_addr = (hal_data_u *)(hal_shmem_base + sig->data_ptr);
-	dummy_addr = (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
+    /* copy current signal value to dummy */
+    sig_data_addr = (hal_data_u *)(hal_shmem_base + sig->data_ptr);
+    dummy_addr = (hal_data_u *)(hal_shmem_base + SHMOFF(&(pin->dummysig)));
 
-	switch (pin->type) {
-	case HAL_BIT:
-	    dummy_addr->b = sig_data_addr->b;
-	    break;
-	case HAL_S32:
-	    dummy_addr->s = sig_data_addr->s;
-	    break;
-	case HAL_U32:
-	    dummy_addr->u = sig_data_addr->u;
-	    break;
-	case HAL_FLOAT:
-	    dummy_addr->f = sig_data_addr->f;
-	    break;
-	default:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			  "HAL: BUG: pin '%s' has invalid type %d !!\n",
-			  pin->name, pin->type);
-	}
+    switch (pin->type) {
+    case HAL_BIT:
+        dummy_addr->b = sig_data_addr->b;
+        break;
+    case HAL_S32:
+        dummy_addr->s = sig_data_addr->s;
+        break;
+    case HAL_U32:
+        dummy_addr->u = sig_data_addr->u;
+        break;
+    case HAL_FLOAT:
+        dummy_addr->f = sig_data_addr->f;
+        break;
+    case HAL_PORT:
+	/*once a pin is unlinked from its signal, it gets set to the empty_port*/
+        dummy_addr->p = 0;
+        break;
+    default:
+        rtapi_print_msg(RTAPI_MSG_ERR,
+              "HAL: BUG: pin '%s' has invalid type %d !!\n",
+              pin->name, pin->type);
+    }
 
-	/* update the signal's reader/writer counts */
-	if ((pin->dir & HAL_IN) != 0) {
-	    sig->readers--;
-	}
-	if (pin->dir == HAL_OUT) {
-	    sig->writers--;
-	}
-	if (pin->dir == HAL_IO) {
-	    sig->bidirs--;
-	}
-	/* mark pin as unlinked */
-	pin->signal = 0;
+    /* update the signal's reader/writer counts */
+    if ((pin->dir & HAL_IN) != 0) {
+        sig->readers--;
+    }
+    if (pin->dir == HAL_OUT) {
+        sig->writers--;
+    }
+    if (pin->dir == HAL_IO) {
+        sig->bidirs--;
+    }
+    /* mark pin as unlinked */
+    pin->signal = 0;
     }
 }
 
@@ -3464,12 +3567,322 @@ static char *halpr_type_string(int type, char *buf, size_t nbuf) {
         case HAL_FLOAT: return "float";
         case HAL_S32: return "s32";
         case HAL_U32: return "u32";
+        case HAL_PORT: return "port";
         default:
             rtapi_snprintf(buf, nbuf, "UNK#%d", type);
             return buf;
     }
 }
 
+
+
+/******************************************************************************
+HAL PORT functions
+******************************************************************************/
+
+static void hal_port_atomic_load(hal_port_shm_t* port_shm, unsigned* read, unsigned* write)
+{
+    *read = atomic_load_explicit(&port_shm->read, memory_order_acquire);
+    *write = atomic_load_explicit(&port_shm->write, memory_order_acquire);
+}
+
+
+static void hal_port_atomic_store_read(hal_port_shm_t* port_shm, unsigned read)
+{
+    atomic_store_explicit(&port_shm->read, read, memory_order_release);
+}
+
+
+static void hal_port_atomic_store_write(hal_port_shm_t* port_shm, unsigned write)
+{
+    atomic_store_explicit(&port_shm->write, write, memory_order_release);
+}
+
+
+static unsigned hal_port_bytes_readable(unsigned read, unsigned write, unsigned size) {
+    if(size == 0) {
+        return 0;
+    } else if (read <= write) {
+        return write - read;
+    } else {
+        return size - read + write;
+    }
+}
+
+
+static unsigned hal_port_bytes_writable(unsigned read, unsigned write, unsigned size) {
+    if(size == 0) {
+        return 0;
+    } else if(write < read) {
+        return read - write - 1;
+    } else {
+        return size - write + read - 1;
+    }
+
+}
+
+
+static bool hal_port_compute_copy(unsigned read,
+                                  unsigned write,
+                                  unsigned size,
+                                  unsigned count, 
+                                  unsigned* end_bytes_to_read, 
+                                  unsigned* beg_bytes_to_read, 
+                                  unsigned* final_pos)
+{
+    unsigned  bytes_avail,
+              end_bytes_avail;
+
+    bytes_avail = hal_port_bytes_readable(read, write, size); 
+
+    if(count > bytes_avail) {
+        return false;
+    } else if(read <= write) {
+        //can read up to write position (no wraparound condition in buffer)
+        *end_bytes_to_read = count;
+        *beg_bytes_to_read = 0;
+        *final_pos = read + count;
+    } else {
+        end_bytes_avail = size - read;
+
+        if(count < end_bytes_avail) {
+            //still only reading from end of buffer
+            *end_bytes_to_read = count;
+            *beg_bytes_to_read = 0;
+            *final_pos = read + count;
+        } else {
+            //read porition of buffer with wrap around to beginning of buffer
+            *end_bytes_to_read = end_bytes_avail;
+            *beg_bytes_to_read = count - end_bytes_avail;
+            *final_pos = *beg_bytes_to_read;
+        }
+    }
+    
+   return true;
+}
+
+
+hal_port_t hal_port_alloc(unsigned size) {
+    hal_port_shm_t* new_port = shmalloc_up(sizeof(hal_port_shm_t) + size);
+
+    memset(new_port, 0, sizeof(hal_port_shm_t));
+
+    new_port->size = size;
+
+    return SHMOFF(new_port);
+}
+
+
+bool hal_port_read(hal_port_t port, char* dest, unsigned count) {
+    unsigned read,
+             write,
+             end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
+             beg_bytes_to_read,   //number of bytes to read at beginning of buffer
+             final_pos;           //final position after read
+    hal_port_shm_t* port_shm = SHMPTR(port);
+    
+
+    if(!port || !count) {
+        return false;
+    } else {
+        hal_port_atomic_load(port_shm, &read, &write);
+
+        if(hal_port_compute_copy(read, 
+                                 write, 
+                                 port_shm->size, 
+                                 count, 
+                                 &end_bytes_to_read, 
+                                 &beg_bytes_to_read, 
+                                 &final_pos)) {
+
+            memcpy(dest, port_shm->buff + read, end_bytes_to_read);
+            memcpy(dest+end_bytes_to_read, port_shm->buff, beg_bytes_to_read);
+            hal_port_atomic_store_read(port_shm, final_pos);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}   
+
+
+bool hal_port_peek(hal_port_t port, char* dest, unsigned count) {
+    unsigned read,
+             write,
+             end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
+             beg_bytes_to_read,   //number of bytes to read at beginning of buffer
+             final_pos;           //final position of read
+    hal_port_shm_t* port_shm = SHMPTR(port);
+
+    if(!port || !count) {
+        return false;
+    } else {
+        hal_port_atomic_load(port_shm, &read, &write);
+
+        if(hal_port_compute_copy(read, 
+                                 write, 
+                                 port_shm->size, 
+                                 count, 
+                                 &end_bytes_to_read, 
+                                 &beg_bytes_to_read, 
+                                 &final_pos)) {
+
+            memcpy(dest, port_shm->buff + read, end_bytes_to_read);
+            memcpy(dest+end_bytes_to_read, port_shm->buff, beg_bytes_to_read);
+            return true;
+        } else {
+            return false;
+        }      
+    }
+}
+
+
+bool hal_port_peek_commit(hal_port_t port, unsigned count) {
+    unsigned read,
+             write,
+             end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
+             beg_bytes_to_read,   //number of bytes to read at beginning of buffer
+             final_pos;           //final position of read
+    hal_port_shm_t* port_shm = SHMPTR(port);
+
+    if(!port || !count) {
+        return false;
+    } else {
+        hal_port_atomic_load(port_shm, &read, &write);
+
+        if(hal_port_compute_copy(read,
+                                 write,
+                                 port_shm->size,
+                                 count,
+                                 &end_bytes_to_read,
+                                 &beg_bytes_to_read,
+                                 &final_pos)) {
+
+            hal_port_atomic_store_read(port_shm, final_pos);
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+
+bool hal_port_write(hal_port_t port, const char* src, unsigned count) {
+    unsigned read,
+             write,
+             bytes_avail,
+             end_bytes_avail,
+             end_bytes_to_write,
+             beg_bytes_to_write,
+             final_pos;
+   
+    hal_port_shm_t* port_shm = SHMPTR(port);
+ 
+    if(!port || !count) {
+	    return false;
+    } else {
+       hal_port_atomic_load(port_shm, &read, &write);
+       bytes_avail = hal_port_bytes_writable(read, write, port_shm->size);
+
+        if(count > bytes_avail) {
+            return false;
+        } else {
+            if (write < read) {
+                //we can write up to one byte behind read
+                end_bytes_to_write = count;
+                beg_bytes_to_write = 0;
+                final_pos = write + count;
+            } else {
+                if(read == 0) {
+                    end_bytes_avail = bytes_avail;
+                } else {
+                    end_bytes_avail = port_shm->size - write;
+                }
+
+                if (count < end_bytes_avail) {
+                    end_bytes_to_write = count;
+                    beg_bytes_to_write = 0;
+                    final_pos = write + count;
+                } else {
+                    end_bytes_to_write = end_bytes_avail;
+                    beg_bytes_to_write = count - end_bytes_to_write;
+                    final_pos = beg_bytes_to_write;
+                }
+            }
+     
+            memcpy(port_shm->buff+write, src, end_bytes_to_write);
+            memcpy(port_shm->buff, src+end_bytes_to_write, beg_bytes_to_write);
+
+            hal_port_atomic_store_write(port_shm, final_pos);
+            return true;
+        }
+    }
+}
+
+
+unsigned hal_port_readable(hal_port_t port) {
+    hal_port_shm_t* port_shm = SHMPTR(port);
+
+    if(!port) {
+        return 0;
+    } else {
+        return hal_port_bytes_readable(port_shm->read, port_shm->write, port_shm->size);
+    }
+}
+
+
+unsigned hal_port_writable(hal_port_t port) {
+    hal_port_shm_t* port_shm = SHMPTR(port);
+             
+    if(!port) {
+        return 0;
+    } else {
+        return hal_port_bytes_writable(port_shm->read, port_shm->write, port_shm->size);
+    }
+}
+
+
+unsigned hal_port_buffer_size(hal_port_t port) {
+    if(!port) {
+        return 0;
+    } else {
+        return ((hal_port_shm_t*)SHMPTR(port))->size;
+    }
+}
+
+
+void hal_port_clear(hal_port_t port) {
+    unsigned read,write;
+    hal_port_shm_t* port_shm = SHMPTR(port);
+
+    if(port) {
+        hal_port_atomic_load(port_shm, &read, &write);
+        hal_port_atomic_store_read(port_shm, write);
+    }
+}
+
+
+#ifdef ULAPI
+void hal_port_wait_readable(hal_port_t** port, unsigned count, sig_atomic_t* stop) {
+    while((hal_port_readable(**port) < count) && (!stop || !*stop)) {
+        rtapi_delay(10000000);
+    }
+}
+
+
+void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* stop) {
+    while((hal_port_writable(**port) < count) && (!stop || !*stop)) {
+        rtapi_delay(10000000);
+    }
+}
+#endif
+
+
+
+
+/*
+hal stream implementation
+*/
 int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *cfg)
 {
     const char *c;
@@ -3746,12 +4159,14 @@ EXPORT_SYMBOL(hal_pin_bit_new);
 EXPORT_SYMBOL(hal_pin_float_new);
 EXPORT_SYMBOL(hal_pin_u32_new);
 EXPORT_SYMBOL(hal_pin_s32_new);
+EXPORT_SYMBOL(hal_pin_port_new);
 EXPORT_SYMBOL(hal_pin_new);
 
 EXPORT_SYMBOL(hal_pin_bit_newf);
 EXPORT_SYMBOL(hal_pin_float_newf);
 EXPORT_SYMBOL(hal_pin_u32_newf);
 EXPORT_SYMBOL(hal_pin_s32_newf);
+EXPORT_SYMBOL(hal_pin_port_newf);
 
 
 EXPORT_SYMBOL(hal_signal_new);
@@ -3805,6 +4220,17 @@ EXPORT_SYMBOL(halpr_find_pin_by_sig);
 
 EXPORT_SYMBOL(hal_pin_alias);
 EXPORT_SYMBOL(hal_param_alias);
+
+EXPORT_SYMBOL(hal_port_alloc);
+EXPORT_SYMBOL(hal_port_read);
+EXPORT_SYMBOL(hal_port_peek);
+EXPORT_SYMBOL(hal_port_peek_commit);
+EXPORT_SYMBOL(hal_port_write);
+EXPORT_SYMBOL(hal_port_readable);
+EXPORT_SYMBOL(hal_port_writable);
+EXPORT_SYMBOL(hal_port_buffer_size);
+EXPORT_SYMBOL(hal_port_clear);
+
 EXPORT_SYMBOL_GPL(hal_stream_create);
 EXPORT_SYMBOL_GPL(hal_stream_destroy);
 EXPORT_SYMBOL_GPL(hal_stream_readable);

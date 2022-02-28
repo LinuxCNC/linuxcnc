@@ -1,0 +1,506 @@
+:lang: es
+:toc:
+
+[[cha:plasma-primer]]
+
+= Basicos del Corte por Plasma para Usuarios de LinuxCNC
+
+== ¿Qué es el plasma?
+
+El plasma es un cuarto estado de la materia, un gas que se ha calentado a una temperatura extremadamente alta e ionizado para que se vuelva eléctricamente conductor. Los procesos de corte y acanalado por arco de plasma utilizan este plasma para transferir un arco eléctrico a la pieza de trabajo. El metal a cortar o quitar se derrite por el calor del arco y se sopla. Si bien el objetivo del corte con arco de plasma es la separación del material, el acanalado con arco de plasma se utiliza para eliminar metales a una profundidad y ancho controlados.
+
+Las antorchas de plasma son similares en diseño a las bujías de automocion. Consisten en secciones negativas y positivas separadas por un aislante central. Dentro de la antorcha, el arco piloto comienza en el espacio entre el electrodo cargado negativamente y la punta cargada positivamente. Una vez que el arco piloto ha ionizado el gas, la columna de plasma sobrecalentada fluye a través del pequeño orificio en la punta de la antorcha, que se enfoca en el metal a cortar.
+
+En una antorcha de corte por plasma, un gas frío ingresa a la Zona B, donde un arco piloto entre el electrodo y la punta de la antorcha calienta e ioniza el gas. El arco de corte principal se transfiere luego a la pieza de trabajo a través de la columna de gas de plasma en la Zona C. Al forzar el gas de plasma y el arco eléctrico a través de un pequeño orificio, la antorcha suministra una alta concentración de calor a un área pequeña. El arco de plasma rígido y restringido se muestra en la Zona C.  Se usa polaridad directa de corriente continua (CC) para el corte por plasma, como se muestra en la ilustración. La zona A canaliza un gas secundario que enfría la antorcha. Este gas también ayuda al gas de plasma de alta velocidad a expulsar el metal fundido del corte permitiendo un corte rápido y sin escoria.
+
+image::images/primer_torch-head.png[width=50%]
+
+== Inicialización de arco
+
+Hay dos métodos principales para la inicialización del arco para cortadores de plasma que están diseñados para funcionar con CNC. Si bien se utilizan otros métodos en algunas máquinas (como el inicio por contacto, donde se requiere el contacto físico de la antorcha con el material), no son adecuados para aplicaciones CNC.
+
+=== Inicio por alta frecuencia
+
+Este tipo de inicio es ampliamente empleado. Aunque es una tecnología más antigua, funciona bien y se inicia rápidamente. Pero, debido a la alta frecuencia y al alto voltaje  que se requiere para ionizar el aire, tiene algunos inconvenientes. A menudo interfiere con los circuitos electrónicos circundantes e incluso puede dañar los componentes. También se necesita un circuito especial para crear el arco piloto. Los modelos de bajo costo no tendrán un arco piloto, y requieren tocar el consumible para comenzar el trabajo. El empleo de un circuito de HF también puede aumentar los problemas de mantenimiento, ya que generalmente hay puntos ajustables que deben limpiarse y reajustarse de vez en cuando.
+
+=== Inicio por Blowback
+
+Este tipo de arranque utiliza la presión de aire suministrada a la cortadora para forzar un pequeño pistón o cartucho dentro del cabezal de la antorcha hacia atrás para crear una pequeña chispa entre la superficie interior del consumible, ionizando el aire y creando una pequeña llama de plasma. Esto también crea un "arco piloto" que proporciona una llama de plasma que permanece encendida, tanto si está en contacto con el metal como si no. Este es un muy buen tipo de inicio que ahora utilizan varios fabricantes. Su ventaja es que requiere algo menos de circuiteria, es bastante confiable y genera mucho menos ruido eléctrico.
+
+
+Para los sistemas CNC de plasma de aire de nivel basico, se prefiere el estilo blowback para minimizar la interferencia eléctrica con la electrónica y las PC estándar, pero el arranque de alta frecuencia sigue siendo el más importante en máquinas grandes de 200 amperios o más. Estos requieren PC’s y dispositivos electrónicos de nivel industrial e incluso los fabricantes comerciales han tenido problemas con fallos porque no han tenido en cuenta el ruido eléctrico en sus diseños.
+
+== Plasma y CNC
+
+Las operaciones de plasma en máquinas CNC son bastante especiales en comparación con el fresado o el torneado y es un proceso un tanto huérfano. El calentamiento desigual del material por el arco de plasma hará que la plancha se pandee y se doble. La mayoría de las planchas de metal no salen de fabrica en un estado muy uniforme o plano. Las planchas gruesas (más de 30 mm) pueden estar fuera de plano de 50 a 100 mm. La mayoría de las operaciones de Código G de una maquina CNC comenzarán a partir de una referencia conocida o una pieza de stock que tiene un tamaño y forma conocidos, y el Código G se escribe para desbastar el exceso y finalmente cortar la parte terminada. Con el plasma, el estado desconocido de la plancha hace que sea imposible generar un código G que satisfaga estas variaciones en el material.
+
+Un arco de plasma tiene forma ovalada y la altura de corte debe controlarse para minimizar  bordes biselados. Si la antorcha está demasiado alta o demasiado baja, los bordes pueden quedar excesivamente biselados. También es crítico que la antorcha se mantenga perpendicular a la superficie.
+
+* La distancia de la antorcha al trabajo puede afectar el bisel del borde *
+
+image::images/primer_cut-angularity.png[width=50%]
+
+* Ángulo de corte negativo: * antorcha demasiado baja, aumente la distancia de la antorcha al trabajo.
+
+* Ángulo de corte positivo: * antorcha demasiado alta, disminuir la antorcha a la distancia de trabajo.
+
+NOTA: Una ligera variación en los ángulos de corte puede ser normal, siempre que esté dentro de tolerancia.
+
+La capacidad de controlar con precisión la altura de corte en un entorno tan hostil y siempre cambiante es un desafío muy difícil. Afortunadamente, existe una relación muy lineal entre la altura de la antorcha (longitud del arco) y el voltaje del arco, como muestra este gráfico.
+
+image::images/primer_volts-height.png[width=50%]
+
+Este gráfico se preparó a partir de una muestra de aproximadamente 16,000 lecturas a diferentes alturas de corte y el análisis de regresión muestra 7.53 voltios por mm con un 99.4% de confianza. En este caso particular, esta muestra fue tomada de una máquina Everlast de 50 amperios controlada por Linuxcnc.
+
+El voltaje de la antorcha se convierte en una variable de control de proceso ideal para usarse en el ajuste de la altura de corte. Supongamos, por simplicidad, que el voltaje cambia en 10 voltios por mm. Esto se puede restablecer a 1 voltio por 0.1 mm (0.04”).
+Los principales fabricantes de máquinas de plasma (por ejemplo, Hypertherm, Thermal Dynamics y ESAB) producen tablas de corte que especifican la altura de corte recomendada y el voltaje de arco estimado a esta altura, así como algunos datos adicionales. Entonces, si el voltaje del arco es 1 voltio más alto que la especificación del fabricante, el controlador simplemente necesita bajar la antorcha en 0.1 mm (0.04 ”) para regresar a la altura de corte deseada.  Tradicionalmente se usa una unidad de control de altura de la antorcha (THC) para administrar este proceso.
+
+== Elegir una máquina de plasma para operaciones CNC
+
+Hay una gran cantidad de máquinas de plasma disponibles en el mercado hoy en día y no todas son aptas para el uso de CNC. El corte por plasma CNC es una operación compleja y se recomienda que los integradores elijan una máquina de plasma adecuada. Si no se hace, es probable que provoque horas y horas de problemas infructuosos tratando de evitar la falta de lo que muchos considerarían características obligatorias.
+
+Si bien las reglas pueden romperse si se comprende completamente los motivos por los que se aplica la regla, consideramos que un constructor de mesas de plasma debería seleccionar una máquina con las siguientes características:
+
+- Inicio blowback, para minimizar el ruido eléctrico y simplificar la construcción.
+- Se prefiere una antorcha para maquina, pero muchos han usado antorchas manuales.
+- Una punta de antorcha totalmente protegida para permitir la detección óhmica
+
+Si tiene presupuesto, una máquina de gama alta le proporcionará:
+
+- Tablas de corte del fabricante, que ahorrarán muchas horas y desperdicio de material al calibrar los parámetros de corte
+- Contactos secos para ArcOK
+- Terminales para el interruptor Arc On
+- Voltaje de arco sin procesar o salida de voltaje de arco dividido 
+- Opcionalmente, una interfaz RS485 si utiliza un cortador de plasma Hypertherm y desea controlarlo desde la consola Linuxcnc.
+- Ciclos de trabajo altos
+
+En los últimos tiempos, una clase de máquina que incluye algunas de estas características está disponible por alrededor de 550 $. Un ejemplo es la Herocut55i disponible en Amazon, pero todavía no hay comentarios de los usuarios. Esta máquina cuenta con una antorcha blowback, salida ArcOK, contactos de inicio de antorcha y voltaje bruto de arco.  
+
+== Tipos de control de altura de antorcha
+
+La mayoría de las unidades de THC son dispositivos externos y muchas tienen un método de ajuste “bit bang” bastante burdo. Proporcionan dos señales  al controlador LinuxCNC. Una se enciende si el eje Z debe moverse hacia arriba y la otra  si el eje Z debe moverse hacia abajo. Ninguna señal es verdadera si la antorcha está a la altura correcta. El popular Proma 150 THC es un ejemplo de este tipo de THC. El componente Linuxcnc THCUD está diseñado para funcionar con este tipo de THC.
+
+Con el lanzamiento de la interfaz de voltaje a frecuencia Mesa THCAD, LinuxCNC pudo decodificar el voltaje real de la antorcha a través de una entrada de encoder. Esto permitió que LinuxCNC controlara el eje Z y eliminara el hardware externo. Las primeras implementaciones que utilizan THCAD replicaron el enfoque "bit bang". El componente Linuxcnc THC es un ejemplo de este enfoque.
+
+Jim Colt, de Hypertherm, dice que los mejores controladores de THC estaban completamente integrados en el controlador CNC. Por supuesto, se refería a los sistemas de gama alta fabricados por Hypertherm, Esab, Thermal Dynamics y otros, como Advanced Robotic Technology en Australia, sin soñar que el código abierto podría producir sistemas utilizando este enfoque que rivaliza con los sistemas de gama alta.
+
+La inclusión de offsets externos en Linuxcnc V2.8 permitió que el control de plasma en LinuxCNC se elevara a un nivel completamente nuevo. Los offsets externos se refieren a la capacidad de aplicar un offset a la posición ordenada del eje, externa al controlador de movimiento. Esto es perfecto para el control de THC por plasma como un método para ajustar la altura de la antorcha en tiempo real según nuestra metodología de control de proceso elegida. Después de una serie de compilaciones experimentales, la configuración link:http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html[QtPlasmaC] se incorporó a LinuxCNC 2.8. Este ha sido un proyecto extremadamente ambicioso y muchas personas en todo el mundo han participado en las pruebas y la mejora del conjunto de características. QtPlasmaC es único en el sentido de que su objetivo de diseño era admitir todos los THC, incluidos los de bit bang, hasta el sofisticado control de voltaje de la antorcha si el voltaje está disponible para LinuxCNC a través de un THCAD o algún otro sensor de voltaje. Además, QtPlasmaC está diseñado para ser un sistema independiente que no necesita ninguna subrutina adicional de código G y permite al usuario definir sus propias tablas de corte que están almacenadas en el sistema y accesibles mediante un menú desplegable.
+
+== Señal Arc OK
+
+Las máquinas de plasma que tienen una interfaz CNC contienen un conjunto de contactos (por ejemplo, un relé) que se cierran cuando se establece un arco válido y cada lado de estos contactos serán pines en la interfaz CNC. Un integrador de mesas de plasma debe conectar un lado de estos pines a la alimentación de campo y el otro a un pin de entrada. Esto permite que el controlador CNC sepa cuándo se establece un arco válido y también cuándo se pierde un arco inesperadamente. Aquí hay una trampa potencial cuando la entrada es un circuito de alta impedancia, como una tarjeta Mesa. Si los contactos son un relé simple, existe una alta probabilidad de que la corriente que pasa a través del relé sea menor que la especificación de corriente mínima. En estas condiciones, los contactos del relé pueden sufrir una acumulación de óxido que con el tiempo puede dar como resultado una operación de contacto intermitente. Para evitar que esto suceda, se debe instalar una resistencia pull-down en el pin de entrada del controlador. Se debe tener cuidado para garantizar que esta resistencia se seleccione para asegurar que la corriente mínima pase a través del relé y tenga la potencia suficiente para manejar la potencia en el circuito. Finalmente, la resistencia debe montarse de tal manera que el calor generado no dañe nada mientras esté en funcionamiento.
+
+Si tiene una señal ArcOK, se recomienda que se use por encima de cualquier señal sintetizada para eliminar posibles problemas de construccion. Una señal sintetizada disponible desde un THC externo o el Modo 0 de QtPlasmaC no puede reemplazar completamente los circuitos ArcOK en un inverter de plasma. Se han observado algunos problemas de construcción en los que se ha producido una mala configuración o incompatibilidad con el inverter de plasma a partir de una señal sintetizada de ArcOK. Sin embargo, en general, una señal ArcOK sintetizada correctamente configurada está bien.
+
+Se puede lograr una señal de arco de arco simple y efectiva con un simple relé reed. Envuelva 3 vueltas de uno de los cables gruesos de la cortadora de plasma (por ejemplo, el cable de sujeción del material) a su alrededor. Coloque el relé en un tubo para protección y conecte un lado del relé a la alimentación de campo y el otro extremo a su pin de entrada ArcOK.
+
+== Detección de altura inicial
+
+Debido a que la altura de corte es un parámetro tan crítico del sistema y la superficie del material es inherentemente desigual, un mecanismo del eje Z necesita un método para detectar la superficie del material. Hay tres métodos que pueden lograr esto; detección de corriente para detectar un mayor par motor, un interruptor  "flotante" y un circuito de detección eléctrico u "óhmico" que se cierra cuando el protector de la antorcha entra en contacto con el material. La detección de corriente no es una técnica viable para las mesas DIY, pero los interruptores de flotador y la detección óhmica si; se analizan a continuación:
+
+=== Interruptores flotantes
+
+La antorcha se monta en una plataforma deslizante que puede moverse hacia arriba cuando la punta de la antorcha hace contacto con la superficie del material y activa un interruptor o sensor. A menudo, esto se logra bajo el control de G-Code utilizando los comandos G38. Si este es el caso, luego de la prueba inicial, se recomienda sondear lejos de la superficie hasta que la señal de la sonda se pierda a una velocidad más lenta. Además, asegúrese de que se tenga en cuenta la histéresis del interruptor.
+
+Independientemente del método de sondeo utilizado, se recomienda encarecidamente que se implemente el interruptor flotante para que haya una señal fallback o secundaria para evitar daños a la antorcha por un choque.
+
+[[ohmic-sensing]]
+
+=== Detección óhmica
+
+La detección óhmica se basa en el contacto entre la antorcha y el material que actúa como un interruptor para activar una señal eléctrica que es detectada por el controlador CNC. Siempre que el material esté limpio, este puede ser un método mucho más preciso para detectar el material que un interruptor  flotante que puede causar la desviación de la superficie del material. Este circuito de detección óhmico está funcionando en un entorno extremadamente hostil, por lo que es necesario implementar una serie de medidas de seguridad para garantizar la seguridad tanto de la electrónica del CNC como del operador. En el corte por plasma, la abrazadera de tierra unida al material es positiva y la antorcha es negativa. Se recomienda que:
+
+. La detección óhmica solo se implementará cuando la antorcha tenga una envuelta aislada de la punta de la antorcha que transporta el arco de corte.
+. El circuito óhmico utiliza una fuente de alimentación aislada totalmente separada que activa un relé optoaislado para permitir que la señal de prueba se transmita al controlador CNC.
+. El lado positivo del circuito debe estar en la antorcha.
+. Ambos lados del circuito deben aislarse mediante relés optoaislados hasta que se realice el sondeo.
+. Se deben usar diodos de bloqueo para evitar que el voltaje de arco ingrese al circuito de detección óhmico.
+
+El siguiente es un circuito de ejemplo que se ha demostrado que funciona y es compatible con la configuración de Linuxcnc QtPlasmaC.
+
+image::images/primer_ohmic-sensing.png[width=100%]
+
+== Hipersensibilidad con  MESA THCAD-5
+
+Un método más sofisticado de detección de material que elimina los relés y diodos es usar otro THCAD-5 para monitorear el voltaje del circuito de detección de material desde una fuente de alimentación aislada. La ventaja que tiene es que el THCAD está diseñado para el entorno eléctrico de plasma hostil y aísla totalmente y con seguridad el lado lógico del lado de alto voltaje.
+
+Para implementar este método, se requiere una segunda entrada de encoder.
+
+Si usa una tarjeta Mesa, hay disponible un firmware diferente para proporcionar 2 entradas adicionales del codificador A en los pines del codificador B y del codificador. Este firmware está disponible para descargar para las placas 7i76e y 7i96 desde el sitio web de Mesa en las páginas del producto.
+
+El THCAD es lo suficientemente sensible como para ver el aumento en el voltaje del circuito a medida que aumenta la presión de contacto. El componente ohmic.comp incluido en Linuxcnc puede monitorear el voltaje de detección y establecer un umbral de voltaje por encima del cual se considera que se hace contacto y se habilita una salida. Al monitorear el voltaje, se puede establecer un umbral inferior de "circuito de interrupción" para construir una fuerte histéresis de interruptor. Esto minimiza los disparos falsos. En nuestras pruebas, descubrimos que la detección de material mediante este método era más sensible y robusta, además de ser más simple de implementar el cableado. Una ventaja adicional es el uso de salidas de software en lugar de pines físicos de E/S es que libera pines para usar para otros fines. Esta ventaja es útil para aprovechar al máximo la Mesa 7i96, que tiene pines de E/S limitados.
+
+El siguiente diagrama de circuito muestra cómo implementar un circuito de hipersensibilidad.
+
+image::images/primer_hypersensing.png[width=75%]
+
+Utilizamos una Fuente de alimentación aislada de riel DIN Mean Well HDR-15 ultradelgada de 15 vatios basada en riel DIN de 24 V .. Este es un dispositivo de doble aislamiento de clase II que resistirá cualquier voltaje de arco que pueda aplicarse a los terminales.
+
+== Ejemplo de código HAL para hipersensibilidad
+
+El siguiente código HAL se puede pegar en su QtPlasmaC custom.hal para habilitar la detección Ohmica en el codificador 2 de un 7i76e. Instale el archivo de bits correcto y conecte el THCAD a IDX + e IDX-. Asegúrese de cambiar la configuración de calibración para estar de acuerdo con su THCAD-5.
+
+----
+# --- Cargue el componente ---
+loadrt ohmic names=ohmicsense
+addf ohmicsense servo-thread
+
+# --- 7i76e CONFIGURACIÓN DEL CODIFICADOR 2 PARA SENSADO OHMICO ---
+setp hm2_7i76e.0.encoder.02.scale -1
+setp hm2_7i76e.0.encoder.02.counter-mode 1
+
+# --- Configure el componente --- 
+setp ohmicsense.thcad-0-volt-freq    140200
+setp ohmicsense.thcad-max-volt-freq  988300
+setp ohmicsense.thcad-divide         32
+setp ohmicsense.thcad-fullscale      5
+setp ohmicsense.volt-divider         4.9
+setp ohmicsense.ohmic-threshold      22.0
+setp ohmicsense.ohmic-low            1.0
+net ohmic-vel ohmicsense.velocity-in <= hm2_7i76e.0.encoder.02.velocity
+
+# --- Reemplace la señal de detección óhmica de QtPlasmaC --- 
+unlinkp debounce.0.2.in
+net ohmic-true ohmicsense.ohmic-on => debounce.0.2.in
+net plasmac:ohmic-enable    =>  ohmicsense.is-probing
+----
+
+== Retraso THC
+
+Cuando se establece un arco, el voltaje del arco alcanza un pico significativo y luego se estabiliza a un voltaje estable a la altura de corte. Tal como se muestra por la línea verde en la imagen a continuación.
+
+image::images/primer_thc-delay.png[width=100%]
+
+Es importante que el controlador de plasma "espere" antes de muestrear automáticamente el voltaje de la antorcha y comenzar el control de THC. Si se habilita demasiado pronto, el voltaje estará por encima de los voltios de corte deseados y la antorcha se bajará en un intento de abordar una condición de sobre-altura percibida.
+
+En nuestras pruebas, esto varía entre máquinas y material de 0.5 a 1.5 segundos. Por lo tanto, una demora de 1.5 segundos después de que se recibe una señal válida de arcoOK antes de habilitar el control de THC es una configuración inicial segura. Si desea acortar esto para un material determinado, el  Halscope de LinuxCNC le permitirá trazar el voltaje de la antorcha y tomar decisiones informadas sobre el menor retraso seguro a utilizar.
+
+
+NOTA: Si la velocidad de corte no está cerca de la velocidad de corte deseada al final de este retraso, el controlador debe esperar hasta que esto se logre antes de habilitar el THC.
+
+== Muestreo de voltaje de antorcha
+
+En lugar de confiar en las tablas de corte del fabricante para establecer el voltaje de la antorcha deseado, muchas personas (incluido el escritor) prefieren probar el voltaje a medida que el THC está habilitado y usarlo como un punto de ajuste.
+
+== Ruptura de antorcha
+
+Se recomienda que se proporcione un mecanismo para permitir que la antorcha se "rompa" o se caiga en caso de impacto con el material o una parte cortada que se haya volcado. Debe instalarse un sensor para permitir que el controlador CNC detecte si esto ha ocurrido y pause el programa en ejecución. Por lo general, esto se implementa usando imanes para asegurar la antorcha a la etapa del eje Z.
+
+== Esquinas;  anti-inmersión por baja velocidad
+
+El planificador de trayectoria Linuxcnc es responsable de traducir los comandos de velocidad y aceleración en movimiento que obedece las leyes de la física. Por ejemplo, el movimiento se ralentizará al negociar una esquina. Si bien esto no es un problema con las fresadoras o enrutadores, esto plantea un problema particular para el corte por plasma ya que el voltaje del arco aumenta a medida que el movimiento disminuye. Esto hará que el THC baje la antorcha. Una de las enormes ventajas de un control THC integrado en el controlador de movimiento LinuxCNC es que sabe lo que está sucediendo en todo momento. Por lo tanto, se convierte en una cuestión trivial controlar la velocidad actual (motion.current-speed) y mantener la operación de THC si cae por debajo de un umbral establecido (por ejemplo, 10% por debajo de la velocidad de avance deseada.
+
+== Cruce de vacío / Kerf
+
+Si la antorcha de plasma pasa sobre un vacío durante el corte, el voltaje del arco aumenta rápidamente y el THC responde con un movimiento violento hacia abajo que puede aplastar la antorcha en el material y dañarla. Esta es una situación que es difícil de detectar y manejar. Hasta cierto punto, puede mitigarse con buenas técnicas de anidación, pero aún puede ocurrir en material más grueso cuando un retal cae. Este es el único problema que aún no se ha resuelto dentro del movimiento de código abierto LinuxCNC.
+
+Una técnica sugerida es monitorear la tasa de cambio en los voltios de la antorcha a lo largo del tiempo (dv / dt) porque este parámetro es de orden de magnitud mayor al cruzar un vacío que lo que ocurre debido a la deformación normal del material. El siguiente gráfico muestra una gráfica de baja resolución de dv / dt (en azul) mientras cruza un vacío. La curva roja es un promedio móvil de voltios de antorcha.
+
+image::images/primer_kerf-cross.png[width=50%]
+
+Por lo tanto, debería ser posible comparar el promedio móvil con dv/dt y detener la operación del THC una vez que dv/dt exceda el rango normal esperado debido a la deformación. Se necesita más trabajo en esta área para encontrar una solución de trabajo en LinuxCNC.
+
+== Agujero y corte de forma pequeña
+
+Se recomienda reducir la velocidad de corte al cortar agujeros y formas pequeñas.
+
+John Moore dice: “Si desea detalles sobre el corte de agujeros pequeños y precisos, consulte las hojas de ventas de Hypertherm  " True Hole Technolog " y también en PlasmaSpider, el usuario Seanp ha publicado mucho sobre su trabajo utilizando plasma de aire simple.
+
+El método generalmente aceptado para obtener buenos agujeros de 37 mm de diámetro. y hasta el grosor del material con un mínimo cono usando un plasma de aire es:
+
+. Utilice la corriente de corte recomendada para los consumibles.
+. Utilice la altura de corte recomendada fija (sin THC) para los consumibles.
+. Corte del 60% al 70% de la tasa de alimentación recomendada de consumibles y materiales.
+. Comience en o cerca del centro del agujero.
+. Use entrada perpendicular.
+. Sin salida, ya sea una ligera quemadura o un apagado de antorcha temprano dependiendo de lo que funcione mejor para usted.
+
+Tendrá que experimentar para obtener el tamaño exacto del agujero porque el corte con este método será más ancho que su corte recto habitual ".
+
+Esta ralentización se puede lograr manipulando la velocidad de alimentación directamente en su postprocesador o utilizando alimentación adaptativa y un pin analógico como entrada. Esto le permite usar M67 / M68 para establecer el porcentaje de alimentación deseada para cortar.
+
+- Conociendo el avance
+
+De la discusión anterior es evidente que el controlador de plasma necesita conocer la velocidad de alimentación establecida por el usuario. Esto plantea un problema con LinuxCNC porque LinuxCNC no guarda la velocidad de avance después de que el código G se almacena y analiza. Hay dos enfoques para solucionar esto:
+
+. Vuelva a asignar el comando F y guarde la velocidad de avance ordenada establecida en G-Code a través de un comando M67 / M68
+. Almacenar las tablas de corte en el controlador de plasma y permitir que el programa G-Code consulte la velocidad de avance actual (como lo hace QtPlasmaC)
+
+Una rama experimental de Linuxcnc que sería útil para el corte por plasma fue la rama de etiquetas de estado. Esto agrega una "etiqueta" que está disponible para el movimiento que contiene las velocidades de avance y velocidad actuales para todos los comandos de movimiento activos. Se ha fusionado y estará en LinuxCNC v2.9
+
+== Pines de E/S para controladores de plasma
+
+Los cortadores de plasma requieren varios pines adicionales. En LinuxCNC, no hay reglas estrictas sobre qué hace cada pin. En esta discusión asumiremos que el plasma tiene una interfaz CNC y que la tarjeta controladora tiene entradas activas altas en uso (por ejemplo, Mesa 7i76e).
+
+Las mesas de plasma pueden ser máquinas grandes y le recomendamos que se tome el tiempo de instalar interruptores de límite máximo / mínimo e interruptores home separados para cada articulacion. La excepción podría ser el límite inferior del eje Z. Cuando se activa un interruptor home, la articulación se desacelera bastante lentamente para obtener la máxima precisión. Esto significa que si desea utilizar velocidades de homing que sean proporcionales al tamaño de la mesa, puede sobrepasar el punto de activación inicial en 50-100 mm. Si utiliza un interruptor de límite/home compartido, debe mover el sensor fuera del punto de activación con  HOME_OFFSET final o activará una falla del interruptor de límite cuando la máquina salga de la referencia. Esto significa que podría perder 50 mm o más de recorrido del eje con interruptores home/límite compartidos. Esto no sucede si se usan interruptores home y límite separados.
+
+Por lo general, se requieren los siguientes pines (tenga en cuenta que las conexiones sugeridas pueden no ser apropiadas para una configuración de QtPlasmaC):
+
+=== Arco OK (entrada)
+
+* El inverter cierra los contactos cuando se establece un arco válido.
+* Conecte la alimentación de campo a un terminal ArcOK del inverter.
+* Conecte el otro terminal al pin de entrada.
+* Usualmente conectado a uno de los pines 'motion.digital-<nn>' para usar desde G-Code con M66
+
+=== Antorcha ON (salida)
+
+* Activa un relé para cerrar la antorcha en el interruptor en el inverter
+* Conecte la antorcha en los terminales del inverter a los terminales de salida del relé
+* Conecte un lado de la bobina del relé al pin de salida
+* Conecte el otro lado de la bobina del relé a tierra de la alimentación de campo.
+* Si se utiliza un relé mecánico, conecte un diodo flyback (por ejemplo, uno de la serie IN400x) a través de los terminales de la bobina con la banda del diodo apuntando hacia el pin de salida
+* Si se utiliza un relé de estado sólido, puede ser necesario observar la polaridad en las salidas
+* En algunas circunstancias, se puede usar el relé del husillo integrado en las tarjetas Mesa en lugar de un relé externo.
+* Generalmente conectado a 'spindle.0.on'
+
+[WARNING] Se recomienda encarecidamente que la antorcha no se pueda habilitar mientras este pin sea falso; de lo contrario, la antorcha no se apagará cuando se presione Estop;
+
+=== Interruptor flotante (entrada)
+
+* Utilizado para sondeo de superficie. Un sensor o interruptor que se activa si la antorcha se desliza hacia arriba cuando toca el material.
+* Conecte la salida del sensor de proximidad al pin de entrada elegido. Si se utilizan interruptores mecánicos, conecte un lado del interruptor a la alimentación de campo y el otro lado a la entrada.
+* Generalmente conectado a 'motion.probe-input'
+
+
+=== Activación del sensor óhmico (salida)
+
+* Vea el esquema de <<ohmic-sensing,detección óhmica>>.
+* Conecte el pin de salida a un lado de los relés de aislamiento y el otro lado a tierra de la alimentación de campo.
+* En una configuración que no sea QtPlasmaC, generalmente activado por un 'motion.digital-out-<nn>' para que M62 / M63 / M64 / M65 pueda controlarlo en G-Code
+
+
+=== Detección óhmica (entrada)
+
+* Tenga cuidado de seguir el esquema de <<ohmic-sensing,detección óhmica>> mostrado anteriormente.
+* Una fuente de alimentación aislada activa un relé cuando el protector de la antorcha hace contacto con el material.
+* Conecte la alimentación de campo a un terminal de salida y el otro a la entrada.
+* Tenga cuidado de observar la polaridad del relé si se utilizan relés de estado sólido optoacoplados.
+* Por lo general, está conectado a 'motion.probe-input' y se puede conectar con el interruptor flotante.
+
+Como se puede ver, las mesas de plasma son intensivas en pines y ya hemos consumido alrededor de 15 entradas antes de que se agreguen los estop normales. Otros tienen otros puntos de vista, pero es la opinión del escritor que la tarjeta Mesa 7i76e es preferible sobre la más barata 7i96 para permitir el MPG, switch de selección de escala y eje y otras características que puede agregar con el tiempo. Si su mesa usa servos, hay varias alternativas. Si bien hay otros proveedores, diseñar su máquina alrededor del ecosistema de Mesa simplificará el uso de su placa THCAD para leer el voltaje del arco.
+
+=== Breakaway de la antorcha
+
+* Como se mencionó anteriormente, se debe instalar un sensor de ruptura que se dispara si la antorcha se estrella y se cae.
+* Por lo general, esto se conectaría a 'halui.program-pause' para que la falla se pueda rectificar y se reanude el programa.
+
+
+== Código G para controladores de plasma
+
+La mayoría de los controladores de plasma ofrecen un método para cambiar la configuración de G-Code. Linuxcnc admite esto a través de M67/M68 para comandos analógicos y M62-M65 para digital (comandos de encendido/apagado). Cómo se implemente esto es totalmente arbitrario. Veamos cómo la configuración de LinuxCNC QtPlasmaC hace esto:
+
+=== Seleccione la configuración del material en QtPlasmaC y use la velocidad de avance para ese material:
+
+----
+M190 Pn
+M66 P3 L3 Q1
+F # <_ hal [plasmac.cut-feed-rate]>
+M3 S1
+----
+
+NOTA: Los usuarios con una gran cantidad de entradas en la tabla de materiales de QtPlasmaC pueden necesitar aumentar el parámetro Q1 (por ejemplo, Q2)
+
+=== Habilitar/deshabilitar la operación del THC:
+
+----
+M62 P2 desactivará el THC (sincronizado con movimiento)
+M63 P2 habilitará el THC (sincronizado con movimiento)
+M64 P2 desactivará el THC (inmediatamente)
+M65 P2 habilitará el THC (inmediatamente)
+----
+
+=== Reducir las velocidades de corte: (por ejemplo, para cortar agujeros)
+
+----
+M67 E3 Q0 establecería la velocidad al 100% de la velocidad solicitada
+M67 E3 Q40 establecería la velocidad al 40% de la velocidad solicitada
+M67 E3 Q60 establecería la velocidad al 60% de la velocidad solicitada
+M67 E3 Q100 establecería la velocidad al 100% de la velocidad solicitada
+----
+
+=== Compensación del cortador:
+
+----
+G41.1 D # <_ hal [plasmac_run.kerf-width-f]>; para la izquierda de la ruta programada
+G42.1 D # <_ hal [plasmac_run.kerf-width-f]> para la derecha de la ruta programada
+G40 para desactivar la compensación
+----
+
+NOTA: Los integradores deben familiarizarse con la documentación de Linuxcnc para los diversos comandos de Linuxcnc G-Code mencionados anteriormente.
+
+== Offsets externos y corte por plasma
+
+Los offsets externos se introdujeron en Linuxcnc con la versión 2.8. Por externo, significa que podemos aplicar un desplazamiento externo al Código G del que el planificador de trayectorias no sabe nada. Es más fácil de explicar con un ejemplo. Imagine un torno con un desplazamiento externo aplicado por una fórmula matemática para mecanizar el lobulo en una leva.  El torno gira a ciegas con el diámetro de corte establecido en un diámetro fijo y el desplazamiento externo mueve la herramienta hacia adentro y hacia afuera para mecanizar el lóbulo de la leva a través de un desplazamiento externo aplicado. Para configurar nuestro torno para mecanizar esta leva, necesitamos asignar una parte de la velocidad y aceleración del eje a offsets externos o la herramienta no puede moverse. Aquí es donde entra en juego la variable ini OFFSET_AV_RATIO. Digamos que decidimos que necesitamos asignar el 20% de la velocidad y la aceleración al offset externo al eje Z.Establecemos esto igual a 0.2. La consecuencia de esto es que su velocidad y aceleración máximas para el eje Z del Torno es solo el 80% de lo que podría ser.
+
+Los offsets externos son un método muy poderoso para hacer ajustes de altura de la antorcha al eje Z a través de un THC. Pero el plasma tiene que ver con las altas velocidades y la aceleración rápida, por lo que no tiene sentido limitar estos parámetros. Afortunadamente en una máquina de plasma, el eje Z está 100% controlado por el THC o no lo está. Durante el desarrollo de los offsets externos de Linuxcnc se reconoció que el movimiento del eje Z por G-Code y por THC eran mutuamente excluyentes. Esto nos permite engañar a los offsets externos para que den el 100% de la velocidad y la aceleración todo el tiempo. Podemos hacer esto duplicando los ajustes de velocidad y aceleración del eje Z de la máquina en el archivo ini y establecer OFFSET_AV_RATIO = 0.5. De esa manera, el 100% de la velocidad y aceleración máximas estarán disponibles tanto para sondeo como para THC.
+
+Ejemplo:
+En una máquina métrica con un motor NEMA23 con un accionamiento directo a un husillo de bolas de 5 mm, se determinó que una velocidad máxima de 60 mm/s y una aceleración de 700 mm/s/s eran valores seguros sin pérdida de pasos. Para esta máquina, configure el eje Z en el archivo ini de la siguiente manera:
+
+----
+[AXIS_Z]
+OFFSET_AV_RATIO = 0.5
+MAX_VELOCITY = 120
+MAX_ACCELERATION = 1400
+----
+
+La articulacion asociada con este eje tendría las variables de velocidad y aceleración establecidas de la siguiente manera:
+
+----
+[JOINT_n]
+MAX_VELOCITY = 60
+MAX_ACCELERATION = 700
+----
+
+Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la <<sec:axis-section,Seccion [AXIS_<letter>]>> del documento del archivo INI y <<cha:external-offsets, Offsets externos>> en la documentación de Linuxcnc.
+
+== Lectura de voltaje de arco con el THCAD de Mesa
+
+La tarjeta Mesa THCAD es un convertidor de voltaje a frecuencia, preciso y con buen precio, que está diseñado para el entorno eléctrico ruidoso y hostil asociado con el corte por plasma. Internamente tiene un rango de 0-10 voltios. Este rango puede ampliarse simplemente agregando algunas resistencias como se describe en la documentación. Esta placa está disponible en tres versiones, el THCAD-5, más nuevo, con un rango de 0-5 voltios, el THCAD-10 con un rango de 0-10 voltios y el THCAD-300 que está precalibrado para un rango extendido de 300 voltios. Cada placa se calibra individualmente y se aplica una etiqueta adhesiva a la placa que indica la frecuencia a 0 voltios y a escala completa. Para usar con LinuxCNC, se recomienda que el divisor 1/32 sea seleccionado por el enlace apropiado en la placa. En este caso, asegúrese de dividir también las frecuencias establecidas por 32.Esto es más apropiado para el hilo servo de 1 kHz y también le da más tiempo al THCAD para promediar y suavizar la salida.
+
+Hay mucha confusión acerca de cómo decodificar la salida THCAD, así que consideremos la Mesa 7i76e y el THCAD-10 por un momento con los siguientes datos de calibración hipotéticos:
+
+* Escala completa 928,000 Hz (1/32 29,000 Hz)
+* 0 voltios 121,600 Hz (1/32 3,800 Hz)
+
+Debido a que la escala completa es de 10 voltios, entonces la frecuencia por voltio es:
+
+----
+(29,000 - 3,800) / 10 = 2,520 Hz por voltio
+----
+
+Asumiendo que tenemos una entrada de 5 voltios, la frecuencia calculada sería:
+
+----
+(2,520 * 5) + 3,800 = 16,400
+----
+
+Ahora debería quedar bastante claro cómo convertir la frecuencia a su voltaje equivalente:
+
+----
+Voltios = (frecuencia - 3,800) / 2,520
+----
+
+=== Conexiones THCAD
+
+En el lado de alto voltaje:
+
+* Conecte el voltaje de arco dividido o sin procesar a IN + e IN-
+* Conecte el blindaje del cable de interconexión a la conexión de blindaje.
+* Conecte el otro terminal del blindaje a tierra.
+
+Suponiendo que está conectado a una 7i76e, conecte la salida a la entrada del codificador de husillo:
+
+* THCAD + 5v a TB3 Pin 6 (+5 VP)
+* THCAD -5v a TB3 Pin 1 (GND)
+* THCAD FOUT + a TB3 Pin 7 (ENC A +)
+* THCAD FOUT- a TB3 Pin 8 (ENC A-)
+
+=== Prueba inicial de THCAD
+
+Asegúrese de tener las siguientes líneas en su archivo ini (suponiendo una Mesa 7i76e):
+----
+setp hm2_7i76e.0.encoder.00.scale -1
+setp hm2_7i76e.0.encoder.00.counter-mode 1
+----
+
+Encienda su controlador y abra Halshow (Axis: Mostrar Configuración HAL), profundice para encontrar el pin  'hm2_7i76e.0.encoder.00.velocity'. Con 0 voltios aplicados, debería estar rondando la frecuencia de 0 voltios (3.800 en nuestro ejemplo). Tome una batería de 9 voltios y conéctela a IN + e IN-. Para un THCAD-10 ahora puede calcular la velocidad esperada. (26,480 en nuestro ejemplo hipotético). Si pasa esta prueba, está listo para configurar su controlador de plasma LinuxCNC.
+
+=== Qué modelo THCAD usar
+
+El THCAD-5 es útil si tiene la intención de usarlo para la detección óhmica. No hay duda de que el THCAD-10 es el dispositivo más flexible y es fácil alterar la escala. Sin embargo, hay una advertencia que puede entrar en juego con algunos cortadores de plasma más baratos con un divisor de voltaje incorporado. Es decir, las resistencias internas pueden ser percibidas por el THCAD como parte de su propia resistencia externa y devolver resultados erróneos. Por ejemplo, el divisor 16:1 en las cortadoras de plasma Everlast debe tratarse como 24:1 (y 50:1 se convierte en 75:1). Esto no es un problema con marcas de mayor reputación (p. Ej., Thermal Dynamics, Hypertherm, ESAB, etc.). Por lo tanto, si observa voltajes de corte inferiores a los esperados, podría ser preferible volver a configurar el THCAD para leer el voltaje de arco sin procesar.
+
+Recordando que los voltajes de arco de plasma son potencialmente letales, aquí hay algunos criterios sugeridos. 
+
+.Inicio del arco piloto
+
+Debido a que no es probable que haya ningún EMI significativo, debería poder instalar de forma segura el THCAD en su panel de control si ha seguido nuestras pautas de construcción. 
+
+* Si no tiene un divisor de voltaje, instale resistencias de escala dentro del cortador de plasma e instale el THCAD en el panel de control o siga las sugerencias para máquinas de arranque de alta frecuencia.
+
+* Si tiene un divisor de voltaje, instale un THCAD-10 en su panel de control. No hemos tenido problemas con esta configuración con un cortador de plasma Thermal Dynamics de 120 amp.
+
+. Inicio HF 
+
+Instale el THCAD en el inverter ya que la señal de frecuencia es mucho más inmune al ruido EMI. 
+
+* Si no tiene un divisor de voltaje y tiene espacio dentro del cortador de plasma, instale un THCAD-300 dentro del cortador de plasma.
+
+* Si no tiene un divisor de voltaje y no tiene espacio dentro del cortador de plasma, instale un THCAD-10 en una caja de metal fuera del cortador de plasma e instale el 50% de la resistencia de escala en cada uno de los IN + e IN- dentro la carcasa del cortador de plasma para que no salgan voltajes letales de la carcasa.
+
+* Si tiene un divisor de voltaje, instale un THCAD-10 en una caja de metal fuera del cortador de plasma
+
+.Tensión de arco presentada en un conector
+
+En este caso, independientemente del método de inicio del arco, probablemente ya haya resistencias incluidas en los circuitos para evitar choques letales, por lo que se recomienda un THCAD-10 para que esta resistencia (generalmente 200k Ohms) pueda tenerse en cuenta al elegir una resistencia de escala en tanto estas resistencias distorsionarán el voltaje reportado por el THCAD-300.
+
+== Post procesadores y anidamiento
+
+El plasma no es diferente a otras operaciones de CNC en tanto en cuanto:
+
+. Es diseñado en CAD (donde se emite como un formato DXF o, a veces, SVG).
+. Es procesado en CAM para generar el código G final que se carga en la máquina
+. Corta las piezas mediante comandos de código G del CNC.
+
+Algunas personas logran buenos resultados con las herramientas Inkscape y G-Code, pero SheetCam es una solución de muy buen precio y hay una serie de posprocesadores disponibles para Linuxcnc. SheetCam tiene una serie de características avanzadas diseñadas para el corte por plasma y, por el precio, es una obviedad para cualquiera que realice un corte por plasma regular.
+
+== Diseñando para entornos eléctricos ruidosos
+
+El corte por plasma es inherentemente un entorno eléctrico extremadamente hostil y ruidoso. Si tiene problemas de EMI, las cosas no funcionarán correctamente. En un ejemplo más que obvio,  puede que al encender la antorcha,  la computadora se reinicie, pero puede tener cualquier número de síntomas extraños. Casi todo sucederá solo cuando la antorcha esté cortando, a menudo cuando se dispara por primera vez.
+
+Por lo tanto, los creadores de sistemas deben seleccionar los componentes con cuidado y diseñar desde cero para hacer frente a este entorno hostil para evitar el impacto de la interferencia electromagnética (EMI). De lo contrario, se podrían generar innumerables horas de resolución infructuosa.
+
+Elegir placas  ethernet como la Mesa 7i76e, o la más barata 7i96, ayuda al permitir que la PC se ubique lejos de la electrónica y la máquina de plasma. Este hardware también permite el uso de sistemas lógicos de 24 voltios que son mucho más tolerantes al ruido. Los componentes deben montarse en una carcasa metálica conectada a la tierra de la red electrica. Se recomienda encarecidamente que se instale un filtro EMI en la conexión de alimentación de red. La forma más sencilla es utilizar un conector IEC de alimentación de red con filtro EMI de uso común en PC y electrodomésticos, lo que permite lograrlo sin trabajo adicional. Planifique la disposición de los componentes en el cuadro para que la alimentación de la red, los cables del motor de alto voltaje y las señales lógicas se mantengan lo más separadas posible entre sí. Si tienen que cruzar, manténgalas a 90 grados.
+
+Peter Wallace de Mesa Electronics sugiere; “Si tiene una fuente de plasma compatible con CNC con un divisor de voltaje, montaría el THCAD dentro de su caja electrónica con el resto del hardware de movimiento. Si tiene una fuente de plasma manual y está leyendo voltaje de plasma sin procesar, montaría el THCAD lo más cerca posible de la fuente de plasma (incluso dentro de la caja de la fuente de plasma si cabe). En este caso, asegúrese de que todo el lado bajo de las conexiones THCAD están completamente aisladas de la fuente de plasma. Si utiliza una caja blindada para el THCAD, el blindaje debe conectarse a la tierra de su caja de electrónica, no a la tierra de la fuente de plasma ".
+
+Se recomienda pasar  cables de tierra separados de las cajas de los motores y la antorcha de regreso a un punto central de conexión a tierra de la máquina. Conecte el cable de tierra de plasma a este punto y, opcionalmente, una varilla de tierra clavada en el suelo lo más cerca posible de la máquina (especialmente si se trata de una máquina de plasma de alta frecuencia).
+
+El cableado externo a los motores debe estar blindado y dimensionado adecuadamente para manejar la corriente que pasa por el circuito. El blindaje debe dejarse desconectado en el extremo del motor y conectado a tierra en el extremo de la caja de control. Considere usar un pin adicional en cualquier conector en la caja de control para que la tierra pueda extenderse hasta la caja de control y conectarse a tierra al chasis directamente en el controlador del motor paso a paso / servo.
+
+Somos conscientes de que al menos un fabricante de sistemas comerciales ha tenido problemas con el ruido eléctrico inducido en el circuito de detección óhmico. Si bien esto puede mitigarse utilizando ferritas y enrollando el cable, también se recomienda agregar un filtro de alimentación a través de la línea de alimentación donde la señal de detección óhmica ingresa al gabinete de la electrónica.
+
+Tommy Berisha, el maestro de la construcción de máquinas de plasma con un presupuesto ajustado, dice: “Si tiene un presupuesto limitado, considere usar viejos alimentadores de energía para computadoras portátiles. Son muy buenos, el filtrado es bueno, completamente aislado, limitados por la corriente (esto se vuelve muy importante cuando algo sale mal), y ajustar 2 o 3 de ellos en serie es fácil ya que están aislados (tenga en cuenta que algunos tienen la conexión a tierra al terminal de salida negativa, por lo que tiene que ser desconectado, simplemente haciendo uso de un cable de alimentación sin contactos a tierra) ".
+
+== Mesas de agua
+
+El nivel mínimo de agua debajo del nivel de corte de la antorcha debe ser de alrededor de 40 mm, tener espacio debajo de los listones es agradable para que el agua pueda nivelarse y escapar durante el corte, tener un poco de agua sobre la placa de metal que se está cortando es realmente agradable en la medida que se deshace del polvo, dejarlo sumergido es la mejor manera, pero no es preferible para sistemas con uso a tiempo parcial, ya que corroerá la antorcha. Agregar bicarbonato de sodio al agua mantendrá la mesa en buenas condiciones durante muchos años, ya que no permite la corrosión mientras los listones están bajo el agua y también reduce el olor del agua. Algunas personas usan un depósito de agua con una entrada de aire comprimido para poder empujar el agua desde el depósito hasta la mesa a demanda y así permitir cambios en los niveles de agua.
+
+== Mesas de tiro descendente
+
+Muchas mesas comerciales utilizan un diseño de tiro descendente, por lo que los ventiladores se utilizan para aspirar el aire a través de los listones para capturar humos y chispas. A menudo, las mesas se dividen en zonas, por lo que solo una sección debajo de la antorcha se abre a la ventilación de salida, a menudo utilizando rams de aire y solenoides de aire para abrir las persianas. La activación de estas zonas es relativamente sencilla si utiliza la posición de la articulacion o del eje desde uno de los pines de movimiento y el componente lincurve para mapear las zonas de tiro descendente al pin de salida correcto.
+
+== Diseñando para velocidad y aceleración
+
+En el corte por plasma, la velocidad y la aceleración son son los reyes Cuanto mayor es la aceleración, menos necesita reducir la velocidad de la máquina al negociar curvas. Esto implica que el pórtico debe ser lo más ligero posible sin sacrificar la rigidez torsional. Una caja de aluminio de seccion 100 mm x 100 mm x 2 mm tiene una rigidez torsional equivalente a un perfil extruido de ranuras  T de 80 mm x 80 mm, pero es un 62% más liviana. Por tanto, ¿la facilidad de las ranuras en T supera el trabajo de construcción adicional?
+
+== Distancia recorrida por revolución del motor
+
+Los motores paso a paso sufren de resonancia y es probable que un piñón de transmisión directa signifique que el motor está funcionando en condiciones desfavorables. Idealmente, para máquinas de plasma, una distancia de alrededor de 15-25 mm por revolución del motor se considera ideal, pero incluso alrededor de 30 mm por revolución sigue siendo aceptable. Un tornillo de bolas de 5 mm de paso con una unidad de reducción de 3:1 o 5:1 es ideal para el eje Z.
+
+== QtPlasmaC, Configuración de plasma LinuxCNC 
+
+La link:http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html[configuración de QtPlasmaC] se compone de un componente HAL (plasmac.hal) más configuraciones completas para Axis y Gmoccapy ha recibido una contribución considerable de muchos en el movimiento de código abierto LinuxCNC que ha avanzado  en la comprensión de los controladores de plasma desde aproximadamente 2015. Se han realizado muchas pruebas y trabajos de desarrollo para lograr que QtPlasmaC alcance su estado de funcionamiento actual. Se ha incluido todo, desde el diseño del circuito hasta el control y la configuración del código G. Además, QtPlasmaC admite THC externos como el Proma 150, pero realmente se destaca cuando se combina con un controlador Mesa, ya que esto permite que el integrador incluya el convertidor de voltaje a frecuencia Mesa THCAD, diseñado específicamente para lidiar con el entorno de plasma hostil.
+
+QtPlasmaC está diseñado para ser independiente e incluye la capacidad de incluir sus tablas de corte, pero también incluye características para ser utilizadas con un postprocesador como SheetCam.
+
+El sistema QtPlasmaC ahora está incluido en la Versión 2.8 y superior de Linuxcnc. Ahora es bastante maduro y se ha mejorado significativamente desde que se escribió la primera versión de esta guía. QtPlasmaC definirá el soporte de plasma de LinuxCNC durante muchos años, ya que incluye todas las características de un sistema patentado de control de plasma de gama alta a un precio de código abierto.
+
+== Control Hypertherm RS485
+
+Algunas cortadoras de plasma Hypertherm tienen una interfaz RS485 para permitir que el controlador (por ejemplo, Linuxcnc) establezca amperios presión y el modo. Varias personas han utilizado un componente de espacio de usuario escrito en Python para lograr esto. Ahora, QtPlasmaC ahora admite esta interfaz de forma nativa. Consulte la documentación de QtPlasmaC para saber cómo usarlo.
+
+La combinación de una velocidad de transmisión lenta utilizada por Hypertherm y el componente de espacio de usuario hace que esto sea bastante lento para alterar los estados de la máquina, por lo que generalmente no es viable cambiar la configuración sobre la marcha mientras se corta.
+
+Al seleccionar una interfaz RS485 para usar en el extremo de la PC, los usuarios informaron que los interfaces USB a RS485 no son confiables. Se han logrado resultados buenos y confiables utilizando una interfaz RS232 basada en hardware (por ejemplo, PCI/PCIe o puerto de placa base) y un convertidor RS485 apropiado. Algunos usuarios han informado de éxito con una tarjeta Sunix P/N:SER5037A PCI RS2322 y un convertidor genérico XC4136 RS232 a RS485 (que a veces también puede incluir un cable USB).
+
+== Postprocesadores para corte por plasma
+
+Los programas CAM (Fabricación asistida por computadora) son el puente entre CAD (Diseño asistido por computadora) y la operación final del CNC (Control numérico por computadora). A menudo incluyen un postprocesador configurable por el usuario para definir el código que se genera para una máquina o dialecto específico de G-Code.
+
+Muchos usuarios de Linuxcnc están perfectamente contentos con el uso de Inkscape para convertir archivos basados en vectores .SVG a G-Code. Si está utilizando un plasma para hobby o uso doméstico, considere esta opción. Sin embargo, si sus necesidades son más complejas, probablemente la mejor y más razonable solución sea SheetCam. SheetCam es compatible con Windows y Linux y hay disponibles postprocesadores, incluida la configuración de QtPlasmaC. SheetCam le permite anidar partes sobre una hoja completa de material y le permite configurar conjuntos de herramientas y fragmentos de código para satisfacer sus necesidades. Los postprocesadores SheetCam son archivos de texto escritos en el lenguaje de programación Lua y, en general, son fáciles de modificar para adaptarse a sus requisitos exactos. Para obtener más información, consulte https://sheetcam.com [sitio web de SheetCam] y su foro de soporte.
+
+Se incluye otro postprocesador popular con el popular paquete Fusion360, pero los postprocesadores incluidos necesitarán cierta personalización.
+
+LinuxCNC es una aplicación CNC y las discusiones sobre técnicas CAM distintas a esta discusión introductoria están fuera del alcance de LinuxCNC.

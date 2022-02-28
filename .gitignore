@@ -40,5 +40,6 @@ oprofile*
 position.txt
 # *.9
 *.glade.h
-# Temporary
-!docs/LinuxCNC_Getting_Started_cn.pdf
+# Ignore test results
+*.result
+

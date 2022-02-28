@@ -225,7 +225,7 @@ int Interp::execute_call(setup_pointer settings,
 
 	// Set up return to next block (may be overridden by M98)
 	if (settings->file_pointer == NULL)
-	    // if the previous file was NULL, mark positon as -1 so as not to
+	    // if the previous file was NULL, mark position as -1 so as not to
 	    // reopen it on return.
 	    previous_frame->position = -1;
 	else
@@ -292,7 +292,7 @@ int Interp::execute_call(setup_pointer settings,
 	    previous_frame->filename = strstore(settings->filename);
 	    plist.append(*settings->pythis); // self
 	    for(int i = 0; i < eblock->param_cnt; i++)
-		plist.append(eblock->params[i]); // positonal args
+		plist.append(eblock->params[i]); // positional args
 	    current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
 	    current_frame->pystuff.impl->kwargs = bp::dict();
 

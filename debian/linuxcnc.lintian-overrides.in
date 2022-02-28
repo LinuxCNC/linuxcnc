@@ -1,0 +1,34 @@
+# These are binaries that interact with hardware and so far LinuxCNC expects these to run as root.
+#
+# linuxcnc_module_helper is a setuid root wrapper for insmod, and
+# rtapi_app is the main orchestrator that runs the realtime parts of uspace
+# LinuxCNC. These both need to run as root, and for now it is very much preferred to
+# keep them setuid root rather than try to teach our users to run sudo.
+#
+linuxcnc-uspace: elevated-privileges usr/bin/linuxcnc_module_helper 4755 root/root
+linuxcnc-uspace: elevated-privileges usr/bin/rtapi_app 4755 root/root
+
+# xdg-open command was added as a dependency - used only to show a manual, should be fine
+linuxcnc-uspace: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef_vi.desktop xdg-open
+linuxcnc-uspace: desktop-command-not-in-package usr/share/applications/linuxcnc-gcoderef.desktop xdg-open
+
+# that is intentional - for now
+linuxcnc-uspace: package-name-doesnt-match-sonames libcanterp0 liblinuxcnchal0 liblinuxcncini0 libnml0 libposemath0 libpyplugin0 librs274-0 libtooldata0
+
+# The man pages / documentation is likely to see an overhaul in a not too far future, prefer no to distract ourselves with these
+linuxcnc-uspace: groff-message usr/share/man/man9/toggle.9.gz (line 1) 17: can't open '../man/images/toggle.ps': No such file or directory
+linuxcnc-uspace: groff-message usr/share/man/man9/toggle2nist.9.gz (line 1) 26: can't open '../man/images/toggle2nist.ps': No such file or directory
+
+# These are dlopened by rtapi_app, which is already linked against libc.
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/bldc.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/lineardeltakins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/maxkins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/pentakins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/plasmac.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/rosekins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/rotarydeltakins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/rotatekins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/scorbot-kins.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/siggen.so
+linuxcnc-uspace: library-not-linked-against-libc usr/lib/linuxcnc/modules/tripodkins.so
+

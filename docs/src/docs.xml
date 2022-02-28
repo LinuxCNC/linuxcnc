@@ -1,13 +1,13 @@
 <docs>
 
 <docgroup lang="en" index="index.html">
-<doc name="html_gcode" title="G Code quick reference">
+<doc name="html_gcode" title="G-code quick reference">
 
 <doc name="common_emc2-intro" title="Overleaf Image"/>
 <doc name="common_overleaf" title="Overleaf Text"/>
 <doc name="common_System_Requirements" title="System Requirements"/>
-<doc name="common_Getting_EMC" title="Getting EMC2"/>
-<doc name="common_Updating_EMC" title="Updating EMC2"/>
+<doc name="common_Getting_EMC" title="Getting LinuxCNC"/>
+<doc name="common_Updating_EMC" title="Updating LinuxCNC"/>
 <doc name="quickstart_stepper_quickstart" title="Stepper Quickstart"/>
 <doc name="config_stepconf" title="Configuration Wizard for Stepper-Based Machines"/>
 <doc name="config_pncconf" title="Point and Click Configuration Wizard (for Machines using Mesa)"/>
@@ -25,17 +25,17 @@
 <doc name="gui_tklinuxcnc" title="GUI: TkLinuxCNC"/>
 <doc name="gui_mini" title="GUI: Mini"/>
 <doc name="common_machining_center" title="Machining Center Info"/>
-<doc name="gcode_overview" title="Gcode Overview"/>
-<doc name="gcode_coordinates" title="Gcode Coordinates"/>
-<doc name="gcode_tool-compensation" title="Gcode Tool Compensation"/>
-<doc name="gcode_main" title="The EMC2 Gcode Language"/>
-<doc name="gcode_mill_canned" title="Gcode Mill Canned Cycle Examples"/>
+<doc name="gcode_overview" title="G-code Overview"/>
+<doc name="gcode_coordinates" title="G-code Coordinates"/>
+<doc name="gcode_tool-compensation" title="G-code Tool Compensation"/>
+<doc name="gcode_main" title="The LinuxCNC G-code Language"/>
+<doc name="gcode_mill_canned" title="G-code Mill Canned Cycle Examples"/>
 <doc name="lathe_lathe-user" title="Lathe User Information"/>
-<doc name="plasma_plasmac-user-guide" title="PlasmaC User Guide"/>
+<doc name="plasma_qtplasmac" title="GUI: QtPlasmaC"/>
 <doc name="plasma_plasma-cnc-primer" title="Plasma CNC Primer"/>
-<doc name="gcode_rs274ngc" title="RS-274/NGC Gcode"/>
-<doc name="examples_gcode" title="Gcode Examples"/>
-<doc name="gui_image-to-gcode" title="Image to Gcode"/>
+<doc name="gcode_rs274ngc" title="RS-274/NGC G-code"/>
+<doc name="examples_gcode" title="G-code Examples"/>
+<doc name="gui_image-to-gcode" title="Image to G-code"/>
 <doc name="common_glossary" title="Glossary"/>
 <doc name="common_GPLD_Copyright" title="Copyright and Documentation License"/>
 
@@ -69,7 +69,7 @@
 <doc name="config_ini-config" title="Basic Configuration"/>
 <doc name="config_ini-homing" title="Homing Configuration"/>
 <doc name="config_lathe-config" title="Lathe Configuration"/>
-<doc name="config_core-components" title="EMC2 interface to HAL"/>
+<doc name="config_core-components" title="LinuxCNC interface to HAL"/>
 <doc name="config_stepper" title="Stepper Configuration"/>
 <doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
 <doc name="hal_pyvcp-examples" title="pyVCP Examples"/>
@@ -101,12 +101,12 @@
 </docgroup>
 
 <docgroup lang="es" index="index_es.html">
-<doc name="html_gcode_es" title="Référence G Code, aide rapide"/>
+<doc name="html_gcode_es" title="Référence G-code, aide rapide"/>
 
 <doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
 <doc name="common/System_Requirements_es.html" title="Configuration requise"/>
-<doc name="common/Getting_EMC_es.html" title="Où trouver EMC2"/>
-<doc name="common/Updating_EMC_es.html" title="Mise à jour d'EMC2"/>
+<doc name="common/Getting_EMC_es.html" title="Où trouver LinuxCNC"/>
+<doc name="common/Updating_EMC_es.html" title="Mise à jour d'LinuxCNC"/>
 <doc name="quickstart/stepper_quickstart_es.html" title="Démarrage rapide"/>
 <doc name="config/stepconf_es.html" title="L'assistant de configuration StepConf"/>
 <doc name="config/pncconf_es.html" title="L'assistant de configuration PncConf (pour les machines utilisant Mesa)"/>
@@ -124,10 +124,10 @@
 <doc name="gui/tklinuxcnc_es.html" title="GUI: TkLinuxCNC"/>
 <doc name="gui/mini_es.html" title="GUI: Mini"/>
 <doc name="common/machining_center_es.html" title="Informations Centre d'usinage"/>
-<doc name="gcode/overview_es.html" title="Aperçu gcode"/>
+<doc name="gcode/overview_es.html" title="Aperçu G-code"/>
 <doc name="gcode/coordinates_es.html" title="Les systèmes de coordonnées"/>
 <doc name="gcode/tool_compensation_es.html" title="Les compensations d'outil"/>
-<doc name="gcode/main_es.html" title="Le langage Gcode EMC2"/>
+<doc name="gcode/main_es.html" title="Le langage G-code de LinuxCNC"/>
 <doc name="gcode/mill_canned_es.html" title="Les cycles préprogrammés"/>
 <doc name="lathe/lathe-user_es.html" title="Informations spécifiques aux tours"/>
 <doc name="gcode/rs274ngc_es.html" title="Le language G-code RS274/NGC"/>
@@ -198,7 +198,7 @@
 </docgroup>
 
 <docgroup lang="fr" index="index_fr.html">
-<doc name="html_gcode_fr" title="R&eacute;f&eacute;rence du G Code, aide rapide"/>
+<doc name="html_gcode_fr" title="R&eacute;f&eacute;rence du G-code, aide rapide"/>
 
 <doc name="common/overleaf_fr.html" title="Texte de la couverture"/>
 <doc name="common/System_Requirements_fr.html" title="Configuration requise"/>

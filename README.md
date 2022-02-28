@@ -1,6 +1,22 @@
+[![Weblate](https://img.shields.io/badge/website-weblate.org-blue.svg)](https://weblate.org/) [![Translation Status of LinuxCNC](https://hosted.weblate.org/widgets/linuxcnc/-/svg-badge.svg)](https://hosted.weblate.org/engage/linuxcnc/)
+
 # LinuxCNC
 
-LinuxCNC controls CNC machines. It can drive milling machines, lathes, 3d printers, laser cutters, plasma cutters, robot arms, hexapods, and more. http://linuxcnc.org/
+LinuxCNC controls CNC machines.
+It can drive milling machines, lathes, 3D printers, laser cutters,
+plasma cutters, robot arms, hexapods, and more.
+The [project's homepage](https://linuxcnc.org/) provides references to
+the documentation and illustrative videos.
+
+LinuxCNC was initiated 25 years ago and evolved into a very international
+project with contributions from all over the globe.
+With release 2.9 of LinuxCNC we also transitioned the
+documentation to the use of the public crowd translation services of
+[weblate](https://hosted.weblate.org/projects/linuxcnc/) and cordially
+invite all our users to contribute.
+The translations we expect to help attract practitioners to the project
+and also helps educating enthusiasts of all age groups on automated
+machining.
 
 # DISCLAIMER
 

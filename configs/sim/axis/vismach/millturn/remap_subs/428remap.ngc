@@ -1,0 +1,29 @@
+;M428 by remap: select mill kins
+o<428remap>sub
+  #<SWITCHKINS_PIN> = 3  ; set N as required: motion.analog-out-0N
+  #<kinstype> = 0        ; mill
+
+o1 if [exists [#<_hal[motion.switchkins-type]>]]
+o1 else
+     (debug,M428:Missing)
+     (debug,STOP)
+     M2
+o1 endif
+
+   M66  E0 L0                           ; force synch
+   M68  E#<SWITCHKINS_PIN> Q#<kinstype> ; set kinstype value
+   M128                                 ; switch limits
+   G10 L2 P7 X-290 Y0 Z-160 A0          ; reset home offset
+   G59.1                                ; activate home offset
+   M66  E0 L0                           ; force synch
+   ;(debug, M428: mill)
+
+o2 if [[#<_task> EQ 1] AND [#<_hal[motion.switchkins-type]> NE 0]]
+     (debug,M428: Wrong motion.switchkins-type)
+     (debug,or missing hal net to analog-out-0x)
+     (debug,STOP)
+     M2
+o2 else
+o2 endif
+
+o<428remap>endsub

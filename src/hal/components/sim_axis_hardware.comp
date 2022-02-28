@@ -4,60 +4,85 @@ description
 """
 This component creates simulated home and limit switches based on the current position.
 .br
-It currently can supply simulation for X,Y,Z,U,V and A axes.
+It currently can supply simulation for X, tandem X, Y, tandem Y, Z, U, V, and A axes.
 
 """;
 pin in float Xcurrent_pos "The current position on the axis - eg connect to joint.0.motor-pos-fb";
+pin in float X2current_pos;
 pin in float Ycurrent_pos;
+pin in float Y2current_pos;
 pin in float Zcurrent_pos;
 pin in float Acurrent_pos;
 pin in float Ucurrent_pos;
 pin in float Vcurrent_pos;
 
 pin in float Xhomesw_pos =1 "The position of the home switch";
+pin in float X2homesw_pos =1;
 pin in float Yhomesw_pos =1;
+pin in float Y2homesw_pos =1;
 pin in float Zhomesw_pos =1;
 pin in float Ahomesw_pos =1;
 pin in float Uhomesw_pos =1;
 pin in float Vhomesw_pos =1;
 
 pin in float Xmaxsw_upper "The upper range of the maximum limit switch, above this is false.";
+pin in float X2maxsw_upper;
 pin in float Ymaxsw_upper;
+pin in float Y2maxsw_upper;
 pin in float Zmaxsw_upper;
 pin in float Amaxsw_upper;
 pin in float Umaxsw_upper;
 pin in float Vmaxsw_upper;
 
 pin in float Xmaxsw_lower "The lower range of the maximum limit switch, below this is false.";
+pin in float X2maxsw_lower;
 pin in float Ymaxsw_lower;
+pin in float Y2maxsw_lower;
 pin in float Zmaxsw_lower;
 pin in float Amaxsw_lower;
 pin in float Umaxsw_lower;
 pin in float Vmaxsw_lower;
 
 pin in float Xminsw_upper "The upper range of the minimum limit switch, above this is false.";
+pin in float X2minsw_upper;
 pin in float Yminsw_upper;
+pin in float Y2minsw_upper;
 pin in float Zminsw_upper;
 pin in float Aminsw_upper;
 pin in float Uminsw_upper;
 pin in float Vminsw_upper;
 
 pin in float Xminsw_lower "The lower range of the minimum limit switch, below this is false.";
+pin in float X2minsw_lower;
 pin in float Yminsw_lower;
+pin in float Y2minsw_lower;
 pin in float Zminsw_lower;
 pin in float Aminsw_lower;
 pin in float Uminsw_lower;
 pin in float Vminsw_lower;
 
-pin in float Xhomesw_hyst =.02 "range that home switch will be true +- half this to the home position";
-pin in float Yhomesw_hyst =.02;
-pin in float Zhomesw_hyst =.02;
-pin in float Ahomesw_hyst =.02;
-pin in float Uhomesw_hyst =.02;
-pin in float Vhomesw_hyst =.02;
+pin in float Xhomesw_hyst =.025 "range that home switch will be true +- half this to the home position";
+pin in float X2homesw_hyst =.025;
+pin in float Yhomesw_hyst =.025;
+pin in float Y2homesw_hyst =.025;
+pin in float Zhomesw_hyst =.025;
+pin in float Ahomesw_hyst =.025;
+pin in float Uhomesw_hyst =.025;
+pin in float Vhomesw_hyst =.025;
 
-pin out bit Xhomesw_out" Home switch for the X axis";
+pin in bit Xhoming "True is homing in progress";
+pin in bit X2homing;
+pin in bit Yhoming;
+pin in bit Y2homing;
+pin in bit Zhoming;
+pin in bit Ahoming;
+pin in bit Uhoming;
+pin in bit Vhoming;
+
+pin out bit Xhomesw_out "Home switch for the X axis";
+pin out bit X2homesw_out;
 pin out bit Yhomesw_out;
+pin out bit Y2homesw_out;
 pin out bit Zhomesw_out;
 pin out bit Ahomesw_out;
 pin out bit Uhomesw_out;
@@ -68,9 +93,17 @@ pin out bit Xmaxsw_out "Max limit switch";
 pin out bit Xminsw_out "min limit switch";
 pin out bit Xbothsw_out "True for both max and min limit switch";
 
+pin out bit X2maxsw_out;
+pin out bit X2minsw_out;
+pin out bit X2bothsw_out;
+
 pin out bit Ymaxsw_out;
 pin out bit Yminsw_out;
 pin out bit Ybothsw_out;
+
+pin out bit Y2maxsw_out;
+pin out bit Y2minsw_out;
+pin out bit Y2bothsw_out;
 
 pin out bit Zmaxsw_out;
 pin out bit Zminsw_out;
@@ -95,9 +128,17 @@ pin out bit Xmaxsw_homesw_out;
 pin out bit Xminsw_homesw_out;
 pin out bit Xbothsw_homesw_out;
 
+pin out bit X2maxsw_homesw_out;
+pin out bit X2minsw_homesw_out;
+pin out bit X2bothsw_homesw_out;
+
 pin out bit Ymaxsw_homesw_out;
 pin out bit Yminsw_homesw_out;
 pin out bit Ybothsw_homesw_out;
+
+pin out bit Y2maxsw_homesw_out;
+pin out bit Y2minsw_homesw_out;
+pin out bit Y2bothsw_homesw_out;
 
 pin out bit Zmaxsw_homesw_out;
 pin out bit Zminsw_homesw_out;
@@ -115,8 +156,7 @@ pin out bit Vmaxsw_homesw_out;
 pin out bit Vminsw_homesw_out;
 pin out bit Vbothsw_homesw_out;
 
-
-pin in float limit_offset =.01 "how much the limit switches are offset from inputed position. added to max, subracted from min";
+pin in float limit_offset =.01 "how much the limit switches are offset from inputted position. added to max, subtracted from min";
 
 function update fp;
 license "GPL";
@@ -149,41 +189,53 @@ FUNCTION(update) {
 
 /*set home switches */
 Xhomesw_out = comp(Xhomesw_pos,Xcurrent_pos,Xhomesw_hyst);
+X2homesw_out = comp(X2homesw_pos,X2current_pos,X2homesw_hyst);
 Yhomesw_out = comp(Yhomesw_pos,Ycurrent_pos,Yhomesw_hyst);
+Y2homesw_out = comp(Y2homesw_pos,Y2current_pos,Y2homesw_hyst);
 Zhomesw_out = comp(Zhomesw_pos,Zcurrent_pos,Zhomesw_hyst);
 Ahomesw_out = comp(Ahomesw_pos,Acurrent_pos,Ahomesw_hyst);
 Uhomesw_out = comp(Uhomesw_pos,Ucurrent_pos,Uhomesw_hyst);
 Vhomesw_out = comp(Vhomesw_pos,Vcurrent_pos,Vhomesw_hyst);
-homesw_all = Xhomesw_out || Yhomesw_out || Zhomesw_out || Ahomesw_out
- || Uhomesw_out || Vhomesw_out;
+int homing = Xhoming || X2homing || Yhoming || Y2homing ||
+             Zhoming || Ahoming || Uhoming || Vhoming;
+homesw_all = (Xhomesw_out || X2homesw_out || Yhomesw_out || Y2homesw_out ||
+             Zhomesw_out || Ahomesw_out || Uhomesw_out || Vhomesw_out) && homing;
 
 /* set limit switches */
 Xmaxsw_out = wcomp(Xcurrent_pos,Xmaxsw_upper,Xmaxsw_lower+limit_offset);
 Xminsw_out = wcomp(Xcurrent_pos,Xminsw_upper-limit_offset,Xminsw_lower);
-Xbothsw_out = Xmaxsw_out || Xminsw_out;
+Xbothsw_out = (Xmaxsw_out || Xminsw_out) && !homing;
+
+X2maxsw_out = wcomp(X2current_pos,X2maxsw_upper,X2maxsw_lower+limit_offset);
+X2minsw_out = wcomp(X2current_pos,X2minsw_upper-limit_offset,X2minsw_lower);
+X2bothsw_out = (X2maxsw_out || X2minsw_out) && !homing;
 
 Ymaxsw_out = wcomp(Ycurrent_pos,Ymaxsw_upper,Ymaxsw_lower+limit_offset);
 Yminsw_out = wcomp(Ycurrent_pos,Yminsw_upper-limit_offset,Yminsw_lower);
-Ybothsw_out = Ymaxsw_out || Yminsw_out;
+Ybothsw_out = (Ymaxsw_out || Yminsw_out) && !homing;
+
+Y2maxsw_out = wcomp(Y2current_pos,Y2maxsw_upper,Y2maxsw_lower+limit_offset);
+Y2minsw_out = wcomp(Y2current_pos,Y2minsw_upper-limit_offset,Y2minsw_lower);
+Y2bothsw_out = (Y2maxsw_out || Y2minsw_out) && !homing;
 
 Zmaxsw_out = wcomp(Zcurrent_pos,Zmaxsw_upper,Zmaxsw_lower+limit_offset);
 Zminsw_out = wcomp(Zcurrent_pos,Zminsw_upper-limit_offset,Zminsw_lower);
-Zbothsw_out = Zmaxsw_out || Zminsw_out;
+Zbothsw_out = (Zmaxsw_out || Zminsw_out) && !homing;
 
 Amaxsw_out = wcomp(Acurrent_pos,Amaxsw_upper,Amaxsw_lower+limit_offset);
 Aminsw_out = wcomp(Acurrent_pos,Aminsw_upper-limit_offset,Aminsw_lower);
-Abothsw_out = Amaxsw_out || Aminsw_out;
+Abothsw_out = (Amaxsw_out || Aminsw_out) && !homing;
 
 Umaxsw_out = wcomp(Ucurrent_pos,Umaxsw_upper,Umaxsw_lower+limit_offset);
 Uminsw_out = wcomp(Ucurrent_pos,Uminsw_upper-limit_offset,Uminsw_lower);
-Ubothsw_out = Umaxsw_out || Uminsw_out;
+Ubothsw_out = (Umaxsw_out || Uminsw_out) && !homing;
 
 Vmaxsw_out = wcomp(Vcurrent_pos,Vmaxsw_upper,Vmaxsw_lower+limit_offset);
 Vminsw_out = wcomp(Vcurrent_pos,Vminsw_upper-limit_offset,Vminsw_lower);
-Vbothsw_out = Vmaxsw_out || Vminsw_out;
+Vbothsw_out = (Vmaxsw_out || Vminsw_out) && !homing;
 
-limitsw_all = (Xbothsw_out || Ybothsw_out || Zbothsw_out || Abothsw_out
- || Ubothsw_out || Vbothsw_out);
+limitsw_all = (Xbothsw_out || X2bothsw_out || Ybothsw_out || Y2bothsw_out
+ || Zbothsw_out || Abothsw_out || Ubothsw_out || Vbothsw_out);
 
 /* set limit and home switches */
 limitsw_homesw_all = (homesw_all || limitsw_all);
@@ -191,9 +243,17 @@ Xmaxsw_homesw_out = (Xmaxsw_out || Xhomesw_out);
 Xminsw_homesw_out = (Xminsw_out || Xhomesw_out);
 Xbothsw_homesw_out = (Xbothsw_out || Xhomesw_out);
 
+X2maxsw_homesw_out = (X2maxsw_out || X2homesw_out);
+X2minsw_homesw_out = (X2minsw_out || X2homesw_out);
+X2bothsw_homesw_out = (X2bothsw_out || X2homesw_out);
+
 Ymaxsw_homesw_out = (Ymaxsw_out || Yhomesw_out);
 Yminsw_homesw_out = (Yminsw_out || Yhomesw_out);
 Ybothsw_homesw_out = (Ybothsw_out || Yhomesw_out);
+
+Y2maxsw_homesw_out = (Y2maxsw_out || Y2homesw_out);
+Y2minsw_homesw_out = (Y2minsw_out || Y2homesw_out);
+Y2bothsw_homesw_out = (Y2bothsw_out || Y2homesw_out);
 
 Zmaxsw_homesw_out = (Zmaxsw_out || Zhomesw_out);
 Zminsw_homesw_out = (Zminsw_out || Zhomesw_out);

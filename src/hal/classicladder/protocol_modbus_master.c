@@ -389,7 +389,7 @@ int GetModbusResponseLenghtToReceive( void )
 				case MODBUS_FC_READ_COILS:
 				// 1 byte for function code
 				// 1 byte for count of data bytes returned 
-				// 1 byte for 8 coils if number of coils is not evenly divisable by 8 add another byte
+				// 1 byte for 8 coils if number of coils is not evenly divisible by 8 add another byte
 					NbrRealBytes = (NbrEles+7)/8;
 					LgtResp = 2+NbrRealBytes;
 					break;
@@ -416,7 +416,7 @@ int GetModbusResponseLenghtToReceive( void )
 					LgtResp = 5;
 					break;
 				default:
-					printf(_("INFO CLASSICLADDER-   MODBUS function code not reconized"));
+					printf(_("INFO CLASSICLADDER-   MODBUS function code not recognized"));
 					break;
 		}
 	}
@@ -483,7 +483,7 @@ static char auchCRCLo[] = {
 0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 
 0x43, 0x83, 0x41, 0x81, 0x80, 0x40
 } ;
-/* CRC16 calc on frame pointed by puchMsg and usDataLen lenght */
+/* CRC16 calc on frame pointed by puchMsg and usDataLen length */
 /* Pre-calc routine taken from http://www.modicon.com/techpubs/crc7.html site */
 unsigned short CRC16(unsigned char *puchMsg, unsigned short usDataLen)
 {

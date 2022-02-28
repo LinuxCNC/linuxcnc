@@ -1,6 +1,6 @@
 This shows how the builtin T,M6,M61,S,F codes can be redefined, optionally by referring to the builtin behaviour in the remap procedure.
 
-The collection of prologs and epilogs in python-stdglue is intended to be a boilerplate set of Python glue which covers most use cases. Normally you shouldnt need to touch any of these.
+The collection of prologs and epilogs in python-stdglue is intended to be a boilerplate set of Python glue which covers most use cases. Normally you shouldn't need to touch any of these.
 
 The ngc remap routines in nc_subroutines have been set up to:
 

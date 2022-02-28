@@ -230,7 +230,7 @@ RTAPI_BEGIN_DECLS
     max delay permitted (usually approximately 1/4 of the clock period).
     Any call to 'rtapi_delay()' requesting a delay longer than the max
     will delay for the max time only.  'rtapi_delay_max()' should be
-    called befure using 'rtapi_delay()' to make sure the required delays
+    called before using 'rtapi_delay()' to make sure the required delays
     can be achieved.  The actual resolution of the delay may be as good
     as one nano-second, or as bad as a several microseconds.  May be
     called from init/cleanup code, and from within realtime tasks.
@@ -341,7 +341,7 @@ RTAPI_BEGIN_DECLS
     for all subsequent calls that need to act on the task.  On failure,
     returns a negative error code as listed above.  'taskcode' is the
     name of a function taking one int and returning void, which contains
-    the task code.  'arg' will be passed to 'taskcode' as an abitrary
+    the task code.  'arg' will be passed to 'taskcode' as an arbitrary
     void pointer when the task is started, and can be used to pass
     any amount of data to the task (by pointing to a struct, or other
     such tricks).
@@ -418,6 +418,26 @@ RTAPI_BEGIN_DECLS
     May be called from init/cleanup code, and from within realtime tasks.
 */
     extern int rtapi_task_self(void);
+
+#if defined(RTAPI_USPACE) || defined(USPACE)
+
+#define RTAPI_TASK_PLL_SUPPORT
+
+/** 'rtapi_task_pll_get_reference()' gets the reference timestamp
+    for the start of the current cycle.
+    Returns 0 if not called from within task context or on
+    platforms that do not support this.
+*/
+    extern long long rtapi_task_pll_get_reference(void);
+
+/** 'rtapi_task_pll_set_correction()' sets the correction value for
+    the next scheduling cycle of the current task. This could be
+    used to synchronize the task cycle to external sources.
+    Returns -EINVAL if not called from within task context or on
+    platforms that do not support this.
+*/
+    extern int rtapi_task_pll_set_correction(long value);
+#endif /* USPACE */
 
 #endif /* RTAPI */
 
@@ -613,7 +633,7 @@ RTAPI_BEGIN_DECLS
 
 /** 'rtapi_assign_interrupt_handler()' is used to set up a handler for
     a hardware interrupt.  'irq' is the interrupt number, and 'handler'
-    is a pointer to a function taking no arguements and returning void.
+    is a pointer to a function taking no arguments and returning void.
     'handler will be called when the interrupt occurs.  'owner' is the
     ID of the calling module (see rtapi_init).  Returns a status
     code.  Note:  The simulated RTOS does not support interrupts.

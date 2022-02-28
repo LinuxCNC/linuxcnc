@@ -18,8 +18,8 @@ jogmode = normal
 # sequence 4: 0.001,0.005,0.010,0.020,0.050,0.100
 # sequence 5: 0.001,0.010,0.050,0.100,1.000
 sequence = 2
-# require_pendant = no: create xhc-hb04 hal pins when pendant not connecte
-#                       at startup
+# require_pendant = no: create xhc-hb04 hal pins when pendant not
+#                       connected at startup
 require_pendant = no
 # inch_or_mm = in | mm
 inch_or_mm = in

@@ -1,0 +1,38 @@
+:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+Primeros Pasos V{lversion}, {date}
+==================================
+:lang: es
+:masterdir: {indir}
+:revdate: 2021-10-28
+
+[NOTE]
+Esta documentación no se ha actualizado desde LinuxCNC versión 2.5,
+lanzada en 2012.
+Está muy desactualizado. Utilice la documentación en inglés.
+Si desea actualizar esta traducción, póngase en contacto con el equipo
+de LinuxCNC a través del foro o la lista de correo.
+
+
+The LinuxCNC Team
+
+:leveloffset: 1
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf_es.adoc[]
+
+include::getting-started/about-linuxcnc_es.adoc[]
+
+include::getting-started/system-requirements_es.adoc[]
+
+include::getting-started/getting-linuxcnc_es.adoc[]
+
+include::getting-started/updating-linuxcnc_es.adoc[]
+
+include::common/glossary_es.adoc[]
+
+include::common/gpld-copyright_es.adoc[]
+
+// vim: set syntax=asciidoc:
+

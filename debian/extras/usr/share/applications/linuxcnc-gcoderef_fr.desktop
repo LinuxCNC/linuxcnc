@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=xdg-open /usr/share/doc/linuxcnc/gcode_fr.html
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc_fr.svg
+X-GNOME-DocPath=
+Terminal=false
+Name=G-Code Quick Reference - FR
+Comment=Quick reference for G, M and O codes in LinuxCNC
+StartupNotify=false
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncdoc;
+

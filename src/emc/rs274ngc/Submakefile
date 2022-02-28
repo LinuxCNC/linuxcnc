@@ -1,7 +1,7 @@
 #BOOST_DEBUG_FLAGS= -DBOOST_DEBUG_PYTHON -g -O0
 BOOST_DEBUG_FLAGS=
 
-INCLUDES += emc/rs274ngc
+INCLUDES += emc emc/rs274ngc
 
 LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_arc.cc \
@@ -18,6 +18,8 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_read.cc \
 	interp_write.cc \
 	interp_o_word.cc \
+	interp_g7x.cc \
+	modal_state.cc \
 	nurbs_additional_functions.cc \
 	interp_namedparams.cc \
 	interp_python.cc \
@@ -34,16 +36,17 @@ LIBRS274SRCS := $(addprefix emc/rs274ngc/, \
 	interp_inspection.cc)
 USERSRCS += $(LIBRS274SRCS)
 
-$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC  $(BOOST_DEBUG_FLAGS) 
+$(call TOOBJSDEPS, $(LIBRS274SRCS)) : EXTRAFLAGS=-fPIC $(BOOST_DEBUG_FLAGS)
 
 TARGETS += ../lib/librs274.so ../lib/librs274.so.0
 
 ../lib/librs274.so.0: $(patsubst %.cc,objects/%.o,$(LIBRS274SRCS)) \
-	../lib/liblinuxcncini.so ../lib/libpyplugin.so ../lib/liblinuxcnchal.so.0
+	../lib/liblinuxcncini.so ../lib/libpyplugin.so ../lib/liblinuxcnchal.so.0 \
+    ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(CXX) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIBS) -l$(LIBPYTHON) $(LIBDL)
+	$(CXX) -g $(LDFLAGS) $(PYTHON_EXTRA_LDFLAGS) -Wl,-soname,$(notdir $@) -shared -o $@ $^ -lstdc++ $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
 
 $(patsubst ./emc/rs274ngc/%,../include/%,$(wildcard ./emc/rs274ngc/*.h)): ../include/%.h: ./emc/rs274ngc/%.h
 	cp $^ $@

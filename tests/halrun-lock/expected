@@ -1,0 +1,28 @@
+HAL locking status:
+  current lock value 0 (00)
+  HAL_LOCK_NONE - nothing is locked
+HAL locking status:
+  current lock value 255 (ff)
+  HAL_LOCK_LOAD    - loading of new components is locked
+  HAL_LOCK_CONFIG  - link and addf is locked
+  HAL_LOCK_PARAMS  - setting params is locked
+  HAL_LOCK_RUN     - running/stopping HAL is locked
+HAL locking status:
+  current lock value 0 (00)
+  HAL_LOCK_NONE - nothing is locked
+HAL locking status:
+  current lock value 3 (03)
+  HAL_LOCK_LOAD    - loading of new components is locked
+  HAL_LOCK_CONFIG  - link and addf is locked
+HAL locking status:
+  current lock value 0 (00)
+  HAL_LOCK_NONE - nothing is locked
+HAL locking status:
+  current lock value 255 (ff)
+  HAL_LOCK_LOAD    - loading of new components is locked
+  HAL_LOCK_CONFIG  - link and addf is locked
+  HAL_LOCK_PARAMS  - setting params is locked
+  HAL_LOCK_RUN     - running/stopping HAL is locked
+HAL locking status:
+  current lock value 0 (00)
+  HAL_LOCK_NONE - nothing is locked

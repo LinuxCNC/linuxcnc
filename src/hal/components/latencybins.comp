@@ -114,7 +114,7 @@ if (   first
   sum    += lat32;
   sq_sum += lat32 * lat32;
   if (nsamples > 1) {
-    // note: divison required is: u64/u32
+    // note: division required is: u64/u32
     rtapi_u64 dividend;
     rtapi_u64 divisor;
     dividend = sq_sum - rtapi_div_u64(sum * sum,nsamples);

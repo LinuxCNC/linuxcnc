@@ -30,7 +30,7 @@ gbl_t gbl;
 
 /*
  * Main: init global params, parse args, open ini file, parse ini file
- * (transaction strcutures), init links (links structures), init and
+ * (transaction structures), init links (links structures), init and
  * create hal pins, create a thread for each link , and wait forever
  */
 
@@ -149,7 +149,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             this_mb_tx_num = tx_counter;
             this_mb_tx = &gbl.mb_tx[this_mb_tx_num];
 
-            DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST availability",
+            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST availability",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
 
             //corresponding link and time (update_rate)
@@ -159,13 +159,13 @@ void *link_loop_and_logic(void *thrd_link_num)
                 return NULL;
             }
             if (ret_available == 0) {
-                DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
+                DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT available",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 usleep(1000);
                 continue;
             }
 
-            DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST connection",
+            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] going to TEST connection",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
 
             //first time connection or reconnection, run time parameters setting
@@ -175,17 +175,21 @@ void *link_loop_and_logic(void *thrd_link_num)
                 return NULL;
             }
             if (ret_connected == 0) {
-                DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
+                DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] NOT connected",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 usleep(1000);
                 continue;
             }
 
-            DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] lk_dbg[%d] going to EXECUTE transaction",
+            DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] lk_dbg[%d] going to EXECUTE transaction",
                 this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus),
                 this_mb_tx->protocol_debug);
 
             switch (this_mb_tx->mb_tx_fnct) {
+
+            case mbtx_01_READ_COILS:
+                ret = fnct_01_read_coils(this_mb_tx, this_mb_link);
+                break;
             case mbtx_02_READ_DISCRETE_INPUTS:
                 ret = fnct_02_read_discrete_inputs(this_mb_tx, this_mb_link);
                 break;
@@ -194,6 +198,9 @@ void *link_loop_and_logic(void *thrd_link_num)
                 break;
             case mbtx_04_READ_INPUT_REGISTERS:
                 ret = fnct_04_read_input_registers(this_mb_tx, this_mb_link);
+                break;
+            case mbtx_05_WRITE_SINGLE_COIL:
+                ret = fnct_05_write_single_coil(this_mb_tx, this_mb_link);
                 break;
             case mbtx_06_WRITE_SINGLE_REGISTER:
                 ret = fnct_06_write_single_register(this_mb_tx, this_mb_link);
@@ -216,7 +223,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             }
 
             if (ret != retOK && modbus_get_socket(this_mb_link->modbus) < 0) { //link failure
-                (*this_mb_tx->num_errors)++;
+                (**this_mb_tx->num_errors)++;
                 ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] link failure, going to close link",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 modbus_close(this_mb_link->modbus);
@@ -340,15 +347,16 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
         ret = modbus_connect(this_mb_link->modbus);
         if (ret != 0 || modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_set_socket(this_mb_link->modbus, -1); //some times ret was < 0 and fd > 0
+            (**this_mb_tx->num_errors)++;
             ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] cannot connect to link, ret[%d] fd[%d]",
                 this_mb_tx_num, this_mb_tx->mb_link_num, ret, modbus_get_socket(this_mb_link->modbus));
             return retOK; //not connected
         }
-        DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] new connection -> fd[%d]",
+        DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] new connection -> fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
     }
     else {
-        DBG(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
+        DBGMAX(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] already connected to fd[%d]",
             this_mb_tx_num, this_mb_tx->mb_link_num, modbus_get_socket(this_mb_link->modbus));
     }
 
@@ -397,9 +405,11 @@ void set_init_gbl_params()
     gbl.init_dbg     = debugERR; //until readed in config file
     gbl.slowdown     = 0;        //until readed in config file
     gbl.mb_tx_fncts[mbtxERR]                         = "";
+    gbl.mb_tx_fncts[mbtx_01_READ_COILS]              = "fnct_01_read_coils";
     gbl.mb_tx_fncts[mbtx_02_READ_DISCRETE_INPUTS]    = "fnct_02_read_discrete_inputs";
     gbl.mb_tx_fncts[mbtx_03_READ_HOLDING_REGISTERS]  = "fnct_03_read_holding_registers";
     gbl.mb_tx_fncts[mbtx_04_READ_INPUT_REGISTERS]    = "fnct_04_read_input_registers";
+    gbl.mb_tx_fncts[mbtx_05_WRITE_SINGLE_COIL]       = "fnct_05_write_single_coil";
     gbl.mb_tx_fncts[mbtx_06_WRITE_SINGLE_REGISTER]   = "fnct_06_write_single_register";
     gbl.mb_tx_fncts[mbtx_15_WRITE_MULTIPLE_COILS]    = "fnct_15_write_multiple_coils";
     gbl.mb_tx_fncts[mbtx_16_WRITE_MULTIPLE_REGISTERS]= "fnct_16_write_multiple_registers";

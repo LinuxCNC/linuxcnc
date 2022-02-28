@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.2 -->
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <!-- interface-requires  0.0 -->
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gladevcp" version="0.0"/>
   <object class="GtkAdjustment" id="adj_dro_digits">
     <property name="lower">1</property>
     <property name="upper">5</property>
@@ -13,8 +12,8 @@
   </object>
   <object class="GtkAdjustment" id="adj_dro_size">
     <property name="lower">20</property>
-    <property name="upper">56</property>
-    <property name="value">28</property>
+    <property name="upper">96</property>
+    <property name="value">32</property>
     <property name="step_increment">1</property>
     <signal name="value-changed" handler="on_adj_dro_size_value_changed" swapped="no"/>
   </object>
@@ -151,27 +150,30 @@
   <object class="GtkFileFilter" id="filefilter1"/>
   <object class="EMC_Action_Open" id="hal_action_open"/>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
+  <object class="EMC_Action_Save" id="hal_action_save"/>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas"/>
   <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
-    <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
-    <signal name="override-limits-changed" handler="on_hal_status_override_limits_changed" swapped="no"/>
     <signal name="all-homed" handler="on_hal_status_all_homed" swapped="no"/>
-    <signal name="not-all-homed" handler="on_hal_status_not_all_homed" swapped="no"/>
-    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
-    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
-    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
     <signal name="file-loaded" handler="on_hal_status_file_loaded" swapped="no"/>
     <signal name="hard-limits-tripped" handler="on_hal_status_limits_tripped" swapped="no"/>
-    <signal name="line-changed" handler="on_hal_status_line_changed" swapped="no"/>
-    <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
-    <signal name="mode-auto" handler="on_hal_status_mode_auto" swapped="no"/>
-    <signal name="tool-in-spindle-changed" handler="on_hal_status_tool_in_spindle_changed" swapped="no"/>
     <signal name="interp-idle" handler="on_hal_status_interp_idle" swapped="no"/>
-    <signal name="state-off" handler="on_hal_status_state_off" swapped="no"/>
-    <signal name="motion-mode-changed" handler="on_hal_status_motion_mode_changed" swapped="no"/>
-    <signal name="metric-mode-changed" handler="on_hal_status_metric_mode_changed" swapped="no"/>
     <signal name="interp-run" handler="on_hal_status_interp_run" swapped="no"/>
+    <signal name="line-changed" handler="on_hal_status_line_changed" swapped="no"/>
+    <signal name="metric-mode-changed" handler="on_hal_status_metric_mode_changed" swapped="no"/>
+    <signal name="mode-auto" handler="on_hal_status_mode_auto" swapped="no"/>
+    <signal name="mode-manual" handler="on_hal_status_mode_manual" swapped="no"/>
+    <signal name="mode-mdi" handler="on_hal_status_mode_mdi" swapped="no"/>
+    <signal name="motion-mode-changed" handler="on_hal_status_motion_mode_changed" swapped="no"/>
+    <signal name="not-all-homed" handler="on_hal_status_not_all_homed" swapped="no"/>
+    <signal name="override-limits-changed" handler="on_hal_status_override_limits_changed" swapped="no"/>
+    <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
+    <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
+    <signal name="state-off" handler="on_hal_status_state_off" swapped="no"/>
+    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
+    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
+    <signal name="tool-in-spindle-changed" handler="on_hal_status_tool_in_spindle_changed" swapped="no"/>
   </object>
   <object class="EMC_ToggleAction_Pause" id="hal_tgl_pause"/>
   <object class="GtkImage" id="img_auto">
@@ -458,12 +460,6 @@
       </row>
     </data>
   </object>
-  <object class="EMC_Action_Save" id="hal_action_save">
-    <property name="textview">gcode_view</property>
-  </object>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
-    <property name="textview">gcode_view</property>
-  </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
     <property name="height_request">750</property>
@@ -472,6 +468,9 @@
     <property name="icon">images/Logo.png</property>
     <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <signal name="show" handler="on_window1_show" swapped="no"/>
+    <child type="titlebar">
+      <placeholder/>
+    </child>
     <child>
       <object class="GtkVBox" id="vbx_main">
         <property name="visible">True</property>
@@ -518,7 +517,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="show_tabs">False</property>
-                                <property name="homogeneous">True</property>
                                 <child>
                                   <object class="GtkVBox" id="vbox15">
                                     <property name="visible">True</property>
@@ -561,8 +559,8 @@
                                                 <property name="enable_dro">False</property>
                                                 <property name="show_dtg">False</property>
                                                 <property name="use_commanded">False</property>
-                                                <signal name="line-clicked" handler="on_gremlin_line_clicked" swapped="no"/>
                                                 <signal name="gcode-error" handler="on_gremlin_gcode_error" swapped="no"/>
+                                                <signal name="line-clicked" handler="on_gremlin_line_clicked" swapped="no"/>
                                               </object>
                                             </child>
                                           </object>
@@ -608,6 +606,7 @@
                                         <property name="column_spacing">5</property>
                                         <child>
                                           <object class="GtkButton" id="btn_delete_view">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -632,6 +631,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkButton" id="btn_zoom_in">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -650,6 +650,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkButton" id="btn_zoom_out">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -668,6 +669,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_view_p">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -692,6 +694,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_view_x">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -718,6 +721,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_view_y">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -744,6 +748,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_view_z">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -755,8 +760,6 @@
                                             <signal name="toggled" handler="on_rbt_view_z_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_view_z">
-                                                <property name="width_request">48</property>
-                                                <property name="height_request">48</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="pixbuf">images/toolaxisz.png</property>
@@ -772,6 +775,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkToggleButton" id="tbtn_view_tool_path">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -796,6 +800,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkToggleButton" id="tbtn_view_dimension">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -820,6 +825,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_view_y2">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="width_request">48</property>
                                             <property name="height_request">48</property>
                                             <property name="visible">True</property>
@@ -831,8 +837,6 @@
                                             <signal name="toggled" handler="on_rbt_view_y2_toggled" swapped="no"/>
                                             <child>
                                               <object class="GtkImage" id="img_view_y2">
-                                                <property name="width_request">48</property>
-                                                <property name="height_request">48</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="pixbuf">images/toolaxisy2.png</property>
@@ -880,8 +884,8 @@
                                   <object class="OffsetPage" id="offsetpage1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="foreground_color">#ffff00000000</property>
-                                    <property name="highlight_color">#adadd8d8e6e6</property>
+                                    <property name="foreground_color">rgb(255,0,0)</property>
+                                    <property name="highlight_color">rgb(173,216,230)</property>
                                     <signal name="selection-changed" handler="on_offsetpage1_selection_changed" swapped="no"/>
                                   </object>
                                   <packing>
@@ -924,9 +928,9 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="filetypes">ngc,py,bmp</property>
-                                    <signal name="sensitive" handler="on_IconFileSelection1_sensitive" swapped="no"/>
-                                    <signal name="selected" handler="on_IconFileSelection1_selected" swapped="no"/>
                                     <signal name="exit" handler="on_IconFileSelection1_exit" swapped="no"/>
+                                    <signal name="selected" handler="on_IconFileSelection1_selected" swapped="no"/>
+                                    <signal name="sensitive" handler="on_IconFileSelection1_sensitive" swapped="no"/>
                                   </object>
                                   <packing>
                                     <property name="position">3</property>
@@ -1301,6 +1305,66 @@
                                 <child>
                                   <placeholder/>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">True</property>
@@ -1343,7 +1407,7 @@
                                                       <object class="SpeedControl" id="spc_lin_jog_vel">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="color">rgb(255,129,22)</property>
                                                         <property name="max">10500</property>
                                                         <property name="unit">mm/min</property>
                                                         <property name="value">1500</property>
@@ -1389,7 +1453,7 @@
                                                   <object class="SpeedControl" id="spc_ang_jog_vel">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="color">#ffff81811616</property>
+                                                    <property name="color">rgb(255,129,22)</property>
                                                     <property name="max">3600</property>
                                                     <property name="template">%.d</property>
                                                     <property name="unit">°/min</property>
@@ -1415,9 +1479,6 @@
                                                             <property name="can_focus">True</property>
                                                             <property name="show_tabs">False</property>
                                                             <property name="show_border">False</property>
-                                                            <property name="tab_border">0</property>
-                                                            <property name="tab_hborder">0</property>
-                                                            <property name="tab_vborder">0</property>
                                                             <child>
                                                             <object class="GtkTable" id="tbl_jog_btn_axes">
                                                             <property name="visible">True</property>
@@ -1428,6 +1489,126 @@
                                                             <property name="column_spacing">3</property>
                                                             <property name="row_spacing">3</property>
                                                             <property name="homogeneous">True</property>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                             <child>
                                                             <placeholder/>
                                                             </child>
@@ -2773,6 +2954,126 @@
                                                             <child>
                                                             <placeholder/>
                                                             </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
+                                                            <child>
+                                                            <placeholder/>
+                                                            </child>
                                                             </object>
                                                             <packing>
                                                             <property name="position">1</property>
@@ -2821,6 +3122,7 @@
                                                         <child>
                                                           <object class="GtkCheckButton" id="chk_ignore_limits">
                                                             <property name="label" translatable="yes">Ignore limits</property>
+                                                            <property name="use_action_appearance">False</property>
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">True</property>
                                                             <property name="receives_default">False</property>
@@ -2904,7 +3206,7 @@
                                   <object class="GtkLabel" id="label4">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="label">Manuell</property>
+                                    <property name="label">Manual</property>
                                   </object>
                                   <packing>
                                     <property name="tab_fill">False</property>
@@ -2914,6 +3216,7 @@
                                   <object class="EMC_MDIHistory" id="hal_mdihistory">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
+                                    <property name="use_double_click">True</property>
                                     <child>
                                       <placeholder/>
                                     </child>
@@ -2937,21 +3240,20 @@
                                   <object class="GtkScrolledWindow" id="scrolledwindow1">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="hscrollbar_policy">automatic</property>
-                                    <property name="vscrollbar_policy">automatic</property>
                                     <child>
                                       <object class="EMC_SourceView" id="gcode_view">
+                                        <property name="name">gcode_view</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="tooltip_text" translatable="yes">Shows the code to execute</property>
                                         <property name="left_margin">2</property>
                                         <property name="right_margin">2</property>
                                         <property name="show_line_numbers">True</property>
                                         <property name="show_line_marks">True</property>
-                                        <property name="tab_width">3</property>
+                                        <property name="tab_width">4</property>
                                         <property name="auto_indent">True</property>
-                                        <property name="insert_spaces_instead_of_tabs">True</property>
-                                        <property name="right_margin_position">81</property>
                                         <property name="highlight_current_line">True</property>
+                                        <property name="indent_on_tab">False</property>
                                         <signal name="changed" handler="on_gcode_view_changed" swapped="no"/>
                                       </object>
                                     </child>
@@ -3176,8 +3478,8 @@
                                                   <object class="GtkLabel" id="lbl_vc">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="xalign">0.94999998807907104</property>
                                                     <property name="label" translatable="yes">Vc= 0.00</property>
+                                                    <property name="xalign">0.94999998807907104</property>
                                                   </object>
                                                   <packing>
                                                     <property name="left_attach">3</property>
@@ -3231,8 +3533,8 @@
                                                       <object class="GtkLabel" id="active_mcodes_label">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
                                                         <property name="label" translatable="yes">active_mcodes_label</property>
+                                                        <property name="xalign">0</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -3248,8 +3550,8 @@
                                                       <object class="GtkLabel" id="lbl_feed">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">1</property>
                                                         <property name="label">F </property>
+                                                        <property name="xalign">1</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -3266,8 +3568,8 @@
                                                         <property name="width_request">50</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">1</property>
                                                         <property name="label">10000</property>
+                                                        <property name="xalign">1</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -3294,8 +3596,8 @@
                                                       <object class="GtkLabel" id="active_gcodes_label">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">0</property>
                                                         <property name="label" translatable="yes">active_gcodes_label</property>
+                                                        <property name="xalign">0</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -3311,9 +3613,9 @@
                                                       <object class="GtkLabel" id="lbl_speed">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">1</property>
                                                         <property name="ypad">3</property>
                                                         <property name="label">S </property>
+                                                        <property name="xalign">1</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -3330,9 +3632,9 @@
                                                         <property name="width_request">50</property>
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="xalign">1</property>
                                                         <property name="ypad">3</property>
                                                         <property name="label">0</property>
+                                                        <property name="xalign">1</property>
                                                         <attributes>
                                                           <attribute name="style" value="normal"/>
                                                           <attribute name="weight" value="bold"/>
@@ -3409,6 +3711,7 @@
                                                     <property name="homogeneous">True</property>
                                                     <child>
                                                       <object class="GtkToggleButton" id="tbtn_flood">
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="width_request">56</property>
                                                         <property name="height_request">56</property>
                                                         <property name="visible">True</property>
@@ -3424,6 +3727,7 @@
                                                     </child>
                                                     <child>
                                                       <object class="GtkToggleButton" id="tbtn_mist">
+                                                        <property name="use_action_appearance">False</property>
                                                         <property name="width_request">56</property>
                                                         <property name="height_request">56</property>
                                                         <property name="visible">True</property>
@@ -3539,6 +3843,7 @@
                                                             <child>
                                                             <object class="GtkButton" id="btn_spindle_100">
                                                             <property name="label">100%</property>
+                                                            <property name="use_action_appearance">False</property>
                                                             <property name="width_request">48</property>
                                                             <property name="height_request">48</property>
                                                             <property name="visible">True</property>
@@ -3563,7 +3868,7 @@
                                                           <object class="SpeedControl" id="spc_spindle">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="color">#ffff81811616</property>
+                                                            <property name="color">rgb(255,129,22)</property>
                                                             <property name="max">120</property>
                                                             <property name="template">%d</property>
                                                             <property name="unit">%</property>
@@ -3596,6 +3901,7 @@
                                                             <property name="n_columns">5</property>
                                                             <child>
                                                             <object class="GtkRadioButton" id="rbt_reverse">
+                                                            <property name="use_action_appearance">False</property>
                                                             <property name="width_request">56</property>
                                                             <property name="height_request">56</property>
                                                             <property name="visible">True</property>
@@ -3621,6 +3927,7 @@
                                                             </child>
                                                             <child>
                                                             <object class="GtkRadioButton" id="rbt_forward">
+                                                            <property name="use_action_appearance">False</property>
                                                             <property name="width_request">56</property>
                                                             <property name="height_request">56</property>
                                                             <property name="visible">True</property>
@@ -3648,6 +3955,7 @@
                                                             </child>
                                                             <child>
                                                             <object class="GtkRadioButton" id="rbt_stop">
+                                                            <property name="use_action_appearance">False</property>
                                                             <property name="width_request">56</property>
                                                             <property name="height_request">56</property>
                                                             <property name="visible">True</property>
@@ -3900,7 +4208,7 @@
                                                       <object class="SpeedControl" id="spc_rapid">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="color">rgb(255,129,22)</property>
                                                         <property name="max">120</property>
                                                         <property name="template">%.d</property>
                                                         <property name="unit">%</property>
@@ -3958,8 +4266,8 @@
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
                                                             <property name="has_tooltip">True</property>
-                                                            <property name="tooltip_markup">Displayes the programmed feed rate</property>
-                                                            <property name="tooltip_text" translatable="yes">Displayes the programmed feed rate</property>
+                                                            <property name="tooltip_markup">Displays the programmed feed rate</property>
+                                                            <property name="tooltip_text" translatable="yes">Displays the programmed feed rate</property>
                                                             <property name="label">F 275</property>
                                                             <attributes>
                                                             <attribute name="weight" value="bold"/>
@@ -3975,6 +4283,7 @@
                                                         <child>
                                                           <object class="GtkButton" id="btn_feed_100">
                                                             <property name="label">100%</property>
+                                                            <property name="use_action_appearance">False</property>
                                                             <property name="width_request">48</property>
                                                             <property name="height_request">48</property>
                                                             <property name="visible">True</property>
@@ -4002,7 +4311,7 @@
                                                       <object class="SpeedControl" id="spc_feed">
                                                         <property name="visible">True</property>
                                                         <property name="can_focus">False</property>
-                                                        <property name="color">#ffff81811616</property>
+                                                        <property name="color">rgb(255,129,22)</property>
                                                         <property name="max">120</property>
                                                         <property name="template">%d</property>
                                                         <property name="unit">%</property>
@@ -4089,7 +4398,7 @@
                               <object class="GtkLabel" id="lbl_frm_info_emb_keyb">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="label">Embeded keyboard</property>
+                                <property name="label">Embedded keyboard</property>
                               </object>
                               <packing>
                                 <property name="position">1</property>
@@ -4111,6 +4420,7 @@
                             <child>
                               <object class="GtkButton" id="btn_undo">
                                 <property name="label" translatable="yes">Undo</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4126,6 +4436,7 @@
                               <object class="GtkButton" id="btn_search_back">
                                 <property name="label" translatable="yes">Search
  back</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4143,6 +4454,7 @@
                               <object class="GtkButton" id="btn_search_forward">
                                 <property name="label" translatable="yes">Search
   fwd</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4159,6 +4471,7 @@
                             <child>
                               <object class="GtkButton" id="btn_redo">
                                 <property name="label" translatable="yes">Redo</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4208,6 +4521,7 @@
                               <object class="GtkCheckButton" id="chk_replace_all">
                                 <property name="label" translatable="yes">Replace
    All</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -4222,6 +4536,7 @@
                               <object class="GtkCheckButton" id="chk_ignore_case">
                                 <property name="label" translatable="yes">Ignore
  Case</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="receives_default">False</property>
@@ -4246,6 +4561,7 @@
                             <child>
                               <object class="GtkButton" id="btn_replace">
                                 <property name="label" translatable="yes">Replace</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4298,8 +4614,6 @@
                                 <property name="invisible_char">●</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
                               </object>
                               <packing>
                                 <property name="left_attach">5</property>
@@ -4313,8 +4627,6 @@
                                 <property name="invisible_char">●</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="secondary_icon_activatable">False</property>
-                                <property name="primary_icon_sensitive">True</property>
-                                <property name="secondary_icon_sensitive">True</property>
                               </object>
                               <packing>
                                 <property name="left_attach">8</property>
@@ -4352,12 +4664,8 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="tab_pos">left</property>
-                    <property name="tab_border">20</property>
-                    <property name="tab_hborder">5</property>
-                    <property name="tab_vborder">5</property>
-                    <property name="homogeneous">True</property>
                     <child>
-                      <object class="GtkHBox" id="hbox_setup_apear">
+                      <object class="GtkHBox" id="hbox_setup_appear">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <child>
@@ -4384,6 +4692,7 @@
                                         <child>
                                           <object class="GtkRadioButton" id="rbtn_fullscreen">
                                             <property name="label" translatable="yes">Start as fullscreen</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4400,6 +4709,7 @@
                                         <child>
                                           <object class="GtkRadioButton" id="rbtn_maximized">
                                             <property name="label" translatable="yes">Start maximized</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4416,6 +4726,7 @@
                                         <child>
                                           <object class="GtkRadioButton" id="rbtn_window">
                                             <property name="label" translatable="yes">Start as window</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4439,10 +4750,10 @@
                                               <object class="GtkLabel" id="lbl_x_pos">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">X Pos.</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="x_options">GTK_SHRINK | GTK_FILL</property>
@@ -4453,10 +4764,10 @@
                                               <object class="GtkLabel" id="lbl_y_pos">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Y Pos.</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">1</property>
@@ -4469,10 +4780,10 @@
                                               <object class="GtkLabel" id="lbl_width">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Width</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">2</property>
@@ -4485,10 +4796,10 @@
                                               <object class="GtkLabel" id="lbl_height">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Height</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">3</property>
@@ -4506,8 +4817,6 @@
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_x_pos</property>
                                               </object>
                                               <packing>
@@ -4527,8 +4836,6 @@
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_y_pos</property>
                                               </object>
                                               <packing>
@@ -4550,8 +4857,6 @@
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_width</property>
                                               </object>
                                               <packing>
@@ -4573,8 +4878,6 @@
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_height</property>
                                               </object>
                                               <packing>
@@ -4597,6 +4900,7 @@
                                         <child>
                                           <object class="GtkCheckButton" id="chk_hide_cursor">
                                             <property name="label" translatable="yes">hide cursor</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4664,6 +4968,7 @@
                                         <child>
                                           <object class="GtkCheckButton" id="chk_use_kb_on_offset">
                                             <property name="label" translatable="yes">Show keyboard on offset</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4680,6 +4985,7 @@
                                         <child>
                                           <object class="GtkCheckButton" id="chk_use_kb_on_tooledit">
                                             <property name="label" translatable="yes">Show keyboard on tooledit</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4696,6 +5002,7 @@
                                         <child>
                                           <object class="GtkCheckButton" id="chk_use_kb_on_mdi">
                                             <property name="label" translatable="yes">Show keyboard on MDI</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4712,6 +5019,7 @@
                                         <child>
                                           <object class="GtkCheckButton" id="chk_use_kb_on_edit">
                                             <property name="label" translatable="yes">Show keyboard on EDIT</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4728,6 +5036,7 @@
                                         <child>
                                           <object class="GtkCheckButton" id="chk_use_kb_on_file_selection">
                                             <property name="label" translatable="yes">Show keyboard on load file</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4780,6 +5089,7 @@
                                         <child>
                                           <object class="GtkRadioButton" id="rbtn_show_preview">
                                             <property name="label" translatable="yes">show preview</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4796,6 +5106,7 @@
                                         <child>
                                           <object class="GtkRadioButton" id="rbtn_show_offsets">
                                             <property name="label" translatable="yes">show offsets</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -4876,8 +5187,8 @@
                                           <object class="GtkLabel" id="lbl_rel_color">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Relative Color</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
@@ -4887,6 +5198,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkColorButton" id="rel_colorbutton">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -4904,8 +5216,8 @@
                                           <object class="GtkLabel" id="lbl_abs_color">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Absolute Color</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">1</property>
@@ -4917,6 +5229,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkColorButton" id="abs_colorbutton">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -4936,8 +5249,8 @@
                                           <object class="GtkLabel" id="lbl_dtg_color">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">DTG Color</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">2</property>
@@ -4949,6 +5262,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkColorButton" id="dtg_colorbutton">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -4979,8 +5293,8 @@
                                           <object class="GtkLabel" id="label7">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Homed color</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">3</property>
@@ -4994,8 +5308,8 @@
                                           <object class="GtkLabel" id="label11">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Unhomed color</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">4</property>
@@ -5007,6 +5321,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkColorButton" id="homed_colorbtn">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -5024,6 +5339,7 @@
                                         </child>
                                         <child>
                                           <object class="GtkColorButton" id="unhomed_colorbtn">
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -5047,10 +5363,10 @@
                                               <object class="GtkLabel" id="lbl_dro_size">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Size</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -5067,8 +5383,6 @@
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_dro_size</property>
                                                 <property name="climb_rate">1</property>
                                                 <property name="numeric">True</property>
@@ -5095,10 +5409,10 @@
                                               <object class="GtkLabel" id="lbl_dro_size1">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Digits</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -5115,8 +5429,6 @@
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_dro_digits</property>
                                                 <property name="climb_rate">1</property>
                                                 <property name="numeric">True</property>
@@ -5148,8 +5460,9 @@
                                         </child>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_toggle_readout">
-                                            <property name="label" translatable="yes">toggle DRO mode 
+                                            <property name="label" translatable="yes">toggle DRO mode
 clicking on the DRO</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -5210,8 +5523,8 @@ clicking on the DRO</property>
                                               <object class="GtkLabel" id="label8">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="label" translatable="yes">Grid size</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">True</property>
@@ -5227,8 +5540,6 @@ clicking on the DRO</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_grid_size</property>
                                                 <property name="digits">3</property>
                                                 <signal name="value-changed" handler="on_grid_size_value_changed" swapped="no"/>
@@ -5249,6 +5560,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_show_dro">
                                             <property name="label" translatable="yes">Show DRO</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -5264,6 +5576,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_show_offsets">
                                             <property name="label" translatable="yes">Show offsets</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -5279,6 +5592,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_show_dtg">
                                             <property name="label" translatable="yes">Show DTG</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -5314,29 +5628,6 @@ clicking on the DRO</property>
                                             <property name="expand">False</property>
                                             <property name="fill">False</property>
                                             <property name="position">5</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <object class="GtkComboBoxEntry" id="cmb_mouse_button_mode">
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
-                                            <property name="model">lst_button_mode</property>
-                                            <property name="text_column">1</property>
-                                            <signal name="changed" handler="on_cmb_mouse_button_mode_changed" swapped="no"/>
-                                            <child internal-child="entry">
-                                              <object class="GtkEntry" id="comboboxentry-entry2">
-                                                <property name="can_focus">False</property>
-                                                <property name="primary_icon_activatable">False</property>
-                                                <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">6</property>
                                           </packing>
                                         </child>
                                       </object>
@@ -5408,6 +5699,7 @@ clicking on the DRO</property>
                                               <object class="GtkButton" id="btn_use_current">
                                                 <property name="label" translatable="yes">current
    file</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="height_request">56</property>
                                                 <property name="visible">True</property>
                                                 <property name="sensitive">False</property>
@@ -5425,6 +5717,7 @@ clicking on the DRO</property>
                                             <child>
                                               <object class="GtkButton" id="btn_none">
                                                 <property name="label" translatable="yes">none</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -5561,8 +5854,8 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="label25">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Warning Audio</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">2</property>
@@ -5575,8 +5868,8 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="label27">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Alert Audio</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">3</property>
@@ -5697,10 +5990,10 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_scale_rapid_override">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="xpad">5</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes">Scale rapid override</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">1</property>
@@ -5713,10 +6006,10 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_scale_jog_vel">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="xpad">5</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes">Scale jog velocity</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
@@ -5727,10 +6020,10 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_feed_overid">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="xpad">5</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes">Scale feed override</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">2</property>
@@ -5743,10 +6036,10 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_spindle_override">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="xpad">5</property>
                                             <property name="ypad">5</property>
                                             <property name="label" translatable="yes">Scale spindle override</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">3</property>
@@ -5763,8 +6056,6 @@ clicking on the DRO</property>
                                             <property name="xalign">1</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_scale_rapid_override</property>
                                             <property name="digits">1</property>
                                           </object>
@@ -5785,8 +6076,6 @@ clicking on the DRO</property>
                                             <property name="xalign">1</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_scale_jog_vel</property>
                                             <property name="digits">1</property>
                                           </object>
@@ -5805,8 +6094,6 @@ clicking on the DRO</property>
                                             <property name="xalign">1</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_scale_feed_override</property>
                                             <property name="digits">1</property>
                                           </object>
@@ -5827,8 +6114,6 @@ clicking on the DRO</property>
                                             <property name="xalign">1</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_scale_spindle_override</property>
                                             <property name="digits">1</property>
                                           </object>
@@ -5876,6 +6161,7 @@ clicking on the DRO</property>
                                     <child>
                                       <object class="GtkCheckButton" id="chk_use_kb_shortcuts">
                                         <property name="label" translatable="yes">Use keyboard shortcuts</property>
+                                        <property name="use_action_appearance">False</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="receives_default">False</property>
@@ -5920,6 +6206,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_use_unlock">
                                             <property name="label" translatable="yes">Use unlock code</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -5936,6 +6223,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_no_unlock">
                                             <property name="label" translatable="yes">Do not use unlock code</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -5952,6 +6240,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkRadioButton" id="rbt_hal_unlock">
                                             <property name="label" translatable="yes">Use hal pin to unlock</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -6008,8 +6297,8 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_start_rpm">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Starting RPM</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="y_options">GTK_SHRINK</property>
@@ -6026,8 +6315,6 @@ clicking on the DRO</property>
                                             <property name="shadow_type">etched-in</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_start_spindle_RPM</property>
                                             <property name="climb_rate">1</property>
                                             <property name="numeric">True</property>
@@ -6049,8 +6336,6 @@ clicking on the DRO</property>
                                             <property name="shadow_type">etched-in</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_spindle_bar_min</property>
                                             <property name="climb_rate">1</property>
                                             <property name="numeric">True</property>
@@ -6074,8 +6359,6 @@ clicking on the DRO</property>
                                             <property name="shadow_type">etched-in</property>
                                             <property name="primary_icon_activatable">False</property>
                                             <property name="secondary_icon_activatable">False</property>
-                                            <property name="primary_icon_sensitive">True</property>
-                                            <property name="secondary_icon_sensitive">True</property>
                                             <property name="adjustment">adj_spindle_bar_max</property>
                                             <property name="climb_rate">1</property>
                                             <property name="numeric">True</property>
@@ -6093,8 +6376,8 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_spindle_min_rpm">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Spindle bar min</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">1</property>
@@ -6107,8 +6390,8 @@ clicking on the DRO</property>
                                           <object class="GtkLabel" id="lbl_spindle_max_rpm">
                                             <property name="visible">True</property>
                                             <property name="can_focus">False</property>
-                                            <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Spindle bar max</property>
+                                            <property name="xalign">0</property>
                                           </object>
                                           <packing>
                                             <property name="top_attach">2</property>
@@ -6156,6 +6439,7 @@ clicking on the DRO</property>
                                         <child>
                                           <object class="GtkCheckButton" id="chk_turtle_jog">
                                             <property name="label" translatable="yes">Hide turtle Jog Button</property>
+                                            <property name="use_action_appearance">False</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">False</property>
@@ -6188,10 +6472,10 @@ clicking on the DRO</property>
                                               <object class="GtkLabel" id="lbl_turtle_jog_factor">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Turtle jog Factor</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="y_options"/>
@@ -6205,8 +6489,6 @@ clicking on the DRO</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_turtle_jog_factor</property>
                                                 <property name="numeric">True</property>
                                               </object>
@@ -6318,6 +6600,7 @@ clicking on the DRO</property>
                                             <child>
                                               <object class="GtkCheckButton" id="chk_use_tool_measurement">
                                                 <property name="label" translatable="yes">Use auto tool measurement</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -6354,8 +6637,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_pos_x">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">X Pos.</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
@@ -6366,8 +6649,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_pos_y">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Y Pos.</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="top_attach">1</property>
@@ -6380,8 +6663,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_probe_height">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Probe Height</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="top_attach">4</property>
@@ -6398,8 +6681,6 @@ clicking on the DRO</property>
                                                             <property name="xalign">1</property>
                                                             <property name="primary_icon_activatable">False</property>
                                                             <property name="secondary_icon_activatable">False</property>
-                                                            <property name="primary_icon_sensitive">True</property>
-                                                            <property name="secondary_icon_sensitive">True</property>
                                                             <property name="adjustment">adj_probe_height</property>
                                                             <property name="digits">3</property>
                                                             <signal name="value-changed" handler="on_spbtn_probe_height_value_changed" swapped="no"/>
@@ -6418,8 +6699,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_x_probe">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
+                                                            <property name="xalign">1</property>
                                                           </object>
                                                           <packing>
                                                             <property name="left_attach">1</property>
@@ -6432,8 +6713,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_y_probe">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
+                                                            <property name="xalign">1</property>
                                                           </object>
                                                           <packing>
                                                             <property name="left_attach">1</property>
@@ -6449,8 +6730,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_pos_z">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Z Pos.</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="top_attach">2</property>
@@ -6463,8 +6744,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_z_probe">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
+                                                            <property name="xalign">1</property>
                                                           </object>
                                                           <packing>
                                                             <property name="left_attach">1</property>
@@ -6480,8 +6761,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_max_probe">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Max. Probe</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="top_attach">3</property>
@@ -6494,8 +6775,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_maxprobe">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">1</property>
                                                             <property name="label" translatable="yes">0.000</property>
+                                                            <property name="xalign">1</property>
                                                           </object>
                                                           <packing>
                                                             <property name="left_attach">1</property>
@@ -6515,7 +6796,7 @@ clicking on the DRO</property>
                                                   <object class="GtkLabel" id="lbl_frm_probe">
                                                     <property name="visible">True</property>
                                                     <property name="can_focus">False</property>
-                                                    <property name="label" translatable="yes">&lt;b&gt;Probe Informations&lt;/b&gt;</property>
+                                                    <property name="label" translatable="yes">&lt;b&gt;Probe Information&lt;/b&gt;</property>
                                                     <property name="use_markup">True</property>
                                                   </object>
                                                 </child>
@@ -6550,8 +6831,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_search_vel">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Search Vel.</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="x_options">GTK_SHRINK | GTK_FILL</property>
@@ -6562,8 +6843,8 @@ clicking on the DRO</property>
                                                           <object class="GtkLabel" id="lbl_latch_vel">
                                                             <property name="visible">True</property>
                                                             <property name="can_focus">False</property>
-                                                            <property name="xalign">0</property>
                                                             <property name="label" translatable="yes">Probe Vel.</property>
+                                                            <property name="xalign">0</property>
                                                           </object>
                                                           <packing>
                                                             <property name="top_attach">1</property>
@@ -6580,8 +6861,6 @@ clicking on the DRO</property>
                                                             <property name="xalign">1</property>
                                                             <property name="primary_icon_activatable">False</property>
                                                             <property name="secondary_icon_activatable">False</property>
-                                                            <property name="primary_icon_sensitive">True</property>
-                                                            <property name="secondary_icon_sensitive">True</property>
                                                             <property name="adjustment">adj_search_vel</property>
                                                             <signal name="value-changed" handler="on_spbtn_search_vel_value_changed" swapped="no"/>
                                                           </object>
@@ -6601,8 +6880,6 @@ clicking on the DRO</property>
                                                             <property name="xalign">1</property>
                                                             <property name="primary_icon_activatable">False</property>
                                                             <property name="secondary_icon_activatable">False</property>
-                                                            <property name="primary_icon_sensitive">True</property>
-                                                            <property name="secondary_icon_sensitive">True</property>
                                                             <property name="adjustment">adj_probe_vel</property>
                                                             <signal name="value-changed" handler="on_spbtn_probe_vel_value_changed" swapped="no"/>
                                                           </object>
@@ -6641,7 +6918,7 @@ clicking on the DRO</property>
                                                 <property name="can_focus">False</property>
                                                 <property name="label" translatable="yes">No valid configuration
 found in your INI file,
-please take a look at 
+please take a look at
 the WIKI to check how
 to configure the settings.</property>
                                                 <property name="wrap">True</property>
@@ -6691,13 +6968,14 @@ to configure the settings.</property>
                                             <child>
                                               <object class="GtkCheckButton" id="chk_reload_tool">
                                                 <property name="label" translatable="yes">Reload Tool on Start</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
                                                 <property name="tooltip_text" translatable="yes">If checked, the tool in spindle
 will be saved on each change
 and the last tool will be reloaded
-at start of the GUI. Also it's 
+at start of the GUI. Also it's
 length offset will be reloaded.
 </property>
                                                 <property name="active">True</property>
@@ -6775,6 +7053,7 @@ is not possible.</property>
                                             <child>
                                               <object class="GtkRadioButton" id="rbtn_no_run_from_line">
                                                 <property name="label" translatable="yes">Do not use run from line</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -6791,6 +7070,7 @@ is not possible.</property>
                                             <child>
                                               <object class="GtkRadioButton" id="rbtn_run_from_line">
                                                 <property name="label" translatable="yes">Use run from line</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -6857,6 +7137,7 @@ is not possible.</property>
                                             <child>
                                               <object class="GtkCheckButton" id="chk_use_frames">
                                                 <property name="label" translatable="yes">Use frames</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">False</property>
@@ -6875,10 +7156,10 @@ will be in a frame.</property>
                                               <object class="GtkLabel" id="lbl_font_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Font</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">4</property>
@@ -6889,10 +7170,10 @@ will be in a frame.</property>
                                               <object class="GtkLabel" id="lbl_max_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">max.</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">3</property>
@@ -6905,10 +7186,10 @@ will be in a frame.</property>
                                               <object class="GtkLabel" id="lbl_width_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Width</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">2</property>
@@ -6919,11 +7200,12 @@ will be in a frame.</property>
                                             </child>
                                             <child>
                                               <object class="GtkFontButton" id="fontbutton_popup">
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
                                                 <property name="tooltip_text" translatable="yes">The font to use</property>
-                                                <property name="font_name">Sans 10</property>
+                                                <property name="font">Sans 12</property>
                                                 <signal name="font-set" handler="on_fontbutton_popup_font_set" swapped="no"/>
                                               </object>
                                               <packing>
@@ -6942,8 +7224,6 @@ will be in a frame.</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_max_messages</property>
                                                 <property name="numeric">True</property>
                                               </object>
@@ -6967,8 +7247,6 @@ will be in a frame.</property>
                                                 <property name="progress_fraction">0.0099999997764825821</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_width_popup</property>
                                                 <property name="numeric">True</property>
                                               </object>
@@ -6986,10 +7264,10 @@ will be in a frame.</property>
                                               <object class="GtkLabel" id="lbl_y_pos_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">Y Pos.</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="top_attach">1</property>
@@ -7002,10 +7280,10 @@ will be in a frame.</property>
                                               <object class="GtkLabel" id="lbl_x_pos_popup">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">False</property>
-                                                <property name="xalign">0</property>
                                                 <property name="xpad">5</property>
                                                 <property name="ypad">5</property>
                                                 <property name="label" translatable="yes">X Pos.</property>
+                                                <property name="xalign">0</property>
                                               </object>
                                               <packing>
                                                 <property name="x_options">GTK_SHRINK | GTK_FILL</property>
@@ -7021,8 +7299,6 @@ will be in a frame.</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_x_pos_popup</property>
                                                 <property name="numeric">True</property>
                                               </object>
@@ -7043,8 +7319,6 @@ will be in a frame.</property>
                                                 <property name="xalign">1</property>
                                                 <property name="primary_icon_activatable">False</property>
                                                 <property name="secondary_icon_activatable">False</property>
-                                                <property name="primary_icon_sensitive">True</property>
-                                                <property name="secondary_icon_sensitive">True</property>
                                                 <property name="adjustment">adj_y_pos_popup</property>
                                                 <property name="numeric">True</property>
                                               </object>
@@ -7061,6 +7335,7 @@ will be in a frame.</property>
                                             <child>
                                               <object class="GtkButton" id="btn_launch_test_message">
                                                 <property name="label" translatable="yes">Launch test message</property>
+                                                <property name="use_action_appearance">False</property>
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="receives_default">True</property>
@@ -7211,6 +7486,7 @@ to test your settings.</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_estop">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7235,6 +7511,7 @@ to test your settings.</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_on">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7259,6 +7536,7 @@ to test your settings.</property>
                 </child>
                 <child>
                   <object class="GtkRadioButton" id="rbt_manual">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7280,12 +7558,13 @@ to test your settings.</property>
                 </child>
                 <child>
                   <object class="GtkRadioButton" id="rbt_mdi">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
-                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch g-code commands
+                    <property name="tooltip_text" translatable="yes">enter MDI mode to launch G-code commands
 [F5]</property>
                     <property name="image">img_mdi</property>
                     <property name="draw_indicator">False</property>
@@ -7300,6 +7579,7 @@ to test your settings.</property>
                 </child>
                 <child>
                   <object class="GtkRadioButton" id="rbt_auto">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7318,6 +7598,7 @@ to test your settings.</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_setup">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7341,6 +7622,7 @@ to test your settings.</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_user_tabs">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7398,6 +7680,7 @@ Date</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_homing">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7415,6 +7698,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_touch">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7445,6 +7729,7 @@ Date</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_tool">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7497,6 +7782,7 @@ Date</property>
                   <object class="GtkToggleButton" id="tbtn_switch_mode">
                     <property name="label" translatable="yes">World
 Mode</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7540,6 +7826,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_fullsize_preview0">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7557,6 +7844,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_exit">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7645,6 +7933,7 @@ F12 or $ key does the same</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_load">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7683,6 +7972,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_run">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7762,12 +8052,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_from_line">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checed!</property>
+                    <property name="tooltip_text" translatable="yes">run the program from a certain line, attention, that is dangerous, because the previous lines will not checked!</property>
                     <property name="image">img_run_from</property>
                     <signal name="clicked" handler="on_btn_from_line_clicked" swapped="no"/>
                   </object>
@@ -7779,6 +8070,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_optional_blocks">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7804,6 +8096,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkToggleButton" id="tbtn_fullsize_preview1">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7820,6 +8113,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_edit">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -7969,6 +8263,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_delete">
                     <property name="label" translatable="yes">delete MDI</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8028,6 +8323,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_classicladder">
                     <property name="label" translatable="yes">Cl.-ladder</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8045,6 +8341,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_hal_scope">
                     <property name="label" translatable="yes">Hal-Scope</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8062,6 +8359,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_status">
                     <property name="label" translatable="yes">Status</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8079,6 +8377,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_hal_meter">
                     <property name="label" translatable="yes">Hal Meter</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8097,6 +8396,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_calibration">
                     <property name="label" translatable="yes">Calibration</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8114,6 +8414,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_show_hal">
                     <property name="label" translatable="yes">Halshow</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8255,6 +8556,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_new">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8293,6 +8595,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_keyb">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8318,6 +8621,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_back_edit">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8356,6 +8660,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_delete_tool">
                     <property name="label" translatable="yes">Delete</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8373,6 +8678,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_add_tool">
                     <property name="label" translatable="yes">Add</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8390,6 +8696,7 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_reload_tooltable">
                     <property name="label" translatable="yes">Reload</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8407,12 +8714,13 @@ F12 or $ key does the same</property>
                 <child>
                   <object class="GtkButton" id="btn_apply_tool_changes">
                     <property name="label" translatable="yes">Apply</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be excecuted only if it is active g-code</property>
+                    <property name="tooltip_text" translatable="yes">apply the changes you made, G43 will be executed only if it is active G-code</property>
                     <signal name="clicked" handler="on_btn_apply_tool_changes_clicked" swapped="no"/>
                   </object>
                   <packing>
@@ -8423,6 +8731,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_select_tool_by_no">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8446,6 +8755,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_index_tool">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8469,6 +8779,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_change_tool">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8488,6 +8799,7 @@ F12 or $ key does the same</property>
                   <object class="GtkButton" id="btn_tool_touchoff_x">
                     <property name="label" translatable="yes">touchoff
   tool x</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8518,8 +8830,15 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_tool_touchoff_z">
-                    <property name="label" translatable="yes">touchoff
-  tool z</property>
+                    <child>
+                      <object class="GtkLabel" id="btn_tool_touchoff_z_label">
+                        <property name="label" translatable="yes">touchoff
+tool z</property>
+                        <property name="visible">1</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>                   
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8537,6 +8856,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_back_tool">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8575,6 +8895,7 @@ F12 or $ key does the same</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton" id="btn_home">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8592,12 +8913,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_dir_up">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Move to parrent directory</property>
+                    <property name="tooltip_text" translatable="yes">Move to parent directory</property>
                     <property name="image">img_dir_up</property>
                     <signal name="clicked" handler="on_btn_dir_up_clicked" swapped="no"/>
                   </object>
@@ -8622,12 +8944,13 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_sel_prev">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="tooltip_text" translatable="yes">Select the previos file</property>
+                    <property name="tooltip_text" translatable="yes">Select the previous file</property>
                     <property name="image">img_sel_prev</property>
                     <property name="image_position">top</property>
                     <signal name="clicked" handler="on_btn_sel_prev_clicked" swapped="no"/>
@@ -8640,6 +8963,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_sel_next">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8658,6 +8982,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_jump_to">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8689,6 +9014,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_select">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>
@@ -8720,6 +9046,7 @@ F12 or $ key does the same</property>
                 </child>
                 <child>
                   <object class="GtkButton" id="btn_back_file_load">
+                    <property name="use_action_appearance">False</property>
                     <property name="width_request">85</property>
                     <property name="height_request">56</property>
                     <property name="visible">True</property>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # qtVcp Widget - DRO label widget
 # This widgets displays linuxcnc axis position information.
 #
@@ -33,7 +33,7 @@ STATUS = Status()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -55,9 +55,15 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self.force_diameter = False
         self.force_radius = False
         self._scale = 1
+        self._user = 0
+
+        # for stylesheet reading
+        self._isHomed = False
 
     def _hal_init(self):
         super(DROLabel, self)._hal_init()
+        STATUS.connect('homed', lambda w,d: self._home_status_polish(int(d), True))
+        STATUS.connect('unhomed', lambda w,d: self._home_status_polish(int(d), False))
         # get position update from STATUS every 100 ms
         if self.joint_number == 10:
             STATUS.connect('current-z-rotation', self.update_rotation)
@@ -74,6 +80,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 STATUS.connect('diameter-mode', self._switch_modes)
             if self.allow_reference_change_requests:
                 STATUS.connect('dro-reference-change-request', self._status_reference_change)
+
             self._joint_type  = INFO.JOINT_TYPE_INT[self._jointNum]
         if self._joint_type == linuxcnc.ANGULAR:
             self._current_text_template =  self.angular_text_template
@@ -81,6 +88,15 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
             self._current_text_template = self.metric_text_template
         else:
             self._current_text_template = self.imperial_text_template
+
+    # update ishomed property
+    # polish widget so stylesheet sees the property change
+    # some stylesheets color the text on home/unhome
+    def _home_status_polish(self, d, state):
+        if d == self.joint_number or (self.joint_number==10 and d==1):
+            self.setProperty('isHomed', state)
+            self.style().unpolish(self)
+            self.style().polish(self)
 
     def motion_mode(self, w, mode):
         if mode == linuxcnc.TRAJ_MODE_COORD:
@@ -91,6 +107,11 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         # axis 
         elif mode == linuxcnc.TRAJ_MODE_TELEOP:
             self._mode = True
+
+    @QtCore.pyqtSlot(int)
+    @QtCore.pyqtSlot(float)
+    def update_user(self, data):
+        self._user = data
 
     def update_rotation(self, widget, rotation):
         degtmpl = lambda s: self.angular_text_template % s
@@ -114,6 +135,9 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 self.setText(tmpl(relative[self.joint_number]*self._scale))
             elif self.reference_type == 2:
                 self.setText(tmpl(dtg[self.joint_number]*self._scale))
+
+            elif self.reference_type == 10:
+                self.setText(tmpl(self._user*self._scale))
         except:
             pass
 
@@ -235,6 +259,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def setmetrictemplate(self, data):
         self.metric_text_template = data
+        self.update_units()
     def getmetrictemplate(self):
         return self.metric_text_template
     def resetmetrictemplate(self):
@@ -243,6 +268,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def setimperialtexttemplate(self, data):
         self.imperial_text_template = data
+        self.update_units()
     def getimperialtexttemplate(self):
         return self.imperial_text_template
     def resetimperialtexttemplate(self):
@@ -251,12 +277,19 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def setangulartexttemplate(self, data):
         self.angular_text_template = data
+        self.update_units()
     def getangulartexttemplate(self):
         return self.angular_text_template
     def resetangulartexttemplate(self):
         self.angular_text_template =  '%9.2f'
     angular_template = QtCore.pyqtProperty(str, getangulartexttemplate, setangulartexttemplate, resetangulartexttemplate)
 
+    def setisHomed(self, data):
+        self._isHomed = data
+    def getisHomed(self):
+        return self._isHomed
+
+    isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
     ##############################
     # required class boiler code #
     ##############################

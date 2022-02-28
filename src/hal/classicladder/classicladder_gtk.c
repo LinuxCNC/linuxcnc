@@ -20,7 +20,7 @@
 /* You should have received a copy of the GNU Lesser General Public */
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
-// Chris Morley (EMC2) Jan 08
+// Chris Morley (LinuxCNC) Jan 08
 
 #include <locale.h>
 #include <libintl.h>
@@ -529,7 +529,7 @@ void DoNewProject( void )
 
 void ButtonNew_click()
 {
-	ShowConfirmationBox(_("New"),_("Do you really want to clear all datas ?"),DoNewProject);
+	ShowConfirmationBox(_("New"),_("Do you really want to clear all data ?"),DoNewProject);
 }
 void DoLoadProject()
 {
@@ -935,7 +935,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 	{
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 		char TextBuffer[ 20 ];
-		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d us"), InfosGene->DurationOfLastScan/1000);
+		snprintf(TextBuffer, sizeof(TextBuffer) , _("%d µs"), InfosGene->DurationOfLastScan/1000);
 		gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),TextBuffer);
 #endif
 		ToggleManagerWindow();

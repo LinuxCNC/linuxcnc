@@ -83,7 +83,7 @@ Architecture:
             does this:
 
                 allocate a hostmot2_t struct to hold this running instance
-                of the hostmot2 firmare, add the hm2_lowlevel_io_t to it
+                of the hostmot2 firmware, add the hm2_lowlevel_io_t to it
 
                 parse the config string
 

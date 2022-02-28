@@ -1,0 +1,33 @@
+#!/usr/bin/tclsh
+# switch kinematics and change axis limits
+set kinstype       2     ;# 2: TYPE 2 kins
+set switchkins_pin 3     ;# agree with inifile
+set max_joints     6     ;# agree with inifile
+set coords "x y z a b c" ;# agree with module coordinates=
+
+package require Linuxcnc ;# must be beore Hal
+emc_init -quick
+package require Hal
+parse_ini $::env(INI_FILE_NAME)
+
+# SET axis limits for IDENTITY kins using INI joint limits
+for {set j 0} {$j < $max_joints} {incr j} {
+  set l [lindex $coords $j]
+  catch {hal setp ini.$l.min_limit        [set ::JOINT_[set j](MIN_LIMIT)]}
+  catch {hal setp ini.$l.max_limit        [set ::JOINT_[set j](MAX_LIMIT)]}
+  catch {hal setp ini.$l.max_velocity     [set ::JOINT_[set j](MAX_VELOCITY)]}
+  catch {hal setp ini.$l.max_acceleration [set ::JOINT_[set j](MAX_ACCELERATION)]}
+}
+
+set script [info script]
+switch  -exact [emc_mode] {
+  mdi     { emc_mdi m68 e$switchkins_pin q$kinstype ;# switch
+            emc_mdi m66 e0l0                        ;# sync
+            puts "$script: MDI: Limits updated and kins switched to type$kinstype"
+          }
+  manual  {puts "$script: Must be in mdi mode"}
+  auto    {puts "$script: Limits updated in auto mode, sync required"}
+  default {puts "$script: Unknown mode"}
+}
+# gcode programs should follow this command
+# with M430 to switch kinematics and sync

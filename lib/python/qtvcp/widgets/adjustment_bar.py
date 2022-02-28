@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # QTVcp Widget
 # Copyright (c) 2018 Chris Morley
@@ -36,7 +36,7 @@ AUX_PRGM = Aux_program_loader()
 INFO = Info()
 ACTION = Action()
 LOG = logger.getLogger(__name__)
-# Set the log level for this module
+# Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -227,7 +227,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
-            print int(INFO.MAX_ANGULAR_JOG_VEL)
+            print(int(INFO.MAX_ANGULAR_JOG_VEL))
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
         elif self.maxv:
             STATUS.connect('max-velocity-override-changed', lambda w, data: self.setValue(data))
@@ -244,7 +244,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         self.valueChanged.connect(self._action)
 
     # when qtvcp closes this gets called
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
             self.PREFS_.putpref(self.HAL_NAME_+'-hi-value', self.hi_value, int, 'SCREEN_CONTROL_LAST_SETTING')

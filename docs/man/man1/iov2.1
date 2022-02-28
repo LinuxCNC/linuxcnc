@@ -106,6 +106,49 @@ mechanism) of the tool requested by the most recent T-word.
 
 .SS Additional IO v2 pins
 .TP
+\fBiocontrol.0.coolant\-flood
+(Bit, Out) TRUE when flood coolant is requested
+.TP
+\fBiocontrol.0.coolant\-mist 
+(Bit, Out) TRUE when mist coolant is requested
+.TP
+\fBiocontrol.0.emc\-enable\-in 
+(Bit, In) Should be driven FALSE when an external estop condition exists.
+.TP
+\fBiocontrol.0.lube 
+(Bit, Out) TRUE when lube is requested.  This pin gets driven True when
+the controller comes out of E-stop, and when the "Lube On" command gets
+sent to the controller.  It gets driven False when the controller goes
+into E-stop, and when the "Lube Off" command gets sent to the controller.
+.TP
+\fBiocontrol.0.lube_level 
+(Bit, In) Should be driven FALSE when lubrication tank is empty.
+.TP
+\fBiocontrol.0.tool\-change 
+(Bit, Out) TRUE when a tool change is requested
+.TP
+\fBiocontrol.0.tool\-changed 
+(Bit, In) Should be driven TRUE when a tool change is completed.
+.TP
+\fBiocontrol.0.tool\-number
+(s32, Out) Current tool number
+.TP
+\fBiocontrol.0.tool\-prep\-number 
+(s32, Out) The number of the next tool, from the RS274NGC T-word
+.TP
+\fBiocontrol.0.tool\-prep\-pocket
+(s32, Out) This is the pocket number (location in the tool storage
+mechanism) of the tool requested by the most recent T-word.
+.TP
+\fBiocontrol.0.tool\-prepare 
+(Bit, Out) TRUE when a T\fIn\fR tool prepare is requested
+.TP
+\fBiocontrol.0.tool\-prepared 
+(Bit, In) Should be driven TRUE when a tool prepare is completed.
+.TP
+\fBiocontrol.0.user\-enable\-out 
+(Bit, Out) FALSE when an internal estop condition exists
+.TP
 \fBiocontrol.0.emc\-abort
 (BIT,OUT) Signals emc\-originated abort to toolchanger.
 .TP
@@ -122,7 +165,7 @@ mechanism) of the tool requested by the most recent T-word.
 (BIT,IN) Acknowledgment line for start\-change.
 .TP
 \fBiocontrol.0.toolchanger\-fault
-(BIT,IN) Toolchanger signals fault. This line is contionuously monitored. A fault toogles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
+(BIT,IN) Toolchanger signals fault. This line is contionuously monitored. A fault toggles a flag in iocontrol which is reflected in the toolchanger\-faulted pin.
 .TP
 \fBiocontrol.0.toolchanger\-fault\-ack
 (BIT,OUT) Handshake line for above signal. will be set by iov2 after above fault line True is recognized and deasserted when toolchanger\-fault drops. Toolchanger is free to interpret the ack; reading the \-ack lines assures fault has been received and acted upon.
@@ -134,7 +177,10 @@ mechanism) of the tool requested by the most recent T-word.
 (BIT,OUT) Signals toolchanger\-notify line has toggled and toolchanger\-reason\-code was in the fault range. Next M6 will abort.
 .TP
 \fBiocontrol.0.toolchanger\-clear\-fault
-(BIT,IN) Resets TC fault condition. Deasserts toolchanger\-faulted if toolchanger\-notify is line False. Usage. UI \- e.g. clear fault condition button. 
+(BIT,IN) Resets TC fault condition. Deasserts toolchanger\-faulted if toolchanger\-notify is line False. Usage. UI \- e.g. clear fault condition button.
+.TP
+\fBiocontrol.0.user\-request\-enable 
+(Bit, Out) TRUE when the user has requested that estop be cleared
 .TP
 \fBiocontrol.0.state
 (S32,OUT) Debugging pin reflecting internal state

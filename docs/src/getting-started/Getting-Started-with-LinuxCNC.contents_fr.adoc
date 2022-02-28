@@ -1,0 +1,23 @@
+:leveloffset: 1
+
+include::../common/outdated-notice_fr.adoc[]
+
+include::About-LinuxCNC_fr.adoc[]
+
+include::System_Requirements_fr.adoc[]
+
+include::Getting-LinuxCNC_fr.adoc[]
+
+include::Updating_LinuxCNC_fr.adoc[]
+
+include::Running-LinuxCNC_fr.adoc[]
+
+include::stepper_quickstart_fr.adoc[]
+
+include::stepconf_fr.adoc[]
+
+include::pncconf_fr.adoc[]
+
+include::Linux_FAQ_fr.adoc[]
+
+// vim: set syntax=asciidoc:

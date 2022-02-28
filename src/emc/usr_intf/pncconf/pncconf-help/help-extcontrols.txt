@@ -79,7 +79,7 @@ External MPG Jogging:
     has some options to help filter the inputs.
     - use debounce: debounce is used on switches to help to
     ignore false on/off 'bounces' while switching. It asks EMC 
-    to wait till the input is stable for the time choosen 
+    to wait till the input is stable for the time chosen 
     (in seconds). the longer the debounce time the longer the
     response to input changes.
     - use gray code: gray code helps to avoid momentary out of
@@ -98,9 +98,9 @@ External MPG Jogging:
 
 External Spindle Override:
     allows spindle speed override to be set by MPG or switches.
-    If MPG is choosen, one must choose the spindle override
+    If MPG is chosen, one must choose the spindle override
     encoder signal in the Mesa page.
-    if switches is choosen, one must select the apropriate
+    if switches is chosen, one must select the appropriate
     overrides increment signals in the mesa / parport page.
     There are 4 inputs used to select up to sixteen override
     percentages. The bold face labels - Default, a, b, c, and d
@@ -110,12 +110,12 @@ External Spindle Override:
     high for the override rate.( eg abc) requires signals:
     so-incr-a, so-inc-b, and so-inc-c all to be high for
     that override rate to be selected.)
-    The default pecentage rate is when no so-inc signals are high.
+    The default percentage rate is when no so-inc signals are high.
     Selectable increments uses the mux16 component which
     has some options to help filter the inputs.
     - use debounce: debounce is used on switches to help to
     ignore false on/off 'bounces' while switching. It asks EMC 
-    to wait till the input is stable for the time choosen 
+    to wait till the input is stable for the time chosen 
     (in seconds). the longer the debounce time the longer the
     response to input changes.
     - use gray code: gray code helps to avoid momentary out of

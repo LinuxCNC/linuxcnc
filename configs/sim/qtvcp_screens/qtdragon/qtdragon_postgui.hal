@@ -13,17 +13,11 @@ net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 
-net xwidth           motion.analog-out-00 => qtdragon.x_width
-net ywidth           motion.analog-out-01 => qtdragon.y_width
-net avg_dia          motion.analog-out-02 => qtdragon.avg_diameter
-net edge_angle       motion.analog-out-03 => qtdragon.edge_angle
-net edge_delta       motion.analog-out-04 => qtdragon.edge_delta
-net xminus           motion.analog-out-05 => qtdragon.x_minus
-net yminus           motion.analog-out-06 => qtdragon.y_minus
-net zminus           motion.analog-out-07 => qtdragon.z_minus
-net xplus            motion.analog-out-08 => qtdragon.x_plus
-net yplus            motion.analog-out-09 => qtdragon.y_plus
-net xcenter          motion.analog-out-10 => qtdragon.x_center
-net ycenter          motion.analog-out-11 => qtdragon.y_center
-net cal_offset       motion.analog-out-12 => qtdragon.cal_offset
+# external offset stuff
+net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-count => axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+setp axis.z.eoffset-enable 1
+setp axis.z.eoffset-scale 1.0
 

@@ -13,8 +13,9 @@
 #ifndef INTERP_INTERNAL_HH
 #define INTERP_INTERNAL_HH
 
+#include <locale.h>
 #include <algorithm>
-#include "config.h"
+#include "linuxcnc.h"
 #include <limits.h>
 #include <stdio.h>
 #include <set>
@@ -28,6 +29,7 @@
 #include "interp_parameter_def.hh"
 #include "interp_fwd.hh"
 #include "interp_base.hh"
+#include "tooldata.hh"
 
 
 #define _(s) gettext(s)
@@ -53,13 +55,9 @@ inline int round_to_int(T x) {
 
 /* nested remap: a remapped code is found in the body of a subroutine
  * which is executing on behalf of another remapped code
- * example: a user G code command executes a tool change
+ * example: a user G-code command executes a tool change
  */
 #define MAX_NESTED_REMAPS 10
-
-// English - Metric conversion (long number keeps error buildup down)
-#define MM_PER_INCH 25.4
-//#define INCH_PER_MM 0.039370078740157477
 
 /* numerical constants */
 
@@ -195,7 +193,7 @@ enum OCodes
     O_ = 18,
 };
 
-// G Codes are symbolic to be dialect-independent in source code
+// G-codes are symbolic to be dialect-independent in source code
 enum GCodes
 {
     G_0 = 0,
@@ -253,6 +251,13 @@ enum GCodes
     G_61 = 610,
     G_61_1 = 611,
     G_64 = 640,
+    G_70 = 700,
+    G_71 = 710,
+    G_71_1 = 711,
+    G_71_2 = 712,
+    G_72 = 720,
+    G_72_1 = 721,
+    G_72_2 = 722,
     G_73 = 730,
     G_74 = 740,
     G_76 = 760,
@@ -351,6 +356,7 @@ enum phases  {
     STEP_IJK_DISTANCE_MODE,
     STEP_RETRACT_MODE,
     STEP_MODAL_0,
+    STEP_G92_IS_APPLIED,
     STEP_MOTION,
     STEP_MGROUP4,
     MAX_STEPS
@@ -378,6 +384,7 @@ enum ModalGroups
     GM_CONTROL_MODE = 13,
     GM_SPINDLE_MODE = 14,
     GM_LATHE_DIAMETER_MODE = 15,
+    GM_G92_IS_APPLIED = 16,
     GM_MAX_MODAL_GROUPS
 };
 
@@ -436,6 +443,7 @@ struct block_struct
   double f_number;
 
   int g_modes[GM_MAX_MODAL_GROUPS];
+
   bool h_flag;
   int h_number;
   bool i_flag;
@@ -501,7 +509,7 @@ struct block_struct
 
 
     // there might be several remapped items in a block, but at any point
-    // in time there's only one excuting
+    // in time there's only one executing
     // conceptually blocks[1..n] are also the 'remap frames'
     remap_pointer executing_remap; // refers to config descriptor
     std::set<int> remappings; // all remappings in this block (enum phases)
@@ -510,7 +518,7 @@ struct block_struct
     // the strategy to get the builtin behaviour of a code in a remap procedure is as follows:
     // if recursion is detected in find_remappings() (called by parse_line()), that *step* 
     // (roughly the modal group) is NOT added to the set of remapped steps in a block (block->remappings)
-    // in the convert_* procedures we test if the step is remapped with the macro below, and wether
+    // in the convert_* procedures we test if the step is remapped with the macro below, and whether
     // it is the current code which is remapped (IS_USER_MCODE, IS_USER_GCODE etc). If both
     // are true, we execute the remap procedure; if not, use the builtin code.
 #define STEP_REMAPPED_IN_BLOCK(bp, step) (bp->remappings.find(step) != bp->remappings.end())
@@ -518,7 +526,7 @@ struct block_struct
     // true if in a remap procedure the code being remapped was
     // referenced, which caused execution of the builtin semantics
     // reason for recording the fact: this permits an epilog to do the
-    // right thing depending on wether the builtin was used or not.
+    // right thing depending on whether the builtin was used or not.
     bool builtin_used; 
 };
 
@@ -566,7 +574,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 
 #define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
-// for M and G codes
+// for M- and G-codes
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
@@ -591,8 +599,8 @@ struct context_struct {
     double saved_params[INTERP_SUB_PARAMS];
     parameter_map named_params;
     unsigned char context_status;		// see CONTEXT_ defines below
-    int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
-    int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
+    int saved_g_codes[ACTIVE_G_CODES];  // array of active G-codes
+    int saved_m_codes[ACTIVE_M_CODES];  // array of active M-codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
     pycontext pystuff;
@@ -652,9 +660,11 @@ struct setup
   double v_axis_offset, v_current, v_origin_offset;
   double w_axis_offset, w_current, w_origin_offset;
 
-  int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
-  int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
+  int active_g_codes[ACTIVE_G_CODES];  // array of active G-codes
+  int active_m_codes[ACTIVE_M_CODES];  // array of active M-codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
+  StateTag state_tag;
+
   bool arc_not_allowed;       // we just exited cutter compensation, so we error if the next move isn't straight
   double axis_offset_x;         // X-axis g92 offset
   double axis_offset_y;         // Y-axis g92 offset
@@ -670,7 +680,9 @@ struct setup
 
   char blocktext[LINELEN];   // linetext downcased, white space gone
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
-  int current_pocket;             // carousel slot number of current tool
+    double tolerance;           // G64 blending tolerance
+    double naivecam_tolerance;  // G64 naive cam tolerance
+  int current_pocket;             // carousel slot (index) number of current tool
   double current_x;             // current X-axis position
   double current_y;             // current Y-axis position
   double current_z;             // current Z-axis position
@@ -727,7 +739,7 @@ struct setup
   double program_z;             // program y, used when cutter comp on
   RETRACT_MODE retract_mode;    // for cycles, old_z or r_plane
   int random_toolchanger;       // tool changer swaps pockets, and pocket 0 is the spindle instead of "no tool"
-  int selected_pocket;          // tool slot selected but not active
+  int selected_pocket;          // tool slot (index) selected but not active
     int selected_tool;          // start switchover to pocket-agnostic interp
   int sequence_number;          // sequence number of line last read
   int num_spindles;				// number of spindles available
@@ -740,7 +752,6 @@ struct setup
   char stack[STACK_LEN][STACK_ENTRY_LEN];      // stack of calls for error reporting
   int stack_index;              // index into the stack
   EmcPose tool_offset;          // tool length offset
-  int pockets_max;                 // number of pockets in carousel (including pocket 0, the spindle)
   CANON_TOOL_TABLE tool_table[CANON_POCKETS_MAX];      // index is pocket number
   double traverse_rate;         // rate for traverse motions
   double orient_offset;         // added to M19 R word, from [RS274NGC]ORIENT_OFFSET
@@ -976,5 +987,14 @@ macros totally crash-proof. If the function call stack is deeper than
        CHP(call); \
      }
 
+;
 
+struct scoped_locale {
+    scoped_locale(int category_, const char *locale_) : category(category_), oldlocale(setlocale(category, NULL)) { setlocale(category, locale_); }
+    ~scoped_locale() { setlocale(category, oldlocale); }
+    int category;
+    const char *oldlocale;
+};
+
+#define FORCE_LC_NUMERIC_C scoped_locale force_lc_numeric_c(LC_NUMERIC, "C")
 #endif // INTERP_INTERNAL_HH

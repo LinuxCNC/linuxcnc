@@ -1269,7 +1269,7 @@ void Hal::setMacro9(bool enabled)
 // ----------------------------------------------------------------------
 void Hal::setMacro10(bool enabled)
 {
-    setPin(enabled, KeyCodes::Buttons.macro10.text);                        // Hardcoded Absolue/relative Dro
+    setPin(enabled, KeyCodes::Buttons.macro10.text);                        // Hardcoded Absolute/relative Dro
 }
 // ----------------------------------------------------------------------
 void Hal::setMacro11(bool enabled)
@@ -1417,7 +1417,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     if (false == *condition)
     {
         auto delay = (maxTimeouts - timeouts) * timeoutMs;
-        std::cerr << "hal   failed to wait for reqested mode. waited " << delay << "ms\n";
+        std::cerr << "hal   failed to wait for requested mode. waited " << delay << "ms\n";
         return false;
     }
     else

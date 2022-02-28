@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # GladeVcp Widget 
 # JogWheel widget, to simulate a real jogwheel
@@ -19,21 +19,27 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-import gtk
-import gobject
+import gi
+gi.require_version("Gtk","3.0")
+from gi.repository import Gtk
+from gi.repository import Gdk
+from gi.repository import GObject
 import math
 import hal
 
 # This is needed to make the hal pin, making them directly with hal, will
-# not allow to use them in glade without linuxcnc beeing started
-from hal_widgets import _HalJogWheelBase
+# not allow to use them in glade without linuxcnc being started
+if __name__ == "__main__":
+    from hal_widgets import _HalJogWheelBase
+else:
+    from .hal_widgets import _HalJogWheelBase
 
-class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
+class JogWheel(Gtk.DrawingArea, _HalJogWheelBase):
     '''
     The JogWheel Widget simulates a real jog wheel
 
     show counts = bool     , whether you want to display the counts in the widget or not 
-    size        = interger , the size of the widget in pixel, 
+    size        = integer , the size of the widget in pixel, 
                              allowed values are in the range from 100 to 500, 
                              default is 300
     cpr         = integer  , The counts per revolution, 
@@ -45,16 +51,16 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     __gtype_name__ = 'JogWheel'
     __gproperties__ = {
-        'show_counts' : ( gobject.TYPE_BOOLEAN, 'Display the counts in the widget', 'Display or not the counts value',
-                          True, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'show_scaled_value' : ( gobject.TYPE_BOOLEAN, 'Display the scaled value in the widget', 'Display or not the scaled value',
-                          False, gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
-        'size'  : ( gobject.TYPE_INT, 'The size of the widget in pixel', 'Set the size of the widget',
-                    100, 500, 200, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'cpr'   : ( gobject.TYPE_INT, 'Counts per revolution', 'Set the value of counts per revolution',
-                    25, 360, 40, gobject.PARAM_READWRITE|gobject.PARAM_CONSTRUCT),
-        'label' : ( gobject.TYPE_STRING, 'label', 'Sets the string to be shown in the upper part of the widget',
-                    "", gobject.PARAM_READWRITE | gobject.PARAM_CONSTRUCT),
+        'show_counts' : ( GObject.TYPE_BOOLEAN, 'Display the counts in the widget', 'Display or not the counts value',
+                          True, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'show_scaled_value' : ( GObject.TYPE_BOOLEAN, 'Display the scaled value in the widget', 'Display or not the scaled value',
+                          False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'size'  : ( GObject.TYPE_INT, 'The size of the widget in pixel', 'Set the size of the widget',
+                    100, 500, 200, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'cpr'   : ( GObject.TYPE_INT, 'Counts per revolution', 'Set the value of counts per revolution',
+                    25, 360, 40, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
+        'label' : ( GObject.TYPE_STRING, 'label', 'Sets the string to be shown in the upper part of the widget',
+                    "", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -74,17 +80,18 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self._label = ""
 
         # connect our signals
-        self.connect("destroy", gtk.main_quit)
-        self.connect("expose-event", self.expose)
+        self.connect("destroy", Gtk.main_quit)
+        self.connect("draw", self.expose)
         self.connect("button_press_event", self._button_press)
         self.connect("button_release_event", self._button_release)
         self.connect("motion_notify_event", self._motion)
         self.connect("scroll_event", self._scroll)
 
         # To use the the events, we have to unmask them
-        self.add_events(gtk.gdk.BUTTON_PRESS_MASK |
-                        gtk.gdk.BUTTON_RELEASE_MASK |
-                        gtk.gdk.POINTER_MOTION_MASK)
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK |
+                        Gdk.EventMask.BUTTON_RELEASE_MASK |
+                        Gdk.EventMask.POINTER_MOTION_MASK |
+                        Gdk.EventMask.SCROLL_MASK)
 
     # init the hal pin management
     def _hal_init(self):
@@ -119,11 +126,11 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.dot_pitch_radius = self.inner_radius - self.dot_radius
 
         # create the cairo window
-        # I do not know why this workes without importing cairo
-        self.cr = widget.window.cairo_create()
+        # I do not know why this works without importing cairo
+        self.cr = widget.get_property('window').cairo_create()
 
         # the area of reactions
-        self.cr.rectangle(event.area.x, event.area.x, event.area.width, event.area.height)
+        self.cr.rectangle(0, 0, self.get_allocated_width(), self.get_allocated_height())
         self.cr.clip()
 
         # calculate the delta angle between the ticks
@@ -138,8 +145,8 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     # draws the frame, meaning the background
     def _draw_frame(self):
-        w = self.allocation.width
-        h = self.allocation.height
+        w = self.get_allocated_width()
+        h = self.get_allocated_height()
 
         # draw a black circle
         linewith = self._size / 75
@@ -157,7 +164,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
         self.cr.arc(0, 0, filldia, 0, 2*math.pi)
         self.cr.fill()
 
-        # draw a smaler circle with a finer line
+        # draw a smaller circle with a finer line
         linewith = self._size / 200
         if linewith < 1:
             linewith = 1
@@ -253,9 +260,9 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 
     # handle the scroll wheel of the mouse
     def _scroll(self, widget, event):
-        if event.direction == gtk.gdk.SCROLL_UP:
+        if event.direction == Gdk.ScrollDirection.UP:
             self._counts += 1
-        if event.direction == gtk.gdk.SCROLL_DOWN:
+        if event.direction == Gdk.ScrollDirection.DOWN:
             self._counts -= 1
         self._angle = self._counts * self._delta_a
 
@@ -298,7 +305,7 @@ class JogWheel(gtk.DrawingArea, _HalJogWheelBase):
 # to show some behavior and setting options  
 
 def main():
-    window = gtk.Window()
+    window = Gtk.Window()
     #size = 300
     #tiks = 10
 #    jogwheel = JogWheel(size, tiks)
@@ -308,10 +315,10 @@ def main():
     jogwheel.set_property('label', "max. 12 Characters are used !")
     window.add(jogwheel)
     window.set_title("Jogwheel")
-    window.set_position(gtk.WIN_POS_CENTER)
+    window.set_position(Gtk.WindowPosition.CENTER)
     window.show_all()
 
-    gtk.main()
+    Gtk.main()
 
 if __name__ == "__main__":
     main()

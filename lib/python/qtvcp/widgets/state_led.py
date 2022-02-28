@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/env python3
 # Qtvcp widget
 #
 # Copyright (c) 2017  Chris Morley <chrisinnanaimo@hotmail.com>
@@ -27,7 +27,7 @@ from qtvcp import logger
 STATUS = Status()
 LOG = logger.getLogger(__name__)
 
-# Set the log level for this module
+# Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 
@@ -97,13 +97,13 @@ class StateLED(LED):
             STATUS.connect('not-all-homed', lambda w, data: self.joints_unhomed(data))
         elif self.is_limits_overridden:
             STATUS.connect('override-limits-changed', self.check_override_limits)
-            STATUS.connect('hard-limits-tripped', lambda w, data: only_false(data))
+            STATUS.connect('hard-limits-tripped', lambda w, data, group: only_false(data))
         elif self.is_manual or self.is_mdi or self.is_auto:
             STATUS.connect('mode-manual', lambda w: self.mode_changed(0))
             STATUS.connect('mode-mdi', lambda w: self.mode_changed(1))
             STATUS.connect('mode-auto', lambda w: self.mode_changed(2))
         elif self.is_spindle_stopped or self.is_spindle_fwd or self.is_spindle_rev:
-            STATUS.connect('spindle-control-changed',  lambda w, state, speed: self.spindle_changed(speed))
+            STATUS.connect('spindle-control-changed',  lambda w, num, state, speed, upto: self.spindle_changed(speed))
         elif self.is_spindle_at_speed:
             STATUS.connect('requested-spindle-speed-changed', lambda w, speed: self.spindle_requested_changed(speed))
             STATUS.connect('spindle-override-changed', lambda w, rate: self.spindle_override_changed(rate))

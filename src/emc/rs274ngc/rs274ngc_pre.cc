@@ -6,7 +6,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -134,7 +134,7 @@ Interp::Interp()
   init_named_parameters();  // need this before Python init.
  
   if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
-    Error("Interp ctor: cant instantiate Python plugin");
+    Error("Interp ctor: can\'t instantiate Python plugin");
     return;
   }
 
@@ -143,17 +143,17 @@ Interp::Interp()
   try {
     // this import will register the C++->Python converter for Interp
     bp::object interp_module = bp::import("interpreter");
-	
+
     // use a boost::cref to avoid per-call instantiation of the
     // Interp Python wrapper (used for the 'self' parameter in handlers)
     // since interp.init() may be called repeatedly this would create a new
     // wrapper instance on every init(), abandoning the old one and all user attributes
     // tacked onto it, so make sure this is done exactly once
-    _setup.pythis = new boost::python::object(boost::cref(*this));
-	
+    _setup.pythis = new bp::object(boost::cref(*this));
+
     // alias to 'interpreter.this' for the sake of ';py, .... ' comments
     // besides 'this', eventually use proper instance names to handle
-	// several instances 
+	// several instances
     bp::scope(interp_module).attr("this") =  *_setup.pythis;
 
     // make "this" visible without importing interpreter explicitly
@@ -276,7 +276,7 @@ Side Effects:
    Calls to canonical machining commands are made.
    The interpreter variables are changed.
    At the end of the program, the file is closed.
-   If using a file, the active G codes and M codes are updated.
+   If using a file, the active G-codes and M codes are updated.
 
 Called By: external programs
 
@@ -315,7 +315,7 @@ int Interp::_execute(const char *command)
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
-      CHP(status); // relinquish control if INTERP_EXCUTE_FINISH, INTERP_ERROR etc
+      CHP(status); // relinquish control if INTERP_EXECUTE_FINISH, INTERP_ERROR etc
       
       // let MDI code call subroutines.
       // !!!KL not clear what happens if last execution failed while in
@@ -413,7 +413,7 @@ int Interp::_execute(const char *command)
       // 8. In Auto mode, we do an initial execute(0) to get things going, thereafer
       //   task will do it for us.
       //
-      // 9. When a replacment sub finishes, remap_finished() continues execution of
+      // 9. When a replacement sub finishes, remap_finished() continues execution of
       //   the current remapped block until done.
       //
       if (eblock->remappings.size() > 0) {
@@ -963,7 +963,6 @@ int Interp::init()
           }
           logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
-
           if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
           {
             // found it
@@ -1168,7 +1167,7 @@ int Interp::init()
   _setup.arc_not_allowed = false;
   _setup.cycle_il_flag = false;
   _setup.distance_mode = MODE_ABSOLUTE;
-  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatability
+  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatibility
   _setup.feed_mode = UNITS_PER_MINUTE;
 //_setup.feed_override set in Interp::synch
 //_setup.feed_rate set in Interp::synch
@@ -1254,9 +1253,9 @@ int Interp::init()
       try {
 	  bp::object npmod =  python_plugin->main_namespace[NAMEDPARAMS_MODULE];
 	  bp::dict predef_dict = bp::extract<bp::dict>(npmod.attr("__dict__"));
-	  bp::list iterkeys = (bp::list) predef_dict.iterkeys();
-	  for (int i = 0; i < bp::len(iterkeys); i++)  {
-	      std::string key = bp::extract<std::string>(iterkeys[i]);
+	  bp::list keys = (bp::list) predef_dict.keys();
+	  for (int i = 0; i < bp::len(keys); i++)  {
+	      std::string key = bp::extract<std::string>(keys[i]);
 	      bp::object value = predef_dict[key];
 	      if (PyCallable_Check(value.ptr())) {
 		  CHP(init_python_predef_parameter(key.c_str()));
@@ -1266,7 +1265,7 @@ int Interp::init()
       catch (const bp::error_already_set&) {
 	  std::string exception_msg;
 	  bool unexpected = false;
-	  // KeyError is ok - this means the namedparams module doesnt exist
+	  // KeyError is ok - this means the namedparams module doesn't exist
 	  if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
 	      // something else, strange
 	      exception_msg = handle_pyerror();
@@ -1293,7 +1292,7 @@ int Interp::init()
       }
   }
   _setup.init_once = 0;
-  
+
   return INTERP_OK;
 }
 
@@ -1331,17 +1330,8 @@ int Interp::load_tool_table()
 {
   int n;
 
-  CHKS((_setup.pockets_max > CANON_POCKETS_MAX), NCE_POCKET_MAX_TOO_LARGE);
-  for (n = 0; n < _setup.pockets_max; n++) {
+  for (n = 0; n < CANON_POCKETS_MAX; n++) {
     _setup.tool_table[n] = GET_EXTERNAL_TOOL_TABLE(n);
-  }
-  for (; n < CANON_POCKETS_MAX; n++) {
-    _setup.tool_table[n].toolno = -1;
-    ZERO_EMC_POSE(_setup.tool_table[n].offset);
-    _setup.tool_table[n].diameter = 0;
-    _setup.tool_table[n].orientation = 0;
-    _setup.tool_table[n].frontangle = 0;
-    _setup.tool_table[n].backangle = 0;
   }
   set_tool_parameters();
   return INTERP_OK;
@@ -1520,7 +1510,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   // this input reading code is in the wrong place. It should be executed
   // in sync(), not here. This would make correct parameter values available 
   // without doing a read() (e.g. from Python).
-  // Unfortunately synch() isnt called in preview (gcodemodule)
+  // Unfortunately synch() isn't called in preview (gcodemodule)
 
 #if 0
   if (_setup.probe_flag) {
@@ -1562,7 +1552,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   // of times. So they need to be called again post-sync and post-read-input possibly several times.
   // 
   // the task readahead logic assumes a block execution may result in a single INTERP_EXECUTE_FINISH
-  // and readahead is started therafter immediately. Modifying the readahead logic would be a massive
+  // and readahead is started thereafter immediately. Modifying the readahead logic would be a massive
   // change. Therefore we use the trick to suppress reading the next block as required, which means
   // we will get several calls to execute() in a row which are used to finish the handlers. This is
   // needed for remapped codes which might involve up to three Python handlers, and Python oword subs.
@@ -1831,6 +1821,7 @@ has its value set to zero.
 */
 int Interp::restore_parameters(const char *filename)   //!< name of parameter file to read  
 {
+  FORCE_LC_NUMERIC_C;
   FILE *infile;
   char line[256];
   int variable;
@@ -1924,6 +1915,7 @@ complain, but does write it in the output file.
 int Interp::save_parameters(const char *filename,      //!< name of file to write
                              const double parameters[]) //!< parameters to save   
 {
+  FORCE_LC_NUMERIC_C;
   FILE *infile;
   FILE *outfile;
   char line[PATH_MAX];
@@ -2022,6 +2014,9 @@ int Interp::synch()
   _setup.current_x  = GET_EXTERNAL_POSITION_X();
   _setup.current_y  = GET_EXTERNAL_POSITION_Y();
   _setup.current_z  = GET_EXTERNAL_POSITION_Z();
+  _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  _setup.tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
+  _setup.naivecam_tolerance = GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE();
   _setup.AA_current = GET_EXTERNAL_POSITION_A();
   _setup.BB_current = GET_EXTERNAL_POSITION_B();
   _setup.CC_current = GET_EXTERNAL_POSITION_C();
@@ -2030,14 +2025,18 @@ int Interp::synch()
   _setup.w_current  = GET_EXTERNAL_POSITION_W();
 
   _setup.control_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
+  /* misnomer: _setup.current_pocket,selected_pocket
+  ** These variables are actually indexes to sequential tool
+  ** data structs (not real pockets).
+  ** Future renaming will affect current usage in python remaps.
+  */
   _setup.current_pocket = GET_EXTERNAL_TOOL_SLOT();
+  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
   _setup.feed_rate = GET_EXTERNAL_FEED_RATE();
   _setup.flood = GET_EXTERNAL_FLOOD();
   _setup.length_units = GET_EXTERNAL_LENGTH_UNIT_TYPE();
   _setup.mist = GET_EXTERNAL_MIST();
   _setup.plane = GET_EXTERNAL_PLANE();
-  _setup.selected_pocket = GET_EXTERNAL_SELECTED_TOOL_SLOT();
-  _setup.pockets_max = GET_EXTERNAL_POCKETS_MAX();
   _setup.traverse_rate = GET_EXTERNAL_TRAVERSE_RATE();
   _setup.feed_override = GET_EXTERNAL_FEED_OVERRIDE_ENABLE();
   _setup.adaptive_feed = GET_EXTERNAL_ADAPTIVE_FEED_ENABLE();
@@ -2060,12 +2059,6 @@ int Interp::synch()
 
   write_settings(&_setup);
 
-#ifdef STOP_ON_SYNCH_IF_EXTERNAL_OFFSETS
-  if (GET_EXTERNAL_OFFSET_APPLIED() ) {
-    return INTERP_ERROR;
-  }
-#endif
-
   return INTERP_OK;
 }
 
@@ -2085,7 +2078,7 @@ interpreter.
 
 Returned Value: none
 
-Side Effects: copies active G codes into the codes array
+Side Effects: copies active G-codes into the codes array
 
 Called By: external programs
 
@@ -2147,6 +2140,113 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
     settings[n] = _setup.active_settings[n];
   }
 }
+
+//TODO rename to read_state_tag?
+
+/**
+ * Unpack state information from a motion line tag into
+ * TASK_STAT-style arrays of G-/M-Codes.
+ *
+ * This method allows us to keep the existing infrastructure for g
+ * code status / state storage intact.
+ */
+int Interp::active_modes(int *g_codes,
+			 int *m_codes,
+			 double *settings,
+			 StateTag const &tag)
+{
+    int i;
+
+    // Pre-checks on fields
+    if (!tag.is_valid()) {
+        return INTERP_ERROR;
+    }
+
+    // Extract as-is field values directly into appropriate array
+    // position
+    g_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    g_codes[1] = tag.fields[GM_FIELD_MOTION_MODE];
+    g_codes[2] = tag.fields[GM_FIELD_G_MODE_0];
+    g_codes[3] = tag.fields[GM_FIELD_PLANE];
+    g_codes[4] = tag.fields[GM_FIELD_CUTTER_COMP];
+
+    // Unpack flags into appropriate G-code equivalents
+    g_codes[5] = tag.flags[GM_FLAG_UNITS] ? G_20 : G_21;
+    g_codes[6] = tag.flags[GM_FLAG_DISTANCE_MODE] ? G_90 : G_91;
+    g_codes[7] = tag.flags[GM_FLAG_FEED_INVERSE_TIME] ? G_93 :
+        tag.flags[GM_FLAG_FEED_UPM] ? G_94 : G_95;
+    g_codes[8] = tag.fields[GM_FIELD_ORIGIN];
+    g_codes[9] = tag.flags[GM_FLAG_TOOL_OFFSETS_ON] ? G_43 : G_49;
+    g_codes[10] = tag.flags[GM_FLAG_RETRACT_OLDZ] ? G_98 : G_99;
+    g_codes[11] =
+        tag.flags[GM_FLAG_BLEND] ? G_64 :
+        tag.flags[GM_FLAG_EXACT_STOP] ? G_61_1 : G_61;
+    // Empty status code, leave as default
+    g_codes[12] = -1;
+    g_codes[13] = tag.flags[GM_FLAG_CSS_MODE] ? G_97 : G_96;
+    g_codes[14] = tag.flags[GM_FLAG_IJK_ABS] ? G_90_1 : G_91_1;
+    g_codes[15] = tag.flags[GM_FLAG_DIAMETER_MODE] ? G_7 : G_8;
+    g_codes[16] = tag.flags[GM_FLAG_G92_IS_APPLIED] ? G_92_3: G_92_2;
+    //TODO remove redundant line number?
+    m_codes[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+    m_codes[1] = tag.fields[GM_FIELD_M_MODES_4];
+    m_codes[2] = !tag.flags[GM_FLAG_SPINDLE_ON] ? 5 :
+        tag.flags[GM_FLAG_SPINDLE_CW] ? 3 : 4;
+    m_codes[3] = tag.fields[GM_FIELD_TOOLCHANGE];
+
+    m_codes[4] =
+        tag.flags[GM_FLAG_MIST] ? 7 : tag.flags[GM_FLAG_FLOOD] ? -1 : 9;
+    m_codes[5] =
+        tag.flags[GM_FLAG_FLOOD] ? 8 : -1;
+
+    // Copied from write_m_codes
+    if (tag.flags[GM_FLAG_FEED_OVERRIDE]) {
+        if (tag.flags[GM_FLAG_SPEED_OVERRIDE]) m_codes[6] =  48;
+        else m_codes[6] = 50;
+    } else if (tag.flags[GM_FLAG_SPEED_OVERRIDE]) {
+        m_codes[6] = 51;
+    } else m_codes[6] = 49;
+
+    m_codes[7] =                      /* 7 overrides   */
+        tag.flags[GM_FLAG_ADAPTIVE_FEED] ? 52 : -1;
+
+    m_codes[8] =                      /* 8 overrides   */
+        tag.flags[GM_FLAG_FEED_HOLD] ? 53 : -1;
+
+
+    // Copy float-type state
+    for (i=0; i<GM_FIELD_FLOAT_MAX_FIELDS; i++)
+	settings[i] = tag.fields_float[i];
+    // Line number stored in double; this demonstrates why the current
+    // system of unpacking state tags into arrays of fixed type and
+    // purpose should be refactored into something more elegant
+    settings[0] = tag.fields[GM_FIELD_LINE_NUMBER];
+
+    return INTERP_OK;
+}
+
+
+/**
+ * Print state information from a motion line tag for debugging.
+ */
+void Interp::print_state_tag(StateTag const &tag)
+{
+    // Extract as-is field values directly into appropriate array
+    // position
+    logStateTags("State tag (%s @ %p):  fields LINE_NUMBER %d, MOTION_MODE %d "
+		 "ORIGIN G%0.1f; flags UNITS %s, DISTANCE_MODE %s, "
+		 "SPINDLE_ON %s",
+		 tag.is_valid() ? "valid" : "invalid",
+		 &tag,
+		 tag.fields[GM_FIELD_LINE_NUMBER],
+		 tag.fields[GM_FIELD_MOTION_MODE],
+		 tag.fields[GM_FIELD_ORIGIN]/10.0,
+		 tag.flags[GM_FLAG_UNITS] ? "G20" : "G21",
+		 tag.flags[GM_FLAG_DISTANCE_MODE] ? "G90" : "G91",
+		 (!tag.flags[GM_FLAG_SPINDLE_ON] ? "off" :
+		  (tag.flags[GM_FLAG_SPINDLE_CW] ? "cw" : "ccw")));
+}
+
 
 void Interp::setError(const char *fmt, ...)
 {
@@ -2490,7 +2590,7 @@ int Interp::enter_remap(void)
     _setup.remap_level++;
     if (_setup.remap_level == MAX_NESTED_REMAPS) {
 	_setup.remap_level = 0;
-	ERS("maximum nesting of remapped blocks execeeded");
+	ERS("maximum nesting of remapped blocks exceeded");
     }
 
     // push onto block stack

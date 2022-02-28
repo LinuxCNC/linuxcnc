@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #    This is a component of AXIS, a front-end for LinuxCNC
 #    Copyright 2004, 2005, 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -16,7 +16,7 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-'''Manual Data Input - issue a single line of g-code to the running system
+'''Manual Data Input - issue a single line of G-code to the running system
 
 mdi.py may be specified on the commandline, e.g.,
         bin/mdi g0 x0
@@ -37,10 +37,10 @@ if len(sys.argv) > 1:
 else:
     try:
         while 1:
-            mdi = raw_input("MDI> ")
+            mdi = eval(input("MDI> "))
             if mdi == '':
                 s.poll()
-                print s.position
+                print(s.position)
             else:
                 c.mode(linuxcnc.MODE_MDI)
                 c.mdi(mdi)

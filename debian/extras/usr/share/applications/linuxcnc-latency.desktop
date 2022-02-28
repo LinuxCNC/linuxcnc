@@ -8,4 +8,6 @@ Terminal=false
 Name=Latency Test
 Comment=Determine your machine's latency
 StartupNotify=false
-Categories=Science;X-CNC;
+Categories=Utility;Engineering;X-CNC-DOC;
+Keywords=cnc;linuxcnc;cncprog;benchmark;
+

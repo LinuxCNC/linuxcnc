@@ -1,0 +1,298 @@
+[[cha:parport]]
+
+= Parallel Port Driver
+
+The hal_parport component is a driver for the traditional PC parallel port.
+The port has a total of 17 physical pins. The original parallel port divided
+those pins into three groups: data, control, and status. The data group
+consists of 8 output pins, the control group consists of 4 pins, and the
+status group consists of 5 input pins.
+
+In the early 1990's, the bidirectional parallel port was introduced, which
+allows the data group to be used for output or input. The HAL driver supports
+the bidirectional port, and allows the user to set the data group as either
+input or output. If configured as 'out', a port provides a total of 12 outputs
+and 5 inputs. If configured as 'in', it provides 4 outputs and 13 inputs.
+
+In some parallel ports, the control group pins are open collectors, which may
+also be driven low by an external gate. On a board with open collector control
+pins. If configured as 'x', it provides 8 outputs, and 9 inputs.
+
+In some parallel ports, the control group has push-pull drivers and cannot be
+used as an input.
+
+.HAL and Open Collectors
+[NOTE]
+===========================================================
+HAL cannot automatically determine if the 'x' mode bidirectional pins are
+actually open collectors (OC). If they are not, they cannot be used as inputs,
+and attempting to drive them LOW from an external source can damage the
+hardware.
+
+To determine whether your port has 'open collector' pins, load hal_parport in
+'x' mode. With no device attached, HAL should read the pin as TRUE. Next,
+insert a 470 ohm resistor from one of the control pins to GND. If the resulting
+voltage on the control pin is close to 0V, and HAL now reads the pin as FALSE,
+then you have an OC port. If the resulting voltage is far from 0V, or HAL does
+not read the pin as FALSE, then your port cannot be used in 'x' mode.
+
+The external hardware that drives the control pins should also use
+open collector gates (e.g., 74LS05).
+
+On some computers, BIOS settings may affect whether 'x' mode can be
+used. 'SPP' mode is most likely to work.
+===========================================================
+
+No other combinations are supported, and a port cannot be changed from input to
+output once the driver is installed.
+
+The parport driver can control up to 8 ports (defined by MAX_PORTS in
+hal_parport.c). The ports are numbered starting at zero.
+
+== Loading
+
+The hal_parport driver is a real time component so it must be loaded into the
+real time thread with 'loadrt'. The configuration string describes the parallel
+ports to be used, and (optionally) their types.  If the configuration string
+does not describe at least one port, it is an error.
+
+----
+loadrt hal_parport cfg="port [type] [port [type] ...]"
+----
+
+.Specifying the Port
+
+Numbers below 16 refer to parallel ports detected by the system. This is the
+simplest way to configure the hal_parport driver, and cooperates with the Linux
+parport_pc driver if it is loaded.  A port of 0 is the first parallel port
+detected on the system, 1 is the next, and so on.  
+
+.Basic configuration
+
+This will use the first parallel port Linux detects:
+
+----
+loadrt hal_parport cfg="0"
+----
+
+.Using the Port Address
+
+Instead, the port address may be specified using the hex notation '0x' then the address.
+
+----
+loadrt hal_parport cfg="0x378"
+----
+
+.Type
+
+For each parallel port handled by the hal_parport driver, a 'type' can
+optionally be specified.  The type is one of 'in', 'out', 'epp', or 'x'.
+
+.Parallel Port Direction
+[cols=">1,3*^2", width="50%", options="header"]
+|===========================
+|Pin|in|out/epp|x
+|1|out|out|in
+|2|in|out|out
+|3|in|out|out
+|4|in|out|out
+|5|in|out|out
+|6|in|out|out
+|7|in|out|out
+|8|in|out|out
+|9|in|out|out
+|10|in|in|in
+|11|in|in|in
+|12|in|in|in
+|13|in|in|in
+|14|out|out|in
+|15|in|in|in
+|16|out|out|in
+|17|out|out|in
+|===========================
+
+
+If the type is not specified, the default is 'out'.
+
+A type of 'epp' is the same as 'out', but the hal_parport driver requests that
+the port switch into EPP mode.  The hal_parport driver does *not* use the EPP
+bus protocol, but on some systems EPP mode changes the electrical
+characteristics of the port in a way that may make some marginal hardware work
+better.  The Gecko G540's charge pump is known to require this on some parallel
+ports.
+
+See the Note above about mode 'x'.
+
+.Example with two parallel ports
+
+This will enable two system-detected parallel ports, the first in output mode
+and the second in input mode:
+
+----
+loadrt hal_parport cfg="0 out 1 in"
+----
+
+.Functions
+You must also direct LinuxCNC to run the 'read' and 'write' functions.
+
+----
+addf parport.0.read base-thread
+addf parport.0.write base-thread
+----
+
+== PCI Port Address
+
+One good PCI parport card is made with the Netmos 9815 chipset.
+It has good +5V signals, and can come in a single or dual ports.
+
+To find the I/O addresses for PCI cards open a terminal window
+and use the list pci command:
+
+----
+lspci -v
+----
+
+Look for the entry with "Netmos" in it. Example of a 2-port card:
+
+----
+0000:01:0a.0 Communication controller: \
+      Netmos Technology PCI 9815 Multi-I/O Controller (rev 01)
+Subsystem: LSI Logic / Symbios Logic 2POS (2 port parallel adapter)
+Flags: medium devsel, IRQ 5
+I/O ports at b800 [size=8]
+I/O ports at bc00 [size=8]
+I/O ports at c000 [size=8]
+I/O ports at c400 [size=8]
+I/O ports at c800 [size=8]
+I/O ports at cc00 [size=16]
+----
+
+From experimentation, I've found the first port (the on-card port) uses the
+third address listed (c000), and the second port (the one that attaches with
+a ribbon cable) uses the first address listed (b800). The following example
+shows the onboard parallel port and a PCI parallel port using the default
+out direction.
+
+----
+loadrt hal_parport cfg="0x378 0xc000"
+----
+
+Please note that your values will differ. The Netmos cards are
+Plug-N-Play, and might change their settings depending on which
+slot you put them into, so if you like to \'get under the hood'
+and re-arrange things, be sure to check these values before you
+start LinuxCNC.
+
+== Pins
+
+* 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
+
+* 'parport.<p>.pin-<n>-in' (bit) Tracks a physical input pin.
+
+* 'parport.<p>.pin-<n>-in-not' (bit) Tracks a physical input pin, but inverted.
+
+For each pin, '<p>' is the port number, and '<n>' is the
+physical pin number in the 25 pin D-shell connector.
+
+For each physical output pin, the driver creates a single HAL pin, for example:
+'parport.0.pin-14-out'.
+
+For each physical input pin, the driver creates two HAL pins, for example:
+'parport.0.pin-12-in' and 'parport.0.pin-12-in-not'.
+
+The '-in' HAL pin is TRUE if the physical pin is high, and FALSE if the
+physical pin is low. The '-in-not' HAL pin is inverted and is FALSE if the
+physical pin is high.
+
+== Parameters
+
+* 'parport.<p>.pin-<n>-out-invert' (bit) Inverts an output pin.
+
+* 'parport.<p>.pin-<n>-out-reset' (bit) (only for 'out' pins) TRUE if this
+pin should be reset when the '-reset' function is executed.
+
+* parport.<p>.reset-time' (U32) The time (in nanoseconds)
+between a pin is set by 'write' and reset by the 'reset' function if it
+is enabled.
+
+The '-invert'  parameter determines whether an output pin is active
+high or active
+low. If '-invert' is FALSE, setting the HAL '-out' pin TRUE drives the
+physical pin high, and FALSE drives it low. If '-invert' is TRUE, then
+setting the HAL '-out' pin TRUE will drive the physical pin low.
+
+[[sub:parport-functions]]
+
+== Functions
+
+* 'parport.<p>.read' (funct) Reads physical input pins of port
+   '<portnum>' and updates HAL '-in' and '-in-not' pins.
+
+* 'parport.read-all' (funct) Reads physical input pins of all ports
+   and updates HAL '-in' and '-in-not' pins.
+
+* 'parport.<p>.write' (funct) Reads HAL '-out' pins of port
+   '<p>' and updates that port's physical output pins.
+
+* 'parport.write-all' (funct) Reads HAL '-out' pins of all ports
+   and updates all physical output pins.
+
+* 'parport.<p>.reset' (funct) Waits until 'reset-time' has
+   elapsed since the associated 'write', then resets pins to values
+   indicated by '-out-invert' and '-out-invert' settings. 'reset' must be
+   later in the same thread as 'write. 'If '-reset' is TRUE, then the
+   'reset' function will set the pin to the value of '-out-invert'. This
+   can be used in conjunction with stepgen's 'doublefreq' to produce one
+   step per period. The <<sub:stepgen-parameters,stepgen stepspace>> for that pin
+   must be set to 0 to enable doublefreq.
+
+The individual functions are provided for situations where one port
+needs to be updated in a very fast thread, but other ports can be
+updated in a slower thread to save CPU time. It is probably not a good
+idea to use both an '-all' function and an individual function at the
+same time.
+
+== Common problems
+
+If loading the module reports
+
+----
+insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':
+-1 Device or resource busy
+----
+
+then ensure that the standard kernel module 'parport_pc'  is not
+loadedfootnote:[In the LinuxCNC packages for Ubuntu, the file
+/etc/modprobe.d/emc2
+generally prevents 'parport_pc' from being automatically loaded.]
+and that no other device in the system has claimed the I/O ports.
+
+If the module loads but does not appear to function, then the port
+address is incorrect.
+
+== Using DoubleStep
+
+To setup DoubleStep on the parallel port you must add the function
+parport.n.reset after parport.n.write and configure stepspace to 0 and
+the reset time wanted. So that step can be asserted on every period in
+HAL and then toggled off by parport after being asserted for time
+specified by parport.n.reset-time.
+
+For example:
+
+----
+loadrt hal_parport cfg="0x378 out"
+setp parport.0.reset-time 5000
+loadrt stepgen step_type=0,0,0
+addf parport.0.read base-thread
+addf stepgen.make-pulses base-thread
+addf parport.0.write base-thread
+addf parport.0.reset base-thread
+addf stepgen.capture-position servo-thread
+... 
+setp stepgen.0.steplen 1
+setp stepgen.0.stepspace 0
+----
+
+More information on DoubleStep can be found on the 
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].

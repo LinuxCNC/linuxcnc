@@ -1,7 +1,7 @@
-This configuration step is intended for Sherline stepper lathes.
+Esta configuración de pasos está destinada a tornos de pasos Sherline.
 
 SherlineLathe_inch.in
-   inch units
+   unidades imperiales
 
 SherlineLathe_mm.in
-   metric units
+   unidades metricas

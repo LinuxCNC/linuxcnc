@@ -108,14 +108,56 @@ proc ::tp::restore_puts {} {
 } ;# restore_puts
 
 #--------------------------------------------------------------------------
+proc ::tp::which_exe {name} {
+  # replaces /usr/bin/which deprecated in debian/unstable
+  foreach dir [split $::env(PATH) :] {
+    set f [file join $dir $name]
+    if [file executable $f] { return $f }
+  }
+  return -code error "$name: executable not found"
+} ;# which_exe
 
 proc ::tp::loadusr_substitute {args} {
   set pass [passnumber]
   #puts "loadusr_substitute<$pass> <$args>"
   if {$pass == 0} {
     # do loadusr in pass 0 only
+    # determine executable prog:
+    set prog "_unspecified_"
+    foreach arg $args {
+      if [info exists skipnextarg] {
+         unset skipnextarg; continue
+      }
+      switch -glob $arg {
+        -Wn       {set skipnextarg 1}
+        -*        {# ignore other options}
+        {default} {set prog $arg; break ;# first non-option}
+      }
+    }
+    if {"$prog" == "_unspecified_"} {
+       puts "twopass:loadusr has no unix-command"
+       puts "        Continuing\n"
+       return
+    }
+    set ptype [file pathtype $prog]
     puts "twopass:pass0: loadusr $args"
-    eval orig_loadusr $args
+    if {[catch {which_exe $prog} msg]} {
+       # prog not in PATH:
+       if {[file exists $prog]} {
+          if {[file executable $prog]} {
+             eval orig_loadusr $args
+          } else {
+             puts "twopass:loadusr <$prog> not executable"
+             puts "        Continuing\n"
+          }
+       } else {
+          puts "twopass:loadusr <$prog> not found"
+          puts "        Continuing\n"
+       }
+    } else {
+       # prog in PATH:
+       eval orig_loadusr $args
+    }
   } else {
     #"twopass: Ignore pass1: loadusr $args"
   }
@@ -465,7 +507,7 @@ proc ::tp::hal_to_tcl {ifile ofile} {
 
   set ::TP(conflictwords) {list gets}
   # 1) list: in the created .tcl file, use "hal list"
-  # 2) gets: is not epected in a conventional (so err exit)
+  # 2) gets: is not expected in a conventional (so err exit)
 
   if [catch {set fdin  [open $ifile r]
              set fdout [open $ofile w]
