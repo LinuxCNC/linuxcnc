@@ -34,8 +34,7 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 
 [{tab_options}]
 |=======================
-| gs2 | HAL userspace component for Automation Direct GS2 VFD's. ||
-| mb2hal | ||
+| mb2hal | MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices. Modbus RTU and Modbus TCP is supported.||
 |=======================
 
 === Diagnostic and Configuration Tools
@@ -43,15 +42,14 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 [{tab_options}]
 |=======================
 | halmeter | Observe HAL pins, signals, and parameters. ||
-| halshow |||
-| halscope |||
+| halshow  | Show HAL parameters, pins and signals ||
+| halscope | Software oscilloscope for viewing real time waveforms of HAL pins and signals ||
 |=======================
 
 === Other
 
 [{tab_options}]
 |=======================
-| comp | Build, compile and install LinuxCNC HAL components. ||
 | halcmd | Manipulate the Enhanced Machine Controller HAL from the command line. ||
 | hal_input | Control HAL pins with any Linux input device, including USB HID devices. ||
 | halrun | Manipulate the Enhanced Machine Controller HAL from the command line. ||
@@ -62,6 +60,8 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 | linuxcnc | LinuxCNC (The Enhanced Machine Controller). ||
 | shuttle | control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design. ||
 |=======================
+
+include::components_gen1.adoc[]
 
 [[sec:realtime-components]]
 
@@ -160,6 +160,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 
 [{tab_options}]
 |=======================
+| gs2 | HAL userspace component for Automation Direct GS2 VFD's. ||
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller. ||
 | hm2_7i43 | Mesa Electronics driver for the 7i43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
 | hm2_pci | Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68 Anything I/O boards, with HostMot2 firmware. (See the man page for more information) ||
@@ -214,6 +215,7 @@ clarkeinv:: (((clarkeinv))) Inverse Clarke transform.
 
 [{tab_options}]
 |=======================
+| comp | Build, compile and install LinuxCNC HAL components. ||
 |motion | Accepts NML motion commands, interacts with HAL in realtime. ||
 |classicladder | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 |threads | Creates hard realtime HAL threads. ||
@@ -254,6 +256,8 @@ to the smoothing level desired. Divide the axis.N.jog-scale values by scale. ||
 | tristate_float | Place a signal on an I/O pin only when enabled, similar to a tristatebuffer in electronics. ||
 | watchdog | Monitor one to thirty-two inputs for a 'heartbeat'. ||
 |=======================
+
+include::components_gen9.adoc[]
 
 == HAL API calls
 
