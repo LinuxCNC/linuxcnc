@@ -243,8 +243,10 @@ void emcmotController(void *arg, long period)
     process_probe_inputs();
     check_for_faults();
     set_operating_mode();
-    handle_jjogwheels();
-    if (!emcmotStatus->on_soft_limit) {  // change from teleop to move off joint soft limit
+    if (!*emcmot_hal_data->jog_inhibit) {
+        handle_jjogwheels();
+    }
+    if (!emcmotStatus->on_soft_limit && !*emcmot_hal_data->jog_inhibit) {  // change from teleop to move off joint soft limit
         axis_handle_jogwheels(GET_MOTION_TELEOP_FLAG(), GET_MOTION_ENABLE_FLAG(), get_homing_is_active());
     }
     do_homing_sequence();
