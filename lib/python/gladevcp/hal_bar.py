@@ -85,11 +85,11 @@ class HAL_Bar(Gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Bar, self).__init__()
 
-        self.bg_color = Gdk.Color.parse('gray')
-        self.z0_color = Gdk.Color.parse('green')
-        self.z1_color = Gdk.Color.parse('yellow')
-        self.z2_color = Gdk.Color.parse('red')
-        self.target_color = Gdk.Color.parse('purple')
+        self.bg_color = Gdk.Color.parse('gray')[1]
+        self.z0_color = Gdk.Color.parse('green')[1]
+        self.z1_color = Gdk.Color.parse('yellow')[1]
+        self.z2_color = Gdk.Color.parse('red')[1]
+        self.target_color = Gdk.Color.parse('purple')[1]
         self.target_width = 2
         self.force_width = self._size_request[0]
         self.force_height = self._size_request[1]

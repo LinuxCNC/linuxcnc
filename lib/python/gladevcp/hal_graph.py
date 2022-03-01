@@ -90,8 +90,8 @@ class HAL_Graph(Gtk.DrawingArea, _HalWidgetBase):
     def __init__(self):
         super(HAL_Graph, self).__init__()
 
-        self.bg_color = Gdk.Color.parse('white')
-        self.fg_color = Gdk.Color.parse('red')
+        self.bg_color = Gdk.Color.parse('white')[1]
+        self.fg_color = Gdk.Color.parse('red')[1]
 
         self.force_radius = None
         self.ticks = deque()
