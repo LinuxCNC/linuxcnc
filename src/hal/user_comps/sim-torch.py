@@ -3,7 +3,7 @@ sim-torch.py
 
 Copyright (C) 2022 Phillip A Carter
 
-sim-torch.py is a simple plasmtorch emulator
+sim-torch.py is a simple plasma torch emulator
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -25,7 +25,7 @@ import math
 import random
 import time
 
-# create sim-torch component   
+# create sim-torch component
 h = hal.component('sim-torch')
 # create the hal pins
 h.setprefix('sim-torch')
@@ -72,73 +72,78 @@ def random_noise(cycle, volume):
 
 # main loop
 while hal.component_exists('motmod') and not h['close']:
-    # validate the inputs
-    cut_noise = abs(h['cut-noise-in'])
-    cycles = abs(h['cycles-in'])
+    try:
+        # validate the inputs
+        cut_noise = abs(h['cut-noise-in'])
+        cycles = abs(h['cycles-in'])
 
-    if h['on-delay-in'] < 0:
-        on_delay = 0
-    elif h['on-delay-in'] > 100:
-        on_delay = 100
-    else:
-        on_delay = h['on-delay-in']
-    
-    if h['offset-in'] < -10:
-        offset = -10
-    elif h['offset-in'] > 10:
-        offset = 10
-    else:
-        offset = h['offset-in']
-    
-    if h['overshoot-in'] < 0:
-        overshoot = 0
-    elif h['overshoot-in'] > 100:
-        overshoot = 100
-    else:
-        overshoot = h['overshoot-in']
-
-    ramp_noise = abs(h['ramp-noise-in'])
-
-    if h['ramp-up-in'] < 0:
-        ramp_up = 0
-    elif h['ramp-up-in'] > 100:
-        ramp_up = 100
-    else:
-        ramp_up = h['ramp-up-in']
-    
-    if h['voltage-in'] < 50:
-        voltage = 50
-    elif h['voltage-in'] > 150:
-        voltage = 150
-    else:
-        voltage = h['voltage-in']
-
-    # setup some variables
-    up_cycles = cycles * (ramp_up * 0.01)
-    dn_cycles = cycles - up_cycles
-    overshoot_max = voltage * (overshoot * 0.01)
-    overshoot_start = overshoot_max * 0.4
-
-    if h['start']:
-        # start the arc
-        if(current_cycle < cycles):
-            if current_cycle < on_delay:
-                # initial ramp up to cut voltage
-                h['voltage-out'] = (voltage + overshoot_start) / on_delay * current_cycle
-            elif current_cycle <= up_cycles:
-                # ramp up to overshoot voltage
-                angle = math.atan2(overshoot_max - overshoot_start, up_cycles)
-                h['voltage-out'] = voltage + overshoot_start + current_cycle * math.tan(angle) + random_noise(current_cycle, ramp_noise)
-            else:
-                # ramp down to cut voltage
-                angle = math.atan2(overshoot_max, dn_cycles)
-                h['voltage-out'] = voltage + overshoot_max - (current_cycle - up_cycles) * math.tan(angle) + random_noise(current_cycle, ramp_noise)
+        if h['on-delay-in'] < 0:
+            on_delay = 0
+        elif h['on-delay-in'] > 100:
+            on_delay = 100
         else:
-        # cut voltage voltage
-            h['voltage-out'] = voltage + offset + random_noise(current_cycle, cut_noise)
-        current_cycle += 1
-    else:
-        # stop the arc
-        current_cycle = 0
-        h['voltage-out'] = 0
-    time.sleep(.001)
+            on_delay = h['on-delay-in']
+
+        if h['offset-in'] < -10:
+            offset = -10
+        elif h['offset-in'] > 10:
+            offset = 10
+        else:
+            offset = h['offset-in']
+
+        if h['overshoot-in'] < 0:
+            overshoot = 0
+        elif h['overshoot-in'] > 100:
+            overshoot = 100
+        else:
+            overshoot = h['overshoot-in']
+
+        ramp_noise = abs(h['ramp-noise-in'])
+
+        if h['ramp-up-in'] < 0:
+            ramp_up = 0
+        elif h['ramp-up-in'] > 100:
+            ramp_up = 100
+        else:
+            ramp_up = h['ramp-up-in']
+
+        if h['voltage-in'] < 50:
+            voltage = 50
+        elif h['voltage-in'] > 150:
+            voltage = 150
+        else:
+            voltage = h['voltage-in']
+
+        # setup some variables
+        up_cycles = cycles * (ramp_up * 0.01)
+        dn_cycles = cycles - up_cycles
+        overshoot_max = voltage * (overshoot * 0.01)
+        overshoot_start = overshoot_max * 0.4
+
+        if h['start']:
+            # start the arc
+            if(current_cycle < cycles):
+                if current_cycle < on_delay:
+                    # initial ramp up to cut voltage
+                    h['voltage-out'] = (voltage + overshoot_start) / on_delay * current_cycle
+                elif current_cycle <= up_cycles:
+                    # ramp up to overshoot voltage
+                    angle = math.atan2(overshoot_max - overshoot_start, up_cycles)
+                    h['voltage-out'] = voltage + overshoot_start + current_cycle * math.tan(angle) + random_noise(current_cycle, ramp_noise)
+                else:
+                    # ramp down to cut voltage
+                    angle = math.atan2(overshoot_max, dn_cycles)
+                    h['voltage-out'] = voltage + overshoot_max - (current_cycle - up_cycles) * math.tan(angle) + random_noise(current_cycle, ramp_noise)
+            else:
+            # cut voltage voltage
+                h['voltage-out'] = voltage + offset + random_noise(current_cycle, cut_noise)
+            current_cycle += 1
+        else:
+            # stop the arc
+            current_cycle = 0
+            h['voltage-out'] = 0
+        time.sleep(.001)
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(e)
