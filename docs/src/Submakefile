@@ -360,6 +360,10 @@ copy_asciidoc_files:
 
 gen_complist:
 	python3 $(DOC_SRCDIR)/gen_complist.py
+	touch $(DOC_SRCDIR)/hal/components.adoc
+
+.PHONY gen_complist_links:
+	python3 $(DOC_SRCDIR)/gen_complist.py links
 
 checkref: checkref_en checkref_de checkref_es checkref_fr checkref_hu checkref_nb checkref_vi checkref_zh_CN
 
