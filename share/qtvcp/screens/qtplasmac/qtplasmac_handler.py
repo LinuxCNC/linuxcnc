@@ -1,4 +1,4 @@
-VERSION = '1.221.165'
+VERSION = '1.221.166'
 
 '''
 qtplasmac_handler.py
@@ -1898,7 +1898,7 @@ class HandlerClass:
 
     def jog_inhibit_changed(self, state, switch):
         if state and not self.jogInhibit:
-            for axis in [0,1,2,3]:
+            for axis in self.isJogging:
                 if self.isJogging[axis]:
                     ACTION.JOG(axis, 0, 0, 0)
                     head = _translate('HandlerClass', 'JOG ERROR')
