@@ -1,4 +1,4 @@
-VERSION = '1.221.166'
+VERSION = '1.222.167'
 
 '''
 qtplasmac_handler.py
@@ -35,6 +35,7 @@ import math
 import glob
 import linuxcnc
 import hal, hal_glib
+from OpenGL.GL import glTranslatef
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
@@ -44,22 +45,23 @@ from qtvcp import logger
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
-from qtvcp.widgets.file_manager import FileManager as FILE_MAN
-from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
-from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
-from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
-from qtvcp.widgets.status_label import StatusLabel as STATLABEL
-from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
-from qtvcp.widgets.camview_widget import CamView as CAM
-from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
-from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSETVIEW
-from qtvcp.widgets.origin_offsetview import MyTableModel as OFFSET_TABLE
-from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 from qtvcp.lib.qtplasmac import run_from_line as RFL
 from qtvcp.lib.qtplasmac import updater as UPDATER
-from OpenGL.GL import glTranslatef
+from qtvcp.widgets.camview_widget import CamView as CAM
+from qtvcp.widgets.file_manager import FileManager as FILE_MAN
+from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
+from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
+from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
+from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSETVIEW
+from qtvcp.widgets.origin_offsetview import MyTableModel as OFFSET_TABLE
+from qtvcp.widgets.screen_options import ScreenOptions as OPTIONS
+from qtvcp.widgets.simple_widgets import DoubleScale as DOUBLESCALE
+from qtvcp.widgets.status_label import StatusLabel as STATLABEL
+from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
+from qtvcp.lib.aux_program_loader import Aux_program_loader
+from qtvcp.lib.notify import Notify
 from rs274.glcanon import GlCanonDraw
 from qt5_graphics import Lcnc_3dGraphics as DRO
 
@@ -69,6 +71,7 @@ STATUS = Status()
 INFO = Info()
 ACTION = Action()
 TOOL = Tool()
+NOTICE = Notify()
 AUX_PRGM = Aux_program_loader()
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
@@ -249,7 +252,6 @@ class HandlerClass:
         self.preRflFile = ''
         self.preClearFile = ''
         self.rflActive = False
-        self.jogInhibit = ''
         self.ccButton, self.otButton, self.ptButton, self.tpButton = '', '', '', ''
         self.ctButton, self.scButton, self.frButton, self.mcButton = '', '', '', ''
         self.ovButton, self.llButton, self.tlButton = '', '', ''
@@ -344,7 +346,6 @@ class HandlerClass:
         STATUS.connect('interp-waiting', self.interp_waiting)
         STATUS.connect('interp-run', self.interp_running)
         STATUS.connect('jograte-changed', self.jog_rate_changed)
-        STATUS.connect('current_feed_rate', lambda w, v: self.feed_rate_changed(v))
         STATUS.connect('graphics-gcode-properties', lambda w, d:self.update_gcode_properties(d))
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
@@ -390,6 +391,7 @@ class HandlerClass:
         self.camview_patch()
         self.offset_table_patch()
         self.qt5_graphics_patch()
+        self.screen_options_patch()
 
 # patched gcode editor functions
     def gcode_editor_patch(self):
@@ -528,11 +530,64 @@ class HandlerClass:
         self.old_dro_format = DRO.dro_format
         DRO.dro_format = self.new_dro_format
 
+    # not used, placeholder for future change in qt5_graphics.py
     def new_joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
         return limit, homed, self.get_overlay_text(True), ['']
 
+    # replace dro with current material
     def new_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
         return limit, homed, self.get_overlay_text(True), ['']
+
+# patched screen options functions
+    def screen_options_patch(self):
+        self.old_process_error = OPTIONS.process_error
+        OPTIONS.process_error = self.new_process_error
+
+    # we want custom notifications for jog errors
+    def new_process_error(self, w, kind, text):
+        O = self.w.screen_options
+        if O.desktop_notify:
+            if 'on limit switch error' in text:
+                NOTICE.update(O.notify_hard_limits, title='Machine Error:', message=text, msgs=O.notify_max_msgs)
+            elif 'jog-inhibit' in text:
+                if self.w.led_float_switch.hal_pin.get():
+                    trigger = _translate('HandlerClass', 'Float Switch')
+                elif self.w.led_ohmic_probe.hal_pin.get():
+                    trigger = _translate('HandlerClass', 'Ohmic Probe')
+                elif self.w.led_breakaway_switch.hal_pin.get():
+                    trigger = _translate('HandlerClass', 'Breakaway Switch')
+                msg0 = _translate('HandlerClass', 'has disabled jogging')
+                text = '{} {}\n'.format(trigger, msg0)
+                NOTICE.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
+            elif kind == linuxcnc.OPERATOR_ERROR:
+                NOTICE.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
+            elif kind == linuxcnc.OPERATOR_TEXT:
+                NOTICE.update(O.notify_critical, title='Operator Text:', message=text, msgs=O.notify_max_msgs)
+            elif kind == linuxcnc.OPERATOR_DISPLAY:
+                NOTICE.update(O.notify_critical, title='Operator Display:', message=text, msgs=O.notify_max_msgs)
+            elif kind == linuxcnc.NML_ERROR:
+                NOTICE.update(O.notify_critical, title='Internal NML Error:', message=text, msgs=O.notify_max_msgs)
+            elif kind == linuxcnc.NML_TEXT:
+                NOTICE.update(O.notify_critical, title='Internal NML Text:', message=text, msgs=O.notify_max_msgs)
+            elif kind == linuxcnc.NML_DISPLAY:
+                NOTICE.update(O.notify_critical, title='Internal NML Display:', message=text, msgs=O.notify_max_msgs)
+            elif kind == STATUS.TEMPARARY_MESSAGE:
+                NOTICE.update(O.notify_normal,
+                              title='Operator Info:',
+                              message=text,
+                              status_timeout=0,
+                              timeout=2,
+                              msgs=O.notify_max_msgs)
+        if O.play_sounds and O.mchnMsg_play_sound:
+            STATUS.emit('play-sound', '%s' % O.mchnMsg_sound_type)
+            if O.mchnMsg_speak_errors:
+                if kind in (linuxcnc.OPERATOR_ERROR, linuxcnc.NML_ERROR):
+                    STATUS.emit('play-sound', 'SPEAK %s ' % text)
+            if O.mchnMsg_speak_text:
+                if kind in (linuxcnc.OPERATOR_TEXT, linuxcnc.NML_TEXT,
+                            linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
+                    STATUS.emit('play-sound', 'SPEAK %s ' % text)
+        STATUS.emit('update-machine-log', text, 'TIME')
 
 
 #########################################################################################################################
@@ -565,7 +620,6 @@ class HandlerClass:
         self.offsetsActivePin = self.h.newpin('offsets_active', hal.HAL_BIT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
-        self.jogInhibitPin = self.h.newpin('jog_inhibit', hal.HAL_BIT, hal.HAL_OUT)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
         self.consChangePin = self.h.newpin('consumable_changing', hal.HAL_BIT, hal.HAL_IN)
@@ -614,6 +668,8 @@ class HandlerClass:
         self.gcodeScalePin = self.h.newpin('gcode_scale', hal.HAL_FLOAT, hal.HAL_OUT)
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
         self.tabsAlwaysEnabled = self.h.newpin('tabs_always_enabled', hal.HAL_BIT, hal.HAL_IN)
+        self.jogInhibited = self.h.newpin('jog_inhibited', hal.HAL_BIT, hal.HAL_IN)
+        self.sensorActive = self.h.newpin('sensor_active', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -708,6 +764,8 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable_changing'])
         CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
         CALL(['halcmd', 'net', 'plasmac:gcode-scale', 'plasmac.gcode-scale', 'qtplasmac.gcode_scale'])
+        CALL(['halcmd', 'net', 'plasmac:jog-inhibit', 'qtplasmac.jog_inhibited'])
+        CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
 
 # *** add system hal pin changes here that may affect existing configs ***
 # *** these may be removed after auto updating is implemented          ***
@@ -767,6 +825,8 @@ class HandlerClass:
         self.w.jog_stack.setCurrentIndex(0)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
+        self.w.chk_override_jog.setChecked(False)
+        self.w.chk_override_jog.setEnabled(False)
         self.w.thc_enable.setChecked(self.w.PREFS_.getpref('THC enable', True, bool, 'ENABLE_OPTIONS'))
         self.w.cornerlock_enable.setChecked(self.w.PREFS_.getpref('Corner lock enable', True, bool, 'ENABLE_OPTIONS'))
         self.w.kerfcross_enable.setChecked(self.w.PREFS_.getpref('Kerf cross enable', True, bool, 'ENABLE_OPTIONS'))
@@ -1277,12 +1337,6 @@ class HandlerClass:
             if STATUS.is_auto_running():
                 self.set_tab_jog_states(False)
 
-    def feed_rate_changed(self, rate):
-        if not rate:
-            for joint in range(len(self.coordinates)):
-                if self.isJogging[joint]:
-                    self.isJogging[joint] = False
-
     def jog_rate_changed(self, object, value):
         msg0 = _translate('HandlerClass', 'JOG')
         self.w.jogs_label.setText('{}\n{:.0f}'.format(msg0, STATUS.get_jograte()))
@@ -1423,6 +1477,28 @@ class HandlerClass:
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
+
+    def jog_inhibited_changed(self, state):
+        if state:
+            self.w.chk_override_jog.setEnabled(state)
+        else:
+           if not self.w.led_float_switch.hal_pin.get() and not self.w.led_ohmic_probe.hal_pin.get() and \
+                                                            not self.w.led_breakaway_switch.hal_pin.get():
+                self.w.chk_override_jog.setChecked(False)
+                hal.set_p('plasmac.override-jog', '0')
+
+    def sensor_active_changed(self, state):
+        if not state:
+            self.w.chk_override_jog.setEnabled(False)
+            self.w.chk_override_jog.setChecked(False)
+            hal.set_p('plasmac.override-jog', str(state))
+
+    def override_jog_changed(self, state):
+        if state:
+            hal.set_p('plasmac.override-jog', '1')
+        else:
+            hal.set_p('plasmac.override-jog', '0')
+
 
     def tool_changed(self, obj, tool):
         if tool == 0:
@@ -1898,32 +1974,6 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'does not exist')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n'.format(head, file, msg0))
 
-    def jog_inhibit_changed(self, state, switch):
-        if state and not self.jogInhibit:
-            for axis in self.isJogging:
-                if self.isJogging[axis]:
-                    ACTION.JOG(axis, 0, 0, 0)
-                    head = _translate('HandlerClass', 'JOG ERROR')
-                    msg0 = _translate('HandlerClass', 'Jogging stopped')
-                    msg1 = _translate('HandlerClass', 'tripped')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{} {}\n'.format(head, msg0, switch, msg1))
-                    self.isJogging[axis] = False
-            self.jogInhibit = switch
-            self.jogInhibitPin.set(True)
-        else:
-            if self.w.led_float_switch.hal_pin.get():
-                self.jogInhibit = 'float switch'
-                self.jogInhibitPin.set(True)
-            elif self.w.led_ohmic_probe.hal_pin.get():
-                self.jogInhibit = 'ohmic probe'
-                self.jogInhibitPin.set(True)
-            elif self.w.led_breakaway_switch.hal_pin.get():
-                self.jogInhibit = 'breakaway switch'
-                self.jogInhibitPin.set(True)
-            else:
-                self.jogInhibit = ''
-                self.jogInhibitPin.set(False)
-
     def jog_slow_pressed(self, external=False):
         if self.w.jog_slow.isChecked():
             self.w.jog_slow.setText(_translate('HandlerClass', 'FAST'))
@@ -2321,9 +2371,6 @@ class HandlerClass:
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
-        self.w.led_float_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'float switch'))
-        self.w.led_ohmic_probe.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'ohmic probe'))
-        self.w.led_breakaway_switch.hal_pin.value_changed.connect(lambda v:self.jog_inhibit_changed(v, 'breakaway switch'))
         self.paramTabDisable.value_changed.connect(lambda v:self.param_tab_changed(v))
         self.convTabDisable.value_changed.connect(lambda v:self.conv_tab_changed(v))
         self.pierceCountPin.value_changed.connect(self.pierce_count_changed)
@@ -2392,6 +2439,9 @@ class HandlerClass:
         self.w.conv_save.pressed.connect(lambda:self.conv_call('save'))
         self.w.conv_settings.pressed.connect(lambda:self.conv_call('settings'))
         self.w.conv_send.pressed.connect(lambda:self.conv_call('send'))
+        self.w.chk_override_jog.stateChanged.connect(self.override_jog_changed)
+        self.jogInhibited.value_changed.connect(lambda v:self.jog_inhibited_changed(v))
+        self.sensorActive.value_changed.connect(lambda v:self.sensor_active_changed(v))
 
     def conv_call(self, operation):
         if self.developmentPin:
@@ -2437,7 +2487,6 @@ class HandlerClass:
         for axis in self.axisList:
             self.w['home_{}'.format(axis)].set_joint(self.coordinates.index(axis))
             self.w['home_{}'.format(axis)].set_joint_number(self.coordinates.index(axis))
-        self.isJogging = {}
         for joint in range(len(self.coordinates)):
             # check if home all button required
             if not self.iniFile.find('JOINT_{}'.format(joint), 'HOME_SEQUENCE'):
@@ -2449,8 +2498,6 @@ class HandlerClass:
                     self.jogSyncList.append('jog_{}_minus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_plus'.format(self.coordinates[joint]))
                     self.jogButtonList.remove('jog_{}_minus'.format(self.coordinates[joint]))
-            # set jogging status
-            self.isJogging[joint] = False
 
     def set_mode(self):
         block1 = ['arc_ok_high', 'arc_ok_high_lbl', 'arc_ok_low', 'arc_ok_low_lbl' ]
@@ -2521,12 +2568,6 @@ class HandlerClass:
         hal.set_p('plasmac.offset-probe-delay', '{}'.format(self.probeDelay))
 
     def kb_jog(self, state, joint, direction, shift = False, linear = True):
-        if self.jogInhibit and state and (joint != 2 or direction != 1):
-            head = _translate('HandlerClass', 'JOG ERROR')
-            msg0 = _translate('HandlerClass', 'Cannot jog')
-            msg1 = _translate('HandlerClass', 'tripped')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{} {}\n'.format(head, msg0, self.jogInhibit, msg1))
-            return
         if linear:
             distance = STATUS.get_jog_increment()
             rate = STATUS.get_jograte()/60
@@ -2542,13 +2583,11 @@ class HandlerClass:
             elif self.jogSlow and not self.w.jog_slow.isChecked():
                 rate = STATUS.get_jograte()/60/self.slowJogFactor
             ACTION.JOG(joint, direction, rate, distance)
-            self.isJogging[joint] = True
             self.w.grabKeyboard()
         else:
             self.w.releaseKeyboard()
             if not STATUS.get_jog_increment():
                 ACTION.JOG(joint, 0, 0, 0)
-                self.isJogging[joint] = False
 
     def keyboard_shortcuts(self):
         if self.w.chk_keyboard_shortcuts.isChecked():

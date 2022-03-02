@@ -13324,57 +13324,17 @@ HOME ALL</string>
                  <property name="verticalSpacing">
                   <number>10</number>
                  </property>
-                 <item row="4" column="1">
-                  <widget class="QLabel" name="label_36">
+                 <item row="1" column="3">
+                  <widget class="QLabel" name="label_33">
                    <property name="text">
-                    <string>Optional Stop</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="0" column="3">
-                  <widget class="QLabel" name="label_39">
-                   <property name="text">
-                    <string>Run From Line</string>
+                    <string>KB Shortcuts</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="4">
-                  <widget class="QCheckBox" name="chk_tool_tips">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="2">
-                  <spacer name="horizontalSpacer_16">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
-                 <item row="2" column="1">
-                  <widget class="QLabel" name="label_20">
-                   <property name="text">
-                    <string>View Material</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="4" column="0">
+                 <item row="7" column="0">
                   <widget class="ActionButton" name="opt_stp">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -13427,8 +13387,8 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="4">
-                  <widget class="QCheckBox" name="chk_run_from_line">
+                 <item row="1" column="4">
+                  <widget class="QCheckBox" name="chk_keyboard_shortcuts">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -13446,14 +13406,41 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1">
-                  <widget class="QLabel" name="label_26">
+                 <item row="7" column="2">
+                  <spacer name="horizontalSpacer_16">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" stdset="0">
+                    <size>
+                     <width>40</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="QLabel" name="label_20">
                    <property name="text">
-                    <string>Soft Keyboard</string>
+                    <string>View Material</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="0">
+                 <item row="2" column="0">
+                  <widget class="QCheckBox" name="chk_overlay">
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="1">
+                  <widget class="QLabel" name="label_36">
+                   <property name="text">
+                    <string>Optional Stop</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
                   <widget class="QCheckBox" name="chk_soft_keyboard">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -13472,7 +13459,7 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="4">
+                 <item row="7" column="4">
                   <widget class="ActionButton" name="opt_blk">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -13525,8 +13512,25 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="0">
-                  <widget class="QCheckBox" name="chk_keyboard_shortcuts">
+                 <item row="3" column="1">
+                  <widget class="QLabel" name="label_46">
+                   <property name="text">
+                    <string>Exit Warning</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="7" column="3">
+                  <widget class="QLabel" name="label_37">
+                   <property name="text">
+                    <string>Optional Block</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0">
+                  <widget class="QCheckBox" name="chk_run_from_line">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -13545,34 +13549,27 @@ HOME ALL</string>
                   </widget>
                  </item>
                  <item row="1" column="1">
-                  <widget class="QLabel" name="label_33">
+                  <widget class="QLabel" name="label_26">
                    <property name="text">
-                    <string>KB Shortcuts</string>
+                    <string>Soft Keyboard</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="3">
-                  <widget class="QLabel" name="label_37">
+                 <item row="3" column="0">
+                  <widget class="QCheckBox" name="chk_exit_warning">
                    <property name="text">
-                    <string>Optional Block</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    <string/>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="3">
-                  <widget class="QLabel" name="label_42">
-                   <property name="text">
-                    <string>Override Limits</string>
+                 <item row="2" column="4">
+                  <widget class="QCheckBox" name="chk_tool_tips">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
                    </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="2" column="0">
-                  <widget class="QCheckBox" name="chk_overlay">
                    <property name="text">
                     <string/>
                    </property>
@@ -13588,7 +13585,7 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="4">
+                 <item row="3" column="4">
                   <widget class="QCheckBox" name="chk_override_limits">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -13613,17 +13610,40 @@ HOME ALL</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
-                  <widget class="QCheckBox" name="chk_exit_warning">
+                 <item row="3" column="3">
+                  <widget class="QLabel" name="label_42">
+                   <property name="text">
+                    <string>Override Limits</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="4">
+                  <widget class="QCheckBox" name="chk_override_jog">
                    <property name="text">
                     <string/>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="1">
-                  <widget class="QLabel" name="label_46">
+                 <item row="4" column="3">
+                  <widget class="QLabel" name="label_48">
                    <property name="text">
-                    <string>Exit Warning</string>
+                    <string>Override Jog</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1">
+                  <widget class="QLabel" name="label_39">
+                   <property name="text">
+                    <string>Run From Line</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
@@ -15250,10 +15270,7 @@ CONFIG</string>
   <tabstop>color_disabled</tabstop>
   <tabstop>color_preview</tabstop>
   <tabstop>chk_soft_keyboard</tabstop>
-  <tabstop>chk_keyboard_shortcuts</tabstop>
   <tabstop>opt_stp</tabstop>
-  <tabstop>chk_run_from_line</tabstop>
-  <tabstop>chk_override_limits</tabstop>
   <tabstop>opt_blk</tabstop>
   <tabstop>grid_size</tabstop>
   <tabstop>cone_size</tabstop>

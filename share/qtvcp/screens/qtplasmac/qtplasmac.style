@@ -334,6 +334,12 @@ QRadioButton:pressed {
     width: 26px;
     height: 26px }
 
+#opt_stp:disabled, #opt_blk:disabled {
+    border-color: inactive }
+
+#opt_stp:disabled:checked, #opt_blk:disabled:checked {
+    background: inactive }
+
 /****** CHECK BOX COMMON ************/
 QCheckBox {
     spacing: 0px }
@@ -346,6 +352,12 @@ QCheckBox::indicator {
 
 QCheckBox::indicator:pressed {
     background: highlight }
+
+QCheckBox::indicator:disabled {
+border-color: inactive }
+
+QCheckBox::indicator:disabled:checked {
+background: inactive }
 
 QCheckBox::indicator:checked {
     background: highlight }

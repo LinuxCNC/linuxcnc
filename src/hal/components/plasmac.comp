@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.221
+1.222
 
 .I SUMMARY:
 .br
@@ -65,6 +65,7 @@ pin in  float   height_per_volt             "torch height change per volt (machi
 pin in  bit     homed                       "machine is homed";
 pin in  bit     ignore_arc_ok_0             "don't require arc ok for start or cutting";
 pin in  bit     ignore_arc_ok_1             "don't require arc ok for start or cutting";
+pin in  bit     override_jog                "override jog inhibit";
 pin in  s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
@@ -151,7 +152,8 @@ pin out float   cut_length                  "length of current cut job";
 pin out bit     cut_recovering              "recovering from cut error";
 pin out float   cut_time                    "time of current cut job";
 pin out bit     cutting_stop                "stop manual cut, connect to halui.spindle.0.stop";
-pin out bit     feed_hold                   "feed hold, connect to motion.feed_hold";
+pin out bit     feed_hold                   "feed hold, connect to motion.feed-hold";
+pin out bit     jog_inhibit                 "jog inhibit, connect to motion.jog-inhibit";
 pin out bit     kerfcross_is_locked         "kerf crossing locked indicator [mode 0 & mode 1]";
 pin out bit     led_down                    "thc move down indicator";
 pin out bit     led_up                      "thc move up indicator";
@@ -165,6 +167,7 @@ pin out bit     program_resume              "resume the currently paused program
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
+pin out bit     sensor_active               "one of float, ohmic, or breakaway is detected";
 pin out bit     scribe_arm                  "arm the scribe";
 pin out bit     scribe_on                   "turn scribe on";
 pin out s32     state_out                   "current state";
@@ -448,6 +451,13 @@ FUNCTION(_) {
         tool = EMPTY;
     }
 
+    /* check for active sensor */
+    if(breakaway || float_switch || ohmic_detected){
+        sensor_active = TRUE;
+    }else{
+        sensor_active = FALSE;
+    }
+
     /* output the relative Z height */
     if(zero_target){
         z_relative = z_offset_current - zero_target * offset_scale;
@@ -513,7 +523,7 @@ FUNCTION(_) {
     /* check for an abort */
     /* or for a pause or wait while active */
     if(auto_cut){
-        if(state == IDLE && (breakaway || float_switch || ohmic_detected) && !program_is_idle){
+        if(state == IDLE && sensor_active && !program_is_idle){
             torch_on = FALSE;
             if(!program_is_paused && !program_pause){
                 if(breakaway){
@@ -758,6 +768,13 @@ FUNCTION(_) {
 
     /* if puddlejump height is 0 then set it to 100 */
     puddle_jump_percent = puddle_jump_height == 0 ? 100:puddle_jump_height;
+
+    /* set jog inhibit if required */
+    if(sensor_active && program_is_idle && !override_jog){
+        jog_inhibit = TRUE;
+    }else{
+        jog_inhibit = FALSE;
+    }
 
     if(!machine_is_on){
         /* if machine is off */
@@ -1859,7 +1876,7 @@ FUNCTION(_) {
             case CONSUMABLE_CHANGE_ON:
                 xy_offset_enable = TRUE;
                 feed_hold = TRUE;
-                if(breakaway || float_switch || ohmic_detected){
+                if(sensor_active){
                     if(!error_message){
                         error_message = TRUE;
                         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -1925,7 +1942,7 @@ FUNCTION(_) {
                 break;
             case CONSUMABLE_CHANGE_OFF:
                 xy_offset_enable = TRUE;
-                if(breakaway || float_switch || ohmic_detected){
+                if(sensor_active){
                     if(!error_message){
                         error_message = TRUE;
                         rtapi_print_msg(RTAPI_MSG_ERR,
