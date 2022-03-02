@@ -336,6 +336,7 @@ DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
 .PHONY: svgs_made_from_dots
 svgs_made_from_dots: $(DOTFILES:.dot=.svg)
 
+docs: gen_complist
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf
@@ -353,17 +354,17 @@ htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 .htmldoc-stamp: copy_asciidoc_files gen_complist $(HTML_TARGETS) .images-stamp .include-stamp
 	touch $@
 
-.PHONY: copy_asciidoc_files
+.PHONY: copy_asciidoc_files gen_complist gen_complist_links
 copy_asciidoc_files:
 	cp -f /etc/asciidoc/stylesheets/*.css $(DOC_DIR)/html
 	cp -f /etc/asciidoc/javascripts/*.js $(DOC_DIR)/html
 
 gen_complist:
-	python3 $(DOC_SRCDIR)/gen_complist.py
+	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc
 	touch $(DOC_SRCDIR)/hal/components.adoc
 
-.PHONY gen_complist_links:
-	python3 $(DOC_SRCDIR)/gen_complist.py links
+gen_complist_links:
+	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc links
 
 checkref: checkref_en checkref_de checkref_es checkref_fr checkref_hu checkref_nb checkref_vi checkref_zh_CN
 
