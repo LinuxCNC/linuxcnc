@@ -61,6 +61,7 @@ from qtvcp.lib.qtplasmac import run_from_line as RFL
 from qtvcp.lib.qtplasmac import updater as UPDATER
 from OpenGL.GL import glTranslatef
 from rs274.glcanon import GlCanonDraw
+from qt5_graphics import Lcnc_3dGraphics as DRO
 
 LOG = logger.getLogger(__name__)
 KEYBIND = Keylookup()
@@ -348,11 +349,6 @@ class HandlerClass:
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
         STATUS.connect('periodic', lambda w: self.update_periodic())
-        self.overlayPreview.setText(self.get_overlay_text(False))
-        self.overlayConv.setText(self.get_overlay_text(True))
-        if not self.w.chk_overlay.isChecked():
-            self.overlayPreview.hide()
-            self.overlayConv.hide()
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
@@ -393,6 +389,7 @@ class HandlerClass:
         self.gcode_editor_patch()
         self.camview_patch()
         self.offset_table_patch()
+        self.qt5_graphics_patch()
 
 # patched gcode editor functions
     def gcode_editor_patch(self):
@@ -442,8 +439,6 @@ class HandlerClass:
             self.view_t_pressed()
         self.w.gcode_editor.editMode()
         self.vkb_hide()
-        if self.w.chk_overlay.isChecked():
-            self.overlayPreview.show()
         ACTION.SET_MANUAL_MODE()
 
     # we don't use lexer colors
@@ -525,6 +520,19 @@ class HandlerClass:
             return Qt.ItemIsEnabled
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+
+# patched qt5_graphics functions
+    def qt5_graphics_patch(self):
+        self.old_joint_dro_format_OFF = DRO.joint_dro_format_OFF
+        DRO.joint_dro_format_OFF = self.new_joint_dro_format_OFF
+        self.old_dro_format = DRO.dro_format
+        DRO.dro_format = self.new_dro_format
+
+    def new_joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
+        return limit, homed, self.get_overlay_text(True), ['']
+
+    def new_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
+        return limit, homed, self.get_overlay_text(True), ['']
 
 
 #########################################################################################################################
@@ -812,12 +820,13 @@ class HandlerClass:
         self.w.gcode_editor.gCodeLexerAction.setVisible(False)
         self.w.gcode_editor.label.setText('')
         self.w.gcodegraphics.set_alpha_mode(True)
-        self.w.gcodegraphics.setdro(False)
+        self.w.gcodegraphics.setShowOffsets(False)
+        self.w.gcodegraphics._font = 'monospace bold 11'
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
         self.w.conv_preview.set_alpha_mode(True)
         self.w.conv_preview.setShowOffsets(False)
-        self.w.conv_preview.setdro(False)
+        self.w.conv_preview._font = 'monospace bold 11'
         self.w.conv_preview.inhibit_selection = True
         self.w.conv_preview.updateGL()
         self.w.conv_preview.setInhibitControls(True)
@@ -843,12 +852,6 @@ class HandlerClass:
         self.error_present = False
         self.laserButtonState = 'laser'
         self.camButtonState = 'markedge'
-        self.overlayPreview = QLabel(self.w.gcodegraphics)
-        self.overlayPreview.setStyleSheet('font: 12pt "Courier"; color: #cccccc; background: rgba(1,0,0,255)')
-        self.overlayPreview.setAlignment(Qt.AlignTop|Qt.AlignLeft)
-        self.overlayConv = QLabel(self.w.conv_preview)
-        self.overlayConv.setStyleSheet('font: 12pt "Courier"; color: #cccccc; background: rgba(1,0,0,255)')
-        self.overlayConv.setAlignment(Qt.AlignTop|Qt.AlignLeft)
         self.overlayProgress = QProgressBar(self.w.gcode_display)
         self.overlayProgress.setOrientation(Qt.Vertical)
         self.overlayProgress.setInvertedAppearance(True)
@@ -856,17 +859,20 @@ class HandlerClass:
         self.overlayProgress.hide()
 
     def get_overlay_text(self, kerf):
+        text = ['']
+        if not self.w.chk_overlay.isChecked():
+            return text
         if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text().split('.')[0]))
+            text.append('FR: {}\n'.format(self.w.cut_feed_rate.text().split('.')[0]))
         else:
-            text  = ('FR: {}\n'.format(self.w.cut_feed_rate.text()))
-        text += ('PH: {}\n'.format(self.w.pierce_height.text()))
-        text += ('PD: {}\n'.format(self.w.pierce_delay.text()))
-        text += ('CH: {}'.format(self.w.cut_height.text()))
+            text.append('FR: {}\n'.format(self.w.cut_feed_rate.text()))
+        text.append('PH: {}\n'.format(self.w.pierce_height.text()))
+        text.append('PD: {}\n'.format(self.w.pierce_delay.text()))
+        text.append('CH: {}'.format(self.w.cut_height.text()))
         if kerf == True:
-            text += ('\nKW: {}'.format(self.w.kerf_width.text()))
+            text.append('\nKW: {}'.format(self.w.kerf_width.text()))
         if self.pmx485Exists:
-            text += ('\nCA: {}'.format(self.w.cut_amps.text()))
+            text.append('\nCA: {}'.format(self.w.cut_amps.text()))
         return text
 
     def offset_peripherals(self):
@@ -1311,8 +1317,6 @@ class HandlerClass:
             if not self.cameraOn and self.w.preview_stack.currentIndex() != 4:
                 self.w.preview_stack.setCurrentIndex(0)
                 self.vkb_hide()
-                if self.w.chk_overlay.isChecked():
-                    self.overlayPreview.show()
             self.w.file_open.setText(os.path.basename(filename))
             if not self.single_cut_request:
                 self.fileOpened = True
@@ -1386,8 +1390,8 @@ class HandlerClass:
             self.firstHoming = True
         if not self.fileOpened:
             self.set_blank_gcodeprops()
-        self.w.gcodegraphics.setdro(False)
-        self.w.conv_preview.setdro(False)
+        self.w.gcodegraphics.updateGL()
+        self.w.conv_preview.updateGL()
 
     def joint_homed(self, obj, joint):
         dro = self.coordinates[int(joint)]
@@ -1412,6 +1416,8 @@ class HandlerClass:
         STATUS.emit('dro-reference-change-request', 1)
         hal.set_p('plasmac.homed', '0')
         self.interp_idle(None)
+        self.w.gcodegraphics.updateGL()
+        self.w.conv_preview.updateGL()
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.w.chk_override_limits.setEnabled(tripped)
@@ -1747,13 +1753,11 @@ class HandlerClass:
     def file_open_clicked(self):
         self.w.preview_stack.setCurrentIndex(1)
         self.vkb_hide()
-        self.overlayPreview.hide()
         self.w.filemanager.table.setFocus()
 
     def file_edit_clicked(self):
         if STATUS.stat.interp_state == linuxcnc.INTERP_IDLE and self.w.preview_stack.currentIndex() != 2:
             self.w.preview_stack.setCurrentIndex(2)
-            self.overlayPreview.hide()
             self.w.run.setEnabled(False)
             self.w.gcode_editor.editor.setFocus()
             if self.fileOpened:
@@ -1785,8 +1789,6 @@ class HandlerClass:
     def file_cancel_clicked(self):
         self.w.preview_stack.setCurrentIndex(0)
         self.vkb_hide()
-        if self.w.chk_overlay.isChecked():
-            self.overlayPreview.show()
         ACTION.SET_MANUAL_MODE()
 
     def cone_size_changed(self, data):
@@ -2172,7 +2174,7 @@ class HandlerClass:
         self.w.jog_slow.pressed.connect(self.jog_slow_pressed)
         self.w.chk_soft_keyboard.stateChanged.connect(self.soft_keyboard)
         self.w.chk_override_limits.stateChanged.connect(self.chk_override_limits_changed)
-        self.w.chk_overlay.stateChanged.connect(self.overlay_changed)
+        self.w.chk_overlay.stateChanged.connect(self.overlay_update)
         self.w.chk_tool_tips.stateChanged.connect(lambda:TOOLTIPS.tool_tips_changed(self.w))
         self.w.torch_enable.stateChanged.connect(lambda w:self.torch_enable_changed(w))
         self.w.ohmic_probe_enable.stateChanged.connect(lambda w:self.ohmic_probe_enable_changed(w))
@@ -2582,13 +2584,9 @@ class HandlerClass:
             button = 'touch_{}'.format(axis)
             self.w[button].dialog_code = inputType
 
-    def overlay_changed(self, state):
-        if self.w.chk_overlay.isChecked():
-            self.overlayPreview.show()
-            self.overlayConv.show()
-        else:
-            self.overlayPreview.hide()
-            self.overlayConv.hide()
+    def overlay_update(self, state):
+        self.w.gcodegraphics.updateGL()
+        self.w.conv_preview.updateGL()
 
     def dialog_show_ok(self, icon, title, error, bText=_translate('HandlerClass', 'OK')):
         msg = QMessageBox(self.w)
@@ -4001,8 +3999,7 @@ class HandlerClass:
             self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
             self.w.conv_material.setCurrentIndex(self.w.materials_box.currentIndex())
         self.autoChange = False
-        self.overlayPreview.setText(self.get_overlay_text(False))
-        self.overlayConv.setText(self.get_overlay_text(True))
+        self.overlay_update(None)
 
     def material_change_pin_changed(self, halpin):
         if halpin == 0:
@@ -4400,13 +4397,10 @@ class HandlerClass:
         self.w.camview.rotation = STATUS.stat.rotation_xy
         if self.w.preview_stack.currentIndex() != 3:
             self.w.preview_stack.setCurrentIndex(3)
-            self.overlayPreview.hide()
             self.button_active('camera')
             self.cameraOn = True
         else:
             self.w.preview_stack.setCurrentIndex(0)
-            if self.w.chk_overlay.isChecked():
-                self.overlayPreview.show()
             self.button_normal('camera')
             self.cameraOn = False
             ACTION.SET_MANUAL_MODE()
