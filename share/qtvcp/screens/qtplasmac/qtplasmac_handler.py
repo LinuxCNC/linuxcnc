@@ -1,4 +1,4 @@
-VERSION = '1.222.167'
+VERSION = '1.222.168'
 
 '''
 qtplasmac_handler.py
@@ -881,12 +881,12 @@ class HandlerClass:
         self.w.gcode_editor.label.setText('')
         self.w.gcodegraphics.set_alpha_mode(True)
         self.w.gcodegraphics.setShowOffsets(False)
-        self.w.gcodegraphics._font = 'monospace bold 11'
+        self.w.gcodegraphics._font = 'monospace 11'
         self.w.conv_preview.set_cone_basesize(0.1)
         self.w.conv_preview.set_view('Z')
         self.w.conv_preview.set_alpha_mode(True)
         self.w.conv_preview.setShowOffsets(False)
-        self.w.conv_preview._font = 'monospace bold 11'
+        self.w.conv_preview._font = 'monospace 11'
         self.w.conv_preview.inhibit_selection = True
         self.w.conv_preview.updateGL()
         self.w.conv_preview.setInhibitControls(True)
@@ -1204,6 +1204,7 @@ class HandlerClass:
             else:
                 self.set_buttons_state([self.idleHomedList], False)
         else:
+            self.w.power.setChecked(False)
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
             if self.ptButton and hal.get_value('plasmac.probe-test'):
                 self.probe_test(False)
