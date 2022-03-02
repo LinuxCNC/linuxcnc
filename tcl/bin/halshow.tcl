@@ -569,6 +569,8 @@ proc makeSettings {} {
         -justify left]  -anchor w -pady 2 -padx 2
     addTextSetting $f1 ::ffmts "    [msgcat::mc "Float"]"
     addTextSetting $f1 ::ifmts "    [msgcat::mc "Integer"]"
+    set ::ffmt_setting $f1.::ffmts
+    set ::ifmt_setting $f1.::ifmts
     addBoolSetting $f1 ::alwaysOnTop [msgcat::mc "Always on top\n(Note: May not\
         working with all desktop environments)"]
     addBoolSetting $f1 ::autoSaveWatchlist [msgcat::mc "Remember watchlist"]
@@ -1085,10 +1087,14 @@ if {[llength $::argv] > 0} {
        "--iformat" {incr idx;
                     set ::ifmt [lindex $::argv $idx]
                     incr idx
+                    $::ifmt_setting.label configure -text "    [msgcat::mc "Integer (disabled by \"--iformat\" argument)"]"
+                    $::ifmt_setting.entry configure -state disabled
                    }
        "--fformat" {incr idx;
                     set ::ffmt [lindex $::argv $idx]
                     incr idx
+                    $::ffmt_setting.label configure -text "    [msgcat::mc "Float (disabled by \"--fformat\" argument)"]"
+                    $::ffmt_setting.entry configure -state disabled
                    }
        default { set watchfile [lindex $::argv $idx]
                  if [file readable $watchfile] {
