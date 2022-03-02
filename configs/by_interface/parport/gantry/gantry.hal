@@ -46,8 +46,8 @@ net min-home-x      <= parport.0.pin-13-in
 setp stepgen.0.position-scale [JOINT_0]SCALE
 setp stepgen.0.steplen 1
 setp stepgen.0.stepspace 0
-setp stepgen.0.dirhold 25000
-setp stepgen.0.dirsetup 25000
+setp stepgen.0.dirhold 40000
+setp stepgen.0.dirsetup 40000
 setp stepgen.0.maxaccel [JOINT_0]STEPGEN_MAXACCEL
 net xpos-cmd joint.0.motor-pos-cmd => stepgen.0.position-cmd
 net xpos-fb stepgen.0.position-fb => joint.0.motor-pos-fb
@@ -60,8 +60,8 @@ net min-home-x => joint.0.neg-lim-sw-in
 setp stepgen.1.position-scale [JOINT_1]SCALE
 setp stepgen.1.steplen 1
 setp stepgen.1.stepspace 0
-setp stepgen.1.dirhold 25000
-setp stepgen.1.dirsetup 25000
+setp stepgen.1.dirhold 40000
+setp stepgen.1.dirsetup 40000
 setp stepgen.1.maxaccel [JOINT_1]STEPGEN_MAXACCEL
 net ypos-cmd joint.1.motor-pos-cmd => stepgen.1.position-cmd
 net ypos-fb stepgen.1.position-fb => joint.1.motor-pos-fb
@@ -74,8 +74,8 @@ net min-home-y => joint.1.neg-lim-sw-in
 setp stepgen.2.position-scale [JOINT_2]SCALE
 setp stepgen.2.steplen 1
 setp stepgen.2.stepspace 0
-setp stepgen.2.dirhold 25000
-setp stepgen.2.dirsetup 25000
+setp stepgen.2.dirhold 40000
+setp stepgen.2.dirsetup 40000
 setp stepgen.2.maxaccel [JOINT_2]STEPGEN_MAXACCEL
 net zpos-cmd joint.2.motor-pos-cmd => stepgen.2.position-cmd
 net zpos-fb stepgen.2.position-fb => joint.2.motor-pos-fb
@@ -88,8 +88,8 @@ net max-home-z => joint.2.pos-lim-sw-in
 setp stepgen.3.position-scale [JOINT_3]SCALE
 setp stepgen.3.steplen 1
 setp stepgen.3.stepspace 0
-setp stepgen.3.dirhold 25000
-setp stepgen.3.dirsetup 25000
+setp stepgen.3.dirhold 40000
+setp stepgen.3.dirsetup 40000
 setp stepgen.3.maxaccel [JOINT_3]STEPGEN_MAXACCEL
 net y2pos-cmd joint.3.motor-pos-cmd => stepgen.3.position-cmd
 net y2pos-fb stepgen.3.position-fb => joint.3.motor-pos-fb
