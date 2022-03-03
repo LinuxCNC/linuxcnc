@@ -609,6 +609,12 @@ mixed-case HAL items in structured comments like
 * 'OWORD_WARNONLY = 0' Default 0
 Warn rather than error in case of errors in O-word subroutines.
 
+* 'DISABLE_G92_PERSISTENCE = 0' Default 0
+Allow to clear the G92 offset automatically when config start-up.
+
+* 'DISABLE_FANUC_STYLE_SUB = 0' Default 0
+If there is reason to disable Fanuc subroutines set it to 1.
+
 [NOTE] The above six options were controlled by the 'FEATURES' bitmask
 in versions of LinuxCNC prior to 2.8. This INI tag will no longer
 work.
@@ -616,6 +622,12 @@ work.
 [NOTE]
 [WIZARD]WIZARD_ROOT is a valid search path but the Wizard has not been fully
 implemented and the results of using it are unpredictable.
+
+* 'LOG_LEVEL = 0' Default 0
+Specify the log_level (default: -1)
+
+* 'LOG_FILE = file-name.log'
+For specify the file used for log the data.
 
 * 'REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure'
 See <<cha:remap,Remap Extending G-Code>> chapter for details.
