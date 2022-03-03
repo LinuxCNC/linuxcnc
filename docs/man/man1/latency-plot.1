@@ -22,34 +22,65 @@
 .\"
 .\"
 .\"
-.TH LATENCY-PLOT "1"  "2020-08-26" "LinuxCNC Documentation" "The Enhanced Machine Controller"
+.TH LATENCY-PLOT "1"  "2021-08-14" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
 latency-plot \- another way to view latency numbers
 .SH SYNOPSIS
 .B latency-plot
-
+.RB [ \-?|\-\-help ]
+.RB [ \-H|\-\-hal ]
+.RB [ \-b|\-\-base " " \fInS\fP ]
+.RB [ \-s|\-\-servo " " \fInS\fP ]
+.RB [ \-t|\-\-time " " \fImS\fP ]
+.RB [ \-\-relative ]
+.RB [ \-\-actual ]
 .SH DESCRIPTION
-\fBlatency-plot\fR plots realtime system latency.
-Mainly superseded by latency-histogram
-
-http://linuxcnc.org/docs/html/install/latency-test.html
-
-.SH "SEE ALSO"
-\fBlatency-histogram(1)\fR
-\fBLinuxCNC(1)\fR
-
-Much more information about LinuxCNC and HAL is available in the LinuxCNC
-and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
-
-.SH HISTORY
-
-.SH BUGS
-None known at this time. 
+.B latency-plot
+makes a strip chart recording for a base and a servo thread. It may be useful
+to see spikes in latency when other applications are started or used.
+Mainly superseded by latency-histogram.
 .PP
+LinuxCNC and Hal should not be running, stop with
+.IR "halrun \-U" .
+.PP
+More details:
+\%https://linuxcnc.org/docs/html/install/latency-test.html
+.SH OPTIONS
+.TP
+.BR \-? ", " \-\-help
+Show options and exit.
+.TP
+.BR \-H ", " \-\-hal
+.TP
+.BR \-b ", " \-\-base " " \fInS\fP
+base thread interval, default: 25000
+.TP
+.BR \-s ", " \-\-servo " " \fInS\fP
+servo thread interval, default: 1000000
+.TP
+.BR \-t ", " \-\-time " " \fImS\fP
+report interval, default: 1000, min: 100, max: 10000
+.TP
+.B \-\-relative
+relative clock time (default)
+.TP
+.B \-\-actual
+actual clock time
+.SH "SEE ALSO"
+.BR latency-histogram (1),
+.BR latency-test (1),
+.BR linuxcnc (1)
+.PP
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at
+.IR /usr/share/doc/linuxcnc/ .
+.SH BUGS
+None known at this time.
 .SH AUTHOR
 This man page written by andypugh, as part of the LinuxCNC project.
 .SH REPORTING BUGS
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+Report bugs at
+\%https://github.com/LinuxCNC/linuxcnc/issues
 .SH COPYRIGHT
 Copyright \(co 2020 andypugh.
 .br

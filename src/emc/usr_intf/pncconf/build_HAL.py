@@ -365,37 +365,45 @@ class HAL:
             print 'error in number of axis identity: ', self.d.axes
             return
         jnum = 0
+        coords = ['x']
         # Always add X axis
         self.connect_joint(file, jnum, 'x')
         tandemjoint = self.a.tandem_check('x')
         if tandemjoint:
             jnum += 1
+            coords.append('x2')
             self.connect_joint(file, jnum, 'x2')
 
         # Maybe add Y Axis ###################
         if self.d.axes in(0,1):
             jnum += 1
+            coords.append('y')
             self.connect_joint(file, jnum, 'y')
             tandemjoint = self.a.tandem_check('y')
             if tandemjoint:
                 jnum += 1
+                coords.append('y2')
                 self.connect_joint(file, jnum, 'y2')
 
         # Always add Z Axis ##################
         jnum += 1
+        coords.append('z')
         self.connect_joint(file, jnum, 'z')
         tandemjoint = self.a.tandem_check('z')
         if tandemjoint:
             jnum += 1
+            coords.append('z2')
             self.connect_joint(file, jnum, 'z2')
 
         # Maybe add A axis ###################
         if self.d.axes == 1:
             jnum += 1
+            coords.append('a')
             self.connect_joint(file, jnum, 'a')
             tandemjoint = self.a.tandem_check('a')
             if tandemjoint:
                 jnum += 1
+                coords.append('a2')
                 self.connect_joint(file, jnum, 'a2')
 
         # usually add Spindle ##################
@@ -410,20 +418,19 @@ class HAL:
         print >>file, _("#  ---HALUI signals---")
         print >>file
 
-        jnum = 0
-        for axletter in axis_convert:
-            if axletter in self.d.available_axes:
-                # support for KINEMATICS_IDENTITY kins only 
+        for axletter in coords:
+            if len(axletter) == 1:
+                # support for KINEMATICS_IDENTITY kins only
                 # Assumption: gui uses halui teleop jogging for KINEMATICS_IDENTITY configs
                 #             (axis gui does this for joints_axes)
                 print >>file, "net axis-select-%s  halui.axis.%s.select"% (axletter,axletter)
                 print >>file, "net jog-%s-pos      halui.axis.%s.plus"% (axletter,axletter)
                 print >>file, "net jog-%s-neg      halui.axis.%s.minus"% (axletter,axletter)
                 print >>file, "net jog-%s-analog   halui.axis.%s.analog"% (axletter,axletter)
-
                 # joints only items (no corresponding axis item):
-                print >>file, "net %s-is-homed     halui.joint.%d.is-homed"% (axletter,jnum)
-                jnum = jnum + 1 # expect joints in sequence (like trivkins)
+                print >>file, "net %s-is-homed     halui.joint.%d.is-homed"% (axletter,coords.index(axletter))
+            else:
+                print >>file, "net %s-is-homed    halui.joint.%d.is-homed"% (axletter,coords.index(axletter))
 
         print >>file, "net jog-selected-pos      halui.axis.selected.plus"
         print >>file, "net jog-selected-neg      halui.axis.selected.minus"

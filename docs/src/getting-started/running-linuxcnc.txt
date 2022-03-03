@@ -1,5 +1,4 @@
 [[cha:running-emc]]
-
 = Running LinuxCNC
 
 == Invoking LinuxCNC
@@ -7,8 +6,6 @@
 After installation, LinuxCNC starts just like any other Linux program: 
 run it from the <<faq:terminal,terminal>> by issuing the command 'linuxcnc',
 or select it in the Applications - CNC menu.
-
-[[sec:config-launcher]] (((Configuration Launcher)))
 
 == Configuration Launcher
 

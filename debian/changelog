@@ -1,3 +1,47 @@
+linuxcnc (1:2.8.2) buster; urgency=low
+
+  * gladevcp: Numerous Updates
+  * qtvcp -cam_align panel: allow selection of camera number
+  * gmoccapy_3_1_3_8 - many updates
+  * Typo correction Axis.py "Geometry reading" XYZBCUVW > XYZABCUVW
+  * Docs add info on loading halscope
+  * update 2.8 from master for xhc-whb04b-6
+  * Merge pull request #1024 from kiall/2.8-axis-error-pin
+  * translations - fixed moccapy / gmoccapy errors
+  * Update hostmot2.9
+  * Fix: update manual SSI
+  * Update abs_encoder.c
+  * add info on installing mesaflash
+  * rx_mode typo in hm2_uart_setup
+  * Docs: Many updates
+  * flipflop: Add an inverted output pin, like the classic D-type latch
+  * pncconf -fix inverting of steppers, in the tune axis test
+  * qtvcp -qtaxis: change controls for lathe configs
+  * pyui -fix commands for joints/axis changes
+  * Docs: Correct pin direction 14 in the parallel port docs
+  * gmoccapy_translations - new translation files
+  * interp_o_word.cc: mdi-opened files leak #1088
+  * command.c: use consistent external offset epsilon
+  * sendkeys: A HAL component to send keystrokes and UI events
+  * plasmac: fix material verter for sheetcam update
+  * fix halcompile singleton option on userspace components
+  * pncconf -fix internal description of 7i73 mode 1
+  * pncconf -fix sserial number when parcing XML
+  * pncconf -fix sserial channel number for the 7i96
+  * Docs: Update URL to updated Pi SD card image. Also document limitations.
+  * Merge pull request #1052 from Hans470/2.8-restructure-hal-doc
+  * pncconf -many uodates
+  * Added new version of Raspberry Pi4 and Raspberry Pi 400
+  * AXIS: Add an axisui.error pin
+  * qtvcp -qtDragon docs: add a bit of information about probing.
+  * Update near.comp add {} for syntax coherence
+  * PlasmaC: Many Updates
+  * hal_glib -fix check_for_modes always failing
+  * emccanon.cc GET_EXTERNAL_TOOL_SLOT hdl bogus request
+  * Revert bad change inside driver XHC-WHB04B-6 lcnc 2.8
+
+ -- andypugh <andy@bodgesoc.org>  Sun, 20 Jun 2021 18:48:30 +0100
+
 linuxcnc (1:2.8.1) buster; urgency=low
 
   * Docs: Updated Chinese "Getting Started"

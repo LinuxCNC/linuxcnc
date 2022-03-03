@@ -34,14 +34,111 @@ LOG = logger.getLogger(__name__)
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
     def __init__(self, parent=None):
         super(LCDNumber, self).__init__(parent)
+        self._pin_name = ''
+        self._floatTemplate = ''
+        self._bit_pin_type = False
+        self._s32_pin_type = False
+        self._float_pin_type = True
 
     def _hal_init(self):
-        self.hal_pin = self.HAL_GCOMP_.newpin(self.HAL_NAME_, hal.HAL_FLOAT, hal.HAL_IN)
-        self.hal_pin.value_changed.connect(lambda data: self.l_update(data))
+        if self._pin_name == '':
+            pname = self.HAL_NAME_
+        else:
+            pname = self._pin_name
+        if self._bit_pin_type:
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
+            self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
+        elif self._float_pin_type:
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_IN)
+            self.hal_pin.value_changed.connect(lambda data: self.updateFloatDisplay(data))
+        elif self._s32_pin_type:
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_S32, hal.HAL_IN)
+            self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
 
-    def l_update(self, data):
+    def updateDisplay(self, data):
         self.display(data)
 
+    def updateFloatDisplay(self, data):
+        try:
+            if self._floatTemplate == '':
+                self.updateDisplay(data)
+                return
+            t = self._floatTemplate.format
+            self.display(t(data))
+        except:
+            self.display('{:.2f}'.format(data))
+            LOG.warning("(LCDNumber) Float formatting string: {} not valid-using {}".format(
+                                    self._floatTemplate, '{:.2f}'))
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    ########################################################################
+
+    def _toggle_properties(self, picked):
+        data = ('bit', 's32', 'float')
+
+        for i in data:
+            if not i == picked:
+                self[i+'_pin_type'] = False
+
+    def set_pin_name(self, value):
+        self._pin_name = value
+    def get_pin_name(self):
+        return self._pin_name
+    def reset_pin_name(self):
+        self._pin_name = ''
+
+    def set_bit_pin_type(self, value):
+        self._bit_pin_type = value
+        if value:
+            self._toggle_properties('bit')
+    def get_bit_pin_type(self):
+        return self._bit_pin_type
+    def reset_bit_pin_type(self):
+        self._bit_pin_type = ''
+
+    def set_s32_pin_type(self, value):
+        self._s32_pin_type = value
+        if value:
+            self._toggle_properties('s32')
+    def get_s32_pin_type(self):
+        return self._s32_pin_type
+    def reset_s32_pin_type(self):
+        self._s32_pin_type = ''
+
+    def set_float_pin_type(self, value):
+        self._float_pin_type = value
+        if value:
+            self._toggle_properties('float')
+    def get_float_pin_type(self):
+        return self._float_pin_type
+    def reset_float_pin_type(self):
+        self._float_pin_type = ''
+
+    def set_floatTemplate(self, data):
+        self._floatTemplate = data
+    def get_floatTemplate(self):
+        return self._floatTemplate
+    def reset_floatTemplate(self):
+        self._floatTemplate = ''
+
+    # designer will show these properties in this order:
+    pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    bit_pin_type = QtCore.pyqtProperty(bool, get_bit_pin_type, set_bit_pin_type, reset_bit_pin_type)
+    s32_pin_type = QtCore.pyqtProperty(bool, get_s32_pin_type, set_s32_pin_type, reset_s32_pin_type)
+    float_pin_type = QtCore.pyqtProperty(bool, get_float_pin_type, set_float_pin_type, reset_float_pin_type)
+    floatTemplate = QtCore.pyqtProperty(str, get_floatTemplate, set_floatTemplate, reset_floatTemplate)
+
+    ##############################
+    # required class boiler code #
+    ##############################
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 class CheckBox(QtWidgets.QCheckBox, _HalToggleBase):
     def __init__(self, parent=None):
@@ -62,11 +159,13 @@ class Slider(QtWidgets.QSlider, _HalWidgetBase):
         self.hal_pin_f = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-f', hal.HAL_FLOAT, hal.HAL_OUT)
         self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.set(1)
-        def _f(data):
-            scale = self.hal_pin_scale.get()
-            self.hal_pin_s.set(data)
-            self.hal_pin_f.set(data*scale)
-        self.valueChanged.connect(partial(_f))
+        self.updateValue(self.value())
+        self.valueChanged.connect(lambda data:self.updateValue(data))
+
+    def updateValue(self, data):
+        scale = self.hal_pin_scale.get()
+        self.hal_pin_s.set(data)
+        self.hal_pin_f.set(data*scale)
 
 class Dial(QtWidgets.QDial, _HalWidgetBase):
     def __init__(self, parent=None):
@@ -85,6 +184,7 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_scale = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-scale', hal.HAL_FLOAT, hal.HAL_IN)
         self.hal_pin_scale.value_changed.connect(lambda data: self.updateScale(data))
         self.hal_pin_scale.set(1)
+        self.updateCount(self.value())
         self.valueChanged.connect(lambda data:self.updateCount(data))
 
     def updateScale(self, data):
@@ -113,6 +213,7 @@ class Dial(QtWidgets.QDial, _HalWidgetBase):
         self.hal_pin_s.set(self._currentTotalCount)
         self.hal_pin_f.set(self._currentTotalCount * self.scale)
         self.hal_pin_d.set(self._deltaScaled)
+
 
 class DoubleScale(QtWidgets.QDoubleSpinBox, _HalScaleBase):
     intOutput = QtCore.pyqtSignal(int)

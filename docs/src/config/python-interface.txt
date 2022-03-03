@@ -259,10 +259,10 @@ machine linear units per mm, reflects [TRAJ]LINEAR_UNITS ini value.
 reflects 'iocontrol.0.lube_level'.
 
 *max_acceleration*:: '(returns float)' -
-maximum  acceleration. reflects [TRAJ]MAX_ACCELERATION.
+maximum  acceleration. Reflects [TRAJ]MAX_ACCELERATION.
 
 *max_velocity*:: '(returns float)' -
-maximum  velocity. reflects [TRAJ]MAX_VELOCITY.
+maximum  velocity. Reflects the current maximum velocity. If not modified by halui.max-velocity or similar it should reflect [TRAJ]MAX_VELOCITY.
 
 *mcodes*:: '(returns tuple of 10 integers)' -
 currently active M-codes.

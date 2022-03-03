@@ -865,7 +865,7 @@ But there is not one in the machine-named folder.."""),True)
                     setp %(encoder)s.scale %(enc_scale)d
             """ % {
                     'encoder':self.enc_signalname,
-                '   enc_scale':self.enc_scale,
+                'enc_scale':self.enc_scale,
                 })
         halrun.flush()
 

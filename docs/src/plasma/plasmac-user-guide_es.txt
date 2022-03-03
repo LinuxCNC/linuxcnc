@@ -143,7 +143,7 @@ Para obtener más información sobre una instalación Run In Place, consulte lin
 Para usar los paquetes buildbot en su computadora, primero agregue la clave de firma del archivo buildbot a su keychain apt ejecutando este comando desde una terminal:
 
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key E0EE663E
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key E0EE663E
 ----
 
 Si obtiene un error como GPG: la recepción del servidor de claves falló: No dirmngr
@@ -160,7 +160,7 @@ Si aún recibe un error al descargar la clave, puede deberse a estar detrás de 
 caso, puede intentar especificar el puerto 80 en lugar de usar el valor predeterminado 11371:
 
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net: 80 --recv-key E0EE663E
+sudo apt-key adv --keyserver hkp://keys.openpgp.org: 80 --recv-key E0EE663E
 ----
 
 Cierre la terminal y, desde el Menú principal, abra el Administrador de paquetes Synaptic.

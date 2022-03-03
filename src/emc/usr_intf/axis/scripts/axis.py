@@ -172,6 +172,8 @@ maxvel_blackout = 0
 jogincr_index_last = 1
 mdi_history_index= -1
 resume_inhibit = 0
+continuous_jog_in_progress = False
+cjogindices = []
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -772,6 +774,14 @@ class LivePlotter:
             print "error", detail
             del self.stat
             return
+
+        global continuous_jog_in_progress,cjogindices
+        if continuous_jog_in_progress and not manual_tab_visible():
+            jjogmode = get_jog_mode()
+            for idx in cjogindices:
+                 c.jog(linuxcnc.JOG_STOP, jjogmode,idx)
+            continuous_jog_in_progress = 0
+            cjogindices = []
 
         if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
             and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
@@ -2346,8 +2356,11 @@ class TclCommands(nf.TclCommands):
     def task_stop(*event):
         if s.task_mode == linuxcnc.MODE_AUTO and vars.running_line.get() != 0:
             o.set_highlight_line(vars.running_line.get())
+        comp["abort"] = True
         c.abort()
         c.wait_complete()
+        time.sleep(0.3)
+        comp["abort"] = False
 
     def mdi_up_cmd(*args):
         if args and args[0].char: return   # e.g., for KP_Up with numlock on
@@ -3207,8 +3220,9 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_INCREMENT, jjogmode, a, b, distance)
         jog_cont[a] = False
     else:
-        global continuous_jog_in_progress
-        continuous_jog_in_progress = 1
+        global continuous_jog_in_progress,cjogindices
+        continuous_jog_in_progress = True
+        if not a in cjogindices: cjogindices.append(a)
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
@@ -3220,7 +3234,7 @@ def jog_off(a):
 
 def jog_off_actual(a):
     global continuous_jog_in_progress
-    continuous_jog_in_progress = 0
+    continuous_jog_in_progress = False
     if not manual_ok(): return
     jog_after[a] = None
     jogging[a] = 0
@@ -3298,7 +3312,7 @@ max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or 
 max_feed_override = int(max_feed_override * 100 + 0.5)
 max_spindle_override = int(max_spindle_override * 100 + 0.5)
 default_spindle_speed = int(inifile.find("DISPLAY", "DEFAULT_SPINDLE_SPEED") or 1)
-geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZBCUVW"
+geometry = inifile.find("DISPLAY", "GEOMETRY") or "XYZABCUVW"
 geometry = re.split(" *(-?[XYZABCUVW])", geometry.upper())
 geometry = "".join(reversed(geometry))
 
@@ -3845,6 +3859,7 @@ if hal_present == 1 :
     comp.newpin("notifications-clear-error",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("resume-inhibit",hal.HAL_BIT,hal.HAL_IN)
     comp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
+    comp.newpin("abort", hal.HAL_BIT, hal.HAL_OUT)
 
     vars.has_ladder.set(hal.component_exists('classicladder_rt'))
 

@@ -17,6 +17,15 @@ in the experimental "weblate" interface.
 If you are working by hand, you can also update just a single pofile:
     msgmerge -U xx.po linuxcnc.pot
 
+To merge a po-file e.g. from the master into the current branch:
+
+    msgcat master.po current.po -o new.po
+
+To compare the real changes without the changed line numbers in comments, you can create a file without comments in this way:
+    grep -v ^# language.po > language_wo_comments.po
+or
+    msgcat language.po --no-location > language_wo_comments.po
+
 When you are done, "git commit" the new .po file.  If you have push access,
 "git push".  Otherwise, format your changes as a patch with "git format-patch"
 and send it to the emc-developers mailing list or create a Pull Request on GitHub.
@@ -25,8 +34,8 @@ and send it to the emc-developers mailing list or create a Pull Request on GitHu
 Graphical tools for editing .po files
 =====================================
 On Dapper there seem to be three graphical front-ends for editing .po files:
-- gtranslator (a part of the Gnome desktop),
-- lokalize (former kbabel as part of KDE) and
+- lokalize (recommend - former kbabel as part of KDE)
+- gtranslator (a part of the Gnome desktop) and
 - poedit
 
 

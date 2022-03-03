@@ -15,6 +15,8 @@
 #
 #################################################################################
 
+import hal
+
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtProperty
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -39,6 +41,7 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     def __init__(self, parent=None):
         super(StatusSlider, self).__init__(parent)
         self._block_signal = False
+        self._halpin_option = True
         self.rapid = True
         self.feed = False
         self.spindle = False
@@ -69,11 +72,21 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
             self.setMaximum(int(INFO.MAX_TRAJ_VELOCITY))
         else:
             LOG.error('{} : no option recognised'.format(self.HAL_NAME_))
+        if self._halpin_option:
+            self.hal_pin = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_), hal.HAL_FLOAT, hal.HAL_OUT)
 
         # connect a signal and callback function to the button
         self.valueChanged.connect(self._action)
 
+    # catch any programmed settings and update HAL pin
+    def setValue(self, v):
+        super(StatusSlider, self).setValue(v)
+        if self._halpin_option:
+            self.hal_pin.set(v)
+
     def _action(self, value):
+        if self._halpin_option:
+            self.hal_pin.set(value)
         if self.rapid:
             ACTION.SET_RAPID_RATE(value)
         elif self.feed:
@@ -159,6 +172,14 @@ class StatusSlider(QtWidgets.QSlider, _HalWidgetBase):
     def resetmax_velocity(self):
         self.max_velocity = False
 
+    def set_halpin_option(self, value):
+        self._halpin_option = value
+    def get_halpin_option(self):
+        return self._halpin_option
+    def reset_halpin_option(self):
+        self._halpin_option = True
+
+    halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     rapid_rate = pyqtProperty(bool, getrapid, setrapid, resetrapid)
     feed_rate = pyqtProperty(bool, getfeed, setfeed, resetfeed)
     spindle_rate = pyqtProperty(bool, getspindle, setspindle, resetspindle)

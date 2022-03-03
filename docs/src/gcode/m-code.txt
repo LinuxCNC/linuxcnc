@@ -334,10 +334,10 @@ cutters and wire spark eroders but it is not limited to such applications.
 == M61 Set Current Tool
 (((M61 Set Current Tool)))
 
-* 'M61 Q-' - change the current tool number while in MDI or Manual mode without
-             a tool change. One use is when you power up LinuxCNC with a tool
-             currently in the spindle you can set that tool number without
-             doing a tool change.
+* 'M61 Q-' - change the current tool number without a tool change. One use is
+             when you power up LinuxCNC with a tool currently in the spindle,
+             you can then set that tool number without doing a tool change.
+             M61 Q0 will set the spindle to the tool-unloaded state. 
 
 [WARNING]
 The tool length offset is not changed by 'M61', use '<<gcode:g43,G43>>' after

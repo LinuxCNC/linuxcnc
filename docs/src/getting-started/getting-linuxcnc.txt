@@ -39,11 +39,12 @@ Image.
 
 For x86 PCs Download the Live/Install CD by clicking here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso
+http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip
+http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
+to 2.8.2 )
 
 This can be installed using the normal Pi
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
@@ -76,13 +77,13 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-buster.iso.zsync
+http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 ----
 +
 or
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.0-pi4.zip.zsync
+zsync http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip.zsync
 ----
 
 .zsync in Windows
@@ -99,19 +100,19 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . After downloading, verify the checksum of the image to ensure integrity.
 +
 ----
-md5sum linuxcnc-2.8.0-buster.iso
+md5sum linuxcnc-2.8.2-buster.iso
 ----
 +
 or
 +
 ----
-sha256sum linuxcnc-2.8.0-buster.iso
+sha256sum linuxcnc-2.8.2-buster.iso
 ----
 . Then compare to these checksums
 +
 -----
-md5sum: 41b71c4956c0c89033a99a590ebaefec
-sha256sum: a542092aa9f399d3ad50bbb2f0f4dd63ad9332c23d8387f6061bdd186d1df3b0
+md5sum: 4496eae88a1d66f457205d0d5b69c3c2
+sha256sum: 94a6dc7ef12fbdc0bafd9259ce36797a8b3410ad22e73c4ab57b8e937a924e1a
 -----
 
 .Verify md5sum on Windows or Mac
@@ -142,7 +143,7 @@ used to boot a computer.  The image is too large to fit on a CD.
   then use this command:
 +
 -----
-dd if=linuxcnc-2.8.0-buster.iso of=/dev/sde
+dd if=linuxcnc-2.8.2-buster.iso of=/dev/sde
 -----
 
 .Writing the image to a USB storage device in Mac OSX
@@ -355,13 +356,15 @@ uname -v
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
 +
 ----
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+ echo deb-src http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -396,13 +399,15 @@ at system shut-down.
   necessary if switching the realtime mode of a LinuxCNC Live-CD image)
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add the apt repository:
 +
 ----
- echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
+ echo deb-src http://linuxcnc.org/ buster base 2.8-rt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
 ----
 
 . Update the package list from linuxcnc.org
@@ -410,21 +415,12 @@ sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
 ----
 sudo apt-get update
 ----
-. Install the RTAI kernel
-+
-----
-sudo apt-get install linux-image-4.14.174-rtai-amd64
-----
-. Install the RTAI application layer
-+
-----
-sudo apt-get install rtai-modules-4.14.174
-----
-. Install linuxcnc (a reboot may be required prior to installing)
+. Install the new realtime kernel, RTAI and the rtai version of linuxcnc
 +
 ----
 sudo apt-get install linuxcnc
 ----
+Reboot the machine, ensuring that the system boots from the new 4.19.195-rtai kernel.
 
 === Installing on Raspbian 10
 
@@ -434,12 +430,13 @@ sudo apt-get install linuxcnc
 . Add the LinuxCNC Archive Signing Key to your apt keyring
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 . Add the apt repository:
 +
 -----
- echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee -a /etc/apt/sources.list.d/linuxcnc.list
+ echo deb http://linuxcnc.org/ buster base 2.8-rtpreempt | sudo tee /etc/apt/sources.list.d/linuxcnc.list
 -----
 . Update the package list from linuxcnc.org
 +
@@ -478,7 +475,8 @@ sudo apt-get dist-upgrade
 . Add the LinuxCNC Archive Signing Key to your apt keyring by running
 +
 ----
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-key 3cb9fd148f374fef
+sudo apt-key adv --keyserver hkp://keys.openpgp.org --recv-key 3cb9fd148f374fef
+Alternate keyserver: keyserver.ubuntu.com
 ----
 
 . Add a new apt source
