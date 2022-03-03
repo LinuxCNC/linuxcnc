@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <unistd.h>
+#include <fstream>
 
 // local library includes
 #include "./pendant.h"
@@ -749,11 +750,11 @@ void Hal::setStart(bool enabled)
     if (requestAutoMode(enabled))
     {
         if (enabled)
-    {
-        toggleStartResumeProgram();
+        {
+            toggleStartResumeProgram();
+        }
+        setPin(enabled, KeyCodes::Buttons.start.text);
     }
-    setPin(enabled, KeyCodes::Buttons.start.text);
-}
 
     if (!enabled)
     {
@@ -795,6 +796,24 @@ void Hal::clearStartResumeProgramStates()
     *memory->out.doRunProgram      = false;
     *memory->out.doResumeProgram   = false;
 }
+
+void Hal::checkState(bool state, hal_bit_t *pin)
+{
+    // 500 milliseconds timeout
+    unsigned int timeouts=500;
+    unsigned int timeoutMs=1;
+    do
+    {
+        if (state == *pin)
+        {
+            usleep(timeoutMs * 1000);
+        }
+        else
+        {
+            break;
+        }
+    } while ((state == *pin) && (--timeouts) > 0);
+}
 // ----------------------------------------------------------------------
 void Hal::toggleStartResumeProgram()
 {
@@ -803,17 +822,21 @@ void Hal::toggleStartResumeProgram()
         *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = true;
-    }
-    if (*memory->in.isProgramRunning)
+        checkState(true, memory->in.isProgramPaused);
+        *memory->out.doResumeProgram = false;
+    } else if (*memory->in.isProgramRunning)
     {
         *memory->out.doPauseProgram  = true;
+        checkState(false, memory->in.isProgramPaused);
+        *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = false;
-    }
-    if (*memory->in.isProgramIdle)
+    } else if (*memory->in.isProgramIdle)
     {
         *memory->out.doPauseProgram  = false;
         *memory->out.doRunProgram    = true;
+        checkState(false, memory->in.isProgramRunning);
+        *memory->out.doRunProgram    = false;
         *memory->out.doResumeProgram = false;
     }
 }
@@ -1335,8 +1358,8 @@ void Hal::setJogCounts(const HandWheelCounters& counters)
     *memory->out.axisAJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_A);
     *memory->out.axisBJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_B);
     *memory->out.axisCJogCounts = counters.counts(HandWheelCounters::CounterNameToIndex::AXIS_C);
-        requestManualMode(false);
-        requestTeleopMode(false);
+    requestManualMode(false);
+    requestTeleopMode(false);
 }
 // ----------------------------------------------------------------------
 void Hal::setFunction(bool enabled)
@@ -1373,6 +1396,7 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
 {
     if (isRisingEdge)
     {
+        bool rv;
         if (true == *modeFeedbackPin)
         {
             // shortcut for mode request which is already active
@@ -1381,15 +1405,16 @@ bool Hal::requestMode(bool isRisingEdge, hal_bit_t *requestPin, hal_bit_t * mode
         // request mode
         *requestPin = true;
         usleep(mHalRequestProfile.mode.holdMs * 1000);
+        rv = waitForRequestedMode(modeFeedbackPin);
         *requestPin = false;
         usleep(mHalRequestProfile.mode.spaceMs * 1000);
-        return waitForRequestedMode(modeFeedbackPin);
+        return rv;
     }
     else
     {
-      // on button released always clear request
-      *requestPin = false;
-      return false;
+        // on button released always clear request
+        *requestPin = false;
+        return false;
     }
     return false;
 }
@@ -1403,6 +1428,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     useconds_t   timeoutMs   = mHalRequestProfile.mode.modeCheckLoopTimeoutMs;
     unsigned int maxTimeouts = mHalRequestProfile.mode.modeCheckLoops;
     unsigned int timeouts    = maxTimeouts;
+
     do
     {
         if (false == *condition)
@@ -1417,7 +1443,7 @@ bool Hal::waitForRequestedMode(volatile hal_bit_t * condition)
     if (false == *condition)
     {
         auto delay = (maxTimeouts - timeouts) * timeoutMs;
-        std::cerr << "hal   failed to wait for reqested mode. waited " << delay << "ms\n";
+        std::cerr << "hal   failed to wait for requested mode. waited " << delay << "ms\n";
         return false;
     }
     else
