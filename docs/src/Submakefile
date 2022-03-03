@@ -336,7 +336,6 @@ DOTFILES=$(shell find . -name "*.dot") $(shell find ../docs/src/ -name "*.dot")
 .PHONY: svgs_made_from_dots
 svgs_made_from_dots: $(DOTFILES:.dot=.svg)
 
-docs: gen_complist
 ifeq ($(BUILD_DOCS_PDF),yes)
 docs: pdfdocs
 install-doc: install-doc-pdf

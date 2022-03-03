@@ -72,14 +72,14 @@ def generate_complist(complist_path):
         file3.write('|=======================\n')
     file3.close()
 
-    generate_links(gen1_filename, '1', False)
-    generate_links(gen9_filename, '9', False)
+    generate_links(gen1_filename, '1', False, True)
+    generate_links(gen9_filename, '9', False, True)
 
     print('gen_complist: Added {} uncategorized and {} obsolete entries to hal component list (man1)'.format(len(miss1), len(obs1)))
     print('gen_complist: Added {} uncategorized and {} obsolete entries to hal component list (man9)'.format(len(miss9), len(obs9)))
 
 
-def generate_links(filename, manpage='1', create_backup=True):
+def generate_links(filename, manpage='1', create_backup=True, add_descr=False):
     file = open(filename, 'r')
     file_links = []
     links_added = 0
@@ -99,7 +99,11 @@ def generate_links(filename, manpage='1', create_backup=True):
                 if comp in man[manpage]:
                     line = line.replace(comp, 'link:../man/man'+manpage+'/'+comp+'.'+manpage+'.html['+comp+']', 1)
                     links_added += 1
-
+                    if add_descr:
+                        splitted = line.split('|')
+                        splitted[2] = extract_descr('../docs/man/man'+manpage+'/'+comp+'.'+manpage)\
+                        .replace(comp, '',1).strip('\n -')
+                        line = '|'.join(splitted)
         file_links.append(line)
 
     file.close()
@@ -114,11 +118,25 @@ def generate_links(filename, manpage='1', create_backup=True):
         print('gen_complist_links: Added {} link(s) to {}'.format(links_added, filename))
 
 
+def extract_descr(filename):
+    file = open(filename, 'r')
+    descr = ''
+    in_descr = False
+    
+    for line in file:
+        if '.SH NAME' in line or '.SH "NAME' in line:
+            in_descr = True
+        elif '.SH' in line:
+            break
+        elif in_descr:
+            descr += line
+    file.close()
+    return re.sub(r'\\fB|\\fR|\\fI|\\', '', descr)
+
 if __name__ == "__main__":
 
     if len(sys.argv) > 1:
-        if len(sys.argv) > 2:
-            if sys.argv[2] == 'links':
-                generate_links(sys.argv[1])
+        if 'links' in sys.argv:
+            generate_links(sys.argv[1])
         else:
             generate_complist(sys.argv[1])
