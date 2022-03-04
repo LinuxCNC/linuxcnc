@@ -2170,16 +2170,16 @@ class gmoccapy(object):
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 title = "Pin " + message[2] + " message"
-                responce = self.dialogs.show_user_message(self, message[0], title)
+                response = self.dialogs.show_user_message(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         elif message[1] == "yesnodialog":
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 self.halcomp["messages." + message[2] + "-response"] = 0
                 title = "Pin " + message[2] + " message"
-                responce = self.dialogs.yesno_dialog(self, message[0], title)
+                response = self.dialogs.yesno_dialog(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
-                self.halcomp["messages." + message[2] + "-response"] = responce
+                self.halcomp["messages." + message[2] + "-response"] = response
             else:
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         else:

@@ -119,9 +119,9 @@ class Dialogs(GObject.GObject):
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == Gtk.ResponseType.OK
+        return response == Gtk.ResponseType.OK
 
     def yesno_dialog(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
@@ -133,9 +133,9 @@ class Dialogs(GObject.GObject):
         dialog.set_markup(message)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == Gtk.ResponseType.YES
+        return response == Gtk.ResponseType.YES
 
     def show_user_message(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
@@ -147,9 +147,9 @@ class Dialogs(GObject.GObject):
         dialog.set_markup(message)
         dialog.show_all()
         self.emit("play_sound", "alert")
-        responce = dialog.run()
+        response = dialog.run()
         dialog.destroy()
-        return responce == Gtk.ResponseType.OK
+        return response == Gtk.ResponseType.OK
 
     # dialog for run from line
     def restart_dialog(self, caller):

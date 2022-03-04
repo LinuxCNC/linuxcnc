@@ -834,7 +834,7 @@ All are HAL_BIT pin.
 
 * gmoccapy.messages.yesnodialog
 * gmoccapy.messages.yesnodialog-waiting
-* gmoccapy.messages.yesnodialog-responce
+* gmoccapy.messages.yesnodialog-response
 
 'Okdialog'
 
