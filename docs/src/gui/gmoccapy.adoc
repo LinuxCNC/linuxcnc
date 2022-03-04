@@ -807,10 +807,11 @@ pin is exported.
 The settings page is unlocked if the pin is high.
 To use this pin, you need to activate it on the settings page.
 
-=== Error Pins
+=== Error/Warning Pins
 
- * gmoccapy.error
- * gmoccapy.delete-message
+ * gmoccapy.error _BIT OUT_
+ * gmoccapy.delete-message _BIT IN_
+ * gmoccapy.warning-confirm _BIT IN_ Confirms warning dialog like click on OK
 
 gmoccapy.error is an bit out pin, to indicate an error, so a light can lit or even the machine may
 be stopped. It will be reset with the pin gmoccapy.delete-message. gmoccapy.delete-message will
@@ -895,21 +896,22 @@ There are three pins giving information over the program progress
 The values may not be very accurate, if you are working with subroutines or
 large remap procedures, also loops will cause different values.
 
-=== Tool related pin
+=== Tool related pins
 
-.Tool Change Pin
+.Tool Change Pins
 
-This pin are provided to use gmoccapy's internal tool change dialog, similar to
-the one known from axis, but with several modifications, so you will not only
+These pins are provided to use gmoccapy's internal tool change dialog, similar to
+the one known from axis, but with several modifications. So you will not only
 get the message to change to 'tool number 3', but also the description of that
 tool like '7.5 mm 3 flute cutter'. The information is taken from the tool
 table, so it is up to you what to display.
 
 image::images/manual_toolchange.png[align="left"]
 
-* gmoccapy.toolchange-number HAL_S32 The number of the tool to be changed
-* gmoccapy.toolchange-change HAL_BIT Indicate that a tool has to be changed
-* gmoccapy.toolchange-changed HAL_BIT Indicate toll has been changed
+* gmoccapy.toolchange-number _S32 IN_ The number of the tool to be changed
+* gmoccapy.toolchange-change _BIT IN_ Indicates that a tool has to be changed
+* gmoccapy.toolchange-changed _BIT OUT_ Indicates tool has been changed
+* gmoccapy.toolchange-confirm _BIT IN_ Confirms tool change
 
 Usually they are connected like this for a manual tool change:
 
@@ -925,7 +927,7 @@ Please take care, that this connections have to be done in the postgui hal file!
 
 .Tool Offset Pins
 
-This pins allows you to show the active tool offset values for X and Z in the
+These pins allow you to show the active tool offset values for X and Z in the
 tool information frame. You should know that they are only active after G43
 has been sent.
 
