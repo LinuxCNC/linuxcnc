@@ -4051,8 +4051,8 @@ class gmoccapy(object):
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
             if self.file_changed:
-                message = "Do you want to exit without saving the changes?"
-                result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
+                message = _("Exit and discard changes?")
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
                 if not result: # user says no, he want to save
                     return
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
@@ -4795,9 +4795,9 @@ class gmoccapy(object):
         self.gcodeerror = ""
         self.file_changed = False
 
-    def on_gcode_view_changed(self, state):
-        print("gcode view changed")
-        self.file_changed = True
+    def on_gcode_view_changed(self, widget, state):
+        print("gcode view changed (modified: {})".format(state))
+        self.file_changed = state
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode

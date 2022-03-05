@@ -41,7 +41,7 @@ from .hal_filechooser import _EMC_FileChooser
 class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
     __gsignals__ = {
-        'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
     }
 
     __gproperties__ = {
@@ -58,6 +58,7 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         self.buf = self.get_buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
+        self.buf.connect('modified-changed', self.modified_changed)
         self.lm = GtkSource.LanguageManager()
         self.sm = GtkSource.StyleSchemeManager()
         if 'EMC2_HOME' in os.environ:
@@ -207,12 +208,15 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     def update_iter(self,widget=None):
         self.start_iter =  self.buf.get_start_iter()
         self.end_iter = self.buf.get_end_iter()
-        # get itter at current insertion point (cursor)
+        # get iter at current insertion point (cursor)
         self.current_iter = self.buf.get_iter_at_mark(self.buf.get_insert())
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
-        self.emit("changed")
+
+    def modified_changed(self, widget):
+        self.update_iter()
+        self.emit("changed", self.buf.get_modified())
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
