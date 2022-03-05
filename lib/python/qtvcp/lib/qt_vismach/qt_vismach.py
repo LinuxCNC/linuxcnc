@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
 
 import OpenGL.GL as GL
 from OpenGL import GLU
-from .primitives import *
+from qtvcp.lib.qt_vismach.primitives import *
 
 
 class Window(QWidget):

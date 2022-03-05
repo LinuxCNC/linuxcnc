@@ -5,7 +5,7 @@
 
 import sys
 import hal
-from .qt_vismach import *
+from qtvcp.lib.qt_vismach.qt_vismach import *
 
 # ---------------------------------------------------------------------------------------------------------------------------------- Starting and defining
 
