@@ -210,6 +210,7 @@ class gmoccapy(object):
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
 
         self.file_changed = False
+        self.widgets.hal_action_saveas.connect("saved-as", self.saved_as)
 
         self.lathe_mode = None # we need this to check if we have a lathe config
         self.backtool_lathe = False
@@ -4760,6 +4761,9 @@ class gmoccapy(object):
             # self.command.program_open(tempfilename)
         self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
+
+    def saved_as(self, widget):
+        self.widgets.btn_save.set_sensitive(True)
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
         opt_blocks = widget.get_active()
