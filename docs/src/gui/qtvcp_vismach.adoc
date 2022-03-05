@@ -54,8 +54,8 @@ from qtvcp.lib.qt_vismach.qt_vismach import *
 
 Originally the vismach library required creating a component and connecting HAL pins +
 to control the simulation. +
-qt_vismach can read the system HAL pins directly or use the original paragram +
-If you wish to use separate HAL pins you must make a co[onent to own them: +
+qt_vismach can read the system HAL system pins directly or +
+if you wish, to use separate HAL pins that you must define in a HAL component: +
 
 [source,python]
 ----
@@ -153,28 +153,27 @@ they need to have their HAL motions defined before being assembled with the
 part as it is moved by the vismach script during model assembly, or as it moves
 in response to the HAL pins as the model is animated.
 
- part = HalTranslate([part], None, "hal_pin_name", xs, ys, zs, direct=1)
+ part = HalTranslate([part], None, "hal_pin_name", xs, ys, zs)
 
 The function arguments are first a collection/part which can be pre-created
 earlier in the script, or could be created at this point if preferred eg
 part1 = HalTranslate([Box(....)], ...).
 The the HAL component is the next argument +
-In qtvcp if you are reading system pins directly then this is not required so is set to 'None" +
-also 'direct = 1' is set' 
+In qtvcp if you are reading system pins directly then the component argument is set to 'None" +
 After that is the name of the HAL pin that will animate the motion. + 
 This needs to match an existing HAL pin that describes the joint position such as: +
 ----
 "joint.2.pos-fb"
 ----
 Otherwise the component instance would be specified and the pin name of that component +
-would be specified and 'direct =' would not be set.
+would be specified.
 
 Then follow the X, Y, Z scales. For a Cartesian machine created at 1:1 scale
 this would typically be 1,0,0 for a motion in the positive X direction. However
 if the STL file happened to be in cm and the machine was in inches, this
 could be fixed at this point by using 0.3937 (1cm /2.54in) as the scale.
 
- part = HalRotate([part], None, "hal_pin_name", angle_scale, x, y, z, direct=1)
+ part = HalRotate([part], None, "hal_pin_name", angle_scale, x, y, z)
 
 This command is similar in its operation to HalTranslate except that it is
 typically necessary to move the part to the origin first to define the axis.
@@ -301,7 +300,7 @@ tooltip = Capture()
 # Build and assemble the model
 part1 = Collection([Box(-6,-3,94,6,3,100)])
 part1 = Color([1,1,1,1],[part1])
-part1 = HalRotate([part1],None,"joint.0.pos-fb",360,0,0,1, direct = 1)
+part1 = HalRotate([part1],None,"joint.0.pos-fb",360,0,0,1)
 part1 = Translate([dogs],-1,49,0)
 
 # create a top-level model
