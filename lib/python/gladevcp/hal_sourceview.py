@@ -341,6 +341,9 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
 
 class EMC_Action_SaveAs(EMC_Action_Save):
     __gtype_name__ = 'EMC_Action_SaveAs'
+    __gsignals__ = {
+        'saved-as': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+    }
 
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
@@ -363,3 +366,4 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         if r == Gtk.ResponseType.OK:
             self.save(fn)
             self.currentfolder = os.path.dirname(fn)
+            self.emit('saved-as')
