@@ -104,6 +104,7 @@ DOC_SRCS_EN := \
 	gui/qtvcp_VCPpanels.adoc \
 	gui/qtvcp_widgets.adoc \
 	gui/qtvcp_libraries.adoc \
+	gui/qtvcp_vismach.adoc \
 	gui/qtvcp_custom_widgets.adoc \
 	gui/qtvcp_code_snippets.adoc \
 	gui/qtvcp_development.adoc \

@@ -808,3 +808,61 @@ In the 'GENERAL FUNCTIONS SECTION' ADD: +
    def my_function(self, widget, state):
         print 'My function State = ()'.format(state)
 ----
+
+== QT Vismach Machine Graphics library
+
+Qt_vismach is a set of Python functions that can be used to create and animate models of machines. +
+Vismach displays the model in a 3D viewport and the model parts are animated as the values of associated +
+HAL pins change. +
+This is the Qt based version of the library, there is also a tkinter version available in linuxcnc. +
+the Qt version allows embedding the simulation in other screens. +
+
+=== Builtin Samples
+
+There are included sample panels in QTvcp for a 3 axis XYZ mill and a scara mill. +
+These samples, if loaded after a running linuxcnc configuration (including non-QTvcp based screens), +
+will react to machine movement. +
+
+from a terminal: +
+
+----
+qtvcp vismach_mill_xyz
+----
+
+or +
+
+----
+qtvcp vismach_scara
+----
+
+=== Importing and Initiating
+
+Here is how one might import the XYZ_mill simulation in a qtvcp panel or screen handler file. +
+
+Import the Mill library:
+[source,python]
+----
+############################
+# **** IMPORT SECTION **** #
+############################
+
+import mill_xyz as MILL
+----
+
+instantiate the simulation widget and add it to the screen's main layout: +
+[source,python]
+----
+    ##########################################
+    # Special Functions called from QTVCP
+    ##########################################
+
+    # at this point:
+    # the widgets are instantiated.
+    # the HAL pins are built but HAL is not set ready
+    def initialized__(self):
+        machine = MILL.Window()
+        self.w.mainLayout.addWidget(machine)
+----
+=== More Information
+More information on how to build a custom machine simulation.
+<<cha:qtvcp-vismach,QtVCP Vismach>>
