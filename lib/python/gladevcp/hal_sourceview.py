@@ -46,6 +46,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.buf = gtksourceview.Buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
+        self.buf.connect('modified-changed', self.modified_changed)
         self.set_buffer(self.buf)
         self.lm = gtksourceview.LanguageManager()
         self.sm = gtksourceview.StyleSchemeManager()
@@ -206,6 +207,9 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
+
+    def modified_changed(self,widget):
+        self.update_iter()
         self.emit("changed")
 
     # This will search the buffer for a specified text string.
