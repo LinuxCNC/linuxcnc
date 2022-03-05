@@ -188,7 +188,7 @@ xassembly = Translate([xassembly], 0, 0, 35)
 # since this moves solely on X axis, only x is 1, rest is zero.
 # you could use fractions for say axis that moves in compound like arm for example
 # but this machine is very simple, so all axis will be purely full on axis and zero on other axis.
-xassembly = HalTranslate([xassembly], c, "joint.0.pos-fb", MODEL_SCALING, 0, 0, direct=1)
+xassembly = HalTranslate([xassembly], c, "joint.0.pos-fb", MODEL_SCALING, 0, 0)
 
 # Y assembly creation
 ybase = BoxCentered(200, 200, 10)
@@ -201,7 +201,7 @@ ybase = Color([0, 1, 0, 1], [ybase])
 # now define collection of ybase and xassembly.
 yassembly = Collection([ybase, xassembly])
 # define its motion first before translate.
-yassembly = HalTranslate([yassembly], c, "joint.1.pos-fb", 0, MODEL_SCALING, 0, direct=1)
+yassembly = HalTranslate([yassembly], c, "joint.1.pos-fb", 0, MODEL_SCALING, 0)
 # Now that translate is locked with part, 
 # move it upwards so its on frame base.
 yassembly = Translate([yassembly], 0, 0, 5)
@@ -225,7 +225,7 @@ tooltip = Capture()
 # Now that we have tooltip, let's attach it to cylinder function (see above)
 # it creates cylinder then translates tooltip to end of it.
 tool = Collection([
-    Translate([HalTranslate([tooltip], c, "motion.tooloffset.z", 0, 0, -MODEL_SCALING, direct=1)], 0, 0, 0),
+    Translate([HalTranslate([tooltip], c, "motion.tooloffset.z", 0, 0, -MODEL_SCALING)], 0, 0, 0),
     HalToolCylinder(toolshape)
 ])
 
@@ -252,7 +252,7 @@ zframe = Color([1, 1, 0, 1], [zframe])
 # Now that all parts are created, let's group it and finally make Z motion
 zassembly = Collection([zframe, toolassembly])
 # define Z motion
-zassembly = HalTranslate([zassembly], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING, direct=1)
+zassembly = HalTranslate([zassembly], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING)
 # Now that motion is defined,
 # we can now move it to Z home position.
 zassembly = Translate([zassembly], 0, 0, 400)

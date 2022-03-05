@@ -66,22 +66,22 @@ class Scale(Collection):
 
 
 class HalTranslate(Collection):
-    def __init__(self, parts, comp, var, x, y, z, direct=None):
+    def __init__(self, parts, comp, var, x, y, z):
         self.parts = parts
         self.where = x, y, z
         self.comp = comp
         self.var = var
-        self.direct = direct
 
     def apply(self):
         x, y, z = self.where
-        if self.direct is None:
-            v = self.comp[self.var]
-        else:
-            try:
+        try:
+            if self.comp is None:
                 v = hal.get_value(self.var)
-            except:
-                v = 0
+            else:
+                v = self.comp[self.var]
+        except:
+            v = 0
+
         GL.glPushMatrix()
         GL.glTranslatef(x * v, y * v, z * v)
 
@@ -90,23 +90,23 @@ class HalTranslate(Collection):
 
 
 class HalRotate(Collection):
-    def __init__(self, parts, comp, var, th, x, y, z, direct=None):
+    def __init__(self, parts, comp, var, th, x, y, z):
         self.parts = parts
         self.where = th, x, y, z
         self.comp = comp
         self.var = var
-        self.direct = direct
 
     def apply(self):
         th, x, y, z = self.where
         GL.glPushMatrix()
-        if self.direct is None:
-            v = self.comp[self.var]
-        else:
-            try:
+        try:
+            if self.comp is None:
                 v = hal.get_value(self.var)
-            except:
-                v = 0
+            else:
+                v = self.comp[self.var]
+        except:
+            v = 0
+
         GL.glRotatef(th * v, x, y, z)
 
     def unapply(self):
@@ -200,7 +200,11 @@ class CoordsBase(object):
         return list(map(self._coord, self._coords))
 
     def _coord(self, v):
-        if isinstance(v, str): return self.comp[v]
+        if isinstance(v, str):
+            if self.comp is None:
+                return hal.get_value(v)
+            else:
+                return self.comp[v]
         return v
 
 
