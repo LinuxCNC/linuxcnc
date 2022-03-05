@@ -290,7 +290,7 @@ def safe_write(filename, data, mode=0o644):
     import os, tempfile
     fd, fn = tempfile.mkstemp(dir=os.path.dirname(filename), prefix=os.path.basename(filename))
     try:
-        os.write(fd, data)
+        os.write(fd, data.encode())
         os.close(fd)
         fd = None
         os.rename(fn, filename)
@@ -321,7 +321,7 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
     def save(self, fn):
         b = self.textview.get_buffer()
         b.set_modified(False)
-        safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter()))
+        safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter(), False))
         self._load_file(fn)
 
     def do_set_property(self, property, value):
@@ -350,8 +350,8 @@ class EMC_Action_SaveAs(EMC_Action_Save):
     def on_activate(self, w):
         if not self.textview:
             return
-        dialog = Gtk.FileChooserDialog(title="Save As",action=Gtk.FILE_CHOOSER_ACTION_SAVE,
-                    buttons=(Gtk.STOCK_CANCEL,Gtk.RESPONSE_CANCEL,Gtk.STOCK_SAVE,Gtk.ResponseType.OK))
+        dialog = Gtk.FileChooserDialog(title="Save As",action=Gtk.FileChooserAction.SAVE,
+                    buttons=(Gtk.STOCK_CANCEL,Gtk.ResponseType.CANCEL,Gtk.STOCK_SAVE,Gtk.ResponseType.OK))
         dialog.set_do_overwrite_confirmation(True)
         dialog.set_current_folder(self.currentfolder)
         if self.textview.filename:

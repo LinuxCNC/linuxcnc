@@ -150,8 +150,6 @@
   <object class="GtkFileFilter" id="filefilter1"/>
   <object class="EMC_Action_Open" id="hal_action_open"/>
   <object class="EMC_Action_Reload" id="hal_action_reload"/>
-  <object class="EMC_Action_Save" id="hal_action_save"/>
-  <object class="EMC_Action_SaveAs" id="hal_action_saveas"/>
   <object class="EMC_Action_Step" id="hal_action_step"/>
   <object class="EMC_Action_Stop" id="hal_action_stop"/>
   <object class="EMC_Stat" id="hal_status">
@@ -171,7 +169,6 @@
     <signal name="state-estop" handler="on_hal_status_state_estop" swapped="no"/>
     <signal name="state-estop-reset" handler="on_hal_status_state_estop_reset" swapped="no"/>
     <signal name="state-off" handler="on_hal_status_state_off" swapped="no"/>
-    <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
     <signal name="state-on" handler="on_hal_status_state_on" swapped="no"/>
     <signal name="tool-in-spindle-changed" handler="on_hal_status_tool_in_spindle_changed" swapped="no"/>
   </object>
@@ -459,6 +456,12 @@
         <col id="0">test2</col>
       </row>
     </data>
+  </object>
+  <object class="EMC_Action_Save" id="hal_action_save">
+    <property name="textview">gcode_view</property>
+  </object>
+  <object class="EMC_Action_SaveAs" id="hal_action_saveas">
+    <property name="textview">gcode_view</property>
   </object>
   <object class="GtkWindow" id="window1">
     <property name="width_request">979</property>
