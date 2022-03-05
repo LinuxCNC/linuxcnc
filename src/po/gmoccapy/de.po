@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: gmoccapy\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 18:54+0100\n"
-"PO-Revision-Date: 2022-02-14 01:56+0000\n"
+"PO-Revision-Date: 2022-03-06 09:58+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1044,7 +1044,9 @@ msgstr "<b>Vorschubüberst.</b>"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "Undo"
-msgstr "Rückgängig"
+msgstr ""
+"Rück-\n"
+"gängig"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
 msgid ""
@@ -1064,7 +1066,9 @@ msgstr ""
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "Redo"
-msgstr "Wiederherstellen"
+msgstr ""
+"Wieder-\n"
+"herstellen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid ""
