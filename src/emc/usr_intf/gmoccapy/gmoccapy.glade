@@ -4420,6 +4420,7 @@
                             <child>
                               <object class="GtkButton" id="btn_undo">
                                 <property name="label" translatable="yes">Undo</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
@@ -4436,6 +4437,7 @@
                               <object class="GtkButton" id="btn_search_back">
                                 <property name="label" translatable="yes">Search
  back</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
@@ -4454,6 +4456,7 @@
                               <object class="GtkButton" id="btn_search_forward">
                                 <property name="label" translatable="yes">Search
   fwd</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
@@ -4471,6 +4474,7 @@
                             <child>
                               <object class="GtkButton" id="btn_redo">
                                 <property name="label" translatable="yes">Redo</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
@@ -4511,6 +4515,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Replace
   Text:</property>
+                                <property name="name">gcode_edit</property>
                               </object>
                               <packing>
                                 <property name="left_attach">7</property>
@@ -4521,6 +4526,7 @@
                               <object class="GtkCheckButton" id="chk_replace_all">
                                 <property name="label" translatable="yes">Replace
    All</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4536,6 +4542,7 @@
                               <object class="GtkCheckButton" id="chk_ignore_case">
                                 <property name="label" translatable="yes">Ignore
  Case</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
@@ -4561,6 +4568,7 @@
                             <child>
                               <object class="GtkButton" id="btn_replace">
                                 <property name="label" translatable="yes">Replace</property>
+                                <property name="name">gcode_edit</property>
                                 <property name="use_action_appearance">False</property>
                                 <property name="height_request">48</property>
                                 <property name="visible">True</property>
@@ -4581,6 +4589,7 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Search
   Text:</property>
+                                <property name="name">gcode_edit</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>

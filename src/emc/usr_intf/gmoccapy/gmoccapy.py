@@ -155,6 +155,10 @@ class gmoccapy(object):
             button {
                 padding: 0;
             }
+            #gcode_edit { 
+                padding: 3px;
+                margin: 1px;
+            }
         """
         provider.load_from_data(css)
 
