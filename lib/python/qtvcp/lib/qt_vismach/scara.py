@@ -18,7 +18,6 @@
 from qtvcp.lib.qt_vismach.qt_vismach import *
 import hal
 import math
-import sys
 
 c = None
 METRIC = 1
@@ -215,6 +214,10 @@ table = Translate([table],0.5*reach,0.0,table_height)
 
 model = Collection([link0, floor, table])
 
+# show a title to prove the HUD
+myhud = Hud()
+myhud.show("Scara")
+
 class Window(QWidget):
 
     def __init__(self):
@@ -223,9 +226,11 @@ class Window(QWidget):
         v = self.glWidget
         v.set_latitudelimits(-360, 360)
         size = max(d1+d3+l3_len,d2+d4+d6)
+
+        v.hud = myhud
+        v.hud.app = v #HUD needs to know where to draw
+
         world = Capture()
-        #main(model, tooltip, work, size)
-        #v.model = Collection([model, tooltip, work, size])
         v.model = Collection([model, world])
         v.distance = size * 3
         v.near = size * 0.01
@@ -242,9 +247,5 @@ class Window(QWidget):
 # but it you call this directly it should work too
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import (QApplication, QWidget)
+    main(model, tooltip, work, size=600, hud=myhud, lat=-75, lon=215)
 
-    app = QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())

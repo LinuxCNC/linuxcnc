@@ -3,11 +3,12 @@
 # Rolf Redford, Nov 2018
 # modded for qtvcp Chris Morley 2020
 
-import sys
 import hal
+
+from qtvcp.lib.qt_vismach.primitives import *
 from qtvcp.lib.qt_vismach.qt_vismach import *
 
-# ---------------------------------------------------------------------------------------------------------------------------------- Starting and defining
+#---------------------------------------------------------------------------------------------------------------------------------- # Starting and defining
 
 # model is built in metric
 # if using a imperial config need to scale movement
@@ -257,7 +258,11 @@ zassembly = HalTranslate([zassembly], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING)
 # we can now move it to Z home position.
 zassembly = Translate([zassembly], 0, 0, 400)
 
-# ----------------------------------------------------------------------------------------------------------------------------------
+# show a title to prove the HUD
+myhud = Hud()
+myhud.show("Mill_XYZ")
+
+# ------------------------------------------------------------------------------------
 # Getting it all together and finishing model
 
 # Assembly everything into single model.
@@ -284,6 +289,9 @@ class Window(QWidget):
         v = self.glWidget
         v.set_latitudelimits(-180, 180)
 
+        v.hud = myhud
+        v.hud.app = v #HUD needs to know where to draw
+
         world = Capture()
 
         v.model = Collection([model, world])
@@ -303,9 +311,5 @@ class Window(QWidget):
 # but it you call this directly it should work too
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import (QApplication, QWidget)
+    main(model, tooltip, work, size=600, hud=myhud, lat=-75, lon=215)
 
-    app = QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())
