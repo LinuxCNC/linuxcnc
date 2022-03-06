@@ -150,55 +150,6 @@ class Scale(Collection):
     def unapply(self):
         GL.glPopMatrix()
 
-
-class HalTranslate(Collection):
-    def __init__(self, parts, comp, var, x, y, z):
-        self.parts = parts
-        self.where = x, y, z
-        self.comp = comp
-        self.var = var
-
-    def apply(self):
-        x, y, z = self.where
-        try:
-            if self.comp is None:
-                v = hal.get_value(self.var)
-            else:
-                v = self.comp[self.var]
-        except:
-            v = 0
-
-        GL.glPushMatrix()
-        GL.glTranslatef(x * v, y * v, z * v)
-
-    def unapply(self):
-        GL.glPopMatrix()
-
-
-class HalRotate(Collection):
-    def __init__(self, parts, comp, var, th, x, y, z):
-        self.parts = parts
-        self.where = th, x, y, z
-        self.comp = comp
-        self.var = var
-
-    def apply(self):
-        th, x, y, z = self.where
-        GL.glPushMatrix()
-        try:
-            if self.comp is None:
-                v = hal.get_value(self.var)
-            else:
-                v = self.comp[self.var]
-        except:
-            v = 0
-
-        GL.glRotatef(th * v, x, y, z)
-
-    def unapply(self):
-        GL.glPopMatrix()
-
-
 class Rotate(Collection):
     def __init__(self, parts, th, x, y, z):
         self.parts = parts
@@ -985,3 +936,91 @@ class AsciiOBJ:
             del self.vn
             del self.f
         GL.glCallList(self.list)
+
+################################################################
+# animated objects
+################################################################
+
+class HalTranslate(Collection):
+    def __init__(self, parts, comp, var, x, y, z):
+        self.parts = parts
+        self.where = x, y, z
+        self.comp = comp
+        self.var = var
+
+    def apply(self):
+        x, y, z = self.where
+        try:
+            if self.comp is None:
+                v = hal.get_value(self.var)
+            else:
+                v = self.comp[self.var]
+        except:
+            v = 0
+
+        GL.glPushMatrix()
+        GL.glTranslatef(x * v, y * v, z * v)
+
+    def unapply(self):
+        GL.glPopMatrix()
+
+
+class HalRotate(Collection):
+    def __init__(self, parts, comp, var, th, x, y, z):
+        self.parts = parts
+        self.where = th, x, y, z
+        self.comp = comp
+        self.var = var
+
+    def apply(self):
+        th, x, y, z = self.where
+        GL.glPushMatrix()
+        try:
+            if self.comp is None:
+                v = hal.get_value(self.var)
+            else:
+                v = self.comp[self.var]
+        except:
+            v = 0
+
+        GL.glRotatef(th * v, x, y, z)
+
+    def unapply(self):
+        GL.glPopMatrix()
+
+# updates tool cylinder shape.
+class HalToolCylinder(CylinderZ):
+    METRIC = 1
+    IMPERIAL = 25.4
+    MODEL_SCALING = IMPERIAL
+
+    def __init__(self, comp, *args):
+        # get machine access so it can
+        # change itself as it runs
+        # specifically tool cylinder in this case.
+        CylinderZ.__init__(self, *args)
+        self.comp = comp
+
+    def coords(self):
+        # get diameter and divide by 2 to get radius.
+        try:
+            dia = (hal.get_value('halui.tool.diameter') * self.MODEL_SCALING)
+        except:
+            dia = 0
+        rad = dia / 2  # change to rad
+        # this instantly updates tool model but tooltip doesn't move till -
+        # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
+        # Tool will "crash" if h and tool length does not match.
+        try:
+            leng = hal.get_value('motion.tooloffset.z') * self.MODEL_SCALING
+        except:
+            leng = 0
+        # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
+        # commented out as I prefer machine to show actual tool size right away.
+        # leng = self.comp["toollength"]
+        return (-leng, rad, 0, rad)
+
+    def set_tool_scale(self, scale):
+        self.MODEL_SCALING = scale
+
+

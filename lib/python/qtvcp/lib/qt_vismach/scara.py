@@ -42,38 +42,6 @@ d6 =   0.0
 j3min =  40.0
 j3max = 270.0
 
-class HalToolCylinder(CylinderZ):
-    def __init__(self, comp, *args):
-        # get machine access so it can
-        # change itself as it runs
-        # specifically tool cylinder in this case.
-        CylinderZ.__init__(self, *args)
-        self.comp = c
-
-    def coords(self):
-        # update data -  not needed if using 2.8 and self.comp["tooldiameter"]
-        # 2.7 does not have direct pin for diameter so this is workaround. commented out code is direct way to do it.
-        # s.poll() # 2.8 don't need this, comment out if using 2.8.
-        # get diameter and divide by 2 to get radius.
-        # rad = ( s.tool_table[s.tool_in_spindle].diameter ) # 2.7 workaround
-        try:
-            dia = (hal.get_value('halui.tool.diameter') * MODEL_SCALING)
-        except:
-            dia = 0
-        rad = dia / 2  # change to rad
-        # this instantly updates tool model but tooltip doesn't move till -
-        # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
-        # Tool will "crash" if h and tool length does not match.
-        try:
-            leng = hal.get_value('motion.tooloffset.z') * MODEL_SCALING
-        except:
-            leng = 0
-        # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
-        # commented out as I prefer machine to show actual tool size right away.
-        # leng = self.comp["toollength"]
-        return (-leng, rad, 0, rad)
-
-
 # calculate a bunch of other dimensions that are used
 # to scale the model of the machine
 # most of these scale factors are arbitrary, to give
