@@ -106,8 +106,8 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         
         self.dual_color = False
         self.use_bitmaps = False  #this feature is not implemented yet
-        self.light_on_color = Gdk.Color.parse('green')
-        self.light_off_color = Gdk.Color.parse('gray')
+        self.light_on_color = Gdk.Color.parse('green')[1]
+        self.light_off_color = Gdk.Color.parse('gray')[1]
         self.border_width = 6
         self.corner_radius = 4
         self.button_text = 'Button'
@@ -115,8 +115,8 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         self.font_face = 'Sans'
         self.font_bold = False
         self.font_size = 10
-        self.font_on_color = Gdk.Color.parse('black')
-        self.font_off_color = Gdk.Color.parse('black')
+        self.font_on_color = Gdk.Color.parse('black')[1]
+        self.font_off_color = Gdk.Color.parse('black')[1]
         self.create_enable_pin = False
         
         self.active = False
