@@ -587,9 +587,9 @@ void ButtonAbout_click( )
 						"Copyright (C) 2001-2008 Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net\n"
 
 						"http://www.sourceforge.net/projects/classicladder\n"
-						"http://membres.lycos.fr/mavati/classicladder\n"
+						"https://github.com/MaVaTi56/classicladder\n"
 						"Released under the terms of the\nGNU Lesser General Public License v2.1\n"
-						"\nAs adapted to EMC2\n"
+						"\nAs adapted to LinuxCNC\n"
 						"(Chris Morley)\n"
 						"emc-users@lists.sourceforge.net");
 	gtk_label_set_justify( GTK_LABEL(label), GTK_JUSTIFY_CENTER );
