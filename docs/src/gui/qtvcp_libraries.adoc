@@ -863,6 +863,21 @@ This object will perform an openGL rotation calculation on a Collection object, 
 You can either read a pin from a component owned by the vismach object or, +
 if the component argument is set to None, read a HAL system pin directly.
 
+=== HalToolCylinder
+This object will build a CylinderZ object that will change size and length based on 
+loaded tool dimensition (from the tool table) +
+It reads the HAL pins: 'halui.tool.diameter' and 'motion.tooloffset.z'
+
+(from mill_xyz sample)
+----
+toolshape = CylinderZ(0)
+toolshape = Color([1, .5, .5, .5], [toolshape])
+tool = Collection([
+    Translate([HalTranslate([tooltip], None, "motion.tooloffset.z", 0, 0, -MODEL_SCALING)], 0, 0, 0),
+    HalToolCylinder(toolshape)
+])
+----
+
 ==== Track
 move and rotate an object to point from one capture()'d coordinate system to another.
 
