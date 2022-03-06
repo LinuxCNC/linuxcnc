@@ -995,7 +995,7 @@ small, tight corners, since you're limited by cornering acceleration.
 
 * 'NO_PROBE_JOG_ERROR = 0' - Allow to bypass probe tripped check when you jog manually
 
-* 'NO_PROBE_HOME_ERROR = 0' - Allow to bypass probe tripped check when maching is actually homing in progress
+* 'NO_PROBE_HOME_ERROR = 0' - Allow to bypass probe tripped check when homing is in progress
 
 [WARNING]
 LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
