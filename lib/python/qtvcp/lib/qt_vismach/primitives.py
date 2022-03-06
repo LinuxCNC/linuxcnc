@@ -2,7 +2,93 @@ import copy
 import OpenGL.GL as GL
 from OpenGL import GLU
 import hal
+import array, itertools
 
+
+# functions copied from glnav.py
+def use_pango_font(font, start, count, will_call_prepost=False):
+    import gi
+    gi.require_version('Pango','1.0')
+    gi.require_version('PangoCairo','1.0')
+    from gi.repository import Pango
+    from gi.repository import PangoCairo
+    #from gi.repository import Cairo as cairo
+    import cairo
+
+    fontDesc = Pango.FontDescription(font)
+    a = array.array('b', itertools.repeat(0, 256*256))
+    surface = cairo.ImageSurface.create_for_data(a, cairo.FORMAT_A8, 256, 256)
+    context  = cairo.Context(surface)
+    pango_context = PangoCairo.create_context(context)
+    layout = PangoCairo.create_layout(context)
+    fontmap = PangoCairo.font_map_get_default()
+    font = fontmap.load_font(fontmap.create_context(), fontDesc)
+    layout.set_font_description(fontDesc)
+    metrics = font.get_metrics()
+    descent = metrics.get_descent()
+    d = descent / Pango.SCALE
+    linespace = metrics.get_ascent() + metrics.get_descent()
+    width = metrics.get_approximate_char_width()
+
+    GL.glPushClientAttrib(GL.GL_CLIENT_PIXEL_STORE_BIT)
+    GL.glPixelStorei(GL.GL_UNPACK_SWAP_BYTES, 0)
+    GL.glPixelStorei(GL.GL_UNPACK_LSB_FIRST, 1)
+    GL.glPixelStorei(GL.GL_UNPACK_ROW_LENGTH, 256)
+    GL.glPixelStorei(GL.GL_UNPACK_IMAGE_HEIGHT, 256)
+    GL.glPixelStorei(GL.GL_UNPACK_SKIP_PIXELS, 0)
+    GL.glPixelStorei(GL.GL_UNPACK_SKIP_ROWS, 0)
+    GL.glPixelStorei(GL.GL_UNPACK_SKIP_IMAGES, 0)
+    GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
+    GL.glPixelZoom(1, -1)
+
+    base = GL.glGenLists(count)
+    for i in range(count):
+        ch = chr(start+i)
+        layout.set_text(ch, -1)
+        w, h = layout.get_size()
+        context.save()
+        context.new_path()
+        context.rectangle(0, 0, 256, 256)
+        context.set_source_rgba(0., 0., 0., 0.)
+        context.set_operator (cairo.OPERATOR_SOURCE)
+        context.paint()
+        context.restore()
+
+        context.save()
+        context.set_source_rgba(1., 1., 1., 1.)
+        context.set_operator (cairo.OPERATOR_SOURCE)
+        context.move_to(0, 0)
+        PangoCairo.update_context(context,pango_context)
+        PangoCairo.show_layout(context,layout)
+        context.restore()
+        w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
+        GL.glNewList(base+i, GL.GL_COMPILE)
+        GL.glBitmap(0, 0, 0, 0, 0, h-d, ''.encode())
+        #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
+        if not will_call_prepost:
+            pango_font_pre()
+        if w and h: 
+            try:
+                pass
+                GL.glDrawPixels(w, h, GL.GL_LUMINANCE, GL.GL_UNSIGNED_BYTE, a.tobytes())
+            except Exception as e:
+                print("glnav Exception ",e)
+
+        GL.glBitmap(0, 0, 0, 0, w, -h+d, ''.encode())
+        if not will_call_prepost:
+            pango_font_post()
+        GL.glEndList()
+
+    GL.glPopClientAttrib()
+    return base, int(width / Pango.SCALE), int(linespace / Pango.SCALE)
+
+def pango_font_pre(rgba=(1., 1., 0., 1.)):
+    GL.glPushAttrib(GL.GL_COLOR_BUFFER_BIT)
+    GL.glEnable(GL.GL_BLEND)
+    GL.glBlendFunc(GL.GL_ONE, GL.GL_ONE)
+
+def pango_font_post():
+    GL.glPopAttrib()
 
 #################################################
 
@@ -696,6 +782,9 @@ class Hud(object):
         self.messages = []
         self.showme = 0
         self.fontbase = []
+        self._font = 'monospace bold 16'
+        self._width = 9
+        self._height = 15
 
     def show(self, string="xyzzy"):
         self.showme = 1
@@ -721,8 +810,7 @@ class Hud(object):
         GL.glLoadIdentity()
 
         if not self.fontbase:
-            self.fontbase = int(self.app.loadbitmapfont("9x15"))
-        char_width, char_height = 9, 15
+            self.fontbase, self._width, linespace = use_pango_font(self._font, 0, 128)
         xmargin, ymargin = 5, 5
         ypos = float(self.app.winfo_height())
 
@@ -733,7 +821,7 @@ class Hud(object):
 
         # draw the text box
         maxlen = max([len(p) for p in drawtext])
-        box_width = maxlen * char_width
+        box_width = maxlen * self._width
         GL.glDepthFunc(GL.GL_ALWAYS)
         GL.glDepthMask(GL.GL_FALSE)
         GL.glDisable(GL.GL_LIGHTING)
@@ -744,8 +832,8 @@ class Hud(object):
         GL.glBlendColor(0, 0, 0, 0.5)  # rgba
         GL.glBegin(GL.GL_QUADS)
         GL.glVertex3f(0, ypos, 1)  # upper left
-        GL.glVertex3f(0, ypos - 2 * ymargin - char_height * len(drawtext), 1)  # lower left
-        GL.glVertex3f(box_width + 2 * xmargin, ypos - 2 * ymargin - char_height * len(drawtext), 1)  # lower right
+        GL.glVertex3f(0, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower left
+        GL.glVertex3f(box_width + 2 * xmargin, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower right
         GL.glVertex3f(box_width + 2 * xmargin, ypos, 1)  # upper right
         GL.glEnd()
         GL.glDisable(GL.GL_BLEND)
@@ -753,7 +841,7 @@ class Hud(object):
 
         # fill the box with text
         maxlen = 0
-        ypos -= char_height + ymargin
+        ypos -= self._height + ymargin
         i = 0
         GL.glDisable(GL.GL_LIGHTING)
         GL.glColor3f(0.9, 0.9, 0.9)
@@ -767,7 +855,7 @@ class Hud(object):
                 GL.glCallList(self.fontbase + ord(char))
             #        if i < len(homed) and limit[i]:
             #                GL.glBitmap(13, 16, -5, 3, 17, 0, limiticon)
-            ypos -= char_height
+            ypos -= self._height
             i = i + 1
         GL.glDepthFunc(GL.GL_LESS)
         GL.glDepthMask(GL.GL_TRUE)
