@@ -3,7 +3,7 @@ import OpenGL.GL as GL
 from OpenGL import GLU
 import hal
 import array, itertools
-
+from math import *
 
 # functions copied from glnav.py
 def use_pango_font(font, start, count, will_call_prepost=False):
@@ -1023,4 +1023,31 @@ class HalToolCylinder(CylinderZ):
     def set_tool_scale(self, scale):
         self.MODEL_SCALING = scale
 
+# we use a triangle for the tool
+# since we need to visualize a lathe tool here
+class HalToolTriangle(TriangleXZ):
+    def __init__(self, comp, *args):
+        # get machine access so it can
+        # change itself as it runs
+        # specifically tool cylinder in this case.
+        TriangleXZ.__init__(self, *args)
+        self.comp = comp
+
+    def coords(self):
+        try:
+            leng = hal.get_value('motion.tooloffset.z') * self.MODEL_SCALING
+        except:
+            leng = 0
+        try:
+            xleng = hal.get_value('motion.tooloffset.x') * self.MODEL_SCALING
+        except:
+            xleng = 0
+
+        x1 = leng
+        z1 = -xleng
+        x2 = 1#self.comp["tool-x-offset"]+10
+        z2 = -leng/2
+        x3 = 2#self.comp["tooldiameter"]
+        z3 = 0
+        return (x1, z1, x2, z2, x3, z3, 0, 1)
 
