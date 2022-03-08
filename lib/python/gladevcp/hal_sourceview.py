@@ -264,18 +264,20 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     # if we have gone to the end, stop searching
     # if not replace-all stop searching, otherwise start again
     def replace_text_search(self,direction=True,mixed_case=True,text="t",re_text="T",replace_all=False):
-        while True:
+        if not replace_all:
             if self.match_start:
-                if replace_all:
+                self.buf.delete_interactive(self.match_start, self.match_end,True)
+                self.buf.insert_interactive_at_cursor(re_text,-1,True)
+            self.text_search(direction,mixed_case,text)
+        else:
+            self.current_iter = self.buf.get_start_iter()
+            while True:
+                if self.match_start:
                     self.buf.delete(self.match_start, self.match_end)
                     self.buf.insert_at_cursor(re_text)
-                else:
-                    self.buf.delete_interactive(self.match_start, self.match_end,True)
-                    self.buf.insert_interactive_at_cursor(re_text,-1,True)
-                self.update_iter()
-            self.text_search(direction,mixed_case,text)
-            if self.current_iter.is_start(): break
-            if not replace_all: break
+                    self.update_iter()
+                self.text_search(direction,mixed_case,text)    
+                if self.current_iter.is_start(): break
 
     # undo one level of changes
     def undo(self):
