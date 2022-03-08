@@ -50,7 +50,8 @@ USER_M_PATH             = ./:./qtplasmac
 [HAL]
 TWOPASS                 = ON
 # the base machine
-HALFILE                 = machine.tcl
+HALFILE                 = sim_no_stepgen.tcl
+#HALFILE                 = sim_stepgen.tcl
 # component connections
 HALFILE                 = qtplasmac_comp.hal
 # custom hal commands
@@ -70,7 +71,7 @@ DEBUG                   = 0
 [EMCIO]
 EMCIO                   = io
 CYCLE_TIME              = 0.100
-TOOL_TABLE              = tool.tbl
+TOOL_TABLE              = metric_tool.tbl
 
 [TASK]
 TASK                    = milltask
@@ -78,7 +79,7 @@ CYCLE_TIME              = 0.01
 
 [EMCMOT]
 EMCMOT                  = motmod
-BASE_PERIOD             = 32000
+BASE_PERIOD             = 100000
 SERVO_PERIOD            = 1000000
 
 [KINS]
@@ -110,14 +111,14 @@ MAX_LIMIT               = 612.001
 MAX_VELOCITY            = 250
 MAX_ACCELERATION        = 2500
 TYPE                    = LINEAR
-MIN_FERROR              = 0.025
-FERROR                  = 1
+MIN_FERROR              = 5.0
+FERROR                  = 10.0
 HOME                    = 0.0
 HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = 1
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 3000
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 5000
+STEP_SCALE              = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -139,14 +140,14 @@ MAX_LIMIT               = 612.001
 MAX_VELOCITY            = 250
 MAX_ACCELERATION        = 2500
 TYPE                    = LINEAR
-MIN_FERROR              = 0.025
-FERROR                  = 1
+MIN_FERROR              = 5.0
+FERROR                  = 10.0
 HOME                    = 0.0
 HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = -2
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 3000
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 5000
+STEP_SCALE              = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -158,22 +159,24 @@ MAX_LIMIT               = 612.001
 MAX_VELOCITY            = 250
 MAX_ACCELERATION        = 2500
 TYPE                    = LINEAR
-MIN_FERROR              = 0.025
-FERROR                  = 1
+MIN_FERROR              = 5.0
+FERROR                  = 10.0
 HOME                    = 0.0
 HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = -2
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 3000
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 5000
+STEP_SCALE              = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
 DIRHOLD                 = 5000
 
 [AXIS_Z]
-MIN_LIMIT               = -0.001
-MAX_LIMIT               = 70.001
+#MIN_LIMIT               = -0.001
+#MAX_LIMIT               = 70.001
+MIN_LIMIT               = -150
+MAX_LIMIT               = 15
 # set to double the value in the corresponding joint
 MAX_VELOCITY            = 120.0
 # set to double the value in the corresponding joint
@@ -183,19 +186,23 @@ OFFSET_AV_RATIO         = 0.5
 
 [JOINT_3]
 # this should be the top of your slats
-MIN_LIMIT               = -0.001
-MAX_LIMIT               = 70.001
+#MIN_LIMIT               = -0.001
+#MAX_LIMIT               = 70.001
+MIN_LIMIT               = -150
+MAX_LIMIT               = 15
 MAX_VELOCITY            = 60
 MAX_ACCELERATION        = 600
 TYPE                    = LINEAR
-MIN_FERROR              = 0.025
-FERROR                  = 1.0
-HOME                    = 65.0
-HOME_OFFSET             = 70.0
+MIN_FERROR              = 5.0
+FERROR                  = 10.0
+#HOME                    = 65.0
+#HOME_OFFSET             = 70.0
+HOME                    = 0
+HOME_OFFSET             = 0
 HOME_SEQUENCE           = 0
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 900.0
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 1200.0
+STEP_SCALE              = 1
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000

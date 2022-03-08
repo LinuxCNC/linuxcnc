@@ -1,4 +1,4 @@
-VERSION = '1.222.168'
+VERSION = '1.222.169'
 
 '''
 qtplasmac_handler.py
@@ -779,7 +779,7 @@ class HandlerClass:
         self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
         self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
         self.w.chk_tool_tips.setChecked(self.w.PREFS_.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
-        self.w.chk_exit_warning.setChecked(self.w.PREFS_.getpref('Exit warning', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_exit_warning.setChecked(self.w.PREFS_.getpref('Exit warning', True, bool, 'GUI_OPTIONS'))
         self.exitMessage = self.w.PREFS_.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
         self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
         self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
