@@ -41,7 +41,7 @@ materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
 tmpMaterialFile = '/tmp/qtplasmac/{}_material.gcode'.format(ini.find('EMC', 'MACHINE'))
 tmpMatNum = 1000000
 tmpMatNam = ''
-prefsFile = 'qtplasmac.prefs'
+prefsFile = ini.find('EMC', 'MACHINE') + '.prefs'
 response = RUN(['halcmd', 'getp', 'qtplasmac.cut_type'], capture_output = True)
 cutType = int(response.stdout.decode())
 response = RUN(['halcmd', 'getp', 'qtplasmac.material_change_number'], capture_output = True)
