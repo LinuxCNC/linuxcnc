@@ -496,7 +496,7 @@ class Cfg2Prefs(QMainWindow, object):
                   '[DEFAULT MATERIAL]', '[SINGLE CUT]', \
                   '[CONVERSATIONAL]', '[STATISTICS]']
         bypass = False
-        prefsFile = os.path.join(self.toFilePath, 'qtplasmac.prefs')
+        prefsFile = os.path.join(self.toFilePath, self.toMachine + '.prefs')
         prefsCopy = '{}_{}_{}'.format(prefsFile, self.date, self.time)
         COPY(prefsFile, prefsCopy)
         with open(prefsFile, 'w') as outFile:

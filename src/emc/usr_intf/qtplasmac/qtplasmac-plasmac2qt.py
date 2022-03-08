@@ -775,7 +775,7 @@ class Converter(QMainWindow, object):
 
 # WRITE THE NEW QTPLASMAC.PREFS FILE
     def write_prefs_file(self, newDir, machineName):
-        prefsFile = '{}/qtplasmac.prefs'.format(newDir)
+        prefsFile = '{}/{}.prefs'.format(newDir, machineName)
         with open(prefsFile, 'w') as outFile:
             outFile.write(\
                 '[NOTIFY_OPTIONS]\n' \
