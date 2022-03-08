@@ -89,7 +89,7 @@
        <bool>false</bool>
       </property>
       <property name="pref_filename_string" stdset="0">
-       <string>CONFIGFOLDER/qtplasmac.prefs</string>
+       <string>CONFIGFOLDER/qtvcp.prefs</string>
       </property>
       <property name="focusOverlay_option" stdset="0">
        <bool>true</bool>

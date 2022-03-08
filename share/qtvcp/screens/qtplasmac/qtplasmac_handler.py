@@ -1,4 +1,4 @@
-VERSION = '1.222.168'
+VERSION = '1.222.170'
 
 '''
 qtplasmac_handler.py
@@ -45,6 +45,7 @@ from qtvcp import logger
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp.lib.gcodes import GCodes
 from qtvcp.lib.keybindings import Keylookup
+from qtvcp.lib.preferences import Access
 from qtvcp.lib.qtplasmac import tooltips as TOOLTIPS
 from qtvcp.lib.qtplasmac import set_offsets as OFFSETS
 from qtvcp.lib.qtplasmac import run_from_line as RFL
@@ -119,7 +120,7 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-# changes sim common folder to a link so sims keep up to date
+        # change local sim common folder to a link so sims keep up to date
         if 'by_machine.qtplasmac' in self.PATHS.CONFIGPATH:
             if os.path.isdir(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac')):
                 if '/usr' in self.PATHS.BASEDIR:
@@ -128,7 +129,10 @@ class HandlerClass:
                     linkFolder = os.path.join(self.PATHS.BASEDIR, 'configs/by_machine/qtplasmac/qtplasmac/')
                 os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
                 os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
+        self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.update_check()
+        self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+#        self.w.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs'))
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
@@ -217,7 +221,6 @@ class HandlerClass:
         self.tmpPath = '/tmp/qtplasmac/'
         if not os.path.isdir(self.tmpPath):
             os.mkdir(self.tmpPath)
-        self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.materialFile = '{}_material.cfg'.format(self.machineName)
         self.tmpMaterialFile = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.tmp'))
         self.tmpMaterialFileGCode = '{}{}'.format(self.tmpPath, self.materialFile.replace('.cfg','.gcode'))
@@ -774,25 +777,25 @@ class HandlerClass:
 
     def init_preferences(self):
         self.lastLoadedProgram = self.w.PREFS_.getpref('RecentPath_0', 'None', str,'BOOK_KEEPING')
-        self.w.chk_keyboard_shortcuts.setChecked(self.w.PREFS_.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
-        self.w.chk_soft_keyboard.setChecked(self.w.PREFS_.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
-        self.w.chk_overlay.setChecked(self.w.PREFS_.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
-        self.w.chk_run_from_line.setChecked(self.w.PREFS_.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
-        self.w.chk_tool_tips.setChecked(self.w.PREFS_.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
-        self.w.chk_exit_warning.setChecked(self.w.PREFS_.getpref('Exit warning', False, bool, 'GUI_OPTIONS'))
-        self.exitMessage = self.w.PREFS_.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
-        self.w.cone_size.setValue(self.w.PREFS_.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
-        self.w.grid_size.setValue(self.w.PREFS_.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
-        self.w.table_zoom_scale.setValue(self.w.PREFS_.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
-        self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_led.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('LED', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_backgrnd.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')))
-        self.w.color_backgalt.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Background Alt', '#36362e', str, 'COLOR_OPTIONS')))
-        self.w.color_frams.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Frames', '#ffee06', str, 'COLOR_OPTIONS')))
-        self.w.color_estop.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
-        self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
-        self.w.color_preview.setStyleSheet('background-color: {}'.format(self.w.PREFS_.getpref('Preview', '#000000', str, 'COLOR_OPTIONS')))
+        self.w.chk_keyboard_shortcuts.setChecked(self.PREFS.getpref('Use keyboard shortcuts', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_soft_keyboard.setChecked(self.PREFS.getpref('Use soft keyboard', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_overlay.setChecked(self.PREFS.getpref('Show materials', True, bool, 'GUI_OPTIONS'))
+        self.w.chk_run_from_line.setChecked(self.PREFS.getpref('Run from line', False, bool, 'GUI_OPTIONS'))
+        self.w.chk_tool_tips.setChecked(self.PREFS.getpref('Tool tips', True, bool, 'GUI_OPTIONS'))
+        self.w.chk_exit_warning.setChecked(self.PREFS.getpref('Exit warning', True, bool, 'GUI_OPTIONS'))
+        self.exitMessage = self.PREFS.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
+        self.w.cone_size.setValue(self.PREFS.getpref('Preview cone size', 0.5, float, 'GUI_OPTIONS'))
+        self.w.grid_size.setValue(self.PREFS.getpref('Preview grid size', 0, float, 'GUI_OPTIONS'))
+        self.w.table_zoom_scale.setValue(self.PREFS.getpref('T view zoom scale', 1, float, 'GUI_OPTIONS'))
+        self.w.color_foregrnd.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')))
+        self.w.color_foregalt.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')))
+        self.w.color_led.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('LED', '#ffee06', str, 'COLOR_OPTIONS')))
+        self.w.color_backgrnd.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')))
+        self.w.color_backgalt.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Background Alt', '#36362e', str, 'COLOR_OPTIONS')))
+        self.w.color_frams.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Frames', '#ffee06', str, 'COLOR_OPTIONS')))
+        self.w.color_estop.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')))
+        self.w.color_disabled.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')))
+        self.w.color_preview.setStyleSheet('background-color: {}'.format(self.PREFS.getpref('Preview', '#000000', str, 'COLOR_OPTIONS')))
         TOOLTIPS.tool_tips_changed(self.w)
         self.soft_keyboard()
         self.cone_size_changed(self.w.cone_size.value())
@@ -827,11 +830,11 @@ class HandlerClass:
         self.w.chk_override_limits.setEnabled(False)
         self.w.chk_override_jog.setChecked(False)
         self.w.chk_override_jog.setEnabled(False)
-        self.w.thc_enable.setChecked(self.w.PREFS_.getpref('THC enable', True, bool, 'ENABLE_OPTIONS'))
-        self.w.cornerlock_enable.setChecked(self.w.PREFS_.getpref('Corner lock enable', True, bool, 'ENABLE_OPTIONS'))
-        self.w.kerfcross_enable.setChecked(self.w.PREFS_.getpref('Kerf cross enable', True, bool, 'ENABLE_OPTIONS'))
-        self.w.use_auto_volts.setChecked(self.w.PREFS_.getpref('Use auto volts', True, bool, 'ENABLE_OPTIONS'))
-        self.w.ohmic_probe_enable.setChecked(self.w.PREFS_.getpref('Ohmic probe enable', False, bool, 'ENABLE_OPTIONS'))
+        self.w.thc_enable.setChecked(self.PREFS.getpref('THC enable', True, bool, 'ENABLE_OPTIONS'))
+        self.w.cornerlock_enable.setChecked(self.PREFS.getpref('Corner lock enable', True, bool, 'ENABLE_OPTIONS'))
+        self.w.kerfcross_enable.setChecked(self.PREFS.getpref('Kerf cross enable', True, bool, 'ENABLE_OPTIONS'))
+        self.w.use_auto_volts.setChecked(self.PREFS.getpref('Use auto volts', True, bool, 'ENABLE_OPTIONS'))
+        self.w.ohmic_probe_enable.setChecked(self.PREFS.getpref('Ohmic probe enable', False, bool, 'ENABLE_OPTIONS'))
         self.w.error_label = QLabel()
         self.w.tool_label = STATLABEL()
         self.w.gcodes_label = STATLABEL()
@@ -1022,22 +1025,22 @@ class HandlerClass:
         # save the log files
         self.save_logfile(5)
         # save preferences
-        if not self.w.PREFS_: return
-        self.w.PREFS_.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Exit warning', self.w.chk_exit_warning.isChecked(), bool, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('shutdown_msg_detail', self.exitMessage, str, 'SHUTDOWN_OPTIONS')
-        self.w.PREFS_.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('T view zoom scale', self.w.table_zoom_scale.value(), float, 'GUI_OPTIONS')
-        self.w.PREFS_.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.w.PREFS_.putpref('Corner lock enable', self.w.cornerlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.w.PREFS_.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.w.PREFS_.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
-        self.w.PREFS_.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
+        if not self.PREFS: return
+        self.PREFS.putpref('Use keyboard shortcuts', self.w.chk_keyboard_shortcuts.isChecked(), bool, 'GUI_OPTIONS')
+        self.PREFS.putpref('Use soft keyboard', self.w.chk_soft_keyboard.isChecked(), bool, 'GUI_OPTIONS')
+        self.PREFS.putpref('Show materials', self.w.chk_overlay.isChecked(), bool, 'GUI_OPTIONS')
+        self.PREFS.putpref('Run from line', self.w.chk_run_from_line.isChecked(), bool, 'GUI_OPTIONS')
+        self.PREFS.putpref('Tool tips', self.w.chk_tool_tips.isChecked(), bool, 'GUI_OPTIONS')
+        self.PREFS.putpref('Exit warning', self.w.chk_exit_warning.isChecked(), bool, 'GUI_OPTIONS')
+        self.PREFS.putpref('shutdown_msg_detail', self.exitMessage, str, 'SHUTDOWN_OPTIONS')
+        self.PREFS.putpref('Preview cone size', self.w.cone_size.value(), float, 'GUI_OPTIONS')
+        self.PREFS.putpref('Preview grid size', self.w.grid_size.value(), float, 'GUI_OPTIONS')
+        self.PREFS.putpref('T view zoom scale', self.w.table_zoom_scale.value(), float, 'GUI_OPTIONS')
+        self.PREFS.putpref('THC enable', self.w.thc_enable.isChecked(), bool, 'ENABLE_OPTIONS')
+        self.PREFS.putpref('Corner lock enable', self.w.cornerlock_enable.isChecked(), bool, 'ENABLE_OPTIONS')
+        self.PREFS.putpref('Kerf cross enable', self.w.kerfcross_enable.isChecked(), bool, 'ENABLE_OPTIONS')
+        self.PREFS.putpref('Use auto volts', self.w.use_auto_volts.isChecked(), bool, 'ENABLE_OPTIONS')
+        self.PREFS.putpref('Ohmic probe enable', self.w.ohmic_probe_enable.isChecked(), bool, 'ENABLE_OPTIONS')
 
     def save_logfile(self, numLogs):
             logPre = 'machine_log_'
@@ -2052,10 +2055,15 @@ class HandlerClass:
 
     def update_check(self):
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
-        prefsFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
-    # use qtplasmac_comp.hal for component connections (pre V1.221.154)
+        prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
+    # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
         if halfiles and not 'qtplasmac_comp.hal' in halfiles and not 'plasmac.tcl' in halfiles:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
+    # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
+        if not os.path.isfile(prefsFile):
+            old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
+            new = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
+            UPDATER.split_prefs_file(old, new, prefsFile)
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file
@@ -2156,64 +2164,64 @@ class HandlerClass:
         return msgList, units, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
-        self.w.PREFS_.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Arc OK Low', self.w.arc_ok_low.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Arc Maximum Starts', self.w.arc_max_starts.value(), int, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Arc Fail Timeout', self.w.arc_fail_delay.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Arc Voltage Offset', self.w.arc_voltage_offset.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Arc Voltage Scale', self.w.arc_voltage_scale.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Velocity Anti Dive Threshold', self.w.cornerlock_threshold.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Float Switch Travel', self.w.float_switch_travel.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Height Per Volt', self.w.height_per_volt.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Void Sense Override', self.w.kerfcross_override.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Ohmic Maximum Attempts', self.w.ohmic_max_attempts.value(), int, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Ohmic Probe Offset', self.w.ohmic_probe_offset.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Pid P Gain', self.w.pid_p_gain.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Pid D Gain', self.w.pid_d_gain.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Pid I Gain', self.w.pid_i_gain.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Probe Feed Rate', self.w.probe_feed_rate.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Probe Start Height', self.w.probe_start_height.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Arc Restart Delay', self.w.arc_restart_delay.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Safe Height', self.w.safe_height.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Scribe Arming Delay', self.w.scribe_arm_delay.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Scribe On Delay', self.w.scribe_on_delay.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Setup Feed Rate', self.w.setup_feed_rate.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Skip IHS Distance', self.w.skip_ihs_distance.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Spotting Threshold', self.w.spotting_threshold.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('Spotting Time', self.w.spotting_time.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('THC Delay', self.w.thc_delay.value(), float, 'PLASMA_PARAMETERS')
-        self.w.PREFS_.putpref('THC Threshold', self.w.thc_threshold.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc OK Low', self.w.arc_ok_low.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc Maximum Starts', self.w.arc_max_starts.value(), int, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc Fail Timeout', self.w.arc_fail_delay.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc Voltage Offset', self.w.arc_voltage_offset.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc Voltage Scale', self.w.arc_voltage_scale.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Velocity Anti Dive Threshold', self.w.cornerlock_threshold.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Float Switch Travel', self.w.float_switch_travel.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Height Per Volt', self.w.height_per_volt.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Void Sense Override', self.w.kerfcross_override.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Ohmic Maximum Attempts', self.w.ohmic_max_attempts.value(), int, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Ohmic Probe Offset', self.w.ohmic_probe_offset.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Pid P Gain', self.w.pid_p_gain.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Pid D Gain', self.w.pid_d_gain.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Pid I Gain', self.w.pid_i_gain.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Probe Feed Rate', self.w.probe_feed_rate.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Probe Start Height', self.w.probe_start_height.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Arc Restart Delay', self.w.arc_restart_delay.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Safe Height', self.w.safe_height.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Scribe Arming Delay', self.w.scribe_arm_delay.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Scribe On Delay', self.w.scribe_on_delay.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Setup Feed Rate', self.w.setup_feed_rate.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Skip IHS Distance', self.w.skip_ihs_distance.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Spotting Threshold', self.w.spotting_threshold.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Spotting Time', self.w.spotting_time.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('THC Delay', self.w.thc_delay.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('THC Threshold', self.w.thc_threshold.value(), float, 'PLASMA_PARAMETERS')
 
     def load_plasma_parameters(self):
-        self.w.setup_feed_rate.setValue(self.w.PREFS_.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
+        self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
         self.w.probe_feed_rate.setMaximum(self.w.setup_feed_rate.value())
-        self.w.arc_fail_delay.setValue(self.w.PREFS_.getpref('Arc Fail Timeout', 3, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_high.setValue(self.w.PREFS_.getpref('Arc OK High', 250, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_ok_low.setValue(self.w.PREFS_.getpref('Arc OK Low', 60, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_max_starts.setValue(self.w.PREFS_.getpref('Arc Maximum Starts', 3, int, 'PLASMA_PARAMETERS'))
-        self.w.arc_voltage_offset.setValue(self.w.PREFS_.getpref('Arc Voltage Offset', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.arc_voltage_scale.setValue(self.w.PREFS_.getpref('Arc Voltage Scale', 1, float, 'PLASMA_PARAMETERS'))
-        self.w.cornerlock_threshold.setValue(self.w.PREFS_.getpref('Velocity Anti Dive Threshold', 90, float, 'PLASMA_PARAMETERS'))
-        self.w.float_switch_travel.setValue(self.w.PREFS_.getpref('Float Switch Travel', round(1.5 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
-        self.w.height_per_volt.setValue(self.w.PREFS_.getpref('Height Per Volt', round(0.1 * self.unitsPerMm, 3), float, 'PLASMA_PARAMETERS'))
-        self.w.kerfcross_override.setValue(self.w.PREFS_.getpref('Void Sense Override', 100, float, 'PLASMA_PARAMETERS'))
-        self.w.ohmic_max_attempts.setValue(self.w.PREFS_.getpref('Ohmic Maximum Attempts', 0, int, 'PLASMA_PARAMETERS'))
-        self.w.ohmic_probe_offset.setValue(self.w.PREFS_.getpref('Ohmic Probe Offset', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_p_gain.setValue(self.w.PREFS_.getpref('Pid P Gain', 10, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_d_gain.setValue(self.w.PREFS_.getpref('Pid D Gain', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.pid_i_gain.setValue(self.w.PREFS_.getpref('Pid I Gain', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.probe_feed_rate.setValue(self.w.PREFS_.getpref('Probe Feed Rate', round(300 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.probe_start_height.setValue(self.w.PREFS_.getpref('Probe Start Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.arc_restart_delay.setValue(self.w.PREFS_.getpref('Arc Restart Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.safe_height.setValue(self.w.PREFS_.getpref('Safe Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
-        self.w.setup_feed_rate.setValue(self.w.PREFS_.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
-        self.w.scribe_arm_delay.setValue(self.w.PREFS_.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.scribe_on_delay.setValue(self.w.PREFS_.getpref('Scribe On Delay', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.skip_ihs_distance.setValue(self.w.PREFS_.getpref('Skip IHS Distance', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_threshold.setValue(self.w.PREFS_.getpref('Spotting Threshold', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.spotting_time.setValue(self.w.PREFS_.getpref('Spotting Time', 0, float, 'PLASMA_PARAMETERS'))
-        self.w.thc_delay.setValue(self.w.PREFS_.getpref('THC Delay', 0.5, float, 'PLASMA_PARAMETERS'))
-        self.w.thc_threshold.setValue(self.w.PREFS_.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_fail_delay.setValue(self.PREFS.getpref('Arc Fail Timeout', 3, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_high.setValue(self.PREFS.getpref('Arc OK High', 250, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_ok_low.setValue(self.PREFS.getpref('Arc OK Low', 60, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_max_starts.setValue(self.PREFS.getpref('Arc Maximum Starts', 3, int, 'PLASMA_PARAMETERS'))
+        self.w.arc_voltage_offset.setValue(self.PREFS.getpref('Arc Voltage Offset', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.arc_voltage_scale.setValue(self.PREFS.getpref('Arc Voltage Scale', 1, float, 'PLASMA_PARAMETERS'))
+        self.w.cornerlock_threshold.setValue(self.PREFS.getpref('Velocity Anti Dive Threshold', 90, float, 'PLASMA_PARAMETERS'))
+        self.w.float_switch_travel.setValue(self.PREFS.getpref('Float Switch Travel', round(1.5 * self.unitsPerMm, 2), float, 'PLASMA_PARAMETERS'))
+        self.w.height_per_volt.setValue(self.PREFS.getpref('Height Per Volt', round(0.1 * self.unitsPerMm, 3), float, 'PLASMA_PARAMETERS'))
+        self.w.kerfcross_override.setValue(self.PREFS.getpref('Void Sense Override', 100, float, 'PLASMA_PARAMETERS'))
+        self.w.ohmic_max_attempts.setValue(self.PREFS.getpref('Ohmic Maximum Attempts', 0, int, 'PLASMA_PARAMETERS'))
+        self.w.ohmic_probe_offset.setValue(self.PREFS.getpref('Ohmic Probe Offset', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_p_gain.setValue(self.PREFS.getpref('Pid P Gain', 10, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_d_gain.setValue(self.PREFS.getpref('Pid D Gain', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
+        self.w.scribe_arm_delay.setValue(self.PREFS.getpref('Scribe Arming Delay', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.scribe_on_delay.setValue(self.PREFS.getpref('Scribe On Delay', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.skip_ihs_distance.setValue(self.PREFS.getpref('Skip IHS Distance', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_threshold.setValue(self.PREFS.getpref('Spotting Threshold', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.spotting_time.setValue(self.PREFS.getpref('Spotting Time', 0, float, 'PLASMA_PARAMETERS'))
+        self.w.thc_delay.setValue(self.PREFS.getpref('THC Delay', 0.5, float, 'PLASMA_PARAMETERS'))
+        self.w.thc_threshold.setValue(self.PREFS.getpref('THC Threshold', 1, float, 'PLASMA_PARAMETERS'))
 
     def set_signal_connections(self):
         self.w.power.pressed.connect(lambda:self.power_button("pressed", True))
@@ -3725,14 +3733,14 @@ class HandlerClass:
         layout.addWidget(l3)
         layout.addWidget(buttonBox)
         sC.setLayout(layout)
-        xLength.setValue(self.w.PREFS_.getpref('X length', 0.0, float, 'SINGLE CUT'))
-        yLength.setValue(self.w.PREFS_.getpref('Y length', 0.0, float, 'SINGLE CUT'))
+        xLength.setValue(self.PREFS.getpref('X length', 0.0, float, 'SINGLE CUT'))
+        yLength.setValue(self.PREFS.getpref('Y length', 0.0, float, 'SINGLE CUT'))
         result = sC.exec_()
         if not result:
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             return
-        self.w.PREFS_.putpref('X length', xLength.value(), float, 'SINGLE CUT')
-        self.w.PREFS_.putpref('Y length', yLength.value(), float, 'SINGLE CUT')
+        self.PREFS.putpref('X length', xLength.value(), float, 'SINGLE CUT')
+        self.PREFS.putpref('Y length', yLength.value(), float, 'SINGLE CUT')
         self.oldFile = ACTION.prefilter_path if ACTION.prefilter_path else None
         self.g91 = True if 910 in STATUS.stat.gcodes else False
         xEnd = STATUS.get_position()[0][0] + xLength.value()
@@ -4399,34 +4407,34 @@ class HandlerClass:
             return False
 
     def save_default_material(self):
-        self.w.PREFS_.putpref('Kerf width', self.w.kerf_width.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Pierce height',self.w.pierce_height.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Pierce delay',self.w.pierce_delay.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Puddle jump height',self.w.puddle_jump_height.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Puddle jump delay',self.w.puddle_jump_delay.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Cut height',self.w.cut_height.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Cut feed rate',self.w.cut_feed_rate.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Cut amps',self.w.cut_amps.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Cut volts',self.w.cut_volts.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Pause at end',self.w.pause_at_end.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Gas pressure',self.w.gas_pressure.value(), float, 'DEFAULT MATERIAL')
-        self.w.PREFS_.putpref('Cut mode',self.w.cut_mode.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Kerf width', self.w.kerf_width.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Pierce height',self.w.pierce_height.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Pierce delay',self.w.pierce_delay.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Puddle jump height',self.w.puddle_jump_height.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Puddle jump delay',self.w.puddle_jump_delay.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Cut height',self.w.cut_height.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Cut feed rate',self.w.cut_feed_rate.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Cut amps',self.w.cut_amps.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Cut volts',self.w.cut_volts.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Pause at end',self.w.pause_at_end.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Gas pressure',self.w.gas_pressure.value(), float, 'DEFAULT MATERIAL')
+        self.PREFS.putpref('Cut mode',self.w.cut_mode.value(), float, 'DEFAULT MATERIAL')
 
     def load_default_material(self):
         self.write_materials( \
                 0, 'DEFAULT' , \
-                self.w.PREFS_.getpref('Kerf width', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Pierce height', round(3 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Pierce delay', 0, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Puddle jump height', 0, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Puddle jump delay', 0, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Cut height', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Cut feed rate', round(4000 * self.unitsPerMm, 0), float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Cut amps', 45, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Cut volts', 99, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Pause at end', 0, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Gas pressure', 0, float, 'DEFAULT MATERIAL'), \
-                self.w.PREFS_.getpref('Cut mode', 1, float, 'DEFAULT MATERIAL'),\
+                self.PREFS.getpref('Kerf width', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Pierce height', round(3 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Pierce delay', 0, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Puddle jump height', 0, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Puddle jump delay', 0, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Cut height', round(1 * self.unitsPerMm, 2), float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Cut feed rate', round(4000 * self.unitsPerMm, 0), float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Cut amps', 45, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Cut volts', 99, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Pause at end', 0, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Gas pressure', 0, float, 'DEFAULT MATERIAL'), \
+                self.PREFS.getpref('Cut mode', 1, float, 'DEFAULT MATERIAL'),\
                 0)
 
 
@@ -4751,23 +4759,23 @@ class HandlerClass:
             self.display_time('probe_time', self.probe_time + (time.time() - self.probeStart))
 
     def stats_save(self):
-        self.w.PREFS_.putpref('Pierce count', self.PIERCE_COUNT , int,'STATISTICS')
-        self.w.PREFS_.putpref('Cut length', self.CUT_LENGTH , float,'STATISTICS')
-        self.w.PREFS_.putpref('Cut time', self.CUT_TIME , float,'STATISTICS')
-        self.w.PREFS_.putpref('Torch on time', self.TORCH_TIME , float,'STATISTICS')
-        self.w.PREFS_.putpref('Program run time', self.RUN_TIME , float,'STATISTICS')
-        self.w.PREFS_.putpref('Rapid time', self.RAPID_TIME , float,'STATISTICS')
-        self.w.PREFS_.putpref('Probe time', self.PROBE_TIME , float,'STATISTICS')
+        self.PREFS.putpref('Pierce count', self.PIERCE_COUNT , int,'STATISTICS')
+        self.PREFS.putpref('Cut length', self.CUT_LENGTH , float,'STATISTICS')
+        self.PREFS.putpref('Cut time', self.CUT_TIME , float,'STATISTICS')
+        self.PREFS.putpref('Torch on time', self.TORCH_TIME , float,'STATISTICS')
+        self.PREFS.putpref('Program run time', self.RUN_TIME , float,'STATISTICS')
+        self.PREFS.putpref('Rapid time', self.RAPID_TIME , float,'STATISTICS')
+        self.PREFS.putpref('Probe time', self.PROBE_TIME , float,'STATISTICS')
 
     def statistics_init(self):
         # get saved prefs
-        self.PIERCE_COUNT = self.w.PREFS_.getpref('Pierce count', 0 , int,'STATISTICS')
-        self.CUT_LENGTH = self.w.PREFS_.getpref('Cut length', 0 , float,'STATISTICS')
-        self.CUT_TIME = self.w.PREFS_.getpref('Cut time', 0 , float,'STATISTICS')
-        self.TORCH_TIME = self.w.PREFS_.getpref('Torch on time', 0 , float,'STATISTICS')
-        self.RUN_TIME = self.w.PREFS_.getpref('Program run time', 0 , float,'STATISTICS')
-        self.RAPID_TIME = self.w.PREFS_.getpref('Rapid time', 0 , float,'STATISTICS')
-        self.PROBE_TIME = self.w.PREFS_.getpref('Probe time', 0 , float,'STATISTICS')
+        self.PIERCE_COUNT = self.PREFS.getpref('Pierce count', 0 , int,'STATISTICS')
+        self.CUT_LENGTH = self.PREFS.getpref('Cut length', 0 , float,'STATISTICS')
+        self.CUT_TIME = self.PREFS.getpref('Cut time', 0 , float,'STATISTICS')
+        self.TORCH_TIME = self.PREFS.getpref('Torch on time', 0 , float,'STATISTICS')
+        self.RUN_TIME = self.PREFS.getpref('Program run time', 0 , float,'STATISTICS')
+        self.RAPID_TIME = self.PREFS.getpref('Rapid time', 0 , float,'STATISTICS')
+        self.PROBE_TIME = self.PREFS.getpref('Probe time', 0 , float,'STATISTICS')
         # set variables
         self.oldState      = 0
         self.oldMotionType = 0
@@ -5177,17 +5185,17 @@ class HandlerClass:
             labels = ['Foreground', 'Highlight', 'LED', 'Background', 'Background Alt', 'Frames', 'Estop', 'Disabled', 'Preview']
             button = widget.objectName()
             label = labels[buttons.index(button.split('_')[1])]
-            self.w.PREFS_.putpref(label,  color.name(), str, 'COLOR_OPTIONS')
+            self.PREFS.putpref(label,  color.name(), str, 'COLOR_OPTIONS')
             self.set_basic_colors()
             self.set_color_styles()
 
     def set_basic_colors(self):
-        self.foreColor = self.w.PREFS_.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
-        self.fore1Color = self.w.PREFS_.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')
-        self.backColor = self.w.PREFS_.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')
-        self.back1Color = self.w.PREFS_.getpref('Background Alt', '#26261e', str, 'COLOR_OPTIONS')
-        self.disabledColor = self.w.PREFS_.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')
-        self.estopColor = self.w.PREFS_.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')
+        self.foreColor = self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
+        self.fore1Color = self.PREFS.getpref('Highlight', '#ffee06', str, 'COLOR_OPTIONS')
+        self.backColor = self.PREFS.getpref('Background', '#16160e', str, 'COLOR_OPTIONS')
+        self.back1Color = self.PREFS.getpref('Background Alt', '#26261e', str, 'COLOR_OPTIONS')
+        self.disabledColor = self.PREFS.getpref('Disabled', '#b0b0b0', str, 'COLOR_OPTIONS')
+        self.estopColor = self.PREFS.getpref('Estop', '#ff0000', str, 'COLOR_OPTIONS')
 
     def set_color_styles(self):
         self.styleSheetFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.qss')

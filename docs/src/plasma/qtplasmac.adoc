@@ -418,7 +418,7 @@ Prior to running this conversion program, it is mandatory that the user have bot
 
 The program will create a time stamped backup of the original preferences file and the existing materials file (if it exists).
 
-It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing qtplasmac.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
+It will read the existing <machine_name>_config.cfg, <machine_name>_run.cfg, <machine_name>_wizards.cfg, and plasmac_stats.var files and write them to an existing <machine_name>.prefs file. It will also copy the <machine_name>_material.cfg file to the existing QtPlasmaC configuration.
 
 To run the cfg2prefs conversion program, use the following instructions:
 
@@ -577,13 +577,14 @@ After running a new configuration for the first time the following files will be
 |===
 |*Filename*|*Function*
 |<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
-|qtplasmac.prefs|A file containing the users preferences and parameters. It also stores the current color configuration.
+|<machine_name>.prefs|A file containing the users QtPlasmac specific preferences and parameters. It also stores the current color configuration.
+|qtvcp.prefs|A file containing the QtVCP preferences.
 |qtplasmac.qss|This file is used to store the stylesheet for the currently loaded session of QtPlasmaC.
 |===
 
 NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
 
-NOTE: The .prefs file is plain text and may be edited with any text editor.
+NOTE: The <machine_name>.prefs file is plain text and may be edited with any text editor.
 
 === INI File
 
@@ -1119,9 +1120,9 @@ NOTE: PID loop tuning is a complicated process and is outside the scope of this 
 
 [underline]*SAVE & RELOAD Buttons*
 
-The **SAVE** button will save the currently displayed parameters to the qtplasmac.prefs file.
+The **SAVE** button will save the currently displayed parameters to the <machine_name>.prefs file.
 
-The **RELOAD** button will reload all the parameters from the qtplasmac.prefs file.
+The **RELOAD** button will reload all the parameters from the <machine_name>.prefs file.
 
 [[qt_material]]
 
@@ -2601,13 +2602,13 @@ All errors are logged into the machine log which is able to be viewed in the <<q
 
 By default, QtPlasmaC will display error messages via a Operator Error popup window. In addition, QtPlasmaC will alert the user that an error has been sent to the machine log by displaying the message *"ERROR SENT TO MACHINE LOG"* in the lower left portion of the status bar.
 
-The user may opt to disable the Operator Error popup window, and view the error messages by going to the <<qt_statistics-tab, STATISTICS Tab>> by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the qtplasmac.prefs file in the <machine_name> folder:
+The user may opt to disable the Operator Error popup window, and view the error messages by going to the <<qt_statistics-tab, STATISTICS Tab>> by changing the following preference to *False* in the *[SCREEN_OPTIONS]* of the <machine_name>.prefs file in the <machine_name> folder:
 
 ----
 desktop_notify
 ----
 
-NOTE: qtplasmac.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
+NOTE: <machine_name>.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
 
 Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the [QTPLASMAC] section of the <machine_name>.ini file:
 
@@ -2852,11 +2853,11 @@ The user may return to the default styling at any time by following the followin
 . Delete qtplasmac.qss from the machine config folder.
 . Delete qtplasmac_custom.qss from the machine config folder (if it exists).
 . Comment out or delete any CUSTOM_STYLE lines from the <machine_name>.ini file.
-. Open qtplasmac.prefs and delete the "[COLOR_OPTIONS]" section. Save the file.
+. Open <machine_name>.prefs and delete the "[COLOR_OPTIONS]" section. Save the file.
 
 The next time QtPlasmaC is loaded all custom styling will be removed and the default styling will return.
 
-Below is an example of the section to be deleted from qtplasmac.prefs:
+Below is an example of the section to be deleted from <machine_name>.prefs:
 
 ----
 [COLOR_OPTIONS]
