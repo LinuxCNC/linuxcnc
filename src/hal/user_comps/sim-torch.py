@@ -71,8 +71,8 @@ def random_noise(cycle, volume):
         return 0
 
 # main loop
-while hal.component_exists('motmod') and not h['close']:
-    try:
+try:
+    while hal.component_exists('motmod') and not h['close']:
         # validate the inputs
         cut_noise = abs(h['cut-noise-in'])
         cycles = abs(h['cycles-in'])
@@ -143,7 +143,7 @@ while hal.component_exists('motmod') and not h['close']:
             current_cycle = 0
             h['voltage-out'] = 0
         time.sleep(.001)
-    except KeyboardInterrupt:
-        pass
-    except Exception as e:
-        print(e)
+except KeyboardInterrupt:
+    pass
+except Exception as e:
+    print(e)
