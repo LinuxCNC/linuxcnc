@@ -272,6 +272,7 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
                 else:
                     self.buf.delete_interactive(self.match_start, self.match_end,True)
                     self.buf.insert_interactive_at_cursor(re_text,-1,True)
+                self.update_iter()
             self.text_search(direction,mixed_case,text)
             if self.current_iter.is_start(): break
             if not replace_all: break
