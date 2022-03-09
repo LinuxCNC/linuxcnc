@@ -75,8 +75,6 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
         if line.replace(' ','').startswith('m66p3') and tmpMat:
             tmpMat = False
             continue
-        if line.replace(' ','').startswith('m67e3'):
-            continue
         for t1 in ['g20','g21','g40','g41.1','g42.1','g61','g61.1','g64','g90','g90.1','g91','g91.1']:
             if t1 in line:
                 if t1[1] == '2':
@@ -138,35 +136,40 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
                     break
         if 'm5' in line:
             rflSpindle = ''
-        if 'm62p3' in line:
+        if 'm62p3' in line.replace(' ',''):
             d3 = 'm62p3 (Disable Torch)'
-        elif 'm63p3' in line:
+        elif 'm63p3' in line.replace(' ',''):
             d3 = 'm63p3 (Enable Torch)'
-        elif 'm64p3' in line:
+        elif 'm64p3' in line.replace(' ',''):
             d3 = 'm64p3 (Disable Torch)'
-        elif 'm65p3' in line:
+        elif 'm65p3' in line.replace(' ',''):
+            print("M65 P2 found in", line.strip())
             d3 = 'm65p3 (Enable Torch)'
-        if 'm62p2' in line:
+        if 'm62p2' in line.replace(' ',''):
+            print("M62 P2 found in", line.strip())
             d2 = 'm62p2 (Disable THC)'
-        elif 'm63p2' in line:
+        elif 'm63p2' in line.replace(' ',''):
             d2 = 'm63p2 (Enable THC)'
-        elif 'm64p2' in line:
+        elif 'm64p2' in line.replace(' ',''):
             d2 = 'm64p2 (Disable THC)'
-        elif 'm65p2' in line:
+        elif 'm65p2' in line.replace(' ',''):
             d2 = 'm65p2 (Enable THC)'
-        if 'm67e3q' in line:
+        if 'm67e3q' in line.replace(' ',''):
             a3 = 'm67e3q'
-            tmp = line.split('m67e3q')[1]
+            tmp = line.replace(' ','').split('m67e3q')[1]
             while 1:
                 if tmp[0] in '-.0123456789':
                     a3 += tmp[0]
                     tmp = tmp[1:]
                 else:
                     break
-            a3 += ' (Velocity {}%)'.format(a3.split('m67e3q')[1])
-        if 'm68e3q' in line:
+            pc = int(a3.split('m67e3q')[1])
+            pc = pc if pc > 0 else 100
+            a3 += ' (Velocity {}%)'.format(pc)
+        if 'm68e3q' in line.replace(' ',''):
+            print("M68 E3 Q found in", line.strip())
             a3 = 'm68e3q'
-            tmp = line.split('m68e3q')[1]
+            tmp = line.replace(' ','').split('m68e3q')[1]
             bb=1
             while 1:
                 if tmp[0] in '-.0123456789':
@@ -174,7 +177,9 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
                     tmp = tmp[1:]
                 else:
                     break
-            a3 += ' (Velocity {}%)'.format(a3.split('m68e3q')[1])
+            pc = int(a3.split('m68e3q')[1])
+            pc = pc if pc > 0 else 100
+            a3 += ' (Velocity {}%)'.format(pc)
         if line.startswith('o'):
             if 'end' in line:
                 oSub = False
@@ -332,10 +337,6 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
                 continue
         elif line.replace(' ','').startswith('m66p3') and tmpMat:
             tmpMat = False
-            continue
-        elif line.replace(' ','').startswith('m67e3'):
-            continue
-        elif line.replace(' ','').startswith('m68e3'):
             continue
         newFile.append(line.strip())
     rflFile = '{}rfl.ngc'.format(P.tmpPath)
