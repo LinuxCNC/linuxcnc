@@ -1,8 +1,14 @@
-linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
+linuxcnc (2.9.0~pre1-1) UNRELEASED; urgency=medium
 
   * Master branch open for new features.
 
- -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 23 Sep 2021 20:56:25 +0200
+ -- Sebastian Kuzminsky <seb@highlab.com>  Wed, 09 Mar 2022 00:51:34 +0100
+
+linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
+
+  * New upstream version.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 27 Feb 2022 00:11:48 +0100
 
 linuxcnc (1:2.8.2) buster; urgency=low
 
