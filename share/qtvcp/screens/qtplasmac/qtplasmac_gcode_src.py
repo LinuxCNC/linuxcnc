@@ -34,7 +34,13 @@ from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLa
 app = QApplication(sys.argv)
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
-inFile = sys.argv[1]
+inPath = sys.argv[1]
+inFile = os.path.basename(inPath)
+if inFile == 'rfl.ngc':
+    with open(inPath, 'r') as inCode:
+        for line in inCode:
+            print(line.strip())
+    sys.exit()
 filteredBkp = '/tmp/qtplasmac/filtered_bkp.ngc'
 errorFile = '/tmp/qtplasmac/gcode_errors.txt'
 materialFile = '{}_material.cfg'.format(ini.find('EMC', 'MACHINE'))
@@ -314,9 +320,9 @@ def overburn(I, J, radius):
         I += lastX
         J += lastY
     if distMode == 91: # output incremental X & Y
-        gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX - lastX, endY - lastY, I, J, precision))
+        gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f} (overburn)'.format(dir, endX - lastX, endY - lastY, I, J, precision))
     else: # output absolute X & Y
-        gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f}'.format(dir, endX, endY, I, J, precision))
+        gcodeList.append('g{0} x{1:0.{5}f} y{2:0.{5}f} i{3:0.{5}f} j{4:0.{5}f} (overburn)'.format(dir, endX, endY, I, J, precision))
     oBurnX = endX - lastX
     oBurnY = endY - lastY
 
@@ -773,7 +779,7 @@ def message_set(msgType, msg):
 get_materials()
 
 # start processing the gcode file
-with open(inFile, 'r') as inCode:
+with open(inPath, 'r') as inCode:
     if ';qtplasmac filtered G-code file' in inCode.read():
         filtered = True
     inCode.seek(0)
