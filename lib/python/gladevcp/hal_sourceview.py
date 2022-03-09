@@ -224,18 +224,26 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     # This will grab focus and set the cursor active, while highlighting the line.
     # It automatically scrolls if it must.
     # it primes self.match_start for replacing text 
-    def text_search(self,direction=True,mixed_case=True,text="t"):
+    def text_search(self,direction=True,mixed_case=True,text="t",wrap=True):
         CASEFLAG = 0
         if mixed_case:
             CASEFLAG = Gtk.TextSearchFlags.CASE_INSENSITIVE
+        if self.buf.get_selection_bounds():
+            start, end = self.buf.get_selection_bounds()
+            if direction:
+                self.current_iter = end
+            else:
+                self.current_iter = start
         if direction:
-            if self.current_iter.is_end():
-                self.current_iter = self.start_iter.copy()
             found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
+            if not found and wrap:                 
+                self.current_iter = self.start_iter.copy()
+                found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
         else:
-            if self.current_iter.is_start():
-                self.current_iter = self.end_iter.copy()
             found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
+            if not found and wrap:
+                self.current_iter = self.end_iter.copy()
+                found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
         if found:
             # erase any existing highlighting tags
             try:
@@ -253,8 +261,6 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
             self.scroll_to_iter(self.match_start, 0, True, 0, 0.5)
 
         else:
-            self.current_iter = self.start_iter.copy()
-
             self.match_start = self.match_end = None
 
     # check if we already have a match
@@ -272,12 +278,12 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         else:
             self.current_iter = self.buf.get_start_iter()
             while True:
+                self.text_search(direction,mixed_case,text,False)
                 if self.match_start:
                     self.buf.delete(self.match_start, self.match_end)
                     self.buf.insert_at_cursor(re_text)
-                    self.update_iter()
-                self.text_search(direction,mixed_case,text)    
-                if self.current_iter.is_start(): break
+                else:
+                    break
 
     # undo one level of changes
     def undo(self):
