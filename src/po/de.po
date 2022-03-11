@@ -3,8 +3,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-01-26 19:05+0100\n"
-"PO-Revision-Date: 2022-02-14 01:56+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2022-03-06 14:00+0000\n"
+"Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -3133,11 +3133,11 @@ msgstr "Ausführen"
 #: src/hal/classicladder/classicladder_gtk.c:338
 msgid "Stopped ladder program - press run button to continue."
 msgstr ""
-"SPS Programm angehalten - drücke run Button um es weiterlaufen zu lassen."
+"SPS Programm angehalten - drücke \"Ausführen\" um es weiterlaufen zu lassen."
 
 #: src/hal/classicladder/classicladder_gtk.c:344
 msgid "Started Ladder program - press stop to pause."
-msgstr "SPS Program gestartet - drücke stop zum Pausieren."
+msgstr "SPS Programm gestartet - drücke \"Stopp\" zum anhalten."
 
 #: src/hal/classicladder/classicladder_gtk.c:394
 msgid "Load Error"
@@ -3246,8 +3246,8 @@ msgid ""
 "If not saved, all modifications on the current project will be lost  \n"
 msgstr ""
 "Möchten Sie wirklich ein anderes Projekt laden?\n"
-"Wenn nicht gespeichert wird, gehen alle Änderungen am aktuellen Projekt "
-"verloren  \n"
+"Wenn nicht gespeichert, gehen alle Änderungen am aktuellen Projekt verloren. "
+"\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:549
 msgid "Please select the project to save"
@@ -3266,12 +3266,12 @@ msgid ""
 " Do you really want to reset?"
 msgstr ""
 "Das Zurücksetzen eines laufenden Programms\n"
-"kann zu unerwartetem Verhalten führen\n"
-" Wollen Sie wirklich zurücksetzen?"
+"kann zu unerwartetem Verhalten führen.\n"
+"Wollen Sie wirklich zurücksetzen?"
 
 #: src/hal/classicladder/classicladder_gtk.c:572
 msgid "Reset ladder data "
-msgstr "Reset SPS Daten "
+msgstr "SPS Daten zurückgesetzt"
 
 #: src/hal/classicladder/classicladder_gtk.c:596
 msgid "Okay"
@@ -3333,8 +3333,8 @@ msgid ""
 "MODBUS will stop if you quit.\n"
 " Do you really want to quit ?\n"
 msgstr ""
-"MODBUS stoppt, wenn Sie aufhören.\n"
-" Wollen Sie wirklich aufhören?\n"
+"MODBUS stoppt, wenn Sie das Programm schließen.\n"
+"Wollen Sie es wirklich schließen?\n"
 
 #: src/hal/classicladder/classicladder_gtk.c:731
 msgid "Section Display"
@@ -3358,7 +3358,7 @@ msgstr "Statuszeile"
 
 #: src/hal/classicladder/classicladder_gtk.c:836
 msgid "Load"
-msgstr "laden"
+msgstr "Laden"
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
@@ -3479,12 +3479,12 @@ msgstr "Unbekannter Konfigurationstyp für %s: %d\n"
 #: src/hal/classicladder/config_gtk.c:109
 #, c-format
 msgid "Rung Refresh Rate (milliseconds)"
-msgstr "Arbeitszyklus Aktualisierungs-Rate (ms)"
+msgstr "Arbeitszyklus-Aktualisierungsrate (ms)"
 
 #: src/hal/classicladder/config_gtk.c:114
 #, c-format
 msgid "Number of rungs (%d%c used      "
-msgstr "Anzahl an Arbeitszyklen (%d%c genutzt      "
+msgstr "Anzahl an Arbeitszyklen (%d%c genutzt)      "
 
 #: src/hal/classicladder/config_gtk.c:118
 #, c-format
@@ -3509,17 +3509,17 @@ msgstr "Anzahl an Zählern              "
 #: src/hal/classicladder/config_gtk.c:134
 #, c-format
 msgid "Number of Timers IEC            "
-msgstr "A IEC Timernzahl            "
+msgstr "Anzahl IEC Timer            "
 
 #: src/hal/classicladder/config_gtk.c:138
 #, c-format
 msgid "Number of Arithmetic Expressions "
-msgstr "Digitale Eingänge "
+msgstr "Anzahl arithmetischer Ausdrücke"
 
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
 msgid "Number of Sections (%d%c used)   "
-msgstr "Anzahl Sektionen (%d%c genutzt)   "
+msgstr "Anzahl Abschnitte (%d%c genutzt)   "
 
 #: src/hal/classicladder/config_gtk.c:147
 #, c-format
@@ -3534,7 +3534,7 @@ msgstr "Anzahl Timer                 "
 #: src/hal/classicladder/config_gtk.c:156
 #, c-format
 msgid "Number of Monostables            "
-msgstr "Anzahl der Monostabilen            "
+msgstr "Anzahl monostabile            "
 
 #: src/hal/classicladder/config_gtk.c:161
 #, c-format
@@ -3559,12 +3559,12 @@ msgstr "Anzahl S32out HAL Pins            "
 #: src/hal/classicladder/config_gtk.c:177
 #, c-format
 msgid "Number of floatin HAL pins             "
-msgstr "Analoge Eingänge (float)             "
+msgstr "Anzahl floatin HAL Pins             "
 
 #: src/hal/classicladder/config_gtk.c:181
 #, c-format
 msgid "Number of floatout HAL pins            "
-msgstr "Analoge Ausgänge (float)            "
+msgstr "Anzahl floatout HAL Pins            "
 
 #: src/hal/classicladder/config_gtk.c:185
 #, c-format
@@ -3601,17 +3601,17 @@ msgstr "Serielle Baudrate"
 #: src/hal/classicladder/config_gtk.c:641
 #, c-format
 msgid "After transmit pause - milliseconds"
-msgstr "Länge der Pause nach Versenden - millisekunden"
+msgstr "Pause nach Senden - Millisekunden"
 
 #: src/hal/classicladder/config_gtk.c:646
 #, c-format
 msgid "After receive pause - milliseconds"
-msgstr "Länge der Pause nach Empfang - millisekunden"
+msgstr "Pause nach Empfang - Millisekunden"
 
 #: src/hal/classicladder/config_gtk.c:650
 #, c-format
 msgid "Request Timeout length - milliseconds"
-msgstr "Dauer eines Timeouts - millisekunden"
+msgstr "Anfrage-Timeout - Millisekunden"
 
 #: src/hal/classicladder/config_gtk.c:654
 #, c-format
@@ -3626,27 +3626,27 @@ msgstr "Modbus Element Versatz"
 #: src/hal/classicladder/config_gtk.c:662
 #, c-format
 msgid "Debug level"
-msgstr "Debug-Ebene"
+msgstr "Debug-Level"
 
 #: src/hal/classicladder/config_gtk.c:666
 #, c-format
 msgid "Read Coils/inputs map to"
-msgstr "Spulen/Eingänge Zuordnungen lesen für"
+msgstr "'Read Coils'/'Read Inputs' zuordnen zu"
 
 #: src/hal/classicladder/config_gtk.c:670
 #, c-format
 msgid "Write Coils map from"
-msgstr "Coil-Zuordnung schreiben von"
+msgstr "'Write Coil' schreiben von"
 
 #: src/hal/classicladder/config_gtk.c:674
 #, c-format
 msgid "Read register/holding map to"
-msgstr "Lese Register/Holding-Zuordnung für"
+msgstr "'Read Register'/'Read Holding' zuordnen zu"
 
 #: src/hal/classicladder/config_gtk.c:678
 #, c-format
 msgid "Write registers map from"
-msgstr "Schreibe Register Zuordnung von"
+msgstr "'Write Register' zuordnen zu"
 
 #: src/hal/classicladder/config_gtk.c:732
 msgid "NO"
@@ -3658,7 +3658,7 @@ msgstr "JA"
 
 #: src/hal/classicladder/config_gtk.c:783
 msgid "QUIET"
-msgstr "LEISE"
+msgstr "STILL"
 
 #: src/hal/classicladder/config_gtk.c:788
 msgid "LEVEL 1"
@@ -3698,7 +3698,7 @@ msgstr "Modbus Kommunikationseinstellung"
 
 #: src/hal/classicladder/config_gtk.c:1033
 msgid "Modbus  I/O register setup "
-msgstr "Modbus  I/O Register Setup "
+msgstr "Modbus I/O Register Einstellung"
 
 #: src/hal/classicladder/edit.c:147 src/hal/classicladder/edit_sequential.c:73
 #: src/hal/classicladder/symbols_gtk.c:191
@@ -4234,21 +4234,21 @@ msgstr "Sequentielle Version nicht unterstützt...\n"
 #: src/hal/classicladder/manager_gtk.c:229
 #: src/emc/usr_intf/gscreen/gscreen.glade:2373
 msgid "Ladder"
-msgstr "SPS"
+msgstr "Kontaktplan"
 
 #: src/hal/classicladder/manager_gtk.c:72
 #: src/hal/classicladder/manager_gtk.c:234 tcl/bin/halconfig.tcl:196
 msgid "Main"
-msgstr "Haupt"
+msgstr "Main"
 
 #: src/hal/classicladder/manager_gtk.c:76
 #: src/hal/classicladder/manager_gtk.c:231
 msgid "Sequential"
-msgstr "Sequentiell"
+msgstr "Graph"
 
 #: src/hal/classicladder/manager_gtk.c:131
 msgid "This section name already exist or is incorrect !!!"
-msgstr "Ein Abschnitt diesen Namens existiert bereits oder ist inkorrekt !!!"
+msgstr "Dieser Abschnittsname existiert bereits oder ist fehlerhaft !!!"
 
 #: src/hal/classicladder/manager_gtk.c:137
 msgid "This sub-routine number for calls is already defined !!!"
@@ -4260,19 +4260,19 @@ msgstr "Konnte eine neue Sektion nicht hinzufügen. Voll?"
 
 #: src/hal/classicladder/manager_gtk.c:170
 msgid "Do you really want to delete the section ?"
-msgstr "Möchten Sie wirklich diese Sektion löschen?"
+msgstr "Möchten Sie wirklich diesen Abschnitt löschen?"
 
 #: src/hal/classicladder/manager_gtk.c:174
 msgid "You can not delete the last section..."
-msgstr "Sie können die letzte Sektion nicht löschen..."
+msgstr "Sie können den letzten Abschnitt nicht löschen..."
 
 #: src/hal/classicladder/manager_gtk.c:191
 msgid "This section is already executed the first !"
-msgstr "Dieser Abschnitt wird bereits ausgeführt !"
+msgstr "Dieser Abschnitt wird bereits als erster ausgeführt !"
 
 #: src/hal/classicladder/manager_gtk.c:241
 msgid "Add a section..."
-msgstr "Sektion hinzufügen..."
+msgstr "Abschnitt hinzufügen..."
 
 #: src/hal/classicladder/manager_gtk.c:256
 msgid "Language"
@@ -4288,7 +4288,7 @@ msgstr "Name"
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Section Name   "
-msgstr "Sektions-Name   "
+msgstr "Abschnittsname   "
 
 #: src/hal/classicladder/manager_gtk.c:314
 msgid "Language    "
@@ -19671,11 +19671,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3550
 msgid "Undo"
-msgstr "Rückgängig"
+msgstr ""
+"Rück-\n"
+"gängig"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3561
 msgid "Redo"
-msgstr "Wiederherstellen"
+msgstr ""
+"Wieder-\n"
+"herstellen"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3596
 msgid ""
