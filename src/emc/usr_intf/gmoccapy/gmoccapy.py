@@ -146,7 +146,7 @@ INFO_ICON = os.path.join(IMAGEDIR, "std_info.gif")
 def _find_valid_icon_themes():
     valid_icon_themes = [
         # path, name
-        (None, "default")
+        (None, "none")
     ]
     for base_dir in [e for e in [USER_ICON_THEME_DIR, ICON_THEME_DIR] if os.path.exists(e)]:
         for theme_name in os.listdir(base_dir):
@@ -4382,9 +4382,9 @@ class gmoccapy(object):
 
     def _set_icon_theme(self, name):
         print(f"Setting icon theme '{name}'")
-        if name is None or name == "default":
-            # TODO: restore default on the fly
-            message = "Restore default icon theme requires a restart to take effect."
+        if name is None or name == "none":
+            # Switching to none required a restart (skip entire icon theme stuff)
+            message = "Change to no icon theme requires a restart to take effect."
             self.dialogs.warning_dialog(self, _("Just to warn you"), message)
         else:
             self.icon_theme.set_custom_theme(name)
