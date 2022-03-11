@@ -4410,7 +4410,7 @@ class gmoccapy(object):
                 ("img_view_p", "tool_axis_p", 24),
                 ("img_view_x", "tool_axis_x", 24),
                 ("img_view_y", "tool_axis_y", 24),
-                ("img_view_y2", "tool_axis_y2", 24),
+                ("img_view_y2", "tool_axis_y_inv", 24),
                 ("img_view_z", "tool_axis_z", 24),
                 ("img_zoom_in", "zoom_in", 24),
                 ("img_zoom_out", "zoom_out", 24),
@@ -4499,7 +4499,7 @@ class gmoccapy(object):
                 ("img_sel_prev",        "chevron_left",         32),
                 ("img_sel_next",        "chevron_right",        32),
                 ("img_jump_to",         "user_defined_folder",  32),
-                ("img_select",          "open_file",            32),
+                ("img_select",          "select_file",          32),
                 ("img_back_file_load",  "back_to_app",          32),
                 # edit file menu
                 ("img_edit_menu_reload",        "refresh",          32),
