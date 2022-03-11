@@ -1,4 +1,4 @@
-ifneq ($(GTK2_VERSION),)
+ifneq ($(GTK_VERSION),)
 CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	arithm_eval.c \
 	arrays.c \
@@ -33,17 +33,17 @@ CLASSICLADDERSRCS := $(addprefix hal/classicladder/, \
 	vars_names.c \
 	vars_access.c \
         )
-	
-GTK2_CFLAGS += -DGTK_INTERFACE -DGTK2
 
-$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK2_CFLAGS) -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
+GTK_CFLAGS += -DGTK_INTERFACE
+
+$(call TOOBJSDEPS,$(CLASSICLADDERSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS) -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 $(call TOOBJS, $(CLASSICLADDERSRCS)): Makefile.inc
 
 USERSRCS += $(CLASSICLADDERSRCS)
 
 ../bin/classicladder: $(call TOOBJS, $(CLASSICLADDERSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	@$(CC) $(LDFLAGS) $(CFLAGS) $(ULFLAGS) -o $@ $^ $(GTK2_LIBS) -lpthread
+	@$(CC) $(LDFLAGS) $(CFLAGS) $(ULFLAGS) -o $@ $^ $(GTK_LIBS) -lpthread
 
 TARGETS += ../bin/classicladder
 endif
