@@ -381,11 +381,14 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if not self._return_callback is None:
             self._return_callback(self, result)
         # these return via status messages
-        else:
+        elif self._message is not None:
             self._message['RETURN'] = result
             STATUS.emit('general', self._message)
             STATUS.emit('focus-overlay-changed', False, None, None)
             self._message = None
+        # just return result
+        else:
+            LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
 
     # **********************
     # Designer properties
