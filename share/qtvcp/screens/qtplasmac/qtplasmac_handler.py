@@ -1,10 +1,10 @@
-VERSION = '1.222.172'
+VERSION = '1.222.173'
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -407,6 +407,8 @@ class HandlerClass:
         EDITOR.gcodeLexerCall = self.new_gcodeLexerCall
         self.old_pythonLexerCall = EDITOR.pythonLexerCall
         EDITOR.pythonLexerCall = self.new_pythonLexerCall
+        self.old_returnFromDialog = EDITOR.returnFromDialog
+        EDITOR.returnFromDialog = self.new_returnFromDialog
 
     # save a non gcode file and don't load it into linuxcnc
     def new_saveReturn(self, filename):
@@ -414,6 +416,10 @@ class HandlerClass:
         if saved is not None:
             self.w.gcode_editor.editor.setModified(False)
             if saved[-3:] in ['ngc', '.nc', 'tap']:
+                self.rflSelected = False
+                self.rflActive = False
+                self.startLine = 0
+                self.preRflFile = ''
                 ACTION.OPEN_PROGRAM(saved)
 
     # open a non gcode file and don't load it into linuxcnc
@@ -430,7 +436,7 @@ class HandlerClass:
             head = _translate('HandlerClass', 'Unsaved Changes')
             msg0 = _translate('HandlerClass', 'Unsaved changes will be lost')
             msg1 = _translate('HandlerClass', 'Do you want to exit')
-            if not self.dialog_show_yesno(QMessageBox.Question, head, '{}\n\n{}?\n'.format(msg0, msg1)):
+            if not self.dialog_show_yesno(QMessageBox.Question, head, '\n{}\n\n{}?\n'.format(msg0, msg1)):
                 return
         self.w.preview_stack.setCurrentIndex(0)
         if self.fileOpened == True and self.w.gcode_editor.editor.isModified():
@@ -452,6 +458,26 @@ class HandlerClass:
     # we don't use lexer colors
     def new_pythonLexerCall(self):
         pass
+
+    def new_returnFromDialog(self, w, message):
+        if message.get('NAME') == self.w.gcode_editor.load_dialog_code:
+            path = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__'% self.w.gcode_editor.objectName())
+            if path and code:
+                self.w.gcode_editor.openReturn(path)
+        elif message.get('NAME') == self.w.gcode_editor.save_dialog_code:
+            path = message.get('RETURN')
+            code = bool(message.get('ID') == '%s__'% self.w.gcode_editor.objectName())
+            if path and code:
+                if not os.path.basename(path) in ['rfl', 'rfl.ngc']:
+                    self.w.gcode_editor.saveReturn(path)
+                else:
+                    head = _translate('HandlerClass', 'Save Error')
+                    msg0 = _translate('HandlerClass', 'The file name')
+                    msg1 = _translate('HandlerClass', 'is not allowed')
+                    self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{} "{}" {}\n\n'.format(msg0, os.path.basename(path), msg1))
+                    self.w.gcode_editor.getSaveFileName()
+                    return
 
 # patched camera functions
     def camview_patch(self):
@@ -1532,7 +1558,7 @@ class HandlerClass:
                 if self.w.sender().objectName() == 'gcode_editor_display':
                     return
             if line > 1:
-                if not 'rfl.ngc' in self.lastLoadedProgram:
+                if self.lastLoadedProgram != 'rfl.ngc':
                     msg0 = _translate('HandlerClass', 'SELECTED')
                     self.runText = '{} {}'.format(msg0, line)
                     self.rflSelected = True
@@ -1708,10 +1734,10 @@ class HandlerClass:
         bkpName = '{}_V{}_{}.tar.gz'.format(self.machineName, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
         with tarfile.open('{}/{}'.format(bkpPath, bkpName), mode='w:gz', ) as archive:
             archive.add('{}'.format(self.PATHS.CONFIGPATH))
-        head = _translate('HandlerClass', 'BACKUP COMPLETE')
+        head = _translate('HandlerClass', 'Backup Complete')
         msg0 = _translate('HandlerClass', 'A compressed backup of the machine configuration including the machine logs has been saved in your home directory as')
         msg1 = _translate('HandlerClass', 'It is safe to delete this file at any time')
-        self.dialog_show_ok(QMessageBox.Information, head, '{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
+        self.dialog_show_ok(QMessageBox.Information, head, '\n{}:\n{}\n\n{}\n'.format(msg0, bkpName, msg1))
 
     def set_offsets_clicked(self):
         if self.developmentPin:
@@ -1805,7 +1831,6 @@ class HandlerClass:
     def file_clear_clicked(self):
         if self.fileOpened:
             self.fileClear = True
-            self.startLine = 0
             self.rflSelected = False
             self.rflActive = False
             self.startLine = 0
@@ -2047,7 +2072,7 @@ class HandlerClass:
             if self.exitMessage:
                 msg0 += '{}\n\n'.format(self.exitMessage)
             msg0 += _translate('HandlerClass', 'Do you want to shutdown QtPlasmaC')
-            if self.dialog_show_yesno(icon, head, '{}?\n'.format(msg0)):
+            if self.dialog_show_yesno(icon, head, '\n{}?\n'.format(msg0)):
                 event.accept()
             else:
                 event.ignore()
@@ -2111,7 +2136,7 @@ class HandlerClass:
             text = _translate('HandlerClass', 'ERROR SENT TO MACHINE LOG')
         else:
             text = ''
-        self.w.error_label.setText("{}".format(text))
+        self.w.error_label.setText('{}'.format(text))
 
     def touch_off_xy(self, x, y):
         if STATUS.is_on_and_idle() and STATUS.is_all_homed():
@@ -3985,7 +4010,7 @@ class HandlerClass:
             break
         head = _translate('HandlerClass', 'Delete Material')
         msg0 = _translate('HandlerClass', 'Do you really want to delete material')
-        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '{} #{}?\n'.format(msg0, num)):
+        if not self.dialog_show_yesno(QMessageBox.Question, '{}'.format(head), '\n{} #{}?\n'.format(msg0, num)):
             return
         COPY(self.materialFile, self.tmpMaterialFile)
         with open(self.tmpMaterialFile, 'r') as inFile:
@@ -5315,12 +5340,12 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid number of colors defined')
             msg1 = _translate('HandlerClass', 'in custom stylesheet header')
             msg2 = _translate('HandlerClass', 'Reverting to standard stylesheet')
-            self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n{}\n\n{}\n'.format(msg0, msg1, msg2))
+            self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n{}\n\n{}\n'.format(msg0, msg1, msg2))
             self.standard_stylesheet()
         except:
             msg0 = _translate('HandlerClass', 'Cannot open custom stylesheet')
             msg1 = _translate('HandlerClass', 'Reverting to standard stylesheet')
-            self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '{}\n\n{}\n'.format(msg0, msg1))
+            self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n\n{}\n'.format(msg0, msg1))
             self.standard_stylesheet()
 
     def color_button_image(self, button, color):
