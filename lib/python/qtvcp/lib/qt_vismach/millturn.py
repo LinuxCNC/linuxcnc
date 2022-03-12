@@ -18,9 +18,10 @@ import sys
 # in this file, and uncomment last line in HAL file.
 # add joints. Mill has 3.
 c = hal.component("millturngui")
-c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
-c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
+# follow ZYX directly
+#c.newpin("jointX", hal.HAL_FLOAT, hal.HAL_IN)
+#c.newpin("jointY", hal.HAL_FLOAT, hal.HAL_IN)
+#c.newpin("jointZ", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("jointA", hal.HAL_FLOAT, hal.HAL_IN)
 
 # kinematics pins
@@ -198,7 +199,7 @@ xassembly = Translate([xassembly], 0,0, 35)
 # since this moves solely on X axis, only x is 1, rest is zero.
 # you could use fractions for say axis that moves in compound like arm for example
 # but this machine is very simple, so all axis will be purely full on axis and zero on other axis.
-xassembly = HalTranslate([xassembly], c, "jointX", 1, 0, 0)
+xassembly = HalTranslate([xassembly], None, "joint.0.pos-fb", 1, 0, 0)
 
 # Y assembly creation
 ybase = BoxCentered(200, 200, 10)
@@ -211,7 +212,7 @@ ybase = Color([0,1,0,1], [ybase])
 # now define collection of ybase and xassembly.
 yassembly = Collection([ybase, xassembly])
 # define its motion first before translate.
-yassembly = HalTranslate([yassembly], c, "jointY", 0, 1, 0)
+yassembly = HalTranslate([yassembly], None, "joint.1.pos-fb", 0, 1, 0)
 # Now that translate is locked with part,
 # move it upwards so its on frame base.
 yassembly = Translate([yassembly], 0,0,5)
@@ -264,7 +265,7 @@ zframe = Color([1,1,0,1], [zframe])
 # Now that all parts are created, let's group it and finally make Z motion
 zassembly = Collection([zframe, toolassembly])
 # define Z motion
-zassembly = HalTranslate([zassembly], c, "jointZ", 0, 0, 1)
+zassembly = HalTranslate([zassembly], None, "joint.2.pos-fb", 0, 0, 1)
 # Now that motion is defined,
 # we can now move it to Z home position.
 zassembly = Translate([zassembly], 0,0, 400)

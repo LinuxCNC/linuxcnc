@@ -28,10 +28,6 @@ pivot_len = 250 # to agree with default in 5axiskins.c
 za =  50
 zb = 100
 
-for setting in sys.argv[1:]:
-    print(setting)
-    exec(setting)
-
 # give endpoint Z values and radii
 # resulting cylinder is on the Z axis
 class HalToolCylinder(CylinderZ):
