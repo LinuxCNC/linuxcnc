@@ -53,6 +53,7 @@ class _PStat(object):
             self.SCREENDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "screens")
             self.PANELDIR = os.path.join(self.BASEDIR, "share", "qtvcp", "panels")
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
+            self.VISMACHDIR = os.path.join(self.BASEDIR, "lib", "python", "qtvcp", "lib", "qt_vismach")
             # python RIP library directory
             self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
             sys.path.insert(0, self.PYDIR)
@@ -231,3 +232,10 @@ class _PStat(object):
         dirs = next(os.walk(self.PANELDIR))[1]
         return dirs
 
+    def find_vismach_files(self):
+        tmp = []
+        for file in os.listdir(self.VISMACHDIR):
+            if file.endswith(".py"):
+                if not file in ('__init__.py', 'qt_vismach.py', 'primitives.py'):
+                    tmp.append(file)
+        return tmp
