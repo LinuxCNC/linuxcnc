@@ -155,6 +155,10 @@ class gmoccapy(object):
             button {
                 padding: 0;
             }
+            #gcode_edit { 
+                padding: 3px;
+                margin: 1px;
+            }
         """
         provider.load_from_data(css)
 
@@ -226,6 +230,7 @@ class gmoccapy(object):
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
 
         self.file_changed = False
+        self.widgets.hal_action_saveas.connect("saved-as", self.saved_as)
 
         self.lathe_mode = None # we need this to check if we have a lathe config
         self.backtool_lathe = False
@@ -4047,8 +4052,8 @@ class gmoccapy(object):
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
             if self.file_changed:
-                message = "Do you want to exit without saving the changes?"
-                result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
+                message = _("Exit and discard changes?")
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
                 if not result: # user says no, he want to save
                     return
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
@@ -4791,9 +4796,9 @@ class gmoccapy(object):
         self.gcodeerror = ""
         self.file_changed = False
 
-    def on_gcode_view_changed(self, state):
-        print("gcode view changed")
-        self.file_changed = True
+    def on_gcode_view_changed(self, widget, state):
+        print("gcode view changed (modified: {})".format(state))
+        self.file_changed = state
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode
@@ -4871,6 +4876,9 @@ class gmoccapy(object):
             # self.command.program_open(tempfilename)
         self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
+
+    def saved_as(self, widget):
+        self.widgets.btn_save.set_sensitive(True)
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
         opt_blocks = widget.get_active()

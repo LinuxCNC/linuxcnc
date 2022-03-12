@@ -41,7 +41,7 @@ from .hal_filechooser import _EMC_FileChooser
 class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     __gtype_name__ = 'EMC_SourceView'
     __gsignals__ = {
-        'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+        'changed': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
     }
 
     __gproperties__ = {
@@ -58,6 +58,7 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
         self.buf = self.get_buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
+        self.buf.connect('modified-changed', self.modified_changed)
         self.lm = GtkSource.LanguageManager()
         self.sm = GtkSource.StyleSchemeManager()
         if 'EMC2_HOME' in os.environ:
@@ -207,12 +208,15 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     def update_iter(self,widget=None):
         self.start_iter =  self.buf.get_start_iter()
         self.end_iter = self.buf.get_end_iter()
-        # get itter at current insertion point (cursor)
+        # get iter at current insertion point (cursor)
         self.current_iter = self.buf.get_iter_at_mark(self.buf.get_insert())
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
-        self.emit("changed")
+
+    def modified_changed(self, widget):
+        self.update_iter()
+        self.emit("changed", self.buf.get_modified())
 
     # This will search the buffer for a specified text string.
     # You can search forward or back, with mixed case or exact text.
@@ -220,18 +224,26 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     # This will grab focus and set the cursor active, while highlighting the line.
     # It automatically scrolls if it must.
     # it primes self.match_start for replacing text 
-    def text_search(self,direction=True,mixed_case=True,text="t"):
+    def text_search(self,direction=True,mixed_case=True,text="t",wrap=True):
         CASEFLAG = 0
         if mixed_case:
             CASEFLAG = Gtk.TextSearchFlags.CASE_INSENSITIVE
+        if self.buf.get_selection_bounds():
+            start, end = self.buf.get_selection_bounds()
+            if direction:
+                self.current_iter = end
+            else:
+                self.current_iter = start
         if direction:
-            if self.current_iter.is_end():
-                self.current_iter = self.start_iter.copy()
             found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
+            if not found and wrap:                 
+                self.current_iter = self.start_iter.copy()
+                found = Gtk.TextIter.forward_search(self.current_iter,text,CASEFLAG, None)
         else:
-            if self.current_iter.is_start():
-                self.current_iter = self.end_iter.copy()
             found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
+            if not found and wrap:
+                self.current_iter = self.end_iter.copy()
+                found = Gtk.TextIter.backward_search(self.current_iter,text,CASEFLAG, None)
         if found:
             # erase any existing highlighting tags
             try:
@@ -249,8 +261,6 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
             self.scroll_to_iter(self.match_start, 0, True, 0, 0.5)
 
         else:
-            self.current_iter = self.start_iter.copy()
-
             self.match_start = self.match_end = None
 
     # check if we already have a match
@@ -260,17 +270,20 @@ class EMC_SourceView(GtkSource.View, _EMC_ActionBase):
     # if we have gone to the end, stop searching
     # if not replace-all stop searching, otherwise start again
     def replace_text_search(self,direction=True,mixed_case=True,text="t",re_text="T",replace_all=False):
-        while True:
+        if not replace_all:
             if self.match_start:
-                if replace_all:
+                self.buf.delete_interactive(self.match_start, self.match_end,True)
+                self.buf.insert_interactive_at_cursor(re_text,-1,True)
+            self.text_search(direction,mixed_case,text)
+        else:
+            self.current_iter = self.buf.get_start_iter()
+            while True:
+                self.text_search(direction,mixed_case,text,False)
+                if self.match_start:
                     self.buf.delete(self.match_start, self.match_end)
                     self.buf.insert_at_cursor(re_text)
                 else:
-                    self.buf.delete_interactive(self.match_start, self.match_end,True)
-                    self.buf.insert_interactive_at_cursor(re_text,-1,True)
-            self.text_search(direction,mixed_case,text)
-            if self.current_iter.is_start(): break
-            if not replace_all: break
+                    break
 
     # undo one level of changes
     def undo(self):
@@ -286,7 +299,7 @@ def safe_write(filename, data, mode=0o644):
     import os, tempfile
     fd, fn = tempfile.mkstemp(dir=os.path.dirname(filename), prefix=os.path.basename(filename))
     try:
-        os.write(fd, data)
+        os.write(fd, data.encode())
         os.close(fd)
         fd = None
         os.rename(fn, filename)
@@ -317,7 +330,7 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
     def save(self, fn):
         b = self.textview.get_buffer()
         b.set_modified(False)
-        safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter()))
+        safe_write(fn, b.get_text(b.get_start_iter(), b.get_end_iter(), False))
         self._load_file(fn)
 
     def do_set_property(self, property, value):
@@ -337,6 +350,9 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
 
 class EMC_Action_SaveAs(EMC_Action_Save):
     __gtype_name__ = 'EMC_Action_SaveAs'
+    __gsignals__ = {
+        'saved-as': (GObject.SIGNAL_RUN_FIRST, GObject.TYPE_NONE, ()),
+    }
 
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
@@ -346,8 +362,8 @@ class EMC_Action_SaveAs(EMC_Action_Save):
     def on_activate(self, w):
         if not self.textview:
             return
-        dialog = Gtk.FileChooserDialog(title="Save As",action=Gtk.FILE_CHOOSER_ACTION_SAVE,
-                    buttons=(Gtk.STOCK_CANCEL,Gtk.RESPONSE_CANCEL,Gtk.STOCK_SAVE,Gtk.ResponseType.OK))
+        dialog = Gtk.FileChooserDialog(title="Save As",action=Gtk.FileChooserAction.SAVE,
+                    buttons=(Gtk.STOCK_CANCEL,Gtk.ResponseType.CANCEL,Gtk.STOCK_SAVE,Gtk.ResponseType.OK))
         dialog.set_do_overwrite_confirmation(True)
         dialog.set_current_folder(self.currentfolder)
         if self.textview.filename:
@@ -359,3 +375,4 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         if r == Gtk.ResponseType.OK:
             self.save(fn)
             self.currentfolder = os.path.dirname(fn)
+            self.emit('saved-as')
