@@ -819,20 +819,18 @@ the Qt version allows embedding the simulation in other screens. +
 
 === Builtin Samples
 
-There are included sample panels in QTvcp for a 3 axis XYZ mill and a scara mill. +
+There are included sample panels in QTvcp for a 3 axis XYZ mill, a 5 axis gantry +
+a 3 axis mill with an A axis/spindle and a scara mill. +
 These samples, if loaded after a running linuxcnc configuration (including non-QTvcp based screens), +
-will react to machine movement. +
+most will react to machine movement. Some require HAL pins to be connected for movement +
 
-from a terminal: +
+from a terminal (pick one): +
 
 ----
 qtvcp vismach_mill_xyz
-----
-
-or +
-
-----
 qtvcp vismach_scara
+qtvcp vismach_millturn
+qtvcp vismach_5axis_gantry
 ----
 
 === Primitives Library
@@ -843,7 +841,7 @@ A collection is an object of individual machine parts. +
 This holds a hierarchical list of primitive shapes or STL objects that operations can be applied to.
 
 ==== Translate
-This object will perform an openGL translation calculation on a Collection object.
+This object will perform an openGL translation calculation on a Collection object. +
 Translation refers to moving an object to a different position on screen. +
 
 ==== Scale
@@ -859,7 +857,7 @@ if the component argument is set to None, read a HAL system pin directly.
 This object will perform an openGL rotation calculation on a Collection object,
 
 ==== HalRotate
-This object will perform an openGL rotation calculation on a Collection object, offset by the HAL pin value. =
+This object will perform an openGL rotation calculation on a Collection object, offset by the HAL pin value. +
 You can either read a pin from a component owned by the vismach object or, +
 if the component argument is set to None, read a HAL system pin directly.
 

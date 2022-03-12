@@ -69,6 +69,41 @@ loadusr qtvcp vismach_mill_xyz
 .Qtvcp vismach- 3 Axis Mill panel
 image::images/qtvismach.png["Qtvcp Vismach Mill",align="left"]
 
+=== vismach_scara
+
+ - 3d openGL view of a scara based milling machine
+
+[source,hal]
+----
+loadusr qtvcp vismach_scara
+----
+
+.Qtvcp vismach- 3 Axis Mill panel
+image::images/qtvismach_scara.png["Qtvcp Vismach Scara",align="left"]
+
+=== vismach_millturn
+
+ - 3d openGL view of a 3 axis milling machine with an A axis/spindle
+
+[source,hal]
+----
+loadusr qtvcp vismach_millturn
+----
+
+.Qtvcp vismach- 3 Axis Mill panel
+image::images/qtvismach_millturn.png["Qtvcp Vismach MillTurn",align="left"]
+
+=== vismach_mill_5axis_gantry
+
+ - 3d openGL view of a 5 axis gantry typr milling machine
+
+[source,hal]
+----
+loadusr qtvcp vismach_mill_5axis_gantry
+----
+
+.Qtvcp vismach- 3 Axis Mill panel
+image::images/qtvismach_5axis_gantry.png["Qtvcp Vismach 5 Axis Gantry",align="left"]
 
 === tool_dialog
 
