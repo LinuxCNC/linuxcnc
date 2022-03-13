@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2022-01-26 19:05+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-03-13 11:02+0100\n"
 "PO-Revision-Date: 2022-02-14 01:56+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
@@ -2105,11 +2105,11 @@ msgstr ""
 #: tcl/tklinuxcnc.tcl:1225 tcl/tklinuxcnc.tcl:1296 tcl/tklinuxcnc.tcl:1327
 #: tcl/tklinuxcnc.tcl:1358 tcl/tklinuxcnc.tcl:1892 tcl/tklinuxcnc.tcl:1911
 #: tcl/tklinuxcnc.tcl:1930 tcl/tklinuxcnc.tcl:1977
-#: src/emc/usr_intf/axis/scripts/axis.py:1167
-#: src/emc/usr_intf/axis/scripts/axis.py:1268
-#: src/emc/usr_intf/axis/scripts/axis.py:1628
-#: src/emc/usr_intf/axis/scripts/axis.py:2927
-#: src/emc/usr_intf/axis/scripts/axis.py:4166
+#: src/emc/usr_intf/axis/scripts/axis.py:1176
+#: src/emc/usr_intf/axis/scripts/axis.py:1277
+#: src/emc/usr_intf/axis/scripts/axis.py:1637
+#: src/emc/usr_intf/axis/scripts/axis.py:2936
+#: src/emc/usr_intf/axis/scripts/axis.py:4176
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2503,384 +2503,389 @@ msgstr "Canal"
 msgid "Source"
 msgstr "Source"
 
-#: src/emc/motion/control.c:516
+#: src/emc/motion/control.c:508
 #, fuzzy, c-format
 msgid "fault %d during orient in progress"
 msgstr "prise d'origine déjà en cours"
 
-#: src/emc/motion/control.c:675
+#: src/emc/motion/control.c:685
 msgid "G38.4 move finished without breaking contact."
 msgstr "mouvement G38.4 terminé sans quitter le contact."
 
-#: src/emc/motion/control.c:678
+#: src/emc/motion/control.c:688
 msgid "G38.2 move finished without making contact."
 msgstr "mouvement G38.2 terminé sans obtenir le contact."
 
-#: src/emc/motion/control.c:691
+#: src/emc/motion/control.c:701
 #, fuzzy
 msgid "Probe tripped during non-probe move."
 msgstr ""
 "La sonde à touché pendant une commande MDI ne faisant pas appel à elle."
 
-#: src/emc/motion/control.c:729
+#: src/emc/motion/control.c:732
 msgid "Probe tripped during homing motion."
 msgstr "La sonde à touché pendant un mouvement de prise d'origine."
 
-#: src/emc/motion/control.c:733
+#: src/emc/motion/control.c:736
 msgid "Probe tripped during a joint jog."
 msgstr "Contact palpeur pendant la télécommande d'une jointure."
 
-#: src/emc/motion/control.c:736
+#: src/emc/motion/control.c:739
 msgid "Probe tripped during a coordinate jog."
 msgstr "Contact palpeur pendant une télécommande en coordonnées."
 
-#: src/emc/motion/control.c:752
+#: src/emc/motion/control.c:755
 msgid "motion stopped by enable input"
 msgstr "mouvement stoppé par enable input"
 
-#: src/emc/motion/control.c:759
+#: src/emc/motion/control.c:762
 #, fuzzy, c-format
 msgid "spindle %d amplifier fault"
 msgstr "amplificateur jointure %d en défaut"
 
-#: src/emc/motion/control.c:782
+#: src/emc/motion/control.c:785
 #, c-format
 msgid "joint %d on limit switch error"
 msgstr "jointure %d en erreur sur un contact de limite"
 
-#: src/emc/motion/control.c:794
+#: src/emc/motion/control.c:797
 #, c-format
 msgid "joint %d amplifier fault"
 msgstr "amplificateur jointure %d en défaut"
 
-#: src/emc/motion/control.c:803
+#: src/emc/motion/control.c:806
 #, c-format
 msgid "joint %d following error"
 msgstr "Erreur de suivi jointure %d:"
 
-#: src/emc/motion/control.c:816
+#: src/emc/motion/control.c:819
 #, fuzzy, c-format
 msgid "Motion Stopped by misc error %d"
 msgstr "Mouvement interrompu par une erreur diverse %d"
 
-#: src/emc/motion/control.c:1410 src/emc/motion/control.c:1496
+#: src/emc/motion/control.c:1326 src/emc/motion/control.c:1386
 #, c-format
 msgid "kinematicsInverse gave non-finite joint location on joint %d"
 msgstr ""
 "kinematicsInverse a retourné une position de jointure non-finie pour la "
 "jointure %d"
 
-#: src/emc/motion/control.c:1427 src/emc/motion/control.c:1515
+#: src/emc/motion/control.c:1343 src/emc/motion/control.c:1405
 msgid "kinematicsInverse failed"
 msgstr "kinematicsInverse a échoué"
 
-#: src/emc/motion/control.c:1592
+#: src/emc/motion/control.c:1482
 #, fuzzy, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "La jointure %d à dépassé la limite logicielle positive"
 
-#: src/emc/motion/control.c:1595 src/emc/motion/control.c:1604
+#: src/emc/motion/control.c:1485 src/emc/motion/control.c:1494
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
 "La jointure doit avoir son origine réinitialisée, doit être télécommandée à "
 "l'intérieur des limites, et reprendre son origine"
 
-#: src/emc/motion/control.c:1597 src/emc/motion/control.c:1606
+#: src/emc/motion/control.c:1487 src/emc/motion/control.c:1496
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 "Astuce : basculer en mode jointure pour permettre la télécommande au-delà "
 "des limites logicielles"
 
-#: src/emc/motion/control.c:1601
+#: src/emc/motion/control.c:1491
 #, fuzzy, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "La jointure %d à dépassé la limite logicielle positive"
 
-#: src/emc/motion/command.c:145
+#: src/emc/motion/command.c:124
 #, c-format
 msgid "Can't jog invalid joint number %d."
 msgstr "Numéro de jointure %d invalide, télécommande impossible."
 
-#: src/emc/motion/command.c:149
+#: src/emc/motion/command.c:128
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
 msgstr ""
 "La jointure %d à dépassé la limite physique maximale, télécommande "
 "impossible."
 
-#: src/emc/motion/command.c:154
+#: src/emc/motion/command.c:133
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
 msgstr ""
 "La jointure %d à dépassé la limite physique minimale, télécommande "
 "impossible."
 
-#: src/emc/motion/command.c:160
+#: src/emc/motion/command.c:139
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
 msgstr ""
 "La jointure %d à dépassé la limite logicielle maximale, télécommande "
 "impossible."
 
-#: src/emc/motion/command.c:165
+#: src/emc/motion/command.c:144
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
 msgstr ""
 "La jointure %d à dépassé la limite logicielle minimale, télécommande "
 "impossible."
 
-#: src/emc/motion/command.c:220 src/emc/motion/command.c:226
+#: src/emc/motion/command.c:214 src/emc/motion/command.c:219
 #, fuzzy, c-format
 msgid "%s move on line %d would exceed %c's %s limit"
 msgstr ""
 "le mouvement %s de la ligne %d va dépasser la limite positive de la jointure "
 "%d's"
 
-#: src/emc/motion/command.c:221
+#: src/emc/motion/command.c:215
 #, fuzzy
 msgid "negative"
 msgstr "Négatif"
 
-#: src/emc/motion/command.c:227
+#: src/emc/motion/command.c:220
 #, fuzzy
 msgid "positive"
 msgstr "Positif"
 
-#: src/emc/motion/command.c:273
+#: src/emc/motion/command.c:237
 #, c-format
 msgid "%s move on line %d fails kinematicsInverse"
 msgstr "Le mouvement %s à la ligne %d provoque une erreur kinematicsInverse"
 
-#: src/emc/motion/command.c:288
+#: src/emc/motion/command.c:252
 #, c-format
 msgid "%s move on line %d gave non-finite joint location on joint %d"
 msgstr ""
 "Le mouvement %s à la ligne %d donne une position non-finie pour la jointure "
 "%d"
 
-#: src/emc/motion/command.c:295
+#: src/emc/motion/command.c:259
 #, c-format
 msgid "%s move on line %d would exceed joint %d's positive limit"
 msgstr ""
 "le mouvement %s de la ligne %d va dépasser la limite positive de la jointure "
 "%d's"
 
-#: src/emc/motion/command.c:301
+#: src/emc/motion/command.c:265
 #, c-format
 msgid "%s move on line %d would exceed joint %d's negative limit"
 msgstr ""
 "le mouvement %s de la ligne %d va dépasser la limite négative de la jointure "
 "%d's"
 
-#: src/emc/motion/command.c:637
+#: src/emc/motion/command.c:587
 msgid "all joints must be homed before going into coordinated mode"
 msgstr ""
 "La prise d'origine de toutes les jointures doit être faite avant d'aller en "
 "mode coordonné"
 
-#: src/emc/motion/command.c:829 src/emc/motion/command.c:919
-#: src/emc/motion/command.c:1018
+#: src/emc/motion/command.c:779 src/emc/motion/command.c:847
+#: src/emc/motion/command.c:926
 msgid "Can't jog joint when not enabled."
 msgstr "Télécommande de jointure impossible quand la CN n'est pas activée."
 
-#: src/emc/motion/command.c:834 src/emc/motion/command.c:1023
+#: src/emc/motion/command.c:785 src/emc/motion/command.c:853
+#: src/emc/motion/command.c:932
+msgid "Cannot jog while jog-inhibit is active."
+msgstr ""
+
+#: src/emc/motion/command.c:789 src/emc/motion/command.c:936
 msgid "Can't jog any joints while homing."
 msgstr "Télécommande des jointures impossible avant la prise d'origine."
 
-#: src/emc/motion/command.c:924
+#: src/emc/motion/command.c:857
 msgid "Can't jog any joint while homing."
 msgstr "Télécommande de toutes jointures impossible avant la prise d'origine."
 
-#: src/emc/motion/command.c:1101
+#: src/emc/motion/command.c:1001
 msgid "need to be enabled, in coord mode for linear move"
 msgstr "doit être activé en mode coordonné pour mouvement linéaire"
 
-#: src/emc/motion/command.c:1106
+#: src/emc/motion/command.c:1006
 msgid "invalid params in linear command"
 msgstr "Paramètre(s) invalide(s) dans la commande linéaire"
 
-#: src/emc/motion/command.c:1112
+#: src/emc/motion/command.c:1012
 msgid "can't do linear move with limits exceeded"
 msgstr "mouvement linéaire impossible avec des limites dépassées"
 
-#: src/emc/motion/command.c:1142
+#: src/emc/motion/command.c:1042
 #, fuzzy, c-format
 msgid "can't add linear move at line %d, error code %d"
 msgstr "mouvement linéaire impossible avec des limites dépassées"
 
-#: src/emc/motion/command.c:1169
+#: src/emc/motion/command.c:1069
 msgid "need to be enabled, in coord mode for circular move"
 msgstr "doit être activé en mode coordonné pour un mouvement circulaire"
 
-#: src/emc/motion/command.c:1179
+#: src/emc/motion/command.c:1079
 msgid "can't do circular move with limits exceeded"
 msgstr "mouvement circulaire impossible avec des limites dépassées"
 
-#: src/emc/motion/command.c:1198
+#: src/emc/motion/command.c:1098
 #, fuzzy, c-format
 msgid "can't add circular move at line %d, error code %d"
 msgstr "mouvement circulaire impossible avec des limites dépassées"
 
-#: src/emc/motion/command.c:1313
+#: src/emc/motion/command.c:1213
 msgid "MOTION: can't STEP while already executing"
 msgstr "MOTION: can't STEP while already executing"
 
-#: src/emc/motion/command.c:1415
+#: src/emc/motion/command.c:1315
 msgid "can't enable motion, enable input is false"
 msgstr "ne peut pas activer le mouvement, l'entrée activation est false"
 
-#: src/emc/motion/command.c:1479
+#: src/emc/motion/command.c:1379
 msgid "must be in joint mode to home"
 msgstr "doit être en mode jointure pour la prise d'origine"
 
-#: src/emc/motion/command.c:1483
+#: src/emc/motion/command.c:1383
 #, c-format
 msgid "Homing denied by motion.homing-inhibit joint=%d\n"
 msgstr "Prise d'origine refusée par motion.homing-inhibit joint=%d\n"
 
-#: src/emc/motion/command.c:1497
+#: src/emc/motion/command.c:1397
 msgid "homing sequence already in progress"
 msgstr "séquence de prise d'origine déjà en cours"
 
-#: src/emc/motion/command.c:1530
+#: src/emc/motion/command.c:1430
 msgid "must be in joint mode or disabled to unhome"
 msgstr "doit être en mode jointure ou désactivé pour effacer l'origine"
 
-#: src/emc/motion/command.c:1542 src/emc/motion/command.c:1585
+#: src/emc/motion/command.c:1442 src/emc/motion/command.c:1485
 #, c-format
 msgid "Cannot unhome while homing, joint %d"
 msgstr "impossible d'effacer l'origine pendant la prise d'origine, jointure %d"
 
-#: src/emc/motion/command.c:1546 src/emc/motion/command.c:1589
+#: src/emc/motion/command.c:1446 src/emc/motion/command.c:1489
 #, c-format
 msgid "Cannot unhome while moving, joint %d"
 msgstr "impossible d'effacer l'origine pendant un mouvement, jointure %d"
 
-#: src/emc/motion/command.c:1552 src/emc/motion/command.c:1580
+#: src/emc/motion/command.c:1452 src/emc/motion/command.c:1480
 #, fuzzy, c-format
 msgid "Cannot unhome extrajoint <%d> with motion enabled"
 msgstr "Jog d'articulation impossible quand elle n'est pas activée."
 
-#: src/emc/motion/command.c:1594
+#: src/emc/motion/command.c:1494
 #, c-format
 msgid "Cannot unhome inactive joint %d"
 msgstr "impossible d'effacer l'origine d'une jointure inactive, jointure %d"
 
-#: src/emc/motion/command.c:1598
+#: src/emc/motion/command.c:1498
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)"
 msgstr "impossible d'effacer l'origine de la jointure invalide %d (max %d)"
 
-#: src/emc/motion/command.c:1616
+#: src/emc/motion/command.c:1516
 msgid "need to be enabled, in coord mode for probe move"
 msgstr "doit être activé, en mode coordonné pour un mouvement avec sonde"
 
-#: src/emc/motion/command.c:1626
+#: src/emc/motion/command.c:1526
 msgid "can't do probe move with limits exceeded"
 msgstr "mouvement avec sonde impossible avec des limites dépassées"
 
-#: src/emc/motion/command.c:1640
+#: src/emc/motion/command.c:1540
 msgid "Probe is already clear when starting G38.4 or G38.5 move"
 msgstr "la sonde est déjà clair au début du mouvement G38.4 ou G38.5"
 
-#: src/emc/motion/command.c:1642
+#: src/emc/motion/command.c:1542
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
 msgstr "la sonde est enfoncée au début du mouvement G38.2 ou G38.3"
 
-#: src/emc/motion/command.c:1663
+#: src/emc/motion/command.c:1563
 msgid "can't add probe move"
 msgstr "ne peut pas ajouter de mouvement avec sonde"
 
-#: src/emc/motion/command.c:1685
+#: src/emc/motion/command.c:1585
 msgid "need to be enabled, in coord mode for rigid tap move"
 msgstr ""
 "doit être activé, en mode coordonné pour un mouvement de taraudage rigide"
 
-#: src/emc/motion/command.c:1695
+#: src/emc/motion/command.c:1595
 msgid "can't do rigid tap move with limits exceeded"
 msgstr ""
 "ne peut pas lancer un mouvement de taraudage rigide avec des limites "
 "dépassées"
 
-#: src/emc/motion/command.c:1714
+#: src/emc/motion/command.c:1614
 #, fuzzy, c-format
 msgid "can't add rigid tap move at line %d, error code %d"
 msgstr ""
 "ne peut pas lancer un mouvement de taraudage rigide avec des limites "
 "dépassées"
 
-#: src/emc/motion/command.c:1759
+#: src/emc/motion/command.c:1659
 #, fuzzy
 #| msgid "Attempt to start non-existent spindle"
 msgid "Attempt to configure non-existent spindle"
 msgstr "Tentative de démarrage d'une broche inexistante"
 
-#: src/emc/motion/command.c:1777
+#: src/emc/motion/command.c:1677
 msgid "Attempt to start non-existent spindle"
 msgstr "Tentative de démarrage d'une broche inexistante"
 
-#: src/emc/motion/command.c:1828
+#: src/emc/motion/command.c:1728
 #, c-format
 msgid "Attempt to stop non-existent spindle <%d>"
 msgstr "Tentative d'arrêt d'une broche inexistante <%d>"
 
-#: src/emc/motion/command.c:1859
+#: src/emc/motion/command.c:1759
 #, c-format
 msgid "Attempt to orient non-existent spindle <%d>"
 msgstr "Tentative d'orientation d'une broche inexistante <%d>"
 
-#: src/emc/motion/command.c:1905
+#: src/emc/motion/command.c:1805
 #, c-format
 msgid "Attempt to increase non-existent spindle <%d>"
 msgstr "Tentative d'accélérer une broche inexistante <%d>"
 
-#: src/emc/motion/command.c:1929
+#: src/emc/motion/command.c:1829
 #, fuzzy, c-format
 #| msgid "Attempt to decreasenon-existent spindle <%d>"
 msgid "Attempt to decrease non-existent spindle <%d>."
 msgstr "Tentative de décélérer une broche inexistante <%d>"
 
-#: src/emc/motion/command.c:1953
+#: src/emc/motion/command.c:1853
 #, c-format
 msgid "Attempt to engage brake of non-existent spindle <%d>"
 msgstr "Tentative d'engagement du frein d'une broche inexistante <%d>"
 
-#: src/emc/motion/command.c:1975
+#: src/emc/motion/command.c:1875
 #, fuzzy, c-format
 msgid "Attempt to release brake of non-existent spindle <%d>"
 msgstr "Tentative d'élever un nombre négatif à une puissance non entière"
 
-#: src/emc/motion/command.c:1997
+#: src/emc/motion/command.c:1897
 #, c-format
 msgid "joint %d: too many compensation entries"
 msgstr "jointure %d: trop d'entrées de compensation"
 
-#: src/emc/motion/command.c:2003
+#: src/emc/motion/command.c:1903
 #, c-format
 msgid "joint %d: compensation values must increase"
 msgstr "jointure %d: les valeurs de compensations doivent augmenter"
 
-#: src/emc/motion/command.c:2081
+#: src/emc/motion/command.c:1981
 #, c-format
 msgid "unrecognized command %d"
 msgstr "commande %d inconnue"
 
-#: src/emc/motion/motion.c:180
+#: src/emc/motion/motion.c:169
 msgid "all joints must be homed before going into teleop mode"
 msgstr ""
 "La prise d'origine de toutes les jointures doit être faite avant d'aller en "
 "mode teleop"
 
-#: src/emc/motion/motion.c:248
+#: src/emc/motion/motion.c:273
 msgid "MOTION: hal_init() failed\n"
 msgstr "MOTION: défaut hal_init()\n"
 
-#: src/emc/motion/motion.c:253
+#: src/emc/motion/motion.c:278
 #, c-format
 msgid "MOTION: num_joints is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_joints est %d, doit être compris entre 1 et %d\n"
 
-#: src/emc/motion/motion.c:260
+#: src/emc/motion/motion.c:285
 #, c-format
 msgid ""
 "\n"
@@ -2891,7 +2896,7 @@ msgstr ""
 "MOTION : num_extrajoints est %d, doit être compris entre 0 et %d\n"
 "\n"
 
-#: src/emc/motion/motion.c:265
+#: src/emc/motion/motion.c:290
 msgid ""
 "\n"
 "MOTION: nonzero num_extrajoints requires KINEMATICS_BOTH\n"
@@ -2901,7 +2906,7 @@ msgstr ""
 "MOTION: num_extrajoints non nul nécessite KINEMATICS_BOTH\n"
 "\n"
 
-#: src/emc/motion/motion.c:270
+#: src/emc/motion/motion.c:295
 #, c-format
 msgid ""
 "\n"
@@ -2916,121 +2921,134 @@ msgstr ""
 "           Total des jointures=%2d\n"
 "\n"
 
-#: src/emc/motion/motion.c:277
+#: src/emc/motion/motion.c:302
 #, fuzzy, c-format
 msgid "MOTION: num_spindles is %d, must be between 0 and %d\n"
 msgstr "MOTION: num_joints est %d, doit être compris entre 1 et %d\n"
 
-#: src/emc/motion/motion.c:284
+#: src/emc/motion/motion.c:309
 msgid "MOTION: Can't specify both names and number for digital pins\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:298
+#: src/emc/motion/motion.c:323
 #, c-format
 msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_dio est %d, doit être compris entre 1 et %d\n"
 
-#: src/emc/motion/motion.c:304
+#: src/emc/motion/motion.c:329
 msgid "MOTION: Can't specify both names and number for analog pins\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:317
+#: src/emc/motion/motion.c:342
 #, c-format
 msgid "MOTION: num_aio is %d, must be between 1 and %d\n"
 msgstr "MOTION: num_aio est %d, doit être compris entre 1 et %d\n"
 
-#: src/emc/motion/motion.c:323
+#: src/emc/motion/motion.c:348
 msgid "MOTION: Can't specify both names and number for misc error\n"
 msgstr ""
 
-#: src/emc/motion/motion.c:336
+#: src/emc/motion/motion.c:361
 #, fuzzy, c-format
 #| msgid "MOTION: num_dio is %d, must be between 1 and %d\n"
 msgid "MOTION: num_misc_error is %d, must be between 0 and %d\n"
 msgstr "MOTION: num_dio est %d, doit être compris entre 1 et %d\n"
 
-#: src/emc/motion/motion.c:344
+#: src/emc/motion/motion.c:369
 msgid "MOTION: init_hal_io() failed\n"
 msgstr "MOTION: défaut init_hal_io()\n"
 
-#: src/emc/motion/motion.c:352
+#: src/emc/motion/motion.c:377
 msgid "MOTION: init_comm_buffers() failed\n"
 msgstr "MOTION: défaut init_comm_buffers()\n"
 
-#: src/emc/motion/motion.c:360
+#: src/emc/motion/motion.c:383
+#, fuzzy
+#| msgid "MOTION: hal_init() failed\n"
+msgid "MOTION: module_intfc() failed\n"
+msgstr "MOTION: défaut hal_init()\n"
+
+#: src/emc/motion/motion.c:387
+#, fuzzy
+#| msgid "MOTION: hal_init() failed\n"
+msgid "MOTION: tp_init() failed\n"
+msgstr "MOTION: défaut hal_init()\n"
+
+#: src/emc/motion/motion.c:394
 msgid "MOTION: init_threads() failed\n"
 msgstr "MOTION: défaut init_threads()\n"
 
-#: src/emc/motion/motion.c:385
+#: src/emc/motion/motion.c:400
+#, fuzzy
+#| msgid "MOTION: hal_init() failed\n"
+msgid "MOTION: homing_init() failed\n"
+msgstr "MOTION: défaut hal_init()\n"
+
+#: src/emc/motion/motion.c:425
 #, c-format
 msgid "MOTION: hal_stop_threads() failed, returned %d\n"
 msgstr "MOTION: défaut hal_stop_threads(), a retourné %d\n"
 
-#: src/emc/motion/motion.c:391
+#: src/emc/motion/motion.c:431
 #, c-format
 msgid "MOTION: rtapi_shmem_delete() failed, returned %d\n"
 msgstr "MOTION: défaut rtapi_shmem_delete(), a retourné %d\n"
 
-#: src/emc/motion/motion.c:397
+#: src/emc/motion/motion.c:437
 #, c-format
 msgid "MOTION: hal_exit() failed, returned %d\n"
 msgstr "MOTION:défaut hal_exit(), a retourné %d\n"
 
-#: src/emc/motion/motion.c:421
+#: src/emc/motion/motion.c:466
 msgid "MOTION: emcmot_hal_data malloc failed\n"
 msgstr "MOTION: défaut emcmot_hal_data malloc\n"
 
-#: src/emc/motion/motion.c:611
+#: src/emc/motion/motion.c:657
 #, fuzzy, c-format
 msgid "MOTION: spindle %d pin export failed"
 msgstr "MOTION: défaut joint %d pin/param export\n"
 
-#: src/emc/motion/motion.c:622
+#: src/emc/motion/motion.c:667
 #, c-format
 msgid "MOTION: joint %d pin/param export failed\n"
 msgstr "MOTION: défaut joint %d pin/param export\n"
 
-#: src/emc/motion/motion.c:634
-#, fuzzy
-msgid "MOTION: export_joint_home_pins failed\n"
-msgstr "MOTION: défaut init_hal_io()\n"
-
-#: src/emc/motion/motion.c:642
+#: src/emc/motion/motion.c:680
 #, fuzzy, c-format
 msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: défaut joint %d pin/param export\n"
 
-#: src/emc/motion/motion.c:678
-#, fuzzy, c-format
-msgid "MOTION: axis %c pin/param export failed\n"
-msgstr "MOTION: défaut joint %d pin/param export\n"
-
-#: src/emc/motion/homing.c:163
+#: src/emc/motion/homing.c:191
 #, c-format
 msgid "hit limit in home state %d"
 msgstr "limite atteinte en recherche d'origine %d"
 
-#: src/emc/motion/homing.c:173
+#: src/emc/motion/homing.c:201
 #, c-format
 msgid "end of move in home state %d"
 msgstr "fin de mouvement en recherche d'origine %d"
 
-#: src/emc/motion/homing.c:231
+#: src/emc/motion/homing.c:240
 #, fuzzy
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
 msgstr "MOTION: défaut emcmot_hal_data malloc\n"
 
-#: src/emc/motion/homing.c:565
+#: src/emc/motion/homing.c:495
+#, c-format
+msgid "homing.c Unexpected joint=%d jsequence=%d seq=%d\n"
+msgstr ""
+
+#: src/emc/motion/homing.c:627
 #, c-format
 msgid "unknown state '%d' during homing sequence"
 msgstr "état '%d' inconnu durant une séquence de prise d'origine"
 
-#: src/emc/motion/homing.c:628
+#: src/emc/motion/homing.c:686
 #, fuzzy, c-format
 msgid "Cannot home while shared home switch is closed j=%d"
 msgstr "ne peut rechercher l'origine tant que le contact partagé est attaqué"
 
-#: src/emc/motion/homing.c:688
+#: src/emc/motion/homing.c:747
 msgid ""
 "invalid homing config: non-zero LATCH_VEL needs either SEARCH_VEL or "
 "USE_INDEX"
@@ -3038,33 +3056,33 @@ msgstr ""
 "configuration des origines invalide: non-zero LATCH_VEL a besoin de "
 "SEARCH_VEL ou de USE_INDEX"
 
-#: src/emc/motion/homing.c:697
+#: src/emc/motion/homing.c:757
 msgid "invalid homing config: non-zero SEARCH_VEL needs LATCH_VEL"
 msgstr ""
 "configuration des origines invalide: non-zero SEARCH_VEL a besoin de "
 "LATCH_VEL"
 
-#: src/emc/motion/homing.c:845
+#: src/emc/motion/homing.c:905
 #, fuzzy, c-format
 msgid "Home switch inactive before start of backoff move j=%d"
 msgstr "contact d'origine inactif avant le début du mouvement de retour"
 
-#: src/emc/motion/homing.c:894
+#: src/emc/motion/homing.c:953
 #, fuzzy, c-format
 msgid "Home switch active before start of latch move j=%d"
 msgstr "contact d'origine actif avant le début du mouvement de verrouillage"
 
-#: src/emc/motion/homing.c:951
+#: src/emc/motion/homing.c:1010
 #, fuzzy, c-format
 msgid "Home switch inactive before start of latch move j=%d"
 msgstr "contact d'origine inactif avant le début du mouvement de verrouillage"
 
-#: src/emc/motion/homing.c:1202
+#: src/emc/motion/homing.c:1261
 #, fuzzy, c-format
 msgid "hit limit in home state j=%d"
 msgstr "limite atteinte en recherche d'origine %d"
 
-#: src/emc/motion/homing.c:1259
+#: src/emc/motion/homing.c:1317
 #, fuzzy, c-format
 msgid "unknown state '%d' during homing j=%d"
 msgstr "état '%d' inconnu pendant la prise d'origine"
@@ -3184,7 +3202,7 @@ msgstr "Erreur de chargement du fichier de projet..."
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
 #: src/hal/classicladder/symbols_gtk.c:140
-#: src/emc/usr_intf/axis/scripts/axis.py:1572
+#: src/emc/usr_intf/axis/scripts/axis.py:1581
 msgid "Ok"
 msgstr "Ok"
 
@@ -3364,7 +3382,7 @@ msgstr "Charger"
 
 #: src/hal/classicladder/classicladder_gtk.c:841 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
-#: src/emc/usr_intf/axis/scripts/axis.py:2276
+#: src/emc/usr_intf/axis/scripts/axis.py:2285
 msgid "Save"
 msgstr "Enregistrer"
 
@@ -3392,7 +3410,7 @@ msgid "Symbols"
 msgstr "Symboles"
 
 #: src/hal/classicladder/classicladder_gtk.c:877
-#: src/hal/classicladder/config_gtk.c:1024
+#: src/hal/classicladder/config_gtk.c:1025
 #, fuzzy
 msgid "Config"
 msgstr "Configuration HAL"
@@ -3413,8 +3431,8 @@ msgstr "À propos"
 
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
-msgid "%d us"
-msgstr "%d µs"
+msgid "%d µs"
+msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 #, fuzzy
@@ -3422,7 +3440,7 @@ msgid "Config hardware error occurred!"
 msgstr "Erreur de configuration matérielle"
 
 #: src/hal/classicladder/classicladder_gtk.c:984
-#: src/hal/classicladder/config_gtk.c:506 src/hal/classicladder/edit.c:410
+#: src/hal/classicladder/config_gtk.c:507 src/hal/classicladder/edit.c:410
 #: src/hal/classicladder/edit.c:460 src/hal/classicladder/edit.c:471
 #: src/hal/classicladder/edit.c:473 src/hal/classicladder/edit.c:1172
 #: src/hal/classicladder/edit_sequential.c:98
@@ -3453,8 +3471,8 @@ msgstr "Erreur de configuration matérielle"
 #: src/hal/classicladder/spy_vars_gtk.c:379
 #: src/hal/classicladder/symbols_gtk.c:122
 #: src/hal/classicladder/symbols_gtk.c:138
-#: src/hal/classicladder/symbols_gtk.c:140 tcl/tklinuxcnc.tcl:1885
-#: tcl/tooledit.tcl:889
+#: src/hal/classicladder/symbols_gtk.c:140 tcl/bin/halshow.tcl:49
+#: tcl/tklinuxcnc.tcl:1885 tcl/tooledit.tcl:889
 msgid "Error"
 msgstr "Erreur"
 
@@ -3483,106 +3501,132 @@ msgid "Unknown configtype for %s: %d\n"
 msgstr "configtype inconnu pour %s: %d\n"
 
 #: src/hal/classicladder/config_gtk.c:109
-#, c-format
 msgid "Rung Refresh Rate (milliseconds)"
 msgstr "Taux de rafraichissement des l'échelons (millisecondes)"
 
 #: src/hal/classicladder/config_gtk.c:114
-#, c-format
-msgid "Number of rungs (%d%c used      "
-msgstr "Nombre d'échelons (%d%c utilisés)      "
+#, fuzzy
+msgid "Number of rungs"
+msgstr "Nombre de codeurs:"
+
+#: src/hal/classicladder/config_gtk.c:114
+#: src/hal/classicladder/config_gtk.c:143
+#, fuzzy
+#| msgid "Unused"
+msgid "used"
+msgstr "Inutilisé"
 
 #: src/hal/classicladder/config_gtk.c:118
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Bits                  "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:122
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Error Bits                  "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:126
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Words                 "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:130
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Counters              "
 msgstr "Période servo actuelle:             "
 
 #: src/hal/classicladder/config_gtk.c:134
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Timers IEC            "
 msgstr "Période servo actuelle:             "
 
 #: src/hal/classicladder/config_gtk.c:138
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Arithmetic Expressions "
 msgstr "Nombre de broches d'entrée numérique:"
 
 #: src/hal/classicladder/config_gtk.c:143
-#, c-format
-msgid "Number of Sections (%d%c used)   "
-msgstr "Nombre de sections (%d%c utilisées)   "
+#, fuzzy
+msgid "Number of Sections"
+msgstr "Nombre de codeurs:"
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Symbols                "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:152
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of Timers                 "
 msgstr "                    "
 
 #: src/hal/classicladder/config_gtk.c:156
-#, c-format
 msgid "Number of Monostables            "
 msgstr "Nombre de monostables            "
 
 #: src/hal/classicladder/config_gtk.c:161
-#, c-format
 msgid "Number of BIT Inputs HAL pins           "
 msgstr "Nombre d'entrées BIT de broches HAL           "
 
 #: src/hal/classicladder/config_gtk.c:165
-#, c-format
 msgid "Number of BIT Outputs HAL pins          "
 msgstr "Nombre de sorties BIT de broches HAL          "
 
 #: src/hal/classicladder/config_gtk.c:169
-#, c-format
 msgid "Number of S32in HAL pins             "
 msgstr "Nombre de broches HAL S32in             "
 
 #: src/hal/classicladder/config_gtk.c:173
-#, c-format
 msgid "Number of S32out HAL pins            "
 msgstr "Nombre de broches HAL S32out            "
 
 #: src/hal/classicladder/config_gtk.c:177
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of floatin HAL pins             "
 msgstr "Nombre de broches d'entrée analogique (float)"
 
 #: src/hal/classicladder/config_gtk.c:181
-#, fuzzy, c-format
+#, fuzzy
 msgid "Number of floatout HAL pins            "
 msgstr "Nombre de broches de sortie analogique (float)"
 
 #: src/hal/classicladder/config_gtk.c:185
-#, fuzzy, c-format
+#, fuzzy
 msgid "Current path/filename"
 msgstr "le préambule courant"
 
-#: src/hal/classicladder/config_gtk.c:384
+#: src/hal/classicladder/config_gtk.c:294
+#, fuzzy
+msgid "Slave Address"
+msgstr "Enregistrer sous..."
+
+#: src/hal/classicladder/config_gtk.c:294
+msgid "Request Type"
+msgstr ""
+
+#: src/hal/classicladder/config_gtk.c:294
+msgid "1st Modbus Ele."
+msgstr ""
+
+#: src/hal/classicladder/config_gtk.c:294
+msgid "# of Ele"
+msgstr ""
+
+#: src/hal/classicladder/config_gtk.c:294
+msgid "Logic"
+msgstr ""
+
+#: src/hal/classicladder/config_gtk.c:294
+msgid "1st Variable mapped"
+msgstr ""
+
+#: src/hal/classicladder/config_gtk.c:385
 #, fuzzy
 msgid "Inverted"
 msgstr "Inverser"
 
-#: src/hal/classicladder/config_gtk.c:504
+#: src/hal/classicladder/config_gtk.c:505
 #, c-format
 msgid ""
 "Error in I/O modbus conf: overflow for I,B,Q,IQ or WQ mapping detected..."
@@ -3591,126 +3635,126 @@ msgstr ""
 "Erreur dans la configuration des E/S modbus : dépassement détecté pour la "
 "désignation de I, B, Q, IQ or WQ... ASKED=%i, MAX=%i\n"
 
-#: src/hal/classicladder/config_gtk.c:506
+#: src/hal/classicladder/config_gtk.c:507
 msgid "Overflow error for I,B,Q,IQ or WQ mapping detected..."
 msgstr ""
 "Erreur de dépassement détectée pour la désignation de I, B, Q, IQ ou WQ..."
 
-#: src/hal/classicladder/config_gtk.c:632
+#: src/hal/classicladder/config_gtk.c:633
 #, c-format
 msgid "Serial port (blank = IP mode)"
 msgstr "Port série (vide = mode IP)"
 
-#: src/hal/classicladder/config_gtk.c:636
+#: src/hal/classicladder/config_gtk.c:637
 #, fuzzy, c-format
 msgid "Serial baud rate"
 msgstr "Programme Modbus série"
 
-#: src/hal/classicladder/config_gtk.c:641
+#: src/hal/classicladder/config_gtk.c:642
 #, c-format
 msgid "After transmit pause - milliseconds"
 msgstr "Pause après transmission (ms)"
 
-#: src/hal/classicladder/config_gtk.c:646
+#: src/hal/classicladder/config_gtk.c:647
 #, c-format
 msgid "After receive pause - milliseconds"
 msgstr "Pause après réception (ms)"
 
-#: src/hal/classicladder/config_gtk.c:650
+#: src/hal/classicladder/config_gtk.c:651
 #, c-format
 msgid "Request Timeout length - milliseconds"
 msgstr "Durée d'expiration des requêtes (ms)"
 
-#: src/hal/classicladder/config_gtk.c:654
+#: src/hal/classicladder/config_gtk.c:655
 #, c-format
 msgid "Use RTS to send"
 msgstr "Utiliser RTS pour l'envoi"
 
-#: src/hal/classicladder/config_gtk.c:658
+#: src/hal/classicladder/config_gtk.c:659
 #, fuzzy, c-format
 msgid "Modbus element offset"
 msgstr "Offset de longueur d'outil"
 
-#: src/hal/classicladder/config_gtk.c:662
+#: src/hal/classicladder/config_gtk.c:663
 #, fuzzy, c-format
 msgid "Debug level"
 msgstr "niveau de déboguage"
 
-#: src/hal/classicladder/config_gtk.c:666
+#: src/hal/classicladder/config_gtk.c:667
 #, fuzzy, c-format
 msgid "Read Coils/inputs map to"
 msgstr "Lecture de associations des Bobines/Entrées vers"
 
-#: src/hal/classicladder/config_gtk.c:670
+#: src/hal/classicladder/config_gtk.c:671
 #, fuzzy, c-format
 msgid "Write Coils map from"
 msgstr "Écrire les associations de Bobines depuis"
 
-#: src/hal/classicladder/config_gtk.c:674
+#: src/hal/classicladder/config_gtk.c:675
 #, fuzzy, c-format
 msgid "Read register/holding map to"
 msgstr "Lire les correspondances de registre/\"holding\" vers"
 
-#: src/hal/classicladder/config_gtk.c:678
+#: src/hal/classicladder/config_gtk.c:679
 #, fuzzy, c-format
 msgid "Write registers map from"
 msgstr "Écrire les correspondances de registres depuis"
 
-#: src/hal/classicladder/config_gtk.c:732
+#: src/hal/classicladder/config_gtk.c:733
 msgid "NO"
 msgstr "NON"
 
-#: src/hal/classicladder/config_gtk.c:737
+#: src/hal/classicladder/config_gtk.c:738
 #, fuzzy
 msgid "YES"
 msgstr ""
 "NON\n"
 "OUI"
 
-#: src/hal/classicladder/config_gtk.c:783
+#: src/hal/classicladder/config_gtk.c:784
 msgid "QUIET"
 msgstr "SILENCIEUX"
 
-#: src/hal/classicladder/config_gtk.c:788
+#: src/hal/classicladder/config_gtk.c:789
 msgid "LEVEL 1"
 msgstr "NIVEAU 1"
 
-#: src/hal/classicladder/config_gtk.c:792
+#: src/hal/classicladder/config_gtk.c:793
 msgid "LEVEL 2"
 msgstr "NIVEAU 2"
 
-#: src/hal/classicladder/config_gtk.c:796
+#: src/hal/classicladder/config_gtk.c:797
 msgid "LEVEL 3"
 msgstr "NIVEAU 3"
 
-#: src/hal/classicladder/config_gtk.c:969
+#: src/hal/classicladder/config_gtk.c:970
 msgid " To change Modbus port settings, save and reload ladder GUI"
 msgstr ""
 " Pour changer les paramètres de port Modbus, sauvegarder et relancer "
 "l'interface ladder"
 
-#: src/hal/classicladder/config_gtk.c:972
+#: src/hal/classicladder/config_gtk.c:973
 #, fuzzy
 msgid "Updated Modbus configuration"
 msgstr "Créer une nouvelle configuration"
 
-#: src/hal/classicladder/config_gtk.c:995
+#: src/hal/classicladder/config_gtk.c:996
 msgid "Opened Configuration window. Press again to update changes and close"
 msgstr ""
 "Fenêtre de configuration ouverte. Presser à nouveau pour mettre à jour les "
 "changements et fermer"
 
-#: src/hal/classicladder/config_gtk.c:1027
+#: src/hal/classicladder/config_gtk.c:1028
 #, fuzzy
 msgid "Period/object info"
 msgstr "Informations sur la Période/l'Objet"
 
-#: src/hal/classicladder/config_gtk.c:1030
+#: src/hal/classicladder/config_gtk.c:1031
 #, fuzzy
 msgid "Modbus communication setup"
 msgstr "Compensation de rayon à gauche"
 
-#: src/hal/classicladder/config_gtk.c:1033
+#: src/hal/classicladder/config_gtk.c:1034
 msgid "Modbus  I/O register setup "
 msgstr "Configuration du registre d'E/S Modbus "
 
@@ -3877,10 +3921,10 @@ msgstr "Modifier"
 #: tcl/bin/pickconfig.tcl:432 tcl/bin/pickconfig.tcl:625 tcl/tklinuxcnc.tcl:163
 #: tcl/tklinuxcnc.tcl:214 tcl/tklinuxcnc.tcl:421 tcl/tklinuxcnc.tcl:1227
 #: tcl/tklinuxcnc.tcl:1297 tcl/tklinuxcnc.tcl:1328 tcl/tklinuxcnc.tcl:1359
-#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1573
-#: src/emc/usr_intf/axis/scripts/axis.py:1629
-#: src/emc/usr_intf/axis/scripts/axis.py:1859
-#: src/emc/usr_intf/axis/scripts/axis.py:2277
+#: tcl/tklinuxcnc.tcl:1978 src/emc/usr_intf/axis/scripts/axis.py:1582
+#: src/emc/usr_intf/axis/scripts/axis.py:1638
+#: src/emc/usr_intf/axis/scripts/axis.py:1868
+#: src/emc/usr_intf/axis/scripts/axis.py:2286
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:727
 #: src/emc/usr_intf/stepconf/main_page.glade:475
 #: src/emc/usr_intf/pncconf/main_page.glade:101
@@ -4077,12 +4121,12 @@ msgstr "DO_MANY_TRANSITIONS: nb clics=2 !!!, TypeBak=%d, TypeNow=%d\n"
 msgid "Properties"
 msgstr "_Propriétés..."
 
-#: src/hal/classicladder/editproperties_gtk.c:180
+#: src/hal/classicladder/editproperties_gtk.c:180 tcl/bin/halshow.tcl:241
 #, fuzzy
 msgid "Parameter"
 msgstr "Paramètres"
 
-#: src/hal/classicladder/editproperties_gtk.c:213
+#: src/hal/classicladder/editproperties_gtk.c:213 tcl/bin/halshow.tcl:585
 #: lib/python/gladevcp/tooledit_gtk.glade:340
 msgid "Apply"
 msgstr "Appliquer"
@@ -4825,7 +4869,7 @@ msgid "Save To File"
 msgstr "Enregistrer dans un fichier"
 
 #: tcl/bin/emccalib.tcl:119 tcl/bin/genedit.tcl:77 tcl/bin/halconfig.tcl:151
-#: tcl/bin/halshow.tcl:87 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
+#: tcl/bin/halshow.tcl:197 tcl/tklinuxcnc.tcl:748 tcl/ngcgui.tcl:493
 msgid "File"
 msgstr "Fichier"
 
@@ -4928,13 +4972,13 @@ msgstr "Ouvrir..."
 msgid "Save As..."
 msgstr "Enregistrer sous..."
 
-#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:97
+#: tcl/bin/genedit.tcl:87 tcl/bin/halconfig.tcl:165 tcl/bin/halshow.tcl:207
 #: tcl/tklinuxcnc.tcl:763 tcl/ngcgui.tcl:1335 tcl/ngcgui.tcl:3853
 msgid "Exit"
 msgstr "Quitter"
 
 #: tcl/bin/genedit.tcl:91 src/emc/usr_intf/gscreen/gscreen.glade:2720
-#: lib/python/gladevcp/offsetpage.glade:476
+#: lib/python/gladevcp/offsetpage.glade:488
 msgid "Edit"
 msgstr "Éditer"
 
@@ -4942,7 +4986,7 @@ msgstr "Éditer"
 msgid "Cut"
 msgstr "Couper"
 
-#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:527
+#: tcl/bin/genedit.tcl:94 tcl/bin/halshow.tcl:784 tcl/bin/halshow.tcl:802
 msgid "Copy"
 msgstr "Copier"
 
@@ -5118,7 +5162,7 @@ msgstr "Ne pas enregistrer"
 msgid "Show"
 msgstr "Afficher"
 
-#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:124
+#: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:234
 msgid "Watch"
 msgstr "Watch"
 
@@ -5150,19 +5194,19 @@ msgstr "Déployer l'arborescence"
 msgid "Collapse Tree"
 msgstr "Replier l'arborescence"
 
-#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:116
+#: tcl/bin/halconfig.tcl:175 tcl/bin/halshow.tcl:226
 msgid "Expand Pins"
 msgstr "Déployer les « pins »"
 
-#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:118
+#: tcl/bin/halconfig.tcl:177 tcl/bin/halshow.tcl:228
 msgid "Expand Parameters"
 msgstr "Déployer les paramètres"
 
-#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:120
+#: tcl/bin/halconfig.tcl:179 tcl/bin/halshow.tcl:230
 msgid "Expand Signals"
 msgstr "Déployer les signaux"
 
-#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:137
+#: tcl/bin/halconfig.tcl:182 tcl/bin/halshow.tcl:245
 msgid "Erase Watch"
 msgstr "Effacer l'écran de watch "
 
@@ -5170,7 +5214,7 @@ msgstr "Effacer l'écran de watch "
 msgid "Enter HAL command :"
 msgstr "Entrer une commande HAL:"
 
-#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:315
+#: tcl/bin/halconfig.tcl:479 tcl/bin/halconfig.tcl:528 tcl/bin/halshow.tcl:524
 msgid "Execute"
 msgstr "Exécuter"
 
@@ -5192,11 +5236,11 @@ msgstr ""
 " a changé. \n"
 " Quitter vraiment ?"
 
-#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:380
+#: tcl/bin/halconfig.tcl:943 tcl/bin/halshow.tcl:629
 msgid "Select a node to show."
 msgstr "Sélectionner un « node » à afficher"
 
-#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:433
+#: tcl/bin/halconfig.tcl:968 tcl/bin/halshow.tcl:683
 msgid "<-- Select a Leaf.  Click on its name."
 msgstr "<-- Sélectionner une feuille par un clic sur son nom."
 
@@ -5239,131 +5283,224 @@ msgstr ""
 "garantie ou responsabilité pour son usage dans la mesure autorisée par la "
 "loi."
 
-#: tcl/bin/halshow.tcl:34 tcl/tklinuxcnc.tcl:814
-msgid "HAL Show"
-msgstr "Afficher HAL"
+#: tcl/bin/halshow.tcl:105
+#, fuzzy
+msgid "Halshow"
+msgstr "HalScope"
 
-#: tcl/bin/halshow.tcl:71
+#: tcl/bin/halshow.tcl:153
 msgid " SHOW "
 msgstr " MONTRER "
 
-#: tcl/bin/halshow.tcl:72
+#: tcl/bin/halshow.tcl:154
 msgid " WATCH "
 msgstr " WATCH "
 
-#: tcl/bin/halshow.tcl:89
+#: tcl/bin/halshow.tcl:155
+msgid " SETTINGS "
+msgstr ""
+
+#: tcl/bin/halshow.tcl:199
 msgid "Load Watch List"
 msgstr "Charger liste de watch"
 
-#: tcl/bin/halshow.tcl:91
+#: tcl/bin/halshow.tcl:201
 #, fuzzy
 msgid "Save Watch List"
 msgstr "Charger liste de watch"
 
-#: tcl/bin/halshow.tcl:92
+#: tcl/bin/halshow.tcl:202
 msgid "Save Watch List (multiline)"
 msgstr "Enregistrer à liste de surveillance (multi-lignes)"
 
-#: tcl/bin/halshow.tcl:109
+#: tcl/bin/halshow.tcl:219 tcl/bin/halshow.tcl:292 tcl/bin/halshow.tcl:304
 msgid "Tree View"
 msgstr "Arborescence"
 
-#: tcl/bin/halshow.tcl:111
+#: tcl/bin/halshow.tcl:221
 #, fuzzy
 #| msgid "Expand sub"
 msgid "Expand All"
 msgstr "Déployer sous-programme"
 
-#: tcl/bin/halshow.tcl:113
+#: tcl/bin/halshow.tcl:223
 #, fuzzy
 #| msgid "Collapse Tree"
 msgid "Collapse All"
 msgstr "Replier l'arborescence"
 
-#: tcl/bin/halshow.tcl:126
+#: tcl/bin/halshow.tcl:236
 #, fuzzy
 msgid "Add pin"
 msgstr "Direction A"
 
-#: tcl/bin/halshow.tcl:127 tcl/bin/halshow.tcl:129 tcl/bin/halshow.tcl:131
-msgid "Add to watch"
-msgstr "Ajouter à la surveillance"
+#: tcl/bin/halshow.tcl:237
+#, fuzzy
+#| msgid "Pins"
+msgid "Pin"
+msgstr "Pins"
 
-#: tcl/bin/halshow.tcl:128
+#: tcl/bin/halshow.tcl:238
 #, fuzzy
 msgid "Add signal"
 msgstr "Direction A"
 
-#: tcl/bin/halshow.tcl:130
+#: tcl/bin/halshow.tcl:239
+#, fuzzy
+#| msgid "Signals"
+msgid "Signal"
+msgstr "Signaux"
+
+#: tcl/bin/halshow.tcl:240
 #, fuzzy
 msgid "Add parameter"
 msgstr "Paramètres"
 
-#: tcl/bin/halshow.tcl:133
-#, fuzzy
-msgid "Set Watch interval"
-msgstr "Charger liste de watch"
-
-#: tcl/bin/halshow.tcl:135
+#: tcl/bin/halshow.tcl:243
 #, fuzzy
 #| msgid "Load Watch List"
 msgid "Reload Watch"
 msgstr "Charger liste de watch"
 
-#: tcl/bin/halshow.tcl:305
+#: tcl/bin/halshow.tcl:248
+msgid "Watchlist cleared"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:254
+msgid "Add to watch"
+msgstr "Ajouter à la surveillance"
+
+#: tcl/bin/halshow.tcl:257
+#, fuzzy
+#| msgid "Added"
+msgid "added"
+msgstr "Ajouté"
+
+#: tcl/bin/halshow.tcl:514
 #, fuzzy
 #| msgid "Test HAL command :"
 msgid "HAL command :"
 msgstr "Tester une commande HAL :"
 
-#: tcl/bin/halshow.tcl:529
+#: tcl/bin/halshow.tcl:574
+msgid "Update interval (in ms)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:575
+msgid "Column width for value in watch tab"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:576
+msgid "Override format string (leave empty for default)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:578
+msgid "Float"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:579
+#, fuzzy
+#| msgid "Interpreter"
+msgid "Integer"
+msgstr "Interpréteur"
+
+#: tcl/bin/halshow.tcl:582
+msgid ""
+"Always on top\n"
+"(Note: May not working with all desktop environments)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:584
+msgid "Remember watchlist"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:591
+msgid "Settings stored in: "
+msgstr ""
+
+#: tcl/bin/halshow.tcl:695
+msgid "already in list"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:786
 #, fuzzy
 msgid "Set to .."
 msgstr "Choisir police"
 
-#: tcl/bin/halshow.tcl:532
+#: tcl/bin/halshow.tcl:789
 msgid "Unlink pin"
 msgstr "Dissocier la broche"
 
-#: tcl/bin/halshow.tcl:534
+#: tcl/bin/halshow.tcl:791
 #, fuzzy
 #| msgid "remove"
 msgid "Remove"
 msgstr "enlever"
 
-#: tcl/bin/halshow.tcl:551 tcl/bin/halshow.tcl:617
+#: tcl/bin/halshow.tcl:803
+#, fuzzy
+msgid "Add as Pin(s)"
+msgstr "Direction A"
+
+#: tcl/bin/halshow.tcl:804
+#, fuzzy
+msgid "Add as Signal(s)"
+msgstr "Direction A"
+
+#: tcl/bin/halshow.tcl:805
+msgid "Add as Param(s)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:837 tcl/bin/halshow.tcl:905
 #, fuzzy
 #| msgid "Sent"
 msgid "Set"
 msgstr "Envoyé"
 
-#: tcl/bin/halshow.tcl:571
+#: tcl/bin/halshow.tcl:857
 #, fuzzy
 #| msgid "Unused Input"
 msgid "User input"
 msgstr "Entrée inutilisée"
 
-#: tcl/bin/halshow.tcl:618
+#: tcl/bin/halshow.tcl:906
 msgid "Update interval for this session (ms)"
 msgstr ""
 
-#: tcl/bin/halshow.tcl:620
+#: tcl/bin/halshow.tcl:908
 #, fuzzy
 #| msgid "G code out of range"
 msgid "Value out of range"
 msgstr "G code hors d'étendue"
 
-#: tcl/bin/halshow.tcl:706
+#: tcl/bin/halshow.tcl:976
+msgid "removed from list"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:1006
 msgid "Load a watch list"
 msgstr "Charger une liste de watch"
 
-#: tcl/bin/halshow.tcl:738
+#: tcl/bin/halshow.tcl:1028
+#, fuzzy
+msgid "loaded"
+msgstr "_Recharger"
+
+#: tcl/bin/halshow.tcl:1039
 msgid "Save current watch list"
 msgstr "Enregistrer liste de watch courante"
 
-#: tcl/bin/halshow.tcl:762
+#: tcl/bin/halshow.tcl:1071
 msgid "Commands may be tested here but they will NOT be saved"
 msgstr "Ces commandes peuvent être testées ici mais ne seront PAS enregistrées"
+
+#: tcl/bin/halshow.tcl:1096
+msgid "Integer (disabled by \"--iformat\" argument)"
+msgstr ""
+
+#: tcl/bin/halshow.tcl:1102
+msgid "Float (disabled by \"--fformat\" argument)"
+msgstr ""
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5586,7 +5723,7 @@ msgstr "Ajuster l'offset d'outil"
 msgid "Tool:"
 msgstr "Outil:"
 
-#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2197
+#: tcl/tklinuxcnc.tcl:466 src/emc/usr_intf/axis/scripts/axis.py:2206
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:763
 msgid "All files"
 msgstr "Tous les fichiers"
@@ -5657,9 +5794,9 @@ msgstr "auto"
 msgid "inches"
 msgstr "pouces"
 
-#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1728
-#: src/emc/usr_intf/axis/scripts/axis.py:2014
-#: src/emc/usr_intf/axis/scripts/axis.py:2591
+#: tcl/tklinuxcnc.tcl:786 src/emc/usr_intf/axis/scripts/axis.py:1737
+#: src/emc/usr_intf/axis/scripts/axis.py:2023
+#: src/emc/usr_intf/axis/scripts/axis.py:2600
 #: src/emc/usr_intf/touchy/touchy.glade:3272
 #: src/emc/usr_intf/stepconf/stepconf.py:1571
 #: src/emc/usr_intf/stepconf/pages.py:960
@@ -5696,6 +5833,10 @@ msgstr "HalScope"
 #, fuzzy
 msgid "Set Coordinates"
 msgstr "Réglage coordonnées de LinuxCNC"
+
+#: tcl/tklinuxcnc.tcl:814
+msgid "HAL Show"
+msgstr "Afficher HAL"
 
 #: tcl/tklinuxcnc.tcl:815
 msgid "HAL Config"
@@ -6016,7 +6157,7 @@ msgid "Coordinate System Control Window"
 msgstr "Fenêtre de contrôle des coordonnées système"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3609
+#: src/emc/usr_intf/axis/scripts/axis.py:3619
 msgid "Axis "
 msgstr "Axe"
 
@@ -6110,11 +6251,15 @@ msgid "expected"
 msgstr "attendu"
 
 #: tcl/ngcgui.tcl:739
-msgid "no sub found in file"
+#, fuzzy
+#| msgid "no sub found in file"
+msgid "no 'sub' found in file"
 msgstr "pas de sub dans le fichier"
 
 #: tcl/ngcgui.tcl:742
-msgid "no endsub found in file"
+#, fuzzy
+#| msgid "no endsub found in file"
+msgid "no 'endsub' found in file"
 msgstr "pas de endsub dans le fichier"
 
 #: tcl/ngcgui.tcl:814
@@ -6594,8 +6739,8 @@ msgstr "Trouve plusieurs occurrences pour"
 msgid "using path"
 msgstr "utiliser le chemin"
 
-#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2652
-#: src/emc/usr_intf/axis/scripts/axis.py:2678
+#: tcl/ngcgui.tcl:3811 src/emc/usr_intf/axis/scripts/axis.py:2661
+#: src/emc/usr_intf/axis/scripts/axis.py:2687
 msgid "Warning"
 msgstr "Attention"
 
@@ -7105,405 +7250,405 @@ msgstr "Voulez-vous vraiment fermer LinuxCNC ?"
 msgid "Confirm Close"
 msgstr "Configuration copiée"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:181
+#: src/emc/usr_intf/axis/scripts/axis.py:182
 msgid "Emergency stop"
 msgstr "Arrêt d'urgence"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:182
+#: src/emc/usr_intf/axis/scripts/axis.py:183
 msgid "Turn machine on"
 msgstr "Marche machine"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:184
+#: src/emc/usr_intf/axis/scripts/axis.py:185
 msgid "Activate first axis"
 msgstr "Activer le premier axe"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:185
+#: src/emc/usr_intf/axis/scripts/axis.py:186
 msgid "Activate second axis"
 msgstr "Activer le deuxième axe "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:186
+#: src/emc/usr_intf/axis/scripts/axis.py:187
 msgid "Activate third axis"
 msgstr "Activer le troisième axe "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:187
+#: src/emc/usr_intf/axis/scripts/axis.py:188
 msgid "Activate fourth axis"
 msgstr "Activer le quatrième axe "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:188
+#: src/emc/usr_intf/axis/scripts/axis.py:189
 #, fuzzy
 msgid "Activate first through ninth joint"
 msgstr "Activer du cinquième axe au neuvième"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:189
+#: src/emc/usr_intf/axis/scripts/axis.py:190
 #, fuzzy
 msgid "if joints radiobuttons visible"
 msgstr "si les boutons radio des jointures sont visibles"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:190
+#: src/emc/usr_intf/axis/scripts/axis.py:191
 msgid "Set Feed Override from 0% to 100%"
 msgstr "Correction de la vitesse entre 0% et 100%"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:191
+#: src/emc/usr_intf/axis/scripts/axis.py:192
 #, fuzzy
 msgid "if axes radiobuttons visible"
 msgstr "si les boutons radios des axes sont visibles"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:192
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid ", and ."
 msgstr ", et ."
 
-#: src/emc/usr_intf/axis/scripts/axis.py:192
+#: src/emc/usr_intf/axis/scripts/axis.py:193
 msgid "Select jog speed"
 msgstr "Sélection de la vitesse de télécommande"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:193
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "< and >"
 msgstr "< et >"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:193
+#: src/emc/usr_intf/axis/scripts/axis.py:194
 msgid "Select angular jog speed"
 msgstr "Sélection de la vitesse angulaire de télécommande"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:194
+#: src/emc/usr_intf/axis/scripts/axis.py:195
 msgid "I, Shift-I"
 msgstr "I, Maj+I"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:194 share/axis/tcl/axis.tcl:2269
+#: src/emc/usr_intf/axis/scripts/axis.py:195 share/axis/tcl/axis.tcl:2269
 msgid "Select jog increment"
 msgstr "Sélection d'incrément de télécommande"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:195
+#: src/emc/usr_intf/axis/scripts/axis.py:196
 msgid "Continuous jog"
 msgstr "Télécommande en continu"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:196
+#: src/emc/usr_intf/axis/scripts/axis.py:197
 msgid "Home"
 msgstr "Origine"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:196
+#: src/emc/usr_intf/axis/scripts/axis.py:197
 #, fuzzy
 msgid "Send active joint home"
 msgstr "Prise d'origine machine de l'axe courant"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:197
+#: src/emc/usr_intf/axis/scripts/axis.py:198
 msgid "Ctrl-Home"
 msgstr "Ctrl+origine"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:197
+#: src/emc/usr_intf/axis/scripts/axis.py:198
 #, fuzzy
 msgid "Home all joints"
 msgstr "Prise d'origine machine de tous les axes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:198
+#: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Shift-Home"
 msgstr "Maj+origine"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:198
+#: src/emc/usr_intf/axis/scripts/axis.py:199
 msgid "Zero G54 offset for active axis"
 msgstr "Annule le décalage G54 de l'axe actif"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:199
+#: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "End"
 msgstr "Fin"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:199
+#: src/emc/usr_intf/axis/scripts/axis.py:200
 msgid "Set G54 offset for active axis"
 msgstr "Valide le décalage G54 de l'axe actif"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:200
+#: src/emc/usr_intf/axis/scripts/axis.py:201
 #, fuzzy
 msgid "Ctrl-End"
 msgstr "Ctrl+R"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:200
+#: src/emc/usr_intf/axis/scripts/axis.py:201
 #, fuzzy
 msgid "Set tool offset for loaded tool"
 msgstr "Valide le décalage G54 de l'axe actif"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:201
+#: src/emc/usr_intf/axis/scripts/axis.py:202
 msgid "Jog active axis or joint"
 msgstr "Télécommande de l'axe actif"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:202
+#: src/emc/usr_intf/axis/scripts/axis.py:203
 #, fuzzy
 msgid "Select Max velocity"
 msgstr "Vitesse maximale:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:205
+#: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Left, Right"
 msgstr "Gauche, Droite"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:205
+#: src/emc/usr_intf/axis/scripts/axis.py:206
 msgid "Jog first axis or joint"
 msgstr "Télécommande de la première jointure"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:206
+#: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Up, Down"
 msgstr "Haut, Bas"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:206
+#: src/emc/usr_intf/axis/scripts/axis.py:207
 msgid "Jog second axis or joint"
 msgstr "Télécommande de la deuxième jointure"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Pg Up, Pg Dn"
 msgstr "Pg.Préc, Pg.Suiv"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:207
+#: src/emc/usr_intf/axis/scripts/axis.py:208
 msgid "Jog third axis or joint"
 msgstr "Télécommande de la troisième jointure"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:208
+#: src/emc/usr_intf/axis/scripts/axis.py:209
 msgid "Shift+above jogs"
 msgstr "Shift+Flèche Haut télécommande"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:208
+#: src/emc/usr_intf/axis/scripts/axis.py:209
 msgid "Jog at traverse speed"
 msgstr "Télécommande en vitesse rapide"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:209
+#: src/emc/usr_intf/axis/scripts/axis.py:210
 msgid "Jog fourth axis or joint"
 msgstr "Télécommande de la quatrième jointure"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:212
+#: src/emc/usr_intf/axis/scripts/axis.py:213
 msgid "Toggle between Drag and Rotate mode"
 msgstr "Bascule entre « glisser la vue » et « tourner la vue »"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:213
+#: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Left Button"
 msgstr "Bouton gauche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:213
+#: src/emc/usr_intf/axis/scripts/axis.py:214
 msgid "Pan, rotate or select line"
 msgstr "Glisser la vue, la tourner ou sélectionner la ligne"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:214
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Shift+Left Button"
 msgstr "Maj+bouton gauche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:214
+#: src/emc/usr_intf/axis/scripts/axis.py:215
 msgid "Rotate or pan"
 msgstr "Rotation ou glissement de la vue"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:215
+#: src/emc/usr_intf/axis/scripts/axis.py:216
 msgid "Right Button"
 msgstr "Bouton droit"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:215
-#: src/emc/usr_intf/axis/scripts/axis.py:217
+#: src/emc/usr_intf/axis/scripts/axis.py:216
 #: src/emc/usr_intf/axis/scripts/axis.py:218
+#: src/emc/usr_intf/axis/scripts/axis.py:219
 msgid "Zoom view"
 msgstr "Zoomer la vue"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:216
+#: src/emc/usr_intf/axis/scripts/axis.py:217
 msgid "Wheel Button"
 msgstr "Appui molette souris"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:216
+#: src/emc/usr_intf/axis/scripts/axis.py:217
 msgid "Rotate view"
 msgstr "Tourner la vue"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:217
+#: src/emc/usr_intf/axis/scripts/axis.py:218
 msgid "Rotate Wheel"
 msgstr "Rotation molette souris"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:218
+#: src/emc/usr_intf/axis/scripts/axis.py:219
 msgid "Control+Left Button"
 msgstr "Ctrl+bouton gauche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:221
+#: src/emc/usr_intf/axis/scripts/axis.py:222
 msgid "Manual control"
 msgstr "Contrôle manuel"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:222
+#: src/emc/usr_intf/axis/scripts/axis.py:223
 msgid "Code entry (MDI)"
 msgstr "Données en manuel (MDI)"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:223
+#: src/emc/usr_intf/axis/scripts/axis.py:224
 msgid "Control-M"
 msgstr "Ctrl+M"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:223
+#: src/emc/usr_intf/axis/scripts/axis.py:224
 msgid "Clear MDI history"
 msgstr "Vider l'historique du MDI"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:224
+#: src/emc/usr_intf/axis/scripts/axis.py:225
 msgid "Control-H"
 msgstr "Ctrl+H"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:224
+#: src/emc/usr_intf/axis/scripts/axis.py:225
 msgid "Copy selected MDI history elements"
 msgstr "Copier la sélection de l'historique du MDI"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:225
+#: src/emc/usr_intf/axis/scripts/axis.py:226
 msgid "to clipboard"
 msgstr "dans le presse-papiers"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:226
+#: src/emc/usr_intf/axis/scripts/axis.py:227
 msgid "Control-Shift-H"
 msgstr "Ctrl+Maj+H"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:226
+#: src/emc/usr_intf/axis/scripts/axis.py:227
 msgid "Paste clipboard to MDI history"
 msgstr "Coller dans l'historique du MDI"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:227 share/axis/tcl/axis.tcl:950
+#: src/emc/usr_intf/axis/scripts/axis.py:228 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
 msgid "Override Limits"
 msgstr "Dépassement des limites"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:229
+#: src/emc/usr_intf/axis/scripts/axis.py:230
 msgid "Open program"
 msgstr "Ouvrir programme"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:230
+#: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Control-R"
 msgstr "Ctrl+R"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:230
+#: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Reload program"
 msgstr "Recharger le programme"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:231
+#: src/emc/usr_intf/axis/scripts/axis.py:232
 msgid "Control-S"
 msgstr "Ctrl+S"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:231
+#: src/emc/usr_intf/axis/scripts/axis.py:232
 #, fuzzy
 #| msgid "Save g-code as"
 msgid "Save G-code as"
 msgstr "Enregistrer le G-code sous"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:232
+#: src/emc/usr_intf/axis/scripts/axis.py:233
 msgid "Run program"
 msgstr "Lancer le programme"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:233
+#: src/emc/usr_intf/axis/scripts/axis.py:234
 msgid "Step program"
 msgstr "Programme pas à pas"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:234
+#: src/emc/usr_intf/axis/scripts/axis.py:235
 msgid "Pause program"
 msgstr "Programme en pause"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:235
+#: src/emc/usr_intf/axis/scripts/axis.py:236
 msgid "Resume program"
 msgstr "Reprise du programme"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:236
+#: src/emc/usr_intf/axis/scripts/axis.py:237
 msgid "Stop running program, or"
 msgstr "Arrêter le programme, ou"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:237
+#: src/emc/usr_intf/axis/scripts/axis.py:238
 msgid "stop loading program preview"
 msgstr "stopper le parcours d'outil"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:239
+#: src/emc/usr_intf/axis/scripts/axis.py:240
 msgid "Toggle mist"
 msgstr "Avec ou sans gouttelettes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:240
+#: src/emc/usr_intf/axis/scripts/axis.py:241
 msgid "Toggle flood"
 msgstr "Avec ou sans arrosage"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:241
+#: src/emc/usr_intf/axis/scripts/axis.py:242
 msgid "Spindle brake off"
 msgstr "Relâchement frein de broche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:242
+#: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Shift-B"
 msgstr "Maj+B"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:242
+#: src/emc/usr_intf/axis/scripts/axis.py:243
 msgid "Spindle brake on"
 msgstr "Activation frein de broche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:243
+#: src/emc/usr_intf/axis/scripts/axis.py:244
 msgid "Turn spindle clockwise"
 msgstr "Broche en sens horaire"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:244
+#: src/emc/usr_intf/axis/scripts/axis.py:245
 msgid "Turn spindle counterclockwise"
 msgstr "Broche en sens anti-horaire"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:245
+#: src/emc/usr_intf/axis/scripts/axis.py:246
 msgid "Turn spindle more slowly"
 msgstr "Diminuer la vitesse de broche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:246
+#: src/emc/usr_intf/axis/scripts/axis.py:247
 msgid "Turn spindle more quickly"
 msgstr "Augmenter la vitesse de broche"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:247
+#: src/emc/usr_intf/axis/scripts/axis.py:248
 msgid "Control-K"
 msgstr "Ctrl+K"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:247
+#: src/emc/usr_intf/axis/scripts/axis.py:248
 msgid "Clear live plot"
 msgstr "Rafraîchir le parcours d'outil"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:248
+#: src/emc/usr_intf/axis/scripts/axis.py:249
 msgid "Cycle among preset views"
 msgstr "Défilement cyclique des vues prédéfinies"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:249
+#: src/emc/usr_intf/axis/scripts/axis.py:250
 msgid "Cycle among preview, DRO, and user tabs"
 msgstr "Défilement parcours d'outil, visu et onglets utilisateur"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:250
+#: src/emc/usr_intf/axis/scripts/axis.py:251
 msgid "toggle Actual/Commanded"
 msgstr "Basculer Réel/Commandé"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:251
+#: src/emc/usr_intf/axis/scripts/axis.py:252
 #, fuzzy
 msgid "toggle Relative/Machine"
 msgstr "alterner les valeurs retenues"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:252
+#: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Ctrl-Space"
 msgstr "Ctrl-Espace"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:252
+#: src/emc/usr_intf/axis/scripts/axis.py:253
 msgid "Clear notifications"
 msgstr "Effacer les notifications"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:253
+#: src/emc/usr_intf/axis/scripts/axis.py:254
 msgid "Alt-F, M, V"
 msgstr "Alt-F, M, V"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:253
+#: src/emc/usr_intf/axis/scripts/axis.py:254
 #, fuzzy
 msgid "Open a Menu"
 msgstr "Ouvrir un nouveau sous-fichier"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:909
+#: src/emc/usr_intf/axis/scripts/axis.py:918
 #, python-format
 msgid "Unknown tool %d"
 msgstr "Outil %d inconnu"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:911 share/axis/tcl/axis.tcl:1872
+#: src/emc/usr_intf/axis/scripts/axis.py:920 share/axis/tcl/axis.tcl:1872
 msgid "No tool"
 msgstr "Pas d'outil"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:913
+#: src/emc/usr_intf/axis/scripts/axis.py:922
 #, python-format
 msgid "Tool %(tool)d, offset %(zo)g, diameter %(dia)g"
 msgstr "Outil %(tool)d, offset %(zo)g, diamètre %(dia)g"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:915
+#: src/emc/usr_intf/axis/scripts/axis.py:924
 #, python-format
 msgid "Tool %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 msgstr "Outil %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1099
+#: src/emc/usr_intf/axis/scripts/axis.py:1108
 msgid "Filtering..."
 msgstr "Filtrage..."
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1163
+#: src/emc/usr_intf/axis/scripts/axis.py:1172
 msgid "Filter failed"
 msgstr "Le filtrage a échoué"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1164
+#: src/emc/usr_intf/axis/scripts/axis.py:1173
 #, python-format
 msgid ""
 "The program %(program)r exited with code %(code)d.  Any error messages it "
@@ -7512,12 +7657,12 @@ msgstr ""
 "Le programme %(program)r s'est arrêté avec le code %(code)d.  Si des "
 "messages ont été produits, ils sont ci-dessous:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1266
+#: src/emc/usr_intf/axis/scripts/axis.py:1275
 #, python-format
 msgid "G-Code error in %s"
 msgstr "Erreur de G-code en %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1267
+#: src/emc/usr_intf/axis/scripts/axis.py:1276
 #, python-format
 msgid ""
 "Near line %(seq)d of %(f)s:\n"
@@ -7526,128 +7671,128 @@ msgstr ""
 "Vers la ligne %(seq)d de %(f)s:\n"
 "%(error_str)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1456
-#: src/emc/usr_intf/axis/scripts/axis.py:3213 share/axis/tcl/axis.tcl:922
+#: src/emc/usr_intf/axis/scripts/axis.py:1465
+#: src/emc/usr_intf/axis/scripts/axis.py:3222 share/axis/tcl/axis.tcl:922
 #: share/axis/tcl/axis.tcl:924 share/axis/tcl/axis.tcl:2051
 msgid "Continuous"
 msgstr "Continu"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1719
+#: src/emc/usr_intf/axis/scripts/axis.py:1728
 msgid "T    Tool Table"
 msgstr "T    Table d'outils"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1729
-#: src/emc/usr_intf/axis/scripts/axis.py:2018
-#: src/emc/usr_intf/axis/scripts/axis.py:2592
+#: src/emc/usr_intf/axis/scripts/axis.py:1738
+#: src/emc/usr_intf/axis/scripts/axis.py:2027
+#: src/emc/usr_intf/axis/scripts/axis.py:2601
 #: src/emc/usr_intf/stepconf/stepconf.py:1585
 #: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in"
 msgstr "en"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1732
+#: src/emc/usr_intf/axis/scripts/axis.py:1741
 msgid " radius"
 msgstr "rayon"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1734
+#: src/emc/usr_intf/axis/scripts/axis.py:1743
 msgid " diameter"
 msgstr "diamètre"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1735
+#: src/emc/usr_intf/axis/scripts/axis.py:1744
 msgid "°"
 msgstr "°"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1745
+#: src/emc/usr_intf/axis/scripts/axis.py:1754
 msgid "Coordinate System:"
 msgstr "Décalage origine pièce"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1763
+#: src/emc/usr_intf/axis/scripts/axis.py:1772
 msgid "fixture"
 msgstr "porte-pièce"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1764
+#: src/emc/usr_intf/axis/scripts/axis.py:1773
 msgid "workpiece"
 msgstr "la pièce"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1785
+#: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "Name:"
 msgstr "Nom:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1785
+#: src/emc/usr_intf/axis/scripts/axis.py:1794
 msgid "Size:"
 msgstr "Taille:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1786
+#: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "Tool order:"
 msgstr "Outil N°:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1786
+#: src/emc/usr_intf/axis/scripts/axis.py:1795
 msgid "Rapid distance:"
 msgstr "Distance en vitesse rapide:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1787
+#: src/emc/usr_intf/axis/scripts/axis.py:1796
 msgid "Feed distance:"
 msgstr "Distance en vitesse travail:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1787
+#: src/emc/usr_intf/axis/scripts/axis.py:1796
 msgid "Total distance:"
 msgstr "Distance totale:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1788
+#: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "Run time:"
 msgstr "Run time:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1788
+#: src/emc/usr_intf/axis/scripts/axis.py:1797
 msgid "X bounds:"
 msgstr "Limites X:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1789
+#: src/emc/usr_intf/axis/scripts/axis.py:1798
 msgid "Y bounds:"
 msgstr "Limites Y:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1789
+#: src/emc/usr_intf/axis/scripts/axis.py:1798
 msgid "Z bounds:"
 msgstr "Limites Z:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1790
+#: src/emc/usr_intf/axis/scripts/axis.py:1799
 msgid "A bounds:"
 msgstr "Limites A:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1790
+#: src/emc/usr_intf/axis/scripts/axis.py:1799
 msgid "B bounds:"
 msgstr "Limites B:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1791
+#: src/emc/usr_intf/axis/scripts/axis.py:1800
 msgid "C bounds:"
 msgstr "Limites C:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1848
+#: src/emc/usr_intf/axis/scripts/axis.py:1857
 #, python-format
 msgid "Program exceeds machine minimum on axis %s"
 msgstr "Le programme dépasse la limite mini sur l'axe %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1851
+#: src/emc/usr_intf/axis/scripts/axis.py:1860
 #, python-format
 msgid "Program exceeds machine maximum on axis %s"
 msgstr "Le programme dépasse la limite maxi sur l'axe %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1856
+#: src/emc/usr_intf/axis/scripts/axis.py:1865
 msgid "Program exceeds machine limits"
 msgstr "Le programme excède les limites machine"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1859
+#: src/emc/usr_intf/axis/scripts/axis.py:1868
 msgid "Run Anyway"
 msgstr "Exécuter tout de même"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:1996
+#: src/emc/usr_intf/axis/scripts/axis.py:2005
 msgid "No file loaded"
 msgstr "Aucun fichier chargé"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2004
+#: src/emc/usr_intf/axis/scripts/axis.py:2013
 #, python-format
 msgid "generated from %s"
 msgstr "produit depuis %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2010
+#: src/emc/usr_intf/axis/scripts/axis.py:2019
 #, python-format
 msgid ""
 "%(size)s bytes\n"
@@ -7656,45 +7801,45 @@ msgstr ""
 "%(size)s octets\n"
 "%(lines)s lignes de gcode"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2036
+#: src/emc/usr_intf/axis/scripts/axis.py:2045
 #, python-format
 msgid "%.1f minutes"
 msgstr "% 1f minutes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2038
+#: src/emc/usr_intf/axis/scripts/axis.py:2047
 #, python-format
 msgid "%d seconds"
 msgstr "%d secondes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2046
+#: src/emc/usr_intf/axis/scripts/axis.py:2055
 #, python-format
 msgid "%(a)f to %(b)f = %(diff)f %(units)s"
 msgstr "%(a)f à %(b)f = %(diff)f %(units)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2047
+#: src/emc/usr_intf/axis/scripts/axis.py:2056
 msgid "G-Code Properties"
 msgstr "Propriétés du G-code"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2195
+#: src/emc/usr_intf/axis/scripts/axis.py:2204
 msgid "All machinable files"
 msgstr "Tous les fichiers d'usinage"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2196
-#: src/emc/usr_intf/axis/scripts/axis.py:2914
+#: src/emc/usr_intf/axis/scripts/axis.py:2205
+#: src/emc/usr_intf/axis/scripts/axis.py:2923
 msgid "rs274ngc files"
 msgstr "Fichiers rs274ngc"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2212
+#: src/emc/usr_intf/axis/scripts/axis.py:2221
 msgid "axis cannot accept remote command while running"
 msgstr ""
 "les axes n'acceptent pas de commande à distance pendant leur fonctionnement"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2267
+#: src/emc/usr_intf/axis/scripts/axis.py:2276
 #, fuzzy
 msgid "File not Writable:"
 msgstr "fichier illisible"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2268
+#: src/emc/usr_intf/axis/scripts/axis.py:2277
 msgid ""
 "This file is not writable\n"
 "You can Edit-readonly\n"
@@ -7712,32 +7857,32 @@ msgstr ""
 "Enregistrez le dans votre répertoire\n"
 "puis ouvrez ce fichier ré-enregistré, et inscriptible"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2275
+#: src/emc/usr_intf/axis/scripts/axis.py:2284
 msgid "Edit-readonly"
 msgstr "Éditer en lecture seule"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2593
+#: src/emc/usr_intf/axis/scripts/axis.py:2602
 #, fuzzy
 msgid "Custom Grid"
 msgstr "Personnalisé"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2593
+#: src/emc/usr_intf/axis/scripts/axis.py:2602
 msgid "Enter grid size"
 msgstr "Saisir la taille de la grille"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2652
+#: src/emc/usr_intf/axis/scripts/axis.py:2661
 #, fuzzy
 msgid "Joint is already homed, are you sure you want to re-home?"
 msgstr ""
 "Les axes sont déjà référencés, vous êtes sûr de vouloir relancer une prise "
 "d'origine générale ?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2666
+#: src/emc/usr_intf/axis/scripts/axis.py:2675
 #, fuzzy, python-format
 msgid "home_joint <%s> Use joint mode for homing"
 msgstr "doit être en mode jointure pour la prise d'origine"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2669
+#: src/emc/usr_intf/axis/scripts/axis.py:2678
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7746,34 +7891,34 @@ msgstr ""
 "\n"
 "Prise d'origine individuelle des axes interdite pour la lettre double:<%s> "
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2678
+#: src/emc/usr_intf/axis/scripts/axis.py:2687
 #, fuzzy
 msgid "This joint is already homed, are you sure you want to re-home?"
 msgstr ""
 "Cet axe est déjà référencé, êtes vous sûr de vouloir relancer une prise "
 "d'origine ?"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2716
+#: src/emc/usr_intf/axis/scripts/axis.py:2725
 #, fuzzy
 msgid "Touch Off (system)"
 msgstr "Toucher"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2717
-#: src/emc/usr_intf/axis/scripts/axis.py:2758
+#: src/emc/usr_intf/axis/scripts/axis.py:2726
+#: src/emc/usr_intf/axis/scripts/axis.py:2767
 #, python-format
 msgid "Enter %s coordinate relative to %%s:"
 msgstr "Coordonnée %s relative à %%s:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2757
+#: src/emc/usr_intf/axis/scripts/axis.py:2766
 #, fuzzy, python-format
 msgid "Tool %s TouchOff"
 msgstr "Toucher"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:2926
+#: src/emc/usr_intf/axis/scripts/axis.py:2935
 msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3381
+#: src/emc/usr_intf/axis/scripts/axis.py:3391
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7786,7 +7931,7 @@ msgstr ""
 "%s\n"
 "Voir la documentation 'Configuration INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3394
+#: src/emc/usr_intf/axis/scripts/axis.py:3404
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7799,7 +7944,7 @@ msgstr ""
 "%s\n"
 "Voir la documentation 'Configuration INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3407
+#: src/emc/usr_intf/axis/scripts/axis.py:3417
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7812,50 +7957,50 @@ msgstr ""
 "%s\n"
 "Voir la documentation 'Configuration INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3526
+#: src/emc/usr_intf/axis/scripts/axis.py:3536
 msgid "Axes"
 msgstr "Axes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3528
+#: src/emc/usr_intf/axis/scripts/axis.py:3538
 #, fuzzy
 msgid "Joints"
 msgstr "Jointure:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3530
+#: src/emc/usr_intf/axis/scripts/axis.py:3540
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:2968
 msgid "Home All"
 msgstr "Prise d'origine générale"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3532
+#: src/emc/usr_intf/axis/scripts/axis.py:3542
 #, fuzzy, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3535
+#: src/emc/usr_intf/axis/scripts/axis.py:3545
 #, fuzzy, python-format
 msgid "Home All %s"
 msgstr "Prise d'origine générale"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3537
+#: src/emc/usr_intf/axis/scripts/axis.py:3547
 #, fuzzy, python-format
 msgid "Unhome All %s"
 msgstr "Annulation OM de tous les axes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3578
+#: src/emc/usr_intf/axis/scripts/axis.py:3588
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 "Avertissement : La cinématique directe doit gérer les lettres de coordonnées "
 "en double :%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3581
+#: src/emc/usr_intf/axis/scripts/axis.py:3591
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 "Remarque : le nombre de [TRAJ]COORDINATES=%(t)s dépasse [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3613
+#: src/emc/usr_intf/axis/scripts/axis.py:3623
 msgid ""
 "\n"
 "Note:\n"
@@ -7866,44 +8011,44 @@ msgstr ""
 "La prise d'origine d'axe individuel n'est actuellement pas pris en charge "
 "pour"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3614
+#: src/emc/usr_intf/axis/scripts/axis.py:3624
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY avec une double lettre d'axe <%s> ;\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3626
+#: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, fuzzy
 msgid "Joint"
 msgstr "Jointure:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3628
+#: src/emc/usr_intf/axis/scripts/axis.py:3638
 #, fuzzy
 msgid "Home Joint"
 msgstr "Emplacement de l'origine mac_hine:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3636
+#: src/emc/usr_intf/axis/scripts/axis.py:3646
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "Accueil %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3648
 #, fuzzy, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "Annulation OM de l'axe _%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3832
+#: src/emc/usr_intf/axis/scripts/axis.py:3842
 msgid "Run from here"
 msgstr "Démarrer depuis ici"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3892
+#: src/emc/usr_intf/axis/scripts/axis.py:3902
 msgid "toggle PYVCP panel visibility"
 msgstr "activer la visibilité du panneau PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3894 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3904 share/axis/tcl/axis.tcl:387
 msgid "Show pyVCP pan_el"
 msgstr "Afficher le panel pyVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4165
+#: src/emc/usr_intf/axis/scripts/axis.py:4175
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -9266,15 +9411,12 @@ msgstr "."
 #: src/emc/usr_intf/pncconf/dialogs.glade:4067
 #: src/emc/usr_intf/pncconf/dialogs.glade:4210
 #: src/emc/usr_intf/pncconf/dialogs.glade:4223
-#: lib/python/gladevcp/offsetpage.glade:94
 msgid "0"
 msgstr "0"
 
 #: src/emc/usr_intf/touchy/touchy.glade:983
 #: src/emc/usr_intf/stepconf/ubuttons.glade:93
 #: src/emc/usr_intf/pncconf/ubuttons.glade:93
-#: lib/python/gladevcp/offsetpage.glade:43
-#: lib/python/gladevcp/offsetpage.glade:60
 msgid "3"
 msgstr "3"
 
@@ -9283,8 +9425,6 @@ msgstr "3"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:81
 #: src/emc/usr_intf/pncconf/screen.glade:3442
 #: src/emc/usr_intf/pncconf/ubuttons.glade:80
-#: lib/python/gladevcp/offsetpage.glade:42
-#: lib/python/gladevcp/offsetpage.glade:59
 msgid "2"
 msgstr "2"
 
@@ -9294,18 +9434,14 @@ msgstr "2"
 #: src/emc/usr_intf/stepconf/thcad.glade:29
 #: src/emc/usr_intf/pncconf/screen.glade:3427
 #: src/emc/usr_intf/pncconf/ubuttons.glade:67
-#: src/emc/usr_intf/pncconf/thcad.glade:29
-#: src/emc/usr_intf/pncconf/thcad.glade:188
-#: lib/python/gladevcp/offsetpage.glade:41
-#: lib/python/gladevcp/offsetpage.glade:58
+#: src/emc/usr_intf/pncconf/thcad.glade:12
+#: src/emc/usr_intf/pncconf/thcad.glade:171
 msgid "1"
 msgstr "1"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1034
 #: src/emc/usr_intf/stepconf/ubuttons.glade:129
 #: src/emc/usr_intf/pncconf/ubuttons.glade:132
-#: lib/python/gladevcp/offsetpage.glade:46
-#: lib/python/gladevcp/offsetpage.glade:63
 msgid "6"
 msgstr "6"
 
@@ -9313,43 +9449,33 @@ msgstr "6"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:117
 #: src/emc/usr_intf/stepconf/thcad.glade:56
 #: src/emc/usr_intf/pncconf/ubuttons.glade:119
-#: src/emc/usr_intf/pncconf/thcad.glade:56
-#: src/emc/usr_intf/pncconf/thcad.glade:173
+#: src/emc/usr_intf/pncconf/thcad.glade:39
+#: src/emc/usr_intf/pncconf/thcad.glade:156
 #: src/emc/usr_intf/pncconf/dialogs.glade:1446
-#: lib/python/gladevcp/offsetpage.glade:45
-#: lib/python/gladevcp/offsetpage.glade:62
 msgid "5"
 msgstr "5"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1068
 #: src/emc/usr_intf/stepconf/ubuttons.glade:105
 #: src/emc/usr_intf/pncconf/ubuttons.glade:106
-#: lib/python/gladevcp/offsetpage.glade:44
-#: lib/python/gladevcp/offsetpage.glade:61
 msgid "4"
 msgstr "4"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1085
 #: src/emc/usr_intf/stepconf/ubuttons.glade:165
 #: src/emc/usr_intf/pncconf/ubuttons.glade:171
-#: lib/python/gladevcp/offsetpage.glade:49
-#: lib/python/gladevcp/offsetpage.glade:66
 msgid "9"
 msgstr "9"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1100
 #: src/emc/usr_intf/stepconf/ubuttons.glade:153
 #: src/emc/usr_intf/pncconf/ubuttons.glade:158
-#: lib/python/gladevcp/offsetpage.glade:48
-#: lib/python/gladevcp/offsetpage.glade:65
 msgid "8"
 msgstr "8"
 
 #: src/emc/usr_intf/touchy/touchy.glade:1115
 #: src/emc/usr_intf/stepconf/ubuttons.glade:141
 #: src/emc/usr_intf/pncconf/ubuttons.glade:145
-#: lib/python/gladevcp/offsetpage.glade:47
-#: lib/python/gladevcp/offsetpage.glade:64
 msgid "7"
 msgstr "7"
 
@@ -9762,11 +9888,6 @@ msgstr ""
 "Stepconf a rencontré une erreur.  L'information suivante devrait aider à "
 "identifier le dysfonctionnement:\n"
 "\n"
-
-#: src/emc/usr_intf/stepconf/stepconf.py:141
-#, fuzzy
-msgid "Stepconf"
-msgstr "Pas à pas"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:141
 #: src/emc/usr_intf/stepconf/stepconf.py:263
@@ -11746,8 +11867,8 @@ msgstr "CODE"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:177
 #: src/emc/usr_intf/stepconf/thcad.glade:59
 #: src/emc/usr_intf/pncconf/ubuttons.glade:184
-#: src/emc/usr_intf/pncconf/thcad.glade:59
-#: src/emc/usr_intf/pncconf/thcad.glade:174
+#: src/emc/usr_intf/pncconf/thcad.glade:42
+#: src/emc/usr_intf/pncconf/thcad.glade:157
 #: src/emc/usr_intf/pncconf/dialogs.glade:1431
 #, fuzzy
 msgid "10"
@@ -11815,48 +11936,42 @@ msgid "20"
 msgstr "0"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:12
-#: src/emc/usr_intf/pncconf/thcad.glade:12
-#: src/emc/usr_intf/pncconf/thcad.glade:271
 #, fuzzy
 msgid "ENCA"
 msgstr "ENCA"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:15
-#: src/emc/usr_intf/pncconf/thcad.glade:15
-#: src/emc/usr_intf/pncconf/thcad.glade:272
 msgid "ENCB"
 msgstr "ENCB"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:18
-#: src/emc/usr_intf/pncconf/thcad.glade:18
-#: src/emc/usr_intf/pncconf/thcad.glade:273
 #, fuzzy
 msgid "IDX"
 msgstr "PID"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:32
-#: src/emc/usr_intf/pncconf/thcad.glade:32
-#: src/emc/usr_intf/pncconf/thcad.glade:189
+#: src/emc/usr_intf/pncconf/thcad.glade:15
+#: src/emc/usr_intf/pncconf/thcad.glade:172
 #, fuzzy
 msgid "32"
 msgstr "3"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:35
-#: src/emc/usr_intf/pncconf/thcad.glade:35
-#: src/emc/usr_intf/pncconf/thcad.glade:190
+#: src/emc/usr_intf/pncconf/thcad.glade:18
+#: src/emc/usr_intf/pncconf/thcad.glade:173
 #, fuzzy
 msgid "64"
 msgstr "6"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:38
-#: src/emc/usr_intf/pncconf/thcad.glade:38
-#: src/emc/usr_intf/pncconf/thcad.glade:191
+#: src/emc/usr_intf/pncconf/thcad.glade:21
+#: src/emc/usr_intf/pncconf/thcad.glade:174
 msgid "128"
 msgstr "128"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:62
-#: src/emc/usr_intf/pncconf/thcad.glade:62
-#: src/emc/usr_intf/pncconf/thcad.glade:175
+#: src/emc/usr_intf/pncconf/thcad.glade:45
+#: src/emc/usr_intf/pncconf/thcad.glade:158
 msgid "300"
 msgstr "300"
 
@@ -11866,12 +11981,12 @@ msgid "Full Scale Freq (kHz)"
 msgstr "Fréq. pleine échelle (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:125
-#: src/emc/usr_intf/pncconf/thcad.glade:127
+#: src/emc/usr_intf/pncconf/thcad.glade:110
 msgid "F Jumper"
 msgstr "Cavalier F"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:137
-#: src/emc/usr_intf/pncconf/thcad.glade:139
+#: src/emc/usr_intf/pncconf/thcad.glade:122
 msgid "Divider Ratio or Series Resistance"
 msgstr "Ratio du diviseur ou résistance de la série"
 
@@ -11880,13 +11995,13 @@ msgid "0V Freq (kHz)"
 msgstr "0V Fréq. (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:162
-#: src/emc/usr_intf/pncconf/thcad.glade:164
+#: src/emc/usr_intf/pncconf/thcad.glade:147
 #, fuzzy
 msgid "Model"
 msgstr "Mode"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:261
-#: src/emc/usr_intf/pncconf/thcad.glade:291
+#: src/emc/usr_intf/pncconf/thcad.glade:243
 msgid "THCAD For Arc Voltage"
 msgstr "THCAD pour la Tension d'Arc"
 
@@ -11933,9 +12048,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid ""
-"_:"
-""
+msgid "_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12990,7 +13103,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
 #, fuzzy
 #| msgid "#  ---digital in / out signals---"
-msgid "# ---digital potentionmeter output signals/setup---"
+msgid "# ---digital potentiometer output signals/setup---"
 msgstr "#  ---signaux entrée / sortie numérique---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1358
@@ -17440,18 +17553,13 @@ msgstr "Détails Gladevcp"
 msgid "Include custom GladeVCP GUI panel"
 msgstr "Inclure un panneau utilisateur GladeVCP"
 
-#: src/emc/usr_intf/pncconf/thcad.glade:113
+#: src/emc/usr_intf/pncconf/thcad.glade:96
 msgid "Full Scale Frequency (kHz)"
 msgstr ""
 
-#: src/emc/usr_intf/pncconf/thcad.glade:152
+#: src/emc/usr_intf/pncconf/thcad.glade:135
 msgid "0V Frequency (kHz)"
 msgstr ""
-
-#: src/emc/usr_intf/pncconf/thcad.glade:256
-#, fuzzy
-msgid "Encoder"
-msgstr "Codeur X"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:16
 #: src/emc/usr_intf/pncconf/y_axis.glade:16
@@ -19991,8 +20099,6 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3677
-#: lib/python/gladevcp/offsetpage.glade:108
-#: lib/python/gladevcp/offsetpage.glade:122
 msgid "G54"
 msgstr ""
 
@@ -20089,13 +20195,13 @@ msgstr ""
 msgid "Close without returning a file path"
 msgstr ""
 
-#: lib/python/gladevcp/hal_mdihistory.py:96
+#: lib/python/gladevcp/hal_mdihistory.py:86
 #, fuzzy
 #| msgid "Command:"
 msgid "Command"
 msgstr "Commande:"
 
-#: lib/python/gladevcp/hal_mdihistory.py:278
+#: lib/python/gladevcp/hal_mdihistory.py:268
 msgid "ERROR loading halshow"
 msgstr ""
 
@@ -20115,7 +20221,7 @@ msgstr ""
 msgid "MDI error in offsetpage widget-zero rotational offset"
 msgstr ""
 
-#: lib/python/gladevcp/offsetpage_widget.py:503
+#: lib/python/gladevcp/offsetpage_widget.py:506
 #, fuzzy
 msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "Décale toutes les coordonnées système"
@@ -20173,28 +20279,6 @@ msgstr "Bascule envoi auto"
 msgid "Tool"
 msgstr "Outil:"
 
-#: lib/python/gladevcp/offsetpage.glade:53
-#: lib/python/gladevcp/offsetpage.glade:70
-#: lib/python/gladevcp/offsetpage.glade:87
-#: lib/python/gladevcp/offsetpage.glade:104
-#: lib/python/gladevcp/offsetpage.glade:121
-#: lib/python/gladevcp/offsetpage.glade:138
-#: lib/python/gladevcp/offsetpage.glade:155
-#: lib/python/gladevcp/offsetpage.glade:172
-#: lib/python/gladevcp/offsetpage.glade:189
-#: lib/python/gladevcp/offsetpage.glade:206
-#: lib/python/gladevcp/offsetpage.glade:223
-#: lib/python/gladevcp/offsetpage.glade:240
-#: lib/python/gladevcp/offsetpage.glade:257
-#, fuzzy
-msgid "black"
-msgstr "Noir"
-
-#: lib/python/gladevcp/offsetpage.glade:57
-#: lib/python/gladevcp/offsetpage.glade:71
-msgid "G5x"
-msgstr ""
-
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
 msgstr ""
@@ -20203,52 +20287,6 @@ msgstr ""
 #, fuzzy
 msgid "Rotation of Z"
 msgstr "Rotation XY:"
-
-#: lib/python/gladevcp/offsetpage.glade:91
-#: lib/python/gladevcp/offsetpage.glade:105
-#, fuzzy
-msgid "G92"
-msgstr "_G92"
-
-#: lib/python/gladevcp/offsetpage.glade:125
-#: lib/python/gladevcp/offsetpage.glade:139
-msgid "G55"
-msgstr ""
-
-#: lib/python/gladevcp/offsetpage.glade:142
-#: lib/python/gladevcp/offsetpage.glade:156
-msgid "G56"
-msgstr ""
-
-#: lib/python/gladevcp/offsetpage.glade:159
-#: lib/python/gladevcp/offsetpage.glade:173
-msgid "G57"
-msgstr ""
-
-#: lib/python/gladevcp/offsetpage.glade:176
-#: lib/python/gladevcp/offsetpage.glade:190
-msgid "G58"
-msgstr ""
-
-#: lib/python/gladevcp/offsetpage.glade:193
-#: lib/python/gladevcp/offsetpage.glade:207
-msgid "G59"
-msgstr ""
-
-#: lib/python/gladevcp/offsetpage.glade:210
-#: lib/python/gladevcp/offsetpage.glade:224
-msgid "G59.1"
-msgstr "G59.1"
-
-#: lib/python/gladevcp/offsetpage.glade:227
-#: lib/python/gladevcp/offsetpage.glade:241
-msgid "G59.2"
-msgstr "G59.2"
-
-#: lib/python/gladevcp/offsetpage.glade:244
-#: lib/python/gladevcp/offsetpage.glade:258
-msgid "G59.3"
-msgstr "G59.3"
 
 #: lib/python/gladevcp/offsetpage.glade:285
 #, fuzzy
@@ -20260,17 +20298,17 @@ msgstr "Offset:"
 msgid "Offset Name"
 msgstr "Valeur d'offset"
 
-#: lib/python/gladevcp/offsetpage.glade:442
+#: lib/python/gladevcp/offsetpage.glade:444
 #, fuzzy
 msgid ""
 "Zero\n"
 "G92"
 msgstr "Tous les G59.2 à zéro"
 
-#: lib/python/gladevcp/offsetpage.glade:456
+#: lib/python/gladevcp/offsetpage.glade:464
 #, fuzzy
 msgid ""
-"    Zero\n"
+"Zero\n"
 "Rotational"
 msgstr "Horizontal"
 
@@ -20389,6 +20427,55 @@ msgstr "Annuler"
 #| msgid "Ok"
 msgid "_Ok"
 msgstr "Ok"
+
+#, fuzzy
+#~ msgid "MOTION: export_joint_home_pins failed\n"
+#~ msgstr "MOTION: défaut init_hal_io()\n"
+
+#, fuzzy, c-format
+#~ msgid "MOTION: axis %c pin/param export failed\n"
+#~ msgstr "MOTION: défaut joint %d pin/param export\n"
+
+#, c-format
+#~ msgid "%d us"
+#~ msgstr "%d µs"
+
+#, c-format
+#~ msgid "Number of rungs (%d%c used      "
+#~ msgstr "Nombre d'échelons (%d%c utilisés)      "
+
+#, c-format
+#~ msgid "Number of Sections (%d%c used)   "
+#~ msgstr "Nombre de sections (%d%c utilisées)   "
+
+#, fuzzy
+#~ msgid "Set Watch interval"
+#~ msgstr "Charger liste de watch"
+
+#, fuzzy
+#~ msgid "Stepconf"
+#~ msgstr "Pas à pas"
+
+#, fuzzy
+#~ msgid "Encoder"
+#~ msgstr "Codeur X"
+
+#, fuzzy
+#~ msgid "black"
+#~ msgstr "Noir"
+
+#, fuzzy
+#~ msgid "G92"
+#~ msgstr "_G92"
+
+#~ msgid "G59.1"
+#~ msgstr "G59.1"
+
+#~ msgid "G59.2"
+#~ msgstr "G59.2"
+
+#~ msgid "G59.3"
+#~ msgstr "G59.3"
 
 #~ msgid "S_ave Data File..."
 #~ msgstr "Enregistrer d_ans un fichier de données"
