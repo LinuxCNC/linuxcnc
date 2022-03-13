@@ -833,7 +833,7 @@ gmoccapy puede reaccionar a errores externos, utilizando 3 mensajes de usuario d
 
 * gmoccapy.messages.yesnodialog
 * gmoccapy.messages.yesnodialog-waiting
-* gmoccapy.messages.yesnodialog-responce
+* gmoccapy.messages.yesnodialog-response
 
 'dialogo-Ok'
 
