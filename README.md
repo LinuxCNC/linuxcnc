@@ -40,7 +40,6 @@ See the file COPYING for more details.
 
 # The Build Process
 
-Refer to the file 'docs/src/code/building-linuxcnc.txt' for information
-about building and running the software, or look here:
-
-http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
+Refer to the file 'docs/src/code/building-linuxcnc.adoc' for information
+about building and running the software, or look
+[here](https://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html).
