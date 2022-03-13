@@ -542,7 +542,7 @@ Mind HAL_BIT lábak. +
 
 * gmoccapy.messages.yesnodialog
 * gmoccapy.messages.yesnodialog-waiting
-* gmoccapy.messages.yesnodialog-responce
+* gmoccapy.messages.yesnodialog-response
 
 'Okdialog'
 
