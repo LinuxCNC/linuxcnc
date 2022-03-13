@@ -1,4 +1,4 @@
-VERSION = '1.222.173'
+VERSION = '1.222.174'
 
 '''
 qtplasmac_handler.py
@@ -179,6 +179,7 @@ class HandlerClass:
         KEYBIND.add_call('Key_Period', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_Greater', 'on_keycall_BNEG')
         KEYBIND.add_call('Key_End', 'on_keycall_END')
+        KEYBIND.add_call('Key_Delete', 'on_keycall_DELETE')
         KEYBIND.add_call('Alt+Key_Return', 'on_keycall_ALTRETURN')
         KEYBIND.add_call('Alt+Key_Enter', 'on_keycall_ALTRETURN')
         KEYBIND.add_call('Key_Return', 'on_keycall_RETURN')
@@ -271,6 +272,7 @@ class HandlerClass:
         self.firstHoming = False
         self.droScale = 1
         self.mdiError = False
+        self.extLaserButton = False
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -661,6 +663,7 @@ class HandlerClass:
         self.extPausePin = self.h.newpin('ext_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extAbortPin = self.h.newpin('ext_abort', hal.HAL_BIT, hal.HAL_IN)
         self.extTouchOffPin = self.h.newpin('ext_touchoff', hal.HAL_BIT, hal.HAL_IN)
+        self.extLaserTouchOffPin = self.h.newpin('ext_laser_touchoff', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extCutRecRevPin = self.h.newpin('ext_cutrec_rev', hal.HAL_BIT, hal.HAL_IN)
         self.extCutRecFwdPin = self.h.newpin('ext_cutrec_fwd', hal.HAL_BIT, hal.HAL_IN)
@@ -1618,6 +1621,15 @@ class HandlerClass:
         if self.w.touch_xy.isEnabled() and state:
             self.touch_xy_clicked()
 
+    def ext_laser_touch_off(self, state):
+        if self.w.laser.isEnabled():
+            if state:
+                self.extLaserButton = True
+                self.laser_pressed()
+            else:
+                self.extLaserButton = False
+                self.laser_clicked()
+
     def ext_jog_slow(self, state):
         if self.w.jog_slow.isEnabled() and state:
             self.jog_slow_pressed(True)
@@ -2424,6 +2436,7 @@ class HandlerClass:
         self.extPausePin.value_changed.connect(lambda v:self.ext_pause(v))
         self.extAbortPin.value_changed.connect(lambda v:self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v:self.ext_touch_off(v))
+        self.extLaserTouchOffPin.value_changed.connect(lambda v:self.ext_laser_touch_off(v))
         self.extRunPausePin.value_changed.connect(lambda v:self.ext_run_pause(v))
         self.extHeightOvrPlusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,1))
         self.extHeightOvrMinusPin.value_changed.connect(lambda v:self.height_ovr_pressed(v,-1))
@@ -3038,7 +3051,7 @@ class HandlerClass:
             self.pulseTimer.stop()
 
     def laser_timeout(self):
-        if self.w.laser.isDown():
+        if self.w.laser.isDown() or self.extLaserButton:
             self.laserOnPin.set(0)
             self.laserButtonState = 'reset'
             self.w.laser.setText(_translate('HandlerClass', 'LASER'))
@@ -5535,6 +5548,15 @@ class HandlerClass:
     def on_keycall_END(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not self.w.main_tab_widget.currentIndex() and self.w.touch_xy.isEnabled():
             self.touch_xy_clicked()
+
+    def on_keycall_DELETE(self, event, state, shift, cntrl):
+        if self.keyboard_shortcuts() and not self.w.main_tab_widget.currentIndex() and self.w.laser.isEnabled():
+            if state and not event.isAutoRepeat():
+                self.extLaserButton = True
+                self.laser_pressed()
+            else:
+                self.extLaserButton = False
+                self.laser_clicked()
 
     def on_keycall_ALTRETURN(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not cntrl and not shift and not self.w.main_tab_widget.currentIndex() and self.w.mdi_show.isEnabled():

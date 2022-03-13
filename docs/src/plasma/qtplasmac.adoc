@@ -964,7 +964,7 @@ NOTE: During Paused Motion, this section will be shown on top of the JOGGING pan
 |HOME ALL|This button will home all of the axes in the order set by HOME_SEQUENCE in the <machine_name>.ini file.
 |WCS G54|This drop down button will change the current work offset.
 |CAMERA|This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<qt_camera, CAMERA section>> for detailed instructions.
-|LASER|This button will allow the user to set an origin with or without rotation. See the <<qt_laser, LASER section>> for detailed instructions.
+|LASER|This button will allow the user to use a laser to set an origin with or without rotation. See the <<qt_laser, LASER section>> for detailed instructions.
 |X0 Y0|This button will set the current position to X0 Y0.
 |HOME [AXIS]|This button will home the corresponding axis.
 |0 [AXIS]|This drop down button will display the following options: +
@@ -2374,6 +2374,7 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |CTRL+H or HOME|Homes all axes if they are not yet homed and have a homing sequence set in the <machine_name>.ini file. If they are already homed, they will no longer be homed.
 |CTRL+R|Cycle Start if the program is not already running. Cycle Resume if the program is paused.
 |END|Touches off X and Y to 0.
+|DEL|Allows the user to use a laser to set an origin with or without rotation. See the <<qt_laser, LASER section>> for detailed instructions.
 |SPACE BAR|Pause motion.
 |O|Opens a new program.
 |L|Loads the previously opened program if no program is loaded. Reloads the current program if there is a program loaded.
@@ -3276,6 +3277,7 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |Pause/Resume the loaded G-Code program|qtplasmac.ext_pause|CYCLE PAUSE
 |Abort the loaded G-Code program|qtplasmac.ext_abort|CYCLE STOP
 |Touchoff X & Y axes to zero|qtplasmac.ext_touchoff|X0Y0
+|Use a laser to set an origin with or without rotation|qtplasmac.ext_laser_touchoff|LASER
 |Run/Pause/Resume the loaded G-Code program|qtplasmac.ext_run_pause|CYCLE START, CYCLE PAUSE, CYCLE RESUME in sequence
 |Torch height override plus|qtplasmac.ext_height_ovr_plus|OVERRIDE +
 |Torch height override minus|qtplasmac.ext_height_ovr_minus|OVERRIDE -
