@@ -471,7 +471,7 @@ class emc_status:
             self.data.last_line = self.data.motion_line
             self.data.motion_line = self.emcstat.motion_line
             self.data.line =  self.emcstat.current_line
-            self.data.id =  self.emcstat.id
+            self.data.id =  self.emcstat.motion_id
             self.data.dtg = self.emcstat.distance_to_go
             self.data.velocity = self.convert_units(self.emcstat.current_vel) * 60.0
             self.data.delay = self.emcstat.delay_left
