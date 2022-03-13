@@ -4504,7 +4504,8 @@ class gmoccapy(object):
                 except:
                     message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
 
-            result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
+            result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"),\
+                confirm_pin = 'toolchange-confirm', active_pin = 'toolchange-change')
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
@@ -5315,6 +5316,10 @@ class gmoccapy(object):
         self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
         pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
+        self.halcomp.newpin('toolchange-confirm', hal.HAL_BIT, hal.HAL_IN)
+
+        # make a pin to confirm a warning dialog
+        self.halcomp.newpin('warning-confirm', hal.HAL_BIT, hal.HAL_IN)
 
         # make a pin to reset feed override to 100 %
         pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
