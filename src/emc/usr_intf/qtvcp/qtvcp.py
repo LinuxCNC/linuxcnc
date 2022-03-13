@@ -320,7 +320,7 @@ Pressing cancel will close linuxcnc.""" % target)
             forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
             LOG.critical('Forwarding events to AXIS is not well tested yet')
             if forward:
-                xembed.XEmbedFowarding(window, forward)
+                xembed.XEmbedForwarding(window, forward)
 
         # push the window id for embedment into an external program
         if opts.push_XID:
