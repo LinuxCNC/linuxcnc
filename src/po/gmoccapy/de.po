@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-03-06 09:58+0000\n"
+"PO-Revision-Date: 2022-03-13 11:53+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -93,15 +93,11 @@ msgstr ""
 "**** Konnte den Pfad für das Bild '{0}' des Makros '{1}' nicht auflösen ****"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:914
-#, fuzzy
-#| msgid ""
-#| "  edit\n"
-#| "offsets"
 msgid ""
 "edit\n"
 "offsets"
 msgstr ""
-"  Offsets\n"
+"Offsets\n"
 "bearbeiten"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:920
@@ -492,13 +488,11 @@ msgstr "Achtung!!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4055
 msgid "Exit and discard changes?"
-msgstr ""
+msgstr "Beenden und Änderungen verwerfen?"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4056
-#, fuzzy
-#| msgid "Attention!!"
 msgid "Attention!"
-msgstr "Achtung!!"
+msgstr "Achtung!"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.py:4133
 msgid "Enter value for diameter"
@@ -1828,10 +1822,6 @@ msgid "touch off the tool and set the value to the tool table"
 msgstr "Mit dem Werkzeug antasten und Wert in Werkzeugtabelle übernehmen"
 
 #: emc/usr_intf/gmoccapy/gmoccapy.glade.h:242
-#, fuzzy
-#| msgid ""
-#| "touchoff\n"
-#| "  tool z"
 msgid ""
 "touchoff\n"
 "tool z"
