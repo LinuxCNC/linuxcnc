@@ -46,6 +46,7 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.buf = gtksourceview.Buffer()
         self.buf.set_max_undo_levels(20)
         self.buf.connect('changed', self.update_iter)
+        self.buf.connect('modified-changed', self.modified_changed)
         self.set_buffer(self.buf)
         self.lm = gtksourceview.LanguageManager()
         self.sm = gtksourceview.StyleSchemeManager()
@@ -206,6 +207,9 @@ class EMC_SourceView(gtksourceview.View, _EMC_ActionBase):
         self.match_start = self.match_end = None
         start, end = self.buf.get_bounds()
         self.buf.remove_tag(self.found_text_tag, start, end)
+
+    def modified_changed(self,widget):
+        self.update_iter()
         self.emit("changed")
 
     # This will search the buffer for a specified text string.
@@ -331,6 +335,9 @@ class EMC_Action_Save(_EMC_Action, _EMC_FileChooser):
 
 class EMC_Action_SaveAs(EMC_Action_Save):
     __gtype_name__ = 'EMC_Action_SaveAs'
+    __gsignals__ = {
+        'saved-as': (gobject.SIGNAL_RUN_FIRST, gobject.TYPE_NONE, ()),
+    }
 
     def __init__(self, *a, **kw):
         _EMC_Action.__init__(self, *a, **kw)
@@ -353,3 +360,4 @@ class EMC_Action_SaveAs(EMC_Action_Save):
         if r == gtk.RESPONSE_OK:
             self.save(fn)
             self.currentfolder = os.path.dirname(fn)
+            self.emit('saved-as')
