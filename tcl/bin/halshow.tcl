@@ -29,12 +29,20 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     option add *$class.borderWidth 1  100
 }
 
- if {[info exists ::env(CONFIG_DIR)]} {
+# get config file path from running linuxcnc process if not invoked by GUI
+set config_path ""
+catch {set linuxcnc_process [exec ps -e -o stat,command | grep "^S" | grep -o "linuxcnc \\/.*\\.ini" ]
+    regexp { \/.*\/} $linuxcnc_process config_path
+    set config_path [string trim $config_path]
+}
+if {[info exists ::env(CONFIG_DIR)]} {
     set ::INIFILE "$::env(CONFIG_DIR)/halshow.preferences"
- } else {
+} elseif {[file isdirectory $config_path]} {
+    set ::INIFILE "${config_path}halshow.preferences"
+} else {
     set ::INIFILE "~/.halshow_preferences"
- }
-# puts "Halshow inifile: $::INIFILE"
+}
+# puts stderr "Halshow inifile: $::INIFILE"
 
 # This overwrites the default error message dialog to be able to set it on top
 proc bgerror {message} {
@@ -580,11 +588,9 @@ proc makeSettings {} {
             reloadWatch
             }] -side right -padx 5 -pady 10
     set infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
-    $infotext insert end [msgcat::mc "Settings are saved in the configuration\
-    directory when halshow is invoked from a LinuxCNC GUI. Otherwise they are saved in\
-    ~/.halshow_preferences."]
+    $infotext insert end "([msgcat::mc "Settings stored in: "] $::INIFILE)"
     $infotext config -state disabled
-    pack $infotext -pady 10 -side left
+    pack $infotext -pady {20 0} -side left
 }
 
 # showmode handles the tab selection of mode
