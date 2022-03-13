@@ -49,7 +49,7 @@ from Xlib import display, X
 from Xlib.xobject import drawable
 
 
-class XEmbedFowarding():
+class XEmbedForwarding():
 
     def __init__(self, window, forward):
 
@@ -63,7 +63,7 @@ class XEmbedFowarding():
         d = display.Display()
         self.fw = drawable.Window(d.display, forward, 0)
 
-        self.foward = forward
+        self.forward = forward
         self.window = window
         self.d = d
         window.keyPressTrap = self.catch_keypress
