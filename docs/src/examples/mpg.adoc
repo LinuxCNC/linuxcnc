@@ -23,8 +23,7 @@ letters.  This example uses the axis jog pins for jogging in world
 mode.  Machines with non-identity kinematics may need use additional
 connections for jogging in joint mode.
 
-jog.hal
-
+.jog.hal
 ----
 # Jog Pendant
 loadrt encoder num_chan=1
@@ -82,8 +81,7 @@ If the machine is capable of high acceleration to smooth out the moves
 for each click of the MPG use the <<sec:ilowpass,ilowpass>> component to
 limit the acceleration.
 
-jog.hal with ilowpass
-
+.jog.hal with ilowpass
 ----
 loadrt encoder num_chan=1
 loadrt mux4 count=1
