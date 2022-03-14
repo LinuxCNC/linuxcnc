@@ -1,4 +1,4 @@
-VERSION = '1.222.175'
+VERSION = '1.222.176'
 
 '''
 qtplasmac_handler.py
@@ -130,8 +130,8 @@ class HandlerClass:
                 os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
                 os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
-        self.update_check()
         self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.update_check()
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
