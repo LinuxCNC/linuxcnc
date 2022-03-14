@@ -32,7 +32,7 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
     g0Flag = [False, False]
     spindleCode = False
     spindleLine = None
-    oSub = False
+    oSub = []
     cutComp = False
     count = 0
     head = _translate('HandlerClass', 'GCODE ERROR')
@@ -176,11 +176,31 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
             pc = int(a3.split('m68e3q')[1])
             pc = pc if pc > 0 else 100
             a3 += ' (Velocity {}%)'.format(pc)
+        # test if inside a subroutine
         if line.startswith('o'):
             if 'end' in line:
                 oSub = False
             else:
-                oSub = True
+                if line[1] == '<':
+                    os = 'o<'
+                    tmp = line.replace(' ','').split('o<')[1]
+                    while 1:
+                        if tmp[0] != '>':
+                            os += tmp[0]
+                            tmp = tmp[1:]
+                        else:
+                            break
+                    oSub.append('{}>'.format(os))
+                else:
+                    os = 'o'
+                    tmp = line.replace(' ','').split('o')[1]
+                    while 1:
+                        if tmp[0] in '0123456789':
+                            os += tmp[0]
+                            tmp = tmp[1:]
+                        else:
+                            break
+                    oSub.append(os)
         if 'f#<_hal[plasmac.cut-feed-rate]>' in line:
             feed = line.strip()
         elif 'f[#<_hal[plasmac.cut-feed-rate]>' in line:
@@ -190,10 +210,14 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
         if cutComp:
             msg0 = _translate('HandlerClass', 'Cannot run from line while')
             msg1 = _translate('HandlerClass', 'cutter compensation is active')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1))
         elif oSub:
             msg0 = _translate('HandlerClass', 'Cannot do run from line')
-            msg1 = _translate('HandlerClass', 'inside a subroutine')
-        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+            msg1 = _translate('HandlerClass', 'inside subroutine')
+            msg2 = ''
+            for sub in oSub:
+                msg2 += ' {}'.format(sub)
+        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1, msg2))
         P.rflActive = False
         P.set_run_button_state()
         P.startLine = 0
