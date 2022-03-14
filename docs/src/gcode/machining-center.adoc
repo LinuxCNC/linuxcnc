@@ -256,6 +256,7 @@ See Sections <<gcode:g61,G61>> and <<gcode:g64,G64>>.
 [[sec:Interaction-vitesses]](((Interraction vitesse)))
 [[sec:Interaction-effacement-de-bloc]](((effacement de bloc)))
 [[sec:Interaction-arrets-optionnels]](((Arrêts optionnels)))
+[[cnc:interpreter-interaction-with-switches]]
 == Interpreter Interaction with Switches
 
 The Interpreter interacts with several switches. This section
