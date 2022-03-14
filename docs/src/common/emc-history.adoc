@@ -117,5 +117,5 @@ machining center it controls, as well as an early implementation of EMC.
 The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf .
 
 NIST also published a paper on the history of EMC and its
-transition to https://www.nist.gov/node/702276[open source].  The paper is also available at
+transition to https://www.nist.gov/node/702276[open source]. The paper is also available at
 http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf
