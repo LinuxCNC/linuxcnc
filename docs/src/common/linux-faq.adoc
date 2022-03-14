@@ -69,7 +69,7 @@ buffer with 'dmesg'. Ubuntu and Linux Mint have a keyboard shortcut Ctrl + Alt +
 Most modern file managers support the right key to open a terminal just
 make sure your right clicking on a blank area or a directory not a file name.
 Most OS's have the terminal as a menu item, usually in Accessories.
-N.T. Debia Stretch no tiene definido ningun atajo de teclado. Se puede crear facilmente
+N.T. Debian Stretch no tiene definido ningun atajo de teclado. Se puede crear facilmente
 con el 'Administrador de Configuracion'.
 
 La mayoría de los sistemas operativos tienen el terminal como elemento de menú,

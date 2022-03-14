@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:linux-faq]]
-
 = Linux FAQ
 
 Estos son algunos comandos básicos y técnicas para nuevos usuarios de
