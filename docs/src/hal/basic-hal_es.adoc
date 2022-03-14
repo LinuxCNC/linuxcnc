@@ -23,7 +23,7 @@ image::images/HAL_Configuration.png[align="center", alt="HAL Configuration Windo
 
 === loadrt
 
-El comando 'loadrt' carga componentes HAL en tiempo real. 
+El comando 'loadrt' carga componentes HAL en tiempo real.
 Las funciones de los componentes de tiempo real deben agregarse a un hilo para ejecutarse a la
 velocidad de ese hilo. No puede cargar un componente de espacio de usuario en el
 espacio de tiempo real.
@@ -52,7 +52,7 @@ en ese punto del hilo. Una posición negativa significa posición con respecto
 al final del hilo. Por ejemplo, '1' es al inicio del hilo, '-1' es al final de
 el hilo, '-3' es la tercera desde el final.
 
-Es importante cargar algunas funciones en un orden determinado, como por ejemplo las 
+Es importante cargar algunas funciones en un orden determinado, como por ejemplo las
 funciones de lectura y escritura de puerto paralelo. El nombre de la función suele ser el nombre del componente
 más un número. En el siguiente ejemplo se carga el componente 'or2' y 'show function'
 muestra el nombre de la función or2
@@ -70,7 +70,7 @@ Debe agregar una función de un componente HAL en tiempo real a un hilo
 para que la función se ejecute a la velocidad del hilo.
 
 Por lo general hay dos hilos, como se muestra en este ejemplo. Algunos componentes usan
-punto flotante matemático y se debe agregar a un hilo que admita punto flotante. 
+punto flotante matemático y se debe agregar a un hilo que admita punto flotante.
 La columna 'FP' indica si la matemática de coma flotante es compatible con ese hilo.
 
 ----
@@ -106,7 +106,7 @@ Esto ultimo significa:
 
 El comando 'loadusr' carga un componente HAL en espacio de usuario. Los programas en
 espacio de usuario tienen sus propios procesos separados que, opcionalmente, se comunican
-con otros componentes HAL a través de pines y parámetros. No puede cargar componentes 
+con otros componentes HAL a través de pines y parámetros. No puede cargar componentes
 de tiempo real en el espacio de usuario.
 
 Las banderas pueden ser una o más de las siguientes:
@@ -160,7 +160,7 @@ pines adicionales, siempre que se obedezcan las reglas anteriores.
 
 image::images/signal-direction.png[align="center", alt="Dirección de señal"]
 
-El siguiente ejemplo muestra la señal xStep, siendo la fuente 
+El siguiente ejemplo muestra la señal xStep, siendo la fuente
 stepgen.0.out, y con dos lectores, parport.0.pin-02-out y
 parport.0.pin-08-out. Básicamente, el valor de stepgen.0.out se envía a
 la señal xStep y ese valor se envía a parport.0.pin-02-out
@@ -340,7 +340,7 @@ tendrá hasta tres archivos HAL en su directorio de configuración.
 
 == Componentes HAL
 
-A cada componente HAL, cuando es creado, se le agregan automáticamente dos parámetros. 
+A cada componente HAL, cuando es creado, se le agregan automáticamente dos parámetros.
 Estos parámetros permiten monitorizar el tiempo de ejecución de un componente.
 
 +.time+(((tiempo)))
@@ -384,11 +384,11 @@ Tabla de verdad
 
 [width="40%", options="header"]
 |========================================
-|in0 | in1 | out
+|in0   | in1   | out
 |False | False | False
-|True | False | False
-|False | True | False
-|True | True | True
+|True  | False | False
+|False | True  | False
+|True  | True  | True
 |========================================
 
 === not
@@ -444,10 +444,10 @@ Tabla de verdad
 
 [width="40%", options="header"]
 |========================================
-|in0 | in1 | out
-|True | False | True
-|True | True | True
-|False | True | True
+|in0   | in1   | out
+|True  | False | True
+|True  | True  | True
+|False | True  | True
 |False | False | False
 |========================================
 
@@ -475,10 +475,10 @@ Tabla de verdad
 
 [width="40%", options="header"]
 |========================================
-|in0 | in1 | out
-|True | False | True
-|True | True | False
-|False | True | True
+|in0   | in1   | out
+|True  | False | True
+|True  | True  | False
+|False | True  | True
 |False | False | False
 |========================================
 
@@ -537,7 +537,7 @@ del bit 0 es 1 y el 'peso' del bit 2 es 4, por lo que la suma es 5.
 
 .suma ponderada
 -----------------------------------------------------------
-Component Pins: 
+Component Pins:
 Owner   Type  Dir         Value  Name
     10  bit   In           TRUE  wsum.0.bit.0.in
     10  s32   I/O             1  wsum.0.bit.0.weight

@@ -15,7 +15,7 @@ inconvénients:
 
 * La fréquence maximum des impulsions est limitée.
 * Les impulsions générées sont irrégulières à cause du bruit.
-* Elles sont sujettes à la charge du CPU 
+* Elles sont sujettes à la charge du CPU
 
 Ce chapitre présente certaines mesures qui vous aideront à obtenir les
 meilleurs résultats du logiciel.
@@ -39,30 +39,30 @@ la fiche des spécifications techniques de votre carte.
 
 Par exemple, le manuel du Gecko G202 indique:
 ....
-Step Frequency: 0 to 200 kHz 
-Step Pulse “0” Time: 0.5 µs min (Step on falling edge) 
-Step Pulse “1” Time: 4.5 µs min 
+Step Frequency: 0 to 200 kHz
+Step Pulse “0” Time: 0.5 µs min (Step on falling edge)
+Step Pulse “1” Time: 4.5 µs min
 Direction Setup: 1 µs min (20 µs min hold time after Step edge)
 ....
 
 Les spécifications du Gecko G203V indiquent:
 ....
-Step Frequency: 0 to 333 kHz 
-Step Pulse “0” Time: 2.0 µs min (Step on rising edge) 
-Step Pulse “1” Time: 1.0 µs min 
+Step Frequency: 0 to 333 kHz
+Step Pulse “0” Time: 2.0 µs min (Step on rising edge)
+Step Pulse “1” Time: 1.0 µs min
 
 Direction setup:
-    200 ns (0.2µs) before step pulse rising edge 
+    200 ns (0.2µs) before step pulse rising edge
     200 ns (0.2µs) hold after step pulse rising edge
 ....
 
 Un carte Xylotex donne dans ses données techniques un superbe graphe
 du timing nécessaire, il indique:
 ....
-Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum 
-DIR hold time after rising edge of STEP pulse 200ns 
-Minimum STEP pulse high time 2.0µs 
-Minimum STEP pulse low time 1.0µs 
+Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum
+DIR hold time after rising edge of STEP pulse 200ns
+Minimum STEP pulse high time 2.0µs
+Minimum STEP pulse low time 1.0µs
 Step happens on rising edge
 ....
 
@@ -214,7 +214,7 @@ ordinateur et faire les calculs qui garantirons les meilleurs signaux
 dont les moteurs ont besoin.
 
 Pour rendre le calcul plus facile, j'ai créé une feuille de calcul
-Open Office: 
+Open Office:
 http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[Step Timing Calculator (en) - Calculatrice Calendrier étape (fr)].
 Vous entrez les résultats du test de latence et les timing de votre
 carte de pilotage et la feuille calcule la meilleure BASE_PERIOD.

@@ -1,6 +1,7 @@
-[[cha:external-offsets]]
+:lang: en
 
-= External Axis Offsets
+[[cha:external-offsets]]
+= External Axis Offsets(((externaloffsets)))
 
 External axis offsets are supported during teleop (world) jogs
 and coordinated (G-code) motion.  External axis offsets are
@@ -23,13 +24,15 @@ For each axis letter (*L* in xyzabcuvw):
 . Default value:  0 (disables external offset).
   Consequence: omitted [AXIS_L]OFFSET_AV_RATIO disables external offset for the axis.
 . If nonzero, the  OFFSET_AV_RATIO (*r*), adjusts the conventional (planning) max
- velocity and acceleration to preserve [AXIS_L] constraints:
+  velocity and acceleration to preserve [AXIS_L] constraints:
 
+---
   planning max velocity        = (1-r) * MAX_VELOCITY
   external offset velocity     = (  r) * MAX_VELOCITY
 
   planning max acceleration    = (1-r) * MAX_ACCELERATIOIN
   external offset acceleration = (  r) * MAX_ACCELERATION
+---
 
 == Hal Pins
 
@@ -155,7 +158,7 @@ non-zero, the offset is maintained.  The offset may be cleared by:
 
 . a 'Machine-off/Machine on' toggle
 . reactivating the enable pin and incrementing/decrementing the 'axis.L.eoffset-counts'
-hal pin to return the offset to zero.
+  hal pin to return the offset to zero.
 . pulsing the 'axis.L.eoffset-clear' hal pin
 
 External-offsets are intended for use with 'small' offsets that

@@ -1,5 +1,6 @@
-[[cha:linuxcnc-history]]
+:lang: en
 
+[[cha:linuxcnc-history]](((History)))
 == Origin
 
 EMC (the Enhanced Machine Controller) was created by
@@ -113,9 +114,8 @@ channels, and versions of the software and documentation since version
 NIST published a paper describing the
 https://www.nist.gov/node/704046[RS274NGC] language and the abstract
 machining center it controls, as well as an early implementation of EMC.
-The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf
+The paper is also available at http://linuxcnc.org/files/RS274NGCv3.pdf .
 
 NIST also published a paper on the history of EMC and its
-transition to https://www.nist.gov/node/702276[open
-source].  The paper is also available at
+transition to https://www.nist.gov/node/702276[open source].  The paper is also available at
 http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf

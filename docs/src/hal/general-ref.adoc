@@ -1,5 +1,6 @@
-[[cha:general-reference]]
+:lang: en
 
+[[cha:general-reference]]
 = General Reference
 
 == General Naming Conventions

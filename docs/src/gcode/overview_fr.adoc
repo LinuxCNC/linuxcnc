@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Vue générale du langage G-codes de LinuxCNC
-
 [[cha:Vue-generale-G-code]]
+= Vue générale du langage G-codes de LinuxCNC
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}

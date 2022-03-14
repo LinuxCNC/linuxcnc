@@ -1,8 +1,7 @@
 ﻿:lang: es
 
-= Diagnósticos para steppers
-
 [[cha:stepper-diagnostics]]
+= Diagnósticos para steppers
 
 :ini:{basebackend@docbook:'':ini}
 :hal:{basebackend@docbook:'':hal}

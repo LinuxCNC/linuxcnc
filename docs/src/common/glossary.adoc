@@ -1,3 +1,5 @@
+:lang: en
+
 = Glossary
 
 A listing of terms and what they mean. Some terms have a general

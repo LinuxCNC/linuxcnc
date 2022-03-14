@@ -1,5 +1,6 @@
-[[cha:ngcgui]]
+:lang: en
 
+[[cha:ngcgui]]
 = NGCGUI
 
 .NGCGUI embedded into Axis

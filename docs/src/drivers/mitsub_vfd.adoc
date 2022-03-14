@@ -1,3 +1,4 @@
+:lang: en
 
 = Mitsub VFD Driver
 
@@ -22,7 +23,7 @@ loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 ----
 
 The above command says: +
-loadusr, wait for coolant pins to be ready, component mitsub_vfd, with 2 slaves 
+loadusr, wait for coolant pins to be ready, component mitsub_vfd, with 2 slaves
 named spindle (slave #2) and coolant (slave #1)
 
 == Command Line Options
@@ -42,60 +43,60 @@ Turning on debugging will result in a flood of text in the terminal.
 
 Where <n> is +mitsub_vfd+ or the name given during loading.
 
-* '<n>.fwd' (bit, in)
-                True sets motion forward, False sets reverse.
+ * '<n>.fwd' (bit, in)
+   True sets motion forward, False sets reverse.
 
-* '<n>.run' (bit, in)
-                True sets the VFD in motion based on the .fwd pin. 
+ * '<n>.run' (bit, in)
+   True sets the VFD in motion based on the .fwd pin.
 
-* '<n>.debug' (bit, in)
-                Prints debug info to the terminal.
+ * '<n>.debug' (bit, in)
+   Prints debug info to the terminal.
 
-* '<n>.alarm' (bit, out)
-                signals an alarm state of VFD.
+ * '<n>.alarm' (bit, out)
+   signals an alarm state of VFD.
 
-* '<n>.up-to-speed' (bit, out)
-                when drive is at commanded speed (speed-tolerance is set on vfd)
+ * '<n>.up-to-speed' (bit, out)
+   when drive is at commanded speed (speed-tolerance is set on vfd)
 
-* '<n>.monitor' (bit, in)
-                some models (eg E500) cannot monitor status -set the monitor pin to false
-in this case pins such as up-to-speed, amps, alarm and status bits are not updated.
+ * '<n>.monitor' (bit, in)
+   some models (eg E500) cannot monitor status -set the monitor pin to false
+   in this case pins such as up-to-speed, amps, alarm and status bits are not updated.
 
-* '<n>.motor-cmd' (float, in)
-              commanded speed to the VFD (scaled to hertz by default).
+ * '<n>.motor-cmd' (float, in)
+   commanded speed to the VFD (scaled to hertz by default).
 
-* '<n>.motor-fb' (float, out)
-              feedback speed from the VFD (scaled to hertz by default).
+ * '<n>.motor-fb' (float, out)
+   feedback speed from the VFD (scaled to hertz by default).
 
-* '<n>.motor-amps' (float, out)
-                Current amperage output of motor. 
+ * '<n>.motor-amps' (float, out)
+   Current amperage output of motor.
 
-* '<n>.motor-power' (float, out)
-                Current power output of motor.
+ * '<n>.motor-power' (float, out)
+   Current power output of motor.
 
-* '<n>.scale-cmd' (float, in)
-                Scales the motor-cmd pin to arbitrary units. default 1 = Hertz.
+ * '<n>.scale-cmd' (float, in)
+   Scales the motor-cmd pin to arbitrary units. default 1 = Hertz.
 
-* '<n>.scale-fb' (float, in)
-                Scales the motor-fb pin to arbitrary units. default 1 = Hertz.
+ * '<n>.scale-fb' (float, in)
+   Scales the motor-fb pin to arbitrary units. default 1 = Hertz.
 
-* '<n>.scale-amps' (float, in)
-                Scales the motor-amps pin to arbitrary units. default 1 = amps.
+ * '<n>.scale-amps' (float, in)
+   Scales the motor-amps pin to arbitrary units. default 1 = amps.
 
-* '<n>.scale-power' (float, in)
-                Scales the motor-power pin to arbitrary units. default 1 = .
+ * '<n>.scale-power' (float, in)
+   Scales the motor-power pin to arbitrary units. default 1 = .
 
-* '<n>.estop' (bit, in)
-              puts the VFD into emergency-stopped status. 
+ * '<n>.estop' (bit, in)
+   puts the VFD into emergency-stopped status.
 
-* '<n>.status-bit-N' (bit, out)
-            N = 0 to 7, Status bits are user configurable on the VFD. bit 3 should be set to
-at speed and bit 7 should be set to alarm. others are free to be set as required.
+ * '<n>.status-bit-N' (bit, out)
+   N = 0 to 7, Status bits are user configurable on the VFD. bit 3 should be set to
+   at speed and bit 7 should be set to alarm. others are free to be set as required.
 
 == HAL example
 
 [source,{hal}]
----------------------------------------------------------------------
+----
 #
 # example usage of the Mitsubishi VFD driver
 #
@@ -103,8 +104,8 @@ loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 
 # **************** Spindle VFD setup slave 2 *********************
 net spindle-vel-cmd               spindle.motor-cmd
-net spindle-cw                    spindle.fwd              
-net spindle-on                    spindle.run              
+net spindle-cw                    spindle.fwd
+net spindle-on                    spindle.run
 net spindle-at-speed              spindle.up-to-speed
 net estop-out                     spindle.estop
 #       cmd scaled to RPM
@@ -128,7 +129,7 @@ setp coolant.motor-cmd 60
 #       allows us to see status
 setp coolant.monitor 1
 
----------------------------------------------------------------------
+----
 
 == Configuring the Mitsubishi VFD for serial usage
 
@@ -148,24 +149,34 @@ Referenced manuals:
 The VFD must have PR settings adjusted manually for serial communication. +
 One must power cycle the VFD for some of these to register eg PR 79
 
-* 'PR 77' set to 1              '-to unlock other PR modification.'
+ * 'PR 77' set to 1
+   '-to unlock other PR modification.'
 
-* 'PR 79' set to 1 or 0         '-for communication thru serial.'
+ * 'PR 79' set to 1 or 0
+   '-for communication thru serial.'
 
-* 'PR 117' set to 0-31          '-slave number, driver must reference same number.'
+ * 'PR 117' set to 0-31
+   '-slave number, driver must reference same number.'
 
-* 'PR 118' tested with 96       '-baud rate (can be set to 48,96,192) if driver is also set.'
+ * 'PR 118' tested with 96
+   '-baud rate (can be set to 48,96,192) if driver is also set.'
 
-* 'PR 119' set to 0             '-stop bit/data length (8 bits, two stop)'
+ * 'PR 119' set to 0
+   '-stop bit/data length (8 bits, two stop)'
 
-* 'PR 120' set to 0             '-no parity'
+ * 'PR 120' set to 0
+   '-no parity'
 
-* 'PR 121' set to 1-10          '-if 10 (maximuim) COM errors then VFD faults.'
+ * 'PR 121' set to 1-10
+   '-if 10 (maximuim) COM errors then VFD faults.'
 
-* 'PR 122' tested with 9999     '-if communication is lost VFD will not error.'
+ * 'PR 122' tested with 9999
+   '-if communication is lost VFD will not error.'
 
-* 'PR 123' set to 9999          '-no wait time is added to the serial data frame.'
+ * 'PR 123' set to 9999
+   '-no wait time is added to the serial data frame.'
 
-* 'PR 124' set to 0             '-no carriage return at end of line.'
+ * 'PR 124' set to 0
+   '-no carriage return at end of line.'
 
 //Chris Morley;

@@ -1,6 +1,8 @@
-[[cha:hal-examples]]
+:lang: en
+:toc:
 
-= HAL Examples
+[[cha:hal-examples]]
+= HAL Examples(((HAL Examples)))
 
 All of these examples assume you are starting with a stepconf based
 configuration and have two threads 'base-thread' and 'servo-thread'. The
@@ -73,17 +75,17 @@ configuration and wish to add the HAL Manual Toolchange window. The HAL
 Manual Toolchange is primarily useful if you have presettable tools and
 you store the offsets in the tool table. If you need to touch off for
 each tool change then it is best just to split up your g code. To use
-the HAL Manual Toolchange window you basically have to load the 
-hal_manualtoolchange component then send the iocontrol 'tool change' to 
-the hal_manualtoolchange 'change' and send the hal_manualtoolchange 
+the HAL Manual Toolchange window you basically have to load the
+hal_manualtoolchange component then send the iocontrol 'tool change' to
+the hal_manualtoolchange 'change' and send the hal_manualtoolchange
 'changed' back to the iocontrol 'tool changed'. A pin is provided for an
 external input to indicate the tool change is complete.
 
-This is an example of manual toolchange 'with' 
-the HAL Manual Toolchange component: 
+This is an example of manual toolchange 'with'
+the HAL Manual Toolchange component:
 
 ----
-loadusr -W hal_manualtoolchange 
+loadusr -W hal_manualtoolchange
 net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change
 net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed
 net external-tool-changed hal_manualtoolchange.change_button <= parport.0.pin-12-in
@@ -91,13 +93,13 @@ net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number
 net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 ----
 
-This is an example of manual toolchange 'without' 
-the HAL Manual Toolchange component: 
+This is an example of manual toolchange 'without'
+the HAL Manual Toolchange component:
 
 ----
-net tool-number <= iocontrol.0.tool-prep-number 
-net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed 
-net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared 
+net tool-number <= iocontrol.0.tool-prep-number
+net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 ----
 
 == Compute Velocity
@@ -116,27 +118,27 @@ correct value. Add the following to your custom.hal file.
 Load the realtime components.
 
 ----
-loadrt ddt count=1 
-loadrt mult2 count=1 
-loadrt abs count=1 
+loadrt ddt count=1
+loadrt mult2 count=1
+loadrt abs count=1
 ----
 
 Add the functions to a thread so it will get updated.
 
 ----
-addf ddt.0 servo-thread 
-addf mult2.0 servo-thread 
-addf abs.0 servo-thread 
+addf ddt.0 servo-thread
+addf mult2.0 servo-thread
+addf abs.0 servo-thread
 ----
 
 Make the connections.
 
 ----
-setp mult2.in1 60 
-net xpos-cmd ddt.0.in 
-net X-IPS mult2.0.in0 <= ddt.0.out 
-net X-ABS abs.0.in <= mult2.0.out 
-net X-IPM abs.0.out 
+setp mult2.in1 60
+net xpos-cmd ddt.0.in
+net X-IPS mult2.0.in0 <= ddt.0.out
+net X-ABS abs.0.in <= mult2.0.out
+net X-IPM abs.0.out
 ----
 
 In this last section we are setting the mult2.0.in1 to 60 to convert
@@ -153,9 +155,7 @@ The following figure shows the result when the X axis is moving at 15
 IPM in the minus direction. Notice that we can get the absolute value
 from either the abs.0.out pin or the X-IPM signal.
 
-.Velocity Example[[cap:Velocity-Example]]
-
-image::images/velocity-01.png[alt="Velocity Example"]
+image::images/velocity-01.png["Velocity Example"]
 
 == Soft Start
 
@@ -171,11 +171,11 @@ that the PID command value changes to new settings more slowly.
 
 Three built-in components that limit a signal are:
 
-* 'limit2' limits the range and first derivative of a signal. 
+* 'limit2' limits the range and first derivative of a signal.
 
-* 'limit3' limits the range, first and second derivatives of a signal. 
+* 'limit3' limits the range, first and second derivatives of a signal.
 
-* 'lowpass' uses an exponentially-weighted moving average to track an input signal. 
+* 'lowpass' uses an exponentially-weighted moving average to track an input signal.
 
 To find more information on these HAL components check the man pages.
 
@@ -183,26 +183,26 @@ Place the following in a text file called softstart.hal. If you're not
 familiar with Linux place the file in your home directory.
 
 ----
-loadrt threads period1=1000000 name1=thread  
-loadrt siggen  
-loadrt lowpass  
-loadrt limit2  
-loadrt limit3  
-net square siggen.0.square => lowpass.0.in limit2.0.in limit3.0.in  
-net lowpass <= lowpass.0.out  
-net limit2 <= limit2.0.out  
-net limit3 <= limit3.0.out  
-setp siggen.0.frequency .1  
-setp lowpass.0.gain .01  
-setp limit2.0.maxv 2  
-setp limit3.0.maxv 2  
-setp limit3.0.maxa 10  
-addf siggen.0.update thread  
-addf lowpass.0 thread  
-addf limit2.0 thread  
-addf limit3.0 thread  
-start  
-loadusr halscope 
+loadrt threads period1=1000000 name1=thread
+loadrt siggen
+loadrt lowpass
+loadrt limit2
+loadrt limit3
+net square siggen.0.square => lowpass.0.in limit2.0.in limit3.0.in
+net lowpass <= lowpass.0.out
+net limit2 <= limit2.0.out
+net limit3 <= limit3.0.out
+setp siggen.0.frequency .1
+setp lowpass.0.gain .01
+setp limit2.0.maxv 2
+setp limit3.0.maxv 2
+setp limit3.0.maxa 10
+addf siggen.0.update thread
+addf lowpass.0 thread
+addf limit2.0 thread
+addf limit3.0 thread
+start
+loadusr halscope
 ----
 
 Open a terminal window and run the file with the following command.
@@ -227,9 +227,7 @@ start a run and when it finishes you will see your traces.
 To separate the signals so you can see them better click on a channel
 then use the Pos slider in the Vertical box to set the positions.
 
-.Softstart[[cap:Softstart]]
-
-image::images/softstart-scope.png[alt="Softstart"]
+image::images/softstart-scope.png["Softstart"]
 
 To see the effect of changing the set point values of any of the
 components you can change them in the terminal window. To see what
@@ -247,7 +245,7 @@ halrun and close the halscope. Don't close the terminal window with
 halrun running as it might leave some things in memory that could
 prevent EMC from loading.
 
-For more information on Halscope see the HAL manual.
+For more information on Halscope see the HAL manual and the tutorial.
 
 == Stand Alone HAL
 
@@ -256,7 +254,7 @@ example say you had a stepper driven device that all you need is to run a
 stepper motor. A simple 'Start/Stop' interface is all you need for your
 application so no need to load up and configure a full blown CNC application.
 
-In the following example we have created a simple GladeVCP panel with one 
+In the following example we have created a simple GladeVCP panel with one
 
 .Basic Syntax
 ----
@@ -297,6 +295,3 @@ stop
 # unload HAL all components before exiting
 unloadrt all
 ----
-
-
-

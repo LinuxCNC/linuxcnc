@@ -56,9 +56,9 @@ Los componentes deben cargarse y agregarse a un hilo antes de poder usarlos.
 Ejemplo:
 
 ----
-  loadrt threads name1=servo-thread period1=1000000 
-  loadrt ddt
-  addf ddt.0 servo-thread 
+loadrt threads name1=servo-thread period1=1000000 
+loadrt ddt
+addf ddt.0 servo-thread 
 ----
 
 Se puede encontrar más información sobre loadrt y addf en la <<cha:basic-hal-reference,Referencia Básica de Hal>> .

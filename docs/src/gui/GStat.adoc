@@ -1,5 +1,6 @@
-[[cha:GStat]]
+:lang: en
 
+[[cha:GStat]]
 = GStat
 
 == Intro

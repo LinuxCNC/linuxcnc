@@ -1,20 +1,20 @@
-[[cha:hal-components]]
+:lang: en
 
-= HAL Components
+[[cha:hal-components]]
+= HAL Components((("HAL Components")))
 
 == Commands and Userspace Components
 
-All of the commands in the following list have man pages. 
-Some will have expanded descriptions, some will have limited descriptions. 
+All of the commands in the following list have man pages.
+Some will have expanded descriptions, some will have limited descriptions.
 Also, all of the components listed below have man pages.
-From this list you know what components exist, 
-and you can use 'man n name' to get additional information. 
-To view the information in the man page, in a terminal window type: 
+From this list you know what components exist,
+and you can use 'man n name' to get additional information.
+To view the information in the man page, in a terminal window type:
 
 ----
 man axis (or perhaps 'man 1 axis' if your system requires it.)
 ----
-
 
 axis:: AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface.
 axis-remote:: AXIS Remote Interface.
@@ -35,48 +35,50 @@ pyvcp:: Virtual Control Panel for LinuxCNC.
 shuttle:: control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design.
 
 [[sec:realtime-components]]
-
 == Realtime Components List
 
 Some of these will have expanded descriptions from the man pages. Some
 will have limited descriptions. All of the components have man pages.
 From this list you know what components exist and can use 'man n name' to
-get additional information. To view the information in the man page, in a 
-terminal window type: 
+get additional information. To view the information in the man page, in a
+terminal window type:
 
 ----
 man motion (or perhaps 'man 9 motion' if your system requires it.)
 ----
 
+[NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the
 link:../man/man9/[directory listing of man9].
 
+[NOTE]
+Si el componente requiere un hilo de punto flotante, suele ser el hilo servo, más lento.
 
-
+[[sec:Realtime-Components-coeur]]
 === Core LinuxCNC components
 
 motion:: (((motion)))Accepts NML motion commands, interacts with HAL in realtime.
 
 axis:: (((axis)))Accepts NML motion commands, interacts with HAL in realtime.
 
-classicladder:: (((classicladder)))Realtime software PLC based on ladder logic.
-See <<cha:classicladder,ClassicLadder>> chapter for more information.
+classicladder:: (((classicladder)))Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information.
 
 gladevcp:: (((gladevcp)))Displays Virtual Control Panels built with GTK/Glade.
 
 threads:: (((threads)))Creates hard realtime HAL threads.
 
+[[sec:Realtime-Components-logic]]
 === Logic and Bitwise components
 
-and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true. link:../man/man9/and2.9.html[Details] 
+and2:: (((and2)))Two-input AND gate. For out to be true both inputs must be true. link:../man/man9/and2.9.html[Details]
 
-not:: (((not)))Inverter. link:../man/man9/not.9.html[Details] 
-    
-or2:: (((or2)))Two-input OR gate. link:../man/man9/or2.9.html[Details] 
+not:: (((not)))Inverter. link:../man/man9/not.9.html[Details]
 
-xor2:: (((xor2)))Two-input XOR (exclusive OR) gate. link:../man/man9/xor2.9.html[Details] 
+or2:: (((or2)))Two-input OR gate. link:../man/man9/or2.9.html[Details]
 
-dbounce:: (((dbounce)))Filter noisy digital inputs. link:../man/man9/dbounce.9.html[Details]. 
+xor2:: (((xor2)))Two-input XOR (exclusive OR) gate. link:../man/man9/xor2.9.html[Details]
+
+dbounce:: (((dbounce)))Filter noisy digital inputs. link:../man/man9/dbounce.9.html[Details].
 
 debounce:: (((debounce)))Filter noisy digital inputs. link:../man/man9/debounce.9.html[Details]. <<sec:debounce, Description>>
 
@@ -94,7 +96,9 @@ match8:: (((match8)))8-bit binary match detector.
 
 select8:: (((select8)))8-bit binary match detector.
 
+[[sec:Realtime-Components-flottant]]
 === Arithmetic and float-components
+
 
 abs:: [[sub:abs]](((abs)))Compute the absolute value and sign of the input signal.
 
@@ -106,8 +110,10 @@ constant:: (((constant)))Use a parameter to set the value of a pin.
 
 sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
 
-counter:: (((counter)))Counts input pulses (deprecated).
-Use the <<sec:encoder, encoder>> component. 
+counter:: (((counter)))Counts input pulses (deprecated).  Use the <<sec:encoder, encoder>> component.
+
+Utiliser le composant _encoder_ avec _... counter-mode = TRUE_.
+See section <<sec:encoder,encoder>>.
 
 updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
 
@@ -153,8 +159,7 @@ is a position, this means that 'position' and 'velocity' are limited.]
 limit3:: (((limit3)))Limit the output signal to fall between min and max.
 Limit its slew rate to less than maxv per second.
 Limit its second derivative to less than MaxA per second squared. footnote:[When
-the input is a position, this means that the 'position', 'velocity', and
-'acceleration' are limited.]
+the input is a position, this means that the 'position', 'velocity', and 'acceleration' are limited.]
 
 maj3:: (((maj3)))Compute the majority of 3 inputs.
 
@@ -182,51 +187,28 @@ conv_u32_float:: (((conv_u32_float)))Convert a value from u32 to float.
 
 conv_u32_s32:: (((conv_u32_s32)))Convert a value from u32 to s32.
 
+[[sec:Realtime-Components-pilotes]]
 === Hardware Drivers
 
-(((hal_ppmc)))
+hal_ppmc:: (((hal_ppmc))) Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller.
 
-hal_ppmc:: Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM
-and Stepper controller.
+hm2_7i43:: (((hm2_7i43))) Mesa Electronics driver for the 7i43 EPP Anything IO board with HostMot2. (See the man page for more information)
 
-(((hm2_7i43)))
+hm2_pci:: (((hm2_pci))) Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68 Anything I/O boards, with HostMot2 firmware.  (See the man page for more information)
 
-hm2_7i43:: Mesa Electronics driver for the 7i43 EPP Anything IO board with
-HostMot2. (See the man page for more information)
+hostmot2:: (((hostmot2))) Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the HostMot2 firmware.
 
-(((hm2_pci)))
+mesa_7i65:: (((7i65))) Mesa Electronics driver for the 7i65 eight-axis servo card. (See the man page for more information)
 
-hm2_pci:: Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68
-Anything I/O boards, with HostMot2 firmware. (See the man page for more information)
+pluto_servo:: (((pluto_servo))) Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos.
 
-(((hostmot2)))
+pluto_step:: (((pluto_step))) Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers.
 
-hostmot2:: Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the 
-HostMot2 firmware.
+thc:: (((torch height control))) Torch Height Control using a Mesa THC card or any analog to velocity input
 
-(((7i65)))
+serport:: (((serport))) Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
 
-mesa_7i65:: Mesa Electronics driver for the 7i65 eight-axis servo card. (See the
-man page for more information)
-
-(((pluto_servo)))
-
-pluto_servo:: Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the
-parallel port FPGA, for servos.
-
-(((pluto_step)))
-
-pluto_step:: Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA,
-for steppers.
-
-(((torch height control)))
-
-thc:: Torch Height Control using a Mesa THC card or any analog to velocity input
-
-(((serport)))
-
-serport:: Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
-
+[[sec:Realtime-Components-cinematiques]]
 === Kinematics
 
 kins:: (((kins)))kinematics definitions for LinuxCNC.
@@ -236,26 +218,26 @@ gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple 
 genhexkins:: (((genhexkins)))Gives six degrees of freedom in position and orientation (XYZABC).
 The location of the motors is defined at compile time.
 
-genserkins:: (((genserkins)))Kinematics that can model a general serial-link manipulator with up to
+genserkins:: (((genserkins))) Kinematics that can model a general serial-link manipulator with up to
 6 angular joints.
 
-maxkins:: (((maxkins)))Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and
+maxkins:: (((maxkins))) Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and
 horizontal rotary mounted to the table (C axis).
 Provides UVW motion in the rotated coordinate system.
 The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
 
-tripodkins:: (((tripodkins)))The joints represent the distance of the controlled point from three
+tripodkins:: (((tripodkins))) The joints represent the distance of the controlled point from three
 predefined locations (the motors), giving three degrees of freedom in
 position (XYZ).
 
-trivkins:: (((trivkins)))There is a 1:1 correspondence between joints and axes. Most standard
+trivkins:: (((trivkins))) There is a 1:1 correspondence between joints and axes. Most standard
 milling machines and lathes use the trivial kinematics module.
 
-pumakins:: (((pumakins)))Kinematics for PUMA-style robots.
+pumakins:: (((pumakins))) Kinematics for PUMA-style robots.
 
-rotatekins:: (((rotatekins)))The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
+rotatekins:: (((rotatekins))) The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 
-scarakins:: (((scarakins)))Kinematics for SCARA-type robots.
+scarakins:: (((scarakins))) Kinematics for SCARA-type robots.
 
 === Motor control
 
@@ -292,9 +274,8 @@ feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to 
 
 gearchange:: (((gearchange)))Select from one of two speed ranges.
 
-[[sec:ilowpass]] (((ilowpass)))
-
-ilowpass:: While it may find other applications,
+[[sec:ilowpass]]
+ilowpass:: (((ilowpass)))While it may find other applications,
 this component was written to create smoother motion while jogging with an MPG.
 +
 In a machine with high acceleration, a short jog can behave almost like a step
@@ -344,8 +325,6 @@ buffer in electronics.
 
 tristate_float:: (((tristate_float)))Place a signal on an I/O pin only when enabled, similar to a tristate
 buffer in electronics.
-
-
 
 watchdog:: (((watchdog)))Monitor one to thirty-two inputs for a 'heartbeat'.
 
@@ -451,4 +430,3 @@ rtapi_task_resume.3rtapi
 rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
 ....
-

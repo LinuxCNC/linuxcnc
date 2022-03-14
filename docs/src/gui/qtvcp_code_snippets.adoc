@@ -1,5 +1,6 @@
-[[cha:qtvcp-code]]
+:lang: en
 
+[[cha:qtvcp-code]]
 = QTvcp Handler file code snippets
 
 Here are bits of ideas to put in the handler file. +

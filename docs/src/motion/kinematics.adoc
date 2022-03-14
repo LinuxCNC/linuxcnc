@@ -1,6 +1,8 @@
-[[cha:kinematics]]
+:lang: en
+:toc:
 
-= Kinematics
+[[cha:kinematics]]
+= Kinematics(((kinematics)))
 
 == Introduction
 
@@ -74,6 +76,14 @@ joints[2] = pos->tran.z;
 In LinuxCNC, the identity kinematics are implemented with the
 'trivkins' kinematics module and extended to 9 axes.  The default
 relationships between axis coordinates and joint numbers are:
+footnote:[If the machine (for example a lathe) is mounted with
+only the X, Z and A axes and the init file of LinuxCNC contains
+only the definition of these 3 joints, then the previous assertion is false.
+Because we currently have (joint0=X, joint1=Z, joint2=A) which
+assumes that joint1=Y.
+To make this work in LinuxCNC just define all the axes (XYZA),
+LinuxCNC will then use a simple loop in HAL for unused Y axis.]
+footnote:[Another way to make it work is to change the corresponding code and recompile the software.]
 
 ----
 pos->tran.x = joints[0];
@@ -152,9 +162,11 @@ To illustrate the above, we will analyze a simple kinematics called
 bipod (a simplified version of the tripod, which is a simplified
 version of the hexapod).
 
+////
 .Bipod setup
+////
 
-image::images/bipod.png[alt="Bipod setup"]
+image::images/bipod.png["Bipod setup"]
 
 The Bipod we are talking about is a device that consists of 2 motors
 placed on a wall, from which a device is hung using some wire. The
@@ -172,6 +184,7 @@ and BD, and by the Cartesian coordinates Dx, Dy.
 The job of the kinematics is to transform from joint lengths (AD, BD)
 to Cartesian coordinates (Dx, Dy) and vice-versa.
 
+[[sec:Forward-transformation]]
 === Forward transformation
 
 To transform from joint space into Cartesian space we will use some
@@ -179,21 +192,24 @@ trigonometry rules (the right triangles determined by the points (0,0),
 (Dx,0), (Dx,Dy) and the triangle (Dx,0), (Bx,0) and (Dx,Dy).
 
 We can easily see that:
+
 image:images/kinematics-math-01.png[align="center"],
+
 likewise:
+
 image:images/kinematics-math-02.png[align="center"]
 
 If we subtract one from the other we will get:
 
-image::images/kinematics-math-03.png[align="center"]
+image:images/kinematics-math-03.png[align="center"]
 
 and therefore:
 
-image::images/kinematics-math-04.png[align="center"]
+image:images/kinematics-math-04.png[align="center"]
 
 From there we calculate:
 
-image::images/kinematics-math-05.png[align="center"]
+image:images/kinematics-math-05.png[align="center"]
 
 ////////////////////////////////////////////////////////////////////
 we can easily see that latexmath:[$AD^{2}=x^{2}+y^{2}$], likewise
@@ -240,6 +256,10 @@ image::images/kinematics-math-06.png[align="center"]
 
 image::images/kinematics-math-07.png[align="center"]
 
+//*AD=sqrt(x^2^+y^2^)*
+
+//*BD=sqrt((Bx-x)^2^+y^2^)*
+
 /////////////////////////////////////////////////
 latexmath::[\[AD=\sqrt{x^{2}+y^{2}}\]]
 
@@ -252,7 +272,7 @@ or translated to actual code:
 double x2 = pos->tran.x * pos->tran.x;
 double y2 = pos->tran.y * pos->tran.y;
 joints[0] = sqrt(x2 + y2);
-joints[1] = sqrt((Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
+joints[1] = sqrt(Bx - pos->tran.x)*(Bx - pos->tran.x) + y2);
 return 0;
 ----
 
@@ -268,7 +288,7 @@ const KINEMATICS_FORWARD_FLAGS *fflags,
 KINEMATICS_INVERSE_FLAGS *iflags)
 ----
 
-Implements the forward kinematics function.
+Implements the <<sec:Forward-transformation,forward kinematics function>>.
 
 ----
 int kinematicsInverse(const EmcPose * world, double *joints,
@@ -347,3 +367,4 @@ modifications are somewhat more complicated.
 
 See 'millturn.comp' as an example of a switchable kinematic
 module that was created using the 'userkins.comp' template.
+

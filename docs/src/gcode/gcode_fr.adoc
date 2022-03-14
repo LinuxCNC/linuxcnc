@@ -2007,17 +2007,13 @@ C'est une erreur si:
 
 * La valeur de Q est négative ou égale à zéro.
 
-[[sec:G84-Taraudage-a-droite]]
-== G84 Cycle de taraudage à droite
-(((G84 Cycle de taraudage)))
+== G84 Cycle de taraudage à droite[[sec:G84-Taraudage-a-droite]](((G84 Cycle de taraudage)))
 
 Ce code n'est pas encore implémenté dans LinuxCNC. Il est accepté mais son
 comportement n'est pas défini. Voir le <<sec:G33_1-Taraudage-rigide, taraudage
 rigide>>.
 
-[[sec:G85-Alesage-retrait-travail]]
-== G85 Cycle d'alésage, sans temporisation, retrait en vitesse travail
-(((G85 Cycle d'alésage)))
+== G85 Cycle d'alésage, sans temporisation, retrait en vitesse travail[[sec:G85-Alesage-retrait-travail]](((G85 Cycle d'alésage)))
 
 ----
 G85 (X- Y- Z-) or (U- V- W-) R- L-

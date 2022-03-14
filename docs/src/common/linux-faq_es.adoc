@@ -1,13 +1,14 @@
 :lang: es
-= Linux FAQ
 
 [[cha:linux-faq]]
+
+= Linux FAQ
 
 Estos son algunos comandos básicos y técnicas para nuevos usuarios de
 linux. Información más completa se puede encontrar en la web o mediante
 las páginas del manual con el comando man.
 
-== Login automatico (((Automatic Login)))
+== Login automatico(((Automatic Login)))
 
 Al instalar LinuxCNC con el CD de Ubuntu por defecto se tiene que iniciar
 sesión cada vez que encienda el ordenador. Para activar autentificacion automática
@@ -39,7 +40,7 @@ $ /usr/sbin/lightdm --show-config
 * Haga autologin-user=su_nombre_usuario
 * Guarde y reinicie.
 
-== Inicio automatico de LinuxCNC (((Automatic Startup)))
+== Inicio automatico de LinuxCNC(((Automatic Startup)))
 
 Para tener un inicio automático de LinuxCNC con su configuración después
 de encender el equipo vaya a 'System > Preferences > Sessions > Startup Applications',
@@ -58,9 +59,7 @@ N.T. En Debian Stretch, vaya a 'Aplicaciones > Configuracion > Administrador de 
 En la pestaña 'Autoarranque de aplicaciones', use el boton 'Añadir'. De un nombre, una descripcion y una orden similar
 al ejemplo anterior. En el proximo reinicio, LinuxCNC arrancara automaticamente.
 
-[[faq:terminal]]
-
-== Terminal
+== Terminal[[faq:terminal]]
 
 Hay que hacer muchas cosas desde la terminal, como verificar el búfer de mensajes 
 del núcleo con 'dmesg'. Ubuntu y Linux Mint tienen un atajo de teclado Ctrl + Alt + t.
@@ -74,9 +73,7 @@ directorio.
 La mayoría de los sistemas operativos tienen el terminal como elemento de menú, 
 generalmente en 'Accesorios'.
 
-== Paginas de manual [[sec:Man-Pages]]
-
-(((Man Pages)))
+== Paginas de manual[[sec:Man-Pages]](((Man Pages)))
 
 Las páginas del manual son generadas automáticamente en la mayoría de los casos.
 Las páginas del manual estan generalmente disponibles para la
@@ -116,9 +113,7 @@ si usted no cambio de directorio cuando abrio la terminal y
 será nombrado mymod.txt, o como usted lo haya nombrado.
 
 
-== Edicion de archivos de root [[sec:Editing-a-Root-File]]
-
-(((Editing a Root File)))
+== Edicion de archivos de root [[sec:Editing-a-Root-File]](((Editing a Root File)))
 
 Al abrir el explorador de archivos y ver que el propietario del
 archivo es el usuario root, se tienen que hacer algunos pasos adicionales para modificar ese archivo.
@@ -126,10 +121,7 @@ La edición de algunos archivos puede tener malos resultados. Tenga cuidado
 al editar los archivos de root; generalmente usted puede ver y abrir los archivos root
 en modo de 'solo lectura'.
 
-
-=== Con la linea de comandos
-
-(((sudo gedit)))
+=== Con la linea de comandos(((sudo gedit)))
 
 En una ventana de terminal teclee.
 
@@ -139,9 +131,7 @@ sudo gedit
 
 Abrir el archivo con el menu File > Open > Edit, y proceda a editar.
 
-=== Usando la interface grafica
-
-(((gksudo)))
+=== Usando la interface grafica(((gksudo)))
 
  .Haga clic derecho sobre el escritorio y seleccione 'Crear lanzador'
  .Escriba un nombre como 'editar sudo'
@@ -156,9 +146,7 @@ En Ubuntu (o Debian) puede convertirse en super usuario tecleando "sudo -i" en u
 Debera escribir su contraseña. Tenga
 cuidado porque usted puede dañar su instalacion si no sabe lo que esta haciendo.
 
-== Comandos en la terminal [[sec:Terminal-Commands]]
-
-(((Terminal Commands)))
+== Comandos en la terminal [[sec:Terminal-Commands]](((Terminal Commands)))
 
 === Directorio de trabajo (((Working Directory)))(((pwd)))
 

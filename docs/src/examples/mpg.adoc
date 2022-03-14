@@ -1,5 +1,7 @@
-[[cha:mpg-pendant]]
+:lang: en
+:toc:
 
+[[cha:mpg-pendant]]
 = MPG Pendant
 
 This example is to explain how to hook up the common MPG pendants
@@ -21,17 +23,18 @@ letters.  This example uses the axis jog pins for jogging in world
 mode.  Machines with non-identity kinematics may need use additional
 connections for jogging in joint mode.
 
-.jog.hal
+jog.hal
+
 ----
-# Jog Pendant 
-loadrt encoder num_chan=1 
-loadrt mux4 count=1 
-addf encoder.capture-position servo-thread 
-addf encoder.update-counters base-thread 
+# Jog Pendant
+loadrt encoder num_chan=1
+loadrt mux4 count=1
+addf encoder.capture-position servo-thread
+addf encoder.update-counters base-thread
 addf mux4.0 servo-thread
 
-# If your MPG outputs a quadrature signal per click set x4 to 1  
-# If your MPG puts out 1 pulse per click set x4 to 0 
+# If your MPG outputs a quadrature signal per click set x4 to 1
+# If your MPG puts out 1 pulse per click set x4 to 0
 setp encoder.0.x4-mode 0
 
 # For velocity mode, set to 1
@@ -79,7 +82,8 @@ If the machine is capable of high acceleration to smooth out the moves
 for each click of the MPG use the <<sec:ilowpass,ilowpass>> component to
 limit the acceleration.
 
-.jog.hal with ilowpass
+jog.hal with ilowpass
+
 ----
 loadrt encoder num_chan=1
 loadrt mux4 count=1
@@ -142,4 +146,3 @@ net encoder-counts => axis.x.jog-counts
 net encoder-counts => axis.y.jog-counts
 net encoder-counts => axis.z.jog-counts
 ----
-

@@ -1,3 +1,5 @@
+:lang: en
+
 = Contributing to LinuxCNC
 
 == Introduction

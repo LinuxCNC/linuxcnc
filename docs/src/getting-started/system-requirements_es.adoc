@@ -28,9 +28,9 @@ funcionamiento razonable para la mayoría de los sistemas basados en motores a p
 * 512 MB o más de RAM
 * 8 GB de espacio en disco duro
 * Tarjeta gráfica capaz de una resolución de al menos de 1024x768, que no este usando controladores propietarios 
-   Nvidia o ATI fglrx. Los chipsets de graficos integrados mas modernos parecen ser validos en general.
+  Nvidia o ATI fglrx. Los chipsets de graficos integrados mas modernos parecen ser validos en general.
 * Una conexión de red o Internet (no es estrictamente necesaria, pero resulta muy útil para realizar actualizaciones 
-   y contactar con la comunidad de LinuxCNC)
+  y contactar con la comunidad de LinuxCNC)
 
 Los requerimientos mínimos del sistema cambian conforme las distribuciones Linux evolucionan, por lo tanto revise el 
 sitio https://www.debian.org/releases/stable/amd64/ch02.es.html[Debian] para mas detalles sobre el LiveCD que esta usando.

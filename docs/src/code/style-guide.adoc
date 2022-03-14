@@ -1,3 +1,5 @@
+:lang: en
+
 = Coding Style
 
 This chapter describes the source code style preferred by the LinuxCNC team.
@@ -14,7 +16,7 @@ revision history of the file.
 
 Do not use an editor that makes unneeded changes to whitespace (e.g.,
 which replaces 8 spaces with a tabstop on a line not otherwise
-modified, or word-wraps lines not otherwise modified)
+modified, or word-wraps lines not otherwise modified).
 
 == Tab Stops
 
@@ -146,7 +148,7 @@ say why something needs fixing. When a change has been made to the
 affected portion of code, either remove the comment, or amend it to
 indicate a change has been made and needs testing.
 
-== Shell Scripts & Makefiles 
+== Shell Scripts & Makefiles
 
 Not everyone has the same tools and packages installed. Some people
 use vi, others emacs - A few even avoid having either package

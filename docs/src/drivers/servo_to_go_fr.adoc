@@ -1,3 +1,5 @@
+:lang: en
+
 = Servo-To-Go
 
 The Servo-To-Go (STG) is one of the first PC motion control cards supported
@@ -30,7 +32,7 @@ base address). For example:
     loadrt hal_stg base=0x300 num_chan=4 dio="IOIO"
 
 This example installs the STG driver for a card found at the base
-address of 0x300, 4 channels of encoder feedback, DACs and ADCs, 
+address of 0x300, 4 channels of encoder feedback, DACs and ADCs,
 along with 32 bits of I/O configured like this: the first 8 (Port A)
 configured as Input, the next 8 (Port B) configured as Output, the next
 8 (Port C) configured as Input, and the last 8 (Port D) configured as
@@ -91,6 +93,6 @@ low.
  - stg.read-adcs (funct) Reads the voltages from the ADCs.
  - stg.di-read (funct) Reads physical in- pins of all ports and updates
    all HAL in-<pinnum> and in-<pinnum>-not pins.
- - stg.do-write (funct) Reads all HAL out-<pinnum> pins and updates all 
+ - stg.do-write (funct) Reads all HAL out-<pinnum> pins and updates all
    physical output pins.
 

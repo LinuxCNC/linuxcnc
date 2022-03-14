@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Les M-codes
-
 [[cha:M-codes]]
+= Les M-codes
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}

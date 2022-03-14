@@ -1,5 +1,6 @@
-[[cha:vismach]]
+:lang: en
 
+[[cha:vismach]]
 = Vismach
 
 Vismach is a set of Python functions that can be used to create and animate

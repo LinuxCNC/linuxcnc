@@ -1,10 +1,32 @@
-[[cha:linux-faq]]
+:lang: en
 
-= Linux FAQ
+[[cha:linux-faq]]
+= Linux FAQ(((Linux FAQ)))
 
 These are some basic Linux commands and techniques for new to Linux
 users. More complete information can be found on the web or by using
 the man pages.
+
+N.T. Debian Stretch usa por defecto el entorno de escritorio Xfce, con el gestor
+de pantallas lightDM. Para obtener acceso automatico con Stretch:
+
+* En un terminal, use el comando:
+
+----
+$ /usr/sbin/lightdm --show-config
+----
+
+* Anote el path absoluto del archivo de configuracion lightdm.conf.
+* Edite ese archivo con un editor de texto puro (gedit, nano, etc), como root.
+* Busque y descomente las lineas:
+
+----
+#autologin-user=
+#autologin-user-timeout=0
+----
+
+* Haga autologin-user=su_nombre_usuario
+* Guarde y reinicie.
 
 == Automatic Login
 
@@ -16,13 +38,22 @@ have your password that you used for the install to gain access to the
 Login Window Preferences window. In the Security tab check off Enable
 Automatic Login and pick a user name from the list (that would be you).
 
+Ejemplo:
+
+----
+linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
+----
+
+N.T. En Debian Stretch, vaya a 'Aplicaciones > Configuracion > Administrador de Configuracion > Sesion e Inicio'.
+En la pestaña 'Autoarranque de aplicaciones', use el boton 'Añadir'. De un nombre, una descripcion y una orden similar
+al ejemplo anterior. En el proximo reinicio, LinuxCNC arrancara automaticamente.
+
 == Automatic Startup
 
 To have LinuxCNC start automatically with your config after turning on the
 computer go to 'System > Preferences > Sessions > Startup Applications',
 click Add. Browse to your config and select the .ini file. When the file
-picker dialog closes, add linuxcnc and a space in front of the path to your
-.ini file.
+picker dialog closes, add linuxcnc and a space in front of the path to your .ini file.
 
 Example:
 
@@ -31,18 +62,21 @@ linuxcnc /home/mill/linuxcnc/config/mill/mill.ini
 ----
 
 [[faq:terminal]]
-
 == Terminal
 
 Many things need to be done from the terminal like checking the kernel message
-buffer with 'dmesg'. Ubuntu and Linux Mint have a keyboard shortcut Ctrl + Alt
-+ t. Most modern file managers support the right key to open a terminal just
+buffer with 'dmesg'. Ubuntu and Linux Mint have a keyboard shortcut Ctrl + Alt + t.
+Most modern file managers support the right key to open a terminal just
 make sure your right clicking on a blank area or a directory not a file name.
 Most OS's have the terminal as a menu item, usually in Accessories.
+N.T. Debia Stretch no tiene definido ningun atajo de teclado. Se puede crear facilmente
+con el 'Administrador de Configuracion'.
+
+La mayoría de los sistemas operativos tienen el terminal como elemento de menú,
+generalmente en 'Accesorios'.
 
 [[faq:man-pages]]
-
-== Man Pages
+== Man Pages(((Man Pages)))
 
 A man page (short for manual page) is a form of software documentation
 usually found on a Unix or Unix-like operating system like Linux.
@@ -126,7 +160,6 @@ pwd
 ----
 
 [[faq:cd]]
-
 === Changing Directories
 
 To move up one level in the terminal window type:

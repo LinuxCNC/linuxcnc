@@ -226,4 +226,4 @@ Hay muchas formas de contribuir a LinuxCNC, que no se abordan en este documento.
 
 * Ayudando a probar características experimentales
 
-
+// vim: set syntax=asciidoc:

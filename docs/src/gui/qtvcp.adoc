@@ -1,5 +1,6 @@
-[[cha:qtvcp]]
+:lang: en
 
+[[cha:qtvcp]]
 = Qtvcp
 
 Qtvcp is an infrastructure to display a custom CNC screen or control panel in LinuxCNC. +
@@ -23,9 +24,8 @@ image::images/qtvcp-cam-align.png["QTscreen x1mill",align="left"]
 .test panel - Test Panel VCP
 image::images/test_panel.png["Test Panel",align="left"]
 
-[[sec:qtvcp-overview]](((QtVcp Overview)))
-
-== Overview
+[[sec:qtvcp-overview]]
+== Overview(((QtVcp Overview)))
 
 There are two files that can be used, individually or in combination to add +
 customization. +
@@ -737,7 +737,6 @@ them to widgets using signals. +
 In the handler file you would create the slot's functions defined in Designer. +
 
 [[cha:designer-slots]]
-
 === Using Designer to add slots
 When you have loaded your screen into designer add a plain PushButton to the screen. +
 You could change the name of the button to something interesting like 'test_button' +

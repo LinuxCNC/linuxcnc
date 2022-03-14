@@ -1,9 +1,9 @@
-[[cha:hal-tools]]
+:lang: en
 
-= HAL Tools
+[[cha:hal-tools]]
+= HAL Tools(((HAL Tools)))
 
 [[sec:halcmd]]
-
 == Halcmd
 
 Halcmd is a command line tool for manipulating the HAL. There is a
@@ -27,13 +27,12 @@ man halcmd
 The <<cha:hal-tutorial,HAL Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for halcmd.
 
-[[sec:halmeter]](((Halmeter)))
-
-== Halmeter
+[[sec:halmeter]]
+== Halmeter(((Halmeter)))
 
 Halmeter is a 'voltmeter' for the HAL. It lets you look at a pin,
 signal, or parameter, and displays the current value of that item. It
-is pretty simple to use. Start it by typing *halmeter* in an X 
+is pretty simple to use. Start it by typing *halmeter* in an X
 windows shell. Halmeter is a GUI application. It will pop up
 a small window, with two buttons labeled 'Select' and 'Exit'. Exit is
 easy - it shuts down the program. Select pops up a larger window, with
@@ -50,10 +49,10 @@ convenient if you want to look at a number of different items quickly.
 You can have many halmeters running at the same time, if you want to
 monitor several items. If you want to launch a halmeter without tying
 up a shell window, type 'halmeter &' to run it in the background.
-You can also make halmeter start 
+You can also make halmeter start
 displaying a specific item immediately, by adding 'pin|sig|par[am]
 <name>' to the command line. It will display the pin, signal, or
-parameter 
+parameter
 <name> as soon as it starts. (If there is no such item, it will simply
 start normally.) And finally, if you specify an item to display, you
 can add '-s' before the pin|sig|param to tell halmeter to use a small
@@ -69,24 +68,24 @@ faster than Halshow at displaying values. Halmeter has two windows, one
 to pick the pin, signal, or parameter to monitor and one that displays
 the value. Multiple Halmeters can be open at the same time. If you use
 a script to open multiple Halmeters you can set the position of each
-one with -g X Y relative to the upper left corner of your screen. 
-For example: 
+one with -g X Y relative to the upper left corner of your screen.
+For example:
 
 ----
 loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 ----
 
 See the man page for more options. See section <<sec:halmeter,Halmeter>>.
-  
+
 .Halmeter
 
-image::images/hal-meter01.png[alt="Halmeter"]
+image::images/hal-meter01.png["Halmeter"]
 
-image::images/hal-meter02.png[alt="Halmeter"]
+image::images/hal-meter02.png["Halmeter"]
 
 == Halshow
 
-Halshow (<<cha:halshow,complete usage description>>) 
+Halshow (<<cha:halshow,complete usage description>>)
 can be started from the command line to show details for selected
 components, pins, parameters, signals, functions, and threads of a running HAL.
 The WATCH tab provides a continuous display of selected pin, parameters, and
@@ -138,7 +137,6 @@ lines beginning with a # character are ignored.
 
 
 [[sec:halscope]]
-
 == Halscope
 
 Halscope is an 'oscilloscope' for the HAL. It lets you capture the
@@ -153,6 +151,7 @@ the last configuration is saved in a file named autosave.halscope.
 
 Configuration files may also be specified when starting halscope from
 the commandline.  Commandline help (-h) usage:
+
 ----
 halscope -h
 Usage:
@@ -192,30 +191,37 @@ writable pins, parameters or signals.  Usage:
          If the mode begins with an uppercase letter, the radio
          buttons for selecting other modes are not shown
 ----
+
 For complete information, see the man page:
+
 ----
 man sim_pin
 ----
+
 Example (with LinuxCNC running):
+
 ----
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
-image::images/sim_pin.png[alt="sim_pin is a command line utility to display and update any number of writable pins, parameters or signals"]
+
+image::images/sim_pin.png["sim_pin is a command line utility to display and update any number of writable pins, parameters or signals"]
 
 == Simulate Probe
 
-simulate_probe is a simple gui to simulate activation of the pin
-motion.probe-input.  Usage:
+simulate_probe is a simple gui to simulate activation of the pin motion.probe-input.
+Usage:
+
 ----
 simulate_probe &
 ----
 
-image::images/simulate_probe.png[alt="simulate_probe is a simple gui to simulate activation of the pin motion.probe-input"]
+image::images/simulate_probe.png["simulate_probe is a simple gui to simulate activation of the pin motion.probe-input"]
 
 == Hal Histogram
 
 hal-histogram is a command line utility to display histograms for hal pins.
+
 ----
 Usage:
    hal-histogram --help | -?
@@ -241,7 +247,7 @@ Notes:
      For a base thread, this may require using:
      loadrt motmod ... base_thread_fp=1
 ----
-image::images/hal-histogram.png[alt="hal-histogram is a command line utility to display histograms for hal pins"]
+image::images/hal-histogram.png["hal-histogram is a command line utility to display histograms for hal pins"]
 
 == Halreport
 

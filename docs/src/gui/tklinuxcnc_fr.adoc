@@ -13,10 +13,10 @@ populaire après Axis, c'est l'interface traditionnelle de LinuxCNC. Elle est
 l'affichage. Le fait d'être écrite en TCL la rend vraiment très
 portable (elle fonctionne sur une multitude de plateformes).
 
-[[cap:affichage-TkLinuxCNC]]
+[[sec:affichage-TkLinuxCNC]]
 .L'affichage de TkLinuxCNC
 
-image::images/tklinuxcnc_fr.png[alt="L'affichage de TkLinuxCNC"]
+image::images/tklinuxcnc_fr.png["L'affichage de TkLinuxCNC"]
 
 == Utiliser TkLinuxCNC
 
@@ -32,7 +32,7 @@ trouve dans _sim/tklinuxcnc/tklinuxcnc.ini_ est déjà configurée pour utiliser
 comme interface utilisateur.
 
 Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre 
-<<cap:affichage-TkLinuxCNC,comme celle-ci s'affiche>>.
+<<sec:affichage-TkLinuxCNC,comme celle-ci s'affiche>>.
 
 === Une session typique avec TkLinuxCNC
 

@@ -28,20 +28,20 @@ El selector de configuración ofrece una selección de configuraciones organizad
 * 'Mis configuraciones' - Configuraciones de usuario ubicadas en ~/linuxcnc/configs
 
 * 'Configuraciones de ejemplo' - Estas configuraciones, cuando se seleccionan, se copian en
-    ~/linuxcnc/configs. Una vez que copie una configuración, si usa el
-    selector, selecciónela desde 'Mis configuraciones'. 
-    Los nombres corresponden a los directorios bajo ../configs/
+  ~/linuxcnc/configs. Una vez que copie una configuración, si usa el
+  selector, selecciónela desde 'Mis configuraciones'. 
+  Los nombres corresponden a los directorios bajo ../configs/
 
 ** 'sim' - Configuraciones que incluyen hardware simulado. Pueden ser usadas
-   para probar o aprender cómo funciona LinuxCNC.
+    para probar o aprender cómo funciona LinuxCNC.
 
 ** 'by_interface' - Configuraciones organizadas por tipo de GUI.
 
 ** 'by_machine' - Configuraciones organizadas por tipo de máquina.
 
 ** 'apps' - aplicaciones que no requieren iniciar linuxcnc pero pueden ser
-   útiles para pruebas o aplicaciones como <<cha:pyvcp,PyVCP o
-   <<cha:glade-vcp,GladeVCP.>>
+    útiles para pruebas o aplicaciones como <<cha:pyvcp,PyVCP o
+    <<cha:glade-vcp,GladeVCP.>>
 
 ** 'attic' - Configuraciones obsoletas o históricas.
 
@@ -179,9 +179,9 @@ la biblioteca de sistema Halfile. Este enlace simplifica el copiado de
 un archivo de biblioteca. Por ejemplo, para copiar el archivo de biblioteca
 core_sim.hal para hacer modificaciones locales:
 
-====
-  cd ~/linuxcnc/configs/nombre_de_configuracion
-  cp hallib/core_sim.hal core_sim.hal
-====
+----
+cd ~/linuxcnc/configs/nombre_de_configuracion
+cp hallib/core_sim.hal core_sim.hal
+----
 
 // vim: set syntax = asciidoc:

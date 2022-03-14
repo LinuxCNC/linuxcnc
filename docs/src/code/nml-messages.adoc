@@ -1,3 +1,5 @@
+:lang: en
+
 = NML Messages
 for details see src/emc/nml_intf/emc.hh
 
@@ -199,3 +201,5 @@ for details see src/emc/nml_intf/emc.hh
     EMC_STAT_TYPE
     EMC_EXEC_PLUGIN_CALL_TYPE
 ----
+
+// vim: set syntax=asciidoc:

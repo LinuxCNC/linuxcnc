@@ -1,8 +1,14 @@
-= Coordinate Systems
+:lang: en
+:toc:
 
 [[cha:coordinate-system]]
+= Coordinate Systems(((Coordinate Systems)))
 
 == Introduction
+
+Missing in src/gcode/coordinates.adoc but seems nice in French 1.
+
+Missing in src/gcode/coordinates.adoc but seems nice in French 2.
 
 This chapter introduces you to offsets as they are used by the LinuxCNC.
 These include:
@@ -12,7 +18,6 @@ These include:
 * Global Offsets (G92) and Local Offsets (G52)
 
 [[sec.machine-coordinate-system]]
-
 == Machine Coordinate System
 
 When LinuxCNC is started the positions of each axis is the machine origin. Once
@@ -23,11 +28,11 @@ machine coordinate system.
 
 == Coordinate Systems
 
+[[fig:decalages-ilots]]
 .Example of Coordinate Systems
-image::images/offsets.png[align="center", alt="Example of Coordinate Systems"]
+image::images/offsets.png["Example of Coordinate Systems",align="center"]
 
 .Coordinate System Offsets
-
 * G54 - use coordinate system 1
 * G55 - use coordinate system 2
 * G56 - use coordinate system 3
@@ -59,18 +64,18 @@ etc are better ways to set the variables.
 
 .Example of G55 parameters
 [width="40%",cols="^,^,^",options="header"]
-|====
-|Axis | Variable | Value
-| X |5241 |2.000000
-| Y |5242 |1.000000
-| Z |5243 |-2.000000
-| A |5244 |0.000000
-| B |5245 |0.000000
-| C |5246 |0.000000
-| U |5247 |0.000000
-| V |5248 |0.000000
-| W |5249 |0.000000
-|====
+|==========================
+|Axis | Variable |    Value
+| X   | 5241     |  2.000000
+| Y   | 5242     |  1.000000
+| Z   | 5243     | -2.000000
+| A   | 5244     |  0.000000
+| B   | 5245     |  0.000000
+| C   | 5246     |  0.000000
+| U   | 5247     |  0.000000
+| V   | 5248     |  0.000000
+| W   | 5249     |  0.000000
+|==========================
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero position.
@@ -122,15 +127,15 @@ revert to the default value of 1.00000 on start up.
 
 The G10 L2x command can be used to set coordinate system offsets:
 
-* 'G10 L2  P(1-9)' - Set offset(s) to a value. Current position irrelevant.
-                         (see <<gcode:g10-l2,G10 L2>> for details)
+* 'G10 L2  P(1-9)' - Set offset(s) to a value. Current position irrelevant (see <<gcode:g10-l2,G10 L2>> for details).
 
-* 'G10 L20 P(1-9)' - Set offset(s) so current position becomes a value.
-                         (see <<gcode:g10-l20,G10 L20>> for details)
+* 'G10 L20 P(1-9)' - Set offset(s) so current position becomes a value (see <<gcode:g10-l20,G10 L20>> for details).
 
-== Local and Global Offsets[[sec:g52-and-g92-offsets]]
+[[sec:g52-and-g92-offsets]]
+== Local and Global Offsets
 
-=== The G52 command[[sec:g52]]
+[[sec:g52]]
+=== The G52 command
 
 'G52' is used in a part program as a temporary "local coordinate
 system offset" within the workpiece coordinate system.  An example use
@@ -151,17 +156,16 @@ As a temporary offset, set and unset within the localized scope of a
 part program, in other G-code interpreters 'G52' does not persist
 after machine reset, 'M02' or 'M30'.  In LinuxCNC, 'G52' shares
 parameters with 'G92', which, for historical reasons, *does* persist
-these parameters.  See <<sec:g92-persistence-cautions,G92 Persistence
-Cautions>> below.
+these parameters.
+See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 [CAUTION]
 
 'G52' and 'G92' share the same offset registers.  Therefore, setting
 'G52' will override any earlier 'G92' setting, and 'G52' will persist
 across machine reset when 'G92' persistence is enabled.  These
-interactions may result in unexpected offsets.  See
-<<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>>
-below.
+interactions may result in unexpected offsets.
+See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
 
 Programming 'G52 X1 Y2' offsets the current workpiece coordinate
 system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
@@ -176,19 +180,18 @@ not explicitly zeroed will retain the previous offset.
 'G52' shares the same offset registers as 'G92', and thus
 'G52' is visible on the DRO and preview labeled with 'G92'.
 
-=== The G92 commands[[sec:g92-commands]]
+[[sec:g92-commands]]
+=== The G92 commands
 
 'G92' is typically used in two conceptually different ways: as a
 "global coordinate system offset" or as a "local coordinate system
 offset".  The 'G92' set of commands includes:
 
-* 'G92' - This command, when used with axis names, sets values to offset
-    variables.
+* 'G92' - This command, when used with axis names, sets values to offset variables.
 
 * 'G92.1' - This command sets zero values to the G92 variables.
 
-* 'G92.2' - This command suspends but does not zero out the G92
-    variables.
+* 'G92.2' - This command suspends but does not zero out the G92 variables.
 
 * 'G92.3' - This command applies offset values that have been suspended.
 
@@ -259,7 +262,8 @@ zero. A 'G92 X2' will set an offset of 0.0000 and the displayed position
 will not change. A 'G92 X5.0000' will set an offset of 3.0000 so that the
 current displayed position becomes 5.0000.
 
-=== G92 Persistence Cautions[[sec:g92-persistence-cautions]]
+[[sec:g92-persistence-cautions]]
+=== G92 Persistence Cautions
 
 By default, the values of a 'G92' offset will be saved in the VAR file
 and be restored after a machine reset or startup.
@@ -306,11 +310,12 @@ expect it.  Additionally, 'G92' persistence may be disabled by setting
 'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
 '.ini' file.
 
-=== G92 and G52 Interaction Cautions[[sec:g92-g52-interaction-cautions]]
+[[sec:g92-g52-interaction-cautions]]
+=== G92 and G52 Interaction Cautions
 
 'G52' and 'G92' share the same offset registers.  Unless 'G92'
-persistence is disabled in the '.ini' file (see <<sec:g92-commands,G92
-Commands>>), 'G52' offsets will also persist after machine reset,
+persistence is disabled in the '.ini' file (see <<sec:g92-commands,G92 Commands>>),
+'G52' offsets will also persist after machine reset,
 'M02' or 'M30'.  Beware that a 'G52' offset in effect during a program
 abort may result in unintended offsets when the next program is run.
 See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> above.

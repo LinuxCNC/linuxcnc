@@ -1,5 +1,6 @@
-[[cha:shuttle]]
+:lang: en
 
+[[cha:shuttle]]
 = Shuttle
 
 == Description

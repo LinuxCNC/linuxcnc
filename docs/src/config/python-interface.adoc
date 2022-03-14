@@ -1,5 +1,6 @@
-[[cha:python-interface]]
+:lang: en
 
+[[cha:python-interface]]
 = Python Interface
 
 :ini: {basebackend@docbook:'':ini}
@@ -397,7 +398,8 @@ else:
 *velocity*:: '(returns float)' -
 This property is defined, but it does not have a useful interpretation.
 
-=== The `axis` dictionary [[sec:the-axis-dictionary]]
+[[sec:the-axis-dictionary]]
+=== The `axis` dictionary
 
 The axis configuration and status values are available through a list
 of per-axis dictionaries. Here's an example how to access an attribute
@@ -417,7 +419,8 @@ parameter, reflects [JOINT_n]MIN_LIMIT.
 *velocity*:: '(returns float)' -
 current velocity.
 
-=== The `joint` dictionary [[sec:the-joint-dictionary]]
+[[sec:the-joint-dictionary]]
+=== The `joint` dictionary
 
 [source,python]
 ---------------------------------------------------------------------
@@ -504,7 +507,8 @@ by the configuration parameter [JOINT_n]UNITS)
 *velocity*:: '(returns float)' -
 current velocity.
 
-== The `spindle` dictionary [[sec:the-spindle-dictionary]]
+[[sec:the-spindle-dictionary]]
+== The `spindle` dictionary
 
 *brake*:: '(returns integer)' -
 value of the spindle brake flag.
@@ -841,7 +845,8 @@ if error:
 ---------------------------------------------------------------------
 
 
-== Reading ini file values [[python:reading-ini-values]]
+[[python:reading-ini-values]]
+== Reading ini file values
 
 Here's an example for reading values from an ini file through the
 `linuxcnc.ini` object:
