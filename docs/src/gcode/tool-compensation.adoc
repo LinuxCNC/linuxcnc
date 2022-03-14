@@ -1,7 +1,7 @@
 :lang: en
 
 [[cha:tool-compensation]]
-= Tool Compensation Title(((Tool Compensation)))
+= Tool Compensation(((Tool Compensation)))
 
 == Tool Length Offsets
 
