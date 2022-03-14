@@ -1,4 +1,4 @@
-VERSION = '1.222.174'
+VERSION = '1.222.175'
 
 '''
 qtplasmac_handler.py
@@ -1561,16 +1561,11 @@ class HandlerClass:
                 if self.w.sender().objectName() == 'gcode_editor_display':
                     return
             if line > 1:
-                if self.lastLoadedProgram != 'rfl.ngc':
-                    msg0 = _translate('HandlerClass', 'SELECTED')
-                    self.runText = '{} {}'.format(msg0, line)
-                    self.rflSelected = True
-                    self.startLine = line - 1
-                else:
-                    head = _translate('HandlerClass', 'RUN FROM LINE ERROR')
-                    msg0 = _translate('HandlerClass', 'Cannot select line while')
-                    msg1 = _translate('HandlerClass', 'run from line is active')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+                msg0 = _translate('HandlerClass', 'SELECTED')
+                self.w.run.setText('{} {}'.format(msg0, line))
+                self.runText = '{} {}'.format(msg0, line)
+                self.rflSelected = True
+                self.startLine = line - 1
             elif self.rflActive:
                 txt0 = _translate('HandlerClass', 'RUN FROM LINE')
                 txt1 = _translate('HandlerClass', 'CYCLE START')
