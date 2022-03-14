@@ -128,7 +128,6 @@ setp coolant.scale-fb 1
 setp coolant.motor-cmd 60
 #       allows us to see status
 setp coolant.monitor 1
-
 ----
 
 == Configuring the Mitsubishi VFD for serial usage
