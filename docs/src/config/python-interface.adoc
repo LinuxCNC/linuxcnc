@@ -423,7 +423,7 @@ current velocity.
 === The `joint` dictionary
 
 [source,python]
----------------------------------------------------------------------
+----
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import linuxcnc
@@ -842,7 +842,7 @@ if error:
     else:
         typus = "info"
     print typus, text
----------------------------------------------------------------------
+----
 
 
 [[python:reading-ini-values]]
