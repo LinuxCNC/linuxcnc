@@ -329,28 +329,28 @@ This sample engraving project mills a set of four .1 radius circles in
 roughly a star shape around a center circle. We can setup the
 individual circle pattern like this.
 
----------------------------------------------------------------------
+----
 G10 L2 P1 X0 Y0 Z0 (ensure that G54 is set to machine zero)
 G0 X-0.1 Y0 Z0
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
 G0 Z0
 M2
----------------------------------------------------------------------
+----
 
 We can issue a set of commands to create offsets for the four other
 circles like this.
 
------------------------------------------------------------
+----
 G10 L2 P2 X0.5 (offsets G55 X value by 0.5 inch)
 G10 L2 P3 X-0.5 (offsets G56 X value by -0.5 inch)
 G10 L2 P4 Y0.5 (offsets G57 Y value by 0.5 inch)
 G10 L2 P5 Y-0.5 (offsets G58 Y value by -0.5 inch)
------------------------------------------------------------
+----
 
 We put these together in the following program:
 
----------------------------------------------------------------------
+----
 (a program for milling five small circles in a diamond shape)
 
 G10 L2 P1 X0 Y0 Z0 (ensure that G54 is machine zero)
@@ -385,7 +385,7 @@ G3 X-0.1 Y0 I0.1 J0
 G54 G0 X0 Y0 Z0
 
 M2
----------------------------------------------------------------------
+----
 
 Now comes the time when we might apply a set of G92 offsets to this
 program. You'll see that it is running in each case at Z0. If the mill
