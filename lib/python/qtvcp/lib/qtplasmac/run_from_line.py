@@ -27,11 +27,10 @@ from PyQt5.QtGui import QIcon
 _translate = QCoreApplication.translate
 
 def run_from_line(P, W, ACTION, STATUS, linuxcnc):
-    inData,outData,newFile,params = [],[],[],[]
-    g2,g4,g6,g9,g9arc,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','','',''
+    inData,outData,newFile,params,material = [],[],[],[],[]
+    g2,g4,g6,g9,g9arc,d3,d2,a3,x,y,code,rflSpindle = '','','','','','','','','','','',''
     oSub = False
     count = 0
-    tmpMat = False
     head = _translate('HandlerClass', 'GCODE ERROR')
     with open(P.lastLoadedProgram, 'r') as inFile:
         for line in inFile:
@@ -49,31 +48,14 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
     for line in inData:
         if line.startswith('('):
             if line.startswith('(o='):
-                material = line.strip()
+                material = [line.strip()]
             continue
-        if line.startswith('#'):
+        elif line.startswith('m190'):
+            material.append(line.strip())
+            material.append('m66 p3 l3 q1')
+            continue
+        elif line.startswith('#'):
             params.append(line.strip())
-            continue
-        if line.startswith('m190'):
-            mat = line.split('p')[1]
-            try:
-                if '(' in mat:
-                    num = int(mat.split('(')[0])
-                else:
-                    num = int(mat)
-            except:
-                head = _translate('HandlerClass', 'G-CODE ERROR')
-                msg0 = _translate('HandlerClass', 'is an invalid material number')
-                msg1 = _translate('HandlerClass', 'Material #0 will be selected')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n"{}" {}\n{}\n'.format(head, mat, msg0, msg1))
-                num = 0
-            if num >= 1000000:
-                tmpMat = True
-            else:
-                material = line.strip()
-            continue
-        if line.replace(' ','').startswith('m66p3') and tmpMat:
-            tmpMat = False
             continue
         for t1 in ['g20','g21','g40','g41.1','g42.1','g61','g61.1','g64','g90','g90.1','g91','g91.1']:
             if t1 in line:
@@ -289,9 +271,8 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
     if zMax:
         newFile.append(zMax)
     if material:
-        newFile.append(material)
-        if not '(o=' in material:
-            newFile.append('m66p3l3q1')
+        for line in material:
+            newFile.append(line)
     # don't scale feedrate, parameters should be set correctly in material file
     newFile.append('f#<_hal[plasmac.cut-feed-rate]>')
     xL = x
@@ -326,18 +307,6 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
     for line in outData:
         if outData.index(line) == 0 and (line.startswith('x') or line.startswith('y')):
             line = '{}{}'.format(code, line)
-        elif line.startswith('m190'):
-            mat = line.split('p')[1]
-            if '(' in mat:
-                num = int(mat.split('(')[0])
-            else:
-                num = int(mat)
-            if num >= 1000000:
-                tmpMat = True
-                continue
-        elif line.replace(' ','').startswith('m66p3') and tmpMat:
-            tmpMat = False
-            continue
         newFile.append(line.strip())
     rflFile = '{}rfl.ngc'.format(P.tmpPath)
     with open(rflFile, 'w') as outFile:
