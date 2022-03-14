@@ -479,6 +479,7 @@ protect a program against inadvertent modal changes within
 subroutines.
 
 [[mcode:m70-saved-state]]
+.M70 Saved state(((M70 Saved state)))
 The state saved consists of:
 
 * current G20/G21 settings (imperial/metric)
@@ -673,7 +674,7 @@ O<measure> endsub
 ----
 
 [[mcode:m100-m199]]
-== M100 - M199 User Defined Commands(((M100 - M199 User Defined Commands)))
+== M100-M199 User Defined Commands(((M100-M199 User Defined Commands)))
 
 ----
 M1-- <P- Q->
