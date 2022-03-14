@@ -27,53 +27,61 @@ from PyQt5.QtGui import QIcon
 _translate = QCoreApplication.translate
 
 def run_from_line(P, W, ACTION, STATUS, linuxcnc):
-    inData,outData,newFile,params = [],[],[],[]
-    g2,g4,g6,g9,g9arc,d3,d2,a3,material,x,y,code,rflSpindle = '','','','','','','','','','','','',''
-    oSub = False
+    g2,g4,g6,g9,g9arc,d3,d2,a3,x1,y1,x2,y2,feed,code = '','','','','','','','','','','','','',''
+    preData,postData,newData,params,material = [],[],[],[],[]
+    g0Flag = [False, False]
+    spindleCode = False
+    spindleLine = None
+    oSub = []
+    cutComp = False
     count = 0
-    tmpMat = False
     head = _translate('HandlerClass', 'GCODE ERROR')
+    # split gcode at selected line
     with open(P.lastLoadedProgram, 'r') as inFile:
         for line in inFile:
+            # code before selected line
             if count < P.startLine:
-                inData.append(line.lower())
+                preData.append(line.lower())
+            # remaining code
             else:
                 if count == P.startLine:
                     if 'g21' in line:
-                        newFile.append('g21')
+                        newData.append('g21')
                     elif 'g20' in line:
-                        newFile.append('g20')
-                outData.append(line.lower())
+                        newData.append('g20')
+                    if line.strip().startswith('m66p3'):
+                        material.append(line.strip())
+                # find the type of first move
+                if not g0Flag[0] and not 'g53g0' in line and not 'g20' in line and not 'g21' in line:
+                    if 'g0' in line:
+                        g0Flag = [True, True]
+                        x2 = get_rfl_pos(line.strip(), x2, 'x')
+                        y2 = get_rfl_pos(line.strip(), y2, 'y')
+                    if 'g1' in line or 'g2' in line or 'g3' in line:
+                        g0Flag = [True, False]
+                        x2 = get_rfl_pos(line.strip(), x2, 'x')
+                        y2 = get_rfl_pos(line.strip(), y2, 'y')
+                    if 'm3$' in line.replace(' ',''):
+                        if not spindleLine:
+                            spindleLine = line.lower().strip()
+                            continue
+                        spindleLine = line.strip()
+                postData.append(line.lower())
             count += 1
-    cutComp = False
-    for line in inData:
+    # read all lines before selected line to get last used codes
+    for line in preData:
         if line.startswith('('):
             if line.startswith('(o='):
-                material = line.strip()
+                material = [line.strip()]
             continue
-        if line.startswith('#'):
+        elif line.startswith('m190'):
+            material.append(line.strip())
+            continue
+        elif line.replace(' ','').startswith('m66p3'):
+            material.append(line.strip())
+            continue
+        elif line.startswith('#'):
             params.append(line.strip())
-            continue
-        if line.startswith('m190'):
-            mat = line.split('p')[1]
-            try:
-                if '(' in mat:
-                    num = int(mat.split('(')[0])
-                else:
-                    num = int(mat)
-            except:
-                head = _translate('HandlerClass', 'G-CODE ERROR')
-                msg0 = _translate('HandlerClass', 'is an invalid material number')
-                msg1 = _translate('HandlerClass', 'Material #0 will be selected')
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n"{}" {}\n{}\n'.format(head, mat, msg0, msg1))
-                num = 0
-            if num >= 1000000:
-                tmpMat = True
-            else:
-                material = line.strip()
-            continue
-        if line.replace(' ','').startswith('m66p3') and tmpMat:
-            tmpMat = False
             continue
         for t1 in ['g20','g21','g40','g41.1','g42.1','g61','g61.1','g64','g90','g90.1','g91','g91.1']:
             if t1 in line:
@@ -107,7 +115,7 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
                     g9arc = 'g90.1'
                 elif t1 == 'g91.1' in line:
                     g9arc = 'g91.1'
-        if 'g0' in line:
+        if 'g0' in line and not 'g53g0' in line:
             code = 'g0'
         if 'g1' in line:
             tmp = line.split('g1')[1]
@@ -122,20 +130,11 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
             if tmp[0] not in '0123456789':
                 code = 'g3'
         if 'x' in line:
-            x = get_rfl_pos(line.strip(), x, 'x')
+            x1 = get_rfl_pos(line.strip(), x1, 'x')
         if 'y' in line:
-            y = get_rfl_pos(line.strip(), y, 'y')
-        if 'm3' in line:
-            rflSpindle = 'm3'
-            tmp = line.split('m3')[1]
-            while 1:
-                if tmp[0] in '0123456789s$':
-                    rflSpindle += tmp[0]
-                    tmp = tmp[1:]
-                else:
-                    break
-        if 'm5' in line:
-            rflSpindle = ''
+            y1 = get_rfl_pos(line.strip(), y1, 'y')
+        if 'm3$' in line.replace(' ','') and not spindleLine:
+            spindleLine = line.strip()
         if 'm62p3' in line.replace(' ',''):
             d3 = 'm62p3 (Disable Torch)'
         elif 'm63p3' in line.replace(' ',''):
@@ -143,10 +142,8 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
         elif 'm64p3' in line.replace(' ',''):
             d3 = 'm64p3 (Disable Torch)'
         elif 'm65p3' in line.replace(' ',''):
-            print("M65 P2 found in", line.strip())
             d3 = 'm65p3 (Enable Torch)'
         if 'm62p2' in line.replace(' ',''):
-            print("M62 P2 found in", line.strip())
             d2 = 'm62p2 (Disable THC)'
         elif 'm63p2' in line.replace(' ',''):
             d2 = 'm63p2 (Enable THC)'
@@ -167,7 +164,6 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
             pc = pc if pc > 0 else 100
             a3 += ' (Velocity {}%)'.format(pc)
         if 'm68e3q' in line.replace(' ',''):
-            print("M68 E3 Q found in", line.strip())
             a3 = 'm68e3q'
             tmp = line.replace(' ','').split('m68e3q')[1]
             bb=1
@@ -180,24 +176,53 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
             pc = int(a3.split('m68e3q')[1])
             pc = pc if pc > 0 else 100
             a3 += ' (Velocity {}%)'.format(pc)
+        # test if inside a subroutine
         if line.startswith('o'):
             if 'end' in line:
                 oSub = False
             else:
-                oSub = True
+                if line[1] == '<':
+                    os = 'o<'
+                    tmp = line.replace(' ','').split('o<')[1]
+                    while 1:
+                        if tmp[0] != '>':
+                            os += tmp[0]
+                            tmp = tmp[1:]
+                        else:
+                            break
+                    oSub.append('{}>'.format(os))
+                else:
+                    os = 'o'
+                    tmp = line.replace(' ','').split('o')[1]
+                    while 1:
+                        if tmp[0] in '0123456789':
+                            os += tmp[0]
+                            tmp = tmp[1:]
+                        else:
+                            break
+                    oSub.append(os)
+        if 'f#<_hal[plasmac.cut-feed-rate]>' in line:
+            feed = line.strip()
+        elif 'f[#<_hal[plasmac.cut-feed-rate]>' in line:
+            feed = line.strip()
+    # cannot do run from line within a subroutine or if using cutter compensation
     if cutComp or oSub:
         if cutComp:
             msg0 = _translate('HandlerClass', 'Cannot run from line while')
             msg1 = _translate('HandlerClass', 'cutter compensation is active')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1))
         elif oSub:
             msg0 = _translate('HandlerClass', 'Cannot do run from line')
-            msg1 = _translate('HandlerClass', 'inside a subroutine')
-        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+            msg1 = _translate('HandlerClass', 'inside subroutine')
+            msg2 = ''
+            for sub in oSub:
+                msg2 += ' {}'.format(sub)
+        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}{}\n'.format(head, msg0, msg1, msg2))
         P.rflActive = False
         P.set_run_button_state()
         P.startLine = 0
         return
-    # show the dialog
+    # show the rfl dialog
     rFl = QDialog(W)
     rFl.setWindowTitle(_translate('HandlerClass', 'RUN FROM LINE'))
     lbl1 = QLabel(_translate('HandlerClass', 'USE LEADIN:'))
@@ -244,17 +269,18 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
     leadinAngle.setRange(-359, 359)
     leadinAngle.setWrapping(True)
     result = rFl.exec_()
-    # cancel from dialog
+    # cancel clicked in the rfl dialog
     if not result:
         P.rflActive = False
         P.set_run_button_state()
         P.startLine = 0
         W.gcode_display.setCursorPosition(0, 0)
         return
-    # run from dialog
+    # run clicked in the rfl dialog
+    # add all the codes retrieved from before the start line
     for param in params:
         if param:
-            newFile.append(param)
+            newData.append(param)
     scale = 1
     zMax = ''
     if P.unitsPerMm == 1:
@@ -270,78 +296,71 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
         else:
             zMax = 'g53 g0z[#<_ini[axis_z]max_limit> - 0.02]'
     if g2:
-        newFile.append(g2)
+        newData.append(g2)
     if g4:
-        newFile.append(g4)
+        newData.append(g4)
     if g6:
-        newFile.append(g6)
+        newData.append(g6)
     if g9:
-        newFile.append(g9)
+        newData.append(g9)
     if g9arc:
-        newFile.append(g9arc)
-    newFile.append('M52 P1')
+        newData.append(g9arc)
+    newData.append('m52 p1')
     if d3:
-        newFile.append(d3)
+        newData.append(d3)
     if d2:
-        newFile.append(d2)
+        newData.append(d2)
     if a3:
-        newFile.append(a3)
+        newData.append(a3)
     if zMax:
-        newFile.append(zMax)
+        newData.append(zMax)
     if material:
-        newFile.append(material)
-        if not '(o=' in material:
-            newFile.append('m66p3l3q1')
-    # don't scale feedrate, parameters should be set correctly in material file
-    newFile.append('f#<_hal[plasmac.cut-feed-rate]>')
-    xL = x
-    yL = y
-    try:
+        for line in material:
+            newData.append(line)
+    if feed:
+        newData.append(feed)
+    # if g0 is not the first motion command after selected line set x and y coordinates
+    if not g0Flag[1]:
         if leadinDo.isChecked():
-            if x[-1] == ']':
-                xL = '{}[[{}]+{:0.6f}]'.format(x[:1], x[1:], (leadinLength.value() * scale) * math.cos(math.radians(leadinAngle.value())))
-                yL = '{}[[{}]+{:0.6f}]'.format(y[:1], y[1:], (leadinLength.value() * scale) * math.sin(math.radians(leadinAngle.value())))
-            else:
-                xL = float(x) + ((leadinLength.value() * scale) * math.cos(math.radians(leadinAngle.value())))
-                yL = float(y) + ((leadinLength.value() * scale) * math.sin(math.radians(leadinAngle.value())))
-    except:
-        msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
-        msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
-        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
-    if xL != x and yL != y:
-        newFile.append('G0 X{} Y{}'.format(xL, yL))
-        rflLead = [x, y]
-    else:
-        if x and y:
-            newFile.append('G0 X{} Y{}'.format(x, y))
-        elif x:
-            newFile.append('G0 X{}'.format(x))
-        elif y:
-            newFile.append('G0 Y{}'.format(y))
-        rflLead = None
-    if rflSpindle:
-        newFile.append(rflSpindle)
-    if rflLead:
-        newFile.append('G1 X{} Y{}'.format(rflLead[0], rflLead[1]))
-    for line in outData:
-        if outData.index(line) == 0 and (line.startswith('x') or line.startswith('y')):
-            line = '{}{}'.format(code, line)
-        elif line.startswith('m190'):
-            mat = line.split('p')[1]
-            if '(' in mat:
-                num = int(mat.split('(')[0])
-            else:
-                num = int(mat)
-            if num >= 1000000:
-                tmpMat = True
-                continue
-        elif line.replace(' ','').startswith('m66p3') and tmpMat:
-            tmpMat = False
+            xL, yL = set_leadin_coordinates(x1, y1, head, STATUS, linuxcnc.OPERATOR_ERROR, leadinLength, scale, leadinAngle)
+        else:
+            xL = x1
+            yL = y1
+        spindleCode = set_spindle_start(xL, yL, x1, y1, spindleLine, newData, False)
+    # if no spindle command yet then find the next one for the correct tool
+    if not spindleLine:
+        for line in postData:
+            if 'm3$' in line.replace(' ',''):
+                spindleLine = line.strip()
+                break
+    # add all the code from the selected line to the end
+    for line in postData:
+        # if we have the first spindle code we don't need it again
+        if 'm3$' in line.replace(' ','') and spindleCode:
+            spindleCode = False
             continue
-        newFile.append(line.strip())
+        # if g0 is the first motion command after the selected line
+        if g0Flag[1]:
+            # if g0 is the current motion command
+            if 'g0' in line:
+                # no need to process a g53g0 command]
+                if 'g53g0' in line or 'g20' in line or 'g21' in line:
+                    newData.append(line.strip())
+                    continue
+                if leadinDo.isChecked():
+                    xL, yL = set_leadin_coordinates(x2, y2, head, STATUS, linuxcnc.OPERATOR_ERROR, leadinLength, scale, leadinAngle)
+                else:
+                    xL = x2
+                    yL = y2
+                spindleCode = set_spindle_start(xL, yL, x2, y2, spindleLine, newData, True)
+                # no need to process any more g0 commands
+                g0Flag[1] = False
+                continue
+        newData.append(line.strip())
+    # create the rfl file
     rflFile = '{}rfl.ngc'.format(P.tmpPath)
     with open(rflFile, 'w') as outFile:
-        for line in newFile:
+        for line in newData:
             outFile.write('{}\n'.format(line))
     if ACTION.prefilter_path or P.lastLoadedProgram != 'None':
         P.preRflFile = ACTION.prefilter_path or P.lastLoadedProgram
@@ -352,6 +371,41 @@ def run_from_line(P, W, ACTION, STATUS, linuxcnc):
     txt1 = _translate('HandlerClass', 'CYCLE START')
     P.runText = '{}\n{}'.format(txt0, txt1)
     W.gcodegraphics.highlight_graphics(None)
+
+def set_leadin_coordinates(x, y, head, status, operror, leadinLength, scale, leadinAngle):
+    xL = x
+    yL = y
+    try:
+        if x[-1] == ']':
+            xL = '{}[[{}]+{:0.6f}]'.format(x[:1], x[1:], (leadinLength.value() * scale) * math.cos(math.radians(leadinAngle.value())))
+            yL = '{}[[{}]+{:0.6f}]'.format(y[:1], y[1:], (leadinLength.value() * scale) * math.sin(math.radians(leadinAngle.value())))
+        else:
+            xL = float(x) + ((leadinLength.value() * scale) * math.cos(math.radians(leadinAngle.value())))
+            yL = float(y) + ((leadinLength.value() * scale) * math.sin(math.radians(leadinAngle.value())))
+    except:
+        msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
+        msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
+        status.emit('error', operror, '{}:\n{}\n{}\n'.format(head, msg0, msg1))
+        return(x, y)
+    return(xL, yL)
+
+def set_spindle_start(xL, yL, x, y, spindleLine, newData, reply):
+    leadIn = None
+    if xL != x and yL != y:
+        newData.append('g0x{}y{}'.format(xL, yL))
+        leadIn = [x, y]
+    else:
+        if x and y:
+            newData.append('g0x{}y{}'.format(x, y))
+        elif x:
+            newData.append('g0x{}'.format(x))
+        elif y:
+            newData.append('g0y{}'.format(y))
+    if spindleLine:
+        newData.append(spindleLine)
+    if leadIn:
+        newData.append('g1x{}y{} (leadin)'.format(leadIn[0], leadIn[1]))
+    return(reply)
 
 def get_rfl_pos(line, axisPos, axisLetter):
     maths = 0
