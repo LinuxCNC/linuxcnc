@@ -65,8 +65,9 @@ directions.
 
 === Coolant(((coolant)))
 
-If a CNC machine has components to provide mist coolant and/or flood
-coolant they can be controlled by G-codes.
+Flood coolant and mist coolant may each be turned on independently.
+The RS274/NGC language turns them off together see Section
+<<mcode:m7-m8-m9,M7 M8 M9>>.
 
 === Feed and Speed Override(((correcteurs vitesse)))(((correcteur vitesse broche)))
 
@@ -172,12 +173,6 @@ per revolution' modes are being used, in which case see Section
    stop in coordinated fashion.
  . Otherwise, the move is pure rotary motion and the F word is in rotary
    units in the ABC 'pseudo-cartesian' system.
-
-=== Coolant(((coolant)))
-
-Flood coolant and mist coolant may each be turned on independently.
-The RS274/NGC language turns them off together see Section
-<<mcode:m7-m8-m9,M7 M8 M9>>.
 
 === Dwell(((dwell)))
 
