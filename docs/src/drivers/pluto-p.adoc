@@ -242,15 +242,10 @@ The board features:
 === Pinout
 
 * 'STEPx' - The 'step' (clock) output of stepgen channel 'x'
-
 * 'DIRx' - The 'direction' output of stepgen channel 'x'
-
 * 'INx' - Dedicated digital input #x
-
 * 'OUTx' - Dedicated digital output #x
-
 * 'GND' - Ground
-
 * 'VCC' - +3.3V regulated DC
 
 While the 'extended main connector' has a superset of signals usually
