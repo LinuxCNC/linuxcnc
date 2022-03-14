@@ -226,12 +226,12 @@ The two pallets may be exchanged by command.
 
 === Boutons des correcteurs de vitesses
 
-Taken from the _fr.adoc: Les boutons des correcteurs de vitesses peuvent être activés (ils
-fonctionnent normalement) ou rendus inopérants (Ils n'ont plus aucun
-effet). Le langage RS274/NGC dispose d'une commande qui active tous les
-boutons et une autre qui les désactive. Voir l'inhibition et l'activation
-<<mcode:m48-m49,des correcteurs de vitesse>>.
-Voir également <<sec:Interaction-vitesses,ici pour d'autres détails>>.
+Feed and speed override controls can either be active or disabled.
+RS274/NGC langage has codes to switch between both states.
+See the <<mcodes:m48-m49, M48 and M49>> sections for more
+informations about activation and inhibition of overrides controls.
+
+See also the <<cnc:interpreter-interaction-with-switches, interpreter interaction with switches>> section for more details.
 
 [[sec:path-control-mode]]
 === Path Control Mode(((Path Control Mode)))
@@ -288,8 +288,8 @@ switch should be set before starting the NGC program.
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-[[sec:Tool-Table]]
-== Tool Table(((Tool-Table)))
+[[sec:tool-table]]
+== Tool Table(((Tool Table)))
 
 A tool table is required to use the Interpreter. The file tells which
 tools are in which tool changer slots and what the size and type of
@@ -319,7 +319,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 For more information on the specifics of the tool table format, see the
 <<sec:tool-table,Tool Table Format>> Section.
 
-[[sec:parametres]]
+[[sec:parameters]]
 == Parameters(((Parameters)))
 
 In the RS274/NGC language view, a machining center maintains an array
