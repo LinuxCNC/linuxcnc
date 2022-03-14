@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:M-codes]]
+[[cha:m-codes]]
 = Les M-codes
 
 :ini: {basebackend@docbook:'':ini}
