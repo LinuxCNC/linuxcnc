@@ -1225,7 +1225,7 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
-[[gcode:order-of-execution]](((G-Code Order of Execution)))
+[[gcode:order-of-execution]]
 == G-Code Order of Execution
 
 The order of execution of items on a line is defined not by the

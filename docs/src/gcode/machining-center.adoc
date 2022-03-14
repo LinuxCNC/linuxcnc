@@ -228,7 +228,7 @@ The two pallets may be exchanged by command.
 
 Feed and speed override controls can either be active or disabled.
 RS274/NGC langage has codes to switch between both states.
-See the <<mcodes:m48-m49, M48 and M49>> sections for more
+See the <<mcode:m48-m49, M48 and M49>> sections for more
 informations about activation and inhibition of overrides controls.
 
 See also the <<cnc:interpreter-interaction-with-switches, interpreter interaction with switches>> section for more details.
