@@ -237,14 +237,15 @@ It is OK to upgrade everything except the operating system when asked to.
 Do not upgrade the operating system if prompted to do so. You
 should accept OS _updates_ however, especially security updates.
 
-== Install Problems
+[[linuxcnc:install-problems]]
+== Install Problems(((LinuxCNC:Installation Problems)))(((Installation:Problems)))
 
 In rare cases you might have to reset the BIOS to default settings if
 during the Live CD install it cannot recognize the hard drive
 during the boot up.
 
 [[sec:_alternate_install_methods]]
-== Alternate Install Methods
+== Alternate Install Methods(((LinuxCNC:Alternate Install Methods)))(((Installation:Alternate Methods)))
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install
 Image as described above.  That method is as simple and reliable as we
@@ -290,7 +291,8 @@ debian archive.  The apt source is:
 * Debian Wheezy: `deb http://linuxcnc.org wheezy base`
 * Ubuntu Precise: `deb http://linuxcnc.org precise base`
 
-NOTE: Debian Wheezy and Ubuntu Precise are both extremely old, and
+[NOTE]
+Debian Wheezy and Ubuntu Precise are both extremely old, and
 are out of their support period. It is strongly advised not to use either
 for a new install, and to seriously consider upgrading an existing installation.
 
