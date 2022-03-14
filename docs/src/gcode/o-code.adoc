@@ -153,14 +153,12 @@ M99               ; Return from subprogram 100
 ----
 
 .'o1 (Title)'
-
 The optional main program beginning block gives the main program the
 number `1`.  Some controllers treat an optional following
 parenthesized comment as a program title, `Example 1` in this example,
 but this has no special meaning in the rs274ngc interpreter.
 
 .'M98 P- <L\->'
-
 Call a numbered subprogram.  The block `M98 P100` is analogous to the
 traditional `o100 call` syntax, but may only be used to call a
 following numbered subprogram defined with `o100`...`M99`.  An
