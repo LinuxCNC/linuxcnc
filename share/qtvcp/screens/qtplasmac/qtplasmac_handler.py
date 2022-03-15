@@ -1,4 +1,4 @@
-VERSION = '1.222.177'
+VERSION = '1.222.178'
 
 '''
 qtplasmac_handler.py
@@ -53,6 +53,7 @@ from qtvcp.lib.qtplasmac import updater as UPDATER
 from qtvcp.widgets.camview_widget import CamView as CAM
 from qtvcp.widgets.file_manager import FileManager as FILE_MAN
 from qtvcp.widgets.gcode_editor import GcodeEditor as EDITOR
+from qtvcp.widgets.gcode_editor import GcodeDisplay as DISPLAY
 from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
 from qtvcp.widgets.mdi_line import MDILine as MDI_LINE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSETVIEW
@@ -411,6 +412,7 @@ class HandlerClass:
         EDITOR.pythonLexerCall = self.new_pythonLexerCall
         self.old_returnFromDialog = EDITOR.returnFromDialog
         EDITOR.returnFromDialog = self.new_returnFromDialog
+        DISPLAY.load_preference = self.new_load_preference
 
     # save a non gcode file and don't load it into linuxcnc
     def new_saveReturn(self, filename):
@@ -461,6 +463,7 @@ class HandlerClass:
     def new_pythonLexerCall(self):
         pass
 
+    # don't allow rfl.ngc as a file name
     def new_returnFromDialog(self, w, message):
         if message.get('NAME') == self.w.gcode_editor.load_dialog_code:
             path = message.get('RETURN')
@@ -480,6 +483,11 @@ class HandlerClass:
                     self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{} "{}" {}\n\n'.format(msg0, os.path.basename(path), msg1))
                     self.w.gcode_editor.getSaveFileName()
                     return
+
+    # load the qtplasmac preferences file rather than the qtvcp preferences file
+    def new_load_preference(self, w):
+        self.w.gcode_editor.editor.load_text(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
+        self.w.gcode_editor.editor.setCursorPosition(self.w.gcode_editor.editor.lines(), 0)
 
 # patched camera functions
     def camview_patch(self):
@@ -2093,8 +2101,8 @@ class HandlerClass:
     # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
-            new = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
-            if os.path.isfile(old) and os.path.isfile(new):
+            if os.path.isfile(old):
+                new = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
                 UPDATER.split_prefs_file(old, new, prefsFile)
 
     def set_blank_gcodeprops(self):
