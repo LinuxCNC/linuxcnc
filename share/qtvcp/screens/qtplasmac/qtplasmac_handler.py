@@ -1,4 +1,4 @@
-VERSION = '1.222.176'
+VERSION = '1.222.177'
 
 '''
 qtplasmac_handler.py
@@ -130,8 +130,8 @@ class HandlerClass:
                 os.rename(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'), os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac' + str(time.time())))
                 os.symlink(linkFolder, os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
-        self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
         self.update_check()
+        self.PREFS = Access(os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs'))
         self.STYLEEDITOR = SSE(widgets, paths)
         self.GCODES = GCodes(widgets)
         self.valid = QDoubleValidator(0.0, 999.999, 3)
@@ -2094,7 +2094,8 @@ class HandlerClass:
         if not os.path.isfile(prefsFile):
             old = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac.prefs')
             new = os.path.join(self.PATHS.CONFIGPATH, 'qtvcp.prefs')
-            UPDATER.split_prefs_file(old, new, prefsFile)
+            if os.path.isfile(old) and os.path.isfile(new):
+                UPDATER.split_prefs_file(old, new, prefsFile)
 
     def set_blank_gcodeprops(self):
         # a workaround for the extreme values in gcodeprops for a blank file
