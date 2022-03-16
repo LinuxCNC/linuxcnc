@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.222
+1.223
 
 .I SUMMARY:
 .br
@@ -256,6 +256,8 @@ variable float  recovery_velocity;          /* cut recovery step velocity */
 variable float  requested_feed_rate;        /* requested feed rate */
 variable int    res;                        /* resolution of offset move*/
 variable float  restart_timer;              /* time between torch on attempts*/
+variable int    safe_alarm;                 /* warn if safe_available falls below this value during a cut */
+variable int    safe_available;             /* available safe height */
 variable int    safe_min;                   /* minimum safe height allowed */
 variable int    safe_preferred;             /* preferred safe height offset */
 variable int    safe_target;                /* safe height target offset */
@@ -1160,13 +1162,21 @@ FUNCTION(_) {
                         probe_offset = float_switch_travel / offset_scale;
                     }
                     zero_target = z_offset_counts + probe_offset;
-                    cut_target = zero_target + (cut_height / offset_scale);
+                    cut_target = offset_datum = zero_target + (cut_height / offset_scale);
                     pierce_target = zero_target + (pierce_height / offset_scale);
                     puddle_jump_target = zero_target + ((pierce_height * puddle_jump_percent * 0.01) / offset_scale );
                     safe_min = pierce_target + ((1 * units_per_mm) / offset_scale);
                     safe_preferred = zero_target + (safe_height / offset_scale);
                     offset_min = z_offset_counts - ((axis_z_position - axis_z_min_limit) / offset_scale);
                     offset_max = z_offset_counts + (axis_z_max_limit - axis_z_position - (max_offset * units_per_mm)) / offset_scale;
+                    if(!safe_available){
+                        safe_available = safe_preferred - zero_target;
+                    }
+                    if(units_per_mm == 1){
+                        safe_alarm = offset_max - (13 / offset_scale);
+                    }else{
+                        safe_alarm = offset_max - (0.5 / offset_scale);
+                    }
                     if(!cut_height_first){
                         cut_height_first = cut_target;
                     }
@@ -1177,25 +1187,32 @@ FUNCTION(_) {
                             state = PIERCE_HEIGHT;
                     }else if(safe_min > offset_max && !probe_testing){
                         safe_target = offset_max;
-                        rtapi_print_msg(RTAPI_MSG_ERR, "material too high for safe traverse.\n"
+                        rtapi_print_msg(RTAPI_MSG_ERR, "material is too high for safe traverse.\n"
                                                        "program is paused.\n");
                         stop_type = PAUSE;
                         program_pause = TRUE;
                         state = MAX_HEIGHT;
                     }else if(safe_preferred >= offset_max && !probe_testing){
-                        if(!safe_height_is_limited){
-                            rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
-                        }
                         safe_target = offset_max;
-                        safe_height_is_limited = TRUE;
-                            axis_x_start = axis_x_position;
-                            axis_y_start = axis_y_position;
-                            state = PIERCE_HEIGHT;
+                        // warn if safe_height is less than available safe height{
+                        if(offset_max - zero_target < safe_available){
+                            if(units_per_mm == 1){
+                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced to %0.1fmm.\n",
+                                                                (offset_max - zero_target) * offset_scale);
+                            }else{
+                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced to %0.2fin.\n",
+                                                                (offset_max - zero_target) * offset_scale);
+                            }
+                            safe_available = offset_max - zero_target;
+                        }
+                        axis_x_start = axis_x_position;
+                        axis_y_start = axis_y_position;
+                        state = PIERCE_HEIGHT;
                     }else{
                         safe_target = safe_preferred;
-                            axis_x_start = axis_x_position;
-                            axis_y_start = axis_y_position;
-                            state = PIERCE_HEIGHT;
+                        axis_x_start = axis_x_position;
+                        axis_y_start = axis_y_position;
+                        state = PIERCE_HEIGHT;
                     }
                 }
                 break;
@@ -1542,9 +1559,15 @@ FUNCTION(_) {
                         offset_datum = z_offset_counts;
                         if(safe_target > offset_max){
                             safe_target = offset_max;
-                            if(!safe_height_is_limited){
+                            // warn if safe height less than 10mm (0.4")
+                            if(!safe_height_is_limited && z_offset_counts > safe_alarm){
                                 safe_height_is_limited = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
+                                if(units_per_mm == 1){
+                                    rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced to less than 13mm.\n");
+                                }else{
+                                    rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced to less than 0.5in.\n");
+                                }
+                                safe_available = offset_max - z_offset_counts;
                             }
                         }
                     }
@@ -1625,9 +1648,15 @@ FUNCTION(_) {
                         offset_datum = z_offset_counts;
                         if(safe_target > offset_max){
                             safe_target = offset_max;
-                            if(!safe_height_is_limited){
+                            // warn if safe height less than 10mm (0.4")
+                            if(!safe_height_is_limited && z_offset_counts > safe_alarm){
                                 safe_height_is_limited = TRUE;
-                                rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced.\n");
+                                if(units_per_mm == 1){
+                                    rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced to less than 13mm.\n");
+                                }else{
+                                    rtapi_print_msg(RTAPI_MSG_ERR, "safe traverse height has been reduced to less than 0.5in.\n");
+                                }
+                                safe_available = offset_max - z_offset_counts;
                             }
                         }
                     }
@@ -1741,6 +1770,7 @@ FUNCTION(_) {
                             first_cut_finished = FALSE;
                             stop_type = NONE;
                             safe_height_is_limited = FALSE;
+                            safe_available = 0;
                             cut_started = FALSE;
                             /* do height override here for one cut only */
                             /* height_ovr_old = 0; */
