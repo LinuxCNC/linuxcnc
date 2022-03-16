@@ -16,7 +16,7 @@ http://buildbot.linuxcnc.org
 For the impatient, try this:
 
 ----
-> git clone git://github.com/linuxcnc/linuxcnc.git linuxcnc-dev
+> git clone https://github.com/LinuxCNC/linuxcnc.git linuxcnc-dev
 > cd linuxcnc-dev/src
 > ./autogen.sh
 > ./configure --with-realtime=uspace
@@ -395,8 +395,8 @@ the memory lock limit is raised using the following command:
 == Options for checking out the git repo
 
 The <<Quick-Start, Quick Start>> instructions at the top of this
-document said to make an anonymous local clone from our git repo at
-http://github.com/linuxcnc/linuxcnc.git.  This is the quickest, easiest
+document clone our git repo at
+https://github.com/LinuxCNC/linuxcnc.git.  This is the quickest, easiest
 way to get started.  However, there are other options to consider.
 
 
