@@ -1,4 +1,4 @@
-VERSION = '1.222.178'
+VERSION = '1.223.179'
 
 '''
 qtplasmac_handler.py
@@ -216,6 +216,7 @@ class HandlerClass:
         self.unitsPerMm = 1
         self.units = self.iniFile.find('TRAJ', 'LINEAR_UNITS')
         if self.units == 'inch':
+            self.units = 'in'
             self.unitsPerMm = 0.03937
         self.maxPidP = self.thcFeedRate / self.unitsPerMm * 0.1
         self.mode = int(self.iniFile.find('QTPLASMAC', 'MODE')) or 0
@@ -355,6 +356,7 @@ class HandlerClass:
         STATUS.connect('system_notify_button_pressed', self.system_notify_button_pressed)
         STATUS.connect('tool-in-spindle-changed', self.tool_changed)
         STATUS.connect('periodic', lambda w: self.update_periodic())
+        STATUS.connect('metric-mode-changed', self.metric_mode_changed)
         self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
         self.startupTimer = QTimer()
         self.startupTimer.timeout.connect(self.startup_timeout)
@@ -570,11 +572,11 @@ class HandlerClass:
 
     # not used, placeholder for future change in qt5_graphics.py
     def new_joint_dro_format_OFF(self,s,spd,num_of_joints,limit, homed):
-        return limit, homed, self.get_overlay_text(True), ['']
+        return limit, homed, self.get_overlay_text(), ['']
 
     # replace dro with current material
     def new_dro_format(self,s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
-        return limit, homed, self.get_overlay_text(True), ['']
+        return limit, homed, self.get_overlay_text(), ['']
 
 # patched screen options functions
     def screen_options_patch(self):
@@ -957,21 +959,31 @@ class HandlerClass:
         self.overlayProgress.setFormat('')
         self.overlayProgress.hide()
 
-    def get_overlay_text(self, kerf):
+    def get_overlay_text(self):
         text = ['']
         if not self.w.chk_overlay.isChecked():
             return text
-        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text.append('FR: {}\n'.format(self.w.cut_feed_rate.text().split('.')[0]))
+        scale = 1
+        if self.units == 'in' and self.w.dro_z.display_units_mm:
+            scale = 25.4
+        elif self.units == 'mm' and not self.w.dro_z.display_units_mm:
+            scale = 1 / 25.4
+        if not self.w.dro_z.display_units_mm:
+            fr = 1
+            ou = 3
         else:
-            text.append('FR: {}\n'.format(self.w.cut_feed_rate.text()))
-        text.append('PH: {}\n'.format(self.w.pierce_height.text()))
-        text.append('PD: {}\n'.format(self.w.pierce_delay.text()))
-        text.append('CH: {}'.format(self.w.cut_height.text()))
-        if kerf == True:
-            text.append('\nKW: {}'.format(self.w.kerf_width.text()))
+            fr = 0
+            ou = 2
+        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
+            text.append('FR: {:.{}f}'.format(float(self.w.cut_feed_rate.text().split('.')[0]) * scale, fr))
+        else:
+            text.append('FR: {:.{}f}'.format(float(self.w.cut_feed_rate.text()) * scale, fr))
+        text.append('PH: {:.{}f}'.format(float(self.w.pierce_height.text()) * scale, ou))
+        text.append('PD: {}'.format(self.w.pierce_delay.text()))
+        text.append('CH: {:.{}f}'.format(float(self.w.cut_height.text()) * scale, ou))
+        text.append('KW: {:.{}f}'.format(float(self.w.kerf_width.text()) * scale, ou))
         if self.pmx485Exists:
-            text.append('\nCA: {}'.format(self.w.cut_amps.text()))
+            text.append('CA: {}'.format(self.w.cut_amps.text()))
         return text
 
     def offset_peripherals(self):
@@ -1539,7 +1551,6 @@ class HandlerClass:
         else:
             hal.set_p('plasmac.override-jog', '0')
 
-
     def tool_changed(self, obj, tool):
         if tool == 0:
             self.w.lbl_tool.setText('TORCH')
@@ -1549,7 +1560,7 @@ class HandlerClass:
             self.w.lbl_tool.setText('UNKNOWN')
 
     def gcodes_changed(self, obj, cod):
-        if self.units == 'inch' and STATUS.is_metric_mode():
+        if self.units == 'in' and STATUS.is_metric_mode():
             self.droScale = 25.4
             self.gcodeScalePin.set(25.4)
         elif self.units == 'mm' and not STATUS.is_metric_mode():
@@ -1562,6 +1573,9 @@ class HandlerClass:
 
     def mcodes_changed(self, obj, cod):
         self.w.lbl_mcodes.setText('{}'.format(cod))
+
+    def metric_mode_changed(self, obj, state):
+        self.w.gcodegraphics.updateGL()
 
     def set_start_line(self, line):
         if self.w.chk_run_from_line.isChecked():
@@ -1592,10 +1606,10 @@ class HandlerClass:
                 for axis in 'XY':
                     if not axis in self.gcodeProps:
                         self.gcodeProps[axis] = '{0} to {0} = {1}'.format(STATUS.stat.g5x_offset['XY'.index(axis)], 0)
-                if props['GCode Units'] == 'in':
-                    STATUS.emit('metric-mode-changed', False)
-                else:
-                    STATUS.emit('metric-mode-changed', True)
+            if props['GCode Units'] == 'in':
+                STATUS.emit('metric-mode-changed', False)
+            else:
+                STATUS.emit('metric-mode-changed', True)
 
     def error_update(self, obj, kind, error):
         if kind == linuxcnc.OPERATOR_ERROR:
@@ -1783,12 +1797,10 @@ class HandlerClass:
         mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
         if self.gcodeProps:
             mult = 1
-            if self.units == 'inch':
-                if self.gcodeProps['Units'] == 'mm':
-                    mult = 0.03937
-            else:
-                if self.gcodeProps['Units'] == 'in':
-                    mult = 25.4
+            if self.units == 'in' and self.gcodeProps['Units'] == 'mm':
+                mult = 0.03937
+            elif self.units == 'mm' and self.gcodeProps['Units'] == 'in':
+                mult = 25.4
             x = (round(float(self.gcodeProps['X'].split()[0]) * mult, 4))
             y = (round(float(self.gcodeProps['Y'].split()[0]) * mult, 4))
             xl = (round(float(self.gcodeProps['X'].split('=')[1].split()[0]) * mult, 4))
@@ -1797,7 +1809,7 @@ class HandlerClass:
             x = y = xl = yl = 0
         if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
            self.w.view_t.isChecked() or self.w.view_t.isDown() or self.fileClear:
-            mult = 1 if self.units == 'inch' else 25.4
+            mult = 1 if self.units == 'in' else 25.4
             zoomScale = (self.w.table_zoom_scale.value() * 2)
             mid = [(self.xLen - (x * 2) - xl) / mult / 2, (self.yLen - (y * 2) - yl) / mult / 2, 0]
             size = [self.xLen / mult / zoomScale, self.yLen / mult / zoomScale, 0]
@@ -2165,14 +2177,10 @@ class HandlerClass:
         self.boundsError[boundsType] = False
         msgList = []
         boundsMultiplier = 1
-        if self.units == 'inch':
-            units = 'in'
-            if self.gcodeProps['Units'] == 'mm':
-                boundsMultiplier = 0.03937
-        else:
-            units = 'mm'
-            if self.gcodeProps['Units'] == 'in':
-                boundsMultiplier = 25.4
+        if self.units == 'in' and self.gcodeProps['Units'] == 'mm':
+            boundsMultiplier = 0.03937
+        elif self.units == 'mm' and self.gcodeProps['Units'] == 'in':
+            boundsMultiplier = 25.4
         xMin = round(float(self.gcodeProps['X'].split()[0]) * boundsMultiplier + xOffset, 5)
         if xMin < self.xMin:
             amount = float(self.xMin - xMin)
@@ -2201,7 +2209,7 @@ class HandlerClass:
             msgList.append('MAX')
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
-        return msgList, units, xMin, yMin, xMax, yMax
+        return msgList, self.units, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
@@ -2569,7 +2577,7 @@ class HandlerClass:
 
     def set_spinbox_parameters(self):
         self.w.max_offset_velocity_in.setText('{}'.format(int(self.thcFeedRate)))
-        if self.units == 'inch':
+        if self.units == 'in':
             self.w.setup_feed_rate.setRange(4.0, int(self.thcFeedRate))
             self.w.setup_feed_rate.setDecimals(1)
             self.w.setup_feed_rate.setSingleStep(0.1)
@@ -5151,7 +5159,7 @@ class HandlerClass:
             return
         if state:
             maxMove = 10
-            if self.units == 'inch':
+            if self.units == 'in':
                 maxMove = 0.4
             distX = hal.get_value('qtplasmac.kerf_width-f') * x
             distY = hal.get_value('qtplasmac.kerf_width-f') * y
