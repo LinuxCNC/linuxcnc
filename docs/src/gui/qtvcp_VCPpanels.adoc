@@ -13,18 +13,18 @@ or add python code for even finer grain customization. +
 There are several builtin HAL panels available. +
 in a  terminal type 'qtvcp list' <return> to see a list. +
 
-=== copy_dialog
+=== copy
 
-used for copying qtvcp's builtin screen code to a folder so one can 
+used for copying qtvcp's builtin screen/panels/vismach code to a folder so one can 
 customize it.
 
 In a terminal:
 [source,hal]
 ----
-qtvcp copy_dialog
+qtvcp copy
 ----
 
-.copy Dialog - Copy Qtvcp's builtin Screen code
+.copy Dialog - Copy Qtvcp's builtin Screen, Panel or Vismach code
 image::images/qtvcp_copy_dialog.png["Copy Dialog",align="left"]
 
 === test_panel
