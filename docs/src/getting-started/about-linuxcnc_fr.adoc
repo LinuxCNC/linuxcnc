@@ -58,7 +58,8 @@ vues Open Source de LinuxCNC:
     logiciels libres, nous encourageons tout le monde à utiliser des logiciels 
     open source, à les améliorer et à les transmettre.
 
-== Trouver de l'aide[[sec:Trouver-aide]](((Trouver de l'aide)))
+[[sec:Trouver-aide]]
+== Trouver de l'aide(((Trouver de l'aide)))
 
 === Les salons IRC
 

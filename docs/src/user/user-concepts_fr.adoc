@@ -222,7 +222,7 @@ la signification de chacun d'eux.
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
-comprendre la section <<sub:Vitesse-d-avance,vitesse d'avance>> du manuel de
+comprendre la section <<sub:feed-rate,vitesse d'avance>> du manuel de
 l'utilisateur.
 
 == Compensation de rayon d'outil

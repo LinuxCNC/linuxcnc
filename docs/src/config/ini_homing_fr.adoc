@@ -1,9 +1,9 @@
 :lang: fr
 :toc:
 
-= Prise d'origine
-
 [[sec:Prises-d-origine]]
+[[cha:homing-configuration]]
+= Prise d'origine
 
 == La prise d'origine
 

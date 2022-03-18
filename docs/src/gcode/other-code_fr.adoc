@@ -11,9 +11,9 @@
 
 Pour régler la vitesse d'avance, programmer 'F-'.
 L'application de la vitesse est telle que décrite dans l'aperçu global d'une
-machine numérique, section <<sub:Vitesse-d-avance,vitesse d'avance>>, à moins
+machine numérique, section <<sub:feed-rate,vitesse d'avance>>, à moins
 que le mode vitesse inverse du temps ne soit activé, dans ce cas, la vitesse est
-telle que décrite dans la section sur le choix des modes de <<sec:G93-G94-G95-Modes,vitesse>>.
+telle que décrite dans la section sur le choix des modes de <<gcode:g93-g95,vitesse>>.
 
 [[sec:S-Broche]]
 == S: Réglage de la vitesse de rotation de la broche
@@ -31,7 +31,7 @@ C'est une erreur si:
 
 * La valeur de S est négative.
 
-Comme décrit dans la section <<sec:G84-Taraudage-a-droite, sur le cycle de
+Comme décrit dans la section <<sec:g84,sur le cycle de
 taraudage à droite>>, si un cycle de perçage 'G84' (taraudage) est actif et que
 les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
 réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons

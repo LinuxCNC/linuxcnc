@@ -1,10 +1,9 @@
 :lang: fr
 :toc:
 
-= Systèmes de coordonnées et décalages
-
 [[cha:Systemes-de-coordonnees]]
-
+[[cha:coordinate-system]]
+= Systèmes de coordonnées et décalages
 
 == Introduction
 
@@ -46,7 +45,7 @@ ligne où un mouvement basé sur les coordonnées machine est souhaité.
 [[fig:decalages-ilots]]
 == Décalages pièce (G54 à G59.3)
 
-image::images/offsets.png[alt="Exemple de décalages pour 8 ilots"]
+image::images/offsets.png["Exemple de décalages pour 8 ilots"]
 
 .Exemple de décalages pour 8 ilots
 
@@ -107,7 +106,7 @@ vers sa nouvelle position d'origine. Contrairement à G53, les commandes
 G54 à G59.3 sont modales. Elles agissent sur toutes les lignes de
 G-code du programme après qu'une ait été rencontrée. Voyons le
 programme qui pourrait être écrit à l'aide de la figure
-<<fig:decalages-ilots, des décalages d'ilots>>, il suffira d'un seul point de
+<<fig:decalages-ilots,des décalages d'ilots>>, il suffira d'un seul point de
 référence pour chacune des pièces pour faire tout le travail. Le code suivant
 est proposé comme exemple pour faire un rectangle, il utilisera les
 décalages G55 que nous avons expliqué précédemment.
@@ -166,13 +165,13 @@ pour une description complète).
 
 * 'G10 L2  P(pièce 1-9)' - Ajuste les valeurs d'offset. La position courante
 reste inchangée.
-    (voir la section<<sec:G10-L2, G10 L2>> pour les détails)
+    (voir la section<<gcode:g10-l2,G10 L2>> pour les détails)
 
 * 'G10 L20 P(pièce 1-9)' - Ajuste les valeurs d'offset de sorte que la position
 courante devienne la position donnée en paramètre.
-    (Voir la section <<sec:G10-L20,G10 L20>> pour les détails)
+    (Voir la section <<gcode:g10-l20,G10 L20>> pour les détails)
 
-[[sec:G92-Decalages]]
+[[gcode:g92]]
 == Décalages d'axes G92
 
 G92 est la plus incomprise et la plus maligne des commandes
@@ -359,5 +358,4 @@ pas, les programmes que vous pourriez lancer après celui-ci,
 utiliseront également les décalages G92. En outre, cela permettrait
 d'éviter d'écrire les valeurs de G92 lorsque vous arrêtez LinuxCNC et donc,
 d'éviter de les recharger quand vous démarrez à nouveau le programme.
-
 

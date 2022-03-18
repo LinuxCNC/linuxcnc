@@ -192,9 +192,8 @@ entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
 
-[[sec:parametres]]
-== Paramètres (Variables)
-(((Paramètres)))
+[[sec:overview-parameters]]
+== Paramètres (Variables)(((Paramètres)))
 
 Le langage RS274/NGC supporte les 'paramètres', qui sont appelés 'variables'
 dans d'autres langages de programmation. Il existe plusieurs types de paramètres
@@ -686,7 +685,7 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 == Répétitions d'items
 
 Une ligne peut contenir autant de mots G que voulu, mais un seul du même 
-<<sec:Groupes-modaux, groupe modal>>.
+<<sec:Groupes-modaux,groupe modal>>.
 
 Une ligne peut avoir de zéro à quatre mots M. Mais pas deux mots M du
 même groupe modal.
@@ -823,8 +822,7 @@ C'est une erreur si:
 
 
 [[sec:Groupes-modaux]]
-== Groupes modaux
-(((Groupes modaux)))
+== Groupes modaux(((Groupes modaux)))
 
 Les commandes modales sont arrangées par lots appelés 'groupes
 modaux', à tout moment, un seul membre d'un groupe modal peut être
@@ -837,8 +835,7 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 
 
 [[tbl:G-codes-modaux]]
-.Groupes modaux des G-codes
-(((G-codes modaux)))
+.Groupes modaux des G-codes (((G-codes modaux)))
 
 [width="100%", cols="4,6", options="header"]
 |==========================================================
@@ -967,12 +964,11 @@ commentaires actifs.
                             chacune des mesures réussie. 
 * '(PROBECLOSE)'. - fermera le fichier de log palpeur.
 
-Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour d'autres
+Voir la section <<gcode:g38,sur la mesure au palpeur>> pour d'autres
 informations sur le palpage avec G38.
 
 [[sec:Log-general]]
-== Log général
-(((Log général)))
+== Log général(((Log général)))
 
 * '(LOGOPEN,filename.txt)' - Ouvre le fichier de log 'filename.txt'.
                             Si le fichier existe déjà, il sera tronqué.

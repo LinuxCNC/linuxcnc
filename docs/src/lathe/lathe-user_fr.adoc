@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:lathe-user-information]]
 = Particularités des tours
-
-[[cha:Tour-Specifiques]]
 
 Ce chapitre va regrouper les informations spécifiques aux tours, il
 est encore en cours de rédaction.
@@ -54,8 +53,7 @@ Plus d'informations <<sec:Tool-Table-Format, ici sur le format de la table
 d'outils>>.
 
 [[sec:Orientations-des-outils-de-tour]]
-== Orientations des outils de tournage
-(((Orientations des outils de tour)))
+== Orientations des outils de tournage(((Orientations des outils de tour)))
 
 La figure suivante montre les angles d'orientations des outils de tour ainsi que
 les informations sur l'angle frontal de l'arête de coupe (FRONTANGLE) et
@@ -64,9 +62,7 @@ Les positions vont croissantes dans le sens horaire par rapport à une ligne
 parallèle à l'axe Z, le zéro étant côté Z+.
 
 .Orientations des outils de tournage
-
-image::images/tool_positions_fr.png[alt="Orientations des outils de tournage"]
-
+image::images/tool_positions_fr.png["Orientations des outils de tournage"]
 
 Les images ci-dessous montrent la représentation qu'Axis donne des orientations
 de l'outil, en se référant à la figure ci-dessus.
@@ -112,7 +108,7 @@ l'offset s'applique immédiatement à l'outil courant.
 
  . Prise d'origine machine de chacun des axes, si ce n'est pas déjà fait.
  . Déclarer l'outil avec _M6 Tn_ dans lequel _n_ est le numéro de l'outil
-courant, présent en table d'outils.
+   courant, présent en table d'outils.
  . Sélectionner l'axe X dans la fenêtre de l'onglet _Contrôle manuel (F3)_.
  . Déplacer l'axe X sur une position connue ou prendre une passe de test puis
    mesurer le diamètre obtenu.
@@ -138,14 +134,14 @@ outils.
 
  . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.
  . S'assurer qu'aucune compensation n'est activée pour le système de coordonnées
-courant.
+   courant.
  . Déclarer l'outil avec _M6 Tn_ dans lequel _n_ est le numéro de l'outil
-courant, présent en table d'outils.
+   courant, présent en table d'outils.
  . Sélectionner l'axe Z dans la fenêtre de l'onglet _contrôle manuel (F3)_.
  . Placer un cylindre dans le mandrin.
  . Faire tangenter l'outil contre la face du cylindre.
  . Cliquer le bouton _Toucher_ puis choisir _Table d'outils_ et saisir la
-position à 0.0.
+   position à 0.0.
  . Répéter l'opération pour chaque outil, en utilisant le même cylindre.
 
 Maintenant, tous les outils sont compensés à la même distance d'une position
@@ -185,7 +181,7 @@ l'utilisation des codeurs de broche.
 
 .Filetage
 Le cycle de filetage préprogrammé G76 est utilisé, tant en filetage intérieur
-qu'en filetage extérieur, voir <<sec:G76-Filetage, la section G76>>.
+qu'en filetage extérieur, voir <<gcode:g76,la section G76>>.
 
 .Vitesse de coupe à surface constante
 La vitesse de coupe à surface constante utilise l'origine machine X modifiée
@@ -197,7 +193,7 @@ rotation et doit se faire avec l'outil de référence (celui qui a l'offset à z
 .Avance par tour
 L'avance par tour déplace l'axe Z de la valeur de F à chaque tour.
 Ce n'est pas destiné au filetage pour lequel il faut utiliser G76.
-D'autres informations sont dans la section sur <<sec:G93-G94-G95-Modes,G95>>.
+D'autres informations sont dans la section sur <<sec:g93-g95,G95>>.
 
 == Arcs
 

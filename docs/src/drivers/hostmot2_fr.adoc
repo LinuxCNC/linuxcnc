@@ -21,21 +21,21 @@ different Anything I/O boards. (This list is incomplete, check the
 hostmot2-firmware distribution for up-to-date firmware lists.)
 
  * 3x20 (144 I/O pins): using hm2_pci module
-  - 24-channel servo
-  - 16-channel servo plus 24 step/dir generators
+   - 24-channel servo
+   - 16-channel servo plus 24 step/dir generators
 
  * 5i22 (96 I/O pins): using hm2_pci module
-  - 16-channel servo
-  - 8-channel servo plus 24 step/dir generators
+   - 16-channel servo
+   - 8-channel servo plus 24 step/dir generators
 
  * 5i20, 5i23, 4i65, 4i68 (72 I/O pins): using hm2_pci module
-  - 12-channel servo
-  - 8-channel servo plus 4 step/dir generators
-  - 4-channel servo plus 8 step/dir generators
+   - 12-channel servo
+   - 8-channel servo plus 4 step/dir generators
+   - 4-channel servo plus 8 step/dir generators
 
  * 7i43 (48 I/O pins): using hm2_7i43 module
-  - 8-channel servo (8 PWM generators & 8 encoders)
-  - 4-channel servo plus 4 step/dir generators
+   - 8-channel servo (8 PWM generators & 8 encoders)
+   - 4-channel servo plus 4 step/dir generators
 
 == Installing Firmware
 
@@ -62,8 +62,9 @@ boards running the HostMot2 firmware. The low-level I/O drivers provide
 this access. The low-level I/O drivers are loaded with commands like
 this:
 
-     loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3
-    num_pwmgens=3 num_stepgens=1"
+----
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=1"
+----
 
 The config parameters are described in the hostmot2 man page.
 
@@ -235,8 +236,8 @@ HAL Configuration" from the Machine menu. All the HAL pins and
 parameters can be found there. The following figure is of the 5i20
 configuration used above.
 
-.5i20 HAL Pins[[cap:5i20-HAL-Pins]]
-
+[[cap:5i20-HAL-Pins]]
+.5i20 HAL Pins
 image::images/5i20-halpins.png["5i20 HAL Pins"]
 
 == Configurations

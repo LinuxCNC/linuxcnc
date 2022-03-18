@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:axis-gui]]
-= (((axis-gui)))AXIS GUI
+= AXIS GUI(((axis-gui)))
 
 == Introduction
 
@@ -10,6 +10,8 @@ AXIS is a graphical front-end for LinuxCNC which features a live
 preview and backplot. It is written in Python and uses
 Tk and OpenGL to display its user interface.
 
+[[cap:Fenetre-AXIS]]
+.AXIS Window
 image::images/axis.png["AXIS Window",align="center"]
 
 == Getting Started

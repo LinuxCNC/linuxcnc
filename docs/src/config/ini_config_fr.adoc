@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Configuration de LinuxCNC
-
 [[cha:ini-configuration]]
+= Configuration de LinuxCNC
 
 == Script de lancement
 
@@ -951,7 +950,7 @@ puis 'Calibration'.
 === Section [HOMING]
 
 Les paramètres suivants sont relatifs aux prises d'origine, pour plus
-d'informations, lire <<sec:Prises-d-origine, le chapitre sur la POM>>.
+d'informations, lire <<cha:homing-configuratio,le chapitre sur la POM>>.
 
 * 'HOME = 0.0' - La position à laquelle le mobile ira à la fin de la séquence
 de prise d'origine.

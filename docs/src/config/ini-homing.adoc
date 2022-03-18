@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:homing-configuration]]
 = Homing Configuration

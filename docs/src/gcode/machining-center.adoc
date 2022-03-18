@@ -320,7 +320,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 For more information on the specifics of the tool table format, see the
 <<sec:tool-table,Tool Table Format>> Section.
 
-[[sec:parameters]]
+[[sec:machine-center-parameters]]
 == Parameters(((Parameters)))
 
 In the RS274/NGC language view, a machining center maintains an array
