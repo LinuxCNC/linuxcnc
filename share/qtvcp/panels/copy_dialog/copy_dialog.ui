@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>350</width>
-    <height>400</height>
+    <height>412</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,6 +35,30 @@
          <bool>true</bool>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QRadioButton" name="radiobutton_screen">
+           <property name="text">
+            <string>Screen Code</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radiobutton_vcp">
+           <property name="text">
+            <string>VCP Panel Code</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radiobutton_vismach">
+           <property name="text">
+            <string>QtVismach Model</string>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="label">
            <property name="text">
@@ -113,7 +137,7 @@
      <x>0</x>
      <y>0</y>
      <width>350</width>
-     <height>22</height>
+     <height>24</height>
     </rect>
    </property>
   </widget>
@@ -141,12 +165,12 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>498</x>
-     <y>540</y>
+     <x>242</x>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
      <x>147</x>
-     <y>574</y>
+     <y>411</y>
     </hint>
    </hints>
   </connection>
@@ -157,17 +181,66 @@
    <slot>applyClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>595</x>
-     <y>547</y>
+     <x>329</x>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
-     <x>594</x>
-     <y>569</y>
+     <x>349</x>
+     <y>411</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radiobutton_screen</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateCombo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>60</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>96</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radiobutton_vcp</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateCombo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>128</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>28</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>radiobutton_vismach</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>updateCombo()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>53</x>
+     <y>115</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>34</x>
+     <y>25</y>
     </hint>
    </hints>
   </connection>
  </connections>
  <slots>
   <slot>applyClicked()</slot>
+  <slot>updateCombo()</slot>
  </slots>
 </ui>
