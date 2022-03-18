@@ -1,4 +1,4 @@
-VERSION = '1.223.179'
+VERSION = '1.223.180'
 
 '''
 qtplasmac_handler.py
@@ -3452,6 +3452,8 @@ class HandlerClass:
             for command in commands.split('\\'):
                 command = command.strip()
                 self.user_button_command(command)
+                if command[0] == "%":
+                    continue
                 while not STATUS.is_interp_idle():
                     self.w.gcodegraphics.updateGL()
                 if command.lower().replace(' ', '').startswith('g10l20') and self.fileOpened:
