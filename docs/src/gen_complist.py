@@ -50,7 +50,7 @@ def generate_complist(complist_path):
             file2.write('| ' + i + ' |||\n')
         file2.write('|=======================\n')
     if len(obs1) > 0:
-        file2.write('\n=== Obsolete (auto generated)\n')
+        file2.write('\n=== Without man page (auto generated)\n')
         file2.write('[{tab_options}]\n|=======================\n')
         for i in sorted(obs1):
             file2.write('| ' + i + ' |||\n')
@@ -65,7 +65,7 @@ def generate_complist(complist_path):
             file3.write('| ' + i + ' |||\n')
         file3.write('|=======================\n')
     if len(obs9) > 0:
-        file3.write('\n=== Obsolete (auto generated)\n')
+        file3.write('\n=== Without man page (auto generated)\n')
         file3.write('[{tab_options}]\n|=======================\n')
         for i in sorted(obs9):
             file3.write('| ' + i + ' |||\n')
@@ -102,7 +102,7 @@ def generate_links(filename, manpage='1', create_backup=True, add_descr=False):
                     if add_descr:
                         splitted = line.split('|')
                         splitted[2] = extract_descr('../docs/man/man'+manpage+'/'+comp+'.'+manpage)\
-                        .replace(comp, '',1).strip('\n -')
+                        .replace(comp + ' ', ' ',1).strip('\n -')
                         line = '|'.join(splitted)
         file_links.append(line)
 
