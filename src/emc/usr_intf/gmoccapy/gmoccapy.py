@@ -3039,7 +3039,7 @@ class gmoccapy(object):
                 return
 
             if (keyname == "R" or keyname == "r") and self.stat.interp_state == linuxcnc.INTERP_IDLE:
-                if event.state & Gdk.CONTROL_MASK:
+                if event.state & Gdk.ModifierType.CONTROL_MASK:
                     print("R und Control gedrückt")
                     self.widgets.hal_action_reload.emit("activate")
                 else:
