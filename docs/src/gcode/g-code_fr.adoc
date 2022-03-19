@@ -50,7 +50,7 @@ chose.
 (((Table des index du G Code)))
 
 [width="75%", options="header", cols="2^,5<"]
-|==============================================================================
+|====
 |Sections                          | Descriptions
 |<<gcode:g0,G0>>                   | Interpolation linéaire en vitesse rapide
 |<<gcode:g1,G1>>                   | Interpolation linéaire en vitesse travail
@@ -105,7 +105,7 @@ chose.
 |<<gcode:g96-g97,G96>>             | Vitesse de coupe constante (IPM ou m/mn)
 |<<gcode:g96-g97,G97>>             | Vitesse en tours par minute
 |<<gcode:g98-g99,G98>>             | Options de retrait des cycles de perçage
-|==============================================================================
+|====
 
 [[gcode:g0]]
 == G0 Interpolation linéaire en vitesse rapide(((G0 Interpolation linéaire en vitesse rapide)))(((rapide)))
@@ -133,7 +133,7 @@ M2 (fin de programme)
 
 Si la compensation d'outil est active, le mouvement sera
 différent de celui décrit ci-dessus, voir la section
-<<sec:Compensation-rayon-d-outil, sur la compensation de d'outil>>.
+<<sec:Compensation-rayon-d-outil,sur la compensation de d'outil>>.
 
 Si 'G53' est programmé sur la même ligne, le mouvement sera également
 différent, voir la section <<gcode:g53,sur les mouvements en coordonnées absolues>>.
@@ -2182,7 +2182,6 @@ Voir le chapitre sur les <<cha:coordinate-system,systèmes de coordonnées>>.
 Voir la section sur les <<sec:g92-commands,décalages G92>>.
 
 Voir la section sur les <<sec:overview-parameters,paramètres>>.
-
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Remise à zéro des décalages des systèmes de coordonnées
