@@ -20,8 +20,8 @@ include::common/outdated-notice_fr.adoc[]
 = HAL
 :leveloffset: 1
 include::hal/intro_fr.adoc[]
-include::hal/general_ref_fr.adoc[]
-include::hal/basic_hal_fr.adoc[]
+include::hal/general-ref_fr.adoc[]
+include::hal/basic-hal_fr.adoc[]
 include::hal/tutorial_fr.adoc[]
 include::hal/halshow_fr.adoc[]
 include::hal/components_fr.adoc[]
@@ -34,5 +34,4 @@ include::hal/halmodule_fr.adoc[]
 // = Index
 
 // vim: set syntax=asciidoc:
-
 
