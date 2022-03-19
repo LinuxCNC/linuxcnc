@@ -205,16 +205,16 @@
              <number>2</number>
             </property>
             <property name="leftMargin">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="topMargin">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="rightMargin">
-             <number>2</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>2</number>
+             <number>0</number>
             </property>
             <item>
              <widget class="QStackedWidget" name="stackedWidget">
@@ -1221,16 +1221,16 @@
                  <widget class="QWidget" name="widget_offset_buttons" native="true">
                   <layout class="QHBoxLayout" name="horizontalLayout_42">
                    <property name="spacing">
-                    <number>4</number>
+                    <number>6</number>
                    </property>
                    <property name="leftMargin">
-                    <number>0</number>
+                    <number>2</number>
                    </property>
                    <property name="topMargin">
                     <number>0</number>
                    </property>
                    <property name="rightMargin">
-                    <number>0</number>
+                    <number>2</number>
                    </property>
                    <property name="bottomMargin">
                     <number>0</number>
@@ -1245,13 +1245,13 @@
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>80</width>
+                       <width>74</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>80</width>
+                       <width>78</width>
                        <height>50</height>
                       </size>
                      </property>
@@ -1274,13 +1274,13 @@ SENSOR</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>80</width>
+                       <width>74</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>80</width>
+                       <width>78</width>
                        <height>50</height>
                       </size>
                      </property>
@@ -1345,13 +1345,13 @@ OFF</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>80</width>
+                       <width>74</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>80</width>
+                       <width>78</width>
                        <height>50</height>
                       </size>
                      </property>
@@ -1374,13 +1374,13 @@ LASER</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>80</width>
+                       <width>74</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>80</width>
+                       <width>78</width>
                        <height>50</height>
                       </size>
                      </property>
@@ -1400,13 +1400,13 @@ CAMERA</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>80</width>
+                       <width>74</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>80</width>
+                       <width>78</width>
                        <height>50</height>
                       </size>
                      </property>
@@ -1581,7 +1581,7 @@ SENSOR</string>
                      <pixmap resource="qtdragon.qrc">:/images/images/atc_spindle_tool.png</pixmap>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -1629,7 +1629,7 @@ SENSOR</string>
                       <string>TOOL DIAMETER</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -1643,7 +1643,7 @@ SENSOR</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>60</width>
+                       <width>65</width>
                        <height>30</height>
                       </size>
                      </property>
@@ -1663,7 +1663,7 @@ SENSOR</string>
                       <set>Qt::AlignCenter</set>
                      </property>
                      <property name="textTemplate" stdset="0">
-                      <string>%9.4f</string>
+                      <string>%5.3f</string>
                      </property>
                      <property name="alt_textTemplate" stdset="0">
                       <string>%10.3f</string>
@@ -1686,6 +1686,9 @@ SENSOR</string>
                        <width>50</width>
                        <height>30</height>
                       </size>
+                     </property>
+                     <property name="frameShadow">
+                      <enum>QFrame::Sunken</enum>
                      </property>
                      <property name="true_textTemplate" stdset="0">
                       <string>MM</string>
@@ -1756,7 +1759,7 @@ SENSOR</string>
                       <string>TOUCH PLATE HEIGHT </string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                      <set>Qt::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -1770,7 +1773,7 @@ SENSOR</string>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>60</width>
+                       <width>65</width>
                        <height>30</height>
                       </size>
                      </property>
@@ -2115,7 +2118,7 @@ PLATE</string>
                <number>2</number>
               </property>
               <property name="rightMargin">
-               <number>2</number>
+               <number>4</number>
               </property>
               <property name="bottomMargin">
                <number>2</number>
@@ -2874,7 +2877,7 @@ RESET</string>
                   <number>2</number>
                  </property>
                  <property name="rightMargin">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="bottomMargin">
                   <number>2</number>
@@ -2906,7 +2909,7 @@ RESET</string>
                     <enum>QFrame::Raised</enum>
                    </property>
                    <property name="currentIndex">
-                    <number>0</number>
+                    <number>10</number>
                    </property>
                    <widget class="QWidget" name="main_tab_widgetPage1">
                     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -3675,8 +3678,14 @@ View</string>
                      </property>
                      <item>
                       <layout class="QVBoxLayout" name="verticalLayout_5">
+                       <property name="topMargin">
+                        <number>10</number>
+                       </property>
                        <property name="rightMargin">
                         <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>10</number>
                        </property>
                        <item>
                         <widget class="QWidget" name="widget_file_copy" native="true">
@@ -3931,19 +3940,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -5871,13 +5880,13 @@ TO FILE</string>
                           </property>
                           <property name="minimumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
@@ -6066,13 +6075,13 @@ TO FILE</string>
                           </property>
                           <property name="minimumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
@@ -6136,13 +6145,13 @@ TO FILE</string>
                           </property>
                           <property name="minimumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
@@ -6206,13 +6215,13 @@ TO FILE</string>
                           </property>
                           <property name="minimumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
@@ -6276,13 +6285,13 @@ TO FILE</string>
                           </property>
                           <property name="minimumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
-                            <width>90</width>
+                            <width>96</width>
                             <height>50</height>
                            </size>
                           </property>
@@ -6458,7 +6467,7 @@ TO FILE</string>
                         <number>0</number>
                        </property>
                        <property name="bottomMargin">
-                        <number>0</number>
+                        <number>2</number>
                        </property>
                        <property name="horizontalSpacing">
                         <number>0</number>
@@ -6476,8 +6485,8 @@ TO FILE</string>
                          </property>
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -6495,8 +6504,8 @@ TO FILE</string>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_neg_action" stdset="0">
@@ -6550,8 +6559,8 @@ TO FILE</string>
                         <widget class="ActionButton" name="y_plus_jogbutton">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -6569,8 +6578,8 @@ TO FILE</string>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_pos_action" stdset="0">
@@ -6630,8 +6639,8 @@ TO FILE</string>
                          </property>
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -6649,8 +6658,8 @@ TO FILE</string>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_neg_action" stdset="0">
@@ -6710,8 +6719,8 @@ TO FILE</string>
                          </property>
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -6729,8 +6738,8 @@ TO FILE</string>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_pos_action" stdset="0">
@@ -6784,8 +6793,8 @@ TO FILE</string>
                         <widget class="ActionButton" name="a_minus_jogbutton">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -6803,8 +6812,8 @@ TO FILE</string>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_pos_action" stdset="0">
@@ -6825,8 +6834,8 @@ TO FILE</string>
                         <widget class="ActionButton" name="a_plus_jogbutton">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -6844,8 +6853,8 @@ TO FILE</string>
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_pos_action" stdset="0">
@@ -7284,8 +7293,8 @@ MCHN
                          </property>
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -7303,8 +7312,8 @@ MCHN
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_pos_action" stdset="0">
@@ -7322,8 +7331,8 @@ MCHN
                         <widget class="ActionButton" name="z_minus_jogbutton">
                          <property name="minimumSize">
                           <size>
-                           <width>50</width>
-                           <height>50</height>
+                           <width>52</width>
+                           <height>52</height>
                           </size>
                          </property>
                          <property name="maximumSize">
@@ -7341,8 +7350,8 @@ MCHN
                          </property>
                          <property name="iconSize">
                           <size>
-                           <width>48</width>
-                           <height>48</height>
+                           <width>44</width>
+                           <height>44</height>
                           </size>
                          </property>
                          <property name="jog_joint_neg_action" stdset="0">
@@ -7387,13 +7396,13 @@ MCHN
                         <number>0</number>
                        </property>
                        <property name="topMargin">
-                        <number>8</number>
+                        <number>0</number>
                        </property>
                        <property name="rightMargin">
                         <number>0</number>
                        </property>
                        <property name="bottomMargin">
-                        <number>8</number>
+                        <number>6</number>
                        </property>
                        <item>
                         <layout class="QVBoxLayout" name="verticalLayout_29">
@@ -7460,8 +7469,17 @@ MCHN
                            <property name="lineWidth">
                             <number>1</number>
                            </property>
+                           <property name="scaledContents">
+                            <bool>false</bool>
+                           </property>
                            <property name="alignment">
                             <set>Qt::AlignCenter</set>
+                           </property>
+                           <property name="css_mode_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="fpr_mode_status" stdset="0">
+                            <bool>false</bool>
                            </property>
                            <property name="true_textTemplate" stdset="0">
                             <string>MM</string>
@@ -7481,7 +7499,7 @@ MCHN
                          <property name="sizeHint" stdset="0">
                           <size>
                            <width>20</width>
-                           <height>40</height>
+                           <height>50</height>
                           </size>
                          </property>
                         </spacer>
@@ -7658,7 +7676,7 @@ MM/MIN</string>
                    <property name="sizeHint" stdset="0">
                     <size>
                      <width>20</width>
-                     <height>40</height>
+                     <height>38</height>
                     </size>
                    </property>
                   </spacer>
@@ -7843,7 +7861,7 @@ MM/MIN</string>
                    <property name="sizeHint" stdset="0">
                     <size>
                      <width>20</width>
-                     <height>40</height>
+                     <height>34</height>
                     </size>
                    </property>
                   </spacer>
@@ -7927,16 +7945,19 @@ MM/MIN</string>
                 <number>4</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>4</number>
                </property>
                <property name="rightMargin">
-                <number>2</number>
+                <number>4</number>
                </property>
                <property name="bottomMargin">
-                <number>4</number>
+                <number>2</number>
                </property>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_43">
+                 <property name="spacing">
+                  <number>6</number>
+                 </property>
                  <item>
                   <widget class="IndicatedPushButton" name="btn_start">
                    <property name="sizePolicy">
@@ -7947,13 +7968,13 @@ MM/MIN</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8004,13 +8025,13 @@ START</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8075,7 +8096,7 @@ START</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_66">
                  <property name="spacing">
-                  <number>4</number>
+                  <number>6</number>
                  </property>
                  <property name="leftMargin">
                   <number>0</number>
@@ -8099,13 +8120,13 @@ START</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8170,13 +8191,13 @@ START</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8232,7 +8253,7 @@ START</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_67">
                  <property name="spacing">
-                  <number>4</number>
+                  <number>6</number>
                  </property>
                  <property name="leftMargin">
                   <number>0</number>
@@ -8256,13 +8277,13 @@ START</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8322,13 +8343,13 @@ BLOCK</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8380,7 +8401,7 @@ STOP</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_68">
                  <property name="spacing">
-                  <number>4</number>
+                  <number>6</number>
                  </property>
                  <property name="leftMargin">
                   <number>0</number>
@@ -8404,13 +8425,13 @@ STOP</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8481,13 +8502,13 @@ OFF</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8550,7 +8571,7 @@ OFF</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_69">
                  <property name="spacing">
-                  <number>4</number>
+                  <number>6</number>
                  </property>
                  <property name="leftMargin">
                   <number>0</number>
@@ -8574,13 +8595,13 @@ OFF</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
+                     <width>94</width>
                      <height>50</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
+                     <width>106</width>
                      <height>50</height>
                     </size>
                    </property>
@@ -8602,14 +8623,14 @@ OFF</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>90</width>
-                     <height>50</height>
+                     <width>94</width>
+                     <height>52</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>90</width>
-                     <height>50</height>
+                     <width>106</width>
+                     <height>52</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -8684,7 +8705,7 @@ SPINDLE</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>16777215</width>
+                   <width>225</width>
                    <height>24</height>
                   </size>
                  </property>
@@ -8697,6 +8718,9 @@ SPINDLE</string>
                  </property>
                  <property name="autoFillBackground">
                   <bool>false</bool>
+                 </property>
+                 <property name="inputMethodHints">
+                  <set>Qt::ImhNone</set>
                  </property>
                  <property name="maximum">
                   <number>99</number>
@@ -8720,6 +8744,18 @@ SPINDLE</string>
             </item>
             <item>
              <widget class="QFrame" name="frame_tool">
+              <property name="minimumSize">
+               <size>
+                <width>94</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>192</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="frameShape">
                <enum>QFrame::Box</enum>
               </property>
@@ -8731,13 +8767,13 @@ SPINDLE</string>
                 <number>4</number>
                </property>
                <property name="leftMargin">
-                <number>4</number>
+                <number>2</number>
                </property>
                <property name="topMargin">
                 <number>4</number>
                </property>
                <property name="rightMargin">
-                <number>4</number>
+                <number>2</number>
                </property>
                <property name="bottomMargin">
                 <number>4</number>
@@ -8751,10 +8787,10 @@ SPINDLE</string>
                   <pixmap resource="qtdragon.qrc">:/images/images/atc_spindle_tool.png</pixmap>
                  </property>
                  <property name="scaledContents">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignCenter</set>
+                  <set>Qt::AlignBottom|Qt::AlignHCenter</set>
                  </property>
                 </widget>
                </item>
@@ -8779,7 +8815,13 @@ SPINDLE</string>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_53">
                     <property name="spacing">
-                     <number>4</number>
+                     <number>6</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>0</number>
                     </property>
                     <property name="bottomMargin">
                      <number>0</number>
@@ -8794,13 +8836,13 @@ SPINDLE</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>50</width>
+                        <width>60</width>
                         <height>20</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>50</width>
+                        <width>60</width>
                         <height>20</height>
                        </size>
                       </property>
@@ -8822,13 +8864,13 @@ SPINDLE</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>70</width>
+                        <width>60</width>
                         <height>20</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>70</width>
+                        <width>60</width>
                         <height>20</height>
                        </size>
                       </property>
@@ -8850,13 +8892,13 @@ SPINDLE</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>58</width>
+                        <width>60</width>
                         <height>20</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>58</width>
+                        <width>60</width>
                         <height>20</height>
                        </size>
                       </property>
@@ -8872,6 +8914,15 @@ SPINDLE</string>
                   </item>
                   <item>
                    <layout class="QHBoxLayout" name="horizontalLayout_54">
+                    <property name="spacing">
+                     <number>4</number>
+                    </property>
+                    <property name="leftMargin">
+                     <number>1</number>
+                    </property>
+                    <property name="rightMargin">
+                     <number>1</number>
+                    </property>
                     <property name="bottomMargin">
                      <number>0</number>
                     </property>
@@ -8885,13 +8936,13 @@ SPINDLE</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>50</width>
+                        <width>48</width>
                         <height>24</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>50</width>
+                        <width>56</width>
                         <height>24</height>
                        </size>
                       </property>
@@ -8922,13 +8973,13 @@ SPINDLE</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>70</width>
+                        <width>68</width>
                         <height>24</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>70</width>
+                        <width>83</width>
                         <height>24</height>
                        </size>
                       </property>
@@ -8942,16 +8993,16 @@ SPINDLE</string>
                        <number>1</number>
                       </property>
                       <property name="text">
-                       <string> 200.0000</string>
+                       <string>200.000</string>
                       </property>
                       <property name="alignment">
                        <set>Qt::AlignCenter</set>
                       </property>
                       <property name="textTemplate" stdset="0">
-                       <string>%9.4f</string>
+                       <string>%5.3f</string>
                       </property>
                       <property name="alt_textTemplate" stdset="0">
-                       <string>%10.3f</string>
+                       <string>%5.3f</string>
                       </property>
                       <property name="index_number" stdset="0">
                        <number>0</number>
@@ -8971,13 +9022,13 @@ SPINDLE</string>
                       </property>
                       <property name="minimumSize">
                        <size>
-                        <width>60</width>
+                        <width>48</width>
                         <height>24</height>
                        </size>
                       </property>
                       <property name="maximumSize">
                        <size>
-                        <width>60</width>
+                        <width>56</width>
                         <height>24</height>
                        </size>
                       </property>
@@ -9028,14 +9079,14 @@ SPINDLE</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>198</width>
-                      <height>30</height>
+                      <width>179</width>
+                      <height>26</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
-                      <width>198</width>
-                      <height>30</height>
+                      <width>179</width>
+                      <height>26</height>
                      </size>
                     </property>
                     <property name="frameShape">
@@ -9046,6 +9097,9 @@ SPINDLE</string>
                     </property>
                     <property name="text">
                      <string>No Tool Loaded</string>
+                    </property>
+                    <property name="scaledContents">
+                     <bool>false</bool>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -9171,7 +9225,7 @@ SPINDLE</string>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_15">
                    <property name="spacing">
-                    <number>4</number>
+                    <number>2</number>
                    </property>
                    <property name="leftMargin">
                     <number>4</number>
@@ -9189,13 +9243,13 @@ SPINDLE</string>
                     <widget class="QWidget" name="widget_dro" native="true">
                      <layout class="QGridLayout" name="gridLayout_dro">
                       <property name="leftMargin">
-                       <number>4</number>
+                       <number>1</number>
                       </property>
                       <property name="topMargin">
-                       <number>0</number>
+                       <number>1</number>
                       </property>
                       <property name="rightMargin">
-                       <number>4</number>
+                       <number>1</number>
                       </property>
                       <property name="bottomMargin">
                        <number>4</number>
@@ -9207,7 +9261,7 @@ SPINDLE</string>
                        <widget class="AxisToolButton" name="axistoolbutton_y">
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9244,7 +9298,7 @@ SPINDLE</string>
                        <widget class="SystemToolButton" name="systemtoolbutton">
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9269,7 +9323,7 @@ SPINDLE</string>
                        <widget class="AxisToolButton" name="axistoolbutton_z">
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9306,7 +9360,7 @@ SPINDLE</string>
                        <widget class="AxisToolButton" name="axistoolbutton_x">
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9457,7 +9511,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9553,7 +9607,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9649,7 +9703,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9745,7 +9799,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9782,7 +9836,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9819,7 +9873,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9856,7 +9910,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9902,7 +9956,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9948,7 +10002,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -9994,7 +10048,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10071,7 +10125,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10164,7 +10218,7 @@ SPINDLE</string>
                        <widget class="AxisToolButton" name="axistoolbutton_a">
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10210,7 +10264,7 @@ SPINDLE</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10310,7 +10364,7 @@ ZERO</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10387,7 +10441,7 @@ ZERO</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10461,7 +10515,7 @@ ZERO</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>64</width>
+                          <width>66</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10535,7 +10589,7 @@ ZERO</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>0</width>
+                          <width>136</width>
                           <height>50</height>
                          </size>
                         </property>
@@ -10624,7 +10678,7 @@ ZERO</string>
                       <bool>false</bool>
                      </property>
                      <property name="indent">
-                      <number>0</number>
+                      <number>3</number>
                      </property>
                      <property name="gcodes_status" stdset="0">
                       <bool>true</bool>
@@ -10671,7 +10725,7 @@ ZERO</string>
                       <bool>false</bool>
                      </property>
                      <property name="indent">
-                      <number>0</number>
+                      <number>3</number>
                      </property>
                      <property name="mcodes_status" stdset="0">
                       <bool>true</bool>
@@ -10691,13 +10745,13 @@ ZERO</string>
                   </property>
                   <property name="minimumSize">
                    <size>
-                    <width>0</width>
+                    <width>288</width>
                     <height>0</height>
                    </size>
                   </property>
                   <property name="maximumSize">
                    <size>
-                    <width>16777215</width>
+                    <width>288</width>
                     <height>16777215</height>
                    </size>
                   </property>
@@ -10748,7 +10802,7 @@ ZERO</string>
                        <number>2</number>
                       </property>
                       <property name="rightMargin">
-                       <number>2</number>
+                       <number>4</number>
                       </property>
                       <property name="bottomMargin">
                        <number>2</number>
@@ -10769,7 +10823,7 @@ ZERO</string>
                         </property>
                         <property name="maximumSize">
                          <size>
-                          <width>60</width>
+                          <width>58</width>
                           <height>30</height>
                          </size>
                         </property>
@@ -10788,6 +10842,12 @@ ZERO</string>
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>0</width>
+                          <height>30</height>
+                         </size>
                         </property>
                         <property name="toolTip">
                          <string>Adjust angular jog rate</string>
@@ -10828,13 +10888,13 @@ ZERO</string>
                         </property>
                         <property name="minimumSize">
                          <size>
-                          <width>40</width>
+                          <width>42</width>
                           <height>30</height>
                          </size>
                         </property>
                         <property name="maximumSize">
                          <size>
-                          <width>40</width>
+                          <width>42</width>
                           <height>30</height>
                          </size>
                         </property>
@@ -10982,7 +11042,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -11053,7 +11113,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -11103,62 +11163,25 @@ ZERO</string>
                           <number>0</number>
                          </property>
                          <property name="bottomMargin">
-                          <number>0</number>
+                          <number>1</number>
                          </property>
-                         <item alignment="Qt::AlignHCenter">
-                          <widget class="QLineEdit" name="lbl_maxv_percent">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="toolTip">
-                            <string>Max velocity override</string>
-                           </property>
-                           <property name="text">
-                            <string>100 %</string>
-                           </property>
-                           <property name="maxLength">
-                            <number>5</number>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                           <property name="readOnly">
-                            <bool>true</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item alignment="Qt::AlignHCenter">
+                         <item>
                           <widget class="StatusLabel" name="status_maxvel_ovr">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
@@ -11186,8 +11209,66 @@ ZERO</string>
                            <property name="alt_textTemplate" stdset="0">
                             <string>%d</string>
                            </property>
+                           <property name="feed_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
                            <property name="max_velocity_override_status" stdset="0">
                             <bool>true</bool>
+                           </property>
+                           <property name="current_feedrate_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="actual_spindle_speed_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="StatusLabel" name="lbl_maxv_percent">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="toolTip">
+                            <string>Max velocity override</string>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::WinPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Sunken</enum>
+                           </property>
+                           <property name="lineWidth">
+                            <number>1</number>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                           </property>
+                           <property name="textTemplate" stdset="0">
+                            <string>%d %%</string>
+                           </property>
+                           <property name="feed_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="rapid_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="jograte_status" stdset="0">
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>
@@ -11264,6 +11345,9 @@ ZERO</string>
                          </item>
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_36">
+                           <property name="spacing">
+                            <number>6</number>
+                           </property>
                            <item>
                             <widget class="ActionButton" name="action_rapid_ovr_50">
                              <property name="sizePolicy">
@@ -11281,7 +11365,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -11358,7 +11442,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -11380,7 +11464,7 @@ ZERO</string>
                       <item>
                        <widget class="QWidget" name="widget_rapid_info" native="true">
                         <property name="sizePolicy">
-                         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                           <horstretch>0</horstretch>
                           <verstretch>0</verstretch>
                          </sizepolicy>
@@ -11411,25 +11495,77 @@ ZERO</string>
                           <number>0</number>
                          </property>
                          <property name="bottomMargin">
-                          <number>0</number>
+                          <number>1</number>
                          </property>
-                         <item alignment="Qt::AlignHCenter">
-                          <widget class="StatusLabel" name="status_rapid_ovr">
+                         <item>
+                          <widget class="StatusLabel" name="lbl_max_rapid">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="toolTip">
+                            <string>Actual rapid rate</string>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::WinPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Sunken</enum>
+                           </property>
+                           <property name="lineWidth">
+                            <number>1</number>
+                           </property>
+                           <property name="text">
+                            <string>200</string>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                           </property>
+                           <property name="textTemplate" stdset="0">
+                            <string>%d</string>
+                           </property>
+                           <property name="alt_textTemplate" stdset="0">
+                            <string>%d</string>
+                           </property>
+                           <property name="current_feedrate_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="actual_spindle_speed_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="StatusLabel" name="status_rapid_ovr">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
@@ -11459,43 +11595,6 @@ ZERO</string>
                            </property>
                            <property name="jograte_status" stdset="0">
                             <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item alignment="Qt::AlignHCenter">
-                          <widget class="QLineEdit" name="lbl_max_rapid">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="toolTip">
-                            <string>Actual rapid rate</string>
-                           </property>
-                           <property name="text">
-                            <string>00</string>
-                           </property>
-                           <property name="maxLength">
-                            <number>4</number>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                           <property name="readOnly">
-                            <bool>true</bool>
                            </property>
                           </widget>
                          </item>
@@ -11572,6 +11671,15 @@ ZERO</string>
                          </item>
                          <item>
                           <layout class="QHBoxLayout" name="horizontalLayout_21">
+                           <property name="spacing">
+                            <number>6</number>
+                           </property>
+                           <property name="topMargin">
+                            <number>0</number>
+                           </property>
+                           <property name="bottomMargin">
+                            <number>0</number>
+                           </property>
                            <item>
                             <widget class="ActionButton" name="action_feed_ovr_50">
                              <property name="sizePolicy">
@@ -11589,7 +11697,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -11663,7 +11771,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -11725,77 +11833,25 @@ ZERO</string>
                           <number>0</number>
                          </property>
                          <property name="bottomMargin">
-                          <number>0</number>
+                          <number>1</number>
                          </property>
-                         <item alignment="Qt::AlignHCenter">
-                          <widget class="StatusLabel" name="status_feed_ovr">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="toolTip">
-                            <string>Feedrate override</string>
-                           </property>
-                           <property name="frameShape">
-                            <enum>QFrame::WinPanel</enum>
-                           </property>
-                           <property name="frameShadow">
-                            <enum>QFrame::Sunken</enum>
-                           </property>
-                           <property name="lineWidth">
-                            <number>1</number>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                           <property name="textTemplate" stdset="0">
-                            <string>%d %%</string>
-                           </property>
-                           <property name="feed_override_status" stdset="0">
-                            <bool>true</bool>
-                           </property>
-                           <property name="rapid_override_status" stdset="0">
-                            <bool>false</bool>
-                           </property>
-                           <property name="spindle_override_status" stdset="0">
-                            <bool>false</bool>
-                           </property>
-                           <property name="jograte_status" stdset="0">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item alignment="Qt::AlignHCenter">
+                         <item>
                           <widget class="StatusLabel" name="status_act_feedrate">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
@@ -11827,6 +11883,58 @@ ZERO</string>
                             <bool>true</bool>
                            </property>
                            <property name="actual_spindle_speed_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="StatusLabel" name="status_feed_ovr">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="toolTip">
+                            <string>Feedrate override</string>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::WinPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Sunken</enum>
+                           </property>
+                           <property name="lineWidth">
+                            <number>1</number>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                           </property>
+                           <property name="textTemplate" stdset="0">
+                            <string>%d %%</string>
+                           </property>
+                           <property name="feed_override_status" stdset="0">
+                            <bool>true</bool>
+                           </property>
+                           <property name="rapid_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="spindle_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="jograte_status" stdset="0">
                             <bool>false</bool>
                            </property>
                           </widget>
@@ -11878,7 +11986,7 @@ ZERO</string>
                        <widget class="QWidget" name="widget_spindle_ovr" native="true">
                         <layout class="QVBoxLayout" name="verticalLayout_25">
                          <property name="spacing">
-                          <number>4</number>
+                          <number>6</number>
                          </property>
                          <property name="leftMargin">
                           <number>4</number>
@@ -11894,6 +12002,12 @@ ZERO</string>
                          </property>
                          <item>
                           <widget class="QLabel" name="label">
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>16777215</height>
+                            </size>
+                           </property>
                            <property name="text">
                             <string>SPINDLE OVERRIDE</string>
                            </property>
@@ -11921,7 +12035,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -12004,7 +12118,7 @@ ZERO</string>
                              <property name="maximumSize">
                               <size>
                                <width>40</width>
-                               <height>24</height>
+                               <height>26</height>
                               </size>
                              </property>
                              <property name="toolTip">
@@ -12060,77 +12174,25 @@ ZERO</string>
                           <number>0</number>
                          </property>
                          <property name="bottomMargin">
-                          <number>0</number>
+                          <number>1</number>
                          </property>
-                         <item alignment="Qt::AlignHCenter">
-                          <widget class="StatusLabel" name="status_spindle_ovr">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>60</width>
-                             <height>24</height>
-                            </size>
-                           </property>
-                           <property name="toolTip">
-                            <string>Spindle speed override</string>
-                           </property>
-                           <property name="frameShape">
-                            <enum>QFrame::WinPanel</enum>
-                           </property>
-                           <property name="frameShadow">
-                            <enum>QFrame::Sunken</enum>
-                           </property>
-                           <property name="lineWidth">
-                            <number>1</number>
-                           </property>
-                           <property name="alignment">
-                            <set>Qt::AlignCenter</set>
-                           </property>
-                           <property name="textTemplate" stdset="0">
-                            <string>%d %%</string>
-                           </property>
-                           <property name="feed_override_status" stdset="0">
-                            <bool>false</bool>
-                           </property>
-                           <property name="rapid_override_status" stdset="0">
-                            <bool>false</bool>
-                           </property>
-                           <property name="spindle_override_status" stdset="0">
-                            <bool>true</bool>
-                           </property>
-                           <property name="jograte_status" stdset="0">
-                            <bool>false</bool>
-                           </property>
-                          </widget>
-                         </item>
-                         <item alignment="Qt::AlignHCenter">
+                         <item>
                           <widget class="StatusLabel" name="lbl_spindle_set">
                            <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                              <horstretch>0</horstretch>
                              <verstretch>0</verstretch>
                             </sizepolicy>
                            </property>
                            <property name="minimumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
                            <property name="maximumSize">
                             <size>
-                             <width>60</width>
+                             <width>65</width>
                              <height>24</height>
                             </size>
                            </property>
@@ -12166,6 +12228,58 @@ ZERO</string>
                            </property>
                            <property name="in_range" stdset="0">
                             <bool>true</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="StatusLabel" name="status_spindle_ovr">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>65</width>
+                             <height>24</height>
+                            </size>
+                           </property>
+                           <property name="toolTip">
+                            <string>Spindle speed override</string>
+                           </property>
+                           <property name="frameShape">
+                            <enum>QFrame::WinPanel</enum>
+                           </property>
+                           <property name="frameShadow">
+                            <enum>QFrame::Sunken</enum>
+                           </property>
+                           <property name="lineWidth">
+                            <number>1</number>
+                           </property>
+                           <property name="alignment">
+                            <set>Qt::AlignCenter</set>
+                           </property>
+                           <property name="textTemplate" stdset="0">
+                            <string>%d %%</string>
+                           </property>
+                           <property name="feed_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="rapid_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                           <property name="spindle_override_status" stdset="0">
+                            <bool>true</bool>
+                           </property>
+                           <property name="jograte_status" stdset="0">
+                            <bool>false</bool>
                            </property>
                           </widget>
                          </item>
@@ -12238,13 +12352,13 @@ ZERO</string>
              <number>2</number>
             </property>
             <property name="leftMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="topMargin">
              <number>4</number>
             </property>
             <property name="rightMargin">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="bottomMargin">
              <number>4</number>
@@ -12296,13 +12410,13 @@ ZERO</string>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>50</height>
+                   <height>54</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>50</height>
+                   <height>54</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -12409,13 +12523,13 @@ ZERO</string>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>50</height>
+                   <height>54</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>50</height>
+                   <height>54</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -12522,13 +12636,13 @@ ZERO</string>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>50</height>
+                   <height>54</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>50</height>
+                   <height>54</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -12669,13 +12783,13 @@ ZERO</string>
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
-                   <height>40</height>
+                   <height>42</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>64</width>
-                   <height>40</height>
+                   <width>68</width>
+                   <height>46</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -12875,13 +12989,13 @@ ZERO</string>
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
-                   <height>40</height>
+                   <height>42</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>64</width>
-                   <height>40</height>
+                   <width>68</width>
+                   <height>46</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -13083,13 +13197,13 @@ ZERO</string>
                  <property name="minimumSize">
                   <size>
                    <width>64</width>
-                   <height>40</height>
+                   <height>42</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>64</width>
-                   <height>40</height>
+                   <width>68</width>
+                   <height>46</height>
                   </size>
                  </property>
                  <property name="toolTip">
@@ -13382,7 +13496,7 @@ ZERO</string>
                   <bool>false</bool>
                  </property>
                  <property name="diameter">
-                  <number>12</number>
+                  <number>15</number>
                  </property>
                  <property name="color">
                   <color>
@@ -13422,14 +13536,104 @@ ZERO</string>
                 <number>0</number>
                </property>
                <property name="rightMargin">
-                <number>4</number>
+                <number>6</number>
                </property>
                <property name="bottomMargin">
-                <number>0</number>
+                <number>3</number>
                </property>
                <property name="spacing">
                 <number>4</number>
                </property>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_37">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>60</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>POWER</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="lbl_spindle_power">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>56</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>60</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="toolTip">
+                  <string>Spindle power</string>
+                 </property>
+                 <property name="text">
+                  <string>000</string>
+                 </property>
+                 <property name="maxLength">
+                  <number>8</number>
+                 </property>
+                 <property name="cursorPosition">
+                  <number>3</number>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                 <property name="readOnly">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="QLabel" name="label_27">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="text">
+                  <string>MB ERRORS</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
                <item row="0" column="3">
                 <widget class="QLineEdit" name="lbl_mb_errors">
                  <property name="sizePolicy">
@@ -13596,96 +13800,6 @@ ZERO</string>
                   <string>AMPS</string>
                  </property>
                  <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0">
-                <widget class="QLabel" name="label_37">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>60</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>60</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>POWER</string>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1">
-                <widget class="QLineEdit" name="lbl_spindle_power">
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>56</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>60</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="toolTip">
-                  <string>Spindle power</string>
-                 </property>
-                 <property name="text">
-                  <string>000</string>
-                 </property>
-                 <property name="maxLength">
-                  <number>8</number>
-                 </property>
-                 <property name="cursorPosition">
-                  <number>3</number>
-                 </property>
-                 <property name="alignment">
-                  <set>Qt::AlignCenter</set>
-                 </property>
-                 <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item row="0" column="2">
-                <widget class="QLabel" name="label_27">
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string>MB ERRORS</string>
-                 </property>
-                 <property name="alignment">
                   <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
@@ -13701,7 +13815,7 @@ ZERO</string>
               <property name="sizeHint" stdset="0">
                <size>
                 <width>20</width>
-                <height>40</height>
+                <height>26</height>
                </size>
               </property>
              </spacer>
@@ -13716,11 +13830,17 @@ ZERO</string>
          <property name="spacing">
           <number>8</number>
          </property>
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
          <property name="topMargin">
           <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>0</number>
+          <number>4</number>
+         </property>
+         <property name="bottomMargin">
+          <number>2</number>
          </property>
          <item>
           <widget class="QLineEdit" name="lineEdit_statusbar">
@@ -13732,7 +13852,7 @@ ZERO</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>800</width>
+             <width>847</width>
              <height>20</height>
             </size>
            </property>
@@ -13760,6 +13880,19 @@ ZERO</string>
           </widget>
          </item>
          <item>
+          <spacer name="horizontalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>60</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
           <widget class="QLabel" name="label_44">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -13769,13 +13902,13 @@ ZERO</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>100</width>
+             <width>88</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>88</width>
              <height>36</height>
             </size>
            </property>
@@ -13783,27 +13916,21 @@ ZERO</string>
             <string>RUN TIME</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignCenter</set>
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QLineEdit" name="lbl_runtime">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="StatusLabel" name="lbl_runtime">
            <property name="minimumSize">
             <size>
-             <width>120</width>
-             <height>24</height>
+             <width>90</width>
+             <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>90</width>
              <height>36</height>
             </size>
            </property>
@@ -13813,8 +13940,33 @@ ZERO</string>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
            </property>
-           <property name="readOnly">
-            <bool>true</bool>
+           <property name="textTemplate" stdset="0">
+            <string>00:00:00</string>
+           </property>
+           <property name="feed_override_status" stdset="0">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_11">
+           <property name="minimumSize">
+            <size>
+             <width>45</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>45</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>TIME</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -13828,13 +13980,13 @@ ZERO</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>120</width>
+             <width>90</width>
              <height>0</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>120</width>
+             <width>90</width>
              <height>36</height>
             </size>
            </property>
@@ -13848,7 +14000,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>05:15:10 PM</string>
+            <string>08:24:38 </string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14018,14 +14170,14 @@ ZERO</string>
    <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>ActionToolButton</class>
-   <extends>QToolButton</extends>
-   <header>qtvcp.widgets.action_tool_button</header>
-  </customwidget>
-  <customwidget>
    <class>VirtualKeyboard</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
+  <customwidget>
+   <class>ActionToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.action_tool_button</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -14794,7 +14946,8 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
+
