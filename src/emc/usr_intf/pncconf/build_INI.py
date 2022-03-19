@@ -127,6 +127,13 @@ class INI:
         print("GEOMETRY = %s"% self.d.geometry, file=file)
         print("CYCLE_TIME = 100", file=file)
 
+        # set up MDI macro buttons
+        if self.d.frontend == _PD._QTDRAGON:
+            print(file=file)
+            print("[MDI_COMMAND_LIST]", file=file)
+            print("MDI_COMMAND = G0 Z0;X0 Y0", file=file)
+            print("MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0", file=file)
+
         print(file=file)
         print("[FILTER]", file=file)
         # qtplasmac has a different filter section
