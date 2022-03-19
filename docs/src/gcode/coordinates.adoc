@@ -17,6 +17,7 @@ These include:
 * Nine Coordinate System Offsets (G54-G59.3)
 * Global Offsets (G92) and Local Offsets (G52)
 
+[[sec:machine-coordinate-system]]
 == Machine Coordinate System
 
 When LinuxCNC is started the positions of each axis is the machine origin. Once
@@ -188,11 +189,8 @@ not explicitly zeroed will retain the previous offset.
 offset".  The 'G92' set of commands includes:
 
 * 'G92' - This command, when used with axis names, sets values to offset variables.
-
 * 'G92.1' - This command sets zero values to the G92 variables.
-
 * 'G92.2' - This command suspends but does not zero out the G92 variables.
-
 * 'G92.3' - This command applies offset values that have been suspended.
 
 As a global offset, 'G92' is used to shift all workpiece coordinate
@@ -243,7 +241,6 @@ cleared at machine start and after a reset or program end, may disable
 '[RS274NGC]' section of the '.ini' file.
 
 [NOTE]
-
 It is good practice to clear the 'G92' offsets at the end of their use
 with 'G92.1' or 'G92.2'.  When starting up LinuxCNC with 'G92'
 persistence enabled (the default), any offsets in the 'G92' variables

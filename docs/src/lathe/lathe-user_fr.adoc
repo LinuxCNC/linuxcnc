@@ -49,7 +49,7 @@ Les versions antérieures de LinuxCNC avaient deux différents formats de table
 d'outils pour les fraiseuses et les tours, mais depuis la version 2.4.x,
 un format de table d'outil unique est utilisé. Il faut juste ignorer les parties
 de la table d'outils qui ne concernent pas la machine.
-Plus d'informations <<sec:Tool-Table-Format, ici sur le format de la table
+Plus d'informations <<sec:Tool-Table-Format,ici sur le format de la table
 d'outils>>.
 
 [[sec:Orientations-des-outils-de-tour]]
@@ -163,7 +163,7 @@ d'outils pour ajuster le décalage du système de coordonnées machine.
 
  . Prise d'origine machine de tous les axes, si ce n'est pas déjà fait.
  . Déclarer l'outil avec _M6 Tn_ dans lequel _n_ est le numéro de l'outil
-courant, présent en table d'outils.
+   courant, présent en table d'outils.
  . Envoyer un G43 pour que l'offset de l'outil soit activé. (voir ci-dessous)
  . Tangenter l'outil contre la pièce et fixer l'offset machine Z.
 
@@ -214,7 +214,7 @@ Ce qui suit est valable pour ce type d'agencement:
 
  - Le côté positif de l'axe Z pointe vers la droite, en s'éloignant de la broche.
  - Le côté positif de l'axe X pointe vers l'opérateur, quand il est du côté de
-l'opérateur par rapport au centre de rotation, ses valeur sont positives.
+   l'opérateur par rapport au centre de rotation, ses valeur sont positives.
 
 Certains tours ont l'outil du côté arrière et un axe Y(+) imaginaire pointant
 vers le haut.
@@ -249,8 +249,7 @@ comme on pourrait le supposer.
 
 [[fig:Control-Point]]
 .Point contrôlé
-
-image::images/control_point.png[alt="Point contrôlé"]
+image::images/control_point.png["Point contrôlé"]
 
 === Tourner les angles sans compensation d'outil
 
@@ -260,8 +259,7 @@ le voir, la trajectoire programmée et la trajectoire de coupe souhaitée sont
 identiques uniquement si les mouvements de tournage suivent les axes X et Z.
 
 .Tournage en rampe
-
-image::images/ramp_entry.png[alt="Tournage en rampe"]
+image::images/ramp_entry.png["Tournage en rampe"]
 
 Le point contrôlé progresse en suivant la trajectoire programmée mais l'arête de
 coupe ne suit pas cette trajectoire comme c'est visible sur la figure suivante.
@@ -269,8 +267,7 @@ Pour résoudre ce problème, il est nécessaire d'activer la compensation d'outi
 et d'ajuster la trajectoire programmée pour compenser le rayon de bec de l'outil.
 
 .Trajectoire en rampe
-
-image::images/ramp_cut.png[alt="Trajectoire en rampe"]
+image::images/ramp_cut.png["Trajectoire en rampe"]
 
 Dans l'exemple ci-dessus, pour suivre la rampe programmée et obtenir la bonne
 trajectoire, il suffi de décaler la trajectoire de la rampe vers la
@@ -285,8 +282,7 @@ suit bien la trajectoire programmée, l'outil touche le diamètre extérieur de 
 pièce.
 
 .Tournage du diamètre
-
-image::images/radius_1.png[alt="Tournage du diamètre"]
+image::images/radius_1.png["Tournage du diamètre"]
 
 Sur la figure suivante, on voit que quand l'outil approche la fin la pièce,
 le point contrôlé continue de suivre la trajectoire alors que l'arête de coupe
@@ -294,15 +290,13 @@ a déjà quitté la matière et coupe en l'air. On voit aussi que malgré qu'un 
 a été programmé, la pièce conserve son angle d'extrémité.
 
 .Tournage du rayon
-
-image::images/radius_2.png[alt="Tournage du rayon"]
+image::images/radius_2.png["Tournage du rayon"]
 
 Maintenant, comme on le voit, le point contrôlé suit bien la trajectoire
 programmée mais l'arête de coupe est en dehors de la matière.
 
 .Tournage du rayon
-
-image::images/radius_3.png[alt="Tournage du rayon"]
+image::images/radius_3.png["Tournage du rayon"]
 
 Sur la figure finale, on voit que l'arête de coupe a terminé le dressage de la
 face mais en laissant un coin carré à la place du beau rayon attendu. Noter aussi
@@ -311,21 +305,19 @@ lors du dressage de sa face, il convient de dépasser le centre de rotation de l
 valeur d'un rayon de bec de l'outil.
 
 .Dressage de la face
-
-image::images/radius_4.png[alt="Dressage de la face"]
+image::images/radius_4.png["Dressage de la face"]
 
 === Utiliser la compensation d'outil
 
 - Quand la compensation d'outil est utilisée sur un tour, penser à l'arête de
-coupe de l'outil comme étant celle d'un outil rond.
+  coupe de l'outil comme étant celle d'un outil rond.
 - Quand la compensation d'outil est utilisée, la trajectoire doit être
-suffisamment large pour qu'un outil rond n'interfère pas avec la pièce à la
-ligne suivante. 
+  suffisamment large pour qu'un outil rond n'interfère pas avec la pièce à la
+  ligne suivante. 
 - Pour tourner des lignes droites sur un tour, il est préférable de ne pas
-utiliser la compensation d'outil. Par exemple pour aléser un trou avec une
-barre d'alésage un peu grosse, la place pourrait manquer pour dégager l'outil
-et faire le mouvement de sortie. 
+  utiliser la compensation d'outil. Par exemple pour aléser un trou avec une
+  barre d'alésage un peu grosse, la place pourrait manquer pour dégager l'outil
+  et faire le mouvement de sortie. 
 - Le mouvement d'entrée dans un arc avec la compensation d'outil, est important
-pour obtenir des résultats corrects.
-
+  pour obtenir des résultats corrects.
 

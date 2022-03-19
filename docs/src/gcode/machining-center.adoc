@@ -372,4 +372,4 @@ is written. Comments are not preserved when the file is written.
 |5162             | 0.0             | G28 Home Y
 |===
 
-See the <<gcode:parameters,Parameters>> section for more information.
+See the <<sec:overview-parameters,Parameters>> section for more information.

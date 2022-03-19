@@ -526,81 +526,77 @@ main(sys.argv[1:])
 [[gcode:ini-features]]
 === Sección [RS274NGC]
 
-* 'PARAMETER_FILE = myfile.var' -
-    (((ARCHIVO DE PARÁMETROS))) El archivo ubicado en el mismo directorio que el archivo ini
-    que contiene los parámetros utilizados por el intérprete (guardado entre ejecuciones).
+ * 'PARAMETER_FILE = myfile.var' -
+   (((ARCHIVO DE PARÁMETROS))) El archivo ubicado en el mismo directorio que el archivo ini
+   que contiene los parámetros utilizados por el intérprete (guardado entre ejecuciones).
 
-* 'ORIENT_OFFSET = 0' -
-    (((ORIENT OFFSET))) Un valor float agregado al parámetro R
-    de una operación <<mcode:m19,M19 Orientar Husillo>>. Se usa para definir una posición cero
-    arbitraria independientemente de la orientación de montaje del codificador.
+ * 'ORIENT_OFFSET = 0' -
+   (((ORIENT OFFSET))) Un valor float agregado al parámetro R
+   de una operación <<mcode:m19,M19 Orientar Husillo>>. Se usa para definir una posición cero
+   arbitraria independientemente de la orientación de montaje del codificador.
 
-* 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
-    (((CÓDIGO DE INICIO RS274NGC))) Una cadena de códigos NC que inicializa el intérprete.
-    Esto no es un sustituto para especificar códigos g modales
-    en la parte superior de cada archivo ngc, porque los códigos modales de
-    las máquinas difieren, y pueden ser cambiadas por el código g interpretado anteriormente en
-    la sesión.
-
-* 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
-    (((RUTA SUBROUTINA))) Especifica una lista separada por dos puntos (:) de hasta 10
-    directorios a buscar cuando se especifican subrutinas de un solo archivo
-    en gcode. Estos directorios se buscan después de buscar
-    [DISPLAY] PROGRAM_PREFIX (si está especificado) y antes de buscar
-    [WIZARD] WIZARD_ROOT (si se especifica). Las rutas se buscan en el orden
-    que están listados El primer archivo de subrutina coincidente
-    encontrado en la búsqueda se utiliza. Los directorios se especifican en relación con el
-    directorio actual para el archivo ini o como rutas absolutas. La lista debe
-    no contienen espacios en blanco intermedios.
-
-* 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Predeterminado 0.00005
-
-* 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Predeterminado 0.00127
-
-* 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
+ * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
+   (((CÓDIGO DE INICIO RS274NGC))) Una cadena de códigos NC que inicializa el intérprete.
+   Esto no es un sustituto para especificar códigos g modales
+   en la parte superior de cada archivo ngc, porque los códigos modales de
+   las máquinas difieren, y pueden ser cambiadas por el código g interpretado anteriormente en
+   la sesión.
+ * 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
+   (((RUTA SUBROUTINA))) Especifica una lista separada por dos puntos (:) de hasta 10
+   directorios a buscar cuando se especifican subrutinas de un solo archivo
+   en gcode. Estos directorios se buscan después de buscar
+   [DISPLAY] PROGRAM_PREFIX (si está especificado) y antes de buscar
+   [WIZARD] WIZARD_ROOT (si se especifica). Las rutas se buscan en el orden
+   que están listados El primer archivo de subrutina coincidente
+   encontrado en la búsqueda se utiliza. Los directorios se especifican en relación con el
+   directorio actual para el archivo ini o como rutas absolutas. La lista debe
+   no contienen espacios en blanco intermedios.
+ * 'CENTER_ARC_RADIUS_TOLERANCE_INCH = n' Predeterminado 0.00005
+ * 'CENTER_ARC_RADIUS_TOLERANCE_MM = n' Predeterminado 0.00127
+ * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' - (((USER M PATH)))
    Especifica una lista de directorios separados por dos puntos (:) para funciones definidas por el usuario.
    Los directorios se especifican relativas al directorio actual
    del archivo ini o como rutas absolutas. La lista no debe contener ningun espacio en blanco.
-+
+
 Se realiza una búsqueda para cada posible función definida por el usuario, típicamente
 (M100-M199). El orden de búsqueda es:
-+
+
 . [DISPLAY]PROGRAM_PREFIX (si se especifica)
 . Si no se especifica [DISPLAY]PROGRAM_PREFIX, busca en la ubicación predeterminada: nc_files
 . Luego busca en cada directorio de la lista [RS274NGC]USER_M_PATH
-+
+
 El primer ejecutable M1xx encontrado en la búsqueda se usa para cada M1xx.
 
 [NOTE]
 El número máximo de directorios USER_M_PATH se define en tiempo de compilación
  (predeterminado: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
-* 'INI_VARS = 1' Predeterminado 1
-Permite que los programas de código G lean valores del archivo INI usando el formato
-#<_ini[sección]nombre>. Ver <<gcode:parameters,parámetros del código G>>
+* 'INI_VARS = 1' Predeterminado 1 +
+  Permite que los programas de código G lean valores del archivo INI usando el formato
+  #<_ini[sección]nombre>. Ver <<sec:overview-parameters,parámetros del código G>>
 
-* 'HAL_PIN_VARS = 1' Predeterminado 1
-Permite que los programas de código G lean los valores de los pines HAL usando el formato
-#<_hal[Elemento Hal]> El acceso a esta variable es de solo lectura.
-Consulte <<gcode:parameters,parámetros de código G>> para obtener más detalles y una
-advertencia importante.
+* 'HAL_PIN_VARS = 1' Predeterminado 1 +
+  Permite que los programas de código G lean los valores de los pines HAL usando el formato
+  #<_hal[Elemento Hal]> El acceso a esta variable es de solo lectura.
+  Consulte <<sec:overview-parameters,parámetros de código G>> para obtener más detalles y una
+  advertencia importante.
 
-* 'RETAIN_G43 = 0' Predeterminado 0
-Cuando está configurado, puede activar G43 después de cargar la primera herramienta,
-y luego despreocuparse por eso a través del programa. Cuando usted
-finalmente descargue la última herramienta, el modo G43 se cancela.
+* 'RETAIN_G43 = 0' Predeterminado 0 +
+  Cuando está configurado, puede activar G43 después de cargar la primera herramienta,
+  y luego despreocuparse por eso a través del programa. Cuando usted
+  finalmente descargue la última herramienta, el modo G43 se cancela.
 
-* 'OWORD_NARGS = 0' Predeterminado 0
-Si esta función está habilitada, una subrutina llamada puede determinar el
-número de parámetros posicionales reales pasados ​​al inspeccionar el parámetro +#<n_args>+.
+* 'OWORD_NARGS = 0' Predeterminado 0 +
+  Si esta función está habilitada, una subrutina llamada puede determinar el
+  número de parámetros posicionales reales pasados ​​al inspeccionar el parámetro +#<n_args>+.
 
-* 'NO_DOWNCASE_OWORD = 0' Predeterminado 0
-Conservar mayúsculas y minúsculas en los nombres O-word dentro de los comentarios si está configurado, permite leer
-elementos HAL de mayúsculas y minúsculas en comentarios estructurados como
-'(debug, #<_hal[MixedCaseItem])'..
+* 'NO_DOWNCASE_OWORD = 0' Predeterminado 0 +
+  Conservar mayúsculas y minúsculas en los nombres O-word dentro de los comentarios si está configurado, permite leer
+  elementos HAL de mayúsculas y minúsculas en comentarios estructurados como
+  '(debug, #<_hal[MixedCaseItem])'..
 
-* 'OWORD_WARNONLY = 0' Predeterminado 0
-Advertir en lugar de error en caso de errores en las subrutinas O-word.
+* 'OWORD_WARNONLY = 0' Predeterminado 0 +
+  Advertir en lugar de error en caso de errores en las subrutinas O-word.
 
 [NOTE] Las seis opciones anteriores fueron controladas por la máscara de bits 'FEATURES'
 en versiones de LinuxCNC anteriores a 2.8. Esta etiqueta INI ya no trabaja.
@@ -1025,7 +1021,7 @@ Ejemplo: loadrt motmod ... unlock_joints_mask = 0x38
 crea pines de desbloqueo para articulaciones 3,4,5
 
 * 'OFFSET_AV_RATIO = 0.1' - si no es cero, este elemento permite el uso de
-pines Hal de entrada para compensaciones de eje externas:
+  pines Hal de entrada para compensaciones de eje externas:
 
 'axis.<letter>.eoffset-enable'
 'axis.<letter>.eoffset-count'
@@ -1034,9 +1030,9 @@ pines Hal de entrada para compensaciones de eje externas:
 Consulte el capítulo: <<cha:external-offsets,'Offsets Externos de Ejes'>> para
 información de su uso.
 
-[[sec:joint-section]](((Archivo INI, Sección CONJUNTA)))
+[[sec:joint-section]]
+=== Sección [JOINT_<num>](((Archivo INI, Sección CONJUNTA)))
 
-=== Sección [JOINT_<num>]
 <num> especifica el número de articulación 0 ... (num_joints-1)
 El valor de 'num_joints' lo establece [KINS]JOINTS =
 
@@ -1068,52 +1064,52 @@ con coordenadas = XZ, las relaciones de ejes comunes son:
 Para obtener más información sobre los módulos cinemáticos, consulte la página de manual: '$ man kins'
 
 * 'TYPE = LINEAR' -
-El tipo de articulación, ya sea LINEAR o ANGULAR.
+  El tipo de articulación, ya sea LINEAR o ANGULAR.
 
 * 'UNITS = INCH' -
-(((UNITS))) Si se especifica, esta configuración, se anula la configuración relacionada [TRAJ]UNITS.
-(por ejemplo, [TRAJ] LINEAR_UNITS si el TYPE de esta articulación es LINEAR,
-[TRAJ]ANGULAR_UNITS si el TYPE de esta articulación es ANGULAR)
+  (((UNITS))) Si se especifica, esta configuración, se anula la configuración relacionada [TRAJ]UNITS.
+  (por ejemplo, [TRAJ] LINEAR_UNITS si el TYPE de esta articulación es LINEAR,
+  [TRAJ]ANGULAR_UNITS si el TYPE de esta articulación es ANGULAR)
 
 * 'MAX_VELOCITY = 1.2' -
-Velocidad máxima para esta articulación en <<sec:traj-section,unidades máquina>> por segundo.
+    Velocidad máxima para esta articulación en <<sec:traj-section,unidades máquina>> por segundo.
 
 * 'MAX_ACCELERATION = 20.0' -
-Aceleración máxima para esta articulación en unidades máquina por segundo cuadrado
+  Aceleración máxima para esta articulación en unidades máquina por segundo cuadrado
 
 * 'BACKLASH = 0.0000' -
-(((Backlash))) Backlash en unidades de máquina. El valor de Backlash
-se puede utilizar para compensar pequeñas deficiencias en el hardware utilizado para
-conducir una articulacion. Si se agrega Backlash a una articulación y está utilizando
-paso a paso, STEPGEN_MAXACCEL debe aumentarse de 1,5 a 2 veces del valor de
-MAX_ACCELERATION para la articulación. La compensación de Backlash excesiva puede causar
-sacudidas en el eje a medida que cambia de dirección. Si se especifica  un COMP_FILE para un
-eje, BACKLASH no se utiliza.
+  (((Backlash))) Backlash en unidades de máquina. El valor de Backlash
+  se puede utilizar para compensar pequeñas deficiencias en el hardware utilizado para
+  conducir una articulacion. Si se agrega Backlash a una articulación y está utilizando
+  paso a paso, STEPGEN_MAXACCEL debe aumentarse de 1,5 a 2 veces del valor de
+  MAX_ACCELERATION para la articulación. La compensación de Backlash excesiva puede causar
+  sacudidas en el eje a medida que cambia de dirección. Si se especifica  un COMP_FILE para un
+  eje, BACKLASH no se utiliza.
 
 // agregar un << a unidades de máquina
 
 * 'COMP_FILE = file.extension' -
-    (((Compensation))) El archivo de compensación consiste en un mapa de información de posición
-    para la articulación. Los valores del archivo de compensación están en unidades máquina.
-	Cada conjunto de valores está en una línea separada por un espacio. El primer valor
-	es el valor nominal (la posición ordenada). El segundo y tercer valor
-	dependerá de la configuración de COMP_FILE_TYPE. Los puntos entre valores nominales
-	están interpolados entre los dos nominales. Los archivos de compensación deben comenzar
-	con el mínimo nominal y estar en orden ascendente hasta el mayor valor de los
-	nominales. Los nombres de archivo distinguen entre mayúsculas y minúsculas y pueden contener letras y/o
-	números. Actualmente, el límite dentro de LinuxCNC es de 256 tripletas por eje.
+  (((Compensation))) El archivo de compensación consiste en un mapa de información de posición
+  para la articulación. Los valores del archivo de compensación están en unidades máquina.
+  Cada conjunto de valores está en una línea separada por un espacio. El primer valor
+  es el valor nominal (la posición ordenada). El segundo y tercer valor
+  dependerá de la configuración de COMP_FILE_TYPE. Los puntos entre valores nominales
+  están interpolados entre los dos nominales. Los archivos de compensación deben comenzar
+  con el mínimo nominal y estar en orden ascendente hasta el mayor valor de los
+  nominales. Los nombres de archivo distinguen entre mayúsculas y minúsculas y pueden contener letras y/o
+  números. Actualmente, el límite dentro de LinuxCNC es de 256 tripletas por eje.
 	+
 	+
-	Si se especifica COMP_FILE para un eje, BACKLASH no se utiliza.
-	Se debe especificar UN 'COMP_FILE_TYPE' para cada 'COMP_FILE'.
+  Si se especifica COMP_FILE para un eje, BACKLASH no se utiliza.
+  Se debe especificar UN 'COMP_FILE_TYPE' para cada 'COMP_FILE'.
 
 * 'COMP_FILE_TYPE = 0 o 1' - especifica el tipo de archivo de compensación.
-   El primer valor es la posición nominal (ordenada) para ambos tipos.
+  El primer valor es la posición nominal (ordenada) para ambos tipos.
 
 ** 'Tipo 0:' El segundo valor especifica la posición real a medida que se mueve el eje
-	en la dirección positiva (valor creciente) y el tercer valor especifica
-	la posición real a medida que el eje se mueve en la dirección negativa
-	(valor decreciente).
+   en la dirección positiva (valor creciente) y el tercer valor especifica
+   la posición real a medida que el eje se mueve en la dirección negativa
+   (valor decreciente).
 	+
 	+
 Ejemplo Tipo 0
@@ -1125,8 +1121,8 @@ Ejemplo Tipo 0
 -----
 
 ** 'Tipo 1:' El segundo valor especifica el desplazamiento positivo del nominal mientras
-	se va en la dirección positiva. El tercer valor especifica el negativo
-	compensado del nominal mientras se va en una dirección negativa.
+   se va en la dirección positiva. El tercer valor especifica el negativo
+   compensado del nominal mientras se va en una dirección negativa.
 	+
 	+
 Ejemplo de tipo 1
@@ -1138,119 +1134,117 @@ Ejemplo de tipo 1
 ----
 
 * 'MIN_LIMIT = -1000' - (((MIN LIMIT))) El límite mínimo para el movimiento del eje, en
-unidades máquina. Cuando se alcanza este límite, el controlador aborta el movimiento del eje.
-El eje debe tener home antes de que MIN_LIMIT esté en vigor. Para un
-eje rotativo con rotación ilimitada que no tiene MIN_LIMIT para ese eje en
-[JOINT_n], entonces se usa el valor -1e99.
+  unidades máquina. Cuando se alcanza este límite, el controlador aborta el movimiento del eje.
+  El eje debe tener home antes de que MIN_LIMIT esté en vigor. Para un
+  eje rotativo con rotación ilimitada que no tiene MIN_LIMIT para ese eje en
+  [JOINT_n], entonces se usa el valor -1e99.
 
 * 'MAX_LIMIT = 1000' - (((MAX LIMIT))) El límite máximo para el movimiento del eje, en
-unidades máquina. Cuando se alcanza este límite, el controlador aborta el movimiento del eje.
-El eje debe tener home antes de que MAX_LIMIT esté en vigor. Para un eje rotativo
-con rotación ilimitada que no tiene MAX_LIMIT para ese eje en
-[JOINT_n], se usa el valor 1e99.
+  unidades máquina. Cuando se alcanza este límite, el controlador aborta el movimiento del eje.
+  El eje debe tener home antes de que MAX_LIMIT esté en vigor. Para un eje rotativo
+  con rotación ilimitada que no tiene MAX_LIMIT para ese eje en
+  [JOINT_n], se usa el valor 1e99.
 
 * 'MIN_FERROR = 0.010' - (((MIN FERROR))) Este es el valor en unidades máquina
-que el eje puede desviarse de la posición ordenada a muy bajas
-velocidades. Si MIN_FERROR es más pequeño que FERROR, los dos producen una rampa de
-puntos de disparo de error. Podría pensar en esto como un gráfico donde una dimensión es
-velocidad y el otro el error de seguimiento permitido. A medida que la velocidad aumenta,
-la cantidad de error de seguimiento también aumenta hacia el valor FERROR.
+  que el eje puede desviarse de la posición ordenada a muy bajas
+  velocidades. Si MIN_FERROR es más pequeño que FERROR, los dos producen una rampa de
+  puntos de disparo de error. Podría pensar en esto como un gráfico donde una dimensión es
+  velocidad y el otro el error de seguimiento permitido. A medida que la velocidad aumenta,
+  la cantidad de error de seguimiento también aumenta hacia el valor FERROR.
 
 * 'FERROR = 1.0' - (((FERROR))) FERROR es el error de seguimiento máximo permitido,
-en unidades máquina. Si la diferencia entre la posición ordenada y la detectada
-excede esta cantidad, el controlador deshabilita los cálculos servo, establece todas
-las salidas a 0.0, y desactiva los amplificadores. Si MIN_FERROR está presente en
-el archivo .ini, se utilizan los siguientes errores proporcionales a la velocidad. Aquí el
-error de seguimiento máximo permitido es proporcional a la velocidad, con FERROR
-aplicando a la tasa rápida establecida por [TRAJ]MAX_VELOCITY, y proporcionalmente
-errores de seguimiento más pequeños para velocidades más lentas. El error de seguimiento máximo permitido
-siempre será mayor que MIN_FERROR. Esto evita pequeños errores de seguimiento
-para ejes estacionarios al abortar inadvertidamente el movimiento. Pequeños
-errores de seguimiento siempre estarán presentes debido a la vibración, etc.
+  en unidades máquina. Si la diferencia entre la posición ordenada y la detectada
+  excede esta cantidad, el controlador deshabilita los cálculos servo, establece todas
+  las salidas a 0.0, y desactiva los amplificadores. Si MIN_FERROR está presente en
+  el archivo .ini, se utilizan los siguientes errores proporcionales a la velocidad. Aquí el
+  error de seguimiento máximo permitido es proporcional a la velocidad, con FERROR
+  aplicando a la tasa rápida establecida por [TRAJ]MAX_VELOCITY, y proporcionalmente
+  errores de seguimiento más pequeños para velocidades más lentas. El error de seguimiento máximo permitido
+  siempre será mayor que MIN_FERROR. Esto evita pequeños errores de seguimiento
+  para ejes estacionarios al abortar inadvertidamente el movimiento. Pequeños
+  errores de seguimiento siempre estarán presentes debido a la vibración, etc.
 
 * 'LOCKING_INDEXER = 1' -
-Indica que la articulación se utiliza como indexador con bloqueo.
+  Indica que la articulación se utiliza como indexador con bloqueo.
 
 .Homing
-
 Estos parámetros están relacionados con Homing; para una mejor explicación lea el Capítulo
 <<cha:homing-configuration,Configuración Homing>>.
 
 * 'HOME = 0.0' -
-La posición a la que irá la articulación al finalizar la secuencia homing.
+  La posición a la que irá la articulación al finalizar la secuencia homing.
 
 * 'HOME_OFFSET = 0.0' -
-La posición articular del interruptor home o pulso índice, en
-<<sec:traj-section,unidades máquina>>. Cuando se encuentra el punto home durante
-el proceso homing, esta es la posición asignada a ese punto.
-Al compartir interruptores home y de límite y usar una secuencia home que
-deje el interruptor home/límite en el estado activado, el offset home puede ser
-utilizado para definir la posición del interruptor home para que sea diferente de 0 si
-se desea que la posición home sea 0.
+  La posición articular del interruptor home o pulso índice, en
+  <<sec:traj-section,unidades máquina>>. Cuando se encuentra el punto home durante
+  el proceso homing, esta es la posición asignada a ese punto.
+  Al compartir interruptores home y de límite y usar una secuencia home que
+  deje el interruptor home/límite en el estado activado, el offset home puede ser
+  utilizado para definir la posición del interruptor home para que sea diferente de 0 si
+  se desea que la posición home sea 0.
 
 * 'HOME_SEARCH_VEL = 0.0' -
-(((HOME SEARCH VEL))) Velocidad de homing inicial en unidades de máquina por segundo.
-El signo indica la dirección de recorrido. Un valor de cero significa asumir que la
-ubicación actual es la posición de inicio de la máquina. Si su máquina no tiene
-interruptores de inicio querrá dejar este valor en cero.
+  (((HOME SEARCH VEL))) Velocidad de homing inicial en unidades de máquina por segundo.
+  El signo indica la dirección de recorrido. Un valor de cero significa asumir que la
+  ubicación actual es la posición de inicio de la máquina. Si su máquina no tiene
+  interruptores de inicio querrá dejar este valor en cero.
 
 * 'HOME_LATCH_VEL = 0.0' -
-Velocidad de homing en unidades máquina por segundo a la posicion de enclavamiento
-del interruptor home. El signo indica la dirección del recorrido.
+  Velocidad de homing en unidades máquina por segundo a la posicion de enclavamiento
+  del interruptor home. El signo indica la dirección del recorrido.
 
 * 'HOME_FINAL_VEL = 0.0' -
-Velocidad en unidades de máquina por segundo desde la posición de enclavamiento a la
-posición home. Si se deja en 0 o no se incluye en la articulación, se usa la velocidad rápida.
-Debe ser un número positivo.
+  Velocidad en unidades de máquina por segundo desde la posición de enclavamiento a la
+  posición home. Si se deja en 0 o no se incluye en la articulación, se usa la velocidad rápida.
+  Debe ser un número positivo.
 
 * 'HOME_USE_INDEX = NO' -
-Si el codificador utilizado para esta articulación tiene un pulso índice, y
-la electronica tiene provisión para esta señal, puede configurarla en YES. Cuando es
-YES, se afectará el tipo de patrón de inicio utilizado. Actualmente no puede
-indexar con steppers a menos que esté usando stepgen en modo de velocidad y PID.
+  Si el codificador utilizado para esta articulación tiene un pulso índice, y
+  la electronica tiene provisión para esta señal, puede configurarla en YES. Cuando es
+  YES, se afectará el tipo de patrón de inicio utilizado. Actualmente no puede
+  indexar con steppers a menos que esté usando stepgen en modo de velocidad y PID.
 
 * 'HOME_INDEX_NO_ENCODER_RESET = NO' -
-Use YES si el codificador utilizado para esta articulación no restablece su contador
-cuando se detecta un pulso índice después de la activacion del pin hal index_enable. 
-Aplicable solo para HOME_USE_INDEX = YES.
+  Use YES si el codificador utilizado para esta articulación no restablece su contador
+  cuando se detecta un pulso índice después de la activacion del pin hal index_enable. 
+  Aplicable solo para HOME_USE_INDEX = YES.
 
 * 'HOME_IGNORE_LIMITS = NO' -
-Cuando usa el interruptor de límite tambien como interruptor home,
-esto debe establecerse en YES. Cuando se establece en YES, el interruptor de límite para esta
-articulación se ignora durante homing. Debe configurar su homing
-para que al final del movimiento a home el interruptor home/límite no esté en el
-estado activado; recibiria un error de interruptor de límite después del homing.
+  Cuando usa el interruptor de límite tambien como interruptor home,
+  esto debe establecerse en YES. Cuando se establece en YES, el interruptor de límite para esta
+  articulación se ignora durante homing. Debe configurar su homing
+  para que al final del movimiento a home el interruptor home/límite no esté en el
+  estado activado; recibiria un error de interruptor de límite después del homing.
 
 * 'HOME_IS_SHARED = <n>' -
-Si la entrada home es compartida por más de una articulacion, haga <n> igual a 1 para
-evitar que se inicie homing si uno de los conmutadores compartidos está
-ya está cerrado. Establezca <n> en 0 para permitir el homing si un interruptor está cerrado.
+  Si la entrada home es compartida por más de una articulacion, haga <n> igual a 1 para
+  evitar que se inicie homing si uno de los conmutadores compartidos está
+  ya está cerrado. Establezca <n> en 0 para permitir el homing si un interruptor está cerrado.
 
 * 'HOME_ABSOLUTE_ENCODER = 0 | 1 | 2 '-
-Usado para indicar que la articulación usa un codificador absoluto. A una petición
-de homing, el valor de la articulacion actual se establece en el valor 'HOME_OFFSET'.
-Si la configuración 'HOME_ABSOLUTE_ENCODER' es 1, la máquina hace el habitual
-movimiento final al valor 'HOME'.
-Si la configuración 'HOME_ABSOLUTE_ENCODER' es 2, no se realiza ningún movimiento final.
+  Usado para indicar que la articulación usa un codificador absoluto. A una petición
+  de homing, el valor de la articulacion actual se establece en el valor 'HOME_OFFSET'.
+  Si la configuración 'HOME_ABSOLUTE_ENCODER' es 1, la máquina hace el habitual
+  movimiento final al valor 'HOME'.
+  Si la configuración 'HOME_ABSOLUTE_ENCODER' es 2, no se realiza ningún movimiento final.
 
 * 'HOME_SEQUENCE = <n>' -
-Se utiliza para definir la secuencia "Home Todo". <n> debe comenzar en 0 o
-1 o -1. Se pueden especificar secuencias adicionales con números crecientes
-de 1 en 1 (en valor absoluto). No se permite omitir los números de secuencia.
-Si se omite una HOME_SEQUENCE, la articulación no será homeada por la
-función "Home Todo". Se puede homear más de una articulación al mismo tiempo
-especificando el mismo número de secuencia para más de una articulación.
-Se utiliza un número de secuencia negativa para diferir el movimiento final para
-todas las articulaciones que tienen ese número de secuencia (negativo o positivo).
-Para obtener información adicional, consulte: <<sec:homing-section, SECUENCIA HOME>>
+  Se utiliza para definir la secuencia "Home Todo". <n> debe comenzar en 0 o
+  1 o -1. Se pueden especificar secuencias adicionales con números crecientes
+  de 1 en 1 (en valor absoluto). No se permite omitir los números de secuencia.
+  Si se omite una HOME_SEQUENCE, la articulación no será homeada por la
+  función "Home Todo". Se puede homear más de una articulación al mismo tiempo
+  especificando el mismo número de secuencia para más de una articulación.
+  Se utiliza un número de secuencia negativa para diferir el movimiento final para
+  todas las articulaciones que tienen ese número de secuencia (negativo o positivo).
+  Para obtener información adicional, consulte: <<sec:homing-section,SECUENCIA HOME>>
 
 * 'VOLATILE_HOME = 0' -
-Cuando se habilita (se establece en 1), esta articulación no se homeara si 
-la alimentación de la máquina está apagada o si E-Stop está encendido. Esto es útil si su máquina tiene
-interruptores Home y no tiene retroalimentación de posición, como en máquina paso y dirección.
+  Cuando se habilita (se establece en 1), esta articulación no se homeara si 
+  la alimentación de la máquina está apagada o si E-Stop está encendido. Esto es útil si su máquina tiene
+  interruptores Home y no tiene retroalimentación de posición, como en máquina paso y dirección.
 
 .Servo
-
 Estos parámetros son relevantes para las articulaciones controladas por servos.
 
 [WARNING]
@@ -1291,61 +1285,48 @@ latexmath: [\ frac {X \, pulgadas} {1 \, encoder \, count} =
 imagen::images/encoder-count-math.png[align="center"]
 
 * 'BIAS = 0.000' - Esto es utilizado por hm2-servo y algunos otros.
-BIAS es una cantidad constante que se agrega a la salida. En la mayoría de los casos, debe dejarse en cero.
-Sin embargo, a veces puede ser útil para compensar servoamplificadores, o para equilibrar el peso
-de un objeto que se mueve verticalmente. BIAS se desactiva cuando el bucle PID está desactivado, al igual que
-todos los demás componentes de la salida.
-
+  BIAS es una cantidad constante que se agrega a la salida. En la mayoría de los casos, debe dejarse en cero.
+  Sin embargo, a veces puede ser útil para compensar servoamplificadores, o para equilibrar el peso
+  de un objeto que se mueve verticalmente. BIAS se desactiva cuando el bucle PID está desactivado, al igual que
+  todos los demás componentes de la salida.
 * 'P = 50' - La ganancia proporcional para el servo. Este valor multiplica el
-error entre la posición ordenada y la real en unidades máquina, lo que resulta
-en una contribución a la tensión calculada para el amplificador del motor.
-Las unidades en la ganancia P son voltios por unidad máquina, por ejemplo,
-image:images/p-term.png[height=25]
-
+  error entre la posición ordenada y la real en unidades máquina, lo que resulta
+  en una contribución a la tensión calculada para el amplificador del motor.
+  Las unidades en la ganancia P son voltios por unidad máquina, por ejemplo,
+  image:images/p-term.png[height=25]
 // latexmath: [$ \ frac {volt} {mu} $].
-
 * 'I = 0' - La ganancia integral para el servo. El valor
-multiplica el error acumulativo entre la posición ordenada y la real en unidades máquina,
-lo que resulta en una contribución a la tensión calculada para el
-amplificador de motor. Las unidades en la ganancia I son voltios por unidad máquina por
-segundo, por ejemplo, image:images/i-term.png[height=25]
-
+  multiplica el error acumulativo entre la posición ordenada y la real en unidades máquina,
+  lo que resulta en una contribución a la tensión calculada para el
+  amplificador de motor. Las unidades en la ganancia I son voltios por unidad máquina por
+  segundo, por ejemplo, image:images/i-term.png[height=25]
 // latexmath: [$ \ frac {volt} {mu \, s} $].
-
 * 'D = 0' - La ganancia derivada para el servo. El valor
-multiplica la diferencia entre los errores actuales y anteriores, lo que resulta en una
-contribución a la tensión calculada para el amplificador del motor. las unidades
-en la ganancia D son voltios por unidad de máquina por segundo, por ejemplo,
-image:images/i-term.png[height=25]
-
+  multiplica la diferencia entre los errores actuales y anteriores, lo que resulta en una
+  contribución a la tensión calculada para el amplificador del motor. las unidades
+  en la ganancia D son voltios por unidad de máquina por segundo, por ejemplo,
+  image:images/i-term.png[height=25]
 // latexmath: [$ \ frac {volt} {mu / s} $].
-
 * 'FF0 = 0' - ganancia de avance de orden 0. Este numero es
-multiplicado por el posición ordenada, lo que resulta en una contribución a la tensión calculada
-para el amplificador del motor. Las unidades en la ganancia FF0 son voltios por
-unidad máquina, por ejemplo, image:images/p-term.png[height=25]
-
+  multiplicado por el posición ordenada, lo que resulta en una contribución a la tensión calculada
+  para el amplificador del motor. Las unidades en la ganancia FF0 son voltios por
+  unidad máquina, por ejemplo, image:images/p-term.png[height=25]
 // latexmath: [$ \ frac {volt} {mu} $].
-
 * 'FF1 = 0' - ganancia de avance de 1er orden. Este numero es
-multiplicado por el cambio en la posición ordenada por segundo, lo que resulta en una contribución
-al voltaje calculado para el amplificador del motor. Las unidades en FF1
-son voltios por unidad máquina por segundo, por ejemplo, image:images/i-term.png[height=25]
-
+  multiplicado por el cambio en la posición ordenada por segundo, lo que resulta en una contribución
+  al voltaje calculado para el amplificador del motor. Las unidades en FF1
+  son voltios por unidad máquina por segundo, por ejemplo, image:images/i-term.png[height=25]
 // latexmath: [$ \ frac {volt} {mu \, s} $].
-
 * 'FF2 = 0' - ganancia de avance de segundo orden. Este numero es
-multiplicado por el cambio en la posición ordenada por segundo por segundo, lo que resulta en un
-contribución a la tensión calculada para el amplificador del motor. Las unidades
-en la ganancia FF2 son voltios por unidad máquina por segundo por segundo,
-por ejemplo, image:images/ff2.png[height=25]
-
+  multiplicado por el cambio en la posición ordenada por segundo por segundo, lo que resulta en un
+  contribución a la tensión calculada para el amplificador del motor. Las unidades
+  en la ganancia FF2 son voltios por unidad máquina por segundo por segundo,
+  por ejemplo, image:images/ff2.png[height=25]
 // latexmath: [$ \ frac {volt} {mu \, s ^ ​​{2}} $].
-
 * 'OUTPUT_SCALE = 1.000' -
-
 * 'OUTPUT_OFFSET = 0.000' - estos dos valores son los factores de escala y offset para
-la salida a los amplificadores del motor.
+  la salida a los amplificadores del motor.
+
 El segundo valor (offset) se resta de
 la salida calculada (en voltios), y se divide por el primer valor (escala), antes de ser
 escrito en los convertidores D/A. Las unidades de
@@ -1353,8 +1334,7 @@ los valores de escala están en voltios verdaderos por voltios de salida DAC. La
 valor de offset está en voltios. Estos se pueden usar para linealizar un DAC.
 Específicamente, al escribir salidas, LinuxCNC primero convierte la salida deseada
 en unidades cuasi-SI a valores de actuador sin procesar, por ejemplo, voltios para un
-amplificador DAC. Esta escala
-se parece a: image:images/output-offset.png[]
+amplificador DAC. Esta escala se parece a: image:images/output-offset.png[]
 
 // latexmath: [raw = \ frac {output-offset} {scale}]
 
@@ -1381,16 +1361,15 @@ no linealidad del DAC, unidades DAC, etc.
 Para hacer esto, siga este procedimiento.
 
 . Cree una tabla de calibración para la salida, alimentando el DAC con el
-voltaje deseado y midiendo el resultado.
-
+  voltaje deseado y midiendo el resultado.
 . Haga un ajuste lineal de mínimos cuadrados para obtener los coeficientes a, b tales
-como image:images/calibration-1.png[]
+  como image:images/calibration-1.png[]
 . Tenga en cuenta que queremos una salida en bruto de modo que nuestro resultado medido sea
-idéntico a la salida ordenada. Esto significa
+  idéntico a la salida ordenada. Esto significa
 .. image:images/calibration-2.png[]
 .. image:images/calibration-3.png[]
 . Como resultado, los coeficientes a y b del ajuste lineal pueden ser
-utilizado como la escala y el offset para el controlador directamente.
+  utilizado como la escala y el offset para el controlador directamente.
 
 La siguiente tabla es un ejemplo de mediciones de voltaje.
 
@@ -1412,22 +1391,22 @@ Mediciones de voltaje de salida
 |===============
 
 * 'MAX_OUTPUT = 10' - El valor máximo para la salida de la compensación PID
-que se escribe en el amplificador del motor, en voltios. El valor calculado
-de salida está sujeto a este límite. El límite se aplica antes de
-escalado a unidades de salida en bruto. El valor se aplica simétricamente
-tanto al lado positivo como al negativo.
+  que se escribe en el amplificador del motor, en voltios. El valor calculado
+  de salida está sujeto a este límite. El límite se aplica antes de
+  escalado a unidades de salida en bruto. El valor se aplica simétricamente
+  tanto al lado positivo como al negativo.
 
 * 'INPUT_SCALE = 20000' - en configuraciones de muestra
 * 'ENCODER_SCALE = 20000' - en configuraciones construidas con PNCconf
-Especifica el número de pulsos que
-corresponde a un movimiento de una unidad máquina como se establece en la sección [TRAJ].
+  Especifica el número de pulsos que
+  corresponde a un movimiento de una unidad máquina como se establece en la sección [TRAJ].
+
 Para una articulación lineal, una unidad máquina será igual a
 la configuración de LINEAR_UNITS.
 Para una articulación angular, una unidad es igual a la configuración en ANGULAR_UNITS.
 Un segundo número, si se especifica, se ignora.
 Por ejemplo, en un codificador de 2000 cuentas por revolucion, y una transmision de 10
 revoluciones por pulgada y unidades de pulgada, tenemos:
-
 
 image::images/encoder-scale.png[align="center"]
 
@@ -1436,7 +1415,6 @@ image::images/encoder-scale.png[align="center"]
 // \ frac {20000 \, recuentos} {pulgadas}]
 
 .Stepper
-
 Estos parámetros son relevantes para las articulaciones controladas por steppers.
 
 [WARNING]
@@ -1450,14 +1428,14 @@ Los siguientes elementos pueden ser utilizados por un componente stepgen.
 
 * 'SCALE = 4000' - en configuraciones de muestra
 * 'STEP_SCALE = 4000' - en configuraciones construidas con PNCconf
-Especifica el número de pulsos que corresponde a un
-movimiento de una unidad máquina como se establece en la sección [TRAJ].
-Para sistemas paso a paso, esto es
-el número de pulsos de paso emitidos por unidad máquina. Para una articulación lineal
-una unidad de máquina será igual a la configuración de LINEAR_UNITS. Para una
-articulacion angular es igual a la configuración en ANGULAR_UNITS. Para
-servo sistemas, este es el número de pulsos de retroalimentación por unidad máquina.
-Un segundo número, si se especifica, se ignora.
+  Especifica el número de pulsos que corresponde a un
+  movimiento de una unidad máquina como se establece en la sección [TRAJ].
+  Para sistemas paso a paso, esto es
+  el número de pulsos de paso emitidos por unidad máquina. Para una articulación lineal
+  una unidad de máquina será igual a la configuración de LINEAR_UNITS. Para una
+  articulacion angular es igual a la configuración en ANGULAR_UNITS. Para
+  servo sistemas, este es el número de pulsos de retroalimentación por unidad máquina.
+  Un segundo número, si se especifica, se ignora.
 
 Por ejemplo, en un motor paso a paso de 1.8 grados con semipasos, y transmision de 10
 revoluciones por pulgada, y deseado <<sec:traj-section,unidades máquina>> en pulgada,
@@ -1500,47 +1478,39 @@ que MAX_VELOCITY de la articulación. Pruebas posteriores han demostrado que el 
 STEPGEN_MAXVEL no mejora el ajuste del bucle de posición de stepgen.
 
 
-[[sec:emcio-section]](((Archivo INI, Sección EMCIO)))
-
-=== Sección [EMCIO]
+[[sec:emcio-section]]
+=== Sección [EMCIO](((Archivo INI, Sección EMCIO)))
 
 * 'EMCIO = io' - Nombre del programa controlador IO
-
 * 'CYCLE_TIME = 0.100' -
-El período, en segundos, en el que se ejecutará EMCIO. Haciendolo
-0.0 o un número negativo le dirá a EMCIO que no duerma en absoluto. Generalmente
-no es necesario cambiar este número.
-
+  El período, en segundos, en el que se ejecutará EMCIO. Haciendolo
+  0.0 o un número negativo le dirá a EMCIO que no duerma en absoluto. Generalmente
+  no es necesario cambiar este número.
 * 'TOOL_TABLE = tool.tbl' -
-El archivo que contiene información sobre herramientas, descrito en
-el manual de usuario.
-
+  El archivo que contiene información sobre herramientas, descrito en
+  el manual de usuario.
 * 'TOOL_CHANGE_POSITION = 0 0 2' -
-Especifica la ubicación XYZ a la que moverse al realizar un
-cambio de herramienta si se utilizan tres dígitos.
-Especifica la ubicación XYZABC cuando se usan 6 dígitos.
-Especifica la ubicación XYZABCUVW cuando se utilizan 9 dígitos.
-Los cambios de herramienta se pueden combinar. Por ejemplo, si combina la
-pinola con la posición de cambio, puede mover primero la Z y luego la X e Y.
-
+  Especifica la ubicación XYZ a la que moverse al realizar un
+  cambio de herramienta si se utilizan tres dígitos.
+  Especifica la ubicación XYZABC cuando se usan 6 dígitos.
+  Especifica la ubicación XYZABCUVW cuando se utilizan 9 dígitos.
+  Los cambios de herramienta se pueden combinar. Por ejemplo, si combina la
+  pinola con la posición de cambio, puede mover primero la Z y luego la X e Y.
 * 'TOOL_CHANGE_WITH_SPINDLE_ON = 1' -
-El husillo se dejará encendido durante el cambio de herramienta cuando el valor sea 1.
-Útil para tornos o máquinas donde el material está en el husillo, no la herramienta.
-
+  El husillo se dejará encendido durante el cambio de herramienta cuando el valor sea 1.
+  Útil para tornos o máquinas donde el material está en el husillo, no la herramienta.
 * 'TOOL_CHANGE_QUILL_UP = 1' -
-El eje Z se moverá a cero máquina antes del cambio de herramienta cuando
-el valor es 1. Esto es lo mismo que emitir un G0 G53 Z0.
-
+  El eje Z se moverá a cero máquina antes del cambio de herramienta cuando
+  el valor es 1. Esto es lo mismo que emitir un G0 G53 Z0.
 * 'TOOL_CHANGE_AT_G30 = 1' -
-La máquina se mueve al punto de referencia definido por los parámetros
-5181-5186 para G30 si el valor es 1. Para obtener más información, consulte el
-<<gcode:parameters,sección de parámetros y
-<<gcode:g30-g30.1,Sección G30>>.
-
+  La máquina se mueve al punto de referencia definido por los parámetros
+  5181-5186 para G30 si el valor es 1. Para obtener más información, consulte el
+  <<sec:overview-parameters,sección de parámetros>> y
+  <<gcode:g30-g30.1,Sección G30>>.
 * 'RANDOM_TOOLCHANGER = 1' -
-Esto es para máquinas que no pueden volver a colocar la herramienta en la ranura
-de la que vino. Por ejemplo, máquinas que intercambian la herramienta en la
-ranura activa con la herramienta en el husillo.
+  Esto es para máquinas que no pueden volver a colocar la herramienta en la ranura
+  de la que vino. Por ejemplo, máquinas que intercambian la herramienta en la
+  ranura activa con la herramienta en el husillo.
 
 
 

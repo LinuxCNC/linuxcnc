@@ -2172,72 +2172,17 @@ LinuxCNC conserve les décalages G92 et les réutilise au prochain démarrage
 du logiciel. Pour éviter cela, programmer un 'G92.1' qui les effacera, ou
 un G92.2 qui supprimera les valeurs enregistrées.
 
-Voir le chapitre sur les <<cha:coordinate-system,systèmes de coordonnées>>.
-
-Voir la section sur les <<gcode:g92,décalages G92>>.
-
-Voir la section sur les <<sec:overview-parameters,paramètres>>.
-
-[[gcode:g92]]
-
-== G92 Coordinate System Offset(((G92 Coordinate System Offset)))
-
-----
-G92 axes
-----
-
-[WARNING]
-Only use 'G92' after your machine has been positioned to the desired point.
-
-'G92' makes the current point have the coordinates you want (without
-motion), where the axis words contain the axis numbers you want.
-All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the offset for that axis
-will be zero.
-
-When 'G92' is executed, the <<sec.machine-coordinate-system,origins>>
-of all coordinate systems move. They move such that the value of the
-current controlled point, in the currently active coordinate system,
-becomes the specified value. All of the coordinate system's origins
-(G53-G59.3) are offset this same distance.
-
-'G92' uses the values stored in <<sub:numbered-parameters,parameters>>
-5211-5219 as the X Y Z A B C U V W offset values for each axis.
-The parameter values are 'absolute' machine coordinates
-in the native machine 'units' as specified in the ini file.
-All axes defined in the ini file will be offset when G92 is active.
-If an axis was not entered following the G92, that axis' offset
-will be zero.
-
-For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 X7' is programmed. This
-moves all origins -3 in X, which causes the
-current point to become X=7. This -3 is saved in parameter 5211.
-
-Being in incremental distance mode (G91 instead of G90) has no effect
-on the action of 'G92'.
-
-'G92' offsets may be already be in effect when the 'G92' is called.
-If this is the case, the offset is replaced with a new
-offset that makes the current point become the specified value.
-
-It is an error if:
-
-* all axis words are omitted.
-
-LinuxCNC stores the G92 offsets and reuses them on the next run of a
-program. To prevent this, one can program a G92.1 (to erase them), or
-program a G92.2 (to remove them - they are still stored).
-
 [NOTE]
 The 'G52' command can also be used to change this offset; see the
 <<sec:g52-and-g92-offsets,Offsets>> Section for more details about
 'G92' and 'G52' and how they interact.
 
-See the <<cha:coordinate-system,Coordinate System>> Section for an
-overview of coordinate systems.
+Voir le chapitre sur les <<cha:coordinate-system,systèmes de coordonnées>>.
 
-See the <<gcode:parameters,Parameters>> Section for more information.
+Voir la section sur les <<sec:g92-commands,décalages G92>>.
+
+Voir la section sur les <<sec:overview-parameters,paramètres>>.
+
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Remise à zéro des décalages des systèmes de coordonnées

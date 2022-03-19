@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:Vue-generale-G-code]]
+[[cha:g-code-overview]]
 = Vue générale du langage G-codes de LinuxCNC
 
 :ini: {basebackend@docbook:'':ini}
@@ -247,23 +247,20 @@ volatiles sont remis à zéro.
 
 Utilisation prévue::
  . Paramètres utilisateur:: paramètres numérotés dans l'étendue 31 à 5000, 
-paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Sont
-disponibles pour une utilisation générale de stockage de valeurs flottantes, 
-comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un
-programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).
-
+   paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Sont
+   disponibles pour une utilisation générale de stockage de valeurs flottantes, 
+   comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un
+   programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).
  . <<sec:Parametres-sous-programme, Paramètres de sous-programme>> - Ils sont
-utilisés pour conserver les paramètres actuels passés à un sous-programme.
-
- . <<sec:Parametres-Numerotes,paramètres numérotés>> - la plupart de ces
-paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.
+   utilisés pour conserver les paramètres actuels passés à un sous-programme.
+ . <<sub:numbered-parameters,paramètres numérotés>> - la plupart de ces
+   paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.
  . <<sec:Predefined-Named-Parameters, paramètres nommés prédéfinis>> - utilisés pour 
-déterminer l'état de l'interpréteur et de la machine, par exemple '#<_relative>'
-retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
+   déterminer l'état de l'interpréteur et de la machine, par exemple '#<_relative>'
+   retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
 
-[[sec:Parametres-Numerotes]]
-== Paramètres numérotés
-(((Paramètres numérotés)))
+[[sub:numbered-parameters]]
+== Paramètres numérotés(((Paramètres numérotés)))
 
 Un paramètre numéroté commence par le caractère '#' suivi par un
 entier compris entre 1 et (actuellement) 5602. Le paramètre est

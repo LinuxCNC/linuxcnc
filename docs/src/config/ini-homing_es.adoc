@@ -3,18 +3,18 @@
 
 [[cha:homing-configuration]]
 
-﻿= Configuracion de Homing
+= Configuracion de Homing
 
 == Descripción general
 
-Homing establece el origen cero de las coordenadas máquina G53. +
-Los límites soft se definen en relación con el origen de la máquina. +
-Los límites soft automáticamente desaceleran y detienen los ejes antes de que toquen los interruptores de límites. +
-Una máquina configurada y funcionando correctamente no se moverá más allá de los límites soft (software) y +
-tendrá el origen de la máquina configurado tan repetible como lo permita el mecanismo switch/index de home. +
-Linuxcnc se puede hacer home a ojo (marcas de alineación), con interruptores, con interruptores e índice de codificador, o utilizando codificadores absolutos. +
+Homing establece el origen cero de las coordenadas máquina G53.
+Los límites soft se definen en relación con el origen de la máquina.
+Los límites soft automáticamente desaceleran y detienen los ejes antes de que toquen los interruptores de límites.
+Una máquina configurada y funcionando correctamente no se moverá más allá de los límites soft (software) y
+tendrá el origen de la máquina configurado tan repetible como lo permita el mecanismo switch/index de home.
+Linuxcnc se puede hacer home a ojo (marcas de alineación), con interruptores, con interruptores e índice de codificador, o utilizando codificadores absolutos.
 El recorrido de homing parece bastante simple: simplemente mueve cada articulación a una ubicación conocida,
-y establece las variables internas de LinuxCNC en consecuencia. +
+y establece las variables internas de LinuxCNC en consecuencia.
 Sin embargo, diferentes máquinas tienen diferentes requisitos, y el recorrido de homing es realmente bastante
 complicado.
 
@@ -23,30 +23,31 @@ Si bien es posible usar linuxcnc sin interruptores, procedimientos de homing o i
 la seguridad adicional de los límites soft no es suficiente.
 
 == Prerrequisitos
-Homing se basa en algunos supuestos fundamentales de la máquina. +
+Homing se basa en algunos supuestos fundamentales de la máquina.
 
-* Las direcciones negativa y positiva se basan en  <<sec:Machine-Configurations,Movimientos de la herramienta>> que puede ser diferentes +
-del movimiento real de la máquina. Es decir, en una fresadora, la mesa se mueve en lugar de la herramienta.
-* Todo está referenciado desde el origen G53, cero de la máquina. El origen puede estar en cualquier lugar (incluso fuera de donde puede moverse) +
-* El origen cero de la máquina G53 está típicamente dentro del área de límites soft, pero no necesariamente. +
-* El offset del interruptor home establece dónde está el origen, pero incluso esto se referencia desde el origen. +
-* Los límites soft negativos son lo máximo que puede mover en la dirección negativa después de homing. +
-(pero pueden no ser negativos en sentido absoluto) +
-* Los límites soft positivos son lo máximo que puede mover en la dirección positiva después de homing. +
-(pero podrían no ser positivos en sentido absoluto, aunque es habitual establecerlo como un número positivo) +
-* Los límites software están dentro del área de interruptores de límite. +
-* (Si se utiliza homing basado en conmutadores), los conmutadores de homing utilizan los interruptores de límite (interruptor de home/límite compartido), +
+* Las direcciones negativa y positiva se basan en  <<sec:machine-configurations,Movimientos de la herramienta>> que puede ser diferentes
+  del movimiento real de la máquina. Es decir, en una fresadora, la mesa se mueve en lugar de la herramienta.
+* Todo está referenciado desde el origen G53, cero de la máquina. El origen puede estar en cualquier lugar (incluso fuera de donde puede moverse)
+* El origen cero de la máquina G53 está típicamente dentro del área de límites soft, pero no necesariamente.
+* El offset del interruptor home establece dónde está el origen, pero incluso esto se referencia desde el origen.
+* Los límites soft negativos son lo máximo que puede mover en la dirección negativa después de homing.
+  (pero pueden no ser negativos en sentido absoluto)
+* Los límites soft positivos son lo máximo que puede mover en la dirección positiva después de homing.
+  (pero podrían no ser positivos en sentido absoluto, aunque es habitual establecerlo como un número positivo)
+* Los límites software están dentro del área de interruptores de límite.
+* (Si se utiliza homing basado en conmutadores), los conmutadores de homing utilizan
+  los interruptores de límite (interruptor de home/límite compartido),
 o cuando se usa un interruptor home separado, están dentro del área de interruptores de límite.
-* Si usa un interruptor home independiente, es posible comenzar a buscar en el lado equivocado del interruptor, +
-lo que combinado con la opción HOME_IGNORE_LIMITS, provocará un bloqueo grave. +
-Puede evitar esto haciendo que el interruptor home cambie su estado cuando el disparador está en un lado en particular hasta que vuelva a pasar el punto nuevamente. +
-Dicho de otra manera, el estado del interruptor home debe representar la posición del disparador con respecto al interruptor (es decir, antes o después del interruptor), +
+* Si usa un interruptor home independiente, es posible comenzar a buscar en el lado equivocado del interruptor,
+lo que combinado con la opción HOME_IGNORE_LIMITS, provocará un bloqueo grave.
+Puede evitar esto haciendo que el interruptor home cambie su estado cuando el disparador está en un lado en particular hasta que vuelva a pasar el punto nuevamente.
+Dicho de otra manera, el estado del interruptor home debe representar la posición del disparador con respecto al interruptor (es decir, antes o después del interruptor),
 y debe permanecer así incluso si el disparador pasa por el interruptor en la misma dirección.
 
 
 == Ejemplo de Diseño de interruptor home separado
 
-Este ejemplo muestra los interruptores de límite mínimo y máximo con un interruptor home separado. +
+Este ejemplo muestra los interruptores de límite mínimo y máximo con un interruptor home separado.
 
 .Diseño de demostrativo interruptor separado
 
@@ -67,13 +68,13 @@ image::images/HomeAxisTravel_V2.png[align="center", alt="Ejemplo de diseño de c
 * Tenga en cuenta que hay una distancia entre los interruptores de límite y el contacto físico real para la inercia después de que el amplificador esté desactivado.
 
 [NOTE]
-Homing establece el sistema de coordenadas G53, mientras que el origen de la máquina (punto cero) puede estar en cualquier lugar. +
-Establecer el punto cero en el límite soft negativo hace que todas las coordenadas G53 sean positivas, +
+Homing establece el sistema de coordenadas G53, mientras que el origen de la máquina (punto cero) puede estar en cualquier lugar.
+Establecer el punto cero en el límite soft negativo hace que todas las coordenadas G53 sean positivas,
 lo cual es probablemente más fácil de recordar. Haga esto configurando MIN_LIMIT = 0 y asegúrese de que MAX_LIMIT sea positivo.
 
 == Ejemplo de Diseño de Límite/Home compartido
 
-Este ejemplo muestra un interruptor de límite máximo y un interruptor combinado de límite mínimo/home. +
+Este ejemplo muestra un interruptor de límite máximo y un interruptor combinado de límite mínimo/home.
 
 .Diseño demostrativo de conmutador compartido
 
@@ -205,9 +206,9 @@ Aplicable solo si HOME_USE_INDEX = YES.
 
 === HOME_OFFSET (((HOME OFFSET)))
 
-Esto define la ubicación del punto cero de origen del sistema de coordenadas G53 de la máquina. +
+Esto define la ubicación del punto cero de origen del sistema de coordenadas G53 de la máquina.
 Es la distancia (offset), en unidades articulares, desde el origen de la máquina hasta el punto de disparo
-del interruptor home o pulso índice. +
+del interruptor home o pulso índice.
 Después de detectar el punto de disparo del interruptor/pulso de índice, LinuxCNC establece la posición de la coordenada 
 a HOME_OFFSET, definiendo así el origen, desde el cual el soft limita las referencias.
 El valor por defecto es cero.
@@ -259,11 +260,11 @@ HOME_ABSOLUTE_ENCODER = 2 Codificador absoluto, NO movimiento final a [JOINT_n]H
 
 [NOTE]
 Una configuración HOME_IS_SHARED se ignora.
+
 [NOTE]
 Una solicitud para volver a colocar la articulación se ignora.
 
-[[sec:homing-section]](((SECUENCIA HOME)))
-
+[[sec:homing-section]]
 === HOME_SEQUENCE (((SECUENCIA HOME)))
 
 Se usa para definir una secuencia homing múltiple *HOME ALL* y aplicar un

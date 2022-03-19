@@ -238,14 +238,11 @@ les autres décalages.
 Ce jeu de commandes inclus:
 
 * G92 - Cette commande, utilisée avec des mots d'axes, fixe les valeurs des
-variables de décalage.
-
+  variables de décalage.
 * G92.1 - Cette commande met à zéro les valeurs des variables de G92.
-
 * G92.2 - Cette commande suspend, sans les mettre à zéro, les variables de G92.
-
 * G92.3 - Cette commande applique les valeurs de décalage qui ont
-été suspendues.
+  été suspendues.
 
 L'utilisateur doit bien comprendre le fonctionnement des valeurs de
 G92. Pour faire en sorte que le point actuel ait les coordonnées X0, Y0 et Z0
@@ -271,10 +268,10 @@ un G92.2 à la fin de leur utilisation.
 
 Il y a au moins deux façons d'établir les valeurs de G92.
 
-* Par un clic droit de la souris sur les afficheurs de position de
+ * Par un clic droit de la souris sur les afficheurs de position de
    tklinuxcnc, une fenêtre s'ouvre dans laquelle il est possible de saisir une
    valeur. 
-* Par la commande G92.
+ * Par la commande G92.
 
 Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe
 auquel le déplacement doit être appliqué.
@@ -294,6 +291,7 @@ fixera un décalage de -2.0000, de sorte que l'emplacement actuel de X
 devienne X=0.000. Un nouveau 'G92 X5.000' fixera un décalage de 3.000
 et l'affichage indiquera une position courante X=5.000.
 
+[[sec:g92-persistence-cautions]]
 === Précautions avec G92 
 
 Parfois, les valeurs de décalage d'un G92 restent bloquées dans le

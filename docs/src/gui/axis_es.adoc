@@ -354,7 +354,7 @@ en la barra de estado. Si la posición es 'Máquina actual', entonces
 el número mostrado está en el sistema de coordenadas de la máquina. Si se muestra
 'Relative Actual', entonces el número mostrado está en la coordenada del sistema con desplazamiento.
 Cuando las coordenadas mostradas son relativas y se ha establecido un desplazamiento,
-la pantalla incluirá un marcador <<sec.machine-coordinate-system,'origen de máquina'>> 
+la pantalla incluirá un marcador <<sec:machine-coordinate-system,'origen de máquina'>> 
 image:images/axis-machineorigin.png["Origen maquina cian"] cian.
 
 Si la posición es 'Comandada', entonces la coordenada exacta dada en un comando de código G

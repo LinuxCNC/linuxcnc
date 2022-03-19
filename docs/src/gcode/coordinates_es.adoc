@@ -12,7 +12,7 @@ Este capítulo describe los offsets tal como los utiliza LinuxCNC.
 * Nueve offsets del Sistema de Coordenadas (G54-G59.3)
 * Offsets globales (G92) y locales (G52)
 
-[[sec.machine-coordinate-system]]
+[[sec:machine-coordinate-system]]
 == Sistema de Coordenadas de la Máquina
 
 Cuando se inicia LinuxCNC, las posiciones de cada eje definen el origen de la máquina. Cuando
