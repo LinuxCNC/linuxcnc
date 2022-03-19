@@ -480,7 +480,7 @@ Une invocation récursive d'un sous-programme introduit un nouveau niveau d'appe
 == M71 Invalidation de l'état modal enregistré(((M71 Invalidate Stored Modal State)))
 
 <<saved_state_by_M70,L'état modal enregistré par 'M70'>> ou par
-<<mcode:m73-Save-Autorestore-Modal-State, 'M73'>> au niveau de l'appel courant est
+<<mcode:m73,'M73'>> au niveau de l'appel courant est
 invalidé (ne peut plus être restauré nulle part).
 
 Un appel ultérieur à 'M72' sur le même niveau d'appel, échouera.

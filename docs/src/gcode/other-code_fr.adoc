@@ -42,7 +42,7 @@ si le potentiomètre de correction de vitesse travail est sur 100%.
 Pour sélectionner un outil, programmer 'T-', où la valeur de 'T'
 correspond au numéro de la poche d'outil dans le carrousel. L'outil ne sera
 appelé et changé que quand un 'M6' sera programmé voir la section
-<<sec:M6-Appel-Outil, sur l'appel d'outil>>. Le mot 'T' peut apparaitre sur la
+<<mcode:m6,sur l'appel d'outil>>. Le mot 'T' peut apparaitre sur la
 même ligne que le 'M6' ou sur une ligne précédente. Il est permis, mais
 normalement inutile, qu'un mot T apparaisse à plus de deux lignes avant,
 sans changement d'outil. Le carrousel peut bouger, seulement le plus récent mot

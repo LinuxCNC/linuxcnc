@@ -67,7 +67,7 @@ chose.
 |<<gcode:g10-l11,G10 L11>>         | Fixe les valeurs de l'outil dans la table d'outils
 |<<gcode:g10-l2,G10 L2>>           | Fixe l'origine d'un système de coordonnées
 |<<gcode:g10-l20,G10 L20>>         | Fixe l'origine du système de coord. aux valeurs calculées
-|<<gcode:g17-g19,G18 G19>>         | Choix du plan de travail
+|<<gcode:g17-g19.1,G17 G18 G19>>   | Choix du plan de travail
 |<<gcode:g20-g21,G20 G21>>         | Unités machine
 |<<gcode:g28-g28.1,G28 G28.1>>     | Aller à une position prédéfinie
 |<<gcode:g30-g30.1,G30 G30.1>>     | Aller à une position prédéfinie
@@ -99,9 +99,9 @@ chose.
 |<<gcode:g90-g91,G90>>             | Types de déplacement
 |<<gcode:g90.1-g91.1,G90.1 G91.1>> | Arc I,J,K, centre absolu ou relatif
 |<<gcode:g92,G92>>                 | Décalages d'origines avec mise à jour des paramètres
-|<<gcode:g92.1-G92.2,G92.1 G92.2>> | Révocation des décalages d'origine
+|<<gcode:g92.1-g92.2,G92.1 G92.2>> | Révocation des décalages d'origine
 |<<gcode:g92.3,G92.3>>             | Applique contenu des paramètres aux déc. d'origine
-|<<gcode:g93-g94,G93>>             | Modes de vitesse
+|<<gcode:g93-g95,G93>>             | Modes de vitesse
 |<<gcode:g96-g97,G96>>             | Vitesse de coupe constante (IPM ou m/mn)
 |<<gcode:g96-g97,G97>>             | Vitesse en tours par minute
 |<<gcode:g98-g99,G98>>             | Options de retrait des cycles de perçage
@@ -288,7 +288,7 @@ Aucun mots d'axe mais tous les décalages doivent être programmés pour un
 cercle complet. Le mot 'P', par défaut à 1, est facultatif.
 
 Pour d'avantage d'information sur les arcs en mode absolu, voir la
-<<gcode:g90_1-G91_1,section G90.1>>.
+<<gcode:g90.1-G91.1,section G90.1>>.
 
 .Plan XY (G17)
 ----
@@ -1783,8 +1783,7 @@ ce G80, il ne serait pas aussi évident que tous les blocs compris entre N120 et
 N200 appartiennent au cycle de perçage.
 
 [[gcode:g81]]
-== G81 Cycle de perçage
-(((G81 Cycle de perçage)))
+== G81 Cycle de perçage(((G81 Cycle de perçage)))
 
 ----
 G81 (X- Y- Z- ) ou (U- V- W- ) R- L-
@@ -1792,16 +1791,15 @@ G81 (X- Y- Z- ) ou (U- V- W- ) R- L-
 
 Le cycle 'G81' est destiné au perçage.
 
-. Un mouvement préliminaire, comme décrit <<sec:Mouvement-Preliminaire,
-sur cette page>>.
-. Un déplacement de l'axe Z seul à la vitesse programmée, vers la
-   position Z programmée.
- . Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
+. Un mouvement préliminaire, comme décrit <<sec:Mouvement-Preliminaire,sur cette page>>.
+. Un déplacement de l'axe Z seul à la vitesse programmée, vers la position Z programmée.
+. Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 
-.Exemple 1: G81 en position absolue[[gcode:g81]]
+.Exemple 1: G81 en position absolute
 
 Supposons que la position courante soit, X1, Y2, Z3 dans
 le plan XY, la ligne de code suivante est interprétée:
+
 ----
 G90 G81 G98 X4 Y5 Z1.5 R2.8
 ----
