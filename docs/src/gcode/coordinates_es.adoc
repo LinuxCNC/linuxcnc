@@ -3,7 +3,6 @@
 = Sistemas de coordenadas
 
 [[cha:coordinate-system]]
-
 == Introducción
 
 Este capítulo describe los offsets tal como los utiliza LinuxCNC.
@@ -14,7 +13,6 @@ Este capítulo describe los offsets tal como los utiliza LinuxCNC.
 * Offsets globales (G92) y locales (G52)
 
 [[sec.machine-coordinate-system]]
-
 == Sistema de Coordenadas de la Máquina
 
 Cuando se inicia LinuxCNC, las posiciones de cada eje definen el origen de la máquina. Cuando
@@ -129,9 +127,11 @@ El comando G10 L2x se puede usar para establecer los offsets del sistema de coor
 * 'G10 L20 P (1-9)' - Establece los offsets de modo que la posición actual se convierte en un valor.
                          (vea <<gcode:g10-l20,G10 L20>> para más detalles)
 
-== Offsets Locales y Globales [[sec:g52-and-g92-offsets]]
+[[sec:g52-and-g92-offsets]]
+== Offsets Locales y Globales
 
-=== El comando G52 [[sec:g52]]
+[[sec:g52]]
+=== El comando G52
 
 'G52' se usa en un programa de pieza como un "Offset temporal del sistema de coordenadas local"
 dentro del sistema de coordenadas de la pieza de trabajo. Un ejemplo de uso
@@ -166,7 +166,8 @@ no puesto a cero explícitamente retendrá el offset anterior.
 'G52' comparte los mismos registros que 'G92' y, por lo tanto,
 'G52' es visible en el DRO y vista previa etiquetado como 'G92'.
 
-=== Los Comandos G92[[sec:g92-commands]]
+[[sec:g92-commands]]
+=== Los Comandos G92
 
 'G92' se usa típicamente de dos maneras conceptualmente diferentes; como un
 "offset del sistema de coordenadas global" o como un "offset del sistema de coordenadas local". 
@@ -248,7 +249,8 @@ cero. Un 'G92 X2' establecerá un offset de 0.0000 y la posición mostrada
 no cambiará. Un 'G92 X5.0000' establecerá un offset de 3.0000 para que
 la posición actual visualizada se convierte en 5.0000.
 
-=== Precauciones de Persistencia G92 [[sec:g92-persistence-cautions]]
+[[sec:g92-persistence-cautions]]
+=== Precauciones de Persistencia G92
 
 Por defecto, los valores de un desplazamiento 'G92' se guardarán en el archivo VAR
 y se restaurará después de un inicio o reinicio de la máquina.
@@ -295,7 +297,8 @@ espera. Además, la persistencia 'G92' puede deshabilitarse configurando
 'DISABLE_G92_PERSISTENCE = 1' en la sección '[RS274NGC]' del
 archivo '.ini'.
 
-=== Precauciones de Interacción G92 y G52 [[sec:g92-g52-animation-cautions]]
+[[sec:g92-g52-animation-cautions]]
+=== Precauciones de Interacción G92 y G52
 
 'G52' y 'G92' comparten los mismos registros de desplazamiento. A menos que 
 la persistencia 'G92' está deshabilitada en el archivo '.ini' (vea <<sec:g92-commands,Comandos G92>>), 

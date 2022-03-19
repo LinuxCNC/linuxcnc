@@ -20,8 +20,9 @@ par LinuxCNC:
 
 * Les coordonnées machine.(G53)
 * Les neuf décalages d'origine pièce.(G54 à G59.3)
-* Un jeu de décalages globaux.(G92)
+* Un jeu de décalages globaux (G92) and local offsets (G52)
 
+[[sec:machine-coordinate-system]]
 == Commande en coordonnées machine: G53 
 
 Indépendamment de tout décalage pouvant être actif, un G53 dans une ligne de
@@ -171,7 +172,58 @@ reste inchangée.
 courante devienne la position donnée en paramètre.
     (Voir la section <<gcode:g10-l20,G10 L20>> pour les détails)
 
-[[gcode:g92]]
+[[sec:g52-and-g92-offsets]]
+== Local and Global Offsets
+
+[[sec:g52]]
+=== The G52 command
+
+'G52' is used in a part program as a temporary "local coordinate
+system offset" within the workpiece coordinate system.  An example use
+case is when machining several identical features at different
+locations on a part.  For each feature, 'G52' programs a local
+reference point within workpiece coordinates, and a subprogram is
+called to machine the feature relative to that point.
+
+'G52' axis offsets are programmed relative to workpiece coordinate
+offsets 'G54' through 'G59.3'.  As a local offset, 'G52' is applied
+after the workpiece offset, including rotation.  Thus, a part feature
+will be machined identically on each part regardless of the part's
+orientation on the pallet.
+
+[CAUTION]
+
+As a temporary offset, set and unset within the localized scope of a
+part program, in other G-code interpreters 'G52' does not persist
+after machine reset, 'M02' or 'M30'.  In LinuxCNC, 'G52' shares
+parameters with 'G92', which, for historical reasons, *does* persist
+these parameters.
+See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
+
+[CAUTION]
+----
+'G52' and 'G92' share the same offset registers.  Therefore, setting
+'G52' will override any earlier 'G92' setting, and 'G52' will persist
+across machine reset when 'G92' persistence is enabled.  These
+interactions may result in unexpected offsets.
+See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
+----
+
+Programming 'G52 X1 Y2' offsets the current workpiece coordinate
+system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
+current tool position's X and Y coordinates will be reduced by 1 and
+2, respectively.  Axes unset in the command, such as Z in the previous
+example, will be unaffected: any previous 'G52' Z offset will remain
+in effect, and otherwise the Z offset will be zero.
+
+The temporary local offset may be canceled with 'G52 X0 Y0'.  Any axes
+not explicitly zeroed will retain the previous offset.
+
+'G52' shares the same offset registers as 'G92', and thus
+'G52' is visible on the DRO and preview labeled with 'G92'.
+
+
+[[sec:g92-commands]]
 == Décalages d'axes G92
 
 G92 est la plus incomprise et la plus maligne des commandes

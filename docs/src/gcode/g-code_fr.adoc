@@ -58,8 +58,7 @@ chose.
 |<<gcode:g4,G4>>                   | Temporisation
 |<<gcode:g5,G5>>                   | Spline cubique
 |<<gcode:g5.1,G5.1>>               | B-Spline quadratique
-|<<gcode:g52,G5.2>>                | NURBS, ajout point de contrôle
-|<<gcode:g5.2-g5.3,G5.3>>          | NURBS, exécute
+|<<gcode:g5.2-g5.3,G5.2 G5.3>>     | NURBS, ajout point de contrôle 
 |<<gcode:g7,G7>>                   | Mode diamètre (sur les tours)
 |<<gcode:g8,G8>>                   | Mode rayon (sur les tours)
 |<<gcode:g10-l1,G10 L1>>           | Ajuste les valeurs de l'outil en table d'outils
@@ -80,6 +79,7 @@ chose.
 |<<gcode:g43,G43>>                 | Compensation de longueur d'outil d'après une table d'outils
 |<<gcode:g43.1,G43.1>>             | Compensation dynamique de longueur d'outil
 |<<gcode:g49,G49>>                 | Révocation de la compensation de longueur d'outil
+|<<gcode:g52,G52>>                 | Offset du systéme de coordonnenées
 |<<gcode:g53,G53>>                 | Déplacements en coordonnées machine (Absolues)
 |<<gcode:g54-g59.3,G54 à G59.3>>   | Choix du système de coordonnées (1 à 9)
 |<<gcode:g61-g61.1,G61 G61.1>>     | Mode trajectoire exacte/mode arrêts exacts
@@ -288,7 +288,7 @@ Aucun mots d'axe mais tous les décalages doivent être programmés pour un
 cercle complet. Le mot 'P', par défaut à 1, est facultatif.
 
 Pour d'avantage d'information sur les arcs en mode absolu, voir la
-<<gcode:g90.1-G91.1,section G90.1>>.
+<<gcode:g90.1-g91.1,section G90.1>>.
 
 .Plan XY (G17)
 ----
@@ -1306,6 +1306,18 @@ Ce n'est pas une erreur de programmer une compensation qui est déjà
 utilisée. Ce n'est pas non plus une erreur de révoquer une compensation de
 longueur d'outil alors qu'aucune n'est couramment utilisée.
 
+[[gcode:g52]]
+== G52 Local Coordinate System Offset(((Local Offsets)))
+
+----
+G52 axes
+----
+
+G52 is used in a part program as a temporary "local coordinate system offset"
+within the workpiece coordinate system. More information on G52 is in the
+<<sec:g52,Local and Global Offsets>> section.
+
+
 [[gcode:g53]]
 == G53 Mouvement en coordonnées absolues(((G53 Mouvement en coordonnées absolues)))
 
@@ -2166,6 +2178,67 @@ Voir la section sur les <<gcode:g92,décalages G92>>.
 
 Voir la section sur les <<sec:overview-parameters,paramètres>>.
 
+[[gcode:g92]]
+
+== G92 Coordinate System Offset(((G92 Coordinate System Offset)))
+
+----
+G92 axes
+----
+
+[WARNING]
+Only use 'G92' after your machine has been positioned to the desired point.
+
+'G92' makes the current point have the coordinates you want (without
+motion), where the axis words contain the axis numbers you want.
+All axis words are optional, except that at least one must be used.
+If an axis word is not used for a given axis, the offset for that axis
+will be zero.
+
+When 'G92' is executed, the <<sec.machine-coordinate-system,origins>>
+of all coordinate systems move. They move such that the value of the
+current controlled point, in the currently active coordinate system,
+becomes the specified value. All of the coordinate system's origins
+(G53-G59.3) are offset this same distance.
+
+'G92' uses the values stored in <<sub:numbered-parameters,parameters>>
+5211-5219 as the X Y Z A B C U V W offset values for each axis.
+The parameter values are 'absolute' machine coordinates
+in the native machine 'units' as specified in the ini file.
+All axes defined in the ini file will be offset when G92 is active.
+If an axis was not entered following the G92, that axis' offset
+will be zero.
+
+For example, suppose the current point is at X=4 and there is
+currently no 'G92' offset active. Then 'G92 X7' is programmed. This
+moves all origins -3 in X, which causes the
+current point to become X=7. This -3 is saved in parameter 5211.
+
+Being in incremental distance mode (G91 instead of G90) has no effect
+on the action of 'G92'.
+
+'G92' offsets may be already be in effect when the 'G92' is called.
+If this is the case, the offset is replaced with a new
+offset that makes the current point become the specified value.
+
+It is an error if:
+
+* all axis words are omitted.
+
+LinuxCNC stores the G92 offsets and reuses them on the next run of a
+program. To prevent this, one can program a G92.1 (to erase them), or
+program a G92.2 (to remove them - they are still stored).
+
+[NOTE]
+The 'G52' command can also be used to change this offset; see the
+<<sec:g52-and-g92-offsets,Offsets>> Section for more details about
+'G92' and 'G52' and how they interact.
+
+See the <<cha:coordinate-system,Coordinate System>> Section for an
+overview of coordinate systems.
+
+See the <<gcode:parameters,Parameters>> Section for more information.
+
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Remise à zéro des décalages des systèmes de coordonnées
 
@@ -2173,11 +2246,14 @@ Voir la section sur les <<sec:overview-parameters,paramètres>>.
 * 'G92.2' - Positionne les décalages d'axes à 0, laisse les valeurs des
   paramètres inchangées, elles ne seront pas utilisées.
 
+[NOTE]
+G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
+in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
+
 [[gcode:g92.3]]
 == G92.3 Restauration des décalages d'axe
 
-* 'G92.3' - Positionne les décalages d'axes aux valeurs enregistrées dans
-les paramètres 5211 à 5219.
+* 'G92.3' - Positionne les décalages d'axes aux valeurs enregistrées dans les paramètres 5211 à 5219.
 
 Il est possible de positionner les décalages d'axes dans un programme puis de
 ré-utiliser les mêmes dans un autre programme. Pour cela, programmer 'G92' dans
