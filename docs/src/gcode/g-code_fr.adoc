@@ -1795,8 +1795,8 @@ Le cycle 'G81' est destiné au perçage.
 . Un déplacement de l'axe Z seul à la vitesse programmée, vers la position Z programmée.
 . Retrait de l'axe Z en vitesse rapide jusqu'au plan de retrait R.
 
+[[gcode:g81-example]]
 .Exemple 1: G81 en position absolute
-
 Supposons que la position courante soit, X1, Y2, Z3 dans
 le plan XY, la ligne de code suivante est interprétée:
 

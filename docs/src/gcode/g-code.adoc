@@ -2030,8 +2030,8 @@ The 'G81' cycle is intended for drilling.
 
 The cycle functions as follows:
 
- . Preliminary motion, as described in the
-   <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
+. Preliminary motion, as described in the
+  <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
 
 . Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> to the Z
   position.
@@ -2040,7 +2040,6 @@ The cycle functions as follows:
 
 [[gcode:g81-example]]
 .Example 1 - Absolute Position G81
-
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
 
@@ -2063,11 +2062,8 @@ The R value and clear Z are 2.8. OLD_Z is 3.
 The following moves take place:
 
 . a <<gcode:g0,rapid move>> parallel to the XY plane to (X4, Y5)
-
 . a rapid move move parallel to the Z-axis to (Z2.8).
-
 . move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to (Z1.5)
-
 . a rapid move parallel to the Z-axis to (Z3)
 
 image::images/g81ex1_en.svg[align="center"]
