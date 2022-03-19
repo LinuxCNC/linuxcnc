@@ -979,7 +979,11 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
             btn.show()
 
-        btn = Gtk.Button.new_with_label(_("    set\nselected"))
+        lbl = Gtk.Label.new(_("set\nselected"))
+        lbl.set_visible(True)
+        lbl.set_justify(Gtk.Justification.CENTER)
+        btn = Gtk.Button.new()
+        btn.add(lbl)
         btn.connect("clicked", self._on_btn_set_selected_clicked)
         btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
         btn.set_property("name", "set_active")
