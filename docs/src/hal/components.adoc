@@ -1,3 +1,4 @@
+:lang: en
 [[cha:hal-components]]
 :tab_options: cols="15s,85,0,0", frame="none", grid="none"
 
@@ -21,12 +22,12 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 
 [{tab_options}]
 |=======================
-| link:../man/man1/axis.1.html[axis] | AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface. ||
-| link:../man/man1/axis-remote.1.html[axis-remote] | AXIS Remote Interface. ||
-| link:../man/man1/gladevcp.1.html[gladevcp] | Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets. ||
-| link:../man/man1/gladevcp.1.html[gladevcp] | Displays Virtual Control Panels built with GTK/Glade. ||
-| link:../man/man1/halui.1.html[halui] | Observe HAL pins and command LinuxCNC through NML. ||
-| link:../man/man1/pyvcp.1.html[pyvcp] | Virtual Control Panel for LinuxCNC. ||
+| axis | AXIS LinuxCNC (The Enhanced Machine Controller) Graphical User Interface. ||
+| axis-remote | AXIS Remote Interface. ||
+| gladevcp | Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets. ||
+| gladevcp | Displays Virtual Control Panels built with GTK/Glade. ||
+| halui | Observe HAL pins and command LinuxCNC through NML. ||
+| pyvcp | Virtual Control Panel for LinuxCNC. ||
 
 |=======================
 
@@ -34,34 +35,34 @@ man axis (or perhaps 'man 1 axis' if your system requires it.)
 
 [{tab_options}]
 |=======================
-| link:../man/man1/mb2hal.1.html[mb2hal] | MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices. Modbus RTU and Modbus TCP is supported.||
+| gs2 | HAL userspace component for Automation Direct GS2 VFD's. ||
+| mb2hal | ||
 |=======================
 
 === Diagnostic and Configuration Tools
 
 [{tab_options}]
 |=======================
-| link:../man/man1/halmeter.1.html[halmeter] | Observe HAL pins, signals, and parameters. ||
-| link:../man/man1/halshow.1.html[halshow]  | Show HAL parameters, pins and signals ||
-| link:../man/man1/halscope.1.html[halscope] | Software oscilloscope for viewing real time waveforms of HAL pins and signals ||
+| halmeter | Observe HAL pins, signals, and parameters. ||
+| halshow |||
+| halscope |||
 |=======================
 
 === Other
 
 [{tab_options}]
 |=======================
-| link:../man/man1/halcmd.1.html[halcmd] | Manipulate the Enhanced Machine Controller HAL from the command line. ||
-| link:../man/man1/hal_input.1.html[hal_input] | Control HAL pins with any Linux input device, including USB HID devices. ||
-| link:../man/man1/halrun.1.html[halrun] | Manipulate the Enhanced Machine Controller HAL from the command line. ||
-| link:../man/man1/halsampler.1.html[halsampler] | Sample data from HAL in realtime. ||
-| link:../man/man1/halstreamer.1.html[halstreamer] | Stream file data into HAL in real time. ||
-| link:../man/man1/io.1.html[io] | Accepts NML I/O commands, interacts with HAL in userspace. ||
-| link:../man/man1/iocontrol.1.html[iocontrol] | Accepts NML I/O commands, interacts with HAL in userspace. ||
-| link:../man/man1/linuxcnc.1.html[linuxcnc] | LinuxCNC (The Enhanced Machine Controller). ||
-| link:../man/man1/shuttle.1.html[shuttle] | control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design. ||
+| comp | Build, compile and install LinuxCNC HAL components. ||
+| halcmd | Manipulate the Enhanced Machine Controller HAL from the command line. ||
+| hal_input | Control HAL pins with any Linux input device, including USB HID devices. ||
+| halrun | Manipulate the Enhanced Machine Controller HAL from the command line. ||
+| halsampler | Sample data from HAL in realtime. ||
+| halstreamer | Stream file data into HAL in real time. ||
+| io | Accepts NML I/O commands, interacts with HAL in userspace. ||
+| iocontrol | Accepts NML I/O commands, interacts with HAL in userspace. ||
+| linuxcnc | LinuxCNC (The Enhanced Machine Controller). ||
+| shuttle | control HAL pins with the ShuttleXpress and ShuttlePRO devices made by Contour Design. ||
 |=======================
-
-include::components_gen1.adoc[]
 
 [[sec:realtime-components]]
 
@@ -82,22 +83,35 @@ See also the 'Man Pages' section of the link:../index.html[docs main page] or th
 link:../man/man9/[directory listing of man9].
 
 === Logic and Bitwise components
-
-[cols="15s,85,0,0", frame="none", grid="none"]
+[{tab_options}]
 |=======================
 | link:../man/man9/and2.9.html[and2] | Two-input AND gate. For out to be true both inputs must be true. (link:../man/man9/and2.9.html[and2]) ||
-| link:../man/man9/not.9.html[not]  | Inverter ||
-| link:../man/man9/or2.9.html[or2]  | Two-input OR gate ||
-| link:../man/man9/xor2.9.html[xor2] | Two-input XOR (exclusive OR) gate ||
+| link:../man/man9/bitwise.9.html[bitwise] |Computes various bitwise operations on the two input values||
 | link:../man/man9/dbounce.9.html[dbounce] | Filter noisy digital inputs. link:../man/man9/dbounce.9.html[Details].                                   | |
 | link:../man/man9/debounce.9.html[debounce] | Filter noisy digital inputs. link:../man/man9/debounce.9.html[Details]. <<sec:debounce, Description>>  | |
+| link:../man/man9/demux.9.html[demux] |Select one of several output pins by integer and/or or individual bits.||
 | link:../man/man9/edge.9.html[edge] | Edge detector. | |
+| link:../man/man9/estop_latch.9.html[estop_latch] | ESTOP latch. ||
 | link:../man/man9/flipflop.9.html[flipflop] | D type flip-flop. | |
-| link:../man/man9/oneshot.9.html[oneshot] | One-shot pulse generator. | |
 | link:../man/man9/logic.9.html[logic] | General logic function component. | |
 | link:../man/man9/lut5.9.html[lut5] | A 5-input logic function based on a look-up table. <<sec:lut5,Description>> | |
 | link:../man/man9/match8.9.html[match8] | 8-bit binary match detector. | |
+| link:../man/man9/multiclick.9.html[multiclick] |Single-, double-, triple-, and quadruple-click detector||
+| link:../man/man9/multiswitch.9.html[multiswitch] |This component toggles between a specified number of output bits||
+| link:../man/man9/mux_generic.9.html[mux_generic] |choose one from several input values||
+| link:../man/man9/not.9.html[not]  | Inverter ||
+| link:../man/man9/oneshot.9.html[oneshot] | One-shot pulse generator. | |
+| link:../man/man9/or2.9.html[or2]  | Two-input OR gate ||
 | link:../man/man9/select8.9.html[select8] | 8-bit binary match detector. | |
+| link:../man/man9/tof.9.html[tof] |IEC TOF timer - delay falling edge on a signal||
+| link:../man/man9/toggle.9.html[toggle] | Push-on, push-off from momentary pushbuttons. ||
+| link:../man/man9/toggle2nist.9.html[toggle2nist] | Toggle button to nist logic. ||
+| link:../man/man9/ton.9.html[ton] |IEC TON timer - delay rising edge on a signal||
+| link:../man/man9/tp.9.html[tp] |IEC TP timer - generate a high pulse of defined duration on rising edge||
+| link:../man/man9/tristate_bit.9.html[tristate_bit] | Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics. ||
+| link:../man/man9/tristate_float.9.html[tristate_float] | Place a signal on an I/O pin only when enabled, similar to a tristatebuffer in electronics. ||
+| link:../man/man9/xor2.9.html[xor2] | Two-input XOR (exclusive OR) gate ||
+| link:../man/man9/xhc_hb04_util.9.html[xhc_hb04_util] |xhc-hb04 convenience utility||
 |=======================
 
 
@@ -106,43 +120,45 @@ link:../man/man9/[directory listing of man9].
 
 [{tab_options}]
 |=======================
-| link:../man/man9/abs.9.html[abs] | Compute the absolute value and sign of the input signal.                                  | |
-| link:../man/man9/blend.9.html[blend] | Perform linear interpolation between two values. | |
-| link:../man/man9/comp.9.html[comp] | Two input comparator with hysteresis. | |
-| link:../man/man9/constant.9.html[constant] | Use a parameter to set the value of a pin. | |
-| link:../man/man9/sum2.9.html[sum2] | Sum of two inputs (each with a gain) and an offset. | |
-| link:../man/man9/counter.9.html[counter] | Counts input pulses (deprecated). Use the <<sec:encoder, encoder>> component.  | |
-| link:../man/man9/updown.9.html[updown] | Counts up or down, with optional limits and wraparound behavior. | |
-| link:../man/man9/ddt.9.html[ddt] | Compute the derivative of the input function. | |
-| link:../man/man9/deadzone.9.html[deadzone] | Return the center if within the threshold. | |
-| link:../man/man9/hypot.9.html[hypot] | Three-input hypotenuse (Euclidean distance) calculator. | |
-| link:../man/man9/mult2.9.html[mult2] | Product of two inputs. | |
-| link:../man/man9/mux16.9.html[mux16] | Select from one of sixteen input values. | |
-| link:../man/man9/mux2.9.html[mux2] | Select from one of two input values. | |
-| link:../man/man9/mux4.9.html[mux4] | Select from one of four input values. | |
-| link:../man/man9/mux8.9.html[mux8] | Select from one of eight input values. | |
-| link:../man/man9/near.9.html[near] | Determine whether two values are roughly equal. | |
-| link:../man/man9/offset.9.html[offset] | Adds an offset to an input, and subtracts it from the feedback value. | |
-| link:../man/man9/integ.9.html[integ] | Integrator. | |
-| link:../man/man9/invert.9.html[invert] | Compute the inverse of the input signal. | |
-| link:../man/man9/wcomp.9.html[wcomp] | Window comparator. | |
-| link:../man/man9/weighted_sum.9.html[weighted_sum] | Convert a group of bits to an integer. | |
-| link:../man/man9/biquad.9.html[biquad] | Biquad IIR filter | |
-| link:../man/man9/lowpass.9.html[lowpass] | Low-pass filter | |
-| link:../man/man9/limit1.9.html[limit1] | Limit the output signal to fall between min and max. footnote:[When the input is a position, this means that the 'position' is limited.] | |
-| link:../man/man9/limit2.9.html[limit2] | Limit the output signal to fall between min and max.  Limit its slew rate to less than maxv per second. 
+| abs | Compute the absolute value and sign of the input signal.                                  | |
+| blend | Perform linear interpolation between two values. | |
+| comp | Two input comparator with hysteresis. | |
+| constant | Use a parameter to set the value of a pin. | |
+| sum2 | Sum of two inputs (each with a gain) and an offset. | |
+| counter | Counts input pulses (deprecated). Use the <<sec:encoder, encoder>> component.  | |
+| updown | Counts up or down, with optional limits and wraparound behavior. | |
+| ddt | Compute the derivative of the input function. | |
+| deadzone | Return the center if within the threshold. | |
+| hypot | Three-input hypotenuse (Euclidean distance) calculator. | |
+| mult2 | Product of two inputs. | |
+| mux16 | Select from one of sixteen input values. | |
+| mux2 | Select from one of two input values. | |
+| mux4 | Select from one of four input values. | |
+| mux8 | Select from one of eight input values. | |
+| near | Determine whether two values are roughly equal. | |
+| offset | Adds an offset to an input, and subtracts it from the feedback value. | |
+| integ | Integrator. | |
+| invert | Compute the inverse of the input signal. | |
+| wcomp | Window comparator. | |
+| weighted_sum | Convert a group of bits to an integer. | |
+| biquad | Biquad IIR filter | |
+| lowpass | Low-pass filter | |
+| limit1 | Limit the output signal to fall between min and max. footnote:[When the input is a position, this means that the 'position' is limited.] | |
+| limit2 | Limit the output signal to fall between min and max.  Limit its slew rate to less than maxv per second. 
 footnote:[When the input is a position, this means that 'position' and 'velocity' are limited.]  | |
-| link:../man/man9/limit3.9.html[limit3] | Limit the output signal to fall between min and max. 
+| limit3 | Limit the output signal to fall between min and max. 
 Limit its slew rate to less than maxv per second. Limit its second derivative to less than MaxA per second squared. footnote:[When
  the input is a position, this means that the 'position', 'velocity', and 'acceleration' are limited.] | |
-| link:../man/man9/maj3.9.html[maj3] | Compute the majority of 3 inputs. | |
-| link:../man/man9/scale.9.html[scale] | Applies a scale and offset to its input. | |
+| maj3 | Compute the majority of 3 inputs. | |
+| scale | Applies a scale and offset to its input. | |
 |=======================
 
 === Type conversion
-
 [{tab_options}]
 |=======================
+| link:../man/man9/bin2gray.9.html[bin2gray] |Convert a number to the gray-code representation||
+| link:../man/man9/bitslice.9.html[bitslice] |Convert an unsigned-32 input into individual bits||
+| link:../man/man9/conv_bit_float.9.html[conv_bit_float] |Convert a value from bit to float||
 | link:../man/man9/conv_bit_s32.9.html[conv_bit_s32] | Convert a value from bit to s32.     ||
 | link:../man/man9/conv_bit_u32.9.html[conv_bit_u32] | Convert a value from bit to u32.     ||
 | link:../man/man9/conv_float_s32.9.html[conv_float_s32] | Convert a value from float to s32. ||
@@ -153,6 +169,7 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 | link:../man/man9/conv_u32_bit.9.html[conv_u32_bit] | Convert a value from u32 to bit.     ||
 | link:../man/man9/conv_u32_float.9.html[conv_u32_float] | Convert a value from u32 to float. ||
 | link:../man/man9/conv_u32_s32.9.html[conv_u32_s32] | Convert a value from u32 to s32.     ||
+| link:../man/man9/gray2bin.9.html[gray2bin] |Convert a gray-code input to binary||
 |=======================
 
 [[sec:Realtime-Components-pilotes]]
@@ -160,45 +177,34 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 
 [{tab_options}]
 |=======================
-| gs2 | HAL userspace component for Automation Direct GS2 VFD's. ||
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller. ||
-| link:../man/man9/hm2_7i43.9.html[hm2_7i43] | Mesa Electronics driver for the 7i43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
-| link:../man/man9/hm2_pci.9.html[hm2_pci] | Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68 Anything I/O boards, with HostMot2 firmware. (See the man page for more information) ||
-| link:../man/man9/hostmot2.9.html[hostmot2] | Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the HostMot2 firmware. ||
-| link:../man/man9/mesa_7i65.9.html[mesa_7i65] | Mesa Electronics driver for the 7i65 eight-axis servo card. (See the man page for more information) ||
+| hm2_7i43 | Mesa Electronics driver for the 7i43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
+| hm2_pci | Mesa Electronics driver for the 5i20, 5i22, 5i23, 4i65, and 4i68 Anything I/O boards, with HostMot2 firmware. (See the man page for more information) ||
+| hostmot2 | Mesa Electronics <<cha:mesa-hostmot2-driver,driver>> for the HostMot2 firmware. ||
+| mesa_7i65 | Mesa Electronics driver for the 7i65 eight-axis servo card. (See the man page for more information) ||
 | pluto_servo | Pluto-P <<cha:pluto-p-driver,driver>> and firmware for the parallel port FPGA, for servos. ||
 | pluto_step | Pluto-P <<cha:pluto-p-driver,driver>> for the parallel port FPGA, for steppers. ||
-| link:../man/man9/thc.9.html[thc] | Torch Height Control using a Mesa THC card or any analog to velocity input ||
-| link:../man/man9/serport.9.html[serport] | Hardware driver for the digital I/O bits of the 8250 and 16550 serial port. ||
+| thc | Torch Height Control using a Mesa THC card or any analog to velocity input ||
+| serport | Hardware driver for the digital I/O bits of the 8250 and 16550 serial port. ||
 |=======================
+
 
 [[sec:Realtime-Components-cinematiques]]
 === Kinematics
 
 [{tab_options}]
 |=======================
-| link:../man/man9/kins.9.html[kins] | kinematics definitions for LinuxCNC. ||
-| link:../man/man9/gantrykins.9.html[gantrykins] | A kinematics module that maps one axis to multiple joints. ||
-| link:../man/man9/genhexkins.9.html[genhexkins] | Gives six degrees of freedom in position and orientation (XYZABC). The location of the motors is defined at compile time. ||
-| link:../man/man9/genserkins.9.html[genserkins] | Kinematics that can model a general serial-link manipulator with up to 6 angular joints. ||
-| link:../man/man9/maxkins.9.html[maxkins] | Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and horizontal rotary mounted to the table (C axis).
+| kins | kinematics definitions for LinuxCNC. ||
+| gantrykins | A kinematics module that maps one axis to multiple joints. ||
+| genhexkins | Gives six degrees of freedom in position and orientation (XYZABC). The location of the motors is defined at compile time. ||
+| genserkins | Kinematics that can model a general serial-link manipulator with up to 6 angular joints. ||
+| maxkins | Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and horizontal rotary mounted to the table (C axis).
  Provides UVW motion in the rotated coordinate system. The source file, maxkins.c, may be a useful starting point for other 5-axis systems. ||
-| link:../man/man9/tripodkins.9.html[tripodkins] | The joints represent the distance of the controlled point from three predefined locations (the motors), giving three degrees of freedom in position (XYZ). ||
-| link:../man/man9/trivkins.9.html[trivkins] | There is a 1:1 correspondence between joints and axes. Most standard milling machines and lathes use the trivial kinematics module. ||
-| link:../man/man9/pumakins.9.html[pumakins] | Kinematics for PUMA-style robots. ||
-| link:../man/man9/rotatekins.9.html[rotatekins] | The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. ||
-| link:../man/man9/scarakins.9.html[scarakins] | Kinematics for SCARA-type robots. ||
-|=======================
-
-=== Motor control
-
-[{tab_options}]
-|=======================
-| link:../man/man9/at_pid.9.html[at_pid] | Proportional/integral/derivative controller with auto tuning. ||
-| link:../man/man9/pid.9.html[pid] | Proportional/integral/derivative controller. <<sec:pid,Description>> ||
-| link:../man/man9/pwmgen.9.html[pwmgen] | Software PWM/PDM generation. <<sec:pwmgen,Description>> ||
-| link:../man/man9/encoder.9.html[encoder] | Software counting of quadrature encoder signals. <<sec:encoder,Description>>. ||
-| link:../man/man9/stepgen.9.html[stepgen] | Software step pulse generation. <<sec:stepgen,Description>>. ||
+| tripodkins | The joints represent the distance of the controlled point from three predefined locations (the motors), giving three degrees of freedom in position (XYZ). ||
+| trivkins | There is a 1:1 correspondence between joints and axes. Most standard milling machines and lathes use the trivial kinematics module. ||
+| pumakins | Kinematics for PUMA-style robots. ||
+| rotatekins | The X and Y axes are rotated 45 degrees compared to the joints 0 and 1. ||
+| scarakins | Kinematics for SCARA-type robots. ||
 |=======================
 
 === BLDC and 3-phase motor control
@@ -206,39 +212,26 @@ Limit its slew rate to less than maxv per second. Limit its second derivative to
 [{tab_options}]
 |=======================
 | bldc_hall3 | 3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors. ||
-| link:../man/man9/clarke2.9.html[clarke2] | Two input version of Clarke transform. ||
-| link:../man/man9/clarke3.9.html[clarke3] | Clarke (3 phase to cartesian) transform. ||
-| link:../man/man9/clarkeinv.9.html[clarkeinv] | Inverse Clarke transform. ||
+| clarke2 | Two input version of Clarke transform. ||
+| clarke3 | Clarke (3 phase to cartesian) transform. ||
+| clarkeinv | Inverse Clarke transform. ||
 |=======================
 
-clarkeinv:: (((clarkeinv))) Inverse Clarke transform.
-
+=== Other
 [{tab_options}]
 |=======================
 | link:../man/man9/comp.9.html[comp] | Build, compile and install LinuxCNC HAL components. ||
-|link:../man/man9/motion.9.html[motion] | Accepts NML motion commands, interacts with HAL in realtime. ||
-|link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
-|link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
+| link:../man/man9/motion.9.html[motion] | Accepts NML motion commands, interacts with HAL in realtime. ||
+| link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
+| link:../man/man9/threads.9.html[threads] | Creates hard realtime HAL threads. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards.
 The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. 
 To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that 
 is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | An electronic gear to synchronize two axes. ||
-| link:../man/man9/estop_latch.9.html[estop_latch] | ESTOP latch. ||
 | link:../man/man9/feedcomp.9.html[feedcomp] | Multiply the input by the ratio of current velocity to the feed rate. ||
 | link:../man/man9/gearchange.9.html[gearchange] | Select from one of two speed ranges. ||
-| link:../man/man9/ilowpass.9.html[ilowpass] | While it may find other applications,
-this component was written to create smoother motion while jogging with an MPG.
-In a machine with high acceleration, a short jog can behave almost like a step
-function. By putting the ilowpass component between the MPG encoder counts
-output and the axis jog-counts input, this can be smoothed.
-Choose scale conservatively so that during a single session there will never
-be more than about 2e9/scale pulses seen on the MPG. Choose gain according
-to the smoothing level desired. Divide the axis.N.jog-scale values by scale. ||
 | link:../man/man9/joyhandle.9.html[joyhandle] | Sets nonlinear joypad movements, deadbands and scales. ||
-| link:../man/man9/knob2float.9.html[knob2float] | Convert counts (probably from an encoder) to a float value. ||
-| link:../man/man9/minmax.9.html[minmax] | Track the minimum and maximum values of the input to the outputs. ||
-| link:../man/man9/sample_hold.9.html[sample_hold] | Sample and Hold. ||
 | link:../man/man9/sampler.9.html[sampler] | Sample data from HAL in real time. ||
 | link:../man/man9/siggen.9.html[siggen] | Signal generator. <<sec:siggen,Description>>. ||
 | link:../man/man9/sim_encoder.9.html[sim_encoder] | Simulated quadrature encoder. <<sec:simulated-encoder,Description>>. ||
@@ -248,12 +241,6 @@ to the smoothing level desired. Divide the axis.N.jog-scale values by scale. ||
 | link:../man/man9/supply.9.html[supply] | Set output pins with values from parameters (deprecated). ||
 | link:../man/man9/threadtest.9.html[threadtest] | Component for testing thread behavior. ||
 | link:../man/man9/time.9.html[time] | Accumulated run-time timer counts HH:MM:SS of 'active' input. ||
-| link:../man/man9/timedelay.9.html[timedelay] | The equivalent of a time-delay relay. ||
-| link:../man/man9/timedelta.9.html[timedelta] | Component that measures thread scheduling timing behavior. ||
-| link:../man/man9/toggle2nist.9.html[toggle2nist] | Toggle button to nist logic. ||
-| link:../man/man9/toggle.9.html[toggle] | Push-on, push-off from momentary pushbuttons. ||
-| link:../man/man9/tristate_bit.9.html[tristate_bit] | Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics. ||
-| link:../man/man9/tristate_float.9.html[tristate_float] | Place a signal on an I/O pin only when enabled, similar to a tristatebuffer in electronics. ||
 | link:../man/man9/watchdog.9.html[watchdog] | Monitor one to thirty-two inputs for a 'heartbeat'. ||
 |=======================
 
