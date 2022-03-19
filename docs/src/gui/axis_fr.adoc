@@ -1,7 +1,6 @@
 :lang: fr
 :toc:
 
-[[cha:Axis]]
 [[cha:axis-gui]]
 = L'interface graphique AXIS
 

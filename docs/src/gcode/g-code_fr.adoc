@@ -779,8 +779,8 @@ G10 L10 P1 Z1.5 (fixe la position courante en Z à 1.5 dans la table d'outils)
 G43 (recharge l'offset de longueur d'outil depuis la table d'outils modifiée)
 M2 (fin de programme)
 ----
-Pour d'autres détals voir les commandes <<sec:M6-Appel-Outil, M6>>,
-<<sec:T-Choix-Outil, Tn>> et <<gcode:g43,G43>>/<<gcode:g43.1,G43.1>>.
+Pour d'autres détals voir les commandes <<mcode:m6,M6>>,
+<<sec:T-Choix-Outil,Tn>> et <<gcode:g43,G43>>/<<gcode:g43.1,G43.1>>.
 
 C'est une erreur si:
 
@@ -1234,8 +1234,8 @@ C'est une erreur si:
 * La compensation d'outil est activée alors qu'elle est déjà active.
 
 Plus d'informations sur <<sec:Orientations-des-outils-de-tour, l'orientation des
-outils>>, sur <<fig:Outil-Positions-1-2-3-4, les outils de tour en 1-2-3-4>> et
-<<fig:Outil-Positions-5-6-7-8, les outils de tour en 5-6-7-8>>.
+outils>>, sur <<fig:Outil-Positions-1-2-3-4,les outils de tour en 1-2-3-4>> et
+<<fig:Outil-Positions-5-6-7-8,les outils de tour en 5-6-7-8>>.
 
 [[gcode:g43]]
 == G43 Activation de la compensation de longueur d'outil(((G43 Activation de la compensation de longueur d'outil)))

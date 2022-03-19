@@ -43,13 +43,13 @@ dans la table d'outils:
 G-code pour des explications plus détaillées)
 
 G10 L1  Pn  - (n est le N° d'outil) Fixe les offsets de l'outil. La position
-courante n'est pas significative. <<sec:g10-l1,Tous les détails ici>>.(((G10 L1)))
+courante n'est pas significative. <<gcode:g10-l1,Tous les détails ici>>.(((G10 L1)))
 
 G10 L10 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met
-les valeurs dans un système de 1 à 8. <<sec:g10-l10,Tous les détails ici>>.(((G10 L10)))
+les valeurs dans un système de 1 à 8. <<gcode:g10-l10,Tous les détails ici>>.(((G10 L10)))
 
 G10 L11 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met
-les valeurs dans le système 9. <<sec:g10-l11,Tous les détails ici>>.(((G10 L11)))
+les valeurs dans le système 9. <<gcode:g10-l11,Tous les détails ici>>.(((G10 L11)))
 
 [[sec:Table-Outils]]
 == Table d'outils

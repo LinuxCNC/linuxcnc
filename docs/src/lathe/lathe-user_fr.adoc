@@ -193,7 +193,7 @@ rotation et doit se faire avec l'outil de référence (celui qui a l'offset à z
 .Avance par tour
 L'avance par tour déplace l'axe Z de la valeur de F à chaque tour.
 Ce n'est pas destiné au filetage pour lequel il faut utiliser G76.
-D'autres informations sont dans la section sur <<sec:g93-g95,G95>>.
+D'autres informations sont dans la section sur <<gcode:g93-g95,G95>>.
 
 == Arcs
 

@@ -252,13 +252,13 @@ trajectoire:
     légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la 
     tolérance, si elle est spécifiée). 
     
-Voir également les G-codes <<sec:g61-g61.1,G61/G61.1>> et <<sec:g64,G64>> des
+Voir également les G-codes <<gcode:g61-g61.1,G61/G61.1>> et <<gcode:g64,G64>> des
 contrôles de trajectoire.
 
-[[sec:Interaction-vitesses]] 
-[[sec:Interaction-effacement-de-bloc]]
-[[sec:Interaction-arrets-optionnels]]
-== Interaction de l'interpréteur avec les boutons(((Interraction vitesse)))(((effacement de bloc)))(((Arrêts optionnels)))
+[[sec:Interaction-vitesses]](((Interraction vitesse)))
+[[sec:Interaction-effacement-de-bloc]](((effacement de bloc)))
+[[sec:Interaction-arrets-optionnels]](((Arrêts optionnels)))
+== Interaction de l'interpréteur avec les boutons
 
 L'interpréteur interagit avec plusieurs boutons de commande. Cette
 section décrit ces interactions plus en détail. En aucun cas

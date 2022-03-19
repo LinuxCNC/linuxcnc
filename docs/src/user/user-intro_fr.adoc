@@ -55,7 +55,7 @@ l'opérateur de la machine. LinuxCNC est fourni avec plusieurs
 interfaces utilisateurs graphiques:
 
 
-* <<cha:Axis,_Axis_>>, l'interface utilisateur standard.
+* <<cha:axis-gui,_Axis_>>, l'interface utilisateur standard.
 
 .L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
 image::images/axis_25_fr.png["L'interface graphique AXIS",align="center"]

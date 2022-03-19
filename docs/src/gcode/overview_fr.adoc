@@ -1020,7 +1020,7 @@ Rappelez vous que
 == Exigences des fichiers
 
 Un programme G-code doit contenir une ou plusieurs lignes de G-code puis se
-terminer par une ligne de<<sec:M2-M30, fin de programme>>.
+terminer par une ligne de<<mcode:m2-m30,fin de programme>>.
 Tout G-code, placé après cette ligne de fin de programme, sera ignoré.
 
 Si le programme n'utilise pas G-code de fin de programme, une paire de
@@ -1048,8 +1048,7 @@ chargement des fichiers conséquents. L'aperçu peut être désactivé en
 passant un <<sub:Commentaires-speciaux,commentaire spécial>>.
 
 [[sec:Ordre-d-execution]]
-== Ordre d'exécution
-(((Ordre d'exécution)))
+== Ordre d'exécution(((Ordre d'exécution)))
 
 L'ordre d'exécution des éléments d'une ligne est défini, non pas par sa position
 dans la ligne mais par la liste suivante:
@@ -1084,8 +1083,7 @@ mot n'est permis sur la même ligne.
    (éventuellement) par G53.
 * Arrêt (M0, M1, M2, M30, M60).
 
-== G-Code: Bonnes pratiques
-(((G-Code bonnes pratiques)))
+== G-Code: Bonnes pratiques(((G-Code bonnes pratiques)))
 
 === Utiliser un nombre de décimales approprié
 
