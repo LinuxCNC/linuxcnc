@@ -360,6 +360,7 @@ class Data:
         self.restart_dialog = None
         self.key_event_last = None,0
 
+
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
@@ -921,6 +922,8 @@ class Gscreen:
         """
         self.widgets.window1.connect('key_press_event', self.on_key_event,1)
         self.widgets.window1.connect('key_release_event', self.on_key_event,0)
+        self.widgets.window1.connect('focus-out-event', self.on_focus_out)
+
 
     def initialize_preferences(self):
         """Convenience function, calls separate functions\n
@@ -4136,6 +4139,14 @@ class Gscreen:
                         jogincr = self.data.jog_increments[self.data.current_jogincr_index]
                         distance = self.parse_increment(jogincr)
                         self.emc.incremental_jog(axis,cmd,distance)
+
+    def on_focus_out(self, widget, data=None):
+        self.emcstat.poll()
+        command = linuxcnc.command()
+        if self.emcstat.enabled and self.emcstat.task_mode == linuxcnc.MODE_MANUAL and self.emcstat.current_vel > 0:
+            # cancel any joints jogging
+            for jnum in range(self.emcstat.joints):
+                command.jog(linuxcnc.JOG_STOP, 0, jnum)
 
     # spindle control
     def spindle_adjustment(self,direction,action):
