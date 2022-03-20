@@ -354,7 +354,17 @@ set str $::tf.sc
 scrollbar $str -orient vert -command "$::treew yview"
 pack $str -side right -fill y
 pack $::treew -side right -fill both -expand yes
-$::treew bindText <Button-1> {workMode   }
+$::treew bindText <Button-1> {workMode}
+$::treew bindText <Button-3> {popupmenu_tree %X %Y}
+
+proc addSubTree {item} {
+    if {[string first "+" $item] > 0} {
+        set item [regsub "\\+" $item " "]
+        set list [eval hal "show $item"]
+        regexp ".*(?=\\s)" $item type
+        addToWatch $type $list
+    }
+}
 
 #----------tree widget handlers----------
 # a global var -- ::treenodes -- holds the names of existing nodes
@@ -794,25 +804,35 @@ proc popupmenu_watch {label index writable which x y} {
     bind $m <FocusOut> [list destroy $m]
 }
 
-
 proc popupmenu_text {x y} {
     # create menu
     set m [menu .popupMenuText -tearoff false]
     # add entries
     $m add command -label [msgcat::mc "Copy"] -command {copySelection 0}
-    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatchFromSel "pin"}
-    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatchFromSel "sig"}
-    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatchFromSel "param"}
+    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatch "pin" [join [selection get] " "]}
+    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatch "sig" [join [selection get] " "]}
+    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatch "param" [join [selection get] " "]}
     # show menu
     tk_popup $m $x $y
     bind $m <FocusOut> [list destroy $m]
 }
 
-proc addToWatchFromSel {type} {
-    set selected [join [selection get] " "]
+proc popupmenu_tree {x y item} {
+    if {[string first "+" $item] > 0} {
+        # create menu
+        set m [menu .popupMenuText -tearoff false]
+        # add entries
+        $m add command -label [msgcat::mc "Add all sub-items to watch"] -command "addSubTree $item"
+        # show menu
+        tk_popup $m $x $y
+        bind $m <FocusOut> [list destroy $m]
+    }
+}
+
+proc addToWatch {type selection} {
     set varcount 0
     catch {
-        foreach item $selected {
+        foreach item $selection {
             if {![catch {hal [string index $type 0]type $item} return]} { 
                 if {[watchHAL "$type+$item"] == ""} {
                 incr varcount 
