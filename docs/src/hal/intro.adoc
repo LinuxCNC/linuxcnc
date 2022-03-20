@@ -242,95 +242,12 @@ pins, the other to take data from the HAL pins and write it to the
 physical output pins. Both of these functions are part of the parport
 driver.
 
-== HAL components
+== HAL Components
 
 Each HAL component is a piece of software with well-defined inputs,
 outputs, and behavior, that can be installed and interconnected as
-needed. This section lists some of the available components and a brief
-description of what each does. Complete details for each component are
-available later in this document.
-
-=== External Programs with HAL hooks
-
-motion::
-     (((motion))) A realtime module that accepts NML
-     footnote:[Neutral Message Language provides a mechanism for handling
-     multiple types of messages in the same buffer as well as simplifying
-     the interface for encoding and decoding buffers in neutral format and
-     the configuration mechanism.] motion commands and interacts with HAL 
-
-iocontrol::
-     (((iocontrol))) A user space module that accepts NML I/O commands and
-    interacts with HAL 
-
-classicladder::
-    (((ClassicLadder))) A PLC using HAL for all I/O
-
-halui::
-     (((halui))) A user space program that interacts with HAL and sends NML
-    commands, it is intended to work as a full User Interface using
-    external knobs & switches 
-
-=== Internal Components
-
-stepgen::
-     Software step pulse generator with position loop. See section <<sec:stepgen, Stepgen>>(((stepgen)))
-
-encoder::
-     Software based encoder counter. See section <<sec:encoder, Encoder>>(((encoder)))
-
-pid::
-     Proportional/Integral/Derivative control loops. See section <<sec:pid, PID>>
-
-siggen::
-     A sine/cosine/triangle/square wave generator for testing.
-    See section <<sec:siggen, Siggen>>
-
-supply::
-     a simple source for testing(((supply)))
-
-
-=== Hardware Drivers
-
-hal_ax5214h::
-     (((hal-ax5214h))) A driver for the Axiom Measurement & Control AX5241H
-    digital I/O board
-
-hal_gm::
-    (((hal-gm))) General Mechatronics GM6-PCI board
-
-hal_m5i20::
-    (((hal-m5i20))) Mesa Electronics 5i20 board
-
-hal_motenc::
-    (((hal-motenc))) Vital Systems MOTENC-100 board
-
-hal_parport::
-    (((hal-parport))) PC parallel port.
-
-hal_ppmc::
-    (((hal-ppmc))) Pico Systems family of controllers (PPMC, USC and UPC)
-
-hal_stg::
-    (((hal-stg))) Servo To Go card (version 1 & 2)
-
-hal_vti::
-    (((hal-vti))) Vigilant Technologies PCI ENCDAC-4 controller
-
-=== Tools and Utilities
-
-halcmd::
-     (((halcmd))) Command line tool for configuration and tuning. See
-    section <<sec:halcmd, Halcmd>> 
-
-halmeter::
-     (((halmeter))) A handy multimeter for HAL signals. See section <<sec:halmeter, Halmeter>>. 
-
-halscope::
-     (((halscope))) A full featured digital storage oscilloscope for HAL
-    signals. See the <<sec:halscope,Halscope>> section.
-
-Each of these building blocks is described in detail in later chapters.
+needed. The section <<sec:realtime-components, Realtime Components List>> 
+lists all available components and a brief description of what each does. 
 
 == Timing Issues In HAL
 

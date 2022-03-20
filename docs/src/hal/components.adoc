@@ -1,6 +1,6 @@
 [[cha:hal-components]]
 
-= HAL Components
+= HAL Component List
 
 == Commands and Userspace Components
 
