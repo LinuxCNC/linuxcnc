@@ -64,3 +64,5 @@ The configuration files are saved in linuxcnc/configs directory.
 
 .Configuration Selector
 image::images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
+
+// vim: set syntax=asciidoc:

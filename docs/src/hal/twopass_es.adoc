@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:hal-twopass]]
-
 = HAL TWOPASS
 
 == TWOPASS
@@ -63,8 +62,7 @@ La opción TWOPASS se puede especificar con opciones para ampliar la salida para
 depuración (verbose) o para evitar la eliminación de archivos temporales (nodelete).
 Las opciones están separadas por comas.
 
-Ejemplo:
-
+.Ejemplo:
 ----
 [HAL]
 
@@ -121,7 +119,7 @@ El procesamiento en dos pasos ocurre antes de la carga de la interfaz gráfica d
 [HAL]POSTGUI_HALFILE, es conveniente colocar todo las
 declaraciones loadrt para los componentes necesarios en un halfile que se carge con anterioridad.
 
-Ejemplo de una sección HAL cuando se usa un POSTGUI_HALFILE:
+.Ejemplo de una sección HAL cuando se usa un POSTGUI_HALFILE:
 ----
 [HAL]
 
@@ -154,7 +152,7 @@ Esta disposición de exclusión se puede utilizar para aislar problemas o para c
 componente hal que no requiere o no se beneficia del procesamiento TWOPASS que maneja
 múltiples instancias de componentes loadrt.
 
-Ejemplo de archivo '.hal' excluido:
+.Ejemplo de archivo '.hal' excluido:
 ----
 $ cat twopass_excluded.hal
 # El siguiente 'comentario mágico' hace que este archivo
@@ -166,7 +164,7 @@ show pin mycomponent
 ----
 
 [NOTE]
-   El caso y los espacios en blanco dentro de # NOTWOPASS se ignoran.
+El caso y los espacios en blanco dentro de # NOTWOPASS se ignoran.
 
 == Post GUI
 
@@ -175,7 +173,8 @@ conectar los pines hal que son creados por la propia GUI. Cuando se utiliza un h
 el procesamiento TWOPASS, incluya todos los elementos loadrt para los componentes agregados por los halfiles postgui
 en un halfile separado que se procese antes que la GUI. Los comandos addf también pueden
 ser incluido en el archivo.
-Ejemplo:
+
+.Ejemplo:
 ----
 [HAL]
 HALFILE = file_1.hal
@@ -194,3 +193,4 @@ Se incluyen ejemplos de uso de TWOPASS para simulador en los directorios:
 
    configs/sim/axis/simtcl/
 
+// vim: set syntax=asciidoc:

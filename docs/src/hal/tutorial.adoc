@@ -447,7 +447,6 @@ halcmd: loadusr halmeter
 The first window you will see is the 'Select Item to Probe' window.
 
 .Halmeter Select Window
-
 image::images/halmeter-select.png["Halmeter Select Window",align="center"]
 
 This dialog has three tabs. The first tab displays all of the HAL pins
@@ -459,7 +458,6 @@ selection dialog will close, and the meter looks something like the
 following figure.
 
 .Halmeter
-
 image::images/halmeter-1.png["Halmeter",align="center"]
 
 To change what the meter displays press the 'Select' button which
@@ -820,7 +818,6 @@ dialog that looks like the following figure. To change the sample rate
 left click on the samples box.
 
 .Realtime function not linked dialog
-
 image::images/halscope-01.png["Realtime function not linked dialog",align="center"]
 
 This dialog is where you set the sampling rate for the oscilloscope.
@@ -832,7 +829,6 @@ disappears, and the scope window looks something like the following
 figure.
 
 .Initial scope window
-
 image::images/halscope-02.png["Initial scope window",align="center"]
 
 === Hooking up the scope probes
@@ -853,7 +849,6 @@ earlier, so we click on the 'Signals' tab, and the dialog displays all
 of the signals in the HAL (only two for this example).
 
 .Select Channel Source
-
 image::images/halscope-03.png["Select Channel Source",align="center"]
 
 To choose a signal, just click on it. In this case, we want channel 1
@@ -861,7 +856,6 @@ to display the signal 'X-vel'. Click on the Signals tab then click on
 'X-vel' and the dialog closes and the channel is now selected.
 
 .Select Signal
-
 image::images/halscope-04.png["Select Signal",align="center"]
 
 The channel 1 button is pressed in, and channel number 1 and the name
@@ -871,7 +865,6 @@ the selected one is highlighted, and the various controls like vertical
 position and scale always work on the selected one.
 
 .Halscope
-
 image::images/halscope-05.png["Halscope",align="center"]
 
 To add a signal to channel 2, click the '2' button. When the dialog
@@ -897,7 +890,6 @@ the screen will display the captured waveforms. The result will look
 something like the following figure.
 
 .Captured Waveforms
-
 image::images/halscope-06.png["Captured Waveforms",align="center"]
 
 The 'Selected Channel' box at the bottom tells you that the purple
@@ -917,7 +909,6 @@ moves the displayed trace up and down over the height of the screen
 only. For larger adjustments the offset button should be used.
 
 .Vertical Adjustment
-
 image::images/halscope-07.png["Vertical Adjustment",align="center"]
 
 === Triggering
@@ -930,7 +921,6 @@ probe to use for triggering by clicking on it. For this example we will
 use channel 3, the triangle wave as shown in the following figure.
 
 .Trigger Source Dialog
-
 image::images/halscope-08.png["Trigger Source Dialog",align="center"]
 
 After setting the trigger source, you can adjust the trigger level and
@@ -950,7 +940,6 @@ Now that we have adjusted the vertical controls and triggering, the
 scope display looks something like the following figure.
 
 .Waveforms with Triggering
-
 image::images/halscope-09.png["Waveforms with Triggering",align="center"]
 
 === Horizontal Adjustments
@@ -970,7 +959,6 @@ instead of displaying about 4 seconds worth of data, one record is 4000
 samples at 20KHz, or about 0.20 seconds.
 
 .Sample Rate Dialog
-
 image::images/halscope-10.png["Sample Rate Dialog",align="center"]
 
 === More Channels
@@ -993,7 +981,6 @@ the change in the velocity command. The result should look like  the
 following figure.
 
 .Step Pulses
-
 image::images/halscope-11.png["Step Pulses",align="center"]
 
 === More samples
@@ -1012,3 +999,4 @@ load it and request 80000 total samples, so that when sampling
 (If 'scope_rt' was already loaded, the numeric argument to 
 halscope will have no effect).
 
+// vim: set syntax=asciidoc:

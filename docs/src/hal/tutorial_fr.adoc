@@ -1,13 +1,12 @@
 :lang: fr
 :toc:
 
-= Le tutoriel de HAL
+[[cha:Tutoriel-HAL]]
+= Le tutoriel de HAL(((Tutoriel de HAL)))
 
-[[cha:Tutoriel-HAL]] (((Tutoriel de HAL)))
 
 [[sec:Intro-tutoriel]]
-== Introduction
-(((Introduction)))
+== Introduction(((Introduction)))
 
 Halrun peut être utilisé pour créer un système complet et fonctionnel.
 Il s'agit d'un outil de configuration et de mise au point très puissant, en
@@ -15,14 +14,14 @@ ligne de commande ou en fichier texte. Les exemples suivants illustrent son
 installation et son fonctionnement.
 
 [[sec:Tutoriel-Halcmd]]
-== Halcmd
-(((Tutoriel Halcmd)))
+== Halcmd(((Tutoriel Halcmd)))
 
 Halcmd est un outil en ligne de commande pour manipuler HAL. Il existe
 une man page plus complète pour halcmd, elle sera installée en même
 temps qu' LinuxCNC depuis ses sources ou depuis un paquet. Si LinuxCNC a été
 compilé en _run-in-place_, la man page n'est pas installée, mais elle
 est accessible, dans le répertoire principal de LinuxCNC, taper:
+
 ----
 $ man -M docs/man halcmd 
 ----
@@ -33,6 +32,7 @@ Votre version de halcmd peut inclure la complétion avec la touche tab.
 Au lieu de compléter les noms de fichiers comme le fait un shell, il
 complète les commandes avec les identifiants HAL. Essayez de presser la
 touche tab après le début d'une commande HAL:
+
 ----
 halcmd: loa<TAB> 
 
@@ -67,8 +67,7 @@ ce que vous avez besoin de savoir à propos de RTAPI est qu'il doit être
 pouvoir faire n'importe quoi avec HAL.
 
 [[sec:Tutoriel-Exemple-Simple]]
-== Tutoriel simple
-(((Tutoriel simple)))
+== Tutoriel simple(((Tutoriel simple)))
 
 === Charger un composant temps réel
 
@@ -78,6 +77,7 @@ linuxcnc/src. Si nécessaire, invoquez le script _rip-environment_ pour
 préparer votre shell. Dans ce cas, tout ce que vous avez à faire
 est de charger le RTOS requis et les modules RTAPI dans la mémoire.
 Tapez juste les commandes suivantes dans une console:
+
 ----
 $cd linuxcnc
  
@@ -97,6 +97,7 @@ complète de ce composant est disponible à la <<sec:Siggen, section siggen>>
 de ce document. 
 Il s'agit d'un composant temps réel, mis en œuvre comme un module du 
 noyau Linux. Pour charger siggen utiliser la commande de HAL, _loadrt_:
+
 ----
 halcmd: loadrt siggen
 ----
@@ -110,6 +111,7 @@ section <<sec:Tutoriel-Halcmd, halcmd au début de ce document>>. La
 première commande de halcmd et _show_, qui affichera les informations 
 concernant l'état actuel de HAL. Pour afficher tout ce qui est 
 installé tapez:
+
 ----
 halcmd: show comp
 
@@ -129,6 +131,7 @@ PID est ajouté à la fin du nom pour rendre celui-ci unique. La liste
 précédente. Le _RT_ sous _Type_ indique que siggen est un composant temps réel.
 
 Ensuite, voyons quelles pins siggen rend disponibles:
+
 ----
 halcmd: show pin 
 
@@ -152,6 +155,7 @@ du composant siggen. Puisque nous n'avons pas encore exécuté le code
 contenu dans le composant, certaines pins ont une valeur de zéro.
 
 L'étape suivante consiste à examiner les paramètres:
+
 ----
 halcmd: show param
 
@@ -194,6 +198,7 @@ la réécriture de HAL sera terminée, je les remettrai.
 La plupart des composants temps réel exportent une ou plusieurs
 fonctions pour que le code qu'elles contiennent soit exécuté en temps
 réel. Voyons ce que la fonction siggen exporte:
+
 ----
 halcmd: show funct
 
@@ -214,11 +219,13 @@ _siggen.0.update_, nous avons besoin d'un thread temps réel. C'est le
 composant appelé _threads_ qui est utilisé pour créer le nouveau
 thread. Créons un thread appelé _test-thread_ avec une période de 1 ms
 (1000 µs ou 1000000 ns):
+
 ----
 halcmd: loadrt threads name1=test-thread period1=1000000 
 ----
 
 Voyons si il fonctionne:
+
 ----
 halcmd: show thread
 
@@ -232,6 +239,7 @@ des limitations dues au matériel, mais nous avons bien un thread qui
 tourne à une période approximativement correcte et qui peut manipuler
 des fonctions en virgule flottante. La prochaine étape sera de
 connecter la fonction au thread:
+
 ----
 halcmd: addf siggen.0.update test-thread 
 ----
@@ -242,6 +250,7 @@ HAL. Mais cette fois-ci, nous avons
 dans HAL. Nous avons dit
  à halcmd d'ajouter la fonction _siggen.0.update_ au thread
 _test-thread_ et la commande suivante indique qu'il a réussi:
+
 ----
 halcmd: show thread 
 
@@ -257,12 +266,14 @@ première fois, les threads ne sont pas en marche. C'est pour vous
 permettre de compléter la configuration du système avant que le code
 temps réel ne démarre. Une fois que vous êtes satisfait de la
 configuration, vous pouvez lancer le code temps réel comme ceci:
+
 ----
 halcmd: start
 ----
 
 Maintenant le générateur de signal est en marche. Regardons ses pins
 de sortie:
+
 ----
 halcmd: show pin
 
@@ -279,6 +290,7 @@ halcmd: show pin
 ----
 
 Regardons encore une fois: 
+
 ----
 halcmd: show pin 
 
@@ -306,11 +318,13 @@ La réelle puissance de HAL est de permettre de modifier les choses.
 Par exemple, on peut utiliser la commande _setp_ pour ajuster la
 valeur d'un paramètre. Modifions l'amplitude du
 signal de sortie du générateur de 1.0 à 5.0:
+
 ----
 halcmd: setp siggen.0.amplitude 5 
 ----
 
 Voyons encore une fois les paramètres et les pins:
+
 ----
 halcmd: show param 
 
@@ -350,6 +364,7 @@ configuration jusqu'à ce qu'il s'arrête. Mais qu'en est-il de la
 prochaine fois ? Nous ne voulons pas entrer une série de commande à
 chaque fois que l'on veut utiliser le système. Nous pouvons enregistrer
 la configuration de l'ensemble de HAL en une seule commande:
+
 ----
 halcmd: save 
 
@@ -370,6 +385,7 @@ vous commencez par un HAL _vide_ et que vous tapez toute la séquence de
 commandes HAL, vous aurez la configuration qui existait lors de l'exécution de 
 la commande save. Pour sauver ces commandes pour une utilisation ultérieure,
 nous allons simplement rediriger la sortie vers un fichier:
+
 ----
 halcmd: save all saved.hal 
 ----
@@ -378,6 +394,7 @@ halcmd: save all saved.hal
 
 Pour quitter halrun, ne pas fermez simplement la fenêtre de terminal sans avoir 
 arrêté la session de HAL, pour l'arrêter correctement tapez:
+
 ----
 halcmd: exit 
 
@@ -391,12 +408,14 @@ avons besoin d'exécuter toutes les commandes enregistrées. Pour ce
 faire, nous utiliserons la commande _-f <filename>_ qui lit les
 commandes à partir d'un fichier, le _-I_ affichera le prompt halcmd
 après l'exécution des commandes:
+
 ----
 ~/linuxcnc$ halrun -I -f saved.hal 
 ----
 
 Noter qu'il n'y a pas de commande _start_ dans le fichier saved.hal.
 Il est nécessaire de la retaper (ou d'éditer saved.hal pour l'ajouter):
+
 ----
 halcmd: start 
 
@@ -410,13 +429,13 @@ halcmd: exit
 Si un arrêt inattendu d'une session de HAL survient, il sera peut être 
 nécessaire de décharger HAL de la mémoire avant de pouvoir lancer une autre 
 session. Pour cela, taper la commande suivante dans une fenêtre de terminal:
+
 ----
 ~/linuxcnc$ halrun -U
 ---- 
 
 [[sec:Tutoriel-halmeter]]
-== Visualiser HAL avec halmeter
-(((Tutoriel halmeter)))
+== Visualiser HAL avec halmeter(((Tutoriel halmeter)))
 
 Il est possible de construire des systèmes HAL vraiment complexes sans
 utiliser d'interface graphique. Mais il y a quelque chose de rassurant
@@ -457,6 +476,7 @@ Nous allons utiliser de nouveaux éléments du composant siggen pour
 vérifier halmeter. Si vous avez fini l'exemple précédent, alors siggen
 est déjà chargé. Sinon, on peut charger tout comme nous l'avons fait
 précédemment:
+
 ----
 ~/linuxcnc$ halrun 
 
@@ -476,6 +496,7 @@ halcmd: setp siggen.0.amplitude 5
 À ce stade, nous avons chargé le composant siggen, il est en cours
 d'exécution. Nous pouvons lancer halmeter. Puisque halmeter est une
 application graphique, X doit être actif.
+
 ----
 halcmd: loadusr halmeter 
 ----
@@ -483,11 +504,9 @@ halcmd: loadusr halmeter
 Dans le même temps, une fenêtre s'ouvre sur votre écran, demandant de
 sélectionner l'item à observer.
 
-[[cap:halmeter-Fenetre-selection]]
+[[cap:halmeter-Fenetre-selection]](((Fenêtre de sélection)))
 .Fenêtre de sélection de halmeter
-(((Fenêtre de sélection)))
-
-image::images/halmeter-select_fr.png[alt="Fenêtre de sélection de halmeter"]
+image::images/halmeter-select_fr.png["Fenêtre de sélection de halmeter"]
 
 Ce dialogue contient trois onglets. Le premier onglet affiche toutes
 les HAL pins du système. La seconde affiche tous les signaux et le
@@ -496,10 +515,8 @@ _siggen.0.cosine_ en premier, il suffit de cliquer sur elle puis sur
 le bouton _Fermer_. Le dialogue de sélection se ferme et la mesure s'affiche
 dans une fenêtre semblable à la figure ci-dessous.
 
-[[sec:halmeter-valeur]]
+[[sec:halmeter-valeur]](((Affichage de la valeur)))
 .Affichage de la valeur
-(((Affichage de la valeur)))
-
 image::images/halmeter-1_fr.png[alt="Affichage de la valeur"]
 
 Pour modifier ce qui est affiché sur halmeter pressez le bouton
@@ -514,8 +531,9 @@ Pour éteindre halmeter, cliquer sur le bouton _Quitter_.
 Pour visualiser plusieurs pins, signaux ou paramètres en même temps,
 il est possible d'ouvrir plusieurs halmeter. La fenêtre de halmeter
 est intentionnellement petite justement pour permettre d'en ouvrir un
-grand nombre sur le même écran.[[sec:Tutoriel-Plus-Complexe]]
+grand nombre sur le même écran.
 
+[[sec:Tutoriel-Plus-Complexe]]
 == Tutoriel plus complexe avec stepgen
 
 Jusqu'à maintenant, nous avons chargé un composant HAL. Mais l'idée
@@ -527,6 +545,7 @@ Avant de mettre en place ce nouvel exemple, nous allons commencer par
 un petit nettoyage. Si vous avez fini l'un des exemples précédents, il
 faut supprimer tous les composants et ensuite recharger la RTAPI et les
 librairies de HAL en faisant:
+
 ----
 halcmd: exit 
 
@@ -544,6 +563,7 @@ Quand vous entrez la commande en ligne dans la console, sautez simplement le _\_
 
 Dans cet exemple nous utiliserons le type de contrôle _velocity_ du
 composant stepgen.
+
 ----
 halrun: loadrt stepgen step_type=0,0 ctrl_type=v,v 
 
@@ -562,6 +582,7 @@ rapide ne prend pas en charge les fonctions à virgule flottante
 Comme précédemment, on peut utiliser _halcmd show_ pour jeter un coup
 d'oeil à HAL. Cette fois, nous aurons beaucoup
 plus de pins et de paramètres que précédemment:
+
 ----
 halcmd: show pin 
 
@@ -639,11 +660,13 @@ l'entrée _velocity_ du premier générateur d'impulsions de pas. La
 première étape consiste à connecter le signal à la sortie du générateur
 de signaux. Pour connecter un signal à une pin, nous utilisons la
 commande _net_:
+
 ----
 halcmd: net X-vel <= siggen.0.cosine
 ---- 
 
 Pour voir l'effet de la commande _net_, regardons les signaux:
+
 ----
 halcmd: show sig 
 
@@ -658,6 +681,7 @@ Les flèches donnent la direction du flux de données, dans ce cas, le flux
  va de la pin _siggen.0.cosine_ vers le signal _X-vel_. Maintenant,
 connectons _X-vel_ à l'entrée _velocity_ du générateur d'impulsions de
 pas:
+
 ----
 halcmd: net X-vel => stepgen.0.velocity-cmd 
 ----
@@ -672,6 +696,7 @@ halcmd: net Y-vel siggen.0.sine => stepgen.1.velocity-cmd
 
 Pour voir l'effet de la commande net, regardons encore les signaux et
 les pins:
+
 ----
 halcmd: show sig 
 
@@ -696,6 +721,7 @@ plus délicates à appréhender. Les fonctions contiennent des instructions pour
 l'ordinateur. Les threads sont les méthodes utilisées pour faire
 exécuter ces instructions quand c'est nécessaire. Premièrement,
 regardons les fonctions dont nous disposons:
+
 ----
 halcmd: show funct 
 
@@ -747,6 +773,7 @@ lancer _stepgen.capture_position_.
 
 Nous lançons les fonctions en les ajoutant aux threads. Chaque thread
 va à une vitesse précise. Regardons de quels threads nous disposons:
+
 ----
 halcmd: show thread 
 
@@ -765,6 +792,7 @@ charge les calculs en virgule flottante. Nous l'utilisons pour
 _stepgen.make_pulses_. Pour connecter des fonctions au bon thread,
 nous utilisons la commande _addf_. Nous spécifions la fonction en 
 premier, suivie par le thread:
+
 ----
 halcmd: addf siggen.0.update slow 
 
@@ -775,6 +803,7 @@ halcmd: addf stepgen.make-pulses fast
 
 Après avoir lancé ces commandes, nous pouvons exécuter la commande _show
 thread_ une nouvelle fois pour voir ce qui ce passe:
+
 ----
 halcmd: show thread 
 
@@ -810,6 +839,7 @@ multiplier la vitesse d'entrée à l'étape générateur d'impulsions par
 qu'existe le paramètre _stepgen.n.velocity-scale_ . Dans notre cas, les
 axes X et Y ont la même échelle et nous pouvons
 passer les deux paramètres à 10000:
+
 ----
 halcmd: setp stepgen.0.position-scale 10000 
 
@@ -837,6 +867,7 @@ l'échelle du générateur d'impulsions de pas.
 
 Nous avons maintenant tout configuré et sommes prêts à démarrer. Tout
 comme dans le premier exemple, nous utilisons la commande _start_:
+
 ----
 halcmd: start 
 ----
@@ -849,8 +880,7 @@ internes des moteurs dans le monde réel, mais nous allons d'abord les
 examiner pour voir ce qui se passe.
 
 [[sec:Tutoriel-halscope]]
-== Voyons-y de plus près avec halscope
-(((Tutoriel halscope)))
+== Voyons-y de plus près avec halscope(((Tutoriel halscope)))
 
 L'exemple précédent génère certains signaux très intéressants. Mais
 beaucoup de ce qui se passe est beaucoup trop rapide pour être vu avec
@@ -866,6 +896,7 @@ chargée comme un module de noyau et une partie utilisateur qui fournit
 l'interface graphique et l'affichage. Cependant, vous n'avez pas à vous
 inquiéter à ce sujet car l'interface demandera automatiquement que la
 partie temps réel soit chargée:
+
 ----
 halcmd: loadusr halscope 
 ----
@@ -873,10 +904,8 @@ halcmd: loadusr halscope
 La fenêtre graphique du scope s'ouvre, immédiatement suivie par un
 dialogue _Fonction temps réel non liée_ visible sur la figure ci-dessous:
 
-[[fig:fonction-non-liee]]
+[[fig:fonction-non-liee]](((Fonction non liée)))
 .Dialogue _Fonction temps réel non liée_
-(((Fonction non liée)))
-
 image::images/halscope-01_fr.png[alt="Dialogue Fonction temps réel non liée"]
 
 C'est dans ce dialogue que vous définissez le taux d'échantillonnage
@@ -888,10 +917,8 @@ puissions utiliser jusqu'à 4 canaux simultanément. Quand vous
 sélectionnez un thread puis que vous cliquez sur le bouton _OK_, le
 dialogue disparaît et la fenêtre initiale du scope s'ouvre, comme ci-dessous.
 
-[[fig:Fenetre-initiale-halscope]]
+[[fig:Fenetre-initiale-halscope]](((Fenêtre initiale)))
 .Fenêtre initiale du scope
-(((Fenêtre initiale)))
-
 image::images/halscope-02_fr.png[alt="Fenêtre initiale du scope"]
 
 === Branchement des sondes du scope
@@ -912,9 +939,7 @@ devra s'afficher sur le canal 1, comme sur la figure ci-dessous.
 Ce dialogue est très similaire à celui utilisé par halmeter.
 
 [[fig:Selection-sources-halscope]]
-.Dialogue de sélection des sources
-(((Sélection de la source)))
-
+.Dialogue de sélection des sources(((Sélection de la source)))
 image::images/halscope-03_fr.png[alt="Dialogue de sélection des sources"]
 
 Nous aimerions bien regarder les signaux que nous avons défini
@@ -928,9 +953,7 @@ Lorsque l'on clique sur _X-vel_, la fenêtre se ferme et le canal a
 été sélectionné.
 
 [[cap:Select-Signal]]
-.Sélection du signal
-(((Sélection du signal)))
-
+.Sélection du signal(((Sélection du signal)))
 image::images/halscope-04_fr.png[alt="Sélection du signal"]
 
 Le bouton du canal _1_ est pressé, le numéro du canal 1 et le nom 
@@ -938,10 +961,8 @@ _X-vel_ apparaissent sous la rangée de boutons. L'affichage indique
 toujours le canal sélectionné, vous pouvez avoir beaucoup de canaux sur
 l'écran, mais celui qui est actif sera en surbrillance.
 
-[[cap:halscope]]
+[[cap:halscope]](((halscope)))
 .halscope
-(((halscope)))
-
 image::images/halscope-05_fr.png[alt="halscope"]
 
 Les différents contrôles comme la position verticale et l'amplitude
@@ -971,11 +992,9 @@ haut à droite. Vous devriez voir le reste de la zone tampon se remplir,
 puis l'écran afficher les ondes capturées. Le résultat ressemble à la
 figure ci-dessous.
 
-[[fig:Capture-onde-halscope]]
+[[fig:Capture-onde-halscope]](((Capture d'onde)))
 .Capture d'ondes
-(((Capture d'onde)))
-
-image::images/halscope-06_fr.png[alt="Capture d'ondes"]
+image::images/halscope-06_fr.png["Capture d'ondes"]
 
 === Ajustement vertical
 
@@ -989,11 +1008,9 @@ oscilloscopes réels), celle-ci permet d'afficher des signaux très petits
 trace affichée de haut en bas sur toute la hauteur de l'écran. Pour de plus 
 grands ajustements le bouton _Offset_ peut être utilisé.
 
-[[cap:Ajustement-vertical-halscope]]
+[[cap:Ajustement-vertical-halscope]](((Ajustement vertical)))
 .Ajustement vertical
-(((Ajustement vertical)))
-
-image::images/halscope-07_fr.png[alt="Ajustement vertical"]
+image::images/halscope-07_fr.png["Ajustement vertical"]
 
 Le grand bouton _Canal sélectionné_ en bas, indique que le canal 1 est
 actuellement le canal sélectionné et qu'il correspond au signal
@@ -1013,10 +1030,8 @@ Quand le dialogue ce referme, après le choix, le bouton affiche _Source Canal n
 où n est le numéro du canal venant d'être choisi comme déclencheur.
 
 [[fig:halscope-demo-5]]
-.Dialogue des sources de déclenchement
-(((Dialogue des sources de déclenchement)))
-
-image::images/halscope-08_fr.png[alt="Dialogue des sources de déclenchement"]
+.Dialogue des sources de déclenchement(((Dialogue des sources de déclenchement)))
+image::images/halscope-08_fr.png["Dialogue des sources de déclenchement"]
 
 Après avoir défini la source de déclenchement, il est possible
 d'ajuster le niveau de déclenchement avec les curseurs du groupe 
@@ -1041,10 +1056,8 @@ Maintenant que nous avons réglé la position verticale et le
 déclenchement, l'écran doit ressembler à la figure ci-dessous.
 
 [[fig:halscope-demo-6]]
-.Formes d'ondes avec déclenchement
-(((Formes d'onde)))
-
-image::images/halscope-09_fr.png[alt="Formes d'ondes avec déclenchement"]
+.Formes d'ondes avec déclenchement(((Formes d'onde)))
+image::images/halscope-09_fr.png["Formes d'ondes avec déclenchement"]
 
 === Ajustement horizontal
 
@@ -1064,11 +1077,9 @@ Pour notre exemple, nous cliquerons sur le thread _fast_, qui fournira un
 secondes de données, un enregistrement sera de 4000 échantillons à 20kHz, soit
 environ 0.20 seconde.
 
-[[fig:halscope-demo-7]]
+[[fig:halscope-demo-7]](((Choix d'échantillonnage)))
 .Dialogue de choix d'échantillonnage
-(((Choix d'échantillonnage)))
-
-image::images/halscope-10_fr.png[alt="Dialogue de choix d'échantillonnage"]
+image::images/halscope-10_fr.png["Dialogue de choix d'échantillonnage"]
 
 === Plus de canaux
 
@@ -1094,16 +1105,15 @@ d'échelle entre la fréquence des pas et l'action sur la vitesse, d'ou la courb
 X-vel assez plate et les impulsions de pas très resserrées.
 
 [[fig:halscope-demo-8]]
-.Observer les impulsions de pas
-(((Observer les impulsions)))
-
-image::images/halscope-11_fr.png[alt="Observer les impulsions de pas"]
+.Observer les impulsions de pas(((Observer les impulsions)))
+image::images/halscope-11_fr.png["Observer les impulsions de pas"]
 
 === Plus d'échantillons
 
 Si vous souhaitez enregistrer plus d'échantillons à la fois,
 redémarrez le temps réel et chargez halscope avec un argument numérique
 qui indique le nombre d'échantillons que vous voulez capturer, comme:
+
 ----
 halcmd: loadusr halscope 80000 
 ----
@@ -1114,4 +1124,4 @@ que lorsque l'échantillonnage se fera sur 4 canaux à la fois,
 il y aura 20000 échantillons par canal. (Si _scope_rt_ est déjà 
 chargé, l'argument numérique passé à halscope sera sans effet)
 
-
+// vim: set syntax=asciidoc:

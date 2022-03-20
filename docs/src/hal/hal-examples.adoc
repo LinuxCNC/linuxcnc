@@ -172,9 +172,7 @@ that the PID command value changes to new settings more slowly.
 Three built-in components that limit a signal are:
 
 * 'limit2' limits the range and first derivative of a signal.
-
 * 'limit3' limits the range, first and second derivatives of a signal.
-
 * 'lowpass' uses an exponentially-weighted moving average to track an input signal.
 
 To find more information on these HAL components check the man pages.

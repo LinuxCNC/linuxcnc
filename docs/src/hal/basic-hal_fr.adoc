@@ -263,7 +263,7 @@ A 'float' is a floating point number. In other words the decimal point
 can move as needed.
 
  - float values = a 64 bit floating point value, with approximately 53 bits of
-resolution and over 1000 bits of dynamic range.
+   resolution and over 1000 bits of dynamic range.
    
 For more information on floating point numbers see:
 
@@ -388,6 +388,7 @@ Table de vérité
 Le composant 'or2' est une porte OR à deux entrées.
 
 Syntaxe
+
 ----
 or2[count=n] or [names=name1[,name2...]]
 ----
@@ -472,6 +473,7 @@ au 'binaire codé décimal' mais avec plus d'options. Le bit 'hold' interrompt l
 traitement des entrées, de sorte que la valeur 'sum' ne change plus.
 
 La syntaxe suivante est utilisée pour charger le composant weighted_sum.
+
 ----
 loadrt weighted_sum wsum_sizes=size[,size,...]
 ----
