@@ -1,10 +1,10 @@
 /*
 Copyright (c) 2012 Ben Croston
 
-Revised by Ernesto Lo Valvo  (ernesto.lovalvo@unipa.it) (12/01/2021)
+Revised by Ernesto Lo Valvo  (ernesto.lovalvo@unipa.it) (19/03/2022)
  Added new version of Raspberry Pi4 and Raspberry Pi 400
  Revised for version 3B (15/01/2021)
- https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
+ https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#raspberry-pi-revision-codes
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -32,18 +32,21 @@ char *get_cpuinfo_revision(char *revision)
 {
     FILE *fp;
     char buffer[1024];
+    char *r;
 
     if ((fp = fopen("/sys/firmware/devicetree/base/model", "r")) == NULL)
-        return 0;
+        return NULL;
 
-    fgets(buffer, sizeof(buffer) , fp);
+    r = fgets(buffer, sizeof(buffer) , fp);
+    fclose(fp);
+
+    if (!r) return NULL;
 
     if (strncmp(buffer, "Raspberry",9) != 0)
         return NULL;
-    fclose(fp);
 
     if ((fp = fopen("/proc/cpuinfo", "r")) == NULL)
-        return 0;
+        return NULL;
 
     while(!feof(fp)) {
         if (fgets(buffer, sizeof(buffer) , fp)){
@@ -97,7 +100,8 @@ int get_rpi_revision(void)
              (strcmp(revision, "c03114") == 0) ||
              (strcmp(revision, "d03114") == 0))
         return 5;
-    else if  (strcmp(revision, "c03130") == 0)      /* Raspberry Pi 400 */
+    else if ((strcmp(revision, "c03130") == 0) ||   /* Raspberry Pi 400 */
+             (strcmp(revision, "c03131") == 0))
         return 6;
     else                                            /* assume rev 7 */
         return 7;
