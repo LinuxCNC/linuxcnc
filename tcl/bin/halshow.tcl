@@ -289,9 +289,15 @@ pack $fh -fill x
 
 set bh [button $fh.bh -borderwidth 0 -text » -padx 6 -pady 1]
 pack $bh -side right
-set tlbl [label $fh.tlbl -text [msgcat::mc "Tree View"]]
-pack $tlbl -side left
 bind $bh <Button-1> [list hideListview true]
+pack [label $fh.tlbl1 -text [msgcat::mc "Filter"]] -side left
+set fe [entry $fh.fe -textvariable txt_filt]
+pack [label $fh.tlbl -text [msgcat::mc "Full path"]] -side right
+set cb_fp [checkbutton $fh.fp -variable ::search_full_path]
+pack $cb_fp -side right
+bind $cb_fp <ButtonRelease-1> {refreshHAL}
+pack $fe -fill x -expand y -side left -pady 1
+bind $fe <KeyPress-Return> {refreshHAL}
 
 # frame to show tree
 set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width 24]
@@ -356,6 +362,7 @@ pack $str -side right -fill y
 pack $::treew -side right -fill both -expand yes
 $::treew bindText <Button-1> {workMode}
 $::treew bindText <Button-3> {popupmenu_tree %X %Y}
+$::treew configure -selectbackground "orange3"
 
 proc addSubTree {item} {
     if {[string first "+" $item] > 0} {
@@ -375,27 +382,28 @@ set ::nodenames {Components Pins Parameters Signals Functions Threads}
 
 # ::searchnames is the real name to be used to reference
 set ::searchnames {comp pin param sig funct thread}
-set ::signodes {X Y Z A B C U V W "Spindle"}
 
 set ::treenodes ""
 proc refreshHAL {} {
     set tmpnodes ""
     # look through tree for nodes that are displayed
     foreach node $::treenodes {
-        if {[$::treew itemcget $node -open]} {
-            lappend tmpnodes $node
+        catch {
+            if {[$::treew itemcget $node -open]} {
+                lappend tmpnodes $node
+            }
         }
     }
     # clean out the old tree
-    $::treew delete [$::treew nodes root]
+    $::treew delete $::searchnames
     # reread hal and make new nodes
     listHAL
     # read opennodes and set tree state if they still exist
-    foreach node $tmpnodes {
-        if {[$::treew exists $node]} {
-            $::treew opentree $node no
-        }
-    }
+    # foreach node $tmpnodes {
+    #     if {[$::treew exists $node]} {
+    #         $::treew opentree $node no
+    #     }
+    # }
     showHAL $::oldvar
 }
 
@@ -406,6 +414,28 @@ proc listHAL {} {
     foreach node $::searchnames {
         writeNode "$i root $node [lindex $::nodenames $i] 1"
         set ${node}str [hal list $node]
+
+        # remove items from tree that do not match the regex
+        if {$::txt_filt != ""} {
+            set temp [split [string trim [set ${node}str]] " "]
+            set ${node}str ""
+            foreach path $temp {
+                if {$::search_full_path} {
+                    if {[regexp $::txt_filt $path]} {
+                        lappend ${node}str $path
+                    }
+                } else {
+                    set items [split $path "."]
+                    foreach item $items {
+                        if {[regexp $::txt_filt $item]} {
+                            lappend ${node}str $path
+                            break
+                        }
+                    }
+                }
+            }
+        }
+
         switch -- $node {
             pin {-}
             param {
@@ -473,23 +503,80 @@ proc makeNodeOther {which otherstring} {
 proc writeNode {arg} {
     scan $arg {%i %s %s %s %i} j base node name leaf
     $::treew insert end  $base  $node -text $name
+
+    if {$::txt_filt != ""} {
+        # strip/extract leading type
+        set plusPos [string first "+" $node]
+        set subnode [string replace $node 0 $plusPos]
+        set type [string range $node 0 $plusPos]
+
+        if {$::search_full_path && $plusPos > 0} {
+            set match_str ""
+            set return [regexp $::txt_filt $subnode match_str]
+            if {$return} {
+                set match_start [string first $match_str $subnode]
+                set match_end [expr $match_start + [string length $match_str]]
+                set match_end_next_p [string first "." $subnode $match_end]
+                set match_start_prev_p [string last "." $subnode $match_start]
+                if {$match_end_next_p > 0} {
+                    set subnode [string replace $subnode $match_end_next_p end]
+                }
+                set match_items [string replace $subnode 0 $match_start_prev_p]
+                set n_items [llength [split $match_items "."]]
+                openTreePath $type$subnode $n_items
+            }
+        } elseif {[regexp $::txt_filt $name]} {
+            openTreePath $node 1
+        }
+    }
     if {$leaf > 0} {
         lappend ::treenodes $node
     }
+}
+
+proc openTreePath {path_in highlight_n} {
+    if {$path_in=="root"} {return}
+    # this is needed if comp name includes a '+'
+    set plusPos [string first "+" $path_in]
+    set path [string replace $path_in $plusPos $plusPos "."]
+
+    set items [split $path "."]
+    set items_reduced [lreplace $items end end]
+    set path ""
+    set i 0
+    set highlight [expr [llength $items] - $highlight_n]
+
+    foreach item $items_reduced {
+        if {$i==0} {
+            set path $item
+        } elseif {$i==1} {
+            set path [string cat $path "+" $item]
+        } else {
+            set path [string cat $path "." $item]
+        }
+        catch {
+            $::treew opentree $path no
+            if {$i >= $highlight} {
+                $::treew selection add $path
+            }
+        }
+        incr i 1
+    }
+    catch {$::treew selection add $path_in}
 }
 
 proc showNode {which} {
     switch -- $which {
         open {-}
         close {
-            foreach type {pin param sig} {
+            foreach type $::searchnames {
                 $::treew ${which}tree $type
             }
         }
         pin {-}
         param {-}
         sig {
-            foreach type {pin param sig} {
+            foreach type $::searchnames {
                 $::treew closetree $type
             }
             $::treew opentree $which
