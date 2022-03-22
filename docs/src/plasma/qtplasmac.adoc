@@ -33,23 +33,21 @@ There are three available formats:
 
 Screenshot examples of QtPlasmaC are below:
 
-*16:9*
-
+.*16:9*
 image::images/qtplasmac_16x9.png[width=800,align="center"]
 
-*9:16*
-
+.*9:16*
 image::images/qtplasmac_9x16.png[width=450,align="center"]
 
-*4:3*
-
+.*4:3*
 image::images/qtplasmac_4x3.png[width=600,align="center"]
 
 == Installing LinuxCNC
 
 The preferred method for installing LinuxCNC is via an ISO image as described below.
 
-NOTE: It is possible to install and run LinuxCNC on a variety of Linux distributions however that is beyond the scope of this User Guide. If the user wishes to install a Linux distribution other than those recommended, they will first need to install their preferred Linux distribution and then install LinuxCNC v2.9 or later along with any required dependencies.
+[NOTE]
+It is possible to install and run LinuxCNC on a variety of Linux distributions however that is beyond the scope of this User Guide. If the user wishes to install a Linux distribution other than those recommended, they will first need to install their preferred Linux distribution and then install LinuxCNC v2.9 or later along with any required dependencies.
 
 === If The User Does Not Have Linux Installed
 
@@ -88,18 +86,26 @@ QtPlasmaC requires the selection of one of following three operating modes:
 |*Mode*|*Description*
 |0|Uses an external arc voltage input to calculate both Arc Voltage (for Torch Height Control) and Arc OK.
 |1|Uses an external arc voltage input to calculate Arc Voltage (for Torch Height Control). +
-    Uses an external Arc OK input for Arc OK.
+   Uses an external Arc OK input for Arc OK.
 |2|Uses an external Arc OK input for Arc OK. +
-    Use external up/down signals for Torch Height Control.
+   Use external up/down signals for Torch Height Control.
 |===
 
-IMPORTANT: If the plasma power source has an Arc OK (Transfer) output then it is recommended to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0. It may also be possible to use a <<qt_reed-arc-ok, reed relay>> as an alternative method to establish an Arc OK signal when the power source does not provide one.
+IMPORTANT:
+If the plasma power source has an Arc OK (Transfer) output then it is recommended
+to use that for Arc OK rather than the soft (calculated) Arc OK provided by mode 0.
+It may also be possible to use a <<qt_reed-arc-ok,reed relay>> as an alternative
+method to establish an Arc OK signal when the power source does not provide one.
 
-NOTE: For fine tuning of Mode 0 Ark OK see <<mode0-arcok, Tuning Mode 0 Arc OK>> in the Advanced Topics section of the manual.
+[NOTE]
+For fine tuning of Mode 0 Ark OK see <<mode0-arcok,Tuning Mode 0 Arc OK>> in the
+Advanced Topics section of the manual.
 
 === Available I/Os
 
-NOTE: This section only touches on the hardware I/O's required for QtPlasmaC. Base machine requirements such as limit switches, home switches, etc. are in addition to these.
+[NOTE]
+This section only touches on the hardware I/O's required for QtPlasmaC.
+Base machine requirements such as limit switches, home switches, etc. are in addition to these.
 
 [width="100%",cols="4,2,14"]
 |===
@@ -162,18 +168,26 @@ If *Ohmic Probe* is used then *Ohmic Probe Enable* is required to be checked on 
 
 *Breakaway Switch* is not mandatory because the *Float Switch* is treated the same as a breakaway when not probing. If they are two separate switches, and there are not enough inputs on the breakout board, they could be combined and connected as a *Float Switch*.
 
-NOTE: The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc Voltage* input OR *Arc OK* input, *Float Switch* input, and *Torch On* output. To reiterate, in this case QtPlasmaC will treat the float switch as a breakaway switch when it is not probing.
+[NOTE]
+The minimum I/O requirement for a QtPlasmaC configuration to function are:  *Arc Voltage* input OR *Arc OK* input, *Float Switch* input, and *Torch On* output. To reiterate, in this case QtPlasmaC will treat the float switch as a breakaway switch when it is not probing.
 
 [[qt_z-settings]]
 === Recommended Settings:
 
-Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation of the terms below.
+Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation of the terms below.
 
-* *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance. For example, if the user's float switch takes 4mm (0.157") to activate then set the Z minimum to 5mm (0.197") plus an allowance for overrun (either calculated using the equation below or allow 5mm (0.2") below the lowest slat.
-* *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis to travel (it must not be lower than Z HOME_OFFSET).
-* *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4") below the maximum limit.
-
-* *Floating Head* - it is recommended that a floating head be used and that it has enough movement to allow for overrun during probing. Overrun can be calculated using the following formula:
+ * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
+   allowances for float_switch_travel and over travel tolerance. For example,
+   if the user's float switch takes 4mm (0.157") to activate then set the Z
+   minimum to 5mm (0.197") plus an allowance for overrun (either calculated
+   using the equation below or allow 5mm (0.2") below the lowest slat.
+ * *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
+   to travel (it must not be lower than Z HOME_OFFSET).
+ * *[AXIS_Z] HOME* should be set to be approximately 5mm-10mm (0.2"-0.4")
+   below the maximum limit.
+ * *Floating Head* - it is recommended that a floating head be used and
+   that it has enough movement to allow for overrun during probing. Overrun
+   can be calculated using the following formula:
 
 ----
 o = 0.5 × a × (v ÷ a)^2
@@ -200,7 +214,7 @@ source ~/linuxcnc-dev/scripts/rip-environment
 
 If using a Package installation then no additional action is required.
 
-If using a parallel port, use the <<cha:stepconf-wizard, StepConf wizard>> (enter the following command into a terminal window):
+If using a parallel port, use the <<cha:stepconf-wizard,StepConf wizard>> (enter the following command into a terminal window):
 
 ----
 stepconf
@@ -225,9 +239,15 @@ https://forum.linuxcnc.org/39-pncconf[PnCConf Wizard]
 
 Fill in the required entries to suit the machine wiring/breakout board configuration.
 
-QtPlasmaC adds two pages to the LinuxCNC configuration wizards for QtPlasmaC specific parameters, the two pages are QtPlasmaC options and <<qt_custom-user-buttons, User Buttons>>. Complete each of the wizards QtPlasmaC page to suit the machine that is being configured and the user button requirements.
+QtPlasmaC adds two pages to the LinuxCNC configuration wizards for
+QtPlasmaC specific parameters, the two pages are QtPlasmaC options and
+<<qt_custom-user-buttons,User Buttons>>. Complete each of the wizards
+QtPlasmaC page to suit the machine that is being configured and the user
+button requirements.
 
-Note that PnCConf options allow user selection of Feed Override, Linear Velocity, and Jog Increments whereas in StepConf these are automatically calculated and set.
+Note that PnCConf options allow user selection of Feed Override, Linear
+Velocity, and Jog Increments whereas in StepConf these are automatically
+calculated and set.
 
 *PnCConf QtPlasmaC Options:*
 
@@ -247,9 +267,9 @@ The THCAD screen will only appear if a Plasma Encoder is selected in the card sc
 
 image::images/qtplasmac_pncconf_thcad.png[width=600,align="center"]
 
-More information on <<qt_mesa-thcad, Mesa THCAD>>.
+More information on <<qt_mesa-thcad,Mesa THCAD>>.
 
-When the configuration is complete, the wizard will save a copy of the configuration that may be loaded and edited at a later time, a working QtPlasmaC configuration will be created in the following directory: ~/linuxcnc/configs/<machine_name>
+When the configuration is complete, the wizard will save a copy of the configuration that may be loaded and edited at a later time, a working QtPlasmaC configuration will be created in the following directory: ~/linuxcnc/configs/<machine_name>.
 
 The newly created QtPlasmaC configuration can be run by entering the following command into a terminal window (*change "<machine_name>" to the machine name entered into the configuration wizard*):
 
@@ -271,7 +291,8 @@ IMPORTANT: BEFORE PROCEEDING, THE USER SHOULD BE ABLE TO HOME THE MACHINE, ZERO 
 
 ONLY WHEN this criteria is met should the user proceed with the QtPlasmaC initial setup.
 
-NOTE: It is possible to create a sim configuration using StepConf but it is not possible to have tandem joints in the sim configuration.
+[NOTE]
+It is possible to create a sim configuration using StepConf but it is not possible to have tandem joints in the sim configuration.
 
 [[qt-dependency]]
 === Qt Dependency Errors
@@ -297,7 +318,7 @@ The following heights diagram will help the user visualize the different heights
 
 image::images/qtplasmac_heights_diagram.png[width=800,align="center"]
 
-Click on the <<qt_parameters-tab, Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these settings is tailored to the machine.
+Click on the <<qt_parameters-tab,Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters. It is necessary to ensure every one of these settings is tailored to the machine.
 
 To set the Z axis DRO relative to the Z axis MINIMUM_LIMIT, the user should perform the following steps. It is important to understand that in QtPlasmaC, touching off the Z axis DRO has no effect on the Z axis position while running a G-Code program. These steps simply allow the user to more easily set the probe height as after performing the steps, the displayed Z axis DRO value will be relative to Z axis MINIMUM_LIMIT.
 
@@ -328,22 +349,25 @@ If the machine is equipped with a float switch then the user will need to set th
 
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
 
-. If the table has a laser or camera for sheet alignment, a scribe, or uses offset probing then the required offsets need to be applied by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
+. If the table has a laser or camera for sheet alignment, a scribe, or uses offset probing then the required offsets need to be applied by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
 . CONGRATULATIONS! The user should now have a working QtPlasmaC Configuration.
 
-NOTE: If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing, the probing section>> for a possible solution.
+[NOTE]
+If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing,the probing section>> for a possible solution.
 
-IMPORTANT: IF USING A *Mesa Electronics THCAD* THEN THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
+IMPORTANT:
+IF USING A *Mesa Electronics THCAD* THEN THE *Voltage Scale* VALUE WAS OBTAINED MATHEMATICALLY. IF THE USER INTENDS TO USE CUT VOLTAGES FROM A MANUFACTURE'S CUT CHART THEN IT WOULD BE ADVISABLE TO DO MEASUREMENTS OF ACTUAL VOLTAGES AND FINE TUNE THE *Voltage Scale* AND *Voltage Offset*.
 
-CAUTION: PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
+CAUTION:
+PLASMA CUTTING VOLTAGES CAN BE LETHAL, IF THE USER IS NOT EXPERIENCED IN DOING THESE MEASUREMENTS GET SOME QUALIFIED HELP.
 
 [[qt_modify-config]]
 == Migrating to QtPlasmac From PlasmaC (Axis or Gmoccapy)
 
 There are two methods available to get from a working PlasmaC configuration to a new QtPlasmaC configuration. These methods assume the user is on LinuxCNC v2.9 or later, QtVCP is installed, and all dependency requirements are satisfied.
 
-If there are Qt dependency errors, the user should run the <<qt-dependency, QtVCP install script>>.
+If there are Qt dependency errors, the user should run the <<qt-dependency,QtVCP install script>>.
 
 === Quick Method
 
@@ -398,7 +422,8 @@ Leave this blank if it is not used/required.
 
 After filling in the appropriate entries, press *CONVERT*.
 
-NOTE: This method will not change any existing debounce components to the new dbounce component. If the user wishes to change to the new dbounce component then the New Base Config method should be used for migration.
+[NOTE]
+This method will not change any existing debounce components to the new dbounce component. If the user wishes to change to the new dbounce component then the New Base Config method should be used for migration.
 
 === New Base Config Method
 
@@ -548,6 +573,7 @@ Displaying a terminal can be handy for error and information messages.
 === QtPlasmaC Files
 
 After a successful QtPlasmaC installation, the following files are created in the configuration directory:
+
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
@@ -561,22 +587,28 @@ After a successful QtPlasmaC installation, the following files are created in th
 |backup|A directory for backups of config files.
 |===
 
-NOTE: <machine_name> is whatever name the user entered into the "Machine Name" field of the configuration wizard program
-NOTE: Custom commands are allowed in custom.hal and the custom_postgui.hal files as they are not overwritten during updates.
+[NOTE]
+<machine_name> is whatever name the user entered into the "Machine Name" field of the configuration wizard program
+
+[NOTE]
+Custom commands are allowed in custom.hal and the custom_postgui.hal files as they are not overwritten during updates.
 
 After running a new configuration for the first time the following files will be created in the configuration directory:
+
 [width="100%",cols="1,2"]
 |===
 |*Filename*|*Function*
-|<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
+|<machine_name>_material.cfg|A file for storing the material settings from the MATERIAL section of the <<qt_parameters-tab,PARAMETERS Tab>>.
 |<machine_name>.prefs|A file containing the users QtPlasmac specific preferences and parameters. It also stores the current color configuration.
 |qtvcp.prefs|A file containing the QtVCP preferences.
 |qtplasmac.qss|This file is used to store the stylesheet for the currently loaded session of QtPlasmaC.
 |===
 
-NOTE: The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
+[NOTE]
+The configuration files (<machine_name>.ini and <machine_name>.hal) that are created by configuration wizard are notated to explain the requirements to aid in manual manipulation of these configurations. They may be edited with any text editor.
 
-NOTE: The <machine_name>.prefs file is plain text and may be edited with any text editor.
+[NOTE]
+The <machine_name>.prefs file is plain text and may be edited with any text editor.
 
 === INI File
 
@@ -632,7 +664,8 @@ FLASH_ERROR         = 0 (status bar error message will not flash)
                     (0 is the default if not specified)
 ----
 
-NOTE: MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
+[NOTE]
+MODE and ESTOP_TYPE will default to 0 if not specified and all other variables are optional.
 
 *[FILTER]* Section
 
@@ -656,7 +689,8 @@ SUBROUTINE_PATH       = ./:./qtplasmac:../../nc_files/subroutines (./ must be in
 USER_M_PATH           = ./:./qtplasmac (for M190 material change)
 ----
 
-IMPORTANT: SEE <<qt_path-tolerance, PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE INFORMATION RELATED TO G64.
+IMPORTANT:
+SEE <<qt_path-tolerance,PATH TOLERANCE>> FOR RS274NGC_STARTUP_CODE INFORMATION RELATED TO G64.
 
 *[HAL]* Section
 
@@ -671,7 +705,8 @@ POSTGUI_HALFILE = postgui_call_list.hal (required)
 SHUTDOWN = shutdown.hal (shutdown HAL commands)
 ----
 
-NOTE: The user could place custom HAL commands in the custom.hal file as this file is not overwritten by QtPlasmaC updates.
+[NOTE]
+The user could place custom HAL commands in the custom.hal file as this file is not overwritten by QtPlasmaC updates.
 
 [[qt_ini-display]]
 *[DISPLAY]* Section
@@ -722,7 +757,8 @@ MAX_ACCELERATION = double the value in the corresponding joint
 OFFSET_AV_RATIO  = 0.5
 ----
 
-NOTE: QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused. For more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the LinuxCNC documentation.
+[NOTE]
+QtPlasmaC uses the LinuxCNC External Offsets feature for all Z axis motion, and for moving the X and/or Y axis for a consumable change while paused. For more information on this feature, please read <<cha:external-offsets,External Axis Offsets>> in the LinuxCNC documentation.
 
 == QtPlasmaC GUI Overview
 
@@ -898,7 +934,8 @@ See <<qt_custom-user-buttons, custom user buttons>> for detailed information on 
 
 [underline]*JOGGING*
 
-NOTE: During Paused Motion, this section will become <<qt_cut-recovery, CUT RECOVERY>>
+[NOTE]
+During Paused Motion, this section will become <<qt_cut-recovery, CUT RECOVERY>>
 
 [width="100%",cols="4,16"]
 |===
@@ -915,7 +952,8 @@ NOTE: During Paused Motion, this section will become <<qt_cut-recovery, CUT RECO
 
 [underline]*CUT RECOVERY*
 
-NOTE: During Paused Motion, this section will be shown on top of the JOGGING panel. The following section will cover each button encountered in this panel. Please see <<qt_cut-recovery, CUT RECOVERY>> for a detailed description of the cut recovery functionality.
+[NOTE]
+During Paused Motion, this section will be shown on top of the JOGGING panel. The following section will cover each button encountered in this panel. Please see <<qt_cut-recovery, CUT RECOVERY>> for a detailed description of the cut recovery functionality.
 
 [width="100%",cols="4,16"]
 |===
@@ -977,13 +1015,13 @@ If a full table is displayed due to no G-Code file being loaded and the user wis
 [[qt_conversational-tab]]
 === CONVERSATIONAL Tab
 
-Screenshot example of the QtPlasmaC <<qt_conversational-tab, CONVERSATIONAL Tab>> in *16:9* aspect ratio:
+Screenshot example of the QtPlasmaC <<qt_conversational-tab,CONVERSATIONAL Tab>> in *16:9* aspect ratio:
 
 image::images/qtplasmac_conversational.png[width=800,align="center"]
 
-The <<qt_conversational-tab, CONVERSATIONAL Tab>> enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
+The <<qt_conversational-tab,CONVERSATIONAL Tab>> enables the user to quickly program various simple shapes for quick cutting without the need for CAM software.
 
-See <<qt_shape-library, Conversational Shape Library>> for detailed information on the Conversational feature.
+See <<qt_shape-library,Conversational Shape Library>> for detailed information on the Conversational feature.
 
 It is possible to disable this tab so the conversational feature cannot be used by an operator. This may be achieved either by wiring the pin to a physical key-switch or similar or it may also be set in a HAL file using the following command:
 
@@ -994,13 +1032,13 @@ setp qtplasmac.conv_disable 1
 [[qt_parameters-tab]]
 === PARAMETERS Tab
 
-Screenshot example of the QtPlasmaC <<qt_parameters-tab, PARAMETERS Tab>> in *16:9* aspect ratio:
+Screenshot example of the QtPlasmaC <<qt_parameters-tab,PARAMETERS Tab>> in *16:9* aspect ratio:
 
 image::images/qtplasmac_parameters.png[width=800,align="center"]
 
 Some functions/features are only used for particular modes and are not displayed if they are not required by the chosen QtPlasmaC mode.
 
-Due to space constraints, the 4x3 GUI's <<qt_parameters-tab, PARAMETERS Tab>> will be spread across two tabs, PARAMETERS and SETTINGS.
+Due to space constraints, the 4x3 GUI's <<qt_parameters-tab,PARAMETERS Tab>> will be spread across two tabs, PARAMETERS and SETTINGS.
 
 This tab is used to display configuration parameters that are modified infrequently.
 
@@ -1019,31 +1057,33 @@ setp qtplasmac.param_disable 1
 |Max Starts|0, 1, 2|This sets the number of times QtPlasmaC will attempt to start the arc.
 |Retry Delay|0, 1, 2|This sets the time (in seconds) between an arc failure and another arc start attempt.
 |Voltage Scale|0, 1|This sets the arc voltage input scale and is used to display the correct arc voltage. +
-    For initial setup, see <<qt_calibration-values, Calibration Values>>.
+    For initial setup, see <<qt_calibration-values,Calibration Values>>.
 |Voltage Offset|0, 1|This sets the arc voltage offset and is used to display zero volts when there is zero arc voltage input. +
-    For initial setup, see <<qt_calibration-values, Calibration Values>>.
+    For initial setup, see <<qt_calibration-values,Calibration Values>>.
 |Height Per Volt|0, 1, 2|This sets the distance the torch would need to move to change the arc voltage by one volt. +
     Used for manual height manipulation only.
 |OK High Volts|0|This sets the voltage threshold below which Arc OK signal is valid.
 |OK Low Volts|0|This sets the voltage threshold above which the Arc OK signal is valid.
 |===
 
-NOTE: When setting the OK Low Volts and OK High Volts in Mode 0, the cut voltage of a stable arc must be greater than the OK Low Volts value but lower than the OK High Volts value for QtPlasmaC to receive a valid Arc OK signal. To further clarify, to have a valid Arc OK, the arc voltage must fall between the two limits.
+[NOTE]
+When setting the OK Low Volts and OK High Volts in Mode 0, the cut voltage of a stable arc must be greater than the OK Low Volts value but lower than the OK High Volts value for QtPlasmaC to receive a valid Arc OK signal. To further clarify, to have a valid Arc OK, the arc voltage must fall between the two limits.
 
 [underline]*CONFIGURATION - PROBING*
 
 [width="100%",cols="4,16"]
 |===
 |*Name*|*Description*
-|Float Travel|This sets the amount of travel the float switch moves before completing the float switch circuit. This distance can be measured by using the Probe Test button, and the method described in <<qt_initial-setup, Initial Setup>>.
+|Float Travel|This sets the amount of travel the float switch moves before completing the float switch circuit. This distance can be measured by using the Probe Test button, and the method described in <<qt_initial-setup,Initial Setup>>.
 |Probe Speed|This sets the speed at which the torch will probe to find the material after it moves to the Probe Height.
-|Probe Height|This sets the height above the Z axis minimum limit that Probe Speed begins. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
+|Probe Height|This sets the height above the Z axis minimum limit that Probe Speed begins. Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation.
 |Ohmic Offset|This sets the distance above the material the torch will should go after a successful ohmic probe. It is mainly used to compensate for high probing speeds.
 |Ohmic Retries|This sets the number of times QtPlasmaC will retry a failed ohmic probe before falling back to the float switch for material detection.
-|Skip IHS|This sets the distance threshold used to determine if an Initial Height Sense (probe) can be skipped for the current cut, see <<qt_ihs-skip, IHS Skip>>.
+|Skip IHS|This sets the distance threshold used to determine if an Initial Height Sense (probe) can be skipped for the current cut, see <<qt_ihs-skip,IHS Skip>>.
 |===
 
-NOTE: If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing, the probing section>> for a possible solution.
+[NOTE]
+If the amount of time between the torch contacting the material and when the torch moves up and comes to rest at the Pierce Height seems excessive, see <<qt_probing,the probing section>> for a possible solution.
 
 [underline]*CONFIGURATION - SAFETY*
 
@@ -1083,7 +1123,8 @@ NOTE: If the amount of time between the torch contacting the material and when t
 |Setup Speed|The Z axis velocity for setup moves (movements to Probe Height, Pierce Height, Cut Height, etc.).
 |===
 
-NOTE: Setup Speed has no effect on THC speed which is capable of the velocity displayed in the Max. Speed field.
+[NOTE]
+Setup Speed has no effect on THC speed which is capable of the velocity displayed in the Max. Speed field.
 
 [underline]*CONFIGURATION - THC*
 
@@ -1099,7 +1140,8 @@ NOTE: Setup Speed has no effect on THC speed which is capable of the velocity di
 |PID-D|0, 1|This sets the Derivative gain for the THC PID loop. Derivative gain works to dampen the system and reduce over correction oscillations and is not always needed.
 |===
 
-NOTE: PID loop tuning is a complicated process and is outside the scope of this User Guide. There are many sources of information available to assist with understanding and tuning PID loops. If the THC is not making corrections fast enough, it is recommended to increase the P gain in small increments until the system operates favorably. Large P gain adjustments can result in over correction and oscillations.
+[NOTE]
+PID loop tuning is a complicated process and is outside the scope of this User Guide. There are many sources of information available to assist with understanding and tuning PID loops. If the THC is not making corrections fast enough, it is recommended to increase the P gain in small increments until the system operates favorably. Large P gain adjustments can result in over correction and oscillations.
 
 [underline]*SAVE & RELOAD Buttons*
 
@@ -1116,10 +1158,10 @@ This section shows the parameters which are active for the current cut.
 |===
 |*Name*|*Description*
 |Material|The top drop down menu is used to manually select the current material cut parameters. If there are no materials in the material file then only the default material will be displayed.
-|Kerf Width|This sets the kerf width for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
-|Pierce Height|This sets the pierce height for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
+|Kerf Width|This sets the kerf width for the currently selected material. Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation.
+|Pierce Height|This sets the pierce height for the currently selected material. Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation.
 |Pierce Delay|This sets the pierce delay (in seconds) for the currently selected material.
-|Cut Height|This sets the cut height for the currently selected material. Refer to the <<qt_initial-setup, Heights Diagram>> diagram for a visual representation.
+|Cut Height|This sets the cut height for the currently selected material. Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual representation.
 |Cut Feed Rate|This sets the cut feed rate for the currently selected material.
 |Cut Amps|This sets the cut amperage for the currently selected material. +
     This is a visual indicator to the operator only, unless PowerMax communications are being used.
@@ -1331,7 +1373,8 @@ The following variables are optional. If they are not detected or have no value 
 * GAS_PRESSURE
 * CUT_MODE
 
-NOTE: Material numbers 1000000 and above are reserved for temporary materials.
+[NOTE]
+Material numbers 1000000 and above are reserved for temporary materials.
 
 WARNING: It is the responsibility of the operator to ensure that the variables are included if they are a requirement for the G-Code to be run.
 
@@ -1377,7 +1420,8 @@ M3 $0 S1
 M5 $0
 ----
 
-NOTE: Manual material handling will restrict the user to only one material for the entire job.
+[NOTE]
+Manual material handling will restrict the user to only one material for the entire job.
 
 === Automatic Material Handling
 
@@ -1526,7 +1570,8 @@ For both a Manual creation or a Fusion 360 conversion, a dialog box will show wi
 
 image::images/qtplasmac_material_manual_dialog.png[width=150,align="center"]
 
-NOTE: If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the file already exists, it will be overwritten.
+[NOTE]
+If the user selects ~/linuxcnc/configs/<machine_name>_material.cfg and the file already exists, it will be overwritten.
 
 [[qt_camera]]
 === CAMERA
@@ -1718,7 +1763,8 @@ IMPORTANT: *G-CODE THC* AND *VELOCITY BASED THC* ARE NOT ABLE TO BE USED IF *CUT
 
 WARNING: If Cut Feed Rate in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>> is set to Zero then QtPlasmaC will use *motion.requested-velocity* (as set by a standard Feedrate call in the G-Code) for the THC calculations. This is not recommended as it is not a reliable way of implementing velocity based THC.
 
-NOTE: All references to CutFeedRate refer to the *Cut Feed Rate* value displayed in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
+[NOTE]
+All references to CutFeedRate refer to the *Cut Feed Rate* value displayed in the MATERIAL section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
 [[qt_thc]]
 === THC (Torch Height Controller)
@@ -1816,7 +1862,8 @@ This speed value affects ALL probing so if the user uses ohmic probing and the u
 
 The reliability of this feature will only be as good as the repeatability of the float switch.
 
-NOTE: Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
+[NOTE]
+Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
 
 [[qt_offset_probing]]
 === Offset Probing
@@ -1880,7 +1927,8 @@ There are three methods available for improving the quality of small holes:
 . *Arc Dwell (<<qt_pause-at-end, Pause At End>>)* - Keeping the torch on for a short time at the end of the hole while motion is stopped to allow the arc to catch up.
 . *Overcut* - Turning the torch off at the end of the hole then continue along the path.
 
-NOTE: If both *Arc Dwell* and *Overcut* are active at the same time then *Overcut* will take precedence.
+[NOTE]
+If both *Arc Dwell* and *Overcut* are active at the same time then *Overcut* will take precedence.
 
 IMPORTANT: *OVERCUT* IS NOT ABLE TO BE USED IF CUTTER COMPENSATION IS IN EFFECT; AN ERROR MESSAGE WILL BE DISPLAYED.
 
@@ -2009,7 +2057,8 @@ G0 X0 Y0
 M2 (end job)
 ----
 
-NOTE: It is OK to have multiple and mixed hole commands in a single G-Code file.
+[NOTE]
+It is OK to have multiple and mixed hole commands in a single G-Code file.
 
 === Single Cut
 
@@ -2060,7 +2109,8 @@ If the user is using a custom user button then substitute *F9* with *User Button
 . The torch will turn off and the Z axis will return to the starting position. +
 . The jog speed will automatically be returned to the value it was prior to initiating the manual cut process, the label will stop blinking and the jog speed manipulation will be enabled. *MANUAL CUT* will stop blinking and revert to *CYCLE START*.
 
-NOTE: If the torch flames out during cutting, the user must still press *F9* or *Esc* or the *CYCLE STOP* button to end the cut. This clears the Z offsets and returns the torch to the starting position.
+[NOTE]
+If the torch flames out during cutting, the user must still press *F9* or *Esc* or the *CYCLE STOP* button to end the cut. This clears the Z offsets and returns the torch to the starting position.
 
 [[qt_mesh-mode]]
 === Mesh Mode (Expanded Metal Cutting)
@@ -2126,7 +2176,8 @@ If an alignment laser has been set up then it is possible to use the laser durin
 
 If a laser offset is in effect when *CANCEL MOVE* is pressed then this offset will also be cleared.
 
-NOTE: Cut recovery movements will be limited to a radius of 10mm (0.4") from either the point the program was paused, or from the last point on the cut path if paused motion was used.
+[NOTE]
+Cut recovery movements will be limited to a radius of 10mm (0.4") from either the point the program was paused, or from the last point on the cut path if paused motion was used.
 
 [[qt_run-from-line]]
 === Run From Line
@@ -2266,7 +2317,8 @@ G90
 M2
 ----
 
-NOTE: The *high feed rate* of 99999 is to ensure that the motion is at the machine's highest feed rate.
+[NOTE]
+The *high feed rate* of 99999 is to ensure that the motion is at the machine's highest feed rate.
 
 IMPORTANT: SOME PLASMA CUTTERS WILL NOT BE SUITABLE FOR THIS FEATURE. +
 IT IS RECOMMENDED THAT THE USER CARRY OUT SOME TEST SPOTTING TO ENSURE THAT THE PLASMA CUTTER IS CAPABLE OF UTILIZING THIS FEATURE.
@@ -2293,7 +2345,8 @@ If the virtual keyboard has been repositioned and on the next opening of a virtu
 
 Below is a list of all available keyboard shortcuts in QtPlasmaC.
 
-NOTE: All keyboard shortcuts are disabled by default.
+[NOTE]
+All keyboard shortcuts are disabled by default.
 
 In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* section of the <<qt_parameters-tab, PARAMETERS Tab>>.
 
@@ -2366,7 +2419,8 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 
 In addition to the typical G and M codes that are allowed by LinuxCNC in MDI mode, the MDI in QtPlasmaC can be used to access several other handy features. The following link outlines the features and their use:  link:http://linuxcnc.org/docs/devel/html/gui/qtvcp_widgets.html#_mdiline_widget[MDILine Widget]
 
-NOTE: M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
+[NOTE]
+M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
 
 *In addition, pressing RETURN (or ENTER) with no entry in the MDI will close the MDI window.*
 
@@ -2377,7 +2431,8 @@ image::images/qtplasmac_conversational.png[width=800,align="center"]
 
 The *Conversational Shape Library* consists of several basic shapes and functions to assist the user with generating quick G-Code at the machine to cut simple shapes quickly. This feature is found on the <<qt_conversational-tab, CONVERSATIONAL Tab>>.
 
-NOTE: The Conversational Library is not meant to be a CAD/CAM replacement as there are limitations to what can be achieved.
+[NOTE]
+The Conversational Library is not meant to be a CAD/CAM replacement as there are limitations to what can be achieved.
 
 Blank entries in the shape input boxes will use the current setting at the time the G-Code was generated. For example, if *X start* was left blank then the current X axis position would be used.
 
@@ -2415,7 +2470,8 @@ If there is an added shape that is unsaved or unsent then it is not possible to 
 
 If *NEW* is pressed to remove an added shape that is unsaved or unsent then a warning dialog will be displayed.
 
-NOTE: All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
+[NOTE]
+All distances are in machine units relative to the current User Coordinate System and all angles are in degrees.
 
 === Conversational Settings
 
@@ -2465,7 +2521,8 @@ To use lines and arcs:
 
 If the user wishes to create a closed shape, they will need to create any required lead-in as the first segment of the shape. If a lead-out is required it will need to be the last segment of the shape.
 
-NOTE: At this stage there is no automatic option for a lead-in/lead-out creation if the shape is closed.
+[NOTE]
+At this stage there is no automatic option for a lead-in/lead-out creation if the shape is closed.
 
 === Conversational Single Shape
 
@@ -2575,7 +2632,8 @@ The user may opt to disable the Operator Error popup window, and view the error 
 desktop_notify
 ----
 
-NOTE: <machine_name>.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
+[NOTE]
+<machine_name>.prefs must be edited with QtPlasmaC closed or any changes will be overwritten on exit.
 
 Additionally, it is possible for *ERROR SENT TO MACHINE LOG* to flash to get the user's attention by adding or editing the following line in the [QTPLASMAC] section of the <machine_name>.ini file:
 
@@ -2717,7 +2775,8 @@ There are two ways to modify an existing QtPlasmaC configuration:
 
 IMPORTANT: Any manual modification to the <machine_name>.ini and <machine_name>.hal files will not be registered in PnCConf or StepConf.
 
-NOTE: If unsure of the HAL pin's full name, the user may start LinuxCNC and run *HalShow* for a full listing of all HAL pins.
+[NOTE]
+If unsure of the HAL pin's full name, the user may start LinuxCNC and run *HalShow* for a full listing of all HAL pins.
 
 == Customizing QtPlasmaC GUI
 
@@ -3017,7 +3076,8 @@ QtPlasmaC will then wait in this state for the time specified (rounded to no dec
 BUTTON_n_CODE = probe-test 6
 ----
 
-NOTE: Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+[NOTE]
+Enabling a user button as a Probe Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-ohmic]]
 [underline]*Ohmic Test*
@@ -3028,7 +3088,8 @@ QtPlasmaC will enable the Ohmic Probe Enable output signal and if the Ohmic Prob
 BUTTON_n_CODE = ohmic-test
 ----
 
-NOTE: Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+[NOTE]
+Enabling a user button as an Ohmic Test button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-cut]]
 [underline]*Cut Type*
@@ -3058,7 +3119,8 @@ There are three methods to return to the previous coordinates:
 BUTTON_n_CODE = change-consumables X10 Y10 F1000
 ----
 
-NOTE: Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+[NOTE]
+Enabling a user button as a Change Consumables button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-load]]
 [underline]*Load*
@@ -3090,7 +3152,8 @@ If the button is released before the countdown is complete then the torch will t
 BUTTON_n_CODE = torch-pulse 0.5
 ----
 
-NOTE: Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
+[NOTE]
+Enabling a user button as a Torch Pulse button will add an <<qt_ext-hal-pin, external HAL pin>> that may be connected from a pendant etc. HAL connections to this HAL pin needs to be specified in a postgui HAL file as the Hal pin is not available until the QtPlasmac GUI has loaded.
 
 [[qt_button-single]]
 [underline]*Single Cut*
@@ -3119,7 +3182,8 @@ The following GUI buttons and Keyboard Shortcuts (if enabled in the <<qt_paramet
 . Pressing *CYCLE RESUME* or the CTRL+r <<qt_keyboard-shortcuts, keyboard shortcut>>- Resumes paused Framing motion.
 . Changing the *FEED SLIDER* or any of the CTRL+0-9 <<qt_keyboard-shortcuts, keyboard shortcuts>> - Slows the feed rate.
 
-NOTE: IF THE FEED RATE IS CHANGED FOR THE FRAMING MOTION, IT WILL BE NECESSARY TO RETURN THE FEED SLIDER TO 100% BEFORE PRESSING CYCLE START AND CUTTING THE LOADED JOB.
+[NOTE]
+IF THE FEED RATE IS CHANGED FOR THE FRAMING MOTION, IT WILL BE NECESSARY TO RETURN THE FEED SLIDER TO 100% BEFORE PRESSING CYCLE START AND CUTTING THE LOADED JOB.
 
 ----
 BUTTON_n_CODE = framing
@@ -3193,7 +3257,8 @@ Use the following sequence to set the offsets for a laser, camera, or scribe:
 
 Cancelling may be done at any stage by pressing the CANCEL button which will close the dialog and no changes will be saved.
 
-NOTE: By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
+[NOTE]
+By following the above procedure the offsets are available for use immediately and no restart of LinuxCNC is required.
 
 === Keep Z Motion
 
@@ -3468,7 +3533,8 @@ To switch the PowerMax back to local mode the user can either:
 
 TIP: If PowerMax communications is active then selecting <<qt_mesh-mode, Mesh Mode>> will automatically select CPA mode on the PowerMax unit.
 
-NOTE: To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
+[NOTE]
+To use the PowerMax communications feature it is necessary to have the python pyserial module installed. +
 If pyserial is not installed an error message will be displayed.
 
 To install pyserial, enter the following command into a terminal window:
@@ -3524,7 +3590,8 @@ Create or edit a .ts file:
 $ langfile xx
 ----
 
-NOTE: this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts
+[NOTE]
+this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts
 
 The editing of the translation is done with the linguist application:
 ----
@@ -3812,7 +3879,8 @@ There is a frequency divider jumper on each THCAD card which should be set accor
 
 This value is required to be entered into PNcConf during installation.
 
-NOTE: If using a parallel port it may be necessary for the user to adjust the jumper setting and the subsequent scaling values on the <<qt_parameters-tab, Parameters Tab>> to achieve optimal results. Symptoms may include random torch raises or dives during otherwise stable cutting. Halscope plots may be useful in diagnosing these issues.
+[NOTE]
+If using a parallel port it may be necessary for the user to adjust the jumper setting and the subsequent scaling values on the <<qt_parameters-tab, Parameters Tab>> to achieve optimal results. Symptoms may include random torch raises or dives during otherwise stable cutting. Halscope plots may be useful in diagnosing these issues.
 
 [[qt_calibration-values]]
 Located on the rear of the THCAD is a calibration sticker showing:
@@ -3873,9 +3941,11 @@ IMPORTANT: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN EACH OF THES
 
 CAUTION: IF THE USER IS USING A HF START PLASMA POWER SUPPLY THEN OHMIC SENSING IS NOT RECOMMENDED.
 
-NOTE: These values can be calculated by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calculator].
+[NOTE]
+These values can be calculated by using https://jscalc.io/calc/NTr5QDX6WgMThBVb[this online calculator].
 
-NOTE: There is a <<qt_lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
+[NOTE]
+There is a <<qt_lowpass, lowpass filter>> available which may be useful if using a THCAD and there is a lot of noise on the returned arc voltage.
 
 [[qt_rs485_connections]]
 === RS485 Connections
@@ -3942,7 +4012,8 @@ AUTOREPEAT_ALL == ENABLE
 
 This issue does not affect any jogging using the GUI jog buttons.
 
-NOTE: Disconnecting and reconnecting a keyboard during an active QtPlasmaC session will cause the autorepeat feature to re-enable itself automatically which may cause intermittent stopping and starting during jogging. The user must restart QtPlasmaC to disable the autorepeat feature again.
+[NOTE]
+Disconnecting and reconnecting a keyboard during an active QtPlasmaC session will cause the autorepeat feature to re-enable itself automatically which may cause intermittent stopping and starting during jogging. The user must restart QtPlasmaC to disable the autorepeat feature again.
 
 == Support
 
@@ -3950,3 +4021,4 @@ Online help and support is available from the https://forum.linuxcnc.org/plasmac
 
 The user can create a compressed file containing the complete machine configuration to aid in fault diagnosis by pressing following the directions in the <<qt_backup, backup>> section. The resulting file is suitable for attaching to a post on the LinuxCNC Forum to help the community diagnose specific issues.
 
+// vim: set syntax=asciidoc:

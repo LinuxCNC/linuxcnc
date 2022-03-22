@@ -2,6 +2,7 @@
 
 [[cha:plasma-primer]]
 = Plasma Cutting Primer for LinuxCNC Users(((Plasma Cutting Primer)))
+
 :toc:
 
 == What Is Plasma?
@@ -35,15 +36,15 @@ Plasma operations on CNC machines is quite unique in comparison to milling or tu
 
 A plasma Arc is oval in shape and the cutting height needs to be controlled to minimise bevelled edges. If the torch is too high or too low then the edges can become excessively bevelled. It is also critical that the torch is held perpendicular to the surface.
 
-*Torch to work distance can impact edge bevel*
+* *Torch to work distance can impact edge bevel*
 
 image::images/primer_cut-angularity.png[width=50%]
 
-*Negative cut angle:* torch too low, increase torch to work distance.
+* *Negative cut angle:* torch too low, increase torch to work distance.
+* *Positive cut angle:* torch too high, decrease torch to work distance.
 
-*Positive cut angle:* torch too high, decrease torch to work distance.
-
-NOTE: A slight variation in cut angles may be normal, as long as it is within tolerance.
+[NOTE]
+A slight variation in cut angles may be normal, as long as it is within tolerance.
 
 The ability to precisely control the cutting height in such a hostile and ever changing environment is a very difficult challenge. Fortunately there is a very linear relationship between Torch height (Arc length) and arc voltage as this graph shows.
 
@@ -174,8 +175,8 @@ It is important for the plasma controller to “wait it out" before auto samplin
 
 In our testing this varies between machines and material from 0.5 to 1.5 seconds. Therefore a delay of 1.5 seconds after a valid arcOK signal is received before enabling THC control is a safe initial setting. If you want to shorten this for a given material, LinuxCNC's Halscope will allow you to plot the torch voltage and make informed decisions about the shortest safe delay is used.
 
-
-NOTE: If the cut velocity is not near the desired cut speed at the end of this delay, the controller should wait until this is achieved before enabling the THC.
+[NOTE]
+If the cut velocity is not near the desired cut speed at the end of this delay, the controller should wait until this is achieved before enabling the THC.
 
 == Torch Voltage Sampling
 
@@ -283,7 +284,6 @@ As can be seen, plasma tables are pin intensive and we have already consumed abo
 
 * As mentioned earlier, a breakaway sensor should be installed that is triggered if the torch crashes and falls off.
 * Usually, this would be connected to 'halui.program-pause' so the fault can be rectified and the program resumed.
-
 
 == G-Code For Plasma Controllers
 
@@ -504,3 +504,4 @@ Another popular post-processor is included with the popular Fusion360 package bu
 
 LinuxCNC is a CNC application and discussions of CAM techniques other than this introductory discussion are out of scope of LinuxCNC.
 
+// vim: set syntax=asciidoc:
