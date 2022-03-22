@@ -253,7 +253,6 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
 //== Test This Axis C
 
 .Test This Axis B
-
 image::images/stepconf-x-test_en.png["Test This Axis",align="center",]
 
 Test this axis is a basic tester that only outputs step and direction signals
@@ -324,7 +323,6 @@ reduce it by 10% and use that as the axis Maximum Acceleration.
 == Spindle Configuration
 
 .Spindle Configuration Page
-
 image::images/stepconf-spindle_en.png["Spindle Configuration Page",align="center"]
 
 This page only appears when 'Spindle PWM' is chosen in the 'Parallel Port Pinout' page for one of the outputs.
@@ -471,8 +469,7 @@ the soft limits stop the machine from reaching the hard stop.
 Soft limits only operate after the machine has been homed.
 
 [[sub:Operating-without-Home]]
-=== Operating without Home Switches
-(((Operating without Home Switches)))
+=== Operating without Home Switches(((Operating without Home Switches)))
 
 A machine can be operated without home switches.
 If the machine has limit switches, but no home switches,
@@ -525,4 +522,3 @@ The following combinations of switches are permitted in Stepconf:
 * Combine one limit switch and the home switch for one axis
 
 // vim: set syntax=asciidoc:
-

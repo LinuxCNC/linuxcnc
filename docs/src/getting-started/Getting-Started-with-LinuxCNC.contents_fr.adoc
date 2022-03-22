@@ -14,6 +14,4 @@ include::updating-linuxcnc_fr.adoc[]
 
 include::running-linuxcnc_fr.adoc[]
 
-include::pncconf_fr.adoc[]
-
 // vim: set syntax=asciidoc:
