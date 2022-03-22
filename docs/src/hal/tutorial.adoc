@@ -100,6 +100,7 @@ load 'siggen' use the HAL command 'loadrt'.
 halcmd: loadrt siggen
 ----
 
+[[sec:tutorial-halcmd]]
 === Examining the HAL
 
 Now that the module is loaded, it is time to introduce 'halcmd' , the

@@ -748,20 +748,22 @@ Proceso del bucle principal de iocontrol:
 
 números de mensaje nml: de emc.hh:
 
-#define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601) +
-#define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199) +
-#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101) +
-#define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102) +
-#define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103) +
-#define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104) +
-#define EMC_TOOL_LOAD_TYPE                           ((NMLTYPE) 1105) +
-#define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106) +
-#define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107) +
-#define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108) +
-#define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109) +
-// el siguiente mensaje se envía a io al comienzo de un M6 +
-// incluso antes de que emccanon emita el movimiento a la posición de cambio de herramienta +
-#define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110) +
+----
+#define EMC_IO_INIT_TYPE                             ((NMLTYPE) 1601)
+#define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
+#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)
+#define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
+#define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
+#define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)
+#define EMC_TOOL_LOAD_TYPE                           ((NMLTYPE) 1105)
+#define EMC_TOOL_UNLOAD_TYPE                         ((NMLTYPE) 1106)
+#define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)
+#define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)
+#define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109)
+// el siguiente mensaje se envía a io al comienzo de un M6
+// incluso antes de que emccanon emita el movimiento a la posición de cambio de herramienta
+#define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
+----
 
 == Interfaces de usuario
 
@@ -856,7 +858,6 @@ vista interna del espacio del búfer.
 image::CMS_buffer.png[align="center"]
 
 .CMS buffer
-
 La clase base de CMS es la principal responsable de crear las
 vías de comunicación e interfaz con el S.O.
 
@@ -880,7 +881,6 @@ Buffers, y un segundo para Procesos que se conectan a los buffers.
 El formato NIST original de la línea de búfer es:
 
 * 'B nombre tipo host tamaño neut RPC# buffer# max_procs key [configuraciones específicas por tipo]'
-
 * 'B'- identifica la línea como una configuración de búfer.
 * 'nombre'- es el identificador del búfer.
 * 'tipo'- describe el tipo de búfer: SHMEM, LOCMEM, FILEMEM, PHANTOM o GLOBMEM.
@@ -1159,16 +1159,16 @@ La tabla de herramientas registra la siguiente información para cada herramient
 número de herramienta::
 
 Un entero que identifica de forma exclusiva esta herramienta. Los números de herramienta son
-manejados de manera diferente por LinuxCNC cuando se configuran cambiadores de herramientas no aleatorios
-o aleatorios:
+manejados de manera diferente por LinuxCNC cuando se configuran cambiadores de herramientas no
+aleatorios o aleatorios:
 
 * Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio,
-el número debe ser positivo. T0 recibe un manejo especial y no está
-permitido que aparezca en la tabla de herramientas.
+  el número debe ser positivo. T0 recibe un manejo especial y no está
+  permitido que aparezca en la tabla de herramientas.
 
 * Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio este número
-debe ser positivo o cero. T0 está permitido en la tabla de herramientas y
-generalmente se usa para representar "ninguna herramienta", es decir, ranura vacía.
+  debe ser positivo o cero. T0 está permitido en la tabla de herramientas y
+  generalmente se usa para representar "ninguna herramienta", es decir, ranura vacía.
 
 número de ranura::
 
@@ -1178,15 +1178,15 @@ de manera diferente por LinuxCNC cuando está configurado para cambiadores de he
 y no aleatorio:
 
 * Cuando LinuxCNC está configurado para un cambiador de herramientas no aleatorio,
-el número de ranura en el archivo de herramientas puede ser cualquier número entero positivo (ranura
-0 no está permitida). LinuxCNC compacta en silencio
-los números de ranura cuando carga el archivo de herramienta, por lo que puede haber una diferencia
-entre los números en el archivo de herramientas y los números internos de ranura utilizados
-por LinuxCNC.
+  el número de ranura en el archivo de herramientas puede ser cualquier número entero positivo (ranura
+  0 no está permitida). LinuxCNC compacta en silencio
+  los números de ranura cuando carga el archivo de herramienta, por lo que puede haber una diferencia
+  entre los números en el archivo de herramientas y los números internos de ranura utilizados
+  por LinuxCNC.
 
 * Cuando LinuxCNC está configurado para un cambiador de herramientas aleatorio, los números de ranura
-en el archivo de herramientas deben estar entre 0 y 1000, ambos inclusive.
-Las ranuras 1-1000 están en el cambiador de herramientas; la ranura 0 es el husillo.
+  en el archivo de herramientas deben estar entre 0 y 1000, ambos inclusive.
+  Las ranuras 1-1000 están en el cambiador de herramientas; la ranura 0 es el husillo.
 
 diámetro::
 
@@ -1202,7 +1202,6 @@ Los ejes que no tienen una TLO especificada, la rellenan con 0.
 
 Los gcodes que usan o afectan la información de la herramienta son:
 
-
 ==== Txxx
 
 Le dice al hardware del cambiador de herramientas que se prepare para cambiar a una determinada
@@ -1211,23 +1210,23 @@ herramienta +xxx+.
 Manejado por +Interp::convert_tool_select()+.
 
 . Se le pide a la máquina que se prepare para cambiar a la herramienta seleccionada
-llamando a la función Canonica +SELECT_POCKET()+ con el número de ranura
-de la herramienta solicitada.
+  llamando a la función Canonica +SELECT_POCKET()+ con el número de ranura
+  de la herramienta solicitada.
 
 .. (saicanon) No-op.
 
 .. (emccanon) Crea un mensaje +EMC_TOOL_PREPARE+ con el número de ranura solicitada
-y lo envía a Task, que lo envía a IO. IO recibe el mensaje y le pide a HAL que prepare
-la ranura configurando +iocontrol.0.tool-prep-pocket+,
-+iocontrol.0.tool-prep-number+, y +iocontrol.0.tool-prepare+.
-IO luego llama repetidamente a +read_tool_inputs()+ para sondear el pin HAL
-+iocontrol.0.tool-ready+, que informa a IO, desde el hardware del cambiador de herramientas,
-a través de HAL, que la preparación de la herramienta solicitada está completa.
-Cuando ese pin se vuelve true, IO establece +emcioStatus.tool.pocketPrepped+
-con el número de ranura de la herramienta solicitada.
+   y lo envía a Task, que lo envía a IO. IO recibe el mensaje y le pide a HAL que prepare
+   la ranura configurando +iocontrol.0.tool-prep-pocket+,
+   +iocontrol.0.tool-prep-number+, y +iocontrol.0.tool-prepare+.
+   IO luego llama repetidamente a +read_tool_inputs()+ para sondear el pin HAL
+   +iocontrol.0.tool-ready+, que informa a IO, desde el hardware del cambiador de herramientas,
+   a través de HAL, que la preparación de la herramienta solicitada está completa.
+   Cuando ese pin se vuelve true, IO establece +emcioStatus.tool.pocketPrepped+
+   con el número de ranura de la herramienta solicitada.
 
 . De vuelta a Interp, se le asigna a +settings->selected_pocket+ el número de ranura
-de la herramienta solicitada _xxx_.
+  de la herramienta solicitada _xxx_.
 
 ==== M6
 
@@ -1237,39 +1236,33 @@ por el comando Txxx anterior).
 Manejado por +Interp::convert_tool_change()+.
 
 . Se le pide a la máquina que cambie a la herramienta seleccionada
-llamando a la función Canónica +CHANGE_TOOL()+ con
-+settings->selected_pocket+.
-
+  llamando a la función Canónica +CHANGE_TOOL()+ con
+  +settings->selected_pocket+.
 .. (saicanon) Establece sai +_active_slot+ en el número de ranura pasado.
-La información de la herramienta se copia de la ranura seleccionada
-de la tabla de herramientas (es decir, de sai's +_tools[_active_slot]+)
-al husillo (a sai +_tools[0]+).
-
+   La información de la herramienta se copia de la ranura seleccionada
+   de la tabla de herramientas (es decir, de sai's +_tools[_active_slot]+)
+   al husillo (a sai +_tools[0]+).
 .. (emccanon) Envía un mensaje +EMC_TOOL_LOAD+ a Task, que
-lo envía a IO. IO establece +emcioStatus.tool.toolInSpindle+
-al número de herramienta de la herramienta en el ranura identificado
-por +emcioStatus.tool.pocketPrepped+ (establecido por +Txxx+
-alias +SELECT_POCKET()+). Luego solicita que el
-cambiador de herramientas hardware realice un cambio de herramienta, configurando
-el pin HAL +iocontrol.0.tool-change+ a True. Más tarde,
-IO's +read_tool_inputs() + detectará que el pin HAL
-+iocontrol.0.tool_changed+ se ha establecido en True, lo que indica que
-toolchanger ha completado el cambio de herramienta. Cuando esto pasa,
-llama a +load_tool()+ para actualizar el estado de la máquina.
-
+   lo envía a IO. IO establece +emcioStatus.tool.toolInSpindle+
+   al número de herramienta de la herramienta en el ranura identificado
+   por +emcioStatus.tool.pocketPrepped+ (establecido por +Txxx+
+   alias +SELECT_POCKET()+). Luego solicita que el
+   cambiador de herramientas hardware realice un cambio de herramienta, configurando
+   el pin HAL +iocontrol.0.tool-change+ a True. Más tarde,
+   IO's +read_tool_inputs() + detectará que el pin HAL
+   +iocontrol.0.tool_changed+ se ha establecido en True, lo que indica que
+   toolchanger ha completado el cambio de herramienta. Cuando esto pasa,
+   llama a +load_tool()+ para actualizar el estado de la máquina.
 ... +load_tool()+ con un cambiador de herramientas no aleatorio,
-copia la información de la herramienta de la ranura seleccionada
-al husillo (ranura 0).
-
+    copia la información de la herramienta de la ranura seleccionada
+    al husillo (ranura 0).
 ... +load_tool()+ con cambiador de herramientas aleatorio,
-intercambia información entre el ranura 0 (el husillo) y la ranura seleccionada,
-luego guarda la tabla de herramientas.
-
+    intercambia información entre el ranura 0 (el husillo) y la ranura seleccionada,
+    luego guarda la tabla de herramientas.
 . De vuelta en interp, +settings->current_pocket+ se le asigna la nueva
-herramienta desde +settings->selected_pocket+ (establecido por +Txxx+). Los parámetros numerados
-relevantes (<<sub:numbered-parameters, #5400- #5413) son
-actualizados con la nueva información de herramienta de la ranura 0 (husillo).
-
+  herramienta desde +settings->selected_pocket+ (establecido por +Txxx+). Los parámetros numerados
+  relevantes (<<sub:numbered-parameters, #5400- #5413) son
+  actualizados con la nueva información de herramienta de la ranura 0 (husillo).
 
 ==== G43/G43.1/G49
 
@@ -1281,26 +1274,21 @@ el desplazamiento de todos los ejes).
 Manejado por +Interp::convert_tool_length_offset()+.
 
 . Comienza construyendo una +EmcPose+ que contiene los desplazamientos a usar de 9 ejes.
-Para +G43.1+, estas compensaciones de herramientas provienen de palabras de eje en el
-bloque actual. Para +G43+ estos desplazamientos provienen de la herramienta actual
-(la herramienta en la ranura 0), o de la herramienta especificada por la palabra H en
-el bloque. Para G49, los desplazamientos son todos 0.
-
+  Para +G43.1+, estas compensaciones de herramientas provienen de palabras de eje en el
+  bloque actual. Para +G43+ estos desplazamientos provienen de la herramienta actual
+  (la herramienta en la ranura 0), o de la herramienta especificada por la palabra H en
+  el bloque. Para G49, los desplazamientos son todos 0.
 . Los desplazamientos se pasan a la función +USE_TOOL_LENGTH_OFFSET()+ Canonica.
-
 .. (saicanon) Graba el TLO en +_tool_offset+.
-
 .. (emccanon) Crea un mensaje +EMC_TRAJ_SET_OFFSET+ que contiene los
-offsets y lo envía a Task, que copia las compensaciones en
-+emcStatus->task.toolOffset+ y los envía a Motion a través de
-un comando +EMCMOT_SET_OFFSET+. Motion copia las compensaciones
-a +emcmotStatus->tool_offset+, donde se usa para compensar
-movimientos futuros
-
+   offsets y lo envía a Task, que copia las compensaciones en
+   +emcStatus->task.toolOffset+ y los envía a Motion a través de
+   un comando +EMCMOT_SET_OFFSET+. Motion copia las compensaciones
+   a +emcmotStatus->tool_offset+, donde se usa para compensar
+   movimientos futuros
 . De vuelta en interp, los desplazamientos se registran en +settings->tool_offset+.
-La ranura efectiva se registra en +settings->tool_offset_index+,
-aunque este valor nunca se usa.
-
+  La ranura efectiva se registra en +settings->tool_offset_index+,
+  aunque este valor nunca se usa.
 
 ==== G10 L1/L10/L11
 
@@ -1309,65 +1297,61 @@ Modifica la tabla de herramientas.
 Manejado por +Interp::convert_setup_tool()+.
 
 . Selecciona el número de herramienta de la palabra P en el bloque y encuentra la
-ranura para esa herramienta:
+  ranura para esa herramienta:
 
 .. Con una configuración de cambiador de herramientas no aleatorio, este es siempre el
-número de ranura en el cambiador de herramientas (incluso cuando la herramienta está en
-el husillo).
+   número de ranura en el cambiador de herramientas (incluso cuando la herramienta está en
+   el husillo).
 
 .. Con una configuración de cambiador de herramientas aleatorio, si la herramienta está actualmente
-cargada utiliza la ranura 0 (ranura 0 significa "el husillo"),
-y si la herramienta no está cargada, usa el número de ranura en
-el cambiador de herramientas. (Esta diferencia es importante).
+   cargada utiliza la ranura 0 (ranura 0 significa "el husillo"),
+   y si la herramienta no está cargada, usa el número de ranura en
+   el cambiador de herramientas. (Esta diferencia es importante).
 
 . Averigua cuáles deberían ser las nuevas compensaciones.
 
 . La nueva información de la herramienta (diámetro, desplazamientos, ángulos y orientación),
-junto con el número de herramienta y el número de ranura, se pasan al Canon
-llame a SET_TOOL_TABLE_ENTRY ().
+  junto con el número de herramienta y el número de ranura, se pasan al Canon
+  llame a SET_TOOL_TABLE_ENTRY ().
 
 .. (saicanon) Copie la información de la nueva herramienta en el ranura especificado
-(en la tabla de herramientas interna de sai, + _tools +).
+   (en la tabla de herramientas interna de sai, + _tools +).
 
 .. (emccanon) Cree un mensaje + EMC_TOOL_SET_OFFSET + con el nuevo
-información de la herramienta y enviarla a Tarea, que la pasa
-a IO. IO actualiza el ranura especificado en su interno
-copia de la tabla de herramientas (+ emcioStatus.tool.toolTable +), y
-si la herramienta especificada está cargada actualmente (se compara con
-+emcioStatus.tool.toolInSpindle+ ) luego la información de la nueva herramienta
-se copia en el ranura 0 (el eje) también. (FIXME: eso es un
-buglet, solo debe copiarse en máquinas no aleatorias). Finalmente IO
-guarda la nueva tabla de herramientas.
-
+   información de la herramienta y enviarla a Tarea, que la pasa
+   a IO. IO actualiza el ranura especificado en su interno
+   copia de la tabla de herramientas (+ emcioStatus.tool.toolTable +), y
+   si la herramienta especificada está cargada actualmente (se compara con
+   +emcioStatus.tool.toolInSpindle+ ) luego la información de la nueva herramienta
+   se copia en el ranura 0 (el eje) también. (FIXME: eso es un
+   buglet, solo debe copiarse en máquinas no aleatorias). Finalmente IO
+   guarda la nueva tabla de herramientas.
 . De vuelta en interp, si la herramienta modificada está cargada actualmente en el
-husillo, y si la máquina es un cambiador de herramientas no aleatorio, entonces
-la nueva información de la herramienta se copia del ranura de inicio de la herramienta
-al ranura 0 (el huso) en la copia de interp de la tabla de herramientas,
-+configuración-> tool_table+. (Esta copia no es necesaria en una herramienta aleatoria
-máquinas de cambio porque allí, las herramientas no tienen un ranura en casa y
-en su lugar, acabamos de actualizar la herramienta en el ranura 0 directamente).
-
+  husillo, y si la máquina es un cambiador de herramientas no aleatorio, entonces
+  la nueva información de la herramienta se copia del ranura de inicio de la herramienta
+  al ranura 0 (el huso) en la copia de interp de la tabla de herramientas,
+  +configuración-> tool_table+. (Esta copia no es necesaria en una herramienta aleatoria
+  máquinas de cambio porque allí, las herramientas no tienen un ranura en casa y
+  en su lugar, acabamos de actualizar la herramienta en el ranura 0 directamente).
 . Los parámetros numerados relevantes
-(<< sub: parámetros numerados, # 5400- # 5413 >>) se actualizan desde la herramienta
-información en el huso (copiando la información de interp's
-+configuración-> tool_table+ a +configuración-> parámetros+). (FIXME: esto es
-un buglet, los params solo deberían actualizarse si era el actual
-herramienta que fue modificada).
-
+  (<< sub: parámetros numerados, # 5400- # 5413 >>) se actualizan desde la herramienta
+  información en el huso (copiando la información de interp's
+  +configuración-> tool_table+ a +configuración-> parámetros+). (FIXME: esto es
+  un buglet, los params solo deberían actualizarse si era el actual
+  herramienta que fue modificada).
 . Si la herramienta modificada está cargada actualmente en el
-eje, y si la configuración es para un cambiador de herramientas no aleatorio, entonces el
-la nueva información de herramienta también se escribe en el ranura 0 de la tabla de herramientas,
-a través de una segunda llamada a SET_TOOL_TABLE_ENTRY (). (Esta segunda tabla de herramientas
-la actualización no es necesaria en máquinas de cambio de herramientas aleatorias porque allí,
-las herramientas no tienen un ranura de casa y en su lugar acabamos de actualizar la herramienta
-en el ranura 0 directamente.)
-
+  eje, y si la configuración es para un cambiador de herramientas no aleatorio, entonces el
+  la nueva información de herramienta también se escribe en el ranura 0 de la tabla de herramientas,
+  a través de una segunda llamada a SET_TOOL_TABLE_ENTRY (). (Esta segunda tabla de herramientas
+  la actualización no es necesaria en máquinas de cambio de herramientas aleatorias porque allí,
+  las herramientas no tienen un ranura de casa y en su lugar acabamos de actualizar la herramienta
+  en el ranura 0 directamente.)
 
 ==== M61
 
 Establecer el número de herramienta actual. Esto cambia la representación interna de LinuxCNC
-de qué herramienta está en el eje, sin mover realmente el cambiador de herramientas
-o intercambiando cualquier herramienta.
+de qué herramienta está en el eje, sin mover realmente el cambiador de herramientas o
+intercambiando cualquier herramienta.
 
 Manejado por + Interp :: convert_tool_change () +.
 
@@ -1375,7 +1359,6 @@ Canon: + CHANGE_TOOL_NUMBER () +
 
 settings-> current_pocket tiene asignado el número de ranura actualmente
 sosteniendo la herramienta especificada por el argumento Q-word.
-
 
 ==== G41 / G41.1 / G42 / G42.1
 
@@ -1387,7 +1370,6 @@ No hay llamada de Canon, la composición del cortador ocurre en el intérprete. 
 tabla de la manera esperada: si se proporciona un número de herramienta D-word se ve
 arriba el número de ranura del número de herramienta especificado en la tabla, y si
 no se suministra ninguna palabra D, utiliza la cavidad 0 (el eje).
-
 
 ==== G40
 
@@ -1430,7 +1412,6 @@ después El índice 0 es el huso, los índices 1- (CANON_POCKETS_MAX-1)
 son los ranuras en el cambiador de herramientas. Esta es una copia completa
 de la información de la herramienta, mantenida por separado de la de Interp
 +settings.tool_table+.
-
 
 ==== interp
 
@@ -1481,10 +1462,10 @@ Esta es una variable + EmcPose +.
 * Se utiliza para calcular la posición en varios lugares.
 
 * Enviado a Motion a través del mensaje +EMCMOT_SET_OFFSET+.
-Todo el movimiento que se hace con los desplazamientos es exportarlos a los pines HAL
-+motion.0.tooloffset. [xyzabcuvw]+. FIXME: exportarlos desde
-algún lugar más cercano a la mesa de herramientas (io o interp, probablemente)
-y elimine el mensaje EMCMOT_SET_OFFSET.
+  Todo el movimiento que se hace con los desplazamientos es exportarlos a los pines HAL
+  +motion.0.tooloffset. [xyzabcuvw]+. FIXME: exportarlos desde
+  algún lugar más cercano a la mesa de herramientas (io o interp, probablemente)
+  y elimine el mensaje EMCMOT_SET_OFFSET.
 
 settings.pockets_max ::
 

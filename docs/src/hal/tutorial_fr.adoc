@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-[[cha:Tutoriel-HAL]]
+[[cha:hal-tutorial]]
 = Le tutoriel de HAL(((Tutoriel de HAL)))
-
 
 [[sec:Intro-tutoriel]]
 == Introduction(((Introduction)))
@@ -13,7 +12,7 @@ Il s'agit d'un outil de configuration et de mise au point très puissant, en
 ligne de commande ou en fichier texte. Les exemples suivants illustrent son
 installation et son fonctionnement.
 
-[[sec:Tutoriel-Halcmd]]
+[[sec:tutorial-halcmd]]
 == Halcmd(((Tutoriel Halcmd)))
 
 Halcmd est un outil en ligne de commande pour manipuler HAL. Il existe
@@ -107,7 +106,7 @@ halcmd: loadrt siggen
 Maintenant que le module est chargé, il faut introduire _halcmd_,
 l'outil en ligne de commande utilisé pour configurer HAL. Pour une description 
 plus complète essayez: _man halcmd_, ou consultez la
-section <<sec:Tutoriel-Halcmd, halcmd au début de ce document>>. La 
+section <<sec:tutorial-halcmd,halcmd au début de ce document>>. La 
 première commande de halcmd et _show_, qui affichera les informations 
 concernant l'état actuel de HAL. Pour afficher tout ce qui est 
 installé tapez:
@@ -504,8 +503,7 @@ halcmd: loadusr halmeter
 Dans le même temps, une fenêtre s'ouvre sur votre écran, demandant de
 sélectionner l'item à observer.
 
-[[cap:halmeter-Fenetre-selection]](((Fenêtre de sélection)))
-.Fenêtre de sélection de halmeter
+.Fenêtre de sélection de halmeter(((Fenêtre de sélection)))
 image::images/halmeter-select_fr.png["Fenêtre de sélection de halmeter"]
 
 Ce dialogue contient trois onglets. Le premier onglet affiche toutes
@@ -515,9 +513,8 @@ _siggen.0.cosine_ en premier, il suffit de cliquer sur elle puis sur
 le bouton _Fermer_. Le dialogue de sélection se ferme et la mesure s'affiche
 dans une fenêtre semblable à la figure ci-dessous.
 
-[[sec:halmeter-valeur]](((Affichage de la valeur)))
-.Affichage de la valeur
-image::images/halmeter-1_fr.png[alt="Affichage de la valeur"]
+.Affichage de la valeur(((Affichage de la valeur)))
+image::images/halmeter-1_fr.png["Affichage de la valeur"]
 
 Pour modifier ce qui est affiché sur halmeter pressez le bouton
 _Sélectionner_ qui vous ramènera à la fenêtre de sélection précédente.
@@ -533,7 +530,6 @@ il est possible d'ouvrir plusieurs halmeter. La fenêtre de halmeter
 est intentionnellement petite justement pour permettre d'en ouvrir un
 grand nombre sur le même écran.
 
-[[sec:Tutoriel-Plus-Complexe]]
 == Tutoriel plus complexe avec stepgen
 
 Jusqu'à maintenant, nous avons chargé un composant HAL. Mais l'idée
@@ -879,7 +875,6 @@ la suite de ce tutoriel, nous allons voir comment convertir ces signaux
 internes des moteurs dans le monde réel, mais nous allons d'abord les
 examiner pour voir ce qui se passe.
 
-[[sec:Tutoriel-halscope]]
 == Voyons-y de plus près avec halscope(((Tutoriel halscope)))
 
 L'exemple précédent génère certains signaux très intéressants. Mais
@@ -904,8 +899,7 @@ halcmd: loadusr halscope
 La fenêtre graphique du scope s'ouvre, immédiatement suivie par un
 dialogue _Fonction temps réel non liée_ visible sur la figure ci-dessous:
 
-[[fig:fonction-non-liee]](((Fonction non liée)))
-.Dialogue _Fonction temps réel non liée_
+.Dialogue _Fonction temps réel non liée_(((Fonction non liée)))
 image::images/halscope-01_fr.png[alt="Dialogue Fonction temps réel non liée"]
 
 C'est dans ce dialogue que vous définissez le taux d'échantillonnage
@@ -917,9 +911,8 @@ puissions utiliser jusqu'à 4 canaux simultanément. Quand vous
 sélectionnez un thread puis que vous cliquez sur le bouton _OK_, le
 dialogue disparaît et la fenêtre initiale du scope s'ouvre, comme ci-dessous.
 
-[[fig:Fenetre-initiale-halscope]](((Fenêtre initiale)))
-.Fenêtre initiale du scope
-image::images/halscope-02_fr.png[alt="Fenêtre initiale du scope"]
+.Fenêtre initiale du scope(((Fenêtre initiale)))
+image::images/halscope-02_fr.png["Fenêtre initiale du scope"]
 
 === Branchement des sondes du scope
 
@@ -938,9 +931,8 @@ sélection des sources dans lequel vous devrez choisir _la source qui
 devra s'afficher sur le canal 1, comme sur la figure ci-dessous. 
 Ce dialogue est très similaire à celui utilisé par halmeter.
 
-[[fig:Selection-sources-halscope]]
 .Dialogue de sélection des sources(((Sélection de la source)))
-image::images/halscope-03_fr.png[alt="Dialogue de sélection des sources"]
+image::images/halscope-03_fr.png["Dialogue de sélection des sources"]
 
 Nous aimerions bien regarder les signaux que nous avons défini
 précédemment, pour cela, cliquons sur l'onglet _Signaux_ et le dialogue
@@ -952,7 +944,6 @@ nous voulons utiliser le canal 1 pour afficher le signal _X-vel_.
 Lorsque l'on clique sur _X-vel_, la fenêtre se ferme et le canal a
 été sélectionné.
 
-[[cap:Select-Signal]]
 .Sélection du signal(((Sélection du signal)))
 image::images/halscope-04_fr.png[alt="Sélection du signal"]
 
@@ -961,8 +952,7 @@ _X-vel_ apparaissent sous la rangée de boutons. L'affichage indique
 toujours le canal sélectionné, vous pouvez avoir beaucoup de canaux sur
 l'écran, mais celui qui est actif sera en surbrillance.
 
-[[cap:halscope]](((halscope)))
-.halscope
+.halscope(((halscope)))
 image::images/halscope-05_fr.png[alt="halscope"]
 
 Les différents contrôles comme la position verticale et l'amplitude
@@ -992,8 +982,7 @@ haut à droite. Vous devriez voir le reste de la zone tampon se remplir,
 puis l'écran afficher les ondes capturées. Le résultat ressemble à la
 figure ci-dessous.
 
-[[fig:Capture-onde-halscope]](((Capture d'onde)))
-.Capture d'ondes
+.Capture d'ondes(((Capture d'onde)))
 image::images/halscope-06_fr.png["Capture d'ondes"]
 
 === Ajustement vertical
@@ -1008,8 +997,7 @@ oscilloscopes réels), celle-ci permet d'afficher des signaux très petits
 trace affichée de haut en bas sur toute la hauteur de l'écran. Pour de plus 
 grands ajustements le bouton _Offset_ peut être utilisé.
 
-[[cap:Ajustement-vertical-halscope]](((Ajustement vertical)))
-.Ajustement vertical
+.Ajustement vertical(((Ajustement vertical)))
 image::images/halscope-07_fr.png["Ajustement vertical"]
 
 Le grand bouton _Canal sélectionné_ en bas, indique que le canal 1 est
@@ -1029,7 +1017,6 @@ Pour notre exemple nous utilisons 3 canaux, essayons l'onde triangle.
 Quand le dialogue ce referme, après le choix, le bouton affiche _Source Canal n_
 où n est le numéro du canal venant d'être choisi comme déclencheur.
 
-[[fig:halscope-demo-5]]
 .Dialogue des sources de déclenchement(((Dialogue des sources de déclenchement)))
 image::images/halscope-08_fr.png["Dialogue des sources de déclenchement"]
 
@@ -1055,7 +1042,6 @@ _Mode "Run"_.
 Maintenant que nous avons réglé la position verticale et le
 déclenchement, l'écran doit ressembler à la figure ci-dessous.
 
-[[fig:halscope-demo-6]]
 .Formes d'ondes avec déclenchement(((Formes d'onde)))
 image::images/halscope-09_fr.png["Formes d'ondes avec déclenchement"]
 
@@ -1077,8 +1063,7 @@ Pour notre exemple, nous cliquerons sur le thread _fast_, qui fournira un
 secondes de données, un enregistrement sera de 4000 échantillons à 20kHz, soit
 environ 0.20 seconde.
 
-[[fig:halscope-demo-7]](((Choix d'échantillonnage)))
-.Dialogue de choix d'échantillonnage
+.Dialogue de choix d'échantillonnag(((Choix d'échantillonnage)))e
 image::images/halscope-10_fr.png["Dialogue de choix d'échantillonnage"]
 
 === Plus de canaux

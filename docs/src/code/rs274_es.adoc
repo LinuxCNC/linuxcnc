@@ -1,6 +1,6 @@
 :lang: es
 
-﻿[[cha:rs274]]
+[[cha:rs274]]
 = Intérprete independiente
 
 El intérprete autónomo rs274 está disponible para su uso a través de la línea de comandos.

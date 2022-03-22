@@ -87,8 +87,6 @@
 <doc name="motion_tweaking_steppers" title="Tweaking Steppers"/>
 <doc name="motion_pid_theory" title="PID theory"/>
 <doc name="ladder_ladder_intro" title="Ladder Introduction"/>
-<doc name="ladder_classic_ladder" title="ClassicLadder"/>
-<doc name="ladder_ladder_examples" title="ClassicLadder Examples"/>
 <doc name="examples_pci-parallel-port" title="PCI Parallel Port"/>
 <doc name="examples_spindle" title="Spindle Example"/>
 <doc name="examples_mpg" title="MPG Example"/>

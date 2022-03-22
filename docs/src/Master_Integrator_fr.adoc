@@ -45,8 +45,6 @@ include::motion/pid-theory_fr.adoc[]
 = La logique Ladder
 :leveloffset: 1
 include::ladder/ladder-intro_fr.adoc[]
-include::ladder/classic-ladder_fr.adoc[]
-include::ladder/ladder-examples_fr.adoc[]
 :leveloffset: 0
 = Exemples d'utilisation
 :leveloffset: 1

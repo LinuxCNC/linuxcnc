@@ -466,7 +466,7 @@ entrants. Mais, c'est également possible avec l'utilisation appropriée
 des fonctions dans ce composant de moyeu qui manipulent les signaux
 quand ils arrivent, venant d'autres composants.
 
-Tous les détails dans le <<cha:Tutoriel-HAL, tutoriel de HAL>>.
+Tous les détails dans le <<cha:hal-tutorial,tutoriel de HAL>>.
 
 Une autre réflexion qui vient à partir de ce jouet mécanique est une
 représentation de _HAL threads_. Un _thread_ pourrait ressembler un peu
