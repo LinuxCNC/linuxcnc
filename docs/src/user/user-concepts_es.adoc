@@ -261,7 +261,7 @@ sistema de coordenadas G54.
 
 Normalmente se usa el sistema de coordenadas G54. Cuando se aplica un offset al 
 actual sistema de coordenadas de usuario, una pequeña bola azul con líneas estará en 
-el <<sec.machine-coordinate-system,origen de maquina>> cuando su DRO esté 
+el <<sec:machine-coordinate-system,origen de maquina>> cuando su DRO esté 
 mostrando 'Posición: Relativa Actual' en Axis. Si sus offsets son temporales, use 
 Zero Coordinate System del menú o programe la máquina con 'G10 L2 P1 X0 Y0 Z0' al 
 final de su archivo de código G. Cambie el número 'P' para que se adapte al 
@@ -289,8 +289,7 @@ eliminarlos.
 Ahora debe estar en el origen de la máquina X0 Y0 Z0 y el sistema de coordenadas 
 relativo debe ser el mismo que el sistema de coordenadas de máquina.
 
-[[sec:Machine-Configurations]]
-
+[[sec:machine-configurations]]
 == Configuraciones de la maquina
 
 El siguiente diagrama muestra una fresadora típica que muestra la dirección del 

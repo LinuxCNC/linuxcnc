@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Configuration de LinuxCNC
-
 [[cha:ini-configuration]]
+= Configuration de LinuxCNC
 
 == Script de lancement
 
@@ -589,45 +588,45 @@ dans le même répertoire que le fichier ini qui contiendra les paramètres
 utilisés par l'interpréteur (enregistré entre chaque lancement). 
 
 * 'ORIENT_OFFSET = 0' -
-     (((ORIENT OFFSET ))) Une valeur flottante ajoutée au paramètre R d'une
-    opération <<sec:M19,d'orientation de la broche par M19>>. Utilisée pour
-    définir une position zéro quelconque quelle que soit l'orientation de
-    montage du codeur de broche.
+  (((ORIENT OFFSET ))) Une valeur flottante ajoutée au paramètre R d'une
+  opération <<mcode:m19,d'orientation de la broche par M19>>. Utilisée pour
+  définir une position zéro quelconque quelle que soit l'orientation de
+  montage du codeur de broche.
 
 * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
- (((RS274NGC STARTUP CODE))) Une chaine de codes NGC qui sera utilisée
-pour initialiser l'interpréteur. Elle ne se substitue pas à la
-spécification des G-codes modaux du début de chaque fichier ngc. Les
-codes modaux des machines diffèrent, ils pourraient être modifiés par
-les G-codes interprétés plutôt dans la session. 
+  (((RS274NGC STARTUP CODE))) Une chaine de codes NGC qui sera utilisée
+  pour initialiser l'interpréteur. Elle ne se substitue pas à la
+  spécification des G-codes modaux du début de chaque fichier ngc. Les
+  codes modaux des machines diffèrent, ils pourraient être modifiés par
+  les G-codes interprétés plutôt dans la session. 
 
 * 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
- (((SUBROUTINE PATH))) Spécifie une liste, séparée par (:) d'au maximum 10
-répertoires dans lesquels seront cherchés les fichier de sous-programme
-spécifiés dans le g-code. Ces répertoires sont inspectés après que ne le
-soit [DISPLAY]PROGRAM_PREFIX (si il est spécifié) et avant que ne le soit
-[WIZARD]WIZARD_ROOT (si il est spécifié). les recherches s'effectuent dans 
-l'ordre dans lequel les chemins sont listés. La première occurrence avec le
-sous-programme recherché est utilisée. Les répertoires sont spécifiés
-relativement au répertoire courant du fichier ini ou par des chemins
-absolus. La liste ne doit contenir aucun espace blanc.
+  (((SUBROUTINE PATH))) Spécifie une liste, séparée par (:) d'au maximum 10
+ répertoires dans lesquels seront cherchés les fichier de sous-programme
+ spécifiés dans le g-code. Ces répertoires sont inspectés après que ne le
+ soit [DISPLAY]PROGRAM_PREFIX (si il est spécifié) et avant que ne le soit
+ [WIZARD]WIZARD_ROOT (si il est spécifié). les recherches s'effectuent dans 
+ l'ordre dans lequel les chemins sont listés. La première occurrence avec le
+ sous-programme recherché est utilisée. Les répertoires sont spécifiés
+ relativement au répertoire courant du fichier ini ou par des chemins
+ absolus. La liste ne doit contenir aucun espace blanc.
 
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' -
- (((USER M PATH))) Spécifie une liste de répertoires, séparés par (:) (sans
-aucun espace blanc) pour les fonctions définies par l'utilisateur. Les
-répertoires sont spécifiés par rapport au répertoire courant pour les 
-fichiers ini ou en chemins absolus. La liste ne doit contenir aucun 
-espace blanc.
+  (((USER M PATH))) Spécifie une liste de répertoires, séparés par (:) (sans
+  aucun espace blanc) pour les fonctions définies par l'utilisateur. Les
+  répertoires sont spécifiés par rapport au répertoire courant pour les 
+  fichiers ini ou en chemins absolus. La liste ne doit contenir aucun 
+  espace blanc.
 
 * 'USER_DEFINED_FUNCTION_MAX_DIRS=5' - Défini le nombre maximum de répertoires
-au moment de la compilation. Une recherche est faite pour chaque fonction
-utilisateur définie possible, typiquement 'M100' à 'M199'. +
-L'ordre de recherche est le suivant: +
+  au moment de la compilation. Une recherche est faite pour chaque fonction
+  utilisateur définie possible, typiquement 'M100' à 'M199'. +
+  L'ordre de recherche est le suivant: +
 . [DISPLAY]PROGRAM_PREFIX (si il est spécifié)
 . Si [DISPLAY]PROGRAM_PREFIX n'est pas spécifié, cherche dans le répertoire
-par défaut: nc_files
+  par défaut: nc_files
 . Recherche ensuite dans chaque répertoire de la liste [RS274NGC]USER_M_PATH
-Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
+  Le premier M1xx trouvé au cours de la recherche est utilisé pour chaque M1xx.
 
 [NOTE]
 [WIZARD]WIZARD_ROOT est un chemin de recherche valide mais l'assistant n'est
@@ -635,8 +634,7 @@ pas encore complétement implémenté et les résultats, découlant de son
 utilisation, sont imprévisibles.
 
 [[sub:Section-EMCMOT]]
-=== Section [EMCMOT]
-(((Section [EMCMOT] du fichier ini)))
+=== Section [EMCMOT](((Section [EMCMOT] du fichier ini)))
 
 D'autres entrées peuvent être rencontrées dans cette section, elles ne doivent
 pas être modifiées.
@@ -644,7 +642,7 @@ pas être modifiées.
 * 'EMCMOT = motmod' - Utilise typiquement le nom du contrôleur de mouvement.
 
 * 'BASE_PERIOD = 50000' - (((BASE PERIOD))) (HAL) Période de base des tâches,
-exprimée en ns.
+  exprimée en ns.
 
 ////
 C'est la plus rapide des horloges de la machine.
@@ -665,7 +663,7 @@ Choisir une BASE_PERIOD trop basse peut amener à des messages
 ////
 
 * 'SERVO_PERIOD = 1000000' - (((SERVO PERIOD))) (hal) Période de la tâche
-'Servo', exprimée également en nanosecondes.
+  'Servo', exprimée également en nanosecondes.
 
 ////
 Cette valeur sera arrondie à un multiple entier de 'BASE_PERIOD'.
@@ -688,69 +686,65 @@ Excepté pour les machines avec une cinématique particulière
 ////
 
 [[sub:Section-TASK]]
-=== Section [TASK]
-(((Section [TASK] du fichier ini)))
+=== Section [TASK](((Section [TASK] du fichier ini)))
 
 * 'TASK = milltask' - Indique le nom de la 'tâche' exécutable. La tâche réalise
-différentes actions, telles que communiquer avec les interfaces utilisateur au
-dessus de NML, communiquer avec le planificateur de mouvements temps réel dans
-la mémoire partagée non-HAL, et interpréter le g-code.
-Actuellement il n'y a qu'une seule tâche exécutable qui fait sens pour
-99,9% des utilisateurs, milltask.
+  différentes actions, telles que communiquer avec les interfaces utilisateur au
+  dessus de NML, communiquer avec le planificateur de mouvements temps réel dans
+  la mémoire partagée non-HAL, et interpréter le g-code.
+  Actuellement il n'y a qu'une seule tâche exécutable qui fait sens pour
+  99,9% des utilisateurs, milltask.
 
 * 'CYCLE_TIME = 0.010' - Période exprimée en secondes, à laquelle TASK
-va tourner. Ce paramètre affecte l'intervalle de polling lors de l'attente de
-la fin d'un mouvement, lors de l'exécution d'une pause d'instruction et quand
-une commande provenant d'une interface utilisateur est acceptée. Il
-n'est généralement pas nécessaire de modifier cette valeur.
+  va tourner. Ce paramètre affecte l'intervalle de polling lors de l'attente de
+  la fin d'un mouvement, lors de l'exécution d'une pause d'instruction et quand
+  une commande provenant d'une interface utilisateur est acceptée. Il
+  n'est généralement pas nécessaire de modifier cette valeur.
 
 [[sub:Section-HAL]]
-=== Section [HAL]
-(((Section [HAL] du fichier ini )))
+=== Section [HAL](((Section [HAL] du fichier ini )))
 
 * 'TWOPASS=ON' - Utilise le processus 'twopass' (double passe) pour charger
-les composants HAL. Avec le processus TWOPASS, tous les fichiers [HAL]HALFILES
-sont premièrement lus et les occurrences multiples des directives à loadrt
-pour chaque module sont cumulées. Aucune commande HAL n'est exécutée à
-la première passe.
+  les composants HAL. Avec le processus TWOPASS, tous les fichiers [HAL]HALFILES
+  sont premièrement lus et les occurrences multiples des directives à loadrt
+  pour chaque module sont cumulées. Aucune commande HAL n'est exécutée à
+  la première passe.
 
 * 'HALFILE = example.hal' - Exécute le fichier 'example.hal' au démarrage.
-Si 'HALFILE'  est spécifié plusieurs fois, les fichiers sont exécutés dans
-l'ordre de leur apparition dans le fichier ini. Presque toutes les
-configurations auront au moins un 'HALFILE' . Les systèmes à moteurs
-pas à pas ont généralement deux de ces fichiers, un qui spécifie la
-configuration générale des moteurs 'core_stepper.hal' et un qui spécifie le
-brochage des sorties 'xxx_pinout.hal'.
+  Si 'HALFILE'  est spécifié plusieurs fois, les fichiers sont exécutés dans
+  l'ordre de leur apparition dans le fichier ini. Presque toutes les
+  configurations auront au moins un 'HALFILE' . Les systèmes à moteurs
+  pas à pas ont généralement deux de ces fichiers, un qui spécifie la
+  configuration générale des moteurs 'core_stepper.hal' et un qui spécifie le
+  brochage des sorties 'xxx_pinout.hal'.
 
 * 'HAL = command' - Exécute 'command' comme étant une simple commande hal.
-Si 'HAL' est spécifié plusieurs fois, les commandes sont exécutées dans
-l'ordre où elles apparaissent dans le fichier ini. Les lignes 'HAL'
-sont exécutées après toutes les lignes 'HALFILE'.
+  Si 'HAL' est spécifié plusieurs fois, les commandes sont exécutées dans
+  l'ordre où elles apparaissent dans le fichier ini. Les lignes 'HAL'
+  sont exécutées après toutes les lignes 'HALFILE'.
 
 * 'SHUTDOWN = shutdown.hal' - Exécute le fichier 'shutdown.hal' quand LinuxCNC
-s'arrête. Selon les pilotes de matériel utilisés, il est ainsi possible de
-positionner les sorties sur des valeurs définies quand LinuxCNC s'arrête
-normalement. Cependant, parce qu'il n'y a aucune garantie que ce fichier sera
-exécuté (par exemple, dans le cas d'une panne de l'ordinateur), il ne
-remplace pas une véritable chaîne physique d'arrêt d'urgence ou
-d'autres dispositifs logiciels de protection des défauts de fonctionnement comme
-la pompe de charge ou le watchdog.
+  s'arrête. Selon les pilotes de matériel utilisés, il est ainsi possible de
+  positionner les sorties sur des valeurs définies quand LinuxCNC s'arrête
+  normalement. Cependant, parce qu'il n'y a aucune garantie que ce fichier sera
+  exécuté (par exemple, dans le cas d'une panne de l'ordinateur), il ne
+  remplace pas une véritable chaîne physique d'arrêt d'urgence ou
+  d'autres dispositifs logiciels de protection des défauts de fonctionnement comme
+  la pompe de charge ou le watchdog.
 
 * 'POSTGUI_HALFILE = example2.hal' - (Seulement avec les interfaces TOUCHY et
-AXIS) Exécute 'example2.hal' après que l'interface graphique ait créé ses HAL
-pins.
+  AXIS) Exécute 'example2.hal' après que l'interface graphique ait créé ses HAL
+  pins.
 
 [[sub:Section-HALUI]]
-=== Section [HALUI]
-(((Section [HALUI] du fichier ini )))
+=== Section [HALUI](((Section [HALUI] du fichier ini )))
 
 * 'MDI_COMMAND = G53 G0 X0 Y0 Z0' - Une commande MDI peut être exécuté en
-utilisant 'halui.mdi-command-00'. Incrémente le nombre pour chaque commande
-énumérée dans la section [HALUI].
+  utilisant 'halui.mdi-command-00'. Incrémente le nombre pour chaque commande
+  énumérée dans la section [HALUI].
 
 [[sub:Section-TRAJ]]
-=== Section [TRAJ]
-(((Section [TRAJ] du fichier ini )))
+=== Section [TRAJ](((Section [TRAJ] du fichier ini )))
 
 La section [TRAJ] contient les paramètres généraux du module
 planificateur de trajectoires de EMCMOT. Vous n'aurez pas à modifier
@@ -835,8 +829,7 @@ limites logicielles pendant les mouvements ce qui n'est pas souhaitable
 pour un fonctionnement normal!
 
 [[sub:Sections-AXIS]]
-=== Sections [AXIS_n]
-(((Sections [AXIS_n] du fichier ini)))
+=== Sections [AXIS_n](((Sections [AXIS_n] du fichier ini)))
 
 Les sections [AXIS_0], [AXIS_1], etc. contiennent les paramètres
 généraux des composants individuels du module de contrôle. La
@@ -951,7 +944,7 @@ puis 'Calibration'.
 === Section [HOMING]
 
 Les paramètres suivants sont relatifs aux prises d'origine, pour plus
-d'informations, lire <<sec:Prises-d-origine, le chapitre sur la POM>>.
+d'informations, lire <<cha:homing-configuration,le chapitre sur la POM>>.
 
 * 'HOME = 0.0' - La position à laquelle le mobile ira à la fin de la séquence
 de prise d'origine.

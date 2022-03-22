@@ -1,9 +1,9 @@
 :lang: fr
 :toc:
 
-= Prise d'origine
-
 [[sec:Prises-d-origine]]
+[[cha:homing-configuration]]
+= Prise d'origine
 
 == La prise d'origine
 
@@ -20,8 +20,7 @@ configuration associés, la figure suivante donne le détail de ces séquences.
 
 [[fig:Sequences-de-prise-d-origine]]
 .Les séquences de POM possibles
-
-image::images/linuxcnc-motion-homing-diag_fr.png[alt="Les séquences de POM possibles"]
+image::images/linuxcnc-motion-homing-diag_fr.png["Les séquences de POM possibles"]
 
 
 . Comme on le voit sur la figure, les deux conditions de base sont les suivantes:
@@ -37,7 +36,6 @@ prise d'origines définie dans la section [AXIS] du fichier ini.
 
 [[cap:Variables-sequences-de-POM]]
 .Combinaisons des variables de la POM
-
 [width="80%", options="header", cols="4*^"]
 |==========================================================
 |Type de POM      |SEARCH_VEL |LATCH_VEL    |USE_INDEX

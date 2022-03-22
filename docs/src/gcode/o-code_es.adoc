@@ -81,7 +81,7 @@ o100 sub
     (DEBUG, el parámetro 2 es [#1])
 o100 endsub
 ----
-Consulte las secciones <<gcode:binary-operators,operadores binarios>> y <<gcode:parameters,parámetros>> para obtener más información.
+Consulte las secciones <<gcode:binary-operators,operadores binarios>> y <<sec:overview-parameters,parámetros>> para obtener más información.
 
 .O- Call
 'O- Call' toma hasta 30 argumentos opcionales, que se pasan a la subrutina
@@ -375,7 +375,7 @@ o[#101+2] call
 .Calculando valores en O-palabras
 Para obtener más información sobre los valores, consulte las siguientes secciones
 
-* <<gcode:parameters,parámetros>>
+* <<sec:overview-parameters,parámetros>>
 * <<gcode:expressions,expresiones>>
 * <<gcode:binary-operators,operadores binarios>>
 * <<gcode:functions,funciones>>

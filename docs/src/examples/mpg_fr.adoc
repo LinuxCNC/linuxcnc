@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:mpg-pendant]]
 = Utilisation d'une manivelle
-
-[[cha:Manivelle-Electronique]]
 
 Cet exemple explique comment relier une manivelle, facile à trouver
 aujourd'hui sur le marché. Cet exemple utilisera la manivelle MPG3 avec

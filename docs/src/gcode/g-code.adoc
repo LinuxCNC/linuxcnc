@@ -888,7 +888,7 @@ G28 uses the values stored in <<sub:numbered-parameters,parameters>>
 values are 'absolute' machine coordinates in the native machine 'units' as
 specified in the ini file. All axes defined in the ini file will be moved when
 a G28 is issued. If no positions are stored with G28.1 then all axes will go to
-the <<sec.machine-coordinate-system,machine origin>>.
+the <<sec:machine-coordinate-system,machine origin>>.
 
 * 'G28' - makes a <<gcode:g0,rapid move>> from the current
   position to the 'absolute' position of the values in parameters 5161-5166.
@@ -922,7 +922,7 @@ final point to move to. The parameter values are 'absolute' machine
 coordinates in the native machine 'units' as specified in the ini file.
 All axes defined in the ini file will be moved when a G30 is issued.  If no
 positions are stored with G30.1 then all axes will go to the
-<<sec.machine-coordinate-system,machine origin>>.
+<<sec:machine-coordinate-system,machine origin>>.
 
 [NOTE]
 G30 parameters will be used to move the tool when a M6 is programmed
@@ -1355,7 +1355,7 @@ G52 axes
 
 G52 is used in a part program as a temporary "local coordinate system offset"
 within the workpiece coordinate system. More information on G52 is in the
-<<sec:g52, Local and Global Offsets>> section.
+<<gcode:g52,Local and Global Offsets>> section.
 
 [[gcode:g53]]
 == G53 Move in Machine Coordinates(((G53 Machine Coordinates)))
@@ -1364,7 +1364,7 @@ within the workpiece coordinate system. More information on G52 is in the
 G53 axes
 ----
 
-To move in the <<sec.machine-coordinate-system,machine coordinate system>>,
+To move in the <<sec:machine-coordinate-system,machine coordinate system>>,
 program 'G53' on the same line as a linear move. 'G53' is not modal and must be
 programmed on each line. 'G0' or 'G1' does not have to be programmed on the same
 line if one is currently active.
@@ -2030,8 +2030,8 @@ The 'G81' cycle is intended for drilling.
 
 The cycle functions as follows:
 
- . Preliminary motion, as described in the
-   <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
+. Preliminary motion, as described in the
+  <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
 
 . Move the Z-axis at the current <<sec:set-feed-rate,feed rate>> to the Z
   position.
@@ -2040,7 +2040,6 @@ The cycle functions as follows:
 
 [[gcode:g81-example]]
 .Example 1 - Absolute Position G81
-
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
 
@@ -2063,11 +2062,8 @@ The R value and clear Z are 2.8. OLD_Z is 3.
 The following moves take place:
 
 . a <<gcode:g0,rapid move>> parallel to the XY plane to (X4, Y5)
-
 . a rapid move move parallel to the Z-axis to (Z2.8).
-
 . move parallel to the Z-axis at the <<sec:set-feed-rate,feed rate>> to (Z1.5)
-
 . a rapid move parallel to the Z-axis to (Z3)
 
 image::images/g81ex1_en.svg[align="center"]
@@ -2372,7 +2368,7 @@ All axis words are optional, except that at least one must be used.
 If an axis word is not used for a given axis, the offset for that axis
 will be zero.
 
-When 'G92' is executed, the <<sec.machine-coordinate-system,origins>>
+When 'G92' is executed, the <<sec:machine-coordinate-system,origins>>
 of all coordinate systems move. They move such that the value of the
 current controlled point, in the currently active coordinate system,
 becomes the specified value. All of the coordinate system's origins
@@ -2414,9 +2410,10 @@ The 'G52' command can also be used to change this offset; see the
 See the <<cha:coordinate-system,Coordinate System>> Section for an
 overview of coordinate systems.
 
-See the <<gcode:parameters,Parameters>> Section for more information.
+See the <<sec:overview-parameters,Parameters>> Section for more information.
 
-== G92.1, G92.2 Reset G92 Offsets[[gcode:g92.1-g92.2]]
+[[gcode:g92.1-g92.2]]
+== G92.1, G92.2 Reset G92 Offsets
 
 * 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
 * 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.

@@ -320,7 +320,7 @@ TOOL_TABLE = EMC-AXIS-SIM.tbl
 For more information on the specifics of the tool table format, see the
 <<sec:tool-table,Tool Table Format>> Section.
 
-[[sec:parameters]]
+[[sec:machine-center-parameters]]
 == Parameters(((Parameters)))
 
 In the RS274/NGC language view, a machining center maintains an array
@@ -372,4 +372,4 @@ is written. Comments are not preserved when the file is written.
 |5162             | 0.0             | G28 Home Y
 |===
 
-See the <<gcode:parameters,Parameters>> section for more information.
+See the <<sec:overview-parameters,Parameters>> section for more information.

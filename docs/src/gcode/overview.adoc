@@ -167,7 +167,7 @@ example), M-codes, and G-codes multiplied by ten. A decimal number
 which is intended to represent an integer is considered close enough if
 it is within 0.0001 of an integer value.
 
-[[gcode:parameters]]
+[[sec:overview-parameters]]
 == Parameters(((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
@@ -384,7 +384,6 @@ is written.
 
 [[gcode:format-parameter-file]]
 .Parameter File Format
-
 [width="90%", options="header"]
 |====
 |Parameter Number | Parameter Value
@@ -461,11 +460,8 @@ program with if-then-else statements. Note that new
 can be added easily without changes to the source code.
 
 * '#<_vmajor>' - Major package version. If current version was 2.5.2 would return 2.5.
-
 * '#<_vminor>' - Minor package version. If current version was 2.6.2 it would return 0.2.
-
 * '#<_line>' - Sequence number. If running a G-Code file, this returns the current line number.
-
 * '#<_motion_mode>' - Return the interpreter's current motion mode:
 
 [width="20%",options="header"]
@@ -521,30 +517,23 @@ can be added easily without changes to the source code.
 |====
 
 * '#<_metric>' -
-    Return 1 if G21 is on, else 0.
-
+  Return 1 if G21 is on, else 0.
 * '#<_imperial>' -
-    Return 1 if G20 is on, else 0.
-
+  Return 1 if G20 is on, else 0.
 * '#<_absolute>' -
-    Return 1 if G90 is on, else 0.
-
+  Return 1 if G90 is on, else 0.
 * '#<_incremental>' -
-    Return 1 if G91 is on, else 0.
-
+  Return 1 if G91 is on, else 0.
 * '#<_inverse_time>' -
-    Return 1 if inverse feed mode (G93) is on, else 0.
-
+  Return 1 if inverse feed mode (G93) is on, else 0.
 * '#<_units_per_minute>' -
-    Return 1 if Units/minute feed mode (G94) is on, else 0.
-
+  Return 1 if Units/minute feed mode (G94) is on, else 0.
 * '#<_units_per_rev>' -
-    Return 1 if Units/revolution mode (G95) is on, else 0.
-
+  Return 1 if Units/revolution mode (G95) is on, else 0.
 * '#<_coord_system>' -
-    Return a float of the current coordinate system name(G54..G59.3).
-    For example if your in G55 coordinate system the return value is
-    550.000000 and if your in G59.1 the return value is 591.000000.
+  Return a float of the current coordinate system name(G54..G59.3).
+  For example if your in G55 coordinate system the return value is
+  550.000000 and if your in G59.1 the return value is 591.000000.
 
 [width="20%",options="header"]
 |====
@@ -561,150 +550,112 @@ can be added easily without changes to the source code.
 |====
 
 * '#<_tool_offset>' -
-    Return 1 if tool offset (G43) is on, else 0.
-
+  Return 1 if tool offset (G43) is on, else 0.
 * '#<_retract_r_plane>' -
-    Return 1 if G98 is set, else 0.
-
+  Return 1 if G98 is set, else 0.
 * '#<_retract_old_z>' -
-    Return 1 if G99 is on, else 0.
+  Return 1 if G99 is on, else 0.
 
 [[sub:system-parameters]]
 === System Parameters
 
 * '#<_spindle_rpm_mode>' -
-    Return 1 if spindle rpm mode (G97) is on, else 0.
-
+  Return 1 if spindle rpm mode (G97) is on, else 0.
 * '#<_spindle_css_mode>' -
-    Return 1 if constant surface speed mode (G96) is on, else 0.
-
+  Return 1 if constant surface speed mode (G96) is on, else 0.
 * '#<_ijk_absolute_mode>' -
-    Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
-
+  Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
 * '#<_lathe_diameter_mode>' -
-    Return 1 if this is a lathe configuration and diameter (G7) mode is on, else 0.
-
+  Return 1 if this is a lathe configuration and diameter (G7) mode is on, else 0.
 * '#<_lathe_radius_mode>' -
-    Return 1 if this is a lathe configuration and radius (G8) mode is on, else 0.
-
+  Return 1 if this is a lathe configuration and radius (G8) mode is on, else 0.
 * '#<_spindle_on>' -
-    Return 1 if spindle currently running (M3 or M4) else 0.
-
+  Return 1 if spindle currently running (M3 or M4) else 0.
 * '#<_spindle_cw>' -
-    Return 1 if spindle direction is clockwise (M3) else 0.
-
+  Return 1 if spindle direction is clockwise (M3) else 0.
 * '#<_mist>' -
-    Return 1 if mist (M7) is on.
-
+  Return 1 if mist (M7) is on.
 * '#<_flood>' -
-    Return 1 if flood (M8) is on.
-
+  Return 1 if flood (M8) is on.
 * '#<_speed_override>' -
-    Return 1 if feed override (M48 or M50 P1) is on, else 0.
-
+  Return 1 if feed override (M48 or M50 P1) is on, else 0.
 * '#<_feed_override>' -
-    Return 1 if feed override (M48 or M51 P1) is on, else 0.
-
+  Return 1 if feed override (M48 or M51 P1) is on, else 0.
 * '#<_adaptive_feed>' -
-    Return 1 if adaptive feed (M52 or M52 P1) is on, else 0.
-
+  Return 1 if adaptive feed (M52 or M52 P1) is on, else 0.
 * '#<_feed_hold>' -
-    Return 1 if feed hold switch is enabled (M53 P1), else 0.
-
+  Return 1 if feed hold switch is enabled (M53 P1), else 0.
 * '#<_feed>' -
-    Return the current value of F, not the actual feed rate.
-
+  Return the current value of F, not the actual feed rate.
 * '#<_rpm>' -
-    Return the current value of S, not the actual spindle speed.
-
+  Return the current value of S, not the actual spindle speed.
 * '#<_x>' -
-    Return current relative X coordinate including all offsets. In a lathe configuration, it always returns radius. Same as #5420.
-
+  Return current relative X coordinate including all offsets. In a lathe configuration, it always returns radius. Same as #5420.
 * '#<_y>' -
-    Return current relative Y coordinate including all offsets. Same as #5421.
-
+  Return current relative Y coordinate including all offsets. Same as #5421.
 * '#<_z>' -
-    Return current relative Z coordinate including all offsets. Same as #5422.
-
+  Return current relative Z coordinate including all offsets. Same as #5422.
 * '#<_a>' -
-    Return current relative A coordinate including all offsets. Same as #5423.
-
+  Return current relative A coordinate including all offsets. Same as #5423.
 * '#<_b>' -
-    Return current relative B coordinate including all offsets. Same as #5424.
-
+  Return current relative B coordinate including all offsets. Same as #5424.
 * '#<_c>' -
-    Return current relative C coordinate including all offsets. Same as #5425.
-
+  Return current relative C coordinate including all offsets. Same as #5425.
 * '#<_u>' -
-    Return current relative U coordinate including all offsets. Same as #5426.
-
+  Return current relative U coordinate including all offsets. Same as #5426.
 * '#<_v>' -
-    Return current relative V coordinate including all offsets. Same as #5427.
-
+  Return current relative V coordinate including all offsets. Same as #5427.
 * '#<_w>' -
-    Return current relative W coordinate including all offsets. Same as #5428.
-
+  Return current relative W coordinate including all offsets. Same as #5428.
 * '#<_abs_x>' -
-    Return current absolute X coordinate (G53) including no offsets.
-
+  Return current absolute X coordinate (G53) including no offsets.
 * '#<_abs_y>' -
-    Return current absolute Y coordinate (G53) including no offsets.
-
+  Return current absolute Y coordinate (G53) including no offsets.
 * '#<_abs_z>' -
-    Return current absolute Z coordinate (G53) including no offsets.
-
+  Return current absolute Z coordinate (G53) including no offsets.
 * '#<_abs_a>' -
-    Return current absolute A coordinate (G53) including no offsets.
-
+  Return current absolute A coordinate (G53) including no offsets.
 * '#<_abs_b>' -
-    Return current absolute B coordinate (G53) including no offsets.
-
+  Return current absolute B coordinate (G53) including no offsets.
 * '#<_abs_c>' -
-    Return current absolute C coordinate (G53) including no offsets.
-
+  Return current absolute C coordinate (G53) including no offsets.
 * '#<_current_tool>' -
-    Return number of the current tool in spindle. Same as #5400.
-
+  Return number of the current tool in spindle. Same as #5400.
 * '#<_current_pocket>' -
-    Return the tooldata index for the current tool.
-
+  Return the tooldata index for the current tool.
 * '#<_selected_tool>' -
-    Return number of the selected tool post a T code. Default -1.
-
+  Return number of the selected tool post a T code. Default -1.
 * '#<_selected_pocket>' -
-    Return the tooldata index of the selected pocket post a T code. Default -1
-    (no pocket selected).
-
+  Return the tooldata index of the selected pocket post a T code. Default -1
+  (no pocket selected).
 * '#<_value>' -
-    Return value from the last O-word 'return' or 'endsub'. Default
-    value 0 if no expression after 'return' or 'endsub'. Initialized
-    to 0 on program start.
-
+  Return value from the last O-word 'return' or 'endsub'. Default
+  value 0 if no expression after 'return' or 'endsub'. Initialized
+  to 0 on program start.
 * '#<_value_returned>' -
-    1.0 if the last O-word 'return' or 'endsub' returned a value, 0
-    otherwise. Cleared by the next O-word call.
-
+  1.0 if the last O-word 'return' or 'endsub' returned a value, 0
+  otherwise. Cleared by the next O-word call.
 * '#<_task>' -
-    1.0 if the executing interpreter instance is part of milltask, 0.0
-    otherwise. Sometimes it is necessary to treat this case specially
-    to retain proper preview, for instance when testing the success of 
-    a probe (G38.n) by inspecting #5070, which will always fail in the
-    preview interpreter (e.g. Axis).
-
+  1.0 if the executing interpreter instance is part of milltask, 0.0
+  otherwise. Sometimes it is necessary to treat this case specially
+  to retain proper preview, for instance when testing the success of 
+  a probe (G38.n) by inspecting #5070, which will always fail in the
+  preview interpreter (e.g. Axis).
 * '#<_call_level>' -
-    current nesting level of O-word procedures. For debugging.
-
+  current nesting level of O-word procedures. For debugging.
 * '#<_remap_level>' -
-    current level of the remap stack. Each remap in a block adds one
-    to the remap level. For debugging.
+  current level of the remap stack. Each remap in a block adds one
+  to the remap level. For debugging.
 
 [[gcode:ini-hal-params]]
 == HAL pins and INI values
+
 If enabled in the <<gcode:ini-features, INI file>> G-code has access
 to the values of INI file entries and HAL pins.
 
 * '#<_ini[section]name>' Returns the value of the corresponding item in
-the INI file.
+  the INI file.
+
 For example, if the ini file looks like so:
 
 [source,{ini}]
@@ -952,9 +903,8 @@ axis words or canceling motion.
 'Non-modal' codes have effect only on the lines on which they occur.
 For example, G4 (dwell) is non-modal.
 
-(((Polar Coordinates)))
 
-== Polar Coordinates
+== Polar Coordinates(((Polar Coordinates)))
 
 Polar Coordinates can be used to specify the XY coordinate of a move.
 The @n is the distance and ^n is the angle. The advantage of this is
@@ -990,8 +940,7 @@ might expect. Because we added 0.5 to the distance each time the
 distance from the XY zero position increased with each line.
 
 .Polar Spiral
-
-image::images/polar01.png[align="center", alt="Polar Spiral"]
+image::images/polar01.png["Polar Spiral",align="center"]
 
 The following code will produce our square pattern.
 
@@ -1008,8 +957,7 @@ As you can see by only adding to the angle by 90 degrees each time the
 end point distance is the same for each line.
 
 .Polar Square
-
-image::images/polar02.png[align="center", alt="Polar Square"]
+image::images/polar02.png["Polar Square",align="center"]
 
 It is an error if:
 
@@ -1050,7 +998,6 @@ being in effect. The modal groups are shown in the following Table.
 |====
 
 .M-Code Modal Groups
-
 [width="80%", cols="4,6", options="header"]
 |====
 |Modal Group Meaning           |Member Words
@@ -1130,9 +1077,7 @@ NOTE: Inline comments on O words should not be used see the O Code
 (MSG, This is a message)
 ----
 
-(((Probe Logging)))
-
-== Probe Logging
+== Probe Logging(((Probe Logging)))
 
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
@@ -1146,12 +1091,9 @@ NOTE: Inline comments on O words should not be used see the O Code
 
 * '(LOGOPEN,filename.txt)' - opens the named log file. If the file already
   exists, it is truncated.
-
 * '(LOGAPPEND,filename)' - opens the named log file. If the file already
   exists, the data is appended.
-
 * '(LOGCLOSE)' - closes an open log file.
-
 * '(LOG,)' - everything past the ',' is written to the log file if it is open.
   Supports expansion of parameters as described below.
 
@@ -1260,29 +1202,23 @@ position of each item on the line, but by the following list:
   (possibly) by G53. 
 * Stop (M0, M1, M2, M30, M60).
 
-(((G-Code Best Practices)))
-
-== G-Code Best Practices
+== G-Code Best Practices(((G-Code Best Practices)))
 
 .Use an appropriate decimal precision
-
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
 
 .Use consistent white space
-
 G-code is most legible when at least one space appears before words.
 While it is permitted to insert white space in the middle of numbers,
 there is no reason to do so.
 
 .Use Center-format arcs
-
 Center-format arcs (which use 'I- J- K-' instead of 'R-' ) behave more
 consistently than R-format arcs, particularly for
 included angles near 180 or 360 degrees.
 
 .Use a Preamble set modal groups
-
 When correct execution of your program depends on modal settings, be
 sure to set them at the beginning of the part program. Modes can carry
 over from previous programs and from the MDI commands.
@@ -1303,18 +1239,15 @@ program at different scales. Other settings, such as the return mode in
 canned cycles may also be important.
 
 .Don't put too many things on one line
-
 Ignore everything in Section <<gcode:order-of-execution,Order of Execution>>, and instead
 write no line of code that is the slightest bit ambiguous.
 
 .Don't set & use a parameter on the same line
-
 Don't use and set a parameter on the same line, even though the
 semantics are well defined. Updating a variable to a new value, such as
 '#1=[#1+#2]' is OK.
 
 .Don't use line numbers
-
 Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
 the N-word value.

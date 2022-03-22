@@ -1,10 +1,9 @@
 :lang: fr
 :toc:
 
-= Systèmes de coordonnées et décalages
-
 [[cha:Systemes-de-coordonnees]]
-
+[[cha:coordinate-system]]
+= Systèmes de coordonnées et décalages
 
 == Introduction
 
@@ -21,8 +20,9 @@ par LinuxCNC:
 
 * Les coordonnées machine.(G53)
 * Les neuf décalages d'origine pièce.(G54 à G59.3)
-* Un jeu de décalages globaux.(G92)
+* Un jeu de décalages globaux (G92) and local offsets (G52)
 
+[[sec:machine-coordinate-system]]
 == Commande en coordonnées machine: G53 
 
 Indépendamment de tout décalage pouvant être actif, un G53 dans une ligne de
@@ -46,7 +46,7 @@ ligne où un mouvement basé sur les coordonnées machine est souhaité.
 [[fig:decalages-ilots]]
 == Décalages pièce (G54 à G59.3)
 
-image::images/offsets.png[alt="Exemple de décalages pour 8 ilots"]
+image::images/offsets.png["Exemple de décalages pour 8 ilots"]
 
 .Exemple de décalages pour 8 ilots
 
@@ -107,7 +107,7 @@ vers sa nouvelle position d'origine. Contrairement à G53, les commandes
 G54 à G59.3 sont modales. Elles agissent sur toutes les lignes de
 G-code du programme après qu'une ait été rencontrée. Voyons le
 programme qui pourrait être écrit à l'aide de la figure
-<<fig:decalages-ilots, des décalages d'ilots>>, il suffira d'un seul point de
+<<fig:decalages-ilots,des décalages d'ilots>>, il suffira d'un seul point de
 référence pour chacune des pièces pour faire tout le travail. Le code suivant
 est proposé comme exemple pour faire un rectangle, il utilisera les
 décalages G55 que nous avons expliqué précédemment.
@@ -166,13 +166,64 @@ pour une description complète).
 
 * 'G10 L2  P(pièce 1-9)' - Ajuste les valeurs d'offset. La position courante
 reste inchangée.
-    (voir la section<<sec:G10-L2, G10 L2>> pour les détails)
+    (voir la section<<gcode:g10-l2,G10 L2>> pour les détails)
 
 * 'G10 L20 P(pièce 1-9)' - Ajuste les valeurs d'offset de sorte que la position
 courante devienne la position donnée en paramètre.
-    (Voir la section <<sec:G10-L20,G10 L20>> pour les détails)
+    (Voir la section <<gcode:g10-l20,G10 L20>> pour les détails)
 
-[[sec:G92-Decalages]]
+[[sec:g52-and-g92-offsets]]
+== Local and Global Offsets
+
+[[sec:g52]]
+=== The G52 command
+
+'G52' is used in a part program as a temporary "local coordinate
+system offset" within the workpiece coordinate system.  An example use
+case is when machining several identical features at different
+locations on a part.  For each feature, 'G52' programs a local
+reference point within workpiece coordinates, and a subprogram is
+called to machine the feature relative to that point.
+
+'G52' axis offsets are programmed relative to workpiece coordinate
+offsets 'G54' through 'G59.3'.  As a local offset, 'G52' is applied
+after the workpiece offset, including rotation.  Thus, a part feature
+will be machined identically on each part regardless of the part's
+orientation on the pallet.
+
+[CAUTION]
+
+As a temporary offset, set and unset within the localized scope of a
+part program, in other G-code interpreters 'G52' does not persist
+after machine reset, 'M02' or 'M30'.  In LinuxCNC, 'G52' shares
+parameters with 'G92', which, for historical reasons, *does* persist
+these parameters.
+See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
+
+[CAUTION]
+----
+'G52' and 'G92' share the same offset registers.  Therefore, setting
+'G52' will override any earlier 'G92' setting, and 'G52' will persist
+across machine reset when 'G92' persistence is enabled.  These
+interactions may result in unexpected offsets.
+See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
+----
+
+Programming 'G52 X1 Y2' offsets the current workpiece coordinate
+system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
+current tool position's X and Y coordinates will be reduced by 1 and
+2, respectively.  Axes unset in the command, such as Z in the previous
+example, will be unaffected: any previous 'G52' Z offset will remain
+in effect, and otherwise the Z offset will be zero.
+
+The temporary local offset may be canceled with 'G52 X0 Y0'.  Any axes
+not explicitly zeroed will retain the previous offset.
+
+'G52' shares the same offset registers as 'G92', and thus
+'G52' is visible on the DRO and preview labeled with 'G92'.
+
+
+[[sec:g92-commands]]
 == Décalages d'axes G92
 
 G92 est la plus incomprise et la plus maligne des commandes
@@ -187,14 +238,11 @@ les autres décalages.
 Ce jeu de commandes inclus:
 
 * G92 - Cette commande, utilisée avec des mots d'axes, fixe les valeurs des
-variables de décalage.
-
+  variables de décalage.
 * G92.1 - Cette commande met à zéro les valeurs des variables de G92.
-
 * G92.2 - Cette commande suspend, sans les mettre à zéro, les variables de G92.
-
 * G92.3 - Cette commande applique les valeurs de décalage qui ont
-été suspendues.
+  été suspendues.
 
 L'utilisateur doit bien comprendre le fonctionnement des valeurs de
 G92. Pour faire en sorte que le point actuel ait les coordonnées X0, Y0 et Z0
@@ -220,10 +268,10 @@ un G92.2 à la fin de leur utilisation.
 
 Il y a au moins deux façons d'établir les valeurs de G92.
 
-* Par un clic droit de la souris sur les afficheurs de position de
+ * Par un clic droit de la souris sur les afficheurs de position de
    tklinuxcnc, une fenêtre s'ouvre dans laquelle il est possible de saisir une
    valeur. 
-* Par la commande G92.
+ * Par la commande G92.
 
 Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe
 auquel le déplacement doit être appliqué.
@@ -243,6 +291,7 @@ fixera un décalage de -2.0000, de sorte que l'emplacement actuel de X
 devienne X=0.000. Un nouveau 'G92 X5.000' fixera un décalage de 3.000
 et l'affichage indiquera une position courante X=5.000.
 
+[[sec:g92-persistence-cautions]]
 === Précautions avec G92 
 
 Parfois, les valeurs de décalage d'un G92 restent bloquées dans le
@@ -359,5 +408,4 @@ pas, les programmes que vous pourriez lancer après celui-ci,
 utiliseront également les décalages G92. En outre, cela permettrait
 d'éviter d'écrire les valeurs de G92 lorsque vous arrêtez LinuxCNC et donc,
 d'éviter de les recharger quand vous démarrez à nouveau le programme.
-
 

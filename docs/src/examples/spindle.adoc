@@ -1,13 +1,13 @@
 :lang: en
 
 [[cha:spindle-control]]
+= Spindle Control
+
 LinuxCNC can control up to 8 spindles. The number is set in the INI file.
 The examples below all refer to a single-spindle config with spindle
 control pins with names like spindle.0...
 In the case of a multiple spindle machine all that changes is that
 additional pins exist with names such as spindle.6...
-
-= Spindle Control
 
 == 0-10v Spindle Speed(((0-10v Spindle Speed Example)))
 
@@ -203,7 +203,7 @@ net spindle-phase-b encoder.3.phase-B
 net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 ----
 
-[[sec:Vitesse-Broche-Atteinte]]
+[[sec:spindle-at-speed]]
 === Spindle At Speed(((Spindle At Speed Example)))
 
 To enable LinuxCNC to wait for the spindle to be at speed before executing

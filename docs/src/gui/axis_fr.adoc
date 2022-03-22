@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:Axis]]
+[[cha:axis-gui]]
 = L'interface graphique AXIS
 
 == Introduction
@@ -17,8 +17,8 @@ image::../user/images/axis_25_fr.png["Fenêtre d'AXIS"]
 
 == Commencer avec AXIS
 
-Pour choisir AXIS comme interface graphique de LinuxCNC, éditez le fichier
-.ini et dans la section [DISPLAY] changez la ligne DISPLAY comme ceci:
+Pour choisir AXIS comme interface graphique de LinuxCNC, éditez le fichier .ini
+et dans la section [DISPLAY] changez la ligne DISPLAY comme ceci:
 
 'DISPLAY = axis'
 
@@ -192,7 +192,7 @@ programme G-code contient des sous-programmes.
    entrée est relative au système de coordonnées pièce actuel (G5x), tel que
    modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
    complète, la coordonnée relative pour l'axe choisi prendra la valeur
-   entrée. Voir aussi <<sec:G10-L10,G10 L10>> dans le chapitre du G-code.
+   entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
 
 L'outil touchera le porte-pièce...::
    Lorsqu'un 'Toucher' est effectué, la valeur entrée est relative au 9ème
@@ -201,7 +201,7 @@ L'outil touchera le porte-pièce...::
    sur lequel s'effectue le 'Toucher'. Le 9ème système de coordonnées doit
    être ajusté pour que la pointe d'un outil de longueur nulle
    (le nez de broche), soit à l'origine du porte-pièce quand les coordonnées
-   relatives sont à 0. Voir aussi <<sec:G10-L11,G10 L11>> dans le chapitre du
+   relatives sont à 0. Voir aussi <<gcode:g10-l11,G10 L11>> dans le chapitre du
    G-code.
 
 .Menu Vues

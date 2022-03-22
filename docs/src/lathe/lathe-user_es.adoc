@@ -185,7 +185,7 @@ Para obtener más información, consulte la sección <<gcode:g76, G76>>.
 .Velocidad constante de superficie
 CSS (Constant Surface Speed) ​​utiliza el origen de la máquina X modificado por el offset X de la herramienta
 para calcular la velocidad del husillo en RPM. CSS hará un seguimiento de los cambios en los offsets de herramienta.
-El <<sec.machine-coordinate-system,origen maquina>> X debe ser donde
+El <<sec:machine-coordinate-system,origen maquina>> X debe ser donde
 la herramienta de referencia (la que tiene cero desplazamiento) está en el centro de rotación.
 Para obtener más información, consulte la sección <<gcode:g96-g97, G96>>.
 
@@ -246,8 +246,7 @@ la ruta programada a menos que esté activada la 'compensacion del cortador'. En
 figuras se puede ver cómo el punto de control no sigue el filo de la herramienta, como se podría suponer.
 
 .Punto de control
-
-image::images/control-point_es.svg[align="center", alt="Punto de Control"]
+image::images/control-point_es.svg["Punto de Control",align="center"]
 
 === Corte de angulos sin Compensacion
 
@@ -257,8 +256,7 @@ ruta programada y la ruta de corte deseada son una y la misma, siempre
 que nos estemos moviendo en la dirección X o Z solamente.
 
 .Rampa de entrada
-
-image::images/ramp-entry_es.svg[align="center", alt="Entrada a Rampa"]
+image::images/ramp-entry_es.svg["Entrada a Rampa",align="center"]
 
 Ahora, a medida que el punto de control avanza a lo largo del camino programado, el
 borde del cortador real no sigue ese camino como se muestra en la
@@ -266,8 +264,7 @@ siguiente figura. Hay dos maneras de resolver esto; compensacion del cortador o
 ajustar la ruta programada para compensar el radio de la punta.
 
 .Rampa de ruta
-
-image::images/ramp-cut_es.svg[align="center", alt="Camino en Rampa"]
+image::images/ramp-cut_es.svg["Camino en Rampa",align="center"]
 
 El ejemplo anterior se podria ajustar la ruta programada a la ruta real deseada 
 moviendo la ruta programada hacia la izquierda del radio de la punta de la herramienta.
@@ -281,8 +278,7 @@ exterior de la pieza. El punto de control de la herramienta sigue el camino prog
 y la herramienta toca el diametro.
 
 .Torneado exterior
-
-image::images/radius-1_es.svg[align="center", alt="Torneado exterior"]
+image::images/radius-1_es.svg["Torneado exterior",align="center"]
 
 En la siguiente figura puede ver que a medida que la herramienta se acerca al final de la
 pieza, el punto de control todavía sigue el camino pero la punta de la herramienta ha dejado
@@ -290,15 +286,13 @@ la pieza y está al aire. También puede ver que aunque ha sido programado un ra
 la pieza terminará con una esquina cuadrada.
 
 .Corte del radio
-
-image::images/radius-2_es.svg[align="center", alt="Corte del radio"]
+image::images/radius-2_es.svg["Corte del radio",align="center"]
 
 Ahora puede ver como el punto de control sigue el radio programado
 La punta de la herramienta ha dejado la pieza y ahora está al aire.
 
 .Corte del radio
-
-image::images/radius-3_es.svg[align="center", alt="Corte del radio"]
+image::images/radius-3_es.svg["Corte del radio",align="center"]
 
 En la figura final podemos ver que la punta de la herramienta terminará de cortar la
 cara pero deja una esquina cuadrada en lugar de un radio. Notese también
@@ -308,8 +302,7 @@ una cara cortada en el centro de una parte, tiene que programar la herramienta p
 más allá del centro; como minimo, el radio de la punta de la herramienta.
 
 .Corte de la cara
-
-image::images/radius-4_es.svg[align="center", alt="Corte de la cara"]
+image::images/radius-4_es.svg["Corte de la cara",align="center"]
 
 === Usando Compensacion del Cortador
 

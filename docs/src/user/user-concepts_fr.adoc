@@ -24,13 +24,13 @@ et deux cames mobiles pour l'actionner. Dans ce cas les limites seront inversée
 point de vue du sens de déplacement de l'outil.
 
 .Configuration typique d'une fraiseuse
-image::images/mill-diagram.png[align="left", alt="Configuration typique d'une fraiseuse"]
+image::images/mill-diagram.png["Configuration typique d'une fraiseuse",align="left"]
 
 Le dessin suivant montre les directions de déplacement de l'outil et la position
 des fins de course de limite sur un tour classique.
 
 .Configuration typique d'un tour
-image::images/lathe-diagram.png[align="left", alt="Configuration typique d'un tour"]
+image::images/lathe-diagram.png["Configuration typique d'un tour",align="left"]
 
 == Contrôle de trajectoire
 
@@ -43,6 +43,7 @@ restant dans les limites permises par la machine.
 Un programme en G-code ne peut jamais être exactement suivi. Par
 exemple imaginez que vous spécifiez dans une ligne du programme les
 mouvements suivants:
+
 ----
 G1 X10 F100 (G1 un mouvement linéaire, X10 la destination, F100 la vitesse)
 ----
@@ -166,7 +167,6 @@ mouvements et fournir une amélioration conséquente dans le suivi de la vitesse
 programmée.
 
 .Détecteur Naive Cam
-
 image::images/naive-cam.png[alt="Détecteur Naive Cam"]
 
 === Planification des mouvements
@@ -222,7 +222,7 @@ la signification de chacun d'eux.
 
 Si vous avez un tour ou un axe rotatif, pour savoir comment la vitesse
 d'avance s'applique selon que l'axe est linéaire ou rotatif, lire et
-comprendre la section <<sub:Vitesse-d-avance,vitesse d'avance>> du manuel de
+comprendre la section <<sub:feed-rate,vitesse d'avance>> du manuel de
 l'utilisateur.
 
 == Compensation de rayon d'outil
@@ -267,7 +267,7 @@ Quand vous réalisez une prise d'origine de plusieurs axes de LinuxCNC,
 vous passez G53, les coordonnées système, à 0 pour chacun des axes concernés.
 
  - La prises d'origine ne modifient en rien les autres systèmes de coordonnées,
-ni les compensations d'outil.
+   ni les compensations d'outil.
 
 La seule façon de se déplacer en mode G53, en coordonnées machine, c'est de programmer
 un G53 sur la même ligne que celle d'un mouvement. En fonctionnement normal,
@@ -284,9 +284,9 @@ le menu Machine ou en programmant _G10 L2 P1 X0 Y0 Z0_ à la fin du programme G-
 Modifiez la valeur du mot _P_ en fonction du système de coordonnées dont vous voulez
 effacer le décalage.
 
- -  Les décalages stockés dans un système de coordonnées utilisateur sont conservés
+ - Les décalages stockés dans un système de coordonnées utilisateur sont conservés
    à l'arrêt de LinuxCNC.
- -  Dans Axis, utiliser le bouton _Toucher_ décalera le système de coordonnées utilisateur
+ - Dans Axis, utiliser le bouton _Toucher_ décalera le système de coordonnées utilisateur
    choisi.
 
 === Quand vous êtes perdu
@@ -306,3 +306,21 @@ Pour cela:
 
 Maintenant vous devriez être, à l'origine machine _X0 Y0 Z0_ et le système
 de coordonnées relatives devrait être le même que le système de coordonnées machine.
+
+[[sec:machine-configurations]]
+== Machine Configurations
+
+The following diagram shows a typical mill showing direction of travel
+of the tool and the mill table and limit switches. Notice how the mill table
+moves in the opposite direction of the Cartesian coordinate system arrows
+shown by the 'Tool Direction' image. This makes the 'tool' move in the
+correct direction in relation to the material.
+
+image::images/mill-diagram_en.svg["Mill Configuration",align="center"]
+
+The following diagram shows a typical lathe showing direction of travel
+of the tool and limit switches.
+
+image::images/lathe-diagram_en.svg["Lathe Configuration",align="center"]
+
+// vim: set syntax=asciidoc:
