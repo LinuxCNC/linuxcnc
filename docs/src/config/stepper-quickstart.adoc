@@ -43,10 +43,10 @@ wiki site of more drives.
 [width="100%", options="header"]
 |====================================================================
 |Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns
-|X    |            |              |               |              |
-|Y    |            |              |               |              |
-|Z    |            |              |               |              |
-|     |            |              |               |              |
+|X    |            |              |               |              | 
+|Y    |            |              |               |              | 
+|Z    |            |              |               |              | 
+|     |            |              |               |              | 
 |====================================================================
 
 == Pinout Information
@@ -57,18 +57,18 @@ PC parallel port.
 [width="100%", options="header"]
 |==============================================================================
 |Output Pin | Typ. Function    | If Different | Input Pin | Typ. Function | If Different
-|1          | E-Stop Out       |              | 10        | X Limit/Home  |
-|2          | X Step           |              | 11        | Y Limit/Home  |
-|3          | X Direction      |              | 12        | Z Limit/Home  |
-|4          | Y Step           |              | 13        | A Limit/Home  |
-|5          | Y Direction      |              | 15        | Probe In      |
-|6          | Z Step           |              |           |               |
-|7          | Z Direction      |              |           |               |
-|8          | A Step           |              |           |               |
-|9          | A Direction      |              |           |               |
-|14         | Spindle CW       |              |           |               |
-|16         | Spindle PWM      |              |           |               |
-|17         | Amplifier Enable |              |           |               |
+|1          | E-Stop Out       |              | 10        | X Limit/Home  | 
+|2          | X Step           |              | 11        | Y Limit/Home  | 
+|3          | X Direction      |              | 12        | Z Limit/Home  | 
+|4          | Y Step           |              | 13        | A Limit/Home  | 
+|5          | Y Direction      |              | 15        | Probe In      | 
+|6          | Z Step           |              |           |               | 
+|7          | Z Direction      |              |           |               | 
+|8          | A Step           |              |           |               | 
+|9          | A Direction      |              |           |               | 
+|14         | Spindle CW       |              |           |               | 
+|16         | Spindle PWM      |              |           |               | 
+|17         | Amplifier Enable |              |           |               | 
 |==============================================================================
 
 Note any pins not used should be set to Unused in the drop down box.
@@ -82,10 +82,10 @@ per user unit which is used for SCALE in the .ini file.
 [width="100%", options="header"]
 |==============================================================================
 |Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
-|X    |            |             |             |                 |
-|Y    |            |             |             |                 |
-|Z    |            |             |             |                 |
-|     |            |             |             |                 |
+|X    |            |             |             |                 | 
+|Y    |            |             |             |                 | 
+|Z    |            |             |             |                 | 
+|     |            |             |             |                 | 
 |==============================================================================
 
 * 'Steps per revolution' - is how many stepper-motor-steps it takes to turn
