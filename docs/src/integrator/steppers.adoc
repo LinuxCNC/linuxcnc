@@ -1,5 +1,6 @@
-[[cha:stepper-info]]
+:lang: en
 
+[[cha:stepper-info]]
 = Stepper Information
 
 == Stepper Motor Operation
@@ -27,19 +28,19 @@ coil. The 4 milli-Henry coil (blue trace) takes twice as long to reach full curr
 trace), and the 8mH (red trace) coil takes twice as long again:
 
 image::images/inductance-step-response.png[align="center"]
- 
+
 If the rate at which step changes are applied to the coils is significantly shorter than the rise time, it’s easy
 to see that the winding has less time to attain full magnetic attraction on the rotor, and thus maximum torque is
 curtailed. In the below example the 2mH coil can achieve the full 5A limit before the step voltage is removed, but
 the 4mH and 8mH coils cannot:
 
 image::images/inductance-pulse-response-slow-charge.png[align="center"]
- 
+
 The accepted way of improving motor speed while maintaining torque is to increase the speed at which the magnetic
 field of the motor coils can expand and collapse. The easiest way to accomplish this is to increase the supply
 voltage to force the current in each winding to rise and fall much more rapidly. A quicker magnetising time
 equates to faster step rates while improving torque at higher speeds, both of which are obviously desirable in a
-CNC system.  
+CNC system.
 
 Using the same example as above, but increasing the step voltage to 80V it can be seen that all three coils can
 now reach the 5A maximum quite easily:
@@ -100,24 +101,24 @@ dramatically, and the motor may stall or even rotate in random directions. Some 
 plots of the torque/speed relationship and show a dip in the graph where resonance is likely to occur. It should
 be noted that this resonant peak provided in the datasheet is only for the motor itself – as soon as the motor is
 coupled to other components (ie, installed in a CNC system) the resonant frequency may be altered, or even
-multiple new resonances introduced. 
+multiple new resonances introduced.
 
 Several methods exist to help control the effects of resonance, all with varying degrees of complexity,
 effectiveness and side effects:
 
 * Microstepping can help reduce resonance by using smaller step changes in current between each step. These
-smaller step changes cause less ringing in the motor and windings and thus cause less excitation at the point of
-resonance.
+  smaller step changes cause less ringing in the motor and windings and thus cause less excitation at the point of
+  resonance.
 
 * Ensuring the motor is never operated at a particular frequency for a sustained period is a very basic method of
-reducing resonance, always accelerating or decelerating through the resonant peak.
+  reducing resonance, always accelerating or decelerating through the resonant peak.
 
 * Increasing inertial load will damp unwanted resonances at the expense of some torque and potentially some
-accuracy. Elastomeric motor mounts, shaft couplings or bearing mounts can be employed.
+  accuracy. Elastomeric motor mounts, shaft couplings or bearing mounts can be employed.
 
 * More advanced stepper motor drives may have the ability to switch between stepping modes such that the resonant
-peak is managed at certain rates of operation. Other systems exist to place electrical load on the windings, which
-has a similar effect to mechanical damping, above.
+  peak is managed at certain rates of operation. Other systems exist to place electrical load on the windings, which
+  has a similar effect to mechanical damping, above.
 
 == Microstepping
 
@@ -129,7 +130,7 @@ As each winding is energised the rotor clocks around fully from one detent to th
 Additional rotational resolution from a stepper motor can be obtained by performing microstepping, whereby the
 current being driven into each winding can essentially be ‘ramped’ in discrete intermediate steps. This then
 causes the rotor to gradually straddle across each rotational detent rather than making the full jump from one
-step to the next. 
+step to the next.
 
 Microstepping is commonly performed in multiples of 2 (4x, 8x, 16x, 32x etc). For example, a drive set to 4x
 microstepping will divide each step into four discrete current levels in the motor windings, thus affording an
@@ -179,7 +180,7 @@ Basic systems operating in this fashion may only close the loop between the moto
 software on the host computer out of the loop. The software issues step/direction pulses to the downstream driver
 as it would normally when running in open loop. In these situations the drivers usually include an alarm output
 which signals the software to halt when the load placed on the stepper becomes too great for the driver to
-compensate without losing steps. 
+compensate without losing steps.
 
 More advanced implementations of closed loop operation bring the encoder signal all the way back to the host
 computer, but require that a much higher hardware and software overhead be installed to manage the encoder

@@ -1,10 +1,11 @@
-[[cha:getting-linuxcnc]]
+:lang: en
 
-= Getting LinuxCNC
+[[cha:getting-linuxcnc]]
+= Getting LinuxCNC(((Getting LinuxCNC)))
 
 This section describes the recommended way to download
 and make a fresh install of LinuxCNC.  There are also
-<<_alternate_install_methods,Alternate Install Methods>> for the
+<<sec:_alternate_install_methods,Alternate Install Methods>> for the
 adventurous.  If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
@@ -28,13 +29,11 @@ The outline of the process looks like this:
 . Boot the Live system to test out LinuxCNC.
 . Boot the Installer to install LinuxCNC.
 
-
 == Download the image
 
-This section describes some methods for downloading the Live/Install
-Image.
+This section describes some methods for downloading the Live/Install Image.
 
-
+[[sec:_normal_download]]
 === Normal Download
 
 For x86 PCs Download the Live/Install CD by clicking here:
@@ -43,8 +42,7 @@ http://www.linuxcnc.org/iso/linuxcnc-2.8.2-buster.iso
 
 For the Raspberry Pi a complete SD card image is available here:
 
-http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update
-to 2.8.2 )
+http://www.linuxcnc.org/iso/linuxcnc-2.8.1-pi4.zip (this will auto-update to 2.8.2)
 
 This can be installed using the normal Pi
 https://www.raspberrypi.org/documentation/installation/installing-images/README.md[install process]
@@ -64,7 +62,7 @@ USB card reader)
 zsync is a download application that efficiently resumes interrupted
 downloads and efficiently transfers large files with small modifications
 (if you have an older local copy).  Use zsync if you have trouble
-downloading the image using the <<_normal_download,Normal Download>>
+downloading the image using the <<sec:_normal_download,Normal Download>>
 method.
 
 .zsync in Linux
@@ -103,7 +101,7 @@ https://www.assembla.com/spaces/zsync-windows/documents
 md5sum linuxcnc-2.8.2-buster.iso
 ----
 +
-or
+\o
 +
 ----
 sha256sum linuxcnc-2.8.2-buster.iso
@@ -129,7 +127,7 @@ https://www.raspberrypi.org/documentation/installation/installing-images/README.
 
 The LinuxCNC Live/Install ISO Image is a hybrid ISO image which can
 be written directly to a USB storage device (flash drive) or a DVD and
-used to boot a computer.  The image is too large to fit on a CD.
+used to boot a computer. The image is too large to fit on a CD.
 
 .Writing the image to a USB storage device in Linux
 
@@ -187,8 +185,8 @@ sudo dd if=/path-to.iso of=/dev/rdiskN bs=1m
   burning program: http://infrarecorder.org/
 . Insert a blank CD in the drive and select Do nothing or Cancel if an
   auto-run dialog pops up.
-. Open Infra Recorder, and select the 
- 'Actions' menu, then 'Burn image'.
+. Open Infra Recorder, and select the
+  'Actions' menu, then 'Burn image'.
 
 .Writing the image to a DVD in Mac OSX
 
@@ -235,16 +233,19 @@ to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
-WARNING: Do not upgrade the operating system if prompted to do so. You
+[WARNING]
+Do not upgrade the operating system if prompted to do so. You
 should accept OS _updates_ however, especially security updates.
 
-== Install Problems
+[[linuxcnc:install-problems]]
+== Install Problems(((LinuxCNC:Installation Problems)))(((Installation:Problems)))
 
 In rare cases you might have to reset the BIOS to default settings if
-during the Live CD install it cannot recognize the hard drive 
+during the Live CD install it cannot recognize the hard drive
 during the boot up.
 
-== Alternate Install Methods
+[[sec:_alternate_install_methods]]
+== Alternate Install Methods(((LinuxCNC:Alternate Install Methods)))(((Installation:Alternate Methods)))
 
 The easiest, preferred way to install LinuxCNC is to use the Live/Install
 Image as described above.  That method is as simple and reliable as we
@@ -290,10 +291,10 @@ debian archive.  The apt source is:
 * Debian Wheezy: `deb http://linuxcnc.org wheezy base`
 * Ubuntu Precise: `deb http://linuxcnc.org precise base`
 
-NOTE: Debian Wheezy and Ubuntu Precise are both extremely old, and
+[NOTE]
+Debian Wheezy and Ubuntu Precise are both extremely old, and
 are out of their support period. It is strongly advised not to use either
-for a new install, and to seriously consider upgrading an existing
-installation.
+for a new install, and to seriously consider upgrading an existing installation.
 
 The Buster / RTAI package is only available on amd64, but there are very
 few surviving systems that can not run a 64-bit OS.
@@ -311,8 +312,7 @@ project developers.
 === Installing on Debian Buster (with Preempt-RT kernel)
 
 . Install Debian Buster (Debian 10), amd64 version.
-You can download the installer here:
-  https://www.debian.org/releases/buster/
+  You can download the installer here: https://www.debian.org/releases/buster/
 
 . After burning the iso and booting up if you don't want Gnome desktop select
   'Advanced Options' > 'Alternative desktop environments' and pick the one you
@@ -333,13 +333,11 @@ sudo apt-get dist-upgrade
 +
 ----
 sudo apt-get install linux-image-rt-amd64
-
 ----
 
 . Re-boot, and select the Linux 4.19.0-9-rt-amd64 kernel. This might be
-hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
-When you
-  log in, verify that `PREEMPT RT`is reported by the following command.
+  hidden in the "Advanced options for Debian Buster" sub-menu in Grub.
+  When you log in, verify that `PREEMPT RT`is reported by the following command.
 +
 ----
 uname -v
@@ -385,8 +383,7 @@ sudo apt-get install linuxcnc-uspace
 sudo apt install mesaflash
 ----
 
-[[cha:Installing-RTAI]]
-=== Installing on Debian Buster (with experimental RTAI kernel)
+=== Installing on Debian Buster (with experimental RTAI kernel)[[cha:Installing-RTAI]]
 
 WARNING: This kernel has known stability problems. It appears to run
 reliably once LinuxCNC is loaded. However kernel panics have been seen

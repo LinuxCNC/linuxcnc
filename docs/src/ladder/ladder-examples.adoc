@@ -1,6 +1,9 @@
-= Classicladder Examples
+:lang: en
 
 [[cha:classicladder-examples]]
+= Classicladder Examples
+
+= Classicladder Examples
 
 == Wrapping Counter
 
@@ -16,7 +19,7 @@ counting backwards.
 
 .Wrapping Counter
 
-image::images/wrapping-counter.png[align="center", alt="Wrapping Counter"]
+image::images/wrapping-counter.png["Wrapping Counter",align="center"]
 
 == Reject Extra Pulses
 
@@ -31,7 +34,7 @@ output until it times out.
 
 .Reject Extra Pulse
 
-image::images/extra-pulse-reject.png[align="center", alt="Reject Extra Pulse"]
+image::images/extra-pulse-reject.png["Reject Extra Pulse",align="center"]
 
 == External E-Stop
 
@@ -47,7 +50,7 @@ commenting out by adding the pound sign as shown or removing the
 following lines.
 
 ----
-# net estop-out <= iocontrol.0.user-enable-out 
+# net estop-out <= iocontrol.0.user-enable-out
 # net estop-out => iocontrol.0.emc-enable-in
 ----
 
@@ -55,15 +58,15 @@ Next we add Classic Ladder to our custom.hal file by adding these two
 lines:
 
 ----
-loadrt classicladder_rt 
+loadrt classicladder_rt
 addf classicladder.0.refresh servo-thread
 ----
 
 Next we run our config and build the ladder as shown here.
 
-.E-Stop Section Display[[cap:E-Stop-Section-Display]]
-
-image::images/EStop_Section_Display.png[align="center", alt="E-Stop Section Display"]
+[[cap:E-Stop-Section-Display]]
+.E-Stop Section Display
+image::images/EStop_Section_Display.png["E-Stop Section Display",align="center"]
 
 After building the ladder select Save As and save the ladder as
 estop.clp
@@ -71,7 +74,7 @@ estop.clp
 Now add the following line to your custom.hal file.
 
 ----
-# Load the ladder 
+# Load the ladder
 loadusr classicladder --nogui estop.clp
 ----
 
@@ -90,23 +93,23 @@ Next we add the following lines to the custom_postgui.hal file
 ----
 # E-Stop example using pyVCP buttons to simulate external components
 
-# The pyVCP checkbutton simulates a normally closed external E-Stop 
+# The pyVCP checkbutton simulates a normally closed external E-Stop
 net ext-estop classicladder.0.in-00 <= pyvcp.py-estop
 
-# Request E-Stop Enable from LinuxCNC 
+# Request E-Stop Enable from LinuxCNC
 net estop-all-ok iocontrol.0.emc-enable-in <= classicladder.0.out-00
 
-# Request E-Stop Enable from pyVCP or external source 
+# Request E-Stop Enable from pyVCP or external source
 net ext-estop-reset classicladder.0.in-03 <= pyvcp.py-reset
 
-# This line resets the E-Stop from LinuxCNC 
+# This line resets the E-Stop from LinuxCNC
  net emc-reset-estop iocontrol.0.user-request-enable =>
 classicladder.0.in-02
 
-# This line enables LinuxCNC to unlatch the E-Stop in Classic Ladder 
+# This line enables LinuxCNC to unlatch the E-Stop in Classic Ladder
 net emc-estop iocontrol.0.user-enable-out => classicladder.0.in-01
 
-# This line turns on the green indicator when out of E-Stop 
+# This line turns on the green indicator when out of E-Stop
 net estop-all-ok => pyvcp.py-es-status
 ----
 
@@ -115,32 +118,31 @@ to open it with the text editor not the default html viewer.
 
 [source,xml]
 ----
-<pyvcp> 
-<vbox> 
-<label><text>"E-Stop Demo"</text></label> 
-<led> 
-<halpin>"py-es-status"</halpin> 
-<size>50</size> 
-<on_color>"green"</on_color> 
-<off_color>"red"</off_color> 
-</led> 
-<checkbutton> 
-<halpin>"py-estop"</halpin> 
-<text>"E-Stop"</text> 
-</checkbutton> 
-</vbox> 
-<button> 
-<halpin>"py-reset"</halpin> 
-<text>"Reset"</text> 
-</button> 
+<pyvcp>
+<vbox>
+<label><text>"E-Stop Demo"</text></label>
+<led>
+<halpin>"py-es-status"</halpin>
+<size>50</size>
+<on_color>"green"</on_color>
+<off_color>"red"</off_color>
+</led>
+<checkbutton>
+<halpin>"py-estop"</halpin>
+<text>"E-Stop"</text>
+</checkbutton>
+</vbox>
+<button>
+<halpin>"py-reset"</halpin>
+<text>"Reset"</text>
+</button>
 </pyvcp>
 ----
 
 Now start up your config and it should look like this.
 
 .AXIS E-Stop[[cap:AXIS-E-Stop]]
-
-image::images/axis_cl-estop.png[align="center", alt="AXIS E-Stop"]
+image::images/axis_cl-estop.png["AXIS E-Stop",align="center"]
 
 Note that in this example like in real life you must clear the remote
 E-Stop (simulated by the checkbox) before the AXIS E-Stop or the
@@ -154,8 +156,7 @@ In this example we are using the Operate block to assign a value to
 the timer preset based on if an input is on or off.
 
 .Timer/Operate Example[[cap:Timer/Operate-Example]]
-
-image::images/Tmr_Section_Display.png[align="center", alt="Timer/Operate Example"]
+image::images/Tmr_Section_Display.png["Timer/Operate Example",align="center"]
 
 In this case %I0 is true so the timer preset value is 10. If %I0 was
 false the timer preset would be 5.
@@ -194,7 +195,7 @@ are active and step 2 and/or 3 are inactive.
 Then when either %B3 OR %B4 are true, step 6 is true and
 steps 4 and 5 are inactive.
 Then when %B5 is true step 1 is active and step 6 is
-inactive and it all starts again. 
+inactive and it all starts again.
 
 As shown, the sequence has been:
 %B0 was true making step 2 and 3 active, then %B1 became true

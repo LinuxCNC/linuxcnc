@@ -1,16 +1,16 @@
 :lang: fr
 :toc:
 
-= PyVCP
-
 [[cha:Panneau-Virtuel-Control]]
+
+= PyVCP
 
 == Introduction
 
 Panneau virtuel de contrôle en python (**Py**thon **V**irtual **C**ontrol
 **P**anel)
 
-Le panneau de contrôle virtuel pyVCP a été créé pour donner à 
+Le panneau de contrôle virtuel pyVCP a été créé pour donner à
 l'intégrateur la possibilité de personnaliser l'interface graphique d'AXIS avec
 des boutons et des indicateurs destinés aux tâches spéciales.
 
@@ -162,7 +162,7 @@ loadusr -Wn monpanneau pyvcp -g WxH+X+Y -c monpanneau <path/>fichier_panneau.xml
 Vous l'utiliserez pour avoir un panneau flottant ou un panneau avec
 une interface graphique autre que Axis.
 
-* '-Wn monpanneau' - 
+* '-Wn monpanneau' -
      Fait attendre à HAL que le composant _monpanneau_ soit chargé
     (devienne _ready_ en langage HAL), avant d'exécuter d'autres commandes HAL.
     C'est important parce-que les panneaux PyVCP exportent des pins de HAL
@@ -171,14 +171,14 @@ une interface graphique autre que Axis.
     minuscule. Si vous utilisez l'option -Wn vous devez également utiliser
     l'option -c pour nommer le panneau.
 
-* 'pyvcp < -g> < -c> panneau.xml' - 
+* 'pyvcp < -g> < -c> panneau.xml' -
      Construit le panneau avec la géométrie optionnelle et/ou le nom de panneau
     depuis le fichier panneau.xml. Le fichier panneau.xml peut avoir n'importe
     quel nom avec l'extension .xml. Le fichier .xml décrit comment construire
     le panneau. Il est nécessaire d'ajouter le nom du chemin si le panneau
     n'est pas dans le répertoire dans lequel se trouve le script HAL.
 
-* '-g <WxH><+X+Y>' - 
+* '-g <WxH><+X+Y>' -
      Spécifie la géométrie à utiliser quand le panneau est construit. La
     syntaxe est _Largeur x Hauteur + Ancrage X + Ancrage Y_. La taille ou la
     position, ou les deux peuvent être fixés. Le point d'ancrage est le coin
@@ -186,7 +186,7 @@ une interface graphique autre que Axis.
     panneau à 250 pixels de large, 500 pixels de haut avec le point d'ancrage
     placé en X800 Y0.
 
-* '-c nompanneau' - 
+* '-c nompanneau' -
      Indique à PyVCP quel composant appeler et le titre de la fenêtre.
     Le nom du fichier _nompanneau_ peut être n'importe quel nom sans espace.
 
@@ -233,9 +233,7 @@ fermé avant de continuer avec d'autres commandes. C'est généralement défini
 comme étant la dernière commande, de sorte que HAL s'arrêtera si le panneau
 est fermé.
 
-[[sec:Documentation-des-widgets]]
-== Documentation des widgets de pyVCP
-(((Documentation des widgets)))
+== Documentation des widgets de pyVCP[[sec:Documentation-des-widgets]](((Documentation des widgets)))
 
 Les signaux de HAL existent en deux variantes, BIT et FLOAT. pyVCP
 peut afficher la valeur d'un signal avec un widget indicateur, ou
@@ -277,7 +275,7 @@ suivantes sont utilisées pour convertir les valeurs des attributs en
 valeurs Python:
 
  .  Si le premier caractère de l'attribut est un des suivants: _{(["'_ ,
-   il est évalué comme une expression Python. 
+   il est évalué comme une expression Python.
  .  Si la chaine est acceptée par int(), la valeur est traitée comme un
    entier.
  .  Si la chaine est acceptée par float(), la valeur est traitée comme un
@@ -300,7 +298,7 @@ Pour ajouter un commentaire utiliser la syntaxe de xml.
 === Editer un fichier XML
 
 Editer le fichier XML avec un éditeur de texte. La plupart du temps un
-double click sur le nom de fichier permet de choisir 
+double click sur le nom de fichier permet de choisir
 _ouvrir avec l'editeur de texte_ ou similaire.
 
 === Couleurs
@@ -355,7 +353,7 @@ Une led est utilisée pour indiquer l'état d'une pin de HAL de type bit. La
 couleur de la led sera on_color quand le signal est vrai et off_color
 autrement.
 * _<halpin>_ définit le nom de la pin, par défaut: _led.n_, où n est un entier.
-* _<size>_ définit la taille de la led, par défaut: 20. 
+* _<size>_ définit la taille de la led, par défaut: 20.
 * _<on_color>_ définit la couleur de la led led quand la pin est vraie,
 par défaut: _green_
 * _<off_color>_ définit la couleur de la led quand la pin est fausse,
@@ -383,16 +381,16 @@ C'est une variante du widget _led_.
 
 [source,xml]
 ----
-<vbox> 
-    <relief>RIDGE</relief> 
-    <bd>6</bd> 
-    <rectled> 
-        <halpin>"ma-led-rect"</halpin> 
-        <height>"50"</height> 
-        <width>"100"</width> 
-        <on_color>"green"</on_color> 
-        <off_color>"red"</off_color> 
-    </rectled> 
+<vbox>
+    <relief>RIDGE</relief>
+    <bd>6</bd>
+    <rectled>
+        <halpin>"ma-led-rect"</halpin>
+        <height>"50"</height>
+        <width>"100"</width>
+        <on_color>"green"</on_color>
+        <off_color>"red"</off_color>
+    </rectled>
 </vbox>
 ----
 
@@ -499,10 +497,10 @@ L'affichage d'un nombre peux recevoir les options de formatage suivantes:
 Le widget _number_ affiche la valeur d'un signal de type flottant.
 
 ----
-<number> 
-    <halpin>"number"</halpin> 
-    <font>("Helvetica",24)</font> 
-    <format>"+4.4f"</format> 
+<number>
+    <halpin>"number"</halpin>
+    <font>("Helvetica",24)</font>
+    <format>"+4.4f"</format>
 </number>
 ----
 
@@ -545,11 +543,11 @@ prévoir une largeur suffisante pour afficher le nombre dans sa
 totalité.
 
 ----
-<s32> 
-    <halpin>"simple-number"</halpin> 
-    <font>("Helvetica",24)</font> 
-    <format>"6d"</format> 
-    <width>6</width> 
+<s32>
+    <halpin>"simple-number"</halpin>
+    <font>("Helvetica",24)</font>
+    <format>"6d"</format>
+    <width>6</width>
 </s32>
 ----
 
@@ -574,18 +572,18 @@ La bascule _image_bit_ bascule entre deux images selon la position
 vraie ou fausse de halpin.
 
 ----
-<pyvcp> 
-    <image name='fwd' file='fwd.gif'/> 
-    <image name='rev' file='rev.gif'/> 
-    <vbox> 
-        <image_bit halpin='selectimage' images='fwd rev'/> 
-    </vbox> 
+<pyvcp>
+    <image name='fwd' file='fwd.gif'/>
+    <image name='rev' file='rev.gif'/>
+    <vbox>
+        <image_bit halpin='selectimage' images='fwd rev'/>
+    </vbox>
 </pyvcp>
 ----
 
-En utilisant les deux images fwd.gif et rev.gif. 
-FWD est affiché quand _selectimage_ est fausse 
-et REV est affiché quand _selectimage_ est vraie. 
+En utilisant les deux images fwd.gif et rev.gif.
+FWD est affiché quand _selectimage_ est fausse
+et REV est affiché quand _selectimage_ est vraie.
 
 .selectimage fausse
 image::images/pyvcp_image01.png[]
@@ -603,13 +601,13 @@ commençant à 0 pour la première image de la liste, à 1 pour la seconde
 image etc.
 
 ----
-<pyvcp> 
-    <image name='stb' file='stb.gif'/> 
-    <image name='fwd' file='fwd.gif'/> 
-    <image name='rev' file='rev.gif'/> 
-    <vbox> 
-        <image_u32 halpin='selectimage' images='stb fwd rev'/> 
-    </vbox> 
+<pyvcp>
+    <image name='stb' file='stb.gif'/>
+    <image name='fwd' file='fwd.gif'/>
+    <image name='rev' file='rev.gif'/>
+    <vbox>
+        <image_u32 halpin='selectimage' images='stb fwd rev'/>
+    </vbox>
 </pyvcp>
 ----
 
@@ -787,7 +785,7 @@ image::images/pyvcp_jogwheel.png[]
 
 Les containers sont des widgets qui contiennent d'autres widgets.
 
-=== Bordures 
+=== Bordures
 
 Le container bordure est spécifié avec deux balises utilisées ensembles.
 La balise <relief> spécifie le type de bordure et la balise <bd> spécifie la
@@ -800,36 +798,36 @@ largeur de la bordure.
     La valeur de *n* fixe la largeur de la bordure.
 
 ----
-<hbox> 
-    <button> 
-        <relief>FLAT</relief> 
-        <text>"FLAT"</text> 
-        <bd>3</bd> 
+<hbox>
+    <button>
+        <relief>FLAT</relief>
+        <text>"FLAT"</text>
+        <bd>3</bd>
     </button>
 
-    <button> 
-        <relief>SUNKEN</relief> 
-        <text>"SUNKEN"</text> 
-        <bd>3</bd> 
+    <button>
+        <relief>SUNKEN</relief>
+        <text>"SUNKEN"</text>
+        <bd>3</bd>
     </button>
 
-    <button> 
-        <relief>RAISED</relief> 
-        <text>"RAISED"</text> 
-        <bd>3</bd> 
+    <button>
+        <relief>RAISED</relief>
+        <text>"RAISED"</text>
+        <bd>3</bd>
     </button>
 
-    <button> 
-        <relief>GROOVE</relief> 
-        <text>"GROOVE"</text> 
-        <bd>3</bd> 
+    <button>
+        <relief>GROOVE</relief>
+        <text>"GROOVE"</text>
+        <bd>3</bd>
     </button>
 
-    <button> 
-        <relief>RIDGE</relief> 
-        <text>"RIDGE"</text> 
-        <bd>3</bd> 
-    </button> 
+    <button>
+        <relief>RIDGE</relief>
+        <text>"RIDGE"</text>
+        <bd>3</bd>
+    </button>
 </hbox>
 ----
 
@@ -854,7 +852,7 @@ horizontalement, les uns à côtés des autres.
 
 image::images/pyvcp_hbox.png[]
 
-Á l'intérieur d'une Hbox, il est possible d'utiliser les balises 
+Á l'intérieur d'une Hbox, il est possible d'utiliser les balises
 _<boxfill fill=/>_, _<boxanchor anchor=/>_ et _<boxexpand expand=/>_ pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
@@ -882,7 +880,7 @@ verticalement, les uns au dessus des autres.
 
 image::images/pyvcp_vbox.png[]
 
-Á l'intérieur d'une Vbox, vous pouvez utiliser les balises 
+Á l'intérieur d'une Vbox, vous pouvez utiliser les balises
 _<boxfill fill=/>_, _<boxanchor anchor=/>_ et _<boxexpand expand=/>_ pour
 choisir le comportement des éléments contenus dans la boîte,
 lors d'un redimensionnement de la fenêtre. Pour des détails sur le
@@ -963,27 +961,27 @@ determine la largeur des onglets.
 
 [source,xml]
 ----
-<tabs> 
-    <names>["Spindle", "Green Eggs", "Ham"]</names> 
-    <vbox> 
-        <label> 
-            <text>"Spindle speed:"</text> 
-        </label> 
-        <bar> 
-            <halpin>"spindle-speed"</halpin> 
-            <max_>5000</max_> 
-        </bar> 
-    </vbox> 
-    <vbox> 
-        <label> 
-            <text>"(this is the green eggs tab)"</text> 
-        </label> 
-    </vbox> 
-    <vbox> 
-        <label> 
-            <text>"(this tab has nothing on it)"</text> 
-        </label> 
-    </vbox> 
+<tabs>
+    <names>["Spindle", "Green Eggs", "Ham"]</names>
+    <vbox>
+        <label>
+            <text>"Spindle speed:"</text>
+        </label>
+        <bar>
+            <halpin>"spindle-speed"</halpin>
+            <max_>5000</max_>
+        </bar>
+    </vbox>
+    <vbox>
+        <label>
+            <text>"(this is the green eggs tab)"</text>
+        </label>
+    </vbox>
+    <vbox>
+        <label>
+            <text>"(this tab has nothing on it)"</text>
+        </label>
+    </vbox>
 </tabs>
 ----
 

@@ -1,3 +1,4 @@
+:lang: en
 
 Source Highlight Filter Test
 =============================

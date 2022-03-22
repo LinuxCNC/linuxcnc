@@ -1,3 +1,5 @@
+:lang: en
+
 [[cha:g-codes]]
 = G-Codes
 
@@ -48,9 +50,8 @@ value of parameter 100 were 2, 'G10 L#100' would also mean the same.
 If 'L-' is written in a prototype the '-' will often be referred to
 as the 'L number', and so on for any other letter.
 
-== G-Code Quick Reference Table[[gcode:quick-reference-table]]
-
-(((G-Code Table)))
+[[gcode:quick-reference-table]]
+== G-Code Quick Reference Table(((G-Code Table)))
 
 [width="75%", options="header", cols="2^,5<"]
 |====================================================================
@@ -114,8 +115,7 @@ as the 'L number', and so on for any other letter.
 |====================================================================
 
 [[gcode:g0]]
-== G0 Rapid Move
-(((G0 Rapid Move)))
+== G0 Rapid Move(((G0 Rapid Move)))
 
 -------------------
 G0 axes
@@ -158,9 +158,8 @@ It is an error if:
 * An axis letter is without a real value.
 * An axis letter is used that is not configured
 
-[[gcode:g1]](((G1 Linear Move)))
-
-== G1 Linear Move
+[[gcode:g1]]
+== G1 Linear Move(((G1 Linear Move)))
 
 -------------------
 G1 axes
@@ -196,8 +195,7 @@ It is an error if:
 * An axis letter is used that is not configured
 
 [[gcode:g2-g3]]
-== G2, G3 Arc Move
-(((G2, G3 Arc Move)))
+== G2, G3 Arc Move(((G2, G3 Arc Move)))
 
 ----
 G2 or G3 axes offsets (center format)
@@ -369,7 +367,7 @@ G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
 
 .G2 Example
 
-image::images/g2_en.svg[align="center", alt="G2 Example"]
+image::images/g2_en.svg["G2 Example",align="center"]
 
 In the next example we see the difference between the offsets for Y if
 we are doing a G2 or a G3 move. For the G2 move the start position is
@@ -387,7 +385,7 @@ G3 X0 Y0 I1 J-0.5 F25 (counterclockwise arc in the XY plane)
 
 .G2-G3 Example
 
-image::images/g2-3_en.svg[align="center", alt="G2-G3 Example"]
+image::images/g2-3_en.svg["G2-G3 Example",align="center"]
 
 In the next example we show how the arc can make a helix in the Z axis
 by adding the Z word.
@@ -458,8 +456,7 @@ of Z is 5, this is an arc of a circle parallel to the XY-plane;
 otherwise it is a helical arc.
 
 [[gcode:g4]]
-== G4 Dwell
-(((G4 Dwell)))
+== G4 Dwell(((G4 Dwell)))
 
 ----
 G4 P-
@@ -480,8 +477,7 @@ It is an error if:
 * the P number is negative or not specified.
 
 [[gcode:g5]]
-== G5 Cubic Spline
-(((G5 Cubic spline)))
+== G5 Cubic Spline(((G5 Cubic spline)))
 
 ----
 G5 X- Y- <I- J-> P- Q-
@@ -527,8 +523,7 @@ It is an error if:
 * The active plane is not G17
 
 [[gcode:g5.1]]
-== G5.1 Quadratic Spline
-(((G5.1 Quadratic spline)))
+== G5.1 Quadratic Spline(((G5.1 Quadratic spline)))
 
 ----
 G5.1 X- Y- I- J-
@@ -556,8 +551,7 @@ It is an error if:
 * The active plane is not G17
 
 [[gcode:g5.2-g5.3]]
-== G5.2 G5.3 NURBS Block
-(((G5.2 G5.3 NURBS Block)))
+== G5.2 G5.3 NURBS Block(((G5.2 G5.3 NURBS Block)))
 
 ----
 G5.2 <P-> <X- Y-> <L->
@@ -600,16 +594,14 @@ M2
 ----
 
 .Sample NURBS Output
-
-image:images/nurbs01.png[align="center", alt="Sample NURBS Output"]
+image:images/nurbs01.png["Sample NURBS Output",align="center"]
 
 More information on NURBS can be found here:
 
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
 
 [[gcode:g7]]
-== G7 Lathe Diameter Mode
-(((G7 Lathe Diameter Mode)))
+== G7 Lathe Diameter Mode(((G7 Lathe Diameter Mode)))
 
 ----
 G7
@@ -621,8 +613,7 @@ to the center of the lathe. For example X1 would move the cutter to
 0.500” from the center of the lathe thus giving a 1” diameter part.
 
 [[gcode:g8]]
-== G8 Lathe Radius Mode
-(((G8 Lathe Radius Mode)))
+== G8 Lathe Radius Mode(((G8 Lathe Radius Mode)))
 
 ----
 G8
@@ -634,8 +625,7 @@ center. Thus a cut at X1 would result in a part that is 2" in diameter.
 G8 is default at power up.
 
 [[gcode:g10-l0]]
-== G10 L0 Reload Tool Table Data
-(((G10 L0 Reload Tool Table Data)))
+== G10 L0 Reload Tool Table Data(((G10 L0 Reload Tool Table Data)))
 
 ----
 G10 L0
@@ -653,8 +643,7 @@ commands. Existing G43 tool length compensation values will
 remain in effect until updated by new G43 commands.
 
 [[gcode:g10-l1]]
-== G10 L1 Set Tool Table
-(((G10 L1 Tool Table)))
+== G10 L1 Set Tool Table(((G10 L1 Tool Table)))
 
 ----
 G10 L1 P- axes <R- I- J- Q->
@@ -683,11 +672,10 @@ It is an error if:
 * The P number is 0
 
 For more information on cutter orientation used by the 'Q' word,
-see the <<lathe-tool-orientation,Lathe Tool Orientation>> diagram.
+see the <<sec:lathe-tool-orientation,Lathe Tool Orientation>> diagram.
 
 [[gcode:g10-l2]]
-== G10 L2 Set Coordinate System
-(((G10 L2 Coordinate System)))
+== G10 L2 Set Coordinate System(((G10 L2 Coordinate System)))
 
 ----
 G10 L2 P- <axes R->
@@ -768,8 +756,7 @@ The above example sets the XYZ coordinates of the coordinate system 1 to the mac
 The coordinate system is described in the <<cha:coordinate-system,Coordinate System>> Section.
 
 [[gcode:g10-l10]]
-== G10 L10 Set Tool Table
-(((G10 L10 Set Tool Table)))
+== G10 L10 Set Tool Table(((G10 L10 Set Tool Table)))
 
 ----
 G10 L10 P- axes <R- I- J- Q->
@@ -805,8 +792,7 @@ It is an error if:
 * The P number is 0
 
 [[gcode:g10-l11]]
-== G10 L11 Set Tool Table
-(((G10 L11 Set Tool Table)))
+== G10 L11 Set Tool Table(((G10 L11 Set Tool Table)))
 
 ----
 G10 L11 P- axes <R- I- J- Q->
@@ -840,8 +826,7 @@ It is an error if:
 * The P number is 0
 
 [[gcode:g10-l20]]
-== G10 L20 Set Coordinate System
-(((G10 L20 Set Coordinate System)))
+== G10 L20 Set Coordinate System(((G10 L20 Set Coordinate System)))
 
 ----
 G10 L20 P- axes
@@ -863,8 +848,7 @@ It is an error if:
 * An axis is programmed that is not defined in the configuration.
 
 [[gcode:g17-g19.1]]
-== G17 - G19.1 Plane Select
-(((G17 - G19.1 Plane Select)))
+== G17 - G19.1 Plane Select(((G17 - G19.1 Plane Select)))
 
 These codes set the current plane as follows:
 
@@ -884,8 +868,7 @@ The effects of having a plane selected are discussed in Section
 <<gcode:g2-g3,G2 G3 Arcs>> and Section <<gcode:g80-g89,G81 G89>>
 
 [[gcode:g20-g21]]
-== G20, G21 Units
-(((G20 Units)))
+== G20, G21 Units(((G20 Units)))
 
 * 'G20' - to use inches for length units.
 * 'G21' - to use millimeters for length units.
@@ -894,8 +877,7 @@ It is a good idea to include units in the preamble
 of each G-code file.
 
 [[gcode:g28-g28.1]]
-== G28, G28.1 Go/Set Predefined Position
-(((G28 Go/Set Predefined Position)))
+== G28, G28.1 Go/Set Predefined Position(((G28 Go/Set Predefined Position)))
 
 [WARNING]
 Only use G28 when your machine is homed to a repeatable position and the
@@ -928,8 +910,7 @@ It is an error if :
 * Cutter Compensation is turned on
 
 [[gcode:g30-g30.1]]
-== G30, G30.1 Go/Set Predefined Position
-(((G30 Go/Set Predefined Position)))
+== G30, G30.1 Go/Set Predefined Position(((G30 Go/Set Predefined Position)))
 
 [WARNING]
 Only use G30 when your machine is homed to a repeatable position and the
@@ -967,8 +948,7 @@ It is an error if :
 * Cutter Compensation is turned on
 
 [[gcode:g33]]
-== G33 Spindle Synchronized Motion
-(((G33 Spindle Synchronized Motion)))
+== G33 Spindle Synchronized Motion(((G33 Spindle Synchronized Motion)))
 
 ----
 G33 X- Y- Z- K- $-
@@ -998,7 +978,8 @@ K follows the drive line described by 'X- Y- Z-'. K is not parallel to
 the Z axis if X or Y endpoints are used for example when cutting tapered
 threads.
 
-.Technical Info[[gcode:g33-tech-info]]
+[[gcode:g33-tech-info]]
+.Technical Info
 At the beginning of each G33 pass, LinuxCNC uses the spindle speed and the
 machine acceleration limits to calculate how long it will take Z to
 accelerate after the index pulse, and determines how many degrees the
@@ -1033,11 +1014,10 @@ It is an error if:
 * All axis words are omitted.
 * The spindle is not turning when this command is executed
 * The requested linear motion exceeds machine velocity limits
-    due to the spindle speed
+  due to the spindle speed
 
 [[gcode:g33.1]]
-== G33.1 Rigid Tapping
-(((G33.1 Rigid Tapping)))
+== G33.1 Rigid Tapping(((G33.1 Rigid Tapping)))
 
 ----------------
 G33.1 X- Y- Z- K- I- $-
@@ -1060,18 +1040,18 @@ for each revolution of the spindle.
 A rigid tapping move consists of the following sequence:
 
 . A move from the current coordinate to the specified coordinate, synchronized
-   with the selected spindle at the given ratio and starting from the
-   current coordinate with a spindle index pulse.
+  with the selected spindle at the given ratio and starting from the
+  current coordinate with a spindle index pulse.
 . When reaching the endpoint, a command to reverse the spindle, and speed up
   by a factor set by the multiplier (e.g., from clockwise to counterclockwise).
 . Continued synchronized motion beyond the specified end coordinate
-   until the spindle actually stops and reverses.
+  until the spindle actually stops and reverses.
 . Continued synchronized motion back to the original coordinate.
 . When reaching the original coordinate,
-   a command to reverse the spindle a second time
-   (e.g., from counterclockwise to clockwise).
+  a command to reverse the spindle a second time
+  (e.g., from counterclockwise to clockwise).
 . Continued synchronized motion beyond the original coordinate
-   until the spindle actually stops and reverses.
+  until the spindle actually stops and reverses.
 . An *unsynchronized* move back to the original coordinate.
 
 Spindle-synchronized motions wait for spindle index,
@@ -1098,8 +1078,7 @@ It is an error if:
    due to the spindle speed
 
 [[gcode:g38]]
-== G38.n Straight Probe
-(((G38.n Probe)))
+== G38.n Straight Probe(((G38.n Probe)))
 
 ----
 G38.n axes
@@ -1163,8 +1142,7 @@ It is an error if:
 * the probe is already in the target state
 
 [[gcode:g40]]
-== G40 Compensation Off
-(((G40 Cutter Compensation Off)))
+== G40 Compensation Off(((G40 Cutter Compensation Off)))
 
 * 'G40' - turn cutter compensation off. If tool compensation was on the
           next move must be a linear move and longer than the tool diameter.
@@ -1185,8 +1163,7 @@ It is an error if:
 * The linear move after turning compensation off is less than the tool diameter.
 
 [[gcode:g41-g42]]
-== G41, G42 Cutter Compensation
-(((G41 G42 Cutter Compensation)))
+== G41, G42 Cutter Compensation(((G41 G42 Cutter Compensation)))
 
 ----
 G41 <D-> (left of programmed path)
@@ -1238,15 +1215,14 @@ It is an error if:
 * Cutter compensation is commanded to turn on when it is already on.
 
 [[gcode:g41.1-g42.1]]
-== G41.1, G42.1 Dynamic Cutter Compensation
-(((G41.1 G42.1 Dynamic Compensation)))
+== G41.1, G42.1 Dynamic Cutter Compensation(((G41.1 G42.1 Dynamic Compensation)))
 
 ----
 G41.1 D- <L-> (left of programmed path)
 G42.1 D- <L-> (right of programmed path)
 ----
 * 'D' - cutter diameter
-* 'L' - tool orientation (see <<lathe-tool-orientation,lathe tool orientation>>)
+* 'L' - tool orientation (see <<sec:lathe-tool-orientation,lathe tool orientation>>)
 
 G41.1 & G42.1 function the same as G41 & G42 with the added scope of being able
 to program the tool diameter. The L word defaults to 0 if unspecified.
@@ -1259,8 +1235,7 @@ It is an error if:
 * Cutter compensation is commanded to turn on when it is already on.
 
 [[gcode:g43]]
-== G43 Tool Length Offset
-(((G43 Tool Length Offset)))
+== G43 Tool Length Offset(((G43 Tool Length Offset)))
 
 ----
 G43 <H->
@@ -1301,10 +1276,8 @@ It is an error if:
     tool number on nonrandom tool changer machines, it means "the tool
     currently in the spindle")
 
-
 [[gcode:g43.1]]
-== G43.1 Dynamic Tool Length Offset
-(((G43.1 Dynamic Tool Length Offset)))
+== G43.1 Dynamic Tool Length Offset(((G43.1 Dynamic Tool Length Offset)))
 
 ----
 G43.1 axes
@@ -1331,8 +1304,7 @@ It is an error if:
 NOTE: G43.1 does not write to the tool table.
 
 [[gcode:g43.2]]
-== G43.2 Apply additional Tool Length Offset
-(((G43.2 Apply additional Tool Length Offset)))
+== G43.2 Apply additional Tool Length Offset(((G43.2 Apply additional Tool Length Offset)))
 
 ----
 G43.2 H- axes-
@@ -1366,8 +1338,7 @@ It is an error if:
 NOTE: G43.2 does not write to the tool table.
 
 [[gcode:g49]]
-== G49 Cancel Tool Length Compensation
-(((G49 Cancel Tool Length Offset)))
+== G49 Cancel Tool Length Compensation(((G49 Cancel Tool Length Offset)))
 
 * 'G49' - cancels tool length compensation
 
@@ -1375,10 +1346,8 @@ It is OK to program using the same offset already in use. It is also
 OK to program using no tool length offset if none is currently being
 used.
 
-
 [[gcode:g52]]
-== G52 Local Coordinate System Offset
-(((Local Offsets)))
+== G52 Local Coordinate System Offset(((Local Offsets)))
 
 ----
 G52 axes
@@ -1388,10 +1357,8 @@ G52 is used in a part program as a temporary "local coordinate system offset"
 within the workpiece coordinate system. More information on G52 is in the
 <<sec:g52, Local and Global Offsets>> section.
 
-
 [[gcode:g53]]
-== G53 Move in Machine Coordinates
-(((G53 Machine Coordinates)))
+== G53 Move in Machine Coordinates(((G53 Machine Coordinates)))
 
 ----
 G53 axes
@@ -1418,8 +1385,7 @@ It is an error if:
 * or G53 is used while cutter compensation is on.
 
 [[gcode:g54-g59.3]]
-== G54-G59.3 Select Coordinate System
-(((G54-G59.3 Select Coordinate System)))
+== G54-G59.3 Select Coordinate System(((G54-G59.3 Select Coordinate System)))
 
 * 'G54' - select coordinate system 1
 * 'G55' - select coordinate system 2
@@ -1459,22 +1425,20 @@ See the <<cha:coordinate-system,Coordinate System>> Section for an overview of c
 systems.
 
 [[gcode:g61]]
-== G61 Exact Path Mode
-(((G61 G61.1 G64 Path Mode)))
+== G61 Exact Path Mode(((G61 Exact Path Mode)))
 
 * 'G61' - Exact path mode, movement exactly as programmed. Moves will slow or
 stop as needed to reach every programmed point. If two sequential moves are
 exactly co-linear movement will not stop.
 
 [[gcode:g61.1]]
-==  G61.1 Exact Stop Mode
+== G61.1 Exact Stop Mode(((G61.1 Exact Stop Mode)))
 
 * 'G61.1' - Exact stop mode, movement will stop at the end of each programmed
 segment.
 
 [[gcode:g64]]
-== G64 Path Blending
-(((G64 Path Blending)))
+== G64 Path Blending(((G64 Path Blending)))
 
 ----
 G64 <P- <Q->>
@@ -1517,8 +1481,7 @@ It is a good idea to include a path control specification in the preamble
 of each G-code file.
 
 [[gcode:g70]]
-== G70 Lathe finishing cycle
-(((G70 Lathe finishing cycle)))
+== G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))
 
 ----
 G70 Q- <X-> <Z-> <D-> <E-> <P->
@@ -1560,8 +1523,7 @@ It is an error if:
 * <<gcode:g17-g19.1>> has not been used to select the ZX plane.
 
 [[gcode:g71-g72]]
-== G71 G72 Lathe roughing cycle
-(((G71 G72 Lathe roughing cycle)))
+== G71 G72 Lathe roughing cycles(((G71 G72 Lathe roughing cycles)))
 
 ----
 G71   Q- <X-> <Z-> <D-> <I-> <R->
@@ -1623,8 +1585,7 @@ It is an error if:
 * <<gcode:g41-g42>> is active.
 
 [[gcode:g73]]
-== G73 Drilling Cycle with Chip Breaking
-(((G73 Drilling Cycle Chip Break)))
+== G73 Drilling Cycle with Chip Breaking(((G73 Drilling Cycle with Chip Break)))
 
 ----
 G73 X- Y- Z- R- Q- <L->
@@ -1651,10 +1612,8 @@ It is an error if:
 * the Q number is negative or zero.
 * the R number is not specified
 
-
 [[gcode:g74]]
-== G74 Left-hand Tapping Cycle, Dwell
-(((G74 Left-hand Tapping Cycle Dwell)))
+== G74 Left-hand Tapping Cycle with Dwell(((G74 Left-hand Tapping Cycle with Dwell)))
 
 ----
 G74 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-
@@ -1691,16 +1650,14 @@ The length of the dwell is specified by a 'P-' word in the G74 block. The feed r
 In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [[gcode:g76]]
-== G76 Threading Cycle
-(((G76 Threading Cycle)))
+== G76 Threading Cycle(((G76 Threading Cycle)))
 
 ----
 G76 P- Z- I- J- R- K- Q- H- E- L- $-
 ----
 
 .G76 Threading
-
-image::images/g76-threads_en.svg[align="center", alt="G76 Threading"]
+image::images/g76-threads_en.svg["G76 Threading",align="center"]
 
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
@@ -1821,12 +1778,10 @@ and the exit path on the left from the L2 E0.045. The white lines
 are the cutting moves.
 
 .G76 Example
-
-image::images/g76-01.png[align="center", alt="G76 Example"]
+image::images/g76-01.png["G76 Example",align="center"]
 
 [[gcode:g80-g89]]
-== Canned Cycles
-(((G80-G89 Canned Cycles)))
+== G80-G89 Canned Cycles(((G80-G89 Canned Cycles)))
 
 The canned cycles 'G81' through 'G89' and the canned cycle stop 'G80'
 are described in this section.
@@ -1892,7 +1847,7 @@ the R position and the retract mode is 'G98', OLD_Z), or otherwise to
 the R position. See the <<gcode:g98-g99,G98 G99>> Section.
 
 [[gcode:canned-cycle-errors]]
-=== Canned Cycle Errors
+=== Canned Cycle Errors(((Canned Cycle Errors)))
 
 It is an error if:
 
@@ -1993,10 +1948,8 @@ The second reason to use a canned cycle is that they all produce
 preliminary moves and returns that you can anticipate and control
 regardless of the start point of the canned cycle.
 
-
 [[gcode:g80]]
-== G80 Cancel Canned Cycle
-(((G80 Cancel Modal Motion)))
+== G80 Cancel Canned Cycle(((G80 Cancel Modal Motion)))
 
 * 'G80' - cancel canned cycle modal motion. 'G80' is part of modal group 1,
           so programming any other G-code from modal group 1 will also
@@ -2067,8 +2020,7 @@ is not so obvious that all of the blocks between N120 and N200 belong
 to the canned cycle.
 
 [[gcode:g81]]
-== G81 Drilling Cycle
-(((G81 Drilling Cycle)))
+== G81 Drilling Cycle(((G81 Drilling Cycle)))
 
 ----
 G81 (X- Y- Z-) or (U- V- W-) R- L-
@@ -2086,7 +2038,8 @@ The cycle functions as follows:
 
 . The Z-axis does a <<gcode:g0,rapid move>> to clear Z.
 
-.Example 1 - Absolute Position G81[[gcode:g81-example]]
+[[gcode:g81-example]]
+.Example 1 - Absolute Position G81
 
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
@@ -2211,8 +2164,7 @@ depth being 0.6 below the R value. The repeat function would make the Z move
 in the same location again.
 
 [[gcode:g82]]
-== G82 Drilling Cycle, Dwell
-(((G82 Drilling Cycle Dwell)))
+== G82 Drilling Cycle, Dwell(((G82 Drilling Cycle Dwell)))
 
 ----
 G82 (X- Y- Z-) or (U- V- W-) R- L- P-
@@ -2232,8 +2184,7 @@ addition of a dwell at the bottom of the Z move. The length of
 the dwell is specified by a 'P-' word in the G82 block.
 
 [[gcode:g83]]
-== G83 Peck Drilling Cycle
-(((G83 Peck Drilling)))
+== G83 Peck Drilling Cycle(((G83 Peck Drilling)))
 
 ----
 G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
@@ -2264,8 +2215,7 @@ It is an error if:
 * the Q number is negative or zero.
 
 [[gcode:g84]]
-== G84 Right-hand Tapping Cycle, Dwell
-(((G84 Right-hand Tapping Cycle Dwell)))
+== G84 Right-hand Tapping Cycle, Dwell(((G84 Right-hand Tapping Cycle Dwell)))
 
 ----
 G84 (X- Y- Z-) or (U- V- W-) R- L- P- $- F-
@@ -2302,8 +2252,7 @@ The length of the dwell is specified by a 'P-' word in the G84 block. The feed r
 In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [[gcode:g85]]
-== G85 Boring Cycle, Feed Out
-(((G85 Boring, Feed Out)))
+== G85 Boring Cycle, Feed Out(((G85 Boring, Feed Out)))
 
 ----
 G85 (X- Y- Z-) or (U- V- W-) R- L-
@@ -2321,8 +2270,7 @@ for drilling or milling.
  . Retract at the traverse rate to clear Z.
 
 [[gcode:g86]]
-== G86 Boring Cycle, Spindle Stop, Rapid Move Out
-(((G86 Boring, Spindle Stop, Rapid Move Out)))
+== G86 Boring Cycle, Spindle Stop, Rapid Move Out(((G86 Boring, Spindle Stop, Rapid Move Out)))
 
 ----
 G86 (X- Y- Z-) or (U- V- W-) R- L- P- $-
@@ -2355,8 +2303,7 @@ This code is currently unimplemented in LinuxCNC. It is accepted, but the
 behavior is undefined.
 
 [[gcode:g89]]
-== G89 Boring Cycle, Dwell, Feed Out
-(((G89 Boring, Dwell, Feed Out)))
+== G89 Boring Cycle, Dwell, Feed Out(((G89 Boring, Dwell, Feed Out)))
 
 ----
 G89 (X- Y- Z-) or (U- V- W-) R- L- P-
@@ -2373,8 +2320,7 @@ where P specifies the number of seconds to dwell.
  . Retract the Z-axis at the current feed rate to clear Z.
 
 [[gcode:g90-g91]]
-== G90, G91 Distance Mode
-(((G90, G91 Distance Mode)))
+== G90, G91 Distance Mode(((G90, G91 Distance Mode)))
 
 * 'G90' - absolute distance mode In absolute
   distance mode, axis numbers (X, Y, Z, A, B, C, U, V, W)
@@ -2401,8 +2347,7 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
 * See <<gcode:g0,G0>> section for more information.
 
 [[gcode:g90.1-g91.1]]
-== G90.1, G91.1 Arc Distance Mode
-(((Arc Distance Mode)))
+== G90.1, G91.1 Arc Distance Mode(((Arc Distance Mode)))
 
 * 'G90.1' - absolute distance mode for I, J & K offsets.
   When G90.1 is in effect I and J both must be specified with G2/3
@@ -2412,8 +2357,7 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
   I, J & K to their default behavior.
 
 [[gcode:g92]]
-== G92 Coordinate System Offset
-(((G92 Coordinate System Offset)))
+== G92 Coordinate System Offset(((G92 Coordinate System Offset)))
 
 ----
 G92 axes
@@ -2472,8 +2416,7 @@ overview of coordinate systems.
 
 See the <<gcode:parameters,Parameters>> Section for more information.
 
-[[gcode:g92.1-g92.2]]
-== G92.1, G92.2 Reset G92 Offsets
+== G92.1, G92.2 Reset G92 Offsets[[gcode:g92.1-g92.2]]
 
 * 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
 * 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
@@ -2483,8 +2426,7 @@ G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets
 in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
 [[gcode:g92.3]]
-== G92.3 Restore G92 Offsets
-(((G92.3 Restore G92 Offsets)))
+== G92.3 Restore G92 Offsets(((G92.3 Restore G92 Offsets)))
 
 * 'G92.3' - set the G92 offset to the values saved in parameters 5211 to 5219
 
@@ -2497,8 +2439,7 @@ Use 'G92.3' near the beginning of the second program. That will restore
 the offsets saved in the first program.
 
 [[gcode:g93-g94-g95]]
-== G93, G94, G95 Feed Rate Mode
-(((G93, G94, G95 Feed Rate Mode)))
+== G93, G94, G95 Feed Rate Mode(((G93, G94, G95 Feed Rate Mode)))
 
 * 'G93' - is Inverse Time Mode. In inverse time feed rate mode, an F word
   means the move should be completed in [one divided by the F number]
@@ -2528,12 +2469,11 @@ to which the feed is synchronised is chosen by the $ parameter
 It is an error if:
 
 * Inverse time feed mode is active and a line with G1, G2, or G3
-   (explicitly or implicitly) does not have an F word.
+  (explicitly or implicitly) does not have an F word.
 * A new feed rate is not specified after switching to G94 or G95
 
 [[gcode:g96-g97]]
-== G96, G97 Spindle Control Mode
-(((G96, G97 Spindle Control Mode)))
+== G96, G97 Spindle Control Mode(((G96, G97 Spindle Control Mode)))
 
 ----
 G96 <D-> S- <$-> (Constant Surface Speed Mode)
@@ -2569,8 +2509,7 @@ It is an error if:
 * A feed move is specified in G96 mode while the spindle is not turning
 
 [[gcode:g98-g99]]
-== G98, G99 Canned Cycle Return Level
-(((G98, G99 Canned Cycle Return)))
+== G98, G99 Canned Cycle Return Level(((G98, G99 Canned Cycle Return)))
 
 * 'G98' - retract to the position that axis was in just before this series
 of one or more contiguous canned cycles was started.

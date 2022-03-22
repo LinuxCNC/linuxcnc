@@ -1,3 +1,5 @@
+:lang: es
+
 = Seccion Legal
 
 N.T. Estos textos legales solo se muestra en Inglés ya que las traducciones no se reconocen oficialmente. 

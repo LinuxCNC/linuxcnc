@@ -1,6 +1,7 @@
-[[cha:halui-examples]]
+:lang: en
 
-= Halui Examples
+[[cha:halui-examples]]
+= Halui Examples(((Halui Examples)))
 
 For any Halui examples to work you need to add the following line to the [HAL]
 section of the ini file.
@@ -10,7 +11,6 @@ HALUI = halui
 ----
 
 [[sec:halui-remote-start]]
-
 == Remote Start
 
 To connect a remote program start button to LinuxCNC you use the
@@ -25,19 +25,23 @@ If both the inputs to the `and2.0` component are on the
 `and2.0.out` will be on and this will start the program.
 
 .Remote Start Example
-image::images/remote-start.png[alt="Remote Start Example"]
+image::images/remote-start.png["Remote Start Example"]
 
 The hal commands needed to accomplish the above are:
 
-    net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
-    net program-run-ok and2.0.in1 <= halui.mode.is-auto
-    net remote-program-run halui.program.run <= and2.0.out
+----
+net program-start-btn halui.mode.auto and2.0.in0 <= <your input pin>
+net program-run-ok and2.0.in1 <= halui.mode.is-auto
+net remote-program-run halui.program.run <= and2.0.out
+----
 
 Notice on line one that there are two reader pins, this can also be split
 up to two lines like this:
 
-    net program-start-btn halui.mode.auto <= <your input pin>
-    net program-start-btn and2.0.in0
+----
+net program-start-btn halui.mode.auto <= <your input pin>
+net program-start-btn and2.0.in0
+----
 
 == Pause & Resume
 
@@ -83,5 +87,4 @@ These timing problems could be avoided by using
 ClassicLadder to activate the "is-paused" output via a
 monostable timer to deliver one narrow output pulse.
 The "resume" pulse could also be received via a monostable timer.
-
 

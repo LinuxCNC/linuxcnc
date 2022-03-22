@@ -1,9 +1,10 @@
 This page is for step and direction timing of stepper drives.
 
 Please add to this list using the stepconf wizard format and in nanoseconds so
-it will be uniform. 
+it will be uniform.
 
-Some boards have know issues see the troubleshooting hardware page  [[Hardware_Problems]]
+[[Hardware_Problems]]
+Some boards have know issues see the troubleshooting hardware page
 
 If your unsure about your drive timing start high like 10000 for each and test.
 remember that signal conditioning and opto-isolation can increase timing
@@ -19,7 +20,6 @@ you can confirm the values please do...
 
 Times listed are in nanoseconds (ns). Multiply microseconds (us) by 1000 to get
 nanoseconds (ns)
-
 
 [width="100%",options="header"]
 |=========================================================
@@ -80,3 +80,4 @@ nanoseconds (ns)
 |Pololu|DRV8825 Stepper Motor Driver Carrier|1900|1900|650|650|Rising Edge|http://www.pololu.com/catalog/product/2132/| 
 |cnc4you|[[CW5045]]|2000|8000|5000|5000|Rising Edge|http://cnc4you.co.uk/resources/CW5045.pdf| 
 |=========================================================
+

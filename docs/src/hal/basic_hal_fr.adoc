@@ -4,7 +4,6 @@
 = Commandes et composants de base
 
 [[sec:Commandes-de-HAL]]
-
 == Commandes de Hal
 
 Des informations plus détaillées peuvent être trouvées dans la man
@@ -16,7 +15,6 @@ cliquer dans l'arborescence sur les pins qui doivent être visualisées
 dans la fenêtre watch.
 
 .Fenêtre de configuration de HAL
-
 image::images/HAL_Configuration.png[alt="Fenêtre de configuration de HAL"]
 
 === loadrt
@@ -121,7 +119,6 @@ Le même 'signal-name' peut être utilisé dans de multiples commandes net pour
 connecter des pins additionnelles, tant que les règles précédentes sont observées.
 
 .Direction du signal[[cap:Signal-Direction]]
-
 image::images/signal-direction.png[align="left", alt="Direction du signal"]
 
 Voici un exemple qui montre le signal xStep avec la source qui est stepgen.0.out
@@ -510,4 +507,4 @@ Owner   Type  Dir         Value  Name
     10  s32   Out             5  wsum.0.sum
 ----
 
-
+// vim: set syntax=asciidoc:

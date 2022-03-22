@@ -1,9 +1,9 @@
 :lang: fr
 :toc:
 
-= Concepts importants pour l'utilisateur
-
 [[cha:Concepts-pour-utilisateur]]
+
+= Concepts importants pour l'utilisateur
 
 == La configuration machine
 

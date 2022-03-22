@@ -1,5 +1,6 @@
-[[cha:hal-introduction]]
+:lang: en
 
+[[cha:hal-introduction]]
 = HAL Introduction
 
 HAL(((HAL))) stands for Hardware Abstraction Layer. At the highest
@@ -383,5 +384,4 @@ Other connections would be made by the integrator. These might include
 hooking the STG driver's encoder read and DAC write functions to the
 servo thread, or hooking stepgen's function to the base-thread, along
 with the parport function(s) to write the steps to the port.
-
 

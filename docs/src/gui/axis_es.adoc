@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:axis-gui]]
-
 = GUI AXIS
 
 == Introducción
@@ -11,7 +10,7 @@ Tk y OpenGL para mostrar la interfaz de usuario.
 
 .Ventana de AXIS
 
-image::images/axis_es.png[align="center",alt="Ventana AXIS"]
+image::images/axis_es.png["Ventana AXIS",align="center"]
 
 == Primeros pasos
 
@@ -109,8 +108,8 @@ archivo .ini configurado. Para más información sobre configuración vea el
 * 'Recargar tabla de herramientas': después de editar la tabla de herramientas, debe volve a cargarla.
 
 * 'Editor Ladder' - Si has cargado Classic Ladder puedes editarlo desde
-   aquí. Vea el capítulo <<cha:classicladder,Classicladder
-   para más información.
+   aquí. Vea el capítulo Classicladder para más información.
+// <<cha:classicladder,Classicladder>> -- all-english file removed
 
 * 'Salir' - Termina la sesión actual de LinuxCNC.
 
@@ -301,43 +300,43 @@ Familiarícese con el diseño de su máquina e interprete la pantalla según sea
 
 De izquierda a derecha en la pantalla de Axis, los botones de la barra de herramientas (atajos de teclado mostrados [entre corchetes]) son:
 
-* image:images/tool_estop.png[alt="Stop de Emergencia"] Stop de Emergencia [F1] (también llamado E-Stop)
+* image:images/tool_estop.png["Stop de Emergencia"] Stop de Emergencia [F1] (también llamado E-Stop)
 
-* image:images/tool_power.png[alt="Encendido de Maquina"] Encendido de Maquina [F2]
+* image:images/tool_power.png["Encendido de Maquina"] Encendido de Maquina [F2]
 
-* image:images/tool_open.png[alt="Abrir archivo de código G"] Abrir archivo de código G [O]
+* image:images/tool_open.png["Abrir archivo de código G"] Abrir archivo de código G [O]
 
-* image:images/tool_reload.png[alt="Recargar archivo actual"] Recargar archivo actual [Ctrl-R]
+* image:images/tool_reload.png["Recargar archivo actual"] Recargar archivo actual [Ctrl-R]
 
-* image:images/tool_run.png[alt="Comenzar a ejecutar el archivo actual"] Comenzar a ejecutar el archivo actual [R]
+* image:images/tool_run.png["Comenzar a ejecutar el archivo actual"] Comenzar a ejecutar el archivo actual [R]
 
-* image:images/tool_step.png[alt="Ejecutar línea siguiente"] Ejecutar línea siguiente [T]
+* image:images/tool_step.png["Ejecutar línea siguiente"] Ejecutar línea siguiente [T]
 
-* image:images/tool_pause.png[alt="Pausar ejecución - Reanudar ejecución"] Pausar ejecución [P] Reanudar ejecución [S]
+* image:images/tool_pause.png["Pausar ejecución - Reanudar ejecución"] Pausar ejecución [P] Reanudar ejecución [S]
 
-* image:images/tool_stop.png[alt="Detener la ejecución del programa"] Detener la ejecución del programa [ESC]
+* image:images/tool_stop.png["Detener la ejecución del programa"] Detener la ejecución del programa [ESC]
 
-* image:images/tool_blockdelete.png[alt="Saltar lineas"] Saltar lineas con "/" [Alt-M- /]
+* image:images/tool_blockdelete.png["Saltar lineas"] Saltar lineas con "/" [Alt-M- /]
 
-* image:images/tool_optpause.png[alt="Pausa Opcional"] Pausa Opcional [Alt-M-1]
+* image:images/tool_optpause.png["Pausa Opcional"] Pausa Opcional [Alt-M-1]
 
-* image:images/tool_zoomin.png[alt="Zoom +"] Zoom (mas)
+* image:images/tool_zoomin.png["Zoom +"] Zoom (mas)
 
-* image:images/tool_zoomout.png[alt="Zoom -"] Zoom (menos)
+* image:images/tool_zoomout.png["Zoom -"] Zoom (menos)
 
-* image:images/tool_axis_z.png[alt="Vista superior"] Vista superior
+* image:images/tool_axis_z.png["Vista superior"] Vista superior
 
-* image:images/tool_axis_z2.png[alt="Vista superior girada"] Vista superior girada
+* image:images/tool_axis_z2.png["Vista superior girada"] Vista superior girada
 
-* image:images/tool_axis_x.png[alt="Vista lateral"] Vista lateral
+* image:images/tool_axis_x.png["Vista lateral"] Vista lateral
 
-* image:images/tool_axis_y.png[alt="Vista frontal"] Vista frontal
+* image:images/tool_axis_y.png["Vista frontal"] Vista frontal
 
-* image:images/tool_axis_p.png[alt="Vista en perspectiva"] Vista en perspectiva
+* image:images/tool_axis_p.png["Vista en perspectiva"] Vista en perspectiva
 
-* image:images/tool_rotate.png[alt="Alternar entre los modos arrastrar/rotar"] Alternar entre los modos de arrastrar/rotar [D]
+* image:images/tool_rotate.png["Alternar entre los modos arrastrar/rotar"] Alternar entre los modos de arrastrar/rotar [D]
 
-* image:images/tool_clear.png[alt="Limpiar backplot en vivo"] Limpiar backplot en vivo [Ctrl-K]
+* image:images/tool_clear.png["Limpiar backplot en vivo"] Limpiar backplot en vivo [Ctrl-K]
 
 === Área de visualización gráfica
 
@@ -345,9 +344,9 @@ De izquierda a derecha en la pantalla de Axis, los botones de la barra de herram
 
 En la esquina superior izquierda de la pantalla del programa está la visualizacion de las coordenadas
 de posicion para cada eje. A la derecha del número, un símbolo de origen
-image:images/axis-homed.png[alt="el símbolo de origen se muestra si el eje ha sido localizado"] que se muestra si el eje ha sido dotado de home.
+image:images/axis-homed.png["el símbolo de origen se muestra si el eje ha sido localizado"] que se muestra si el eje ha sido dotado de home.
 
-Una símbolo de límite image:images/axis-limit.png[alt="símbolo de límite"] se muestra en el lado derecho del
+Una símbolo de límite image:images/axis-limit.png["símbolo de límite"] se muestra en el lado derecho del
 número de coordenada de posición, si el eje está en uno de sus interruptores de límite.
 
 Para interpretar correctamente los números de coordenadas de posición, consulte el indicador 'Posición:'
@@ -356,7 +355,7 @@ el número mostrado está en el sistema de coordenadas de la máquina. Si se mue
 'Relative Actual', entonces el número mostrado está en la coordenada del sistema con desplazamiento.
 Cuando las coordenadas mostradas son relativas y se ha establecido un desplazamiento,
 la pantalla incluirá un marcador <<sec.machine-coordinate-system,'origen de máquina'>> 
-image:images/axis-machineorigin.png[alt="Origen maquina cian"] cian.
+image:images/axis-machineorigin.png["Origen maquina cian"] cian.
 
 Si la posición es 'Comandada', entonces la coordenada exacta dada en un comando de código G
 es la mostrada. Si es 'Actual', entonces es la posición real a la que la máquina
@@ -396,7 +395,7 @@ y el programa requiere 3,83 pulgadas de recorrido X.
 Para que el movimiento programado esté dentro del recorrido de la máquina en este caso,
 haga jog a la izquierda y vuelva a hacer Touch Off X.
 
-image::images/axis-outofrange.png[align="center",alt="Se muestran las extensiones del programa en el eje x"]
+image::images/axis-outofrange.png["Se muestran las extensiones del programa en el eje x",align="center",]
 
 .Herramienta Cono
 
@@ -463,7 +462,7 @@ la pantalla de texto se desplazará automáticamente para mostrar la línea actu
 
 Líneas actuales y seleccionadas
 
-image::images/axis-currentandselected_es.png[align="center",alt="Líneas actuales y seleccionadas"]
+image::images/axis-currentandselected_es.png["Líneas actuales y seleccionadas",align="center"]
 
 
 === Control manual
@@ -534,7 +533,7 @@ El valor resultante se muestra como un número.
 
 .Touch Off
 
-image::images/touchoff_es.png[align="center", alt="Touch Off"]
+image::images/touchoff_es.png["Touch Off",align="center"]
 
 Consulte también las opciones 'Tool touch off to workpiece' y 'Tool touch off to fixture'
 en el menú Machine.
@@ -576,7 +575,7 @@ en ejecución, los controles MDI no están disponibles.
 
 La pestaña MDI
 
-image::images/axis-mdi_es.png[align="center",alt="pestaña MDI"]
+image::images/axis-mdi_es.png["pestaña MDI",align="center"]
 
 * 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
 
@@ -686,7 +685,7 @@ Mostrar estado de LinuxCNC
 
 .Ventana de estado de LinuxCNC
 
-image::images/axis-emc-status_es.png[align="center",alt="Status LinuxCNC"]
+image::images/axis-emc-status_es.png["Status LinuxCNC",align="center"]
 
 El nombre de cada elemento se muestra en la columna izquierda. El valor actual
 se muestra en la columna derecha. Si el valor ha cambiado recientemente,
@@ -755,7 +754,7 @@ programe un G1 sin movimiento después de T<n>.
 
 .Ventana de cambio de herramientas manual
 
-image::images/manual-tool-change_es.png[align="center",alt="Ventana de cambio de herramientas manual"]
+image::images/manual-tool-change_es.png["Ventana de cambio de herramientas manual",align="center"]
 
 == Módulos de Python
 
@@ -791,7 +790,7 @@ En el modo de torno, se muestra la forma de la herramienta cargada (si existe).
 
 .La forma de la herramienta del torno
 
-image::images/axis-lathe-tool.png[align="center", alt="Forma de herramienta del torno"]
+image::images/axis-lathe-tool.png["Forma de herramienta del torno",align="center"]
 
 == Usando AXIS en el modo de corte de espuma
 
@@ -804,7 +803,7 @@ establecen las coordenadas Z de estos planos, que por defecto son 0 y 1,5 unidad
 
 .Modo de corte de espuma.
 
-image::images/axis-foam_es.png[align="center",alt="Modo de corte de espuma"]
+image::images/axis-foam_es.png["Modo de corte de espuma",align="center"]
 
 
 == Configuración avanzada
@@ -854,7 +853,7 @@ serie de agujeros a lo largo de la circunferencia de un círculo.
 
 .Agujeros circulares
 
-image::images/holes.png[align="center",alt="Agujeros circulares"]
+image::images/holes.png["Agujeros circulares",align="center"]
 
 Si la variable de entorno AXIS_PROGRESS_BAR está establecida, entonces las líneas
 escriben al stderr del formulario
@@ -949,11 +948,10 @@ del capítulo de Configuración INI.
 
 AXIS puede mostrar un panel de control virtual personalizado en la zona derecha.
 Puede programar botones, indicadores, pantallas de datos y más cosas.
-Para más información, consulte los capitulos <<cha:pyvcp,PyVCP y
-<<cha:glade-vcp,GladeVCP.
+Para más información, consulte los capitulos PyVCP y GladeVCP.
+//glade-vcp
 
 [[axis:preview-control]]
-
 === Control de vista previa
 
 Se pueden insertar comentarios especiales en el archivo de Código G para controlar cómo

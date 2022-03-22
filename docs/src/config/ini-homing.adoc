@@ -1,6 +1,7 @@
-= Homing Configuration
+:lang: en
 
 [[cha:homing-configuration]]
+= Homing Configuration
 
 == Overview
 

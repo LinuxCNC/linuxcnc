@@ -1,5 +1,6 @@
-[[cha:g-code-overview]]
+:lang: en
 
+[[cha:g-code-overview]]
 = G-Code Overview
 
 :ini: {basebackend@docbook:'':ini}
@@ -72,9 +73,8 @@ Input is case insensitive, except in comments, i.e., any letter
 outside a comment may be in upper or lower case without changing the
 meaning of a line.
 
-[[sub:block-delete]](((Block Delete)))
-
-=== Block Delete
+[[sub:block-delete]]
+=== Block Delete(((Block Delete)))
 
 The optional block delete character the slash '/' when placed first on a line
 can be used by some user interfaces to skip lines of code when needed. In Axis
@@ -167,10 +167,8 @@ example), M-codes, and G-codes multiplied by ten. A decimal number
 which is intended to represent an integer is considered close enough if
 it is within 0.0001 of an integer value.
 
-
-[[gcode:parameters]](((Parameters)))
-
-== Parameters
+[[gcode:parameters]]
+== Parameters(((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
@@ -237,7 +235,6 @@ are read/write (can be assigned a value).
    running version. They are read-only.
 
 [[sub:numbered-parameters]]
-
 === Numbered Parameters
 
 A numbered parameter is the pound character '#' followed by an
@@ -386,7 +383,6 @@ The original file is saved as a backup file when the new file
 is written.
 
 [[gcode:format-parameter-file]]
-
 .Parameter File Format
 
 [width="90%", options="header"]
@@ -397,7 +393,6 @@ is written.
 |====
 
 [[sub:subroutine-parameters]]
-
 === Subroutine Parameters
 
 * '1-30' Subroutine local parameters of call arguments. These parameters are
@@ -456,7 +451,6 @@ ends, and have these  values when the program is run again.
 The <<gcode:functions,'EXISTS' function>> tests whether a given named parameter exists.
 
 [[gcode:predefined-named-parameters]]
-
 === Predefined Named Parameters
 
 The following global read only named parameters are available to
@@ -576,7 +570,6 @@ can be added easily without changes to the source code.
     Return 1 if G99 is on, else 0.
 
 [[sub:system-parameters]]
-
 === System Parameters
 
 * '#<_spindle_rpm_mode>' -
@@ -706,7 +699,6 @@ can be added easily without changes to the source code.
     to the remap level. For debugging.
 
 [[gcode:ini-hal-params]]
-
 == HAL pins and INI values
 If enabled in the <<gcode:ini-features, INI file>> G-code has access
 to the values of INI file entries and HAL pins.
@@ -780,7 +772,6 @@ non-mnemonic namespace and is unnecessarily cumbersome just as a
 UI/Interpreter communications mechanism.
 
 [[gcode:expressions]]
-
 == Expressions
 
 An expression is a set of characters starting with a left bracket '['
@@ -792,7 +783,6 @@ is read, before anything on the line is executed. An example of an
 expression is '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
 [[gcode:binary-operators]]
-
 == Binary Operators
 
 Binary operators only appear inside expressions. There are four basic
@@ -842,7 +832,6 @@ difference is less than 0.0001 (this value is defined as
 'TOLERANCE_EQUAL' in src/emc/rs274ngc/interp_internal.hh).
 
 [[gcode:functions]]
-
 == Functions
 
 The available functions are shown in following table. Arguments to unary
@@ -1027,9 +1016,8 @@ It is an error if:
 * An incremental move is started at the origin
 * A mix of Polar and X or Y words are used
 
-[[gcode:modal-groups]](((Modal Groups)))
-
-== Modal Groups
+[[gcode:modal-groups]]
+== Modal Groups(((Modal Groups)))
 
 Modal commands are arranged in sets called 'modal groups', and only
 one member of a modal group may be in force at any given time. In
@@ -1039,8 +1027,8 @@ measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in the following Table.
 
-.G-Code Modal Groups[[cap:modal-groups]]
-
+[[cap:modal-groups]]
+.G-Code Modal Groups
 [width="80%", cols="4,6", options="header"]
 |====
 |Modal Group Meaning                   | Member Words
@@ -1171,22 +1159,19 @@ Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
 
 [[gcode:debug]]
-== Debug Messages
-(((Debug Messages)))
+== Debug Messages(((Debug Messages)))
 
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of special
   handling for comment parameters as described below.
 
 [[gcode:print]]
-== Print Messages
-(((Print Messages)))
+== Print Messages(((Print Messages)))
 
 * '(PRINT,)' - messages are output to 'stderr' with special handling for
   comment parameters as described below.
 
 [[gcode:comment-parameters]]
-== Comment Parameters
-(((Comment Parameters)))
+== Comment Parameters(((Comment Parameters)))
 
 In the DEBUG, PRINT and LOG comments, the values of parameters in the
 message are expanded.
@@ -1207,7 +1192,6 @@ will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
 [[gcode:file-requirements]]
-
 == File Requirements
 
 A G-code file must contain one or more lines of G-code and be terminated
@@ -1241,8 +1225,7 @@ size. The preview can be turned off in Axis to speed up loading large
 part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
-[[gcode:order-of-execution]](((G-Code Order of Execution)))
-
+[[gcode:order-of-execution]]
 == G-Code Order of Execution
 
 The order of execution of items on a line is defined not by the

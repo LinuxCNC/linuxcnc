@@ -11,7 +11,6 @@ un usuario que está probando ramas de desarrollo, aunque también se tiene
 la opción de instalar paquetes unicos Debian desde buildboot:
 http://buildbot.linuxcnc.org
 
-
 [[Quick-Start]]
 === Inicio rápido
 
@@ -48,7 +47,6 @@ Después de haber compilado con éxito LinuxCNC, es hora de ejecutar las pruebas
 ¡Esto también podría fallar!. Lea todo este documento, pero especialmente la sección.
 en <<Setting-up-the-environment,Configuración del entorno de prueba>>.
 
-
 == Plataformas compatibles
 
 El proyecto LinuxCNC apunta a distribuciones modernas basadas en Debian, que incluyen
@@ -60,7 +58,6 @@ http://buildbot.linuxcnc.org.
 LinuxCNC compila en la mayoría de las otras distribuciones de Linux, aunque la gestión
 de dependencias será más manual. Siempre son bienvenidos parches para mejorar
 la portabilidad a nuevas plataformas .
-
 
 === Realtime
 
@@ -93,7 +90,6 @@ partes, ejecute este comando adicional después del `make` que construye LinuxCN
 > sudo make setuid
 -----
 
-
 === Sin Tiempo Real
 
 LinuxCNC también se puede construir y ejecutar en plataformas que no son de tiempo real, como
@@ -108,7 +104,6 @@ tipos de componentes y controladores de dispositivos).
 
 Hay dos formas de tener LinuxCNCen una maquina: "ejecución en
 el sitio” (run-in-place o RIP, el modo de mayor libertad) y el modo “empaquetado Debian”, fácil de usar para el usuario (pero difícilmente modificable).
-
 
 === Compilacion Run-In-Place
 
@@ -245,7 +240,6 @@ el directorio `linuxcnc-dev`, *no* desde `linuxcnc-dev/debian`):
 > dpkg-buildpackage -b -uc
 -----
 
-
 [[debian-configure-arguments]]
 ==== Argumentos `debian/configure`
 
@@ -294,7 +288,6 @@ Los valores normales para este argumento son:
     kernel RTAI coincidente, no podrá ejecutar LinuxCNC, incluyendo
     el conjunto de pruebas.
 
-
 [[Satisfying-Build-Dependencies]]
 == Satisfacer Dependencias de Construcción
 
@@ -338,13 +331,11 @@ en su sistema, pero que aún no están instalados. Instalelos todos con
 Puede volver a ejecutar `dpkg-checkbuilddeps`, en el momento que desee, para enumerar cualquier
 paquete faltante.
 
-
 [[Setting-up-the-environment]]
 == Configuración del entorno
 
 Esta sección describe los pasos especiales necesarios para configurar una máquina para
 ejecutar los programas LinuxCNC, incluidas las pruebas.
-
 
 === Aumentar el límite de memoria bloqueada
 
@@ -384,7 +375,6 @@ que el límite de bloqueo de memoria se aumentó con el siguiente comando:
 > ulimit -l
 -----
 
-
 == Opciones para ver el repositorio de git
 
 Las instrucciones <<Quick-Start,Inicio rápido>> en la parte superior de este
@@ -408,3 +398,4 @@ la comunidad pueda beneficiarse de su trabajo. Github hace que
 compartir sea muy fácil; después de pulir sus cambios y añadirlos a su
 bifurcacion github, envíenos una solicitud de extracción.
 
+// vim: set syntax=asciidoc:

@@ -1,3 +1,5 @@
+:lang: en
+
 = Adding Configuration Selection Items
 
 Example Configurations can be added to the Configuration Selector
@@ -24,3 +26,5 @@ by two methods:
 ====
   export LINUXCNC_AUX_CONFIGS=~/myconfigs:/opt/otherconfigs
 ====
+
+// vim: set syntax=asciidoc:

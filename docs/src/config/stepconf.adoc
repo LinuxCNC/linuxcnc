@@ -1,6 +1,7 @@
-= Stepper Configuration Wizard
+:lang: en
 
 [[cha:stepconf-wizard]]
+= Stepper Configuration Wizard
 
 == Introduction
 
@@ -22,59 +23,61 @@ The file extension is .stepconf.
 
 The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 
-
 == Start Page
 
+[[cap:init-Page]]
 .Entry Page
+image::images/stepconf-start_en.png["Entry Page",align="center"]
 
-image::images/stepconf-start_en.png[align="center", alt="Entry Page"]
+image::images/stepconf-start_2_es.png["Pagina de entrada",align="center"]
+
+The three first radio buttons are self-explanatory:
 
 * 'Create New' - Creates a fresh configuration.
+* 'Modify' - Modify an existing configuration.
+  After selecting this a file picker pops up so you can select the .stepconf file for modification.
+  If you made any modifications to the main .hal or the .ini file these will be lost.
+  Modifications to custom.hal and custom_postgui.hal will not be changed by the Stepconf Wizard.
+  Stepconf will highlight the lastconf that was built.
+* 'Import' - Import a Mach configuration file and attempt to convert it to a linuxcnc config file.
+  After the import, you will go though the pages of stepconf to confirm/modify the entries.
+  The original mach xml file will not be changed.
 
-* 'Modify' - Modify an existing configuration. After selecting this a file
-picker pops up so you can select the .stepconf file for modification. If you
-made any modifications to the main .hal or the .ini file these will be lost.
-Modifications to custom.hal and custom_postgui.hal will not be changed by
-the Stepconf Wizard. Stepconf will highlight the lastconf that was built.
+These next options will be recorded in a preference file for the next run of Stepconf.
 
-* 'Import' - Import a Mach configuration file and attempt to convert it to
-a linuxcnc config file. After the import, you will go though the pages
-of stepconf to confirm/modify the entries. The original mach xml file will
-not be changed.
+* 'Create Desktop Shortcut' - This will place a link on your desktop to the files.
+* 'Create Desktop Launcher' - This will place a launcher on your desktop to start your application.
+* 'Create Simulated Hardware' - This allows you to build a config for testing, even if you don't have the actual hardware.
 
-These next options will be recorded in a preference file for the next run of
-Stepconf.
+[[sec:Basic-Information]]
+== Basic Information
 
-* 'Create Desktop Shortcut' - This will place a link on your desktop to the
-files.
-
-* 'Create Desktop Launcher' - This will place a launcher on your desktop to
-start your application.
+[[cap:Basic-Information-Page]]
+.Basic Information Page
+image::images/stepconf-base_en.png["Basic Information Page",align="center"]
 
 * 'Create Simulated Hardware' - This allows you to build a config for testing,
 even if you don't have the actual hardware.
  
-== Basic Information
+* 'Machine Name' - (((Machine Name)))
+  Choose a name for your machine.
+  Use only uppercase letters, lowercase letters, digits, - and _.
 
-.Basic Information Page
+* 'Axis Configuration' - (((Axis Configuration)))
+  Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
 
-image::images/stepconf-base_en.png[align="center", alt="Basic Information Page"]
+* 'Machine Units' - (((Machine Units)))
+  Choose Inch or mm. All subsequent entries will be in the
+  chosen units. Changing this also changes the default values in the Axes section.
+  If you change this after selecting values in any of the axes sections, they will
+  be over-written by the default values of the selected units.
 
-* 'Machine Name' - Choose a name for your machine. Use only uppercase letters,
-lowercase letters, digits, - and _.
-
-* 'Axis Configuration' - Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
-
-* 'Machine Units' - Choose Inch or mm. All subsequent entries will be in the
-chosen units. Changing this also changes the default values in the Axes section.
-If you change this after selecting values in any of the axes sections, they will
-be over-written by the default values of the selected units.
-
-* 'Driver Type' - If you have one of the stepper drivers listed in the pull down
-box, choose it. Otherwise, select 'Other' and find the timing values in your
-driver's data sheet and enter them as 'nano seconds' in the 'Driver Timing
-Settings'. If the data sheet gives a value in microseconds, multiply by 1000.
-For example, enter 4.5us as 4500ns.
+* 'Driver Type' - (((Driver Type)))
+  If you have one of the stepper drivers listed in the pull down box, choose it.
+  Otherwise, select 'Other' and find the timing values in your
+  driver's data sheet and enter them as 'nano seconds' in the 'Driver Timing Settings'.
+  If the data sheet gives a value in microseconds, multiply by 1000.
+  For example, enter 4.5us as 4500ns.
 
 A list of some popular drives, along with their timing values, is on the
 LinuxCNC.org Wiki under
@@ -88,34 +91,33 @@ drive requirements to allow for this.
 The LinuxCNC Configuration Selector has configs for Sherline already configured.
 
 * 'Step Time' - How long the step pulse is 'on' in nano seconds. If your not
-sure about this setting a value of 20,000 will work with most drives.
+  sure about this setting a value of 20,000 will work with most drives.
 
 * 'Step Space' - Minimum time between step pulses in nano seconds. If your
-not sure about this setting a value of 20,000 will work with most drives.
+  not sure about this setting a value of 20,000 will work with most drives.
 
 * 'Direction Hold' - How long the direction pin is held after a change of
-direction in nanoseconds. If your not sure about this setting a value of
-20,000 will work with most drives.
+  direction in nanoseconds. If your not sure about this setting a value of
+  20,000 will work with most drives.
 
 * 'Direction Setup' - How long before a direction change after the last
-step pulse in nanoseconds.  If your not sure about this setting a value of
-20,000 will work with most drives.
+  step pulse in nanoseconds.  If your not sure about this setting a value of
+  20,000 will work with most drives.
 
 * 'One / Two Parport' - Select how many parallel port are to be configured. 
 
 * 'Base Period Maximum Jitter' - Enter the result of the Latency Test here.
-To run a latency test press the 'Test Base Period Jitter' button. See the
-<<latency-test,Latency Test>> section for more details.
+  To run a latency test press the 'Test Base Period Jitter' button. See the
+  <<latency-test,Latency Test>> section for more details.
 
 * 'Max Step Rate' -Stepconf automatically calculates the Max Step Rate based
-on the driver characteristics entered and the latency test result.
+  on the driver characteristics entered and the latency test result.
 
 * 'Min Base Period' - Stepconf automatically determines the Min Base Period
-based on the driver characteristics entered and latency test result.
+  based on the driver characteristics entered and latency test result.
 
-[[latency-test]](((Latency Test)))
-
-== Latency Test
+[[latency-test]]
+== Latency Test(((Latency Test)))
 
 While the test is running, you should 'abuse' the computer. Move
 windows around on the screen. Surf the web. Copy some large files
@@ -132,7 +134,7 @@ Do not attempt run LinuxCNC while the latency test is running.
 
 .Latency Test
 
-image::images/latency-test_en.png[align="center", alt="Latency Test"]
+image::images/latency-test_en.png["Latency Test",align="center"]
 
 Latency is how long it takes the PC to stop what it is doing and
 respond to an external request. In our case, the request is the
@@ -171,139 +173,88 @@ whether you use software stepping or not.
 
 .Parallel Port Setup Page
 
-image::images/stepconf-parallel-1_en.png[align="center", alt="Parallel Port 1 Setup Page"]
-You may specify the address as a hexadecimal (often 0x378) or as linux's default
- port number (probably 0)
+image::images/stepconf-parallel-1_en.png["Parallel Port 1 Setup Page",align="center"]
 
-For each pin, choose the signal which matches 
-your parallel port pinout. 
-Turn on the 'invert' check box if the signal is inverted 
-(0V for true/active, 5V for false/inactive).
+You may specify the address as a hexadecimal (often 0x378) or as linux's default port number (probably 0)
+
+For each pin, choose the signal which matches your parallel port pinout. 
+Turn on the 'invert' check box if the signal is inverted (0V for true/active, 5V for false/inactive).
 
 * 'Output pinout presets' - Automatically set pins 2 through 9 according to
-the Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard
-(Direction on pins 3, 5, 7, 9).
-
-* 'Inputs and Outputs' - If the input or output is not used set the option
-to 'Unused'.
-
+  the Sherline standard (Direction on pins 2, 4, 6, 8) or the Xylotex standard
+  (Direction on pins 3, 5, 7, 9).
+* 'Inputs and Outputs' - If the input or output is not used set the option to 'Unused'.
 * 'External E Stop' - This can be selected from an input pin drop down box.
-A typical E Stop chain uses all normally closed contacts.
-
-* 'Homing & Limit Switches' - These can be selected from an input pin drop
-down box for most configurations.
-
-* 'Charge Pump' - If your driver board requires a charge pump signal select
-Charge Pump from the drop down list for the output pin you wish to connect
-to your charge pump input. The charge pump output is connected to the base
-thread by Stepconf. The charge pump output will be about 1/2 of the maximum
-step rate shown on the Basic Machine Configuration page.
-
-* 'Plasma Arc Voltage' - If you require a Mesa THCAD to input a plasma arc
-voltage then select Plasma Arc Voltage from the list of output pins.
-This will enable a THCAD page during the setup procedure for the entry of
-the card parameters.
+  A typical E Stop chain uses all normally closed contacts.
+* 'Homing & Limit Switches' - These can be selected from an input pin drop down box for most configurations.
+* 'Charge Pump' - If your driver board requires a charge pump signal select Charge Pump from
+  the drop down list for the output pin you wish to connect to your charge pump input.
+  The charge pump output is connected to the base thread by Stepconf.
+  The charge pump output will be about 1/2 of the maximum step rate shown on the Basic Machine Configuration page.
+* 'Plasma Arc Voltage' - If you require a Mesa THCAD to input a plasma arc voltage then select Plasma Arc Voltage from the list of output pins.
+  This will enable a THCAD page during the setup procedure for the entry of the card parameters.
 
 == Parallel Port 2 Setup
 
 .Parallel Port 2 Setup Page
 
-image::images/stepconf-parallel-2_en.png[align="center", alt="Parallel Port 2 Setup Page"]
+image::images/stepconf-parallel-2_en.png["Parallel Port 2 Setup Page",align="center"]
 
-The second Parallel port (if selected) can be configured and It's pins
-assigned on this page. +
-No step and direction signals can be selected. +
-You may select in or out to maximizes the number of input/output pins that
-are available. +
-You may specify the address as a hexadecimal (often 0x378) or as linux's default
- port number (probably 1).
+The second Parallel port (if selected) can be configured and It's pins assigned on this page.
+No step and direction signals can be selected.
+You may select in or out to maximizes the number of input/output pins that are available.
+You may specify the address as a hexadecimal (often 0x378) or as linux's default port number (probably 1).
 
-== Axis Configuration
+== Axis Configuration[[sec:Axis-Configuration]](((Axis Configuration)))
 
 .Axis Configuration Page
+image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
 
-image::images/stepconf-axis-x_en.png[align="center", alt="Axis X Configuration Page"]
-
-* 'Motor Steps Per Revolution' - The number of full steps per motor revolution.
-If you know how many degrees per step the motor is (e.g., 1.8 degree), then
-divide 360 by the degrees per step to find the number of steps per motor
-revolution.
-
-* 'Driver Microstepping' - The amount of microstepping performed by the driver.
-Enter '2' for half-stepping.
-
-* 'Pulley Ratio' - If your machine has pulleys between the motor and leadscrew,
-enter the ratio here. If not, enter '1:1'.
-
-* 'Leadscrew Pitch' - Enter the pitch of the leadscrew here. If you chose
-'Inch' units, enter the number of threads per inch If you chose 'mm' units,
-enter the number of millimeters per revolution (e.g., enter 2 for 2mm/rev).
-If the machine travels in the wrong direction, enter a negative number here
-instead of a positive number, or invert the direction pin for the axis.
-
-* 'Maximum Velocity' -Enter the maximum velocity for the axis in units per
-second.
-
-* 'Maximum Acceleration' - The correct values for these items can only be
-determined through experimentation. See
-<<sub:finding-maximum-velocity,Finding Maximum Velocity>> to set the speed and
-<<sub:finding-maximum-acceleration,Finding Maximum Acceleration>> to set the
-acceleration.
-
-* 'Home Location' - The position the machine moves to after completing the
-homing procedure for this axis. For machines without home switches, this is
-the location the operator manually moves the machine to before pressing the
-Home button. If you combine the home and limit switches you must move off of
-the switch to the home position or you will get a joint limit error.
-
-* 'Table Travel' - The range of travel for that axis based on the machine
-origin. The home location must be inside the 'Table Travel' and not equal to
-one of the Table Travel values.
-
-* 'Home Switch Location' - The location at which the home switch trips
-or releases relative to the machine origin. This item and the two below only
-appear when Home Switches were chosen in the Parallel Port Pinout. If
-you combine home and limit switches the home switch location can not be
-the same as the home position or you will get a joint limit error.
-
-* 'Home Search Velocity' - The velocity to use when searching for the home
-switch. If the switch is near the end of travel, this velocity must be chosen
- so that the axis can decelerate to a stop before hitting the end of travel.
-If the switch is only closed for a short range of travel
-(instead of being closed from its trip point to one end of travel),
-this velocity must be chosen so that the axis can decelerate to a stop
-before the switch opens again, and homing must always be started from
-the same side of the switch.
-If the machine moves the wrong direction at the beginning of the
-homing procedure, negate the value of 'Home Search Velocity'.
-
-* 'Home Latch Direction' - Choose 'Same' to have the axis back off the switch,
-then approach it again at a very low speed. The second time the switch
-closes, the home position is set. Choose 'Opposite' to have the axis back off
-the switch and when the switch opens, the home position is set.
-
-* 'Time to accelerate to max speed' - Time to reach maximum speed calculated
-from 'Max Acceleration' and 'Max Velocity'.
-
-* 'Distance to accelerate to max speed' - Distance to reach maximum speed from
-a standstill.
-
-* 'Pulse rate at max speed' - Information computed based on the values entered
-above. The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'.
-Values above 20000Hz may lead to slow response time or even lockups
-(the fastest usable pulse rate varies from computer to computer)
-
+* 'Motor Steps Per Revolution' - (((Motor Steps Per Revolution)))
+  The number of full steps per motor revolution.
+  If you know how many degrees per step the motor is (e.g., 1.8 degree), then divide 360 by the degrees per step to find the number of steps per motor revolution.
+* 'Driver Microstepping' - (((Driver Microstepping))))
+  The amount of microstepping performed by the driver.
+  Enter '2' for half-stepping.
+* 'Pulley Ratio' - (((Pulley Ratio)))
+  If your machine has pulleys between the motor and leadscrew, enter the ratio here.
+  If not, enter '1:1'.
+* 'Leadscrew Pitch' - (((Leadscrew Pitch)))
+  Enter the pitch of the leadscrew here.
+  If you chose 'Inch' units, enter the number of threads per inch.
+  If you chose 'mm' units, enter the number of millimeters per revolution (e.g., enter 2 for 2mm/rev).
+  If the machine travels in the wrong direction, enter a negative number here instead of a positive number, or invert the direction pin for the axis.
+* 'Maximum Velocity' - (((Maximum Velocity)))
+  Enter the maximum velocity for the axis in units per second.
+* 'Maximum Acceleration' - (((Maximum Acceleration)))
+  The correct values for these items can only be determined through experimentation.  See <<sub:finding-maximum-velocity,Finding Maximum Velocity>> to set the speed and <<sub:finding-maximum-acceleration,Finding Maximum Acceleration>> to set the acceleration.
+* 'Home Location' - (((Home Location)))
+  The position the machine moves to after completing the homing procedure for this axis.  For machines without home switches, this is the location the operator manually moves the machine to before pressing the Home button.  If you combine the home and limit switches you must move off of the switch to the home position or you will get a joint limit error.
+* 'Table Travel' - (((Table Travel)))
+  The range of travel for that axis based on the machine origin.
+  The home location must be inside the 'Table Travel' and not equal to one of the Table Travel values.
+* 'Home Switch Location' - (((Home Switch Location)))
+  The location at which the home switch trips or releases relative to the machine origin.  This item and the two below only appear when Home Switches were chosen in the Parallel Port Pinout.  If you combine home and limit switches the home switch location can not be the same as the home position or you will get a joint limit error.
+* 'Home Search Velocity' - (((Home Search Velocity))) The velocity to use when searching for the home switch.  If the switch is near the end of travel, this velocity must be chosen so that the axis can decelerate to a stop before hitting the end of travel.  If the switch is only closed for a short range of travel (instead of being closed from its trip point to one end of travel), this velocity must be chosen so that the axis can decelerate to a stop before the switch opens again, and homing must always be started from the same side of the switch.  If the machine moves the wrong direction at the beginning of the homing procedure, negate the value of 'Home Search Velocity'.
+* 'Home Latch Direction' - (((Home Latch Direction))) Choose 'Same' to have the axis back off the switch, then approach it again at a very low speed.  The second time the switch closes, the home position is set.  Choose 'Opposite' to have the axis back off the switch and when the switch opens, the home position is set.
+* 'Time to accelerate to max speed' - (((Time to accelerate to max speed)))
+  Time to reach maximum speed calculated from 'Max Acceleration' and 'Max Velocity'.
+* 'Distance to accelerate to max speed' - (((Distance to accelerate to max speed)))
+  Distance to reach maximum speed from a standstill.
+* 'Pulse rate at max speed' - (((Pulse rate at max speed)))
+  Information computed based on the values entered above.
+  The greatest 'Pulse rate at max speed' determines the 'BASE_PERIOD'.
+  Values above 20000Hz may lead to slow response time or even lockups (the fastest usable pulse rate varies from computer to computer)
 * 'Axis SCALE' - The number that will be used in the ini file [SCALE] setting.
-This is how many steps per user unit.
+  This is how many steps per user unit.
+* 'Test this axis' - (((Test this axis)))
+  This will open a window to allow testing for each axis. This can be used after filling out all the information for this axis.
 
-* 'Test this axis' - This will open a window to allow testing for each axis.
-This can be used after filling out all the information for this axis.
+//== Test This Axis C
 
-=== Test This Axis
+.Test This Axis B
 
-.Test This Axis
-
-image::images/stepconf-x-test_en.png[align="center", alt="Test This Axis"]
+image::images/stepconf-x-test_en.png["Test This Axis",align="center",]
 
 Test this axis is a basic tester that only outputs step and direction signals
 to try different values for acceleration and velocity.
@@ -314,7 +265,6 @@ is required. If your driver has a charge pump you will have to bypass it.
 Test this axis does not react to limit switch inputs. Use with caution.
 
 [[sub:finding-maximum-velocity]]
-
 .Finding Maximum Velocity
 
 Begin with a low Acceleration
@@ -356,12 +306,10 @@ you turn Velocity, verify the following:
 - Physical problems with the motor, motor coupling, leadscrew, etc.
 
 Once you have found a speed at which the axis does not stall or lose steps
-during this testing procedure, reduce it by 10% and use that as the axis
-'Maximum Velocity'.
+during this testing procedure, reduce it by 10% and use that as the axis 'Maximum Velocity'.
 
-[[sub:finding-maximum-acceleration]](((Finding Maximum Acceleration)))
-
-.Finding Maximum Acceleration
+[[sub:finding-maximum-acceleration]]
+.Finding Maximum Acceleration(((Finding Maximum Acceleration)))
 
 With the Maximum Velocity you found in the previous step,
 enter the acceleration value to test.
@@ -377,24 +325,22 @@ reduce it by 10% and use that as the axis Maximum Acceleration.
 
 .Spindle Configuration Page
 
-image::images/stepconf-spindle_en.png[align="center", alt="Spindle Configuration Page"]
+image::images/stepconf-spindle_en.png["Spindle Configuration Page",align="center"]
 
-This page only appears when 'Spindle PWM' is chosen in the
-'Parallel Port Pinout' page for one of the outputs.
+This page only appears when 'Spindle PWM' is chosen in the 'Parallel Port Pinout' page for one of the outputs.
 
 === Spindle Speed Control
 
-If 'Spindle PWM' appears on the pinout,
-the following information should be entered:
+If 'Spindle PWM' appears on the pinout, the following information should be entered:
 
 * 'PWM Rate' - The 'carrier frequency' of the PWM signal to the spindle. Enter
-'0' for PDM mode, which is useful for generating an analog control voltage.
-Refer to the documentation for your spindle controller for the appropriate value.
+  '0' for PDM mode, which is useful for generating an analog control voltage.
+  Refer to the documentation for your spindle controller for the appropriate value.
 
 * 'Speed 1 and 2, PWM 1 and 2' - The generated configuration file uses a simple
-linear relationship to determine the PWM value for a given RPM value. If the
-values are not known, they can be determined. For more information see
-<<sub:determining-spindle-calibration,Determining Spindle Calibration>>.
+  linear relationship to determine the PWM value for a given RPM value. If the
+  values are not known, they can be determined. For more information see
+  <<sub:determining-spindle-calibration,Determining Spindle Calibration>>.
 
 === Spindle-synchronized motion
 
@@ -405,33 +351,31 @@ These signals are:
 * 'Spindle Index' - Is a pulse that occurs once per revolution of the spindle.
 
 * 'Spindle Phase A' - This is a pulse that occurs in multiple equally-spaced
-locations as the spindle turns.
+  locations as the spindle turns.
 
 * 'Spindle Phase B (optional)' - This is a second pulse that occurs, but with
-an offset from Spindle Phase A. The advantages to using both A and B are
-direction sensing, increased noise immunity, and increased resolution.
+  an offset from Spindle Phase A. The advantages to using both A and B are
+  direction sensing, increased noise immunity, and increased resolution.
 
 If 'Spindle Phase A' and 'Spindle Index' appear 
 on the pinout, the following information should be entered:
 
 * 'Use Spindle-At-Speed' - With encoder feedback one can choose to have linuxcnc
- wait for the spindle to reach the commanded speed before feed moves. Select this
-option and set the 'close enough' scale.
+  wait for the spindle to reach the commanded speed before feed moves. Select this
+  option and set the 'close enough' scale.
 
-* 'Speed Display Filter Gain' - Setting for adjusting the stability of the
-visual spindle speed display.
+* 'Speed Display Filter Gain' - Setting for adjusting the stability of the visual spindle speed display.
  
 * 'Cycles per revolution' - The number of cycles of the 'Spindle A' signal
-during one revolution of the spindle. This option is only enabled when an
-input has been set to 'Spindle Phase A'
+  during one revolution of the spindle. This option is only enabled when an
+  input has been set to 'Spindle Phase A'
 
 * 'Maximum speed in thread' - The maximum spindle speed used in threading.
-For a high spindle RPM or a spindle encoder with high resolution, a low value
-of 'BASE_PERIOD' is required.
+  For a high spindle RPM or a spindle encoder with high resolution, a low value
+  of 'BASE_PERIOD' is required.
 
-[[sub:determining-spindle-calibration]](((Determining Spindle Calibration)))
-
-=== Determining Spindle Calibration
+[[sub:determining-spindle-calibration]]
+=== Determining Spindle Calibration(((Determining Spindle Calibration)))
 
 Enter the following values in the Spindle Configuration page:
 
@@ -450,15 +394,13 @@ Valid numbers (at this point) range from 1 to 1000.
 
 For two different S-numbers, measure the actual spindle speed in RPM.
 Record the S-numbers and actual spindle speeds. Run Stepconf again.
-For 'Speed' enter the measured speed, and
-for 'PWM' enter the S-number divided by 1000.
+For 'Speed' enter the measured speed, and for 'PWM' enter the S-number divided by 1000.
 
 Because most spindle drivers are somewhat nonlinear in their response
 curves, it is best to:
 
 - Make sure the two calibration speeds are not too close together in RPM
-- Make sure the two calibration speeds are in the range of speeds you
-will typically use while milling
+- Make sure the two calibration speeds are in the range of speeds you will typically use while milling
 
 For instance, if your spindle will go from 0 RPM to 8000 RPM,
 but you generally use speeds from 400 RPM (10%) to 4000 RPM (100%),
@@ -466,23 +408,23 @@ then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 
 == Options
 
-.Options Configuration
+//.Options Configuration
 
-image::images/stepconf-options_en.png[align="center", alt="Options Configuration"]
+image::images/stepconf-options_en.png["Options Configuration",align="center"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
-<<cha:hal-user-interface,HALUI Chapter>> for more information on.
+  <<cha:hal-user-interface,HALUI Chapter>> for more information on.
 
 * 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file
-to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
+  to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
 
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
-(Programmable Logic Controller). See the
-<<cha:classicladder,Classicladder Chapter>> for more information.
+  (Programmable Logic Controller). See the
+  <<cha:classicladder,Classicladder Chapter>> for more information.
 
 * 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
-pause and prompt you to change the tool when 'M6' is encountered. This feature
-is usually only useful if you have presettable tools.
+  pause and prompt you to change the tool when 'M6' is encountered. This feature
+  is usually only useful if you have presettable tools.
 
 == Machine Configuration Complete
 
@@ -528,7 +470,8 @@ A machine can be operated without limit switches. In this case, only
 the soft limits stop the machine from reaching the hard stop.
 Soft limits only operate after the machine has been homed.
 
-=== Operating without Home Switches[[sub:Operating-without-Home]]
+[[sub:Operating-without-Home]]
+=== Operating without Home Switches
 (((Operating without Home Switches)))
 
 A machine can be operated without home switches.
@@ -565,13 +508,13 @@ Typically for a parallel port you might use 47k.
 
 Wiring N/C switches in series (simplified diagram)
 
-image::images/switch-nc-series_en.svg[align="center", alt="Normally Closed Switches"]
+image::images/switch-nc-series_en.svg["Normally Closed Switches",align="center"]
 
 .Normally Open Switches
 
 Wiring N/O switches in parallel (simplified diagram)
 
-image::images/switch-no-parallel_en.svg[align="center", alt="Normally Open Switches"]
+image::images/switch-no-parallel_en.svg["Normally Open Switches",align="center"]
 
 The following combinations of switches are permitted in Stepconf:
 
@@ -582,5 +525,4 @@ The following combinations of switches are permitted in Stepconf:
 * Combine one limit switch and the home switch for one axis
 
 // vim: set syntax=asciidoc:
-
 

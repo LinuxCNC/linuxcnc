@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Conventions générales
-
 [[cha:References-generales]]
+= Conventions générales
 
 == Les noms
 
@@ -214,8 +213,7 @@ ppmc.0.write::
     la première carte Pico Systems ppmc.
 
 [[sec:Peripheriques-canoniques]]
-== Périphériques d'interfaces canoniques
-(((Périphériques canoniques)))
+== Périphériques d'interfaces canoniques(((Périphériques canoniques)))
 
 Les sections qui suivent expliquent les pins, paramètres et fonctions
 qui sont fournies par les _périphériques canoniques_. Tous les pilotes
@@ -350,4 +348,4 @@ convertisseurs numérique/analogique ou les générateurs de PWM.
     (_scale_ _ _value_) + _offset_ sont envoyés à la sortie du DAC . Si
     enable est FALSE, la sortie passe à 0.
 
-
+// vim: set syntax=asciidoc:

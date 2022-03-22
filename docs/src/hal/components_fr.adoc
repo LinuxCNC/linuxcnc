@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Les composants de HAL
-
 [[cha:Composants-de-HAL]]
+= Les composants de HAL
 
 == Composants de commandes et composants de l'espace utilisateur
 
@@ -468,3 +467,4 @@ rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
 ....
 
+// vim: set syntax=asciidoc:

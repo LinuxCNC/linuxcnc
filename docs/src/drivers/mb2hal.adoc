@@ -1,23 +1,23 @@
-[[cha:mb2hal]]
+:lang: en
 
+[[cha:mb2hal]]
 = MB2HAL
 
 MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
 So far, there are two options to communicate with a Modbus device:
 
-. One option is to create a HAL component as a driver see 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
-. Another option is to use Classic Ladder which has Modbus built in see
-<<cha:classicladder,ClassicLadder>>.
+. One option is to create a HAL component as a driver see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
+. Another option is to use Classic Ladder which has Modbus built in see <<cha:classicladder,ClassicLadder>>.
 . Now there is a third option that consists of a "generic" driver configured by text file, this is called MB2HAL.
+
 Why MB2HAL ?
 Consider using Mb2hal if:
 
 * You have to write a new driver and you don't know anything about programming. 
 * You need to use Classic Ladder "only" to manage the Modbus connections. 
 * You have to discover and configure first time the Modbus transactions. Mb2hal have debug levels to facilitate the low level protocol debug. 
-* You have more than one device to connect. Mb2hal is very efficient managing multiple devices, transactions and links. Currently i am 
-monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
+* You have more than one device to connect. Mb2hal is very efficient managing multiple devices, transactions and links.
+  Currently i am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
 * You want a protocol to connect your Arduino to HAL. Look the included sample configuration file, sketch and library for Arduino Modbus. 
 
 == Usage
@@ -143,8 +143,10 @@ Program or connection:
 * 0x11 (-17) - INVALID_EXCEPTION_CODE  
 
 == Example config file
+
 Click link:mb2hal_HOWTO.ini[here] to download.
 [source,{basebackend@docbook:'':ini}]
+
 ----
 include::../../../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini[]
 ----

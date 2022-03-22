@@ -1,8 +1,8 @@
 :lang: fr
 
-= Configuration requise
-
 [[cha:Configuration-requise]]
+
+= Configuration requise
 
 == Configuration minimale
 

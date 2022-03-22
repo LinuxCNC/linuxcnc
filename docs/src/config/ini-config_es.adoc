@@ -61,20 +61,20 @@ y finalizan en el siguiente nombre de sección.
 Las siguientes secciones son utilizadas por LinuxCNC:
 
 * '[<<sec:emc-section,EMC>>]' información general
-* '[<< sec:display-section,DISPLAY>>]' configuraciones relacionadas con la interfaz gráfica de usuario
-* '[<< sec:sección de filtro,FILTER>>]' configuración de los programas de filtro de entrada
-* '[<< sec:rs274ngc-section,RS274NGC>>]' configuración utilizada por el intérprete de código g
-* '[<< sec:emcmot-section,EMCMOT>>]' configuraciones utilizadas por el controlador de movimiento en tiempo real
-* '[<< sec:task-section,TASK>>]' configuraciones utilizadas por el controlador de tareas
-* '[<< sec:hal-section,HAL>>]' especificar archivos .hal
-* '[<< sec:halui-section,HALUI >>]' comandos MDI utilizados por HALUI
-* '[<< sec:applications-section,APPLICATIONS>>]' otras aplicaciones que iniciará LinuxCNC 
-* '[<< sec:traj-section,TRAJ>>]' configuraciones adicionales utilizadas por el controlador de movimiento en tiempo real
-* '[<< sec:joint-section,JOINT_n>>]' variables de articulaciones individuales
-* '[<< sec:axis-section,AXIS_n>>]' variables de eje individuales
-* '[<< sec:kins-section,KINS>>]' variables cinemáticas
+* '[<<sec:display-section,DISPLAY>>]' configuraciones relacionadas con la interfaz gráfica de usuario
+* '[<<sec:filter-section,FILTER>>]' configuración de los programas de filtro de entrada
+* '[<<sec:rs274ngc-section,RS274NGC>>]' configuración utilizada por el intérprete de código g
+* '[<<sec:emcmot-section,EMCMOT>>]' configuraciones utilizadas por el controlador de movimiento en tiempo real
+* '[<<sec:task-section,TASK>>]' configuraciones utilizadas por el controlador de tareas
+* '[<<sec:hal-section,HAL>>]' especificar archivos .hal
+* '[<<sec:halui-section,HALUI>>]' comandos MDI utilizados por HALUI
+* '[<<sec:applications-section,APPLICATIONS>>]' otras aplicaciones que iniciará LinuxCNC 
+* '[<<sec:traj-section,TRAJ>>]' configuraciones adicionales utilizadas por el controlador de movimiento en tiempo real
+* '[<<sec:joint-section,JOINT_n>>]' variables de articulaciones individuales
+* '[<<sec:axis-section,AXIS_n>>]' variables de eje individuales
+* '[<<sec:kins-section,KINS>>]' variables cinemáticas
 
-* '[<< sec:emcio-section,EMCIO>>]' configuración utilizada por el controlador de E/S
+* '[<<sec:emcio-section,EMCIO>>]' configuración utilizada por el controlador de E/S
 
 === Variables
 
@@ -308,7 +308,8 @@ Las descripciones de las interfaces se encuentran en la sección Interfaces del 
 
 [NOTE]
 GladeVCP utiliza los siguientes elementos [DISPLAY], consulte la sección
-<<gladevcp:embeding-tab,incrustando una pestaña>> del Capítulo GladeVCP.
+gladevcp:embeding-tab,incrustando una pestaña // document was removed since "all english"
+del Capítulo GladeVCP.
 
 * 'EMBED_TAB_NAME=Demo GladeVCP'
 
@@ -424,8 +425,7 @@ El siguiente elemento [DISPLAY] es utilizado únicamente por la interfaz TKLinux
 
 * 'HELP_FILE = tklinucnc.txt' - Ruta al archivo de ayuda.
 
-[[sec:filter-section]] (((Archivo INI, Sección FILTER)))
-
+[[sec:filter-section]](((Archivo INI, Sección FILTER)))
 === Sección [FILTER]
 
 AXIS y gmoccapy tienen la capacidad de enviar archivos cargados a través de un programa de filtro.
@@ -524,8 +524,7 @@ main(sys.argv[1:])
 
 [[sec:rs274ngc-section]](((Archivo INI, Sección RS274NGC)))
 [[gcode:ini-features]]
-
-===  Sección [RS274NGC]
+=== Sección [RS274NGC]
 
 * 'PARAMETER_FILE = myfile.var' -
     (((ARCHIVO DE PARÁMETROS))) El archivo ubicado en el mismo directorio que el archivo ini

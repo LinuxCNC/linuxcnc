@@ -1,5 +1,6 @@
-[[cha:iov2]]
+:lang: en
 
+[[cha:iov2]]
 = I/O Control V2
 
 == Description

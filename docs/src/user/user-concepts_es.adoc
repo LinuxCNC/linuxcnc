@@ -8,9 +8,7 @@
 Este capítulo cubre conceptos importantes de que deben ser entendidos por el usuario
 antes de intentar manejar una máquina CNC con código g.
 
-[[sec:trajectory-control]](((Trajectory Control)))
-
-== Control de Trayectoria
+== Control de Trayectoria[[sec:trajectory-control]](((Trajectory Control)))
 
 === Planificacion de trayectoria
 

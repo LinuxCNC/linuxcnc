@@ -1,5 +1,6 @@
-[[cha:glade-vcp]]
+:lang: en
 
+[[cha:glade-vcp]]
 = Glade Virtual Control Panel
 
 // TODO:
@@ -21,10 +22,10 @@
 GladeVCP is an LinuxCNC component which adds the ability to add a new user
 interface panel to LinuxCNC user interfaces like:
 
-    -Axis
-    -Touchy
-    -Gscreen
-    -Gmoccapy
+ - Axis
+ - Touchy
+ - Gscreen
+ - Gmoccapy
 
 Unlike PyVCP, GladeVCP is not limited to displaying and setting HAL pins,
 as arbitrary actions can be executed in Python code - in fact, a
@@ -58,7 +59,7 @@ linked to a HAL pin, which in turn interfaces to the rest of LinuxCNC.
  - any HAL pin change may be directed to call back into a user-defined Python event handler
  - any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python
  - direct LinuxCNC interaction: arbitrary command execution, like initiating MDI
-commands to call a G-code subroutine, plus support for status change operations through Action Widgets
+   commands to call a G-code subroutine, plus support for status change operations through Action Widgets
  - several independent GladeVCP panels may be run in different tabs
  - separation of user interface appearance and functionality: change appearance without touching any code
 
@@ -118,6 +119,7 @@ FIXME: there is a conflict for motion.N.spindle-speed-out since it is used by bo
 
 commit cd36e2 Jan 5 2012 added sim_spindle_encoder.hal to axis.ini
 probably after creation of manual-example.ui
+
 ----
 $ cd configs/sim/axis
 $ linuxcnc axis.ini &
@@ -197,6 +199,7 @@ and in the right bottom window, under the 'General' tab, the 'MDI
 command' property.
 
 === Exploring the Python callback
+
 See how a Python callback is integrated into the example:
 
  - in glade, see the +hits+ label widget (a plain GTK+ widget)
@@ -209,9 +212,7 @@ handled in more detail in the
 
 == Creating and Integrating a Glade user interface
 
-[[gladevcp:prerequisites]]
-
-=== Prerequisite: Glade installation
+=== [[gladevcp:prerequisites]]Prerequisite: Glade installation
 To view or modify Glade UI files, you need glade 3.38.2 or later installed - it is not
 needed just to run a GladeVCP panel. If the glade command is missing, install
 it with the command:
@@ -223,6 +224,7 @@ it with the command:
  Older versions will not work, you will get a python error.
 
 === Running Glade to create a new user interface
+
 This section just outlines the initial LinuxCNC-specific steps. For more
 information and a tutorial on glade, see http://glade.gnome.org. Some
 glade tips & tricks may also be found on
@@ -252,6 +254,7 @@ older 'libglade' format correctly but there is no point in using it. The
 convention for GtkBuilder file extension is '.ui'.
 
 === Testing a panel
+
 You're now ready to give it a try (while LinuxCNC, e.g. Axis is running) it with:
 
     gladevcp myui.ui
@@ -298,6 +301,7 @@ POSTGUI_HALFILE =  ./manual-example.hal
 # gladevcp Demo specific Oword subs live here
 SUBROUTINE_PATH = ../../nc_files/gladevcp_lib
 ----
+
 The default HAL component name of a GladeVCP application started with the GLADEVCP option is:  +gladevcp+.
 
 The command line actually run by Axis in the above configuration is as follows:
@@ -308,12 +312,14 @@ You may add arbitrary gladevcp options here, as long as they dont collide with
 the above command line options.
 
 It is possible to create a custom HAL component name by adding the +-c+ option:
+
 [source,{ini}]
 ----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
 GLADEVCP= -c example -u ./hitcounter.py ./manual-example.ui
 ----
+
 The command line actually run by Axis for the above is:
 
  halcmd loadusr -Wn example gladevcp -c example -x {XID} -u ./hitcounter.py ./manual-example.ui
@@ -330,9 +336,7 @@ might not be needed in your setup.  The relative path specifier ../../nc_files/g
 is constructed to work with directories copied by the configuration picker and when
 using a run-in-place setup.
 
-[[gladevcp:embeding-tab]]
-
-=== Embeding as a Tab
+=== [[gladevcp:embeding-tab]]Embeding as a Tab
 
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:
@@ -485,11 +489,10 @@ So, in case you run gladeVCP from a separate shell window (i.e. not
 started by the GUI in an embedded fashion):
 
 - you cannot rely on the `POSTGUI_HALFILE` ini option causing the HAL
-commands being run 'at the right point in time', so comment that out
-in the ini file
+  commands being run 'at the right point in time', so comment that out
+  in the ini file
 - explicitly pass the HAL command file which refers to gladeVCP pins
-to gladeVCP with the '-H <halcmd file>' option (see previous section).
-
+  to gladeVCP with the '-H <halcmd file>' option (see previous section).
 
 == HAL Widget reference
 
@@ -536,7 +539,7 @@ Exceptions to this rule currently are.
 - 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (float) and a +<widgetname>-s+ (s32) pin
 - 'HAL_ProgressBar', which has a +<widgetname>-value+ input pin, and a +<widgetname>-scale+ input pin.
 
-===  Python attributes and methods of HAL Widgets
+=== Python attributes and methods of HAL Widgets
 
 HAL widgets are instances of GtKWidgets and hence inherit the methods,
 properties and signals of the applicable GtkWidget class. For
@@ -596,9 +599,7 @@ widget, that is, has been created by the
 +hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>)+ method (see
 <<gladevcp:programming,GladeVCP Programming>> for an example).
 
-[[gladevcp:hal-pin-changed-signal]]
-
-=== The hal-pin-changed signal
+=== [[gladevcp:hal-pin-changed-signal]]The hal-pin-changed signal
 
 Event-driven programming means that the UI tells your code when "something
 happens" - through a callback, like when a button was pressed. The
@@ -616,9 +617,7 @@ image::images/hal-pin-change-66.png[]
 The example in +configs/apps/gladevcp/complex+ shows how
 this is handled in Python.
 
-[[gladevcp:hal-buttons]]
-
-=== Buttons
+=== [[gladevcp:hal-buttons]]Buttons
 
 This group of widgets are derived from various Gtk buttons and consists
 of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
@@ -647,19 +646,17 @@ Toggle button:
 image:images/button.png[]
 
 [TIP]
+----
 Defining radio button groups in Glade:
- +
 - decide on default active button
- +
 - in the other button's 'General→Group' select the default active
-button's name in the 'Choose a Radio Button in this project' dialog.
- +
+  button's name in the 'Choose a Radio Button in this project' dialog.
+----
+
 See +configs/apps/gladevcp/by-widget/+ for a GladeVCP applications
 and UI file for working with radio buttons.
 
-[[gladevcp:hal-scales]]
-
-=== Scales
+=== [[gladevcp:hal-scales]]Scales
 
 HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale +
 respectively. +
@@ -679,9 +676,7 @@ Example HAL_HScale:
 image:images/hscale.png[]
 .
 
-[[gladevcp:hal-spinbutton]]
-
-=== SpinButton
+=== [[gladevcp:hal-spinbutton]]SpinButton
 
 HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
@@ -720,6 +715,7 @@ Hal_Dial exports it's count value as hal pins:
 <widgetname>-delta-scaled::
    out FLOAT pin
 ----
+
 It has the following properties:
 
 cpr::
@@ -751,7 +747,6 @@ scale_adjustable::
 scale::
     Set this to scale the counts. +
     default = 1.0
-
 
 Direct program control::
 
@@ -793,9 +788,7 @@ Example Hal_Dial:
 
 image::images/Hal_Dial.png[]
 
-[[gladevcp:jogwheel]]
-
-=== Jog Wheel
+=== [[gladevcp:jogwheel]]Jog Wheel
 
 The jogwheel widget simulates a real jogwheel. +
 It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the JogWheel widget, +
@@ -813,7 +806,6 @@ JogWheel exports it's count value as hal pin:
 
 <widgetname>-s::
    out S32 pin
-
 
 It has the following properties:
 
@@ -848,9 +840,7 @@ Example JogWheel:
 
 image::images/JogWheel.png[]
 
-[[gladevcp:speedcontrol]]
-
-=== Speed Control
+=== [[gladevcp:speedcontrol]]Speed Control
 
 SpeedControl is a widget specially made to control an adjustment
 with a touch screen. It is a replacement to the normal scale widget
@@ -978,10 +968,7 @@ Example Speedcontrol:
 
 image::images/SpeedControl.png[]
 
-
-[[gladevcp:hal-label]]
-
-=== Label
+=== [[gladevcp:hal-label]]Label
 
 HAL_Label is a simple widget based on GtkLabel which represents a HAL
 pin value in a user-defined format.
@@ -999,9 +986,7 @@ text_template::
   Example: +Distance: %.03f+ will display the text and the pin value with
   3 fractional digits padded with zeros for a FLOAT pin.
 
-[[gladevcp:hal-table]]
-
-=== Containers
+=== [[gladevcp:hal-table]]Containers
 
 * HAL_HideTable
 * HAL_Table State_Sensitive_Table
@@ -1034,9 +1019,7 @@ Future versions of gladeVCP may remove this widget completely and then you will 
 If you find some part of your GladeVCP application is 'grayed
 out' (insensitive), see whether a HAL_Table pin is unset or unconnected.
 
-[[gladevcp:hal-led]]
-
-=== LED
+=== [[gladevcp:hal-led]]LED
 
 The hal_led simulates a real indicator LED. +
 It has a single input BIT pin which controls it's state: ON or OFF. +
@@ -1081,9 +1064,7 @@ start up to report the current value.
 Example LEDs:
 image:images/leds.png[]
 
-[[gladevcp:hal-progressbar]]
-
-=== ProgressBar
+=== [[gladevcp:hal-progressbar]]ProgressBar
 
 [NOTE]
 This widget might go away. Use the HAL_HBar and HAL_VBar widgets
@@ -1151,9 +1132,7 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-[[gladevcp:hal-bars]]
-
-=== Bars
+=== [[gladevcp:hal-bars]]Bars
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing
 float values. They have one input FLOAT hal pin. Both bars have the
@@ -1209,9 +1188,7 @@ Vertical bar:
 image:images/vscale.png[]
 .
 
-[[gladevcp:hal-meter]]
-
-=== Meter
+=== [[gladevcp:hal-meter]]Meter
 
 HAL Meter is a widget similar to PyVCP meter - it represents a float value and has
 one input FLOAT hal pin. HAL Meter has the following properties:
@@ -1250,9 +1227,7 @@ image:images/hal_meter.png[]
 
 This widget is for plotting values over time.
 
-[[gladevcp:hal-gremlin]]
-
-=== Gremlin tool path preview for .ngc files
+=== [[gladevcp:hal-gremlin]]Gremlin tool path preview for .ngc files
 
 Gremlin is a plot preview widget similar to the Axis preview window.
 It assumes a running LinuxCNC environment like Axis or Touchy. To connect to
@@ -1354,20 +1329,18 @@ Direct program control::
 
 Hints::
     - If you set all the plotting options false but show_offsets true you get an
-    offsets page instead of a graphics plot.
+      offsets page instead of a graphics plot.
 
     - If you get the zoom distance before changing the view then reset the zoom
-    distance, it's much more user friendly.
+      distance, it's much more user friendly.
 
     - if you select an element in the preview, the selected element will be used
-    as rotation center point
+      as rotation center point
 
 Example:
 image:images/gremlin.png[]
 
-[[gladevcp:hal-offset]]
-
-=== HAL_Offset
+=== [[gladevcp:hal-offset]]HAL_Offset
 
 The HAL_Offset widget is used to display the offset of a single axis.
 It has the following properties:
@@ -1384,9 +1357,7 @@ Text template for imperial units::
 Reference Type::
     0:G5x 1:tool 2:G92 3:Rotation around Z
 
-[[gladevcp:dro_widget]]
-
-=== DRO widget
+=== [[gladevcp:dro_widget]]DRO widget
 
 The DRO widget is used to display the current axis position.
 It has the following properties:
@@ -1439,18 +1410,16 @@ Direct program control::
         [widget name].set_dro_inch()
         [widget name].set_dro_metric()
 
-[[gladevcp:combi_dro]]
+=== [[gladevcp:combi_dro]]Combi_DRO widget
 
-=== Combi_DRO widget
-
-The Combi_DRO widget is used to display the current , the relative axis position and the distance to go in one DRO. +
-By clicking on the DRO the Order of the DRO will toggle around. +
+The Combi_DRO widget is used to display the current , the relative axis position and the distance to go in one DRO.
+By clicking on the DRO the Order of the DRO will toggle around.
 In Relative Mode the actual coordinate system will be displayed.
 
 It has the following properties:
 
 joint_number::
-    Used to select which axis (technically which joint) is displayed. +
+    Used to select which axis (technically which joint) is displayed.
     On a trivialkins machine (mill, lathe, router) axis vrs. joint number are: +
     '0:X  1:Y  2:Z  etc'
 
@@ -1503,16 +1472,16 @@ font_size::
     default is 25
 
 toggle_readout::
-    A left mouse click will toggle the DRO readout through the different modes ["Rel", "Abs", "DTG"]. +
-    By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout() +
+    A left mouse click will toggle the DRO readout through the different modes ["Rel", "Abs", "DTG"].
+    By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout().
     Value must be bool +
     default is TRUE
 
 cycle_time::
     The time the DRO waits between two polls,
-    the value must be an integer in the range of 100 to 1000, +
-    default is 150, this setting should only be changed if you use more +
-    than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that +
+    the value must be an integer in the range of 100 to 1000,
+    default is 150, this setting should only be changed if you use more
+    than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that
     the DRO slows down the main application too much.
 
 Direct program control::
@@ -1601,16 +1570,14 @@ There are some information you can get through commands, which may be of interes
     [widget name].machine_units
         0 if Imperial, 1 if Metric
 
-Example, Three Combi_DRO in a window +
+Example, Three Combi_DRO in a window: +
 X = Relative Mode +
 Y = Absolute Mode +
 Z = DTG Mode +
 
 image::images/combi_dro.png[]
 
-[[gladevcp:iconview]]
-
-=== IconView (File Select)
+=== [[gladevcp:iconview]]IconView (File Select)
 
 This is touch screen friendly widget to select a file and to change directories.
 
@@ -1715,7 +1682,6 @@ The widget will emit the following signals:
         This signal is emitted, when the exit button has been pressed to close the IconView
         mostly needed if the application is started as stand alone.
 
-
 Example:
 
 image::images/iconview.png[]
@@ -1750,9 +1716,7 @@ Direct program control::
        [widget name].get_preset_value()
             Returns the recorded value: a float.
 
-[[gladevcp:tooledit]]
-
-=== Tooleditor widget
+=== [[gladevcp:tooledit]]Tooleditor widget
 
 This is a tooleditor widget for displaying and modifying a tool editor file. +
 If in lathe mode, it will display wear offsets and tool offsets separately. +
@@ -1764,7 +1728,8 @@ It has the following properties:
 Hidden Columns::
     This will hide the given columns: The columns are designated (in order) as such: +
     s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,; +
-    You can hide any number of columns including the select and comments +
+    You can hide any number of columns including the select and comments
+
 Direct program control::
 
     There a couple ways to directly control the widget using Python.
@@ -1813,9 +1778,7 @@ Direct program control::
 
 image::images/gtk-tooledit.png[]
 
-[[gladevcp:offsetpage]]
-
-=== Offsetpage
+=== [[gladevcp:offsetpage]]Offsetpage
 
 The Offsetpage widget is used to display/edit the offsets of all the axes. +
 It has convenience buttons for zeroing G92 and Rotation-Around-Z offsets. +
@@ -1883,16 +1846,14 @@ Direct program control::
 
 image::images/offsetpage.png[]
 
-[[gladevcp:hal-sourceview]]
+=== [[gladevcp:hal-sourceview]]HAL_sourceview widget
 
-=== HAL_sourceview widget
-
-This is for displaying and simple editing of G-code. +
+This is for displaying and simple editing of G-code.
 It looks for .ngc highlight specs in ~/share/gtksourceview-2.0/language-specs/
-The current running line will be highlighted. +
-With external python glue code: +
-    *It can search for text, undo and redo changes. +
-    *It can be used for program line selection. +
+The current running line will be highlighted.
+With external python glue code:
+ * It can search for text, undo and redo changes.
+ * It can be used for program line selection.
 
 
 Direct program control::
@@ -1921,7 +1882,6 @@ Direct program control::
 image::images/hal_sourceview.png[]
 
 [[gladevcp:mdi-history]]
-
 === MDI history
 
 This is for displaying and entering MDI codes. +
@@ -1973,12 +1933,12 @@ widget in a nutshell:
 
  - it is an object available in Glade
  - it has no visual appearance by itself
- -  it's purpose: associate a visible, sensitive UI component like menu,
+ - it's purpose: associate a visible, sensitive UI component like menu,
    toolbutton, button with a command. See these widget's 'General→Related
    Action' property.
- -  the "canned action" will be executed when the associated UI component
+ - the "canned action" will be executed when the associated UI component
    is triggered (button press, menu click..)
- -  it provides an easy way to execute commands without resorting to
+ - it provides an easy way to execute commands without resorting to
    Python programming.
 
 The appearance of VCP Actions in Glade is roughly as follows:
@@ -1987,7 +1947,6 @@ image::images/vcp-actions.png[]
 
 Tooltip hovers provide a description.
 
-
 === VCP Action widgets
 
 VCP Action widgets are one-shot type widgets. They implement a single action and
@@ -1995,7 +1954,7 @@ are for use in simple buttons, menu entries or radio/check groups.
 
 === VCP Action python
 
-This widget is used to execute small arbitrary python code. +
+This widget is used to execute small arbitrary python code.
 The command string may use special keywords to access important functions.
 
  * 'GSTAT' for access to the Gstat library that is used for linuxcnc status
@@ -2005,26 +1964,31 @@ The command string may use special keywords to access important functions.
  * 'linuxcnc' for access to the linuxcnc python module
  * 'self' for access to the widget instance
 
-There are options to select when the widget will be active. +
-There are options to set the mode before the command is executed. +
-example command to just print a message to the terminal: +
+There are options to select when the widget will be active.
+There are options to set the mode before the command is executed.
+example command to just print a message to the terminal:
+
 [source,python]
 ----
 print('action activated')
 ----
 
-example command to set the machine to off state: +
+example command to set the machine to off state:
+
 [source,python]
 ----
 CMD.state(linuxcnc.STATE_OFF)
 ----
 
-example command to call a handler function that passes data: +
+example command to call a handler function that passes data:
+
 [source,python]
 ----
 EXT.on_button_press(self, 100)
 ----
+
 You can use a colon to separate multiple commands.
+
 [source,python]
 ----
 print('Set Machine Off');CMD.state(linuxcnc.STATE_OFF)
@@ -2191,9 +2155,7 @@ signals:
   - +all-homed+
   - +not-all-homed+
 
-[[gladevcp:programming]]
-
-== GladeVCP Programming
+== [[gladevcp:programming]]GladeVCP Programming
 
 === User Defined Actions
 
@@ -2326,9 +2288,9 @@ class(es) are instantiated and inspected during GladeVCP startup and
 linked to the widget tree as signal handlers. So the task now is to
 write:
 
- -  one or more several class definition(s) with one or several methods,
+ - one or more several class definition(s) with one or several methods,
    in one module or split over several modules,
- -  a function 'get_handlers' in each module which will return a list of
+ - a function 'get_handlers' in each module which will return a list of
    class instances to GladeVCP - their method names will be linked to
    signal handlers
 
@@ -2413,25 +2375,25 @@ First, modules are imported and initialized in command line order.
 After successful import, `get_handlers()` is called in the following
 state:
 
- -  the widget tree is created, but not yet realized (no toplevel
+ - the widget tree is created, but not yet realized (no toplevel
    `window.show()` has been executed yet)
- -  the halcomp HAL component is set up and all HAL widget's pins have
+ - the halcomp HAL component is set up and all HAL widget's pins have
    already been added to it
- -  it is safe to add more HAL pins because `halcomp.ready()` has not yet
+ - it is safe to add more HAL pins because `halcomp.ready()` has not yet
    been called at this point, so you may add your own pins, for instance
    in the class `__init__()` method.
 
 Once all modules have been imported and method names extracted, the
 following steps happen:
 
- -  all qualifying method names will be connected to the widget tree with
+ - all qualifying method names will be connected to the widget tree with
    `connect_signals()/signal_autoconnect()` (depending on the type of UI
    imported - GtkBuilder vs the old libglade format).
  - the HAL component is finalized with halcomp.ready()
- -  if a window ID was passed as argument, the widget tree is re-parented
+ - if a window ID was passed as argument, the widget tree is re-parented
    to run in this window, and Glade's toplevel window1 is abandoned (see
    FAQ)
- -  if a HAL command file was passed with `-H halfile`, it is executed
+ - if a HAL command file was passed with `-H halfile`, it is executed
    with halcmd
  - the Gtk main loop is run.
 
@@ -2638,7 +2600,6 @@ bad inifile will be renamed to have the .BAD suffix. Subsequent bad ini
 files overwrite earlier .BAD files.
 
 [[gladevcp:adding-hal-pins]]
-
 === Adding HAL pins
 
 If you need HAL pins which are not associated with a specific HAL
@@ -2813,18 +2774,18 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
 
 == Troubleshooting
 
- -  make sure you have the development version of LinuxCNC installed. You
+ - make sure you have the development version of LinuxCNC installed. You
    don't need the axisrc file any more, this was mentioned in the old
    GladeVcp wiki page.
- -  run GladeVCP or Axis from a terminal window. If you get Python errors,
+ - run GladeVCP or Axis from a terminal window. If you get Python errors,
    check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
    file lying around besides the newer
    +/usr/lib/python2.6/dist-packages/_hal.so+ (note underscore); if yes,
    remove the +hal.so+ file. It has been superseded by hal.py in the same
    directory and  confuses the import mechanism.
- -  if you're using run-in-place, do a 'make clean' to remove any
+ - if you're using run-in-place, do a 'make clean' to remove any
    accidentally left over hal.so file, then 'make'.
- -  if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have
+ - if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have
    an HAL pin associated with it which is off by default. This pin
    controls whether these container's children are active or not.
 

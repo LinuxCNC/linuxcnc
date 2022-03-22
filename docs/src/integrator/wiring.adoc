@@ -1,5 +1,6 @@
-[[cha:wiring]]
+:lang:en
 
+[[cha:wiring]]
 = Best Wiring Practices
 
 == Electrical Noise
@@ -45,7 +46,7 @@ wire on the market means that its use should be encouraged wherever possible.
 Wires should be terminated such that all strands in the conductor are neatly and securely located into the mating
 receptacle. This may be accomplished by either twisting the strands together before inserting in the termination,
 or using a compression crimp such as a spade or bootlace terminal. Care should be made to ensure that no strands of
-wire end up outside the termination to prevent accidental shorting with adjacent terminations. 
+wire end up outside the termination to prevent accidental shorting with adjacent terminations.
 
 If using a compression crimp on the bare wire, avoid soldering the strands together before crimping. Crimping the
 lug onto a soldered wire can result in the lug working loose over time as the soldered strands lose their
@@ -98,7 +99,7 @@ equipment. For example, if the incoming supply is also used to feed large motors
 generated on the line feeding the CNC components. Although most modern electronic devices feature built-in mains
 filtering to help minimise the susceptibility to mains-borne interference, the custom and modularised nature of a
 CNC system can mean that components used come from a wide variety of sources with differing degrees of inherent
-noise immunity. 
+noise immunity.
 
 Inline filters may be installed on the incoming mains supply feeding the CNC control system to help reduce any
 induced noise. Running the CNC system from a different mains circuit to any large electrical sources of noise may
@@ -158,7 +159,7 @@ In situations where a DC circuit is run with the common point disconnected from 
 circuit (eg, the positive and negative leads) is physically twisted together in a helix pattern. The twist in the
 wire allows both conductors to share the same ‘real estate’ as closely as possible. Any EMI that passes across
 them will therefore be largely cancelled as both conductors will receive the same degree of EMI. For additional
-protection use twisted wire that is housed in a shielded jacket with the shield terminated to mains earth. 
+protection use twisted wire that is housed in a shielded jacket with the shield terminated to mains earth.
 
 Note however that twisted pairs of wires are less effective at combatting the effects of EMI if one of the two
 wires is referenced to mains earth, as the conductor at earth potential is less able to be influenced by EMI than
@@ -196,11 +197,11 @@ enclosures will indicate a specific terminal as being the earthing point, in whi
 connected to earth via a dedicated wire.
 
 Control and power wiring should be segregated as much as possible. Route signal input wires well away from power
-supply and motor drive output lines. 
+supply and motor drive output lines.
 
 It is recommended to run both driver input and motor output wiring in shielded cable with the shield terminated to
 mains earth. The shield on the input lines helps reduce the amount of interference they can receive, while the
-shield on the output lines reduces the amount of noise they can radiate. 
+shield on the output lines reduces the amount of noise they can radiate.
 
 == Variable Frequency Drives
 

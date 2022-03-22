@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////
-useimage:: for equation png files -- no latexmath
+use image:: for equation png files -- no latexmath
 ////////////////////////////////////////////////
+:lang: en
 
-[[cha:5-axis-kinematics]] (((5-Axis Kinematics)))
-
-= 5-Axis Kinematics
+[[cha:5-axis-kinematics]]
+= 5-Axis Kinematics(((5-Axis Kinematics)))
 
 == Introduction
 
@@ -54,7 +54,7 @@ In these machine tools the two rotational axes mount on the work table of the ma
 * A tilting table which rotates about the X- or Y-axis (A- or B-rotation, secondary) is mounted on a rotary table which rotates about the Z-axis (C-rotation, primary), with the workpiece on the tilting table.
 
 .General configuration and coordinate systems
-image::5-axis-figures/Figure-2.png[align= "center"]
+image::5-axis-figures/Figure-2.png[align="center"]
 
 A multi-axis machine can be considered to consist of a series of links connected by joints. By embedding a coordinate frame in each link of the machine and using homogeneous transformations, we can describe the relative position and orientation between these coordinate frames
 
@@ -79,7 +79,7 @@ Then we develop the transformations for a xyzbc-trt configuration with rotating 
 === Transformations for a xyzac-trt machine tool with work offsets ===
 
 .vismach model of xyzac-trt with coincident rotation axes
-image::5-axis-figures/Figure-3.png[align= "center"]
+image::5-axis-figures/Figure-3.png[align="center"]
 
 We deal here with a simplified configuration in which the tilting axis and rotary axis intersects at a point called the pivot point as shown in Fig. 4. therefore the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2 are coincident.
 
@@ -147,13 +147,13 @@ image::5-axis-figures/equation__17.png[align="center"]
 === Transformations for a xyzac-trt machine  with rotary axis offsets
 
 .vismach model of xyzac-trt with rotational axis offsets (positive)
-image::5-axis-figures/Figure-5.png[align= "center"]
+image::5-axis-figures/Figure-5.png[align="center"]
 
 We deal here with a extended configuration in which the tilting axis and rotary axis do not intersect at a point but have an offset D~y~. Furthermore, there is also an z-offset between the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2, called D~z~. A vismach model is shown in Fig. 5 and the offsets are shown in Fig. 6 (positive offsets in this example). To simplify the configuration, the offsets L~x~, L~y~, L~z~ of the previous case
  are not included. They are probably not necessary if one uses the G54 offsets in LinuxCNC by means of the "touch of" facility.
 
 .Table tilting/rotary xyzac-trt configuration, with axis offsets
-image::5-axis-figures/Figure-6.png[align= "center",height=350]
+image::5-axis-figures/Figure-6.png[align="center",height=350]
 
 
 ==== Forward Transformation
@@ -210,12 +210,12 @@ image::5-axis-figures/equation__27.png[align="center"]
 === Transformations for a xyzbc-trt machine  with rotary axis offsets
 
 .vismach model of xyzbc-trt with rotational axis offsets (negative)
-image::5-axis-figures/Figure-7.png[align= "center"]
+image::5-axis-figures/Figure-7.png[align="center"]
 
 We deal here again with a extended configuration in which the tilting axis (about the y-axis) and rotary axis do not intersect at a point but have an offset D~x~. Furthermore, there is also an z-offset between the two coordinate systems 'O~ws~' and 'O~wp~' of Fig. 2, called D~z~. A vismach model is shown in Fig. 7 (negative offsets in this example) and the positive offsets are shown in Fig. 8.
 
 .Table tilting/rotary xyzbc-trt configuration, with axis offsets
-image::5-axis-figures/Figure-8.png[align= "center",height=350]
+image::5-axis-figures/Figure-8.png[align="center",height=350]
 
 ==== Forward Transformation
 
@@ -378,13 +378,13 @@ setp xyzac-trt-kins.z-offset 20
 == Figures
 
 .Table tilting/rotating configuration
-image::5-axis-figures/Figure-9.png[align= "center",height=300]
+image::5-axis-figures/Figure-9.png[align="center",height=300]
 
 .Spindle/table tilting configuration
-image::5-axis-figures/Figure-10.png[align= "center",height=300]
+image::5-axis-figures/Figure-10.png[align="center",height=300]
 
 .Spindle tilting/rotary configuration
-image::5-axis-figures/Figure-11.png[align= "center",height=300]
+image::5-axis-figures/Figure-11.png[align="center",height=300]
 
 /////////////////////////////////////////////////////
 == References  nope nope nope pdf nope
@@ -393,16 +393,15 @@ image::5-axis-figures/Figure-11.png[align= "center",height=300]
 == REFERENCES
 
  . A Postprocessor Based on the Kinematics Model for General Five-Axis machine
-Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
+   Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
 
  . NC Post-processor for 5-axis milling of table-rotating/tilting type: YH Jung,
-DW Lee, JS Kim, HS Mok, J Materials Processing Technology,130-131 (2002)
-641-646.
+   DW Lee, JS Kim, HS Mok, J Materials Processing Technology,130-131 (2002)
+   641-646.
 
- . 3D 6-DOF Serial Arm Robot Kinematics, RJ du Preez, SA-CNC-CLUB, Dec.
-5, 2013.
+ . 3D 6-DOF Serial Arm Robot Kinematics, RJ du Preez, SA-CNC-CLUB, Dec.  5, 2013.
 
  . Design of a generic five-axis postprocessor based on generalized kinematics
-model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
-47 (2007) 537-545.
+   model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
+   47 (2007) 537-545.
 

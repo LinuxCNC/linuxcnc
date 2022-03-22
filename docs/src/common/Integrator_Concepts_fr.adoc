@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Concepts importants pour l'intégrateur
-
 [[cha:concepts-integrateur]]
+= Concepts importants pour l'intégrateur
 
 == Système pas à pas
 

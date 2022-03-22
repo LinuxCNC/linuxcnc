@@ -1,5 +1,6 @@
-[[cha:qtvcp-custom-widgets]]
+:lang: en
 
+[[cha:qtvcp-custom-widgets]]
 = QTvcp Building Custom Widgets
 
 == Overview

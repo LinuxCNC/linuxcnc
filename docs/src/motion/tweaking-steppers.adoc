@@ -1,6 +1,8 @@
-= Stepper Tuning
+:lang: en
+:toc:
 
 [[cha:Stepper-Tuning]]
+= Stepper Tuning
 
 == Getting the most out of Software Stepping
 
@@ -11,12 +13,17 @@ software step pulses also have some disadvantages:
 
 * limited maximum step rate
 * jitter in the generated pulses
-* loads the CPU 
+* loads the CPU
 
 This chapter has some steps that can help you get the best results
 from software generated steps.
 
 === Run a Latency Test
+
+FIXME from French: Le CPU n'est pas le seul facteur déterminant la latence. Les cartes
+mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
+la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
+d'un PC consiste à exécuter le test de latence RTAI.
 
 Run the latency test as described in the <<cha:latency-test,Latency Test>>
 chapter.
@@ -64,29 +71,29 @@ for) the data sheet that has your drive's specs.
 
 From the Gecko G202 manual:
 ....
-Step Frequency: 0 to 200 kHz 
-Step Pulse “0” Time: 0.5 us min (Step on falling edge) 
-Step Pulse “1” Time: 4.5 us min 
+Step Frequency: 0 to 200 kHz
+Step Pulse “0” Time: 0.5 us min (Step on falling edge)
+Step Pulse “1” Time: 4.5 us min
 Direction Setup: 1 us min (20 us min hold time after Step edge)
 ....
 
 From the Gecko G203V manual:
 ....
-Step Frequency: 0 to 333 kHz 
-Step Pulse “0” Time: 2.0 us min (Step on rising edge) 
-Step Pulse “1” Time: 1.0 us min 
+Step Frequency: 0 to 333 kHz
+Step Pulse “0” Time: 2.0 us min (Step on rising edge)
+Step Pulse “1” Time: 1.0 us min
 
-Direction Setup: 
-    200 ns (0.2 us) before step pulse rising edge 
+Direction Setup:
+    200 ns (0.2 us) before step pulse rising edge
     200 ns (0.2 us) hold after step pulse rising edge
 ....
 
 From the Xylotex datasheet:
 ....
-Minimum DIR setup time before rising edge of STEP Pulse 200 ns Minimum 
-DIR hold time after rising edge of STEP pulse 200 ns 
-Minimum STEP pulse high time 2.0 us 
-Minimum STEP pulse low time 1.0 us 
+Minimum DIR setup time before rising edge of STEP Pulse 200 ns Minimum
+DIR hold time after rising edge of STEP pulse 200 ns
+Minimum STEP pulse high time 2.0 us
+Minimum STEP pulse low time 1.0 us
 Step happens on rising edge
 ....
 
@@ -219,9 +226,9 @@ guess at periods and other configuration parameters. You need to make
 measurements on your computer, and do the math to ensure that your
 drives get the signals they need.
 
-To make the math easier, I've created an Open Office spreadsheet  
-http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods 
- You enter your latency test result and your stepper drive timing
+To make the math easier, I've created an Open Office spreadsheet
+http://wiki.linuxcnc.org/uploads/StepTimingCalculator.ods[Step Timing Calculator].
+You enter your latency test result and your stepper drive timing
 requirements and the spreadsheet calculates the optimum BASE_PERIOD.
 Next, you test the period to make sure it won't slow down or lock up
 your PC. Finally, you enter the actual period, and the spreadsheet will

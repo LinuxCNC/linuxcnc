@@ -1,9 +1,9 @@
 :lang: es
-:toc:
 
 [[cha:plasma-primer]]
 
 = Basicos del Corte por Plasma para Usuarios de LinuxCNC
+:toc:
 
 == ¿Qué es el plasma?
 

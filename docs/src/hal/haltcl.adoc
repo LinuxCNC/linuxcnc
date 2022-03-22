@@ -1,5 +1,7 @@
-[[cha:haltcl]]
+:lang: en
+:toc:
 
+[[cha:haltcl]]
 = HALTCL Files
 
 The halcmd language excels in specifying components and connections but
@@ -154,7 +156,7 @@ list          ---> hal list
 == Haltcl Notes
 
 In haltcl, the value argument for the 'sets' and 'setp' commands
-is implicitly treated as an expression in the tcl language. 
+is implicitly treated as an expression in the tcl language.
 
 .Example
 ----

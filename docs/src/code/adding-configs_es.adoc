@@ -26,3 +26,5 @@ por dos métodos:
 ====
   export LINUXCNC_AUX_CONFIGS=~/myconfigs:/opt/otherconfigs
 ====
+
+// vim: set syntax=asciidoc:
