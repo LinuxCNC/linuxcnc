@@ -504,7 +504,7 @@ Dans le même temps, une fenêtre s'ouvre sur votre écran, demandant de
 sélectionner l'item à observer.
 
 .Fenêtre de sélection de halmeter(((Fenêtre de sélection)))
-image::images/halmeter-select_fr.png["Fenêtre de sélection de halmeter"]
+image:images/halmeter-select_fr.png["Fenêtre de sélection de halmeter"]
 
 Ce dialogue contient trois onglets. Le premier onglet affiche toutes
 les HAL pins du système. La seconde affiche tous les signaux et le
