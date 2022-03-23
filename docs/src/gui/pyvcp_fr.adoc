@@ -69,8 +69,9 @@ et à partir des pins pyVCP et avec la commande habituelle:
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name
 ----
 
-Si vous débutez avec HAL, <<cha:hal-tutorial,le tutoriel de HAL>> est
-vivement recommandé.
+//<<cha:hal-tutorial,le tutoriel de HAL>> - no idea why this fails, should not
+Si vous débutez avec HAL, le tutoriel de HAL
+est vivement recommandé.
 
 == Sécurité avec pyVCP
 

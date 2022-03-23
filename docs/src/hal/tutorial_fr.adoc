@@ -2,10 +2,10 @@
 :toc:
 
 [[cha:hal-tutorial]]
-= Le tutoriel de HAL(((Tutoriel de HAL)))
+= Le tutoriel de HAL
 
 [[sec:Intro-tutoriel]]
-== Introduction(((Introduction)))
+== Introduction
 
 Halrun peut être utilisé pour créer un système complet et fonctionnel.
 Il s'agit d'un outil de configuration et de mise au point très puissant, en
@@ -13,7 +13,7 @@ ligne de commande ou en fichier texte. Les exemples suivants illustrent son
 installation et son fonctionnement.
 
 [[sec:tutorial-halcmd]]
-== Halcmd(((Tutoriel Halcmd)))
+== Halcmd
 
 Halcmd est un outil en ligne de commande pour manipuler HAL. Il existe
 une man page plus complète pour halcmd, elle sera installée en même
