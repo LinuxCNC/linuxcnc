@@ -1617,6 +1617,8 @@ qtplasmac.laser_on
 . *LASER* button label will change to *LASER* and the HAL pin named qtplasmac.laser_on will be turned off.
 . Release the *LASER* button.
 
+If an alignment laser has been set up then it is possible to use the laser during <<qt_cut-recovery, CUT RECOVERY>> for accurate positioning of the new start coordinates.
+
 [[qt_path-tolerance]]
 === Path Tolerance
 
@@ -2110,7 +2112,19 @@ The moment the torch has been moved off the cut path, the paused motion controls
 
 Once the torch position is satisfactory, press *CYCLE RESUME* and the cut will resume from the new position and travel the shortest distance to the original paused motion location. The CUT RECOVERY panel will close and the JOGGING panel will display when the torch returns to the original paused motion location.
 
-Pressing *CANCEL MOVE* (or *CYCLE STOP*) will cause the torch to move back to where it was positioned when the motion became paused and the CUT RECOVERY panel overlay will return to the JOGGING panel.
+Pressing *CANCEL MOVE* will cause the torch to move back to where it was positioned before the direction keys were used to offset the torch. It will not reset any *REV* or *FWD* motion.
+
+Pressing *CYCLE STOP* will cause the torch to move back to where it was positioned before the direction keys were used to offset the torch and the CUT RECOVERY panel overlay will return to the JOGGING panel. It will not reset any *REV* or *FWD* motion.
+
+If an alignment laser has been set up then it is possible to use the laser during cut recovery for very accurate positioning of the new start coordinates. If either the X axis offset or Y axis offset for the laser would cause the machine to move out of bounds then an error message will be displayed.
+
+*To use a laser for cut recovery when paused during a cut:*
+
+. Click the *LASER* button.
+. *LASER* button will change to disabled, the HAL pin named qtplasmac.laser_on will be turned on and the X and Y axis will offset so that the laser cross hairs will indicate the starting coordinates of the cut when it is resumed.
+. Continue the cut recovery as described above.
+
+If a laser offset is in effect when *CANCEL MOVE* is pressed then this offset will also be cleared.
 
 NOTE: Cut recovery movements will be limited to a radius of 10mm (0.4") from either the point the program was paused, or from the last point on the cut path if paused motion was used.
 
