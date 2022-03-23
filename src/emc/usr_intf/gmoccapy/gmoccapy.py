@@ -2853,6 +2853,15 @@ class gmoccapy(object):
         self.command.state(linuxcnc.STATE_ESTOP)
         Gtk.main_quit()
 
+    def on_focus_out(self, widget, data=None):
+        self.stat.poll()
+        if self.stat.enabled and self.stat.task_mode == linuxcnc.MODE_MANUAL and self.stat.current_vel > 0:
+            # cancel any joints jogging
+            JOGMODE = self._get_jog_mode()
+            for jnum in range(self.stat.joints):
+                self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
+            print("Stopped jogging on focus-out-event")
+
     # What to do if a macro button has been pushed
     def _on_btn_macro_pressed( self, widget = None, data = None ):
         o_codes = data.split()

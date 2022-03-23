@@ -471,6 +471,7 @@
     <property name="icon">images/Logo.png</property>
     <signal name="destroy" handler="on_window1_destroy" swapped="no"/>
     <signal name="show" handler="on_window1_show" swapped="no"/>
+    <signal name="focus-out-event" handler="on_focus_out" swapped="no"/>
     <child type="titlebar">
       <placeholder/>
     </child>
