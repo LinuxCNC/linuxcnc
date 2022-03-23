@@ -307,7 +307,7 @@ docs: htmldocs
 install-doc: install-doc-html
 endif
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
-htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
+htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .images-stamp
 	touch $@
