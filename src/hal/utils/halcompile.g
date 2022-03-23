@@ -880,10 +880,18 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
+    print("""
+.\\"*******************************************************************
+.\\"
+.\\" This file was generated with halcompile.g.
+.\\" Modify the source file %s.
+.\\"
+.\\"*******************************************************************
+""" % filename, file=f)
+
     print(".TH %s \"%s\" \"%s\" \"LinuxCNC Documentation\" \"HAL Component\"" % (
         comp_name.upper(), "1" if options.get("userspace") else "9",
         time.strftime("%F")), file=f)
-    print(".de TQ\n.br\n.ns\n.TP \\\\$1\n..\n", file=f)
 
     print(".SH NAME\n", file=f)
     doc = finddoc('component')    
@@ -982,7 +990,7 @@ def document(filename, outfilename):
             print(doc, file=f)
             lead = ".TP"
         else:
-            lead = ".TQ"
+            lead = ".br\n.ns\n.TP"
 
     lead = ".TP"
     if params:
@@ -1007,7 +1015,7 @@ def document(filename, outfilename):
                 print(doc, file=f)
                 lead = ".TP"
             else:
-                lead = ".TQ"
+                lead = ".br\n.ns\n.TP"
 
     doc = finddoc('see_also')    
     if doc and doc[1]:

@@ -1,10 +1,5 @@
-.de TQ
-.br
-.ns
-.TP \\$1
-..
-
 .TH KINS "9" "2014-12-22" "LinuxCNC Documentation" "Kinematics Modules"
+
 .SH NAME
 kins \- kinematics definitions for LinuxCNC
 
@@ -70,19 +65,31 @@ Assigns all axis letters to joint numbers in sequence:
    a==joint3, b==joint4, c==joint5
    u==joint6, v==joint7, w==joint8
 
-.TQ
+.br
+.ns
+.TP
 Example: loadrt \fBtrivkins coordinates=xyz\fR
-.TQ
+.br
+.ns
+.TP
 Assigns: x==joint0, y==joint1, z==joint2
 
-.TQ
+.br
+.ns
+.TP
 Example: loadrt \fBtrivkins coordinates=xz\fR
-.TQ
+.br
+.ns
+.TP
 Assigns: x==joint0, z==joint1
 
-.TQ
+.br
+.ns
+.TP
 Example: loadrt \fBtrivkins coordinates=xyzy\fR
-.TQ
+.br
+.ns
+.TP
 Assigns: x==joint0, y0==joint1, z==joint2, y1==joint3
 
 
@@ -94,16 +101,26 @@ that the distinctions between joints and axes are not visible to the operator.
 This is feasible since there is an exact correspondence between a joint number
 and its matching axis letter.
 
-.TQ
+.br
+.ns
+.TP
 The kinematics type can be set with the \fBkinstype=\fR parameter:
 
-.TQ
+.br
+.ns
+.TP
   kinstype=\fB1\fR     for KINEMATICS_IDENTITY (default if kinstype= omitted)
-.TQ
+.br
+.ns
+.TP
   kinstype=[\fBb\fR|\fBB\fR] for KINEMATICS_BOTH
-.TQ
+.br
+.ns
+.TP
   kinstype=[\fBf\fR|\fBF\fR] for KINEMATICS_FORWARD_ONLY
-.TQ
+.br
+.ns
+.TP
   kinstype=[\fBi\fR|\fBI\fR] for KINEMATICS_INVERSE_ONLY
 
 .TP
@@ -120,9 +137,13 @@ used to toggle between joint and teleop (world) modes.
 An axis letter may be used more than once (\fBduplicated\fR) to assign
 multiple joints to a single axis coordinate letter.
 
-.TQ
+.br
+.ns
+.TP
 Example: coordinates=\fBxyyzw\fR kinstype=\fBB\fR
-.TQ
+.br
+.ns
+.TP
 Assigns: x==joint0, y==joint1 \fBAND\fR joint2, z==joint3, w==joint4
 
 .PP
@@ -159,9 +180,13 @@ per-coordinate jogging is available.
 .SS corexykins \- CoreXY Kinematics
 .TP
 X = 0.5*(JOINT_0 + JOINT_1)
-.TQ
+.br
+.ns
+.TP
 Y = 0.5*(JOINT_0 \- JOINT_1)
-.TQ
+.br
+.ns
+.TP
 Z = JOINT_2
 .TP
 [KINS]JOINTS= must specify 3 or more joints (maximum 9)
@@ -176,60 +201,98 @@ forward kinematics iteration is controlled by hal pins.
 (See switchkins documentation for more info)
 .TP
 .B genhexkins.base.\fIN\fB.x
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.base.\fIN\fB.y
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.base.\fIN\fB.z
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.platform.\fIN\fB.x
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.platform.\fIN\fB.y
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.platform.\fIN\fB.z
 Parameters describing the \fIN\fRth joint's coordinates.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.spindle\-offset
 Added to all joints Z coordinates to change the machine origin.
 Facilitates adjusting spindle position.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.base\-n.\fIN\fB.x
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.base\-n.\fIN\fB.y
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.base\-n.\fIN\fB.z
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.platform\-n.\fIN\fB.x
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.platform\-n.\fIN\fB.y
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.platform\-n.\fIN\fB.z
 Parameters describing unit vectors of \fIN\fRth joint's axis. Used to
 calculate strut length correction for cardanic joints and non-captive
 actuators.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.screw\-lead
 Lead of strut actuator screw, positive for the right-handed thread.
 Default is 0 (strut length correction disabled).
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.correction.\fIN\fB
 Current values of strut length correction for non-captive actuators with
 cardanic joints.
 .B genhexkins.convergence\-criterion
 Minimum error value that ends iterations with converged solution.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.limit\-iterations
 Limit of iterations, if exceeded iterations stop with no convergence.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.max\-error
 Maximum error value, if exceeded iterations stop with no convergence.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.last\-iterations
 Number of iterations spent for the last forward kinematics solution.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.max\-iterations
 Maximum number of iterations spent for a converged solution during current
 session.
-.TQ
+.br
+.ns
+.TP
 .B genhexkins.tool\-offset
 TCP offset from platform origin along Z to implement RTCP function. To
 avoid joints jump change tool offset only when the platform is not tilted.
@@ -248,9 +311,13 @@ and this must be borne in mind when setting up the system.
 https://w.wiki/NcY
 .TP
 .B genserkins.A\-\fIN
-.TQ
+.br
+.ns
+.TP
 .B genserkins.ALPHA\-\fIN
-.TQ
+.br
+.ns
+.TP
 .B genserkins.D\-\fIN
 Parameters describing the \fIN\fRth joint's geometry.
 
@@ -266,33 +333,53 @@ location of base and effector joints is defined by hal parameters.  The
 forward kinematics iteration is controlled by hal pins.
 .TP
 .B pentakins.base.\fIN\fB.x
-.TQ
+.br
+.ns
+.TP
 .B pentakins.base.\fIN\fB.y
-.TQ
+.br
+.ns
+.TP
 .B pentakins.base.\fIN\fB.z
-.TQ
+.br
+.ns
+.TP
 .B pentakins.effector.\fIN\fB.r
-.TQ
+.br
+.ns
+.TP
 .B pentakins.effector.\fIN\fB.z
 Parameters describing the \fIN\fRth effector joint's radius and axial
 position.
-.TQ
+.br
+.ns
+.TP
 .B pentakins.convergence\-criterion
 Minimum error value that ends iterations with converged solution.
-.TQ
+.br
+.ns
+.TP
 .B pentakins.limit\-iterations
 Limit of iterations, if exceeded iterations stop with no convergence.
-.TQ
+.br
+.ns
+.TP
 .B pentakins.max\-error
 Maximum error value, if exceeded iterations stop with no convergence.
-.TQ
+.br
+.ns
+.TP
 .B pentakins.last\-iterations
 Number of iterations spent for the last forward kinematics solution.
-.TQ
+.br
+.ns
+.TP
 .B pentakins.max\-iterations
 Maximum number of iterations spent for a converged solution during current
 session.
-.TQ
+.br
+.ns
+.TP
 .B pentakins.tool\-offset
 TCP offset from effector origin along Z to implement RTCP function. To
 avoid joints jump change tool offset only when the platform is not tilted.
@@ -301,11 +388,17 @@ avoid joints jump change tool offset only when the platform is not tilted.
 Kinematics for a puma-style robot with 6 joints
 .TP
 .B pumakins.A2
-.TQ
+.br
+.ns
+.TP
 .B pumakins.A3
-.TQ
+.br
+.ns
+.TP
 .B pumakins.D3
-.TQ
+.br
+.ns
+.TP
 .B pumakins.D4
 Describe the geometry of the robot
 
@@ -352,9 +445,13 @@ The joints represent the distance of the controlled point from three predefined
 locations (the motors), giving three degrees of freedom in position (XYZ)
 .TP
 .B tripodkins.Bx
-.TQ
+.br
+.ns
+.TP
 .B tripodkins.Cx
-.TQ
+.br
+.ns
+.TP
 .B tripodkins.Cy
 The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 
