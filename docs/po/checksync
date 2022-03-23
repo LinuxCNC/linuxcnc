@@ -1,5 +1,0 @@
-#!/bin/bash
-
-for l in $1; do
-  po4a-gettextize -f AsciiDoc -M UTF-8 -L UTF-8 -m "$2.adoc" -l "$2_$l.adoc" > /dev/null && echo "${l}: Sync OK"
-done
