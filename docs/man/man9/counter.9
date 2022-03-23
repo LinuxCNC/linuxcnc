@@ -1,9 +1,4 @@
 .TH COUNTER "9" "2007-01-19" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 
@@ -51,13 +46,21 @@ edge on \fBphase\-Z\fR is seen, \fBindex\-enable\fR is set to FALSE and the
 internal counter is reset to zero.
 .TP
 .B \fBcounter.\fIN\fB.index\-enable\fR bit io
-.TQ
+.br
+.ns
+.TP
 .B \fBcounter.\fIN\fB.reset\fR bit io
-.TQ
+.br
+.ns
+.TP
 .B \fBcounter.\fIN\fB.counts\fR signed out
-.TQ
+.br
+.ns
+.TP
 .B \fBcounter.\fIN\fB.position\fR float out
-.TQ
+.br
+.ns
+.TP
 .B \fBcounter.\fIN\fB.velocity\fR float out
 These pins function according to the canonical digital encoder interface.
 .TP
