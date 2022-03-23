@@ -70,11 +70,7 @@ include::gui/gmoccapy_es.adoc[]
 
 include::gui/ngcgui_es.adoc[]
 
-include::gui/touchy_es.adoc[]
-
 include::gui/gscreen_es.adoc[]
-
-include::gui/tklinuxcnc_es.adoc[]
 
 :leveloffset: 1
 

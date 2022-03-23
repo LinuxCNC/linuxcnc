@@ -250,19 +250,18 @@ Puede especificar la dirección como hexadecimal (a menudo 0x378) o como el núm
 image::images/stepconf-options_es.png[align="center", alt="Configuración avanzada"]
 
 * 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
-<<cha:hal-user-interface,Capitulo HALUI>> para más información.
-
+  capitulo "HALUI" para más información.
+//cha:hal-user-interface removed
 * 'Incluir pyVCP': esta opción agrega el archivo base del panel pyVCP o un archivo ejemplo
-para trabajar en el. Ver el <<cha:pyvcp,Capítulo PyVCP>> para más información.
-
+  para trabajar en el. Ver el capítulo PyVCP para más información.
+//<<cha:pyvcp,Capítulo PyVCP>> para más información.
 * 'Incluir ClassicLadder PLC' - Esta opción agregará el PLC ClassicLadder
-(Controlador lógico programable). Ver el
-Capitulo Classicladder para más información.
+  (Controlador lógico programable). Ver el
+  Capitulo Classicladder para más información.
 //<<cha:classicladder,Capitulo Classicladder>> - "all-english" document removed
-
 * 'Indicador en pantalla para cambio de herramienta' - Si esta casilla está marcada, LinuxCNC
-para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
-generalmente solo es útil si tiene herramientas predimensionadas.
+  para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
+  generalmente solo es útil si tiene herramientas predimensionadas.
 
 == Configuracion de los Ejes[[sec:Axis-Configuration]](((Axis Configuration)))
 
@@ -270,127 +269,110 @@ generalmente solo es útil si tiene herramientas predimensionadas.
 
 image::images/stepconf-axis-x_es.png[align="center", alt="Pagina de configuracion de ejes"]
 
-* 'Pasos del motor por revolucion' (Motor Steps Per Revolution) - 
-    (((Motor Steps Per Revolution)))
-    El numero de pasos completos por revolucion del motor.
-    Si solo se tiene el dato de los grados por paso del motor (ejemplo 1.8 grados),
-    se debe dividir 360 por el numero de grados por paso
-    para encontrar el numero de pasos por revolucion.
-
-* 'Micro pasos' (Driver Microstepping) - 
-    (((Driver Microstepping)))
-    El numero de micropasos producidos por el controlador por cada paso fisico completo del motor.
-    Entre "2" para semipasos.
-    Por ejemplo, si el controlador produce 1/10 de giro de un paso completo
-    del motor por cada pulso de paso que recibe, escriba 10 en la casilla.
-
-* 'Relacion de Poleas' (Pulley Ratio) - 
-    (((Pulley Ratio)))
-    Si su maquina tiene poleas o engranes entre el motor y el tornillo,
-    escriba su relacion mecanica aqui. Si no tiene, escriba "1:1".
-
-* 'Paso del tornillo' (Leadscrew Pitch) - 
-    (((Leadscrew Pitch)))
-    Entre aqui el paso del tornillo.
-    Si se selecciono unidades "Inch", entre el numero de 
-    hilos por pulgada (por ejemplo, 8 para un tornillo de 8 TPI).
-    Si se tiene un tornillo con varias entradas, se necesita saber
-    cuantas vueltas se requieren para mover la tuerca una pulgada.
-    Si se selecciono 'mm' como unidades, entre el numero de milimetros que la tuerca
-    se movera por revolucion (ejemplo, 2 para 2 mm/rev).
-    Si la maquina se mueve en la direccion opuesta a la esperada,
-    entre un valor negativo, o invierta el pin de direccion del eje.
-
-* 'Velocidad Maxima' (Maximum Velocity) - 
-    (((Maximum Velocity)))
-    Entre la velocidad maxima del eje, en unidades por segundo.
-
-* 'Aceleracion Maxima (Maximum Acceleration) - 
-    (((Maximum Acceleration)))
-    El valor correcto de esta casilla solo puede ser determinado
-    por experimentacion. Vea 
-    <<sub:finding-maximum-velocity,Encontrar Velocidad Maxima para ajustar la velocidad, y
-    <<sub:finding-maximum-acceleration,Encontrar Velocidad Maxima para ajustar la aceleracion.
-
-* 'Posicion Home' (Home Location) - 
-    (((Home Location)))
-    Home es la posicion a la que la maquina se movera despues de completar
-    el procedimiento de inicio del eje.
-    Para maquinas sin interruptores de posicion home,
-    esta es la posicion a la cual el operador debera mover la maquina
-    antes de presionar el boton de inicializacion del eje (Home).
-    Si se combinan interruptores home y de limite,
-    se debera mover la maquina fuera del interruptor para inicializar el eje
-    o se recibira un error de limite en el eje.
-
-* 'Carrera de la mesa' (Table Travel) - 
-    (((Table Travel)))
-    El rango de carrera que el codigo g no podra sobrepasar.
-    La posicion de inicializacion del eje debe estar dentro del area de carrera.
-    En particular, tener la posicion de inicializacion (Home) de un eje exactamente
-    en un limite del area de carrera, producira una configuracion invalida.    
-
-* 'Localizacion de los interruptores home' (Home Switch Location) - 
-    (((Home Switch Location)))
-    La posicion en la cual el interruptor home se activa o desactiva,
-    relativa al origen maquina. Este apartado y los dos siguientes
-    solo apareceran cuando se selecciona la existencia de interruptores home
-    en la configuracion de los pines del puerto paralelo. Si se combinan los 
-    interruptores de limite y de home, la posicion del interruptor home
-    no puede ser la misma que la posicion home o se producira un error de limite de articulacion.
-    
-* 'Velocidad de busqueda de home' (Home Search Velocity) - 
-    (((Home Search Velocity)))
-    Velocidad usada en la busqueda de los interruptores home.
-    Si el interruptor se encuentra cercano al limite de carrera del eje,
-    esta velocidad debe ser seleccionada de tal forma que el eje tenga
-    suficiente tiempo para desacelerar hasta detenerse antes de llegar al
-    limite fisico de la carrera.
-    Si el interruptor se encuentra cerrado en un rango corto de carrera,
-    (en lugar de estar cerrado desde el punto de disparo hasta un final de carrera),
-    la velocidad debera ser seleccionada de tal forma que el eje pueda desacelerar
-    hasta detenerse antes de que el interruptor se habra otra vez, y el procedimiento
-    de homing debera comenzarse siempre desde el mismo lado del interruptor.
-    Si la maquina se mueve en la direccion contraria al inicio del homing,
-    cambie el signo del parametro *Home Search Velocity*.
-
-
-* 'Direccion de enclavamiento' (Home Latch Direction) - 
-    (((Home Latch Direction)))
-    Seleccione "Igual" para que el interruptor sea liberado
-    y posteriormente la maquina se acerque a el a muy baja velocidad.
-    La segunda vez que el interruptor se cierre, definira la posicion home.
-    Seleccione "Opuesto" para realizar la inializacion liberando lentamente el interruptor;
+ * 'Pasos del motor por revolucion' (Motor Steps Per Revolution) - 
+   (((Motor Steps Per Revolution)))
+   El numero de pasos completos por revolucion del motor.
+   Si solo se tiene el dato de los grados por paso del motor (ejemplo 1.8 grados),
+   se debe dividir 360 por el numero de grados por paso
+   para encontrar el numero de pasos por revolucion.
+ * 'Micro pasos' (Driver Microstepping) - 
+   (((Driver Microstepping)))
+   El numero de micropasos producidos por el controlador por cada paso fisico completo del motor.
+   Entre "2" para semipasos.
+   Por ejemplo, si el controlador produce 1/10 de giro de un paso completo
+   del motor por cada pulso de paso que recibe, escriba 10 en la casilla.
+ * 'Relacion de Poleas' (Pulley Ratio) - 
+   (((Pulley Ratio)))
+   Si su maquina tiene poleas o engranes entre el motor y el tornillo,
+   escriba su relacion mecanica aqui. Si no tiene, escriba "1:1".
+ * 'Paso del tornillo' (Leadscrew Pitch) - 
+   (((Leadscrew Pitch)))
+   Entre aqui el paso del tornillo.
+   Si se selecciono unidades "Inch", entre el numero de 
+   hilos por pulgada (por ejemplo, 8 para un tornillo de 8 TPI).
+   Si se tiene un tornillo con varias entradas, se necesita saber
+   cuantas vueltas se requieren para mover la tuerca una pulgada.
+   Si se selecciono 'mm' como unidades, entre el numero de milimetros que la tuerca
+   se movera por revolucion (ejemplo, 2 para 2 mm/rev).
+   Si la maquina se mueve en la direccion opuesta a la esperada,
+   entre un valor negativo, o invierta el pin de direccion del eje.
+ * 'Velocidad Maxima' (Maximum Velocity) - 
+   (((Maximum Velocity)))
+   Entre la velocidad maxima del eje, en unidades por segundo.
+ * 'Aceleracion Maxima' (Maximum Acceleration) - 
+   (((Maximum Acceleration)))
+   El valor correcto de esta casilla solo puede ser determinado
+   por experimentacion. Vea 
+   <<sub:finding-maximum-velocity,Encontrar Velocidad Maxima para ajustar la velocidad>> y
+   <<sub:finding-maximum-acceleration,Encontrar Velocidad Maxima para ajustar la aceleracion>>.
+ * 'Posicion Home' (Home Location) - 
+   (((Home Location)))
+   Home es la posicion a la que la maquina se movera despues de completar
+   el procedimiento de inicio del eje.
+   Para maquinas sin interruptores de posicion home,
+   esta es la posicion a la cual el operador debera mover la maquina
+   antes de presionar el boton de inicializacion del eje (Home).
+   Si se combinan interruptores home y de limite,
+   se debera mover la maquina fuera del interruptor para inicializar el eje
+   o se recibira un error de limite en el eje.
+ * 'Carrera de la mesa' (Table Travel) - 
+   (((Table Travel)))
+   El rango de carrera que el codigo g no podra sobrepasar.
+   La posicion de inicializacion del eje debe estar dentro del area de carrera.
+   En particular, tener la posicion de inicializacion (Home) de un eje exactamente
+   en un limite del area de carrera, producira una configuracion invalida.    
+ * 'Localizacion de los interruptores home' (Home Switch Location) - 
+   (((Home Switch Location)))
+   La posicion en la cual el interruptor home se activa o desactiva,
+   relativa al origen maquina. Este apartado y los dos siguientes
+   solo apareceran cuando se selecciona la existencia de interruptores home
+   en la configuracion de los pines del puerto paralelo. Si se combinan los 
+   interruptores de limite y de home, la posicion del interruptor home
+   no puede ser la misma que la posicion home o se producira un error de limite de articulacion.
+ * 'Velocidad de busqueda de home' (Home Search Velocity) - 
+   (((Home Search Velocity)))
+   Velocidad usada en la busqueda de los interruptores home.
+   Si el interruptor se encuentra cercano al limite de carrera del eje,
+   esta velocidad debe ser seleccionada de tal forma que el eje tenga
+   suficiente tiempo para desacelerar hasta detenerse antes de llegar al
+   limite fisico de la carrera.
+   Si el interruptor se encuentra cerrado en un rango corto de carrera,
+   (en lugar de estar cerrado desde el punto de disparo hasta un final de carrera),
+   la velocidad debera ser seleccionada de tal forma que el eje pueda desacelerar
+   hasta detenerse antes de que el interruptor se habra otra vez, y el procedimiento
+   de homing debera comenzarse siempre desde el mismo lado del interruptor.
+   Si la maquina se mueve en la direccion contraria al inicio del homing,
+   cambie el signo del parametro *Home Search Velocity*.
+ * 'Direccion de enclavamiento' (Home Latch Direction) - 
+   (((Home Latch Direction)))
+   Seleccione "Igual" para que el interruptor sea liberado
+   y posteriormente la maquina se acerque a el a muy baja velocidad.
+   La segunda vez que el interruptor se cierre, definira la posicion home.
+   Seleccione "Opuesto" para realizar la inializacion liberando lentamente el interruptor;
     cuando el interruptor se abra, se marcara la posiocion home.
-
-* 'Tiempo para acelerar hasta maxima velocidad' (Time to accelerate to max speed) - 
-    (((Time to accelerate to max speed)))
-    Tiempo calculado a partir de 'Max Acceleration' y 'Max Velocity'. 
-
-* 'Distancia para acelerar hasta maxima velocidad' (Distance to accelerate to max speed) - 
-    (((Distance to accelerate to max speed)))
-    Distancia para alcanzar maxima velocidad desde posicion de parado.
-
-* 'Tasa de pulsos a maxima velocidad' (Pulse rate at max speed) - 
-    (((Pulse rate at max speed)))
-    Este dato se calcula en base a los valores anteriores.
-    El valor maximo de la *Tasa* determina el 'BASE_PERIOD'.
-    Valores por encima de 20000Hz pueden producir tiempos de respuesta muy bajos o incluso bloqueos
-    (La tasa maxima varia entre computadoras)
-
-* 'Escala del Eje' (Axis SCALE) - 
-    El numero que sera usado en el archivo ini en la seccion [SCALE].
-    Representa cuantos pasos se deben dar por unidad de usuario.
-
-* 'Probar este Eje' (Test this axis) - 
-    (((Test this axis)))
-    Esta opcion abre una ventana para permitir probar cada eje 
-    y puede ser utilizada despues de llenar toda la informacion referente a cada eje.
+ * 'Tiempo para acelerar hasta maxima velocidad' (Time to accelerate to max speed) - 
+   (((Time to accelerate to max speed)))
+   Tiempo calculado a partir de 'Max Acceleration' y 'Max Velocity'. 
+ * 'Distancia para acelerar hasta maxima velocidad' (Distance to accelerate to max speed) - 
+   (((Distance to accelerate to max speed)))
+   Distancia para alcanzar maxima velocidad desde posicion de parado.
+ * 'Tasa de pulsos a maxima velocidad' (Pulse rate at max speed) - 
+   (((Pulse rate at max speed)))
+   Este dato se calcula en base a los valores anteriores.
+   El valor maximo de la *Tasa* determina el 'BASE_PERIOD'.
+   Valores por encima de 20000Hz pueden producir tiempos de respuesta muy bajos o incluso bloqueos
+   (La tasa maxima varia entre computadoras)
+ * 'Escala del Eje' (Axis SCALE) - 
+   El numero que sera usado en el archivo ini en la seccion [SCALE].
+   Representa cuantos pasos se deben dar por unidad de usuario.
+ * 'Probar este Eje' (Test this axis) - 
+   (((Test this axis)))
+   Esta opcion abre una ventana para permitir probar cada eje 
+   y puede ser utilizada despues de llenar toda la informacion referente a cada eje.
 
 === Probar este eje
 
 .Probar este eje
-
 image::images/stepconf-x-test_es.png[align="center", alt="Probar este Eje"]
 
 Es un comprobador básico que solo emite señales de paso y dirección
@@ -404,7 +386,6 @@ Probar el eje no reacciona a las entradas del interruptor de límite. Usar con p
 [[sub:finding-maximum-velocity]]
 
 .Encontrar la velocidad máxima
-
 Comience con una baja aceleración
 // comenta el latexmath hasta que se encuentre una solución para los documentos html
 // (por ejemplo, latexmath: [2 in / s ^ 2] o latexmath: [50 mm / s ^ 2])
@@ -447,10 +428,8 @@ Una vez que haya encontrado una velocidad a la que el eje no se detiene o pierde
 durante este procedimiento de prueba, reducirlo en un 10% y usarlo como 
 'Velocidad máxima' del eje.
 
-[[sub:finding-maximum-acceleration]](((Encontrar la máxima aceleración)))
-
-.Encontrar la máxima aceleración
-
+[[sub:finding-maximum-acceleration]]
+.Encontrar la máxima aceleración(((Encontrar la máxima aceleración)))
 Con la velocidad máxima que encontro en el paso anterior,
 ingrese el valor de aceleración a probar.
 Usando el mismo procedimiento anterior,
@@ -464,7 +443,6 @@ reducirlo en un 10% y usarlo como  Aceleración máxima del eje.
 == Configuracion del husillo
 
 .Página de configuración del husillo
-
 image::images/stepconf-spindle_es.png[align="center", alt="Página de configuración del husillo"]
 
 Esta página solo aparece cuando se selecciona 'Spindle PWM' en
@@ -476,13 +454,12 @@ Si 'Spindle PWM' aparece en el pinout,
 debe aportarse la siguiente información:
 
 * 'PWM Rate' - La 'frecuencia portadora' de la señal PWM al husillo. Entrar
-'0' para el modo PDM, que es útil para generar un voltaje de control analógico.
-Consulte la documentación de su controlador de husillo para conocer el valor apropiado.
-
+  '0' para el modo PDM, que es útil para generar un voltaje de control analógico.
+  Consulte la documentación de su controlador de husillo para conocer el valor apropiado.
 * 'Speed 1 y 2, PWM 1 y 2': el archivo de configuración generado utiliza una
-relación lineal simple para determinar el valor PWM para un valor RPM dado. Si los
-valores no se conocen, se pueden determinar. Para más información, ver
-<<sub:determining-spindle-calibration,determinación de la calibración del husillo>>.
+  relación lineal simple para determinar el valor PWM para un valor RPM dado. Si los
+  valores no se conocen, se pueden determinar. Para más información, ver
+  <<sub:determining-spindle-calibration,determinación de la calibración del husillo>>.
 
 === Movimiento sincronizado con el husillo
 
@@ -491,35 +468,29 @@ LinuxCNC a través de HAL, LinuxCNC admite el roscado en torno.
 Estas señales son:
 
 * 'Índice del husillo' - Es un pulso que ocurre 'una vez por revolución' del husillo.
-
 * 'Fase A del husillo' - Este es un pulso que ocurre en múltiples ubicaciones,
-igualmente espaciadas, a medida que gira el husillo.
-
+  igualmente espaciadas, a medida que gira el husillo.
 * 'Fase B del husillo (opcional)' - Este es un segundo pulso, pero con
-un desplazamiento de la fase A del husillo. Las ventajas de usar tanto A como B son
-detección de dirección, mayor inmunidad al ruido y mayor resolución.
+  un desplazamiento de la fase A del husillo. Las ventajas de usar tanto A como B son
+  detección de dirección, mayor inmunidad al ruido y mayor resolución.
 
 Si aparecen 'Fase A de husillo' e 'Índice de husillo'
 en el pinout, se debe ingresar la siguiente información:
 
-* 'Usar Spindle-At-Speed' - Con la retroalimentación del encoder se puede hacer que linuxcnc
-espere a que el husillo alcance la velocidad ordenada antes de que se mueva la alimentación. Seleccione esta
-opción y establezca la escala 'close enough'.
+ * 'Usar Spindle-At-Speed' - Con la retroalimentación del encoder se puede hacer que linuxcnc
+   espere a que el husillo alcance la velocidad ordenada antes de que se mueva la alimentación. Seleccione esta
+   opción y establezca la escala 'close enough'.
+ * 'Ganancia del filtro de pantalla de velocidad' - Configuración para ajustar la estabilidad de la
+   visualización de la velocidad del husillo.
+ * 'Ciclos por revolución' - El número de ciclos de la señal A del husillo
+   durante una revolución. Esta opción solo está habilitada cuando
+   una entrada se ha configurado como 'Fase A del husillo'
+ * 'Velocidad máxima en roscado' - La velocidad máxima del husillo utilizada en el roscado.
+   Para un husillo de altas RPM o un encóder de husillo con alta resolución, es obligatorio un valor bajo
+   de 'BASE_PERIOD' .
 
-* 'Ganancia del filtro de pantalla de velocidad' - Configuración para ajustar la estabilidad de la
-visualización de la velocidad del husillo.
- 
-* 'Ciclos por revolución' - El número de ciclos de la señal A del husillo
-durante una revolución. Esta opción solo está habilitada cuando
-una entrada se ha configurado como 'Fase A del husillo'
-
-* 'Velocidad máxima en roscado' - La velocidad máxima del husillo utilizada en el roscado.
-Para un husillo de altas RPM o un encóder de husillo con alta resolución, es obligatorio un valor bajo
-de 'BASE_PERIOD' .
-
-[[sub:determining-spindle-calibration]](((Determinación de la calibración del husillo)))
-
-=== Determinacion de la calibracion del husillo
+[[sub:determining-spindle-calibration]]
+=== Determinacion de la calibracion del husillo(((Determinación de la calibración del husillo)))
 
 Ingrese los siguientes valores en la página Configuración del husillo:
 
@@ -546,7 +517,7 @@ curvas de respuesta, lo mejor es:
 
 - Asegúrese de que las dos velocidades de calibración no estén demasiado juntas en RPM
 - Asegúrese de que las dos velocidades de calibración estén en el rango de velocidades que
-típicamente usará durante el fresado
+  típicamente usará durante el fresado
 
 Por ejemplo, si su husillo va de 0 RPM a 8000 RPM,
 pero generalmente usa velocidades de 400 RPM (10%) a 4000 RPM (100%),
@@ -596,8 +567,8 @@ Una máquina puede ser operada sin interruptores de límite. En este caso, solo
 los límites suaves impiden que la máquina alcance la parada dura.
 Los límites suaves solo funcionan después de que la máquina ha sido puesta a home.
 
-=== Operando sin Switches Home[[sub:Operating-without-Home]]
-(((Operando sin Switches Home)))
+[[sub:Operating-without-Home]]
+=== Operando sin Switches Home(((Operando sin Switches Home)))
 
 Una máquina puede operarse sin interruptores home.
 Si la máquina tiene interruptores de límite, pero no hay interruptores home,
@@ -630,16 +601,14 @@ Sin resistencia, la entrada puede flotar entre encendido y apagado cuando el cir
 Normalmente, para un puerto paralelo, puede usar resistencias de 47k.
 
 . Interruptores normalmente cerrados
-
 Cableado de interruptores N/C en serie (diagrama simplificado)
 
-image::images/switch-nc-series_es.png[align="center", alt = "Interruptores normalmente cerrados"]
+image::images/switch-nc-series_es.png["Interruptores normalmente cerrados",align="center"]
 
 . Interruptores normalmente abiertos
-
 Cableado de interruptores de N/O en paralelo (diagrama simplificado)
 
-image::images/switch-no-parallel_es.png[align="center", alt = "Interruptores normalmente abiertos"]
+image::images/switch-no-parallel_es.png["Interruptores normalmente abiertos",align="center"]
 
 Las siguientes combinaciones de interruptores están permitidas en Stepconf:
 
@@ -650,4 +619,3 @@ Las siguientes combinaciones de interruptores están permitidas en Stepconf:
 * Combinar un interruptor de límite y el interruptor de home para un eje
 
 // vim: set syntax = asciidoc:
-

@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:ini-configuration]]
-
 = Configuración INI
 
 == Los Componentes del Archivo INI
@@ -15,9 +14,7 @@ Un archivo INI típico sigue un diseño bastante simple, que incluye;
 Cada uno de estos elementos está separado en líneas simples. Cada final de línea
 o el carácter de nueva línea crea un nuevo elemento.
 
-(((INI File, Comments)))
-
-=== Comentarios
+=== Comentarios(((INI File, Comments)))
 
 Una línea de comentario se inicia con un ";" o una marca "#". Cuando el lector ini
 ve cualquiera de estas marcas al comienzo de una línea, el resto de la línea es
@@ -322,111 +319,91 @@ las opciones son compatibles con todas las interfaces de usuario.
 Consulte el documento <<cha:axis-gui,GUI AXIS>> para obtener detalles sobre AXIS.
 Consulte el documento <<cha:gmoccapy,gmoccapy>> para obtener detalles sobre Gmoccapy.
 
-* 'DEFAULT_LINEAR_VELOCITY = .25' - La velocidad predeterminada para los movimientos lineales, en
+ * 'DEFAULT_LINEAR_VELOCITY = .25' - La velocidad predeterminada para los movimientos lineales, en
    <<sec:traj-section,unidades máquina>> por segundo.
-
-* 'MIN_VELOCITY = .01' - el valor más bajo aproximado del control deslizante de jog.
-
-* 'MAX_LINEAR_VELOCITY = 1.0' - La velocidad máxima para jog lineal, en unidades de máquina por segundo.
-
-* 'MIN_LINEAR_VELOCITY = .01' - el valor más bajo aproximado del control deslizante de jog lineal.
-
-* 'DEFAULT_ANGULAR_VELOCITY = .25' - La velocidad predeterminada para jog angular, en unidades máquina por segundo.
-
-* 'MIN_ANGULAR_VELOCITY = .01' - el valor más bajo aproximado del control deslizante de jog angular.
-
-* 'MAX_ANGULAR_VELOCITY = 1.0' - La velocidad máxima para jog angular, en unidades de máquina por segundo.
-
-* 'INCREMENTS = 1 mm, .5 in, ...' - Define los incrementos disponibles para jogs incrementales.
-    Los INCREMENTS se pueden usar para ajustar los valores predeterminados.
-    Los valores pueden ser números decimales (por ejemplo, 0.1000) o números fraccionarios (por ejemplo, 1/16),
-    opcionalmente seguido por una unidad (cm, mm, um, inch (pulgadas), in (pulgadas) o mil (milésimas de pulgada)).
-    Si no se especifica una unidad, se supone la unidad de máquina.
-    Las distancias métricas e imperiales se pueden mezclar:
-    INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um es una entrada válida.
-
-* 'GRIDS = 10 mm, 1 in, ...' - Define los valores preestablecidos para las líneas de cuadrícula.
-    El valor se interpreta de la misma manera que 'INCREMENTS'.
-
-* 'OPEN_FILE = /path/absoluto/a/file.ngc' - el archivo que se mostrará en la gráfica de vista previa cuando se inicie AXIS. 
+ * 'MIN_VELOCITY = .01' - el valor más bajo aproximado del control deslizante de jog.
+ * 'MAX_LINEAR_VELOCITY = 1.0' - La velocidad máxima para jog lineal, en unidades de máquina por segundo.
+ * 'MIN_LINEAR_VELOCITY = .01' - el valor más bajo aproximado del control deslizante de jog lineal.
+ * 'DEFAULT_ANGULAR_VELOCITY = .25' - La velocidad predeterminada para jog angular, en unidades máquina por segundo.
+ * 'MIN_ANGULAR_VELOCITY = .01' - el valor más bajo aproximado del control deslizante de jog angular.
+ * 'MAX_ANGULAR_VELOCITY = 1.0' - La velocidad máxima para jog angular, en unidades de máquina por segundo.
+ * 'INCREMENTS = 1 mm, .5 in, ...' - Define los incrementos disponibles para jogs incrementales.
+   Los INCREMENTS se pueden usar para ajustar los valores predeterminados.
+   Los valores pueden ser números decimales (por ejemplo, 0.1000) o números fraccionarios (por ejemplo, 1/16),
+   opcionalmente seguido por una unidad (cm, mm, um, inch (pulgadas), in (pulgadas) o mil (milésimas de pulgada)).
+   Si no se especifica una unidad, se supone la unidad de máquina.
+   Las distancias métricas e imperiales se pueden mezclar:
+   INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um es una entrada válida.
+ * 'GRIDS = 10 mm, 1 in, ...' - Define los valores preestablecidos para las líneas de cuadrícula.
+   El valor se interpreta de la misma manera que 'INCREMENTS'.
+ * 'OPEN_FILE = /path/absoluto/a/file.ngc' - el archivo que se mostrará en la gráfica de vista previa cuando se inicie AXIS. 
    Una cadena en blanco "" no cargará ningún archivo al inicio. gmoccapy no usará esta configuración, ya que
    ofrece una entrada correspondiente en su página de configuración.
-
-* 'EDITOR = gedit' - el editor que se usará al seleccionar Archivo> Editar para editar código G
-    desde el menú de AXIS. Esto debe configurarse para que este elemento de menú
-    trabaje. Otra entrada válida es "gnome-terminal -e vim". Esta entrada no se aplica a gmoccapy, ya que gmoccapy
-    tiene un editor integrado.
-
-* 'TOOL_EDITOR = tooledit' - el editor que se utilizará al editar la tabla de herramientas (por ejemplo, al
-    seleccionar "Archivo> Editar tabla de herramientas ..." en Axis). Otras entradas validas
-    son "gedit", "gnome-terminal -e vim" y "gvim". Esta entrada no se aplica a gmoccapy, ya que gmoccapy
-    tiene un editor integrado.
-
-* 'PYVCP = /filename.xml' - el archivo de descripción del panel PyVCP. Ver el
-    <<cha:pyvcp,Capítulo PyVCP>> para más información.
-
-* 'PYVCP_POSITION = BOTTOM' - la ubicación del panel PyVCP en la interfaz de usuario AXIS.
-    Si se omite esta variable, el panel pasará por defecto al lado derecho. La unica alternativa valida
-    es BOTTOM. Vea el <<cha:pyvcp,Capítulo PyVCP>> para más información.
-
-* 'LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno" con una vista superior y con Radio y Diámetro en el DRO.
-
-* 'BACK_TOOL_LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno de herramienta trasera" con el eje X invertido.
-
-* 'FOAM = 1' - cualquier valor no vacío (incluido "0") hace que Axis cambie la visualización para el modo cortador de espuma.
-
-* 'GEOMETRY = XYZABCUVW' - controla la vista previa y el backplot de movimiento giratorio. Este item consiste
-    en una secuencia de letras de eje, opcionalmente precedidas por un signo "-".
-    Esta secuencia especifica el orden en que se aplica el efecto
-    de cada eje, con un "-" que invierte el sentido de la rotación.
-    La cadena de GEOMETRY adecuada depende de la configuración de la máquina y
-    de la cinemática usada para controlarla. La cadena de ejemplo GEOMETRY = XYZBCUVW
-    es para una máquina de 5 ejes donde la cinemática hace que UVW se muevan en el
-    sistema de coordenadas de la herramienta y XYZ en el sistema de coordenadas
-    del material. El orden de las letras es importante, porque
-    expresa el orden en que se aplican las diferentes transformaciones.
-    Por ejemplo, girar alrededor de C y luego de B es diferente que girar alrededor
-    B y despues de C. GEOMETRY no tiene efecto sin un eje rotativo.
-    Las máquinas de corte de espuma (FOAM = 1) deben especificar "XY;UV" o dejar el valor
-    en blanco aunque este valor se ignore actualmente en el modo de cortador de espuma. UNA
-    versión futura puede definir qué significa ";", pero si lo hace "XY;UV" significará
-    lo mismo que el cortador de espuma actual por defecto.
-
-* 'ARCDIVISION = 64' - Establece la calidad de la vista previa de los arcos. Los arcos se previsualizan dividiendolos
-    en una serie de líneas rectas; un semicírculo se divide en
-    *ARCDIVISIÓN* partes. Los valores más grandes dan una vista previa más precisa, pero
-    tardan más tiempo en cargar y dan como resultado una pantalla más lenta. Los valores más pequeños dan una
-    vista previa menos precisa, pero tarda menos tiempo en cargar y puede resultar en una velocidad más rápida
-    del monitor. El valor predeterminado de 64 significa que un círculo de hasta 3 pulgadas
-    se mostrará con precision de 1 mil (.03%).
-
-* 'MDI_HISTORY_FILE =' - El nombre del archivo de historial MDI local. Si no se especifica, Axis
-    guardará el historial MDI en *.axis_mdi_history* en el directorio de usuario.
-    Esto es útil si tiene múltiples configuraciones en una computadora.
-
-* 'JOG_AXES =' - el orden en que se asignan las teclas de desplazamiento a las letras del eje. Las flechas izquierda
-    y derecha se asignan a la letra del primer eje, arriba y abajo a la segunda, página arriba/página abajo a la tercera,
-    y corchetes izquierdo y derecho a la cuarta. Si no se especifica, el valor predeterminado se determina a partir de
-    los valores de [TRAJ]COORDINATES, [DISPLAY]LATHE y [DISPLAY]FOAM.
-
-* 'JOG_INVERT =' - para cada letra de eje, se invierte la dirección de jog. El valor predeterminado es "X" para tornos y
+ * 'EDITOR = gedit' - el editor que se usará al seleccionar Archivo> Editar para editar código G
+   desde el menú de AXIS. Esto debe configurarse para que este elemento de menú
+   trabaje. Otra entrada válida es "gnome-terminal -e vim". Esta entrada no se aplica a gmoccapy, ya que gmoccapy
+   tiene un editor integrado.
+ * 'TOOL_EDITOR = tooledit' - el editor que se utilizará al editar la tabla de herramientas (por ejemplo, al
+   seleccionar "Archivo> Editar tabla de herramientas ..." en Axis). Otras entradas validas
+   son "gedit", "gnome-terminal -e vim" y "gvim". Esta entrada no se aplica a gmoccapy, ya que gmoccapy
+   tiene un editor integrado.
+ * 'PYVCP = /filename.xml' - el archivo de descripción del panel PyVCP. Ver el
+    capítulo PyVCP para más información.
+//<<cha:pyvcp,Capítulo PyVCP>>
+ * 'PYVCP_POSITION = BOTTOM' - la ubicación del panel PyVCP en la interfaz de usuario AXIS.
+   Si se omite esta variable, el panel pasará por defecto al lado derecho. La unica alternativa valida
+   es BOTTOM. Vea el capítulo PyVCP para más información.
+//<<cha:pyvcp,Capítulo PyVCP
+ * 'LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno" con una vista superior y con Radio y Diámetro en el DRO.
+ * 'BACK_TOOL_LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno de herramienta trasera" con el eje X invertido.
+ * 'FOAM = 1' - cualquier valor no vacío (incluido "0") hace que Axis cambie la visualización para el modo cortador de espuma.
+ * 'GEOMETRY = XYZABCUVW' - controla la vista previa y el backplot de movimiento giratorio. Este item consiste
+   en una secuencia de letras de eje, opcionalmente precedidas por un signo "-".
+   Esta secuencia especifica el orden en que se aplica el efecto
+   de cada eje, con un "-" que invierte el sentido de la rotación.
+   La cadena de GEOMETRY adecuada depende de la configuración de la máquina y
+   de la cinemática usada para controlarla. La cadena de ejemplo GEOMETRY = XYZBCUVW
+   es para una máquina de 5 ejes donde la cinemática hace que UVW se muevan en el
+   sistema de coordenadas de la herramienta y XYZ en el sistema de coordenadas
+   del material. El orden de las letras es importante, porque
+   expresa el orden en que se aplican las diferentes transformaciones.
+   Por ejemplo, girar alrededor de C y luego de B es diferente que girar alrededor
+   B y despues de C. GEOMETRY no tiene efecto sin un eje rotativo.
+   Las máquinas de corte de espuma (FOAM = 1) deben especificar "XY;UV" o dejar el valor
+   en blanco aunque este valor se ignore actualmente en el modo de cortador de espuma. UNA
+   versión futura puede definir qué significa ";", pero si lo hace "XY;UV" significará
+   lo mismo que el cortador de espuma actual por defecto.
+ * 'ARCDIVISION = 64' - Establece la calidad de la vista previa de los arcos. Los arcos se previsualizan dividiendolos
+   en una serie de líneas rectas; un semicírculo se divide en
+   *ARCDIVISIÓN* partes. Los valores más grandes dan una vista previa más precisa, pero
+   tardan más tiempo en cargar y dan como resultado una pantalla más lenta. Los valores más pequeños dan una
+   vista previa menos precisa, pero tarda menos tiempo en cargar y puede resultar en una velocidad más rápida
+   del monitor. El valor predeterminado de 64 significa que un círculo de hasta 3 pulgadas
+   se mostrará con precision de 1 mil (.03%).
+ * 'MDI_HISTORY_FILE =' - El nombre del archivo de historial MDI local. Si no se especifica, Axis
+   guardará el historial MDI en *.axis_mdi_history* en el directorio de usuario.
+   Esto es útil si tiene múltiples configuraciones en una computadora.
+ * 'JOG_AXES =' - el orden en que se asignan las teclas de desplazamiento a las letras del eje. Las flechas izquierda
+   y derecha se asignan a la letra del primer eje, arriba y abajo a la segunda, página arriba/página abajo a la tercera,
+   y corchetes izquierdo y derecho a la cuarta. Si no se especifica, el valor predeterminado se determina a partir de
+   los valores de [TRAJ]COORDINATES, [DISPLAY]LATHE y [DISPLAY]FOAM.
+ * 'JOG_INVERT =' - para cada letra de eje, se invierte la dirección de jog. El valor predeterminado es "X" para tornos y
    en blanco en el resto.
 
 [NOTE]
 La configuración de 'JOG_AXES' y 'JOG_INVERT' se aplican al modo de jog universal por letra de eje de coordenadas
 y están vigentes mientras se encuentra en modo universal después de un recorrido homing exitoso. Cuando se opera en modo articulacion anterior al homing, las teclas de desplazamiento del teclado se asignan en una secuencia fija: izquierda/derecha: joint0, arriba/abajo: joint1, pg arriba/ pg abajo: joint2, corchete izquierdo/derecho: joint3
 
-
 * 'USER_COMMAND_FILE = mycommands.py' - El nombre de un archivo Python opcional, específico de configuración
-   originado por la GUI Axis en lugar del archivo específico del usuario `~/.axisrc`.
+  originado por la GUI Axis en lugar del archivo específico del usuario `~/.axisrc`.
 
 [NOTE]
 El siguiente elemento [DISPLAY] es utilizado únicamente por la interfaz TKLinuxCNC.
 
 * 'HELP_FILE = tklinucnc.txt' - Ruta al archivo de ayuda.
 
-[[sec:filter-section]](((Archivo INI, Sección FILTER)))
-=== Sección [FILTER]
+[[sec:filter-section]]
+=== Sección [FILTER](((Archivo INI, Sección FILTER)))
 
 AXIS y gmoccapy tienen la capacidad de enviar archivos cargados a través de un programa de filtro.
 Este filtro puede hacer cualquier tarea deseada; algo tan simple como asegurarse
@@ -529,12 +506,10 @@ main(sys.argv[1:])
  * 'PARAMETER_FILE = myfile.var' -
    (((ARCHIVO DE PARÁMETROS))) El archivo ubicado en el mismo directorio que el archivo ini
    que contiene los parámetros utilizados por el intérprete (guardado entre ejecuciones).
-
  * 'ORIENT_OFFSET = 0' -
    (((ORIENT OFFSET))) Un valor float agregado al parámetro R
    de una operación <<mcode:m19,M19 Orientar Husillo>>. Se usa para definir una posición cero
    arbitraria independientemente de la orientación de montaje del codificador.
-
  * 'RS274NGC_STARTUP_CODE = G17 G20 G40 G49 G64 P0.001 G80 G90 G92 G94 G97 G98' -
    (((CÓDIGO DE INICIO RS274NGC))) Una cadena de códigos NC que inicializa el intérprete.
    Esto no es un sustituto para especificar códigos g modales
@@ -569,51 +544,45 @@ El primer ejecutable M1xx encontrado en la búsqueda se usa para cada M1xx.
 
 [NOTE]
 El número máximo de directorios USER_M_PATH se define en tiempo de compilación
- (predeterminado: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
+(predeterminado: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
 * 'INI_VARS = 1' Predeterminado 1 +
   Permite que los programas de código G lean valores del archivo INI usando el formato
   #<_ini[sección]nombre>. Ver <<sec:overview-parameters,parámetros del código G>>
-
 * 'HAL_PIN_VARS = 1' Predeterminado 1 +
   Permite que los programas de código G lean los valores de los pines HAL usando el formato
   #<_hal[Elemento Hal]> El acceso a esta variable es de solo lectura.
   Consulte <<sec:overview-parameters,parámetros de código G>> para obtener más detalles y una
   advertencia importante.
-
 * 'RETAIN_G43 = 0' Predeterminado 0 +
   Cuando está configurado, puede activar G43 después de cargar la primera herramienta,
   y luego despreocuparse por eso a través del programa. Cuando usted
   finalmente descargue la última herramienta, el modo G43 se cancela.
-
 * 'OWORD_NARGS = 0' Predeterminado 0 +
   Si esta función está habilitada, una subrutina llamada puede determinar el
   número de parámetros posicionales reales pasados ​​al inspeccionar el parámetro +#<n_args>+.
-
 * 'NO_DOWNCASE_OWORD = 0' Predeterminado 0 +
   Conservar mayúsculas y minúsculas en los nombres O-word dentro de los comentarios si está configurado, permite leer
   elementos HAL de mayúsculas y minúsculas en comentarios estructurados como
   '(debug, #<_hal[MixedCaseItem])'..
-
 * 'OWORD_WARNONLY = 0' Predeterminado 0 +
   Advertir en lugar de error en caso de errores en las subrutinas O-word.
 
-[NOTE] Las seis opciones anteriores fueron controladas por la máscara de bits 'FEATURES'
+[NOTE]
+Las seis opciones anteriores fueron controladas por la máscara de bits 'FEATURES'
 en versiones de LinuxCNC anteriores a 2.8. Esta etiqueta INI ya no trabaja.
 
 [NOTE]
 [WIZARD]WIZARD_ROOT es una ruta de búsqueda válida pero el asistente no se ha implementado por completo
 y los resultados de su uso son impredecibles.
 
-* 'REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure'
-Vea el capítulo  <<cha:remap, Remap Extender G-Code >> para más detalles.
+ * 'REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure'
+   Vea el capítulo  <<cha:remap, Remap Extender G-Code >> para más detalles.
+ * 'ON_ABORT_COMMAND = O <on_abort> call'
+   Vea el capítulo <<cha:remap,Remap- Extender G-Code>> para más detalles.
 
-* 'ON_ABORT_COMMAND = O <on_abort> call'
-Vea el capítulo <<cha:remap,Remap- Extender G-Code>> para más detalles.
-
-[[sec:emcmot-section]] (((Archivo INI, Sección EMCMOT)))
-
-=== Sección [EMCMOT]
+[[sec:emcmot-section]]
+=== Sección [EMCMOT](((Archivo INI, Sección EMCMOT)))
 
 Esta sección es una sección personalizada y LinuxCNC no la utiliza directamente. Muchas
 configuraciones utilizan valores de esta sección para cargar el controlador de movimiento.
@@ -621,65 +590,58 @@ Para obtener más información sobre el controlador de movimiento, consulte
 la sección <<sec:motion,Motion>>.
 
 * 'EMCMOT = motmod' - el nombre del controlador de movimiento generalmente se usa aquí.
-
 * 'BASE_PERIOD = 50000' - el período de la tarea 'Base' en nanosegundos.
-
 * 'SERVO_PERIOD = 1000000' - Este es el período de tarea "Servo" en nanosegundos.
-
 * 'TRAJ_PERIOD = 100000' - este es el período de la tarea 'Planificador de trayectoria' en
   nanosegundos
-
 * 'COMM_TIMEOUT = 1.0' - Número de segundos para esperar a Motion (la
   parte en tiempo real del controlador de movimiento) para acusar recibo de
   mensajes desde Task (la parte no en tiempo real del controlador de movimiento).
 
-[[sec:task-section]](((Archivo INI, Sección TAREA)))
+[[sec:task-section]]
+=== Sección [TASK](((Archivo INI, Sección TAREA)))
 
-=== Sección [TASK]
+ * 'TASK = milltask' -
+   Especifica el nombre del ejecutable 'task'. El ejecutable 'task' hace varias
+   cosas, como comunicarse con las interfaces de usuario a través de NML, comunicarse con el
+   planificador de movimiento en tiempo real sobre memoria compartida no HAL e interpretar gcode.
+   Actualmente solo hay una tarea ejecutable que tiene sentido para el 99.9% de usuarios, milltask.
+ * 'CYCLE_TIME = 0.010' -
+   El período, en segundos, en el que se ejecutará TASK. Este parámetro
+   afecta el intervalo de sondeo cuando se espera que se complete el movimiento, cuando
+   se ejecuta una instrucción de pausa y al aceptar un comando desde la interfaz de usuario.
+   Por lo general, no es necesario cambiar este número.
 
-* 'TASK = milltask' -
-    Especifica el nombre del ejecutable 'task'. El ejecutable 'task' hace varias
-    cosas, como comunicarse con las interfaces de usuario a través de NML, comunicarse con el
-    planificador de movimiento en tiempo real sobre memoria compartida no HAL e interpretar gcode.
-    Actualmente solo hay una tarea ejecutable que tiene sentido para el 99.9% de usuarios, milltask.
-    
-* 'CYCLE_TIME = 0.010' -
-    El período, en segundos, en el que se ejecutará TASK. Este parámetro
-    afecta el intervalo de sondeo cuando se espera que se complete el movimiento, cuando
-    se ejecuta una instrucción de pausa y al aceptar un comando desde la interfaz de usuario.
-    Por lo general, no es necesario cambiar este número.
+[[sec:hal-section]]
+=== Sección [HAL](((Archivo INI, Sección HAL)))
 
-[[sec:hal-section]](((Archivo INI, Sección HAL)))
+ * 'HALFILE = example.hal' - ejecuta el archivo 'example.hal' al inicio.
+   Si se especifica 'HALFILE' varias veces, los archivos se ejecutan en el orden en que
+   aparecer en el archivo ini. Casi todas las configuraciones tendrán al menos
+   un 'HALFILE', y los sistemas paso a paso suelen tener dos de estos archivos, uno que
+   especifica la configuración paso a paso genérica ('core_stepper.hal') y
+   uno que especifica los pines de la máquina ('xxx_pinout.hal').
+   HALFILES se encuentran mediante una búsqueda. Si el archivo nombrado se encuentra en el directorio
+   que contiene el archivo ini, se utiliza. Si el archivo nombrado no se encuentra en este
+   directorio de archivos ini, se realiza una búsqueda utilizando la biblioteca de sistema de halfiles.
+   Un HALFILE también se puede especificar como una ruta absoluta (cuando el nombre comienza con "/"). No se recomiendan
+   rutas absolutas ya que su uso puede limitar la reubicación de configuraciones.
 
-=== Sección [HAL]
+ * 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Ejecuta el archivo tcl 'texample.tcl'
+   al inicio con arg1, arg2, etc. como ::argv list. Los archivos con un sufijo .tcl son
+   procesados como se indica arriba, pero usan haltcl para procesado. Vea el capitulo
+   <<cha:haltcl,HALTCL>> para más información.
 
-* 'HALFILE = example.hal' - ejecuta el archivo 'example.hal' al inicio.
-    Si se especifica 'HALFILE' varias veces, los archivos se ejecutan en el orden en que
-    aparecer en el archivo ini. Casi todas las configuraciones tendrán al menos
-    un 'HALFILE', y los sistemas paso a paso suelen tener dos de estos archivos, uno que
-    especifica la configuración paso a paso genérica ('core_stepper.hal') y
-    uno que especifica los pines de la máquina ('xxx_pinout.hal').
-    HALFILES se encuentran mediante una búsqueda. Si el archivo nombrado se encuentra en el directorio
-    que contiene el archivo ini, se utiliza. Si el archivo nombrado no se encuentra en este
-    directorio de archivos ini, se realiza una búsqueda utilizando la biblioteca de sistema de halfiles.
-    Un HALFILE también se puede especificar como una ruta absoluta (cuando el nombre comienza con "/"). No se recomiendan
-    rutas absolutas ya que su uso puede limitar la reubicación de configuraciones.
+ * 'HALFILE = LIB:sys_example.hal' - Ejecuta el archivo de la biblioteca de sistema 'sys_example.hal'
+   al inicio.
+   El uso explícito del prefijo LIB:  provoca el uso de la biblioteca del sistema HALFILE sin
+   buscar en el directorio de archivos ini.
 
-* 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Ejecuta el archivo tcl 'texample.tcl'
-    al inicio con arg1, arg2, etc. como ::argv list. Los archivos con un sufijo .tcl son
-    procesados como se indica arriba, pero usan haltcl para procesado. Vea el capitulo
-    <<cha:haltcl,HALTCL>> para más información.
+ * 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Ejecuta la biblioteca del sistema
+   archivo 'sys_texample.tcl' al inicio.
+   El uso explícito de LIB: el prefijo provoca el uso de la biblioteca del sistema HALFILE sin
+   buscando en el directorio de archivos ini.
 
-* 'HALFILE = LIB:sys_example.hal' - Ejecuta el archivo de la biblioteca de sistema 'sys_example.hal'
-    al inicio.
-    El uso explícito del prefijo LIB:  provoca el uso de la biblioteca del sistema HALFILE sin
-    buscar en el directorio de archivos ini.
-
-* 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Ejecuta la biblioteca del sistema
-    archivo 'sys_texample.tcl' al inicio.
-    El uso explícito de LIB: el prefijo provoca el uso de la biblioteca del sistema HALFILE sin
-    buscando en el directorio de archivos ini.
-+
 Los elementos HALFILE especifican archivos que cargan componentes Hal y generan conexiones de señales
 entre pines de componentes. Los errores comunes son 1) omisión de
 la declaración addf necesaria para agregar las funciones de un componente a un hilo, 2)
@@ -688,63 +650,63 @@ casi siempre es un error. Las señales generalmente incluyen una o más conexion
 y una sola salida (pero ambas no son estrictamente necesarias).
 Se proporciona un archivo de biblioteca de sistema para verificar estas condiciones y
 informar a stdout y en una ventana emergente gui:
+
 ----
     HALFILE = LIB:halcheck.tcl [nopopup]
 ----
+
 [NOTE]
 La línea LIB:halcheck.tcl debería ser el último [HAL]HALFILE.
 Especifique la opción 'nopopup' para suprimir el mensaje emergente y permitir el inicio inmediato.
 Las conexiones realizadas con un POSTGUI_HALFILE no serán chequeadas.
 
 
-* 'TWOPASS = ON'- utilice el procesamiento de dos pasos para cargar componentes HAL. Con el procesamiento TWOPASS,
-    las líneas [HAL]HALFILE= se procesan en dos pasadas. En el primer pase (pass0), 
-    se leen todos los HALFILES y se acumulan múltiples aspectos de los comandos loadrt y loadusr.
-    Estos comandos de carga acumulada se ejecutan al final de pass0. Esta acumulación permite
-    líneas de carga que se especificarán más de una vez para un componente dado (siempre que
-    los nombres names= utilizados sean únicos en cada uso). En el segundo pase (pase1), los
-    HALFILES son releídos y todos los comandos excepto los comandos de carga ejecutados previamente
-    son ejecutados
+ * 'TWOPASS = ON'- utilice el procesamiento de dos pasos para cargar componentes HAL. Con el procesamiento TWOPASS,
+   las líneas [HAL]HALFILE= se procesan en dos pasadas. En el primer pase (pass0), 
+   se leen todos los HALFILES y se acumulan múltiples aspectos de los comandos loadrt y loadusr.
+   Estos comandos de carga acumulada se ejecutan al final de pass0. Esta acumulación permite
+   líneas de carga que se especificarán más de una vez para un componente dado (siempre que
+   los nombres names= utilizados sean únicos en cada uso). En el segundo pase (pase1), los
+   HALFILES son releídos y todos los comandos excepto los comandos de carga ejecutados previamente
+   son ejecutados
 
-* 'TWOPASS = nodelete verbose' - la función TWOPASS se puede activar con cualquier
-  cadena no nula que incluya las palabras clave verbose y nodelete. 
-  la palabra clave verbose provoca la impresión de detalles en la salida estandar. La palabra clave nodelete conserva
-  archivos temporales en /tmp.
-+
+ * 'TWOPASS = nodelete verbose' - la función TWOPASS se puede activar con cualquier
+   cadena no nula que incluya las palabras clave verbose y nodelete. 
+   la palabra clave verbose provoca la impresión de detalles en la salida estandar. La palabra clave nodelete conserva
+   archivos temporales en /tmp.
+
 Para obtener más información, consulte el capítulo <<cha:hal-twopass,Hal TWOPASS>>.
 
-* 'HALCMD = command' - Ejecuta 'command' como un solo comando HAL.
+ * 'HALCMD = command' - Ejecuta 'command' como un solo comando HAL.
    Si se especifica 'HALCMD' varias veces, los comandos se ejecutan en el orden en que
-    aparecen en el archivo ini. Las líneas 'HALCMD' se ejecutan después de todas
-    las líneas 'HALFILE'.
+   aparecen en el archivo ini. Las líneas 'HALCMD' se ejecutan después de todas
+   las líneas 'HALFILE'.
 
-* 'SHUTDOWN = shutdown.hal' - Ejecuta el archivo 'shutdown.hal' cuando se sale LinuxCNC.
+ * 'SHUTDOWN = shutdown.hal' - Ejecuta el archivo 'shutdown.hal' cuando se sale LinuxCNC.
    Dependiendo de los controladores de hardware utilizados, esto puede permitir configurar salidas a
-    valores definidos cuando LinuxCNC sale normalmente. Sin embargo, ya que
-    no se garantiza que este archivo se ejecutará (por ejemplo, en el caso de un
-    bloqueo de la computadora) no es un reemplazo para una cadena de parada física adecuada
-    u otras protecciones contra fallos de software.
+   valores definidos cuando LinuxCNC sale normalmente. Sin embargo, ya que
+   no se garantiza que este archivo se ejecutará (por ejemplo, en el caso de un
+   bloqueo de la computadora) no es un reemplazo para una cadena de parada física adecuada
+   u otras protecciones contra fallos de software.
 
-* 'POSTGUI_HALFILE = example2.hal' - Ejecuta 'example2.hal' después de que la GUI haya creado
-  sus pines HAL. Algunas GUI crean pines hal y admiten el uso de un halfile postgui
-  para usarlos. Las GUI que admiten halfiles postgui incluyen Touchy, Axis, Gscreen y
-  gmoccapy.
+ * 'POSTGUI_HALFILE = example2.hal' - Ejecuta 'example2.hal' después de que la GUI haya creado
+   sus pines HAL. Algunas GUI crean pines hal y admiten el uso de un halfile postgui
+   para usarlos. Las GUI que admiten halfiles postgui incluyen Touchy, Axis, Gscreen y
+   gmoccapy.
 
   Vea la sección <<sec:pyvcp-with-axis,pyVCP con Axis>> para más información.
 
-* 'HALUI = halui' - agrega los pines de la interfaz de usuario de HAL. Para más información, ver
-   el capítulo <<cha:hal-user-interface,Interfaz de usuario HAL>>.
+ * 'HALUI = halui' - agrega los pines de la interfaz de usuario de HAL. Para más información, ver
+   el capítulo "Interfaz de usuario HAL".
 
 [[sec:halui-section]](((Archivo INI, Sección HALUI)))
-
 === Sección [HALUI]
 
 * 'MDI_COMMAND = G53 G0 X0 Y0 Z0' -
-     Se puede ejecutar un comando MDI utilizando halui.mdi-command-00. Incremente
-    el número para cada comando que se enumera en la sección [HALUI].
+  Se puede ejecutar un comando MDI utilizando halui.mdi-command-00. Incremente
+  el número para cada comando que se enumera en la sección [HALUI].
 
 [[sec:applications-section]](((Archivo INI, Sección de APLICACIONES)))
-
 === Sección [APPLICATIONS]
 
 LinuxCNC puede iniciar otras aplicaciones antes de que se inicie la interfaz gráfica de usuario especificada.
@@ -1511,6 +1473,4 @@ STEPGEN_MAXVEL no mejora el ajuste del bucle de posición de stepgen.
   Esto es para máquinas que no pueden volver a colocar la herramienta en la ranura
   de la que vino. Por ejemplo, máquinas que intercambian la herramienta en la
   ranura activa con la herramienta en el husillo.
-
-
 
