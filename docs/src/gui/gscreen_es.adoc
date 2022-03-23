@@ -189,7 +189,7 @@ Recuerde, si utiliza una opción de pantalla personalizada, USTED es responsable
 
 == Construyendo una simple pantalla limpia personalizada
 
-image::images/tester.png[align="center","pantalla utilizable simple"]
+image::images/tester.png["pantalla utilizable simple",align="center"]
 
 Permite construir una pantalla usable simple. Construya esto en el editor de Glade (si usa un
 RIP ejecutelo desde un terminal después de usar .scripts/rip-environment).
@@ -213,7 +213,7 @@ RIP ejecutelo desde un terminal después de usar .scripts/rip-environment).
 * Los botones en este ejemplo son botones normales, no botones HAL. Nosotros no
   necesitamos los pines HAL.
 
-image::images/tester_editor.png[align="center","Glade editor tester.glade"]
+image::images/tester_editor.png["Glade editor tester.glade",align="center"]
 
 En esta pantalla estamos usando VCP_actions para comunicar a LinuxCNC las acciones que
 queremos. Esto nos permite funciones estándar sin agregar código python en el

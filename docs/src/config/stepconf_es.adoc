@@ -1,8 +1,7 @@
 :lang: es
 
-= Asistente de configuracion Stepconf 
-
 [[cha:stepconf-wizard]]
+= Asistente de configuracion Stepconf 
 
 == Introduccion
 
@@ -24,78 +23,66 @@ La extension del archivo es *.stepconf*.
 El asistente Stepconf necesita una resolucion de pantalla de al menos 800 x 600
 para que los botones de la parte baja de la pantalla sean visibles.
 
-
-== Pagina de entrada[[sec:Entry-Page]]
+== Pagina de entrada
 
 .Pagina inicial[[cap:init-Page]]
-
-image::images/stepconf-start_1_es.png[align="center", alt="Pagina inicial"]
+image::images/stepconf-start_1_es.png["Pagina inicial",align="center"]
 
 .Pimera Pagina[[cap:Entry-Page]]
-
-image::images/stepconf-start_2_es.png[align="center", alt="Pagina de entrada"]
+image::images/stepconf-start_2_es.png["Pagina de entrada",align="center"]
 
 Los tres primeros botones radio son autoexplicativos:
 
-* 'Crear una nueva configuración' - 
-    Crea una configuracion nueva.
-
-* 'Modificar una configuracion ya creada...' - 
-    Modifica una configuracion existente.
-    Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo
-    y usted debera seleccionar el archivo con extension .stepconf que desea modificar.
-    Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini, estas modificaciones se perderan.
-    Las modificaciones en los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
-    asistente Stepconf. Stepconf resaltara la ultima configuracion que se construyo.
-
-* 'Importar un archivo Mach' - 
-    Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo.
-    Seleccione un archivo de configuración de Mach; LinuxCNC intentará convertirlo en un archivo de configuración
-    apropiado para si mismo.
-    Después de la importación, pase por las páginas de stepconf para confirmar/modificar las entradas.
-    El archivo mach xml original no se cambiará.
+ * 'Crear una nueva configuración' - 
+   Crea una configuracion nueva.
+ * 'Modificar una configuracion ya creada...' - 
+   Modifica una configuracion existente.
+   Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo
+   y usted debera seleccionar el archivo con extension .stepconf que desea modificar.
+   Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini, estas modificaciones se perderan.
+   Las modificaciones en los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
+   asistente Stepconf. Stepconf resaltara la ultima configuracion que se construyo.
+ * 'Importar un archivo Mach' - 
+   Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo.
+   Seleccione un archivo de configuración de Mach; LinuxCNC intentará convertirlo en un archivo de configuración
+   apropiado para si mismo.
+   Después de la importación, pase por las páginas de stepconf para confirmar/modificar las entradas.
+   El archivo mach xml original no se cambiará.
 
 Las siguientes opciones se registrarán en un archivo de preferencias para la próxima ejecución de Stepconf.
 
-* 'Crear Atajo en Escritorio' - 
-    Se generara en su escritorio un enlace a los archivos. 
-
-* 'Crear un Lanzador en Escritorio' - 
-    Se generara un lanzador en su escritorio para iniciar la aplicacion.
-
-* 'Crear Hardware Simulado' - 
-    Permite crear configuraciones para pruebas,
-    incluso sin tener el hardware apropiado.
-
+ * 'Crear Atajo en Escritorio' - 
+   Se generara en su escritorio un enlace a los archivos. 
+ * 'Crear un Lanzador en Escritorio' - 
+   Se generara un lanzador en su escritorio para iniciar la aplicacion.
+ * 'Crear Hardware Simulado' - 
+   Permite crear configuraciones para pruebas,
+   incluso sin tener el hardware apropiado.
 
 == Informacion Basica[[sec:Basic-Information]]
 
 .Informacion Basica[[cap:Basic-Information-Page]]
+image::images/stepconf-base_es.png["Informacion Basica",align="center"]
 
-image::images/stepconf-base_es.png[align="center", alt="Informacion Basica"]
-
-* 'Nombre de la maquina' - 
-    (((Nombre de la Maquina)))
-    Seleccione un nombre para su maquina.
-    Utilice solo letras mayusculas, minusculas, digitos, '-' y '_'.
-
-* 'Configuracion de Ejes' - 
-    (((Configuracion de Ejes)))
-    Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
-
-* 'Unidades Maquina' - 
-    (((Unidades Maquina)))
-    Seleccione pulgadas o milimetros. Todas las preguntas posteriores
-    (tales como el largo de los ejes, el paso de los tornillos, etc)
-    deberan ser contestadas utilizando las unidades seleccionadas.
-
-* 'Tipo de Driver' - 
-    (((Tipo de Driver)))
-    Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
-    En cualquier otro caso, busque los 4 valores de tiempo necesarios.
-    Utilize los manuales de su controlador y rellene los campos.
-    Si sus manuales le dan los datos en microsegundos multipliquelos por 1000 para nanosegundos.
-    Por ejemplo, si el manual marca 4.5 us, escriba 4500 ns.
+ * 'Nombre de la maquina' - 
+   (((Nombre de la Maquina)))
+   Seleccione un nombre para su maquina.
+   Utilice solo letras mayusculas, minusculas, digitos, '-' y '_'.
+ * 'Configuracion de Ejes' - 
+   (((Configuracion de Ejes)))
+   Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
+ * 'Unidades Maquina' - 
+   (((Unidades Maquina)))
+   Seleccione pulgadas o milimetros. Todas las preguntas posteriores
+   (tales como el largo de los ejes, el paso de los tornillos, etc)
+   deberan ser contestadas utilizando las unidades seleccionadas.
+ * 'Tipo de Driver' - 
+   (((Tipo de Driver)))
+   Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
+   En cualquier otro caso, busque los 4 valores de tiempo necesarios.
+   Utilize los manuales de su controlador y rellene los campos.
+   Si sus manuales le dan los datos en microsegundos multipliquelos por 1000 para nanosegundos.
+   Por ejemplo, si el manual marca 4.5 us, escriba 4500 ns.
 
 En la pagina wiki de LinuxCNC.org puede ser consultada una lista de controladores populares, asi como sus tiempos, en  http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Temporizado de Drivers Stepper]. 
 
@@ -105,42 +92,33 @@ pueden requerir diferentes valores de tiempo a los indicados para su controlador
 Puede ser el caso que se requiera agregar tiempo extra a los valores de temporizacion para compensar los filtros o aislamientos.
 La seccion de seleccion de configuracion tiene maquinas de la marca Sherline ya configuradas para su uso en caso de que posea una de estas.
 
-* 'Step Time' - 
-    Tiempo del pulso de paso "Encendido" en nanosegundos.
-
-* 'Step Space' - 
-    Tiempo minimo entre dos pulsos de paso en nanosegundos.
-
-* 'Direction Hold' - 
-    Tiempo que debe ser mantenido activo el pin de direccion despues de ordenar cambio de direccion, en nanosegundos.
-
-* 'Direction Setup' - 
-    Tiempo debe preceder a un cambio de direccion despues del ultimo pulso de paso en la direccion anterior.
-
-* 'Primer Parport' - 
-    Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378 (puerto no PCI). 
-
-* 'Segundo Parport' - 
-    En caso de ser necesario especificar un puerto paralelo extra, introduca la direccion
-    y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
-    vea la seccion Port Address en el manual de integrador (trate con 0x278 o 0x3BC para puertos no PCI)
-
-
-* 'Maximo Jitter en Periodo Base' - 
-    (((Jitter Maximo del Periodo Base)))
-    Introduzca el resultado de la prueba de latencia.
-    Para correr la prueba de latencia presione el boton "Test Jitter Periodo Base".
-    Vea la seccion de la prueba de latencia para mas detalles.
-
-* 'Tasa Max de Pasos' - 
-    (((Max Step Rate)))
-    Stepconf calculara automaticamente la tasa maxima de pulsos de pasos
-    basandose en las caracteristicas del controlador del motor y en el resultado de la prueba de latencia.
-
-* 'Periodo Base Mínimo' - 
-    (((Min Base Period)))
-    Stepconf calculara automaticamente el periodo base minimo
-    basandose en las caracteristicas del controlador del motor y el resultado de la prueba de latencia.    
+ * 'Step Time' - 
+   Tiempo del pulso de paso "Encendido" en nanosegundos.
+ * 'Step Space' - 
+   Tiempo minimo entre dos pulsos de paso en nanosegundos.
+ * 'Direction Hold' - 
+   Tiempo que debe ser mantenido activo el pin de direccion despues de ordenar cambio de direccion, en nanosegundos.
+ * 'Direction Setup' - 
+   Tiempo debe preceder a un cambio de direccion despues del ultimo pulso de paso en la direccion anterior.
+ * 'Primer Parport' - 
+   Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378 (puerto no PCI). 
+ * 'Segundo Parport' - 
+   En caso de ser necesario especificar un puerto paralelo extra, introduca la direccion
+   y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
+   vea la seccion Port Address en el manual de integrador (trate con 0x278 o 0x3BC para puertos no PCI)
+ * 'Maximo Jitter en Periodo Base' - 
+   (((Jitter Maximo del Periodo Base)))
+   Introduzca el resultado de la prueba de latencia.
+   Para correr la prueba de latencia presione el boton "Test Jitter Periodo Base".
+   Vea la seccion de la prueba de latencia para mas detalles.
+ * 'Tasa Max de Pasos' - 
+   (((Max Step Rate)))
+   Stepconf calculara automaticamente la tasa maxima de pulsos de pasos
+   basandose en las caracteristicas del controlador del motor y en el resultado de la prueba de latencia.
+ * 'Periodo Base Mínimo' - 
+   (((Min Base Period)))
+   Stepconf calculara automaticamente el periodo base minimo
+   basandose en las caracteristicas del controlador del motor y el resultado de la prueba de latencia.    
 
 == Prueba de latencia[[sub:latency-test]](((Latency Test)))
 
@@ -157,8 +135,7 @@ la computadora; no se requiere que conecte los controladores de motores.
 No ejecute LinuxCNC mientras realiza la prueba de latencia.
 
 .Prueba de Latencia
-
-image::images/latency-test_en.png[align="center", alt="Prueba de Latencia"]
+image::images/latency-test_en.png["Prueba de Latencia",align="center"]
 
 La latencia es el tiempo que le tomara a una PC concreta detener lo que esta haciendo
 y responder a una solicitud externa. En este caso, la solicitud es
@@ -195,12 +172,10 @@ de pulsos de paso por software. Numeros superiores a 1 milisegundo (1 000 000 na
 significan que la PC no es una buena candidata para ejecutar LinuxCNC, sin importar si se
 usa generacion de pulsos de paso por software o no.
 
+== Ajustes del puerto Paralelo(((Parallel Port Setup)))
 
-== Ajustes del puerto Paralelo[[sec:Parallel-Port-Setup]](((Parallel Port Setup)))
-
-.Pagina de ajuste del Puerto Paralelo[[cap:Parallel-Port-Setup]]
-
-image::images/stepconf-parallel-1_es.png[align="center", alt="Pagina de ajuste del Puerto Paralelo 1"]
+.Pagina de ajuste del Puerto Paralelo
+image::images/stepconf-parallel-1_es.png["Pagina de ajuste del Puerto Paralelo 1",align="center"]
 
 Para cada pin se debera seleccionar la señal de control
 que concuerde con la configuracion del puerto.
@@ -208,35 +183,30 @@ que concuerde con la configuracion del puerto.
 Active la casilla "invert" si la señal de control requiere
 ser invertida (0V para activo/Verdadero, 5v para inactivo/Falso)
 
-* 'Esquemas de pines predefinidos' - 
+ * 'Esquemas de pines predefinidos' - 
    Se configuraran automaticamente los pines del 2 al 9 de acuerdo al estandar
    de las maquinas Sherline (Direccion en los pines 2, 4, 6, 8) o Xylotex (Direccion en los
    pines 3, 5, 7, 9).
-
-* 'Entradas y Salidas' - 
-    Si el pin no sera utilizado como entrada o salida, seleccionarlo como "Sin uso".
-
-* 'Señal de Paro Externo (E stop)' - 
-    Esta señal pude ser seleccionada en la casilla desplegable.
-    Una cadena de señal de paro tipica utiliza solo contactos en serie normalmente cerrados.
-
-* 'Posicion home y limites de seguridad (Homing & Limit Switches) - 
-    Estos pines pueden ser seleccionados para la mayoria de las configuraciones
-    utilizando la casilla desplegable.
-
-* 'Bomba de Carga (Charge Pump)' - 
-    Si su controlador de motor requiere de una señal de bomba de carga,
-    simplemente seleccione esta opcion de la lista desplegable y conecte la señal
-    al pin seleccionado.
-    La salida de la bomba de carga sera conectada a la tarea base por el programa Stepconf.
-    La salida de bomba de carga sera aproximadamente 1/2 de la maxima tasa de generacion
-    de pulsos de paso mostrados en la pagina de configuracion basica.
+ * 'Entradas y Salidas' - 
+   Si el pin no sera utilizado como entrada o salida, seleccionarlo como "Sin uso".
+ * 'Señal de Paro Externo (E stop)' - 
+   Esta señal pude ser seleccionada en la casilla desplegable.
+   Una cadena de señal de paro tipica utiliza solo contactos en serie normalmente cerrados.
+ * 'Posicion home y limites de seguridad (Homing & Limit Switches)' - 
+   Estos pines pueden ser seleccionados para la mayoria de las configuraciones
+   utilizando la casilla desplegable.
+ * 'Bomba de Carga (Charge Pump)' - 
+   Si su controlador de motor requiere de una señal de bomba de carga,
+   simplemente seleccione esta opcion de la lista desplegable y conecte la señal
+   al pin seleccionado.
+   La salida de la bomba de carga sera conectada a la tarea base por el programa Stepconf.
+   La salida de bomba de carga sera aproximadamente 1/2 de la maxima tasa de generacion
+   de pulsos de paso mostrados en la pagina de configuracion basica.
 
 == Configuracion del puerto paralelo 2
 
 .Página de configuración del puerto paralelo 2
-
-image::images/stepconf-parallel-2_es.png[align="center", alt="Página de configuración del puerto paralelo 2"]
+image::images/stepconf-parallel-2_es.png["Página de configuración del puerto paralelo 2",align="center"]
 
 El segundo puerto paralelo (si está seleccionado) puede configurarse y asignar sus pines en esta página. +
 No se pueden seleccionar señales de paso y dirección. +
@@ -247,7 +217,7 @@ Puede especificar la dirección como hexadecimal (a menudo 0x378) o como el núm
 
 .Configuracion avanzada
 
-image::images/stepconf-options_es.png[align="center", alt="Configuración avanzada"]
+image::images/stepconf-options_es.png["Configuración avanzada",align="center"]
 
 * 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
   capitulo "HALUI" para más información.
@@ -567,7 +537,6 @@ Una máquina puede ser operada sin interruptores de límite. En este caso, solo
 los límites suaves impiden que la máquina alcance la parada dura.
 Los límites suaves solo funcionan después de que la máquina ha sido puesta a home.
 
-[[sub:Operating-without-Home]]
 === Operando sin Switches Home(((Operando sin Switches Home)))
 
 Una máquina puede operarse sin interruptores home.

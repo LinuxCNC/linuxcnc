@@ -1,6 +1,6 @@
 :lang: en
 
-[[cha:stepconf-wizard]]
+[[cha:stepconf-wizard]](((Stepper Configuration Wizard)))
 = Stepper Configuration Wizard
 
 == Introduction
@@ -25,7 +25,6 @@ The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 
 == Start Page
 
-[[cap:init-Page]]
 .Entry Page
 image::images/stepconf-start_en.png["Entry Page",align="center"]
 
@@ -334,7 +333,6 @@ If 'Spindle PWM' appears on the pinout, the following information should be ente
 * 'PWM Rate' - The 'carrier frequency' of the PWM signal to the spindle. Enter
   '0' for PDM mode, which is useful for generating an analog control voltage.
   Refer to the documentation for your spindle controller for the appropriate value.
-
 * 'Speed 1 and 2, PWM 1 and 2' - The generated configuration file uses a simple
   linear relationship to determine the PWM value for a given RPM value. If the
   values are not known, they can be determined. For more information see
@@ -347,10 +345,8 @@ LinuxCNC via HAL, LinuxCNC supports lathe threading.
 These signals are:
 
 * 'Spindle Index' - Is a pulse that occurs once per revolution of the spindle.
-
 * 'Spindle Phase A' - This is a pulse that occurs in multiple equally-spaced
   locations as the spindle turns.
-
 * 'Spindle Phase B (optional)' - This is a second pulse that occurs, but with
   an offset from Spindle Phase A. The advantages to using both A and B are
   direction sensing, increased noise immunity, and increased resolution.
@@ -361,13 +357,10 @@ on the pinout, the following information should be entered:
 * 'Use Spindle-At-Speed' - With encoder feedback one can choose to have linuxcnc
   wait for the spindle to reach the commanded speed before feed moves. Select this
   option and set the 'close enough' scale.
-
 * 'Speed Display Filter Gain' - Setting for adjusting the stability of the visual spindle speed display.
- 
 * 'Cycles per revolution' - The number of cycles of the 'Spindle A' signal
   during one revolution of the spindle. This option is only enabled when an
   input has been set to 'Spindle Phase A'
-
 * 'Maximum speed in thread' - The maximum spindle speed used in threading.
   For a high spindle RPM or a spindle encoder with high resolution, a low value
   of 'BASE_PERIOD' is required.
@@ -407,19 +400,15 @@ then find the PWM values that give 1600 RPM (40%) and 2800 RPM (70%).
 == Options
 
 //.Options Configuration
-
 image::images/stepconf-options_en.png["Options Configuration",align="center"]
 
 * 'Include Halui' - This will add the Halui user interface component. See the
   <<cha:hal-user-interface,HALUI Chapter>> for more information on.
-
 * 'Include pyVCP' - This option adds the pyVCP panel base file or a sample file
   to work on. See the <<cha:pyvcp,PyVCP Chapter>> for more information.
-
 * 'Include ClassicLadder PLC' - This option will add the ClassicLadder PLC
   (Programmable Logic Controller). See the
   <<cha:classicladder,Classicladder Chapter>> for more information.
-
 * 'Onscreen Prompt For Tool Change' - If this box is checked, LinuxCNC will
   pause and prompt you to change the tool when 'M6' is encountered. This feature
   is usually only useful if you have presettable tools.
@@ -468,7 +457,6 @@ A machine can be operated without limit switches. In this case, only
 the soft limits stop the machine from reaching the hard stop.
 Soft limits only operate after the machine has been homed.
 
-[[sub:Operating-without-Home]]
 === Operating without Home Switches(((Operating without Home Switches)))
 
 A machine can be operated without home switches.
@@ -502,13 +490,11 @@ Otherwise the input might float between on and off when the circuit is open.
 Typically for a parallel port you might use 47k.
 
 .Normally Closed Switches
-
 Wiring N/C switches in series (simplified diagram)
 
 image::images/switch-nc-series_en.svg["Normally Closed Switches",align="center"]
 
 .Normally Open Switches
-
 Wiring N/O switches in parallel (simplified diagram)
 
 image::images/switch-no-parallel_en.svg["Normally Open Switches",align="center"]
