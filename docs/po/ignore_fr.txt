@@ -1,6 +1,0 @@
-## Still too much out of sync
-src/common/glossary_fr.adoc
-
-## Matching masters english files missing
-src/common/outdated-notice_fr.adoc
-src/config/linuxcnc2hal_fr.adoc
