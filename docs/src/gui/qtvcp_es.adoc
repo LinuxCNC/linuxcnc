@@ -710,12 +710,12 @@ del botón en la terminal.
 
 <<cha:qtvcp-widgets,widgets QtVCP >>
 
-qtvcp-libraries,bibliotecas QtVCP
+Removed all-Englush file: qtvcp-libraries,bibliotecas QtVCP
 
-<<cha:qtvcp-code,fragmentos de código de archivo del controlador QtVCP >>
+Removed all-English file: cha:qtvcp-code,fragmentos de código de archivo del controlador QtVCP
 
-<<cha:qtvcp-development,QtVCP Development >>
+Removed all-English file: cha:qtvcp-development,QtVCP Development
 
-<<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets >>
+Removed all-English file: cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets
 
 
