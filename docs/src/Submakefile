@@ -310,9 +310,7 @@ install-doc: install-doc-html
 endif
 
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
-	../scripts/make-docs-pdf-index
-
-htmldocs: svgs_made_from_dots .htmldoc-stamp checkref
+htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
 .htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .images-stamp .include-stamp
 	touch $@
