@@ -14,14 +14,7 @@ Otherwise,
 ;
 function _ nofp;
 see_also """
-.ie '\\*[.T]'html' \\{\\
-.UR logic.9.html
 \\fBlogic\\fR(9)
-.UE
-\\}
-.el \\{\\
-\\fBlogic\\fR(9)
-\\}
 """;
 license "GPL";
 ;;
