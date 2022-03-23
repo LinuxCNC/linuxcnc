@@ -1,10 +1,4 @@
-
 .TH ENCODER_RATIO "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 encoder_ratio \- an electronic gear to synchronize two axes
@@ -44,11 +38,17 @@ The \fBencoder\-ratio.N.\fR format is shown in the following descriptions.
 
 .TP
 .B encoder\-ratio.\fIN\fB.master\-A\fR bit in
-.TQ
+.br
+.ns
+.TP
 .B encoder\-ratio.\fIN\fB.master\-B\fR bit in
-.TQ
+.br
+.ns
+.TP
 .B encoder\-ratio.\fIN\fB.slave\-A\fR bit in
-.TQ
+.br
+.ns
+.TP
 .B encoder\-ratio.\fIN\fB.slave\-B\fR bit in
 The encoder channels of the master and slave axes
 .TP
@@ -68,12 +68,16 @@ The error in the position of the slave (in revolutions)
 .SH PARAMETERS
 .TP
 .B encoder\-ratio.N.master\-ppr\fR unsigned rw
-.TQ
+.br
+.ns
+.TP
 .B encoder\-ratio.N.slave\-ppr\fR unsigned rw
 The number of pulses per revolution of the master and slave axes
 .TP
 .B encoder\-ratio.N.master\-teeth\fR unsigned rw
-.TQ
+.br
+.ns
+.TP
 .B encoder\-ratio.N.slave\-teeth\fR unsigned rw
 The number of "teeth" on the master and slave gears.
 

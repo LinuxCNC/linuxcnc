@@ -1,25 +1,31 @@
 .TH MOTION "9" "" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
+
 .SH SYNOPSIS
 \fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_misc_error=\fI[0-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
 
 The limits for the following items are compile-time settings:
-.TQ
+.br
+.ns
+.TP
 \fBnum_joints\fR: Maximum number of joints is set by EMCMOT_MAX_JOINTS.
-.TQ
+.br
+.ns
+.TP
 \fBnum_dio\fR: Maximum number of digital inputs is set by EMCMOT_MAX_DIO.
-.TQ
+.br
+.ns
+.TP
 \fBnum_aio\fR: Maximum number of analog inputs is set by EMCMOT_MAX_AIO.
-.TQ
+.br
+.ns
+.TP
 \fBnum_misc_error\fR: Maximum number of extra error inputs is set by EMCMOT_MAX_MISC_ERRORS.
-.TQ
+.br
+.ns
+.TP
 \fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
 
 .P
@@ -110,11 +116,15 @@ Distance remaining in the current move
 \fBmotion.enable\fR IN BIT
 If this bit is driven FALSE, motion stops, the machine is placed in the "machine off" state, and a message is displayed for the operator. For normal motion, drive this bit TRUE.
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion.eoffset-active\fR OUT BIT
 Indicates external offsets are active (non-zero)
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion.eoffset-limited\fR OUT BIT
 Indicates motion with external offsets was limited by
 a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
@@ -280,7 +290,9 @@ to the pin value.
 \fBmotion.teleop\-mode\fR OUT BIT
 Motion mode is teleop (axis coordinate jogging available).
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion.tooloffset.L\fR OUT FLOAT
 Current tool offset for each axis where
 (\fBL\fR is the axis letter, one of: \fBx y z a b c u v w\fR)
@@ -463,7 +475,9 @@ TRUE if the joint is using the "free planner" and has come to a stop
 \fBjoint.\fIN\fB.index\-enable\fR IO BIT
 Should be attached to the index\-enable pin of the joint's encoder to enable homing to index pulse
 
-.TQ
+.br
+.ns
+.TP
 \fBjoint.N.is\-unlocked\fR IN BIT
 Indicates joint is unlocked (see JOINT UNLOCK PINS).
 
@@ -553,7 +567,9 @@ are created according to the \fBunlock_joints_mask=\fRjointmask parameter for mo
 
 The jointmask bits are: (lsb)0:joint0, 1:joint1, 2:joint2, ...
 
-.TQ
+.br
+.ns
+.TP
 Example: loadrt motmod ... \fBunlock_joints_mask=\fR0x38 creates unlock pins for joints 3,4,5
 
 .SH  SPINDLE PINS
@@ -652,18 +668,26 @@ Desired spindle speed in rotations per second, always positive regardless of spi
 
 Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-command\-handler.tmax\fR RW S32
 Show information about the execution time of these HAL functions in CPU clocks
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-command\-handler.tmax\-increased\fR RO S32
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-controller.tmax\fR RW S32
 Show information about the execution time of these HAL functions in CPU clocks
 
-.TQ
+.br
+.ns
+.TP
 \fBmotion\-controller.tmax\-increased\fR RO BIT
 
 .TP
@@ -690,7 +714,9 @@ this function.
 
 .SH BUGS
 This manual page is incomplete.
-.TQ
+.br
+.ns
+.TP
 Identification of pins categorized with \fB(DEBUG)\fR is dubious.
 
 .SH SEE ALSO
