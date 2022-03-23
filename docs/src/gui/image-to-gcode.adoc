@@ -180,6 +180,5 @@ In this image, Roughing depth per pass is 0.2 inches and roughing
 offset is 0.1 inches.
 
 .Roughing passes and final pass
-
 image::images/i2g-roughing.png["Roughing passes and final pass"]
 

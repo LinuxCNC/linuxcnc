@@ -43,7 +43,6 @@ Touchy has several output pins that are meant to be connected to the
 motion controller to control wheel jogging:
 
  - 'touchy.jog.wheel.increment', which is to be connected to the 'axis.N.jog-scale' pin of each axis N.
-
  - 'touchy.jog.wheel.N', which is to be connected to 'axis.N.jog-enable' for each axis N.
 
 [NOTE]'N' represents the axis number 0-8.
@@ -142,3 +141,5 @@ This macro capability is useful for edge/hole probing and other setup
 tasks, as well as perhaps hole milling or other simple operations
 that can be done from the panel without requiring specially-written
 gcode programs.
+
+// vim: set syntax=asciidoc:

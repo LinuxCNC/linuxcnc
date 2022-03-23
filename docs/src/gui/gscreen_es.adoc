@@ -71,7 +71,6 @@ en la carpeta que contiene todos los archivos de configuración para la configur
 seleccionado.
 
 .Archivos Glade Locales
-
 Si están presentes, se cargarán los archivos glade locales en la carpeta de configuración en lugar
 de los archivos de Glade de serie. Los archivos locales de Glade le permiten usar sus diseños
 personalizados en lugar de las pantallas por defecto. Hay un interruptor en el archivo INI para
@@ -90,7 +89,6 @@ tener señales definidas para ellos en el editor de GLADE. Esto define que seña
 se da y qué método llamar.
 
 .Modificación de Skins de serie.
-
 Si cambia el nombre de un widget, Gscreen no podrá encontrarlo.
 Si se hace referencia a este widget desde el código Python, en el mejor de los casos el widget
 no funcionara y, en el peor de los casos, causará un error al cargar las pantallas predeterminadas de Gscreen
@@ -99,7 +97,6 @@ código python. Si mueve (corta y pega) un widget con señales, las señales
 no serán copiadas. Debe agregarlas de nuevo manualmente.
 
 .Archivos Handler
-
 Un archivo handler es un archivo que contiene código python que Gscreen agrega a su
 rutinas por defecto. Un archivo handler permite modificar valores predeterminados o agregar lógica
 a una skin Gscreen sin tener que modificar Gscreen propiamente dicho. Puede combinar nuevas
@@ -117,7 +114,6 @@ como añadir un sonido. Por favor vea el capitulo GladeVCP para entender
 los fundamentos de los archivos handler GladeVCP. Gscreen utiliza una técnica muy similar.
 
 .Temas
-
 Gscreen usa el kit de herramientas PyGTK para mostrar la pantalla.
 Pygtk es el enlace del lenguaje Python con GTK.
 GTK soporta 'temas'.
@@ -152,13 +148,11 @@ Gscreen es solo un gran y complicado panel GladeVCP, con código python para con
 Para personalizarlo necesitamos el archivo Glade cargado en el editor de Glade.
 
 .LinuxCNC Instalado 
-
 Si tiene LinuxCNC 2.6+ instalado en Ubuntu 10.04, simplemente inicie el editor Glade
 Desde el menú de aplicaciones o desde el terminal. Las nuevas versiones de Linux
 requieren que instale Glade 3.8.0 - 3.8.6 (posiblemente deberá compilarlo)
 
 .Comandos en compilados RIP 
-
 Usando un compilado de la versión fuente de
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC], abra
 un terminal y cambie de directorio a la parte superior de la carpeta LinuxCNC. Configure el
@@ -195,7 +189,7 @@ Recuerde, si utiliza una opción de pantalla personalizada, USTED es responsable
 
 == Construyendo una simple pantalla limpia personalizada
 
-image::images/tester.png[align="center", alt="pantalla utilizable simple"]
+image::images/tester.png[align="center","pantalla utilizable simple"]
 
 Permite construir una pantalla usable simple. Construya esto en el editor de Glade (si usa un
 RIP ejecutelo desde un terminal después de usar .scripts/rip-environment).
@@ -219,7 +213,7 @@ RIP ejecutelo desde un terminal después de usar .scripts/rip-environment).
 * Los botones en este ejemplo son botones normales, no botones HAL. Nosotros no
   necesitamos los pines HAL.
 
-image::images/tester_editor.png[align="center", alt="Glade editor tester.glade"]
+image::images/tester_editor.png[align="center","Glade editor tester.glade"]
 
 En esta pantalla estamos usando VCP_actions para comunicar a LinuxCNC las acciones que
 queremos. Esto nos permite funciones estándar sin agregar código python en el
@@ -309,15 +303,16 @@ agregaría una señal a un widget para llamar a su función.
 
 === Agregar funciones de combinación de teclas
 
-Nuestro ejemplo de probador sería más útil si respondiera a los comandos del teclado. +
-Hay una función llamada keybindings () que intenta configurar esto. +
-Si bien puede anularlo completamente, no lo hicimos, pero asume algunas cosas. +
-Asume que el botón de alternancia de parada se llama 'button_estop' y que la tecla F1 lo controla. +
-Asume que el botón de encendido se llama 'button_machine_on' y la tecla F2 lo controla. +
-Estos se pueden corregir fácilmente cambiando el nombre de los botones en el editor de Glade para que coincidan. +
-Pero en cambio, vamos a anular las llamadas estándar y agregar las nuestras. +
+Nuestro ejemplo de probador sería más útil si respondiera a los comandos del teclado. 
+Hay una función llamada keybindings () que intenta configurar esto.
+Si bien puede anularlo completamente, no lo hicimos, pero asume algunas cosas.
+Asume que el botón de alternancia de parada se llama 'button_estop' y que la tecla F1 lo controla.
+Asume que el botón de encendido se llama 'button_machine_on' y la tecla F2 lo controla.
+Estos se pueden corregir fácilmente cambiando el nombre de los botones en el editor de Glade para que coincidan.
+Pero en cambio, vamos a anular las llamadas estándar y agregar las nuestras.
 
 Agregue estos comandos al archivo de controlador:
+
 ----
   # Ajustar funciones de Gscreen
   # llamadas de combinacion de teclas
@@ -337,20 +332,23 @@ Agregue estos comandos al archivo de controlador:
       return True
 ----
 
-Así que ahora hemos anulado las llamadas de función de Gscreen del mismo nombre y las tratamos en nuestro archivo de manejador. +
-Ahora hacemos referencia a los widgets por el nombre que usamos en el editor de Glade. +
-También agregamos una función gscreen incorporada para hacer un sonido cuando cambia Estop. +
-Tenga en cuenta que llamamos a las funciones integradas de Gscreen que debemos usar self.gscreen. [NOMBRE DE LA FUNCIÓN] () +
-Si usamos self. [NOMBRE DE LA FUNCIÓN] () llamaría a la función en nuestro archivo de controlador. +
+Así que ahora hemos anulado las llamadas de función de Gscreen del mismo nombre y las tratamos en nuestro archivo de manejador.
+Ahora hacemos referencia a los widgets por el nombre que usamos en el editor de Glade.
+También agregamos una función gscreen incorporada para hacer un sonido cuando cambia Estop.
+Tenga en cuenta que llamamos a las funciones integradas de Gscreen que debemos usar self.gscreen. [NOMBRE DE LA FUNCIÓN] ()
+Si usamos self. [NOMBRE DE LA FUNCIÓN] () llamaría a la función en nuestro archivo de controlador.
 
-Permite agregar otro enlace de teclas que carga el halómetro cuando se presiona F4. +
+Permite agregar otro enlace de teclas que carga el halómetro cuando se presiona F4.
 En el archivo del controlador bajo def initialize_widgets (self): cambie a:
+
 ----
   def initialize_widgets(self):
     self.gscreen.init_show_windows()
     self.gscreen.keylookup.add_conversion('F4','TEST','on_keycall_HALMETER')
 ----
+
 Luego agregue estas funciones bajo la clase HandlerClass:
+
 ----
   def on_keycall_HALMETER(self,state,SHIFT,CNTRL,ALT):
     if state:
@@ -358,27 +356,30 @@ Luego agregue estas funciones bajo la clase HandlerClass:
       return True
 ----
 
-Esto agrega una conversión de combinación de teclas que dirige a gscreen a llamar a on_keycall_HALMETER cuando se presiona F4. +
-Luego agregamos la función al archivo de identificador para llamar a una función incorporada de Gscreen para iniciar el halómetro. +
+Esto agrega una conversión de combinación de teclas que dirige a gscreen a llamar a on_keycall_HALMETER cuando se presiona F4.
+Luego agregamos la función al archivo de identificador para llamar a una función incorporada de Gscreen para iniciar el halómetro.
 
 === Linuxcnc State Status
 
-The module 'Gstat' polls linuxcnc's state every 100ms and sends callback messages to user functions when state changes. +
-You can register messages to act on specific state changes. +
-As an example we will register to get 'file-loaded' messages when linuxcnc loads a new file. +
-First we must import the module and instantiate it: +
-In the import section of the handler file add: +
+The module 'Gstat' polls linuxcnc's state every 100ms and sends callback messages to user functions when state changes.
+You can register messages to act on specific state changes.
+As an example we will register to get 'file-loaded' messages when linuxcnc loads a new file.
+First we must import the module and instantiate it:
+In the import section of the handler file add:
+
 ----
 from hal_glib import GStat
 GSTAT = GStat()
 ----
 
 In the handler file under 'def \_\_init__(self):' add: +
+
 ----
 GSTAT.connect('file-loaded', self.update_filepath)
 ----
 
 Then in the 'HandlerClass', add the function: +
+
 ----
 self.update_filepath(self, obj, path):
     self.widgets.my_path_label.set_text(path)
@@ -391,6 +392,7 @@ In this example whe update a label with that path name (assuming there is a labe
 
 No hay widgets especiales para hacer jogging con botones de pantalla, así que debemos hacerlo con el código de Python. +
 Bajo la función connect_signals agregue este código: +
+
 ----
         for i in('x','y','z'):
             self.widgets[i+'neg'].connect("pressed", self['jog_'+i],0,True)
@@ -401,6 +403,7 @@ Bajo la función connect_signals agregue este código: +
 ----
 
 Agregue estas funciones bajo la clase HandlerClass:
+
 ----
     def jog_x(self,widget,direction,state):
         self.gscreen.do_key_jog(_X,direction,state)

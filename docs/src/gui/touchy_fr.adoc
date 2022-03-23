@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= L'interface graphique Touchy
-
 [[cha:touchy-gui]]
+= L'interface graphique Touchy
 
 Touchy est une interface utilisateur pour LinuxCNC, destinée à être utilisée avec les
 panneaux de commande de machines. Il ne nécessite ni clavier, ni souris.
@@ -12,7 +11,6 @@ Il a été conçu pour fonctionner également sur les écrans tactiles, en combi
 avec une manivelle électronique (MPG) et des boutons et interrupteurs.
 
 .L'interface tactile Touchy
-
 image::images/touchy_fr.png[alt="L'interface tactile Touchy"]
 
 == Panneau de Configuration
@@ -28,16 +26,14 @@ Touchy dispose de plusieurs pins de sortie destinées à être connectées au
 contrôleur de mouvement pour gérer les manivelles de jog:
 
  - touchy.jog.wheel.increment,
-    qui doit être connecté à la pin _axis.N.jog-scale_ de chacun des N axes.
-
+   qui doit être connecté à la pin _axis.N.jog-scale_ de chacun des N axes.
  - touchy.jog.wheel.N, qui doit être connecté à _axis.N.jog-enable_ pour
-    chacun des N axes.
-
+   chacun des N axes.
  - En plus d'être connecté à _touchy.wheel-counts_, le compteur d'impulsions
-    de la manivelle doit aussi être connecté à _axis.N.jog-counts_ pour chacun
-    des N axes. Si le composant de HAL _ilowpass_ est utilisé pour adoucir les
-    mouvements de jog à la manivelle, il faut l'appliquer uniquement sur
-    _axis.N.jog-counts_ et non sur _touchy.wheel-counts_.
+   de la manivelle doit aussi être connecté à _axis.N.jog-counts_ pour chacun
+   des N axes. Si le composant de HAL _ilowpass_ est utilisé pour adoucir les
+   mouvements de jog à la manivelle, il faut l'appliquer uniquement sur
+   _axis.N.jog-counts_ et non sur _touchy.wheel-counts_.
 
 ==== Contrôles requis
 
@@ -45,25 +41,23 @@ contrôleur de mouvement pour gérer les manivelles de jog:
  - Un bouton de _Départ cycle_ (contact momentané) connecté à _touchy.cycle-start_
  - Volant/Manivelle/MPG, connecté à _touchy.wheel-counts_ et à la pin de mouvement
    comme décrit précédemment.
- - Un bouton à bascule simple (contact à deux positions) connecté à
-_touchy.single-block_
+ - Un bouton à bascule simple (contact à deux positions) connecté à _touchy.single-block_
 
 ==== Contrôles optionnels
 
- -  Pour le jog continu, un interrupteur à trois positions avec retour au centre
+ - Pour le jog continu, un interrupteur à trois positions avec retour au centre
    (ou deux boutons momentanés) pour chacun des axes concernés, attaché à
-    _touchy.jog.continuous.x.negative_ et à _touchy.jog.continuous.x.positive_,
-    etc. pour les autres axes.
- -  Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa
-    course en grande vitesse), un bouton à contact momentané sera connecté à
-_touchy.quill-up_.
+   _touchy.jog.continuous.x.negative_ et à _touchy.jog.continuous.x.positive_,
+   etc. pour les autres axes.
+ - Si un bouton de genouillère est nécessaire, (pour jogger Z en haut de sa
+   course en grande vitesse), un bouton à contact momentané sera connecté à _touchy.quill-up_.
 
 ==== Voyants de panneau optionnels
 
  - _touchy.jog.active_ indique quand les contrôles de jog du panneau sont actifs.
  - _touchy.status-indicator_ est allumé en continu quand la machine exécute un
-    G-code et clignote quand la machine est en marche mais en pause, ou en
-    vitesse à zéro.
+   G-code et clignote quand la machine est en marche mais en pause, ou en
+   vitesse à zéro.
 
 === Recommandé pour toutes les configurations
 
@@ -133,3 +127,4 @@ contours ou d'orifices ainsi que pour d'autres opérations simples
 pré-configurées, de fraisage ou de perçage, qui pourront être réalisées depuis 
 le panneau de Touchy sans avoir, pour cela, à écrire de programme G-code.
 
+// vim: set syntax=asciidoc:

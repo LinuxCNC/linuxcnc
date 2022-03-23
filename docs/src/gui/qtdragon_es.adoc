@@ -309,3 +309,4 @@ El sitio web LinuxCNC tiene una extensa documentación sobre la instalación y e
 .qtdragon - Silverdragon personalizado
 image::images/silverdragon_custom.png["QTDragon customized",scale=25]
 
+// vim: set syntax=asciidoc:
