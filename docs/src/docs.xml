@@ -223,7 +223,7 @@
 <doc name="hal/halshow_fr.html" title="Les fonctionnalit&eacute;s de Halshow"/>
 <doc name="hal/components_fr.html" title="Liste des composants de HAL"/>
 <doc name="hal/rtcomps_fr.html" title="Les composants temps r&eacute;el"/>
-<doc name="hal/halui_fr.html" title="L'interface halui"/>
+<doc name="gui/halui_fr.html" title="L'interface halui"/>
 <doc name="hal/hal-examples_fr.html" title="Exemples pour HAL"/>
 <doc name="hal/comp_fr.html" title="Comp: un outil de cr&eacute;ation de composants HAL"/>
 <doc name="hal/halmodule_fr.html" title="Cr&eacute;er des composants de HAL pour l'espace utilisateur"/>

@@ -1,6 +1,7 @@
 :lang: fr
 :toc:
 
+[[cha:gs2-spindle]]
 = Broche avec variateur GS2
 
 == Exemple
@@ -18,6 +19,7 @@ port parallèle.
 
 Placer les lignes suivantes dans le fichier custom.hal pour connecter LinuxCNC au
 GS2 et avoir le contrôle de celui-ci depuis l'interface utilisateur.
+
 ----
 # Charger le composant utilisateur pour le variateur variateur 
 loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
@@ -41,16 +43,16 @@ ajustés selon les caractéristiques demandées par le système. Ces réglages
 sortent, pour la plupart, du cadre de cet exemple, ils sont tous expliqués 
 dans le manuel du variateur qu'il est impératif de consulter.
  
-- Les switches de communication doivent être positionnés sur RS-232C.
-- Les paramètres moteur doivent être ajustés en fonction du moteur.
-- P3.00 (Source des commandes de marche) doit être ajusté sur _Opérations
+ * Les switches de communication doivent être positionnés sur RS-232C.
+ * Les paramètres moteur doivent être ajustés en fonction du moteur.
+ * P3.00 (Source des commandes de marche) doit être ajusté sur _Opérations
    déterminées par l'interface RS-485_, _03_ ou _04_
-- P4.00 (Source des commandes de fréquence) doit être ajusté sur _Fréquence
+ * P4.00 (Source des commandes de fréquence) doit être ajusté sur _Fréquence
    déterminée par l'interface RS232C/RS485_, _05_
-- P9.02 (Protocole de communication) doit être ajusté sur _Modbus RTU mode, 
+ * P9.02 (Protocole de communication) doit être ajusté sur _Modbus RTU mode, 
    8 bits de donnée, pas de parity, 2 bits de stop_, _03_
 
 Un panneau de commande virtuel PyVCP, basé sur cet exemple, est donné
 dans l'<<sec:Exemple-Compte-Tours-GS2,exemple avec un variateur>>.
 
-
+// vim: set syntax=asciidoc:

@@ -336,9 +336,7 @@ $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/Master_Documentation_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_User_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_HAL_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
+$(DOC_DIR)/LinuxCNC_Documentation_fr.pdf: $(DOC_SRCDIR)/Master_Documentation_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
 	@ln -f $< $@
