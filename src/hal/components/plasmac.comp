@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.222
+1.223
 
 .I SUMMARY:
 .br
@@ -69,6 +69,9 @@ pin in  bit     override_jog                "override jog inhibit";
 pin in  s32     kerf_errors_max = 2         "allowable kerfcross threshold errors";
 pin in  bit     kerfcross_enable            "enable kerf crossing [mode 0 & mode 1]";
 pin in  float   kerfcross_override          "kerf crossing threshold override as a percentage";
+pin in  s32     laser_recovery_start        "start laser offset for cut recovery";
+pin in  s32     laser_x_offset              "alignment laser x axis offset (scaled units)";
+pin in  s32     laser_y_offset              "alignment laser y axis offset (scaled units)";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
 pin in  bit     machine_is_on               "machine is on signal";
 pin in  s32     max_offset = 5              "maximum height offset";
@@ -132,10 +135,10 @@ pin in  bit     torch_pulse_start           "torch pulse start";
 pin in  float   torch_pulse_time            "torch pulse time (seconds)";
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
-pin in  float   x_offset                    "offset to apply to axis x for consumable change";
+pin in  s32     x_offset                    "offset to apply to axis x for consumable change and cut recovery (scaled units)";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
 pin in  float   xy_feed_rate                "feed-rate for consumable change";
-pin in  float   y_offset                    "offset to apply to axis y for consumable change";
+pin in  s32     y_offset                    "offset to apply to axis y for consumable change and cut recovery (scaled units)";
 pin in  float   y_offset_current            "current z axis offset, connect to axis.y.eoffset";
 pin in  float   z_offset_current            "current z axis offset, connect to axis.z.eoffset";
 pin in  float   zero_window = 0.1           "sets window that voltage fluctuations show as zero (-0.1 to 0.1 at default value)";
@@ -155,11 +158,13 @@ pin out bit     cutting_stop                "stop manual cut, connect to halui.s
 pin out bit     feed_hold                   "feed hold, connect to motion.feed-hold";
 pin out bit     jog_inhibit                 "jog inhibit, connect to motion.jog-inhibit";
 pin out bit     kerfcross_is_locked         "kerf crossing locked indicator [mode 0 & mode 1]";
+pin out s32     laser_recovery_state        "laser recovery status";
 pin out bit     led_down                    "thc move down indicator";
 pin out bit     led_up                      "thc move up indicator";
 pin out float   offset_scale                "offset scale, connect to axis.<x y z>.eoffset-scale";
 pin out bit     ohmic_enable                "on only while probing";
 pin out bit     ohmic_sense_out             "ohmic sense output state";
+pin out bit     paused_motion               "paused motion flag, true when paused motion is active";
 pin out s32     pierce_count                "number of pierce attempts";
 pin out bit     probe_test_error            "minimum limit reached while probe testing";
 pin out bit     program_pause               "pause the current program, connect to halui.program.pause";
@@ -214,6 +219,8 @@ variable bool   initialized;                /* initialization flag */
 variable int    kerf_errors;                /* number of times kerfcross threshold exceeded */
 variable float  kerf_ratio;                 /* kerf crossing height to distance ratio */
 variable float  kerf_threshold;             /* kerf crossing threshold voltage */
+variable int    laser_x_target;             /* target count for laser recovery x offset */
+variable int    laser_y_target;             /* target count for laser recovery y offset */
 variable float  last_arc_voltage;           /* last sensed arc voltage */
 variable bool   manual_cut;                 /* manual cut mode is active */
 variable int    offset_datum;               /* datum for safe height calcs */
@@ -234,7 +241,6 @@ variable int    op_y_start;                 /* y offset when offset probing star
 variable int    op_y_target;                /* target offset for y probe offset */
 variable int    op_y_velocity;              /* velocity for y probe offset */
 variable float  pause_at_end_timer;         /* pause at end of cut timer */
-variable bool   paused_motion;              /* paused motion flag */
 variable float  paused_motion_timer;        /* minimum run timer for paused motion */
 variable float  pid_error_now;              /* current error for pid calcs */
 variable float  pid_error_old;              /* old error for pid calcs */
@@ -352,11 +358,20 @@ typedef enum{EMPTY,
              SPOTTING,
             } tool_t;
 
+typedef enum{OFF,
+             SET,
+             SETTING,
+             ON,
+             RESET,
+             RESETTING,
+         } laser_recovery_state_t;
+
 state_t state = IDLE;
 stop_type_t stop_type = NONE;
 move_direction_t move_direction = ZERO;
 probe_type_t probe_type = FLOAT;
 tool_t tool = EMPTY;
+laser_recovery_state_t laser_recovery = OFF;
 
 /* setup the arc voltage ring buffer */
 #define MAXBUFFSIZE 100
@@ -440,7 +455,7 @@ FUNCTION(_) {
     }
     offset_scale = units_per_mm * fperiod / res;
     velocity_scale = res / units_per_mm / 60;
-    recovery_velocity = 3 * res;
+    recovery_velocity = cut_feed_rate * velocity_scale * 0.5;
 
     /* set the active tool */
     if(cutting_start){ //  this allows M3 for cutting as well as M3 $0
@@ -815,7 +830,7 @@ FUNCTION(_) {
                     }else if(!consumable_change && (stop_type == PAUSE || stop_type == WAIT) && consumable_changing){
                         state = CONSUMABLE_CHANGE_OFF;
                     /* if we get a cut recovery start request and we are paused */
-                    }else if(cut_recovery && stop_type == PAUSE && !cut_recovering){
+                    }else if(cut_recovery && stop_type == PAUSE && (!cut_recovering || laser_recovery_start)){
                         state = CUT_RECOVERY_ON;
                     /* if we get a torch start request and we are stopped or waiting for a restart */
                     }else if((tool == CUTTING || tool == SPOTTING || probe_test) && (stop_type == NONE || stop_type == WAIT) && homed){
@@ -932,7 +947,29 @@ FUNCTION(_) {
                                         break;
                                     }
                                 }
-                                state = PROBE_HEIGHT;
+                                /* clear any laser recovey offset */
+                                if(laser_recovery_state > OFF && laser_recovery_state < RESET){
+                                    laser_recovery_state = RESET;
+                                }else if(laser_recovery_state == RESET){
+                                    angle_x_y = atan2(laser_y_offset, laser_x_offset);
+                                    x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
+                                    y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                                    laser_recovery_state = RESETTING;
+                                }else if(laser_recovery_state == RESETTING){
+                                    if(x_offset_counts == x_offset && y_offset_counts == y_offset){
+                                        laser_recovery_state = OFF;
+                                    }else{
+                                        if(x_offset_counts != x_offset){
+                                            x_offset_counts = offset_move(x_offset_counts, x_velocity, x_offset);
+                                        }
+                                        if(y_offset_counts != y_offset){
+                                            y_offset_counts = offset_move(y_offset_counts, y_velocity, y_offset);
+                                        }
+                                    }
+                                /* laser recovery offset complete if required */
+                                }else{
+                                    state = PROBE_HEIGHT;
+                                }
                             }
                         }
                     /* if we get a resume request and we are paused */
@@ -1782,6 +1819,7 @@ FUNCTION(_) {
                                 y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
                                 state = CUT_RECOVERY_OFF;
                                 cut_recovering = FALSE;
+                                laser_recovery_state = OFF;
                             }else{
                                 state = IDLE;
                             }
@@ -1814,31 +1852,18 @@ FUNCTION(_) {
                 }
                 break;
             case PAUSED_MOTION:
-                /* a bit kludgy but we need a timer here for a minimum run
-                 * time to give the GUI time to poll the status channel */
                 if(paused_motion_speed){
-                    if(!paused_motion){
-                        paused_motion_timer = 0.2; /* 0.2 seconds */
-                        paused_motion = TRUE;
-                        adaptive_feed = paused_motion_speed;
-                        feed_hold = FALSE;
-                        program_resume = TRUE;
-                    }else{
-                        paused_motion_timer -= fperiod;
-                    }
-                }else{
-                    paused_motion_timer -= fperiod;
-                    feed_hold = TRUE;
+                    paused_motion = TRUE;
+                    adaptive_feed = paused_motion_speed;
+                    program_resume = TRUE;
+                    feed_hold = FALSE;
+                }else if(program_is_running){
                     program_pause = TRUE;
-                    if(program_is_paused && paused_motion_timer <= 0){
-                        paused_motion = FALSE;
-                        adaptive_feed = 1;
-                        if(cut_recovery){
-                            state = CUT_RECOVERY_ON;
-                        }else{
-                            state = IDLE;
-                        }
-                    }
+                    feed_hold = TRUE;
+                    adaptive_feed = 1;
+                }else if(program_is_paused && feed_hold){
+                    paused_motion = FALSE;
+                    state = CUT_RECOVERY_ON;
                 }
                 break;
             case OHMIC_TEST:
@@ -2030,14 +2055,36 @@ FUNCTION(_) {
                 if(!cut_recovering){
                     cut_recovering = TRUE;
                 }
-                if(cut_recovery){
+                /* offset for laser recovery if required */
+                if(laser_recovery_start && laser_recovery_state == OFF){
+                    laser_recovery_state = SET;
+                }else if(laser_recovery_state == SET){
+                    angle_x_y = atan2(laser_y_offset, laser_x_offset);
+                    x_velocity = fabs(cut_feed_rate * velocity_scale * cos(angle_x_y));
+                    y_velocity = fabs(cut_feed_rate * velocity_scale * sin(angle_x_y));
+                    laser_x_target = x_offset_counts + laser_x_offset;
+                    laser_y_target = y_offset_counts + laser_y_offset;
+                    laser_recovery_state = SETTING;
+                }else if(laser_recovery_state == SETTING){
+                    if(x_offset_counts == laser_x_target && y_offset_counts == laser_y_target){
+                        laser_recovery_state = ON;
+                    }else{
+                        if(x_offset_counts != laser_x_target){
+                            x_offset_counts = offset_move(x_offset_counts, x_velocity, laser_x_target);
+                        }
+                        if(y_offset_counts != laser_y_target){
+                            y_offset_counts = offset_move(y_offset_counts, y_velocity, laser_y_target);
+                        }
+                    }
+                /* laser recovery offset is clear */
+                }else if(cut_recovery){
                     /* move x axis to recovery position at recovery velocity */
-                    if(x_offset_counts != x_offset){
-                        x_offset_counts = offset_move(x_offset_counts, recovery_velocity, x_offset);
+                    if(x_offset_counts != x_offset + laser_x_offset * (laser_recovery_state > 1)){
+                        x_offset_counts = offset_move(x_offset_counts, recovery_velocity, x_offset + laser_x_offset * (laser_recovery_state > 1));
                     }
                     /* move y axis to recovery position at recovery velocity */
-                    if(y_offset_counts != y_offset){
-                        y_offset_counts = offset_move(y_offset_counts, recovery_velocity, y_offset);
+                    if(y_offset_counts != y_offset + laser_y_offset * (laser_recovery_state > 1)){
+                        y_offset_counts = offset_move(y_offset_counts, recovery_velocity, y_offset + laser_y_offset * (laser_recovery_state > 1));
                     }
                 }else{
                     state = CUT_RECOVERY_OFF;
@@ -2059,6 +2106,7 @@ FUNCTION(_) {
                 if(x_offset_counts == 0 && y_offset_counts == 0){
                     if((int)(x_offset_current * offset_res) == 0 && (int)(y_offset_current * offset_res) == 0){
                         cut_recovering = FALSE;
+                        laser_recovery_state = OFF;
                         if(cut_recovery){
                             feed_hold = FALSE;
                             thc_delay_timer = thc_delay;
