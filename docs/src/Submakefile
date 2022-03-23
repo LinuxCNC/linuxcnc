@@ -657,6 +657,8 @@ docclean:
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html
+	-rm -f $(DOC_SRCDIR)/index_*.tmpl
+	-rm -f $(DOC_SRCDIR)/drivers/mb2hal_HOWTO.ini
 	-rm -f $(DOC_DIR)/html/code/*.*
 	-rm -f $(DOC_DIR)/html/common/images/*.*
 	-rm -f $(DOC_DIR)/html/config/images/*.*
@@ -680,6 +682,7 @@ docclean:
 	-rm -f .adoc-images-stamp
 	-rm -f .html-images-stamp
 	-rm -f .images-stamp
+	-rm -f .include-stamp
 	-rm -f $(DOTFILES:.dot=.svg)
 
 
