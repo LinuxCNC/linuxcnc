@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:hal-user-interface]]
 = HAL User Interface
