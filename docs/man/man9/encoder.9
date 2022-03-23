@@ -1,9 +1,4 @@
 .TH ENCODER "9" "2009-04-15" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 encoder \- software counting of quadrature encoder signals
@@ -136,13 +131,21 @@ of the quadrature waveform (four counts per full cycle).  When false, it only
 counts once per full cycle.  In \fBcounter\-mode\fR, this parameter is ignored.
 .TP
 \fBencoder.\fIN\fB.latch\-input\fR bit in
-.TQ
+.br
+.ns
+.TP
 \fBencoder.\fIN\fB.latch\-falling\fR bit in (default: \fBTRUE\fR)
-.TQ
+.br
+.ns
+.TP
 \fBencoder.\fIN\fB.latch\-rising\fR bit in (default: \fBTRUE\fR)
-.TQ
+.br
+.ns
+.TP
 \fBencoder.\fIN\fB.counts\-latched\fR s32 out
-.TQ
+.br
+.ns
+.TP
 \fBencoder.\fIN\fB.position\-latched\fR float out
 Update \fBcounts\-latched\fR and \fBposition\-latched\fR on the rising and/or
 falling edges of \fBlatch\-input\fR as indicated by \fBlatch\-rising\fR and

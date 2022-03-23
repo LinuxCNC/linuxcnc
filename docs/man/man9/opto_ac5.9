@@ -1,10 +1,5 @@
 .\"
 .TH OPTO_AC5 "9" "2008-08-04" "LinuxCNC Documentation" "HAL Component" 
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 opto_ac5 \- Realtime driver for opto22 PCI-AC5 cards
@@ -29,7 +24,9 @@ Portnumber can be 0 or 1. Port 0 is closes to the card bracket.
 
 .TP
 \fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR] OUT bit 
-.TQ
+.br
+.ns
+.TP
 \fBopto_ac5.[\fIBOARDNUMBER\fB\fR].\fBport[\fIPORTNUMBER\fB\fR].\fBin\-[\fIPINNUMBER\fB\fR]\-not OUT bit 
 Connect a hal bit signal to this pin to read an i/o point from the card.
 The PINNUMBER represents the position in the relay rack. Eg. PINNUMBER 0 is position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector. The \fB\-not\fR pin is
