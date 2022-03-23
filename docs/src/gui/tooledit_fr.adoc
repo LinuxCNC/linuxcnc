@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:tooledit-gui]]
 = Éditeur graphique de table d'outils
-
-[[cha:editeur-tooledit]] 
 
 == Versions requises pour l'éditeur d'outils
 [NOTE]

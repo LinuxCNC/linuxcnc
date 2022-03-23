@@ -55,14 +55,12 @@ following ini file setting:
 image::images/tooledit-columns.png["Tool Edit GUI - Column Selection",align="center"]
 
 .Syntax of .INI file
-
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit column_name column_name ...
 ----
 
 .Example for Z and DIAM columns
-
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit Z DIAM
@@ -123,3 +121,4 @@ supports all tool table parameters, allows addition and deletion
 of tool entries, and performs a number of validity checks on
 parameter values.
 
+// vim: set syntax=asciidoc:

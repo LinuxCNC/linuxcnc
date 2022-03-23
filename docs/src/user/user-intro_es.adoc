@@ -55,7 +55,7 @@ LinuxCNC viene con varios tipos de interfaces de usuario que se pueden elegir al
 
 image::../gui/images/axis_es.png["Axis, interfaz GUI de teclado estándar",align="center"]
 
-<<cha:touchy-gui,'Touchy'>> es una GUI para usar con pantalla táctil:
+'Touchy' es una GUI para usar con pantalla táctil:
 
 image::../gui/images/touchy_es.png["Touchy, una GUI para usar con pantalla táctil",align="center"]
 

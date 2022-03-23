@@ -708,14 +708,14 @@ del botón en la terminal.
 
 === Más información
 
-<<cha:qtvcp-widgets,widgets QtVCP >>
+Removed all-English _es file: cha:qtvcp-widgets,widgets QtVCP
 
-Removed all-Englush file: qtvcp-libraries,bibliotecas QtVCP
+Removed all-Englush _es file: qtvcp-libraries,bibliotecas QtVCP
 
-Removed all-English file: cha:qtvcp-code,fragmentos de código de archivo del controlador QtVCP
+Removed all-English _es file: cha:qtvcp-code,fragmentos de código de archivo del controlador QtVCP
 
-Removed all-English file: cha:qtvcp-development,QtVCP Development
+Removed all-English _es file: cha:qtvcp-development,QtVCP Development
 
-Removed all-English file: cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets
+Removed all-English _es file: cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets
 
 
