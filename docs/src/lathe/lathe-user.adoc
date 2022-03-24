@@ -52,7 +52,7 @@ The maximum tool and pocket number is 99999.
 
 Earlier versions of LinuxCNC had two different tool table formats for mills and lathes, but since the 2.4.x release, one tool table format is used for all machines.
 Just ignore the parts of the tool table that don't pertain to your machine, or which you don't need to use.
-For more information on the specifics of the tool table format, see the <<sec:tool-table,Tool Table>> Section.
+For more information on the specifics of the tool table format, see the <<sec:compensation-tool-table,Tool Table>> Section.
 
 [[sec:lathe-tool-orientation]]
 == Lathe Tool Orientation

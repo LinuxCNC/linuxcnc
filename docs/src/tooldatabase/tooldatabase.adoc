@@ -8,7 +8,7 @@ by an inifile setting: [EMCIO]TOOL_TABLE=tooltable_filename.  A tool
 table file consists of a text line for each available tool describing
 the tool's parameters.
 
-See: <<sec:tool-table,Tool Table Format>>
+See: <<sec:compensation-tool-table,Tool Table Format>>
 
 The tool database interface provides an alternative method for
 obtaining tool data via a separate program that manages a database of
