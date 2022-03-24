@@ -309,7 +309,7 @@ endif
 pdfdocs: svgs_made_from_dots $(PDF_TARGETS)
 htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 
-.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .images-stamp
+.htmldoc-stamp: copy_asciidoc_files $(HTML_TARGETS) .images-stamp .include-stamp
 	touch $@
 
 .PHONY: copy_asciidoc_files
@@ -454,7 +454,7 @@ $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc svgs_made_from_dots .adoc-images-stamp
 	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
 	@test -f $@
 
-depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps
+depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
 	$(ECHO) Depending $<
 	@mkdir -p $(dir $@)
 	$(Q)$(DOC_SRCDIR)/asciideps $< > $@.tmp
@@ -510,16 +510,19 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 	done > $@.new && mv $@.new $@
 
 # Hack to avoid ../../../src/ style include which do not work with
-# translated documents.  Copy the ini files where the documentation
+# translated documents.  Copy the ini file where the documentation
 # build can find it without ../.. paths.
-depends/Master_Documentation.d depends/drivers/mb2hal.d \
-depends/%/Master_Documentation.d depends/%/drivers/mb2hal.d: \
-  hal/user_comps/mb2hal/mb2hal_HOWTO.ini
-	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/drivers/
+.include-stamp: hal/user_comps/mb2hal/mb2hal_HOWTO.ini
+	(set -x; set -e; \
+	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/drivers/;\
+	mkdir -p $(DOC_DIR)/html/drivers/; \
+	cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/;\
 	for lang in es fr hu vi zh_CN; do \
 		mkdir -p $(DOC_DIR)/src/$$lang/drivers/; \
+		mkdir -p $(DOC_DIR)/html/$$lang/drivers/; \
 		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/src/$$lang/drivers/ ; \
-	done
+		cp -f hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/$$lang/drivers/ ; \
+	done) > $@.new && mv $@.new $@
 
 # Copy all images used by translated adoc files into the directories
 # with translated adoc files.
