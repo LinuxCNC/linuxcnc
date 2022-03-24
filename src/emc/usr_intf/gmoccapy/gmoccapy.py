@@ -4527,8 +4527,8 @@ class gmoccapy(object):
                     # TODO: Thats kind a problem, as not every image has (yet) a parent (e.g. for toggle button only one
                     #  image is assigned at a time) and the default_style is maybe to inaccurate in terms of overridden
                     #  style attributes used by the icon loading mechanism (fg, succcss, warning and error colors)
-                    style = image.get_parent().get_style_context() if image.get_parent() is not None else default_style
-                    pixbuf = self._load_symbolic_from_icon_theme(icon_name, size, style)
+                    # style = image.get_parent().get_style_context() if image.get_parent() else default_style
+                    pixbuf = self._load_symbolic_from_icon_theme(icon_name, size, default_style)
                     image.set_from_pixbuf(pixbuf)
                     image.set_size_request(size, size)
                 except BaseException as err:
