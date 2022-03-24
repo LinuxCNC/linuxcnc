@@ -51,9 +51,6 @@ man motion (or perhaps 'man 9 motion' if your system requires it.)
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the
 link:../man/man9/[directory listing of man9].
 
-[NOTE]
-Si el componente requiere un hilo de punto flotante, suele ser el hilo servo, más lento.
-
 [[sec:Realtime-Components-coeur]]
 === Core LinuxCNC components
 
