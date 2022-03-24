@@ -15,7 +15,7 @@ provides usage info:
 man halcmd
 ----
 
-If you have compiled LinuxCNC for “run-in-place”, you must source
+If you have compiled LinuxCNC for "run-in-place", you must source
 the rip-environment script to make the man page available:
 
 ----

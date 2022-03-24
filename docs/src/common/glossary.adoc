@@ -159,7 +159,7 @@ Feedrate Override::
      (((feedrate override))) A manual, operator controlled
     change in the rate at which the tool moves while cutting. Often used to
     allow the operator to adjust for tools that are a little dull, or
-    anything else that requires the feed rate to be “tweaked”.
+    anything else that requires the feed rate to be "tweaked".
 
 Floating Point Number::
     A number that has a decimal point. (12.300) In HAL it is known as float.

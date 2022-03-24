@@ -610,7 +610,7 @@ G7
 Program G7 to enter the diameter mode for axis X on a lathe. When in
 the diameter mode the X axis moves on a lathe will be 1/2 the distance
 to the center of the lathe. For example X1 would move the cutter to
-0.500” from the center of the lathe thus giving a 1” diameter part.
+0.500" from the center of the lathe thus giving a 1" diameter part.
 
 [[gcode:g8]]
 == G8 Lathe Radius Mode(((G8 Lathe Radius Mode)))

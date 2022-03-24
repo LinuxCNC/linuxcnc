@@ -9,7 +9,7 @@ See also the man pages 'motion(9)'.
 == Motion
 
 These pins and parameters are created by the realtime 'motmod' module.
-This module provides a HAL interface for LinuxCNC’s motion planner.
+This module provides a HAL interface for LinuxCNC's motion planner.
 Basically motmod takes in a list of waypoints and generates a nice
 blended and constraint-limited stream of joint positions to be fed
 to the motor drives.
@@ -381,7 +381,7 @@ See the motion man page 'motion(9)' for details on the pins and parameters.
 
 == iocontrol
 
-iocontrol − accepts NML I/O commands, interacts with HAL in userspace.
+iocontrol - accepts NML I/O commands, interacts with HAL in userspace.
 
 The signals are turned on and off in userspace - if you have strict
 timing requirements or simply need more i/o, consider using the realtime

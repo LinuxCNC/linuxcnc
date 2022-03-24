@@ -14,7 +14,7 @@ all) use a common coordinate system called the Cartesian Coordinate
 System.
 
 The Cartesian Coordinate system is composed of three axes (X, Y, Z) each
-perpendicular to the other two. footnote:[The word “axes” is also
+perpendicular to the other two. footnote:[The word "axes" is also
 commonly (and wrongly) used when talking about
 CNC machines, and referring to the moving directions of the machine.]
 
@@ -279,7 +279,7 @@ return 0;
 == Implementation details
 
 A kinematics module is implemented as a HAL component, and is
-permitted to export pins and parameters. It consists of several “C”
+permitted to export pins and parameters. It consists of several "C"
 functions (as opposed to HAL functions):
 
 ----

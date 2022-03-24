@@ -1039,7 +1039,7 @@ A table is a container that allows layout in a grid of rows and
 columns. Each row is started by a '<tablerow/>' tag. A contained
 widget may span rows or columns through the use of
 the '<tablespan rows= cols=/>' tag. The sides of the cells to which
-the contained widgets “stick”
+the contained widgets "stick"
 may be set through the use of the '<tablesticky sticky=/>' tag. A
 table expands on its flexible rows and columns.
 

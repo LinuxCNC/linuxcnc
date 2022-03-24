@@ -52,8 +52,8 @@ G-code and as the units for each option labeled '(units)'.
 
 === Invert Image
 
-If “no”, the black pixel is the lowest point and the white pixel is
-the highest point. If “yes”, the black pixel is the highest point and
+If "no", the black pixel is the lowest point and the white pixel is
+the highest point. If "yes", the black pixel is the highest point and
 the white pixel is the lowest point.
 
 === Normalize Image
@@ -144,8 +144,8 @@ The shape of the cutting part of the tool. Possible tool shapes are:
 
  - Ball End
  - Flat End
- - 45 degree “vee”
- - 60 degree “vee”
+ - 45 degree "vee"
+ - 60 degree "vee"
 
 === Lace bounding
 

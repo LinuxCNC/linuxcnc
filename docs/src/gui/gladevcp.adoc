@@ -2852,7 +2852,7 @@ may be specified using the exported environmental variable:
 GLADEVCP_EXTRAS.  This variable should be a path list of one or
 more configuration directories separated by a (:). Typically,
 this variable would be set in a shell starting linuxcnc or in
-a user’s ~/.profile startup script. Example:
+a user's ~/.profile startup script. Example:
 
 ====
   export GLADEVCP_EXTRAS=~/mygladevcp:/opt/othergladevcp

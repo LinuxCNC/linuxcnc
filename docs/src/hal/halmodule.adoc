@@ -55,7 +55,7 @@ halcmd: show pin
 
 == Userspace components and delays
 
-If you typed “show pin” quickly, you may see that 'passthrough.out'
+If you typed "show pin" quickly, you may see that 'passthrough.out'
 still had its old value of 0. This is because of the call to
 'time.sleep(1)', which makes the assignment to the output pin occur at
 most once per second. Because this is a userspace component, the actual
@@ -425,10 +425,10 @@ This shows ways to get the pin value and information.
   microcontroller to the PC using a serial interface. Python has a very
   capable serial interface module called
   http://pyserial.sourceforge.net/[pyserial]
-  (Ubuntu package name “python-serial”, in the universe repository)
+  (Ubuntu package name "python-serial", in the universe repository)
 * Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
   and use it to display a digital readout with information of your choice
-  (Ubuntu package name “lcdproc”, in the universe repository)
+  (Ubuntu package name "lcdproc", in the universe repository)
 * Create a virtual control panel using any GUI library supported by
   Python (gtk, qt, wxwindows, etc)
 
