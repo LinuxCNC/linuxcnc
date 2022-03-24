@@ -10,7 +10,7 @@ When making small edits to code in a style different than the one
 described below, observe the local coding style. Rapid changes from one
 coding style to another decrease code readability.
 
-Never check in code after running “indent” on it. The whitespace
+Never check in code after running "indent" on it. The whitespace
 changes introduced by indent make it more difficult to follow the
 revision history of the file.
 

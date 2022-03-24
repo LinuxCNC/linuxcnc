@@ -27,11 +27,11 @@ level tools can be designed to recognize such structure, if the names
 provide the necessary information. To do that, all HAL components should
 follow these rules:
 
- - Dots (“.”) separate levels of the hierarchy. 
-   This is analogous to the slash (“/”) in a filename. 
- - Hyphens (“-”) separate words or fields in the same level of the hierarchy.
- - HAL components should not use underscores or “MixedCase”.
- - Use only lowercase letters and numbers in names. 
+ - Dots (".") separate levels of the hierarchy.
+   This is analogous to the slash ("/") in a filename.
+ - Hyphens ("-") separate words or fields in the same level of the hierarchy.
+ - HAL components should not use underscores or "MixedCase".
+ - Use only lowercase letters and numbers in names.
 
 == Hardware Driver Naming Conventions
 
@@ -71,20 +71,20 @@ The individual fields are:
       Virtually every I/O device has multiple channels, and the channel
     number identifies one of them. Like device numbers, channel numbers
     start at zero and increment.footnote:[One exception to the
-    “channel numbers start at zero” rule is 
+    "channel numbers start at zero" rule is 
     the parallel port. Its HAL pins are numbered with the corresponding pin
     number on the DB-25 connector. This is convenient for wiring, but
     inconsistent with other drivers. There is some debate over whether this
-    is a bug or a feature.] 
+    is a bug or a feature.]
     If more than one device is installed, the channel numbers on
     additional devices start over at zero. If it is possible to have a
     channel number greater than 9, then channel numbers should be two
     digits, with a leading zero on numbers less than 10 to preserve sort
     ordering. Some modules have pins and/or parameters that affect more
     than one channel. For example a PWM generator might have four channels
-    with four independent “duty-cycle” inputs, but one “frequency”
+    with four independent "duty-cycle" inputs, but one "frequency"
     parameter that controls all four channels (due to hardware
-    limitations). The frequency parameter should use “0-3” as the channel
+    limitations). The frequency parameter should use "0-3" as the channel
     number. 
 
 <specific-name>::
@@ -93,7 +93,7 @@ The individual fields are:
     two pins, one is the state of the physical pin, the other is the same
     thing inverted. That allows the configurator to choose between active
     high and active low inputs. For most io-types, there is a standard set
-    of pins and parameters, (referred to as the “canonical interface”) that
+    of pins and parameters, (referred to as the "canonical interface") that
     the driver should implement. The canonical interfaces are described in
     the <<cha:canonical-device-interfaces,Canonical Device Interfaces>>
     chapter.

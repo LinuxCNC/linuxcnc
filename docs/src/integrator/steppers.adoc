@@ -6,8 +6,8 @@
 == Stepper Motor Operation
 
 Stepper motors operate by sequentially energising and de-energising several coils surrounding the rotor in such a
-way that the shaft is magnetically forced to rotate around in discrete steps. Steps of 0.9 – 1.8 degrees are quite
-common, giving 400 – 200 steps per full revolution of the shaft.
+way that the shaft is magnetically forced to rotate around in discrete steps. Steps of 0.9 - 1.8 degrees are quite
+common, giving 400 - 200 steps per full revolution of the shaft.
 
 As in real life, nothing can change from one state to another with absolutely no time delay. In the case of the
 stepper motor, the current passing through each coil, and thus the magnetic field that pulls the rotor around to
@@ -17,7 +17,7 @@ current. More coil inductance results in a slower rate of current change and thu
 expansion and contraction.
 
 The maximum torque that the stepper motor can achieve is when the motor is stationary with one winding energised.
-This figure may be quoted on a stepper motor datasheet as the ‘holding torque’. As the rate at which each coil is
+This figure may be quoted on a stepper motor datasheet as the 'holding torque'. As the rate at which each coil is
 energised and de-energised increases to induce rotation in the shaft, the time that each coil can exert its full
 magnetic attraction on the rotor reduces, thereby reducing the overall torque. This relationship between speed and
 torque is largely inversely proportional.
@@ -29,7 +29,7 @@ trace), and the 8mH (red trace) coil takes twice as long again:
 
 image::images/inductance-step-response.png[align="center"]
 
-If the rate at which step changes are applied to the coils is significantly shorter than the rise time, it’s easy
+If the rate at which step changes are applied to the coils is significantly shorter than the rise time, it's easy
 to see that the winding has less time to attain full magnetic attraction on the rotor, and thus maximum torque is
 curtailed. In the below example the 2mH coil can achieve the full 5A limit before the step voltage is removed, but
 the 4mH and 8mH coils cannot:
@@ -61,7 +61,7 @@ by monitoring the current being drawn through the motor windings and rapidly swi
 very high frequency to maintain this current. Depending on the drivers being used, it may even be possible to hear
 this high frequency whistling in the motors themselves when stationary. Because the voltage is rapidly switched on
 and off to maintain the winding current at an approximate fixed value, these types of drivers are also known as
-‘chopper drive’.
+'chopper drive'.
 
 == Selecting a Stepper Power Supply
 
@@ -85,13 +85,13 @@ not result in a corresponding improvement in speed/torque by the same degree. If
 running a stepper motor at 64VDC, this may help in narrowing down the proposed power supply to 32VDC which will
 also help minimise excessive heat rise in the motor windings.
 
-The other factor to consider is the current rating of the power supply. This is based from the motor’s winding
+The other factor to consider is the current rating of the power supply. This is based from the motor's winding
 current ratings and whether the motor windings are wired in series or parallel, both of which should be listed in
-the motor’s datasheet. A good rule of thumb is to size the power supply current rating at 2/3 of the rated phase
+the motor's datasheet. A good rule of thumb is to size the power supply current rating at 2/3 of the rated phase
 current of the stepper motor if the windings are in parallel, or 1/3 of the rated current if wired in series.
 Thus, for a stepper motor rated at 4A wired in parallel, the power supply needs to have a current rating of at
 least 2.7A, or 1.3A if wired in series. The total current rating of the complete system is then the sum of all
-stepper motors’ current requirements.
+stepper motors' current requirements.
 
 == Resonance
 
@@ -99,7 +99,7 @@ Motor resonance occurs when the rate at which the steps are applied to the windi
 of the motor itself. Applying steps for a prolonged period of time at this rate results in the torque dropping
 dramatically, and the motor may stall or even rotate in random directions. Some stepper motor datasheets provide
 plots of the torque/speed relationship and show a dip in the graph where resonance is likely to occur. It should
-be noted that this resonant peak provided in the datasheet is only for the motor itself – as soon as the motor is
+be noted that this resonant peak provided in the datasheet is only for the motor itself - as soon as the motor is
 coupled to other components (ie, installed in a CNC system) the resonant frequency may be altered, or even
 multiple new resonances introduced.
 
@@ -128,7 +128,7 @@ whole steps that motor is manufactured to perform at (eg, 200 steps per revoluti
 As each winding is energised the rotor clocks around fully from one detent to the next.
 
 Additional rotational resolution from a stepper motor can be obtained by performing microstepping, whereby the
-current being driven into each winding can essentially be ‘ramped’ in discrete intermediate steps. This then
+current being driven into each winding can essentially be 'ramped' in discrete intermediate steps. This then
 causes the rotor to gradually straddle across each rotational detent rather than making the full jump from one
 step to the next.
 
@@ -165,16 +165,16 @@ obtain the necessary resolution and torque gains.
 In the simplest CNC systems employing stepper motors, the host computer and/or stepper driver receives no feedback
 from the motor that it has achieved the desired outcome when commanded to begin stepping. The assumption by the
 software, driver and end user is that the motor operated correctly and the axis has moved to the expected new
-position. A system operating in this fashion is said to be running in ‘open loop’, where the device at the end of
+position. A system operating in this fashion is said to be running in 'open loop', where the device at the end of
 the signal chain (the stepper motor) does not provide any indication to the device at the start of the chain (the
 computer) that the target was reached.
 
-A further enhancement to the basic stepper motor is to run the system in a ‘closed loop’. This is achieved by
+A further enhancement to the basic stepper motor is to run the system in a 'closed loop'. This is achieved by
 equipping the stepper motor with a rotary encoder whose positional signal is returned back to a device higher up
-in the signal chain. In this way the motors’ actual position can be compared to the expected position at all
+in the signal chain. In this way the motors' actual position can be compared to the expected position at all
 times, and the drive parameters adjusted in real time to ensure that the motor does not fall behind. This enables
 closed loop stepper systems to be able to achieve better speed and torque performance than open loop systems, due
-to the system constantly compensating for any deviation to the stepper’s performance under varying loads.
+to the system constantly compensating for any deviation to the stepper's performance under varying loads.
 
 Basic systems operating in this fashion may only close the loop between the motor and the driver, leaving the
 software on the host computer out of the loop. The software issues step/direction pulses to the downstream driver

@@ -69,7 +69,7 @@ TOOL_EDITOR = tooledit Z DIAM
 ----
 
 .Résultat obtenu
-image::images/tooledit-columns_fr.png["Éditeur graphique de table d’outils - Choix des colonnes",align="left"]
+image::images/tooledit-columns_fr.png["Éditeur graphique de table d'outils - Choix des colonnes",align="left"]
 
 == Stand Alone Use
 The 'tooledit' program can also be invoked as a standalone

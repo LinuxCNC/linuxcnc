@@ -63,9 +63,9 @@ Beta 1 version</property>
 
     The G53 machine zero origin is typically inside the soft limits area but not necessarily.
 
-    If using a separate homing switch, it’s possible to start homing on the wrong side of the home switch,
+    If using a separate homing switch, it's possible to start homing on the wrong side of the home switch,
     which combined with HOME_IGNORE_LIMITS option will lead to a hard crash.
-    You can avoid this by making the home switch toggle it’s state when the trip dog is on a particular side until it returns passed the trip point again.
+    You can avoid this by making the home switch toggle it's state when the trip dog is on a particular side until it returns passed the trip point again.
     Said another way, the home switch state must represent the position of the dog relative to the switch (ie before or after the switch),
     and must stay that way even if the dog coasts past the switch in the same direction.
 

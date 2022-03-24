@@ -198,7 +198,7 @@ same pin.
 
 === Changing polarity of a signal
 
-If external hardware expects an “active low” signal, set the
+If external hardware expects an "active low" signal, set the
 corresponding '-invert' parameter. For instance, to invert the spindle
 control signal:
 
@@ -218,7 +218,7 @@ addf pwmgen.make-pulses base-thread
 net spindle-speed-cmd spindle.0.speed-out => pwmgen.0.value
 net spindle-on spindle.0.on => pwmgen.0.enable
 net spindle-pwm pwmgen.0.pwm => parport.0.pin-09-out
-setp pwmgen.0.scale 1800 # Change to your spindle’s top speed in RPM
+setp pwmgen.0.scale 1800 # Change to your spindle's top speed in RPM
 ----
 
 This assumes that the spindle controller's response to PWM is simple:

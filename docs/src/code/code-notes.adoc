@@ -26,7 +26,7 @@ very much a work in progress, and its layout may change in the future.
   orientation. A second set of linear orthogonal coordinates U, V, and W
   allows tool motion (typically for cutting actions) relative to the
   previously offset and rotated axes.
-  Unfortunately “axis” is also
+  Unfortunately "axis" is also
   sometimes used to mean a degree of freedom of the machine itself, such
   as the saddle, table, or quill of a Bridgeport type milling machine. On
   a Bridgeport this causes no confusion, since movement of the table
@@ -968,8 +968,8 @@ any one buffer is unclear from existing documentation and from the
 original source code. Allowing unspecified multiple processes to
 connect to a buffer is no more difficult to implement.
 
-The mutex types boil down to one of two, the default “os_sem” or “mao
-split”. Most of the NML messages are relatively short and can be copied
+The mutex types boil down to one of two, the default "os_sem" or "mao
+split". Most of the NML messages are relatively short and can be copied
 to or from the buffer with minimal delays, so split reads are not
 essential.
 

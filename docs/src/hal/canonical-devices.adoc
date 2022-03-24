@@ -6,7 +6,7 @@
 == Introduction
 
 The following sections show the pins, parameters, and functions that
-are supplied by “canonical devices”. All HAL device drivers should
+are supplied by "canonical devices". All HAL device drivers should
 supply the same pins and parameters, and implement the same behavior.
 
 Note that the only the `<io-type>` and `<specific-name>` fields are
@@ -112,7 +112,7 @@ converters or PWM generators.
 (funct) *write*  -- This causes the calculated value to be output to
 the hardware. If enable is false, then the output will be 0,
 regardless of *value*, *scale*, and *offset*.
-The meaning of “0” is dependent on the hardware. For example, a
+The meaning of "0" is dependent on the hardware. For example, a
 bipolar 12-bit A/D may need to write 0x1FF (mid scale) to the D/A get 0
 volts from the hardware pin. If enable is true, read scale, offset and
 value and output to the adc (*scale* * *value*) + *offset*. If enable
