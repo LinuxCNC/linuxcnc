@@ -71,12 +71,11 @@ la salida del controlador 'maestro', que está controlando basándose en una var
 
 === Teoría
 
-'PID' lleva el nombre de sus tres cálculos de corrección; todos añaden
-o ajustan la cantidad controlada. Estas adiciones son en realidad
+'PID' lleva el nombre de sus tres cálculos de corrección; todos añaden o
+ajustan la cantidad controlada. Estas adiciones son en realidad
 'restas' de error, porque las proporciones son generalmente negativas:
 
 .Proporcional
-
 Para manejar el estado presente, el error se multiplica por una
 P constante (de 'proporcional', negativa) y se añade (restando el error)
 a la cantidad controlada. P solo es válido en la banda sobre la que
@@ -85,7 +84,6 @@ que cuando el error es cero, la salida de un controlador proporcional es
 cero.
 
 .Integral
-
 Para aprender del pasado, el error está integrado (acumulado) sobre un
 período de tiempo, y luego multiplicado por una constante I (negativa, haciendo
 un promedio), y añadido a (restando el error de) la cantidad controlada. 
@@ -100,7 +98,6 @@ el punto de ajuste siempre se está reduciendo. Por lo tanto, eventualmente, una
 salida del proceso del bucle PID bien ajustado se establecerá en el punto de ajuste.
 
 .Derivativo
-
 Para manejar el futuro, se calcula la primera derivada (la pendiente del error)
 con el tiempo y se multiplica por otra constante (negativa)
 D, y también se añade a (restando el error de) la cantidad controlada.
@@ -140,7 +137,6 @@ sistema a un cambio de un paso la entrada, midiendo la salida en función del
 tiempo y usando esta respuesta para determinar los parámetros de control.
 
 .Método simple
-
 Si el sistema debe permanecer en línea, se debe configurar primero un ajuste a cero
 de los valores I y D. Aumentar P hasta que la salida del lazo
 oscile. Luego aumentar I hasta que la oscilación se detenga. Por último, aumentar
@@ -159,7 +155,6 @@ rapidez. Sin embargo, algunos sistemas no pueden aceptar estos rebasamientos.
 Efectos del aumento de parámetros
 
 .Método Ziegler-Nichols
-
 Otro método de ajuste se conoce formalmente como el 'método Ziegler-Nichols', presentado 
 por John G. Ziegler y Nathaniel B. Nichols. Comienza de la misma manera que el método 
 descrito anteriormente: primero, se configura I y D a cero y luego se aumenta la ganancia P y 
@@ -178,9 +173,7 @@ de la salida (P~c~). Luego ajuste los controles P, I y D como muestra la tabla:
 | =======================================
 
 .Pasos Finales
-
 Después de ajustar el eje, verifique el error de seguimiento con Halscope para 
 asegurarse de que está dentro de los requisitos de su máquina. Hay más información sobre
 Halscope en el manual de usuario de HAL.
-
 
