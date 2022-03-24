@@ -382,7 +382,7 @@ and2 [count=N] | [names=name1[,name2...]]
 
 Functions
 
-and2.n
+    and2.n
 
 Pins
 
@@ -442,7 +442,7 @@ or2[count=n] | [names=name1[,name2...]]
 
 Functions
 
-+or2.n+
+    or2.n
 
 Pins
 
@@ -473,7 +473,7 @@ xor2[count=n] | [names=name1[,name2...]]
 
 Functions
 
-+xor2.n+
+    xor2.n
 
 Pins
 

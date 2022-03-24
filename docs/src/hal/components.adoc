@@ -1,7 +1,7 @@
 :lang: en
 
 [[cha:hal-components]]
-= HAL Components((("HAL Components")))
+= HAL Component List((("HAL Component List")))
 
 == Commands and Userspace Components
 
