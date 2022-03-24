@@ -266,7 +266,7 @@ The PWM generator supports three different 'output types'.
 * 'Output type 1' - PWM/PDM and direction pins. Positive and negative inputs
    will be output as positive and negative PWM. The direction pin is false
    for positive commands, and true for negative commands. If your control
-   needs positive PWM for both CW and CCW use the <<sub:abs,abs>> component
+   needs positive PWM for both CW and CCW use the link:../man/man9/abs.9.html[abs] component
    to convert your PWM signal to positive value when a negative input is input.
 
 * 'Output type 2' - UP and DOWN pins. For positive commands, the PWM signal
