@@ -132,6 +132,7 @@ typedef struct {
     hal_bit_t *jog_is_active;	/* RPI: TRUE if active jogging*/
     hal_bit_t *tp_reverse;	/* Set true if trajectory planner is running in reverse*/
     hal_bit_t *motion_enabled;	/* RPI: motion enable for all joints */
+    hal_bit_t *is_all_homed;	/* RPI: TRUE if all active joints is homed */
     hal_bit_t *in_position;	/* RPI: all joints are in position */
     hal_bit_t *coord_mode;	/* RPA: TRUE if coord, FALSE if free */
     hal_bit_t *teleop_mode;	/* RPA: TRUE if teleop mode */
