@@ -3,10 +3,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-02-14 01:56+0000\n"
-"Last-Translator: Jérémie Tarot <silopolis@gmail.com>\n"
+"PO-Revision-Date: 2022-03-26 16:10+0000\n"
+"Last-Translator: ButterflyOfFire <ButterflyOfFire@protonmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.11-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
 
 #: src/emc/task/emctaskmain.cc:871
 #, c-format
@@ -625,9 +625,9 @@ msgid "Invalid D-number in G76 cycle"
 msgstr "Nombre D invalide dans le cycle G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4808
-#, fuzzy, c-format
+#, c-format
 msgid "Chosen spindle (%i) not turning in G76"
-msgstr "Broche pas en rotation en G33"
+msgstr "La broche choisie (%i) ne tourne pas en G76"
 
 #: src/emc/rs274ngc/interp_convert.cc:4846
 msgid "BUG: An axis incorrectly moved along with an indexer"
@@ -729,9 +729,9 @@ msgstr ""
 "pas s'achever sans que l'outil n'interfère avec la pièce"
 
 #: src/emc/rs274ngc/interp_cycles.cc:275
-#, fuzzy, c-format
+#, c-format
 msgid "Spindle not turning in %s"
-msgstr "Broche pas en rotation en G33"
+msgstr "La broche ne tourne pas dans %s."
 
 #: src/emc/rs274ngc/interp_cycles.cc:277
 #, fuzzy
@@ -2259,7 +2259,7 @@ msgstr "Pas de jointure sélectionnée pour la télécommande"
 
 #: src/hal/utils/scope_horiz.c:796
 msgid "You need to choose at least one channel."
-msgstr ""
+msgstr "Vous devez choisir au moins un canal."
 
 #: src/hal/utils/scope_horiz.c:806
 msgid "Pick log file to write to:"
@@ -3432,7 +3432,7 @@ msgstr "À propos"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d µs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 #, fuzzy
@@ -3615,7 +3615,7 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Logic"
-msgstr ""
+msgstr "Logique"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Variable mapped"
@@ -5298,7 +5298,7 @@ msgstr " WATCH "
 
 #: tcl/bin/halshow.tcl:155
 msgid " SETTINGS "
-msgstr ""
+msgstr " PARAMÈTRES"
 
 #: tcl/bin/halshow.tcl:199
 msgid "Load Watch List"
@@ -5384,7 +5384,7 @@ msgstr "Tester une commande HAL :"
 
 #: tcl/bin/halshow.tcl:574
 msgid "Update interval (in ms)"
-msgstr ""
+msgstr "Intervalle de mise à jour (en ms)"
 
 #: tcl/bin/halshow.tcl:575
 msgid "Column width for value in watch tab"
@@ -5416,11 +5416,11 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:591
 msgid "Settings stored in: "
-msgstr ""
+msgstr "Paramètres enregistrés dans :"
 
 #: tcl/bin/halshow.tcl:695
 msgid "already in list"
-msgstr ""
+msgstr "déjà dans la liste"
 
 #: tcl/bin/halshow.tcl:786
 #, fuzzy
@@ -5465,7 +5465,7 @@ msgstr "Entrée inutilisée"
 
 #: tcl/bin/halshow.tcl:906
 msgid "Update interval for this session (ms)"
-msgstr ""
+msgstr "Intervalle de mise à jour pour cette session (ms)"
 
 #: tcl/bin/halshow.tcl:908
 #, fuzzy
@@ -5475,7 +5475,7 @@ msgstr "G code hors d'étendue"
 
 #: tcl/bin/halshow.tcl:976
 msgid "removed from list"
-msgstr ""
+msgstr "retiré de la liste"
 
 #: tcl/bin/halshow.tcl:1006
 msgid "Load a watch list"
@@ -7804,7 +7804,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:2045
 #, python-format
 msgid "%.1f minutes"
-msgstr "% 1f minutes"
+msgstr "%.1f minutes"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2047
 #, python-format
@@ -10861,7 +10861,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_INI.py:410
 #: src/emc/usr_intf/pncconf/build_INI.py:566
 msgid "# hide buttons (0=no, 1=yes)"
-msgstr ""
+msgstr "# cacher les boutons (0=non, 1=oui)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:292
 #: src/emc/usr_intf/pncconf/build_HAL.py:763
@@ -10945,9 +10945,9 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:430
 #: src/emc/usr_intf/pncconf/build_HAL.py:961
-#, fuzzy, python-format
+#, python-format
 msgid "# Include your %s HAL commands here"
-msgstr "# Inclure vos commandes HAL personnalisées ici"
+msgstr "# Inclure vos commandes %s HAL ici"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:431
 #: src/emc/usr_intf/stepconf/build_HAL.py:722
@@ -10979,6 +10979,10 @@ msgid ""
 "\n"
 "########################################"
 msgstr ""
+"\n"
+"\n"
+"\n"
+"########################################"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:740
 #: src/emc/usr_intf/pncconf/build_HAL.py:1919
@@ -11003,7 +11007,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:1922
 #: src/emc/usr_intf/pncconf/build_HAL.py:1934
 msgid "# default = 0 (volts)"
-msgstr ""
+msgstr "# par défaut = 0 (volts)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
 #: src/emc/usr_intf/pncconf/build_HAL.py:1924
@@ -11015,7 +11019,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:746
 #: src/emc/usr_intf/pncconf/build_HAL.py:1925
 msgid "# default = 0.0 (seconds)"
-msgstr ""
+msgstr "# par défaut = 0.0 (secondes)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
 #: src/emc/usr_intf/pncconf/build_HAL.py:1927
@@ -11041,7 +11045,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:752
 #: src/emc/usr_intf/pncconf/build_HAL.py:1931
 msgid "# default = 10 (volts)"
-msgstr ""
+msgstr "# par défaut = 10 (volts)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
 #: src/emc/usr_intf/pncconf/build_HAL.py:1933
@@ -11060,7 +11064,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:758
 #: src/emc/usr_intf/pncconf/build_HAL.py:1937
 msgid "# default = 5 (mm)"
-msgstr ""
+msgstr "# par défaut = 5 (mm)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
 #: src/emc/usr_intf/pncconf/build_HAL.py:1939
@@ -12048,7 +12052,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12257,11 +12262,7 @@ msgid " Simulator: will not run hardware "
 msgstr " Simulateur : n’utilisera pas de matériel "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:97
-#, fuzzy, python-format
-#| msgid ""
-#| "PNCconf encountered an error.  The following information may be useful in "
-#| "troubleshooting:\n"
-#| "\n"
+#, python-format
 msgid ""
 "PNCconf encountered an error.  The following information may be useful in "
 "troubleshooting:\n"
@@ -12269,8 +12270,10 @@ msgid ""
 "LinuxCNC Version:  %s\n"
 "\n"
 msgstr ""
-"PNCconf a rencontré une erreur.  L'information suivante vous aidera à "
-"résoudre ce dysfonctionnement:\n"
+"PNCconf a rencontré une erreur.  Les informations suivantes peuvent être "
+"utiles pour le dépannage :\n"
+"\n"
+"Version de LinuxCNC :  %s\n"
 "\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:173
@@ -12709,9 +12712,9 @@ msgstr "# Généré par PNCconf le %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:18
 #: src/emc/usr_intf/pncconf/build_HAL.py:54
-#, fuzzy, python-format
+#, python-format
 msgid "# Using LinuxCNC version:  %s"
-msgstr "LinuxCNC version"
+msgstr "# Utilise la version LinuxCNC :  %s"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:20
 #: src/emc/usr_intf/pncconf/build_HAL.py:56
@@ -19386,7 +19389,7 @@ msgstr "Changement d'outil manuel d'AXIS"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3746
 msgid "Operator Message"
-msgstr ""
+msgstr "Message opérateur"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3780
 #: src/emc/usr_intf/gscreen/gscreen.py:3783
@@ -19431,7 +19434,7 @@ msgstr "Pas de jointure sélectionnée pour la télécommande"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4166
 msgid "No axis selected to move"
-msgstr ""
+msgstr "Aucun axe sélectionné pour le déplacement"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4236
 msgid "Can't home multiple axis - select HOME ALL instead"
@@ -19483,9 +19486,9 @@ msgid "Message"
 msgstr "Utilisation"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4456
-#, fuzzy, python-format
+#, python-format
 msgid "%d RPM"
-msgstr "tr/mn maximaux"
+msgstr "%d TR / MIN"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4572
 #, python-format
@@ -19493,9 +19496,9 @@ msgid "Tool %(t)s     %(l)s"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4604
-#, fuzzy, python-format
+#, python-format
 msgid "%4.2f mm/min"
-msgstr "mm / mn "
+msgstr "%4.2f mm/min"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4606
 #, python-format
@@ -19508,9 +19511,9 @@ msgid "%4.2f DPM"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4618
-#, fuzzy, python-format
+#, python-format
 msgid "%(n)s   View -%(v)s               %(t)s"
-msgstr "                    "
+msgstr "%(n)s   Vue -%(v)s               %(t)s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4627
 #: src/emc/usr_intf/gscreen/gscreen.py:4628
@@ -20415,7 +20418,7 @@ msgstr ""
 
 #: lib/python/gladevcp/calculator.glade:361
 msgid "in → mm"
-msgstr ""
+msgstr "in → mm"
 
 #: lib/python/gladevcp/calculator.glade:376
 #, fuzzy
