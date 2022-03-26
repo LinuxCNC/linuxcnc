@@ -1522,7 +1522,7 @@ Icon themes are used to customize the look and feel of gmoccapy's icons.
 Gmoccapy ships with three different icon themes:
 
 * classic: The classic gmoccapy icons
-* material: A modern icon theme inspired by Google's Material Icons that automatically adopts its coloring from the selected deskop theme
+* material: A modern icon theme inspired by Google's Material Icons that automatically adopts its coloring from the selected desktop theme
 * material-light: Derived from material but optimized for light desktop themes
 
 The icon theme used in gmoccapy is a regular GTK IconTheme that follows the freedestktop icon theme specification.
@@ -1581,7 +1581,7 @@ Basically that's everything needed to create a custom IconTheme.
 === Symbolic Icons
 
 Symbolic icons are a special type of icon, usually a monochrome image. The special feature of symbolic icons is that the icons are automatically colored at runtime to match the desktop theme.
-That way, icon themes can be created that work well with dark and also light desktop themes (in fact, thats not always the best option, thats why a dedicated "material-light" theme exists).
+That way, icon themes can be created that work well with dark and also light desktop themes (in fact, that's not always the best option, that's why a dedicated "material-light" theme exists).
 
 image::images/gmoccapy_icon_theme_symbolic.png[align="center"]
 

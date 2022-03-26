@@ -4418,10 +4418,10 @@ class gmoccapy(object):
                 ("img_tool_path", "toolpath", 24),
                 ("img_dimensions", "dimensions", 24),
                 # coolant
-                ("img_coolant_on", "coolant_flood_active", 32),
-                ("img_coolant_off", "coolant_flood_inactive", 32),
-                ("img_mist_on", "coolant_mist_active", 32),
-                ("img_mist_off", "coolant_mist_inactive", 32),
+                ("img_coolant_on",  "coolant_flood_active",   48),
+                ("img_coolant_off", "coolant_flood_inactive", 48),
+                ("img_mist_on",     "coolant_mist_active",    48),
+                ("img_mist_off",    "coolant_mist_inactive",  48),
                 # spindle
                 ("img_spindle_forward", "spindle_right", 48),
                 ("img_spindle_forward_on", "spindle_right_on", 48),
@@ -4430,20 +4430,20 @@ class gmoccapy(object):
                 ("img_spindle_stop", "spindle_stop", 48),
                 ("img_spindle_stop_on", "spindle_stop_on", 48),
                 # jog
-                ("img_rabbit_jog", "jog_speed_fast", 16),
-                ("img_turtle_jog", "jog_speed_slow", 16),
+                ("img_rabbit_jog", "jog_speed_fast", 32),
+                ("img_turtle_jog", "jog_speed_slow", 32),
                 # fullscreen
-                ("img_fullsize_preview0_open",  "fullscreen_open",  32),
-                ("img_fullsize_preview0_close", "fullscreen_close", 32),
-                ("img_fullsize_preview1_open",  "fullscreen_open",  32),
-                ("img_fullsize_preview1_close", "fullscreen_close", 32),
+                ("img_fullsize_preview0_open",  "fullscreen_open",  48),
+                ("img_fullsize_preview0_close", "fullscreen_close", 48),
+                ("img_fullsize_preview1_open",  "fullscreen_open",  48),
+                ("img_fullsize_preview1_close", "fullscreen_close", 48),
                 # ref
                 ("img_ref_menu",            "ref_all",          48),
                 ("img_ref_menu_close",      "back_to_app",      32),
                 ("img_ref_paginate_next",   "chevron_right",    32),
                 ("img_ref_paginate_prev",   "chevron_left",     32),
                 ("img_ref_all",             "ref_all",          48),
-                ("img_unref_all",           "unref_all",        32),
+                ("img_unref_all",           "unref_all",        48),
                 ("img_ref_x", "ref_x", 48),
                 ("img_ref_y", "ref_y", 48),
                 ("img_ref_z", "ref_z", 48),
@@ -4489,7 +4489,7 @@ class gmoccapy(object):
                 ("img_pause",           "pause",            32),
                 ("img_pause_active",    "pause_active",     32),
                 ("img_step",            "step",             32),
-                ("img_run_from",        "run_from_line",    32),
+                ("img_run_from",        "run_from_line",    48),
                 ("img_editor",          "edit_code",        32),
                 ("img_skip_optional_active",    "skip_optional_active",     32),
                 ("img_skip_optional_inactive",  "skip_optional_inactive",   32),
@@ -4514,7 +4514,7 @@ class gmoccapy(object):
                 ("img_macro_menu_keyboard_hide",    "keyboard_hide",    32),
                 ("img_macro_menu_stop",             "stop",             32),
                 # misc
-                ("img_close", "logout", 32),
+                ("img_close", "logout", 48),
             ]
 
             # default style context see TODO below
