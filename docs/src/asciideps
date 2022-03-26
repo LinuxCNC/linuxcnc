@@ -11,7 +11,7 @@ includes () {
 	for f in `sed -ne "s|^include::\(.*\)\[\]$|$DIR/\1|p" "$1"`; do
 		# components_gen.adoc will contain only generated content
 		case "$f" in
-			*/components_gen*.adoc)
+			*/components_gen.adoc)
 			touch "$f"
 			;;
 		esac
