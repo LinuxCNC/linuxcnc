@@ -839,6 +839,9 @@ STATIC int tpInitBlendArcFromPrev(TP_STRUCT const * const tp,
     //In the future, radius may be adjustable.
     tcFinalizeLength(blend_tc);
 
+    // copy state tag from previous segment during blend motion
+    blend_tc->tag = prev_tc->tag;
+
     return TP_ERR_OK;
 }
 
