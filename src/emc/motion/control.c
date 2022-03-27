@@ -2063,6 +2063,12 @@ static void update_status(void)
 	joint_status->min_ferror = joint->min_ferror;
 	joint_status->max_ferror = joint->max_ferror;
     }
+    if (get_allhomed()) {
+        *emcmot_hal_data->is_all_homed = 1;
+    } else {
+        *emcmot_hal_data->is_all_homed = 0;
+    }
+
 
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         /* point to axis status */
