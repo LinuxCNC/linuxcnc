@@ -151,7 +151,7 @@ will result in unacceptably slow RPM of the motor.
 
 Excessively-high rates of microstepping have no real benefit if the resultant accuracy is too small to be
 mechanically useful. A 1.8 degree per step motor running at 16x microstepping is theoretically capable of 0.1125
-degrees per step. Coupled with a 20TPI leadscrew this should result in a positional resolution of 0.000016” or
+degrees per step. Coupled with a 20TPI leadscrew this should result in a positional resolution of 0.000016" or
 0.0004mm. In reality it is incredibly difficult to achieve such fine degrees of control. All components in the CNC
 system will contain tolerances and countering forces (backlash in leadscrews, flex in gantries, runout in the
 spindle and cutting tool, static friction in the stepper motor itself, stepper detent error etc) that will render

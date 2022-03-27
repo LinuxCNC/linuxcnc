@@ -77,9 +77,9 @@ In recent times, another class of machine which includes some of these features 
 
 == Types Of Torch Height Control
 
-Most THC units are external devices and many have a fairly crude “bit bang" adjustment method. They provide two signals back to the LinuxCNC controller. One turns on if the Z axis should move up and the other turns on if the Z axis should move down. Neither signal is true if the torch is at the correct height. The popular Proma 150 THC is one example of this type of THC. The Linuxcnc THCUD component is designed to work with this type of THC.
+Most THC units are external devices and many have a fairly crude "bit bang" adjustment method. They provide two signals back to the LinuxCNC controller. One turns on if the Z axis should move up and the other turns on if the Z axis should move down. Neither signal is true if the torch is at the correct height. The popular Proma 150 THC is one example of this type of THC. The Linuxcnc THCUD component is designed to work with this type of THC.
 
-With the release of the Mesa THCAD voltage to frequency interface, LinuxCNC was able to decode the actual torch voltage via an encoder input. This allowed LinuxCNC to control the Z axis and eliminate external hardware. Early implementations utilising the THCAD replicated the “bit bang" approach. The Linuxcnc THC component is an example of this approach.
+With the release of the Mesa THCAD voltage to frequency interface, LinuxCNC was able to decode the actual torch voltage via an encoder input. This allowed LinuxCNC to control the Z axis and eliminate external hardware. Early implementations utilising the THCAD replicated the "bit bang" approach. The Linuxcnc THC component is an example of this approach.
 
 Jim Colt of Hypertherm is on record saying that the best THC controllers were fully integrated into the CNC controller itself. Of course he was referring to high end systems manufactured by Hypertherm, Esab, Thermal Dynamics and others such as Advanced Robotic Technology in Australia, little dreaming that open source could produce systems using this approach that rival high end systems.
 
@@ -96,7 +96,7 @@ A simple and effective arcOK signal can be achieved with a simple reed relay. Wr
 
 == Initial Height Sensing
 
-Because the cutting height is such a critical system parameter and the material surface is inherently uneven, a Z axis mechanism needs a method to sense the material surface. There are three methods this can be achieved; Current sensing to detect increased motor torque, a “float" switch and an electrical or “ohmic" sensing circuit that is closed when the torch shield contacts the material. Current sensing is not a viable technique for DIY tables but float switches and ohmic sensing are discussed below:
+Because the cutting height is such a critical system parameter and the material surface is inherently uneven, a Z axis mechanism needs a method to sense the material surface. There are three methods this can be achieved; Current sensing to detect increased motor torque, a "float" switch and an electrical or "ohmic" sensing circuit that is closed when the torch shield contacts the material. Current sensing is not a viable technique for DIY tables but float switches and ohmic sensing are discussed below:
 
 === Float Switches
 
@@ -127,7 +127,7 @@ To implement this method, a second encoder input is required.
 
 If using a mesa card, different firmware is available to provide 2 additional Encoder A inputs on the Encoder B and Encoder Index pins. This firmware is available for download for the 7i76e and 7i96 boards from the Mesa web site on the product pages.
 
-The THCAD is sensitive enough to see the ramp up in  circuit voltage as contact pressure increases. The ohmic.comp component included in Linuxcnc can monitor the sensing voltage and set a voltage threshold above which it is deemed contact is made and an output is enabled. By monitoring the voltage, a lower “break circuit"  threshold can be set to build in strong switch hysteresis. This minimises false triggering. In our testing, we found the material sensing using this method was more sensitive and robust as well as being simpler to implement the wiring. One further advantage is using software outputs instead of physical I/O pins is that it frees up pins to use for other purposes. This advantage is helpful to get the most out of the Mesa 7i96 which has limited I/O pins.
+The THCAD is sensitive enough to see the ramp up in  circuit voltage as contact pressure increases. The ohmic.comp component included in Linuxcnc can monitor the sensing voltage and set a voltage threshold above which it is deemed contact is made and an output is enabled. By monitoring the voltage, a lower "break circuit"  threshold can be set to build in strong switch hysteresis. This minimises false triggering. In our testing, we found the material sensing using this method was more sensitive and robust as well as being simpler to implement the wiring. One further advantage is using software outputs instead of physical I/O pins is that it frees up pins to use for other purposes. This advantage is helpful to get the most out of the Mesa 7i96 which has limited I/O pins.
 
 The following circuit diagram shows how to implement a hypersensing circuit.
 
@@ -170,7 +170,7 @@ When an arc is established, arc voltage peaks significantly and then settles bac
 
 image::images/primer_thc-delay.png[width=100%]
 
-It is important for the plasma controller to “wait it out" before auto sampling the torch voltage and commencing THC control. If enabled too early, the voltage will be above the desired cut volts and the torch will be driven down in an attempt to address a perceived over-height condition.
+It is important for the plasma controller to "wait it out" before auto sampling the torch voltage and commencing THC control. If enabled too early, the voltage will be above the desired cut volts and the torch will be driven down in an attempt to address a perceived over-height condition.
 
 In our testing this varies between machines and material from 0.5 to 1.5 seconds. Therefore a delay of 1.5 seconds after a valid arcOK signal is received before enabling THC control is a safe initial setting. If you want to shorten this for a given material, LinuxCNC's Halscope will allow you to plot the torch voltage and make informed decisions about the shortest safe delay is used.
 
@@ -183,7 +183,7 @@ Rather than relying on the manufacturer's cut charts to set the desired torch vo
 
 == Torch Breakaway
 
-It is recommended that a mechanism is provided to allow the torch to “break away" or fall off in the case of impact with the material or a cut part that has tipped up. A sensor should be installed to allow the CNC controller to detect if this has occurred and pause the running program. Usually a break away is implemented using magnets to secure the torch to the Z axis stage.
+It is recommended that a mechanism is provided to allow the torch to "break away" or fall off in the case of impact with the material or a cut part that has tipped up. A sensor should be installed to allow the CNC controller to detect if this has occurred and pause the running program. Usually a break away is implemented using magnets to secure the torch to the Z axis stage.
 
 == Corner Lock / Velocity Anti-Dive
 
@@ -203,7 +203,7 @@ So it should be possible to compare the moving average with the dv/dt and halt T
 
 It is recommended that you slow down cutting when cutting holes and small shapes.
 
-John Moore says: “If you want details on cutting accurate small holes look up the sales sheets on Hypertherm's "True Hole Technology" also look on PlasmaSpider, user seanp has posted extensively on his work using simple air plasma.
+John Moore says: "If you want details on cutting accurate small holes look up the sales sheets on Hypertherm's "True Hole Technology" also look on PlasmaSpider, user seanp has posted extensively on his work using simple air plasma.
 
 The generally accepted method to get good holes from 37mm dia. and down to material thickness with minimal taper using an air plasma is:
 
@@ -225,7 +225,7 @@ From the preceding discussion it is evident that the plasma controller needs to 
 . Remap the F command and save the commanded feedrate set in G-Code via an M67/M68 command
 . Storing the cut charts in the plasma controller and allow the current feedrate be queried by the G-Code program (as QtPlasmaC does)
 
-One experimental Linuxcnc branch that would be useful for plasma cutting was the state tags branch. This adds a “tag" that is available to motion containing the current feed and speed rates for all active motion commands. It has been merged and will be in LinuxCNC v2.9
+One experimental Linuxcnc branch that would be useful for plasma cutting was the state tags branch. This adds a "tag" that is available to motion containing the current feed and speed rates for all active motion commands. It has been merged and will be in LinuxCNC v2.9
 
 == I/O Pins For Plasma Controllers
 
@@ -452,7 +452,7 @@ Therefore, system builders should select components carefully and design from th
 
 Choosing ethernet boards such as the Mesa 7i76e or the cheaper 7i96 helps by allowing the PC to be located away from the electronics and the plasma machine. This hardware also allows the use of 24 volt logic systems which are much more noise tolerant. Components should be mounted in a metal enclosure connected to the mains earth. It is strongly recommended that an EMI filter is installed on the mains power connection. The simplest way is to use a EMI filtered mains power IEC connector commonly used on PC's and electric appliances which allows this to be achieved with no extra work. Plan the layout of components in the enclosure so that mains power, high voltage motor wires and logic signals are kept as separate as possible from each other. If they do have to cross, keep them at 90 degrees.
 
-Peter Wallace from Mesa Electronics suggests; “If you have a CNC compatible plasma source with a voltage divider, I would mount the THCAD inside your electronics enclosure with all the other motion hardware. If you have a manual plasma source and you are reading raw plasma voltage, I would mount the THCAD as close to the plasma source as possible (even inside the plasma source case if it fits.) In this case, make sure that all low side THCAD connections are fully isolated from the plasma source. If you use a shielded box for the THCAD, the shield should connect to your electronic enclosure ground, not the plasma source ground."
+Peter Wallace from Mesa Electronics suggests; "If you have a CNC compatible plasma source with a voltage divider, I would mount the THCAD inside your electronics enclosure with all the other motion hardware. If you have a manual plasma source and you are reading raw plasma voltage, I would mount the THCAD as close to the plasma source as possible (even inside the plasma source case if it fits.) In this case, make sure that all low side THCAD connections are fully isolated from the plasma source. If you use a shielded box for the THCAD, the shield should connect to your electronic enclosure ground, not the plasma source ground."
 
 It is recommended to run a separate earth wire from motor cases and the torch back to a central star grounding point on the machine. Connect the plasma ground lead to this point and optionally an earth rod driven into the ground as close as possible to the machine (particularly if its a HF start plasma machine).
 
@@ -460,7 +460,7 @@ External wiring to motors should be shielded and appropriately sized to handle t
 
 We are aware of at least one commercial system builder who has had problems with induced electrical noise on the ohmic sensing circuit. Whilst this can be mitigated by using ferrite beads and coiling the cable, adding a feed through power line filter is also recommended where the ohmic sensing signal enters the electronics enclosure.
 
-Tommy Berisha, the master of building plasma machines on a budget says: “If on a budget, consider using old laptop power bricks. They are very good, filtering is good, completely isolated, current limited (this becomes very important when something goes wrong), and fitting 2 or 3 of them in series is easy as they are isolated ( be aware that some do have the grounding wired to the negative output terminal, so. It has to be disconnected, simply done by using a power cable with no ground contacts)".
+Tommy Berisha, the master of building plasma machines on a budget says: "If on a budget, consider using old laptop power bricks. They are very good, filtering is good, completely isolated, current limited (this becomes very important when something goes wrong), and fitting 2 or 3 of them in series is easy as they are isolated ( be aware that some do have the grounding wired to the negative output terminal, so. It has to be disconnected, simply done by using a power cable with no ground contacts)".
 
 == Water Tables
 

@@ -62,7 +62,7 @@ you are able to make choices about how you will use the system. Many of
 these choices are a part of machine integration, but many also affect
 the way you will use your machine. As you read you will find many
 places where you will need to make comparisons. Eventually you will
-make choices, "I'll use this interface rather than that” or, “I'll
+make choices, "I'll use this interface rather than that" or, "I'll
 write part offsets this way rather than that way." Throughout these
 handbooks we describe the range of abilities currently available.
 
