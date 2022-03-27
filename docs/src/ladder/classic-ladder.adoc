@@ -702,11 +702,15 @@ programs:
    during operation, a step is simultaneously activated and deactivated,
    priority is given to the activation.
 
-This is the SEQUENTIAL editor window Starting from the top left image:
-Selector arrow , Eraser Ordinary step , Initial (Starting) step
-Transition , Step and Transition Transition Link-Downside , Transition
-Link-Upside Pass-through Link-Downside , Pass-through Link-Upside Jump
-Link Comment Box [show sequential program]
+This is the SEQUENTIAL editor window. (Starting from the top left): +
+Selector arrow , Eraser +
+Ordinary step ,  Initial (Starting) step +
+Transition ,  Step and Transition +
+Transition Link-Downside ,  Transition Link-Upside +
+Pass-through Link-Downside , Pass-through Link-Upside Jump +
+Link, Comment Box +
+
+image::images/sequence-editor.png["Sequence Editor Window",align="center"]
 
  * 'ORDINARY STEP' - has a unique number for each one
  * 'STARTING STEP' - a sequential program must have one. This is where the
