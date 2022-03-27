@@ -518,12 +518,12 @@ EMCMOT=$retval$MODULE_EXT # add module extension
 
 # commandline -t option supersedes inifile setting
 if [ -z "$TPMOD" ] ; then
-    GetFromIni TPMOD   TRAJ
+    GetFromIniQuiet TPMOD   TRAJ
     TPMOD=${retval:-tpmod} #use default if not found
 fi
 # commandline -m option supersedes inifile setting
 if [ -z "$HOMEMOD" ] ; then
-    GetFromIni HOMEMOD EMCMOT
+    GetFromIniQuiet HOMEMOD EMCMOT
     HOMEMOD=${retval:-homemod} #use default if not found
 fi
 
