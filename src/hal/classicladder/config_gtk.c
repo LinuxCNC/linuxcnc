@@ -1079,8 +1079,8 @@ void GetConfigEventsSettings( void )
 void GetSettings( void )
 {
 	GetGeneralParameters( );
-	GetIOSettings( 1/*ForInputs*/ );
-	GetIOSettings( 0/*ForInputs*/ );
+	//GetIOSettings( 1/*ForInputs*/ );
+	//GetIOSettings( 0/*ForInputs*/ );
 #ifdef MODBUS_IO_MASTER
 if(modmaster) {
     GetModbusModulesIOSettings( );
@@ -1108,10 +1108,10 @@ void OpenConfigWindowGtk()
 				 gtk_label_new (_("Period/object info")) );
 	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateConfigEventsPage( ),
 				 //gtk_label_new (_("Events Config")) );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
-				 gtk_label_new (_("Physical Inputs")) );
-	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
-				 gtk_label_new (_("Physical Outputs")) );
+	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 1/*ForInputs*/ ),
+				 //gtk_label_new (_("Physical Inputs")) );
+	//gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateIOConfPage( 0/*ForInputs*/ ),
+				 //gtk_label_new (_("Physical Outputs")) );
 #ifdef MODBUS_IO_MASTER
 	gtk_notebook_append_page( GTK_NOTEBOOK(nbook), CreateModbusComParametersPage( ),
 				 gtk_label_new (_("Modbus communication setup")) );
