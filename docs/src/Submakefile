@@ -158,10 +158,10 @@ DOC_SRCS_EN := \
 	user/user-concepts.adoc \
 	user/user-foreword.adoc \
 	user/user-intro.adoc \
-	Master-Getting-Started.adoc \
-	Master-Documentation.adoc \
-	Master-Integrator.adoc \
-	Master-Developer.adoc
+	Master_Getting_Started.adoc \
+	Master_Documentation.adoc \
+	Master_Integrator.adoc \
+	Master_Developer.adoc
 
 DOC_SRCS_FR := $(subst $(DOC_SRCDIR)/,, \
 	$(wildcard $(DOC_SRCDIR)/*_fr.adoc) \
@@ -181,13 +181,13 @@ DOC_SRCS_ZH_CN := $(subst $(DOC_SRCDIR)/,, \
 
 DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_FR) $(DOC_SRCS_ES) $(DOC_SRCS_HU) $(DOC_SRCS_ZH_CN)
 
-DOC_SRCS_ES_SMALL := $(filter-out Master-%,$(DOC_SRCS_ES))
-DOC_SRCS_FR_SMALL := $(filter-out Master-%,$(DOC_SRCS_FR))
-DOC_SRCS_EN_SMALL := $(filter-out Master-%,$(DOC_SRCS_EN))
-DOC_SRCS_HU_SMALL := $(filter-out Master-%,$(DOC_SRCS_HU))
-DOC_SRCS_ZH_CN_SMALL := $(filter-out Master-%,$(DOC_SRCS_ZH_CN))
+DOC_SRCS_ES_SMALL := $(filter-out Master_%,$(DOC_SRCS_ES))
+DOC_SRCS_FR_SMALL := $(filter-out Master_%,$(DOC_SRCS_FR))
+DOC_SRCS_EN_SMALL := $(filter-out Master_%,$(DOC_SRCS_EN))
+DOC_SRCS_HU_SMALL := $(filter-out Master_%,$(DOC_SRCS_HU))
+DOC_SRCS_ZH_CN_SMALL := $(filter-out Master_%,$(DOC_SRCS_ZH_CN))
 
-DOC_SRCS_HTML := $(patsubst %.adoc, %.html, $(filter-out Master-%, $(DOC_SRCS)))
+DOC_SRCS_HTML := $(patsubst %.adoc, %.html, $(filter-out Master_%, $(DOC_SRCS)))
 DOC_TARGETS_HTML := $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
 DOC_TARGETS_XML := $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
@@ -206,18 +206,18 @@ DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(filter-out $(DO
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
 PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-        $(subst Master-,LinuxCNC-, $(filter Master-%,$(DOC_SRCS_EN))))\
-        LinuxCNC-Manual-Pages.pdf \
+        $(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_EN))))\
+        LinuxCNC_Manual_Pages.pdf \
         ) \
 
 PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-	$(subst Master-,LinuxCNC-, $(filter Master-%,$(DOC_SRCS_FR)))))
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_FR)))))
 
 PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-	$(subst Master-,LinuxCNC-, $(filter Master-%,$(DOC_SRCS_ES)))))
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_ES)))))
 
 PDF_TARGETS_ZH_CN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-	$(subst Master-,LinuxCNC-, $(filter Master-%,$(DOC_SRCS_ZN_CN)))))
+	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_ZN_CN)))))
 
 # Chinese PDFs only build with latex, which is missing in stretch
 ifneq (, $(shell command -v xetex))
@@ -316,35 +316,35 @@ PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(M
 	man3/undocumented.3hal man3/intro.3rtapi $(filter-out %/undocumented.3rtapi %/intro.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
 
-$(DOC_DIR)/LinuxCNC-Manual-Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
+$(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@ 
 
-$(DOC_DIR)/LinuxCNC-Getting-Started.pdf: $(DOC_SRCDIR)/Master-Getting-Started.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Getting-Started_es.pdf: $(DOC_SRCDIR)/Master-Getting-Started_es.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
 # Chinese PDFs only build when xetex is available.
-$(DOC_DIR)/LinuxCNC-Getting-Started_zh_CN.pdf:$(DOC_SRCDIR)/Master-Getting-Started_zh_CN.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Started_zh_CN.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Getting-Started_fr.pdf: $(DOC_SRCDIR)/Master-Getting-Started_fr.pdf
+$(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Integrator.pdf: $(DOC_SRCDIR)/Master-Integrator.pdf
+$(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Integrator_fr.pdf: $(DOC_SRCDIR)/Master-Integrator_fr.pdf
+$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Documentation.pdf: $(DOC_SRCDIR)/Master-Documentation.pdf
+$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Documentation_es.pdf: $(DOC_SRCDIR)/Master-Documentation_es.pdf
+$(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/Master_Documentation_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Documentation_fr.pdf: $(DOC_SRCDIR)/Master-Documentation_fr.pdf
+$(DOC_DIR)/LinuxCNC_Documentation_fr.pdf: $(DOC_SRCDIR)/Master_Documentation_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Developer.pdf: $(DOC_SRCDIR)/Master-Developer.pdf
+$(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Developer_es.pdf: $(DOC_SRCDIR)/Master-Developer_es.pdf
+$(DOC_DIR)/LinuxCNC_Developer_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC-Developer_fr.pdf: $(DOC_SRCDIR)/Master-Developer_fr.pdf
+$(DOC_DIR)/LinuxCNC_Developer_fr.pdf: $(DOC_SRCDIR)/Master_Developer_fr.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -571,19 +571,19 @@ install-doc-html:
 install-kernel-indep: install-doc
 
 docclean:
-	-rm -f $(DOC_DIR)/LinuxCNC-Getting-Started.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Getting-Started_es.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Getting-Started_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Getting-Started_zh_CN.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Documentation.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Documentation_es.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Documentation_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Integrator.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Integrator_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Developer.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Developer_es.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Developer_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC-Manual-Pages.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf
 	-rm -f $(DOC_SRCDIR)/*/*.html
