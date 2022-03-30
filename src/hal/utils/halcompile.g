@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #    This is 'halcompile', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -15,7 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import print_function
 
 %%
 parser Hal:
@@ -514,7 +512,7 @@ static int comp_id;
             print("RTAPI_MP_ARRAY_INT(personality, %d, \"personality of each %s\");" %(MAX_PERSONALITIES,comp_name), file=f)
 
             # Return personality value.
-            # If requested index excedes MAX_PERSONALITIES, use modulo indexing and give message
+            # If requested index exceeds MAX_PERSONALITIES, use modulo indexing and give message
             print("""
             static int p_value(char* cname, char *name, int idx) {
                 int ans = personality[idx%%%d];
@@ -909,7 +907,11 @@ def document(filename, outfilename):
             print(rest, file=f)
         else:
             print(".HP", file=f)
-            if options.get("singleton") or options.get("count_function"):
+            if options.get("homemod"):
+                print("Custom Homing module loaded with \\fB[EMCMOT]HOMEMOD=%s\\fR"%comp_name, file=f)
+            elif options.get("tpmod"):
+                print("Custom Trajectory Planning module loaded with \\fB[TRAJ]TPMOD=%s\\fR"%comp_name, file=f)
+            elif options.get("singleton") or options.get("count_function"):
                 if has_personality:
                     print(".B loadrt %s personality=\\fIP\\fB" % comp_name, end='', file=f)
                 else:
@@ -1043,6 +1045,9 @@ def process(filename, mode, outfilename):
             raise SystemExit("Component name (%s) does not match filename (%s)" % (comp_name, base_name))
 
         f = open(outfilename, "w")
+
+        if options.get("homemod"): options["singleton"] = 1
+        if options.get("tpmod"):   options["singleton"] = 1
 
         if options.get("userinit") and not options.get("userspace"):
             print("Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename, file=sys.stderr)

@@ -320,7 +320,7 @@ NO_FORCE_HOMING =       1
 # Name of IO controller program, e.g., io
 #  explicitly support the start-change protocol.
 #  needs to be explicitly enabled for backwards compatibility.
-#  NB: if the start-change pin isnt used it needs to be looped like below to
+#  NB: if the start-change pin isn't used it needs to be looped like below to
 #  start-change-ack or an M6 will hang waiting for start-change-ack:
 #  net start-change iocontrol.0.start-change  iocontrol.0.start-change-ack
 #EMCIO = 		iov2 -support-start-change

@@ -33,7 +33,7 @@ else
     export HEADERS=@includedir@/linuxcnc
     export LIBDIR=@EMC2_HOME@/lib
     export LINUXCNC_EMCSH=@WISH@
-    export REALTIME=/etc/init.d/realtime
+    export REALTIME=@REALTIME@
     export SUDO=sudo
 fi
 export PYTHON_CPPFLAGS="@PYTHON_CPPFLAGS@"

@@ -33,7 +33,7 @@
  *  only if UEO, EEST are closed when URE gets strobed.
  *  If any of UEO (user requested stop) or EEST (external estop) have been
  *  opened, then EEI will open as well.
- *  After restoring normal condition (UEO and EEST closed), an aditional
+ *  After restoring normal condition (UEO and EEST closed), an additional
  *  URE (user-request-enable) is needed, this is either sent by the GUI
  *  (using the EMC_AUX_ESTOP_RESET NML message), or by a hardware button
  *  connected to the ladder driving URE.
@@ -503,14 +503,14 @@ void load_tool(int idx) {
             UNEXPECTED_MSG; return;
         }
         // spindle-->pocket (specified by idx)
-        tooldata_db_notify(tzero.toolno,idx,tzero);
+        tooldata_db_notify(SPINDLE_UNLOAD,tzero.toolno,idx,tzero);
         tzero.pocketno = tpocket.pocketno;
         if (tooldata_put(tzero,  idx) == IDX_FAIL) {
             UNEXPECTED_MSG;
         }
 
         // pocket-->spindle (idx==0)
-        tooldata_db_notify(tpocket.toolno,0,tpocket);
+        tooldata_db_notify(SPINDLE_LOAD,tpocket.toolno,0,tpocket);
         tpocket.pocketno = 0;
         if (tooldata_put(tpocket,0  ) == IDX_FAIL) {
             UNEXPECTED_MSG;
@@ -531,7 +531,7 @@ void load_tool(int idx) {
         if (tooldata_put(tdata,0) == IDX_FAIL) {
             UNEXPECTED_MSG; return;
         }
-        if (tooldata_db_notify(0,0,tdata)) { UNEXPECTED_MSG; }
+        if (tooldata_db_notify(SPINDLE_UNLOAD,0,0,tdata)) { UNEXPECTED_MSG; }
     } else {
         // just copy the desired tool to the spindle
         if (tooldata_get(&tdata,idx) != IDX_OK) {
@@ -543,7 +543,7 @@ void load_tool(int idx) {
         // notify idx==0 tool in spindle:
         CANON_TOOL_TABLE temp;
         if (tooldata_get(&temp,0) != IDX_OK) { UNEXPECTED_MSG; }
-        if (tooldata_db_notify(temp.toolno,0,temp)) { UNEXPECTED_MSG; }
+        if (tooldata_db_notify(SPINDLE_LOAD,temp.toolno,0,temp)) { UNEXPECTED_MSG; }
     }
 } // load_tool()
 
@@ -686,7 +686,7 @@ static int read_inputs(void)
 
     if (*iocontrol_data->tool_change) {
 
-        // check wether a toolchanger fault will force an abort of this change
+        // check whether a toolchanger fault will force an abort of this change
         if ((proto > V1) && (*iocontrol_data->toolchanger_faulted))  {
 
             /* unlikely but possible: toolchanger_faulted was asserted since
@@ -1016,7 +1016,7 @@ int main(int argc, char *argv[])
                 // fix race condition by asserting abort-tool-change before
                 // deasserting tool-change and tool-prepare
                 *(iocontrol_data->emc_reason) = ((EMC_TOOL_ABORT *) emcioCommand)->reason;
-                *(iocontrol_data->emc_abort) = 1;      // notify TC of abort conditon
+                *(iocontrol_data->emc_abort) = 1;      // notify TC of abort condition
             }
             *(iocontrol_data->tool_change) = 0;      // abort tool change if in progress
             *(iocontrol_data->tool_prepare) = 0;     // abort tool prepare if in progress
@@ -1176,13 +1176,13 @@ int main(int argc, char *argv[])
                 if (io_db_mode == DB_ACTIVE) {
                     int pno = idx; // for random_toolchanger
                     if (!random_toolchanger) { pno = tdata.pocketno; }
-                    if (tooldata_db_notify(toolno,pno,tdata)) { UNEXPECTED_MSG; }
+                    if (tooldata_db_notify(TOOL_OFFSET,toolno,pno,tdata)) { UNEXPECTED_MSG; }
                 }
             }
             break;
         case EMC_TOOL_SET_NUMBER_TYPE:
         {
-            // changed als in interp_convert.cc to convey the pocket number, not the tool number
+            // changed also in interp_convert.cc to convey the pocket number, not the tool number
            // needed so toolTable[0] can be properly set including offsets
             int idx;
 

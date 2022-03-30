@@ -42,7 +42,7 @@ except ImportError:
     from nulluserfuncs import UserFuncs
 
 def debug():
-    # interpreter.this isnt usable until after Interpreter.init has been called
+    # interpreter.this isn't usable until after Interpreter.init has been called
     if hasattr(interpreter,'this'):
         return interpreter.this.debugmask &  0x00040000 # EMC_DEBUG_PYTHON_TASK
     return 
@@ -273,7 +273,7 @@ class CustomTask(emctask.Task,UserFuncs):
     def emcToolUnload(self):
         if debug(): print "py:  emcToolUnload"
         self.io.tool.toolInSpindle = 0
-        # this isnt in ioControlv1, but I think it should be.
+        # this isn't in ioControlv1, but I think it should be.
         self.hal["tool-number"] = self.io.tool.toolInSpindle
         self.io.status  = emctask.RCS_STATUS.RCS_DONE
         return 0

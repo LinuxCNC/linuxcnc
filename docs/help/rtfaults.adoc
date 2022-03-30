@@ -1,0 +1,91 @@
+(Versión en español a continuación)
+
+Finding line number information for faults in realtime components
+
+1. Get a version of LinuxCNC which prints the faulting instruction address
+   (that includes this version of LinuxCNC)
+
+2. Include debugging info in your modules.  For built-in modules,
+   below the definition of EXTRA_CFLAGS in Makefile, add
+      EXTRA_CFLAGS += -g
+   For standalone modules, add the same line just above the line
+      ifeq ($(BUILDSYS),kbuild)
+   and (re)build the component
+
+3. Run hal until the fault occurs.  DO NOT EXIT THE HAL SESSION YET.  You
+   must find the start of the module (step 5) first.
+
+4. Note the ip (instruction pointer) address in dmesg.  e.g.:
+      RTAPI: Task 1[c2800000]: Fault with vec=14, signo=11 ip=c93dc01a.
+                                                              ^^^^^^^^
+5. Find the module which contains the offending IP. 
+   $cat /proc/modules
+   motmod 142230 0 - Live 0xc93df000
+   fault 1626 1 motmod, Live 0xc93dc000
+   hal_lib 30517 2 motmod,fault, Live 0xc93d5000
+
+   Now you can exit hal/emc2.
+
+6. Subtract the start of the module from the faulting ip (in this case, 0x1a)
+   Among other ways to do this, you can use the shell:
+      $ printf "0x%x\n" $((0xc93dc01a-0xc93dc000))
+      0x1a
+
+7. Use addr2line to find out the source code line:
+      $ addr2line -e emc2-dev/src/fault.ko 0x1a
+      /usr/src/linux-headers-2.6.32-122-rtai/hal/components/fault.comp:9
+   Ignore how the directory name is wrong and see whether this has helped you
+   localize the problem:
+      fault.comp:9          *(int*)0 = 0;
+   Yup!  Looks like it has.
+
+   Note that even if you do not prefix the address argument to addr2line
+   with 0x, it is taken to be a hex number, and you'll get the wrong
+   line-number information.  Take care to always use hex addresses with
+   addr2line.
+   
+-----
+
+Encontrar información del número de línea para fallos en componentes de tiempo real
+
+1. Obtenga una versión de LinuxCNC que imprima la dirección de instrucción que falla
+   (se incluye en esta versión de LinuxCNC)
+
+2. Incluya información de depuración en sus módulos. Para módulos incorporados,
+   debajo de la definición de EXTRA_CFLAGS en Makefile, agregue
+      EXTRA_CFLAGS += -g
+   Para módulos independientes, agregue la misma línea justo encima de la línea
+      ifeq ($(BUILDSYS),kbuild)
+   y (re)compile el componente
+
+3. Ejecute hal hasta que ocurra el fallo. NO SALGA DE LA SESIÓN HAL TODAVÍA. 
+   Primero se debe encontrar el inicio del módulo (paso 5).
+
+4. Anote la dirección IP (puntero de instrucción) en dmesg. p.ej.:
+      RTAPI: Task 1[c2800000]: Fault with vec=14, signo=11 ip=c93dc01a.
+                                                              ^^^^^^^^
+5. Encuentra el módulo que contiene la IP que provoca el fallo.
+   $ cat /proc/modules
+   motmod 142230 0 - Live 0xc93df000
+   falla 1626 1 motmod, Live 0xc93dc000
+   hal_lib 30517 2 motmod,fault, Live 0xc93d5000
+
+   Ahora puedes salir de hal/emc2.
+
+6. Reste el inicio del módulo de la IP con fallo (en este caso, 0x1a)
+   Entre otras formas de hacer esto, puedes usar el shell:
+      $ printf "0x%x\n" $((0xc93dc01a-0xc93dc000))
+      0x1a
+
+7. Use addr2line para descubrir la línea del código fuente:
+      $ addr2line -e emc2-dev/src/fault.ko 0x1a
+      /usr/src/linux-headers-2.6.32-122-rtai/hal/components/fault.comp:9
+   Ignora cómo el nombre del directorio es incorrecto y mira si esto te ayudó
+   localizar el problema:
+      fault.comp:9          *(int*)0 = 0;
+   ¡Si! Parece que era eso.
+
+   Tenga en cuenta que incluso si no agrega el argumento de dirección a addr2line
+   con 0x, se espera un número hexadecimal, y obtendrá un error
+   en la información del número de línea. Tenga cuidado de usar siempre direcciones
+   hexadecimales con addr2line.

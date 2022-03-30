@@ -7,9 +7,9 @@ hexapod.ini
 ---------------
 Config file for a general hexapod.
 To get it working with your machine you need to adjust base and platform joints coordinates in kinematics.hal and specify [KINS]KINEMATICS=genhexkins.
-If you change the HOME location in TRAJ, make sure you change the appropiate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).
+If you change the HOME location in TRAJ, make sure you change the appropriate HOME locations of the AXES as well, and make sure the position match (when run through the kinematics).
 
-NOTE: The line "HALCMD = net ..." establishes a hal connection to enable switching kinematics betwen genhexkins, identity, and a user-defined kinematics
+NOTE: The line "HALCMD = net ..." establishes a hal connection to enable switching kinematics between genhexkins, identity, and a user-defined kinematics
 
 
 LIB:basic_sim.tcl

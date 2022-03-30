@@ -18,7 +18,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from __future__ import print_function
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -544,13 +543,13 @@ But there is not one in the machine-named folder.."""),True)
         w.xtunecurrentdeadband.set_value(w[axis+"deadband"].get_value())
         w.xtuneorigdeadband.set_text("%s" % w[axis+"deadband"].get_value())
         w.xtunecurrentsteptime.set_value(w[axis+"steptime"].get_value())
-        w.xtuneorigsteptime.set_text("%s" % w[axis+"steptime"].get_value())
+        w.xtuneorigsteptime.set_text("%d" % w[axis+"steptime"].get_value())
         w.xtunecurrentstepspace.set_value(get_value(w[axis+"stepspace"]))
-        w.xtuneorigstepspace.set_text("%s" % w[axis+"stepspace"].get_value())
+        w.xtuneorigstepspace.set_text("%d" % w[axis+"stepspace"].get_value())
         w.xtunecurrentdirhold.set_value(get_value(w[axis+"dirhold"]))
-        w.xtuneorigdirhold.set_text("%s" % w[axis+"dirhold"].get_value())
+        w.xtuneorigdirhold.set_text("%d" % w[axis+"dirhold"].get_value())
         w.xtunecurrentdirsetup.set_value(get_value(w[axis+"dirsetup"]))
-        w.xtuneorigdirsetup.set_text("%s" % w[axis+"dirsetup"].get_value())
+        w.xtuneorigdirsetup.set_text("%d" % w[axis+"dirsetup"].get_value())
         self.tunejogplus = self.tunejogminus = 0
         w.xtunedir.set_active(0)
         w.xtunerun.set_active(0)
@@ -605,7 +604,7 @@ But there is not one in the machine-named folder.."""),True)
         halrun.write("addf simple-tp.0.update servo-thread \n")
         halrun.write("addf pid.0.do-pid-calcs servo-thread \n")
         halrun.write("addf scale_to_rpm servo-thread \n")
-        # do I/O write comands
+        # do I/O write commands
         for i in write:
             halrun.write('%s\n'%i)
         halrun.write( "newsig estop-out bit\n")
@@ -1132,7 +1131,7 @@ But there is not one in the machine-named folder.."""),True)
         # during testing pncconf looks for pins with these signals names
         # and connects to them so as to enable amps etc
         # force-pin-true will just make the pin be true all the time
-        # this could be used as a temparary way to enable I/O that the
+        # this could be used as a temporary way to enable I/O that the
         # specific machine needs on for the amp to work but pncconf doesn't look for.
         if not axis == "s":
             signallist = ((axis+"-enable"),"machine-is-enabled","estop-out","charge-pump","force-pin-true")
@@ -1211,7 +1210,7 @@ But there is not one in the machine-named folder.."""),True)
     def launch_mesa_panel(self):
         if not self.a.check_for_rt(): return
         if not self.a.warning_dialog(_("Do to technical reasons this test panel can be loaded only once without reloading pncconf.\
-You also will not be able to do any other testing untill you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
+You also will not be able to do any other testing until you reload pncconf and quite possibly open a terminal and type 'halrun -U' \
 I hesitate to even allow it's use but at times it's very useful.\nDo you wish to continue the test?"),False):
                         return
         self.halrun = os.popen("halrun -Is > /dev/null", "w")
@@ -1540,8 +1539,8 @@ class PyApp(Gtk.Window):
             brdnotebook.append_page(self.data2["notebook%d"%boardnum], label)
             for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% (boardnum)][_PD._NUMOFCNCTRS]) :
                 table = Gtk.Table(12, 3, False)
-                seperator = Gtk.VSeparator()
-                table.attach(seperator, 1, 2, 0, 12,True)
+                separator = Gtk.VSeparator()
+                table.attach(separator, 1, 2, 0, 12,True)
                 for pin in range (0,24):
                     if pin >11:
                         column = 2

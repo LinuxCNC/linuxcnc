@@ -2,6 +2,7 @@
 
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
+from qtvcp.widgets.simple_widgets import IndicatedPushButton
 from qtvcp.widgets.simple_widgets import PushButton
 from qtvcp.widgets.simple_widgets import CheckBox
 from qtvcp.widgets.simple_widgets import RadioButton
@@ -24,6 +25,67 @@ from qtvcp.widgets.qtvcp_icons import Icon
 
 ICON = Icon()
 
+####################################
+# IndicatedPushBUTTON
+####################################
+class IndicatedPushButtonPlugin(QPyDesignerCustomWidgetPlugin):
+
+    # The __init__() method is only used to set up the plugin and define its
+    # initialized variable.
+    def __init__(self, parent=None):
+        super(IndicatedPushButtonPlugin, self).__init__(parent)
+        self.initialized = False
+
+    # The initialize() and isInitialized() methods allow the plugin to set up
+    # any required resources, ensuring that this can only happen once for each
+    # plugin.
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    # This factory method creates new instances of our custom widget
+    def createWidget(self, parent):
+        return IndicatedPushButton(parent)
+
+    # This method returns the name of the custom widget class
+    def name(self):
+        return "IndicatedPushButton"
+
+    # Returns the name of the group in Qt Designer's widget box
+    def group(self):
+        return "Linuxcnc - Widgets"
+
+    # Returns the icon
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('IndicatedPushButton')))
+
+    # Returns a tool tip short description
+    def toolTip(self):
+        return "Push button widget with indicator LED"
+
+    # Returns a short description of the custom widget for use in a "What's
+    # This?" help message for the widget.
+    def whatsThis(self):
+        return ""
+
+    # Returns True if the custom widget acts as a container for other widgets;
+    def isContainer(self):
+        return False
+
+    # Returns an XML description of a custom widget instance that describes
+    # default values for its properties.
+    def domXml(self):
+        return '<widget class="IndicatedPushButton" name="indicatedPushButton" />\n'
+
+    # Returns the module containing the custom widget class. It may include
+    # a module path.
+    def includeFile(self):
+        return "qtvcp.widgets.simple_widgets"
 
 ####################################
 # PUSHBUTTON

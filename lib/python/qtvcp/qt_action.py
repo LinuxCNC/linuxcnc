@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from PyQt5.QtWidgets import QApplication
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QProcess
 
 import linuxcnc
 import hal
@@ -10,13 +10,15 @@ import hal
 # Set up logging
 from . import logger
 
-log = logger.getLogger(__name__)
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG = logger.getLogger(__name__)
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from qtvcp.core import Status, Info
 
 INFO = Info()
 STATUS = Status()
+TOUCHPLATE_SUBPROGRAM = os.path.abspath(os.path.join(
+            os.path.dirname(__file__), 'lib/touchoff_subprogram.py'))
 
 
 ################################################################
@@ -32,6 +34,7 @@ class _Lcnc_Action(object):
         self.tmp = None
         self.prefilter_path = None
         self.home_all_warning_flag = False
+        self.proc = None
 
     def SET_ESTOP_STATE(self, state):
         if state:
@@ -44,6 +47,17 @@ class _Lcnc_Action(object):
             self.cmd.state(linuxcnc.STATE_ON)
         else:
             self.cmd.state(linuxcnc.STATE_OFF)
+
+    def SET_MOTION_TELEOP(self, value):
+        # 1:teleop, 0: joint
+        #if value:
+        #    print('To telop (1)')
+        #else:
+        #    print('To joint (0)')
+
+        self.cmd.teleop_enable(value)
+        self.cmd.wait_complete()
+        STATUS.stat.poll()
 
     def SET_MACHINE_HOMING(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
@@ -66,7 +80,7 @@ class _Lcnc_Action(object):
                 # but always start will Z - on a mill it's safer
                 zj = INFO.GET_JOG_FROM_NAME['Z']
                 if not STATUS.stat.homed[zj]:
-                    log.info('Homing Joint: {}'.format(zj))
+                    LOG.info('Homing Joint: {}'.format(zj))
                     self.cmd.home(zj)
                     STATUS.emit('error', linuxcnc.NML_ERROR,
                                 ''''Home-all not available according to INI Joint Home sequence
@@ -85,7 +99,7 @@ class _Lcnc_Action(object):
                     if j == zj: continue
                     # ok home it then stop and wait for next button push
                     if not STATUS.stat.homed[j]:
-                        log.info('Homing Joint: {}'.format(j))
+                        LOG.info('Homing Joint: {}'.format(j))
                         self.cmd.home(j)
                         if self.home_all_warning_flag:
                             STATUS.emit('error', linuxcnc.NML_ERROR,
@@ -93,14 +107,21 @@ class _Lcnc_Action(object):
                      Press again to home next Joint''')
                         break
         else:
-            log.info('Homing Joint: {}'.format(joint))
+            LOG.info('Homing Joint: {}'.format(joint))
             self.cmd.home(joint)
 
     def SET_MACHINE_UNHOMED(self, joint):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
         self.cmd.teleop_enable(False)
-        # self.cmd.traj_mode(linuxcnc.TRAJ_MODE_FREE)
-        self.cmd.unhome(joint)
+
+        if joint < 0:
+            # unhome all joints
+            self.cmd.unhome(joint)
+        else:
+            # if you unhome a joint that is combined with another (to make an axis)
+            # then unhome both.
+            for j in (INFO.JOINT_RELATIONS_LIST[joint]):
+                self.cmd.unhome(j)
 
     def SET_AUTO_MODE(self):
         self.ensure_mode(linuxcnc.MODE_AUTO)
@@ -126,7 +147,7 @@ class _Lcnc_Action(object):
         self.ensure_mode(linuxcnc.MODE_MANUAL)
 
     # sets up a python generator that goes through the MDI list of lists.
-    # if it's a command that we have to wait indefinately
+    # if it's a command that we have to wait indefinitely
     # ie like a manual tool change.
     # then we wait for STATUS to return 'command-stopped'
     # and then continue where we left off.
@@ -143,29 +164,29 @@ class _Lcnc_Action(object):
             pass
 
     def CALL_MDI(self, code):
+        LOG.debug('CALL_MDI Command: {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
 
     def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
-        log.debug('MDI_WAIT_COMMAND= {}, maxt = {}'.format(code, time))
+        LOG.debug('MDI_WAIT_Command= {}, maxt = {}'.format(code, time))
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         for l in code.split("\n"):
-            log.debug('MDI_COMMAND: {}'.format(l))
+            LOG.debug('CALL_MDI_WAIT Command: {}'.format(l))
             self.cmd.mdi(l)
             result = self.cmd.wait_complete(time)
             if result == -1:
-                log.debug('MDI_COMMAND_WAIT timeout past {} sec. Error: {}'.format(time, result))
+                LOG.error('CALL_MDI_WAIT timeout surpassed {} seconds'.format(time))
                 # STATUS.emit('MDI time out error',)
                 self.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
-                log.debug('MDI_COMMAND_WAIT RCS error: {}'.format(time, result))
-                # STATUS.emit('MDI time out error',)
+                LOG.debug('CALL_MDI_WAIT RCS error: {}'.format(time, result))
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
                 STATUS.emit('error', result[0], result[1])
-                log.error('MDI_COMMAND_WAIT Error channel: {}'.format(result[1]))
+                LOG.error('CALL_MDI_WAIT Error: {}'.format(result[1]))
                 return -1
         if mode_return:
             self.ensure_mode(premode)
@@ -176,17 +197,17 @@ class _Lcnc_Action(object):
             mdi = INFO.MDI_COMMAND_LIST[number]
         except:
             msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number)
-            log.error(msg)
+            LOG.error(msg)
             self.SET_ERROR_MESSAGE(msg)
             return
         mdi_list = mdi.split(';')
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
-            log.debug('CALL_INI_MDI comand:{}'.format(code))
+            LOG.debug('CALL_INI_MDI command:{}'.format(code))
             self.cmd.mdi('%s' % code)
 
     def CALL_OWORD(self, code, time=5):
-        log.debug('OWORD_COMMAND= {}'.format(code))
+        LOG.debug('OWORD_COMMAND= {}'.format(code))
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(code)
         STATUS.stat.poll()
@@ -194,28 +215,28 @@ class _Lcnc_Action(object):
                 STATUS.stat.exec_state == linuxcnc.EXEC_WAITING_FOR_MOTION:
             result = self.cmd.wait_complete(time)
             if result == -1:
-                log.error('Oword timeout oast () Error = # {}'.format(time, result))
+                LOG.error('Oword timeout oast () Error = # {}'.format(time, result))
                 self.ABORT()
                 return -1
             elif result == linuxcnc.RCS_ERROR:
-                log.error('Oword RCS Error = # {}'.format(result))
+                LOG.error('Oword RCS Error = # {}'.format(result))
                 return -1
             result = linuxcnc.error_channel().poll()
             if result:
                 STATUS.emit('error', result[0], result[1])
-                log.error('Oword Error: {}'.format(result[1]))
+                LOG.error('Oword Error: {}'.format(result[1]))
                 return -1
             STATUS.stat.poll()
         result = self.cmd.wait_complete(time)
         if result == -1 or result == linuxcnc.RCS_ERROR or linuxcnc.error_channel().poll():
-            log.error('Oword RCS Error = # {}'.format(result))
+            LOG.error('Oword RCS Error = # {}'.format(result))
             return -1
         result = linuxcnc.error_channel().poll()
         if result:
             STATUS.emit('error', result[0], result[1])
-            log.error('Oword Error: {}'.format(result[1]))
+            LOG.error('Oword Error: {}'.format(result[1]))
             return -1
-        log.debug('OWORD_COMMAND returns complete : {}'.format(result))
+        LOG.debug('OWORD_COMMAND returns complete : {}'.format(result))
         return 0
 
     def UPDATE_VAR_FILE(self):
@@ -224,21 +245,20 @@ class _Lcnc_Action(object):
 
     def OPEN_PROGRAM(self, fname):
         self.prefilter_path = str(fname)
-        self.ensure_mode(linuxcnc.MODE_AUTO)
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
         if os.path.basename(fname).count('.') > 1:
             e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-            log.debug(e)
+            LOG.debug(e)
             return
 
         if flt:
-            log.debug('get {} filtered program {}'.format(flt, fname))
+            LOG.debug('get {} filtered program {}'.format(flt, fname))
             self.open_filter_program(str(fname), flt)
         else:
-            log.debug('Load program {}'.format(fname))
+            LOG.debug('Load program {}'.format(fname))
             self.cmd.program_open(str(fname))
 
             # STATUS can't tell if we are loading the same file.
@@ -261,15 +281,15 @@ class _Lcnc_Action(object):
             if path.count('.') > 1:
                 e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-                log.debug(e)
+                LOG.debug(e)
                 return None
             name, ext = path.rsplit('.')
             npath = name + '.' + ext.lower()
         except Exception as e:
-            log.debug('save error: {}'.format(e))
-            log.debug('Original save path: {}'.format(fname))
+            LOG.debug('save error: {}'.format(e))
+            LOG.debug('Original save path: {}'.format(fname))
 
-        log.debug('SAVE_PROGRAM write to: {}'.format(npath))
+        LOG.debug('SAVE_PROGRAM write to: {}'.format(npath))
 
         # ok write the file
         outfile = None
@@ -294,7 +314,7 @@ class _Lcnc_Action(object):
 
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
-            log.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
+            LOG.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
         m = "G10 L20 P0 %s%f" % (axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
@@ -349,7 +369,7 @@ class _Lcnc_Action(object):
         if not STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_PAUSE)
         else:
-            log.debug('resume')
+            LOG.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
     def SET_MAX_VELOCITY_RATE(self, rate):
@@ -466,13 +486,13 @@ class _Lcnc_Action(object):
         if isinstance(data, int):
             STATUS.set_selected_joint(data)
         else:
-            log.error('Selected joint must be an integer: {}'.format(data))
+            LOG.error('Selected joint must be an integer: {}'.format(data))
 
     def SET_SELECTED_AXIS(self, data):
         if isinstance(data, (str)):
             STATUS.set_selected_axis(data)
         else:
-            log.error('Selected axis must be a string: {}'.format(data))
+            LOG.error('Selected axis must be a string: {}'.format(data))
 
     # jog based on STATUS's rate and distance
     # use joint number for joint or letter for axis jogging
@@ -592,7 +612,7 @@ class _Lcnc_Action(object):
                     except:
                         raise
         except Exception as e:
-            log.warning("Couldn't shut system down: {}".format(e))
+            LOG.warning("Couldn't shut system down: {}".format(e))
 
     def SHUT_SYSTEM_DOWN_NOW(self):
         import subprocess
@@ -600,14 +620,14 @@ class _Lcnc_Action(object):
 
     def UPDATE_MACHINE_LOG(self, text, option=None):
         if option not in ('TIME', 'DATE', 'DELETE', None):
-            log.warning("Machine_log option not recognized: {}".format(option))
+            LOG.warning("Machine_log option not recognized: {}".format(option))
         STATUS.emit('update-machine-log', text, option)
 
     def CALL_DIALOG(self, command):
         try:
             a = command['NAME']
         except:
-            log.warning("Call Dialog command Dict not recogzied: {}".format(option))
+            LOG.warning("Call Dialog command Dict not recogzied: {}".format(option))
         STATUS.emit('dialog-request', command)
 
     def HIDE_POINTER(self, state):
@@ -620,7 +640,7 @@ class _Lcnc_Action(object):
         try:
             STATUS.emit('play-sound', path)
         except AttributeError:
-            log.warning("Sound request {} not recogzied".format(path))
+            LOG.warning("Sound request {} not recogzied".format(path))
 
     def PLAY_ERROR(self):
         self.PLAY_SOUND('ERROR')
@@ -654,14 +674,14 @@ class _Lcnc_Action(object):
 
     def SET_LATHE_MIRROR_X(self):
         if not INFO.MACHINE_IS_LATHE:
-            log.warning('Can not set mirror mode; Machine is not a lathe')
+            LOG.warning('Can not set mirror mode; Machine is not a lathe')
             return
         self.CALL_MDI("G10 L2 P0 R180")
         self.RELOAD_DISPLAY()
 
     def UNSET_LATHE_MIRROR_X(self):
         if not INFO.MACHINE_IS_LATHE:
-            log.warning('Can not unset mirror mode; Machine is not a lathe')
+            LOG.warning('Can not unset mirror mode; Machine is not a lathe')
             return
         self.CALL_MDI("G10 L2 P0 R0")
         self.RELOAD_DISPLAY()
@@ -683,6 +703,24 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
+    def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe, z_offset):
+        if self.proc is not None:
+            return 0
+        self.proc = QProcess()
+        self.proc.setReadChannel(QProcess.StandardOutput)
+        self.proc.started.connect(self.touchoff_started)
+        self.proc.readyReadStandardOutput.connect(self.read_stdout)
+        self.proc.readyReadStandardError.connect(self.read_stderror)
+        self.proc.finished.connect(self.touchoff_finished)
+        self.proc.start('python3 {}'.format(TOUCHPLATE_SUBPROGRAM))
+        # probe
+        string_to_send = "probe_down${}${}${}${}\n".format(str(search_vel),
+                                        str(probe_vel),
+                                        str(max_probe),
+                                        str(z_offset))
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        return 1
+
     ######################################
     # Action Helper functions
     ######################################
@@ -697,17 +735,19 @@ class _Lcnc_Action(object):
 
     def jnum_check(self, num):
         if STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            log.warning("Joint jogging not supported for non-identity kinematics")
+            LOG.warning("Joint jogging not supported for non-identity kinematics")
             # return None
         if num > INFO.JOINT_COUNT:
-            log.error("Computed joint number={} exceeds jointcount={}".format(num, INFO.JOINT_COUNT))
+            LOG.error("Computed joint number={} exceeds jointcount={}".format(num, INFO.JOINT_COUNT))
             # decline to jog
             return None
         if num not in INFO.AVAILABLE_JOINTS:
-            log.warning("Joint {} is not in available joints {}".format(num, INFO.AVAILABLE_JOINTS))
+            LOG.warning("Joint {} is not in available joints {}".format(num, INFO.AVAILABLE_JOINTS))
             return None
         return num
 
+    # check and if required set the machine mode
+    # return: state changed?, the original mode
     def ensure_mode(self, *modes):
         truth, premode = STATUS.check_for_modes(modes)
         if truth is False:
@@ -717,8 +757,10 @@ class _Lcnc_Action(object):
         else:
             return (truth, premode)
 
+    #------- gcode filter program
+
     def open_filter_program(self, fname, flt):
-        log.debug('Opening filtering program yellow<{}> for {}'.format(flt, fname))
+        LOG.debug('Opening filtering program yellow<{}> for {}'.format(flt, fname))
         if not self.tmp:
             self._mktemp()
         tmp = os.path.join(self.tmp, os.path.basename(fname))
@@ -726,7 +768,7 @@ class _Lcnc_Action(object):
 
     def _load_filter_result(self, fname):
         old = STATUS.stat.file
-        log.debug('Load filtered program {}'.format(fname))
+        LOG.debug('Load filtered program {}'.format(fname))
         self.cmd.program_open(str(fname))
 
         # STATUS can't tell if we are loading the same file.
@@ -743,6 +785,7 @@ class _Lcnc_Action(object):
 
 
     #-------MDI call list helpers----------
+
     def change_mode_after(self, gen):
         self._a = STATUS.connect('command-stopped', lambda w: self.command_stopped(gen))
     # when command stops - we try to continue the generator.
@@ -754,7 +797,7 @@ class _Lcnc_Action(object):
             STATUS.handler_disconnect(self._a)
 
     # python generator that goes through the MDI list.
-    # if it's a command that we have to wait indefinately
+    # if it's a command that we have to wait indefinitely
     # ie like a manual tool change.
     # then we wait for STATUS to return 'command-stopped'
     # and then continue where we left off.
@@ -770,8 +813,47 @@ class _Lcnc_Action(object):
             else:
                 result = self.CALL_MDI_WAIT(cmd,mode_return=False)
                 if result == -1:
-                    log.debug('MDI command {} failed.'.format(cmd))
+                    LOG.debug('MDI command {} failed.'.format(cmd))
         self.RESTORE_RECORDED_MODE()
+
+
+    #------- Touch plate touchoff
+
+    def read_stdout(self):
+        qba = self.proc.readAllStandardOutput()
+        line = qba.data()
+        self.parse_line(line)
+
+    def read_stderror(self):
+        qba = self.proc.readAllStandardError()
+        line = qba.data()
+        self.parse_line(line)
+
+    def parse_line(self, line):
+        line = line.decode("utf-8")
+        if "COMPLETE" in line:
+            self.SET_DISPLAY_MESSAGE("Touchplate touchoff routine returned successfully")
+        elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
+            LOG.debug(line[line.find('DEBUG')+6:])
+        # This also gets error text sent from logging of ACTION library in the subprogram
+        elif "ERROR" in line:
+            # remove preceding text
+            s = line[line.find('ERROR')+6:]
+            s = s[s.find(']')+1:]
+            # remove (possible)trailing debug info
+            d = s.find('(')
+            if not d == -1:
+                s = s[:d]
+            self.SET_ERROR_MESSAGE(s)
+
+    def touchoff_started(self):
+        LOG.debug("Touchplate touchOff subprogram started with PID {}\n".format(self.proc.processId()))
+
+    def touchoff_finished(self, exitCode, exitStatus):
+        LOG.debug("Touchplate touchoff Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus))
+        self.proc = None
+
+    #------- boiler code
 
     def __getitem__(self, item):
         return getattr(self, item)
@@ -862,8 +944,7 @@ class FilterProgram:
             return True
         # process message from standard error
         stderr_line = self.p.stderr.readline()
-        if sys.version_info.major > 2:
-            stderr_line = stderr_line.decode("utf-8")
+        stderr_line = stderr_line.decode("utf-8")
         # compare to pre compiled re string
         # if true : update progress
         # else add it too error message string for later
@@ -879,8 +960,7 @@ class FilterProgram:
         self.progress.done()
         # .. might be something left on stderr
         for line in self.p.stderr:
-            if sys.version_info.major > 2:
-                line = line.decode("utf-8")
+            line = line.decode("utf-8")
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)
@@ -906,7 +986,7 @@ class FilterProgram:
                 'FOCUS_TEXT': 'Filter program Error',
                 'TITLE': 'Program Filter Error'}
         STATUS.emit('dialog-request', mess)
-        log.error('Filter Program Error:{}'.format(stderr))
+        LOG.error('Filter Program Error:{}'.format(stderr))
 
 
 # For testing purposes

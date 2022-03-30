@@ -369,7 +369,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
     }
 
 
-    // First poll the mode register for a non zero frames recieved count 
+    // First poll the mode register for a non zero frames received count 
     // (mode register bits 20..16)
     r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_mode_addr,
                         &buff, sizeof(rtapi_u32));
@@ -416,7 +416,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
     while ( i < countp ) {
           buff=0;
        /* The receive count register is a FIFO that contains the byte counts 
-          of recieved packets. Since it is a FIFO it must only be read once after it 
+          of received packets. Since it is a FIFO it must only be read once after it 
           has be determined that there are packets available to read. */
           r = hm2->llio->read(hm2->llio, hm2->pktuart.instance[inst].rx_fifo_count_addr,
                         &buff, sizeof(rtapi_u32));
@@ -441,7 +441,7 @@ int hm2_pktuart_read(char *name, unsigned char data[], rtapi_u8 *num_frames, rta
           }
 
           if (( bytes_total+countb)> data_size) {
-               HM2_ERR_NO_LL("%s: bytes avalaible %d are more than data array size %d\n", name, bytes_total+countb, data_size);
+               HM2_ERR_NO_LL("%s: bytes available %d are more than data array size %d\n", name, bytes_total+countb, data_size);
                return -HM2_PKTUART_RxArraySizeError ;
           }
 

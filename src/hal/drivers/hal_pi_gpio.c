@@ -15,6 +15,7 @@
 *
 * made work for Raspberry2 9/2015 Michael Haberler
 * Last change: Modify for Pi5 10/2019 andypugh
+* Last change: Modify for Pi400 3/2022 elovalvo
 s********************************************************************/
 
 
@@ -236,6 +237,12 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO, "%d cores rev %d", ncores, rev);
 
     switch (rev) {
+     case 6:
+      rtapi_print_msg(RTAPI_MSG_INFO, "RaspberryPi400\n");
+      pins = rpi2_pins;
+      gpios = rpi2_gpios;
+      npins = sizeof(rpi2_pins);
+      break;
     case 5:
       rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry4\n");
       pins = rpi2_pins;

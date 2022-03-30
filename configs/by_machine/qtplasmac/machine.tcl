@@ -1,29 +1,47 @@
+# GENERIC HAL FILE FOR QTPLASMAC SIM CONFIGS
 
-# COMPONENTS
+# ---SET CONSTANTS---
+set numJoints $::KINS(JOINTS)
+set z-axis [string first "z" [string tolower $::TRAJ(COORDINATES)]]
+
+# ---COMPONENTS---
 loadrt $::KINS(KINEMATICS)
-loadrt $::EMCMOT(EMCMOT) servo_period_nsec=$::EMCMOT(SERVO_PERIOD) num_joints=$::KINS(JOINTS) num_spindles=$::TRAJ(SPINDLES)
-if {$::KINS(JOINTS) == 3} {
-    loadrt pid names=sim:0_pid,sim:1_pid,sim:2_pid,sim:3_pid
-    loadrt mux2 names=sim:0_mux,sim:1_mux,sim:2_mux,sim:3_mux
-    loadrt ddt names=sim:0_vel,sim:0_accel,sim:1_vel,sim:1_accel,sim:2_vel,sim:2_accel,sim:3_vel,sim:3_accel
-    loadrt hypot names=sim:hyp_xy,sim:hyp_xyz
-    loadrt sim_home_switch names=sim:0_switch,sim:1_switch,sim:2_switch,sim:3_switch
-} elseif {$::KINS(JOINTS) == 4} {
-    loadrt pid names=sim:0_pid,sim:1_pid,sim:2_pid,sim:3_pid,sim:4_pid
-    loadrt mux2 names=sim:0_mux,sim:1_mux,sim:2_mux,sim:3_mux,sim:4_mux
-    loadrt ddt names=sim:0_vel,sim:0_accel,sim:1_vel,sim:1_accel,sim:2_vel,sim:2_accel,sim:3_vel,sim:3_accel,sim:4_vel,sim:4_accel
-    loadrt hypot names=sim:hyp_xy,sim:hyp_xyz 
-    loadrt sim_home_switch names=sim:0_switch,sim:1_switch,sim:2_switch,sim:3_switch,sim:4_switch
-} elseif {$::KINS(JOINTS) == 5} {
-    loadrt pid names=sim:0_pid,sim:1_pid,sim:2_pid,sim:3_pid,sim:4_pid,sim:5_pid
-    loadrt mux2 names=sim:0_mux,sim:1_mux,sim:2_mux,sim:3_mux,sim:4_mux,sim:5_mux
-    loadrt ddt names=sim:0_vel,sim:0_accel,sim:1_vel,sim:1_accel,sim:2_vel,sim:2_accel,sim:3_vel,sim:3_accel,sim:4_vel,sim:4_accel,sim:5_vel,sim:5_accel
-    loadrt hypot names=sim:hyp_xy,sim:hyp_xyz 
-    loadrt sim_home_switch names=sim:0_switch,sim:1_switch,sim:2_switch,sim:3_switch,sim:4_switch,sim:5_switch
+loadrt $::EMCMOT(EMCMOT) servo_period_nsec=$::EMCMOT(SERVO_PERIOD) num_joints=$numJoints num_spindles=$::TRAJ(SPINDLES)
+loadrt  plasmac
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
+    loadrt pid names=sim:${jnum}_pid
+    loadrt mux2 names=sim:${jnum}_mux
+    loadrt ddt names=sim:${jnum}_vel,sim:${jnum}_accel
+    loadrt sim_home_switch names=sim:${jnum}_switch
+}
+loadrt hypot names=sim:hyp_xy,sim:hyp_xyz
+
+# ---THREAD LINKS---
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+addf plasmac servo-thread
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
+    addf sim:${jnum}_pid.do-pid-calcs servo-thread
+    addf sim:${jnum}_mux servo-thread
+    addf sim:${jnum}_vel servo-thread
+    addf sim:${jnum}_accel servo-thread
+}
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
+    addf sim:${jnum}_switch servo-thread
 }
 
-# NETS
-for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
+# ---SETP COMMANDS FOR UNCONNECTED INPUT PINS---
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
+    setp sim:${jnum}_pid.Pgain 0
+    setp sim:${jnum}_pid.Dgain 0
+    setp sim:${jnum}_pid.Igain 0
+    setp sim:${jnum}_pid.FF0 1.0
+    setp sim:${jnum}_pid.FF1 0
+    setp sim:${jnum}_pid.FF2 0
+}
+
+# ---MACHINE NET CONNECTIONS---
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
     net sim:j${jnum}-acc sim:${jnum}_accel.out
     net sim:j${jnum}-enable joint.${jnum}.amp-enable-out => sim:${jnum}_pid.enable
     net sim:j${jnum}-homesw sim:${jnum}_switch.home-sw => joint.${jnum}.home-sw-in
@@ -35,11 +53,11 @@ for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
 net sim:xy-vel sim:hyp_xy.out
 net sim:xyz-vel sim:hyp_xyz.out
 net sim:enable motion.motion-enabled
-for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
     net sim:enable sim:${jnum}_mux.sel
 }
 foreach {x y z } {0 0 0 } {}
-for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
+for {set jnum 0} {$jnum < $numJoints} {incr jnum} {
     if {[string index $::TRAJ(COORDINATES) $jnum] == "X"} {
         if {$x == 0} {
             incr x
@@ -58,34 +76,25 @@ for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
     }
 }
 
-## REALTIME THREAD/FUNCTION LINKS
-addf motion-command-handler servo-thread
-addf motion-controller servo-thread
-for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
-    addf sim:${jnum}_pid.do-pid-calcs servo-thread
-    addf sim:${jnum}_mux servo-thread
-    addf sim:${jnum}_vel servo-thread
-    addf sim:${jnum}_accel servo-thread
-}
-for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
-    addf sim:${jnum}_switch servo-thread
-}
+# ---PLASMA INPUT DEBOUNCE---
+loadrt dbounce names=db_breakaway,db_float,db_ohmic,db_arc-ok
+addf db_float     servo-thread
+addf db_ohmic     servo-thread
+addf db_breakaway servo-thread
+addf db_arc-ok    servo-thread
 
-## SETP COMMANDS FOR UNCONNECTED INPUT PINS
-for {set jnum 0} {$jnum < $::KINS(JOINTS)} {incr jnum} {
-    setp sim:${jnum}_pid.Pgain 0
-    setp sim:${jnum}_pid.Dgain 0
-    setp sim:${jnum}_pid.Igain 0
-    setp sim:${jnum}_pid.FF0 1.0
-    setp sim:${jnum}_pid.FF1 0
-    setp sim:${jnum}_pid.FF2 0
-}
+# ---Z AXIS FEEDBACK---
+net plasmac:axis-position        joint.${z-axis}.pos-fb      =>  plasmac.axis-z-position
 
-# QTPLASMAC TOOLCHANGE PASSTHROUGH
-net tool:change iocontrol.0.tool-change  => iocontrol.0.tool-changed
-net tool:prep   iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+# ---POWERMAX RS485 COMPONENT---
+#loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
 
-# QTPLASMAC ESTOP HANDLING
+# ---TOOL CHANGE PASSTHROUGH
+net tool-number <= iocontrol.0.tool-prep-number
+net tool-change-loopback iocontrol.0.tool-change => iocontrol.0.tool-changed
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+
+# ---QTPLASMAC ESTOP HANDLING---
 loadrt or2 names=estop_or
 loadrt not names=estop_not
 addf estop_or servo-thread

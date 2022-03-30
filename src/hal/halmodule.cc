@@ -438,6 +438,23 @@ static PyObject *pyhal_get_pin(PyObject *_self, PyObject *o) {
     return pyhal_pin_new(pin, name);
 }
 
+
+static PyObject *pyhal_get_pins(PyObject *_self, PyObject *o) {
+  char *name;
+  halobject *self = (halobject *)_self;
+
+  EXCEPTION_IF_NOT_LIVE(NULL);
+
+  PyObject *d = PyDict_New();
+  for(itemmap::iterator i = self->items->begin(); i != self->items->end(); i++) {
+    halitem * pin = &(i->second);
+    name = strdup(i->first.c_str());
+    PyDict_SetItemString(d, name, pyhal_read_common(pin));
+  }
+  return d;
+}
+
+
 static PyObject *pyhal_ready(PyObject *_self, PyObject *o) {
     // hal_ready did not exist in EMC 2.0.x, make it a no-op
     halobject *self = (halobject *)_self;
@@ -524,6 +541,8 @@ static PyMethodDef hal_methods[] = {
         "Create a new pin"},
     {"getitem", pyhal_get_pin, METH_VARARGS,
         "Get existing pin object"},
+    {"getpins", pyhal_get_pins, METH_VARARGS,
+            "Get all pins and values of component"},
     {"exit", pyhal_exit, METH_NOARGS,
         "Call hal_exit"},
     {"ready", pyhal_ready, METH_NOARGS,
@@ -785,7 +804,9 @@ PyObject *component_is_ready(PyObject *self, PyObject *args) {
 	return NULL;
     }
 
-    return PyBool_FromLong(halpr_find_comp_by_name(name)->ready != 0);
+    // Bad form to assume comp name exists - stop crashing!
+    hal_comp_t *thecomp = halpr_find_comp_by_name(name);
+    return PyBool_FromLong((thecomp) && (thecomp->ready != 0));
 }
 
 PyObject *new_sig(PyObject *self, PyObject *args) {
@@ -902,7 +923,7 @@ PyObject *set_p(PyObject *self, PyObject *args) {
 		"Cannot call before creating component");
 	return NULL;
     }
-    //printf("INFO HALMODULE -- settting pin / param - name:%s value:%s\n",name,value);
+    //printf("INFO HALMODULE -- setting pin / param - name:%s value:%s\n",name,value);
     // get mutex before accessing shared data 
     rtapi_mutex_get(&(hal_data->mutex));
     // search param list for name 
@@ -1642,23 +1663,23 @@ PyTypeObject stream_type = {
 
 PyMethodDef module_methods[] = {
     {"pin_has_writer", pin_has_writer, METH_VARARGS,
-	"Return a FALSE value if a pin has no writers and TRUE if it does"},
+	".pin_has_writer('pin_name'): Return a FALSE value if a pin has no writers and TRUE if it does"},
     {"component_exists", component_exists, METH_VARARGS,
-	"Return a TRUE value if the named component exists"},
+	".component_exists('component_name'): Return a TRUE value if the named component exists"},
     {"component_is_ready", component_is_ready, METH_VARARGS,
-	"Return a TRUE value if the named component is ready"},
+	".component_is_ready('component_name'): Return a TRUE value if the named component is ready"},
     {"set_msg_level", set_msg_level, METH_VARARGS,
-	"Set the RTAPI message level"},
+	".set_msg_level(level): Set the RTAPI message level"},
     {"get_msg_level", get_msg_level, METH_NOARGS,
-	"Get the RTAPI message level"},
+	".get_msg_level(): Get the RTAPI message level"},
     {"new_sig", new_sig, METH_VARARGS,
 	".new_sig('signal_name', type): Create a new signal with the specified name.  'type' is one of HAL_BIT, HAL_FLOAT, HAL_S32, or HAL_U32."},
     {"connect", connect, METH_VARARGS,
 	".connect('pin_name', 'signal_name'): Connect the named pin to the named signal."},
     {"set_p", set_p, METH_VARARGS,
-	"set pin value"},
+	".set_p('name', 'value'): Set the pin or param value"},
     {"get_value", get_value, METH_VARARGS,
-	".get_value('name'}: Gets the pin, param or signal value"},
+	".get_value('name'): Gets the pin, param or signal value"},
     {"get_info_pins", get_info_pins, METH_VARARGS,
 	".get_info_pins(): Get a list of dicts for all the pins; {NAME:, VALUE:, DIRECTION:}"},
     {"get_info_signals", get_info_signals, METH_VARARGS,
@@ -1748,6 +1769,8 @@ PyMODINIT_FUNC PyInit__hal(void)
 
 #ifdef RTAPI_KERNEL_VERSION
     PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
+#else
+    PyModule_AddStringConstant(m, "kernel_version", (char*)"Not Available");
 #endif
 
     PyRun_SimpleString(

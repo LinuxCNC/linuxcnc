@@ -65,7 +65,7 @@ class MaterialConverter(QMainWindow, object):
         self.fPE = '0'
         self.fGP = '0'
         self.fCM = '1'
-        wid.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+        wid.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt DejaVuSans} \
                           QLabel {height: 20; width: 120} \
                           QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 120} \
                           QPushButton:disabled {color: #16160e; border: none} \
@@ -519,7 +519,7 @@ class MaterialConverter(QMainWindow, object):
         layout.addWidget(dCMl)
         layout.addWidget(dCM)
         layout.addWidget(buttonBox)
-        dialog.setStyleSheet('* { color: #ffee06; background: #16160e; font: 10pt Lato } \
+        dialog.setStyleSheet('* { color: #ffee06; background: #16160e; font: 10pt DejaVuSans } \
                              QLineEdit { border: 1px solid #ffee06; border-radius: 4 }')
         response = dialog.exec_()
         if self.inManual.isChecked():

@@ -112,9 +112,9 @@ extern "C" {
 #define PRINT_CMS_DESTRUCTORS           0x00000010	/* 16 */
 #define PRINT_NML_CONSTRUCTORS          0x00000020	/* 32 */
 #define PRINT_NML_DESTRUCTORS           0x00000040	/* 64 */
-#define PRINT_COMMANDS_RECIEVED         0x00000100	/* 256 */
+#define PRINT_COMMANDS_RECEIVED         0x00000100	/* 256 */
 #define PRINT_COMMANDS_SENT             0x00000200	/* 512 */
-#define PRINT_STATUS_RECIEVED           0x00000400	/* 1024 */
+#define PRINT_STATUS_RECEIVED           0x00000400	/* 1024 */
 #define PRINT_STATUS_SENT               0x00000800	/* 2048 */
 #define PRINT_NODE_CYCLES               0x00001000	/* 4096 */
 #define PRINT_NODE_MISSED_CYCLES        0x00002000	/* 8192 */

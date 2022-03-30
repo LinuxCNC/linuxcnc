@@ -358,7 +358,7 @@ int PythonPlugin::configure(const char *iniFilename,
 	    reload_on_change = (atoi(inistring) > 0);
 
 	if (realpath(toplevel, real_path) == NULL) {
-	    logPP(-1, "cant resolve path to '%s'", toplevel);
+	    logPP(-1, "can\'t resolve path to '%s'", toplevel);
 	    status = PLUGIN_BAD_PATH;
 	    return status;
 	}

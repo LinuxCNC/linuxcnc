@@ -1,4 +1,17 @@
 #!/bin/bash
+### BEGIN INIT INFO
+# Provides:          realtime
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:
+# Default-Stop:      0 1 6
+# Short-Description: enable realtime capabilities when needed
+# Description:       The rtai module is loaded when needed and
+#  removed when the job has ended and is used throughout the LinuxCNC
+#  infrastructure. The script has no effect for the PREEMPT realtime kernel.
+#  The script is not meant to be started a boot time - it could be, though.
+# X-Interactive:     false
+### END INIT INFO
 #
 # @configure_input@ 
 # on @DATE@

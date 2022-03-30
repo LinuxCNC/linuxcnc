@@ -18,6 +18,8 @@ exec $LINUXCNC_EMCSH "$0" "$@"
 
 # Load the linuxcnc.tcl file, which defines variables for various useful paths
 source [file join [file dirname [info script]] .. linuxcnc.tcl]
+# Load file for canvasbuttons
+source [file join [file dirname [info script]] cbutton.tcl]
 
 package require BWidget
 
@@ -27,11 +29,84 @@ foreach class { Button Checkbutton Entry Label Listbox Menu Menubutton \
     option add *$class.borderWidth 1  100
 }
 
+# get config file path from running linuxcnc process if not invoked by GUI
+set config_path ""
+catch {set linuxcnc_process [exec ps -e -o stat,command | grep "^S" | grep -o "linuxcnc \\/.*\\.ini" ]
+    regexp { \/.*\/} $linuxcnc_process config_path
+    set config_path [string trim $config_path]
+}
+if {[info exists ::env(CONFIG_DIR)]} {
+    set ::INIFILE "$::env(CONFIG_DIR)/halshow.preferences"
+} elseif {[file isdirectory $config_path]} {
+    set ::INIFILE "${config_path}halshow.preferences"
+} else {
+    set ::INIFILE "~/.halshow_preferences"
+}
+# puts stderr "Halshow inifile: $::INIFILE"
+
+# This overwrites the default error message dialog to be able to set it on top
+proc bgerror {message} {
+    tk_messageBox -title "Application Error" -message [msgcat::mc "Error"] \
+    -detail $message -icon error -type ok 
+    wm attributes . -topmost $::alwaysOnTop
+}
+
+
+proc readIni {} {
+    # check that the file is readable
+    if { ![file readable $::INIFILE]} {
+        # puts stderr "\[halshow\] Settings file not found, using defaults"
+        return -1
+    } elseif { [catch {source $::INIFILE}] } { 
+        puts stderr "\[halshow\] Error in settings file $::INIFILE, using defaults.\n" 
+        return -1
+    } else {
+        return 0
+    }
+}
+
+set ::initPhase true
+set ::autoSaveWatchlist 1
+proc saveIni {} {
+    # The flag 'initPhase' prevents saving on the first FocusIn event
+    if {!$::initPhase} {
+        # open the file for writin0g (truncates if file exists)
+        if { [catch {set fc [open $::INIFILE w]}] } {
+            puts stder "\[halshow\] Unable to save settings to \"$INIFILE\"."
+        } else {
+            # write file
+            puts $fc "# Halshow settings"
+            puts $fc "# This file is generated automatically."
+            puts $fc "wm geometry . [wm geometry .]"
+            puts $fc "placeFrames $::ratio"
+            puts $fc "set ::ratio $::ratio"
+            puts $fc "set ::old_w_leftf $::old_w_leftf"
+            if {$::autoSaveWatchlist} {
+                puts $fc "set ::watchlist {"
+                foreach elem $::watchlist {
+                    puts $fc "    $elem"
+                }
+                puts $fc "}"
+            }
+            puts $fc "set ::workmode $::workmode"
+            puts $fc "set ::watchInterval $::watchInterval"
+            puts $fc "set ::col1_width $::col1_width"
+            puts $fc "set ::ffmts $::ffmts"
+            puts $fc "set ::ifmts $::ifmts"
+            puts $fc "set ::alwaysOnTop $::alwaysOnTop"
+            puts $fc "set ::autoSaveWatchlist $::autoSaveWatchlist"
+            close $fc
+        }
+    }
+}
+
 #----------start toplevel----------
 #
-
-wm title . [msgcat::mc "HAL Configuration"]
+set ::titlename [msgcat::mc "Halshow"]
+wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
+image create photo applicationIcon -file [file join [file dirname [info script]] ../halshow_icon.png]
+wm iconphoto . -default applicationIcon
 set masterwidth 700
 set masterheight 475
 # set fixed size for configuration display and center
@@ -39,12 +114,18 @@ set xmax [winfo screenwidth .]
 set ymax [winfo screenheight .]
 set x [expr ($xmax - $masterwidth )  / 2 ]
 set y [expr ($ymax - $masterheight )  / 2]
-wm geometry . "${masterwidth}x${masterheight}+$x+$y"
-wm  minsize . $masterwidth $masterheight
+wm geometry . "${masterwidth}x${masterheight}+$x+$y" 
+wm minsize . 230 240
+
+# save settings after switching to another window
+bind . <FocusOut> {saveIni}
+# save settings after resize (occurs also after start)
+bind . <FocusIn> {checkSizeChanged %W}
 
 # trap mouse click on window manager delete and ask to save
 wm protocol . WM_DELETE_WINDOW askKill
 proc askKill {} {
+    saveIni
     killHalConfig
 }
 
@@ -58,20 +139,51 @@ proc killHalConfig {} {
     exit
 }
 
-set main [frame .main -padx 10 -pady 10]
-pack $main -fill both -expand yes
+set ::main [frame .main -padx 6 -pady 6]
+pack $::main -fill both -expand yes
 
 # build frames from left side
-set tf [frame $main.maint]
-set top [NoteBook $main.note]
+set ::leftf [frame $::main.left]
+set ::tf [frame $::leftf.tf]
+set ::rightf [frame $::main.right]
+set ::nb [NoteBook $::rightf.note]
+pack $::nb -side right -fill both -expand yes
 
 # Each mode has a unique set of widgets inside tab
-set showhal [$top insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
-set ::watchhal [$top insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
+set showhal [$::nb insert 0 ps -text [msgcat::mc " SHOW "] -raisecmd {showMode showhal} ]
+set ::watchhal [$::nb insert 1 pw -text [msgcat::mc " WATCH "] -raisecmd {showMode watchhal}]
+set ::settings [$::nb insert 2 set -text [msgcat::mc " SETTINGS "] -raisecmd {showMode settings}]
 
 # use place manager to fix locations of frames within top
-place configure $tf -in $main -x 0 -y 0 -relheight 1 -relwidth .3
-place configure $top -in $main -relx .3 -y 0 -relheight 1 -relwidth .7
+proc placeFrames {ratio} {
+    place configure $::leftf -in $::main -x 0 -y 0 -relheight 1 -relwidth $ratio
+    place configure $::rightf -in $::main -relx $ratio -y 0 -relheight 1 -relwidth [expr 1-$ratio]
+    set ::ratio $ratio
+}
+
+placeFrames 0.3
+
+set ::geometryOld [wm geometry .]
+proc checkSizeChanged {w} {
+    if {$w == "." || $w == ".f2.show.grip"} {
+        if {[wm geometry .] == $::geometryOld} {
+            return
+        }
+    } elseif {$w == "force"} {
+    } else {
+        return
+    }
+    saveIni
+    set ::geometryOld [wm geometry .]
+}
+
+set ::ratioOld $::ratio
+proc checkRatioChanged {} {
+    if {$::ratio != $::ratioOld} {
+        saveIni
+    }
+    set ::ratioOld $::ratio
+}
 
 # slider process is used for several widgets
 proc sSlide {f a b} {
@@ -80,18 +192,18 @@ proc sSlide {f a b} {
 
 # Build menu
 # fixme clean up the underlines so they are unique under each set
-set menubar [menu $top.menubar -tearoff 0]
+set menubar [menu $::rightf.menubar -tearoff 0]
 set filemenu [menu $menubar.file -tearoff 1]
     $menubar add cascade -label [msgcat::mc "File"] \
             -menu $filemenu
+        $filemenu add command -label [msgcat::mc "Load Watch List"] \
+            -command {getwatchlist}            
         set ::savelabel1 [msgcat::mc "Save Watch List"] ;# identifier for entryconfigure
         set ::savelabel2 [msgcat::mc "Save Watch List (multiline)"] ;# identifier for entryconfigure
         $filemenu add command -label [msgcat::mc $::savelabel1] \
             -command savewatchlist
         $filemenu add command -label [msgcat::mc $::savelabel2] \
             -command [list savewatchlist multiline]
-        $filemenu add command -label [msgcat::mc "Load Watch List"] \
-            -command {getwatchlist}
         $filemenu add command -label [msgcat::mc "Exit"] \
             -command {destroy .; exit}
         $filemenu configure -postcommand {
@@ -106,9 +218,9 @@ set filemenu [menu $menubar.file -tearoff 1]
 set viewmenu [menu $menubar.view -tearoff 0]
     $menubar add cascade -label [msgcat::mc "Tree View"] \
             -menu $viewmenu
-        $viewmenu add command -label [msgcat::mc "Expand Tree"] \
+        $viewmenu add command -label [msgcat::mc "Expand All"] \
             -command {showNode {open}}
-        $viewmenu add command -label [msgcat::mc "Collapse Tree"] \
+        $viewmenu add command -label [msgcat::mc "Collapse All"] \
             -command {showNode {close}}
         $viewmenu add separator
         $viewmenu add command -label [msgcat::mc "Expand Pins"] \
@@ -117,14 +229,128 @@ set viewmenu [menu $menubar.view -tearoff 0]
             -command {showNode {param}}
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
-        $viewmenu add separator
-        $viewmenu add command -label [msgcat::mc "Erase Watch"] \
-            -command {watchReset all}
+
+set watchmenu [menu $menubar.watch -tearoff 1]
+    $menubar add cascade -label [msgcat::mc "Watch"] \
+            -menu $watchmenu
+        $watchmenu add command -label [msgcat::mc "Add pin"] \
+            -command {addToWatch pin [msgcat::mc "Pin"]}
+        $watchmenu add command -label [msgcat::mc "Add signal"] \
+            -command {addToWatch sig [msgcat::mc "Signal"]}
+        $watchmenu add command -label [msgcat::mc "Add parameter"] \
+            -command {addToWatch param [msgcat::mc "Parameter"]}
+        $watchmenu add separator
+        $watchmenu add command -label [msgcat::mc "Reload Watch"] \
+            -command {reloadWatch}
+        $watchmenu add command -label [msgcat::mc "Erase Watch"] \
+            -command {
+                watchReset all
+                setStatusbar [msgcat::mc "Watchlist cleared"]
+            }
+
 . configure -menu $menubar
 
+proc addToWatch {type name} {
+    set var [entrybox "" [msgcat::mc "Add to watch"] $name]
+    if {$var != "cancel"} {
+        if {[watchHAL $type+$var] == ""} {
+            setStatusbar "'$var' [msgcat::mc "added"]"
+        }
+    }   
+}
+
+# frame for scaling ratio
+set gripf [frame $::leftf.grip -borderwidth 3 -width 8 -cursor sb_h_double_arrow]
+pack $gripf -side right -fill y
+pack $::tf -fill both -expand yes
+
+# grip symbol for changing the ratio of left and right frame
+set grip [frame $gripf.grip -relief groove -borderwidth 2 -width 2 -height 20]
+pack [frame $gripf.topfill] -side top -expand y ; # add frames to center grip
+pack $grip
+pack [frame $gripf.bottomfill] -side bottom -expand y
+set ::grip_clicked false
+bind $gripf <Motion> [list scaleFrames]
+bind $gripf <ButtonPress-1> {set ::grip_clicked true}
+bind $gripf <ButtonRelease-1> {
+    set ::grip_clicked false
+    checkRatioChanged
+}
+bind $grip <Motion> [list scaleFrames]
+bind $grip <ButtonPress-1> {set ::grip_clicked true}
+bind $grip <ButtonRelease-1> {
+    set ::grip_clicked false
+    checkRatioChanged
+}
+
+# frame to hide tree
+set fh [frame $::tf.fh -borderwidth 0 -relief raised]
+pack $fh -fill x
+
+set bh [button $fh.bh -borderwidth 0 -text » -padx 6 -pady 1]
+pack $bh -side right
+set tlbl [label $fh.tlbl -text [msgcat::mc "Tree View"]]
+pack $tlbl -side left
+bind $bh <Button-1> [list hideListview true]
+
+# frame to show tree
+set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width 24]
+set bs [button $::fs.bs -borderwidth 0  -text « -padx 5 -pady 0] 
+pack $bs -side top
+bind $bs <Button-1> [list showListview]
+# add canvas to create rotated text
+set clbl [canvas $::fs.clbl -width 20]
+pack $clbl
+$clbl create text 10 5 -angle 90 -anchor e -text [msgcat::mc "Tree View"] -font [list "" 10]
+
+proc hideListview {resizeWindow} {
+    place $::fs -width 24 -relheight 1.0
+    pack forget $::nb
+    place $::nb -anchor ne -relx 1.0 -relwidth 1.0 -width -33 -relheight 1.0
+    placeFrames 0
+    if {$resizeWindow} {
+        set ::old_w_leftf [winfo width $::leftf]
+        set new_w [expr [winfo width $::nb] + [$::fs cget -width] + 9 + 2* [.main cget -padx]]
+        set new_x [int [expr [winfo x .] + [winfo width .] - $new_w - 3]]
+        # offset added here because [winfo geometry .] differs from [wm geometry .]    
+        set y [expr [winfo y .] - 61]
+        wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
+        tkwait visibility $::fs
+        saveIni
+   }
+}
+
+set ::old_w_leftf 160
+proc showListview {} {
+    place forget $::fs
+    place configure $::nb -relwidth 1.0 -width 0
+    # recalc ratio
+    set ratio [expr double($::old_w_leftf) / ([winfo width $::nb] + $::old_w_leftf)]
+    placeFrames $ratio
+    set new_w [int [expr  $::old_w_leftf + [winfo width $::nb] + 2*[.main cget -padx]]]
+    set new_x [int [expr [winfo x .] + [winfo width .] - $new_w - 3]] 
+    # offset added here because [winfo geometry .] differs from [wm geometry .]
+    set y [expr [winfo y .] - 61]
+    wm geometry . "${new_w}x[winfo height .]+$new_x+$y"
+    tkwait visibility $::tf
+    saveIni
+}
+
+# scale left and right frame while dragging
+proc scaleFrames {} {
+    if {$::grip_clicked} {
+        set xpos [expr {[winfo pointerx .] - [winfo x .]}]
+        set padx [$::main cget -padx]
+        if {$xpos >= [expr $padx+4] && $xpos <= [expr [winfo width .]-$padx-4]} {
+            set ratio [expr double ($xpos-$padx+4)/([winfo width .]-2*$padx)]
+            placeFrames $ratio
+        }
+    }
+}
+
 # build the tree widgets left side
-set ::treew [Tree $tf.t  -width 10 -yscrollcommand "sSlide $tf" ]
-set str $tf.sc
+set ::treew [Tree $::tf.t  -width 10 -yscrollcommand "sSlide $::tf" ]
+set str $::tf.sc
 scrollbar $str -orient vert -command "$::treew yview"
 pack $str -side right -fill y
 pack $::treew -side right -fill both -expand yes
@@ -281,32 +507,90 @@ proc makeShow {} {
     pack [scrollbar $f1.top.sc -orient vert -command "$::disp yview"]\
          -side left -fill y
 
-    set f2 [frame $::showhal.f2 -relief ridge -borderwidth 5]
+    set f2 [frame .f2 -borderwidth 0]
     pack $f2 -fill x -expand 0
     pack [frame $f2.b] \
          -side top -fill x -anchor w
-    pack [label $f2.b.label -text [msgcat::mc "Test HAL command :"] ]\
+    pack [label $f2.b.label -text [msgcat::mc "HAL command :"] ]\
          -side left -padx 5 -pady 3
     set com [entry $f2.b.entry -textvariable halcommand]
     pack $com -side left -fill x -expand 1 -pady 3
     bind $com <KeyPress-Return> {showEx $halcommand}
+    bind $com <Control-KeyPress-v> {
+        if {[%W selection present]} {%W delete sel.first sel.last}
+    }
+    bind $com <Up> {moveHist %W -1}
+    bind $com <Down> {moveHist %W 1}  
     set ex [button $f2.b.execute -text [msgcat::mc "Execute"] \
             -command {showEx $halcommand} ]
     pack $ex -side left -padx 5 -pady 3
-
     pack [frame $f2.show -height 5] \
          -side top -fill both -expand 1
     set ::showtext [text $f2.show.txt \
-                 -width 0 -height 1  \
-                 -borderwidth 2 -relief groove ]
-    pack $::showtext -side left -fill both -anchor w -expand 1
+                 -width 0 -height 1 -bg grey85 \
+                 -borderwidth 2 -relief sunken]
+    pack $::showtext -side left -fill both -anchor w -expand 1 -pady 5 -padx 5
+    pack [ttk::sizegrip $f2.show.grip] -side right -anchor se
+
+    bind $::disp <Button-3> {popupmenu_text %X %Y}
+    bind . <Control-KeyPress-c> {copySelection 0}
+    bind $f2.show.grip <ButtonRelease-1> {checkSizeChanged %W}
+}
+
+proc copySelection {clear} {
+    clipboard clear
+    catch {clipboard append [selection get]}
+    if {$clear} {
+        selection clear
+    }
 }
 
 proc makeWatch {} {
     set ::cisp [canvas $::watchhal.c -yscrollcommand [list $::watchhal.s set]]
     scrollbar $::watchhal.s -command [list $::cisp yview] -orient v
-    pack $::cisp -side left -fill both -expand yes
-    pack $::watchhal.s -side left -fill y -expand no
+    pack $::watchhal.s -side right -fill y -expand no
+    pack $::cisp -side right -fill both -expand yes  
+    bind $::cisp <Configure> {
+        set ::canvaswidth %w
+        reloadWatch
+    }
+}
+
+proc makeSettings {} {
+    proc addTextSetting {frame var descr} {
+        pack [frame $frame.$var] -fill x -anchor w -pady 2
+        pack [entry $frame.$var.entry -textvariable $var -width 5] -side right
+        pack [label $frame.$var.label -text [msgcat::mc $descr] -justify left]\
+            -side left -padx 2
+    }
+    proc addBoolSetting {frame var descr} {
+        pack [frame $frame.$var] -fill x -anchor w -pady 2
+        pack [checkbutton $frame.$var.checkbox -variable $var] -side right
+        pack [label $frame.$var.label -text [msgcat::mc $descr] -justify left]\
+            -side left -padx 0
+    }
+    set f1 [frame $::settings.f1]
+    pack $f1 -expand 0 -side left
+    addTextSetting $f1 ::watchInterval [msgcat::mc "Update interval (in ms)"]
+    addTextSetting $f1 ::col1_width [msgcat::mc "Column width for value in watch tab"]
+    pack [label $f1.label -text [msgcat::mc "Override format string (leave empty for default)"] \
+        -justify left]  -anchor w -pady 2 -padx 2
+    addTextSetting $f1 ::ffmts "    [msgcat::mc "Float"]"
+    addTextSetting $f1 ::ifmts "    [msgcat::mc "Integer"]"
+    set ::ffmt_setting $f1.::ffmts
+    set ::ifmt_setting $f1.::ifmts
+    addBoolSetting $f1 ::alwaysOnTop [msgcat::mc "Always on top\n(Note: May not\
+        working with all desktop environments)"]
+    addBoolSetting $f1 ::autoSaveWatchlist [msgcat::mc "Remember watchlist"]
+    pack [button $f1.apply -text [msgcat::mc "Apply"] \
+        -command {
+            wm attributes . -topmost $::alwaysOnTop
+            reloadWatch
+            }] -side right -padx 5 -pady 10
+    set infotext [text $f1.infotext -bd 0 -bg grey85 -wrap word -font [list "" 10]]
+    $infotext insert end "([msgcat::mc "Settings stored in: "] $::INIFILE)"
+    $infotext config -state disabled
+    pack $infotext -pady {20 0} -side left
 }
 
 # showmode handles the tab selection of mode
@@ -327,6 +611,7 @@ proc workMode {which} {
         }
         watchhal {
             watchHAL $which
+            setStatusbar ""
         }
         default {
             showMode showhal
@@ -353,11 +638,32 @@ proc showHAL {which} {
 }
 
 proc showEx {what} {
+    addToHist $what
     set str [eval hal $what]
     $::disp configure -state normal
     $::disp delete 1.0 end
     $::disp insert end $str
     $::disp configure -state disabled
+}
+
+set ::hist ""
+set ::i_hist 0
+proc addToHist {s} {
+    if {$s == ""} return
+    if [string compare $s [lindex $::hist end]] {
+        lappend ::hist $s
+        set ::i_hist [expr [llength $::hist]-1]
+    }
+}
+
+proc moveHist {w where} {
+    incr ::i_hist $where
+    if {[set ::i_hist]<0} {set ::i_hist 0}
+    if {[set ::i_hist]>=[llength $::hist]+1} {
+        set ::i_hist [llength $::hist]
+    }
+    set ::[$w cget -textvariable] [lindex $::hist [set ::i_hist]]
+    $w icursor end
 }
 
 set ::last_watchfile_tail my.halshow
@@ -369,6 +675,8 @@ set ::filetypes { {{HALSHOW} {.halshow}}\
 
 set ::watchlist ""
 set ::watchstring ""
+set ::canvaswidth 438
+set ::col1_width 100
 proc watchHAL {which} {
     if {$which == "zzz"} {
         $::cisp create text 40 [expr 1 * 20 + 12] -anchor w -tag firstmessage\
@@ -379,94 +687,270 @@ proc watchHAL {which} {
     } else {
         $::cisp delete firstmessage
     }
-    # return if variable is already used.
-    if {[lsearch $::watchlist $which] != -1} {
-        return
-    }
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
-    if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
-	# cannot watch components, functions, or threads
-	return
-    }
     set varname [lindex $tmplist end]
+    # return if variable is already used.
+    if {[lsearch $::watchlist $which] != -1} {
+        setStatusbar "'$varname' [msgcat::mc "already in list"]"
+        return "Item already in list"
+    }
+    if {$vartype != "pin" && $vartype != "param" && $vartype != "sig"} {
+        # cannot watch components, functions, or threads
+        return
+    }
     if {$vartype == "sig"} {
-	# stype (and gets) fail when the item clicked is not a leaf
-	# e.g., clicking "Signals / X"
-	if {[catch {hal stype $varname} type]} { return }
+        # stype (and gets) fail when the item clicked is not a leaf
+        # e.g., clicking "Signals / X"
+        if {[catch {hal stype $varname} type]} { 
+            setStatusbar $type
+            return $type
+        }
     } else {
-	# ptype (and getp) fail when the item clicked is not a leaf
-	# e.g., clicking "Pins / axis / 0"
-	if {[catch {hal ptype $varname} type]} { return }
+        # ptype (and getp) fail when the item clicked is not a leaf
+        # e.g., clicking "Pins / axis / 0"
+        if {[catch {hal ptype $varname} type]} { 
+            setStatusbar $type
+            return $type
+        }
     }
 
     lappend ::watchlist $which
     set i [llength $::watchlist]
     set label [lindex [split $which +] end]
+
+     # check if pin or param is writable
+    set writable 0
+    set showret [join [hal show $vartype $label] " "]
+    if {$vartype == "pin"} {
+        if {[string index [lindex $showret 9] 0] == "I"} {
+            # check if signals are connected to pin
+            if {[string first "==" [lindex $showret 12] 0] < 0} {
+                set writable 1
+            } else {
+                set writable -1
+            }
+        }
+    } elseif {$vartype == "param"} {
+        if {[lindex $showret 8] == "RW"} {
+            set writable 1
+        }
+    }
+
+    $::cisp create text $::col1_width [expr $i * 20 + 13] -text $label \
+            -anchor w -tag $label
     if {$type == "bit"} {
         $::cisp create oval 10 [expr $i * 20 + 5] 25 [expr $i * 20 + 20] \
-            -fill firebrick4 -tag oval$i
-        $::cisp create text 100 [expr $i * 20 + 12] -text $label \
-            -anchor w -tag $label
+            -fill lightgray -tag oval$i
+        if {$writable == 1} {
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
+                [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
+        } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr $i * 20 + 4] 24 17 "Set" [list hal_setp $label 1] 0
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 20] \
+                [expr $i * 20 + 4] 24 17 "Clr" [list hal_setp $label 0] 0
+        }
     } else {
-        # other gets a text display for value
         $::cisp create text 10 [expr $i * 20 + 12] -text "" \
             -anchor w -tag text$i
-        $::cisp create text 100 [expr $i * 20 + 12] -text $label \
-            -anchor w -tag $label
+       
+        if {$writable == 1} {
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 1
+        } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp [expr $::canvaswidth - 48] \
+                [expr $i * 20 + 4] 52 17 "Set val" [list setValue $label] 0
+        }
     }
+    if {$i > 1} {$::cisp create line 10 [expr $i * 20 + 3] [expr $::canvaswidth - 52] \
+        [expr $i * 20 + 3] -fill grey70}
+    $::cisp bind $label <Button-3> [list popupmenu_watch $label $i $writable $which %X %Y]
     $::cisp configure -scrollregion [$::cisp bbox all]
     $::cisp yview moveto 1.0
     set tmplist [split $which +]
     set vartype [lindex $tmplist 0]
     set varname [lindex $tmplist end]
     lappend ::watchstring "$i $vartype $varname "
-    if {$::watching == 0} {watchLoop}
+    refreshItem $i $vartype $label
+}
+
+proc popupmenu_watch {label index writable which x y} {
+    # create menu
+    set m [menu .popupMenu$index -tearoff false]
+    # add entries
+    $m add command -label [msgcat::mc "Copy"] -command [list copyName $label]
+    if {$writable} {
+        $m add command -label [msgcat::mc "Set to .."] -command [list setValue $label]
+    }
+    if {$writable == -1} {
+        $m add command -label [msgcat::mc "Unlink pin"] -command [list unlinkp $label $index]
+    }
+    $m add command -label [msgcat::mc "Remove"] -command [list watchReset $label]
+    # show menu
+    tk_popup $m $x $y
+    bind $m <FocusOut> [list destroy $m]
+}
+
+
+proc popupmenu_text {x y} {
+    # create menu
+    set m [menu .popupMenuText -tearoff false]
+    # add entries
+    $m add command -label [msgcat::mc "Copy"] -command {copySelection 0}
+    $m add command -label [msgcat::mc "Add as Pin(s)"] -command {addToWatchFromSel "pin"}
+    $m add command -label [msgcat::mc "Add as Signal(s)"] -command {addToWatchFromSel "sig"}
+    $m add command -label [msgcat::mc "Add as Param(s)"] -command {addToWatchFromSel "param"}
+    # show menu
+    tk_popup $m $x $y
+    bind $m <FocusOut> [list destroy $m]
+}
+
+proc addToWatchFromSel {type} {
+    set selected [join [selection get] " "]
+    set varcount 0
+    catch {
+        foreach item $selected {
+            if {![catch {hal [string index $type 0]type $item} return]} { 
+                if {[watchHAL "$type+$item"] == ""} {
+                incr varcount 
+                } 
+            }
+        }
+    }
+    setStatusbar [msgcat::mc "$varcount item(s) added"]
+}
+
+proc hal_setp {label val} {
+    eval hal "setp $label $val"
+}
+
+proc copyName {label} {
+    clipboard clear
+    clipboard append $label
+}
+
+proc setValue {label} {
+    set val [eval hal "getp $label"]
+    set val [entrybox $val [msgcat::mc "Set"] $label]
+    if {$val != "cancel"} {
+        eval hal "setp $label $val"
+    }
+}
+
+proc unlinkp {label i} {
+    # when unlink command successful --> rebuild list
+    if {[eval hal "unlinkp $label"] == "Pin '$label' unlinked"} {
+        reloadWatch       
+    }
+}
+
+proc entrybox {defVal buttonText label} {
+    if {[winfo exists .top]} {
+        raise .top
+        focus .top
+        return "cancel"
+    } else {
+        set wn [toplevel .top]
+        wm title $wn [msgcat::mc "User input"]
+        set xpos "[ expr {[winfo rootx [winfo parent $wn]]+ \
+            ([winfo width [winfo parent $wn]]-[winfo reqwidth $wn])/2}]"
+        set ypos "[ expr {[winfo rooty [winfo parent $wn]]+ \
+            ([winfo height [winfo parent $wn]]-[winfo reqheight $wn])/2}]"
+        wm geometry $wn "+$xpos+$ypos"
+        wm attributes $wn -topmost $::alwaysOnTop
+        variable entryVal
+        set entryVal $defVal
+        label .top.lbl -text $label
+        entry .top.en -textvariable entryVal
+        # -validate all-validatecommand {expr {[string is double %P] || [string is bool %P]}}
+        .top.en icursor end
+        button .top.but -command {set ret $entryVal} -text $buttonText
+        bind .top.en <Return> {set ret $entryVal}
+        bind .top.en <KP_Enter> {set ret $entryVal}
+        wm protocol .top WM_DELETE_WINDOW {set ret "cancel"}; # on X clicked
+        pack {*}[winfo children .top]
+        focus .top.en
+        vwait ret
+        unset -nocomplain ret
+        unset -nocomplain entryVal
+        destroy .top
+        return $::ret
+    }
 }
 
 # watchHAL prepares a string of {i HALtype name} sets
 # watchLoop submits these to halcmd and sets canvas
 # color or value based on reply
 set ::watching 0
+set ::watchInterval 100
 proc watchLoop {} {
     set ::watching 1
     set which $::watchstring
     foreach var $which {
         scan $var {%i %s %s} cnum vartype varname
-        if {$vartype == "sig" } {
-            set ret [hal gets $varname]
-            set varnumtype [hal stype $varname]
-        } else {
-            set ret [hal getp $varname]
-            set varnumtype [hal ptype $varname]
-        }
-        if {$ret == "TRUE"} {
-            $::cisp itemconfigure oval$cnum -fill yellow
-        } elseif {$ret == "FALSE"} {
-            $::cisp itemconfigure oval$cnum -fill firebrick4
-        } else {
-            switch $varnumtype {
-              u32 - s32  {set varnumtype int}
-              float      {set varnumtype float}
-            }
-            if [catch { set value [expr $ret] } ] {
-               set value $ret ;# allow display of a nan
-            } else {
-               # use format if provided
-               if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
-                  set value [format "$::ffmt" $ret]
-               }
-               if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
-                  set value [format "$::ifmt" $ret]
-               }
-            }
-            $::cisp itemconfigure text$cnum -text $value
-        }
+        refreshItem $cnum $vartype $varname
     }
     if {$::workmode == "watchhal"} {
-        after 250 watchLoop
+        after $::watchInterval watchLoop
     } else {
         set ::watching 0
+    }
+}
+
+proc setWatchInterval {} {
+    while {true} {
+        set interval [entrybox $::watchInterval [msgcat::mc "Set"] \
+            [msgcat::mc "Update interval for this session (ms)"]]
+        if {$interval < 1} {
+            tk_messageBox -message [msgcat::mc "Value out of range"] -type ok -icon warning
+        } elseif {$interval == "cancel"} {
+            break;
+        } else {
+            set ::watchInterval $interval
+            break
+        }
+    }
+}
+
+proc refreshItem {cnum vartype varname} {
+    if {$vartype == "sig" } {
+        set ret [hal gets $varname]
+        set varnumtype [hal stype $varname]
+    } else {
+        set ret [hal getp $varname]
+        set varnumtype [hal ptype $varname]
+    }
+    if {$ret == "TRUE"} {
+        $::cisp itemconfigure oval$cnum -fill yellow
+    } elseif {$ret == "FALSE"} {
+        $::cisp itemconfigure oval$cnum -fill firebrick4
+    } else {
+        switch $varnumtype {
+            u32 - s32  {set varnumtype int}
+            float      {set varnumtype float}
+        }
+        if [catch { set value [expr $ret] } ] {
+            set value $ret ;# allow display of a nan
+        } else {
+            # use format if provided via settings
+            if {$::ffmts != "" && ("$varnumtype" == "float")} {
+                set value [format "$::ffmts" $ret]
+            }
+            if {$::ifmts != "" && ("$varnumtype" == "int")} {
+                set value [format "$::ifmts" $ret]
+            }
+            # use format if provided via command line
+            if {[info exists ::ffmt] && ("$varnumtype" == "float")} {
+                set value [format "$::ffmt" $ret]
+            }
+            if {[info exists ::ifmt] && ("$varnumtype" == "int")} {
+                set value [format "$::ifmt" $ret]
+            }
+        }
+        $::cisp itemconfigure text$cnum -text $value
     }
 }
 
@@ -478,17 +962,31 @@ proc watchReset {del} {
             return
         }
         default {
-            set place [lsearch $::watchlist $del]
+            set item [string map {+ "\\+"} $del]; # escape '+' for regexp
+            set place [lsearch -regexp $::watchlist $item]
             if {$place != -1 } {
-            set ::watchlist [lreplace $::watchlist $place]
-                foreach var $::watchlist {
+                set ::watchlist [lreplace $::watchlist $place $place]
+                set watchlist_copy $::watchlist
+                set ::watchlist ""
+                set scrollbar_pos [lindex [$::cisp yview] 0]
+                foreach var $watchlist_copy {
                     watchHAL $var
                 }
+                $::cisp yview moveto [expr $scrollbar_pos * (1 + 1/double([llength $watchlist_copy]))]
+                setStatusbar "'$del' [msgcat::mc "removed from list"]"
             } else {            
                 watchHAL zzz
             }
         }
     }
+}
+
+proc reloadWatch {} {
+    set watchlist_copy $::watchlist
+    set scrollbar_pos [lindex [$::cisp yview] 0]
+    watchReset all
+    foreach item $watchlist_copy { watchHAL $item }
+    $::cisp yview moveto $scrollbar_pos
 }
 
 # proc switches the insert and removal of upper right text
@@ -522,11 +1020,12 @@ proc loadwatchlist {filename} {
   close $f
   set ::last_watchfile_tail [file tail    $filename]
   set ::last_watchfile_dir  [file dirname $filename]
-  wm title . $::last_watchfile_tail
+  wm title . "$::last_watchfile_tail - $::titlename"
   if {"$wl" == ""} return
   watchReset all
-  $::top raise pw
+  $::nb raise pw
   foreach item $wl { watchHAL $item }
+  setStatusbar  "$::last_watchfile_tail [msgcat::mc "loaded"]"
 }
 
 proc savewatchlist { {fmt oneline} } {
@@ -553,19 +1052,23 @@ proc savewatchlist { {fmt oneline} } {
   close $f
   set ::last_watchfile_tail [file tail    $sfile]
   set ::last_watchfile_dir  [file dirname $sfile]
+  wm title . "$::last_watchfile_tail - $::titlename"
 }
 
 #----------start up the displays----------
 makeShow
 makeWatch
+makeSettings
 refreshHAL
-$top raise ps
+$::nb raise ps
 
-set firststr [msgcat::mc "Commands may be tested here but they will NOT be saved"]
-
-$::showtext delete 1.0 end
-$::showtext insert end $firststr
-$::showtext config -state disabled
+proc setStatusbar {message} {
+    $::showtext config -state normal
+    $::showtext delete 1.0 end
+    $::showtext insert end $message
+    $::showtext config -state disabled
+}
+setStatusbar [msgcat::mc "Commands may be tested here but they will NOT be saved"]
 
 proc usage {} {
   set prog [file tail $::argv0]
@@ -590,10 +1093,14 @@ if {[llength $::argv] > 0} {
        "--iformat" {incr idx;
                     set ::ifmt [lindex $::argv $idx]
                     incr idx
+                    $::ifmt_setting.label configure -text "    [msgcat::mc "Integer (disabled by \"--iformat\" argument)"]"
+                    $::ifmt_setting.entry configure -state disabled
                    }
        "--fformat" {incr idx;
                     set ::ffmt [lindex $::argv $idx]
                     incr idx
+                    $::ffmt_setting.label configure -text "    [msgcat::mc "Float (disabled by \"--fformat\" argument)"]"
+                    $::ffmt_setting.entry configure -state disabled
                    }
        default { set watchfile [lindex $::argv $idx]
                  if [file readable $watchfile] {
@@ -609,3 +1116,16 @@ if {[llength $::argv] > 0} {
      }
    }
 }
+
+# Loading the settings from the file.
+# This overrides the default settings above.
+readIni
+if {$::ratio == 0} {
+    hideListview false
+}
+if {$::workmode == "watchhal"} {
+    $::nb raise pw  
+}
+wm attributes . -topmost $::alwaysOnTop
+tkwait visibility .
+set ::initPhase false

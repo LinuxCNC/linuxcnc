@@ -54,7 +54,7 @@ class HandlerClass:
         self.nhits += 1 
         widget.set_label("hits: %d" % self.nhits)
 
-    # This method is overriden from gscreen
+    # This method is overridden from gscreen
     # We selected this method name in the glade file as a callback.
     # Since this method name is the same as one in gscreen,
     # gscreen won't connect a callback to it's method.

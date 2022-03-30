@@ -459,7 +459,7 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
                 + (i * sizeof(rtapi_u32)), &buff, sizeof(rtapi_u32));
     }
     
-    hm2->stepgen.mode_reg[i] = 3 || modebuff;
+    hm2->stepgen.mode_reg[i] = 3 | modebuff; // force 2 LSbs to 1,1 to select table mode in stepgen hardware
 
     buff = inst->hal.param.step_type -1;	    
     
@@ -536,7 +536,7 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
             hm2_stepgen_update_mode(hm2, i);
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(rtapi_u32)), &hm2->stepgen.mode_reg[i], sizeof(rtapi_u32));
             if (hm2->stepgen.firmware_supports_index) {
-                inst->written_index_enable  = *inst->hal.pin.index_enable; // we need to update these only after the write has occured
+                inst->written_index_enable  = *inst->hal.pin.index_enable; // we need to update these only after the write has occurred
                 inst->written_probe_enable  = *inst->hal.pin.latch_enable; // to avoid a race condition (index detected before index enable has been set)
             }
         }

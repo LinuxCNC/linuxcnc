@@ -15,7 +15,7 @@
 
 #include <locale.h>
 #include <algorithm>
-#include "config.h"
+#include "linuxcnc.h"
 #include <limits.h>
 #include <stdio.h>
 #include <set>
@@ -55,13 +55,9 @@ inline int round_to_int(T x) {
 
 /* nested remap: a remapped code is found in the body of a subroutine
  * which is executing on behalf of another remapped code
- * example: a user G code command executes a tool change
+ * example: a user G-code command executes a tool change
  */
 #define MAX_NESTED_REMAPS 10
-
-// English - Metric conversion (long number keeps error buildup down)
-#define MM_PER_INCH 25.4
-//#define INCH_PER_MM 0.039370078740157477
 
 /* numerical constants */
 
@@ -197,7 +193,7 @@ enum OCodes
     O_ = 18,
 };
 
-// G Codes are symbolic to be dialect-independent in source code
+// G-codes are symbolic to be dialect-independent in source code
 enum GCodes
 {
     G_0 = 0,
@@ -513,7 +509,7 @@ struct block_struct
 
 
     // there might be several remapped items in a block, but at any point
-    // in time there's only one excuting
+    // in time there's only one executing
     // conceptually blocks[1..n] are also the 'remap frames'
     remap_pointer executing_remap; // refers to config descriptor
     std::set<int> remappings; // all remappings in this block (enum phases)
@@ -522,7 +518,7 @@ struct block_struct
     // the strategy to get the builtin behaviour of a code in a remap procedure is as follows:
     // if recursion is detected in find_remappings() (called by parse_line()), that *step* 
     // (roughly the modal group) is NOT added to the set of remapped steps in a block (block->remappings)
-    // in the convert_* procedures we test if the step is remapped with the macro below, and wether
+    // in the convert_* procedures we test if the step is remapped with the macro below, and whether
     // it is the current code which is remapped (IS_USER_MCODE, IS_USER_GCODE etc). If both
     // are true, we execute the remap procedure; if not, use the builtin code.
 #define STEP_REMAPPED_IN_BLOCK(bp, step) (bp->remappings.find(step) != bp->remappings.end())
@@ -530,7 +526,7 @@ struct block_struct
     // true if in a remap procedure the code being remapped was
     // referenced, which caused execution of the builtin semantics
     // reason for recording the fact: this permits an epilog to do the
-    // right thing depending on wether the builtin was used or not.
+    // right thing depending on whether the builtin was used or not.
     bool builtin_used; 
 };
 
@@ -578,7 +574,7 @@ typedef parameter_map::iterator parameter_map_iterator;
 
 #define MAX_REMAPOPTS 20
 // current implementation limits - legal modal groups
-// for M and G codes
+// for M- and G-codes
 #define M_MODE_OK(m) ((m > 3) && (m < 11))
 #define G_MODE_OK(m) (m == 1)
 
@@ -603,8 +599,8 @@ struct context_struct {
     double saved_params[INTERP_SUB_PARAMS];
     parameter_map named_params;
     unsigned char context_status;		// see CONTEXT_ defines below
-    int saved_g_codes[ACTIVE_G_CODES];  // array of active G codes
-    int saved_m_codes[ACTIVE_M_CODES];  // array of active M codes
+    int saved_g_codes[ACTIVE_G_CODES];  // array of active G-codes
+    int saved_m_codes[ACTIVE_M_CODES];  // array of active M-codes
     double saved_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
     int call_type; // enum call_types
     pycontext pystuff;
@@ -664,8 +660,8 @@ struct setup
   double v_axis_offset, v_current, v_origin_offset;
   double w_axis_offset, w_current, w_origin_offset;
 
-  int active_g_codes[ACTIVE_G_CODES];  // array of active G codes
-  int active_m_codes[ACTIVE_M_CODES];  // array of active M codes
+  int active_g_codes[ACTIVE_G_CODES];  // array of active G-codes
+  int active_m_codes[ACTIVE_M_CODES];  // array of active M-codes
   double active_settings[ACTIVE_SETTINGS];     // array of feed, speed, etc.
   StateTag state_tag;
 

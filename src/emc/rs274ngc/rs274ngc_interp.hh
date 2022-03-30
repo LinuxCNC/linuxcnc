@@ -75,10 +75,10 @@ public:
    arguments to the function. These functions do not change the state of
    the interpreter. */
 
-// copy active G codes into array [0]..[15]
+// copy active G-codes into array [0]..[15]
  void active_g_codes(int *codes);
 
-// copy active M codes into array [0]..[9]
+// copy active M-codes into array [0]..[9]
  void active_m_codes(int *codes);
 
 // copy active F, S settings into array [0]..[2]
@@ -573,11 +573,11 @@ int read_dollar(char *line, int *counter, block_pointer block,
 
     //int call_fsm(setup_pointer settings, int event);
     //int execute_pycall(setup_pointer settings, const char *name, int call_phase);
- int execute_call(setup_pointer settings, context_pointer current_frame, int call_type);  
- int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type);  
+ int execute_call(setup_pointer settings, context_pointer current_frame, int call_type);
+ int execute_return(setup_pointer settings,  context_pointer current_frame, int call_type);
  void loop_to_beginning(setup_pointer settings);
     //int execute_remap(setup_pointer settings, int call_phase);   // remap call state machine
-    int handler_returned( setup_pointer settings, 
+    int handler_returned( setup_pointer settings,
 			  context_pointer active_frame, const char *name, bool osub);
 int read_inputs(setup_pointer settings);
 
@@ -651,7 +651,7 @@ int read_inputs(setup_pointer settings);
     ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
     (((bp)->m_modes[mgroup]) > -1) &&		\
      ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
-    
+
     bool remap_in_progress(const char *code);
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
@@ -664,7 +664,7 @@ int read_inputs(setup_pointer settings);
 #define OWORD_MODULE "oword"
 #define REMAP_MODULE "remap"
 #define NAMEDPARAMS_MODULE "namedparams"
-    // describes intented use, and hence parameter and return value
+    // describes intended use, and hence parameter and return value
     // interpretation
     enum py_calltype { PY_OWORDCALL,
 		       PY_FINISH_OWORDCALL,
@@ -689,7 +689,7 @@ int read_inputs(setup_pointer settings);
 
     const char *getSavedError();
     // set error message text without going through printf format interpretation
-    int setSavedError(const char *msg); 
+    int setSavedError(const char *msg);
 
     int unwind_call(int status, const char *file, int line, const char *function);
 

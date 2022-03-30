@@ -24,6 +24,7 @@
 #include "interp_return.hh"
 #include "canon.hh"
 #include "config.h"		// LINELEN
+#include "units.h"
 
 int _task = 0; // control preview behaviour when remapping
 
@@ -328,6 +329,10 @@ void CHANGE_TOOL(int pocket) {
 void CHANGE_TOOL_NUMBER(int pocket) {
     maybe_new_line();
     if(interp_error) return;
+}
+
+void RELOAD_TOOLDATA(void) {
+    return;
 }
 
 /* XXX: This needs to be re-thought.  Sometimes feed rate is not in linear
@@ -994,11 +999,17 @@ static PyObject *rs274_arc_to_segments(PyObject *self, PyObject *args) {
 
     double theta1 = atan2(o[Y]-cy, o[X]-cx);
     double theta2 = atan2(n[Y]-cy, n[X]-cx);
-
-    if(rot < 0) {
-        while(theta2 - theta1 > -CIRCLE_FUZZ) theta2 -= 2*M_PI;
-    } else {
-        while(theta2 - theta1 < CIRCLE_FUZZ) theta2 += 2*M_PI;
+    /* Issue #1528 1/2/22 andypugh */
+    /*_posemath checks for small arcs too, but uses config units */
+    double len = hypot(o[X]-n[X], o[Y]-n[Y]) * (25.4 * GET_EXTERNAL_LENGTH_UNITS());
+    /* If the signs of the angles differ, make them the same to allow monotonic progress through the arc */
+    /* If start and end points are nearly identical, then interpret as a full turn */
+    if(rot < 0) { // CW G2
+        if (theta1 < theta2) theta2 -= 2*M_PI;
+        if (len < CART_FUZZ) theta2 -= 2*M_PI;
+    } else { // CCW G3
+        if (theta1 > theta2) theta2 += 2*M_PI;
+        if (len < CART_FUZZ) theta2 += 2*M_PI;
     }
 
     // if multi-turn, add the right number of full circles

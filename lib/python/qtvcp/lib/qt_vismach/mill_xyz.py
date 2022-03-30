@@ -3,11 +3,9 @@
 # Rolf Redford, Nov 2018
 # modded for qtvcp Chris Morley 2020
 
-import sys
-import hal
-from .qt_vismach import *
+from qtvcp.lib.qt_vismach.qt_vismach import *
 
-# ---------------------------------------------------------------------------------------------------------------------------------- Starting and defining
+#---------------------------------------------------------------------------------------------------------------------------------- # Starting and defining
 
 # model is built in metric
 # if using a imperial config need to scale movement
@@ -15,65 +13,12 @@ METRIC = 1
 IMPERIAL = 25.4
 MODEL_SCALING = IMPERIAL
 
-# used for diameter for versions less than 2.8.
-# it gives us way to access variable values from vismach script.
-# import linuxcnc
-# s = linuxcnc.stat()
-# s.poll()
-
-# Here is where we define pins that linuxcnc will send
-# data to, in order to make movements.
-# We will need 5 pins, 3 for motion and 2 for tool stats.
-# tooldiameter isn't really used but if you are using 2.8 you can make couple changes
-# in this file, and uncomment last line in HAL file.
-# add joints. Mill has 3.
-# c = hal.component("3axis-tutorial-test")
-# tells loadusr pins is ready
-# c.ready()
-
-# we are not using a component but the original code requires a varible
-c = None
-
 # Used for tool cylinder
 # it will be updated in shape and length by function below.
 toolshape = CylinderZ(0)
 toolshape = Color([1, .5, .5, .5], [toolshape])
 
-
-# updates tool cylinder shape.
-class HalToolCylinder(CylinderZ):
-    def __init__(self, comp, *args):
-        # get machine access so it can
-        # change itself as it runs
-        # specifically tool cylinder in this case.
-        CylinderZ.__init__(self, *args)
-        self.comp = c
-
-    def coords(self):
-        # update data -  not needed if using 2.8 and self.comp["tooldiameter"]
-        # 2.7 does not have direct pin for diameter so this is workaround. commented out code is direct way to do it.
-        # s.poll() # 2.8 don't need this, comment out if using 2.8.
-        # get diameter and divide by 2 to get radius.
-        # rad = ( s.tool_table[s.tool_in_spindle].diameter ) # 2.7 workaround
-        try:
-            dia = (hal.get_value('halui.tool.diameter') * MODEL_SCALING)
-        except:
-            dia = 0
-        rad = dia / 2  # change to rad
-        # this instantly updates tool model but tooltip doesn't move till -
-        # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
-        # Tool will "crash" if h and tool length does not match.
-        try:
-            leng = hal.get_value('motion.tooloffset.z') * MODEL_SCALING
-        except:
-            leng = 0
-        # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
-        # commented out as I prefer machine to show actual tool size right away.
-        # leng = self.comp["toollength"]
-        return (-leng, rad, 0, rad)
-
-
-# ----------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # Concept of machine design
 
 # The model follows logical tree design - picture the tree, with branch and smaller branches off it
@@ -134,7 +79,7 @@ class HalToolCylinder(CylinderZ):
 # with tip and adds to larger part of arm then it finally groups with base.
 
 
-# ----------------------------------------------------------------------------------------------------------------------------------
+# -----------------------------------------------------------------------------------------------------------
 # Starting with fixed frame
 
 # start creating base itself, floor and column for z. box is centered on 0,0,0
@@ -188,7 +133,7 @@ xassembly = Translate([xassembly], 0, 0, 35)
 # since this moves solely on X axis, only x is 1, rest is zero.
 # you could use fractions for say axis that moves in compound like arm for example
 # but this machine is very simple, so all axis will be purely full on axis and zero on other axis.
-xassembly = HalTranslate([xassembly], c, "joint.0.pos-fb", MODEL_SCALING, 0, 0, direct=1)
+xassembly = HalTranslate([xassembly], None, "joint.0.pos-fb", MODEL_SCALING, 0, 0)
 
 # Y assembly creation
 ybase = BoxCentered(200, 200, 10)
@@ -201,7 +146,7 @@ ybase = Color([0, 1, 0, 1], [ybase])
 # now define collection of ybase and xassembly.
 yassembly = Collection([ybase, xassembly])
 # define its motion first before translate.
-yassembly = HalTranslate([yassembly], c, "joint.1.pos-fb", 0, MODEL_SCALING, 0, direct=1)
+yassembly = HalTranslate([yassembly], None, "joint.1.pos-fb", 0, MODEL_SCALING, 0)
 # Now that translate is locked with part, 
 # move it upwards so its on frame base.
 yassembly = Translate([yassembly], 0, 0, 5)
@@ -225,7 +170,7 @@ tooltip = Capture()
 # Now that we have tooltip, let's attach it to cylinder function (see above)
 # it creates cylinder then translates tooltip to end of it.
 tool = Collection([
-    Translate([HalTranslate([tooltip], c, "motion.tooloffset.z", 0, 0, -MODEL_SCALING, direct=1)], 0, 0, 0),
+    Translate([HalTranslate([tooltip], None, "motion.tooloffset.z", 0, 0, -MODEL_SCALING)], 0, 0, 0),
     HalToolCylinder(toolshape)
 ])
 
@@ -252,27 +197,22 @@ zframe = Color([1, 1, 0, 1], [zframe])
 # Now that all parts are created, let's group it and finally make Z motion
 zassembly = Collection([zframe, toolassembly])
 # define Z motion
-zassembly = HalTranslate([zassembly], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING, direct=1)
+zassembly = HalTranslate([zassembly], None, "joint.2.pos-fb", 0, 0, MODEL_SCALING)
 # Now that motion is defined,
 # we can now move it to Z home position.
 zassembly = Translate([zassembly], 0, 0, 400)
 
-# ----------------------------------------------------------------------------------------------------------------------------------
+# show a title to prove the HUD
+myhud = Hud()
+myhud.show("Mill_XYZ")
+
+# ------------------------------------------------------------------------------------
 # Getting it all together and finishing model
 
 # Assembly everything into single model.
 # xassembly is already included into yassembly so don't need to include it.
 model = Collection([frame, yassembly, zassembly])
 
-
-# Finally, call main() with parameter to let linuxcnc know.
-# parameter list:
-# final model name must include all parts you want to use
-# tooltip (special for tool tip inclusuion)
-# work (special for work part inclusion)
-# size of screen (bigger means more zoomed out to show more of machine)
-# last 2 is where view point source is.
-# main(model, tooltip, work, 600, lat=-75, lon=215)
 
 # we want to embed with qtvcp so build a window to display
 # the model
@@ -283,6 +223,10 @@ class Window(QWidget):
         self.glWidget = GLWidget()
         v = self.glWidget
         v.set_latitudelimits(-180, 180)
+
+        v.hud = myhud
+        # HUD needs to know where to draw
+        v.hud.app = v
 
         world = Capture()
 
@@ -301,11 +245,15 @@ class Window(QWidget):
 
 
 # but it you call this directly it should work too
+# It just makes a qtvcp5 window that is defined in qt_vismach.py
+# parameter list:
+# final model name must include all parts you want to use
+# tooltip (special for tool tip inclusuion)
+# work (special for work part inclusion)
+# size of screen (bigger means more zoomed out to show more of machine)
+# hud None if no hud
+# last 2 is where view point source is.
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import (QApplication, QWidget)
+    main(model, tooltip, work, size=600, hud=myhud, lat=-75, lon=215)
 
-    app = QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())

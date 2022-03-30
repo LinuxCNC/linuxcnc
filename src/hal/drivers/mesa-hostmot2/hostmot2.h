@@ -123,6 +123,7 @@
 #define HM2_GTAG_DPAINTER          (42) 
 #define HM2_GTAG_XY2MOD            (43) 
 #define HM2_GTAG_RCPWMGEN          (44) 
+#define HM2_GTAG_OUTM              (45) 
 #define HM2_GTAG_LIOPORT           (64) // Not supported
 #define HM2_GTAG_LED               (128)
 
@@ -496,7 +497,7 @@ typedef struct {
 #define HM2_PWMGEN_OUTPUT_TYPE_PWM          1  // this is the same value that the software pwmgen component uses
 #define HM2_PWMGEN_OUTPUT_TYPE_UP_DOWN      2  // this is the same value that the software pwmgen component uses
 #define HM2_PWMGEN_OUTPUT_TYPE_PDM          3  // software pwmgen doesn't support pdm as an output type
-#define HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED  4  // software pwmgen dosen't support pwm/swapped output type because it doesn't need to 
+#define HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED  4  // software pwmgen doesn't support pwm/swapped output type because it doesn't need to 
 
 typedef struct {
 
@@ -1159,8 +1160,8 @@ typedef struct {
 
 
 //
-// Buffered SPI transciever
-// 
+// Buffered SPI transceiver
+//
 
 typedef struct {
     rtapi_u32 cd[16];
@@ -1361,6 +1362,7 @@ typedef struct {
         struct {
             hal_u32_t *rate;
             hal_bit_t *out[32];
+            hal_bit_t *invert[32];
         } pin;
 
     } hal;
@@ -1382,6 +1384,36 @@ typedef struct {
     rtapi_u32 rate_addr;
     rtapi_u32 *rate_reg;
 } hm2_ssr_t;
+
+//
+// OUTM
+//
+
+typedef struct {
+    struct {
+
+        struct {
+            hal_bit_t *out[32];
+            hal_bit_t *invert[32];
+        } pin;
+
+    } hal;
+
+    rtapi_u32 written_data;
+
+} hm2_outm_instance_t;
+
+typedef struct {
+    int num_instances;
+    hm2_outm_instance_t *instance;
+
+    rtapi_u8 version;
+    rtapi_u32 clock_freq;
+
+    rtapi_u32 data_addr;
+    rtapi_u32 *data_reg;
+
+} hm2_outm_t;
 
 
 // 
@@ -1447,6 +1479,7 @@ typedef struct {
         int num_inms;
         int num_xy2mods;
         int num_ssrs;
+        int num_outms;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1495,6 +1528,7 @@ typedef struct {
     hm2_xy2mod_t xy2mod;
     hm2_led_t led;
     hm2_ssr_t ssr;
+    hm2_outm_t outm;
 
     hm2_raw_t *raw;
 
@@ -1836,6 +1870,17 @@ void hm2_ssr_write(hostmot2_t *hm2);
 void hm2_ssr_force_write(hostmot2_t *hm2);
 void hm2_ssr_prepare_tram_write(hostmot2_t *hm2);
 void hm2_ssr_print_module(hostmot2_t *hm2);
+
+
+//
+// OUTM functions
+//
+
+int hm2_outm_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_outm_cleanup(hostmot2_t *hm2);
+void hm2_outm_force_write(hostmot2_t *hm2);
+void hm2_outm_prepare_tram_write(hostmot2_t *hm2);
+void hm2_outm_print_module(hostmot2_t *hm2);
 
 
 //

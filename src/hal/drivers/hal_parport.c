@@ -37,7 +37,7 @@
 
     The driver creates HAL pins and parameters for each port pin
     as follows:
-    Each physical output has a correspinding HAL pin, named
+    Each physical output has a corresponding HAL pin, named
     'parport.<portnum>.pin-<pinnum>-out', and a HAL parameter
     'parport.<portnum>.pin-<pinnum>-out-invert'.
     Each physical input has two corresponding HAL pins, named

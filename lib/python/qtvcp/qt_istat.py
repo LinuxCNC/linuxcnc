@@ -69,6 +69,8 @@ class _IStat(object):
         self.MAX_FEED_OVERRIDE = 1.5
         self.MAX_SPINDLE_OVERRIDE = 1.5
         self.MIN_SPINDLE_OVERRIDE = 0.5
+        self.TITLE = ""
+        self.ICON = ""
 
         self.update()
 
@@ -78,8 +80,8 @@ class _IStat(object):
             self.CYCLE_TIME = int(ct * 1000)
         else:
             self.CYCLE_TIME = int(ct)
-        self.GRAPHICS_CYCLE_TIME = float(self.INI.find('DISPLAY', 'GRAPHICS_CYCLE_TIME') or 100) # in seconds
-        self.HALPIN_CYCLE_TIME = float(self.INI.find('DISPLAY', 'HALPIN_CYCLE_TIME') or 100) # in seconds
+        self.GRAPHICS_CYCLE_TIME =int(self.INI.find('DISPLAY', 'GRAPHICS_CYCLE_TIME') or 100) # in seconds
+        self.HALPIN_CYCLE_TIME = int(self.INI.find('DISPLAY', 'HALPIN_CYCLE_TIME') or 100) # in seconds
         self.MDI_HISTORY_PATH = self.INI.find('DISPLAY', 'MDI_HISTORY_FILE') or '~/.axis_mdi_history'
         self.QTVCP_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'LOG_FILE') or '~/qtvcp.log'
         self.MACHINE_LOG_HISTORY_PATH = self.INI.find('DISPLAY', 'MACHINE_LOG_PATH') or '~/.machine_log_history'
@@ -87,6 +89,13 @@ class _IStat(object):
         self.PROGRAM_PREFIX = self.get_error_safe_setting("DISPLAY", "PROGRAM_PREFIX", '~/linuxcnc/nc_files')
         if not os.path.exists(os.path.expanduser(self.PROGRAM_PREFIX)):
             log.warning('Path not valid in INI File [DISPLAY] PROGRAM_PREFIX section')
+
+        temp = self.INI.find("DISPLAY", "USER_COMMAND_FILE")
+        if not temp is None:
+            self.USER_COMMAND_FILE = os.path.expanduser(temp)
+        else:
+            self.USER_COMMAND_FILE = None
+
         self.SUB_PATH = (self.INI.find("RS274NGC", "SUBROUTINE_PATH")) or None
         self.STARTUP_CODES = (self.INI.find('RS274NGC', 'RS274NGC_STARTUP_CODE') ) or None
         if self.SUB_PATH is not None:
@@ -138,6 +147,7 @@ class _IStat(object):
         axes = self.INI.find("TRAJ", "COORDINATES")
         if axes is not None:  # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
+            self.TRAJCO = axes.lower()
             log.debug('TRAJ COORDINATES: {}'.format(axes))
             self.AVAILABLE_AXES = []
             self.GET_NAME_FROM_JOINT = {}
@@ -216,6 +226,7 @@ class _IStat(object):
             self.JOINT_SEQUENCE[j] = int(self.INI.find(section, "HOME_SEQUENCE") or 0)
 
         # jog synchronized sequence
+        # gives a list of joints combined to make an axis
         templist = []
         for j in self.AVAILABLE_JOINTS:
             temp = []
@@ -229,6 +240,21 @@ class _IStat(object):
                 templist.append(temp)
         # remove duplicates
         self.JOINT_SYNCH_LIST = list(set(tuple(sorted(sub)) for sub in templist))
+
+        # This is a list of joints that are related to a joint.
+        #ie. JOINT_RELATIONS_LIST(0) will give a list of joints that go with joint 0
+        # to make an axis or else a list with just 0 in it.
+        # current use case is to find out what other joints should be unhomed if you unhome 
+        # a combined joint axis.
+        self.JOINT_RELATIONS_LIST = [None] * jointcount
+        for j in range(jointcount):
+            temp = []
+            for hj, hs in list(self.JOINT_SEQUENCE_LIST.items()):
+                if abs(int(hs)) == abs(int(self.JOINT_SEQUENCE_LIST.get(j))):
+                    temp.append(hj)
+            if temp == []:
+                temp.append(j)
+            self.JOINT_RELATIONS_LIST[j] = temp
 
         # jogging increments
         increments = self.INI.find("DISPLAY", "INCREMENTS")
@@ -322,9 +348,10 @@ class _IStat(object):
             self.MIN_SPINDLE_OVERRIDE = self.MIN_SPINDLE_0_OVERRIDE
 
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY", "MAX_FEED_OVERRIDE", 1.5)) * 100
+        if self.INI.find("TRAJ", "MAX_LINEAR_VELOCITY") is None:
+            log.critical('INI Parsing Error, No MAX_LINEAR_VELOCITY Entry in TRAJ')
         self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ", "MAX_LINEAR_VELOCITY",
-                                                                   self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY",
-                                                                                               5))) * 60
+                                            self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY", 5))) * 60
 
         # user message dialog system
         self.USRMESS_BOLDTEXT = self.INI.findall("DISPLAY", "MESSAGE_BOLDTEXT")
@@ -341,10 +368,20 @@ class _IStat(object):
             log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] sectioN')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
             log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
+        if len(self.USRMESS_TEXT) != len(self.USRMESS_ICON):
+            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] sectioN')
+            if self.USRMESS_ICON == []:
+                temp = 'INFO'
+            else:
+                temp = self.USRMESS_ICON[0]
+                self.USRMESS_ICON = []
+            for i in self.USRMESS_TEXT:
+                self.USRMESS_ICON.append(temp)
+
         try:
             self.ZIPPED_USRMESS = list(
                 zip(self.USRMESS_BOLDTEXT, self.USRMESS_TEXT, self.USRMESS_DETAILS, self.USRMESS_TYPE,
-                    self.USRMESS_PINNAME))
+                    self.USRMESS_PINNAME, self.USRMESS_ICON))
         except:
             self.ZIPPED_USRMESS = None
 
@@ -371,16 +408,37 @@ class _IStat(object):
         except:
             self.ZIPPED_TABS = None
 
-        self.MDI_COMMAND_LIST = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        # users can specify a label for the MDI action button by adding ',Some\nText'
+        # to the end of the MDI command
+        # here we separate them to two lists
+        # action_button takes it from there.
+        self.MDI_COMMAND_LIST = []
+        self.MDI_COMMAND_LABEL_LIST = []
+        temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
+        if temp is None:
+            self.MDI_COMMAND_LABEL_LIST.append(None)
+            self.MDI_COMMAND_LABEL_LIST.append(None)
+        else:
+            for i in temp:
+                for num,k in enumerate(i.split(',')):
+                    if num == 0:
+                        self.MDI_COMMAND_LIST.append(k)
+                        if len(i.split(',')) <2:
+                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                    else:
+                        self.MDI_COMMAND_LABEL_LIST.append(k)
+
         self.TOOL_FILE_PATH = self.get_error_safe_setting("EMCIO", "TOOL_TABLE")
         self.POSTGUI_HALFILE_PATH = (self.INI.findall("HAL", "POSTGUI_HALFILE")) or None
+        self.POSTGUI_HAL_COMMANDS = (self.INI.findall("HAL", "POSTGUI_HALCMD")) or None
 
         # Some systems need repeat disabled for keyboard jogging because repeat rate is uneven
         self.DISABLE_REPEAT_KEYS_LIST = self.INI.find("DISPLAY", "DISABLE_REPEAT_KEYS") or None
 
         # maximum number of errors shown in on screen display
         self.MAX_DISPLAYED_ERRORS = int(self.INI.find("DISPLAY", "MAX_DISPLAYED_ERRORS") or 10)
-
+        self.TITLE = (self.INI.find("DISPLAY", "TITLE")) or ""
+        self.ICON = (self.INI.find("DISPLAY", "ICON")) or ""
     ###################
     # helper functions
     ###################
@@ -504,6 +562,10 @@ class _IStat(object):
         elif file_extension.lower() in (self.VALID_PROGRAM_EXTENSIONS):
             return True
         return False
+
+    def get_jnum_from_axisnum(self, axisnum):
+        joint = self.TRAJCO.index( "xyzabcuvw"[axisnum] )
+        return joint
 
     def __getitem__(self, item):
         return getattr(self, item)

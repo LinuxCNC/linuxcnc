@@ -1,0 +1,38 @@
+﻿:lversion: {sys: cat ../VERSION}
+:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
+Manual del Desarrollador V{lversion}, {date}
+============================================
+
+:ascii-ids:
+:lang: es
+:masterdir: {indir}
+:revdate: 2021-10-28
+
+
+== Introducción
+
+image::common/images/emc2-intro.*[]
+
+include::common/overleaf_es.adoc[]
+
+
+:leveloffset: 1
+
+include::code/code-notes_es.adoc[]
+
+include::code/nml-messages_es.adoc[]
+
+include::code/style-guide_es.adoc[]
+
+include::code/building-linuxcnc_es.adoc[]
+
+include::code/adding-configs_es.adoc[]
+
+include::code/contributing-to-linuxcnc_es.adoc[]
+
+include::common/glossary_es.adoc[]
+
+include::common/gpld-copyright_es.adoc[]
+
+// vim: set syntax=asciidoc:
+

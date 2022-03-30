@@ -15,6 +15,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include <Python.h> // must be first header
+#include "linuxcnc.h"              // LINELEN
 #include "rs274ngc.hh"
 #include "canon.hh"
 
@@ -142,6 +143,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
 void CHANGE_TOOL(int slot) {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
+void RELOAD_TOOLDATA() {}
 void START_CHANGE(void) {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
 void COMMENT(const char *s) { puts(s); }

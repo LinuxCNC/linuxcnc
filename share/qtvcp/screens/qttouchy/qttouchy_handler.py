@@ -4,7 +4,6 @@
 import sys
 import os
 import linuxcnc
-import hal
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
@@ -12,7 +11,7 @@ from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.keybindings import Keylookup
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Qhal
 
 # Set up logging
 from qtvcp import logger
@@ -30,7 +29,7 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 STYLEEDITOR = SSE()
-
+QHAL = Qhal()
 ###################################
 # **** HANDLER CLASS SECTION **** #
 ###################################
@@ -43,7 +42,6 @@ class HandlerClass:
     # widgets allows access to  widgets from the qtvcp files
     # at this point the widgets and hal pins are not instantiated
     def __init__(self, halcomp,widgets,paths):
-        self.hal = halcomp
         self.w = widgets
         self.PATHS = paths
         self.current_mode = (None,None)
@@ -59,20 +57,20 @@ class HandlerClass:
     def initialized__(self):
         KEYBIND.add_call('Key_F12','on_keycall_F12')
 
-        self.pin_mpg_in = self.hal.newpin('mpg-in',hal.HAL_S32, hal.HAL_IN)
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
 
-        self.pin_cycle_start_in = self.hal.newpin('cycle-start-in',hal.HAL_BIT, hal.HAL_IN)
+        self.pin_cycle_start_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
         self.pin_cycle_start_in.value_changed.connect(lambda s: self.cycleStart(s))
 
-        self.pin_abort = self.hal.newpin('abort',hal.HAL_BIT, hal.HAL_IN)
+        self.pin_abort = QHAL.newpin('abort',QHAL.HAL_BIT, QHAL.HAL_IN)
         self.pin_abort.value_changed.connect(lambda s: self.abort(s))
 
-        self.wheel_x = self.hal.newpin('jog.wheel.x',hal.HAL_BIT, hal.HAL_OUT)
-        self.wheel_y = self.hal.newpin('jog.wheel.y',hal.HAL_BIT, hal.HAL_OUT)
-        self.wheel_z = self.hal.newpin('jog.wheel.z',hal.HAL_BIT, hal.HAL_OUT)
+        self.wheel_x = QHAL.newpin('jogwheel.x-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.wheel_y = QHAL.newpin('jogwheel.y-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
+        self.wheel_z = QHAL.newpin('jogwheel.z-enable',QHAL.HAL_BIT, QHAL.HAL_OUT)
 
-        self.jog_increment = self.hal.newpin('jog.wheel.incement',hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jog_increment = QHAL.newpin('jogwheel.increment',QHAL.HAL_FLOAT, QHAL.HAL_OUT)
 
         STATUS.connect('feed-override-changed', lambda w, data: self.w.pushbutton_fo.setText('FO {0:.0f}%'.format(data)))
         STATUS.connect('rapid-override-changed', lambda w, data: self.w.pushbutton_ro.setText('RO {0:.0f}%'.format(data)))
@@ -159,12 +157,21 @@ class HandlerClass:
         selected = None
         if state:
             ACTION.SET_MANUAL_MODE()
-            selected = STATUS.get_selected_axis()
-        for temp in INFO.AVAILABLE_AXES:
-            if selected == temp:
-                self['wheel_{}'.format(temp.lower())].set(state)
+            if STATUS.is_joint_mode():
+                selected = STATUS.get_selected_joint()
+                for temp in INFO.AVAILABLE_JOINTS:
+                    axis = "xyzabcuvw"[temp]
+                    if selected == temp:
+                        self['wheel_{}'.format(axis)].set(True)
+                    else:
+                        self['wheel_{}'.format(axis)].set(False)
             else:
-                self['wheel_{}'.format(temp.lower())].set(False)
+                selected = STATUS.get_selected_axis()
+                for temp in INFO.AVAILABLE_AXES:
+                    if selected == temp:
+                        self['wheel_{}'.format(temp.lower())].set(True)
+                    else:
+                        self['wheel_{}'.format(temp.lower())].set(False)
 
     def colorDialog(self):
         color = QtWidgets.QColorDialog.getColor()

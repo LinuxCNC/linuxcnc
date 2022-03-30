@@ -11,11 +11,11 @@ It supports some of Mesa's sserial cards.
 It will forever be a work in progress as Linuxcnc changes.
 
 Many thanks To:
-Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with techincal difficulties.
+Jeff Eppler - PNCconf is based on stepconf - Jeff's creation. Jeff also has helped with technical difficulties.
 Big John T - John drew the original machine illustrations. Testing and suggestions.
 Peter Wallace - Technical questions on Mesa's I/O cards. Supplied sample equipment to test with.
 Andy Pugh - suggestions, questions answered and many pin name changes :) 
-Dave Armstrong - testing and suggestions expecially with resolvers.
+Dave Armstrong - testing and suggestions especially with resolvers.
 Everyone who gave a bug report ! I cannot test everything thoughly enough so reports help.
 
 Beta 1 version</property>
@@ -51,7 +51,7 @@ Beta 1 version</property>
   possible</property>
   </object>
   <object class="GtkTextBuffer" id="textbuffer1">
-    <property name="text" translatable="yes">Separate Home and Limt Switches Example
+    <property name="text" translatable="yes">Separate Home and Limit Switches Example
 
     The negative and positive directions are based on Tool Movement which can be different
     then the actual machine movement. ie on a mill typically the table moves rather then the tool.
@@ -63,9 +63,9 @@ Beta 1 version</property>
 
     The G53 machine zero origin is typically inside the soft limits area but not necessarily.
 
-    If using a separate homing switch, it’s possible to start homing on the wrong side of the home switch,
+    If using a separate homing switch, it's possible to start homing on the wrong side of the home switch,
     which combined with HOME_IGNORE_LIMITS option will lead to a hard crash.
-    You can avoid this by making the home switch toggle it’s state when the trip dog is on a particular side until it returns passed the trip point again.
+    You can avoid this by making the home switch toggle it's state when the trip dog is on a particular side until it returns passed the trip point again.
     Said another way, the home switch state must represent the position of the dog relative to the switch (ie before or after the switch),
     and must stay that way even if the dog coasts past the switch in the same direction.
 
@@ -268,7 +268,7 @@ Beta 1 version</property>
     C is the home switch trip point/ 
                    Shared min limit trip
     D is the positive software limit
-    H is the final Home Positon  = 3 units
+    H is the final Home Position  = 3 units
     The -L and +L are the limit switches trip points
 
     A&lt;-&gt;B is the Negative Travel Distance  = -0 units
@@ -344,11 +344,11 @@ Beta 1 version</property>
     B is the G53 machine coordinate Origin
     C is the home switch trip point
     D is the positive software limit
-    H is the final home positon  = 0 units
+    H is the final home position  = 0 units
     The -L and +L are the limit switches trip points
 
     A&lt;-&gt;B is the Negative Travel Distance  = -3 units
-    B&lt;-&gt;C is the Home Swicth Location  = -2.3 units
+    B&lt;-&gt;C is the Home Switch Location  = -2.3 units
     B&lt;-&gt;D is the Positive Travel Distance  = 7 units
     A&lt;-&gt;D is the total travel = 10 units
 </property>

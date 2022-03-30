@@ -67,7 +67,7 @@ variable int cidx = 0;
 ;;
 #include <rtapi_math.h>
 
-typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalmanFilter implemntation.
+typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalmanFilter implementation.
 
 // Based on: https://github.com/dwrobel/TrivialKalmanFilter/blob/master/src/TrivialKalmanFilter.h
 // Assumes simplified model

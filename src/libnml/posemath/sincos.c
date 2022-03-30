@@ -17,8 +17,6 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
-#include "config.h"
-
 #include "rtapi_math.h"
 #include "sincos.h"
 

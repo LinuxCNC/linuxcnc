@@ -385,7 +385,7 @@ class ToolEdit(Gtk.VBox):
     def set_visible(self,list,bool):
         self.set_col_visible(list, bool, tab= '1')
 
-    # This allows hiding or showing columns from a text string of columnns
+    # This allows hiding or showing columns from a text string of columns
     # eg list ='xyz'
     # tab= selects what tabs to apply it to
     def set_col_visible(self, list, bool= False, tab= '1'):

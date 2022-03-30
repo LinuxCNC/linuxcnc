@@ -208,6 +208,7 @@ class _GStat(GObject.GObject):
         'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'progress': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT)),
+        'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -302,6 +303,7 @@ class _GStat(GObject.GObject):
         # override limits / hard limits
         or_limit_list=[]
         hard_limit_list = []
+        ferror = []
         hard_limit = False
         or_limit_set = False
         for j in range(0, self.stat.joints):
@@ -311,12 +313,14 @@ class _GStat(GObject.GObject):
             max_hard_limit = self.stat.joint[j]['max_hard_limit']
             hard_limit = hard_limit or min_hard_limit or max_hard_limit
             hard_limit_list.append([min_hard_limit,max_hard_limit])
+            ferror.append(self.stat.joint[j]['ferror_current'])
         self.old['override-limits'] = or_limit_list
         self.old['override-limits-set'] = bool(or_limit_set)
         self.old['hard-limits-tripped'] = bool(hard_limit)
         self.old['hard-limits-list'] = hard_limit_list
+        self.old['ferror-current'] = ferror
 
-        # active G codes
+        # active G-codes
         active_gcodes = []
         codes =''
         for i in sorted(self.stat.gcodes[1:]):
@@ -328,7 +332,7 @@ class _GStat(GObject.GObject):
         for i in active_gcodes:
             codes = codes +('%s '%i)
         self.old['g-code'] = codes
-        # extract specific G code modes
+        # extract specific G-code modes
         itime = fpm = fpr = css = rpm = metric = False
         radius = diameter = adm = idm = False
         for num,i in enumerate(active_gcodes):
@@ -360,7 +364,7 @@ class _GStat(GObject.GObject):
         else:
             self.old['spindle-speed']= self.stat.spindle[0]['speed']
 
-        # active M codes
+        # active M-codes
         active_mcodes = []
         mcodes = ''
         for i in sorted(self.stat.mcodes[1:]):
@@ -535,6 +539,9 @@ class _GStat(GObject.GObject):
         p,rel_p,dtg = self.get_position()
         self.emit('current-position',p, rel_p, dtg, self.stat.joint_actual_position)
 
+        # ferror
+        self.emit('following-error', self.old['ferror-current'])
+
         # spindle control
         spindle_enabled_old = old.get('spindle-enabled', None)
         spindle_enabled_new = self.old['spindle-enabled']
@@ -575,7 +582,9 @@ class _GStat(GObject.GObject):
         max_velocity_or_old = old.get('max-velocity-or', None)
         max_velocity_or_new = self.old['max-velocity-or']
         if max_velocity_or_new != max_velocity_or_old:
-            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
+            # work around misconfigured config (missing MAX_LINEAR_VELOCITY in TRAJ)
+            if max_velocity_or_new != 1e99:
+                self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         # feed hold
         feed_hold_old = old.get('feed-hold', None)
         feed_hold_new = self.old['feed-hold']
@@ -604,7 +613,7 @@ class _GStat(GObject.GObject):
         #############################
         # Gcodes
         #############################
-        # G codes
+        # G-codes
         g_code_old = old.get('g-code', None)
         g_code_new = self.old['g-code']
         if g_code_new != g_code_old:
@@ -670,7 +679,7 @@ class _GStat(GObject.GObject):
         ####################################
         # Mcodes
         ####################################
-        # M codes
+        # M-codes
         m_code_old = old.get('m-code', None)
         m_code_new = self.old['m-code']
         if m_code_new != m_code_old:
@@ -739,7 +748,9 @@ class _GStat(GObject.GObject):
         rapid_or_new = self.old['rapid-or']
         self.emit('rapid-override-changed',rapid_or_new  * 100)
         max_velocity_or_new = self.old['max-velocity-or']
-        self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
+        # work around misconfigured config (missing MAX_LINEAR_VELOCITY in TRAJ)
+        if max_velocity_or_new != 1e99:
+            self.emit('max-velocity-override-changed',max_velocity_or_new * 60)
         spindle_or_new = self.old['spindle-or']
         self.emit('spindle-override-changed',spindle_or_new  * 100)
 
@@ -787,7 +798,7 @@ class _GStat(GObject.GObject):
         tool_off_new = self.old['current-tool-offset']
         self.emit('current-tool-offset',tool_off_new)
 
-        # M codes
+        # M-codes
         m_code_new = self.old['m-code']
         self.emit('m-code-changed',m_code_new)
         flood_new = self.old['flood']
@@ -795,7 +806,7 @@ class _GStat(GObject.GObject):
         mist_new = self.old['mist']
         self.emit('mist-changed',mist_new)
 
-        # G codes
+        # G-codes
         g_code_new = self.old['g-code']
         self.emit('g-code-changed',g_code_new)
         # metric units G21
@@ -849,6 +860,9 @@ class _GStat(GObject.GObject):
         else:
             self._is_all_homed = False
             self.emit('not-all-homed', unhomed_joints)
+
+        # ferror
+        self.emit('following-error', self.old['ferror-current'])
 
         # update external objects
         self.emit('forced-update')
@@ -971,7 +985,7 @@ class _GStat(GObject.GObject):
 
     def is_joint_homed(self, joint):
         self.stat.poll()
-        return self.stat.homed[joint]
+        return bool(self.stat.homed[joint])
 
     def is_all_homed(self):
         return self._is_all_homed

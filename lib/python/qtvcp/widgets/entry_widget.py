@@ -19,7 +19,7 @@
 # Used in the Macro and MDI line widget
 
 from PyQt5 import QtWidgets, QtCore, QtGui
-from decimal import Decimal
+#from decimal import Decimal
 
 # applicationle widgets
 SIP_WIDGETS = [QtWidgets.QLineEdit]
@@ -66,25 +66,11 @@ class SoftInputWidget(QtWidgets.QDialog):
         gl = QtWidgets.QVBoxLayout()
         self.setFont(self.PARENT_OBJECT.font())
         number_widget_list = []
-        sym_list = list(range(0, 6))
+        sym_list = list(range(0, 10))
         for sym in sym_list:
             button = MyFlatPushButton(str(sym))
             button.KEY_CHAR = ord(str(sym))
             number_widget_list.append(button)
-
-        number_widget_list.append('new_row')
-        sym_list = list(range(6, 10))
-        for sym in sym_list:
-            button = MyFlatPushButton(str(sym))
-            button.KEY_CHAR = ord(str(sym))
-            number_widget_list.append(button)
-
-        button = MyFlatPushButton('.')
-        button.KEY_CHAR = ord('.')
-        number_widget_list.append(button)
-        button = MyFlatPushButton('-')
-        button.KEY_CHAR = ord('-')
-        number_widget_list.append(button)
 
         # alphabets
         alpha_widget_list = []
@@ -101,6 +87,13 @@ class SoftInputWidget(QtWidgets.QDialog):
                 button.KEY_CHAR = ord(sym)
                 alpha_widget_list.append(button)
 
+        button = MyFlatPushButton('.')
+        button.KEY_CHAR = ord('.')
+        alpha_widget_list.append(button)
+        button = MyFlatPushButton('-')
+        button.KEY_CHAR = ord('-')
+        alpha_widget_list.append(button)
+
         control_widget_list = []
 
         button = MyFlatPushButton('Up')
@@ -109,7 +102,7 @@ class SoftInputWidget(QtWidgets.QDialog):
         control_widget_list.append(button)
         control_widget_list.append('sep')
 
-        button = MyFlatPushButton('Dwn')
+        button = MyFlatPushButton('Down')
         button.setToolTip('Cursor Down')
         button.KEY_CHAR = QtCore.Qt.Key_Down
         control_widget_list.append(button)
@@ -130,11 +123,10 @@ class SoftInputWidget(QtWidgets.QDialog):
         control_widget_list.append('sep')
 
         # enter
-        button = MyFlatPushButton('Enter', min_size=(110, 60))
+        button = MyFlatPushButton('Enter', min_size=(100, 50))
         button.setToolTip('Enter Command')
         button.KEY_CHAR = QtCore.Qt.Key_Enter
         control_widget_list.append(button)
-        control_widget_list.append('sep')
 
         MAX_COL = 10
         col = 0
@@ -181,8 +173,8 @@ class SoftInputWidget(QtWidgets.QDialog):
         list(map(v.addWidget, tlist))
         v.addStretch()
         gl.addLayout(v)
-        gl.setContentsMargins(0, 0, 0, 0)
-        gl.setSpacing(5)
+        gl.setContentsMargins(4, 4, 4, 4)
+        gl.setSpacing(4)
         gl.setSizeConstraint(gl.SetFixedSize)
 
         self.setLayout(gl)
@@ -205,7 +197,7 @@ class SoftInputWidget(QtWidgets.QDialog):
             if char_ord == QtCore.Qt.Key_Enter:
                 self.hide()
 
-        # line edit returnPressed event is triggering twise for press and release both
+        # line edit returnPressed event is triggering twice for press and release both
         # that is why do not send release event for special key
         if char_ord not in self.NO_ORD_KEY_LIST:
             keyRelease = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, char_ord, QtCore.Qt.NoModifier, '')
@@ -282,7 +274,7 @@ class TouchInterface(QtWidgets.QWidget):
         return False
 
     # can be class patched to call other entries - like qtvcp dialogs
-    def callDialog(self,widget, ktype):
+    def callDialog(self, widget, ktype):
         if ktype == 'alpha':
             self._input_panel_alpha.show_input_panel(widget)
         elif ktype == 'numeric':
@@ -290,13 +282,21 @@ class TouchInterface(QtWidgets.QWidget):
         else:
             self._input_panel_full.show_input_panel(widget)
 
-
-
+## testing ##
 if __name__ == '__main__':
     import sys
+    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QApplication
     app = QtWidgets.QApplication([])
-    #ExampleWidget().show()
-    test = ExampleDialog()
-    test.show()
-    #numEdit().show()
+    w = QWidget()
+    w.setGeometry(100, 100, 200, 100)
+    w.setWindowTitle('Entry Widget')
+    line = QtWidgets.QLineEdit()
+    layout = QtWidgets.QVBoxLayout()
+    layout.addWidget(line)
+    test = TouchInterface(line)
+#    test.callDialog(line, 'numeric')
+#    test.callDialog(line, 'alpha')
+    test.callDialog(line, 'default')
+    w.setLayout(layout)
+    w.show()
     sys.exit(app.exec_())

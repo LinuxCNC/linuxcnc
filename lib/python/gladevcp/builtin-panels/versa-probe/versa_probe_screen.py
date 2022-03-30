@@ -15,7 +15,7 @@
 import gi
 from gi.repository import Gtk as gtk
 from gi.repository import GObject as gobject
-from gi.repository import Pangp as pango
+from gi.repository import Pango as pango
 
 import hal                  # base hal class to react to hal signals
 import os                   # needed to get the paths and directories

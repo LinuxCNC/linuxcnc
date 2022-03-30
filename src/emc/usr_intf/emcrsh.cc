@@ -110,7 +110,7 @@
   connection. If no parameters are specified, it will itemize the available commands.
   If a command is specified, it will provide usage information for the specified
   command. Help will respond regardless of whether a "Hello" has been
-  successsfully negotiated.
+  successfully negotiated.
   
   
   LinuxCNC sub-commands:
@@ -542,16 +542,26 @@ static void thisQuit()
 static int initSockets()
 {
   int optval = 1;
-
+  int err;
+  
   server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
   setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   server_address.sin_family = AF_INET;
   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
   server_address.sin_port = htons(port);
   server_len = sizeof(server_address);
-  bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
-  listen(server_sockfd, 5);
+  err = bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
+  if (err) {
+      rcs_print_error("error initializing sockets: %s\n", strerror(errno));
+      return err;
+  }
 
+  err = listen(server_sockfd, 5);
+  if (err) {
+      rcs_print_error("error listening on socket: %s\n", strerror(errno));
+      return err;
+  }
+  
   // ignore SIGCHLD
   {
     struct sigaction act;
@@ -1424,7 +1434,7 @@ int commandSet(connectionRecType *context)
     case rtCustomError: // Custom error response entered in buffer
       return write(context->cliSock, context->outBuf, strlen(context->outBuf));
       break;
-    case rtCustomHandledError: ;// Custom error respose handled, take no action
+    case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
 }
@@ -2492,7 +2502,7 @@ int commandGet(connectionRecType *context)
     case rtCustomError: // Custom error response entered in buffer
       sockWrite(context);
       break;
-    case rtCustomHandledError: ;// Custom error respose handled, take no action
+    case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
 }
@@ -2950,7 +2960,10 @@ int main(int argc, char *argv[])
     }
     // get configuration information
     iniLoad(emc_inifile);
-    initSockets();
+    if (initSockets()) {
+        rcs_print_error("error initializing sockets\n");  
+        exit(1);
+    }
     // init NML
     if (tryNml() != 0) {
 	rcs_print_error("can't connect to LinuxCNC\n");

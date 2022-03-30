@@ -15,7 +15,6 @@
 #ifndef EMC_HH
 #define EMC_HH
 
-#include "config.h"
 #include "emcmotcfg.h"		// EMC_JOINT_MAX, EMC_AXIS_MAX
 #include "nml_type.hh"
 #include "motion_types.h"
@@ -384,6 +383,12 @@ extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
 
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
+
+
+// implementation functions for EMC_SPINDLE types
+
+extern int emcSpindleSetParams(int spindle, double max_pos, double min_pos, double max_neg,
+            double min_neg, double search_vel, double home_angle, int sequence, double increment);
 
 // implementation functions for EMC_TRAJ types
 

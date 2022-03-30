@@ -20,7 +20,7 @@ class HandlerClass:
     # def some_name(self, widget_instance, arguments from widget):
     # widget_instance gives access to the calling widget's function/data
     # arguments can be a list of arguments, a single argument, or None
-    # depending on what was given in the confuration file.
+    # depending on what was given in the configuration file.
     def hello_world(self, wname, m):
         # print to terminal so we know it worked
         print('\nHello world\n')

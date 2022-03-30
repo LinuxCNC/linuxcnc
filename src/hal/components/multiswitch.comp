@@ -1,6 +1,6 @@
 /*******************************************************************************
 
-EMC2 HAL component to implement Multistate toggle switch
+LinuxCNC HAL component to implement Multistate toggle switch
 Authors ArcEye 15122011 schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org
 License GPL
 Copyright 2011 

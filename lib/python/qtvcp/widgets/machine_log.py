@@ -77,28 +77,15 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         file = QFile(self.machineLogPath)
         file.open(QFile.ReadOnly)
         logText = file.readAll()
-        if sys.version_info.major > 2:
-            # Python v3.
-            logText = str(logText, encoding='utf8')
-        else:
-            # Python v2.
-            logText = str(logText)
         file.close()
-        self.setPlainText(logText)
+        self.setPlainText(str(logText, encoding='utf8'))
 
     def loadIntegratorLog(self):
         file = QFile(self.integratorPath)
         file.open(QFile.ReadOnly)
         logText = file.readAll()
-        if sys.version_info.major > 2:
-            # Python v3.
-            logText = str(logText, encoding='utf8')
-        else:
-            # Python v2.
-            logText = str(logText)
-
         file.close()
-        self.setPlainText(logText)
+        self.setPlainText(str(logText, encoding='utf8'))
 
 
 ################## properties ###################

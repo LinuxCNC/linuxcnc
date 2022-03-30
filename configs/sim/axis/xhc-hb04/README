@@ -102,7 +102,7 @@ The scale factor for each joint can be set with the scales item.
 When require_pendant = no, the xhc-hb04 hal pins will be created even if the pendant is not connected at startup.  A new connection, a disconnect, and a reconnect are supported.
 ----------------------------------
 jogmodes:
-  normal: postion mode, the joint will move exactly regardless of how long it takes.  Beware: the machine may keep moving after you stop rotating the jog wheel.
+  normal: position mode, the joint will move exactly regardless of how long it takes.  Beware: the machine may keep moving after you stop rotating the jog wheel.
 
   vnormal: velocity mode, the joint will stop when the wheel stops.  Beware: the amount moved per wheel detent may be less than specified if the machine velocity and acceleration cannot accomplish the move in time.
 

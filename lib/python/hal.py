@@ -69,3 +69,4 @@ class component(_hal.component):
 
     def getpin(self, *a, **kw): return Pin(_hal.component.getpin(self, *a, **kw))
     def getparam(self, *a, **kw): return Param(_hal.component.getparam(self, *a, **kw))
+    def getpins(self, *a, **kw): return _hal.component.getpins(self, *a, **kw)

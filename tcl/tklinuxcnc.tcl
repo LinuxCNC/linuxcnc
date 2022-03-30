@@ -98,7 +98,7 @@ if {$::numjoints == 0} {
 
 set ::coordnames [ emc_ini "COORDINATES" "TRAJ" ]
 if {[string first " " $::coordnames] < 0 } {
-  # split to acommodate "XYZ" style (as well as {X Y Z} style)
+  # split to accommodate "XYZ" style (as well as {X Y Z} style)
   set ::coordnames [split $::coordnames ""]
 }
 

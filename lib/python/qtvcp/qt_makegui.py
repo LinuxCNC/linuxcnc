@@ -12,7 +12,7 @@ log = logger.getLogger(__name__)
 
 
 # Force the log level for this module
-# log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Trampoline(object):
     def __init__(self, methods):
@@ -95,6 +95,8 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.PREFS_ = None
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
+        self.settings = QtCore.QSettings('QtVcp', path.BASENAME)
+        log.info('Qsettings file path: {}'.format(self.settings.fileName()))
         # make an instance with embedded variables so they
         # are available to all subclassed objects
         _HalWidgetBase(halcomp, path, self)
@@ -123,6 +125,12 @@ class _VCPWindow(QtWidgets.QMainWindow):
         if self.has_closing_handler:
             log.debug('Calling handler file Closing_cleanup__ function.')
             self.handler_instance.closing_cleanup__()
+
+    def sync_qsettings(self):
+        try:
+            self.settings.sync()
+        except Exception as e:
+            log.debug('Error with Qsettings sync function:\n {}'.format(e))
 
     # resource files are compiled from the qrs file
     # with an installed version of linuxcnc we can't save the resource
@@ -285,6 +293,9 @@ Python Error:\n {}'''.format(str(e))
 
             try:
                 mod = __import__(basename)
+                # inject/class patch function to read an override file
+                # this will be called from qtvcp.py later
+                mod.HandlerClass.call_user_command_ = self.call_user_command_
             except ImportError as e:
                 log.critical("module '{}' skipped - import error: ".format(basename), exc_info=e)
                 raise
@@ -294,7 +305,6 @@ Python Error:\n {}'''.format(str(e))
             try:
                 # look for 'get_handlers' function
                 h = getattr(mod, hdl_func, None)
-
                 if h and callable(h):
                     log.debug("module '{}' : '{}' function found".format(mod.__name__, hdl_func))
                     objlist = h(halcomp, widgets, self.PATHS)  # this sets the handler class signature
@@ -317,6 +327,7 @@ Python Error:\n {}'''.format(str(e))
                         if callable(f):
                             log.debug("Register callback '{}'".format(method))
                             add_handler(method, f)
+
             except Exception as e:
                 log.exception("Trouble looking for handlers in '{}':".format(basename), exc_info=e)
                 # we require a working handler file!
@@ -331,6 +342,22 @@ Python Error:\n {}'''.format(str(e))
 
         return handlers, mod, object
 
+    # this is the function that is injected into the handler file to read an override file
+    # this will be called from qtvcp.py later
+    def call_user_command_(self, klass, rcfile = "~/.qtvcprc"):
+        #user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""
+        #if user_command_file:
+        #    rcfile = user_command_file
+        rcfile = os.path.expanduser(rcfile)
+        if os.path.exists(rcfile):
+            log.info('Handler Override file found at: {}'.format(rcfile))
+            try:
+                local = {'self': klass, 'rcfile': rcfile}
+                exec(compile(open(rcfile, "rb").read(), rcfile, 'exec'),local)
+            except Exception as e:
+                log.warning(e)
+        else:
+            log.info('no Handler Override file at: {}'.format(rcfile))
 
 class VCPWindow(_VCPWindow):
     _instance = None

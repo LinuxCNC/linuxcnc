@@ -10,8 +10,8 @@ ESTOP_TYPE = 0
 # estop is a button
 #ESTOP_TYPE = 2
 
-CAMERA_TOUCHOFF         =  1.0 0
-LASER_TOUCHOFF          =  -1  0
+CAMERA_TOUCHOFF         =  X1.0 Y0
+LASER_TOUCHOFF          =  X-1  Y0
 
 # user buttons in the main window
 BUTTON_1_NAME           = OHMIC\TEST
@@ -50,13 +50,16 @@ USER_M_PATH             = ./:./qtplasmac
 [HAL]
 TWOPASS                 = ON
 # the base machine
-HALFILE                 = machine.tcl
-# the plasmac component connections
-HALFILE                 = plasmac.tcl
-# the plasmac machine connections
-HALFILE                 = qtplasmac_connections.hal
+HALFILE                 = sim_no_stepgen.tcl
+#HALFILE                 = sim_stepgen.tcl
+# component connections
+HALFILE                 = qtplasmac_comp.hal
+# custom hal commands
+HALFILE                 = custom.hal
 # custom postgui hal
-POSTGUI_HALFILE         = postgui.hal
+POSTGUI_HALFILE         = custom_postgui.hal
+# sim postgui hal
+POSTGUI_HALFILE         = sim_postgui.hal
 # required
 HALUI                   = halui
 
@@ -68,7 +71,7 @@ DEBUG                   = 0
 [EMCIO]
 EMCIO                   = io
 CYCLE_TIME              = 0.100
-TOOL_TABLE              = tool.tbl
+TOOL_TABLE              = imperial_tool.tbl
 
 [TASK]
 TASK                    = milltask
@@ -108,14 +111,14 @@ MAX_LIMIT               = 24.0001
 MAX_VELOCITY            = 10
 MAX_ACCELERATION        = 100
 TYPE                    = LINEAR
-MIN_FERROR              = 0.001
-FERROR                  = 0.1
+MIN_FERROR              = 0.2
+FERROR                  = 0.4
 HOME                    = 0.0
 HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = 1
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 120
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 200
+STEP_SCALE              = 25.40
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -137,14 +140,14 @@ MAX_LIMIT               = 24.0001
 MAX_VELOCITY            = 10
 MAX_ACCELERATION        = 100
 TYPE                    = LINEAR
-MIN_FERROR              = 0.001
-FERROR                  = 0.1
+MIN_FERROR              = 0.2
+FERROR                  = 0.4
 HOME                    = 0.0
 HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = -2
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 120
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 200
+STEP_SCALE              = 25.40
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -156,14 +159,14 @@ MAX_LIMIT               = 24.0001
 MAX_VELOCITY            = 10
 MAX_ACCELERATION        = 100
 TYPE                    = LINEAR
-MIN_FERROR              = 0.001
-FERROR                  = 0.1
+MIN_FERROR              = 0.2
+FERROR                  = 0.4
 HOME                    = 0.0
 HOME_OFFSET             = 0.0
 HOME_SEQUENCE           = -2
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 120
-SCALE                   = 1
+STEPGEN_MAXACCEL        = 200
+STEP_SCALE              = 25.40
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000
@@ -186,14 +189,14 @@ MAX_LIMIT               = 3.0001
 MAX_VELOCITY            = 2.4
 MAX_ACCELERATION        = 24.0
 TYPE                    = LINEAR
-MIN_FERROR              = 0.001
-FERROR                  = 0.1
+MIN_FERROR              = 0.2
+FERROR                  = 0.4
 HOME                    = 2.8
 HOME_OFFSET             = 3.0
 HOME_SEQUENCE           = 0
 HOME_USE_INDEX          = NO
-STEPGEN_MAXACCEL        = 28.0
-SCALE                   = 1.0
+STEPGEN_MAXACCEL        = 48.0
+STEP_SCALE              = 25.40
 STEPLEN                 = 1
 STEPSPACE               = 0
 DIRSETUP                = 8000

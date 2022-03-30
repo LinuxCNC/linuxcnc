@@ -113,11 +113,17 @@ Options:
     -d: Turn on "debug" mode
     -v: Turn on "verbose" mode
     -k: Continue in the presence of errors in .hal files
+    -t "tpmodulename [parameters]"
+            specify custom trajectory_planning_module
+            overrides optional ini setting [TRAJ]TPMOD
+    -m "homemodulename [parameters]"
+            specify custom homing_module
+            overrides optional ini setting [EMCMOT]HOMEMOD
     -H "dirname": search dirname for Halfiles before searching
                   ini directory and system library:
                   $HALLIB_DIR
 Note:
-    The -H "dirname" option may be specifed multiple times
+    The -H "dirname" option may be specified multiple times
 EOF
 
 }
@@ -125,7 +131,7 @@ EOF
 ################################################################################
 # 1.1. strip and process command line options
 ################################################################################
-while getopts "dvlhkrH:" opt
+while getopts "dvlhkrH:t:m:" opt
 do
 	case "$opt" in
 	d)
@@ -158,6 +164,16 @@ do
             echo "Invalid dirname specified: -H $OPTARG"
             exit 1
         fi
+        ;;
+    t)  # -t modname: user-supplied trajectory planning module
+        # modname must conform to tpmod api,
+        # and be located in: $LINUXCNC_RTLIB_DIR
+        TPMOD=$OPTARG
+        ;;
+    m)  # -m modname: user-supplied homing module
+        # modname must conform to homing api,
+        # and be located in: $LINUXCNC_RTLIB_DIR
+        HOMEMOD=$OPTARG
         ;;
 	*)
 		usage
@@ -372,8 +388,8 @@ function run_applications () {
              exe_name="$(pwd)/$app_name";;
           *) # try local first then PATH
              exe_name=$(pwd)/$app_name
-             if [ ! -x $exe_name ] ; then
-               exe_name=$(which $app_name)
+             if [ ! -x "$exe_name" ] ; then
+               exe_name=$(command -v $app_name)
              fi
        esac
        if [ ! -f "$exe_name" ] ; then
@@ -499,6 +515,18 @@ RS274NGC_PARAMFILE=$retval
 # 2.3. get mot information
 GetFromIniEx MOT MOT EMCMOT EMCMOT motmod
 EMCMOT=$retval$MODULE_EXT # add module extension
+
+# commandline -t option supersedes inifile setting
+if [ -z "$TPMOD" ] ; then
+    GetFromIniQuiet TPMOD   TRAJ
+    TPMOD=${retval:-tpmod} #use default if not found
+fi
+# commandline -m option supersedes inifile setting
+if [ -z "$HOMEMOD" ] ; then
+    GetFromIniQuiet HOMEMOD EMCMOT
+    HOMEMOD=${retval:-homemod} #use default if not found
+fi
+
 
 # 2.4. get io information
 GetFromIniEx IO IO EMCIO EMCIO io
@@ -814,6 +842,10 @@ fi
 
 # 4.3.6. execute HALCMD config files (if any)
 
+echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
+eval $HALCMD loadrt "$TPMOD"
+eval $HALCMD loadrt "$HOMEMOD"
+
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
   # 4.3.6.1. if [HAL]TWOPASS is defined, handle all [HAL]HALFILE entries here:
@@ -889,6 +921,7 @@ else
         CFGFILE=`$INIVAR -tildeexpand -ini "$INIFILE" -var HALFILE -sec HAL -num $NUM 2> /dev/null`
     done
 fi
+
 
 # 4.3.7. Run task in background
 echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE

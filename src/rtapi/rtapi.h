@@ -230,7 +230,7 @@ RTAPI_BEGIN_DECLS
     max delay permitted (usually approximately 1/4 of the clock period).
     Any call to 'rtapi_delay()' requesting a delay longer than the max
     will delay for the max time only.  'rtapi_delay_max()' should be
-    called befure using 'rtapi_delay()' to make sure the required delays
+    called before using 'rtapi_delay()' to make sure the required delays
     can be achieved.  The actual resolution of the delay may be as good
     as one nano-second, or as bad as a several microseconds.  May be
     called from init/cleanup code, and from within realtime tasks.
@@ -341,7 +341,7 @@ RTAPI_BEGIN_DECLS
     for all subsequent calls that need to act on the task.  On failure,
     returns a negative error code as listed above.  'taskcode' is the
     name of a function taking one int and returning void, which contains
-    the task code.  'arg' will be passed to 'taskcode' as an abitrary
+    the task code.  'arg' will be passed to 'taskcode' as an arbitrary
     void pointer when the task is started, and can be used to pass
     any amount of data to the task (by pointing to a struct, or other
     such tricks).
@@ -451,11 +451,10 @@ RTAPI_BEGIN_DECLS
     'module_id' is the ID of the module that is making the call (see
     rtapi_init).  The block will be at least 'size' bytes, and may
     be rounded up.  Allocating many small blocks may be very wasteful.
-    When a particular block is allocated for the first time, the first
-    4 bytes are zeroed.  Subsequent allocations of the same block
+    When a particular block is allocated for the first time, all
+    bytes are zeroed.  Subsequent allocations of the same block
     by other modules or processes will not touch the contents of the
-    block.  Applications can use those bytes to see if they need to
-    initialize the block, or if another module already did so.
+    block.
     On success, it returns a positive integer ID, which is used for
     all subsequent calls dealing with the block.  On failure it
     returns a negative error code.  Call only from within user or
@@ -634,7 +633,7 @@ RTAPI_BEGIN_DECLS
 
 /** 'rtapi_assign_interrupt_handler()' is used to set up a handler for
     a hardware interrupt.  'irq' is the interrupt number, and 'handler'
-    is a pointer to a function taking no arguements and returning void.
+    is a pointer to a function taking no arguments and returning void.
     'handler will be called when the interrupt occurs.  'owner' is the
     ID of the calling module (see rtapi_init).  Returns a status
     code.  Note:  The simulated RTOS does not support interrupts.

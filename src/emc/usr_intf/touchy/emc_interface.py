@@ -408,7 +408,7 @@ class emc_status:
                 set_text(self.status['file'], self.emcstat.file)
                 set_text(self.status['file_lines'], "%d" % len(self.listing.program))
                 set_text(self.status['line'], "%d" % self.emcstat.current_line)
-                set_text(self.status['id'], "%d" % self.emcstat.id)
+                set_text(self.status['id'], "%d" % self.emcstat.motion_id)
                 set_text(self.status['dtg'], "%.4f" % self.emcstat.distance_to_go)
                 set_text(self.status['velocity'], "%.4f" % (self.emcstat.current_vel * 60.0))
                 set_text(self.status['delay'], "%.2f" % self.emcstat.delay_left)
@@ -507,12 +507,12 @@ class emc_status:
                 set_active(self.blockdel['off'], not self.emcstat.block_delete)
                 
 
-                if self.emcstat.id == 0 and (self.emcstat.interp_state == self.emc.INTERP_PAUSED or self.emcstat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
+                if self.emcstat.motion_id == 0 and (self.emcstat.interp_state == self.emc.INTERP_PAUSED or self.emcstat.exec_state == self.emc.EXEC_WAITING_FOR_DELAY):
                         self.listing.highlight_line(self.emcstat.current_line)
-                elif self.emcstat.id == 0:
+                elif self.emcstat.motion_id == 0:
                         self.listing.highlight_line(self.emcstat.motion_line)
                 else:
-                        self.listing.highlight_line(self.emcstat.id or self.emcstat.motion_line)
+                        self.listing.highlight_line(self.emcstat.motion_id or self.emcstat.motion_line)
 
                 e = self.emcerror.poll()
                 if e:

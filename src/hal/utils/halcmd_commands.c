@@ -2,7 +2,7 @@
  * Copyright (C) 2003 John Kasunich
  *                     <jmkasunich AT users DOT sourceforge DOT net>
  *
- *  Other contributers:
+ *  Other contributors:
  *                     Martin Kuhnle
  *                     <mkuhnle AT users DOT sourceforge DOT net>
  *                     Alex Joni
@@ -776,6 +776,12 @@ int do_setp_cmd(char *name, char *value)
     }
     return retval;
 
+}
+
+int do_print_cmd(char *value)
+{
+    halcmd_error( "HALCMD MSG: %s\n",value );
+    return 0;
 }
 
 int do_ptype_cmd(char *name)
@@ -2985,7 +2991,11 @@ int do_help_cmd(char *command)
     } else if (strcmp(command, "unecho") == 0) {
         printf("unecho\n");
         printf("Turn off echo of commands from stdin to stdout\n");
-
+    } else if (strcmp(command, "print") == 0) {
+        printf("print [message]\n");
+        printf("This will print to the terminal the filename, line number and\n");
+        printf("an (optional) message. If the message has spaces, put it inside quotes.\n");
+        printf("Useful for debugging ie. confirming a HAL file is being run.\n");
     } else {
 	printf("No help for unknown command '%s'\n", command);
     }
@@ -3020,5 +3030,6 @@ static void print_help_commands(void)
     printf("  start, stop         Start/stop realtime threads\n");
     printf("  alias, unalias      Add or remove pin or parameter name aliases\n");
     printf("  echo, unecho        Echo commands from stdin to stderr\n");
+    printf("  print               print filename, line number and optional message to terminal\n");
     printf("  quit, exit          Exit from halcmd\n");
 }

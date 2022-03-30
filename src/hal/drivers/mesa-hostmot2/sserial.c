@@ -1523,7 +1523,7 @@ fail1:
                         case LBP_FLOAT:
                         case LBP_NONVOL_FLOAT:
                             // comparing floats that might have different sizes is not trivial
-                            // this does a bitwise comparision of as many mantissa bits as might
+                            // this does a bitwise comparison of as many mantissa bits as might
                             // be expected to have been sent by the sserial remote
                             switch (g->DataLength){
                                 // ( double significand - variable type significand)
@@ -2169,8 +2169,8 @@ void hm2_sserial_setmode(hostmot2_t *hm2, hm2_sserial_instance_t *inst){
 // these are indicated when bit 13 (communication error) is set
 // after a doit command.  Further decoding of communication faults
 // should not be done unless bit 13 is set after a doit.  (but note
-// that for sserial firmware version <= 43, these bits are unintentially
-// sticky and are not reset after a doit)
+// that for sserial firmware version <= 43, these bits are
+// unintentionally sticky and are not reset after a doit)
 //
 // If bit 13 is set, bits 0 through 5 (local communication faults)
 // should be decoded and reported if they meet the inc/dec criteria

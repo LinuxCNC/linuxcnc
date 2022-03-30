@@ -59,7 +59,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             return retERR;
         }
         memset(mb_tx->bit, 0, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);
-        memset(mb_tx->bit_inv, 1, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);    
+        memset(mb_tx->bit_inv, 0, sizeof(hal_bit_t *) * mb_tx->mb_tx_nelem);    
         break;
 
     case mbtx_03_READ_HOLDING_REGISTERS:

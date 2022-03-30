@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 import time
 
@@ -128,6 +127,13 @@ class INI:
         print("GEOMETRY = %s"% self.d.geometry, file=file)
         print("CYCLE_TIME = 100", file=file)
 
+        # set up MDI macro buttons
+        if self.d.frontend == _PD._QTDRAGON:
+            print(file=file)
+            print("[MDI_COMMAND_LIST]", file=file)
+            print("MDI_COMMAND = G0 Z0;X0 Y0", file=file)
+            print("MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0", file=file)
+
         print(file=file)
         print("[FILTER]", file=file)
         # qtplasmac has a different filter section
@@ -174,7 +180,7 @@ class INI:
         print(file=file)
         print("[HMOT]", file=file)
         if not self.d.useinisubstitution:
-            print("# **** This is for info only ****", file=file)
+            print(_("# **** This is for info only ****"), file=file)
         print("CARD0=hm2_%s.0"% self.d.mesa0_currentfirmwaredata[_PD._BOARDNAME], file=file)
         if self.d.number_mesa == 2:
             for boardnum in range(0,int(self.d.number_mesa)):
@@ -184,7 +190,7 @@ class INI:
                     halnum = 0
             print(file, "CARD1=hm2_%s.%d"% (self.d.mesa1_currentfirmwaredata[_PD._BOARDNAME], halnum), file=file)
         if self.d._substitution_list:
-            print("# These are to ease setting custom component's parameters in a custom HAL file", file=file)
+            print(_("# These are to ease setting custom component's parameters in a custom HAL file"), file=file)
             print(file=file)
             for i,temp in enumerate(self.d._substitution_list):
                 a,b = self.d._substitution_list[i]
@@ -196,6 +202,9 @@ class INI:
         print("[HAL]", file=file)
         print("HALUI = halui", file=file)
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
+        # qtplasmac requires the qtplasmac_comp file to connect the plasmac component
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("HALFILE = qtplasmac_comp.hal", file=file)
         print("HALFILE = custom.hal", file=file)
 
         if self.d.pyvcp and self.d.pyvcphaltype == 1 and self.d.pyvcpconnect:
@@ -270,7 +279,7 @@ class INI:
         # trivial kinematics: no. of joints == no.of axes)
         # with trivkins, axes do not have to be consecutive
         print("JOINTS = %d"%num_joints, file=file)
-        if tandemflag:
+        if tandemflag and self.d.frontend != _PD._QTPLASMAC:
             print("KINEMATICS = trivkins coordinates=%s kinstype=BOTH"%coords.replace(" ",""), file=file)
         else:
             print("KINEMATICS = trivkins coordinates=%s"%coords.replace(" ",""), file=file)
@@ -406,8 +415,8 @@ class INI:
             print("MAX_VELOCITY = %s" % get("maxvel"), file=file)
             print("MAX_ACCELERATION = %s" % get("maxacc"), file=file)
             if stepgen:
-                print("# The values below should be 25% larger than MAX_VELOCITY and MAX_ACCELERATION", file=file)
-                print("# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger.", file=file)
+                print(_("# The values below should be 25% larger than MAX_VELOCITY and MAX_ACCELERATION"), file=file)
+                print(_("# If using BACKLASH compensation STEPGEN_MAXACCEL should be 100% larger."), file=file)
                 if get("usecomp") or get("usebacklash"):
                     factor = 2.0
                 else:
@@ -459,7 +468,7 @@ class INI:
                     print("OUTPUT_MAX_LIMIT = %s"% (get("outputmaxlimit")), file=file)
 
         if stepgen:
-            print("# these are in nanoseconds", file=file)
+            print(_("# these are in nanoseconds"), file=file)
             print("DIRSETUP   = %d"% int(get("dirsetup")), file=file)
             print("DIRHOLD    = %d"% int(get("dirhold")), file=file)
             print("STEPLEN    = %d"% int(get("steptime")), file=file)
@@ -518,9 +527,8 @@ class INI:
         else:
             print("HOME_OFFSET = %s" % get("homepos"), file=file)
 
-        # if all axis have homing switches and user doesn't request
-        # manual individual homing:
-        if all_homes and not self.d.individual_homing:
+        # if  user doesn't request manual individual homing, add the sequence number:
+        if not self.d.individual_homing:
             seqnum = int(get("homesequence"))
             # if a tandem joint we wish to finish the home sequence together
             if tandemflag: wait ='-'
@@ -539,7 +547,7 @@ class INI:
             print("[AXIS_%s]" % axis_letter, file=file)
             # qtplasmac requires double vel & acc to use eoffsets correctly
             if self.d.frontend == _PD._QTPLASMAC:
-                print("# MAX_VEL & MAX_ACC need to be twice the corresponding joint value", file=file)
+                print(_("# MAX_VEL & MAX_ACC need to be twice the corresponding joint value"), file=file)
                 print("MAX_VELOCITY = %s" % (get("maxvel") * 2), file=file)
                 print("MAX_ACCELERATION = %s" % (get("maxacc") * 2), file=file)
                 print("OFFSET_AV_RATIO = 0.5", file=file)
@@ -553,26 +561,29 @@ class INI:
     def write_qtplasmac_section(self, file):
         print(file=file)
         print("[QTPLASMAC]", file=file)
-        print("# set the operating mode (default is 0)", file=file)
+        print(_("# set the operating mode (default is 0)"), file=file)
         print("MODE = {}".format(self.d.qtplasmacmode), file=file)
-        print("# set the estop type (0=indicator, 1=hidden, 2=button)", file=file)
+        print(_("# set the estop type (0=indicator, 1=hidden, 2=button)"), file=file)
         print("ESTOP_TYPE = {}".format(self.d.qtplasmacestop), file=file)
-        print("# laser touchoff", file=file)
-        if self.d.qtplasmacxlaser or self.d.qtplasmacylaser:
-            print("LASER_TOUCHOFF = X{:0.4f} Y{:0.4f}".format(self.d.qtplasmacxlaser, self.d.qtplasmacylaser), file=file)
-        else:
-            print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
-        print("# camera touchoff", file=file)
-        if self.d.qtplasmacxcam or self.d.qtplasmacycam:
-            print("CAMERA_TOUCHOFF = X{:0.4f} Y{:0.4f}".format(self.d.qtplasmacxcam, self.d.qtplasmacycam), file=file)
-        else:
-            print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
-        print("# powermax communications", file=file)
+        print(_("# set the dro position ('top' or 'bottom')"), file=file)
+        dro = 'top' if self.d.qtplasmacdro else 'bottom'
+        print("DRO_POSITION = {}".format(dro), file=file)
+        print(_("# error message flash (0=no, 1=yes)"), file=file)
+        print("FLASH_ERROR = {}".format(self.d.qtplasmacerror), file=file)
+        print(_("# hide buttons (0=no, 1=yes)"), file=file)
+        print("HIDE_RUN = {}".format(self.d.qtplasmacstart), file=file)
+        print("HIDE_PAUSE = {}".format(self.d.qtplasmacpause), file=file)
+        print("HIDE_ABORT = {}".format(self.d.qtplasmacstop), file=file)
+        print(_("# laser touchoff"), file=file)
+        print("#LASER_TOUCHOFF = X0.0 Y0.0", file=file)
+        print(_("# camera touchoff"), file=file)
+        print("#CAMERA_TOUCHOFF = X0.0 Y0.0 ", file=file)
+        print(_("# powermax communications"), file=file)
         if self.d.qtplasmacpmx:
             print("PM_PORT = {}".format(self.d.qtplasmacpmx), file=file)
         else:
             print("#PM_PORT = /dev/ttyUSB0", file=file)
-        print("# user buttons", file=file)
+        print(_("# user buttons"), file=file)
         for ub in range(1, 21):
             if self.d.qtplasmac_bnames[ub-1]:
                 print("BUTTON_{}_NAME = {}".format(ub ,self.d.qtplasmac_bnames[ub-1]), file=file)

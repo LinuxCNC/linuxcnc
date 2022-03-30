@@ -60,7 +60,7 @@ typedef enum {
    indicate this. */
 typedef unsigned long int KINEMATICS_FORWARD_FLAGS;
 
-/* the inverse flags are passed to the inverse kinematics so thay they
+/* the inverse flags are passed to the inverse kinematics so that they
    can resolve ambiguities in the joint angles for a given world coordinate,
    e.g., for robots, this would be elbow-up, elbow-down, etc.
 

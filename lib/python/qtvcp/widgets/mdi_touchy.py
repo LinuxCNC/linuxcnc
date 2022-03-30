@@ -159,6 +159,14 @@ class mdi:
                 if len(self.words.get(i)) > 0:
                     m += i + self.words.get(i)
         ACTION.CALL_MDI(m)
+        try:
+            fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
+            fp = open(fp, 'a')
+            fp.write(m + "\n")
+            fp.close()
+        except:
+            pass
+        STATUS.emit('mdi-history-changed')
 
 class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):

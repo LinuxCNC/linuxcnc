@@ -752,7 +752,7 @@ static void update_pos(void *arg, long period)
     /* done */
 }
 
-/* helper function - computes integeral multiple of increment that is greater
+/* helper function - computes integral multiple of increment that is greater
    or equal to value */
 static unsigned long ulceil(unsigned long value, unsigned long increment)
 {

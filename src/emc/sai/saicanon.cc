@@ -570,6 +570,11 @@ void CHANGE_TOOL_NUMBER(int tool)
   _sai._active_slot = tool;
 }
 
+void RELOAD_TOOLDATA(void)
+{
+  PRINT("RELOAD_TOOLDATA()\n");
+}
+
 
 /* Misc Functions */
 

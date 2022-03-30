@@ -72,7 +72,7 @@ def clear_tool_tips(W):
     'cut_rec_n','cut_rec_ne','cut_rec_move_label']
 
     main_gcode_widgets = [
-    'file_open','file_reload','gcode_progress']
+    'file_open','file_reload']
 
     main_dro_widgets = [
     'dro_a','dro_b','dro_x','dro_y','dro_z','home_a','home_b','home_x','home_y',
@@ -88,9 +88,8 @@ def clear_tool_tips(W):
 
     conversational_widgets = [
     'conv_line','conv_circle','conv_ellipse','conv_triangle','conv_rectangle',
-    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset',
-    'conv_sector','conv_rotate','conv_scale','conv_array','conv_new',
-    'conv_save','conv_settings','conv_send']
+    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset','conv_sector',
+    'conv_block','conv_new','conv_save','conv_settings','conv_send']
 
     parameters_configuration_widgets = [
     'arc_fail_delay','arc_max_starts','arc_restart_delay','arc_voltage_scale',
@@ -113,7 +112,7 @@ def clear_tool_tips(W):
         'color_backgalt','color_frams','color_estop','color_disabled',
         'color_preview','chk_soft_keyboard','chk_keyboard_shortcuts',
         'chk_overlay','opt_stp','chk_run_from_line','chk_override_limits',
-        'chk_tool_tips','opt_blk','grid_size','cone_size']
+        'chk_tool_tips','opt_blk','grid_size','cone_size','chk_exit_warning']
 
     parameters_utilities_widgets = [
         'actionbutton_halshow','actionbutton_halscope','actionbutton_halmeter',
@@ -171,7 +170,7 @@ def clear_tool_tips(W):
 
 def set_tool_tips(W):
     # main widgets
-    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G and M Codes'))
+    W.statusbar.setToolTip(_translate('ToolTips', 'Shows active G- and M-Codes'))
 
     # main_preview_widgets
     text0 = _translate('ToolTips', 'Shows the currently loaded material')
@@ -190,7 +189,7 @@ def set_tool_tips(W):
 
     # main_machine_widgets
     W.estop.setToolTip(_translate('ToolTips', 'Shows the Estop status'))
-    W.power.setToolTip(_translate('ToolTips', 'Switches the GUI on or off'))
+    W.power.setToolTip(_translate('ToolTips', 'Switches the GUI on or off\n\nA long press displays the GUI shutdown dialog'))
     W.run.setToolTip(_translate('ToolTips', 'Runs the currently loaded G-Code program'))
     W.pause.setToolTip(_translate('ToolTips', 'Pauses or resume the currently running G-Code program'))
     W.abort.setToolTip(_translate('ToolTips', 'Stops the currently running process'))
@@ -280,7 +279,6 @@ def set_tool_tips(W):
     # main gcode widgets
     W.file_open.setToolTip(_translate('ToolTips', 'Opens the file selector'))
     W.file_reload.setToolTip(_translate('ToolTips', 'Reloads the current G-Code file'))
-    W.gcode_progress.setToolTip(_translate('ToolTips', 'Shows the progress of opening a G-Code file'))
 
     # main dro widgets
     text0 = _translate('ToolTips', 'Shows the current')
@@ -337,9 +335,7 @@ def set_tool_tips(W):
     W.conv_star.setToolTip(_translate('ToolTips', 'Create a star'))
     W.conv_gusset.setToolTip(_translate('ToolTips', 'Create a gusset'))
     W.conv_sector.setToolTip(_translate('ToolTips', 'Create a sector'))
-    W.conv_rotate.setToolTip(_translate('ToolTips', 'Rotate the current G-Code program'))
-    W.conv_scale.setToolTip(_translate('ToolTips', 'Scale the current G-Code program'))
-    W.conv_array.setToolTip(_translate('ToolTips', 'Create an array'))
+    W.conv_block.setToolTip(_translate('ToolTips', 'Rotate, Scale, and Array the current G-Code program'))
     W.conv_new.setToolTip(_translate('ToolTips', 'Starts a new file'))
     W.conv_save.setToolTip(_translate('ToolTips', 'Saves the current file'))
     W.conv_settings.setToolTip(_translate('ToolTips', 'Opens the conversational settings panel'))
@@ -425,6 +421,7 @@ def set_tool_tips(W):
     W.chk_run_from_line.setToolTip(_translate('ToolTips', 'Toggles the use of run from line'))
     W.chk_override_limits.setToolTip(_translate('ToolTips', 'Toggles the override of limit switches'))
     W.chk_tool_tips.setToolTip(_translate('ToolTips', 'Toggles the display of tooltips'))
+    W.chk_exit_warning.setToolTip(_translate('ToolTips', 'Toggles always display an exit warning'))
     W.opt_blk.setToolTip(_translate('ToolTips', 'Toggles the execution of G-Code lines starting with "/"'))
     W.grid_size.setToolTip(_translate('ToolTips', 'Changes the size of the grid in the preview screen'))
     W.cone_size.setToolTip(_translate('ToolTips', 'Changes the size of the cone in the preview screen'))

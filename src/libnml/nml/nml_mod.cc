@@ -421,21 +421,36 @@ NML_MODULE::setSubordinates (int number)
   // On NT we sometimes get a lame problem with realloc
   if (use_realloc)
     {
-      subs = (NML_SUBORDINATE_STRUCT **) realloc (subs,
+      NML_SUBORDINATE_STRUCT **subsNew = (NML_SUBORDINATE_STRUCT **) realloc (subs,
 						  number *
 						  sizeof
 						  (NML_SUBORDINATE_STRUCT *));
 
-      statusInData = (RCS_STAT_MSG **) realloc (statusInData,
+      RCS_STAT_MSG** statusInDataNew = (RCS_STAT_MSG **) realloc (statusInData,
 						number *
 						sizeof (RCS_STAT_MSG *));
 
-      commandOutData = (RCS_CMD_MSG **) realloc (statusInData,
+      RCS_CMD_MSG** commandOutDataNew = (RCS_CMD_MSG **) realloc (statusInData,
 						 number *
 						 sizeof (RCS_CMD_MSG *));
+
+      if (subsNew)           subs=subsNew;
+      if (statusInDataNew)   statusInData=statusInDataNew;
+      if (commandOutDataNew) commandOutData=commandOutDataNew;
+
+      if (!subsNew || !statusInDataNew ||!commandOutDataNew) {
+          free(subs);
+          free(statusInData);
+          free(commandOutData);
+          rcs_print_error ("Out of memory.\n");
+          rcs_exit (-1);
+      }
+    
     }
   else
     {
+
+
       NML_SUBORDINATE_STRUCT **old_subs = subs;
       RCS_STAT_MSG **old_statusInData = statusInData;
       RCS_CMD_MSG **old_commandOutData = commandOutData;
@@ -450,7 +465,7 @@ NML_MODULE::setSubordinates (int number)
 		  previousNumSubordinates *
 		  sizeof (NML_SUBORDINATE_STRUCT *));
 	}
-
+      free(old_subs); old_subs=NULL;
 
       statusInData =
 	(RCS_STAT_MSG **) malloc (number * sizeof (RCS_STAT_MSG *));
@@ -459,6 +474,7 @@ NML_MODULE::setSubordinates (int number)
 	  memcpy (statusInData, old_statusInData,
 		  previousNumSubordinates * sizeof (RCS_STAT_MSG *));
 	}
+      free(old_statusInData); old_statusInData=NULL;
 
       commandOutData =
 	(RCS_CMD_MSG **) malloc (number * sizeof (RCS_CMD_MSG *));
@@ -467,7 +483,13 @@ NML_MODULE::setSubordinates (int number)
 	  memcpy (commandOutData, old_commandOutData,
 		  previousNumSubordinates * sizeof (RCS_CMD_MSG *));
 	}
-
+      free(old_commandOutData); old_commandOutData=NULL;
+      
+      if (NULL == subs || NULL == statusInData || commandOutData)
+        {
+          rcs_print_error ("Out of memory.\n");
+          rcs_exit (-1);
+        }
 
     }
 /*! \todo Another #if 0 */
@@ -477,12 +499,6 @@ NML_MODULE::setSubordinates (int number)
   commandOutstanding = (int *) realloc (commandOutstanding,
 					number * sizeof (int));
 #endif
-
-  if (NULL == subs || NULL == statusInData)
-    {
-      rcs_print_error ("Out of memory.\n");
-      rcs_exit (-1);
-    }
 
 
   // initialize each NML channel in the new arrays to 0

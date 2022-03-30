@@ -1,4 +1,0 @@
-= Guide de démarrage
-
-include::Getting-Started-with-LinuxCNC.contents-fr.txt[]
-

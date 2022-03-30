@@ -6,7 +6,7 @@
     <columns>
       <!-- column-name gint1 -->
       <column type="gint"/>
-      <!-- column-name comando -->
+      <!-- column-name command -->
       <column type="gchararray"/>
     </columns>
   </object>

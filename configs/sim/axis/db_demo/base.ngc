@@ -1,23 +1,17 @@
-#<toolno> = 12
-; demo file using tool from database
+%
+#<toolno>  = 10
+#<ct>      =  0
+#<howmany> =  5
 
-t#<toolno>    (debug,tool:#<toolno>: zoffset=#5403)
-g4p1   ;dwell
-
-m6     (debug,m6  zoffset=#5403)
-g4p1   ;dwell
-
-g43    (debug,g43 zoffset=#5403)
-g4p1   ;dwell
-
-g43h12 (debug,g43h12 zoffset=#5403)
-
-g0x0y0
-g1f1000 x1
-g1f1000 y1
-g0x0y0
-
-g49 (debug,g49 zoffset=#5403)
-t0
-m6
-m2
+g49
+o100 while [[#<ct> lt #<howmany>] and [#<_task> ne 0]]
+       #<ct> = [#<ct> +1]
+       t#<toolno> m6 g43
+       (debug,ct=#<ct> zoff=#5403)
+       g4p[0.05*60] ;approx 0.05 minutes
+       t0m6
+       g10l0 ; reload tooldata (apply_db_rules)
+o100 endwhile
+g49
+(debug, fini)
+%

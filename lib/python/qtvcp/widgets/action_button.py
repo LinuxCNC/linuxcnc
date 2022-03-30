@@ -23,7 +23,7 @@ from PyQt5 import QtCore, QtWidgets
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.widgets.simple_widgets import Indicated_PushButton
+from qtvcp.widgets.simple_widgets import IndicatedPushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
@@ -42,7 +42,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class ActionButton(Indicated_PushButton, _HalWidgetBase):
+class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False
@@ -123,6 +123,11 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         self._textTemplate = '%1.3f in'
         self._alt_textTemplate = '%1.2f mm'
         self._run_from_line_int = 0
+
+    # only called from designer plugin when widget built in editor
+    def _designer_init(self):
+        self._designer_block_signal = True
+        self._designer_running = True
 
     ##################################################
     # This gets called by qtvcp_makepins
@@ -357,6 +362,8 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
             STATUS.connect('not-all-homed', lambda w, axis: self.setEnabled(False))
+            if self.ini_mdi_command:
+                self.setMDILabel()
         elif self.dro_absolute or self.dro_relative or self.dro_dtg:
             pass
         elif True in(self.exit, self.machine_log_dialog):
@@ -685,7 +692,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 text = '%s mm' % str(self.jog_incr_mm)
             else:
                 incr = 0
-                text = 'Continous'
+                text = 'Continuous'
             if self.template_label:
                 self._set_alt_text(self.jog_incr_mm)
         else:
@@ -695,7 +702,7 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
                 text = '''%s "''' % str(self.jog_incr_imperial)
             else:
                 incr = 0
-                text = 'Continous'
+                text = 'Continuous'
             if self.template_label:
                 self._set_text(self.jog_incr_imperial)
         ACTION.SET_JOG_INCR(incr , text)
@@ -704,16 +711,16 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         if self.jog_incr_angle < 0: return
         elif self.jog_incr_angle == 0:
             incr = 0
-            text = 'Continous'
+            text = 'Continuous'
         else:
             incr = self.jog_incr_angle
             text = '''%s deg''' % str(self.jog_incr_angle)
         ACTION.SET_JOG_INCR_ANGULAR(incr , text)
 
     def setText(self,data):
-        #print 'set text:',data, self._designer_running
+        #print ('set text:',data, self._designer_running)
         if self._designer_running:
-            #print 'update'
+            #print('update')
             self.set_textTemplate(data)
         super(ActionButton, self).setText(data)
 
@@ -725,6 +732,26 @@ class ActionButton(Indicated_PushButton, _HalWidgetBase):
         if self._designer_block_signal: return
         tmpl = lambda s: str(self._alt_textTemplate) % s
         self.setText(tmpl(data))
+
+    # see if the INI specified an optional new label
+    # if so apply it, otherwise skip and use the original text
+    def setMDILabel(self):
+        # if the MDI command is missing set a tooltip to say so
+        try:
+            mdi = INFO.MDI_COMMAND_LIST[self.ini_mdi_num]
+        except:
+            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(self.ini_mdi_num)
+            self.setToolTip(msg)
+            return
+
+        # otherwise set any optional label
+        try:
+            label = INFO.MDI_COMMAND_LABEL_LIST[self.ini_mdi_num]
+            self.setToolTip(INFO.MDI_COMMAND_LIST[self.ini_mdi_num].replace(';', '\n'))
+            label = label.replace(r'\n', '\n')
+            self.setText(label)
+        except:
+            return
 
     #########################################################################
     # This is how designer can interact with our widget properties.

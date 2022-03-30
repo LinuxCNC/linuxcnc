@@ -8,7 +8,7 @@
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_misc_error=\fI[0-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
 
 The limits for the following items are compile-time settings:
 .TQ
@@ -17,6 +17,8 @@ The limits for the following items are compile-time settings:
 \fBnum_dio\fR: Maximum number of digital inputs is set by EMCMOT_MAX_DIO.
 .TQ
 \fBnum_aio\fR: Maximum number of analog inputs is set by EMCMOT_MAX_AIO.
+.TQ
+\fBnum_misc_error\fR: Maximum number of extra error inputs is set by EMCMOT_MAX_MISC_ERRORS.
 .TQ
 \fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
 
@@ -121,11 +123,11 @@ a soft limit constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
 \fBmotion.feed\-hold\fR IN BIT
 When Feed Stop Control is enabled with M53 P1, and this bit is TRUE, the feed rate is set to 0.
 
-Note: feed-hold applies to gcode commands -- not jogs.
+Note: feed-hold applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-inhibit\fR IN BIT
-When this pin is TRUE, machine motion is inhibited for gcode commands.
+When this pin is TRUE, machine motion is inhibited for G-code commands.
 
 If the machine is performing a spindle synchronized move when this
 pin goes TRUE, the spindle synchronized motion will finish, and any
@@ -138,14 +140,52 @@ maximum allowed acceleration rate.
 
 Motion resumes when this pin goes FALSE.
 
-Note: feed-inhibit applies to gcode commands -- not jogs.
+Note: feed-inhibit applies to G-code commands -- not jogs.
 
 .TP
 \fBmotion.feed\-upm\fR OUT FLOAT
-Current feed rate in machine units per minute for motion.motion-types
+Current feed rate in G-code program units per minute for motion.motion-types
 feed(2) and arc(3).
-Value is the program F value multiplied by the current feed override
+Value is the G-code program F value multiplied by the current feed override
 value and the motion.adaptive-feed setting (if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+If units (G20 or G21) are not specified in the G-code file then units will
+be the last units used.
+
+.TP
+\fBmotion.feed\-inches-per-minute\fR OUT FLOAT
+Current feed rate in inches per minute for motion.motion-types
+feed(2) and arc(3).
+Value is the inch equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
+\fBmotion.feed\-inches-per-second\fR OUT FLOAT
+Current feed rate in inches per second for motion.motion-types
+feed(2) and arc(3).
+Value is the inch equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
+\fBmotion.feed\-mm-per-minute\fR OUT FLOAT
+Current feed rate in mm per minute for motion.motion-types
+feed(2) and arc(3).
+Value is the mm equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
+Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
+
+.TP
+\fBmotion.feed\-mm-per-second\fR OUT FLOAT
+Current feed rate in mm per second for motion.motion-types
+feed(2) and arc(3).
+Value is the mm equivalent of the G-code program F value multiplied by the
+current feed override value and the motion.adaptive-feed setting
+(if M52 active).
 Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 
 .TP
@@ -155,9 +195,30 @@ is disallowed and an error is reported.  By default, homing is allowed in joint
 mode whenever motion is enabled.
 
 .TP
+\fBmotion.is\-all\-homed\fR OUT BIT
+TRUE if all active joints is homed.
+
+.TP
+\fBmotion.jog\-inhibit\fR IN BIT
+If this bit is TRUE, jogging of any joint or axis is disallowed and an error
+is reported.
+If any jog is active when the pin state changes to TRUE then that jog will be
+stopped.
+
+.TP
+\fBmotion.jog\-is-active\fR OUT BIT
+TRUE if any joint or axis is jogging.
+
+.TP
 \fBmotion.in\-position\fR OUT BIT
 TRUE if the machine is in position (ie, not currently moving towards
 the commanded position).
+
+.TP
+\fBmotion.misc\-error\-\fINN\fR IN BIT
+Extra error inputs for faults such as over-temperature sensors, low coolant
+warnings, custom hal component errors. If driven TRUE this will disable a
+machine. Similar to spindle.amp-fault-in
 
 .TP
 \fBmotion.motion\-enabled\fR OUT BIT
@@ -211,7 +272,7 @@ The number of CPU clocks between invocations of the servo thread. Typically, thi
 \fBmotion.switchkins-type\fR IN float
 Kinematics modules that define the functions kinematicsSwitchable()
 and kinematicsSwitch() receive the \fBinteger\fR value of this pin to
-select the machine kinematics functions.  Extra gcode commands
+select the machine kinematics functions.  Extra G-code commands
 may be required to synchronize task and motion before and after changes
 to the pin value.
 

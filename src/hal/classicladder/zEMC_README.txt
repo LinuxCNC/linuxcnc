@@ -24,7 +24,7 @@ classicladder.c:
 --- to use MODBUS master use --modmaster
 --- to use MODBUS slave use --modslave
 --- to set debug level for rtapi_print use --debug
---- if a program was loaded previouly and you load classicladder again with a ladder program
+--- if a program was loaded previously and you load classicladder again with a ladder program
     specified it will load it instead of ignoring it.
 --- change to put CurrentProjectfileName into infosgene array
 --- change to display ladder program name on section display window
@@ -80,8 +80,8 @@ edit.h
 file.c
 --- modified not to load info into GeneralParamsMirror because only realtime can do that
 --- added function to load modbus com info
---- added call to re intialize modbus after loading a program
---- addd function to load/save MODBUS com settings
+--- added call to re initialize modbus after loading a program
+--- add function to load/save MODBUS com settings
 
 files_project.c
 --- change to infosgene->CurrentProjectFileName to support filenames in shared memory
@@ -98,7 +98,7 @@ Module_hal.c:
 --- added code to refresh rungs at period rate unless period less then 1 MS then it waits till at least 1 MS has passed
 
 protocol_modbus_master.c
---- added code for modbus functions 1, 3, 6, 16, and 8 (read coils, read holding register, write single register, write mulitple registers, echo)
+--- added code for modbus functions 1, 3, 6, 16, and 8 (read coils, read holding register, write single register, write multiple registers, echo)
 --- changed ModbusEleOffset=1 to =0 (not to modbus standard but easier and fairly common) and can change this in com page now.
 --- improved debug messages so slave address and function code are easily identified
 --- added a write to %E0 for modbus communication error
@@ -131,7 +131,7 @@ vars_access.c
 --- add %E %IW %QW variables
 
 vars_names.c/.h:
---- backported fix from version 7.126 to fix a crash if varible number is not a number
+--- backported fix from version 7.126 to fix a crash if variable number is not a number
 --- fix so if symbol name is blank will return the variable name instead (fix crash)
 --- add %E %IW %QW variables
 

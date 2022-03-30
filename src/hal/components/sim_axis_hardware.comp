@@ -61,14 +61,14 @@ pin in float Aminsw_lower;
 pin in float Uminsw_lower;
 pin in float Vminsw_lower;
 
-pin in float Xhomesw_hyst =.02 "range that home switch will be true +- half this to the home position";
-pin in float X2homesw_hyst =.02;
-pin in float Yhomesw_hyst =.02;
-pin in float Y2homesw_hyst =.02;
-pin in float Zhomesw_hyst =.02;
-pin in float Ahomesw_hyst =.02;
-pin in float Uhomesw_hyst =.02;
-pin in float Vhomesw_hyst =.02;
+pin in float Xhomesw_hyst =.025 "range that home switch will be true +- half this to the home position";
+pin in float X2homesw_hyst =.025;
+pin in float Yhomesw_hyst =.025;
+pin in float Y2homesw_hyst =.025;
+pin in float Zhomesw_hyst =.025;
+pin in float Ahomesw_hyst =.025;
+pin in float Uhomesw_hyst =.025;
+pin in float Vhomesw_hyst =.025;
 
 pin in bit Xhoming "True is homing in progress";
 pin in bit X2homing;
@@ -156,7 +156,7 @@ pin out bit Vmaxsw_homesw_out;
 pin out bit Vminsw_homesw_out;
 pin out bit Vbothsw_homesw_out;
 
-pin in float limit_offset =.01 "how much the limit switches are offset from inputed position. added to max, subracted from min";
+pin in float limit_offset =.01 "how much the limit switches are offset from inputted position. added to max, subtracted from min";
 
 function update fp;
 license "GPL";
