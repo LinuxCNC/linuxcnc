@@ -69,6 +69,15 @@ void InitModbusMasterBeforeReadConf( void )
 	ModbusConfig.MapTypeForWriteHoldRegs = VAR_PHYS_WORD_OUTPUT;
 }
 
+void PrepareModbusMaster( void )
+{
+       if(modmaster)
+            {
+                CloseSocketModbusMaster( );
+                InitSocketModbusMaster( );
+            }
+}
+
 void InitModbusMasterParams( void )
 {
 	int ScanReq;

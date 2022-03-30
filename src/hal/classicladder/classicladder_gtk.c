@@ -595,11 +595,7 @@ void DoReset()
 //////	if ( StateBefore==STATE_RUN )
 //////		InfosGene->LadderState = STATE_RUN;
 	RunBackIfStopped( );
-//closing and opening modbus again creates double requests for some reason...
-#ifdef MODBUS_IO_MASTER
- //if (modmaster) {    InitModbusMasterBeforeReadConf( );    }
-#endif
-	MessageInStatusBar(_("Reset ladder data "));
+	MessageInStatusBar((InfosGene->LadderState==STATE_RUN)?_("Reset logic data - Now running."):_("Reset logic data done."));
 }
 
 //void ButtonConfig_click()
@@ -760,6 +756,7 @@ printf("Set pixbuf image to clipboard\n");
 	}
 }
 
+
 void ShowMessageBox(const char * title, const char * text, const char * button)
 {
 	/* From the example in gtkdialog help */
@@ -788,7 +785,6 @@ void DoFunctionOfConfirmationBox(void * (*function_to_do)(void *))
 	gtk_widget_destroy(ConfirmDialog);
 	(function_to_do)(NULL);
 }
-
 void ShowConfirmationBoxWithChoiceOrNot(const char * title,const char * text,void * function_if_yes, char HaveTheChoice)
 {
 	/* From the example in gtkdialog help */
@@ -798,8 +794,8 @@ void ShowConfirmationBoxWithChoiceOrNot(const char * title,const char * text,voi
 	label = gtk_label_new (text);
 	if ( HaveTheChoice )
 	{
-	yes_button = gtk_button_new_with_label(_("Yes"));
-	no_button = gtk_button_new_with_label(_("No"));
+		yes_button = gtk_button_new_with_label("Yes");
+		no_button = gtk_button_new_with_label("No");
 	}
 	else
 	{
@@ -1147,7 +1143,7 @@ static gint PeriodicUpdateDisplay(gpointer data)
 			RefreshAllBoolsVars();
 			InfosGene->CmdRefreshVarsBits = FALSE;
 		}
-		//DisplayFreeVarSpy();
+		DisplayFreeVarSpy();
                 //XXX These lines is for features that is not implemented.
 		//if ( InfosGene->LogContentModified )
 		//{

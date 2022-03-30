@@ -307,7 +307,7 @@ int main( int   argc, char *argv[] )
 						if (!ProjectLoadedOk) 
 						{  
 							   ClassicLadder_InitAllDatas( );   
-							   if (modmaster) {    InitModbusMasterBeforeReadConf( );    }
+							   if (modmaster) {    PrepareModbusMaster( );    }
 						}
 					    }else{
 							   InitGtkWindows( argc, argv );
@@ -315,7 +315,7 @@ int main( int   argc, char *argv[] )
 							   if (pathswitch){   rtapi_strxcpy( InfosGene->CurrentProjectFileName, NewPath );   }
 							   UpdateWindowTitleWithProjectName( );
 							   MessageInStatusBar(_("GUI reloaded with existing ladder program"));
-							   if (modmaster) {    InitModbusMasterBeforeReadConf( );    }
+							   if (modmaster) {    PrepareModbusMaster( );    }
 							} 
 							
 				if (modslave)         {   InitSocketServer( 0/*UseUdpMode*/, ModbusServerPort/*PortNbr*/);  }

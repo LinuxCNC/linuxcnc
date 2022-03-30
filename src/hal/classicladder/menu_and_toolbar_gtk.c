@@ -65,8 +65,8 @@ static GtkToggleActionEntry ToggleActionEntriesArray[ ] =
 {	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, "Sections window", "F2", "View sections manager window", G_CALLBACK( OpenManagerWindow ), TRUE },
 	{ "ViewEditorAction", GTK_STOCK_EDIT, "Editor window", "F3", "View editor window", G_CALLBACK( OpenEditWindow ), FALSE },
 	{ "ViewSymbolsAction", GTK_STOCK_INDEX, "Symbols window", "F4", "View symbols window", G_CALLBACK( OpenSymbolsWindow ), FALSE },
-	{ "ViewBoolVarsAction", NULL, "Bools vars window", "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
-	{ "ViewFreeVarsAction", NULL, "Free vars window", "F6", NULL, G_CALLBACK( OpenSpyFreeVarsWindow ), FALSE },
+	{ "ViewBoolVarsAction", NULL, "Bit Status Window", "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
+	{ "ViewFreeVarsAction", NULL, "Watch Window", "F6", NULL, G_CALLBACK( OpenSpyFreeVarsWindow ), FALSE },
 	//{ "ViewLogAction", NULL, "Log window", "F7", NULL, G_CALLBACK( OpenLogBookWindow ), FALSE },
 };
 

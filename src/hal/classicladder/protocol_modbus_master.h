@@ -76,6 +76,7 @@ typedef struct StrModbusConfig
 }StrModbusConfig;
 
 void InitModbusMasterBeforeReadConf( void );
+void PrepareModbusMaster( void );
 void InitModbusMasterParams( void );
 int GetModbusResponseLenghtToReceive( void );
 int ModbusMasterAsk( unsigned char * SlaveAddressIP, unsigned char * Question );

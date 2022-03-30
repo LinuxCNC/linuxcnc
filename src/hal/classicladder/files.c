@@ -44,7 +44,6 @@
 #include "files_sequential.h"
 #include "files.h"
 #include "vars_access.h"
-#include "protocol_modbus_master.h"
 #include "manager.h"
 //#include "log.h"
 
@@ -1514,7 +1513,6 @@ void LoadAllLadderDatas(char * DatasDirectory)
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration data from %s\n",FileName);
 	LoadModbusIOConfParams( FileName );
-        if (modmaster) {   InitModbusMasterParams( );    }
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
 //	printf("Loading symbols data from %s\n",FileName);
