@@ -218,7 +218,7 @@ void DoFlipFlopRunStop( void )
 		InfosGene->LadderState = STATE_STOP;
 #ifdef GTK_INTERFACE
 //		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Run");
-		MessageInStatusBar("Stopped program - press run button to continue.");
+		MessageInStatusBar(_("Stopped program - press run button to continue."));
 //		SetToggleMenuForRunStop( TRUE );
 		SetMenuStateForRunStopSwitch( FALSE );
 #endif
@@ -228,7 +228,7 @@ void DoFlipFlopRunStop( void )
 		InfosGene->LadderState = STATE_RUN;
 #ifdef GTK_INTERFACE
 //		gtk_label_set_text(GTK_LABEL(GTK_BIN(ButtonRunStop)->child),"Stop");
-		MessageInStatusBar("Started program - press stop to pause."); 
+		MessageInStatusBar(_("Started program - press stop to pause."));
 //		SetToggleMenuForRunStop( FALSE );
 		SetMenuStateForRunStopSwitch( TRUE );
 #endif

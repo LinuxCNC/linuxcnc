@@ -27,6 +27,8 @@
 #include <math.h>
 #include <gtk/gtk.h>
 #include <pango/pango.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include "classicladder.h"
 #include "global.h"
@@ -98,7 +100,7 @@ static void draw_page( GtkPrintOperation *operation, GtkPrintContext   *context,
 	cr = gtk_print_context_get_cairo_context( context );
 
 	CreateFontPangoLayout( cr, (iCurrentLanguage==SECTION_IN_SEQUENTIAL)?PrintSeqSize:PrintLadderBlockHeight, DRAW_FOR_PRINT );
-	snprintf( Buffer, sizeof(Buffer), CL_PRODUCT_NAME CL_RELEASE_VER_STRING "  -  Section:%s  -  Page:%d/%d", SectionArray[ InfosGene->CurrentSection ].Name, page_nr+1, NbrPagesToPrint );
+	snprintf( Buffer, sizeof(Buffer), CL_PRODUCT_NAME CL_RELEASE_VER_STRING "  -  %s:%s  -  %s:%d/%d", _("Section"), SectionArray[ InfosGene->CurrentSection ].Name, _("Page"),  page_nr+1, NbrPagesToPrint );
 	DrawPangoText( cr, OffsetPrintX, gtk_print_context_get_height(context)-10, -1, -1, Buffer );
 
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
@@ -155,7 +157,7 @@ void DoPrint( char DoPreview )
 	
 	if (res == GTK_PRINT_OPERATION_RESULT_ERROR)
 	{
-		ShowMessageBox( "Print", "Failed to print...", "Ok" );
+		ShowMessageBox( _("Print"), _("Failed to print..."), _("Ok") );
 	}
 	else if (res == GTK_PRINT_OPERATION_RESULT_APPLY)
 	{

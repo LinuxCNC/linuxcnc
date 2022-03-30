@@ -21,12 +21,12 @@
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 //Chris Morley July 08
 
-#include <locale.h>
-#include <libintl.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 #include "classicladder.h"
 #include "manager.h"
 #include "edit.h"
@@ -47,7 +47,7 @@
 #define NBR_SUBS_VBOX 3
 GtkWidget *LabelParam[ NBR_OBJECTS ],*ValueParam[ NBR_OBJECTS ];
 
-static char * Devices[] = { "None", "DirectPortAccess",
+static char * Devices[] = { N_("None"), N_("DirectPortAccess"),
 #ifdef COMEDI_SUPPORT
 "/dev/comedi0", "/dev/comedi1", "/dev/comedi2", "/dev/comedi3",
 #endif
@@ -64,7 +64,7 @@ GtkWidget *OutputFlagParam[ NBR_OUTPUTS_CONF ];
 
 #ifdef MODBUS_IO_MASTER
 // ModbusReqType must be in the same order as MODBUS_REQ_ in protocol_modbus_master.h
-static char * ModbusReqType[] = { "ReadInputs (to %I)", "WriteCoils (from %Q)", "ReadInputRegs (to %IW)", "WriteHoldRegs (from %QW)", "ReadCoils (to %Q)", "ReadHoldRegs (to %QW)", "ReadStatus (to %IW)", "Diagnostic (from %IW/to %QW - 1stEle=sub-code used)", NULL };
+static char * ModbusReqType[] = { N_("ReadInputs (to %I)"), N_("WriteCoils (from %Q)"), N_("ReadInputRegs (to %IW)"), N_("WriteHoldRegs (from %QW)"), N_("ReadCoils (to %Q)"), N_("ReadHoldRegs (to %QW)"), N_("ReadStatus (to %IW)"), N_("Diagnostic (from %IW/to %QW - 1stEle=sub-code used)"), NULL };
 #define NBR_MODBUS_PARAMS 6
 GtkWidget *ModbusParamEntry[ NBR_MODBUS_MASTER_REQ ][ NBR_MODBUS_PARAMS ];
 //GtkWidget *SerialPortEntry;
@@ -298,7 +298,7 @@ void AddDevicesListToComboBox( MyGtkComboBox * pComboBox )
 
 GtkWidget * CreateIOConfPage( char ForInputs )
 {
-	static char * Labels[] = { "First %", "Type", "PortAdr/SubDev", "First Channel", "Nbr Channels", "Logic" };
+	static char * Labels[] = { N_("First %"), N_("Type"), N_("PortAdr(0x)/SubDev"), N_("First Channel"), N_("Nbr Channels"), N_("Logic") };
 	static int LabelsSize[] = { 105, 130, 130, 120, 130, 105 };
 	GtkWidget *scrolled_win;
 	GtkWidget *table;
@@ -324,7 +324,7 @@ GtkWidget * CreateIOConfPage( char ForInputs )
 			{
 				GtkWidget **IOParamLabel = ForInputs?&InputParamLabel[ NumObj ]:&OutputParamLabel[ NumObj ];
 				if ( NumObj==0 )
-					*IOParamLabel = gtk_label_new( ForInputs?"1st %I mapped":"1st %Q mapped" );
+					*IOParamLabel = gtk_label_new( ForInputs?(_("1st %I mapped")):(_("1st %Q mapped")) );
 				else
 					*IOParamLabel = gtk_label_new( gettext(Labels[ NumObj ]) );
 				gtk_widget_set_size_request( *IOParamLabel, LabelsSize[NumObj],-1 );
@@ -364,7 +364,7 @@ GtkWidget * CreateIOConfPage( char ForInputs )
 					case 5:
 					{
 						GtkWidget **IOParamFlag = ForInputs?&InputFlagParam[ NumLine ]:&OutputFlagParam[ NumLine ];
-						*IOParamFlag = gtk_check_button_new_with_label( "Inverted" );
+						*IOParamFlag = gtk_check_button_new_with_label( _("Inverted") );
 						gtk_widget_set_size_request( *IOParamFlag,LabelsSize[NumObj],-1 );
 						gtk_table_attach_defaults (GTK_TABLE (table), *IOParamFlag, NumObj, NumObj+1, NumLine+1, NumLine+2);
 						if ( pConf->FlagInverted )
@@ -506,7 +506,7 @@ void FillComboBoxReqType( MyGtkComboBox * pComboBox, char * ListTextsCombo[] )
 }
 GtkWidget * CreateModbusModulesIO( void )
 {
-	const char * Labels[] = { _("Slave Address"), _("Request Type"), _("1st Modbus Ele."), _("# of Ele"), _("Logic"), _("1st Variable mapped") };
+	const char * Labels[] = { N_("Slave Address"), N_("Request Type"), N_("1st Modbus Ele."), N_("# of Ele"), N_("Logic"), N_("1st Variable mapped") };
 	GtkWidget *table;
 	GtkWidget *scrolled_win;
 	int NumObj;

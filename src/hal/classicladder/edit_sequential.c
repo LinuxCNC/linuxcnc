@@ -23,12 +23,12 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 #include "classicladder.h"
 #include "global.h"
 #include "drawing.h"
@@ -839,9 +839,9 @@ printf(_("nbr clicks=1!!! (posi=%s), wait next point to link...\n"), (ClickedOnT
 					OffsetSeqEleEdited = OffsetFound;
 					TopPartSeqEleEdited = ClickedOnTopPart;
 					if ( TypeFound==ELE_SEQ_STEP )
-						MessageInStatusBar( "Now the select the transition." );
+						MessageInStatusBar( _("Now select the transition.") );
 					else if ( TypeFound==ELE_SEQ_TRANSITION )
-						MessageInStatusBar( ClickedOnTopPart?"Now select the step that will be desactivate by this transition.":"Now select the step that will be activate by this transition." );
+						MessageInStatusBar( ClickedOnTopPart? ( _("Now select the step that will be deactivated by this transition.") ):( _("Now select the step that will be activated by this transition.") ) );
 					else
 						ShowMessageBoxError( _("You haven't selected a step or a transition to link!!!") );
 				}

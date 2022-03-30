@@ -27,9 +27,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
-
-#include <locale.h>
-#include <libintl.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include "classicladder.h"
 #include "global.h"

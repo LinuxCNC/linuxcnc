@@ -20,10 +20,10 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
 #include <stdio.h>
 #include <gtk/gtk.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include "classicladder.h"
 #include "global.h"
@@ -81,15 +81,15 @@ static short int ToolBarElementsLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
               {ELE_OUTPUT_JUMP, ELE_OUTPUT_CALL , ELE_OUTPUT_OPERATE , 0} ,
               {-1,-1}/*end*/ };
 char * ToolBarToolTipsTextLadder[ ][NBR_ELE_TOOLBAR_X_MAX] =
-            { { "Current Object\nSelector", "Eraser", "Select a rung part (drag and release)", "Copy rung part selected" },
-              { "N.O. Input", "N.C. Input", "Rising Edge\n Input", "Falling Edge\n Input" },
-              { "Horizontal\nConnection", "Vertical\nConnection", "Long Horizontal\nConnection", NULL },
-              { "Timer IEC Block", "Counter Block", "Variable\nComparison", NULL },
+            { { N_("Current Object\nSelector"), N_("Eraser"), N_("Select a rung part (drag and release)"), N_("Copy rung part selected") },
+              { N_("N.O. Input"), N_("N.C. Input"), N_("Rising Edge\n Input"), N_("Falling Edge\n Input") },
+              { N_("Horizontal\nConnection"), N_("Vertical\nConnection"), N_("Long Horizontal\nConnection"), NULL },
+              { N_("Timer IEC Block"), N_("Counter Block"), N_("Variable\nComparison"), NULL },
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-              { "Old Timer Block", "Old Monostable Block", NULL, NULL },
+              { N_("Old Timer Block"), N_("Old Monostable Block"), NULL, NULL },
 #endif
-              { "N.O. Output", "N.C. Output", "Set Output", "Reset Output" },
-              { "Jump Coil", "Call Coil", "Variable\nAssignment", NULL },
+              { N_("N.O. Output"), N_("N.C. Output"), N_("Set Output"), N_("Reset Output") },
+              { N_("Jump Coil"), N_("Call Coil"), N_("Variable\nAssignment"), NULL },
               { NULL, NULL, NULL, NULL } };
 
 
@@ -106,13 +106,13 @@ static short int ToolBarElementsSequential[ ][NBR_ELE_TOOLBAR_X_MAX] =
               {ELE_SEQ_COMMENT , 0 , 0 , 0} ,
               {-1,-1}/*end*/ };
 char * ToolBarToolTipsTextSequential[ ][NBR_ELE_TOOLBAR_X_MAX] =
-            { { "Current Object\nSelector", "Eraser", NULL, NULL },
-              { "Step", NULL, NULL, NULL },
-              { "Transition", NULL, NULL, NULL },
+            { { N_("Current Object\nSelector"), N_("Eraser"), NULL, NULL },
+              { N_("Step"), NULL, NULL, NULL },
+              { N_("Transition"), NULL, NULL, NULL },
               { NULL, NULL, NULL, NULL },
               { NULL, NULL, NULL, NULL },
-              { "Link", NULL, NULL, NULL },
-              { "Comment", NULL, NULL, NULL },
+              { N_("Link"), NULL, NULL, NULL },
+              { N_("Comment"), NULL, NULL, NULL },
               { NULL, NULL, NULL, NULL } };
 #endif
 

@@ -706,7 +706,7 @@ void DoActionAboutClassicLadder()
 							"version", CL_RELEASE_VER_STRING ,
 							"copyright", "Copyright (C) " CL_RELEASE_COPYRIGHT_YEARS " Marc Le Douarain\nmarc . le - douarain /At\\ laposte \\DoT/ net" ,
 //							"logo", example_logo,
-							"title", "About ClassicLadder",
+							"title", _("About ClassicLadder"),
 							"website", "http://sites.google.com/site/classicladder" ,
 							"comments", comments ,
                        NULL );
@@ -763,7 +763,7 @@ void ExportSvgOrPngFile( char * FileToCreate, char GoForSvgExport )
 void FileRequestToExportSvgOrPng(char GoForSvg)
 {
 	GtkWidget *dialog;
-	dialog = gtk_file_chooser_dialog_new (GoForSvg?"Save SVG File":"Save PNG File",
+	dialog = gtk_file_chooser_dialog_new (GoForSvg?_("Save SVG File"):_("Save PNG File"),
 										GTK_WINDOW(MainSectionWindow),
 										GTK_FILE_CHOOSER_ACTION_SAVE,
 										GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,

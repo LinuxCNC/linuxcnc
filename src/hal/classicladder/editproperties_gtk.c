@@ -20,8 +20,6 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,6 +28,9 @@
 #include "editproperties_gtk.h"
 #include "edit.h"
 #include "classicladder_gtk.h"
+
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include <rtapi_string.h>
 

@@ -20,12 +20,11 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
-#define _(x) gettext(x)
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 #include "classicladder.h"
 #include "global.h"
 #include <rtapi_string.h>
@@ -36,6 +35,8 @@
 // include the var name table (not a header!)
 #include "vars_names_list.c"
 
+#include <gtk/gtk.h> // i18n
+#include "classicladder_gtk.h" // i18n
 
 
 //===OLD CODE NO MORE USED===

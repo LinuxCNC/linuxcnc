@@ -20,11 +20,11 @@
 /* License along with this library; if not, write to the Free Software */
 /* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
-#include <locale.h>
-#include <libintl.h>
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <string.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 #include "classicladder.h"
 #include "global.h"
 #include "edit.h"
@@ -204,7 +204,7 @@ void SymbolsInitGtk()
 	GtkWidget *ListView;
 	GtkCellRenderer   *renderer;
 	long ScanCol;
-	char * ColName[] = { _("HiddenColNbr!"), _("Variable"), _("Symbol name"), _("HAL signal/Comment") };
+	char * ColName[] = { "HiddenColNbr!", N_("Variable"), N_("Symbol name"), N_("HAL signal/Comment") };
 
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), _("Symbols names") );
@@ -225,7 +225,7 @@ void SymbolsInitGtk()
 		g_object_set(renderer, "editable", TRUE, NULL);
 //TODO? gtk_entry_set_max_length(GTK_ENTRY(  ),9);
 		g_signal_connect( G_OBJECT(renderer), "edited", G_CALLBACK(Callback_TextEdited), (gpointer)ScanCol );
-		column = gtk_tree_view_column_new_with_attributes( ColName[ ScanCol ], renderer, "text", ScanCol, NULL );
+		column = gtk_tree_view_column_new_with_attributes( gettext(ColName[ ScanCol ]), renderer, "text", ScanCol, NULL );
 		gtk_tree_view_append_column( GTK_TREE_VIEW(ListView), column );
 		gtk_tree_view_column_set_resizable( column, TRUE );
 		gtk_tree_view_column_set_sort_column_id( column, ScanCol );

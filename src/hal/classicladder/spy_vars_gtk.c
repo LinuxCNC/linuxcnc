@@ -24,13 +24,13 @@
 // modified for EMC
 // Chris Morley Feb 08
 
-#include <locale.h>
-#include <libintl.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <gtk/gtk.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include "classicladder.h"
 #include "global.h"

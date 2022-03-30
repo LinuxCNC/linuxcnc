@@ -24,6 +24,8 @@
 /* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA */
 
 #include <gtk/gtk.h>
+#include <libintl.h> // i18n
+#include <locale.h> // i18n
 
 #include "classicladder.h"
 #include "classicladder_gtk.h"
@@ -38,35 +40,35 @@
 GtkUIManager * uiManager;
 
 static GtkActionEntry ActionEntriesArray[ ] =
-{	{ "FileMenuAction", NULL, "File" },
-	{ "NewAction", GTK_STOCK_NEW, "New", "<Control>N", "Create a new project", G_CALLBACK( DoActionConfirmNewProject ) },
-	{ "LoadAction", GTK_STOCK_OPEN, "Load", "<Control>L", "Load an existing project", G_CALLBACK( DoActionLoadProject ) },
-	{ "SaveAction", GTK_STOCK_SAVE, "Save", "<Control>S", "Save current project", G_CALLBACK( DoActionSave ) },
-	{ "SaveAsAction", NULL, "Save As...", "<Control>A", "Save project to another file", G_CALLBACK( DoActionSaveAs ) },
-	{ "ExportMenuAction", NULL, "Export to", NULL, NULL, NULL },
-	{ "ExportSvgAction", NULL, "Svg", NULL, NULL, G_CALLBACK( DoActionExportSvg ) },
-	{ "ExportPngAction", NULL, "Png", NULL, NULL, G_CALLBACK( DoActionExportPng ) },
-	{ "CopyToClipboardAction", NULL, "Clipboard", "<Control>C", NULL, G_CALLBACK( DoActionCopyToClipboard ) },
-	{ "PreviewAction", GTK_STOCK_PRINT_PREVIEW, "Preview", NULL, NULL, G_CALLBACK( PrintPreviewGtk ) },
-	{ "PrintAction", GTK_STOCK_PRINT, "Print", "<Control>P", "Print current section", G_CALLBACK( PrintGtk ) },
-	{ "QuitAction", GTK_STOCK_QUIT, "Quit", "<Control>Q", NULL, G_CALLBACK( ConfirmQuit ) },
+{	{ "FileMenuAction", NULL, N_("File") },
+	{ "NewAction", GTK_STOCK_NEW, N_("New"), NULL, N_("Create a new project"), G_CALLBACK( DoActionConfirmNewProject ) },
+	{ "LoadAction", GTK_STOCK_OPEN, N_("Load"), NULL, N_("Load an existing project"), G_CALLBACK( DoActionLoadProject ) },
+	{ "SaveAction", GTK_STOCK_SAVE, N_("Save"), NULL, N_("Save current project"), G_CALLBACK( DoActionSave ) },
+	{ "SaveAsAction", GTK_STOCK_SAVE_AS, N_("Save As..."), "<Shift><Control>S", N_("Save project to another file"), G_CALLBACK( DoActionSaveAs ) },
+	{ "ExportMenuAction", GTK_STOCK_CONVERT, N_("Export to"), NULL, NULL, NULL },
+	{ "ExportSvgAction", GTK_STOCK_DND, "Svg", NULL, NULL, G_CALLBACK( DoActionExportSvg ) },
+	{ "ExportPngAction", GTK_STOCK_SELECT_COLOR, "Png", NULL, NULL, G_CALLBACK( DoActionExportPng ) },
+	{ "CopyToClipboardAction", GTK_STOCK_PASTE, N_("Clipboard"), "<Control>C", NULL, G_CALLBACK( DoActionCopyToClipboard ) },
+	{ "PreviewAction", GTK_STOCK_PRINT_PREVIEW, N_("Preview"), "<Shift><Control>P", NULL, G_CALLBACK( PrintPreviewGtk ) },
+	{ "PrintAction", GTK_STOCK_PRINT, N_("Print"), "<Control>P", N_("Print current section"), G_CALLBACK( PrintGtk ) },
+	{ "QuitAction", GTK_STOCK_QUIT, N_("Quit"), NULL, NULL, G_CALLBACK( ConfirmQuit ) },
 
-	{ "ViewMenuAction", NULL, "View" },
+	{ "ViewMenuAction", NULL, N_("View") },
 
-	{ "PLCAction", NULL, "PLC" },
-	{ "RunStopAction", GTK_STOCK_EXECUTE, "RunStop", NULL, "Start/stop logic", G_CALLBACK( DoFlipFlopRunStop ) },
-	{ "ResetAction", GTK_STOCK_REFRESH, "Reset", NULL, "Reset logic", G_CALLBACK( DoActionResetAndConfirmIfRunning ) },
-	{ "ConfigurationAction", GTK_STOCK_PREFERENCES, "Configuration", NULL, "Configuration (sizes, i/o, ...)", G_CALLBACK( OpenConfigWindowGtk ) },
+	{ "PLCAction", NULL, N_("PLC") },
+	{ "RunStopAction", GTK_STOCK_EXECUTE, N_("Run logic"), NULL, N_("Start/stop logic"), G_CALLBACK( DoFlipFlopRunStop ) },
+	{ "ResetAction", GTK_STOCK_REFRESH, N_("Reset logic"), NULL, N_("Reset logic"), G_CALLBACK( DoActionResetAndConfirmIfRunning ) },
+	{ "ConfigurationAction", GTK_STOCK_PREFERENCES, N_("Configuration"), NULL, N_("Configuration (sizes, i/o, ...)"), G_CALLBACK( OpenConfigWindowGtk ) },
 
-	{ "HelpMenuAction", NULL, "Help" },
-	{ "AboutAction", NULL, "About", "F1", NULL, G_CALLBACK( DoActionAboutClassicLadder ) },	
+	{ "HelpMenuAction", NULL, N_("Help") },
+	{ "AboutAction", GTK_STOCK_ABOUT, N_("About"), "F1", NULL, G_CALLBACK( DoActionAboutClassicLadder ) },
 };
 static GtkToggleActionEntry ToggleActionEntriesArray[ ] =
-{	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, "Sections window", "F2", "View sections manager window", G_CALLBACK( OpenManagerWindow ), TRUE },
-	{ "ViewEditorAction", GTK_STOCK_EDIT, "Editor window", "F3", "View editor window", G_CALLBACK( OpenEditWindow ), FALSE },
-	{ "ViewSymbolsAction", GTK_STOCK_INDEX, "Symbols window", "F4", "View symbols window", G_CALLBACK( OpenSymbolsWindow ), FALSE },
-	{ "ViewBoolVarsAction", NULL, "Bit Status Window", "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
-	{ "ViewFreeVarsAction", NULL, "Watch Window", "F6", NULL, G_CALLBACK( OpenSpyFreeVarsWindow ), FALSE },
+{	{ "ViewSectionsAction", GTK_STOCK_DND_MULTIPLE, N_("Sections window"), "F2", N_("View sections manager window"), G_CALLBACK( OpenManagerWindow ), TRUE },
+	{ "ViewEditorAction", GTK_STOCK_EDIT, N_("Editor window"), "F3", N_("View editor window"), G_CALLBACK( OpenEditWindow ), FALSE },
+	{ "ViewSymbolsAction", GTK_STOCK_SELECT_FONT, N_("Symbols window"), "F4", N_("View symbols window"), G_CALLBACK( OpenSymbolsWindow ), FALSE },
+	{ "ViewBoolVarsAction", NULL, N_("Bit Status Window"), "F5", NULL, G_CALLBACK( OpenSpyBoolVarsWindow ), FALSE },
+	{ "ViewFreeVarsAction", NULL, N_("Watch Window"), "F6", NULL, G_CALLBACK( OpenSpyFreeVarsWindow ), FALSE },
 	//{ "ViewLogAction", NULL, "Log window", "F7", NULL, G_CALLBACK( OpenLogBookWindow ), FALSE },
 };
 
@@ -197,10 +199,10 @@ void SetToggleMenuForLogWindow( gboolean OpenedWin )
 void SetMenuStateForRunStopSwitch( gboolean Running )
 {
 	GtkWidget *Element = gtk_ui_manager_get_widget( uiManager, "/MenuBar/PLCAction/RunStopAction" );
-	gtk_menu_item_set_label( GTK_MENU_ITEM(Element), Running?"Stop":"Run" );
+	gtk_menu_item_set_label( GTK_MENU_ITEM(Element), Running?(_("Stop logic")):(_("Run logic")) );
 	
 	Element = gtk_ui_manager_get_widget( uiManager, "/ToolBar/RunStopAction" );
 	gtk_tool_button_set_stock_id(GTK_TOOL_BUTTON(Element), Running?GTK_STOCK_STOP:GTK_STOCK_EXECUTE );
-	gtk_tool_button_set_label( GTK_TOOL_BUTTON(Element), Running?"Stop":"Run" );
-	gtk_tool_item_set_tooltip_text( GTK_TOOL_ITEM(Element), Running?"Stop logic":"Run logic" );
+	gtk_tool_button_set_label( GTK_TOOL_BUTTON(Element), Running?(_("Stop")):(_("Run")) );
+	gtk_tool_item_set_tooltip_text( GTK_TOOL_ITEM(Element), Running?(_("Stop logic")):(_("Run logic")) );
 }
