@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:kinematics]]
-
 = Cinemática
 
 == Introducción
@@ -147,8 +146,7 @@ bípode (una versión simplificada del trípode, que es una version simplificada
 del hexápodo).
 
 .Configuración del bípode
-
-image::images/bipod.png[alt="Configuracion de Bipod"]
+image::images/bipod.png["Configuracion de Bipod"]
 
 El Bipod del que estamos hablando es un dispositivo que consta de 2 motores
 colocado en una pared, de la cual cuelga un dispositivo usando un cable. Las

@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:pncconf-wizard]]
-
 = Asistente de configuracion Mesa
 
 PNCconf está hecho para ayudar a construir configuraciones que utilizan productos específicos Mesa 'Anything I/O'.

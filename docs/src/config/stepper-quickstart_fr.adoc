@@ -1,7 +1,6 @@
 :lang: fr
 
 [[cha:stepper-quickstart]]
-
 = Configuration rapide pour moteurs pas à pas
 
 Cette section suppose qu'une installation du logiciel à partir du CD Live a été
@@ -16,20 +15,21 @@ Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsque le PC pilote une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
-Pour le lancer, suivre les instructions de la section <<cha:test-de-latence,
-sur le test de latence>>.
+Pour le lancer, suivre les instructions de la section <<cha:test-de-latence,sur le test de latence>>.
 
-== Sherline[[sec:Sherline]](((Sherline)))
+[[sec:Sherline]]
+== Sherline(((Sherline)))
 
 Si vous avez une machine Sherline plusieurs configurations prédéfinies sont fournies.
 Au premier démarrage de LinuxCNC, le sélecteur de configuration s'ouvre, sélectionnez 
 alors le modèle correspondant à votre machine _Sherline_, puis acceptez d'enregistrer une copie. 
 
-== Xylotex[[sec:Xylotex]](((Xylotex)))
+[[sec:Xylotex]]
+== Xylotex(((Xylotex)))
 
 Si vous avez une machine _Xylotex_ vous pouvez utiliser l'assistant graphique de 
 configuration fourni avec LinuxCNC et créer rapidement votre configuration 
-personnalisée <<cha:Assistant-graphique-StepConf, avec l'assistant Stepconf>>.
+personnalisée <<cha:stepconf-wizard,avec l'assistant Stepconf>>.
 
 == Informations relatives à la machine
 
@@ -49,7 +49,6 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[de linuxcnc.org].
 |X    |                |              |               |                   | 
 |Y    |                |              |               |                   | 
 |Z    |                |              |               |                   | 
-|     |                |              |               |                   | 
 |==============================================================================
 
 footnote:[ndt: les termes sont laissés dans la langue d'origine pour
@@ -93,7 +92,6 @@ taille du pas est utilisée par SCALE dans le fichier .ini.
 |X    |              |          |              |           | 
 |Y    |              |          |              |           | 
 |Z    |              |          |              |           | 
-|     |              |          |              |           | 
 |====================================================================
 
 _Pas par tour_ indique combien de pas moteur sont nécessaires pour que celui-ci 
@@ -119,11 +117,13 @@ vis d'entrainement de l'axe.
 
 Un exemple en pouces:
 
-     Moteur            = 200 pas par tour
-     Pilote            = 10 micropas par pas
-     Dents côté moteur = 20
-     Dents côté vis    = 40
-     Pas de vis        = 0.2000 pouces par tour
+----
+Moteur            = 200 pas par tour
+Pilote            = 10 micropas par pas
+Dents côté moteur = 20
+Dents côté vis    = 40
+Pas de vis        = 0.2000 pouces par tour
+----
 
 D'après les informations ci-dessus:
 
@@ -134,27 +134,28 @@ D'après les informations ci-dessus:
 
 Encore un autre exemple, en millimètres cette fois:
 
-     Pas par tour      = 200 pas par tour
-     Micropas          =   8 micropas
-     Dents côté moteur =  30
-     Dents côté vis    =  90
-     Pas de la vis     =   5.00 mm par tour
+----
+Pas par tour      = 200 pas par tour
+Micropas          =   8 micropas
+Dents côté moteur =  30
+Dents côté vis    =  90
+Pas de la vis     =   5.00 mm par tour
+----
 
 D'après les informations ci-dessus:
 
-- la vis déplacera le mobile de 5.00 mm par tour. 
-- Le moteur fera 3 tours pour 1 tour de vis. (90/30)
-- Le pilote utilisera 8 micropas pour faire un pas.
-- Le pilote aura besoin de 1600 impulsions pour un tour moteur
+ - la vis déplacera le mobile de 5.00 mm par tour. 
+ - Le moteur fera 3 tours pour 1 tour de vis. (90/30)
+ - Le pilote utilisera 8 micropas pour faire un pas.
+ - Le pilote aura besoin de 1600 impulsions pour un tour moteur
    et donc de 4800 pour 1 tour de vis.
 
 == Assistants de configuration graphique
 
  - Pour les moteurs pas à pas, voir la documentation de l'assistant graphique Stepconf 
-au chapitre <<cha:Assistant-graphique-StepConf, concernant cet assistant.>>
+   au chapitre <<cha:stepconf-wizard,concernant cet assistant>>.
  - Pour les servomoteurs et les moteurs pas à pas, voir la documentation de 
-l'assistant graphique PNCconf au chapitre <<cha:Assistant-graphique-PNCConf, relatif 
-à cet assistant>>
+   l'assistant graphique PNCconf au chapitre <<cha:pncconf-wizard,relatif à cet assistant>>.
 
 // vim: set syntax=asciidoc:
 

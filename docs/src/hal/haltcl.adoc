@@ -119,6 +119,7 @@ values and the initial (and possibly only) value in the list.
 In Tcl, this is written `[lindex $::SECTION(ITEM) 0]`.
 
 For example: given the following ini values
+
 ----
 [HOSTMOT2]
 DRIVER=hm2_eth
@@ -126,17 +127,23 @@ IPADDR="10.10.10.10"
 BOARD=7i92
 CONFIG="num_encoders=0 num_pwmgens=0 num_stepgens=6"
 ----
+
 And this loadrt command:
+
 ----
 loadrt $::HOSTMOT2(DRIVER) board_ip=$::HOSTMOT2(IPADDR) config=$::HOSTMOT2(CONFIG)
 ----
+
 Here is the actual command that is run:
+
 ----
 loadrt hm2_eth board_ip={"10.10.10.10"} config={"num_encoders=0 num_pwmgens=0 num_stepgens=6"}
 ----
+
 This fails because loadrt does not recognize the braces.
 
 So to get the values just as entered in the ini file, re-write the loadrt line like this:
+
 ----
 loadrt $::HOSTMOT2(DRIVER) board_ip=[lindex $::HOSTMOT2(IPADDR) 0] config=[lindex $::HOSTMOT2(CONFIG) 0]
 ----
@@ -243,3 +250,4 @@ to demonstrate a haltcl configuration in conjunction with the usage of
 twopass processing.  The example shows the use of tcl procedures, looping, the
 use of comments, and output to the terminal.
 
+// vim: set syntax=asciidoc:

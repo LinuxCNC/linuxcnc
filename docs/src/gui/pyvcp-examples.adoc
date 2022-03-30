@@ -517,4 +517,7 @@ MDI command.
 net rth halui.mdi-command-00 <= pyvcp.rth-button
 ----
 
-NOTE: Information about the <<sub:net, net>> command
+[NOTE]
+Information about the <<sub:net, net>> command
+
+// vim: set syntax=asciidoc:

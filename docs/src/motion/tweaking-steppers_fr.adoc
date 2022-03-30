@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Réglages des pas à pas
-
 [[cha:Reglages-de-pas-a-pas]]
+= Réglages des pas à pas
 
 == Obtenir le meilleur pilotage logiciel possible
 
@@ -38,6 +37,7 @@ de pas et de direction. Aussi vous avez besoin d'accéder (ou Google) à
 la fiche des spécifications techniques de votre carte.
 
 Par exemple, le manuel du Gecko G202 indique:
+
 ....
 Step Frequency: 0 to 200 kHz
 Step Pulse “0” Time: 0.5 µs min (Step on falling edge)
@@ -46,6 +46,7 @@ Direction Setup: 1 µs min (20 µs min hold time after Step edge)
 ....
 
 Les spécifications du Gecko G203V indiquent:
+
 ....
 Step Frequency: 0 to 333 kHz
 Step Pulse “0” Time: 2.0 µs min (Step on rising edge)
@@ -58,6 +59,7 @@ Direction setup:
 
 Un carte Xylotex donne dans ses données techniques un superbe graphe
 du timing nécessaire, il indique:
+
 ....
 Minimum DIR setup time before rising edge of STEP Pulse 200ns Minimum
 DIR hold time after rising edge of STEP pulse 200ns
@@ -226,5 +228,4 @@ aussi la fréquence de pas maximum que vous serez en mesure de générer.
 
 J'ai ajouté quelques petites choses à la feuille de calcul pour
 calculer la fréquence maximum et quelques autres calculs.
-
 

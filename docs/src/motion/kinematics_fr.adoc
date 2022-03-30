@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= La cinématique dans LinuxCNC
-
 [[cha:Cinematique]]
+= La cinématique dans LinuxCNC
 
 == Introduction
 
@@ -107,7 +106,6 @@ appelée bipode (une version simplifiée du tripode, qui est déjà une
 version simplifiée de l'hexapode).
 
 .Définir un bipode[[cap:Bipod-setup]]
-
 image::images/bipod.png[alt="Définir un bipode"]
 
 Le bipode dont nous parlons est un appareil, composé de deux moteurs
@@ -127,7 +125,8 @@ La tâche de la cinématique consistera à transformer les longueurs des
 articulations en (AD, BD) en coordonnées Cartésiennes (Dx, Dy) et
 vice-versa.
 
-=== Transformation avant[[sec:Forward-transformation]]
+[[sec:Forward-transformation]]
+=== Transformation avant
 
 Pour effectuer la transformation de l'espace articulation en espace
 Cartésien nous allons utiliser quelques règles de trigonomètrie (le
@@ -142,7 +141,6 @@ Si nous soustrayons l'un de l'autre nous aurons:
 et par conséquent: *x=(AD^2^-BD^2^+Bx^2^)/(2*Bx)*
 
 De là nous calculons: *y=sqrt(AD^2^-x^2^)*
-
 
 Noter que le calcul inclus la racine carrée de la différence, mais
 qu'il n'en résulte pas un nombre réel. Si il n'y a aucune coordonnée
@@ -161,7 +159,8 @@ pos->tran.y = sqrt(y2);
 return 0;
 ----
 
-=== Transformation inverse[[sec:Inverse-transformation]]
+[[sec:Inverse-transformation]]
+=== Transformation inverse
 
 La cinématique inverse est beaucoup plus simple dans notre exemple, de
 sorte que nous pouvons l'écrire directement:
@@ -171,6 +170,7 @@ sorte que nous pouvons l'écrire directement:
 *BD=sqrt((Bx-x)^2^+y^2^)*
 
 ou traduite en code:
+
 ----
 double x2 = pos->tran.x * pos->tran.x;
 double y2 = pos->tran.y * pos->tran.y;

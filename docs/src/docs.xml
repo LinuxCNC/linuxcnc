@@ -87,8 +87,6 @@
 <doc name="motion_tweaking_steppers" title="Tweaking Steppers"/>
 <doc name="motion_pid_theory" title="PID theory"/>
 <doc name="ladder_ladder_intro" title="Ladder Introduction"/>
-<doc name="ladder_classic_ladder" title="ClassicLadder"/>
-<doc name="ladder_ladder_examples" title="ClassicLadder Examples"/>
 <doc name="examples_pci-parallel-port" title="PCI Parallel Port"/>
 <doc name="examples_spindle" title="Spindle Example"/>
 <doc name="examples_mpg" title="MPG Example"/>
@@ -118,7 +116,6 @@
 <doc name="quickstart/stepper-quickstart_es.html" title="Démarrage rapide"/>
 <doc name="config/stepconf_es.html" title="L'assistant de configuration StepConf"/>
 <doc name="config/pncconf_es.html" title="L'assistant de configuration PncConf (pour les machines utilisant Mesa)"/>
-<doc name="config/copy-and-run_es.html" title="Copier et exécuter"/>
 <doc name="common/linux-faq_es.html" title="Petite FAQ Linux"/>
 <doc name="common/gpld-copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
@@ -127,22 +124,16 @@
 <doc name="common/user-intro_es.html" title="Introduction"/>
 <doc name="common/user-concepts_es.html" title="Concepts importantes pour l'utilisateur"/>
 <doc name="gui/axis_es.html" title="GUI: Axis"/>
-<doc name="gui/touchy_es.html" title="GUI: Touchy"/>
 <doc name="gui/ngcgui_es.html" title="GUI: NGCGUI"/>
-<doc name="gui/tklinuxcnc_es.html" title="GUI: TkLinuxCNC"/>
-<doc name="gui/mini_es.html" title="GUI: Mini"/>
 <doc name="common/machining-center_es.html" title="Informations Centre d'usinage"/>
 <doc name="gcode/overview_es.html" title="Aperçu G-code"/>
 <doc name="gcode/coordinates_es.html" title="Les systèmes de coordonnées"/>
 <doc name="gcode/tool-compensation_es.html" title="Les compensations d'outil"/>
-<doc name="gcode/main_es.html" title="Le langage G-code de LinuxCNC"/>
-<doc name="gcode/mill-canned_es.html" title="Les cycles préprogrammés"/>
 <doc name="lathe/lathe-user_es.html" title="Informations spécifiques aux tours"/>
 <doc name="gcode/rs274ngc_es.html" title="Le language G-code RS274/NGC"/>
 <doc name="examples/gcode_es.html" title="Exemples en G-code"/>
-<doc name="gui/image-to-gcode_es.html" title="Les fonctionnalités d'Image-to-gcode"/>
-<doc name="common/Glossary_es.html" title="Glossaire"/>
-<doc name="common/GPLD_Copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
+<doc name="common/glossary_es.html" title="Glossaire"/>
+<doc name="common/gpld-copyright.html" title="Copyright et Licence de la documentation (en anglais)"/>
 
 <doc name="common/overleaf.html" title="Texte de la page couverture (en anglais)"/>
 <doc name="hal/intro_es.html" title="Introduction à HAL"/>
@@ -154,7 +145,6 @@
 <doc name="hal/components_es.html" title="Exemples pour HAL"/>
 <doc name="hal/rtcomps_es.html" title="Les composants temps réel"/>
 <doc name="hal/parallel-port_es.html" title="Pilotes de port parallèle"/>
-<doc name="gui/halui_es.html" title="halui"/>
 <doc name="hal/hal-examples_es.html" title="Exemples pour HAL"/>
 <doc name="hal/comp_es.html" title="Comp: un outil de création de composants HAL"/>
 <doc name="hal/halmodule_es.html" title="Créer un espace utilisateur en Python avec le module 'hal'"/>
@@ -177,18 +167,11 @@
 <doc name="config/lathe-config_es.html" title="Tour de configuration"/>
 <doc name="config/emc2hal_es.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_es.html" title="Configuration pas à pas"/>
-<doc name="hal/pyvcp_es.html" title="Panneaux de commande virtuel Python (pyVCP)"/>
-<doc name="hal/pyvcp-examples_es.html" title="exemples pyVCP"/>
-<doc name="gui/gladevcp_es.html" title="Panneaux de commande virtuel Glade"/>
 <doc name="motion/kinematics_es.html" title="Notions de cinématique"/>
 <doc name="motion/tweaking-steppers_es.html" title="Réglage des moteurs pas à pas"/>
 <doc name="motion/pid-theory_es.html" title="Théorie du PID"/>
-<doc name="ladder/ladder-intro_es.html" title="Introduction au langage Ladder"/>
-<doc name="ladder/classic-ladder_es.html" title="ClassicLadder"/>
-<doc name="ladder/ladder-examples_es.html" title="Exemples ClassicLadder"/>
 <doc name="examples/pci-parallel-port_es.html" title="Exemple Ajouter un port parallèle PCI"/>
 <doc name="examples/spindle_es.html" title="Exemple contrôler la vitesse de la broche"/>
-<doc name="examples/mpg_es.html" title="Exemple Utiliser une manivelle électronique"/>
 <doc name="examples/gs2-example_es.html" title="Exemple GS2"/>
 <doc name="config/stepper-diagnostics_es.html" title="Pas à pas de diagnostic"/>
 <doc name="common/linux-faq_es.html" title="Petite FAQ Linux"/>
@@ -240,7 +223,7 @@
 <doc name="hal/halshow_fr.html" title="Les fonctionnalit&eacute;s de Halshow"/>
 <doc name="hal/components_fr.html" title="Liste des composants de HAL"/>
 <doc name="hal/rtcomps_fr.html" title="Les composants temps r&eacute;el"/>
-<doc name="hal/halui_fr.html" title="L'interface halui"/>
+<doc name="gui/halui_fr.html" title="L'interface halui"/>
 <doc name="hal/hal-examples_fr.html" title="Exemples pour HAL"/>
 <doc name="hal/comp_fr.html" title="Comp: un outil de cr&eacute;ation de composants HAL"/>
 <doc name="hal/halmodule_fr.html" title="Cr&eacute;er des composants de HAL pour l'espace utilisateur"/>
@@ -253,8 +236,8 @@
 <doc name="hal/haltcl_fr.html" title="Fichiers TCL pour HAL"/>
 <doc name="config/linuxcnc2hal_fr.html" title="Interface entre LinuxCNC et HAL"/>
 <doc name="config/stepper_fr.html" title="Configuration des moteurs pas &agrave; pas"/>
-<doc name="hal/pyvcp_fr.html" title="Panneaux de commande virtuels PyVCP"/>
-<doc name="hal/pyvcp-examples_fr.html" title="Exemples avec PyVCP"/>
+<doc name="gui/pyvcp_fr.html" title="Panneaux de commande virtuels PyVCP"/>
+<doc name="gui/pyvcp-examples_fr.html" title="Exemples avec PyVCP"/>
 <doc name="gui/gladevcp_fr.html" title="Outil de cr&eacute;ation d'interfaces graphiques GladeVCP"/>
 <doc name="hal/parallel-port_fr.html" title="Pilote de port parall&egrave;le"/>
 <doc name="drivers/AX5214H_fr.html" title="Pilote AX5214H"/>

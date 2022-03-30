@@ -1,7 +1,6 @@
 :lang: fr
 
-[[cha:Configuration-requise]]
-
+[[cha:system-requirements]]
 = Configuration requise
 
 == Configuration minimale
@@ -15,7 +14,8 @@ l'esprit que les valeurs retournées par le test de latence (Latency
 Test), sont plus importantes que la vitesse du microprocesseur pour la génération
 logicielle des pas. Plus d'informations à ce propos dans la section
 relative au <<cha:test-de-latence, test de latence>>.
-De surcroît, LinuxCNC a besoin d'être exécuté sur un noyau modifié. Voir <<Noyau_et_version_requise,Noyau et version requise>>
+De surcroît, LinuxCNC a besoin d'être exécuté sur un noyau modifié.
+Voir <<sec:kernel_and_version_requirements,Noyau et version requise>>.
 
 Des informations additionnelles sont disponibles sur le
 http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Hardware_Requirements[wiki de linuxcnc.org.]
@@ -42,7 +42,7 @@ Pensez à regarder sur le site de https://www.debian.org/releases/stable/amd64/c
 pour le Live-CD que vous utilisé. Du matériel plus ancien peut bénéficier d'une
 version plus ancienne du Live-CD
 
-[[Noyau_et_version_requise]]
+[[sec:kernel_and_version_requirements]]
 == Noyau et version requise
 
 LinuxCNC a besoin d'un noyau modifié pour une utilisation en temps réel
@@ -57,9 +57,9 @@ Les options temps réel du noyau sont: "preempt-rt", "RTAI" et "Xenomai"
 
 Pour savoir la version de votre noyau, utiliser la commande suivante dans un terminal:
 
- uname -a
+  uname -a
 
- === Preempt-RT avec linuxcnc-uspace
+=== Preempt-RT avec linuxcnc-uspace
 
 Preempt-RT est le plus récent des systèmes temps réel, il est aussi
 le plus proche du noyau principal. Preempt-RT est disponible déjà compilé dans les
@@ -68,7 +68,6 @@ Preempt-RT posséde généralement le meilleur support de driver et est la seule
 faire fonctionner les cartes MESA en ethernet. Preempt-RT posséde la pire latence,
 mais des exceptions existent.
 
-
 === RTAI avec linuxcnc
 
 RTAI était l'option temps réel la plus utilisée. Il donne généralement les meilleurs
@@ -76,7 +75,6 @@ performances en latence, mais offre un support des périphériques plus pauvre
 et moins de choix sur les résolutions d'écrans. Un noyau RTAI est disponible dans les
 dépots de LinuxCNC. Si vous avez installé depuis un Live-CD, passer sur le noyau
 LinuxCNC est décrit dans [Installer-RTAI].
-
 
 === Xenomai avec linuxcnc-uspace
 

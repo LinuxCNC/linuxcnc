@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Réglages d'une boucle PID
-
 [[cha:Regulation-PID]]
+= Réglages d'une boucle PID
 
 == Régulation à PID
 

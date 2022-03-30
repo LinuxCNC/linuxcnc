@@ -150,7 +150,8 @@ to connect hal pins that are created by the GUI.  When using a postgui halfile w
 TWOPASS processing, include all loadrt items for components added by postgui halfiles
 in a separate halfile that is processed before the GUI.  The addf commands can also
 be included in the file.
-Example:
+
+.Example:
 ----
 [HAL]
 TWOPASS = on
@@ -189,7 +190,7 @@ While the order of loadrt directives is not usually critical,
 ordering of addf directives is often very important for proper
 operation of servo loop components.
 
-Excluded '.hal' file example:
+.Excluded '.hal' file example:
 ----
 $ cat twopass_excluded.hal
 # The following magic comment causes this file to
@@ -222,3 +223,5 @@ Examples of TWOPASS usage for a simulator are included in the directories:
    configs/sim/axis/twopass/
 
    configs/sim/axis/simtcl/
+
+// vim: set syntax=asciidoc:

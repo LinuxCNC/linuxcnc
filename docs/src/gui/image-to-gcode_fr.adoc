@@ -1,9 +1,10 @@
 :lang: fr
 :toc:
 
+[[cha:image-to-g-code]]
 = Image-to-gcode: Usiner un depth maps
 
-image::images/image-to-gcode.png[alt="Image-to-gcode: Usiner un depth maps"]
+image::images/image-to-gcode.png["Image-to-gcode: Usiner un depth maps"]
 
 == Qu'est-ce qu'un _depth map_?
 
@@ -16,6 +17,7 @@ l'objet.
 Ajoutez les lignes suivantes dans la section: _[FILTER]_ de votre
 fichier .ini pour qu'AXIS invoque automatiquement
 image-to-gcode à l'ouverture d'une image .png, .gif, ou .jpg:
+
 ----
 PROGRAM_EXTENSION = .png,.gif,.jpg Grayscale Depth Image
 ----
@@ -28,6 +30,7 @@ cette façon.
 image-to-gcode peut être démarré soit en ouvrant une image dans AXIS,
 soit en invoquant image-to-gcode dans une console, de la manière
 suivante:
+
 ----
 image-to-gcode torus.png > torus.ngc
 ----
@@ -107,15 +110,15 @@ Modèles de balayage possibles:
 
 Directions de balayage possibles:
 
- -  Positive: le fraisage commence à de petites valeurs de X ou Y et se
+ - Positive: le fraisage commence à de petites valeurs de X ou Y et se
    poursuit avec des valeurs croissantes.
- -  Négative: le fraisage commence à des valeurs élevées de X ou Y et se
+ - Négative: le fraisage commence à des valeurs élevées de X ou Y et se
    poursuit avec des valeurs décroissantes.
- -  Alternative: le fraisage commence aux valeurs de X ou Y où s'est
+ - Alternative: le fraisage commence aux valeurs de X ou Y où s'est
    terminé le dernier mouvement. Cela réduit les déplacements _en l'air_.
- -  Up Milling: le fraisage commence en points bas et se poursuit vers les
+ - Up Milling: le fraisage commence en points bas et se poursuit vers les
    points hauts.
- -  Down Milling: le fraisage commence en points hauts et se poursuit vers
+ - Down Milling: le fraisage commence en points hauts et se poursuit vers
    les points bas.
 
 === Depth (unités)
@@ -183,7 +186,7 @@ ci-dessous montre une grande profondeur verticale à
 usiner. Sur cette image, la profondeur des passes d'ébauche est de 0.2
 pouces et Roughing Offset de 0.1 pouces.
 
-.Passes d'ébauche[[cap:Passes-Ebauche]]
-
-image::images/i2g-roughing.png[alt="Passes d'ébauche"]
+[[cap:Passes-Ebauche]]
+.Passes d'ébauche
+image::images/i2g-roughing.png["Passes d'ébauche"]
 

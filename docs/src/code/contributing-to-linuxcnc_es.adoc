@@ -8,21 +8,17 @@ Este documento contiene información para desarrolladores sobre la  infraestruct
 
 En este documento, "fuente" significa tanto el código fuente de programas y bibliotecas, como el texto fuente para la documentación.
 
-
 == Comunicación entre desarrolladores de LinuxCNC
 
 Las dos formas principales en que los desarrolladores de proyectos se comunican entre sí son:
 
 * Vía IRC, en #linuxcnc-devel en FreeNode.
-
 * Por correo electrónico, en la lista de correo de los desarrolladores:
   https://lists.sourceforge.net/lists/listinfo/emc-developers
-
 
 == El proyecto LinuxCNC Source Forge
 
 Utilizamos Source Forge para las listas de correo: http://sourceforge.net/p/emc/mailman/
-
 
 == El Sistema de Control de Revisiones git
 
@@ -35,7 +31,9 @@ El repositorio oficial git de LinuxCNC está en https://github.com/linuxcnc/linu
 
 Cualquiera puede obtener una copia de solo lectura del árbol fuente LinuxCNC a través de git:
 
-`git clone https://github.com/linuxcnc/linuxcnc linuxcnc-dev`
+----
+git clone https://github.com/linuxcnc/linuxcnc linuxcnc-dev
+----
 
 Si usted es un desarrollador con acceso push, entonces siga las instrucciones de github para configurar un repositorio desde el que pueda hacer push.
 
@@ -73,13 +71,10 @@ documentación de seguimiento también está disponible en línea aquí:
 
 * tutorial de git:
   https://www.kernel.org/pub/software/scm/git/docs/gittutorial.html
-
 * tutorial git 2:
   https://www.kernel.org/pub/software/scm/git/docs/gittutorial-2.html
-
 * Everyday git with 20 commands or so:
   https://www.kernel.org/pub/software/scm/git/docs/giteveryday.html
-
 * Manual del usuario de Git:
   https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
 
@@ -90,7 +85,6 @@ http://git-scm.com/book donde hay versiones en varios idiomas, incluido Español
 Otro tutorial en línea que se ha recomendado es "Git for the Lazy":
 http://wiki.spheredev.org/Git_for_the_lazy
 
-
 == Descripción general del proceso
 
 La descripción general de alto nivel de cómo contribuir con cambios a la fuente es
@@ -98,49 +92,37 @@ la siguiente:
 
 * Comunicarse con los desarrolladores del proyecto e informarles en que está
   trabajando.
-
 * Clonar el repositorio git
-
 * Realizar sus cambios en una rama local, asegurándose de "cerrar" sus
   commits de acuerdo con nuestra política de aprobación (ver más abajo).
-
 * Agregar documentación y pruebas es una parte importante al agregar una nueva
   característica. De lo contrario, otros no sabrán cómo usar su función, y
   si otros cambios corrompen su función, puede pasar desapercibidos sin una prueba.
-
 * Comparta sus cambios con los otros desarrolladores de proyectos de una de estas
   maneras:
-
 ** Haga push de su rama a github y cree una solicitud de extracción pull de github
    a https://github.com/linuxcnc/linuxcnc (esto requiere una cuenta github)
-
 ** Haga push de su rama a un repositorio de git visible públicamente (como github,
    bitbucket, su propio servidor de acceso público, etc.) y comparta su
    ubicación en la lista de correo de emc-developers, o
-
 ** Envíe sus confirmaciones por correo electrónico a la lista de correo de 
    emc-developers (use `git format-patch` para crear parches)
-
 * Defienda su parche
-
 ** Explique qué problema aborda y por qué debería incluirse en LinuxCNC
-
 ** Sea receptivo a las preguntas y comentarios de la comunidad de desarrolladores.
-
 ** No es raro que un parche pase por varias revisiones antes de ser aceptado
-
 
 == Configuración de git
 
 Para ser considerada la inclusión en las fuentes de LinuxCNC, los commits deben tener campos de Autor correctos que identifiquen al autor del commit.
 Una buena manera de garantizar esto es establecer su configuración global de git:
 
-`git config --global user.name "Su nombre completo"`
-
-`git config --global user.email "SuCorreo@example.com"`
+----
+git config --global user.name "Su nombre completo"
+git config --global user.email "SuCorreo@example.com"
+----
 
 Use su nombre real (no un identificador) y una dirección de correo electrónico clara.
-
 
 == Uso efectivo de git
 
@@ -154,11 +136,13 @@ Mantenga los mensajes de commits alrededor de 72 columnas de ancho (de modo que 
 
 Use la primera línea como un resumen de la intención del cambio (casi como la línea de asunto de un correo electrónico). Sígalo con una línea en blanco, y luego un mensaje más largo explicando el cambio. Ejemplo:
 
-    Deshacerse de RTAPI_SUCCESS, usar 0 en su lugar
+----
+Deshacerse de RTAPI_SUCCESS, usar 0 en su lugar
 
-    La prueba "retval < 0" debería ser familiar; es el mismo tipo de
-    prueba que se utiliza en el espacio de usuario (devuelve -1 para error) y 
-    en el espacio de kernel (devuelve -ERRNO para error)
+La prueba "retval < 0" debería ser familiar; es el mismo tipo de
+prueba que se utiliza en el espacio de usuario (devuelve -1 para error) y 
+en el espacio de kernel (devuelve -ERRNO para error)
+----
 
 === Commit a la rama adecuada
 
@@ -221,9 +205,7 @@ Utilice `git pull --rebase` en lugar de` git pull` para mantener un buen histori
 Hay muchas formas de contribuir a LinuxCNC, que no se abordan en este documento. Estas formas incluyen:
 
 * Responder preguntas en el foro, listas de correo y en IRC
-
 * Informar errores en el seguidor de errores, foro, listas de correo o en IRC
-
 * Ayudando a probar características experimentales
 
 // vim: set syntax=asciidoc:

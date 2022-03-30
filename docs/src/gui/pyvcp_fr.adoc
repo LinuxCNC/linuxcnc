@@ -60,7 +60,7 @@ aucune balise <halpin> n'était présente à l'intérieur de la balise
 panneau.led.0
 
 Pour obtenir la liste des widgets, leurs balises et options, consultez
-<<sec:Documentation-des-widgets, la documentation des widgets>>.
+<<sec:Documentation-des-widgets,la documentation des widgets>>.
 
 Un fois que vous avez créé votre panneau, connectez lui les signaux HAL, vers
 et à partir des pins pyVCP et avec la commande habituelle:
@@ -69,8 +69,9 @@ et à partir des pins pyVCP et avec la commande habituelle:
 net <signal-name> <pin-name> <opt-direction> <opt-pin-name>signal-name
 ----
 
-Si vous débutez avec HAL, <<cha:Tutoriel-HAL,le tutoriel de HAL>> est
-vivement recommandé.
+//<<cha:hal-tutorial,le tutoriel de HAL>> - no idea why this fails, should not
+Si vous débutez avec HAL, le tutoriel de HAL
+est vivement recommandé.
 
 == Sécurité avec pyVCP
 
@@ -80,8 +81,7 @@ programmes Python. N'utilisez que des fichiers pyVCP en .xml à partir
 d'une source de confiance.tag
 
 [[sec:pyvcp-avec-axis]]
-== Utiliser pyVCP avec AXIS
-(((PyVCP avec Axis)))
+== Utiliser pyVCP avec AXIS(((PyVCP avec Axis)))
 
 Puisque AXIS utilise le même environnement graphique et les même
 outils (Tkinter) que pyVCP, il est possible d'inclure un panneau pyVCP
@@ -110,7 +110,7 @@ Ici nous avons fait un panneau avec un label _Vitesse broche:_ et un
 widget barre de progression. Nous avons spécifié que la pin HAL
 connectée à la barre de progression devait s'appeler _spindle-speed_ et
 régler la valeur maximum de la barre à 5000 (se reporter à la
-<<sec:Documentation-des-widgets, documentation des widgets>>, pour toutes
+<<sec:Documentation-des-widgets,documentation des widgets>>, pour toutes
 les options disponibles). Pour faire connaître ce fichier à AXIS et qu'il
 l'appelle au démarrage, nous devons préciser ce qui suit dans la section
 [DISPLAY] du fichier .ini:
@@ -233,7 +233,8 @@ fermé avant de continuer avec d'autres commandes. C'est généralement défini
 comme étant la dernière commande, de sorte que HAL s'arrêtera si le panneau
 est fermé.
 
-== Documentation des widgets de pyVCP[[sec:Documentation-des-widgets]](((Documentation des widgets)))
+[[sec:Documentation-des-widgets]]
+== Documentation des widgets de pyVCP(((Documentation des widgets)))
 
 Les signaux de HAL existent en deux variantes, BIT et FLOAT. pyVCP
 peut afficher la valeur d'un signal avec un widget indicateur, ou

@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:user-foreword]]
-
 = Prefacio para el usuario
 
 LinuxCNC es modular y flexible. Estos atributos llevan a muchas personas a verlo como un revoltijo confuso de pequeñas cosas y se preguntan por qué es así.

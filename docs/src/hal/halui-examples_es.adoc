@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:halui-examples]]
-
 = Ejemplos Halui
 
 Para que funcionen los ejemplos de Halui, debe agregar la siguiente línea a la
@@ -12,7 +11,6 @@ HALUI = halui
 ----
 
 [[sec:halui-remote-start]]
-
 == Arranque remoto
 
 Para conectar un botón de inicio de programa remoto a LinuxCNC, utilice los
@@ -77,7 +75,6 @@ Dificultades en el tiempo
  - La señal de retorno de entrada "resume" no debe ser
    más larga que el tiempo requerido para obtener el código g
    corriendo de nuevo.
-
  - La salida "is-paused" ya no debería estar activa
    para cuando termina la señal de "resume".
 

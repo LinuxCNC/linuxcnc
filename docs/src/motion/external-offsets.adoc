@@ -26,13 +26,13 @@ For each axis letter (*L* in xyzabcuvw):
 . If nonzero, the  OFFSET_AV_RATIO (*r*), adjusts the conventional (planning) max
   velocity and acceleration to preserve [AXIS_L] constraints:
 
----
-  planning max velocity        = (1-r) * MAX_VELOCITY
-  external offset velocity     = (  r) * MAX_VELOCITY
+----
+planning max velocity        = (1-r) * MAX_VELOCITY
+external offset velocity     = (  r) * MAX_VELOCITY
 
-  planning max acceleration    = (1-r) * MAX_ACCELERATIOIN
-  external offset acceleration = (  r) * MAX_ACCELERATION
----
+planning max acceleration    = (1-r) * MAX_ACCELERATIOIN
+external offset acceleration = (  r) * MAX_ACCELERATION
+----
 
 == Hal Pins
 

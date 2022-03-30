@@ -155,8 +155,7 @@ IPM en la dirección negativa. Tenga en cuenta que podemos obtener el valor abso
 desde el pin abs.0.out o la señal X-IPM.
 
 .Ejemplo cálculo de velocidad[[cap:Velocity-Example]]
-
-image::images/velocity-01.png[alt="Ejemplo Velocidad"]
+image::images/velocity-01.png["Ejemplo Velocidad"]
 
 == Arranque suave
 
@@ -173,9 +172,7 @@ el valor del comando PID cambiará a nuevos valores más lentamente.
 Los tres componentes integrados que limitan una señal son:
 
 * 'limit2' limita el rango y la primera derivada de una señal.
-
 * 'limit3' limita el rango, primera y segunda derivada de una señal.
-
 * 'lowpass' utiliza un promedio móvil ponderado exponencialmente para rastrear una señal de entrada.
 
 Para encontrar más información sobre estos componentes HAL, consulte las páginas del manual.
@@ -229,8 +226,7 @@ Para separar las señales para que pueda verlas mejor, haga clic en un canal y
 luego use el control deslizante Pos en el cuadro Vertical para establecer las posiciones.
 
 .Arranque suave[[cap:Softstart]]
-
-image::images/softstart-scope.png[alt="Softstart"]
+image::images/softstart-scope.png["Softstart"]
 
 To see the effect of changing the set point values of any of the
 components you can change them in the terminal window. To see what
@@ -254,16 +250,6 @@ interferir con la carga de LinuxCNC.
 
 Para obtener más información sobre Halscope, consulte el manual de HAL.
 
-== Stand Alone HAL
-
-In some cases you might want to run a GladeVCP screen with just HAL. For
-example say you had a stepper driven device that all you need is to run a
-stepper motor. A simple 'Start/Stop' interface is all you need for your
-application so no need to load up and configure a full blown CNC application.
-
-In the following example we have created a simple GladeVCP panel with one 
-
-.Basic Syntax
 == HAL independiente
 
 En algunos casos, es posible que desee ejecutar una pantalla GladeVCP solo con HAL. Por

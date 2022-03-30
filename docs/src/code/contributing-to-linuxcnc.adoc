@@ -11,21 +11,17 @@ and documentation updates to the LinuxCNC project.
 Throughout this document, "source" means both the source code to the
 programs and libraries, and the source text for the documentation.
 
-
 == Communication among LinuxCNC developers
 
 The two main ways that project developers communicate with each other are:
 
 * Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel on Libera.chat].
-
 * Via email, on the developers' mailing list:
   https://lists.sourceforge.net/lists/listinfo/emc-developers
-
 
 == The LinuxCNC Source Forge project
 
 We use Source Forge for mailing lists: http://sourceforge.net/p/emc/mailman/
-
 
 == The git Revision Control System
 
@@ -38,7 +34,9 @@ The official LinuxCNC git repo is at http://github.com/linuxcnc/linuxcnc/
 
 Anyone can get a read-only copy of the LinuxCNC source tree via git:
 
-`git clone https://github.com/linuxcnc/linuxcnc linuxcnc-dev`
+----
+git clone https://github.com/linuxcnc/linuxcnc linuxcnc-dev
+----
 
 If you are a developer with push access, then follow github's instructions
 for setting up a repository that you can push from.
@@ -74,7 +72,6 @@ features (specifically well isolated device drivers and documentation)
 may (at the discretion of the stable branch release managers) go into
 a stable branch and get merged up just like bugfixes do.
 
-
 === git tutorials
 
 There are many excellent, free git tutorials on the internet.
@@ -86,13 +83,10 @@ follow-on documentation are also available online here:
 
 * git tutorial:
   https://www.kernel.org/pub/software/scm/git/docs/gittutorial.html
-
 * git tutorial 2:
   https://www.kernel.org/pub/software/scm/git/docs/gittutorial-2.html
-
 * Everyday git with 20 commands or so:
   https://www.kernel.org/pub/software/scm/git/docs/giteveryday.html
-
 * Git User's Manual:
   https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
 
@@ -102,7 +96,6 @@ http://git-scm.com/book
 Another online tutorial that has been recommended is "Git for the Lazy":
 http://wiki.spheredev.org/Git_for_the_lazy
 
-
 == Overview of the process
 
 The high-level overview of how to contribute changes to the source goes
@@ -110,35 +103,24 @@ like this:
 
 * Communicate with the project developers and let us know what you're
   hacking on
-
 * Clone the git repo
-
 * Make your changes in a local branch, making sure you "sign off" your commits
   according to our signed-off-by policy (see below).
-
 * Adding documentation and tests is an important part of adding a new
   feature.  Otherwise, others won't know how to use your feature, and
   if other changes break your feature it can go unnoticed without a test.
-
 * Share your changes with the other project developers in one of these ways:
-
 ** Push your branch to github and create a github pull request to
    https://github.com/linuxcnc/linuxcnc (this requires a github account)
-
 ** Push your branch to a publicly visible git repo (such as github,
    bitbucket, your own publicly-accessible server, etc) and share that
    location on the emc-developers mailing list, or
-
 ** Email your commits to the emc-developers mailing list (use `git
    format-patch` to create the patches)
-
 * Advocate for your patch
-
 ** Explain what problem it addresses and why it should be included
    in LinuxCNC
-
 ** Be receptive to questions and feedback from the developer community.
-
 ** It is not uncommon for a patch to go through several revisions before
    it is accepted.
 
@@ -149,9 +131,10 @@ In order to be considered for inclusion in the LinuxCNC source, commits
 must have correct Author fields identifying the author of the commit.
 A good way to ensure this is to set your global git config:
 
-`git config --global user.name "Your full name"`
-
-`git config --global user.email "you@example.com"`
+----
+git config --global user.name "Your full name"
+git config --global user.email "you@example.com"
+----
 
 Use your real name (not a handle), and use an unobfuscated e-mail address.
 
@@ -172,11 +155,13 @@ Use the first line as a summary of the intent of the change (almost
 like the subject line of an e-mail).  Follow it with a blank line,
 then a longer message explaining the change.  Example:
 
-    Get rid of RTAPI_SUCCESS, use 0 instead
+----
+Get rid of RTAPI_SUCCESS, use 0 instead
 
-    The test "retval < 0" should feel familiar; it's the same kind of
-    test you use in userspace (returns -1 for error) and in kernel space
-    (returns -ERRNO for error)
+The test "retval < 0" should feel familiar; it's the same kind of
+test you use in userspace (returns -1 for error) and in kernel space
+(returns -ERRNO for error)
+----
 
 === Commit to the proper branch
 
@@ -296,8 +281,7 @@ There are many ways  to contribute to LinuxCNC, that are not addressed
 by this document.  These ways include:
 
 * Answering questions on the forum, mailing lists, and in IRC
-
 * Reporting bugs on the bug tracker, forum, mailing lists, or in IRC
-
 * Helping test experimental features
 
+// vim: set syntax=asciidoc:

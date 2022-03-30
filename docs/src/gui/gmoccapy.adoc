@@ -75,31 +75,32 @@ There is really not to much to configure just to run gmoccapy, but there are som
 you should take care off if you want to use all the features of the GUI.
 
 You will find a lot of simulation configurations (INI files) included, just to show the basics: +
- +
- * gmoccapy.ini +
- * gmoccapy_4_axis.ini +
- * lathe_configs/gmoccapy_lathe.ini +
- * lathe_configs/gmoccapy_lathe_imperial.ini +
- * gmoccapy_left_panel.ini +
- * gmoccapy_right_panel.ini +
- * gmoccapy_messages.ini +
- * gmoccapy_pendant.ini +
- * gmoccapy_sim_hardware_button.ini +
- * gmoccapy_tool_sensor.ini +
- * gmoccapy_with_user_tabs.ini +
- * gmoccapy_XYZAB.ini +
- * gmoccapy_XYZAC.ini +
- * gmoccapy_XYZCW.ini +
- * gmoccapy-JA/Gantry/gantry_mm.ini +
- * gmoccapy-JA/scara/scara.ini +
- * gmoccapy-JA/table-rotary-tilting/xyzac-trt.ini +
- * and a lot more ... +
- +
-The names should explain the main intention of the different INI Files. +
 
-If you use an existing configuration of your machine, just edit your INI according to this document. +
+ * gmoccapy.ini
+ * gmoccapy_4_axis.ini
+ * lathe_configs/gmoccapy_lathe.ini
+ * lathe_configs/gmoccapy_lathe_imperial.ini
+ * gmoccapy_left_panel.ini
+ * gmoccapy_right_panel.ini
+ * gmoccapy_messages.ini
+ * gmoccapy_pendant.ini
+ * gmoccapy_sim_hardware_button.ini
+ * gmoccapy_tool_sensor.ini
+ * gmoccapy_with_user_tabs.ini
+ * gmoccapy_XYZAB.ini
+ * gmoccapy_XYZAC.ini
+ * gmoccapy_XYZCW.ini
+ * gmoccapy-JA/Gantry/gantry_mm.ini
+ * gmoccapy-JA/scara/scara.ini
+ * gmoccapy-JA/table-rotary-tilting/xyzac-trt.ini
+ * and a lot more ...
 
-IMPORTANT: If you want to use <<gmoccapy:macros,MACROS>>, don't forget to set the path to your macros or
+The names should explain the main intention of the different INI Files.
+
+If you use an existing configuration of your machine, just edit your INI according to this document.
+
+[IMPORTANT]
+ If you want to use <<gmoccapy:macros,MACROS>>, don't forget to set the path to your macros or
 subroutines folder as described below.
 
 So let us take a closer look to the the INI file and what you need to include
@@ -108,24 +109,26 @@ to use gmoccapy on your machine: +
 [[gmoccapy:display-section]]
 === The DISPLAY Section
 
- [DISPLAY]
- DISPLAY = gmoccapy
- PREFERENCE_FILE_PATH = gmoccapy_preferences
- MAX_FEED_OVERRIDE = 1.5
- MAX_SPINDLE_OVERRIDE = 1.2
- MIN_SPINDLE_OVERRIDE = 0.5
- LATHE = 1
- BACK_TOOL_LATHE = 1
- PROGRAM_PREFIX = ../../nc_files/
-
-''''
+----
+[DISPLAY]
+DISPLAY = gmoccapy
+PREFERENCE_FILE_PATH = gmoccapy_preferences
+MAX_FEED_OVERRIDE = 1.5
+MAX_SPINDLE_OVERRIDE = 1.2
+MIN_SPINDLE_OVERRIDE = 0.5
+LATHE = 1
+BACK_TOOL_LATHE = 1
+PROGRAM_PREFIX = ../../nc_files/
+----
 
 The most important part is to tell LinuxCNC to use gmoccapy, editing the [DISPLAY] section.
 
- [DISPLAY]
- DISPLAY = gmoccapy
+----
+[DISPLAY]
+DISPLAY = gmoccapy
 
- PREFERENCE_FILE_PATH = gmoccapy_preferences
+PREFERENCE_FILE_PATH = gmoccapy_preferences
+----
 
 gmoccapy 3 does support the following command line options:
 
@@ -175,7 +178,7 @@ The second line is optional and will switch the X axis in a way you need for a
 back tool lathe. Also the keyboard shortcuts will react in a different way. It is allowed with gmoccapy to configuer a lathe also with additional axis, so you may use also a XZCW config for a lathe.
 
 [TIP]
-See also the <<gmoccapy:lathe-section, Lathe Specific Section>>
+See also the <<gmoccapy:lathe-section,Lathe Specific Section>>
 
 * PROGRAM_PREFIX = ../../nc_files/
 
@@ -187,7 +190,6 @@ linuxcnc/nc_files and then the users home directory.
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
 .Configuration of tabs and side panels
-
 You can add embedded programs to gmoccapy like you can do in axis, touchy and
 gscreen. All is done by gmoccapy automatically if you include a few lines in
 your INI file in the DISPLAY section.
@@ -196,15 +198,14 @@ If you never used a glade panel, I recommend to read the excellent documentation
 http://www.linuxcnc.org/docs/html/gui/gladevcp.html[Glade VCP]
 
 .Example
-
 ----
- EMBED_TAB_NAME = DRO
- EMBED_TAB_LOCATION = ntb_user_tabs
- EMBED_TAB_COMMAND = gladevcp -x {XID} dro.glade
+EMBED_TAB_NAME = DRO
+EMBED_TAB_LOCATION = ntb_user_tabs
+EMBED_TAB_COMMAND = gladevcp -x {XID} dro.glade
 
- EMBED_TAB_NAME = Second user tab
- EMBED_TAB_LOCATION = ntb_preview
- EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade
+EMBED_TAB_NAME = Second user tab
+EMBED_TAB_LOCATION = ntb_preview
+EMBED_TAB_COMMAND = gladevcp -x {XID} vcp_box.glade
 ----
 
 All you have to take care off, is that you include for every tab or side panel
@@ -212,11 +213,9 @@ the mentioned three lines,
 
 * EMBED_TAB_NAME = Represents the name of the tab or side panel, it is up to you
   what name you use, but it must be present!
-
-
 * EMBED_TAB_LOCATION = Is the place where your program will be placed in the GUI.
 
-.valid values are:
+Valid values are:
 
 * ntb_user_tabs            (as main tab, covering the complete screen)'
 * ntb_preview              (as tab on the preview side)'
@@ -267,23 +266,18 @@ postgui hal file specified in your INI file, because this pin do not exist prior
 Here are some examples:
 
 .ntb_preview - as maximized version
-
 image::images/gmoccapy_ntb_preview_maximized_2.png[align="left"]
 
 .ntb_preview
-
 image::images/gmoccapy_ntb_preview.png[align="left"]
 
 .box_left - showing gmoccapy in edit mode
-
 image::images/gmoccapy_with_left_box_in_edit_mode.png[align="left"]
 
 .box_right - and gmoccapy in MDI mode
-
 image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
 
 .Configuration of User Created Messages
-
 Gmoccapy has the ability to create hal driven user messages. To use them you
 need to introduce some lines in the [DISPLAY] section of the INI file.
 
@@ -299,10 +293,8 @@ MESSAGE_PINNAME = is the name of the hal pin group to be created
 
  * 'status' : Will just display a message as pop up window, using the messaging
    system of gmoccapy
-
  * 'okdialog' : Will hold focus on the message dialog and will activate a
-  "-waiting" Hal_Pin OUT. Closing the message will reset the waiting pin
-
+   "-waiting" Hal_Pin OUT. Closing the message will reset the waiting pin
  * 'yesnodialog' : Will hold focus on the message dialog and will activate
    a "-waiting" Hal_Pin bit OUT it will also give access to an "-response"
    Hal_Pin Bit Out, this pin will hold 1 if the user clicks OK, and in all
@@ -461,7 +453,7 @@ pins are available. +
 You can have multiple line of 'POSTGUI_HALFILE=<filename>' in the INI. +
 Each will be run one after the other in the order they appear. +
 
-See <<gmoccapy:configuration-of-tabs-and-side-panels, Tabs and side panels>> for details.
+See <<gmoccapy:configuration-of-tabs-and-side-panels,Tabs and side panels>> for details.
 
 === Right And Bottom Button Lists
 
@@ -1044,7 +1036,6 @@ MAXPROBE =  -20
 ----
 
 .The Change Position Section
-
 This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
 will interfere otherwise.* The position to move the machine before giving the
 change tool command. All values are in absolute coordinates.
@@ -1154,22 +1145,22 @@ Main Window::
 * start maximized
 * start as window
     +
-    If you select start as window the spinboxes to set the position and size will get active. +
-    One time set, the GUI will start every time on the place and with the size selected. +
-    Nevertheless the user can change the size and position using the mouse, but that will +
-    not have any influence on the settings. +
+    If you select start as window the spinboxes to set the position and size will get active.
+    One time set, the GUI will start every time on the place and with the size selected.
+    Nevertheless the user can change the size and position using the mouse, but that will
+    not have any influence on the settings.
 
 '*hide the cursor*' does allow to hide the cursor, what is very useful if you
 use a touch screen.
 
 Keyboard::
-    The check-boxes allows the user to select if he want the on board keyboard to be shown immediately, +
-    when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program +
-    in the EDIT mode. The keyboard button on the bottom button list will not been affected by this settings, +
-    so you be able to show or hide the keyboard by pressing the button. The default behavior will be set by +
+    The check-boxes allows the user to select if he want the on board keyboard to be shown immediately,
+    when entering the MDI Mode, when entering the offset page, the tooledit widget or when open a program
+    in the EDIT mode. The keyboard button on the bottom button list will not been affected by this settings,
+    so you be able to show or hide the keyboard by pressing the button. The default behavior will be set by
     the check-boxes. +
     +
-    Default are : +
+    Default are :
 
 [NOTE]
 If this section is not sensitive, you have not installed a virtual keyboard,
@@ -1289,8 +1280,7 @@ to fix that in a future release.
 [NOTE]
 The grid will not be shown in perspective view.
 
-'Show DRO' +
-Will show the a DRO also in the preview window, it will be shown automatically in fullsize preview
+'Show DRO' Will show the a DRO also in the preview window, it will be shown automatically in fullsize preview
 
 'Show DTG' will show also the DTG (direct distance to end point) in the
 preview, only if Show DRO is active and not full size preview.
@@ -1549,11 +1539,9 @@ to the special needs for a lathe. Mainly the Y axis will be hidden and the
 jog buttons will be arranged in a different order.
 
 .Normal Lathe
-
 image::images/gmoccapy_lathe.png[align="left"]
 
 .Back Tool Lathe
-
 image::images/gmoccapy_back_tool_lathe.png[align="left"]
 
 As you see the R DRO has a black background and the D DRO is gray. This will
@@ -1678,3 +1666,4 @@ o<zeroxy> endsub
 m2
 ---------
 
+// vim: set syntax=asciidoc:

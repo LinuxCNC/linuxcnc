@@ -1,8 +1,11 @@
 :lang: es
 
 [[cha:touchy-gui]]
-
 = GUI táctil
+
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 Touchy es una interfaz de usuario para LinuxCNC diseñada para su uso en paneles de control de máquinas,
 y por lo tanto no requiere teclado ni mouse.
@@ -15,7 +18,6 @@ La pestaña 'Volante' tiene botones radio para seleccionar entre las funciones d
 También están previstos botones radio para la selección de eje e incrementos para jog 
 
 .Touchy
-
 image::images/touchy.png[align="center", alt="GUI Touchy"]
 
 == Configuración del panel
@@ -27,24 +29,26 @@ directorio de configuración (el directorio en el que se encuentra su archivo in
 conectar sus controles. Touchy ejecuta los comandos HAL en este archivo
 después de que haya hecho disponibles sus propios pines para la conexión.
 
+[NOTE]
+Touchy used to require that you create a file named 'touchy.hal' in your
+configuration directory (the directory your INI file is in). For legacy reasons
+this will continue to work, but INI based postgui files are preferred.
+
 Para obtener más información sobre los archivos HAL y el comando net, consulte el
 <<cha:basic-hal-reference,Referencia básica de HAL>>.
 
 Touchy tiene varios pines de salida que deben conectarse al
 controlador de movimiento para controlar el jogging de volante:
 
- - 'touchy.jog.wheel.increment',
-que debe conectarse al pin 'axis.N.jog-scale' de cada eje N.
-
- - 'touchy.jog.wheel.N', que se debe conectar a 'axis.N.jog-enable'
-para cada eje N.
+ - 'touchy.jog.wheel.increment', que debe conectarse al pin 'axis.N.jog-scale' de cada eje N.
+ - 'touchy.jog.wheel.N', que se debe conectar a 'axis.N.jog-enable' para cada eje N.
 
 [NOTE] 'N' representa el número de eje 0-8.
 
  - Además de estar conectado a 'touchy.wheel-count', la cuenta del volante
-también debe estar conectada a 'axis.N.jog-count' para cada eje N. Si usa el componente 
-HAL 'ilowpass' para suavizar el jog con el volante,
-asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
+   también debe estar conectada a 'axis.N.jog-count' para cada eje N. Si usa el componente 
+   HAL 'ilowpass' para suavizar el jog con el volante,
+   asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
 
 .Controles requeridos.
 
@@ -58,14 +62,14 @@ asegúrese de suavizar solo 'axis.N.jog-count' y no 'touchy.wheel-count'.
  - Para jog continuo, una palanca momentánea bidireccional centrada
    (o dos botones momentáneos) para cada eje, enganchados a 'touchy.jog.continuous.x.negative',
    'touchy.jog.continuous.x.positive', etc.
- - Si se desea un botón momentaneo para mover Z a la parte superior del recorrido a maxima velocidad
-   , debe conectarse a 'touchy.quill-up'.
+ - Si se desea un botón momentaneo para mover Z a la parte superior del recorrido a maxima velocidad,
+   debe conectarse a 'touchy.quill-up'.
 
 .Lámparas de panel opcionales.
 
  - 'touchy.jog.active' muestra cuando los controles de desplazamiento del panel están activos.
  - 'touchy.status-indicator' está encendido cuando la máquina está ejecutando código G,
-    y parpadea cuando la máquina está ejecutando pero está en pausa/feedhold.
+   y parpadea cuando la máquina está ejecutando pero está en pausa/feedhold.
 
 === Recomendado para cualquier configuración
 
@@ -95,7 +99,9 @@ Touchy puede invocar macros O-word usando la interfaz MDI. Para configurar
 esto, en la sección '[TOUCHY]' del archivo ini, agregue una o más líneas 'MACRO'.
 Cada una debe tener el formato
 
-'MACRO = increment xinc yinc'
+----
+MACRO = increment xinc yinc
+----
 
 En este ejemplo, increment es el nombre de la macro y acepta dos
 parámetros, llamados xinc e yinc.
@@ -132,3 +138,4 @@ de configuracion, así como quizás fresado de agujeros u otras operaciones simp
 que se puede hacer desde el panel sin necesidad de escribir especialmente
 programas de gcode.
 
+// vim: set syntax=asciidoc:

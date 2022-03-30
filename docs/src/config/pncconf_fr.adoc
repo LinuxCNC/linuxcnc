@@ -1,8 +1,7 @@
 :lang: fr
 
+[[cha:pncconf-wizard]]
 = Assistant graphique de configuration Mesa
-
-[[cha:Assistant-graphique-PNCConf]]
 
 L'assistant de configuration PNCconf couvre toute la gamme  des cartes d'entrées/
 sorties Mesa et jusqu'à trois ports parallèles. Il est destiné à la
@@ -56,13 +55,11 @@ pncconf
 ---- 
 
 .Écran d'accueil de PnCConf
-
 image::images/pncconf-splash_fr.png[alt="Écran d'accueil de PnCConf"]
 
 == Créer ou éditer une configuration
 
 .Créer ou éditer
-
 image::images/pncconf-file_fr.png[alt="Créer ou éditer"]
 
 Il est possible de créer une nouvelle configuration ou d'en modifier une
@@ -82,7 +79,6 @@ la liste.
 == Informations machine
 
 .Informations machine
-
 image::images/pncconf-basic_fr.png[alt="Informations machine"]
 
 _Éléments de base_
@@ -226,11 +222,11 @@ _TOUCHY_
 
 * Touchy est une interface conçue pour les écrans tactiles.
 * Elle ne nécessite que quelques interrupteurs physiques et une manivelle de
-jog.
+  jog.
 * Elle nécessite les boutons _Départ cycle_, _Abandon_, _Marche par pas_.
 * Elle nécessite également un bouton sélecteur d'axe sur le jog.
 * Elle est basée sur GTK et intègre naturellement GladeVCP (création de
-panneaux de contrôle).
+  panneaux de contrôle).
 * Elle permet d'intégrer les panneaux de contrôle virtuels (VCP).
 * Elle n'a pas de fenêtre de suivi du parcours d'outil.
 * L'aspect peut être modifié avec des thèmes personnalisés.
@@ -272,14 +268,14 @@ Joystick USB pour le jog::
     fichier.
 
 * Ajouter règle dispositif: s'utilise pour configurer un nouveau périphérique
-    en suivant les instructions. Le périphérique doit être branché et disponible.
+  en suivant les instructions. Le périphérique doit être branché et disponible.
 
 * test dispositif: permet de charger un périphérique, d'afficher les noms de
-    ses broches et de visualiser ses fonctions avec l’outil halmeter.
+  ses broches et de visualiser ses fonctions avec l’outil halmeter.
 
 * Rechercher règles pour le dispositif: va rechercher les règles dans le
-    système, utilisable pour trouver le nom des périphériques déjà construits
-    avec PNCconf.
+  système, utilisable pour trouver le nom des périphériques déjà construits
+  avec PNCconf.
 
 Les manettes de jeu utilisées en jog utilisent HALUI et le composant
 hal_input.
@@ -312,7 +308,6 @@ ajouter des panneaux de commande virtuels (VCP) et définir certaines options
 d'LinuxCNC.
 
 .Configuration des GUI
-
 image::images/pncconf-gui_fr.png[alt="Configuration des GUI"]
 
 _Options des interfaces graphiques_
@@ -435,11 +430,10 @@ ici s'effectue le choix du micro logiciel parmi ceux disponibles, puis le choix 
 le paramétrage des composants nécessaires à la machine.
 
 .Configuration Mesa
-
 image::images/pncconf-mesa-config_fr.png[alt="Configuration Mesa"]
 
 Adresse du port parallèle MESA::
-     Un port parallèle est utilisé seulement avec la carte Mesa 7i43.
+    Un port parallèle est utilisé seulement avec la carte Mesa 7i43.
     Les ports parallèles sur la carte mère ont généralement les adresses 0x378 et
     0x278 il est possible de trouver l'adresse sur la page du BIOS.
     Le 7i43 nécessite de programmer le port parallèle dans le mode EPP,
@@ -505,8 +499,8 @@ des cartes Mesa. PNCconf permet de créer des noms de signaux personnalisés
 à utiliser dans les fichiers de HAL personnalisés.
 
 .Réglages des E/S Mesa C2
-
 image::images/pncconf-mesa-io2_fr.png[alt="Réglages des E/S Mesa C2"]
+
 Sur cet onglet, avec ce micro logiciel, les composants sont liés à l'installation
 d'une carte fille 7i33, généralement utilisée avec des servomoteurs en boucle fermée.
 Noter que les numéros de composant des codeurs, des compteurs et des pilotes PWM
@@ -514,16 +508,16 @@ ne sont pas dans l'ordre numérique. Cela fait suite aux exigences de
 l'architecture des cartes filles.
 
 .Réglages des E/S Mesa C3
-
 image::images/pncconf-mesa-io3_fr.png[alt="Réglages des E/S Mesa C3"]
+
 Sur cet onglet, il n'y a que des broches GPIO. Noter les numéros à trois
 chiffres, ils correspondent au numéros des _HAL pins_. Les broches GPIO
 peuvent être sélectionnées comme des entrées ou des sorties et elles peuvent
 être inversées.
 
 .Réglages des E/S Mesa C4
-
 image::images/pncconf-mesa-io4_fr.png[alt="Réglages des E/S Mesa C4"]
+
 Sur cet onglet, il y a un mélange entre des broches GPIO et des générateurs de pas.
 Les sorties générateur de pas et de direction peuvent être inversées.
 Noter que l'inversion d'un signal Step Gen modifie les délais de pas,
@@ -540,7 +534,6 @@ broches GPIO Mesa.
 
 
 .Configuration des axes
-
 image::images/pncconf-axis-drive_fr.png[alt="Configuration des axes"]
 
 Cette page permet de configurer et tester un moteur combiné ou non à un codeur.
@@ -601,8 +594,7 @@ d'échelle),
 .Construire une table de calibration pour la sortie.
 Piloter le DAC avec la tension souhaitée et mesurer le résultat:
 
-Mesure des tensions de sortie:
-
+.Mesure des tensions de sortie
 [width="50%"]
 |========================================
 |*Sortie brute* | *Mesure*
@@ -660,8 +652,8 @@ intervention pour terminer les connexions de HAL. Contacter la mail-liste ou un
 forum pour avoir de l'aide.
 
 .Calcul de l'échelle d'axe
-
 image::images/pncconf-scale-calc_fr.png[alt="Calcul de l'échelle d'axe"]
+
 Les paramètres d'échelle peuvent être saisis directement ou, on peut utiliser le
 bouton _calculer échelle_ pour être assisté. Utiliser alors les cases à cocher
 pour sélectionner les calculs appropriés. Noter que _Dents des poulies_ exige
@@ -672,7 +664,6 @@ calculée manuellement, il est possible de la saisir directement sans passer par
 l'assistant.
 
 .Configuration des axes
-
 image::images/pncconf-axis-config_fr.png[alt="Configuration des axes"]
 
 Se référer également à l'onglet diagramme pour deux exemples de disposition des
@@ -693,11 +684,11 @@ Sur une fraiseuse classique::
 
 Sur un tour classique::
 - Lorsque l'outil se déplace à droite, en s'éloignant du mandrin,  c'est le sens
-    positif de l'axe Z.
+  positif de l'axe Z.
 - Lorsque l'outil se déplace vers l'opérateur, c’est le sens positif de l'axe X.
 - Certains tours ont un axe X opposé, dans ce cas l'outil est à l'arrière, cela
-   fonctionne bien, mais l'affichage graphique d'AXIS ne peut pas refléter cette
-   configuration.
+  fonctionne bien, mais l'affichage graphique d'AXIS ne peut pas refléter cette
+  configuration.
 
 Lorsque des contacts d'origine machine et des contacts de fin de course sont utilisés,
 LinuxCNC attend des signaux de HAL au niveaux haut lorsque le contact est actionné.
@@ -839,7 +830,6 @@ Utiliser la compensation de jeu::
     en même temps qu'un fichier de compensation. Voir le manuel.
 
 .Dessin d'aide à l'identification des axes et fins de course
-
 image::images/pncconf-diagram-lathe_fr.png[alt="Dessin d'aide à l'identification des axes et fins de course"]
 
 Ce dessin devrait aider à comprendre un exemple de positionnement des contacts
@@ -864,7 +854,6 @@ appropriées ont été choisies dans les pages précédentes. Si des signaux de 
 ont été sélectionnés, alors cette page est disponible pour les configurer.
 
 .Configuration de la broche
-
 image::images/pncconf-spindle-config_fr.png[alt="Configuration de la broche"]
 
 Cette page est semblable à la page de configuration des moteurs d'axe mais il y a
@@ -920,7 +909,6 @@ classicladder dans le manuel.
 
 
 .Options avancées
-
 image::images/pncconf-advanced_fr.png[alt="Options avancées"]
 
 == Composants de HAL
@@ -931,7 +919,6 @@ d'éditer le fichier HAL principal en permettant malgré tout à l'utilisateur d
 définir ses propres composants.
 
 .Composants de HAL
-
 image::images/pncconf-hal_fr.png[alt="Composants de HAL"]
 
 La première sélection est prévue pour les composants que pncconf utilise en interne.
@@ -1015,15 +1002,15 @@ Tous les microprogrammes ne peuvent pas être utilisés avec PNCCONF.
 Fichiers HAL Personnalisés::
     Il y a quatre fichiers personnalisés utilisables pour ajouter des commandes a HAL:
 - custom.hal est prévu pour les commandes HAL utilisées avant le chargement de
-    l'interface graphique. Il est exécuté après le fichier HAL de configuration
-    nommé : non-de-la-configuration.hal
+  l'interface graphique. Il est exécuté après le fichier HAL de configuration
+  nommé : non-de-la-configuration.hal
 - custom_postgui.hal est prévu pour les commandes qui doivent être exécutées après
-    le chargement de l'interface graphique Axis ou PYVCP autonomes.
+  le chargement de l'interface graphique Axis ou PYVCP autonomes.
 // PYVCP a trouver
 - custom_gvcp.hal est prévu pour les commandes qui doivent être exécutées après
-    le chargement de GLADE VCP.
+  le chargement de GLADE VCP.
 - shutdown.hal est prévu pour des commandes exécutées quand LinuxCNC se ferme de façon
-    contrôlée.
+  contrôlée.
 
 // vim: set syntax=asciidoc:
 

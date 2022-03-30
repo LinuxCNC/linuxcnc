@@ -104,9 +104,8 @@ ifneq "$(enable_build_documentation)" ""
 	# Only the English developer documentation goes to the -dev package
 	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev
 	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf
-	# The Spanish developer documentation goes to the spanish -doc package
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_es.pdf
-
+	# The translated developer documentation goes to the respective regular -doc package
+	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf
 	for lang in zh_CN es fr; do \
 		p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
 		d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \

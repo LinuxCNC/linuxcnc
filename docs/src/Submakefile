@@ -50,7 +50,7 @@ DOC_SRCS_EN := \
 	config/core-components.adoc \
 	config/ini-config.adoc \
 	config/ini-homing.adoc \
-  config/iov2.adoc \
+	config/iov2.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
 	config/moveoff.adoc \
@@ -330,21 +330,21 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Start
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
-	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/Master_Documentation_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_User_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_HAL_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+$(DOC_DIR)/LinuxCNC_Documentation_fr.pdf: $(DOC_SRCDIR)/Master_Documentation_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Developer_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Developer_fr.pdf: $(DOC_SRCDIR)/Master_Developer_fr.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -576,13 +576,13 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_User_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_HAL_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Developer.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Developer_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf

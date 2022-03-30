@@ -28,6 +28,7 @@ n'importe quelle interface, suivre les points suivants:
    pour "connecter" les panneaux PyVCP à LinuxCNC.
 
 L'exemple suivant montre le chargement de deux panneaux PyVCP.
+
 ----
 loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
 loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
@@ -57,7 +58,6 @@ suivante. Pour cet exemple nous avons nommé la configuration _pyvcp_xyz_ sur la
 page _Basic Machine Information_ de l'assistant Stepconf.
 
 .Assistant de configuration XYZ[[cap:XYZ-Wizard-Configuration]]
-
 image::images/xyz_ACO.png[alt="Assistant de configuration XYZ"]
 
 L'assistant Stepconf Wizard va créer plusieurs fichiers et les placer dans le
@@ -71,7 +71,7 @@ sélectionnant _Ouvrir avec l'éditeur de texte_. Entre les balises
 _<pyvcp>_ et _</pyvcp>_ nous ajouterons les widgets pour le panneau.
 
 Tous les détails sur chacun des Widgets de PyVCP sont donnés dans la
-<<sec:Documentation-des-widgets, documentation des widgets>>.
+<<sec:Documentation-des-widgets,documentation des widgets>>.
 
 Dans le fichier custompanel.xml nous ajoutons la description des widgets.
 
@@ -165,7 +165,6 @@ une erreur de syntaxe ou d'écriture, elle est donc dans cette partie qu'il
 conviendra tout d'abord de vérifier soigneusement.
 
 .Boutons de Jog[[cap:Jog-Buttons]]
-
 image::images/xyz_buttons.png[alt="Boutons de Jog"]
 
 === Effectuer les connections
@@ -272,7 +271,6 @@ Le panneau flottant contenant deux pins de HAL d'entrée et deux pins de
 HAL de sortie.
 
 .Panneau flottant testeur de port parallèle[[cap:Port-Tester-Panel]]
-
 image::images/ptest.png[alt="Panneau flottant testeur de port parallèle"]
 
 Pour lancer les commandes de HAL dont nous avons besoin et démarrer tout ce
@@ -301,7 +299,6 @@ suivantes:
 La figure suivante montre à quoi ressemble le panneau complet.
 
 .Testeur de port parallèle, complet[[cap:Port-Tester-Complete]]
-
 image::images/ptest-final.png[alt="Testeur de port parallèle, complet"]
 
 Pour ajouter le reste des pins du port parallèle, il suffi de modifier les 
@@ -347,7 +344,8 @@ Owner Type  Dir Value  Name
 Cela montre quelles pins sont IN est lesquelles sont OUT, ainsi que toutes les
 connections.
 
-== Compte tours pour GS2[[sec:Exemple-Compte-Tours-GS2]]
+[[sec:Exemple-Compte-Tours-GS2]]
+== Compte tours pour GS2
 
 L'exemple suivant utilise un variateur de fréquence GS2 de la société Automation 
 Direct. footnote:[ En Europe on trouve ce type de variateur sous la marque Omron.]
@@ -450,9 +448,9 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
 
 L'image ci-dessous montre notre panneau PyVCP en fonctionnement. 
 
-.Panneau pour GS2[[cap:Panneau-GS2]]
-
-image::images/gs2_panel.png[alt="Panneau pour GS2"]
+[[cap:Panneau-GS2]]
+.Panneau pour GS2
+image::images/gs2_panel.png["Panneau pour GS2"]
 
 === Les connections
 
@@ -481,9 +479,8 @@ net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
 Certaines lignes demandent quelques explications. 
 
  - La ligne de la led Sens horaire utilise le signal créé dans le fichier 
-    custom.hal dans lequel la led Sens inverse doit utiliser le bit _spindle-rev_. 
+   custom.hal dans lequel la led Sens inverse doit utiliser le bit _spindle-rev_. 
  - On ne _peut pas_ lier deux fois le bit _spindle-fwd_ pour utiliser le signal 
-    auquel il est déjà lié.
+   auquel il est déjà lié.
 
-
-
+// vim: set syntax=asciidoc:

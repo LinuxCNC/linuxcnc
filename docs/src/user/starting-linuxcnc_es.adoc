@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:starting-linuxcnc]]
-
 = Iniciando LinuxCNC
 
 == Ejecutando LinuxCNC
@@ -24,7 +23,6 @@ GladeVCP con pines HAL, debe usar el archivo HAL postgui para hacer cualquier
 conexion a esos pines. Consulte la sección <<sec:hal-section,[HAL]>> de la configuración INI para más información.
 
 [[sub:selector-de-configuración]]
-
 === Selector de configuracion
 
 Si no se pasa ningún archivo .ini al script linuxcnc, se carga el selector de configuración
@@ -33,5 +31,6 @@ de ejemplo se ha guardado, se puede modificar para adaptarse a su aplicación.
 Los archivos de configuración se guardan en el directorio linuxcnc/configs.
 
 .Selector de configuración
+image::images/configuration-selector_es.png["Selector de configuración de LinuxCNC",align="center"]
 
-image::images/configuration-selector_es.png[align="center", alt="Selector de configuración de LinuxCNC"]
+// vim: set syntax=asciidoc:

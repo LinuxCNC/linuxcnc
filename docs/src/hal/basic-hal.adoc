@@ -393,13 +393,13 @@ Pins
 Truth Table
 
 [width="90%", options="header"]
-|========================================
-|in0 | in1 | out
+|===
+|in0   | in1   | out
 |False | False | False
-|True | False | False
-|False | True | False
-|True | True | True
-|========================================
+|True  | False | False
+|False | True  | False
+|True  | True  | True
+|===
 
 === not
 
@@ -424,11 +424,11 @@ Pins
 Truth Table
 
 [width="90%", options="header"]
-|========================================
-|in | out
-|True | False
+|===
+|in    | out
+|True  | False
 |False | True
-|========================================
+|===
 
 === or2
 
@@ -453,13 +453,13 @@ Pins
 Truth Table
 
 [width="90%", options="header"]
-|========================================
-|in0 | in1 | out
-|True | False | True
-|True | True | True
-|False | True | True
+|===
+|in0   | in1   | out
+|True  | False | True
+|True  | True  | True
+|False | True  | True
 |False | False | False
-|========================================
+|===
 
 === xor2
 
@@ -484,13 +484,13 @@ Pins
 Truth Table
 
 [width="90%", options="header"]
-|========================================
+|===
 |in0   | in1   | out
 |True  | False | True
 |True  | True  | False
 |False | True  | True
 |False | False | False
-|========================================
+|===
 
 == Logic Examples
 

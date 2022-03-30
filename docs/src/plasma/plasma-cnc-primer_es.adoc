@@ -1,8 +1,8 @@
 :lang: es
 
 [[cha:plasma-primer]]
-
 = Basicos del Corte por Plasma para Usuarios de LinuxCNC
+
 :toc:
 
 == ¿Qué es el plasma?
@@ -41,10 +41,10 @@ Un arco de plasma tiene forma ovalada y la altura de corte debe controlarse para
 image::images/primer_cut-angularity.png[width=50%]
 
 * Ángulo de corte negativo: * antorcha demasiado baja, aumente la distancia de la antorcha al trabajo.
-
 * Ángulo de corte positivo: * antorcha demasiado alta, disminuir la antorcha a la distancia de trabajo.
 
-NOTA: Una ligera variación en los ángulos de corte puede ser normal, siempre que esté dentro de tolerancia.
+[NOTE]
+Una ligera variación en los ángulos de corte puede ser normal, siempre que esté dentro de tolerancia.
 
 La capacidad de controlar con precisión la altura de corte en un entorno tan hostil y siempre cambiante es un desafío muy difícil. Afortunadamente, existe una relación muy lineal entre la altura de la antorcha (longitud del arco) y el voltaje del arco, como muestra este gráfico.
 
@@ -105,7 +105,6 @@ La antorcha se monta en una plataforma deslizante que puede moverse hacia arriba
 Independientemente del método de sondeo utilizado, se recomienda encarecidamente que se implemente el interruptor flotante para que haya una señal fallback o secundaria para evitar daños a la antorcha por un choque.
 
 [[ohmic-sensing]]
-
 === Detección óhmica
 
 La detección óhmica se basa en el contacto entre la antorcha y el material que actúa como un interruptor para activar una señal eléctrica que es detectada por el controlador CNC. Siempre que el material esté limpio, este puede ser un método mucho más preciso para detectar el material que un interruptor  flotante que puede causar la desviación de la superficie del material. Este circuito de detección óhmico está funcionando en un entorno extremadamente hostil, por lo que es necesario implementar una serie de medidas de seguridad para garantizar la seguridad tanto de la electrónica del CNC como del operador. En el corte por plasma, la abrazadera de tierra unida al material es positiva y la antorcha es negativa. Se recomienda que:
@@ -176,7 +175,8 @@ Es importante que el controlador de plasma "espere" antes de muestrear automáti
 En nuestras pruebas, esto varía entre máquinas y material de 0.5 a 1.5 segundos. Por lo tanto, una demora de 1.5 segundos después de que se recibe una señal válida de arcoOK antes de habilitar el control de THC es una configuración inicial segura. Si desea acortar esto para un material determinado, el  Halscope de LinuxCNC le permitirá trazar el voltaje de la antorcha y tomar decisiones informadas sobre el menor retraso seguro a utilizar.
 
 
-NOTA: Si la velocidad de corte no está cerca de la velocidad de corte deseada al final de este retraso, el controlador debe esperar hasta que esto se logre antes de habilitar el THC.
+[NOTE]
+Si la velocidad de corte no está cerca de la velocidad de corte deseada al final de este retraso, el controlador debe esperar hasta que esto se logre antes de habilitar el THC.
 
 == Muestreo de voltaje de antorcha
 
@@ -285,7 +285,6 @@ Como se puede ver, las mesas de plasma son intensivas en pines y ya hemos consum
 * Como se mencionó anteriormente, se debe instalar un sensor de ruptura que se dispara si la antorcha se estrella y se cae.
 * Por lo general, esto se conectaría a 'halui.program-pause' para que la falla se pueda rectificar y se reanude el programa.
 
-
 == Código G para controladores de plasma
 
 La mayoría de los controladores de plasma ofrecen un método para cambiar la configuración de G-Code. Linuxcnc admite esto a través de M67/M68 para comandos analógicos y M62-M65 para digital (comandos de encendido/apagado). Cómo se implemente esto es totalmente arbitrario. Veamos cómo la configuración de LinuxCNC QtPlasmaC hace esto:
@@ -353,7 +352,7 @@ MAX_VELOCITY = 60
 MAX_ACCELERATION = 700
 ----
 
-Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la <<sec:axis-section,Seccion [AXIS_<letter>]>> del documento del archivo INI y <<cha:external-offsets, Offsets externos>> en la documentación de Linuxcnc.
+Para obtener más información sobre las compensaciones externas (para V 2.8 y superior), lea la <<sec:axis-section,Seccion [AXIS_<letter>]>> del documento del archivo INI y <<cha:external-offsets,Offsets externos>> en la documentación de Linuxcnc.
 
 == Lectura de voltaje de arco con el THCAD de Mesa
 
@@ -504,3 +503,5 @@ Muchos usuarios de Linuxcnc están perfectamente contentos con el uso de Inkscap
 Se incluye otro postprocesador popular con el popular paquete Fusion360, pero los postprocesadores incluidos necesitarán cierta personalización.
 
 LinuxCNC es una aplicación CNC y las discusiones sobre técnicas CAM distintas a esta discusión introductoria están fuera del alcance de LinuxCNC.
+
+// vim: set syntax=asciidoc:

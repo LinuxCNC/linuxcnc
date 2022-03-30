@@ -1,12 +1,13 @@
 :lang: es
 
-[[cha:qtdragon-gui]](((SilverDragon)))
-= GUI SilverDragon
+[[cha:qtdragon-gui]]
+= GUI SilverDragon(((SilverDragon)))
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 
 == Introducción
+
 SilverDragon está construido con el marco QTVCP.
 Gran parte se basa en el excelente trabajo de otros en la comunidad LinuxCNC.
 
@@ -158,6 +159,7 @@ qtdragon.hal_led_probe
 ----
 
 Estos pines se pueden conectar para indicar estados del interruptor de inicio:
+
 [source,{hal}]
 ----
 qtdragon.hal_led_home_x
@@ -166,6 +168,7 @@ qtdragon.hal_led_home_z
 ----
 
 Estos pines son entradas relacionadas con el VFD del husillo que indican:
+
 [source,{hal}]
 ----
 qtdragon.modbus-errors
@@ -175,6 +178,7 @@ qtdragon.spindle_volts
 ----
 
 Este pin es una salida al control del husillo para pausarlo:
+
 [source,{hal}]
 ----
 qtdragon.spindle_pause
@@ -305,3 +309,4 @@ El sitio web LinuxCNC tiene una extensa documentación sobre la instalación y e
 .qtdragon - Silverdragon personalizado
 image::images/silverdragon_custom.png["QTDragon customized",scale=25]
 
+// vim: set syntax=asciidoc:
