@@ -75,6 +75,14 @@
 <doc name="hal_pyvcp-examples" title="pyVCP Examples"/>
 <doc name="gui_gladevcp" title="Glade Virtual Control Panel"/>
 <doc name="gui_gscreen" title="Gscreen"/>
+<doc name="gui_qtvcp" title="QTvcp"/>
+<doc name="gui_qtvcp-VCPpanels" title="QTvcp VCP Panels"/>
+<doc name="gui_qtvcp-widgets" title="QTvcp Widgets"/>
+<doc name="gui_qtvcp-libraries" title="QTvcp Libraries"/>
+<doc name="gui_qtvcp-vismach" title="QTvcp Vismach"/>
+<doc name="gui_qtvcp-custom-widgets" title="QTvcp Custom Widgets"/>
+<doc name="gui_qtvcp-code-snippets" title="QTvcp Code Snippets"/>
+<doc name="gui_qtvcp-development" title="QTvcp Development"/>
 <doc name="motion_kinematics" title="Kinematics"/>
 <doc name="motion_tweaking_steppers" title="Tweaking Steppers"/>
 <doc name="motion_pid_theory" title="PID theory"/>

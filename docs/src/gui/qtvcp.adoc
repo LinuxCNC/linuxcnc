@@ -214,7 +214,7 @@ in a  terminal type 'qtvcp' <return> to see a list. +
 .qtvismach- 3 Axis Mill Builtin panel
 image::images/qtvismach.png["QtVismach Mill",align="left"]
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp test_panel
 ----
@@ -223,7 +223,7 @@ You can of course make your own panel and load it. +
 If you made a ui file named 'my_panel.ui' and name the following HAL file, 'my_panel.hal' +
 You would then load this from a terminal with halrun -I -f my_panel.hal +
 
-[source,hal]
+[source,{hal}]
 ----
 # load realtime components
 loadrt threads 

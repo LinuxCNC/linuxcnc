@@ -3,7 +3,10 @@ README for Document Writers
 
 Adding files:
 -------------
-The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
+The src/Submakefile, src/docs.xml and src/index.tmpl files must be updated to add a new document file.
+
+The relevant pdf.adoc must be updated to include the new document in the pdf documentation. 
+e.g. if a new document belongs in the Master Documentation then an entry is required in src/Master_Documentation.adoc
 
 docs.xml is used to create the "previous" and "next" buttons at the top of each individual HTML document. 
 it should generally match the order of the index.tmpl
