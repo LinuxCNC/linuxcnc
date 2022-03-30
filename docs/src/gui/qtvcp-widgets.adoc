@@ -1439,7 +1439,7 @@ doing small jobs.
 It uses images for visual representation of the macro and for an icon.
 It searches for special macros using the INI definition:
 
-[source,INI]
+[source,{ini}]
 ----
 [RS274NGC]
 SUBROUTINE_PATH =
@@ -1548,7 +1548,7 @@ Note that the MDILine function "spindle_inhibit" can be used by a GUI's handler 
 The history is recorded on a file defined in the INI.
 under the heading [DISPLAY] (this shows the default)
 
-[source,ini]
+[source,{ini}]
 ----
 MDI_HISTORY_FILE = '~/.axis_mdi_history'
 ----
@@ -1588,7 +1588,7 @@ INSTANCE.mditouchy.run_command()
 The macro button will cycle though macro's defined in the INI heading [DISPLAY]
 add one or more 'MACRO = ' lines.  Each should be of the format:
 
-[source,ini]
+[source,{ini}]
 ----
 MACRO = increment xinc yinc
 ----

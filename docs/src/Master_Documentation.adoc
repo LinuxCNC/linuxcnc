@@ -166,6 +166,24 @@ include::gui/pyvcp-examples.adoc[]
 
 include::gui/gladevcp.adoc[]
 
+include::gui/qtvcp.adoc[]
+
+:leveloffset: 3
+
+include::gui/qtvcp-VCPpanels.adoc[]
+
+include::gui/qtvcp-widgets.adoc[]
+
+include::gui/qtvcp-libraries.adoc[]
+
+include::gui/qtvcp-vismach.adoc[]
+
+include::gui/qtvcp-custom-widgets.adoc[]
+
+include::gui/qtvcp-code-snippets.adoc[]
+
+include::gui/qtvcp-development.adoc[]
+
 :leveloffset: 1
 
 = User Interfaces
