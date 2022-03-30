@@ -1,6 +1,6 @@
-[[cha:code-notes]]
 :lang: es
 
+[[cha:code-notes]]
 = Notas sobre el código
 
 == Audiencia 
@@ -20,71 +20,71 @@ un trabajo en progreso y su diseño puede cambiar en el futuro.
 == Términos y definiciones
 
 * 'EJE': un eje es uno de los nueve grados de libertad que define la posición
-    de una herramienta en el espacio cartesiano tridimensional. Los nueve ejes son
-    referidos como X, Y, Z, A, B, C, U, V y W. Las coordenadas lineales ortogonales
-    X, Y y Z determinan dónde está posicionada la punta de la herramienta.
-    Las coordenadas angulares A, B y C determinan la orientación de la herramienta.
-    Un segundo conjunto de coordenadas lineales ortogonales U, V y W
-    permite el movimiento de la herramienta (generalmente para acciones de corte) en relación con los
-    ejes previamente desplazados y rotados.
-    Lamentablemente, "eje" se usa a veces para significar un grado de libertad de la máquina en sí,
-    como los carros longitudinal y transversal o el avance fino del husillo de una fresadora vertical. 
-    En estas maquinas, esto no causa confusión ya que, por ejemplo, el movimiento de la mesa
-    corresponde directamente al movimiento a lo largo del eje X. Sin embargo, las
-    articulaciones de hombro y codo de un brazo robótico y los actuadores lineales de un
-    hexápodo no se corresponde al movimiento a lo largo de ningún eje cartesiano y en
-    en general es importante hacer la distinción entre el eje cartesiano
-    y grados de libertad de la máquina. En este documento, esto último
-    se llamarán 'articulaciones', no ejes. (Las GUI y algunas otras partes de
-    el código no siempre sigue esta distinción, pero las partes internas de
-    el controlador de movimiento si lo hacen.)
+  de una herramienta en el espacio cartesiano tridimensional. Los nueve ejes son
+  referidos como X, Y, Z, A, B, C, U, V y W. Las coordenadas lineales ortogonales
+  X, Y y Z determinan dónde está posicionada la punta de la herramienta.
+  Las coordenadas angulares A, B y C determinan la orientación de la herramienta.
+  Un segundo conjunto de coordenadas lineales ortogonales U, V y W
+  permite el movimiento de la herramienta (generalmente para acciones de corte) en relación con los
+  ejes previamente desplazados y rotados.
+  Lamentablemente, "eje" se usa a veces para significar un grado de libertad de la máquina en sí,
+  como los carros longitudinal y transversal o el avance fino del husillo de una fresadora vertical. 
+  En estas maquinas, esto no causa confusión ya que, por ejemplo, el movimiento de la mesa
+  corresponde directamente al movimiento a lo largo del eje X. Sin embargo, las
+  articulaciones de hombro y codo de un brazo robótico y los actuadores lineales de un
+  hexápodo no se corresponde al movimiento a lo largo de ningún eje cartesiano y en
+  en general es importante hacer la distinción entre el eje cartesiano
+  y grados de libertad de la máquina. En este documento, esto último
+  se llamarán 'articulaciones', no ejes. (Las GUI y algunas otras partes de
+  el código no siempre sigue esta distinción, pero las partes internas de
+  el controlador de movimiento si lo hacen.)
 
 * 'ARTICULACIÓN': una articulación es cada una de las partes móviles de la máquina. Las articulaciones son
-    distintas de los ejes, aunque los dos términos a veces se usan (incorrectamente) para
-    significa lo mismo. En LinuxCNC, una articulación es un objeto físico que puede ser
-    movido, no una coordenada en el espacio. Por ejemplo, todos los carros, la palanca del husillo o un plato giratorio
-    de una fresadora vertical son articulaciones. El hombro, el codo y
-    la muñeca de un brazo robótico son articulaciones, al igual que los actuadores lineales de un
-    hexápodo. Cada articulación tiene un motor o actuador de algún tipo asociado
-    con ella. Las articulaciones no corresponden necesariamente a los ejes X, Y y Z,
-    aunque para máquinas con cinemática trivial, puede ser el caso.
-    Incluso en esas máquinas, la posición articular y la posición del eje son
-    cosas inherentemente diferentes. En este documento, los términos 'articulación' y 'eje' 
-    se utilizan con cuidado para respetar sus distintos significados.
-    Desafortunadamente, eso no es necesariamente cierto en ningún otro lado. En
-    en particular, las GUI para máquinas con cinemática trivial pueden pasar por alto o
-    oculta completamente la distinción entre articulaciones y ejes. Adicionalmente,
-    el archivo ini usa el término 'eje' para datos que serían más precisos
-    describirse como datos de articulaciones, como las escalas de entrada y salida, etc.
+  distintas de los ejes, aunque los dos términos a veces se usan (incorrectamente) para
+  significa lo mismo. En LinuxCNC, una articulación es un objeto físico que puede ser
+  movido, no una coordenada en el espacio. Por ejemplo, todos los carros, la palanca del husillo o un plato giratorio
+  de una fresadora vertical son articulaciones. El hombro, el codo y
+  la muñeca de un brazo robótico son articulaciones, al igual que los actuadores lineales de un
+  hexápodo. Cada articulación tiene un motor o actuador de algún tipo asociado
+  con ella. Las articulaciones no corresponden necesariamente a los ejes X, Y y Z,
+  aunque para máquinas con cinemática trivial, puede ser el caso.
+  Incluso en esas máquinas, la posición articular y la posición del eje son
+  cosas inherentemente diferentes. En este documento, los términos 'articulación' y 'eje' 
+  se utilizan con cuidado para respetar sus distintos significados.
+  Desafortunadamente, eso no es necesariamente cierto en ningún otro lado. En
+  en particular, las GUI para máquinas con cinemática trivial pueden pasar por alto o
+  oculta completamente la distinción entre articulaciones y ejes. Adicionalmente,
+  el archivo ini usa el término 'eje' para datos que serían más precisos
+  describirse como datos de articulaciones, como las escalas de entrada y salida, etc.
 
-	N.T. En la version 2.8 de Linuxcnc ya se hace esta distinción. 
-    El archivo .ini cuenta con la nueva sección [JOINT_<num>]. Muchos de los parámetros que antes
-	eran propios de la sección [AXIS_<letter>] están ahora en la nueva sección. Otras secciones,
-    como por ejemplo [KINS], también adquieren nuevos parámetros para ajustarse a esto. 
-    Se ha previsto un mecanismo para transformar archivos .ini antiguos a la nueva configuración
-    ejes/articulaciones.
+  N.T. En la version 2.8 de Linuxcnc ya se hace esta distinción. 
+  El archivo .ini cuenta con la nueva sección [JOINT_<num>]. Muchos de los parámetros que antes
+  eran propios de la sección [AXIS_<letter>] están ahora en la nueva sección. Otras secciones,
+  como por ejemplo [KINS], también adquieren nuevos parámetros para ajustarse a esto. 
+  Se ha previsto un mecanismo para transformar archivos .ini antiguos a la nueva configuración
+  ejes/articulaciones.
 
 * 'POSE'- una pose es una posición completamente especificada en un espacio cartesiano 3-D. En
-    el controlador de movimiento LinuxCNC, cuando nos referimos a una pose nos referimos a una
-    estructura EmcPose, que contiene seis coordenadas lineales (X, Y, Z, U,
-    V y W) y tres angulares (A, B y C).
+  el controlador de movimiento LinuxCNC, cuando nos referimos a una pose nos referimos a una
+  estructura EmcPose, que contiene seis coordenadas lineales (X, Y, Z, U,
+  V y W) y tres angulares (A, B y C).
 
 * 'coord', o modo coordinado, significa que todas las articulaciones están sincronizadas y se
-	mueven juntas según lo ordenado por el código de nivel superior. Es el modo normal al mecanizar.
-	En el modo coordinado, se supone que los comandos se dan en el marco de referencia cartesiano, 
-	y si la máquina no es cartesiana, los comandos son traducidos por la cinemática para impulsar 
-	cada articulación en el espacio articular según sea necesario.
+  mueven juntas según lo ordenado por el código de nivel superior. Es el modo normal al mecanizar.
+  En el modo coordinado, se supone que los comandos se dan en el marco de referencia cartesiano, 
+  y si la máquina no es cartesiana, los comandos son traducidos por la cinemática para impulsar 
+  cada articulación en el espacio articular según sea necesario.
 
 * 'free', o modo libre, significa que los comandos se interpretan en el espacio articular.
-	Se usa para mover manualmente (jog) articulaciones individuales, aunque no impide que se muevan 
-	múltiples articulaciones a la vez (creo).
-	El homing también se realiza en modo libre; de hecho, las máquinas con cinemática no trivial
-	deben ser homeadas antes de que puedan pasar al modo coord o teleop.
+  Se usa para mover manualmente (jog) articulaciones individuales, aunque no impide que se muevan 
+  múltiples articulaciones a la vez (creo).
+  El homing también se realiza en modo libre; de hecho, las máquinas con cinemática no trivial
+  deben ser homeadas antes de que puedan pasar al modo coord o teleop.
 
 * 'teleop' es el modo que probablemente necesite si está haciendo 'jogging' con un hexápodo. 
-	Los comandos de jog implementados por el controlador de movimiento son jogs articulares, que
-	funcionan en modo free. Pero si desea mover un hexápodo o una máquina similar a lo largo de un 
-	eje cartesiano en particular, debe operar más de una articulación. Para eso está 'teleop'.
+  Los comandos de jog implementados por el controlador de movimiento son jogs articulares, que
+  funcionan en modo free. Pero si desea mover un hexápodo o una máquina similar a lo largo de un 
+  eje cartesiano en particular, debe operar más de una articulación. Para eso está 'teleop'.
 
 == Descripción general de la arquitectura
 
@@ -144,45 +144,45 @@ siete conjuntos de información de posición que forman el flujo principal de da
 controlador de movimiento. Las siete formas de datos de posición son las siguientes:
 
 . 'emcmotStatus\->carte_pos_cmd' - Esta es la posición deseada, en
-   coordenadas cartesianas. Se actualiza a tasa traj, no a tasa servo.
-   En modo coord, se determina por el planificador traj. En modo teleop, está
-   determinado por el planificador traj?. En modo libre, es
-   copiado de actualPos, o generado mediante la aplicación de cinemática directa a (2) o (3)
+  coordenadas cartesianas. Se actualiza a tasa traj, no a tasa servo.
+  En modo coord, se determina por el planificador traj. En modo teleop, está
+  determinado por el planificador traj?. En modo libre, es
+  copiado de actualPos, o generado mediante la aplicación de cinemática directa a (2) o (3)
 . 'emcmotStatus\->joints[n].coarse_pos' - Esta es la posición deseada, en
-   coordenadas articulares, pero antes de interpolación. Se actualiza a tasa traj,
-   no a tasa servo. En modo coord, se genera aplicando
-   cinematica inversa a (1). En modo teleop, se genera aplicando cinemática inversa a (1).
-   En modo libre, creo que se copia de (3).
+  coordenadas articulares, pero antes de interpolación. Se actualiza a tasa traj,
+  no a tasa servo. En modo coord, se genera aplicando
+  cinematica inversa a (1). En modo teleop, se genera aplicando cinemática inversa a (1).
+  En modo libre, creo que se copia de (3).
 . 'emcmotStatus\->joints[n].pos_cmd' - Esta es la posición deseada, en
-   coordenadas articulares, después de interpolación. En cada período servo, se genera
-   un nuevo conjunto de estas coordenadas. En modo coord, se genera a partir de (2)
-   por el interpolador. En modo teleop, se genera a partir de (2) por el
-   interpolador. En modo libre, es generado por el planificador traj de modo libre.
+  coordenadas articulares, después de interpolación. En cada período servo, se genera
+  un nuevo conjunto de estas coordenadas. En modo coord, se genera a partir de (2)
+  por el interpolador. En modo teleop, se genera a partir de (2) por el
+  interpolador. En modo libre, es generado por el planificador traj de modo libre.
 . 'emcmotStatus\->joints[n].motor_pos_cmd' - Esta es la posición deseada,
-   en coordenadas de motor. Las coordenadas del motor se generan agregando
-   compensación backlash, compensación de error del tornillo de avance y offset (para homing) a
-   (3). Se genera de la misma manera independientemente del modo, y es la
-   salida al lazo PID u otro bucle de posición.
+  en coordenadas de motor. Las coordenadas del motor se generan agregando
+  compensación backlash, compensación de error del tornillo de avance y offset (para homing) a
+  (3). Se genera de la misma manera independientemente del modo, y es la
+  salida al lazo PID u otro bucle de posición.
 . 'emcmotStatus\->joints[n].motor_pos_fb' - Esta es la posición real, en
-   en coordenadas de motor. Es la entrada de codificadores u otro dispositivo de retroalimentación
-   (o desde codificadores virtuales en máquinas de bucle abierto). Es "generado" por
-   la lectura del dispositivo de retroalimentación.
+  en coordenadas de motor. Es la entrada de codificadores u otro dispositivo de retroalimentación
+  (o desde codificadores virtuales en máquinas de bucle abierto). Es "generado" por
+  la lectura del dispositivo de retroalimentación.
 . 'emcmotStatus\->joints[n].pos_fb': esta es la posición real, en
-   coordenadas articulares. Se genera restando offsets, compensación de error del tornillo de avance
-   y compensación de backlash de (5). Se genera
-   del mismo modo, independientemente del modo operativo.
+  coordenadas articulares. Se genera restando offsets, compensación de error del tornillo de avance
+  y compensación de backlash de (5). Se genera
+  del mismo modo, independientemente del modo operativo.
 . 'emcmotStatus\->carte_pos_fb' - Esta es la posición real, en coordenadas cartesianas.
-   Se actualiza a tasa traj, no a tasa servo.
-   Idealmente, actualPos siempre se calcularía aplicando
-   cinemática directa a (6). Sin embargo, la cinemática directa puede no estar disponible, o
-   pueden ser inutilizable porque uno o más ejes no están homeados. En ese
-   caso, las opciones son: A) fingirla, copiando (1), o B) admitir que
-   realmente no se conocen las coordenadas cartesianas, y simplemente no actualizar
-   actualPos. Cualquiera que sea el enfoque utilizado, no veo ninguna razón para no hacerlo
-   de la misma manera, independientemente del modo de operación. Yo propondría lo
-   siguiente; si hay cinemática directa, usarla, a menos que no funcionen
-   debido a ejes sin home u otros problemas, en cuyo caso hacer (B). Si no hay cinemática directa,
-   hacer (A), ya que de lo contrario actualPos _nunca_ obtendrá actualización.
+  Se actualiza a tasa traj, no a tasa servo.
+  Idealmente, actualPos siempre se calcularía aplicando
+  cinemática directa a (6). Sin embargo, la cinemática directa puede no estar disponible, o
+  pueden ser inutilizable porque uno o más ejes no están homeados. En ese
+  caso, las opciones son: A) fingirla, copiando (1), o B) admitir que
+  realmente no se conocen las coordenadas cartesianas, y simplemente no actualizar
+  actualPos. Cualquiera que sea el enfoque utilizado, no veo ninguna razón para no hacerlo
+  de la misma manera, independientemente del modo de operación. Yo propondría lo
+  siguiente; si hay cinemática directa, usarla, a menos que no funcionen
+  debido a ejes sin home u otros problemas, en cuyo caso hacer (B). Si no hay cinemática directa,
+  hacer (A), ya que de lo contrario actualPos _nunca_ obtendrá actualización.
 
 == Homing
 
@@ -720,36 +720,31 @@ casi idéntico para cada parámetro.
 
 === Estado
 
-Task tiene tres estados internos posibles: *E-stop*, *E-stop Reset*,
-y *Machine on*.
+Task tiene tres estados internos posibles: *E-stop*, *E-stop Reset*, y *Machine on*.
 
 image::task-state-transitions.svg[align="center"]
 
 == Controlador IO (EMCIO)
 
-El controlador de E/S es un módulo separado que acepta comandos NML de TASK. +
-Interactúa con E/S externas utilizando pines HAL. +
-iocontrol.cc se carga a través del script linuxcnc antes de TASK. +
-Actualmente hay dos versiones de iocontrol. La segunda versión maneja los errores de hardware de cambio de herramienta +
- +
+El controlador de E/S es un módulo separado que acepta comandos NML de TASK.
+Interactúa con E/S externas utilizando pines HAL.
+iocontrol.cc se carga a través del script linuxcnc antes de TASK.
+Actualmente hay dos versiones de iocontrol. La segunda versión maneja los errores de hardware de cambio de herramienta
 
-Actualmente ESTOP/Enable, el refrigerante, el lubricante y el cambio de herramienta se manejan con +
-iocontrol. Estos son eventos de velocidad relativamente baja; las E/S coordinadas de alta velocidad se manejan en motion. +
- +
+Actualmente ESTOP/Enable, el refrigerante, el lubricante y el cambio de herramienta se manejan con
+iocontrol. Estos son eventos de velocidad relativamente baja; las E/S coordinadas de alta velocidad se manejan en motion.
 
-emctaskmain.cc envía comandos de E/S a través de taskclass.cc +
-Las funciones de Taskclass envían mensajes NML a iocontrol.cc +
-taskclass usa los comandos definidos en c ++ en su archivo o, +
-si está definido, ejecuta comandos basados ​​en python definidos en archivos proporcionados por el usuario. +
- +
+emctaskmain.cc envía comandos de E/S a través de taskclass.cc
+Las funciones de Taskclass envían mensajes NML a iocontrol.cc
+taskclass usa los comandos definidos en c ++ en su archivo o,
+si está definido, ejecuta comandos basados ​​en python definidos en archivos proporcionados por el usuario.
 
 Proceso del bucle principal de iocontrol:
 
-- registros para señales SIGTERM y SIGINT del sistema operativo. +
-- comprueba si las entradas HAL han cambiado +
-- comprueba si read_tool_inputs() indica que el cambio de herramienta ha finalizado y establece emcioStatus.status +
-- busca mensajes NML relacionados con E/S +
- +
+- registros para señales SIGTERM y SIGINT del sistema operativo.
+- comprueba si las entradas HAL han cambiado
+- comprueba si read_tool_inputs() indica que el cambio de herramienta ha finalizado y establece emcioStatus.status
+- busca mensajes NML relacionados con E/S
 
 números de mensaje nml: de emc.hh:
 
@@ -1568,7 +1563,6 @@ un error, vea el tratamiento de los ejes en src/emc/ini/initraj.cc: loadTraj ().
 Indudablemente hay más, y necesito tu ayuda para encontrarlos y
 arreglalos.
 
-
 === En motion
 
 El componente en tiempo real del controlador de movimiento obtiene primero el número de uniones
@@ -1581,3 +1575,4 @@ Comando `EMCMOT_SET_NUM_JOINTS` de la tarea.
 El controlador de movimiento siempre funciona en los ejes `EMCMOT_MAX_AXIS`.
 Siempre crea nueve conjuntos de pines `axis. *. *`.
 
+// vim: set syntax=asciidoc:

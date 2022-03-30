@@ -1,4 +1,4 @@
-VERSION = '1.222.180'
+VERSION = '1.223.181'
 
 '''
 qtplasmac_handler.py
@@ -711,6 +711,8 @@ class HandlerClass:
         self.tabsAlwaysEnabled = self.h.newpin('tabs_always_enabled', hal.HAL_BIT, hal.HAL_IN)
         self.jogInhibited = self.h.newpin('jog_inhibited', hal.HAL_BIT, hal.HAL_IN)
         self.sensorActive = self.h.newpin('sensor_active', hal.HAL_BIT, hal.HAL_IN)
+        self.laserRecStatePin = self.h.newpin('laser_recovery_state', hal.HAL_S32, hal.HAL_IN)
+        self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -799,14 +801,16 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:motion-type', 'qtplasmac.motion_type'])
         CALL(['halcmd', 'net', 'plasmac:torch-on', 'qtplasmac.torch_on'])
         # misc
-        CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
-        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
-        CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
         CALL(['halcmd', 'net', 'plasmac:consumable-changing', 'plasmac.consumable-changing', 'qtplasmac.consumable_changing'])
-        CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
         CALL(['halcmd', 'net', 'plasmac:gcode-scale', 'plasmac.gcode-scale', 'qtplasmac.gcode_scale'])
         CALL(['halcmd', 'net', 'plasmac:jog-inhibit', 'qtplasmac.jog_inhibited'])
+        CALL(['halcmd', 'net', 'plasmac:laser-on', 'qtplasmac.laser_on'])
+        CALL(['halcmd', 'net', 'plasmac:laser-recovery-state', 'plasmac.laser-recovery-state', 'qtplasmac.laser_recovery_state'])
+        CALL(['halcmd', 'net', 'plasmac:probe-test-error', 'plasmac.probe-test-error', 'qtplasmac.probe_test_error'])
         CALL(['halcmd', 'net', 'plasmac:sensor_active', 'plasmac.sensor-active', 'qtplasmac.sensor_active'])
+        CALL(['halcmd', 'net', 'plasmac:state', 'plasmac.state-out', 'qtplasmac.plasmac_state'])
+        CALL(['halcmd', 'net', 'plasmac:z-height', 'plasmac.z-height', 'qtplasmac.z_height'])
+        CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
 
 # *** add system hal pin changes here that may affect existing configs ***
 # *** these may be removed after auto updating is implemented          ***
@@ -1364,21 +1368,22 @@ class HandlerClass:
         pass
 
     def pause_changed(self, obj, state):
+        if hal.get_value('plasmac.paused-motion') or hal.get_value('plasmac.cut-recovering'):
+            if state:
+                self.w.wcs_button.setEnabled(False)
+            return
         if state:
             # time delay workaround to ensure userspace pins/variables have time to set
             time.sleep(0.1)
-            if self.ccButton and not hal.get_value('plasmac.cut-recovering') and hal.get_value('plasmac.stop-type-out'):
+            if self.ccButton and hal.get_value('plasmac.stop-type-out'):
                 self.w[self.ccButton].setEnabled(True)
             if self.tpButton and self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(True)
             if self.otButton and self.w.ohmic_probe_enable.isChecked():
                 self.w[self.otButton].setEnabled(True)
             self.w.wcs_button.setEnabled(False)
-            if hal.get_value('plasmac.stop-type-out') or hal.get_value('plasmac.cut-recovering'):
-                self.w.set_cut_recovery()
             self.set_tab_jog_states(True)
-        elif not self.w.cut_rec_fwd.isDown() and not self.w.cut_rec_rev.isDown() \
-             and not self.extCutRecFwdPin.get() and not self.extCutRecRevPin.get():
+        else:
             self.w.jog_stack.setCurrentIndex(0)
             if self.ccButton:
                 self.w[self.ccButton].setEnabled(False)
@@ -1545,6 +1550,12 @@ class HandlerClass:
             self.w.chk_override_jog.setChecked(False)
             hal.set_p('plasmac.override-jog', str(state))
 
+    def z_offset_changed(self, height):
+        if STATUS.is_interp_paused() and not height:
+            if(hal.get_value('plasmac.stop-type-out') or hal.get_value('plasmac.cut-recovering')):
+                self.w.set_cut_recovery()
+                self.w.laser.setEnabled(True)
+
     def override_jog_changed(self, state):
         if state:
             hal.set_p('plasmac.override-jog', '1')
@@ -1706,8 +1717,16 @@ class HandlerClass:
             if self.torchPulse:
                 self.torch_pulse(True)
             hal.set_p('plasmac.cut-recovery', '0')
+            self.laserOnPin.set(0)
             self.interp_idle(None)
             self.wcs_rotation('set')
+
+    def pause_pressed(self):
+        if hal.get_value('plasmac.cut-recovering'):
+            self.w.jog_stack.setCurrentIndex(0)
+            self.laserOnPin.set(0)
+        self.cancelWait = False
+        self.w.laser.setEnabled(False)
 
     def user_button_pressed(self, button):
         self.user_button_down(button)
@@ -2147,6 +2166,8 @@ class HandlerClass:
                 if not state and button == self.tpButton and self.torchTimer.isActive():
                     continue
                 self.w[button].setEnabled(state)
+        if self.laserRecStatePin.get():
+            self.w.laser.setEnabled(False)
         if self.tpButton and not self.w.torch_enable.isChecked():
             self.w[self.tpButton].setEnabled(False)
         if self.frButton and self.w.gcode_display.lines() == 1:
@@ -2276,6 +2297,7 @@ class HandlerClass:
         self.w.power.released.connect(lambda:self.power_button("released", False))
         self.w.power.clicked.connect(lambda:self.power_button("clicked", None))
         self.w.run.pressed.connect(self.run_pressed)
+        self.w.pause.pressed.connect(self.pause_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.pressed.connect(self.jog_slow_pressed)
@@ -2399,8 +2421,8 @@ class HandlerClass:
         self.w.cut_rec_sw.pressed.connect(lambda:self.cutrec_move(1, -1, -1))
         self.w.cut_rec_w.pressed.connect(lambda:self.cutrec_move(1, -1, 0))
         self.w.cut_rec_nw.pressed.connect(lambda:self.cutrec_move(1, -1, 1))
-        self.xOffsetPin.value_changed.connect(self.cutrec_offset_changed)
-        self.yOffsetPin.value_changed.connect(self.cutrec_offset_changed)
+        self.xOffsetPin.value_changed.connect(lambda v:self.cutrec_offset_changed(v, self.yOffsetPin.get()))
+        self.yOffsetPin.value_changed.connect(lambda v:self.cutrec_offset_changed(self.xOffsetPin.get(), v))
         self.offsetsActivePin.value_changed.connect(lambda v:self.offsets_active_changed(v))
         self.consChangePin.value_changed.connect(lambda v:self.consumable_change_changed(v))
         self.w.cam_mark.pressed.connect(self.cam_mark_pressed)
@@ -2500,6 +2522,8 @@ class HandlerClass:
         self.w.chk_override_jog.stateChanged.connect(self.override_jog_changed)
         self.jogInhibited.value_changed.connect(lambda v:self.jog_inhibited_changed(v))
         self.sensorActive.value_changed.connect(lambda v:self.sensor_active_changed(v))
+        self.zOffsetPin.value_changed.connect(lambda v:self.z_offset_changed(v))
+        self.laserRecStatePin.value_changed.connect(lambda v:self.laser_recovery_state_changed(v))
 
     def conv_call(self, operation):
         if self.developmentPin:
@@ -2947,7 +2971,7 @@ class HandlerClass:
                 self.w.pause.setText(_translate('HandlerClass', 'CYCLE RESUME'))
             else:
                 self.w.pause.setText('')
-        else:
+        elif not self.w.jog_stack.currentIndex():
             self.w.pause.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
         text = _translate('HandlerClass', 'FEED')
         if self.w.feed_slider.value() != 100:
@@ -3580,6 +3604,7 @@ class HandlerClass:
             self.change_consumables(state)
 
     def change_consumables(self, state):
+        self.w.laser.setEnabled(False)
         if hal.get_value('axis.x.eoffset-counts') or hal.get_value('axis.y.eoffset-counts'):
             hal.set_p('plasmac.consumable-change', '0')
             hal.set_p('plasmac.x-offset', '0')
@@ -4505,7 +4530,12 @@ class HandlerClass:
             ACTION.SET_MANUAL_MODE()
             self.vkb_hide()
 
+    def laser_recovery_state_changed(self, value):
+        hal.set_p('plasmac.laser-recovery-start', '0')
+
     def laser_clicked(self):
+        if STATUS.is_interp_paused():
+            return
         xPos = STATUS.get_position()[0][0] - self.laserOffsetX
         yPos = STATUS.get_position()[0][1] - self.laserOffsetY
         if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
@@ -4526,8 +4556,21 @@ class HandlerClass:
         self.laserButtonState = self.sheet_align(self.laserButtonState, self.w.laser, self.laserOffsetX, self.laserOffsetY)
 
     def laser_pressed(self):
+        if STATUS.is_interp_paused() and not self.laserRecStatePin.get():
+            xPos = STATUS.get_position()[0][0] + self.laserOffsetX
+            yPos = STATUS.get_position()[0][1] + self.laserOffsetY
+            if xPos < self.xMin or xPos > self.xMax or yPos < self.yMin or yPos > self.yMax:
+                head = _translate('HandlerClass', 'LASER ERROR')
+                msg0 = _translate('HandlerClass', 'Torch cannot move outside the machine boundary')
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{}\n'.format(head, msg0))
+                return
+            hal.set_p('plasmac.laser-x-offset', '{}'.format(str(int(self.laserOffsetX / self.oScale))))
+            hal.set_p('plasmac.laser-y-offset', '{}'.format(str(int(self.laserOffsetY / self.oScale))))
+            hal.set_p('plasmac.laser-recovery-start', '1')
+            hal.set_p('plasmac.cut-recovery', '1')
+            self.laserOnPin.set(1)
+            return
         self.laserTimer.start(750)
-        return
 
     def sheet_align(self, button_state, button, offsetX, offsetY):
         if button_state == 'markedge':
@@ -5134,6 +5177,7 @@ class HandlerClass:
         self.w.cut_rec_cancel.setEnabled(False)
         self.cutrec_speed_changed(self.w.cut_rec_speed.value())
         hal.set_p('plasmac.cut-recovery', '0')
+        self.laserOnPin.set(0)
         self.xOrig = hal.get_value('axis.x.eoffset-counts')
         self.yOrig = hal.get_value('axis.y.eoffset-counts')
         self.zOrig = hal.get_value('axis.z.eoffset-counts')
@@ -5155,6 +5199,7 @@ class HandlerClass:
         if self.w.cut_rec_fwd.isEnabled() and self.w.cut_rec_rev.isEnabled():
             speed = float(self.w.cut_rec_speed.value()) * 0.01 * direction
             hal.set_p('plasmac.paused-motion-speed',str(speed))
+            hal.set_p('plasmac.cut-recovery', '1')
 
     def cutrec_move(self, state, x, y):
         if not STATUS.is_interp_paused():
@@ -5163,55 +5208,53 @@ class HandlerClass:
             maxMove = 10
             if self.units == 'in':
                 maxMove = 0.4
+            laser = self.laserRecStatePin.get() > 0
             distX = hal.get_value('qtplasmac.kerf_width-f') * x
             distY = hal.get_value('qtplasmac.kerf_width-f') * y
-            if (hal.get_value('plasmac.axis-x-position') + \
-                hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > self.xMax) or \
-                (hal.get_value('axis.x.eoffset-counts') * self.oScale + distX > maxMove):
+            xNew = hal.get_value('plasmac.axis-x-position') + hal.get_value('axis.x.eoffset') - (self.laserOffsetX * laser) + distX
+            yNew = hal.get_value('plasmac.axis-y-position') + hal.get_value('axis.y.eoffset') - (self.laserOffsetY * laser) + distY
+            if xNew > self.xMax or xNew < self.xMin or yNew > self.yMax or yNew < self.yMin:
                 return
-            if (hal.get_value('plasmac.axis-x-position') + \
-                hal.get_value('axis.x.eoffset-counts') * self.oScale + distX < self.xMin) or \
-                (hal.get_value('axis.x.eoffset-counts') * self.oScale + distX < -maxMove):
-                return
-            if (hal.get_value('plasmac.axis-y-position') + \
-                hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > self.yMax) or \
-                (hal.get_value('axis.y.eoffset-counts') * self.oScale + distY > maxMove):
-                return
-            if (hal.get_value('plasmac.axis-y-position') + \
-                hal.get_value('axis.y.eoffset-counts') * self.oScale + distY < self.yMin) or \
-                (hal.get_value('axis.y.eoffset-counts') * self.oScale + distY < -maxMove):
+            xTotal = hal.get_value('axis.x.eoffset') - (self.laserOffsetX * laser) + distX
+            yTotal = hal.get_value('axis.y.eoffset') - (self.laserOffsetY * laser) + distY
+            if xTotal > maxMove or xTotal < -maxMove or yTotal > maxMove or yTotal < -maxMove:
                 return
             moveX = int(distX / self.oScale)
             moveY = int(distY / self.oScale)
-            hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('axis.x.eoffset-counts') + moveX)))
-            hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('axis.y.eoffset-counts') + moveY)))
+            hal.set_p('plasmac.x-offset', '{}'.format(str(hal.get_value('plasmac.x-offset') + moveX)))
+            hal.set_p('plasmac.y-offset', '{}'.format(str(hal.get_value('plasmac.y-offset') + moveY)))
             hal.set_p('plasmac.cut-recovery', '1')
 
-    def cutrec_offset_changed(self):
+    def cutrec_offset_changed(self, xOffset, yOffset):
         if hal.get_value('plasmac.consumable-changing'):
             return
-        if self.xOffsetPin.get() > 0.001 * self.unitsPerMm or self.xOffsetPin.get() < -0.001 * self.unitsPerMm or \
-           self.yOffsetPin.get() > 0.001 * self.unitsPerMm or self.yOffsetPin.get() < -0.001 * self.unitsPerMm:
-            self.cutrec_motion_enable(False)
+        if xOffset > 0.001 * self.unitsPerMm or xOffset < -0.001 * self.unitsPerMm or \
+           yOffset > 0.001 * self.unitsPerMm or yOffset < -0.001 * self.unitsPerMm:
             self.w.cut_rec_cancel.setEnabled(True)
-            if self.cancelWait:
-                self.cutrec_buttons_enable(False)
+            if self.laserRecStatePin.get():
+                self.w.laser.setEnabled(False)
             if self.ccButton:
                 self.w[self.ccButton].setEnabled(False)
-        else:
+        elif not self.laserRecStatePin.get():
             self.cancelWait = False
-            self.cutrec_motion_enable(True)
             self.cutrec_buttons_enable(True)
+            self.cutrec_motion_enable(True)
             self.w.cut_rec_cancel.setEnabled(False)
             hal.set_p('plasmac.cut-recovery', '0')
-            if self.ccButton and STATUS.is_interp_paused():
-                self.w[self.ccButton].setEnabled(True)
+            hal.set_p('plasmac.x-offset', '0')
+            hal.set_p('plasmac.y-offset', '0')
+            self.laserOnPin.set(0)
+            if STATUS.is_interp_paused():
+                self.w.laser.setEnabled(True)
+                if self.ccButton:
+                    self.w[self.ccButton].setEnabled(True)
 
     def cutrec_cancel_pressed(self, state):
         if (state):
             if hal.get_value('plasmac.cut-recovery'):
                 self.cancelWait = True
                 hal.set_p('plasmac.cut-recovery', '0')
+                self.laserOnPin.set(0)
 
     def cutrec_motion_enable(self, state):
         for widget in ['fwd', 'rev', 'speed']:

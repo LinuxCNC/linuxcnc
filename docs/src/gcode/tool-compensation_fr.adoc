@@ -33,8 +33,7 @@ n'apparaitra dans la liste déroulante du 'Toucher', que si l'outil à été cha
 avec 'Tn M6'.
 
 .Toucher et table d'outils[[cap:Touch-Off-Tool]]
-
-image::images/ToolTable-TouchOff_fr.png[alt="Toucher et table d'outils"]
+image::images/ToolTable-TouchOff_fr.png["Toucher et table d'outils"]
 
 === Utilisation de G10 L1/L10/L11
 
@@ -44,13 +43,13 @@ dans la table d'outils:
 G-code pour des explications plus détaillées)
 
 G10 L1  Pn  - (n est le N° d'outil) Fixe les offsets de l'outil. La position
-courante n'est pas significative. <<sec:G10-L1, Tous les détails ici>>. (((G10 L1)))
+courante n'est pas significative. <<gcode:g10-l1,Tous les détails ici>>.(((G10 L1)))
 
 G10 L10 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met
-les valeurs dans un système de 1 à 8. <<sec:G10-L10, Tous les détails ici>>.(((G10 L10)))
+les valeurs dans un système de 1 à 8. <<gcode:g10-l10,Tous les détails ici>>.(((G10 L10)))
 
 G10 L11 Pn  - (n est le N° d'outil) Fixe l'offset à la position courante, met
-les valeurs dans le système 9. <<sec:G10-L11, Tous les détails ici>>. (((G10 L11)))
+les valeurs dans le système 9. <<gcode:g10-l11,Tous les détails ici>>.(((G10 L11)))
 
 [[sec:Table-Outils]]
 == Table d'outils
@@ -69,7 +68,6 @@ outils et des poches peut aller jusqu'à 99999.
 (((Format de la table d'outils)))
 
 .Format de la table d'outils
-
 [width="100%", options="header"]
 |========================================
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
@@ -165,7 +163,7 @@ et l'orientation de l'outil. Ainsi, sans tenir compte des angles ni des faces de
 l'outil, qui sont de la compétence du tourneur, on trouvera une valeur en I
 (angle avant) et en J (angle de dos) ainsi qu'une valeur en Q (orientation).
 
-Une description complète des outils de tour <<cha:Tour-Specifiques, ce trouve ici>>.
+Une description complète des outils de tour <<cha:lathe-user-information,ce trouve ici>>.
 
 La colonne 'Diamètre' contient un nombre réel. Ce nombre est utilisé seulement
 si la compensation est activée lors de l'usage de cet outil. Si la trajectoire
@@ -281,8 +279,7 @@ la pièce. La figure suivante montre comment le mouvement se termine à
 différents endroits, dépendants du mouvement suivant.
 
 .Point final de la compensation[[cap:Compensation-End-Point]]
-
-image::images/comp-path_fr.png[alt="Point final de la compensation"]
+image::images/comp-path_fr.png["Point final de la compensation"]
 
 === Vue générale
 
@@ -307,8 +304,7 @@ le mouvement d'entrée laissera un petit plot de matière en raison du décalage
 de compensation et de l'arrondi de l'outil.
 
 .Mouvement d'entrée[[cap:Entry-Move]]
-
-image::images/comp02.png[alt="Mouvement d'entrée"]
+image::images/comp02.png["Mouvement d'entrée"]
 
 ==== Mouvement en Z
 
@@ -331,13 +327,11 @@ désactivée.
 ==== Profil extérieur
 
 .Profil extérieur[[cap:Outside-Profile]]
-
 image::images/outside-comp_fr.png[alt="Profil extérieur"]
 
 ==== Profil intérieur
 
 .Profil intérieur[[cap:Inside-Profile]]
-
 image::images/inside-comp_fr.png[alt="Profil intérieur"]
 
 
@@ -556,10 +550,10 @@ délivrés par l'interpréteur sont les suivants:
 - Impossible d'utiliser le plan YZ avec la compensation de rayon d'outil
 - Coin concave avec la compensation de rayon d'outil
 - Interférence de l'outil avec une partie finie de la pièce avec la
-   compensation de rayon d'outil footnote:[Le terme anglais 'gouging'
-   indique une interférence entre l'outil et une partie finie de la pièce ou
-   la paroi d'une cavité. Par extension, le terme est parfois repris pour une
-   interférence entre le porte-outil ou la broche et la pièce.]
+  compensation de rayon d'outil footnote:[Le terme anglais 'gouging'
+  indique une interférence entre l'outil et une partie finie de la pièce ou
+  la paroi d'une cavité. Par extension, le terme est parfois repris pour une
+  interférence entre le porte-outil ou la broche et la pièce.]
 - Mot D sur une ligne sans mot de commande G41 ni G42
 - Index de rayon d'outil trop grand
 - Le rayon de l'outil n'est pas inférieur au rayon de l'arc avec la

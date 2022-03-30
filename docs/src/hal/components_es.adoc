@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:componentes-hal]]
-
 = Componentes HAL
 
 == Comandos y componentes de espacio de usuario
@@ -34,7 +33,6 @@ pyvcp:: Panel de control virtual para LinuxCNC.
 shuttle:: controla los pines HAL con los dispositivos ShuttleXpress y ShuttlePRO fabricados por Contour Design.
 
 [[sec:realtime-components]]
-
 == Lista de componentes en tiempo real
 
 Todos los comandos en la siguiente lista tienen páginas de manual.
@@ -51,7 +49,8 @@ motion:: (((motion))) Acepta comandos de movimiento NML e interactúa con HAL en
 axis:: (((axis))) Acepta comandos de movimiento NML e interactúa con HAL en tiempo real.
 
 classicladder:: (((classicladder))) Software PLC en tiempo real basado en lógica de escalera.
-Consulte el capítulo <<cha:classicladder,ClassicLadder>> para obtener más información.
+Consulte el capítulo ClassicLadder para obtener más información.
+//<<cha:classicladder,ClassicLadder>> // all English _es file removed
 
 gladevcp:: (((gladevcp))) Muestra paneles de control virtuales construidos con GTK/Glade.
 
@@ -253,9 +252,7 @@ feedcomp:: (((feedcomp))) Multiplica la entrada por la relación de la velocidad
 
 gearchange:: (((gearchange))) Seleccion de uno de dos rangos de velocidad. 
 
-[[sec:ilowpass]] (((ilowpass)))
-
-ilowpass:: Si bien puede encontrar otras aplicaciones, este componente se escribió para crear un movimiento más suave con un MPG. 
+ilowpass:: [[sec:ilowpass]](((ilowpass))) Si bien puede encontrar otras aplicaciones, este componente se escribió para crear un movimiento más suave con un MPG. 
 + 
 En una máquina con alta aceleración, un jog corto puede comportarse casi como una funcion paso.
 Al poner el componente ilowpass entre l a salida de cuentas del codificador MPG
@@ -408,3 +405,4 @@ rtapi_task_start.3rtapi
 rtapi_task_wait.3rtapi
 .... 
 
+// vim: set syntax=asciidoc:

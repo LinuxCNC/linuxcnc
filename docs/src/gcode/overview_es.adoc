@@ -1,7 +1,6 @@
 ﻿:lang: es
 
 [[cha:g-code-overview]]
-
 = Descripcion general del codigo G
 
 :ini: {basebackend@docbook:'':ini}
@@ -167,9 +166,8 @@ que está destinado a representar un número entero se considera lo suficienteme
 está dentro de 0.0001 de un valor entero.
 
 
-[[gcode:parameters]](((Parameters)))
-
-== Parametros
+[[sec:overview-parameters]]
+== Parametros(((Parameters)))
 
 El lenguaje RS274/NGC admite 'parámetros', lo qué en otros
 los lenguajes de programación se llamarían 'variables'. Hay varios

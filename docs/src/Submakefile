@@ -62,7 +62,7 @@ DOC_SRCS_EN := \
 	config/stepper-quickstart.adoc \
 	drivers/ax5214h.adoc \
 	drivers/vfs11.adoc \
-	drivers/mitsub_vfd.adoc \
+	drivers/mitsub-vfd.adoc \
 	drivers/gm.adoc \
 	drivers/gs2.adoc \
 	drivers/hostmot2.adoc \
@@ -95,19 +95,19 @@ DOC_SRCS_EN := \
 	getting-started/system-requirements.adoc \
 	getting-started/updating-linuxcnc.adoc \
 	gui/axis.adoc \
-	gui/filter_programs.adoc \
+	gui/filter-programs.adoc \
 	gui/gladevcp.adoc \
 	gui/gmoccapy.adoc \
 	gui/gscreen.adoc \
 	gui/qtdragon.adoc \
 	gui/qtvcp.adoc \
-	gui/qtvcp_VCPpanels.adoc \
-	gui/qtvcp_widgets.adoc \
-	gui/qtvcp_libraries.adoc \
-	gui/qtvcp_vismach.adoc \
-	gui/qtvcp_custom_widgets.adoc \
-	gui/qtvcp_code_snippets.adoc \
-	gui/qtvcp_development.adoc \
+	gui/qtvcp-VCPpanels.adoc \
+	gui/qtvcp-widgets.adoc \
+	gui/qtvcp-libraries.adoc \
+	gui/qtvcp-vismach.adoc \
+	gui/qtvcp-custom-widgets.adoc \
+	gui/qtvcp-code-snippets.adoc \
+	gui/qtvcp-development.adoc \
 	gui/panelui.adoc \
 	gui/halui.adoc \
 	gui/image-to-gcode.adoc \

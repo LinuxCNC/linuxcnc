@@ -1,3 +1,5 @@
+:lang: fr
+
 = Legal Section
 
 Ce document n'est pas traduit en raison de la complexité de la 

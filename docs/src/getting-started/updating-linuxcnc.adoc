@@ -1,6 +1,8 @@
-[[cha:updating-linuxcnc]]
+:lang: en
+:toc:
 
-= Updating LinuxCNC
+[[cha:updating-linuxcnc]]
+= Updating LinuxCNC(((Updating LinuxCNC)))
 
 Updating LinuxCNC to a new minor release (ie to a new version in
 the same stable series, for example from 2.7.0 to 2.7.1) is an
@@ -64,37 +66,29 @@ You should also install uspace for "sim" configs on non-realtime kernels
 If you see `-rtai-` in the kernel name then you are running RTAI
 realtime. See below for the LinuxCNC version to install.
 
-
 [[_setting_apt_sources]]
 === Setting apt sources
 
 * Open the `Software Sources` window. The process for doing this
   differs slightly on the three supported platforms:
-
 ** Debian:
-
 *** Click on `Applications Menu`, then `System`, then
-  `Synaptic Package Manager`.
-
+   `Synaptic Package Manager`.
 *** In Synaptic, click on the `Settings` menu, then click `Repositories`
-  to open the `Software Sources` window.
-
+    to open the `Software Sources` window.
 ** Ubuntu:
-
 *** Click on the `Dash Home` icon in the top left.
-
 *** In the `Search` field, type "software", then click on the `Ubuntu
-  Software Center` icon.
-
+    Software Center` icon.
 *** In the Ubuntu Software Center window, click on the `Edit` menu,
-  then click on `Software Sources...` to open the `Software Sources`
-  window.
-
+    then click on `Software Sources...` to open the `Software Sources`
+    window.
+** Ubuntu (Lucid):
+*** Haga clic en el menú `Sistema`, luego en` Administración`, luego `Administrador de paquetes Synaptic`.
+*** En Synaptic, haga clic en el menú `Configuración`, luego haga clic en `Repositorios` para abrir la ventana `Fuentes de software`.
 * In the `Software Sources` window, select the `Other Software` tab.
-
 * Delete or un-check all the old linuxcnc.org entries (leave all
   non-linuxcnc.org lines as they are).
-
 * Click the `Add` button and add a new apt line. The line will be
   slightly different on the different platforms:
 
@@ -110,7 +104,7 @@ realtime. See below for the LinuxCNC version to install.
 | Debian Buster - RTAI    | `deb http://linuxcnc.org buster base 2.8-rt`
 |====
 
-image::images/upgrading-to-2.8.png[align="left", alt="Setting apt sources"]
+image::images/upgrading-to-2.8.png["Setting apt sources",align="left"]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
@@ -127,8 +121,7 @@ The process again differs depending on your platform.
 
 Debian Wheezy and Stretch both use the Synaptic Package Manager.
 
-* Open Synaptic using the instructions in <<_setting_apt_sources,Setting
-  apt sources>> above.
+* Open Synaptic using the instructions in <<_setting_apt_sources,Setting apt sources>> above.
 
 * Click the `Reload` button.
 
@@ -149,20 +142,17 @@ Debian Wheezy and Stretch both use the Synaptic Package Manager.
 === Ubuntu Precise
 
 * Click on the `Dash Home` icon in the top left.
-
 * In the `Search` field, type "update", then click on the `Update Manager`
   icon.
-
 * Click the `Check` button to fetch the list of packages available.
-
 * Click the `Install Updates` button to install the new versions of
   all packages.
 
-[[getting-started:update-no-network]]
-== Updating without Network
+== Updating without Network[[getting-started:update-no-network]]
 
 To update without a network connection you need to download the deb then install
 it with dpkg. The debs can be found in http://linuxcnc.org/dists/
+
 You have to drill down from the above link to find the correct deb for your
 installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
 to find the name of your OS.
@@ -176,11 +166,10 @@ Codename:       buster
 Pick the OS from the list then pick the major version you want like
 2.8-rt for RTAI or 2.8-rtpreempt for preempt-rt.
 
-Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
-binary-i386 for 32 bit, binary-armhf for RaspBerry Pi.
+Next pick the type of computer you have: binary-amd64 for any 64-bit x86, binary-i386 for 32 bit, binary-armhf for RaspBerry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc-uspace_2.8.0_amd64.deb'. (choose the latest by date)
+'linuxcnc-uspace_2.8.0_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
 'linuxcnc_2.8.0.deb' then open a terminal and install it with the
@@ -288,7 +277,7 @@ The gentrivkins and gantrykins kinematics modules have been removed as their
 functionality is now available in the updated trivkins module.
 
 The gentrivkins module has only been available in prior joints_axes
-branches.  To convert, it is necessary to change the name.
+branches. To convert, it is necessary to change the name.
 
 Hal file examples:
 
@@ -424,23 +413,23 @@ with an additional rotary coordinate:
 -----
 
 Note: Some general-purpose kinematics modules (like trivkins) implement
-      identity kinematics with support for coordinate specification (axis letters).
-      Axis letters may be omitted.  Axis letters may be duplicated.
-      Joints are assigned to axis letters in a defined manner ('$ man trivkins').
+identity kinematics with support for coordinate specification (axis letters).
+Axis letters may be omitted.  Axis letters may be duplicated.
+Joints are assigned to axis letters in a defined manner ('$ man trivkins').
 
 Note: For trivkins module loading, do not include spaces about the = sign or letters:
-
+----
       This:     [KINS]KINEMATICS = trivkins coordinates=XZ
       NOT This: [KINS]KINEMATICS = trivkins coordinates = X Z
+----
 
 Note: Custom kinematics modules that implement non-identity kinematics (like
-      lineardeltakins) define machine-specific relationships between a set
-      of coordinates and a set of joints.  Typically, custom kinematics modules
-      compute the joints-axes relationships within the custom module but it is
-      important to use consistent settings for the related ini items: '[KINS]JOINTS'
-      and '[TRAJ]COORDINATES'.  The details will usually be explained in the
-      module man page (for example, '$ man lineardeltakins').
-
+lineardeltakins) define machine-specific relationships between a set
+of coordinates and a set of joints.  Typically, custom kinematics modules
+compute the joints-axes relationships within the custom module but it is
+important to use consistent settings for the related ini items: '[KINS]JOINTS'
+and '[TRAJ]COORDINATES'.  The details will usually be explained in the
+module man page (for example, '$ man lineardeltakins').
 
 === Home sequences
 
@@ -448,7 +437,7 @@ Note: Custom kinematics modules that implement non-identity kinematics (like
 named [JOINT_n]HOME_SEQUENCE.  Prior to joints_axes incorporation a value
 of -1 or the omission of the item indicated no sequence was applicable.
 Now, only omission of the item is used for that purpose.
-See the chapter: <<cha:homing-configuration, 'Homing Configuration'>>
+See the chapter: <<cha:homing-configuration,'Homing Configuration'>>
 for more information.
 
 === Locking rotary indexer (updates for joints_axes)
@@ -491,8 +480,7 @@ As an example, consider a machine using trivkins kinematics with coordinates
 XYZB where B is a locking indexer.  For trivkins, joint numbers (starting
 with 0) are assigned consecutively to the coordinates specified (axis
 coordinate letters may be omitted).  For this example, X==>joint0, Y==>joint1,
-Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) ==
-0x08 (hexadecimal)
+Z==>joint2, B==>joint3.  The mask to specify joint 3 is 000001000 (binary) == 0x08 (hexadecimal)
 
 The required ini file entries for this trivkins XYZB example are:
 ----
@@ -633,8 +621,7 @@ both joint and teleop (world) jogging.
 
 === Ini Hal pins
 
-Hal pins are created for ini file items for both joints ([JOINT_N] stanzas)
-and axes ([AXIS_L] stanzas):
+Hal pins are created for ini file items for both joints ([JOINT_N] stanzas) and axes ([AXIS_L] stanzas):
 
   For N = 0 ... [KINS](JOINTS -1)
   Ini File Item              hal pin name
@@ -655,10 +642,7 @@ and axes ([AXIS_L] stanzas):
   [AXIS_L]MAX_VELOCITY       ini.L.max_velocity
   [AXIS_L]MAX_ACCELERATION   ini.L.max_acceleration
 
-Note: In prior versions of LinuxCNC (before joints_axes updates), the
-      hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc.
-      (pins were created for all 9 axes)
-      See the man page ('$ man milltask') for more information
+Note: In prior versions of LinuxCNC (before joints_axes updates), the hal pin names 'ini.N.*' referred to axes with 0==>x, 1==>y, etc.  (pins were created for all 9 axes) See the man page ('$ man milltask') for more information
 
 == Hal Changes (Other 2.8.x)
 
@@ -746,8 +730,8 @@ In many common situations, joint jogging is never needed since
 homing is accomplished using home switches and/or the various homing
 methods provided by LinuxCNC.  One simply turns on
 the machine, issues the Home-All command, the machine homes and
-changes to world mode automatically. See
-<<cha:homing-configuration,Homing Configuration>>
+changes to world mode automatically.
+See <<cha:homing-configuration,Homing Configuration>>
 
 Machines that do not use home switches may require manual jogging
 in joint mode before homing each and every joint.  It is also
@@ -762,7 +746,7 @@ By default, the trivkins module declares itself as having
 'IDENTITY' kinematics.  The distinctions of joint/world
 operations can be made visible in the axis gui when using
 trivkins by setting the kinemetics type to a 'non-IDENTITY' type
-using 'kinstype=both'.   The 'both' setting indicates that both
+using 'kinstype=both'.  The 'both' setting indicates that both
 forward and inverse kinematics functions are available and gui
 provisions that hide the distinctions of joints and axis letters
 should not be employed.  For example, for an xyz configuration,
@@ -837,7 +821,7 @@ with related pins.
 
 ==== Identity Kinematics
 
-The axis gui continues to support identity kinematics configurations.  This gui
+The axis gui continues to support identity kinematics configurations. This gui
 hides the distinctions of axes and joints in order to simplify the display and
 usage of simple machines.
 
@@ -898,11 +882,10 @@ fashion.  For 3-axis machines, XYZA machines, and lathes the default is
 the same as in 2.7.  For other machines, the 4 pairs of jogging keys are
 assigned to the first 4 axes that exist in the order XYZ ABC UVW.
 These assignments can be controlled by new inifile directives in the
-<<sec:display-section,[DISPLAY] section of the inifile>>
+<<sec:display-section,[DISPLAY] section of the inifile>>.
 
 Note that the parameters used for jogging may not be appropriate for both modes
 for machines with non-identity kinematics.
-
 
 === tklinuxcnc
 
@@ -955,7 +938,6 @@ The gmoccapy gui continues to support the identity kinematics configurations
 that it supported prior to joints_axes incorporation.  Jogging is done in
 teleop mode.
 
-
 === `shuttlexpress` driver renamed to `shuttle`
 
 The HAL driver for the Contour Designs ShuttleXpress device has been
@@ -965,7 +947,6 @@ some variant of "loadusr shuttlexpress", replace "shuttlexpress" with
 
 Support has been added for the ShuttlePRO, a bigger version of the
 ShuttleXpress, so the old driver name is no longer accurate.
-
 
 === linuxcncrsh
 
@@ -1009,13 +990,10 @@ L is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
 and S is a spindle number (0 .. 9)
 
 [NOTE]
-
 The number of allowed spindles is 8 but legacy configurations
-may include a stanza [SPINDLE_9] unrelated to an actual spindle
-number.
+may include a stanza [SPINDLE_9] unrelated to an actual spindle number.
 
 [NOTE]
-
 The [TUNE] stanza may be used for specifying tunable items
 not relevant to the other supported stanzas.
 
@@ -1078,18 +1056,17 @@ JOINTS = number_of_joints
 Functions supported include:
 
 . 'ddts' -- differentiator hal components are loaded and connected
-for each joint (and xy, xyz for trivkins machines)
+  for each joint (and xy, xyz for trivkins machines)
 
-. 'simulated_home' -- a sim_home_switch hal component is loaded and
-connected for each joint.  The homing conditions are specified by the
-usual [JOINT_n]HOME_* ini file items.
+. 'simulated_home' -- a sim_home_switch hal component is loaded and connected for each joint.
+  The homing conditions are specified by the usual [JOINT_n]HOME_* ini file items.
 
 . 'use_hal_manualtoolchange' -- the user space hal_manualtoolchange
-component is loaded and connected.
+  component is loaded and connected.
 
 . 'sim_spindle' -- the sim_spindle component is loaded and connected to
-additional loaded hal components to simulate the inertia of a rotating
-spindle mass.
+  additional loaded hal components to simulate the inertia of a rotating
+  spindle mass.
 
 The functions are activated by default but can be excluded using
 options: '-no_make_ddts', '-no_simulated_home', '-no_use_hal_manualtoolchange',
@@ -1127,8 +1104,7 @@ The equivalent halfile can be used to create a new configuration based on
 the original configuration made with LIB:basic_sim.tcl with the
 following steps:
 
-1) Run the simulator configuration to create a new equivalent halfile,
-for example: 'example_cmds.hal'.
+1) Run the simulator configuration to create a new equivalent halfile, for example: 'example_cmds.hal'.
 
 To use this new equivalent halfile in the original simulator
 configuration inifile (or a copy of it), edit to change:
@@ -1206,7 +1182,7 @@ Remove unused pin 'jogenable-off'
 
 Add pin 'amux-enable' so that the multiplexed acceleration reductions are now
 enabled by the ANDing the pins: 'is-manual' and 'amux-enable'.  These two pins
-are  typically connected to 'halui.mode.is-manual' and 'halui.mode.is-teleop'
+are typically connected to 'halui.mode.is-manual' and 'halui.mode.is-teleop'
 respectively.
 
 ==== xhc_hb04.tcl (optional LIB configuration halfile)
@@ -1399,7 +1375,7 @@ is specified.
 
 lib/python/vismach.py: new hal pin vismach.plotclear
 
-=== Hal
+=== HAL
 
 ==== Components
 
@@ -1419,5 +1395,10 @@ specify that displayed rotations respect G5x,G92 offsets.
 ==== Simulation Configs
 
 sim/configs/axis/axis_9axis: demonstrate simulated encoder index
+
+== Cambios 2.8.x
+
+Las versiones futuras de este documento tendrán en cuenta los cambios realizados en la rama de
+desarrollo posteriores a la ultima versión 2.8.x.
 
 // vim: set syntax=asciidoc:

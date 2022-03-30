@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:axis-gui]]
 = L'interface graphique AXIS
-
-[[cha:Axis]]
 
 == Introduction
 
@@ -14,13 +13,12 @@ afficher son interface graphique.
 
 [[cap:Fenetre-AXIS]]
 .Fenêtre d'AXIS
-
-image::../user/images/axis_25_fr.png[alt="Fenêtre d'AXIS"]
+image::../user/images/axis_25_fr.png["Fenêtre d'AXIS"]
 
 == Commencer avec AXIS
 
-Pour choisir AXIS comme interface graphique de LinuxCNC, éditez le fichier
-.ini et dans la section [DISPLAY] changez la ligne DISPLAY comme ceci:
+Pour choisir AXIS comme interface graphique de LinuxCNC, éditez le fichier .ini
+et dans la section [DISPLAY] changez la ligne DISPLAY comme ceci:
 
 'DISPLAY = axis'
 
@@ -194,7 +192,7 @@ programme G-code contient des sous-programmes.
    entrée est relative au système de coordonnées pièce actuel (G5x), tel que
    modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
    complète, la coordonnée relative pour l'axe choisi prendra la valeur
-   entrée. Voir aussi <<sec:G10-L10,G10 L10>> dans le chapitre du G-code.
+   entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
 
 L'outil touchera le porte-pièce...::
    Lorsqu'un 'Toucher' est effectué, la valeur entrée est relative au 9ème
@@ -203,7 +201,7 @@ L'outil touchera le porte-pièce...::
    sur lequel s'effectue le 'Toucher'. Le 9ème système de coordonnées doit
    être ajusté pour que la pointe d'un outil de longueur nulle
    (le nez de broche), soit à l'origine du porte-pièce quand les coordonnées
-   relatives sont à 0. Voir aussi <<sec:G10-L11,G10 L11>> dans le chapitre du
+   relatives sont à 0. Voir aussi <<gcode:g10-l11,G10 L11>> dans le chapitre du
    G-code.
 
 .Menu Vues
@@ -349,45 +347,45 @@ l'affichage comme il se doit.
 
 Signification des boutons de la fenêtre d'AXIS, de gauche à droite:
 
-* image:images/tool_estop.png[alt="Arrêt d'urgence (A/U)"] 'Arrêt d'urgence' (A/U)
+* image:images/tool_estop.png["Arrêt d'urgence (A/U)"] 'Arrêt d'urgence' (A/U)
     (en Anglais, E-Stop)(((Arrêt d'urgence)))
 
-* image:images/tool_power.png[alt="Marche/Arrêt puissance machine"] Marche/Arrêt puissance machine(((Marche/Arret)))
+* image:images/tool_power.png["Marche/Arrêt puissance machine"] Marche/Arrêt puissance machine(((Marche/Arret)))
 
-* image:images/tool_open.png[alt="Ouvrir un fichier"] Ouvrir un fichier
+* image:images/tool_open.png["Ouvrir un fichier"] Ouvrir un fichier
 
-* image:images/tool_reload.png[alt="Recharger le fichier courant"] Recharger le fichier courant
+* image:images/tool_reload.png["Recharger le fichier courant"] Recharger le fichier courant
 
-* image:images/tool_run.png[alt="Départ cycle"] Départ cycle
+* image:images/tool_run.png["Départ cycle"] Départ cycle
 
-* image:images/tool_step.png[alt="Cycle en pas à pas"] Cycle en pas à pas
+* image:images/tool_step.png["Cycle en pas à pas"] Cycle en pas à pas
 
-* image:images/tool_pause.png[alt="Pause/Reprise"] Pause/Reprise
+* image:images/tool_pause.png["Pause/Reprise"] Pause/Reprise
 
-* image:images/tool_stop.png[alt="Stopper l'exécution du programme"] Stopper l'exécution du programme
+* image:images/tool_stop.png["Stopper l'exécution du programme"] Stopper l'exécution du programme
 
-* image:images/tool_blockdelete.png[alt="Sauter ou non les lignes commençant par /"] Sauter ou non les lignes commençant par */*
+* image:images/tool_blockdelete.png["Sauter ou non les lignes commençant par /"] Sauter ou non les lignes commençant par */*
 
-* image:images/tool_optpause.png[alt="Avec ou sans pause optionnelle"] Avec ou sans pause optionnelle
+* image:images/tool_optpause.png["Avec ou sans pause optionnelle"] Avec ou sans pause optionnelle
 
-* image:images/tool_zoomin.png[alt="Zoom plus"] Zoom plus
+* image:images/tool_zoomin.png["Zoom plus"] Zoom plus
 
-* image:images/tool_zoomout.png[alt="Zoom moins"] Zoom moins
+* image:images/tool_zoomout.png["Zoom moins"] Zoom moins
 
-* image:images/tool_axis_z.png[alt="Vue prédéfinie Z (vue de dessus)"] Vue prédéfinie *Z* (vue de dessus)
+* image:images/tool_axis_z.png["Vue prédéfinie Z (vue de dessus)"] Vue prédéfinie *Z* (vue de dessus)
 
-* image:images/tool_axis_z2.png[alt="Vue prédéfinie Z basculée"] Vue prédéfinie *Z basculée*
+* image:images/tool_axis_z2.png["Vue prédéfinie Z basculée"] Vue prédéfinie *Z basculée*
 
-* image:images/tool_axis_x.png[alt="Vue prédéfinie X (vue de côté)"] Vue prédéfinie *X* (vue de côté)
+* image:images/tool_axis_x.png["Vue prédéfinie X (vue de côté)"] Vue prédéfinie *X* (vue de côté)
 
-* image:images/tool_axis_y.png[alt="Vue prédéfinie Y (vue de face)"] Vue prédéfinie *Y* (vue de face)
+* image:images/tool_axis_y.png["Vue prédéfinie Y (vue de face)"] Vue prédéfinie *Y* (vue de face)
 
-* image:images/tool_axis_p.png[alt="Vue prédéfinie P (vue en perspective)"] Vue prédéfinie *P* (vue en perspective)
+* image:images/tool_axis_p.png["Vue prédéfinie P (vue en perspective)"] Vue prédéfinie *P* (vue en perspective)
 
-* image:images/tool_rotate.png[alt="Orienter la vue avec le bouton"] Orienter la vue avec le bouton
+* image:images/tool_rotate.png["Orienter la vue avec le bouton"] Orienter la vue avec le bouton
 gauche de la souris
 
-* image:images/tool_clear.png[alt="Rafraîchir le parcours d'outil"] Rafraîchir le parcours d'outil
+* image:images/tool_clear.png["Rafraîchir le parcours d'outil"] Rafraîchir le parcours d'outil
 
 === Zones d'affichage graphique du programme
 
@@ -398,12 +396,12 @@ Il montre les positions de la machine.
 A gauche du nom de l'axe, un symbole d'origine est visible
 si la prise d'origine de l'axe a été faite.
 
-image:images/axis-homed.png[alt="Symbole de prise d'origine faite"] Symbole de prise d'origine faite.
+image:images/axis-homed.png["Symbole de prise d'origine faite"] Symbole de prise d'origine faite.
 
 A droite du nom de l'axe, un symbole de limite est visible si l'axe est sur
 un de ses capteurs de limite.
 
-image:images/axis-limit.png[alt="Symbole de limite d'axe"] Symbole de limite d'axe.
+image:images/axis-limit.png["Symbole de limite d'axe"] Symbole de limite d'axe.
 
 Pour interpréter correctement ces valeurs, référez vous à l'indicateur
 'Position' de la barre d'état. Si la position est 'Absolue', alors les
@@ -465,7 +463,7 @@ l'origine pièce.
 [[cap:Etendues-Depassees]]
 .Limites logicielles
 
-image::images/axis-outofrange.png[alt="Limites logicielles"]
+image::images/axis-outofrange.png["Limites logicielles"]
 
 .Le cône d'outil
 
@@ -520,7 +518,7 @@ le texte défile automatiquement pour toujours laisser la ligne courante visible
 
 .Ligne courante et ligne en surbrillance
 
-image::images/axis-currentandselected_fr.png[alt="Ligne courante et ligne en surbrillance"]
+image::images/axis-currentandselected_fr.png["Ligne courante et ligne en surbrillance"]
 
 === Contrôle manuel
 (((Contrôle manuel)))
@@ -593,7 +591,7 @@ du bloc.
 
 .Fenêtre du Toucher
 
-image::images/touchoff_fr.png[alt="Fenêtre du Toucher"]
+image::images/touchoff_fr.png["Fenêtre du Toucher"]
 
 Voir aussi les options du menu Machine: 'Toucher la pièce' et
 'Toucher le porte-pièce'.
@@ -636,7 +634,7 @@ programme est en cours d'exécution, cet onglet n'est pas opérationnel.
 
 .L'onglet 'Données manuelles'
 
-image::images/axis-codeentry_fr.png[alt="L'onglet 'Données manuelles"]
+image::images/axis-codeentry_fr.png["L'onglet 'Données manuelles"]
 
 * 'Historique' - Affiche les commandes précédemment tapées et au cours des
    session précédentes.
@@ -748,7 +746,7 @@ d'état de LinuxCNC.
 
 .Fenêtre d'état de LinuxCNC
 
-image::images/axis-emc-status.png[alt="Fenêtre d'état de LinuxCNC"]
+image::images/axis-emc-status.png["Fenêtre d'état de LinuxCNC"]
 
 Le nom de chaque entrée est affiché dans la colonne de gauche. La
 valeur courante de chaque entrée s'affiche dans la colonne de droite.
@@ -817,7 +815,7 @@ après un M6 T<n>.
 [[cap:Changement-manuel-d-outil]]
 .La fenêtre de changement manuel d'outil
 
-image::images/manualtoolchange_fr.png[alt="La fenêtre de changement manuel d'outil"]
+image::images/manualtoolchange_fr.png["La fenêtre de changement manuel d'outil"]
 
 == Modules en Python 
 
@@ -862,7 +860,7 @@ représentés.
 
 .Représentation de l'outil en mode tour
 
-image::images/axis-lathe-tool.png[alt="Représentation de l'outil en mode tour"]
+image::images/axis-lathe-tool.png["Représentation de l'outil en mode tour"]
 
 == Configuration avancée d'AXIS
 
@@ -908,7 +906,7 @@ une série de trous suivant un arc de cercle.
 
 .Perçages circulaires 
 
-image::images/holes.png[alt="Perçages circulaires"]
+image::images/holes.png["Perçages circulaires"]
 
 Si la variable d'environnement: AXIS_PROGRESS_BAR est active, alors
 les lignes seront écrites sur stderr de la forme:
@@ -987,14 +985,13 @@ En définissant: [DISPLAY]EDITOR , les options de menu: 'Fichier' →
 Deux valeurs qui fonctionnent bien: EDITOR=gedit et
 'EDITOR=gnome-terminal -e nano'.
 
-=== Panneau de contrôle virtuel
-(((Panneau de contrôle virtuel)))
+=== (((Panneau de contrôle virtuel)))Panneau de contrôle virtuel
 
 AXIS peut afficher un panneau de commande virtuel personnalisé dans le
 volet de droite. Il est possible d'y placer des boutons, des indicateurs qui
 afficheront des données et plus encore. Voir le manuel de l'intégrateur.
 
-=== Commentaires spéciaux[[sub:Commentaires-speciaux]](((Commentaires spéciaux)))
+=== [[sub:Commentaires-speciaux]](((Commentaires spéciaux)))Commentaires spéciaux
 
 Les commentaires spéciaux peuvent être insérés dans le fichier de G-code pour
 contrôler le comportement de l'affichage d'AXIS. Pour limiter l'aperçu au seul

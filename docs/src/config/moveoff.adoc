@@ -1,6 +1,7 @@
-= Moveoff Component
+:lang: en
 
 [[cha:moveoff]]
+= Moveoff Component(((Moveoff)))
 
 The moveoff Hal component is a Hal-only method
 for implementing offsets.  See the manpage ('$ man moveoff')
@@ -15,7 +16,7 @@ The axis offset pin values (offset-in-M) are continuously applied (respecting
 limits on value, velocity, and acceleration) to the output pins
 (offset-current-M, pos-plusoffset-M, fb-minusoffset-M) when both enabling input
 pins (apply-offsets and move-enable) are TRUE.  The two enabling inputs are
-anded internally.   A 'warning pin' is set and a message issued if the
+anded internally. A 'warning pin' is set and a message issued if the
 apply-offsets pin is deasserted while offsets are applied.  The warning pin
 remains TRUE until the offsets are removed or the apply-offsets pin is set.
 
@@ -82,13 +83,11 @@ Hal component is unaware of limits enforced elsewhere by LinuxCNC.
 Users should test usage in a simulator application and understand all
 hazards before use on hardware.
 
-
 Sim configurations that demonstrate the component and a
 gui (moveoff_gui) are located in:
 
-* configs/sim/axis/moveoff     (axis-ui)
-* configs/sim/touchy/ngcgui    (touchy-ui)
-
+* configs/sim/axis/moveoff  (axis-ui)
+* configs/sim/touchy/ngcgui (touchy-ui)
 
 == Modifying an existing configuration
 
@@ -108,7 +107,6 @@ a configuration ini file, it will:
   the moveoff component
 . Set the moveoff component operating parameters and limits for each axis
   in accordance with additional ini file settings
-
 
 Note: The moveoff_gui application supports configurations that use known
 kinematics modules with KINEMATICS_TYPE=KINEMATICS_IDENTITY.  Supported
@@ -147,8 +145,8 @@ MAX_VELOCITY =
 MAX_ACCELERATION =
 ----
 
-Add ini file entries for moveoff component settings
-(omit to use moveoff defaults):
+Add ini file entries for moveoff component settings (omit to use moveoff defaults):
+
 ----
 [MOVEOFF]
 EPSILON =
@@ -188,6 +186,7 @@ is automatically created if necessary.
 
 To use the moveoff_gui, add an entry in the ini file [APPLICATIONS]
 section as follows:
+
 ----
 [APPLICATIONS]
 # Note: a delay (specified in seconds) may be required if connections
@@ -208,6 +207,7 @@ must make additional connections.  For example, the supplied demonstration
 configs (configs/sim/axis/moveoff/*.ini) use a simple system halfile
 (named LIB:moveoff_external.hal) to connect the mv.move-enable,mv.offset-in-M,
 and mv.bactrack-enable pins to signals:
+
 ----
 [HAL]
 HALUI = halui
@@ -218,8 +218,9 @@ HALFILE = LIB:moveoff_external.hal
 
 The connections made by LIB:moveoff_external.hal (for a three axis
 configuration) are:
+
 ----
-net external_enable    mv.move-enable
+net external_enable mv.move-enable
 
 net external_offset_0 mv.offset-in-0
 net external_offset_1 mv.offset-in-1
@@ -235,11 +236,13 @@ for current offset values and offset status.
 
 The moveoff_gui is configured with command line options.  For details
 on the operation of moveoff_gui, see the man page:
+
 ----
 $ man moveoff_gui
 ----
-For a brief listing of command line options for moveoff_gui, use the command
-line help option:
+
+For a brief listing of command line options for moveoff_gui, use the command line help option:
+
 ----
 $ moveoff_gui --help
 
@@ -271,17 +274,17 @@ Options:
 
 Options for special cases:
     [-noentry]              (default: notused)
-                              (don't create entry widgets)
+                             (don't create entry widgets)
     [-no_resume_inhibit]    (default: notused)
-                              (do not use a resume-inhibit-pin)
+                             (do not use a resume-inhibit-pin)
     [-no_pause_requirement] (default: notused)
-                              (no check for halui.program.is-paused)
+                             (no check for halui.program.is-paused)
     [-no_cancel_autoresume] (default: notused)
-                              (useful for retraact offsets with simple)
-                              (external control                       )
+                             (useful for retraact offsets with simple)
+                             (external control                       )
     [-no_display]           (default: notused)
-                              (Use when both external controls and displays)
-                              (are in use (see Note))                      )
+                             (Use when both external controls and displays)
+                             (are in use (see Note))                      )
 
 Note: If the moveoff move-enable pin (mv.move-enable) is connected when
       moveoff_gui is started, external controls are required and only

@@ -27,6 +27,6 @@ include::common/overleaf_fr.adoc[]
 
 include::getting-started/Getting-Started-with-LinuxCNC.contents_fr.adoc[]
 
-include::common/GPLD_Copyright_fr.adoc[]
+include::common/gpld-copyright_fr.adoc[]
 
 // vim: set syntax=asciidoc:

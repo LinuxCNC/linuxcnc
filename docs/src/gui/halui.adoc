@@ -1,5 +1,6 @@
-[[cha:hal-user-interface]]
+:lang: en
 
+[[cha:hal-user-interface]]
 = HAL User Interface
 
 == Introduction
@@ -32,7 +33,7 @@ to the ini file in the [HALUI] section:
 Example:
 
 ----
-[HALUI] 
+[HALUI]
 MDI_COMMAND = G0 X0
 MDI_COMMAND = G0 G53 Z0
 MDI_COMMAND = G28
@@ -70,7 +71,7 @@ Owner  Type  Dir Value  Name
 
 When a halui MDI pin is set (pulsed) true, halui will send the MDI
 command defined in the ini.
-This will not always succeed depending on the current operating 
+This will not always succeed depending on the current operating
 mode (e.g., while in AUTO halui can't successfully send MDI commands).
 
 == Example Configuration
@@ -106,7 +107,7 @@ $ man halui
 * 'halui.feed-override.scale' (float, in) - pin for setting the scale for increase and decrease of 'feed-override'.
 * 'halui.feed-override.value' (float, out) - current FO value
 
-=== Mist 
+=== Mist
 
 * 'halui.mist.is-on' (bit, out) - indicates mist is on
 * 'halui.mist.off' (bit, in) - pin for requesting mist off
@@ -149,7 +150,7 @@ that is set in the [TRAJ] section of the ini file.
 * 'halui.max-velocity.decrease' (bit, in) - pin for decreasing max velocity
 * 'halui.max-velocity.increase' (bit, in) - pin for increasing max velocity
 * 'halui.max-velocity.scale' (float, in) - the amount applied to the current maximum velocity with each transition from off to on of the increase or decrease pin in machine units per second.
-* 'halui.max-velocity.value' (float, out) - is the maximum linear velocity in machine units per second. 
+* 'halui.max-velocity.value' (float, out) - is the maximum linear velocity in machine units per second.
 
 === MDI
 
@@ -284,11 +285,11 @@ L = axis letter (xyzabcuvw)
 * 'halui.spindle.N.override.count-enable' (bit, in) - must be true for 'counts' or 'direct-value' to work.
 * 'halui.spindle.N.override.counts' (s32, in) - counts * scale = SO percentage.  Can be used with an encoder or 'direct-value'.
 * 'halui.spindle.N.override.decrease' (bit, in) - pin for decreasing the SO (-=scale)
-* 'halui.spindle.N.override.direct-value' (bit, in) - false when using encoder to change counts, 
+* 'halui.spindle.N.override.direct-value' (bit, in) - false when using encoder to change counts,
 true when setting counts directly.
 * 'halui.spindle.N.override.increase' (bit, in) - pin for increasing the SO (+=scale)
 * 'halui.spindle.N.override.scale' (float, in) - pin for setting the scale on changing the SO
-* 'halui.spindle.N.override.value' (float, out) - current SO value 
+* 'halui.spindle.N.override.value' (float, out) - current SO value
 
 === Spindle
 

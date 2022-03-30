@@ -440,7 +440,8 @@ Nota:     Las entradas: EMBED_TAB_NAME, EMBED_TAB_COMMAND, EMBED_TAB_LOCATION
 
 Elemento: [DISPLAY]EMBED_TAB_COMMAND = nombre del programa seguido de argumentos
 Ejemplo:  [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui
-Nota:     Para aplicaciones gladevcp, vea el <<cha:glade-vcp,Capítulo GladeVCP>>
+Nota:     Para aplicaciones gladevcp, vea el Capítulo GladeVCP
+//cha:glade-vcp
 
 Elemento: [DISPLAY]EMBED_TAB_LOCATION = nombre_de_ubicación
 Ejemplo:  [DISPLAY]EMBED_TAB_LOCATION = notebook_main

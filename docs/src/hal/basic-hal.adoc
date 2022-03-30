@@ -1,5 +1,6 @@
-[[cha:basic-hal-reference]]
+:lang: en
 
+[[cha:basic-hal-reference]]
 = HAL Basics
 :toc:
 :toclevels: 3
@@ -7,7 +8,7 @@
 This document provides a reference to the basics of HAL.
 
 [[sec:hal-commands]]
-== HAL Commands 
+== HAL Commands
 
 More detailed information can be found in the man page for halcmd: run
 'man halcmd' in a terminal window.
@@ -17,9 +18,7 @@ use the HAL Configuration window on the Machine menu in AXIS. To watch
 a pin status open the Watch tab and click on each pin you wish to watch
 and it will be added to the watch window.
 
-.HAL Configuration Window
-
-image::images/HAL_Configuration.png[align="center", alt="HAL Configuration Window"]
+image::images/HAL_Configuration.png["HAL Configuration Window",align="center"]
 
 === loadrt
 
@@ -94,6 +93,7 @@ addf mux4.0 servo-thread
 If the component requires a floating point thread that is usually the slower
 servo-thread.
 
+[[sec:loadusr]]
 === loadusr
 
 The command 'loadusr' loads a user space HAL component. User space
@@ -128,9 +128,8 @@ loadusr -Wn spindle gs2_vfd -n spindle
 
 In English it means 'loadusr wait for name spindle component gs2_vfd name spindle'.
 
-[[sub:net]] (((net)))
-
-=== net
+[[sub:net]]
+=== net(((net)))
 
 The command 'net' creates a 'connection' between a signal and one
 or more pins. If the signal does not exist net creates the new signal.
@@ -147,7 +146,7 @@ net home-x joint.0.home-sw-in <= parport.0.pin-11-in
 ----
 
 In the above example 'home-x' is the signal name, 'joint.0.home-sw-in' is a
-'Direction IN' pin, '<=' is the optional direction arrow, and 
+'Direction IN' pin, '<=' is the optional direction arrow, and
 'parport.0.pin-11-in' is a 'Direction OUT' pin. This may seem confusing but
 the in and out labels for a parallel port pin indicates the physical way the
 pin works not how it is handled in HAL.
@@ -295,7 +294,6 @@ More information can be found in the HAL manual or the man pages for
 halrun.
 
 [[sec:hal-data]]
-
 == HAL Data
 
 === Bit (((Bit)))
@@ -334,12 +332,12 @@ A 'u32' number is a whole number that is positive only.
 If you used the Stepper Config Wizard to generate your config you will
 have up to three HAL files in your config directory.
 
- -  my-mill.hal (if your config is named 'my-mill') This file is loaded
+ - 'my-mill.hal' (if your config is named 'my-mill') This file is loaded
    first and should not be changed if you used the Stepper Config Wizard.
- -  custom.hal This file is loaded next and before the GUI loads. This is
+ - 'custom.hal' This file is loaded next and before the GUI loads. This is
    where you put your custom HAL commands that you want loaded before the
-   GUI is loaded. 
- -  custom_postgui.hal This file is loaded after the GUI loads. This is
+   GUI is loaded.
+ - 'custom_postgui.hal' This file is loaded after the GUI loads. This is
    where you put your custom HAL commands that you want loaded after the
    GUI is loaded. Any HAL commands that use pyVCP widgets need to be
    placed here.
@@ -384,7 +382,7 @@ and2 [count=N] | [names=name1[,name2...]]
 
 Functions
 
-and2.n
+    and2.n
 
 Pins
 
@@ -444,7 +442,7 @@ or2[count=n] | [names=name1[,name2...]]
 
 Functions
 
-+or2.n+
+    or2.n
 
 Pins
 
@@ -475,7 +473,7 @@ xor2[count=n] | [names=name1[,name2...]]
 
 Functions
 
-+xor2.n+ 
+    xor2.n
 
 Pins
 
@@ -487,10 +485,10 @@ Truth Table
 
 [width="90%", options="header"]
 |========================================
-|in0 | in1 | out
-|True | False | True
-|True | True | False
-|False | True | True
+|in0   | in1   | out
+|True  | False | True
+|True  | True  | False
+|False | True  | True
 |False | False | False
 |========================================
 
@@ -516,3 +514,5 @@ connected to the in0 bit of the and gate. Next pin 12 is connected to
 the in1 bit of the and gate. Last we connect the and2 out bit to the
 parallel port pin 14. So following the truth table for and2 if pin 11
 and pin 12 are on then the output pin 14 will be on.
+
+// vim: set syntax=asciidoc:

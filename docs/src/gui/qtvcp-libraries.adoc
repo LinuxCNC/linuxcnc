@@ -1,5 +1,6 @@
-[[cha:qtvcp-libraries]]
+:lang: en
 
+[[cha:qtvcp-libraries]]
 = QTvcp Libraries modules
 
 libraries are prebuilt python modules that give added features to QTvcp. +

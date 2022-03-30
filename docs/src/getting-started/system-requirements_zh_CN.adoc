@@ -1,5 +1,4 @@
 [[cha:system-requirements]]
-
 = 系统要求
 
 == 最低要求

@@ -1,5 +1,4 @@
 [[cha:running-emc]]
-
 = 运行LinuxCNC
 
 == 调用LinuxCNC
@@ -8,9 +7,8 @@
 在 http://linuxcnc.org/docs/2.8/html/common/linux-faq.html#faq:terminal[终端]通过运行命令'linuxcnc'运行，
 或在菜单“应用程序-CNC”中选择。
 
-[[sec:config-launcher]] (((Configuration Launcher)))
-
-== 配置启动器
+[[sec:config-launcher]]
+== 配置启动器 (((Configuration Launcher)))
 
 当从CNC菜单或命令行启动LinuxCNC而未指定ini文件时，将启动“配置选择器”对话框。
 
@@ -117,7 +115,6 @@ by the user are offered for copying to the user's directory.
 在应用程序目录下，仅提供经用户有用修改的应用程序才能复制到用户目录。
 
 .LinuxCNC Configuration Selector[[cap:LinuxCNC-Configuration-Selector]]
-
 image::images/configuration-selector.png[alt="LinuxCNC配置选择器"]
 
 Click any of the listed configurations 

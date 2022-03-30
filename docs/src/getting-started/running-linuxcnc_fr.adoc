@@ -1,4 +1,6 @@
-﻿= Lancer LinuxCNC
+﻿:lang: fr
+
+= Lancer LinuxCNC
 
 LinuxCNC se lance comme un autre programme Linux:
 depuis un terminal en passant la commande _linuxcnc_, 

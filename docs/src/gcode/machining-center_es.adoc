@@ -348,6 +348,6 @@ Formato de archivo de parámetros
 | 5162 | 0.0 | G28 Home Y
 |=====================================
 
-Vea la sección <<gcode:parameters,Parametros para más información.
+Vea la sección <<sec:overview-parameters,Parametros para más información.
 
 

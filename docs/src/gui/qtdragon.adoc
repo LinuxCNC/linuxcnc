@@ -1,10 +1,10 @@
-[[cha:qtdragon-gui]](((QtDragon)))
+:lang: en
 
+[[cha:qtdragon-gui]]
+= QtDragon GUI(((QtDragon)))
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
-
-= QtDragon GUI
 
 == Introduction
 QtDragon and QtDragon_hd are built with the QTVCP framework. +

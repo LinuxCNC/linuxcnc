@@ -1,6 +1,8 @@
-[[cha:halshow]]
+:lang: en
+:toc:
 
-= Halshow
+[[cha:halshow]]
+= Halshow(((Halshow)))
 
 The script halshow can help you find your way around a running HAL.
 This is a very specialized system and it must connect to a working HAL.
@@ -52,7 +54,7 @@ tabs for show and watch.
 
 [[cap:halshow-layout]]
 .Halshow Layout
-image::images/halshow-1.png[align="center", alt="Halshow Layout"]
+image::images/halshow-1.png["Halshow Layout",align="center"]
 
 The tree shows all of the major parts of a HAL. In front of each is a
 small plus (+) or minus (-) sign in a box. Clicking the plus will
@@ -65,15 +67,14 @@ find: Expand Tree, Collapse Tree; Expand Pins, Expand Parameters,
 Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
-.Show Menu
-image::images/halshow-3.png[align="center", alt="Show Menu"]
+image::images/halshow-3.png["Show Menu",align="center"]
 
 == HAL Show Area
 
 Clicking on the node name, the word "Components" for example, will
 show you (under the "Show" tab) all that HAL knows about the contents
 of that node. Figure <<cap:halshow-layout>> shows a list exactly like
-you will see if you click the "Components" name. 
+you will see if you click the "Components" name.
 The information display is exactly like
 those shown in traditional text based HAL analysis tools. The advantage
 here is that we have mouse click access, access that can be as broad or
@@ -92,10 +93,10 @@ nature of the search routines in halcmd itself. If you search one pin
 you may get two, like this:
 
 ----
-Component Pins: 
-Owner  Type  Dir  Value  Name 
-06     bit    -W   TRUE  parport.0.pin-10-in 
-06     bit    -W  FALSE  parport.0.pin-10-in-not 
+Component Pins:
+Owner  Type  Dir  Value  Name
+06     bit    -W   TRUE  parport.0.pin-10-in
+06     bit    -W  FALSE  parport.0.pin-10-in-not
 ----
 
 The second pin's name contains the complete name of the first.
@@ -152,19 +153,19 @@ Sure enough there it is. Notice that its ID is 08. Next we need to
 find out what functions are available with it so we look at functions:
 
 ----
-Exported Functions: 
-Owner  CodeAddr      Arg  FP Users Name 
-  08   E0B97630 E0DC7674 YES     0 ddt.0 
-  03   E0DEF83C 00000000 YES     1 motion-command-handler 
-  03   E0DF0BF3 00000000 YES     1 motion-controller 
-  06   E0B541FE E0DC75B8  NO     1 parport.0.read 
-  06   E0B54270 E0DC75B8  NO     1 parport.0.write 
-  06   E0B54309 E0DC75B8  NO     0 parport.read-all 
-  06   E0B5433A E0DC75B8  NO     0 parport.write-all 
-  05   E0AD712D 00000000  NO     0 scope.sample 
-  04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position 
-  04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses 
-  04   E0B614AD E0DC7448 YES     1 stepgen.update-freq 
+Exported Functions:
+Owner  CodeAddr      Arg  FP Users Name
+  08   E0B97630 E0DC7674 YES     0 ddt.0
+  03   E0DEF83C 00000000 YES     1 motion-command-handler
+  03   E0DF0BF3 00000000 YES     1 motion-controller
+  06   E0B541FE E0DC75B8  NO     1 parport.0.read
+  06   E0B54270 E0DC75B8  NO     1 parport.0.write
+  06   E0B54309 E0DC75B8  NO     0 parport.read-all
+  06   E0B5433A E0DC75B8  NO     0 parport.write-all
+  05   E0AD712D 00000000  NO     0 scope.sample
+  04   E0B618C1 E0DC7448 YES     1 stepgen.capture-position
+  04   E0B612F5 E0DC7448  NO     1 stepgen.make-pulses
+  04   E0B614AD E0DC7448 YES     1 stepgen.update-freq
 ----
 
 Here we look for owner #08 and see a function
@@ -190,18 +191,17 @@ This is just for viewing, so we leave position blank and get the last
 position in the thread. The following figure shows the state of halshow
 after this command has been issued.
 
-.Addf Command
-image::images/halshow-2.png[align="center", alt="Addf Command"]
+image::images/halshow-2.png["Addf Command",align="center"]
 
 Next we need to connect ddt to something. But how do we know
 what pins are available? The answer is to look under pins. There we
 find ddt and see this:
 
 ----
-Component Pins: 
-Owner Type  Dir Value       Name 
-08    float R-  0.00000e+00 ddt.0.in 
-08    float -W  0.00000e+00 ddt.0.out 
+Component Pins:
+Owner Type  Dir Value       Name
+08    float R-  0.00000e+00 ddt.0.in
+08    float -W  0.00000e+00 ddt.0.out
 ----
 
 That looks easy enough to understand, but what signal or pin do we
@@ -209,8 +209,8 @@ want to connect to it? It could be an axis pin, a stepgen pin, or a
 signal. We see this when we look at joint.0:
 
 ----
-Component Pins: 
-Owner Type  Dir Value       Name 
+Component Pins:
+Owner Type  Dir Value       Name
 03    float -W  0.00000e+00 joint.0.motor-pos-cmd ==> Xpos-cmd
 ----
 
@@ -225,11 +225,11 @@ Now if we look at the Xpos-cmd signal using the tree node we'll see
 what we've done:
 
 ----
-Signals: 
-Type Value Name 
+Signals:
+Type Value Name
 float 0.00000e+00 Xpos-cmd
 <== joint.0.motor-pos-cmd
-==> ddt.0.in 
+==> ddt.0.in
 ==> stepgen.0.position-cmd
 ----
 
@@ -261,18 +261,16 @@ available in this area. That is where the HAL Watch Area is of value.
 Clicking the watch tab produces a blank canvas. You can add signals and pins
 to this canvas and watch their values.footnote:[The refresh rate of the watch
 display is much lower than Halmeter or Halscope. If you need good resolution
-of the timing of signals use these tools or set the interval in the Watch menu.] 
-You can add signals or pins when the watch tab is displayed by clicking on the 
+of the timing of signals use these tools or set the interval in the Watch menu.]
+You can add signals or pins when the watch tab is displayed by clicking on the
 name of it in the tree view.
-The following figure shows this canvas with several pins. 
-The pins and signals that are writable have buttons for manipulation on the right 
+The following figure shows this canvas with several pins.
+The pins and signals that are writable have buttons for manipulation on the right
 side. Pins that are linked to a signal have disabled buttons. To set these values,
 the corresponding pin has to be unlinked from the signal. That can be done by
 right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
 
-
-.Watch Tab
-image::images/halshow-4.png[align="center", alt="Watch Tab"]
+image::images/halshow-4.png["Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles
 representing LEDs. They show as dark red when a bit signal or pin is
@@ -289,4 +287,6 @@ in halshow can be set up to watch a parport much as IO_Show did.
 
 [[cap:watch-tab-context-menu]]
 .Watch Tab context menu
-image::images/halshow-5.png[align="center", alt="Watch Tab context menu"]
+image::images/halshow-5.png["Watch Tab context menu",align="center"]
+
+// vim: set syntax=asciidoc:

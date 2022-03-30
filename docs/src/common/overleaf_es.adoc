@@ -1,4 +1,6 @@
-﻿Este manual es un trabajo en progreso. Si puedes ayudar con
+﻿:lang: es
+
+Este manual es un trabajo en progreso. Si puedes ayudar con
 redacción, edición o preparación gráfica, comuníquese con cualquier miembro
 del equipo de redacción o únete y envía un correo electrónico a
 emc-users@lists.sourceforge.net.

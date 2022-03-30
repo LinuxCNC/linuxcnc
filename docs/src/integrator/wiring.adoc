@@ -1,5 +1,6 @@
-[[cha:wiring]]
+:lang:en
 
+[[cha:wiring]]
 = Best Wiring Practices
 
 == Electrical Noise
@@ -45,7 +46,7 @@ wire on the market means that its use should be encouraged wherever possible.
 Wires should be terminated such that all strands in the conductor are neatly and securely located into the mating
 receptacle. This may be accomplished by either twisting the strands together before inserting in the termination,
 or using a compression crimp such as a spade or bootlace terminal. Care should be made to ensure that no strands of
-wire end up outside the termination to prevent accidental shorting with adjacent terminations. 
+wire end up outside the termination to prevent accidental shorting with adjacent terminations.
 
 If using a compression crimp on the bare wire, avoid soldering the strands together before crimping. Crimping the
 lug onto a soldered wire can result in the lug working loose over time as the soldered strands lose their
@@ -61,8 +62,8 @@ amount of current it carries have a bearing on the choice of wire to be used. Th
 recycled CAT5 ethernet cable is insufficient to withstand the voltages that can appear at the output terminals of a
 Variable Frequency Drive, nor is the cross sectional area of the conductor sufficient to carry several amps of
 current without overheating and potentially causing a fire. Conversely, while it is perfectly permissible to wire a
-limit switch circuit using 2.5 sqmm cable, it creates needless bulk in the wiring loom. Consult any manufacturer’s
-documentation and your local country’s electrical wiring codes for minimum suggested wire gauges for power and
+limit switch circuit using 2.5 sqmm cable, it creates needless bulk in the wiring loom. Consult any manufacturer's
+documentation and your local country's electrical wiring codes for minimum suggested wire gauges for power and
 control requirements.
 
 === Shielded Wire
@@ -73,9 +74,9 @@ are trying to combat.
 
 .Foil Shielded Wire
 
-Foil shielded wire has a thin aluminium or copper foil that is usually bonded to a film of plastic that surrounds
+Foil shielded wire has a thin aluminum or copper foil that is usually bonded to a film of plastic that surrounds
 the wire. The enclosed wire is usually 100% covered. Attaching the foil to earth can be difficult, especially if
-the foil is constructed from aluminium or laminated to a plastic backing material. For this reason, it is
+the foil is constructed from aluminum or laminated to a plastic backing material. For this reason, it is
 usual to find a bare metal stranded wire enclosed inside the cable which is in contact with the foil for the
 full length of the cable. This is called the drain wire and is used to make the connection to earth with.
 
@@ -85,7 +86,7 @@ Braided shielded wire has a woven copper braid that surrounds the wire. It is mo
 provide 100% coverage, but is more flexible than foil shielded types. Coverage is typically 70% to 95% depending on
 how tight the braid has been constructed. Despite the lower coverage of braided shield, the effectiveness is
 greater than foil shielding due to the increased bulk of the braid, and copper being a better conductor than
-aluminium.
+aluminum.
 
 For very noisy environments, a further subset of the above two shielding methodologies may be employed, whereby both
 braid and foil shielding is used simultaneously. Individual wires in a multi-conductor cable may also be shielded
@@ -98,7 +99,7 @@ equipment. For example, if the incoming supply is also used to feed large motors
 generated on the line feeding the CNC components. Although most modern electronic devices feature built-in mains
 filtering to help minimise the susceptibility to mains-borne interference, the custom and modularised nature of a
 CNC system can mean that components used come from a wide variety of sources with differing degrees of inherent
-noise immunity. 
+noise immunity.
 
 Inline filters may be installed on the incoming mains supply feeding the CNC control system to help reduce any
 induced noise. Running the CNC system from a different mains circuit to any large electrical sources of noise may
@@ -106,7 +107,7 @@ also help minimise any potential sources of mains-borne interference.
 
 [NOTE]
 Be aware that in many countries, the installation and alteration of mains circuits can only be carried out by
-licenced electricians.
+licensed electricians.
 
 == Power Supply Units
 
@@ -133,7 +134,7 @@ for your country, and the conduction of other unrelated signals in that same wir
 
 Commoning of a DC PSU is somewhat dependent on the electrical operating requirements of the CNC system. For example,
 a stepper motor driver operating with a 24VDC motor supply and a 5V logic supply may have optically-isolated signal
-input lines which provide complete electrical separation of the driver’s input and output circuitry for safety and
+input lines which provide complete electrical separation of the driver's input and output circuitry for safety and
 noise immunity purposes. Tying the stepper motor and logic control supply commons together in this case may have a
 detrimental impact on the operation of the system.
 
@@ -154,13 +155,13 @@ DC commons are tied where is usually taken out of the hands of the end user.
 == DC Supply Feeds
 
 In situations where a DC circuit is run with the common point disconnected from the mains earth (ie, the supply is
-‘floating’), it can be helpful to run DC supplies using twisted pairs of wires, whereby each pair of wires in the
+'floating'), it can be helpful to run DC supplies using twisted pairs of wires, whereby each pair of wires in the
 circuit (eg, the positive and negative leads) is physically twisted together in a helix pattern. The twist in the
-wire allows both conductors to share the same ‘real estate’ as closely as possible. Any EMI that passes across
-them will therefore be largely cancelled as both conductors will receive the same degree of EMI. For additional
-protection use twisted wire that is housed in a shielded jacket with the shield terminated to mains earth. 
+wire allows both conductors to share the same 'real estate' as closely as possible. Any EMI that passes across
+them will therefore be largely canceled as both conductors will receive the same degree of EMI. For additional
+protection use twisted wire that is housed in a shielded jacket with the shield terminated to mains earth.
 
-Note however that twisted pairs of wires are less effective at combatting the effects of EMI if one of the two
+Note however that twisted pairs of wires are less effective at combating the effects of EMI if one of the two
 wires is referenced to mains earth, as the conductor at earth potential is less able to be influenced by EMI than
 the un-earthed conductor. In these instances the twisting of the wires has less of an impact on the overall noise
 immunity, and shielded cable will be intrinsically more effective at reducing noise pickup.
@@ -172,7 +173,7 @@ controller inputs, axis limit switches etc) are the most susceptible to noise in
 the low level voltages that are used to convey the information. When a limit or home switch is engaged, or a tool
 probe has made or broken contact, this signal is used to signify the event has taken place. Typically this is done
 by using input pins on the computer interface card or parallel port which, dependent on the application, may be
-signalled using as little as 3.3V. Evidently a 2V noise spike has the potential to corrupt the validity of a
+signaled using as little as 3.3V. Evidently a 2V noise spike has the potential to corrupt the validity of a
 signal if the useful range is only 0-3.3V.
 
 If possible, isolate the common point of the PSU supplying the logic peripherals from the rest of the system.
@@ -180,12 +181,12 @@ For example, keeping the common of the low voltage power supply isolated from th
 supply will reduce the chances of large currents flowing in the stepper motor return line contaminating the common
 of the low voltage supply.
 
-If the controller uses differential signalling, use twisted pairs to carry the signal. Shielded cable is preferred
+If the controller uses differential signaling, use twisted pairs to carry the signal. Shielded cable is preferred
 when the control lines are single-ended, or if the distances traversed are long or through electrically hostile
 environments. When grounding the shield in the cable, terminate to the mains earth.
 
 If the controller and interfacing devices can withstand higher control signals, consider altering the wiring and
-power supply requirements to use a bigger voltage for signalling (eg, 12V or 24V). The same 2V EMI noise spike
+power supply requirements to use a bigger voltage for signaling (eg, 12V or 24V). The same 2V EMI noise spike
 that could corrupt a 3.3V limit switch signal will be far less likely to cause issues with a limit switch
 operating with a 24V signal.
 
@@ -196,17 +197,17 @@ enclosures will indicate a specific terminal as being the earthing point, in whi
 connected to earth via a dedicated wire.
 
 Control and power wiring should be segregated as much as possible. Route signal input wires well away from power
-supply and motor drive output lines. 
+supply and motor drive output lines.
 
 It is recommended to run both driver input and motor output wiring in shielded cable with the shield terminated to
 mains earth. The shield on the input lines helps reduce the amount of interference they can receive, while the
-shield on the output lines reduces the amount of noise they can radiate. 
+shield on the output lines reduces the amount of noise they can radiate.
 
 == Variable Frequency Drives
 
 If at all possible the Variable Frequency Drive (VFD) should be mounted in a separate enclosure or cabinet to reduce
 the risk of it radiating noise into adjacent wiring. If the VFD enclosure is metallic it must be earthed as per any
-recommendations in the manufacturer’s documentation.
+recommendations in the manufacturer's documentation.
 
 Because the VFD is a high power, high frequency electronic switching device, the output is notoriously prone to
 EMI radiation, and it is advisable to run the VFD output to the connected motor in a shielded cable, with the
@@ -218,7 +219,7 @@ shield terminated to mains earth.
 
 Any wire that will be moved about during normal operation of the CNC falls into this category. For example, wires
 running from stepper drivers through a cable management system (drag chains) and then to the stepper motors
-mounted on a moveable gantry.  Cables and wires operating in these circumstances should be rated for extra
+mounted on a movable gantry.  Cables and wires operating in these circumstances should be rated for extra
 flexibility. This precludes the use of solid-core wires and cables, as the constant flexing will lead to fatigue
 and eventual failure of the conductors.
 
@@ -245,8 +246,8 @@ possible while wiring between two points.
 Very few mechanical switches (eg, an axis limit switch or tool probe input) will close or open perfectly when
 operated. More often than not the switch contacts will physically bounce against each other several times within a
 very short space of time when operated. This may be interpreted by the machine controller as multiple operations
-of the same signal when in reality only one clean state change was expected. Sometimes it doesn’t matter, but in
-many circumstances it is desirable to ensure that any state change is as ‘clean’ as possible and does not
+of the same signal when in reality only one clean state change was expected. Sometimes it doesn't matter, but in
+many circumstances it is desirable to ensure that any state change is as 'clean' as possible and does not
 interfere with the operation of the machine. This is accomplished by debouncing.
 
 Debouncing is achieved by permitting a state change on a mechanical switch to only register with the controller

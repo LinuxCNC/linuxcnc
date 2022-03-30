@@ -1,5 +1,6 @@
-[[cha:pyvcp]]
+:lang: en
 
+[[cha:pyvcp]]
 = Python Virtual Control Panel
 
 == Introduction
@@ -72,7 +73,6 @@ action available to Python programs. Only use PyVCP .xml files from a
 source that you trust.
 
 [[sec:pyvcp-with-axis]]
-
 == AXIS
 
 Since AXIS uses the same GUI toolkit (Tkinter) as PyVCP, it is
@@ -159,31 +159,31 @@ loadusr -Wn mypanel pyvcp -g WxH+X+Y -c mypanel <path/>panel_file.xml
 You would use this if you wanted a floating panel or a panel with a
 GUI other than AXIS.
 
-* '-Wn panelname' - 
-     makes HAL wait for the component 'panelname' to finish loading
-    ('become ready' in HAL speak) before processing more HAL commands. This
-    is important because PyVCP panels export HAL pins, and other HAL
-    components will need them present to connect to them. Note the capital
-    W and lowercase n. If you use the -Wn option you must use the -c option
-    to name the panel.
+* '-Wn panelname' -
+   makes HAL wait for the component 'panelname' to finish loading
+  ('become ready' in HAL speak) before processing more HAL commands. This
+  is important because PyVCP panels export HAL pins, and other HAL
+  components will need them present to connect to them. Note the capital
+  W and lowercase n. If you use the -Wn option you must use the -c option
+  to name the panel.
 
-* 'pyvcp < -g> < -c> panel.xml' - 
-     builds the panel with the optional geometry and/or panelname from the
-    xml panel file. The panel.xml can be any name that ends in .xml. The
-    .xml file is the file that describes how to build the panel. You must
-    add the path name if the panel is not in the directory that the HAL
-    script is in. 
+* 'pyvcp < -g> < -c> panel.xml' -
+  builds the panel with the optional geometry and/or panelname from the
+  xml panel file. The panel.xml can be any name that ends in .xml. The
+  .xml file is the file that describes how to build the panel. You must
+  add the path name if the panel is not in the directory that the HAL
+  script is in.
 
-* '-g <WxH><+X+Y>' - 
-     specifies the geometry to be used when constructing the panel. The
-    syntax is 'Width x Height + X Anchor + Y Anchor'. You can set the size
-    or position or both. The anchor point is the upper left corner of the
-    panel. An example is -g 250x500+800+0 This sets the panel at 250 pixels
-    wide, 500 pixels tall, and anchors it at X800 Y0.
+* '-g <WxH><+X+Y>' -
+  specifies the geometry to be used when constructing the panel. The
+  syntax is 'Width x Height + X Anchor + Y Anchor'. You can set the size
+  or position or both. The anchor point is the upper left corner of the
+  panel. An example is -g 250x500+800+0 This sets the panel at 250 pixels
+  wide, 500 pixels tall, and anchors it at X800 Y0.
 
-* '-c panelname' - 
-     tells PyVCP what to call the component and also the title of the
-    window. The panelname can be any name without spaces. 
+* '-c panelname' -
+  tells PyVCP what to call the component and also the title of the
+  window. The panelname can be any name without spaces.
 
 To load a 'stand alone' PyVCP panel without LinuxCNC use this command:
 
@@ -224,6 +224,7 @@ This tells HAL to wait for component 'panelname' to close before
 continuing HAL commands. This is usually set as the last command so that
 HAL shuts down when the panel is closed.
 
+[[sec:Documentation-des-widgets]]
 == Widgets
 
 HAL signals come in two variants, bits and numbers. Bits are off/on
@@ -350,7 +351,7 @@ The label has an optional disable pin that is created when you add
 </label>
 -------------------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_label.png[]
 
@@ -458,8 +459,8 @@ This is a variant of the 'led' widget.
 </vbox>
 -------------------------------------------------
 
-The above code produced this example. 
-Also showing a vertical box with relief. 
+The above code produced this example.
+Also showing a vertical box with relief.
 
 image::images/pyvcp_rectled.png[]
 
@@ -501,7 +502,7 @@ add <disable_pin>True</disable_pin>.
 </button
 ---------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_button.png[]
 
@@ -528,10 +529,10 @@ display remotely.
 </checkbutton>
 ---------------------------------------
 
-The above code produced this example. 
-The coolant checkbutton is checked. 
-Notice the extra spaces in the Chips text 
-to keep the checkbuttons aligned. 
+The above code produced this example.
+The coolant checkbutton is checked.
+Notice the extra spaces in the Chips text
+to keep the checkbuttons aligned.
 
 image::images/pyvcp_checkbutton.png[]
 
@@ -551,7 +552,7 @@ number pin set TRUE will have that value.
 </radiobutton>
 -------------------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_radiobutton.png[]
 
@@ -581,10 +582,10 @@ The number widget displays the value of a float signal.
     <font>("Helvetica",24)</font>
     <format>"+4.4f"</format>
 </number>
---------------------------------------- 
+---------------------------------------
 
 The above code produced this example.
- 
+
 image::images/pyvcp_number.png[]
 
 * '<font>' - is a Tkinter font type and size specification. One font that
@@ -615,7 +616,7 @@ width is wide enough to cover the largest number you expect to use.
 </s32>
 -------------------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_s32.png[]
 
@@ -672,7 +673,7 @@ them to the same color).
 </bar>
 ---------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_bar.png[]
 
@@ -697,7 +698,7 @@ Meter displays the value of a FLOAT signal using a traditional dial indicator.
 </meter>
 -------------------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_meter.png[]
 
@@ -725,7 +726,7 @@ value without HID input.
 </spinbox>
 ---------------------------------------
 
-The above code produced this example. 
+The above code produced this example.
 
 image::images/pyvcp_spinbox.png[]
 
@@ -806,11 +807,11 @@ image::images/pyvcp_dial.png[]
 
 Jogwheel mimics a real jogwheel by outputting a FLOAT pin which counts
 up or down as the wheel is turned, either by dragging in a circular
-motion, or by rolling the mouse-wheel. Optional tags 
+motion, or by rolling the mouse-wheel. Optional tags
 '<text>"My Text"</text>' displays text
 '<bgcolor>"grey"</bgcolor> <fillcolor>"green"</fillcolor>' background & active colors
 '<scale_pin>1</scale_pin>' creates scale text and a FLOAT.scale pin to display jog scale
-'<clear_pin>1</clear_pin>' creates DRO and a BIT.reset pin to reset DRO. Needs scale_pin 
+'<clear_pin>1</clear_pin>' creates DRO and a BIT.reset pin to reset DRO. Needs scale_pin
 for scaled DRO. shift+click resets DRO also
 
 [source,xml]
@@ -893,10 +894,10 @@ Container borders are specified with two tags used together. The
 width of the border.
 
 * '<relief>type</relief>' -
-    Where 'type' is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE
+  Where 'type' is FLAT, SUNKEN, RAISED, GROOVE, or RIDGE
 
-* '<bd>n</bd>' - 
-    Where 'n' is the width of the border.
+* '<bd>n</bd>' -
+  Where 'n' is the width of the border.
 
 [source,xml]
 ----
@@ -937,11 +938,11 @@ image::images/pyvcp_borders.png[]
 .Fill
 
 Container fill are specified with the '<boxfill fill=""/>' tag. Valid entries
-are none, x, y and both. The x fill is a horizontal fill and the y fill is a 
+are none, x, y and both. The x fill is a horizontal fill and the y fill is a
 vertical fill
 
-* '<boxfill fill ="style"/>' - 
-    Where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
+* '<boxfill fill ="style"/>' -
+  Where 'style' is none, x, y, or both. Default is x for Vbox and y for Hbox.
 
 .Anchor
 
@@ -951,15 +952,14 @@ n, s, e, w, for center, north, south, east and west. Combinations like sw, se,
 nw and ne are also valid.
 
 * '<boxanchor anchor="position"/>' -
-    Where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
+  Where 'position' is center, n, s, e, w, ne, nw, se or sw. Default is center.
 
 .Expand
 
 Container expand is specified with the boolean <boxexpand expand=""/> tag.
 Valid entries are yes, no.
 
-* '<boxexpand expand="boolean"/>' -
-    Where 'boolean' is either yes or no. Default is yes.
+* '<boxexpand expand="boolean"/>' - Where 'boolean' is either yes or no. Default is yes.
 
 .Hbox
 
@@ -1008,8 +1008,8 @@ The above code produced this example.
 
 image::images/pyvcp_vbox.png[]
 
-Inside a Vbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>'
-, and '<boxexpand expand=""/>' tags to choose how items in the box behave
+Inside a Vbox, you can use the '<boxfill fill=""/>', '<boxanchor anchor=""/>',
+jnd '<boxexpand expand=""/>' tags to choose how items in the box behave
 when the window is re-sized. The default is 'fill="x"', 'anchor="center"',
 'expand="yes"' for a Hbox.
 
@@ -1039,7 +1039,7 @@ A table is a container that allows layout in a grid of rows and
 columns. Each row is started by a '<tablerow/>' tag. A contained
 widget may span rows or columns through the use of
 the '<tablespan rows= cols=/>' tag. The sides of the cells to which
-the contained widgets “stick”
+the contained widgets "stick"
 may be set through the use of the '<tablesticky sticky=/>' tag. A
 table expands on its flexible rows and columns.
 
@@ -1116,5 +1116,4 @@ image::images/pyvcp_tabs1.png[]
 image::images/pyvcp_tabs2.png[]
 
 image::images/pyvcp_tabs3.png[]
-
 

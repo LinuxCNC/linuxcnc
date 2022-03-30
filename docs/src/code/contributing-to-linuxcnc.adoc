@@ -1,3 +1,5 @@
+:lang: en
+
 = Contributing to LinuxCNC
 
 == Introduction
@@ -192,8 +194,8 @@ third commit, add a new feature which is made easier by the refactoring
 and which would not have worked without fixing that bug.
 
 This is helpful to reviewers, because it is easier to see that the
-"factor out code into new function" step was right when there aren’t
-other edits mixed in; it’s easier to see that the bug is fixed when
+"factor out code into new function" step was right when there aren't
+other edits mixed in; it's easier to see that the bug is fixed when
 the change that fixes it is separate from the new feature; and so on.
 
 === Follow the style of the surrounding code
@@ -205,9 +207,9 @@ done, do it as a commit separate from any semantic changes.
 
 === Simplify complicated history before sharing with fellow developers
 
-With git, it’s possible to record every edit and false start as a
+With git, it's possible to record every edit and false start as a
 separate commit. This is very convenient as a way to create checkpoints
-during development, but often you don’t want to share these false
+during development, but often you don't want to share these false
 starts with others.
 
 Git provides two main ways to clean history, both of which can be done
@@ -216,7 +218,7 @@ freely before you share the change:
 `git commit --amend` lets you make additional changes to the last thing
 you committed, optionally modifying the commit message as well. Use this
 if you realized right away that you left something out of the commit,
-or if you typo’d the commit message.
+or if you typo'd the commit message.
 
 `git rebase --interactive upstream-branch` lets you go back through each
 commit made since you forked your feature branch from the upstream branch,

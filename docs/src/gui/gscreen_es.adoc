@@ -1,6 +1,6 @@
 :lang: es
-[[cha:gscreen]]
 
+[[cha:gscreen]]
 = Gscreen
 
 == Introducción
@@ -52,7 +52,8 @@ programado en C. PyGTK usa Python para 'enlazar' con GTK.
 
 == GladeVCP
 
-<<cha:glade-vcp,GladeVCP>> enlaza LinuxCNC, HAL, PyGTK y Glade, todos juntos.
+//cha:glade-vcp
+GladeVCP enlaza LinuxCNC, HAL, PyGTK y Glade, todos juntos.
 LinuxCNC requiere algunos widgets especiales; GladeVCP los suministra. Muchos son solo
 extensiones HAL a los widgets PyGTK existentes. GladeVCP crea los pines HAL para los
 widgets especiales descritos en el archivo Glade. GladeVCP también permite agregar
@@ -112,7 +113,7 @@ agregan widgets, puede configurar llamadas de señal desde el editor de Glade pa
 rutinas que haya escrito en el archivo handler. De esta forma podrás tener un
 comportamiento personalizado. Las rutinas del handler pueden llamar a las rutinas predeterminadas de Gscreen, ya sea antes
 o después de ejecutar su propio código. De esta manera se puede añadir comportamiento extra,
-como añadir un sonido. Por favor vea el <<cha:glade-vcp, capitulo GladeVCP>> para entender
+como añadir un sonido. Por favor vea el capitulo GladeVCP para entender
 los fundamentos de los archivos handler GladeVCP. Gscreen utiliza una técnica muy similar.
 
 .Temas
@@ -183,7 +184,7 @@ probablemente no va a funcionar bien sin cambiar el código de Python, pero move
 Widget manteniendo el nombre suele ser viable.
 
 Gscreen aprovecha los widgets de GladeVCP tanto como sea posible, para evitar agregar código python.
-Aprender acerca de los widgets de <<cha:glade-vcp, GladeVCP >> es un requisito previo.
+Aprender acerca de los widgets de GladeVCP es un requisito previo.
 Si los widgets existentes le brindan la función que desea o necesita, entonces no
 es necesario agregar código Python; solo guarde el archivo Glade en su carpeta de configuración.
 Si necesita algo más personalizado, entonces debe hacer algo de programación en Python.

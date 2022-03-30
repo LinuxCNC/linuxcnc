@@ -1,5 +1,6 @@
-[[cha:pncconf-wizard]]
+:lang: en
 
+[[cha:pncconf-wizard]]
 = Mesa Configuration Wizard
 
 PNCconf is made to help build configurations that utilize specific Mesa 

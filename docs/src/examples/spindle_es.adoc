@@ -1,16 +1,13 @@
 :lang: es
 
 [[cha:spindle-control]]
+= Control de husillo(((0-10v Spindle Speed Example)))
 
 LinuxCNC puede controlar hasta 8 husillos. El número se establece en el archivo INI.
 Todos los ejemplos a continuación se refieren a una configuración de husillo único con
 pines de control del husillo con nombres como spindle.0...
 En el caso de una máquina de husillos múltiples, todo lo que cambia es que
 existen pines adicionales con nombres como spindle.6...
-
-= Control de husillo
-
-(((0-10v Spindle Speed Example)))
 
 == Velocidad del husillo 0-10v
 
@@ -220,9 +217,8 @@ net spindle-phase-b encoder.3.phase-B
 net spindle-index encoder.3.phase-Z <= parport.0.pin-11-in
 ----
 
-(((Spindle At Speed Example)))
-
-=== Husillo a velocidad
+[[sec:spindle-at-speed]]
+=== Husillo a velocidad(((Spindle At Speed Example)))
 
 Para permitir que LinuxCNC espere a que el eje esté a velocidad antes de ejecutar
 una serie de movimientos, debe establecer spindle.N.at-speed en true cuando

@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:m-codes]]
-
 = Códigos M
 
 :ini: {basebackend@docbook:'':ini}

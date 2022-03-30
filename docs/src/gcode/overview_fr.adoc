@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:g-code-overview]]
 = Vue générale du langage G-codes de LinuxCNC
-
-[[cha:Vue-generale-G-code]]
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -193,9 +192,8 @@ entière à moins de quatre décimales, il est considéré comme entier, par
 exemple 0.9999.
 
 
-[[sec:parametres]]
-== Paramètres (Variables)
-(((Paramètres)))
+[[sec:overview-parameters]]
+== Paramètres (Variables)(((Paramètres)))
 
 Le langage RS274/NGC supporte les 'paramètres', qui sont appelés 'variables'
 dans d'autres langages de programmation. Il existe plusieurs types de paramètres
@@ -249,23 +247,20 @@ volatiles sont remis à zéro.
 
 Utilisation prévue::
  . Paramètres utilisateur:: paramètres numérotés dans l'étendue 31 à 5000, 
-paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Sont
-disponibles pour une utilisation générale de stockage de valeurs flottantes, 
-comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un
-programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).
-
+   paramètres nommés globaux et locaux excepté les paramètres prédéfinis. Sont
+   disponibles pour une utilisation générale de stockage de valeurs flottantes, 
+   comme des résultats intermédiaires, des drapeaux, etc. durant l'exécution d'un
+   programme. Ils sont en lecture/écriture (une valeur peut leur être attribuée).
  . <<sec:Parametres-sous-programme, Paramètres de sous-programme>> - Ils sont
-utilisés pour conserver les paramètres actuels passés à un sous-programme.
-
- . <<sec:Parametres-Numerotes,paramètres numérotés>> - la plupart de ces
-paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.
+   utilisés pour conserver les paramètres actuels passés à un sous-programme.
+ . <<sub:numbered-parameters,paramètres numérotés>> - la plupart de ces
+   paramètres sont utilisés pour accéder aux offsets des systèmes de coordonnées.
  . <<sec:Predefined-Named-Parameters, paramètres nommés prédéfinis>> - utilisés pour 
-déterminer l'état de l'interpréteur et de la machine, par exemple '#<_relative>'
-retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
+   déterminer l'état de l'interpréteur et de la machine, par exemple '#<_relative>'
+   retourne 1 si G91 est actif et 0 si G90 est activé. Ils sont en lecture seule.
 
-[[sec:Parametres-Numerotes]]
-== Paramètres numérotés
-(((Paramètres numérotés)))
+[[sub:numbered-parameters]]
+== Paramètres numérotés(((Paramètres numérotés)))
 
 Un paramètre numéroté commence par le caractère '#' suivi par un
 entier compris entre 1 et (actuellement) 5602. Le paramètre est
@@ -687,7 +682,7 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 == Répétitions d'items
 
 Une ligne peut contenir autant de mots G que voulu, mais un seul du même 
-<<sec:Groupes-modaux, groupe modal>>.
+<<sec:Groupes-modaux,groupe modal>>.
 
 Une ligne peut avoir de zéro à quatre mots M. Mais pas deux mots M du
 même groupe modal.
@@ -824,8 +819,7 @@ C'est une erreur si:
 
 
 [[sec:Groupes-modaux]]
-== Groupes modaux
-(((Groupes modaux)))
+== Groupes modaux(((Groupes modaux)))
 
 Les commandes modales sont arrangées par lots appelés 'groupes
 modaux', à tout moment, un seul membre d'un groupe modal peut être
@@ -838,8 +832,7 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 
 
 [[tbl:G-codes-modaux]]
-.Groupes modaux des G-codes
-(((G-codes modaux)))
+.Groupes modaux des G-codes (((G-codes modaux)))
 
 [width="100%", cols="4,6", options="header"]
 |==========================================================
@@ -968,12 +961,11 @@ commentaires actifs.
                             chacune des mesures réussie. 
 * '(PROBECLOSE)'. - fermera le fichier de log palpeur.
 
-Voir la section <<sec:G38-x-Palpeur, sur la mesure au palpeur>> pour d'autres
+Voir la section <<gcode:g38,sur la mesure au palpeur>> pour d'autres
 informations sur le palpage avec G38.
 
 [[sec:Log-general]]
-== Log général
-(((Log général)))
+== Log général(((Log général)))
 
 * '(LOGOPEN,filename.txt)' - Ouvre le fichier de log 'filename.txt'.
                             Si le fichier existe déjà, il sera tronqué.
@@ -1025,7 +1017,7 @@ Rappelez vous que
 == Exigences des fichiers
 
 Un programme G-code doit contenir une ou plusieurs lignes de G-code puis se
-terminer par une ligne de<<sec:M2-M30, fin de programme>>.
+terminer par une ligne de<<mcode:m2-m30,fin de programme>>.
 Tout G-code, placé après cette ligne de fin de programme, sera ignoré.
 
 Si le programme n'utilise pas G-code de fin de programme, une paire de
@@ -1053,8 +1045,7 @@ chargement des fichiers conséquents. L'aperçu peut être désactivé en
 passant un <<sub:Commentaires-speciaux,commentaire spécial>>.
 
 [[sec:Ordre-d-execution]]
-== Ordre d'exécution
-(((Ordre d'exécution)))
+== Ordre d'exécution(((Ordre d'exécution)))
 
 L'ordre d'exécution des éléments d'une ligne est défini, non pas par sa position
 dans la ligne mais par la liste suivante:
@@ -1089,8 +1080,7 @@ mot n'est permis sur la même ligne.
    (éventuellement) par G53.
 * Arrêt (M0, M1, M2, M30, M60).
 
-== G-Code: Bonnes pratiques
-(((G-Code bonnes pratiques)))
+== G-Code: Bonnes pratiques(((G-Code bonnes pratiques)))
 
 === Utiliser un nombre de décimales approprié
 

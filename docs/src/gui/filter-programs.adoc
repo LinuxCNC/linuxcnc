@@ -1,7 +1,9 @@
+:lang: en
 
 = Filter Programs
 
 == Introduction
+
 Most of Linuxcnc's screens have the ability to send loaded files through a 'filter program' or +
 use the filter program to make Gcode. +
 This filter can do any desired task: Something as simple as making sure +
@@ -9,6 +11,7 @@ the file ends with 'M2', or something as complicated as generating +
 G-Code from an image. +
 
 == Setting  up the INI for Program Filters +
+
 The '[FILTER]'  section of the ini file controls how filters work. +
 First, for each type of file, write a 'PROGRAM_EXTENSION' line. +
 Then, specify the program to execute for each type of file. +
@@ -38,7 +41,6 @@ treated as G-code. One such example script is available at +
 series of holes along the circumference of a circle. +
 
 .Circular Holes
-
 image::images/holes.png[align="center", alt="Circular Holes"]
 
 If the filter program sends lines to stderr of the form:
@@ -84,6 +86,7 @@ Here is a similar program but it actually could filters. +
 It puts up a Pyqt5 dialog with a cancel button. +
 Then it reads the program line by line and passes it to standard output. +
 As it does along it updates any process listening to standard error output'
+
 [source,python]
 ----
 #!/usr/bin/env python3

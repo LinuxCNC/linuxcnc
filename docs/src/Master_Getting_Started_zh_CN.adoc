@@ -1,8 +1,7 @@
+:lang: zh_CN
 :lversion: {sys: cat ../VERSION}
 :date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
-Getting Started V{lversion}, {date}
-===================================
-:lang: zh_CN
+= Getting Started V{lversion}, {date}
 :masterdir: {indir}
 :revdate: 2021-10-28
 

@@ -874,7 +874,7 @@ G28 usa los valores almacenados en los <<sub:numbered-parameters,parámetros>>
 Los valores de los parametros son coordenadas máquina 'absolutas' en las 'unidades' de máquina nativas
 especificadas en el archivo ini. Todos los ejes definidos en el archivo ini se moverán cuando
 se emite un G28. Si no se almacenan posiciones con G28.1, todos los ejes irán al
-<<sec.machine-coordinate-system,origen de máquina>>.
+<<sec:machine-coordinate-system,origen de máquina>>.
 
 * 'G28' - hace un <<gcode:g0,movimiento rápido>> desde ls actual
   posición a la posición 'absoluta' de los valores en los parámetros 5161-5166.
@@ -909,7 +909,7 @@ a donde moverse. Los valores de los parámetros son coordenadas máquina 'absolu
 en las 'unidades' de máquina nativas especificadas en el archivo ini.
 Todos los ejes definidos en el archivo ini se moverán cuando se emita un G30. Si no
 se almacenan las posiciones con G30.1, todos los ejes irán al
-<<sec.machine-coordinate-system,origen máquina>>.
+<<sec:machine-coordinate-system,origen máquina>>.
 
 [NOTE]
 Los parámetros G30 se usarán para mover la herramienta cuando se programe un M6
@@ -1361,7 +1361,7 @@ dentro del sistema de coordenadas de la pieza de trabajo. Más información sobr
 G53 ejes
 ----
 
-Para moverse en el <<sec.machine-coordinate-system,sistema de coordenadas de máquina>>,
+Para moverse en el <<sec:machine-coordinate-system,sistema de coordenadas de máquina>>,
 programe 'G53' en la misma línea que un movimiento lineal. 'G53' no es modal y debe ser
 programado en cada línea. 'G0' o 'G1' no tiene que ser programado en la misma
 línea si están actualmente activos.
@@ -2357,7 +2357,7 @@ movimiento), donde las palabras de eje contienen los números de eje que desea.
 Todas las palabras de eje son opcionales, pero se debe utilizar al menos una.
 Si no se usa una palabra de eje para un eje dado, el offset para ese eje será cero.
 
-Cuando se ejecuta 'G92', se mueven los <<sec.machine-coordinate-system, origenes>>
+Cuando se ejecuta 'G92', se mueven los <<sec:machine-coordinate-system, origenes>>
 de todos los sistemas de coordenadas. Se mueven de tal manera que el valor del
 punto controlado actual, en el sistema de coordenadas actualmente activo,
 se convierte en el valor especificado. Todos los orígenes de sistema de coordenadas.
@@ -2398,7 +2398,7 @@ El comando 'G52' también se puede usar para cambiar este offset; ver la secció
 Consulte la sección <<cha:coordinate-system,Sistema de coordenadas>> para obtener un
 resumen de los sistemas de coordenadas.
 
-Consulte la sección <<gcode:parameters,parámetros>> para obtener más información.
+Consulte la sección <<sec:overview-parameters,parámetros>> para obtener más información.
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Restablecer compensaciones G92

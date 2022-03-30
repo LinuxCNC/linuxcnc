@@ -1,12 +1,10 @@
 ﻿:lang: fr
 
+[[cha:Assistant-graphique-StepConf]] (((Assistant stepconf)))
 = Assistant graphique de configuration StepConf
 
-[[cha:Assistant-graphique-StepConf]] (((Assistant stepconf)))
-
-[[sec:Introduction]]
-== Introduction
-(((Introduction)))
+[[sec:gettingstarted-stepconf-introduction]]
+== Introduction(((Introduction)))
 
 LinuxCNC est capable de contrôler un large éventail de machines
 utilisant de nombreuses interfaces matérielles différentes.

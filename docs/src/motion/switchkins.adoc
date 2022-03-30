@@ -1,5 +1,6 @@
-[[cha:switchable-kinematics]]
+:lang: en
 
+[[cha:switchable-kinematics]]
 = Switchable Kinematics (switchkins)
 
 == Introduction
@@ -270,8 +271,8 @@ Mcode scripts can be designed as follows:
 
 . read and parse ini file
 . hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
-according to the 'identity-referenced' joint number ini file
-setting ([JOINT_N])
+  according to the 'identity-referenced' joint number ini file
+  setting ([JOINT_N])
 . hal: setp motion.switchkins-type 1
 . mdi: execute a syncing G-code (M66E0L0)
 
@@ -279,7 +280,7 @@ setting ([JOINT_N])
 
 . read and parse ini file
 . hal: setp the ini-hal limit pins for each axis letter ([AXIS_L])
-according to the appropriate inifile setting ([AXIS_L])
+  according to the appropriate inifile setting ([AXIS_L])
 . hal: setp motion.switchkins-type 0
 . mdi: execute a syncing G-code (M66E0L0)
 
@@ -377,3 +378,4 @@ Each kinstype (0,1,2) setup routine can (optionally) create hal
 pins and set them to default values.  When all setup routines
 finish, rtapi_app_main() issues hal_ready() for the component
 to complete creation of the module.
+

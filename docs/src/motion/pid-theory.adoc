@@ -1,3 +1,5 @@
+:lang: en
+
 = PID Tuning
 
 == PID Controller
@@ -78,7 +80,6 @@ to and adjust the controlled quantity. These additions are actually
 'subtractions' of error, because the proportions are usually negative:
 
 .Proportional
-
 To handle the present, the error is multiplied by a (negative)
 constant P (for 'proportional'), and added to (subtracting error from)
 the controlled quantity. P is only valid in the band over which a
@@ -87,7 +88,6 @@ that when the error is zero, a proportional controller's output is
 zero.
 
 .Integral
-
 To learn from the past, the error is integrated (added up) over a
 period of time, and then multiplied by a (negative) constant I (making
 an average), and added to (subtracting error from) the controlled
@@ -102,7 +102,6 @@ the set point is always being reduced. Therefore, eventually, a
 well-tuned PID loop's process output will settle down at the set point.
 
 .Derivative
-
 To handle the future, the first derivative (the slope of the error)
 over time is calculated, and multiplied by another (negative) constant
 D, and also added to (subtracting error from) the controlled quantity.
@@ -143,7 +142,6 @@ system to a step change in input, measuring the output as a function of
 time, and using this response to determine the control parameters.
 
 .Simple method
-
 If the system must remain on line, one tuning method is to first set
 the I and D values to zero. Increase the P until the output of the loop
 oscillates. Then increase I until oscillation stops. Finally, increase
@@ -152,17 +150,16 @@ loop tuning usually overshoots slightly to reach the set point more
 quickly; however, some systems cannot accept overshoot.
 
 [width="90%", options="header", cols="^,4*<"]
-|========================================
-|Parameter | Rise Time | Overshoot | Settling Time | Steady State Error
-|P | Decrease | Increase | Small Change | Decrease
-|I | Decrease | Increase | Increase | Eliminate
-|D | Small Change | Decrease | Decrease | Small Change
-|========================================
+|=========================================================================
+|Parameter | Rise Time    | Overshoot | Settling Time | Steady State Error
+|P         | Decrease     | Increase  | Small Change  | Decrease
+|I         | Decrease     | Increase  | Increase      | Eliminate
+|D         | Small Change | Decrease  | Decrease      | Small Change
+|=========================================================================
 
 Effects of increasing parameters
 
 .Ziegler-Nichols method
-
 Another tuning method is formally known as the 'Ziegler-Nichols
 method', introduced by John G. Ziegler and Nathaniel B. Nichols. It
 starts in the same way as the method described before: first set the I
@@ -177,14 +174,13 @@ controls as the table shows:
 [width="90%", options="header", cols="4*^"]
 |==========================================
 |Control type | P       | I        | D
-|P            | .5K~c~  |          | 
-|PI           | .45K~c~ | P~c~/1.2 | 
+|P            | .5K~c~  |          |
+|PI           | .45K~c~ | P~c~/1.2 |
 |PID          | .6K~c~  | P~c~/2   | P~c~/8
 |==========================================
 
 .Final Steps
-
 After tuning the axis check the following error with Halscope to make
-sure it is within your machine requirements. More information on 
-Halscope is in the HAL User manual. 
+sure it is within your machine requirements. More information on
+Halscope is in the HAL User manual.
 
