@@ -180,7 +180,7 @@ void ButtonAddSectionDoneClickSignal( )
 	// verify if name already exists...
 	if ( VerifyIfSectionNameAlreadyExist( pSectionNameEntered ) )
 	{
-		ShowMessageBox( _("Error"), _("This section name already exist or is incorrect !!!"), _("Ok") );
+		ShowMessageBoxError( _("This section name already exists or is incorrect !!!") );
 	}
 	else
 	{
@@ -209,7 +209,7 @@ void ButtonAddSectionDoneClickSignal( )
 		
 			if ( SubNbr>=0 && VerifyIfSubRoutineNumberExist( SubNbr ))
 			{
-                ShowMessageBox( _("Error"), _("This sub-routine number for calls is already defined !!!"), _("Ok") );
+				ShowMessageBoxError( _("This sub-routine number for calls is already defined !!!") );
 			}
 			else
 			{
@@ -217,7 +217,7 @@ void ButtonAddSectionDoneClickSignal( )
 				int NewSectionNbrAllocated = AddSection( pSectionNameEntered , Language , SubNbr );
 				if ( NewSectionNbrAllocated==-1 )
 				{
-                    ShowMessageBox( _("Error"), _("Failed to add a new section. Full?"), _("Ok") );
+					ShowMessageBoxError( _("Failed to add a new section. Full?") );
 				}
 				else
 				{
@@ -233,7 +233,7 @@ void ButtonAddClickSignal( )
 {
 	if ( InfosGene->LadderState==STATE_RUN )
 	{
-		ShowMessageBox( _("Error"), _("Not possible when program running..."), _("Ok") );
+		ShowMessageBoxError( _("Not possible when program running...") );
 	}
 	else
 	{
@@ -303,7 +303,7 @@ void ButtonDelClickSignal( )
 {
 	if ( InfosGene->LadderState==STATE_RUN )
 	{
-		ShowMessageBox( _("Error"), _("Not possible when program running..."), _("Ok") );
+		ShowMessageBoxError( _("Not possible when program running...") );
 	}
 	else
 	{
@@ -316,7 +316,7 @@ void ButtonDelClickSignal( )
 			}
 			else
 			{
-				ShowMessageBox( _("Error"), _("You can not delete the last section..."), _("Ok") );
+				ShowMessageBoxError( _("You can not delete the last section...") );
 			}
 		}
 	}
@@ -332,7 +332,7 @@ void ButtonMoveUpClickSignal( )
 		}
 		else
 		{
-		ShowMessageBox( _("Error"), _("This section is already executed the first !"), _("Ok") );
+			ShowMessageBoxError( _("This section is already executed the first !") );
 		}
 		ManagerDisplaySections( FALSE/*ForgetSectionSelected*/ );
 }
@@ -346,7 +346,7 @@ void ButtonMoveDownClickSignal( )
 		}
 		else
 		{
-			ShowMessageBox( _("Error"), _("This section is already executed the latest !"), _("Ok") );
+			ShowMessageBoxError( _("This section is already executed the latest !") );
 		}
 		ManagerDisplaySections( FALSE/*ForgetSectionSelected*/ );
 }

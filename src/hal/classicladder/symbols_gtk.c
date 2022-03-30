@@ -129,7 +129,7 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 			}
 			else if ( new_text[ 0 ]!='%' )
 			{
-				ShowMessageBox(_("Error"),_("A variable name always start with '%' character !"),_("Ok"));
+				ShowMessageBoxError( _("A variable name always start with '%' character !") );
 			}
 			else
 			{
@@ -146,9 +146,9 @@ void Callback_TextEdited(GtkCellRendererText *cell, gchar *path_string,
 				else
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox( _("Error"), ErrorMessageVarParser, _("Ok") );
+						ShowMessageBoxError( ErrorMessageVarParser );
 					else
-						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
+						ShowMessageBoxError( _("Unknown variable...") );
 				}
 			}
 			break;

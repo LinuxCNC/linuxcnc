@@ -10,6 +10,7 @@ Backported from 0.9.113:
 --- Mouse scroll functionality.
 --- Minor changes related to GUI and open/save dialog.
 --- Macros in 'classicladder_gtk.h', used for compatibility with GTK 2 and GTK 3.
+--- Backport ShowMessageBoxError(), shorthand for displaying error messages.
 
 global, some changes is quite old, but undocumented:
 --- Function sprintf() has been changed to snprintf().

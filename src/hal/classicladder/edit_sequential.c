@@ -94,9 +94,9 @@ void SaveSeqElementProperties( void )
 							&EditSeqDatas.Transition[ OffsetSeqEleEdited ].VarNumCondi, NULL, FALSE/*PartialNames*/ )==FALSE )
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
+						ShowMessageBoxError( ErrorMessageVarParser );
 					else
-						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
+						ShowMessageBoxError( _("Unknown variable...") );
 				}
 				break;
 			case ELE_SEQ_COMMENT:
@@ -408,14 +408,14 @@ printf(_("Do link : transi=%d (top=%d), step=%d\n"), OffsetTransi, TopOfTransi, 
 		if ( pTransi->NumStepToDesactiv[ 0 ]==-1 )
 			pTransi->NumStepToDesactiv[ 0 ] = OffsetStep;
 		else
-			ShowMessageBox(_("Error"),_("There is already a step to desactivate for this transition (clicked on top part)..."),_("Ok"));
+			ShowMessageBoxError( _("There is already a step to deactivate for this transition (clicked on top part)...") );
 	}
 	else
 	{
 		if ( pTransi->NumStepToActiv[ 0 ]==-1 )
 			pTransi->NumStepToActiv[ 0 ] = OffsetStep;
 		else
-			ShowMessageBox(_("Error"),_("There is already a step to activate for this transition (clicked on bottom part)..."),_("Ok"));
+			ShowMessageBoxError( _("There is already a step to activate for this transition (clicked on bottom part)...") );
 	}
 }
 
@@ -430,7 +430,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 	int LeftX,RightX;
 	if ( !ForManySteps && (TypeEle1==ELE_SEQ_STEP || TypeEle2==ELE_SEQ_STEP ) )
 	{
-		ShowMessageBox(_("Error"),_("Not selected first and last transitions to be joined !!??"),_("Ok"));
+		ShowMessageBoxError( _("Not selected first and last transitions to be joined !!??") );
 		return FALSE;
 	}
 	if ( TypeEle1==ELE_SEQ_STEP )
@@ -447,7 +447,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 	}
 	else
 	{
-		ShowMessageBox(_("Error"),_("Unknown element type for Ele1"),_("Ok"));
+		ShowMessageBoxError( _("Unknown element type for Ele1") );
 		return FALSE;
 	}
 	if ( TypeEle2==ELE_SEQ_STEP )
@@ -461,7 +461,7 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 		{
 			if ( StepsBaseY!=EditSeqDatas.Step[ OffEle1 ].PosiY )
 			{
-				ShowMessageBox(_("Error"),_("First and last steps selected are not on the same line !!??"),_("Ok"));
+				ShowMessageBoxError( _("First and last steps selected are not on the same line !!??") );
 				return FALSE;
 			}
 		}
@@ -478,14 +478,14 @@ char CommonSearchForManyStepsOrTransi( char ForManySteps, int TypeEle1, int OffE
 		{
 			if ( TransitionsBaseY!=EditSeqDatas.Transition[ OffEle1 ].PosiY )
 			{
-				ShowMessageBox(_("Error"),_("First and last transitions selected are not on the same line !!??"),_("Ok"));
+				ShowMessageBoxError( _("First and last transitions selected are not on the same line !!??") );
 				return FALSE;
 			}
 		}
 	}
 	else
 	{
-		ShowMessageBox(_("Error"),_("Unknown element type for Ele2"),_("Ok"));
+		ShowMessageBoxError( _("Unknown element type for Ele2") );
 		return FALSE;
 	}
 
@@ -534,7 +534,7 @@ void DoManyStepsActOrDesact( int ForPage, int ToolBarFlagStart, int TypeEle1, in
 	}
 	if ( OffsetTransiFound==-1 || StepsBaseY==-1 )
 	{
-			ShowMessageBox(_("Error"),_("Error in selection or not possible..."),_("Ok"));
+			ShowMessageBoxError( _("Error in selection or not possible...") );
 	}
 	else
 	{
@@ -579,7 +579,7 @@ void DoManyTransitionsLinked( int ForPage, int ToolBarFlagStart, int TypeEle1, i
 
 	if ( TransisBaseY==-1 )
 	{
-			ShowMessageBox(_("Error"),_("Error in selection or not possible..."),_("Ok"));
+			ShowMessageBoxError( _("Error in selection or not possible...") );
 	}
 	else
 	{
@@ -649,7 +649,7 @@ printf(_("=>step to activ=%d, step to desactiv=%d\n"), StepToAct, StepToDesact )
 		}
 		else
 		{
-			ShowMessageBox(_("Error"),_("Not found at least 2 transitions linked..."),_("Ok"));
+			ShowMessageBoxError( _("Not found at least 2 transitions linked...") );
 		}
 
 
@@ -773,19 +773,19 @@ void EditElementInSeqPage(double x,double y)
 									}
 									else
 									{
-										ShowMessageBox(_("Error"),_("Sequential memory full for steps"),_("Ok"));
+										ShowMessageBoxError( _("Sequential memory full for steps") );
 									}
 								}
 								else
 								{
-									ShowMessageBox(_("Error"),_("There is already an element!"),_("Ok"));
+									ShowMessageBoxError( _("There is already an element!") );
 								}
 							}
 						}
 					}
 					else
 					{
-						ShowMessageBox(_("Error"),_("A step can't be placed on even lines"),_("Ok"));
+						ShowMessageBoxError( _("A step can't be placed on even lines") );
 					}
 				}
 				if ( EditDatas.NumElementSelectedInToolBar==ELE_SEQ_TRANSITION
@@ -813,19 +813,19 @@ void EditElementInSeqPage(double x,double y)
 									}
 									else
 									{
-										ShowMessageBox(_("Error"),_("Sequential memory full for transition"),_("Ok"));
+										ShowMessageBoxError( _("Sequential memory full for transition") );
 									}
 								}
 								else
 								{
-									ShowMessageBox(_("Error"),_("There is already an element!"),_("Ok"));
+									ShowMessageBoxError( _("There is already an element!") );
 								}
 							}
 						}
 					}
 					else
 					{
-						ShowMessageBox(_("Error"),_("A transition can't be placed on odd lines"),_("Ok"));
+						ShowMessageBoxError( _("A transition can't be placed on odd lines") );
 					}
 				}
 				break;
@@ -843,7 +843,7 @@ printf(_("nbr clicks=1!!! (posi=%s), wait next point to link...\n"), (ClickedOnT
 					else if ( TypeFound==ELE_SEQ_TRANSITION )
 						MessageInStatusBar( ClickedOnTopPart?"Now select the step that will be desactivate by this transition.":"Now select the step that will be activate by this transition." );
 					else
-						ShowMessageBox("Error","You haven't selected a step or a transition to link!!!","Ok");
+						ShowMessageBoxError( _("You haven't selected a step or a transition to link!!!") );
 				}
 				if ( CptNbrClicksDone==2 )
 				{
@@ -853,7 +853,7 @@ printf(_("nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"), (ClickedOnTopPa
 					else if ( TypeSeqEleEditedBak==ELE_SEQ_STEP && TypeFound==ELE_SEQ_TRANSITION )
 						DoLinkTransitionAndStep( OffsetFound, ClickedOnTopPart, OffsetSeqEleEditedBak );
 					else
-						ShowMessageBox(_("Error"),_("You haven't selected a transition and then the step to link!!!"),_("Ok"));
+						ShowMessageBoxError( _("You haven't selected a transition and then the step to link!!!") );
 					CptNbrClicksDone = 0;
 					MessageInStatusBar( "" );
 				}
@@ -888,17 +888,17 @@ printf(_("nbr clicks=2!!! (posi=%s), TypeBak=%d, TypeNow=%d\n"), (ClickedOnTopPa
 						}
 						else
 						{
-							ShowMessageBox(_("Error"),_("Sequential memory full for comments"),_("Ok"));
+							ShowMessageBoxError( _("Sequential memory full for comments") );
 						}
 					}
 					else
 					{
-						ShowMessageBox(_("Error"),_("There is already an element on 4 horizontal blocks required!"),_("Ok"));
+						ShowMessageBoxError( _("There is already an element on 4 horizontal blocks required!") );
 					}
 				}
 				else
 				{
-					ShowMessageBox(_("Error"),_("Not enough room on the right here..."),_("Ok"));
+					ShowMessageBoxError( _("Not enough room on the right here...") );
 				}
 				break;
 

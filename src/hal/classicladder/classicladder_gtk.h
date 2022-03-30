@@ -65,6 +65,7 @@ void DoActionExportSvg( void );
 void DoActionExportPng( void );
 void DoActionCopyToClipboard( void );
 void ShowMessageBox(const char * title, const char * text, const char * button);
+void ShowMessageBoxError( const char * text );
 void ShowConfirmationBoxWithChoiceOrNot(const char * title, const char * text, void * function_if_yes, char HaveTheChoice);
 void ShowConfirmationBox(const char * title, const char * text, void * function_if_yes);
 void RefreshOneBoolVar( int Type, int Num, int Val );

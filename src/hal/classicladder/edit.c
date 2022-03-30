@@ -477,19 +477,19 @@ void SaveElementProperties()
 						{
 							if ( TEST_VAR_IS_A_BOOL( IndexedVarTypeEntered, IndexedVarNumEntered ) )
 							{
-								ShowMessageBox(_("Error"),_("Incompatible type of variable for index (must be an integer!)"),_("Ok"));
+								ShowMessageBoxError( _("Incompatible type of variable for index (must be an integer!)") );
 								cCorrectRules = FALSE;
 							}
 						}
 						else
 						{
-							ShowMessageBox(_("Error"),_("Parser error for indexed variable !"),_("Ok"));
+							ShowMessageBoxError( _("Parser error for indexed variable !") );
 							cCorrectRules = FALSE;
 						}
 					}
 					if ( !TEST_VAR_IS_A_BOOL( VarTypeEntered,VarNumEntered ) )
 					{
-						ShowMessageBox(_("Error"),_("You must select a boolean variable !"),_("Ok"));
+						ShowMessageBoxError( _("You must select a boolean variable !") );
 						cCorrectRules = FALSE;
 					}
 					if ( (EditDatas.ElementUnderEdit->Type==ELE_OUTPUT ||
@@ -498,7 +498,7 @@ void SaveElementProperties()
 							 EditDatas.ElementUnderEdit->Type==ELE_OUTPUT_RESET )
 							&& !TestVarIsReadWrite( VarTypeEntered, VarNumEntered ) )
 					{
-						ShowMessageBox(_("Error"),_("You must select a read/write variable for a coil!"),_("Ok"));
+						ShowMessageBoxError( _("You must select a read/write variable for a coil!") );
 						cCorrectRules = FALSE;
 					}
 					if ( cCorrectRules )
@@ -512,9 +512,9 @@ void SaveElementProperties()
 				else
 				{
 					if (ErrorMessageVarParser)
-						ShowMessageBox(_("Error"),ErrorMessageVarParser,_("Ok"));
+						ShowMessageBoxError( ErrorMessageVarParser );
 					else
-						ShowMessageBox( _("Error"), _("Unknown variable..."), _("Ok") );
+						ShowMessageBoxError( _("Unknown variable...") );
 				}
 				break;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
@@ -1248,7 +1248,7 @@ char PrepBeforeSettingTypeEleForComplexBlocsAndExpr( int NumTypeEle, int PosiX, 
 		int BlockNumber = GetFreeNumberFunctionBlock( NumTypeEle );
 		if ( BlockNumber==-1 )
 		{
-			ShowMessageBox( _("Error"), _("No more free function block of this type available..."), _("Ok") );
+			ShowMessageBoxError( _("No more free function block of this type available...") );
 			ResultOk = FALSE;
 		}
 		else
@@ -1260,7 +1260,7 @@ char PrepBeforeSettingTypeEleForComplexBlocsAndExpr( int NumTypeEle, int PosiX, 
 	}
 	if ( !CheckForAllocatingArithmExpr( NumTypeEle, PosiX, PosiY ) )
 	{
-		ShowMessageBox( _("Error"), _("No more free arithmetic expression for this type available..."), _("Ok") );
+		ShowMessageBoxError( _("No more free arithmetic expression for this type available...") );
 		ResultOk = FALSE;
 	}
 	return ResultOk;
@@ -1423,7 +1423,7 @@ void EditElementInThePage(double x,double y)
 		}
 		else
 		{
-			ShowMessageBox( _("Error"), _("You clicked outside of the current rung actually selected..."), _("Ok") );
+			ShowMessageBoxError( _("You clicked outside of the current rung actually selected...") );
 		}
 	}
 #ifdef SEQUENTIAL_SUPPORT

@@ -834,6 +834,10 @@ void ShowMessageBox(const char * title, const char * text, const char * button)
 	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER);
 	gtk_widget_show_all (dialog);
 }
+void ShowMessageBoxError( const char * text )
+{
+	ShowMessageBox( _("Error"), text, _("Ok") );
+}
 
 void DoFunctionOfConfirmationBox( GtkWidget *widget, void * (*function_to_do)(void *) )
 {

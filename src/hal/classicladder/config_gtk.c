@@ -661,7 +661,7 @@ void GetModbusModulesIOSettings( void )
 				{
 					printf(_("Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected...ASKED=%i,MAX=%i\n"),  pConf->OffsetVarMapped+pConf->NbrModbusElements,MaxVars);
 					rtapi_strxcpy( BuffValue, "" );
-					ShowMessageBox(_("Error"),_("Overflow error for I,B,Q,IQ or WQ mapping detected..."),"Ok");
+					ShowMessageBoxError( _("Overflow error for I,Q,B,IQ,WQ or W mapping detected...") );
 				}
 			}
 		/* done at the end, do not forget multi-task ! */
@@ -1028,7 +1028,7 @@ void GetConfigEventsSettings( void )
 		pCfgEvtLog->FirstVarNum = -1;
 		if ( FirstVarEntered+NbrVarsEntered>GetSizeVarsForTypeVar( VAR_MEM_BIT ) )
 		{
-			ShowMessageBox("Error","Overflow error for first/nbrs detected...","Ok");
+			ShowMessageBoxError( _("Overflow error for first/nbrs detected...") );
 		}
 		else
 		{
