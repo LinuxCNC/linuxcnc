@@ -67,6 +67,8 @@ void InitModbusMasterBeforeReadConf( void )
 	ModbusConfig.MapTypeForReadInputRegs = VAR_PHYS_WORD_INPUT;
 	ModbusConfig.MapTypeForReadHoldRegs = VAR_PHYS_WORD_OUTPUT;
 	ModbusConfig.MapTypeForWriteHoldRegs = VAR_PHYS_WORD_OUTPUT;
+
+	InitModbusMasterParams( );
 }
 
 void PrepareModbusMaster( void )

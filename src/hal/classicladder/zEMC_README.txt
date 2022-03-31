@@ -41,6 +41,15 @@ files.c:
 menu_and_toolbar.c:
 --- Rename two menu entries, 'Watch Window' and 'Bit Status Window'.
 
+protocol_modbus_master.c:
+--- Add InitModbusMasterParams() last in InitModbusMasterBeforeReadConf().
+    This was how it was done previously, and is needed for Modbus to properly
+    start when running under LinuxCNC.
+
+socket_modbus_master.c:
+--- In InitSocketModbusMaster(), comment out InitModbusMasterParams(), this is
+    moved to protocol_modbus_master.c in InitModbusMasterBeforeReadConf().
+
 ============================================================
 
 File changes for EMC classicladder 7.124 from original 7.124

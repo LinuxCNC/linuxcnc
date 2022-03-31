@@ -88,7 +88,7 @@ void InitSocketModbusMaster( )
 
 	// WSAStartup for Windows already done for socket server...
 	
-	InitModbusMasterParams( );
+	//InitModbusMasterParams( );
 	for( ScanClientSock=0; ScanClientSock<NBR_CLIENTS_MAX; ScanClientSock++ )
 	{
 		ClientSocketOpened[ ScanClientSock ] = -1;

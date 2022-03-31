@@ -1492,6 +1492,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 #ifdef MODBUS_IO_MASTER
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"modbusioconf.csv",DatasDirectory);
 //	printf("Loading modbus distributed I/O configuration data from %s\n",FileName);
+	if (modmaster) {    PrepareModbusMaster( );    }
 	LoadModbusIOConfParams( FileName );
 #endif
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"symbols.csv",DatasDirectory);
