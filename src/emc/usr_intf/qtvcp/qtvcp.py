@@ -322,7 +322,7 @@ Pressing cancel will close linuxcnc.""" % target)
                 LOG.critical('Forwarding events to AXIS is not well tested yet')
                 if forward:
                     xembed.XEmbedForwarding(window, forward)
-            except Exception as e
+            except Exception as e:
                 LOG.critical('Embedding error:{}'.format(e))
 
         # push the window id for embedment into an external program
