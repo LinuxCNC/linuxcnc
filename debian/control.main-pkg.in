@@ -1,9 +1,6 @@
 Package: @MAIN_PACKAGE_NAME@
 Conflicts: linuxcnc-sim, @OTHER_MAIN_PACKAGE_NAME@
 Architecture: any
-Recommends: linuxcnc-doc-en | linuxcnc-doc,
-    librsvg2-dev,
-    @EXTRA_RECOMMENDS@
 Depends:
     ${misc:Depends},
     ${python3:Depends},
@@ -29,6 +26,9 @@ Depends:
     procps, psmisc,
     udev
 Recommends:
+    linuxcnc-doc-en | linuxcnc-doc,
+    librsvg2-dev,
+    @EXTRA_RECOMMENDS@,
     @PYTHON_IMAGING@,
     @PYTHON_IMAGING_TK@,
     @QTVCP_DEPENDS@
