@@ -19,7 +19,6 @@ LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.INFO)
 
 
 from qtvcp.core import Status, Info, Qhal, Path
-from qtvcp.lib import xembed
 
 try:
     from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
@@ -316,11 +315,15 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # embed us into an X11 window (such as AXIS)
         if opts.parent:
-            window = xembed.reparent_qt_to_x11(window, opts.parent)
-            forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
-            LOG.critical('Forwarding events to AXIS is not well tested yet')
-            if forward:
-                xembed.XEmbedForwarding(window, forward)
+            try:
+                from qtvcp.lib import xembed
+                window = xembed.reparent_qt_to_x11(window, opts.parent)
+                forward = os.environ.get('AXIS_FORWARD_EVENTS_TO', None)
+                LOG.critical('Forwarding events to AXIS is not well tested yet')
+                if forward:
+                    xembed.XEmbedForwarding(window, forward)
+            except Exception as e
+                LOG.critical('Embedding error:{}'.format(e))
 
         # push the window id for embedment into an external program
         if opts.push_XID:

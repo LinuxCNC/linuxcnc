@@ -22,8 +22,11 @@ def reparent_qt_to_x11(window, parent):
     """ Forced reparent. When reparenting pyqt5 applications into Tk
     some extra protocol calls are needed.
     """
-    from Xlib import display
-    from Xlib.xobject import drawable
+    try:
+        from Xlib import display
+        from Xlib.xobject import drawable
+    except:
+        print('Problem importing xlib - Is python3-xlib installed?')
 
     if not parent:
         return window
@@ -44,9 +47,12 @@ def reparent_qt_to_x11(window, parent):
 
 # forward events to an X11 window id
 from PyQt5.QtCore import Qt
-from Xlib.protocol import event
-from Xlib import display, X
-from Xlib.xobject import drawable
+try:
+    from Xlib.protocol import event
+    from Xlib import display, X
+    from Xlib.xobject import drawable
+except:
+    print('Problem importing xlib - Is python3-xlib installed?')
 
 
 class XEmbedForwarding():
