@@ -1,0 +1,88 @@
+o<qt_auto_probe_tool> sub
+;(debug, in change tool_in_spindle=#<tool_in_spindle> current_pocket=#<current_pocket>)
+;(debug, selected_tool=#<selected_tool> selected_pocket=#<selected_pocket>)
+
+#<tool> = #<selected_tool>
+#<pocket> = #<selected_pocket>
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
+O100 if [#<_task> EQ 0]
+        (debug, Task ist Null)
+O100     return [999]
+O100 endif
+
+; adjust back off distance if metric/imperial based machine
+O150 if [#<_metric_machine>]
+    O175 if [#<_imperial>]
+       (MSG, Auto Tool probe error: not in G21 mode )
+    O175 return [-3] ; indicate probe contact failure to epilog
+    O175 endif
+
+    #<backoff> = 4.0
+O150 else
+    O175 if [#<_imperial> EQ 0]
+       (MSG, Auto Tool probe error: not in G20 mode )
+    O175 return [-3] ; indicate probe contact failure to epilog
+    O175 endif
+
+    #<backoff> = 0.200
+O150  endif
+
+;first go up
+F #<_hal[qtversaprobe.searchvel]>
+G53 G1 Z[#<_ini[CHANGE_POSITION]Z>]
+; then move to change position
+G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]
+
+; cancel tool offset
+G49
+
+; using the code being remapped here means 'use builtin behaviour'
+M6
+
+O200 if [#<_hal[qtversaprobe.enable]> EQ 0]
+   (MSG, Auto Tool probe disabled )
+O200 return [3] ; indicate no tool measurement 
+O200 endif
+
+G53 G0 X[#<_ini[VERSA_TOOLSETTER]X>] Y[#<_ini[VERSA_TOOLSETTER]Y>]
+F #<_hal[qtversaprobe.searchvel]>
+G53 G1 Z[#<_ini[VERSA_TOOLSETTER]Z>]
+
+
+O300 if [#<_hal[qtversaprobe.searchvel]> LE 0]
+O300 return [-1] ; indicate searchvel <= 0 
+O300 endif
+
+O400 if [#<_hal[qtversaprobe.probevel]> LE 0]
+O400 return [-2] ; indicate probevel <= 0 
+O400 endif
+
+F #<_hal[qtversaprobe.searchvel]>
+G91
+G38.2 Z #<_ini[VERSA_TOOLSETTER]MAXPROBE>
+G0 Z2
+
+;reprobe at probe speed
+F #<_hal[qtversaprobe.probevel]>
+G38.2 Z-#<backoff>
+
+O500 if [#5070 EQ 0]
+G90
+O500 return [-3] ; indicate probe contact failure to epilog
+O500 endif
+
+G90
+G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
+
+#<touch_result> = #5063
+
+(DEBUG, #<touch_result> #<_hal[qtversaprobe.probeheight]>  #<_hal[qtversaprobe.blockheight>)
+
+G10 L1 P#<tool> Z[#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
+G43
+
+; signal success be returning a value > 0:
+o<qt_auto_probe_tool> endsub [1]
+m2

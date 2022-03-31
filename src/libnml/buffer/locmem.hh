@@ -3,7 +3,7 @@
 *   Implements LOCMEM which is a derived class of CMS that serves
 *   primarily to provide addresses that match when matching buffer
 *   names are passed to the constructor. It is useful in allowing
-*   control modules to use the same inteface to communicate as would
+*   control modules to use the same interface to communicate as would
 *   be required if they were not running in the same process even
 *   though to use LOCMEM they must be.
 *

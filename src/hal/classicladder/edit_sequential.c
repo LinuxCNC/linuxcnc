@@ -41,7 +41,7 @@
 #include "edit_sequential.h"
 #include <rtapi_string.h>
 
-/* We modify the datas in this variable. It is only
+/* We modify the data in this variable. It is only
    after clicking on apply that they are used */
 StrSequential EditSeqDatas;
 

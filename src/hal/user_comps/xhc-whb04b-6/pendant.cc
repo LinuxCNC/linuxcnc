@@ -1056,7 +1056,7 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mHal.setMacro10(true);                         // Hardcoded Absolue/relative Dro
+        mHal.setMacro10(true);                         // Hardcoded Absolute/relative Dro
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.continuous)
@@ -1228,7 +1228,7 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mHal.setMacro10(false);                        // Hardcoded Absolue/relative Dro
+        mHal.setMacro10(false);                        // Hardcoded Absolute/relative Dro
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.continuous)

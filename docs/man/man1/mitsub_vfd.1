@@ -4,7 +4,8 @@
 .SH NAME
 mitsub_vfd \- HAL userspace component for Mitsubishi A500 F500
 E500 A500 D700 E700 F700-series VFDs (others may work)
-
+This uses the COMPUTER LINK protocol _not_ MODBUS.
+The connection is made through the PU connector.
 
 .SH SYNOPSIS
 
@@ -55,7 +56,7 @@ You must power cycle the inverter for some of these. (eg 79)
 .br
 (can be optionally set 48,96,192 if component is also set)
 
-\fBPARAMETER 119\fR stop bit/data length - 0   
+\fBPARAMETER 119\fR stop bit/data length - 1   
 .br      
 (8 bits, two stop - don't change)
 
@@ -79,6 +80,10 @@ no wait time is added to the serial data frame (don't change)
 \fBPARAMETER 124\fR CR selection - 0
 .br
 don't change
+
+\fBPARAMETER 549\fR communication protocol - 0
+.br
+computer link protocol - don't change - (not all VFDs have this)
 
 .SH
 

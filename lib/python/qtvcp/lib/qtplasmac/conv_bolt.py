@@ -26,7 +26,7 @@ from PyQt5.QtGui import QPixmap
 
 _translate = QCoreApplication.translate
 
-def preview(P, W):
+def preview(P, W, Conv):
     if P.dialogError: return
     msg = []
     try:
@@ -138,7 +138,7 @@ def preview(P, W):
             elif '(postamble)' in line:
                 break
             elif 'm2' in line.lower() or 'm30' in line.lower():
-                break
+                continue
             outNgc.write(line)
         for hole in range(holes):
             outTmp.write('\n(conversational bolt circle, hole #{})\n'.format(hole + 1))
@@ -189,6 +189,7 @@ def preview(P, W):
         W.conv_preview.set_current_view()
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
+        Conv.conv_preview_button(P, W, True)
     else:
         msg = []
         if cRadius == 0:
@@ -206,7 +207,6 @@ def preview(P, W):
             return
 
 def error_set(P, msg):
-    P.conv_undo_shape()
     P.dialogError = True
     P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Bolt-Circle Error'), msg)
 
@@ -228,8 +228,8 @@ def over_cut(P, W, lastX, lastY, IJ, radius, outTmp):
     endY = centerY + radius * ((sinB * cosA) + (cosB * sinA))
     outTmp.write('g3 x{0:.6f} y{1:.6f} i{2:.6f} j{3:.6f}\n'.format(endX, endY, IJ, 0))
 
-def entry_changed(P, W, widget):
-    P.conv_entry_changed(widget)
+def entry_changed(P, W, Conv, widget):
+    Conv.conv_entry_changed(P, W, widget)
     # check if small hole valid
     try:
         dia = float(W.hdEntry.text())
@@ -243,55 +243,48 @@ def entry_changed(P, W, widget):
         W.overcut.setEnabled(True)
         W.ocEntry.setEnabled(True)
 
-def auto_preview(P, W):
+def auto_preview(P, W, Conv):
     if W.main_tab_widget.currentIndex() == 1 and \
        W.dEntry.text() and W.hdEntry.text() and W.hEntry.text():
-        preview(P, W)
+        preview(P, W, Conv)
 
-def add_shape_to_file(P, W):
-    P.conv_add_shape_to_file()
-
-def undo_pressed(P, W):
-    P.conv_undo_shape()
-
-def widgets(P, W):
-    #widgets
-    W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
-    W.overcut.setEnabled(False)
-    W.overcut.setCheckable(True)
-    W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
-    W.ocEntry = QLineEdit(objectName = 'ocEntry')
-    W.ocEntry.setEnabled(False)
-    W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
-    W.koLabel = QLabel(_translate('Conversational', 'KERF'))
-    W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
-    W.kOffset.setCheckable(True)
-    W.spLabel = QLabel(_translate('Conversational', 'START'))
+def widgets(P, W, Conv):
     W.spGroup = QButtonGroup(W)
     W.center = QRadioButton(_translate('Conversational', 'CENTER'))
     W.spGroup.addButton(W.center)
     W.bLeft = QRadioButton(_translate('Conversational', 'BTM LEFT'))
     W.spGroup.addButton(W.bLeft)
-    text = _translate('Conversational', 'X ORIGIN')
-    W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
-    W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
-    W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
-    W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
     W.liLabel = QLabel(_translate('Conversational', 'LEAD IN'))
     W.liEntry = QLineEdit(str(P.leadIn), objectName = 'liEntry')
-    W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
-    W.dEntry = QLineEdit(objectName = '')
-    W.hdLabel = QLabel(_translate('Conversational', 'HOLE DIA'))
-    W.hdEntry = QLineEdit()
-    W.hLabel = QLabel(_translate('Conversational', '# OF HOLES'))
-    W.hEntry = QLineEdit(objectName='intEntry')
-    W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
-    W.aEntry = QLineEdit('0.0', objectName='aEntry')
-    W.caLabel = QLabel(_translate('Conversational', 'CIRCLE ANG'))
-    W.caEntry = QLineEdit('360')
-    W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
+    if not P.convSettingsChanged:
+        #widgets
+        W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
+        W.overcut.setEnabled(False)
+        W.overcut.setCheckable(True)
+        W.ocLabel = QLabel(_translate('Conversational', 'OC LENGTH'))
+        W.ocEntry = QLineEdit(objectName = 'ocEntry')
+        W.ocEntry.setEnabled(False)
+        W.ocEntry.setText('{}'.format(4 * P.unitsPerMm))
+        W.koLabel = QLabel(_translate('Conversational', 'KERF'))
+        W.kOffset = QPushButton(_translate('Conversational', 'OFFSET'))
+        W.kOffset.setCheckable(True)
+        W.spLabel = QLabel(_translate('Conversational', 'START'))
+        text = _translate('Conversational', 'X ORIGIN')
+        W.xsLabel = QLabel(_translate('Conversational', 'X {}'.format(text)))
+        W.xsEntry = QLineEdit(str(P.xSaved), objectName = 'xsEntry')
+        W.ysLabel = QLabel(_translate('Conversational', 'Y {}'.format(text)))
+        W.ysEntry = QLineEdit(str(P.ySaved), objectName = 'ysEntry')
+        W.dLabel = QLabel(_translate('Conversational', 'DIAMETER'))
+        W.dEntry = QLineEdit(objectName = '')
+        W.hdLabel = QLabel(_translate('Conversational', 'HOLE DIA'))
+        W.hdEntry = QLineEdit()
+        W.hLabel = QLabel(_translate('Conversational', '# OF HOLES'))
+        W.hEntry = QLineEdit(objectName='intEntry')
+        W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
+        W.aEntry = QLineEdit('0.0', objectName='aEntry')
+        W.caLabel = QLabel(_translate('Conversational', 'CIRCLE ANG'))
+        W.caEntry = QLineEdit('360')
     W.add = QPushButton(_translate('Conversational', 'ADD'))
-    W.undo = QPushButton(_translate('Conversational', 'UNDO'))
     W.lDesc = QLabel(_translate('Conversational', 'CREATING BOLT CIRCLE'))
     W.iLabel = QLabel()
     pixmap = QPixmap('{}conv_bolt_l.png'.format(P.IMAGES)).scaledToWidth(196)
@@ -320,25 +313,23 @@ def widgets(P, W):
         W[widget].setFixedHeight(24)
     #starting parameters
     W.add.setEnabled(False)
-    W.undo.setEnabled(False)
     if P.oSaved:
         W.center.setChecked(True)
     else:
         W.bLeft.setChecked(True)
-    P.conv_undo_shape()
     #connections
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W))
-    W.kOffset.toggled.connect(lambda:auto_preview(P, W))
-    W.center.toggled.connect(lambda:auto_preview(P, W))
-    W.overcut.toggled.connect(lambda:auto_preview(P, W))
-    W.preview.pressed.connect(lambda:preview(P, W))
-    W.add.pressed.connect(lambda:add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:undo_pressed(P, W))
+    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
+    W.kOffset.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.center.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.overcut.toggled.connect(lambda:auto_preview(P, W, Conv))
+    W.preview.pressed.connect(lambda:preview(P, W, Conv))
+    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
     entries = ['ocEntry', 'xsEntry', 'ysEntry', 'liEntry', 'dEntry', \
                'hdEntry', 'hEntry', 'aEntry', 'caEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W))
+        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
     #add to layout
     if P.landscape:
         W.entries.addWidget(W.overcut, 0, 0)
@@ -365,9 +356,10 @@ def widgets(P, W):
         W.entries.addWidget(W.aEntry, 9, 1)
         W.entries.addWidget(W.caLabel, 10, 0)
         W.entries.addWidget(W.caEntry, 10, 1)
-        W.s11 = QLabel('')
-        W.s11.setFixedHeight(24)
-        W.entries.addWidget(W.s11, 11, 0)
+        for r in [5,11]:
+            W['s{}'.format(r)] = QLabel('')
+            W['s{}'.format(r)].setFixedHeight(24)
+            W.entries.addWidget(W['s{}'.format(r)], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
@@ -408,3 +400,4 @@ def widgets(P, W):
         W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
     W.dEntry.setFocus()
+    P.convSettingsChanged = False

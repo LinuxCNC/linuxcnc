@@ -244,7 +244,7 @@ class StatusAdjustmentBar(HAdjustmentBar, _HalWidgetBase):
         self.valueChanged.connect(self._action)
 
     # when qtvcp closes this gets called
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
             self.PREFS_.putpref(self.HAL_NAME_+'-hi-value', self.hi_value, int, 'SCREEN_CONTROL_LAST_SETTING')

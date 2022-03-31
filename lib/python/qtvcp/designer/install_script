@@ -79,6 +79,31 @@ fi
 echo -e '\ncreate plugin link at:\n~/.designer/plugins/python/\n'
 ln -s $pifile ~/.designer/plugins/python/
 
+sopath=/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/
+p2sofile=libpyqt5_py2.so
+p3sofile=libpyqt5.so
+
+# ensure we have a python3 .so file
+if [ ! -f $sopath/$p3sofile ]; then
+    # check if we have a python3 .so backup file from a python2 installation
+    if [ -f $sopath/$p3sofile.old ]; then
+        echo -e '\nrename libpyqt5.so.old file to libpyqt5.so'
+        sudo mv $sopath/$p3sofile.old $sopath/$p3sofile
+    # otherwise report an error
+    else
+        echo -e '\nlibpyqt5.so is missing from:'
+        echo -e '/usr/lib/x86_64-linux-gnu/qt5/plugins/designer/'
+        echo -e '\ndesigner installation aborted...\n'
+        exit
+    fi
+fi
+
+# remove python2 .so file if it exists
+if [ -f $sopath/$p2sofile ]; then
+    echo -e '\nremove python2 .so file'
+    sudo rm $sopath/$p2sofile
+fi
+
 #clear
 echo -e '\nInstallation complete, designer can be started with:'
 echo -e '\ndesigner -qt=5\n'

@@ -500,7 +500,6 @@ static enum {
 #define CLOSE(a,b,eps) ((a)-(b) < +(eps) && (a)-(b) > -(eps))
 #define LINEAR_CLOSENESS 0.0001
 #define ANGULAR_CLOSENESS 0.0001
-#define INCH_PER_MM (1.0/25.4)
 #define CM_PER_MM 0.1
 #define GRAD_PER_DEG (100.0/90.0)
 #define RAD_PER_DEG TO_RAD	// from posemath.h
@@ -1622,7 +1621,7 @@ static bool jogging_selected_axis(local_halui_str &hal) {
 
 
 // this function looks if any of the hal pins has changed
-// and sends appropiate messages if so
+// and sends appropriate messages if so
 static void check_hal_changes()
 {
     hal_s32_t counts;
@@ -2096,7 +2095,7 @@ static void check_hal_changes()
 }
 
 // this function looks at the received NML status message
-// and modifies the appropiate HAL pins
+// and modifies the appropriate HAL pins
 static void modify_hal_pins()
 {
     int joint;

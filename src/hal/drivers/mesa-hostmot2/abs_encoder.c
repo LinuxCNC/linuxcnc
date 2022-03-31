@@ -100,7 +100,7 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
                     &chan->read[0]);
             break;
         case HM2_GTAG_BISS:
-            //BiSS is different, it reads mutliple times from the same address
+            //BiSS is different, it reads multiple times from the same address
             r += hm2_register_tram_read_region(hm2, chan->rw_addr[0],
                     sizeof(rtapi_u32),
                     &chan->read[0]);

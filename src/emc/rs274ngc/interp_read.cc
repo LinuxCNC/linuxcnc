@@ -2008,7 +2008,7 @@ stored in parameter 2):
 
 Parameter setting is done in parallel, not sequentially. For example
 if #1 is 5 before the line "#1=10 #2=#1" is read, then after the line
-is is executed, #1 is 10 and #2 is 5. If parameter setting were done
+is executed, #1 is 10 and #2 is 5. If parameter setting were done
 sequentially, the value of #2 would be 10 after the line was executed.
 
 ADDED by K. Lerman
@@ -2484,7 +2484,7 @@ defined as a synonym for real_value, but in fact a constraint is added
 which cannot be readily written in a production language.  An
 integer_value is a real_value which is very close to an integer.
 Integer_values are needed for array and table indices and (when
-divided by 10) for the values of M codes and G codes. All numbers
+divided by 10) for the values of M-codes and G-codes. All numbers
 (including integers) are read as real numbers and stored as doubles.
 If an integer_value is required in some situation, a test for being
 close to an integer is applied to the number after it is read.
@@ -2583,7 +2583,7 @@ The manual provides that operations of the same precedence should be
 processed left to right.
 
 The first version of this function is commented out. It is suitable
-for when there are only two precendence levels. It is an improvement
+for when there are only two precedence levels. It is an improvement
 over the version used in interpreters before 2000, but not as general
 as the second version given here.
 

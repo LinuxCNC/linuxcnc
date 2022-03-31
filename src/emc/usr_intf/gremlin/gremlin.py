@@ -316,7 +316,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             return
         self._current_file = None
 
-        self.font_base, width, linespace = glnav.use_pango_font('courier bold 16', 0, 128)
+        self.font_base, width, linespace = glnav.use_pango_font('monospace 16', 0, 128)
         self.font_linespace = linespace
         self.font_charwidth = width
         rs274.glcanon.GlCanonDraw.realize(self)
@@ -440,7 +440,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         button3 = event.state & Gdk.ModifierType.BUTTON3_MASK
         shift = event.state & Gdk.ModifierType.SHIFT_MASK
         # for lathe or plasmas rotation is not used, so we check for it
-        # recomended to use mode 6 for that type of machines
+        # recommended to use mode 6 for that type of machines
         cancel = bool(self.lathe_option)
         
         # 0 = default: left rotate, middle move, right zoom

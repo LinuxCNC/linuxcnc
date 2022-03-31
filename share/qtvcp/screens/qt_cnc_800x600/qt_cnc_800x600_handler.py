@@ -206,21 +206,21 @@ class HandlerClass:
         if '-' in source.text():
             d = -1
         if 'X' in source.text():
-            self.continous_jog(0, d)
+            self.continuous_jog(0, d)
         elif 'Y' in source.text():
-            self.continous_jog(1, d)
+            self.continuous_jog(1, d)
         elif 'Z' in source.text():
-            self.continous_jog(2, d)
+            self.continuous_jog(2, d)
 
     def jog_released(self):
         source = self.w.sender()
         #print source.objectName(), 'released'
         if 'X' in source.text():
-            self.continous_jog(0, 0)
+            self.continuous_jog(0, 0)
         elif 'Y' in source.text():
-            self.continous_jog(1, 0)
+            self.continuous_jog(1, 0)
         elif 'Z' in source.text():
-            self.continous_jog(2, 0)
+            self.continuous_jog(2, 0)
 
     def home_clicked(self):
         print('home click')
@@ -283,7 +283,7 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
-    def continous_jog(self, axis, direction):
+    def continuous_jog(self, axis, direction):
         ACTION.DO_JOG(axis, direction)
 
     #####################

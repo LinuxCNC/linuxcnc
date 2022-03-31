@@ -118,7 +118,7 @@ static float read_celsius_adjusted(int32_t sensor_data) {
        8.80219341e-06, -3.1108101e-08, 0, 0, 0, 0}};
   int coeff_cols = sizeof(coeff[0]) / sizeof(float);
 
-  /* determine thermocouple voltage by substracting internal temp and adjusting
+  /* determine thermocouple voltage by subtracting internal temp and adjusting
    * for K-type thermocouple */
   voltage_thermocouple = (temp_raw - temp_internal) * 0.041276;
 

@@ -68,6 +68,7 @@
 fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_MASK_OM);
 #endif
 
+#include "config.h"
 #include "rcs.hh"		// NML classes, nmlErrorFormat()
 #include "emc.hh"		// EMC NML
 #include "emc_nml.hh"
@@ -88,7 +89,7 @@ fpu_control_t __fpu_control = _FPU_IEEE & ~(_FPU_MASK_IM | _FPU_MASK_ZM | _FPU_M
 static emcmot_config_t emcmotConfig;
 
 /* time after which the user interface is declared dead
- * because it would'nt read any more messages
+ * because it wouldn't read any more messages
  */
 #define DEFAULT_EMC_UI_TIMEOUT 5.0
 
@@ -118,7 +119,7 @@ static int emcTaskNoDelay = 0;
 static int emcTaskEager = 0;
 
 static int no_force_homing = 0; // forces the user to home first before allowing MDI and Program run
-//can be overriden by [TRAJ]NO_FORCE_HOMING=1
+//can be overridden by [TRAJ]NO_FORCE_HOMING=1
 
 static double EMC_TASK_CYCLE_TIME_ORIG = 0.0;
 
@@ -2239,7 +2240,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		    mdi_execute_level = -1;
 		} else if (level > 0) {
 		    // Still insude call. Need another execute(0) call
-		    // but only if we didnt encounter an error
+		    // but only if we didn't encounter an error
 		    if (execRetval == INTERP_ERROR) {
 			mdi_execute_next = 0;
 		    } else {
@@ -3342,6 +3343,7 @@ int main(int argc, char *argv[])
 
     // inistantiate task methods object, too
     emcTaskOnce(emc_inifile);
+    rtapi_strxcpy(emcStatus->task.ini_filename, emc_inifile);
     if (task_methods == NULL) {
 	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// restore diag
 	rcs_print_error("can't initialize Task methods\n");

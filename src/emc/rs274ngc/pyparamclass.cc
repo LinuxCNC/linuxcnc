@@ -75,7 +75,7 @@ double ParamClass::setitem(bp::object sub, double dvalue)
 	int status = interp.add_named_param(varname, varname[0] == '_' ? PA_GLOBAL :0);
 	status = interp.store_named_param(&interp._setup,varname, dvalue, 0);
 	if (status != INTERP_OK)
-	    throw std::runtime_error("cant assign value to parameter: " +
+	    throw std::runtime_error("can\'t assign value to parameter: " +
 				     std::string(varname));
 
     } else

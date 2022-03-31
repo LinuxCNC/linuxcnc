@@ -762,6 +762,12 @@ static inline int get_spindle_mode (Interp &interp, int spindle)  {
 static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
     interp._setup.spindle_mode[spindle] = value;
 }
+static inline int get_num_spindles (Interp &interp)  {
+    return interp._setup.num_spindles;
+}
+static inline void set_num_spindles(Interp &interp, int value)  {
+    interp._setup.num_spindles = value;
+}
 static inline int get_spindle_turning (Interp &interp, int spindle)  {
     return interp._setup.spindle_turning[spindle];
 }
@@ -785,6 +791,24 @@ static inline int get_current_tool(Interp &interp)  {
 }
 static inline void set_current_tool(Interp &interp, int value)  {
     interp._setup.tool_table[0].toolno = value;
+}
+static inline int get_tool_change_at_g30 (Interp &interp)  {
+    return interp._setup.tool_change_at_g30;
+}
+static inline void set_tool_change_at_g30(Interp &interp, int value)  {
+    interp._setup.tool_change_at_g30 = value;
+}
+static inline int get_tool_change_quill_up (Interp &interp)  {
+    return interp._setup.tool_change_quill_up;
+}
+static inline void set_tool_change_quill_up(Interp &interp, int value)  {
+    interp._setup.tool_change_quill_up = value;
+}
+static inline int get_tool_change_with_spindle_on (Interp &interp)  {
+    return interp._setup.tool_change_with_spindle_on;
+}
+static inline void set_tool_change_with_spindle_on(Interp &interp, int value)  {
+    interp._setup.tool_change_with_spindle_on = value;
 }
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -967,11 +991,16 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("sequence_number", &get_sequence_number, &set_sequence_number)
 	.add_property("speed_feed_mode", &get_speed_feed_mode, &set_speed_feed_mode)
 	.add_property("spindle_mode", &get_spindle_mode, &set_spindle_mode)
+	.add_property("num_spindles", &get_num_spindles, &set_num_spindles)
 	.add_property("spindle_turning", &get_spindle_turning, &set_spindle_turning)
 	.add_property("stack_index", &get_stack_index, &set_stack_index)
 	.add_property("value_returned", &get_value_returned, &set_value_returned)
 
 	.add_property("current_tool", &get_current_tool, &set_current_tool)
+	.add_property("tool_change_at_g30", &get_tool_change_at_g30, &set_tool_change_at_g30)
+	.add_property("tool_change_quill_up", &get_tool_change_quill_up, &set_tool_change_quill_up)
+	.add_property("tool_change_with_spindle_on", &get_tool_change_with_spindle_on,
+             &set_tool_change_with_spindle_on)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,

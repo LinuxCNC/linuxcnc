@@ -12,12 +12,8 @@
 
 
 import os
-import sys
 
-if sys.version_info.major > 2:
-    import configparser
-else:
-    import ConfigParser as configparser
+import configparser
 
 cp = configparser.RawConfigParser
 cp.optionxform = str
@@ -47,6 +43,8 @@ class Access(cp):
 
     def getpref(self, option, default=False, type=bool, section="DEFAULT"):
         m = self.types.get(type)
+        if m is None:
+            m = self.types.get(repr)
         try:
             o = m(self, section, option)
         except Exception as detail:

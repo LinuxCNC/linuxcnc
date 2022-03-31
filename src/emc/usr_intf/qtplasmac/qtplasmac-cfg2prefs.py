@@ -134,7 +134,7 @@ class Cfg2Prefs(QMainWindow, object):
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
-        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt Lato} \
+        msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt DejaVuSans} \
                              QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20}' \
                          )
         ret = msgBox.exec_()
@@ -496,7 +496,7 @@ class Cfg2Prefs(QMainWindow, object):
                   '[DEFAULT MATERIAL]', '[SINGLE CUT]', \
                   '[CONVERSATIONAL]', '[STATISTICS]']
         bypass = False
-        prefsFile = os.path.join(self.toFilePath, 'qtplasmac.prefs')
+        prefsFile = os.path.join(self.toFilePath, self.toMachine + '.prefs')
         prefsCopy = '{}_{}_{}'.format(prefsFile, self.date, self.time)
         COPY(prefsFile, prefsCopy)
         with open(prefsFile, 'w') as outFile:

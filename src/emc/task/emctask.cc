@@ -222,9 +222,6 @@ int emcTaskStateRestore()
     if (emcStatus->task.mode == EMC_TASK_MODE_AUTO) {
         // Validity of state tag checked within restore function
         res = pinterp->restore_from_tag(emcStatus->motion.traj.tag);
-	if (res != INTERP_OK)
-	    // Print error but don't bail
-	    print_interp_error(res);
     }
     return 0;
 }

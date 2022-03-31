@@ -57,8 +57,8 @@ def show(self,*args):
     if self.remap_level: show_block(self,self.remap_level)
     call_stack(self)
     remap_stack(self)
-    print "active G codes:",self.active_g_codes
-    print "active M codes:",self.active_m_codes
+    print "active G-codes:",self.active_g_codes
+    print "active M-codes:",self.active_m_codes
     print "active settings:",self.active_settings
     print "parameters:",self.parameters
 

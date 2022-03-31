@@ -2295,7 +2295,7 @@ p, li { white-space: pre-wrap; }
                   <item>
                    <widget class="QGroupBox" name="groupBox_9">
                     <property name="title">
-                     <string>Scoll Controls</string>
+                     <string>Scroll Controls</string>
                     </property>
                     <layout class="QVBoxLayout" name="verticalLayout_32">
                      <property name="leftMargin">

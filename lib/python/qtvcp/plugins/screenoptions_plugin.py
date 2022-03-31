@@ -95,7 +95,8 @@ class screenOptionsDialog(QtWidgets.QDialog):
         self.c_play_sounds.setChecked(widget.play_sounds)
         self.c_use_pref_file = QtWidgets.QCheckBox("Set up a Preference File")
         self.c_use_pref_file.setChecked(widget.use_pref_file)
-
+        self.e_hal_base_name = QtWidgets.QLineEdit()
+        self.e_hal_base_name.setText(widget._halBaseName)
         layout.addWidget(self.c_notify)
         layout.addWidget(self.c_notify_max_msgs)
         layout.addWidget(self.c_notify_max_msgs_label,1,1,1,1)
@@ -103,7 +104,9 @@ class screenOptionsDialog(QtWidgets.QDialog):
         layout.addWidget(self.c_close,3,0,1,1)
         layout.addWidget(self.c_play_sounds,4,0,1,1)
         layout.addWidget(self.c_use_pref_file,5,0,1,1)
-        layout.addWidget(buttonBox, 6, 0, 1, 2)
+        layout.addWidget(QtWidgets.QLabel('HAL Component Base Name:'),6,0,1,1)
+        layout.addWidget(self.e_hal_base_name,6,1,1,1)
+        layout.addWidget(buttonBox, 7, 0, 1, 2)
         self.setLayout(layout)
 
         self.setWindowTitle(self.tr("Set Options"))
@@ -126,7 +129,8 @@ class screenOptionsDialog(QtWidgets.QDialog):
                                             QtCore.QVariant(self.c_play_sounds.isChecked()))
             formWindow.cursor().setProperty("use_pref_file_option",
                                             QtCore.QVariant(self.c_use_pref_file.isChecked()))
-
+            formWindow.cursor().setProperty("halCompBaseName",
+                                            QtCore.QVariant(self.e_hal_base_name.text()))
         self.accept()
 
 

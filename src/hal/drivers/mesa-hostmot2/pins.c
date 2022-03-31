@@ -200,6 +200,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 }
                 break;
             }
+            
 
         case HM2_GTAG_INM:
             switch (sec_pin) {
@@ -392,6 +393,13 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 return unknown;
             } else if (sec_pin == 32) {
                 snprintf(unknown, sizeof(unknown), "AC Ref (internal)");
+                return unknown;
+            }
+            break;
+
+        case HM2_GTAG_OUTM:
+            if ((sec_pin >= 1) && (sec_pin <= 31)) {
+                snprintf(unknown, sizeof(unknown), "Out-%02d",sec_pin - 1);
                 return unknown;
             }
             break;
@@ -982,6 +990,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_MUXED_ENCODER, (hm2->encoder.num_instances+1)/2, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_HM2DPLL, hm2->dpll.num_instances, false);
     hm2_pins_allocate_all(hm2, HM2_GTAG_SSR, hm2->ssr.num_instances, false);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_OUTM, hm2->outm.num_instances, false);
 }
 
 const char *hm2_get_general_function_hal_name(int gtag) {
@@ -995,6 +1004,8 @@ const char *hm2_get_general_function_hal_name(int gtag) {
         case HM2_GTAG_PWMGEN:   return "pwmgen";
         case HM2_GTAG_INMUX:    return "inmux";
         case HM2_GTAG_INM:      return "inm";
+        case HM2_GTAG_OUTM:      return "outm";
+        case HM2_GTAG_SSR:      return "ssr";
         case HM2_GTAG_XY2MOD:   return "xy2mod";
         case HM2_GTAG_TPPWM:    return "3pwmgen";
         case HM2_GTAG_MUXED_ENCODER: return "encoder";

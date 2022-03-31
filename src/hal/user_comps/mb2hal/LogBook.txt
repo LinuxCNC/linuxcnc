@@ -105,7 +105,7 @@
       . fnct_03_read_holding_registers
     - Standalone tests with halrun, not with LinuxCNC.
     - Shutting down both devices and power up again = OK (mb2hal reconnects).
-    - 1 Hour continuous functionning shows no errors.
+    - 1 Hour continuous functioning shows no errors.
   # CODING STYLE:
     - astyle version 2.02.1
     - astyle -A10s4HUjyk3W3 hal/user_comps/mb2hal/*.c

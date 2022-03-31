@@ -54,13 +54,13 @@ Virtual Control Panels:
         - size, position and forcemax can be used to move panels
             to a second monitor if the system is capable or set geometry of
             standalone panels
-        - standalone panels are not intergrated inside the main frontend GUI.
+        - standalone panels are not integrated inside the main frontend GUI.
             you can choose standalone panels for any frontend.
-        - AXIS can have panels intergrated on the side or in the center tab.
+        - AXIS can have panels integrated on the side or in the center tab.
             side panels are always visible center tab panels are not always.
         - TOUCHY can only have center tab intergation
         - pushing the display sample panel button will load a panel with
-            the user choosen options, unless existing custom program radio
+            the user chosen options, unless existing custom program radio
             button is active. It will then load the existing panel in the 
             machined named config as long as it's still named gvcp-panel.ui.
             Close the panel to continue editing config.

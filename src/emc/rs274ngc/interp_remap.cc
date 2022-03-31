@@ -165,7 +165,7 @@ int Interp::convert_remapped_code(block_pointer block,
 // also, generate a kwargs style dictionary of required and optional items
 // in case a Python prolog is called
 //
-// 1. add all requried and  present optional words.
+// 1. add all required and  present optional words.
 // 2. error on missing but required words.
 // 4. handle '>' as to require a positive feed.
 // 5. handle '^' as to require a positive speed.
@@ -227,7 +227,7 @@ int Interp::add_parameters(setup_pointer settings,
         catch (const bp::error_already_set&) {					\
 	    PyErr_Print();						\
 	    PyErr_Clear();						\
-	    ERS("add_parameters: cant add '%s' to args",name);		\
+	    ERS("add_parameters: can\'t add '%s' to args",name);		\
 	}								\
     }									\
     if (posarglist) {							\
@@ -441,7 +441,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"ngc",kwlen)) {
 	    if (r.remap_py) {
-		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		Error("can\'t remap to an ngc file and a Python function: -  %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
 		continue;
@@ -459,7 +459,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if (!strncasecmp(kw,"python",kwlen)) {
 	    if (r.remap_ngc ) {
-		Error("cant remap to an ngc file and a Python function: -  %d:REMAP = %s",
+		Error("can\'t remap to an ngc file and a Python function: -  %d:REMAP = %s",
 		      lineno,inistring);
 		errored = true;
 		continue;
@@ -545,7 +545,7 @@ int Interp::parse_remap(const char *inistring, int lineno)
 	}
 	if ( gcode == -1) {
 	    if (sscanf(code + 1, "%d", &gcode) != 1) {
-		Error("code '%s' : cant parse G-code : %d:REMAP = %s",
+		Error("code '%s' : can\'t parse G-code : %d:REMAP = %s",
 		      code, lineno, inistring);
 		goto fail;
 	    }

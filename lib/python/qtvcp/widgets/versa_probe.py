@@ -24,6 +24,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets, uic
 from PyQt5.QtCore import QProcess, QByteArray, QEvent
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.simple_widgets import PushButton
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 # Instantiate the libraries with global reference
@@ -100,9 +101,22 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         return super(VersaProbe, self).eventFilter(obj, event)
 
     def _hal_init(self):
+
         def homed_on_test():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
+        # have to call hal_init on widgets in this widget ourselves
+        # qtvcp doesn't see them otherwise
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtversaprobe')
+        self.pbtn_use_tool_measurement.setProperty('pin_name','enable')
+        self.pbtn_use_tool_measurement.hal_init()
+        self.HAL_GCOMP_.comp.setprefix(oldname)
+
+        self.allow_auto_skew.hal_init()
+        self.allow_auto_zero.hal_init()
+
+        # connect to STATUS
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
@@ -112,6 +126,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('general',self.return_value)
 
         # install event filters on all the lineedits
+        # so we can call up a dialog when lineedit get focus
         self.input_search_vel.installEventFilter(self)
         self.input_probe_vel.installEventFilter(self)
         self.input_z_clearance.installEventFilter(self)
@@ -139,14 +154,34 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_side_edge_length.setText(str(self.PREFS_.getpref( "ps_side_edge_length", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_tool_probe_height.setText(str(self.PREFS_.getpref( "ps_probe_height", 20.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_tool_block_height.setText(str(self.PREFS_.getpref( "ps_block_height", 20.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.pbtn_use_tool_measurement.setChecked((self.PREFS_.getpref( "use_tool_measurement", True, bool, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_x.setText(str(self.PREFS_.getpref( "ps_offs_x", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_y.setText(str(self.PREFS_.getpref( "ps_offs_y", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
 
+        # make pins available for tool measure remaps
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtversaprobe')
+        self.pin_svel = self.HAL_GCOMP_.newpin("searchvel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_svel.set(float(self.input_search_vel.text()))
+        self.pin_pvel = self.HAL_GCOMP_.newpin("probevel", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_pvel.set(float(self.input_probe_vel.text()))
+        self.pin_pheight = self.HAL_GCOMP_.newpin("probeheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_pheight.set(float(self.input_tool_probe_height.text()))
+        self.pin_bheight = self.HAL_GCOMP_.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_bheight.set(float(self.input_tool_block_height.text()))
+        self.HAL_GCOMP_.comp.setprefix(oldname)
+
+        # install callbacks to update HAL pins
+        self.input_search_vel.textChanged.connect(self.update_search_vel_pin)
+        self.input_probe_vel.textChanged.connect(self.update_probe_vel_pin)
+        self.input_tool_probe_height.textChanged.connect(self.update_probe_height_pin)
+        self.input_tool_block_height.textChanged.connect(self.update_block_height_pin)
+
     # when qtvcp closes this gets called
-    def closing_cleanup__(self):
+    def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Versa probe data to preference file.')
             self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')
@@ -159,6 +194,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_side_edge_length", float(self.input_side_edge_length.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_height", float(self.input_tool_probe_height.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_block_height", float(self.input_tool_block_height.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "use_tool_measurement", bool(self.pbtn_use_tool_measurement.isChecked()), bool, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_x", float(self.input_adj_x.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_y", float(self.input_adj_y.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
@@ -287,6 +323,29 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s +=  " R%.4f"% float(self.input_adj_angle.text())
         ACTION.CALL_MDI_WAIT(s, 30)
 
+#####################################################
+# Entry callbacks
+#####################################################
+    def update_search_vel_pin(self, text):
+        try:
+            self.pin_svel.set(float(text))
+        except:
+            pass
+    def update_probe_vel_pin(self, text):
+        try:
+            self.pin_pvel.set(float(text))
+        except:
+            pass
+    def update_probe_height_pin(self, text):
+        try:
+            self.pin_pheight.set(float(text))
+        except:
+            pass
+    def update_block_height_pin(self, text):
+        try:
+            self.pin_bheight.set(float(text))
+        except:
+            pass
 #####################################################
 # Helper functions
 #####################################################

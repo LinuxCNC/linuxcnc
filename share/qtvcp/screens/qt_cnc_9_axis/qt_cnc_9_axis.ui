@@ -831,16 +831,6 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <height>201</height>
      </rect>
     </property>
-    <widget class="CamViewDialog" name="camviewdialog">
-     <property name="geometry">
-      <rect>
-       <x>501</x>
-       <y>361</y>
-       <width>700</width>
-       <height>400</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="ToolOffsetDialog" name="tooloffsetdialog">
      <property name="geometry">
       <rect>
@@ -1189,6 +1179,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
       <height>16</height>
      </rect>
     </property>
+    <property name="camViewDialog_option" stdset="0">
+     <bool>true</bool>
+    </property>
    </widget>
    <widget class="MacroTabDialog" name="macrotabdialog">
     <property name="geometry">
@@ -1374,7 +1367,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>Y</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>y</string>
+          <string>Y</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_3">
@@ -1390,7 +1383,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>Z</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>z</string>
+          <string>Z</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_4">
@@ -1406,7 +1399,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>A</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>a</string>
+          <string>A</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_5">
@@ -1422,7 +1415,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>C</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>c</string>
+          <string>C</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_6">
@@ -1438,7 +1431,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>B</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>b</string>
+          <string>B</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_7">
@@ -1454,7 +1447,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>U</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>u</string>
+          <string>U</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_8">
@@ -1470,7 +1463,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>W</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>w</string>
+          <string>W</string>
          </property>
         </widget>
         <widget class="RadioAxisSelector" name="radioaxisselector_9">
@@ -1486,7 +1479,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
           <string>V</string>
          </property>
          <property name="axis_selection" stdset="0">
-          <string>v</string>
+          <string>V</string>
          </property>
         </widget>
         <widget class="JogIncrements" name="JogIncrements_2">
@@ -1745,7 +1738,7 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
        </property>
        <property name="text">
         <string>Go to
-Origion Zero</string>
+Origin Zero</string>
        </property>
        <property name="mdi_command_action" stdset="0">
         <bool>true</bool>
@@ -2035,7 +2028,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
-     <property name="is_limits_overriden_status" stdset="0">
+     <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>
      </property>
     </widget>
@@ -2231,9 +2224,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
        <blue>0</blue>
       </color>
      </property>
-     <property name="state">
-      <bool>false</bool>
-     </property>
      <property name="flashing" stdset="0">
       <bool>false</bool>
      </property>
@@ -2248,6 +2238,9 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="is_optional_stop_status" stdset="0">
       <bool>true</bool>
+     </property>
+     <property name="state" stdset="0">
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="StateLED" name="StateLED_5">
@@ -2522,7 +2515,7 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       </rect>
      </property>
      <property name="text">
-      <string>Continous</string>
+      <string>Continuous</string>
      </property>
      <property name="indicator_option" stdset="0">
       <bool>true</bool>
@@ -3044,11 +3037,11 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
     <property name="textTemplate" stdset="0">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;   &lt;span style=&quot; font-weight:600;font-size:18pt;  color:#ffff00;&quot;&gt;%3.3f&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
-    <property name="tool_number_status" stdset="0">
-     <bool>false</bool>
-    </property>
     <property name="tool_diameter_status" stdset="0">
      <bool>true</bool>
+    </property>
+    <property name="tool_number_status" stdset="0">
+     <bool>false</bool>
     </property>
    </widget>
    <widget class="StatusLabel" name="state_label_10">
@@ -3101,20 +3094,13 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </rect>
     </property>
     <property name="_dro" stdset="0">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="_dtg" stdset="0">
      <bool>false</bool>
     </property>
     <property name="_metric" stdset="0">
      <bool>false</bool>
-    </property>
-    <property name="background_color" stdset="0">
-     <color>
-      <red>0</red>
-      <green>0</green>
-      <blue>0</blue>
-     </color>
     </property>
     <property name="_overlay" stdset="0">
      <bool>false</bool>
@@ -3124,6 +3110,13 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
       <red>16</red>
       <green>12</green>
       <blue>12</blue>
+     </color>
+    </property>
+    <property name="background_color" stdset="0">
+     <color>
+      <red>0</red>
+      <green>0</green>
+      <blue>0</blue>
      </color>
     </property>
    </widget>
@@ -3171,20 +3164,37 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
  </widget>
  <customwidgets>
   <customwidget>
+   <class>IndicatedPushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>RadioAxisSelector</class>
+   <extends>QRadioButton</extends>
+   <header>qtvcp.widgets.radio_axis_selector</header>
+  </customwidget>
+  <customwidget>
+   <class>LED</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.led_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>StateEnableGridLayout</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.container_widgets</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>GCodeGraphics</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>CamViewDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>LcncDialog</class>
-   <extends>QDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
+   <class>DROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.dro_widget</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>MDILine</class>
@@ -3193,14 +3203,46 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>GcodeEditor</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.gcode_editor</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StatusStacked</class>
+   <extends>QStackedWidget</extends>
+   <header>qtvcp.widgets.status_stacked</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StateLED</class>
+   <extends>LED</extends>
+   <header>qtvcp.widgets.state_led</header>
+  </customwidget>
+  <customwidget>
+   <class>StatusLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.status_label</header>
+  </customwidget>
+  <customwidget>
    <class>StateLabel</class>
    <extends>QLabel</extends>
    <header>qtvcp.widgets.state_label</header>
   </customwidget>
   <customwidget>
-   <class>LED</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.led_widget</header>
+   <class>ActionButton</class>
+   <extends>IndicatedPushButton</extends>
+   <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>LcncDialog</class>
+   <extends>QDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
+  </customwidget>
+  <customwidget>
+   <class>ToolDialog</class>
+   <extends>LcncDialog</extends>
+   <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
    <class>FileDialog</class>
@@ -3213,74 +3255,14 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>StateLED</class>
-   <extends>LED</extends>
-   <header>qtvcp.widgets.state_led</header>
-  </customwidget>
-  <customwidget>
    <class>OriginOffsetDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
   </customwidget>
   <customwidget>
-   <class>StateEnableGridLayout</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.container_widgets</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusStacked</class>
-   <extends>QStackedWidget</extends>
-   <header>qtvcp.widgets.status_stacked</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>RadioAxisSelector</class>
-   <extends>QRadioButton</extends>
-   <header>qtvcp.widgets.radio_axis_selector</header>
-  </customwidget>
-  <customwidget>
    <class>ToolOffsetDialog</class>
    <extends>QDialog</extends>
    <header>qtvcp.widgets.dialog_widget</header>
-  </customwidget>
-  <customwidget>
-   <class>JogIncrements</class>
-   <extends>QComboBox</extends>
-   <header>qtvcp.widgets.jog_increments</header>
-  </customwidget>
-  <customwidget>
-   <class>ScreenOptions</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.screen_options</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>StatusAdjustmentBar</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.adjustment_bar</header>
-  </customwidget>
-  <customwidget>
-   <class>StatusLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.status_label</header>
-  </customwidget>
-  <customwidget>
-   <class>DROLabel</class>
-   <extends>QLabel</extends>
-   <header>qtvcp.widgets.dro_widget</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>GcodeEditor</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.gcode_editor</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>ActionButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.action_button</header>
   </customwidget>
   <customwidget>
    <class>FocusOverlay</class>
@@ -3289,9 +3271,20 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ToolDialog</class>
-   <extends>LcncDialog</extends>
-   <header>qtvcp.widgets.dialog_widget</header>
+   <class>StatusAdjustmentBar</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.adjustment_bar</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>JogIncrements</class>
+   <extends>QComboBox</extends>
+   <header>qtvcp.widgets.jog_increments</header>
   </customwidget>
  </customwidgets>
  <resources/>

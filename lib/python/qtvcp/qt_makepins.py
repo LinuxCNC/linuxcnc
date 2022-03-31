@@ -32,7 +32,7 @@ LOG = logger.getLogger(__name__)
 
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class QTPanel():
     def __init__(self, halcomp, path, window, debug):
@@ -53,6 +53,16 @@ class QTPanel():
             if isinstance(widget, _HalWidgetBase):
                 if isinstance(widget, ScreenOptions):
                     self._screenOptions = widget
+
+                    # change HAL base name to screenOptions setting if
+                    # a new base name was not specified on the command line
+                    # and screenOptions name is not blank 
+                    oldHALName = halcomp.comp.getprefix()
+                    if oldHALName == path.BASENAME:
+                        newHALName = widget.property('halCompBaseName')
+                        if not newHALName == '':
+                            halcomp.comp.setprefix(newHALName)
+                            LOG.info('Changed HAL Component basename to {}, as specified in screenOptions: '.format(newHALName))
                     try:
                         self.window['PREFS_'], pref_fn = widget._pref_init()
                     except Exception as e:
@@ -70,21 +80,26 @@ class QTPanel():
         LOG.debug('QTVCP: Parcing for hal widgets')
         for widget in window.findChildren(QObject):
             if isinstance(widget, _HalWidgetBase):
-                self.window.registerHalWidget(widget)
                 idname = widget.objectName()
                 LOG.verbose('HAL-ified instance found: {}'.format(idname))
                 widget.hal_init()
 
-    # Search all hal-ifed widgets for closing clean up functions and call them
+    # Search all hal-ifed widgets for _hal_cleanup functions and call them
     # used for such things as preference recording current settings
     def shutdown(self):
         if self.window['PREFS_']:
             self.record_preference_geometry()
-        LOG.debug('search for widget closing cleanup functions')
+        LOG.debug("calling widget's _hal_cleanup functions")
         for widget in self.window.getRegisteredHalWidgetList():
+            try:
+                widget._hal_cleanup()
+            except Exception as e:
+                print(e)
+            # old way - will remove in future.
             if 'closing_cleanup__' in dir(widget):
                 idname = widget.objectName()
                 LOG.info('Closing cleanup on: {}'.format(idname))
+                LOG.info('"closing_cleanup__" function name is depreciated, please using "_hal_cleanup"')
                 widget.closing_cleanup__()
 
     # if there is a prefrence file and it is has digits (so no key word), then record

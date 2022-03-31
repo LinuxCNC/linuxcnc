@@ -168,7 +168,7 @@ void rtapi_app_exit(void)
 *                     REALTIME DEBOUNCE FUNCTION                       *
 ************************************************************************/
 
-/** The debounce filter works by incrementing a counter whenver the
+/** The debounce filter works by incrementing a counter whenever the
     input is true, and decrementing the counter when it is false.
     If the counter decrements to zero, the output is set false and
     the counter ignores further decrements.  If the counter increments

@@ -30,7 +30,7 @@ gbl_t gbl;
 
 /*
  * Main: init global params, parse args, open ini file, parse ini file
- * (transaction strcutures), init links (links structures), init and
+ * (transaction structures), init links (links structures), init and
  * create hal pins, create a thread for each link , and wait forever
  */
 
@@ -223,7 +223,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             }
 
             if (ret != retOK && modbus_get_socket(this_mb_link->modbus) < 0) { //link failure
-                (*this_mb_tx->num_errors)++;
+                (**this_mb_tx->num_errors)++;
                 ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] link failure, going to close link",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus));
                 modbus_close(this_mb_link->modbus);
@@ -347,6 +347,7 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
         ret = modbus_connect(this_mb_link->modbus);
         if (ret != 0 || modbus_get_socket(this_mb_link->modbus) < 0) {
             modbus_set_socket(this_mb_link->modbus, -1); //some times ret was < 0 and fd > 0
+            (**this_mb_tx->num_errors)++;
             ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] cannot connect to link, ret[%d] fd[%d]",
                 this_mb_tx_num, this_mb_tx->mb_link_num, ret, modbus_get_socket(this_mb_link->modbus));
             return retOK; //not connected

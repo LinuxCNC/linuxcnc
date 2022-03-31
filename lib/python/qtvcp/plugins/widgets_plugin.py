@@ -7,6 +7,7 @@ from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.widgets.mdi_history import MDIHistory
 from qtvcp.widgets.mdi_touchy import MDITouchy
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeDisplay
+from qtvcp.widgets.geditor import GEditor
 from qtvcp.widgets.status_stacked import StatusStacked
 from qtvcp.widgets.widget_switcher import WidgetSwitcher
 from qtvcp.widgets.origin_offsetview import OriginOffsetView
@@ -281,6 +282,48 @@ class GcodeDisplayPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.gcode_editor"
 
+####################################
+# GEditor
+####################################
+class GEditorPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent=None):
+        super(GEditorPlugin, self).__init__(parent)
+        self.initialized = False
+
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return GEditor(parent, designer=True)
+
+    def name(self):
+        return "GEditor"
+
+    def group(self):
+        return "Linuxcnc - Controller"
+
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('GEditor')))
+
+    def toolTip(self):
+        return "Gcode display / editor Widget using ToolBars"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return True
+
+    def domXml(self):
+        return '<widget class="GEditor" name="geditor" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.geditor"
 
 ####################################
 # StatusStacked
@@ -486,7 +529,7 @@ class MacroTabPlugin(QPyDesignerCustomWidgetPlugin):
         return "MacroTab"
 
     def group(self):
-        return "Linuxcnc - Controller"
+        return "Linuxcnc - Widgets"
 
     def icon(self):
         return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('macrotab')))

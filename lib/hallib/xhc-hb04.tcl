@@ -16,6 +16,7 @@ source [file join $::env(HALLIB_DIR) util_lib.tcl]
 #   coords = x y z a (up to 4 unique letters from x y z a b c u v w)
 #   coefs  = 1 1 1 1 (optional, filter coefs, 0 < coef < 1, not usually reqd)
 #   scales = 1 1 1 1 (optional)
+#   mpg_accels = 50 75 30 75 (optional, less than axis max accel)
 #   threadname = servo-thread (optional)
 #   sequence = 1     (optional: 1|2)
 #   jogmode = normal (optional: normal|vnormal)
@@ -124,9 +125,7 @@ proc connect_pins {} {
 } ;# connect_pins
 
 proc wheel_setup {jogmode} {
-  for {set idx 0} {$idx < 4} {incr idx} {
-    set ::XHC_HB04_CONFIG(accel,$idx) 1.0 ;# default if unspecified
-  }
+
   if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
     set idx 0
     foreach g $::XHC_HB04_CONFIG(mpg_accels) {
@@ -272,11 +271,14 @@ proc wheel_setup {jogmode} {
     }
 
     set afraction 1.0 ;# default
-    if [catch {
-      set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+    # Only calculate an afraction IF we have specified mpg_accels in the ini file
+    if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
+      if [catch {
+        set afraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                           /[set ::AXIS_[set COORD](MAX_ACCELERATION)] ]
               } msg] {
-      err_exit "<$msg>\n\nMissing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+        err_exit "<$msg>\n\nMissing ini setting: \[AXIS_$COORD\]MAX_ACCELERATION"
+      }
     }
     setp axis.$coord.jog-accel-fraction $afraction
 
@@ -300,11 +302,13 @@ proc wheel_setup {jogmode} {
       makenet pendant:jog-$coord => joint.$jnum.jog-enable
 
       set jfraction 1.0 ;# default
-      if [catch {
-        set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
+      if [info exists ::XHC_HB04_CONFIG(mpg_accels)] {
+        if [catch {
+          set jfraction [expr  $::XHC_HB04_CONFIG(accel,$idx)\
                             /[set ::JOINT_[set jnum](MAX_ACCELERATION)] ]
                 } msg] {
-        err_exit "<$msg>\n\nMissing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+          err_exit "<$msg>\n\nMissing ini setting: \[JOINT_$jnum\]MAX_ACCELERATION"
+        }
       }
       setp joint.$jnum.jog-accel-fraction $jfraction
 

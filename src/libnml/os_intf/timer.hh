@@ -42,7 +42,7 @@ typedef int (*RCS_TIMERFUNC) (void *_arg);
 difficult */
 #ifdef RCS_TIMER_USE_ITIMER
 
-/* prototype for signal hander function */
+/* prototype for signal handler function */
 typedef void (*RCS_SIGFUNC) (...);
 
 #endif /* RCS_TIMER_USE_ITIMER */
@@ -85,7 +85,7 @@ there are ways to check if the function took longer than the cycle period after 
 */
 class RCS_TIMER {
   public:
-/* Getting rid of this stuff which noone uses and makes porting more
+/* Getting rid of this stuff which no one uses and makes porting more
 difficult */
     RCS_TIMER(double timeout, RCS_TIMERFUNC function =
 	(RCS_TIMERFUNC) NULL, void *arg = NULL);

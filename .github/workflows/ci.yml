@@ -24,10 +24,11 @@ jobs:
     - name: Build RIP & test
       run: |
         ./scripts/travis-install-build-deps.sh
+        sudo apt-get install -y eatmydata
         cd src
-        ./autogen.sh
-        ./configure --with-realtime=uspace --disable-check-runtime-deps
-        make -O -j$((1+$(nproc))) default pycheck V=1
+        eatmydata ./autogen.sh
+        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         ../scripts/rip-environment runtests -p
     
@@ -46,10 +47,11 @@ jobs:
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
+        sudo apt-get install -y eatmydata
         cd src
-        ./autogen.sh
-        ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
-        make -O -j$((1+$(nproc))) docs
+        eatmydata ./autogen.sh
+        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        eatmydata make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
   package:
@@ -68,9 +70,11 @@ jobs:
         set -x
         git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
         ./scripts/travis-install-build-deps.sh
-        codename=$(grep VERSION_CODENAME /etc/os-release | cut -d = -f 2)
+        sudo apt-get install -y eatmydata
+        codename=$(lsb_release -cs)
         dch --maintmaint --distribution $codename "GitHub test package."
-        fakeroot ./debian/rules binary
+        eatmydata debian/configure
+        eatmydata debuild -us -uc
         sudo apt-get install ../*.deb
-        ./scripts/runtests -p tests/
-        lintian --info --display-info --pedantic --display-experimental ../*.deb
+        eatmydata ./scripts/runtests -p tests/
+        eatmydata lintian --info --display-info --pedantic --display-experimental ../*.deb

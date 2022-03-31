@@ -89,7 +89,7 @@ int Interp::py_reload()
     return INTERP_OK;
 }
 
-// determine wether [module.]funcname is callable
+// determine whether [module.]funcname is callable
 bool Interp::is_pycallable(setup_pointer settings,
 			   const char *module,
 			   const char *funcname)
@@ -117,7 +117,7 @@ int Interp::pycall(setup_pointer settings,
     if (_setup.loggingLevel > 4)
 	logPy("pycall(%s.%s) \n", module ? module : "", funcname);
 
-    CHKS(!PYUSABLE, "pycall(%s): Pyhton plugin not initialized",funcname);
+    CHKS(!PYUSABLE, "pycall(%s): Python plugin not initialized",funcname);
     frame->pystuff.impl->py_return_type = 0;
 
     switch (calltype) {

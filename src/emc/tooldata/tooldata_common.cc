@@ -212,6 +212,7 @@ int tooldata_read_entry(const char *input_line,
 } // tooldata_read_entry()
 
 void tooldata_format_toolline (int idx,
+                               bool ignore_zero_values,
                                CANON_TOOL_TABLE tdata,
                                char * ttcomments[],
                                char formatted_line[CANON_TOOL_ENTRY_LEN]
@@ -222,24 +223,35 @@ void tooldata_format_toolline (int idx,
             ,tdata.toolno
             ,is_random_toolchanger ? idx : tdata.pocketno);
     strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1);
-#define ITEM(item,fmt) if (tdata.item) { \
-                          snprintf(tmp,sizeof(tmp),fmt,tdata.item); \
-                          strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
-                       }
-    ITEM(diameter,       " D%+f");
-    ITEM(offset.tran.x,  " X%+f");
-    ITEM(offset.tran.y,  " Y%+f");
-    ITEM(offset.tran.z,  " Z%+f");
-    ITEM(offset.a,       " A%+f");
-    ITEM(offset.b,       " B%+f");
-    ITEM(offset.c,       " C%+f");
-    ITEM(offset.u,       " U%+f");
-    ITEM(offset.v,       " V%+f");
-    ITEM(offset.w,       " W%+f");
-    ITEM(frontangle,     " I%+f");
-    ITEM(backangle,      " J%+f");
-    ITEM(orientation,    " Q%d" );
-#undef ITEM
+// format zero float values as %.0f for brevity
+#define F_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
+                                if (tdata.item) { \
+                                    snprintf(tmp,sizeof(tmp)," " letter "%+f", tdata.item); \
+                                } else { \
+                                    snprintf(tmp,sizeof(tmp)," " letter "%.0f",tdata.item); \
+                                } \
+                                strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
+                            }
+#define I_ITEM(item,letter) if (!ignore_zero_values || tdata.item) { \
+                                snprintf(tmp,sizeof(tmp)," " letter "%d",tdata.item); \
+                                strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
+                            } 
+
+    F_ITEM(diameter,       "D");
+    F_ITEM(offset.tran.x,  "X");
+    F_ITEM(offset.tran.y,  "Y");
+    F_ITEM(offset.tran.z,  "Z");
+    F_ITEM(offset.a,       "A");
+    F_ITEM(offset.b,       "B");
+    F_ITEM(offset.c,       "C");
+    F_ITEM(offset.u,       "U");
+    F_ITEM(offset.v,       "V");
+    F_ITEM(offset.w,       "W");
+    F_ITEM(frontangle,     "I");
+    F_ITEM(backangle,      "J");
+    I_ITEM(orientation,    "Q");
+#undef F_ITEM
+#undef I_ITEM
     if (ttcomments) {  //ignore if nil pointer
        snprintf(tmp,sizeof(tmp)," ;%s\n",ttcomments[idx]);
        strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1);
@@ -336,7 +348,9 @@ static void write_tool_line(FILE* fp,int idx,char *ttcomments[])
 
     if (tdata.toolno != -1) {
         char theline[CANON_TOOL_ENTRY_LEN] = {0};
-        tooldata_format_toolline (idx,tdata,ttcomments,theline);
+        tooldata_format_toolline (idx,
+                                  1, // ignore_zero_values
+                                  tdata,ttcomments,theline);
         fprintf(fp,"%s",theline);
     }
     return;

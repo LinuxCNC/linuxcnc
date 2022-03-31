@@ -276,8 +276,8 @@ int rtapi_app_main(void)
     timer_prio = rtapi_prio_next_higher(rtapi_prio_lowest());
 
     /* create the timer task */
-    /* the second arg is an abitrary int that is passed to the timer task on
-       the first iterration */
+    /* the second arg is an arbitrary int that is passed to the timer task on
+       the first iteration */
     timer_task = rtapi_task_new(timer_code, 0 /* arg */ , timer_prio, module,
 	TIMER_STACKSIZE, RTAPI_NO_FP);
     if (timer_task < 0) {

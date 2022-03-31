@@ -48,7 +48,7 @@ Currently, all checks are on g_codes in modal group 0.
 
 The read_g function checks for errors which would foul up the reading.
 The enhance_block function checks for logical errors in the use of
-axis values by g-codes in modal groups 0 and 1.
+axis values by G-codes in modal groups 0 and 1.
 This function checks for additional logical errors in g_codes.
 
 [Fanuc, page 45, note 4] says there is no maximum for how many g_codes
@@ -89,7 +89,7 @@ int Interp::check_g_codes(block_pointer block,   //!< pointer to a block to be c
     CHKS((mode1 == G_2 || mode1 == G_3), _("G4 not allowed with G2 or G3 because they both use P"));
   } else if (mode0 == G_10) {
     (block->p_number >= 0) ? p_int = (int) (block->p_number +0.5) :p_int = (int) (block->p_number -0.5);
-    CHKS((block->l_number != 2 && block->l_number != 1 && block->l_number != 20 && block->l_number != 10 && block->l_number != 11), _("Line with G10 does not have L1, L10, L11, L2, or L20"));
+    CHKS((block->l_number != 0 && block->l_number != 2 && block->l_number != 1 && block->l_number != 20 && block->l_number != 10 && block->l_number != 11), _("Line with G10 does not have L0, L1, L10, L11, L2, or L20"));
     CHKS((((block->p_number + 0.0001) - p_int) > 0.0002),  _("P value not an integer with G10"));
     CHKS((((block->l_number == 2 || block->l_number == 20) && ((p_int < 0) || (p_int > 9)))), _("P value out of range (0-9) with G10 L%d"), block->l_number);
     CHKS((((block->l_number == 1 || block->l_number == 10 || block->l_number == 11) && p_int < 1)), _("P value out of range with G10 L%d"), block->l_number);
@@ -196,19 +196,19 @@ Returned Value: int
       NCE_D_WORD_WITH_NO_G41_OR_G42
    5. An h_number is in a block with no tool length offset setting:
       NCE_H_WORD_WITH_NO_G43
-   6. An i_number is in a block with no G code that uses it:
+   6. An i_number is in a block with no G-code that uses it:
       NCE_I_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT
-   7. A j_number is in a block with no G code that uses it:
+   7. A j_number is in a block with no G-code that uses it:
       NCE_J_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT
-   8. A k_number is in a block with no G code that uses it:
+   8. A k_number is in a block with no G-code that uses it:
       NCE_K_WORD_WITH_NO_G2_OR_G3_OR_G87_TO_USE_IT
-   9. A l_number is in a block with no G code that uses it:
+   9. A l_number is in a block with no G-code that uses it:
       NCE_L_WORD_WITH_NO_CANNED_CYCLE_OR_G10
-  10. A p_number is in a block with no G code that uses it:
+  10. A p_number is in a block with no G-code that uses it:
       NCE_P_WORD_WITH_NO_G4_G10_G64_G82_G86_G88_G89
-  11. A q_number is in a block with no G code that uses it:
+  11. A q_number is in a block with no G-code that uses it:
       NCE_Q_WORD_WITH_NO_G83_OR_M66
-  12. An r_number is in a block with no G code that uses it:
+  12. An r_number is in a block with no G-code that uses it:
       NCE_R_WORD_WITH_NO_G_CODE_THAT_USES_IT
   13. A k word is missing from a G33 block:
       NCE_K_WORD_MISSING_WITH_G33

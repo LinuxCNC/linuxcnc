@@ -134,7 +134,7 @@
 		<tablerow/>
 			<tablesticky sticky="w" />
 			<label>
-				<text>"Base Freqency (hz): "</text>
+				<text>"Base Frequency (hz): "</text>
     			</label>
     			<tablesticky sticky="e" />
     			<number>
@@ -144,7 +144,7 @@
 		<tablerow/>
 			<tablesticky sticky="w" />
 			<label>
-				<text>"Max Freqency (hz): "</text>
+				<text>"Max Frequency (hz): "</text>
     			</label>
     			<tablesticky sticky="e" />
     			<number>
@@ -154,7 +154,7 @@
 		<tablerow/>
 			<tablesticky sticky="w" />
 			<label>
-				<text>"Freqency Lower Limit (hz): "</text>
+				<text>"Frequency Lower Limit (hz): "</text>
     			</label>
     			<tablesticky sticky="e" />
     			<number>

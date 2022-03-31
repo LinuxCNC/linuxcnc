@@ -41,6 +41,12 @@ typedef enum {
     DB_NOTUSED=0,  // equivalent to not specifying in inifile
     DB_ACTIVE,
 } tooldb_t;
+
+typedef enum {
+    SPINDLE_LOAD,
+    SPINDLE_UNLOAD,
+    TOOL_OFFSET,
+} tool_notify_t;
 //----------------------------------------------------------
 // tooldata_*(): access to internal tool table data:
 struct    CANON_TOOL_TABLE tooldata_entry_init(void);
@@ -52,7 +58,11 @@ void   tooldata_reset(void);
 void   tooldata_last_index_set(int idx);
 int    tooldata_last_index_get(void);
 int    tooldata_find_index_for_tool(int toolno);
+
+// ignore_zero_values:1 for file writes
+//                   :0 for use with tooldata_db_notify()
 void   tooldata_format_toolline (int idx,
+                                 bool ignore_zero_values,
                                  CANON_TOOL_TABLE tdata,
                                  char * ttcomments[],
                                  char formatted_line[CANON_TOOL_ENTRY_LEN]
@@ -90,7 +100,10 @@ int tool_nml_register(CANON_TOOL_TABLE *tblptr);
 #define DB_SPINDLE_SAVE "./db_spindle.tbl"
 
 int   tooldata_db_init(char db_find_progname[],int random_toolchanger);
-int   tooldata_db_notify(int toolno,int pocketno,CANON_TOOL_TABLE tdata);
+int   tooldata_db_notify(tool_notify_t ntype,
+                         int toolno,
+                         int pocketno,
+                         CANON_TOOL_TABLE tdata);
 int   tooldata_db_getall(void);
 #ifdef CPLUSPLUS
 }

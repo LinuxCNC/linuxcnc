@@ -85,7 +85,7 @@ happen if the following conditions are true:
 	while on the wrong side of the switch, it will run to the end of the 
 	axis. There is NO possible software solution to that scenario - the 
 	proper solution is a home switch that remains on all the way to the end 
-	of the axis. With such a switch, EMC2's homing algorithm will always work.
+	of the axis. With such a switch, LinuxCNC's homing algorithm will always work.
 			  
 7. connect motion.spindle-speed-in for Feed Per Revolution (G95) mode
 The new pin motion.spindle-speed-in must be connected for Feed Per Revolution 

@@ -171,7 +171,7 @@ class port(pin):
 
 class component:
     def __init__(self, name):
-        self.id = lib.hal_init(name)
+        self.id = lib.hal_init(name.encode())
         self.name = name
         self.pins = {}
         if self.id < 0:

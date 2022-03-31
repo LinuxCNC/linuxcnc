@@ -75,7 +75,7 @@ class Hal_Dial(Gtk.DrawingArea, _HalJogWheelBase):
         self.scale = 1.0
         self.scale_adjustable = True
         self.count_type_shown=1
-        self.center_color = Gdk.Color.parse('#bdefbdefbdef') # gray
+        self.center_color = Gdk.Color.parse('#bdefbdefbdef')[1] # gray
         # private
         self._minute_offset = 0 # the offset of the pointer hand
         self._last_offset = 0

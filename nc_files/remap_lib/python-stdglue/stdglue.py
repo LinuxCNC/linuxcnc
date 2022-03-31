@@ -219,6 +219,8 @@ def change_epilog(self, **words):
                 self.toolchange_flag = True
                 yield INTERP_EXECUTE_FINISH
             else:
+                # yield to print any messages from the NGC program
+                yield INTERP_EXECUTE_FINISH
                 self.set_errormsg("M6 aborted (return code %.1f)" % (self.return_value))
                 yield INTERP_ERROR
     except Exception as e:
@@ -383,7 +385,7 @@ def cycle_prolog(self,**words):
         return "cycle_prolog failed: %s" % (e)
 
 # make sure the next line has the same motion code, unless overridden by a
-# new G code
+# new G-code
 def cycle_epilog(self,**words):
     try:
         c = self.blocks[self.remap_level]
@@ -428,7 +430,7 @@ def index_lathe_tool_with_wear(self,**words):
             yield INTERP_ERROR
         tool_raw = int(cblock.t_number)
 
-        # interpet the raw tool number into tool and wear number
+        # interpret the raw tool number into tool and wear number
         # If it's less then 100 someone forgot to add the wear #, so we added it automatically
         # separate out tool number (tool) and wear number (wear), add 10000 to wear number
         if tool_raw <100:
@@ -504,7 +506,7 @@ def index_lathe_tool_with_wear(self,**words):
 #
 # auto tool probe on m6
 # move to tool change position for toolchange
-# wait for acknoledge of tool change
+# wait for acknowledge of tool change
 # move to tool setter probe position
 # probe tool on tool setter
 # move back to tool change position

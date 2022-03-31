@@ -176,6 +176,7 @@ jogincr_index_last = 1
 mdi_history_index= -1
 resume_inhibit = 0
 continuous_jog_in_progress = False
+cjogindices = []
 
 help1 = [
     ("F1", _("Emergency stop")),
@@ -228,7 +229,7 @@ help2 = [
     ("", ""),
     ("O", _("Open program")),
     (_("Control-R"), _("Reload program")),
-    (_("Control-S"), _("Save g-code as")),
+    (_("Control-S"), _("Save G-code as")),
     ("R", _("Run program")),
     ("T", _("Step program")),
     ("P", _("Pause program")),
@@ -777,6 +778,14 @@ class LivePlotter:
             del self.stat
             return
 
+        global continuous_jog_in_progress,cjogindices
+        if continuous_jog_in_progress and not manual_tab_visible():
+            jjogmode = get_jog_mode()
+            for idx in cjogindices:
+                 c.jog(linuxcnc.JOG_STOP, jjogmode,idx)
+            continuous_jog_in_progress = 0
+            cjogindices = []
+
         if  (   (self.stat.motion_mode == linuxcnc.TRAJ_MODE_COORD)
             and (self.stat.task_mode   == linuxcnc.MODE_MANUAL)
             ):
@@ -804,7 +813,7 @@ class LivePlotter:
 
         self.after = self.win.after(update_ms, self.update)
 
-        self.win.set_current_line(self.stat.id or self.stat.motion_line)
+        self.win.set_current_line(self.stat.motion_id or self.stat.motion_line)
 
         speed = self.stat.current_vel
 
@@ -1495,7 +1504,7 @@ def jogspeed_incremental(dir=1):
         cursel = int(cursel)
     if dir == 1:
         if cursel > 0:
-            # If it was "Continous" just before, then don't change last jog increment!
+            # If it was "Continuous" just before, then don't change last jog increment!
             jogincr_index_last += 1
         if jogincr_index_last >= jogincr_size:
             jogincr_index_last = jogincr_size - 1
@@ -1608,7 +1617,7 @@ def prompt_areyousure(title, text):
     return t.run()
 
 class _prompt_float:
-    """ Prompt for a g-code floating point expression """
+    """ Prompt for a G-code floating point expression """
     def __init__(self, title, text, default, unit_str=''):
         self.unit_str = unit_str
         t = self.t = Toplevel(root_window, padx=7, pady=7)
@@ -3217,8 +3226,9 @@ def jog_on(a, b):
         jog(linuxcnc.JOG_INCREMENT, jjogmode, a, b, distance)
         jog_cont[a] = False
     else:
-        global continuous_jog_in_progress
+        global continuous_jog_in_progress,cjogindices
         continuous_jog_in_progress = True
+        if not a in cjogindices: cjogindices.append(a)
         jog(linuxcnc.JOG_CONTINUOUS, jjogmode, a, b)
         jog_cont[a] = True
         jogging[a] = b
@@ -3800,9 +3810,9 @@ def get_coordinate_font(large):
     global fontbase
 
     if large:
-        coordinate_font = "courier bold 20"
+        coordinate_font = "monospace 20"
     else:
-        coordinate_font = "courier bold 11"
+        coordinate_font = "monospace 11"
 
     if coordinate_font not in font_cache:
         font_cache[coordinate_font] = \
@@ -4165,7 +4175,7 @@ if os.path.exists(rcfile):
         root_window.tk.call("nf_dialog", ".error", _("Error in ~/.axisrc"),
             tb, "error", 0, _("OK"))
 
-# call an empty function that can be overidden
+# call an empty function that can be overridden
 # by an .axisrc user_hal_pins() function
 # then set HAL component ready if the .axisui didn't
 if hal_present == 1 :

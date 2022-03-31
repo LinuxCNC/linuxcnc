@@ -186,7 +186,7 @@ extern int hal_init(const char *name);
     crashes when the component's code and data is unmapped.
     'hal_exit()' calls 'rtapi_exit()', so any rtapi reaources
     allocated should be discarded before calling hal_exit(), and
-    rtapi functios should not be called afterwards.
+    rtapi functions should not be called afterwards.
     On success, hal_exit() returns 0, on failure it
     returns a negative error code.
 */
@@ -798,7 +798,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
   A HAL port pin is an asynchronous one way byte stream
   
   A hal port should have only one reader and one writer. Both sides can
-  read or write respectivly at any time without interfering with the other
+  read or write respectively at any time without interfering with the other
  
   A component that exports a PORT pin does not own the port buffer.
   The signal linking an input port to an output port owns the port buffer.

@@ -20,7 +20,7 @@ STATUS = Status()
 ACTION = Action()
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-IMAGES = os.path.join(INFO.IMAGE_PATH, 'qtdragon/images')
+IMAGES = os.path.join(INFO.IMAGE_PATH, 'gcode_utility')
 
 class Preview(QtWidgets.QWidget):
     def __init__(self):
@@ -104,7 +104,7 @@ class Hole_Circle(QtWidgets.QWidget):
         except AttributeError as e:
             print("Error: ", e)
         self.preview = Preview()
-        self.layout_preview.insertWidget(0, self.preview)
+        self.layout_preview.addWidget(self.preview)
 
         # set up Help messagebox
         help_file = open(os.path.join(HERE,"hole_circle_help.txt"), "r")
@@ -126,6 +126,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.start = .5
         self.depth = 1.0
         self.drill_feed = 1.0
+        self.units_text = ''
 
         # set valid input formats for lineEdits
         self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
@@ -168,7 +169,7 @@ class Hole_Circle(QtWidgets.QWidget):
         else:
             unit = "METRIC"
             self.unit_code = "G21"
-        self.lbl_units_info.setText("**NOTE - All units are in {}".format(unit))
+        self.units_text = "**NOTE - All units are in {}".format(unit)
 
     def clear_all(self):
         self.lbl_spindle_ok.setPixmap(self.unchecked)
@@ -296,7 +297,7 @@ class Hole_Circle(QtWidgets.QWidget):
         self.file.write("%\n")
         self.file.write("({})\n".format(comment))
         self.file.write("({} Holes on {} Diameter)\n".format(self.num_holes,self.radius *2))
-        self.file.write("({})\n".format(self.lbl_units_info.text()))
+        self.file.write("({})\n".format(self.units_text))
         self.file.write("({})\n".format('XY origin at circle center'))
         self.file.write("({})\n".format('Z origin at top face of surface'))
         self.file.write("\n")

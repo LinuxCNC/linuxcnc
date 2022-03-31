@@ -350,7 +350,7 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 // we read the current data (variable 'pins') of the first port. Then for each of the 24 points
 // we compare to the mask of the first port to see which of the 24 io points are inputs (the bits that are false)
 // if it is an input then check 'pins' against the mask to see if input bit is true
-// update the HAL pin and not-pin accoringly. shift the mask then do the next point (of 24 io points)
+// update the HAL pin and not-pin accordingly. shift the mask then do the next point (of 24 io points)
 // after all pins done-increase 'portnum' to 1 set offset to the offset for port1
 // then do it all again on the second port
 

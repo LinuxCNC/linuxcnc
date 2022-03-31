@@ -6,7 +6,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -134,7 +134,7 @@ Interp::Interp()
   init_named_parameters();  // need this before Python init.
  
   if (!PythonPlugin::instantiate(builtin_modules)) {  // factory
-    Error("Interp ctor: cant instantiate Python plugin");
+    Error("Interp ctor: can\'t instantiate Python plugin");
     return;
   }
 
@@ -276,7 +276,7 @@ Side Effects:
    Calls to canonical machining commands are made.
    The interpreter variables are changed.
    At the end of the program, the file is closed.
-   If using a file, the active G codes and M codes are updated.
+   If using a file, the active G-codes and M codes are updated.
 
 Called By: external programs
 
@@ -315,7 +315,7 @@ int Interp::_execute(const char *command)
   // process control functions -- will skip if skipping
   if ((eblock->o_name != 0) || _setup.mdi_interrupt)  {
       status = convert_control_functions(eblock, &_setup);
-      CHP(status); // relinquish control if INTERP_EXCUTE_FINISH, INTERP_ERROR etc
+      CHP(status); // relinquish control if INTERP_EXECUTE_FINISH, INTERP_ERROR etc
       
       // let MDI code call subroutines.
       // !!!KL not clear what happens if last execution failed while in
@@ -413,7 +413,7 @@ int Interp::_execute(const char *command)
       // 8. In Auto mode, we do an initial execute(0) to get things going, thereafer
       //   task will do it for us.
       //
-      // 9. When a replacment sub finishes, remap_finished() continues execution of
+      // 9. When a replacement sub finishes, remap_finished() continues execution of
       //   the current remapped block until done.
       //
       if (eblock->remappings.size() > 0) {
@@ -1167,7 +1167,7 @@ int Interp::init()
   _setup.arc_not_allowed = false;
   _setup.cycle_il_flag = false;
   _setup.distance_mode = MODE_ABSOLUTE;
-  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatability
+  _setup.ijk_distance_mode = MODE_INCREMENTAL;  // backwards compatibility
   _setup.feed_mode = UNITS_PER_MINUTE;
 //_setup.feed_override set in Interp::synch
 //_setup.feed_rate set in Interp::synch
@@ -1265,7 +1265,7 @@ int Interp::init()
       catch (const bp::error_already_set&) {
 	  std::string exception_msg;
 	  bool unexpected = false;
-	  // KeyError is ok - this means the namedparams module doesnt exist
+	  // KeyError is ok - this means the namedparams module doesn't exist
 	  if (!PyErr_ExceptionMatches(PyExc_KeyError)) {
 	      // something else, strange
 	      exception_msg = handle_pyerror();
@@ -1510,7 +1510,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   // this input reading code is in the wrong place. It should be executed
   // in sync(), not here. This would make correct parameter values available 
   // without doing a read() (e.g. from Python).
-  // Unfortunately synch() isnt called in preview (gcodemodule)
+  // Unfortunately synch() isn't called in preview (gcodemodule)
 
 #if 0
   if (_setup.probe_flag) {
@@ -1552,7 +1552,7 @@ int Interp::_read(const char *command)  //!< may be NULL or a string to read
   // of times. So they need to be called again post-sync and post-read-input possibly several times.
   // 
   // the task readahead logic assumes a block execution may result in a single INTERP_EXECUTE_FINISH
-  // and readahead is started therafter immediately. Modifying the readahead logic would be a massive
+  // and readahead is started thereafter immediately. Modifying the readahead logic would be a massive
   // change. Therefore we use the trick to suppress reading the next block as required, which means
   // we will get several calls to execute() in a row which are used to finish the handlers. This is
   // needed for remapped codes which might involve up to three Python handlers, and Python oword subs.
@@ -2078,7 +2078,7 @@ interpreter.
 
 Returned Value: none
 
-Side Effects: copies active G codes into the codes array
+Side Effects: copies active G-codes into the codes array
 
 Called By: external programs
 
@@ -2145,7 +2145,7 @@ void Interp::active_settings(double *settings) //!< array of settings to copy in
 
 /**
  * Unpack state information from a motion line tag into
- * TASK_STAT-style arrays of G/M Codes.
+ * TASK_STAT-style arrays of G-/M-Codes.
  *
  * This method allows us to keep the existing infrastructure for g
  * code status / state storage intact.
@@ -2170,7 +2170,7 @@ int Interp::active_modes(int *g_codes,
     g_codes[3] = tag.fields[GM_FIELD_PLANE];
     g_codes[4] = tag.fields[GM_FIELD_CUTTER_COMP];
 
-    // Unpack flags into appropriate G code equivalents
+    // Unpack flags into appropriate G-code equivalents
     g_codes[5] = tag.flags[GM_FLAG_UNITS] ? G_20 : G_21;
     g_codes[6] = tag.flags[GM_FLAG_DISTANCE_MODE] ? G_90 : G_91;
     g_codes[7] = tag.flags[GM_FLAG_FEED_INVERSE_TIME] ? G_93 :
@@ -2504,10 +2504,11 @@ int Interp::ini_load(const char *filename)
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
-    CHKS(strlen(parameter_file_name) > 0, _("Parameter file name is missing"));
 
     // close it
     inifile.Close();
+
+    CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
 
     return 0;
 }
@@ -2590,7 +2591,7 @@ int Interp::enter_remap(void)
     _setup.remap_level++;
     if (_setup.remap_level == MAX_NESTED_REMAPS) {
 	_setup.remap_level = 0;
-	ERS("maximum nesting of remapped blocks execeeded");
+	ERS("maximum nesting of remapped blocks exceeded");
     }
 
     // push onto block stack

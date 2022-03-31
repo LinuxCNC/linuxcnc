@@ -66,8 +66,8 @@ class NML_DIAGNOSTICS_INFO;
 class NML:public virtual CMS_USER {
   protected:
     int run_format_chain(NMLTYPE, void *);
-    int format_input(NMLmsg * nml_msg);	/* Format message if neccessary */
-    int format_output();	/* Decode message if neccessary. */
+    int format_input(NMLmsg * nml_msg);	/* Format message if necessary */
+    int format_output();	/* Decode message if necessary. */
 
   public:
     void *operator                          new(size_t);

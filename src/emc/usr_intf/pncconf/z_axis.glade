@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.1 -->
+<!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.0"/>
   <object class="GtkAdjustment" id="zbacklash_adjust">
@@ -243,7 +243,7 @@
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>
         <property name="draw_indicator">True</property>
-        <signal name="toggled" handler="on_xusecomp_toggled" swapped="no"/>
+        <signal name="toggled" handler="on_zusecomp_toggled" swapped="no"/>
       </object>
       <packing>
         <property name="top_attach">18</property>
@@ -259,7 +259,7 @@
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>
         <property name="draw_indicator">True</property>
-        <signal name="toggled" handler="on_xusebacklash_toggled" swapped="no"/>
+        <signal name="toggled" handler="on_zusebacklash_toggled" swapped="no"/>
       </object>
       <packing>
         <property name="top_attach">19</property>
@@ -679,6 +679,12 @@
         <property name="x_options">GTK_FILL</property>
         <property name="y_options"/>
       </packing>
+    </child>
+    <child>
+      <placeholder/>
+    </child>
+    <child>
+      <placeholder/>
     </child>
     <child>
       <placeholder/>

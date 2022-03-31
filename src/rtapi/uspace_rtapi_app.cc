@@ -16,6 +16,7 @@
  */
 
 #include "config.h"
+#include "linuxcnc.h"
 
 #ifdef __linux__
 #include <sys/fsuid.h>
@@ -52,8 +53,6 @@
 #include <pthread_np.h>
 #endif
 
-#include "config.h"
-
 #include "rtapi.h"
 #include "hal.h"
 #include "hal/hal_priv.h"
@@ -82,9 +81,6 @@ WithRoot::~WithRoot() {
 #endif
     }
 }
-
-extern "C"
-int rtapi_is_realtime();
 
 namespace
 {
@@ -750,7 +746,7 @@ static int harden_rt()
     // enable core dumps
     if (setrlimit(RLIMIT_CORE, &unlimited) < 0)
 	rtapi_print_msg(RTAPI_MSG_WARN,
-		  "setrlimit: %s - core dumps may be truncated or non-existant\n",
+		  "setrlimit: %s - core dumps may be truncated or non-existent\n",
 		  strerror(errno));
 
     // even when setuid root

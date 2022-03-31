@@ -144,22 +144,30 @@ class GeometryMixin(_HalWidgetBase):
             go( x,y,w,h)
 
     def record_geometry(self):
-        if self.PREFS_ :
-            temp = self._geometry_string.replace(' ','')
-            temp = temp.strip('-')
-            if temp in('','default')  or temp.isdigit():
-                LOG.debug('Saving {} data from widget {} to file.'.format( self._geoName,self.HAL_NAME_))
-                x = self.geometry().x()
-                y = self.geometry().y()
-                w = self.geometry().width()
-                h = self.geometry().height()
-                geo = '%s %s %s %s'% (x,y,w,h)
-                self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
-
+        try:
+            if self.PREFS_ :
+                temp = self._geometry_string.replace(' ','')
+                temp = temp.strip('-')
+                if temp in('','default')  or temp.isdigit():
+                    LOG.debug('Saving {} data from widget {} to file.'.format( self._geoName,self.HAL_NAME_))
+                    x = self.geometry().x()
+                    y = self.geometry().y()
+                    w = self.geometry().width()
+                    h = self.geometry().height()
+                    geo = '%s %s %s %s'% (x,y,w,h)
+                    self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
+        except:
+            pass
 ################################################################################
 # Generic messagebox Dialog
 ################################################################################
 class LcncDialog(QMessageBox, GeometryMixin):
+    OK = 'OK'
+    NONE = 'NONE'
+    YESNO = 'YESNO'
+    OKCANCEL = 'OKCANCEL'
+    CLOSEPROMPT = 'CLOSEPROMPT'
+
     def __init__(self, parent=None):
         super(LcncDialog, self).__init__(parent)
         self.setTextFormat(Qt.RichText)
@@ -168,17 +176,22 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self.setIcon(QMessageBox.Critical)
         self.setDetailedText('')
         self.mtype = 'OK'
-        self._possibleTypes = ('OK','YESNO','OKCANCEL','CLOSEPROMPT')
+        self._possibleTypes = ('OK','YESNO','OKCANCEL','CLOSEPROMPT','NONE')
         self._state = False
         self._color = QColor(0, 0, 0, 150)
         self._request_name = 'MESSAGE'
         self._nblock = False
-        self._massage = None
+        self._message = None
+        self._return_callback = None
+        self._pinname = None
         self._title = 'Message Dialog'
+        self._forcedFlag = False
+        self._use_exec = False
+        self.set_default_geometry()
         self.hide()
 
     def _hal_init(self):
-        self.set_default_geometry()
+        self.read_preference_geometry('LncMessage-geometry')
         STATUS.connect('dialog-request', self._external_request)
 
     # this processes STATUS called dialog requests
@@ -192,10 +205,10 @@ class LcncDialog(QMessageBox, GeometryMixin):
             geo = message.get('GEONAME') or 'LncMessage-geometry'
             self.read_preference_geometry(geo)
             t = message.get('TITLE')
-            if t:
-                self._title = t
+            if not t:
+                t = 'Message Dialog'
 
-            mess = message.get('MESSAGE') or None
+            messtext = message.get('MESSAGE') or None
             more = message.get('MORE') or None
             details = message.get('DETAILS') or None
             mtype = message.get('TYPE')
@@ -206,42 +219,70 @@ class LcncDialog(QMessageBox, GeometryMixin):
             fcolor = message.get('FOCUSCOLOR')
             alert = message.get('PLAYALERT')
             nblock = message.get('NONBLOCKING')
-            rtrn = self.showdialog(mess, more, details, mtype, 
-                                    icon, pin, ftext, fcolor, alert, nblock)
-            if not nblock:
-                message['RETURN'] = rtrn
-                STATUS.emit('general', message)
+            callback = message.get('CALLBACK') # this needs testing
+            self.showdialog(messtext, more, details, mtype, 
+                                    icon, pin, ftext, fcolor, alert,
+                                    nblock, title = t, return_callback = callback)
 
-    def showdialog(self, message, more_info=None, details=None, display_type='OK',
+    # This actually builds and displays the dialog.
+    # there are three ways to get results:
+    # - through a return by status message  (return_callback = None, use_exec = False)
+    # - callback return                     (return_callback = function_name)
+    # - by direct return statement          (use_exec = True)
+    def showdialog(self, messagetext, more_info=None, details=None, display_type='OK',
                    icon=QMessageBox.Information, pinname=None, focus_text=None,
-                   focus_color=None, play_alert=None, nblock=False):
+                   focus_color=None, play_alert=None, nblock=False,
+                   return_callback = None, flags = None, setflags = None,
+                    title = None, use_exec = False):
 
+        self._pinname = pinname
         self._nblock = nblock
+        self._return_callback = return_callback
+        self._use_exec = use_exec
+
+        # block response to main window?
         if nblock:
             self.setWindowModality(Qt.NonModal)
-            self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.Dialog | Qt.WindowStaysOnTopHint
-                            | Qt.WindowSystemMenuHint)
         else:
             self.setWindowModality(Qt.ApplicationModal)
-            self.setWindowFlags(self.windowFlags() | Qt.Tool |
-                            Qt.FramelessWindowHint | Qt.Dialog |
-                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
 
-        self.setWindowTitle(self._title)
+        # set standard flags or allow external selection
+        if flags is None:
+            if nblock:
+                self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                                Qt.Dialog | Qt.WindowStaysOnTopHint
+                                | Qt.WindowSystemMenuHint)
+                if display_type == LcncDialog.NONE:
+                    self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+                    self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+
+            else:
+                self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                                Qt.FramelessWindowHint | Qt.Dialog |
+                                Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        else:
+            self.setWindowFlags(self.windowFlags() | flags)
+
+        # allow external setting of flags - probably hide close button
+        if not setflags is None:
+            for i in setflags:
+                self.setWindowFlag(i,setflags[i])
+
+        self.setWindowTitle(title)
 
         if focus_color is not None:
             color = focus_color
         else:
             color = self._color
 
+        # convert text descriptions to actual icons
         if icon == 'QUESTION': icon = QMessageBox.Question
         elif icon == 'INFO' or isinstance(icon,str): icon = QMessageBox.Information
         elif icon == 'WARNING': icon = QMessageBox.Warning
         elif icon == 'CRITICAL': icon = QMessageBox.Critical
         self.setIcon(icon)
 
-        self.setText('<b>%s</b>' % message)
+        self.setText('<b>%s</b>' % messagetext)
 
         if more_info is not None:
             self.setInformativeText(more_info)
@@ -253,33 +294,51 @@ class LcncDialog(QMessageBox, GeometryMixin):
         else:
             self.setDetailedText('')
 
+        # convert display type text to buttons layouts
         display_type = display_type.upper()
         if display_type not in self._possibleTypes:
-            display_type = 'OK'
-        if display_type == 'OK':
+            display_type = LcncDialog.OK
+        if display_type == LcncDialog.OK:
             self.setStandardButtons(QMessageBox.Ok)
-        elif display_type == 'YESNO':
+        elif display_type == LcncDialog.YESNO:
             self.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        elif display_type == 'OKCANCEL':
+        elif display_type == LcncDialog.OKCANCEL:
             self.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        elif display_type == LcncDialog.NONE:
+            self.setStandardButtons(QMessageBox.NoButton)
 
         self.buttonClicked.connect(self.msgbtn)
+
         if not nblock:
             STATUS.emit('focus-overlay-changed', True, focus_text, color)
         if play_alert:
             STATUS.emit('play-sound', play_alert)
-        if not nblock:
-            self.show()
-            self.forceDetailsOpen()
+ 
+        self.show()
+        self.forceDetailsOpen()
+
+        if use_exec:
             retval = self.exec_()
             STATUS.emit('focus-overlay-changed', False, None, None)
             LOG.debug('Value of pressed button: {}'.format(retval))
             return self.qualifiedReturn(retval)
-        else:
-            self.show()
 
+    # hack to force details box to present open on first display
     def forceDetailsOpen(self):
-        pass
+        if self._forcedFlag: return
+        try:
+            # force the details box open on first time display
+            for i in self.buttons():
+                if self.buttonRole(i) == QMessageBox.ActionRole:
+                    for j in self.children():
+                        for k in j.children():
+                            if isinstance( k, QTextEdit):
+                                #i.hide()
+                                if not k.isVisible():
+                                    i.click()
+        except:
+            pass
+        self._forcedFlag = True
 
     def qualifiedReturn(self, retval):
         if retval in(QMessageBox.No, QMessageBox.Cancel):
@@ -289,7 +348,11 @@ class LcncDialog(QMessageBox, GeometryMixin):
         else:
             return self.buttonRole(self.clickedButton())
 
+    # move dialog when shown
     def showEvent(self, event):
+        self.set_geometry()
+        super(LcncDialog, self).showEvent(event)
+        return
         if self._nblock:
             self.set_geometry()
         else:
@@ -298,20 +361,34 @@ class LcncDialog(QMessageBox, GeometryMixin):
             self.setGeometry(geom)
         super(LcncDialog, self).showEvent(event)
 
+
     def msgbtn(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
-        if self._nblock:
-            self.hide()
-            btn = self.standardButton(self.clickedButton())
-            if btn in (QMessageBox.Ok, QMessageBox.Yes):
-                self._message['RETURN'] = True
-            elif btn in(QMessageBox.No, QMessageBox.Cancel):
-                self._message['RETURN'] = False
-            else:
-                self._message['RETURN'] = self.buttonRole(self.clickedButton())
-            self.record_geometry()
+
+        # update the dialog position
+        self.record_geometry()
+
+        if self._use_exec:
+            return
+
+        self.hide()
+
+        btn = self.standardButton(self.clickedButton())
+        result = self.qualifiedReturn(btn)
+        LOG.debug('Value of {} pressed button: {}'.format(self, result))
+
+        # these directly call a function with btn info
+        if not self._return_callback is None:
+            self._return_callback(self, result)
+        # these return via status messages
+        elif self._message is not None:
+            self._message['RETURN'] = result
             STATUS.emit('general', self._message)
-            self._massage = None
+            STATUS.emit('focus-overlay-changed', False, None, None)
+            self._message = None
+        # just return result
+        else:
+            LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
 
     # **********************
     # Designer properties
@@ -355,20 +432,6 @@ class CloseDialog(LcncDialog, GeometryMixin):
         self.shutdown = self.addButton('System\nShutdown',QMessageBox.DestructiveRole)
         self._request_name = 'CLOSEPROMPT'
         self._title = 'QtVCP'
-
-    def forceDetailsOpen(self):
-        try:
-            # force the details box open on first time display
-            for i in self.buttons():
-                if self.buttonRole(i) == QMessageBox.ActionRole:
-                    for j in self.children():
-                        for k in j.children():
-                            if isinstance( k, QTextEdit):
-                                #i.hide()
-                                if not k.isVisible():
-                                    i.click()
-        except:
-            pass
 
 ################################################################################
 # Tool Change Dialog
@@ -452,7 +515,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
 
             # show desktop notify dialog rather then a qt dialog
             if self._useDesktopNotify:
-                NOTICE.show_toolchange_notification(MESS,
+               self.deskNotice = NOTICE.show_toolchange_notification(MESS,
                                     MORE +'\n' + comment,
                                     None, 0,
                                     self._processChange,
@@ -465,12 +528,20 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.changed.set(False)
 
     # process callback for 'change-button' HAL pin
+    # hide the message dialog or destop notify message
     def external_acknowledge(self, state):
-        if state and self.isVisible():
+        #print('external acklnowledge: {}'.format(state))
+        if state:
+            if self._useDesktopNotify:
+                self.deskNotice.close()
+            elif self.isVisible():
+                self.hide()
             self._processChange(True)
+
 
     # This also is called from DesktopDialog
     def _processChange(self,answer):
+        #print('proces change: {}'.format(answer))
         if answer == -1:
             self.changed.set(True)
             ACTION.ABORT()
@@ -501,6 +572,9 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint
                             | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+        self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+
         self.setWindowTitle(self._title)
         self.setIcon(QMessageBox.Critical)
         self.setText('<b>%s</b>' % message)
@@ -574,6 +648,10 @@ class FileDialog(QFileDialog, GeometryMixin):
         options |= QFileDialog.DontUseNativeDialog
         self.setOptions(options)
         self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+
         self.INI_exts = INFO.get_qt_filter_extensions()
         self.setNameFilter(self.INI_exts)
         self.default_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files/examples'))
@@ -813,8 +891,8 @@ class OriginOffsetDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
-    def closing_cleanup__(self):
-        self._o.closing_cleanup__()
+    def _hal_cleanup(self):
+        self._o._hal_cleanup()
 
     # usual boiler code
     # (used so we can use code such as self[SomeDataName]
@@ -1219,8 +1297,8 @@ class VersaProbeDialog(QDialog, GeometryMixin):
         self.set_default_geometry()
         STATUS.connect('dialog-request', self._external_request)
 
-    def closing_cleanup__(self):
-        self._o.closing_cleanup__()
+    def _hal_cleanup(self):
+        self._o._hal_cleanup()
 
     def _external_request(self, w, message):
         if message['NAME'] == self._request_name:

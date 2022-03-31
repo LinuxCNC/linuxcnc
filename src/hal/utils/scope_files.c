@@ -32,6 +32,7 @@
     information, go to https://linuxcnc.org.
 */
 
+#include <locale.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -60,7 +61,7 @@
 
 /*
    THREAD <string>	name of thread to sample in
-   MAXCHAN <int>	1,2,4,8,16, maxumum channel count
+   MAXCHAN <int>	1,2,4,8,16, maximum channel count
    HMULT <int>		multiplier, sample every N runs of thread
    HZOOM <int>		1-9, horizontal zoom setting
    HPOS <float>		0.0-1.0, horizontal position setting
@@ -76,7 +77,7 @@
    TSOURCE <int>	channel number for trigger source
    TLEVEL <float>	0.0-1.0, trigger level setting
    TPOS <float>		0.0-1.0, trigger position setting
-   TPOLAR <enum>	triger polarity, RISE or FALL
+   TPOLAR <enum>	trigger polarity, RISE or FALL
    TMODE <int>		0 = normal trigger, 1 = auto trigger
    RMODE <int>		0 = stop, 1 = norm, 2 = single, 3 = roll
 
@@ -110,6 +111,7 @@ typedef struct {
 *                     LOCAL FUNCTION PROTOTYPES                        *
 ************************************************************************/
 
+static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type);
 static int parse_command(char *in);
 /* the following functions implement halscope config items
    each is called with a pointer to a single argument (the parser
@@ -190,7 +192,7 @@ int read_config_file (char *filename)
     while ( fgets(cmd_buf, 99, fp) != NULL ) {
 	/* remove trailing newline if present */
 	cp = cmd_buf;
-	while (( *cp != '\n' ) && ( *cp != '\0' )) {
+	while (( *cp != '\n' ) && ( *cp != '\r' ) && ( *cp != '\0' )) {
 	    cp++;
 	}
 	*cp = '\0';
@@ -236,86 +238,105 @@ void write_config_file (char *filename)
 
 /* writes captured data to disk */
 
-void write_log_file (char *filename)
+void write_log_file(char *filename)
 {
-	scope_data_t *dptr, *start;
-	scope_horiz_t *horiz;
-	int sample_len, chan_num, sample_period_ns, samples, n;
-	char *label[16];
-    //scope_disp_t *disp;
-	scope_log_t *log;
     scope_chan_t *chan;
+    scope_data_t *dptr, *start;
+    scope_horiz_t *horiz;
+    scope_vert_t *vert;
     hal_type_t type[16];
+
+    char *label[16];
+    char *old_locale, *saved_locale;
+    int sample_len, chan_active, chan_num, sample_period_ns, samples, n;
     FILE *fp;
 
-
-
     fp = fopen(filename, "w");
-    if ( fp == NULL ) {
-	fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename );
-	return;
+    if (fp == NULL) {
+        fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename);
+        return;
     }
 
-	/* fill in local variables */
-	for (chan_num=0; chan_num<16; chan_num++) {
-		chan = &(ctrl_usr->chan[chan_num]);
-	    label[chan_num] = chan->name;
-	 	type[chan_num] = chan->data_type;
-	}
-	/* sample_len is really the number of channels, don't let it fool you */
-	sample_len = ctrl_shm->sample_len;
-    //disp = &(ctrl_usr->disp);
-	n=0;
-	samples = ctrl_usr->samples*sample_len ;
-	//fprintf(stderr, "maxsamples = %p \n", maxsamples);
-	log = &(ctrl_usr->log);
-	horiz = &(ctrl_usr->horiz);
-	sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
+    /* Get name and type of active channels. */
+    chan_active = 0;
+    vert = &(ctrl_usr->vert);
+    for (chan_num = 0; chan_num < 16; chan_num++) {
+        if (vert->chan_enabled[chan_num] == 1) {
+            chan = &(ctrl_usr->chan[chan_num]);
+            label[chan_active] = chan->name;
+            type[chan_active] = chan->data_type;
+            chan_active++;
+        }
+    }
 
-	//for testing, this will be a check box or something eventually
-	log->order=INTERLACED;
+    /* sample_len is really the number of channels, don't let it fool you */
+    sample_len = ctrl_shm->sample_len;
+    samples = ctrl_usr->samples * sample_len;
+
+    horiz = &(ctrl_usr->horiz);
+    sample_period_ns = horiz->thread_period_ns * ctrl_shm->mult;
 
     /* write data */
-    fprintf(fp, "Sampling period is %i ns \n", sample_period_ns );
+    fprintf(fp, "# Sampling period is %i ns\n", sample_period_ns);
 
-	/* point to the first sample in the display buffer */
-	start = ctrl_usr->disp_buf ;
+    /* point to the first sample in the display buffer */
+    start = ctrl_usr->disp_buf;
 
-	switch (log->order) {
-		case INTERLACED:
-				while (n <= samples) {
+    /* write header to csv file */
+    for (chan_num = 0; chan_num < chan_active; chan_num++) {
+        fprintf(fp, "%s", label[chan_num]);
+        if (chan_num < chan_active - 1) {
+            fprintf(fp, ";");
+        }
+    }
+    fprintf(fp, "\n");
 
-					for (chan_num=0; chan_num<sample_len; chan_num++) {
-						dptr=start+n;
-						if ((n%sample_len)==0){
-						fprintf( fp, "\n");
-						}
-						write_sample( fp, label[chan_num], dptr, type[chan_num]);
-						/* point to next sample */
-						n++;
-					}
-   				 }
-				break;
-		case NOT_INTERLACED:
-				for (chan_num=0; chan_num<sample_len; chan_num++) {
-					n=chan_num;
-					while (n <= samples) {
-						dptr=start+n;
-						write_sample( fp, label[chan_num], dptr, type[chan_num]);
-						fprintf( fp, "\n");
-						/* point to next sample */
-						n += sample_len;
-					}
-   				 }
-				break;
-	}
+    /*
+     * Specify LC_NUMERIC, makes the number format consistent, regardless
+     * which locale previously in use. Necessary since the number format changes
+     * with different locales.
+     */
+    old_locale = setlocale(LC_NUMERIC, NULL);
+    if (old_locale == NULL) {
+        fprintf(stderr, "ERROR: Could not read locale.");
+        return;
+    }
+    saved_locale = strdup(old_locale);
+    if (saved_locale == NULL) {
+        fprintf(stderr, "ERROR: Could not copy old locale.");
+        return;
+    }
+    setlocale(LC_NUMERIC, "C");
+
+    n = 0;
+    while (n < samples) {
+        for (chan_num = 0; chan_num < sample_len; chan_num++) {
+            dptr = start + n;
+            /* Skip values for inactive channels. */
+            if (chan_num >= chan_active) {
+                n++;
+                continue;
+            }
+            write_sample(fp, dptr, type[chan_num]);
+            if (chan_num < chan_active - 1) {
+                fprintf(fp, ";");
+            }
+            if ((chan_num == chan_active - 1) || (chan_num == 15 && chan_active == 16)) {
+                fprintf(fp, "\n");
+            }
+            /* point to next sample */
+            n++;
+        }
+    }
 
     fclose(fp);
-    fprintf(stderr, "Log file '%s' written.\n", filename );
+    setlocale(LC_NUMERIC, saved_locale);
+    free(saved_locale);
+    printf("Log file '%s' written.\n", filename);
 }
 
 /* format the data and print it */
-void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
+static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type)
 {
 	double data_value;
 	switch (type) {
@@ -339,9 +360,8 @@ void write_sample(FILE *fp, char *label, scope_data_t *dptr, hal_type_t type)
 			data_value = 0.0;
 			break;
 		}
-	/*actually write the data to disk */
-	/* this should look something like CHAN1 1.234 */
-	fprintf(fp, "%s %+.14f ", label, data_value );
+	/* actually write the data to disk */
+	fprintf(fp, "%.14f", data_value);
 }
 
 
@@ -384,7 +404,7 @@ static int parse_command(char *in)
 	}
 	arg_string = cp1;
 	/* find and replace newline at end */
-	while (( *cp1 != '\n' ) && ( *cp1 != '\0' )) {
+	while (( *cp1 != '\n' ) && ( *cp1 != '\r' ) && ( *cp1 != '\0')) {
 	    cp1++;
 	}
 	*cp1 = '\0';
@@ -489,7 +509,7 @@ static char *chan_cmd(void * arg)
     rv = set_active_channel(chan_num);
     switch (rv) {
     case 0:
-	// successfull return
+	// successful return
 	return NULL;
     case -1:
 	return "illegal channel number";

@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
+import os
 import sys
 import time
 from PyQt5.QtGui import *
@@ -50,10 +51,7 @@ validRead    = '0402'
 
 class App(QWidget):
     def __init__(self):
-        if sys.version_info < (3, 0):
-            super(QWidget, self).__init__()
-        else:
-            super().__init__()
+        super().__init__()
         if not sMod:
             msg = '\npyserial module not available\n'\
                   '\nto install, open a terminal and enter:\n'\
@@ -62,6 +60,11 @@ class App(QWidget):
             response.setText(msg)
             response.exec_()
             raise SystemExit
+        if os.path.isfile('/usr/share/linuxcnc/linuxcncicon.png'):
+            self.windowIcon = QIcon('/usr/share/linuxcnc/linuxcncicon.png')
+            self.setWindowIcon(self.windowIcon)
+        else:
+            self.windowIcon = None
         self.setWindowTitle('Powermax Communicator')
         qtRectangle = self.frameGeometry()
         centerPoint = QDesktopWidget().availableGeometry().center()
@@ -74,9 +77,9 @@ class App(QWidget):
         self.portName.addItem('SELECT A PORT')
         for item in serial.tools.list_ports.comports():
             self.portName.addItem(item.device)
-        self.writing = False
         self.connected = False
         self.portName.activated.connect(self.on_port_changed)
+        self.portFile = None
         self.portScan.pressed.connect(self.on_port_scan)
         self.usePanel.toggled.connect(self.on_use_toggled)
         self.modeSet.currentIndexChanged.connect(lambda:self.on_value_changed(self.modeSet, rMode, 1))
@@ -99,6 +102,23 @@ class App(QWidget):
             ')
 
     def periodic(self):
+        if not os.path.exists(self.portFile):
+            self.timer.stop()
+            self.connected = False
+            self.usePanel.setChecked(True)
+            self.useComms.setEnabled(False)
+            self.clear_text()
+            self.portName.clear()
+            self.portName.addItem('SELECT A PORT')
+            try:
+                self.openPort.close()
+            except:
+                pass
+            result = self.dialog_ok(
+                        QMessageBox.Warning,\
+                        'ERROR',\
+                        '\nCommunications device lost.\n'\
+                        '\nA Port Scan is required.\n')
         if self.connected:
             for reg in (rMode, rCurrent, rPressure, rFault):
                 if not self.read_register(reg): return True
@@ -140,28 +160,30 @@ class App(QWidget):
         return lrc
 
     def write_to_register(self, reg, data):
-        self.writing = True
         data = '{}{}{}{}'.format(address, regWrite, reg, data)
         lrc = self.get_lrc(data)
         packet = ':{}{}\r\n'.format(data, lrc)
-        reply = ''
-        self.openPort.write(packet.encode())
-        reply = self.openPort.readline().decode()
-        if not reply:
-            self.usePanel.setChecked(True)
-            result = self.dialog_ok(
-                        'ERROR',\
-                        '\nno reply while writing to plasma unit\n'\
-                        '\ncheck connections and retry when ready\n')
-            return False
-        elif reply == packet:
-            self.writing = False
-        else:
-            result = self.dialog_ok(
-                        'ERROR',\
-                        '\nbad packet while writing to plasma unit\n'\
-                        '\ncheck connections and retry when ready\n')
-            return False
+        errors = 0
+        while 1:
+            try:
+                reply = ''
+                self.openPort.write(packet.encode())
+                reply = self.openPort.readline().decode()
+            except:
+                return False
+            if reply == packet:
+                break
+            else:
+                errors += 1
+                if errors == 3:
+                    self.connected = False
+                    self.usePanel.setChecked(True)
+                    result = self.dialog_ok(
+                                QMessageBox.Warning,\
+                                'ERROR',\
+                                '\nNo reply while writing to plasma unit.\n'\
+                                '\nCheck connections and retry when ready.\n')
+                    return False
         return True
 
     def read_from_register(self, reg):
@@ -174,14 +196,19 @@ class App(QWidget):
         if reply:
             return reply
         else:
+            self.connected = False
             self.usePanel.setChecked(True)
-            result = self.dialog_ok('ERROR',\
-                        '\nno reply while reading from plasma unit\n'\
-                        '\ncheck connections and retry when ready\n')
+            result = self.dialog_ok(QMessageBox.Warning,\
+                        'ERROR',\
+                        '\nNo reply while reading from plasma unit.\n'\
+                        '\nCheck connections and retry when ready.\n')
             return None
 
     def read_register(self, reg):
-        result = self.read_from_register(reg).strip().lstrip(':')
+        try:
+            result = self.read_from_register(reg).strip().lstrip(':')
+        except:
+            return
         if result:
             if int(result.strip(), 16) >= 0:
                 if result[:6] == '{}{}'.format(address, validRead):
@@ -201,7 +228,7 @@ class App(QWidget):
                                 self.pressureValue.setText('{:.1f}'.format(data))
                             else:
                                 self.pressureValue.setText('{:.0f}'.format(data))
-                            return data
+                            return 1
                         elif reg == rFault:
                             fault = int(result[6:10], 16)
                             code = '{:04d}'.format(fault)
@@ -272,8 +299,9 @@ class App(QWidget):
         else:
             if self.currentSet.value() == 0:
                 result = self.dialog_ok(
+                        QMessageBox.Warning,\
                         'ERROR',\
-                        '\nA value is required for Current\n')
+                        '\nA value is required for Current.\n')
                 if result:
                     self.usePanel.setEnabled(True)
                     return
@@ -321,6 +349,8 @@ class App(QWidget):
         self.portName.showPopup()
         self.usePanel.setEnabled(False)
         self.useComms.setEnabled(False)
+        self.portName.setCurrentIndex( self.portName.count() - 1 )
+        self.on_port_changed()
 
     def on_port_changed(self):
         self.usePanel.setChecked(True)
@@ -344,11 +374,13 @@ class App(QWidget):
             print('\n{} is open...\n'.format(self.portName.currentText()))
         except:
             result = self.dialog_ok(
+                    QMessageBox.Warning,\
                     'ERROR',\
-                    '\ncould not open {}\n'.format(self.portName.currentText()))
+                    '\nCould not open {}\n'.format(self.portName.currentText()))
             return
         self.usePanel.setEnabled(True)
         self.useComms.setEnabled(True)
+        self.portFile = self.portName.currentText()
 
     def clear_text(self):
         self.modeValue.setText('')
@@ -366,8 +398,12 @@ class App(QWidget):
         self.currentSet.setValue(40)
         self.pressureSet.setValue(0)
 
-    def dialog_ok(self,title,text):
+    def dialog_ok(self,icon,title,text):
         response = QMessageBox()
+        response.setIcon(icon)
+        if self.windowIcon:
+            response.setWindowIcon(self.windowIcon)
+        response.setWindowTitle(title)
         response.setText(text);
         response.exec_()
         return response
@@ -463,6 +499,12 @@ class App(QWidget):
         self.grid.addWidget(self.pressureSet,5,4)
         self.clear_text()
 
+    def shut_down(self):
+        if self.connected:
+            self.write_to_register(rMode, '0000')
+            self.write_to_register(rCurrent, '0000')
+            self.write_to_register(rPressure, '0000')
+
 faultCode = {
              '0000': '',
              '0110': 'Remote controller mode invalid',
@@ -527,4 +569,5 @@ faultCode = {
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
+    app.aboutToQuit.connect(ex.shut_down)
     sys.exit(app.exec_())

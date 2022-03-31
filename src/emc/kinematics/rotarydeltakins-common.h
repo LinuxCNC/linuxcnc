@@ -35,7 +35,7 @@
   The platform is on "top", the origin is in the center of the plane
   containing the three hip joints.  Z points upward, so Z coordinates
   are always negative.  Thighs always point outward, straight out
-  (knee at Z=0) is considerd zero degrees for the angular hip joint.
+  (knee at Z=0) is considered zero degrees for the angular hip joint.
   Positive rotation is knee-downward, so if you rotate all knees
   positive, the Z coordinate will get more negative.
 

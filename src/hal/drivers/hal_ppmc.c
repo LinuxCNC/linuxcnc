@@ -196,7 +196,7 @@ RTAPI_MP_ARRAY_INT(epp_dir, MAX_BUS, "EPP is commanded port direction");
    unless the physical "estop" input is also on.  All physical outputs
    will not come on unless the physical "estop" output is on. */
    
-/* The ESTOP function is completely implementd in FPGA hardware.  To get
+/* The ESTOP function is completely implemented in FPGA hardware.  To get
 out of ESTOP, the safety chain must be a closed circuit (Green LED lit on
 board), you then must satisfy the watchdog (if watchdog jumper is in ON
 position) by writing to two adjacent velocity output channels (step, PWM or
@@ -842,7 +842,7 @@ static void read_all(void *arg, long period)
     /* loop thru all slots */
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
       currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
-	/* check for anthing in slot */
+	/* check for anything in slot */
 	if ( bus->slot_valid[slotnum] ) {
 	    /* point at slot data */
 	    slot = &(bus->slot_data[slotnum]);
@@ -907,7 +907,7 @@ static void write_all(void *arg, long period)
     }
     /* loop thru all slots */
     for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum++ ) {
-	/* check for anthing in slot */
+	/* check for anything in slot */
 	if ( bus->slot_valid[slotnum] ) {
 	  currentbus = bus->busnum;  /* make bus in use available for epp_dir logic */
 	    /* point at slot data */

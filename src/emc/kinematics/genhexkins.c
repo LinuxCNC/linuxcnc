@@ -20,7 +20,7 @@
   "genhexKinematicsInverse" are arrays "a[i]" and "b[i]".  The values stored
   in these arrays correspond to the positions of the ends of the i'th
   strut. The value stored in a[i] is the position of the end of the i'th
-  strut attatched to the platform, in platform coordinates. The value
+  strut attached to the platform, in platform coordinates. The value
   stored in b[i] is the position of the end of the i'th strut attached
   to the base, in base (world) coordinates.
 
@@ -541,7 +541,7 @@ int genhexKinematicsSetup(const  int   comp_id,
                           const  char* coordinates,
                           kparms*      kp)
 {
-    int i,res;
+    int i,res=0;
 
     haldata = hal_malloc(sizeof(struct haldata));
     if (!haldata) {

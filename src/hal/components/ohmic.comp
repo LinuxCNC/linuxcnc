@@ -30,7 +30,7 @@ It is optional that power to the Ohmic sensing circuit be disconnected unless pr
 \\fBEXAMPLE:\\fR
 .br
 THCAD5 card using a 1/32 frequency setting and a voltage divider internal to the plasma cutter with range extended
-to 24.5 volts with a 390K external resistor as per the manual. Additional information and wiring diagram is contained in the Plasma Primer in hte main Linuxcnc documents.
+to 24.5 volts with a 390K external resistor as per the manual. Additional information and wiring diagram is contained in the Plasma Primer in the main Linuxcnc documents.
 
 .br
  

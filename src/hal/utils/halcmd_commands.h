@@ -2,7 +2,7 @@
  * Copyright (C) 2003 John Kasunich
  *                     <jmkasunich AT users DOT sourceforge DOT net>
  *
- *  Other contributers:
+ *  Other contributors:
  *                     Martin Kuhnle
  *                     <mkuhnle AT users DOT sourceforge DOT net>
  *                     Alex Joni
@@ -68,6 +68,7 @@ extern int do_setp_cmd(char *name, char *value);
 extern int do_getp_cmd(char *name);
 extern int do_sets_cmd(char *name, char *value);
 extern int do_gets_cmd(char *name);
+extern int do_print_cmd(char *value);
 extern int do_ptype_cmd(char *name);
 extern int do_stype_cmd(char *name);
 extern int do_show_cmd(char *type, char **patterns);

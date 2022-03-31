@@ -10,6 +10,8 @@
 # When used to produce a debian package, this file is a script "used to
 # control compilation and installation of the executable"
 
+set -e
+
 usage () {
     P=${0##*/}
     cat <<EOF
@@ -34,7 +36,7 @@ fi
 EXTRA_FILES=
 EXTRA_BUILD=
 PYTHON_VERSION_NEXT=$(python3 -c 'import sys; print (sys.version[:2] + str(1+int(sys.version[2])))')
-LIBREADLINE_DEV=libreadline-gplv2-dev
+LIBREADLINE_DEV="libreadline-gplv2-dev | libreadline-dev"
 
 ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
@@ -63,13 +65,18 @@ fi
 EXTRAS=extras
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, \
-        dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, \
-        python3-lxml, source-highlight, w3c-linkchecker, xsltproc, \
-        texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, \
-        texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
-        texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, \
-        asciidoc-dblatex'
+    DOC_DEPENDS="asciidoc (>= 8.5),\n    dblatex (>= 0.2.12),\n    docbook-xsl,\n    dvipng,\n    ghostscript,\n    graphviz,\n    groff,\n    imagemagick,\n    inkscape,\n    python3-lxml,\n    source-highlight,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    asciidoc-dblatex"
+
+    case $DISTRIB_NAME in
+	Debian-9)
+	    ;; # No xetex in Debian 9 Stretch
+	*)
+	    # Not quite sure which packages is needed for xetex, but
+	    # texlive-xetex seem like a safe choice.  Need xetex to be
+	    # able to build Chinese PDF.
+	    DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
+	    ;;
+    esac
 else
     DOC_DEPENDS=''
 fi
@@ -80,11 +87,16 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    python3-xlib,\n    espeak-ng,python3-numpy,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
 YAPPS_RUNTIME="python3-yapps"
+DEBHELPER="debhelper (>= 9)"
+COMPAT="9"
 
 case $DISTRIB_NAME in
     Ubuntu-21.*|Debian-11|Debian-11.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
+        COMPAT=""
+        DEBHELPER="debhelper-compat (= 13)"
         ;;
     Ubuntu-20.*)
         ;;
@@ -118,6 +130,8 @@ CONFIGURE_REALTIME_ARG=--with-realtime=uspace
 
 subst () {
 sed \
+    -e "s#@COMPAT@#$COMPAT#g" \
+    -e "s#@DEBHELPER@#$DEBHELPER#g" \
     -e "s#@DISTRIB_NAME@#$DISTRIB_NAME#g" \
     -e "s#@DOC_DEPENDS@#$DOC_DEPENDS#g" \
     -e "s#@EXTRA_BUILD@#$EXTRA_BUILD#g" \
@@ -139,6 +153,7 @@ sed \
     -e "s#@PYTHON_IMAGING_TK@#$PYTHON_IMAGING_TK#g" \
     -e "s#@PYTHON_PACKAGING_DEPENDS@#$PYTHON_PACKAGING_DEPENDS#g" \
     -e "s#@PYTHON_VERSION_NEXT@#$PYTHON_VERSION_NEXT#g" \
+    -e "s#@QTVCP_DEPENDS@#$QTVCP_DEPENDS#g" \
     -e "s#@RTAI_ARCHITECTURE@#$RTAI_ARCHITECTURE#g" \
     -e "s#@TARGET@#$TARGET#g" \
     -e "s#@CONFIGURE_REALTIME_ARG@#$CONFIGURE_REALTIME_ARG#g" \
@@ -150,30 +165,24 @@ sed \
     $*
 }
 
+if [[ -z "${COMPAT}" ]]; then
+    rm -f compat
+else
+    subst compat.in > compat
+fi
+
 subst control.top.in > control
 
 echo >> control
 subst control.main-pkg.in >> control
 
-cp linuxcnc-dev.files.in linuxcnc-uspace-dev.files
+subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
+subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
 
-subst rules.in > rules; chmod +x rules
-
-if [ -f $EXTRAS/linuxcnc.files ]; then
-    subst linuxcnc.files.in $DRIVERS $EXTRAS/linuxcnc.files > $MAIN_PACKAGE_NAME.files
-else
-    subst linuxcnc.files.in $DRIVERS > $MAIN_PACKAGE_NAME.files
-fi
+subst rules.in > rules
+chmod +x rules
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOCS_PACKAGES=$(echo linuxcnc-doc-{en,fr,es,cn})
-    for P in $DOCS_PACKAGES; do
-        if [ -f $EXTRAS/$P.files ]; then
-            cat $P.files.in $EXTRAS/$P.files > $P.files
-        else
-            cat $P.files.in > $P.files
-        fi
-    done
     subst control.docs.in >> control
 fi
 

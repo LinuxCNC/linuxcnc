@@ -3,10 +3,6 @@ import linuxcnc
 import hal
 import time
 from PyQt5 import QtCore, QtWidgets, QtGui
-try:
-    from PyQt5.QtWebKitWidgets import QWebView
-except ImportError:
-    raise Exception("Qtvcp error with qtdragon - is package python-pyqt5.qtwebkit installed?")
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -236,17 +232,6 @@ class HandlerClass:
 
     def init_widgets(self):
         self.w.main_tab_widget.setCurrentIndex(0)
-        self.w.slider_jog_linear.setMaximum(INFO.MAX_LINEAR_JOG_VEL)
-        self.w.slider_jog_linear.setValue(INFO.DEFAULT_LINEAR_JOG_VEL)
-        self.w.slider_jog_angular.setMaximum(INFO.MAX_ANGULAR_JOG_VEL)
-        self.w.slider_jog_angular.setValue(INFO.DEFAULT_ANGULAR_JOG_VEL)
-        self.w.slider_feed_ovr.setMaximum(INFO.MAX_FEED_OVERRIDE)
-        self.w.slider_feed_ovr.setValue(100)
-        self.w.slider_rapid_ovr.setMaximum(100)
-        self.w.slider_rapid_ovr.setValue(100)
-        self.w.slider_spindle_ovr.setMinimum(INFO.MIN_SPINDLE_OVERRIDE)
-        self.w.slider_spindle_ovr.setMaximum(INFO.MAX_SPINDLE_OVERRIDE)
-        self.w.slider_spindle_ovr.setValue(100)
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
@@ -271,9 +256,8 @@ class HandlerClass:
         self.w.frame_home_all.mousePressEvent = self.btn_home_all_clicked
    
         # web view widget for SETUP page
-        self.web_view = QWebView()
-        self.w.verticalLayout_setup.addWidget(self.web_view)
-        self.web_view.setHtml(self.html)
+        self.w.verticalLayout_setup.addWidget(self.w.web_view)
+        self.w.web_view.setHtml(self.html)
         # check for virtual keyboard enabled
         if self.w.chk_use_virtual.isChecked():
             self.w.btn_keyboard.show()
@@ -873,7 +857,7 @@ class HandlerClass:
             self.add_status("Loaded program file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_MAIN)
         elif fname.endswith(".html"):
-            self.web_view.load(QtCore.QUrl.fromLocalFile(fname))
+            self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
             self.add_status("Loaded HTML file : {}".format(fname))
             self.w.main_tab_widget.setCurrentIndex(TAB_SETUP)
             self.w.btn_setup.setChecked(True)

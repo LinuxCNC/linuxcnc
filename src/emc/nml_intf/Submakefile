@@ -1,4 +1,4 @@
-INCLUDES += emc/nml_intf
+INCLUDES += emc emc/nml_intf
 
 LIBEMCSRCS := \
     emc/nml_intf/emcglb.c \
@@ -11,6 +11,7 @@ LIBEMCSRCS := \
     emc/ini/emcIniFile.cc \
     emc/ini/iniaxis.cc \
     emc/ini/inijoint.cc \
+    emc/ini/inispindle.cc \
     emc/ini/initraj.cc \
     emc/ini/inihal.cc \
     emc/nml_intf/interpl.cc
