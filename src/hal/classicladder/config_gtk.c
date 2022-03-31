@@ -787,11 +787,11 @@ GtkWidget * CreateModbusComParametersPage( void )
 				break;
 			case 11:
 				snprintf( BuffLabel, sizeof(BuffLabel), _("Read inputs map to") );
-				snprintf( BuffValue, sizeof(BuffValue),  "%d,\%%B,\%%Q,\%%I", ModbusConfig.MapTypeForReadInputs==VAR_MEM_BIT?0:(ModbusConfig.MapTypeForReadInputs==VAR_PHYS_OUTPUT?1:2) );
+				snprintf( BuffValue, sizeof(BuffValue),  "%d,\%%B,\%%Q", ModbusConfig.MapTypeForReadInputs==VAR_MEM_BIT?0:(ModbusConfig.MapTypeForReadInputs==VAR_PHYS_OUTPUT?1:2) );
 				break;
 			case 12:
 				snprintf( BuffLabel, sizeof(BuffLabel), _("Read Coils/inputs map to") );
-				snprintf( BuffValue, sizeof(BuffValue), "%d,\%%B,\%%Q,\%%I", ModbusConfig.MapTypeForReadCoils==VAR_MEM_BIT?0:(ModbusConfig.MapTypeForReadCoils==VAR_PHYS_OUTPUT?1:2) );
+				snprintf( BuffValue, sizeof(BuffValue), "%d,\%%B,\%%Q", ModbusConfig.MapTypeForReadCoils==VAR_MEM_BIT?0:(ModbusConfig.MapTypeForReadCoils==VAR_PHYS_OUTPUT?1:2) );
 				break;
 			case 13:
 				snprintf( BuffLabel, sizeof(BuffLabel), _("Write Coils map from") );
@@ -799,11 +799,11 @@ GtkWidget * CreateModbusComParametersPage( void )
 				break;
 			case 14:
 				snprintf( BuffLabel, sizeof(BuffLabel), _("Read input registers map to") );
-				snprintf( BuffValue, sizeof(BuffValue), "%d,\%%W,\%%QW,\%%IW", ModbusConfig.MapTypeForReadInputRegs==VAR_MEM_WORD?0:(ModbusConfig.MapTypeForReadInputRegs==VAR_PHYS_WORD_OUTPUT?1:2) );
+				snprintf( BuffValue, sizeof(BuffValue), "%d,\%%W,\%%QW", ModbusConfig.MapTypeForReadInputRegs==VAR_MEM_WORD?0:(ModbusConfig.MapTypeForReadInputRegs==VAR_PHYS_WORD_OUTPUT?1:2) );
 				break;
 			case 15:
 				snprintf( BuffLabel, sizeof(BuffLabel), _("Read register/holding map to") );
-				snprintf( BuffValue, sizeof(BuffValue), "%d,\%%W,\%%QW,\%%IW", ModbusConfig.MapTypeForReadHoldRegs==VAR_MEM_WORD?0:(ModbusConfig.MapTypeForReadHoldRegs==VAR_PHYS_WORD_OUTPUT?1:2) );
+				snprintf( BuffValue, sizeof(BuffValue), "%d,\%%W,\%%QW", ModbusConfig.MapTypeForReadHoldRegs==VAR_MEM_WORD?0:(ModbusConfig.MapTypeForReadHoldRegs==VAR_PHYS_WORD_OUTPUT?1:2) );
 				break;
 			case 16:
 				snprintf( BuffLabel, sizeof(BuffLabel), _("Write hold registers map from") );

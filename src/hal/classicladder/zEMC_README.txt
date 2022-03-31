@@ -24,6 +24,10 @@ global, some changes is quite old, but undocumented:
 config_gtk.c:
 --- CreateGeneralParametersPage() is slightly modified to make it more pretty,
     changes include alignment of text, some white space and margins.
+--- Remove option for selecting '%I' to read to, with Modbus. The option
+    is only removed from the GUI. Previously there was a comment in
+    'protocol_modbus_master.c' in SetVarFromModbus(), which might mean that
+    this was previously handled on a lower level.
 
 emc_mods.c:
 --- Check for NULL after call to ConvSymbolToVarName().
