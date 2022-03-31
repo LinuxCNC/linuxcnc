@@ -19,9 +19,6 @@ Depends:
     python3-opengl,
     python3-configobj,
     python3-xlib,
-    @PYTHON_IMAGING@,
-    @PYTHON_IMAGING_TK@,
-    @QTVCP_DEPENDS@,
     libgtksourceview-3.0-dev,
     tcl@TCLTK_VERSION@,
     tk@TCLTK_VERSION@,
@@ -31,6 +28,10 @@ Depends:
     tclx,
     procps, psmisc,
     udev
+Recommends:
+    @PYTHON_IMAGING@,
+    @PYTHON_IMAGING_TK@,
+    @QTVCP_DEPENDS@
 Suggests: mesaflash
 Description: motion controller for CNC machines and robots
  LinuxCNC is a fully-realised CNC machine controller that can interpret
