@@ -105,7 +105,30 @@ proc saveIni {} {
 set ::titlename [msgcat::mc "Halshow"]
 wm title . $::titlename
 wm protocol . WM_DELETE_WINDOW tk_
-image create photo applicationIcon -file [file join [file dirname [info script]] halshow_icon.png]
+image create photo applicationIcon -data {
+    iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAYAAACM/rhtAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAB
+    DklEQVRYhe2X0Q2DIBCGoekUDCATOoUTngOwBn1oLjWNHD8HKG34HgXh4zTAb4komoF53C2Q41n6
+    gvf+9DkRVcucAQuyWEz8ENa+21uLQp84J3dsS1VYS1YQkWN6SEIVROQ0fRFEQe+9asIY21Vx+G1m
+    CtYyBWsRBYnIWFs+qLXtThSogiWSmgVJZAW5EsjE3KfleQxVEJHsIWdMwW3mIznodYvpJZJi+G1G
+    rOC+71d5JBEFl2W5yiPJ/2WSzTmx/dZMkpI7tt2WSSQ5pockVEFETtMXIZtJNBNuzs1MMgxTsJbf
+    FiQis4ZQPOgawrWZpERSsyAJOJMgE3Of2zKJJNlDzhhFJhn2usXMTPLFCzyRcikArbPDAAAAAElF
+    TkSuQmCC
+}
+
+image create photo preferencesIcon -data {
+    iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
+    WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QcJEgQMrJwPLAAAAB10RVh0Q29tbWVudABDcmVhdGVk
+    IHdpdGggVGhlIEdJTVDvZCVuAAAB2UlEQVQ4y8WTTWsTYRSFn2lrgzSdNCOhJkM3gcbdhGRCSIpY
+    dSU1WYkIFQQhZP5BEVx1IYgrETct/QOlLQhDslEMWEGRvPmYooLbJJSJNCVZtIgfcWFnSNt01YV3
+    dXnP5XDvOeeFc5Z0FvD02ZO+0z9aenzm3JjT3L13J6PrcRNAiEoWIJ8zWF1bOYadJHMJdD1u5nMG
+    lmUBmKGgSstuEAqqoGOmkmk0TQPoD5KMDbJZlsWlaT+3swvuWywRJUbUxU/WqNP4Fb/40/+9GLky
+    S6vRYvvddq9ttz071k5vyjflmfBOUCqVEKKS/fL567djGziChYIqALVarWfb318JUd1UFOWqJI0+
+    XMjcCjjn6Hrc1WLEYcrnDGKJf6v6fD652WxubqxvmZ1O570sewPOOfmcMdyF1bUVQkGVWCLKwcHh
+    4dxcegkgHA4b3W63B8jVcp3CbvG0Bm9ev132K34xOeldvHHtJj9//bjQbrcDkcjsA0ni8vz1eXnc
+    M05FVBCikn3x/OX9oTamkmladgN1RkWdUS8eQbIzk0qmAcyN9S3XxpHBdTRNY8/ep2AWqZbrAFTL
+    dQpmkT1738nBcA2OVO27SdQxM9MZCrtFJ5nmx08fTiXx3H/h/9dfs1mvKwIMuy0AAAAASUVORK5C
+    YII=
+}
 wm iconphoto . -default applicationIcon
 set masterwidth 700
 set masterheight 475
@@ -286,22 +309,49 @@ bind $grip <ButtonRelease-1> {
 # frame to hide tree
 set fh [frame $::tf.fh -borderwidth 0 -relief raised]
 pack $fh -fill x
-
-set bh [button $fh.bh -borderwidth 0 -text » -padx 6 -pady 1]
+set fh.top [frame $::tf.fh.top]
+pack $fh.top -fill x
+set fh.bot [frame $::tf.fh.bot]
+set bh [button $fh.top.bh -borderwidth 0 -text » -padx 4 -pady 1]
 pack $bh -side right
 bind $bh <Button-1> [list hideListview true]
-pack [label $fh.tlbl1 -text [msgcat::mc "Filter"]] -side left
-set fe [entry $fh.fe -textvariable txt_filt]
-pack [label $fh.tlbl -text [msgcat::mc "Full path"]] -side right
-set cb_fp [checkbutton $fh.fp -variable ::search_full_path]
-pack $cb_fp -side right
+# preferences button
+set bp [checkbutton $fh.top.bpref -image preferencesIcon -indicatoron false -variable ::bp_state -borderwidth 0 -height 20 -width 20]
+pack $bp -side right -pady 0
+bind $bp <Button-1> {
+    if {$::bp_state} {
+        pack forget $fh.bot
+    } else {
+        pack $fh.bot -fill x
+    }
+}
+set cb_fp [checkbutton $fh.bot.fp -variable ::search_full_path -text [msgcat::mc "Full path (regex)"]]
+pack $cb_fp -side left
 bind $cb_fp <ButtonRelease-1> {refreshHAL}
+# filter entry
+set ::txt_filt [msgcat::mc "Filter tree"]
+set ::fe_active false
+set fe [entry $fh.top.fe -textvariable txt_filt -foreground grey50]
 pack $fe -fill x -expand y -side left -pady 1
+bind $fe <FocusIn> {
+    if {!$::fe_active} {
+        set ::txt_filt ""
+        $fe configure -foreground black
+        set ::fe_active true
+    }
+}
+bind $fe <FocusOut> {
+    if {$::txt_filt == ""} {
+        set ::txt_filt [msgcat::mc "Filter tree"]
+        $fe configure -foreground grey50
+        set ::fe_active false
+    }
+}
 bind $fe <KeyPress-Return> {refreshHAL}
 
 # frame to show tree
 set ::fs [frame $::rightf.fs -borderwidth 1 -relief raised -width 24]
-set bs [button $::fs.bs -borderwidth 0  -text « -padx 5 -pady 0] 
+set bs [button $::fs.bs -borderwidth 0  -text « -padx 5 -pady 0]
 pack $bs -side top
 bind $bs <Button-1> [list showListview]
 # add canvas to create rotated text
@@ -416,7 +466,7 @@ proc listHAL {} {
         set ${node}str [hal list $node]
 
         # remove items from tree that do not match the regex
-        if {$::txt_filt != ""} {
+        if {$::fe_active && $::txt_filt != ""} {
             set temp [split [string trim [set ${node}str]] " "]
             set ${node}str ""
             foreach path $temp {
