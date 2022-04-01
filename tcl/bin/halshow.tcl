@@ -162,7 +162,7 @@ proc killHalConfig {} {
     exit
 }
 
-set ::main [frame .main -padx 6 -pady 6]
+set ::main [frame .main -padx 6 -pady 3]
 pack $::main -fill both -expand yes
 
 # build frames from left side
@@ -252,6 +252,9 @@ set viewmenu [menu $menubar.view -tearoff 0]
             -command {showNode {param}}
         $viewmenu add command -label [msgcat::mc "Expand Signals"] \
             -command {showNode {sig}}
+        $viewmenu add separator
+        $viewmenu add command -label [msgcat::mc "Reload tree view"] \
+            -command {refreshHAL}
 
 set watchmenu [menu $menubar.watch -tearoff 1]
     $menubar add cascade -label [msgcat::mc "Watch"] \
@@ -676,7 +679,7 @@ proc makeShow {} {
     set ::showtext [text $f2.show.txt \
                  -width 0 -height 1 -bg grey85 \
                  -borderwidth 2 -relief sunken]
-    pack $::showtext -side left -fill both -anchor w -expand 1 -pady 5 -padx 5
+    pack $::showtext -side left -fill both -anchor w -expand 1 -pady {0 5} -padx 5
     pack [ttk::sizegrip $f2.show.grip] -side right -anchor se
 
     bind $::disp <Button-3> {popupmenu_text %X %Y}
