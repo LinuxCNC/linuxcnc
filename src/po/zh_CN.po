@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2021-12-09 03:53+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2022-04-01 14:13+0000\n"
+"Last-Translator: pc179 <zdxzdx@126.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.10-dev\n"
+"X-Generator: Weblate 4.12-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -27,45 +27,45 @@ msgstr ""
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
-msgstr "无法执行指令(%s)在机器打开之前"
+msgstr "解除急停开关或开启设备电源之前，无法执行此操作(%s)"
 
 #: src/emc/task/emctaskmain.cc:1001
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr "不能这样做(%s:%d) 在手动模式下"
+msgstr "手动模式下无法执行此操作(%s:%d) "
 
 #: src/emc/task/emctaskmain.cc:1108
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
-msgstr "在解释器空闲的情况下，无法在自动模式下执行此操作(%s)"
+msgstr "自动模式下解释器空闲时，无法在执行此操作(%s)"
 
 #: src/emc/task/emctaskmain.cc:1177
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr "在解释器阅读时，无法在自动模式下执行该操作(%s)"
+msgstr "自动模式下解释器读取时，无法在执行此操作(%s)"
 
 #: src/emc/task/emctaskmain.cc:1264
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
-msgstr "解释器暂停后，无法在自动模式下执行该操作 (%s)"
+msgstr "自动模式下解释器暂停时，无法在执行此操作 (%s)"
 
 #: src/emc/task/emctaskmain.cc:1335
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
-msgstr "在解释器等待的情况下，无法在自动模式下执行此操作 (%s)"
+msgstr "自动模式下解释器等待时，无法在执行此操作 (%s)"
 
 #: src/emc/task/emctaskmain.cc:1456
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr "不能这样做(%s:%d)在MDI模式下"
+msgstr "MDI模式下，无法执行此操作(%s:%d)"
 
 #: src/emc/task/emctaskmain.cc:2127
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
-msgstr "模式为AUTO时不能切换模式，解释器不是IDLE"
+msgstr "自动模式下解释器不空闲时无法切换至其他模式"
 
 #: src/emc/task/emctaskmain.cc:2180
 msgid "failed to close file"
-msgstr "未能关闭文件"
+msgstr "关闭文件时发生错误"
 
 #: src/emc/task/emctaskmain.cc:2194 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
@@ -75,7 +75,7 @@ msgstr "无法打开%s"
 
 #: src/emc/task/emctaskmain.cc:2206
 msgid "Can't issue MDI command when not homed"
-msgstr "未回零时无法发出MDI指令"
+msgstr "未返回原点时无法发出MDI指令"
 
 #: src/emc/task/emctaskmain.cc:2211
 msgid "Must be in MDI mode to issue MDI command"
@@ -83,7 +83,7 @@ msgstr "必须在MDI模式下才能发出MDI指令"
 
 #: src/emc/task/emctaskmain.cc:2293
 msgid "Can't run a program when not homed"
-msgstr "未回零时无法运行程序"
+msgstr "未返回原点时无法运行程序"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -106,17 +106,15 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr "G4不允许与G2或G3一起使用，因为他们都使用P"
+msgstr "G4指令不允许与G2、G3一起使用，因为他们都使用P值"
 
 #: src/emc/rs274ngc/interp_check.cc:92
-#, fuzzy
-#| msgid "Line with G10 does not have L1, L10, L11, L2, or L20"
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr "G10线不具有L1，L10，L11，L2或L20"
+msgstr "G10指令的所在行没有L0、L1、L10、L11、L2、L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr "P值不是G10的整数"
+msgstr "P值在与G10一起使用时不为整数"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
@@ -133,36 +131,35 @@ msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr "在G5.2和G5.3代码之间，只允许增加G5.2代码。"
 
 #: src/emc/rs274ngc/interp_check.cc:260
-#, fuzzy
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
-msgstr "没有G41，G41.1，G42，G42.1或G96的D字使用它"
+msgstr "D指令 没有与 G41、G41.1、G42、G42.1、G96 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:269
 msgid ""
 "$ (spindle selection) word with no G41, G41.1, G42, G42.1, G76 G95 or G96 to "
 "use it"
-msgstr ""
+msgstr "$（主轴选择）指令没有与 G41、G41.1、G42、G42.1、G76、G95、G96 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:277
 msgid "E word with no G76, M3, M4, M5, M19, M51, M66, M67 or M68 to use it"
-msgstr "E字没有G76, M3, M4, M5, M19, M51, M66, M67或M68使用它"
+msgstr "E指令 没有与 G76、 M3、 M4、 M5、 M19、 M51、 M66、 M67、M6 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:282
 msgid "H word with no G43 or G76 to use it"
-msgstr "H字没有G43或G76使用它"
+msgstr "H指令 没有与 G43、G76 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:290
 msgid "I word with no G2, G3, G5, G5.1, G10, G33.1, G76, or G87 to use it"
-msgstr "I字 没有 G2, G3, G5, G5.1, G10, G33.1, G76或G87使用它"
+msgstr "I指令 没有与 G2、 G3、 G5、 G5.1、 G10、 G33.1、 G76、G87 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:296
 msgid "J word with no G2, G3, G5, G5.1, G10, G76 or G87 to use it"
-msgstr "J字 沒有 G2，G3，G5，G5.1，G10，G76或G87使用它"
+msgstr "J指令 沒有与 G2、G3、G5、G5.1、G10、G76、G87 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:302
 msgid "K word with no G2, G3, G33, G33.1, G76, or G87 to use it"
-msgstr "K字 沒有 G2，G3，G33，G33.1，G76或G87使用它"
+msgstr "K指令 没有与 G2、G3、G33、G33.1、G76、G87 配合使用"
 
 #: src/emc/rs274ngc/interp_check.cc:314
 msgid ""
@@ -175,16 +172,16 @@ msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89 or M50 M51 M52 "
 "M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"P字，无G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89或M50 M51 M52 M53 M62 M63 "
-"M64 M65 M65 M66 M98或用户M代码使用"
+"P指令 没有与G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89或M50 M51 M52 M53 "
+"M62 M63 M64 M65 M65 M66 M98 等用户M指令使用"
 
 #: src/emc/rs274ngc/interp_check.cc:336
 msgid "P value not an integer with M19 G2 or G3"
-msgstr "P值不是带有M19 G2或G3的整数"
+msgstr "P值 在与M19 G2或G3 使用时不为整数"
 
 #: src/emc/rs274ngc/interp_check.cc:338
 msgid "P value must be 0,1,or 2 with M19"
-msgstr "P值必须为0,1或2与M19"
+msgstr "P值 在与M19一起使用时必须为 0、1、2"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value should be 1 or greater with G2 or G3"
@@ -11575,7 +11572,8 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

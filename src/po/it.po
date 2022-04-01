@@ -8,10 +8,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it_rs274_err\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-03-08 01:37+0000\n"
-"Last-Translator: Ernesto Lo Valvo <elovalvo@gmail.com>\n"
+"PO-Revision-Date: 2022-04-01 14:13+0000\n"
+"Last-Translator: elovalvoc047faba7aa1427f <ernesto.lovalvo@unipa.it>\n"
 "Language-Team: Italian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/it/>\n"
 "Language: it\n"
@@ -1031,7 +1031,7 @@ msgstr "fetch_hal_param: hal_init(%s): %d"
 #: src/emc/rs274ngc/interp_namedparams.cc:258
 #, c-format
 msgid "fetch_hal_param: hal_ready(): %d"
-msgstr "fetch_hal_param: hal_ready(): %d"
+msgstr "fetch_hal_param: hal_ready (): %d"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:422
 #, c-format
@@ -2320,7 +2320,7 @@ msgstr "Hz"
 
 #: src/hal/utils/scope_horiz.c:1217
 msgid "kHz"
-msgstr "kHz"
+msgstr "Khz"
 
 #: src/hal/utils/scope_horiz.c:1221
 msgid "MHz"
@@ -2638,7 +2638,7 @@ msgstr "Impossibile movimentare assi senza abilitazione."
 #: src/emc/motion/command.c:785 src/emc/motion/command.c:853
 #: src/emc/motion/command.c:932
 msgid "Cannot jog while jog-inhibit is active."
-msgstr ""
+msgstr "Non può fare jogging mentre l'inibizione della corsa è attiva."
 
 #: src/emc/motion/command.c:789 src/emc/motion/command.c:936
 msgid "Can't jog any joints while homing."
@@ -2910,26 +2910,20 @@ msgid "MOTION: init_comm_buffers() failed\n"
 msgstr "MOTION: init_comm_buffers() fallito\n"
 
 #: src/emc/motion/motion.c:383
-#, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: module_intfc() failed\n"
-msgstr "MOTION: hal_init() fallito\n"
+msgstr "MOTION: module_intfc() fallito\n"
 
 #: src/emc/motion/motion.c:387
-#, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: tp_init() failed\n"
-msgstr "MOTION: hal_init() fallito\n"
+msgstr "MOTION: tp_init() fallito\n"
 
 #: src/emc/motion/motion.c:394
 msgid "MOTION: init_threads() failed\n"
 msgstr "MOTION: init_threads() fallito\n"
 
 #: src/emc/motion/motion.c:400
-#, fuzzy
-#| msgid "MOTION: hal_init() failed\n"
 msgid "MOTION: homing_init() failed\n"
-msgstr "MOTION: hal_init() fallito\n"
+msgstr "MOTION: homing_init() fallito\n"
 
 #: src/emc/motion/motion.c:425
 #, c-format
@@ -2982,7 +2976,7 @@ msgstr "MOTION: all_joints_home_data_t malloc fallito\n"
 #: src/emc/motion/homing.c:495
 #, c-format
 msgid "homing.c Unexpected joint=%d jsequence=%d seq=%d\n"
-msgstr ""
+msgstr "homing.c Giunto imprevisto=%d jsequence=%d seq=%d\n"
 
 #: src/emc/motion/homing.c:627
 #, c-format
@@ -3371,7 +3365,7 @@ msgstr "Informazioni"
 #: src/hal/classicladder/classicladder_gtk.c:938
 #, c-format
 msgid "%d µs"
-msgstr ""
+msgstr "%d μs"
 
 #: src/hal/classicladder/classicladder_gtk.c:960
 msgid "Config hardware error occurred!"
@@ -3443,17 +3437,13 @@ msgid "Rung Refresh Rate (milliseconds)"
 msgstr "Rung Refresh Rate (millisecondi)"
 
 #: src/hal/classicladder/config_gtk.c:114
-#, fuzzy
-#| msgid "Number of connectors:"
 msgid "Number of rungs"
-msgstr "Numero di connettori:"
+msgstr "Numero di rami"
 
 #: src/hal/classicladder/config_gtk.c:114
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy
-#| msgid "Unused"
 msgid "used"
-msgstr "Inutilizzato"
+msgstr "Usato"
 
 #: src/hal/classicladder/config_gtk.c:118
 msgid "Number of Bits                  "
@@ -3480,10 +3470,8 @@ msgid "Number of Arithmetic Expressions "
 msgstr "Numero di Espressioni Aritmetiche "
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy
-#| msgid "Number of connectors:"
 msgid "Number of Sections"
-msgstr "Numero di connettori:"
+msgstr "Numero di Sezioni"
 
 #: src/hal/classicladder/config_gtk.c:147
 msgid "Number of Symbols                "
@@ -3526,30 +3514,28 @@ msgid "Current path/filename"
 msgstr "File corrente"
 
 #: src/hal/classicladder/config_gtk.c:294
-#, fuzzy
-#| msgid "(Slave address-%X - "
 msgid "Slave Address"
-msgstr "(Indirizzo slave -%X - "
+msgstr "Indirizzo slave"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Request Type"
-msgstr ""
+msgstr "Tipo di richiesta"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Modbus Ele."
-msgstr ""
+msgstr "1° Modbus Ele."
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "# of Ele"
-msgstr ""
+msgstr "N. di Ele"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "Logic"
-msgstr ""
+msgstr "Logica"
 
 #: src/hal/classicladder/config_gtk.c:294
 msgid "1st Variable mapped"
-msgstr ""
+msgstr "1a Variabile mappata"
 
 #: src/hal/classicladder/config_gtk.c:385
 msgid "Inverted"
@@ -4171,7 +4157,7 @@ msgstr " - risultato=%d\n"
 #: src/hal/classicladder/files.c:539
 #, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
-msgstr "Monostable => Base = %d , Preset = %d\n"
+msgstr "Monostabile => Base = %d , Preset = %d\n"
 
 #: src/hal/classicladder/files.c:787
 #, c-format
@@ -5155,7 +5141,7 @@ msgstr ""
 
 #: tcl/bin/halshow.tcl:105
 msgid "Halshow"
-msgstr "Halshow"
+msgstr "HalShow"
 
 #: tcl/bin/halshow.tcl:153
 msgid " SHOW "
@@ -5167,7 +5153,7 @@ msgstr " VISTA "
 
 #: tcl/bin/halshow.tcl:155
 msgid " SETTINGS "
-msgstr ""
+msgstr " IMPOSTAZIONI"
 
 #: tcl/bin/halshow.tcl:199
 msgid "Load Watch List"
@@ -5198,20 +5184,16 @@ msgid "Add pin"
 msgstr "Aggiungi pin"
 
 #: tcl/bin/halshow.tcl:237
-#, fuzzy
-#| msgid "Pins"
 msgid "Pin"
-msgstr "Pins"
+msgstr "Pin"
 
 #: tcl/bin/halshow.tcl:238
 msgid "Add signal"
 msgstr "Aggiungi segnale"
 
 #: tcl/bin/halshow.tcl:239
-#, fuzzy
-#| msgid "Signals"
 msgid "Signal"
-msgstr "Segnali"
+msgstr "Segnale"
 
 #: tcl/bin/halshow.tcl:240
 msgid "Add parameter"
@@ -5223,63 +5205,59 @@ msgstr "Ricarica Attesa"
 
 #: tcl/bin/halshow.tcl:248
 msgid "Watchlist cleared"
-msgstr ""
+msgstr "Lista di controllo cancellata"
 
 #: tcl/bin/halshow.tcl:254
 msgid "Add to watch"
 msgstr "Aggiungi per guardare"
 
 #: tcl/bin/halshow.tcl:257
-#, fuzzy
-#| msgid "Added"
 msgid "added"
-msgstr "Aggiunto"
+msgstr "aggiunto"
 
 #: tcl/bin/halshow.tcl:514
 msgid "HAL command :"
 msgstr "Comando HAL :"
 
 #: tcl/bin/halshow.tcl:574
-#, fuzzy
-#| msgid "Update interval for this session (ms)"
 msgid "Update interval (in ms)"
-msgstr "Intervallo di aggiornamento per questa sessione (ms)"
+msgstr "Intervallo di aggiornamento (in ms)"
 
 #: tcl/bin/halshow.tcl:575
 msgid "Column width for value in watch tab"
-msgstr ""
+msgstr "Larghezza colonna per valore nella scheda Watch"
 
 #: tcl/bin/halshow.tcl:576
 msgid "Override format string (leave empty for default)"
-msgstr ""
+msgstr "Sovrascrivere la stringa di formato (lasciare vuoto per default)"
 
 #: tcl/bin/halshow.tcl:578
 msgid "Float"
-msgstr ""
+msgstr "Float"
 
 #: tcl/bin/halshow.tcl:579
-#, fuzzy
-#| msgid "Interpreter"
 msgid "Integer"
-msgstr "Interprete"
+msgstr "Numero intero"
 
 #: tcl/bin/halshow.tcl:582
 msgid ""
 "Always on top\n"
 "(Note: May not working with all desktop environments)"
 msgstr ""
+"Sempre in alto\n"
+"(Nota: potrebbe non funzionare con tutti gli ambienti desktop)"
 
 #: tcl/bin/halshow.tcl:584
 msgid "Remember watchlist"
-msgstr ""
+msgstr "Ricorda la watchlist"
 
 #: tcl/bin/halshow.tcl:591
 msgid "Settings stored in: "
-msgstr ""
+msgstr "Impostazioni memorizzate in: "
 
 #: tcl/bin/halshow.tcl:695
 msgid "already in list"
-msgstr ""
+msgstr "già nella lista"
 
 #: tcl/bin/halshow.tcl:786
 msgid "Set to .."
@@ -5294,20 +5272,16 @@ msgid "Remove"
 msgstr "Rimuovi"
 
 #: tcl/bin/halshow.tcl:803
-#, fuzzy
-#| msgid "Add signal"
 msgid "Add as Pin(s)"
-msgstr "Aggiungi segnale"
+msgstr "Aggiungi come Pin(s)"
 
 #: tcl/bin/halshow.tcl:804
-#, fuzzy
-#| msgid "Add signal"
 msgid "Add as Signal(s)"
-msgstr "Aggiungi segnale"
+msgstr "Aggiungi come Segnale(i)"
 
 #: tcl/bin/halshow.tcl:805
 msgid "Add as Param(s)"
-msgstr ""
+msgstr "Aggiungi come parametro(i)"
 
 #: tcl/bin/halshow.tcl:837 tcl/bin/halshow.tcl:905
 msgid "Set"
@@ -5327,17 +5301,15 @@ msgstr "Valore fuori range"
 
 #: tcl/bin/halshow.tcl:976
 msgid "removed from list"
-msgstr ""
+msgstr "rimosso dalla lista"
 
 #: tcl/bin/halshow.tcl:1006
 msgid "Load a watch list"
 msgstr "Carica una lista di controllo"
 
 #: tcl/bin/halshow.tcl:1028
-#, fuzzy
-#| msgid "Reload"
 msgid "loaded"
-msgstr "Ricarica"
+msgstr "caricato"
 
 #: tcl/bin/halshow.tcl:1039
 msgid "Save current watch list"
@@ -5349,11 +5321,11 @@ msgstr "Possono essere provati i comandi ma essi NON saranno salvati"
 
 #: tcl/bin/halshow.tcl:1096
 msgid "Integer (disabled by \"--iformat\" argument)"
-msgstr ""
+msgstr "Integer (disabilitato dall'argomento \"--iformat\")"
 
 #: tcl/bin/halshow.tcl:1102
 msgid "Float (disabled by \"--fformat\" argument)"
-msgstr ""
+msgstr "Float (disabilitato dall'argomento \"--fformat\")"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5447,7 +5419,7 @@ msgstr "Crea Collegamento sulla Scrivania"
 
 #: tcl/bin/tkbackplot.tcl:110
 msgid "TkLinuxCNC BackPlot"
-msgstr "TkLinuxCNC BackPlot"
+msgstr "BackPlot TkLinuxCNC"
 
 #: tcl/bin/tkbackplot.tcl:125
 msgid "SETUP"
@@ -5680,7 +5652,7 @@ msgstr "Utilità"
 
 #: tcl/tklinuxcnc.tcl:792
 msgid "Hal Scope"
-msgstr "Hal Scope"
+msgstr "Halscope"
 
 #: tcl/tklinuxcnc.tcl:806
 msgid "Set Coordinates"
@@ -5704,11 +5676,11 @@ msgstr "Finestra Aiuto"
 
 #: tcl/tklinuxcnc.tcl:844
 msgid "Estop on"
-msgstr "Estop on"
+msgstr "Estop On"
 
 #: tcl/tklinuxcnc.tcl:845
 msgid "Estop off"
-msgstr "Estop off"
+msgstr "Estop Off"
 
 #: tcl/tklinuxcnc.tcl:847
 msgid "Machine on"
@@ -6103,16 +6075,12 @@ msgid "expected"
 msgstr "atteso"
 
 #: tcl/ngcgui.tcl:739
-#, fuzzy
-#| msgid "no sub found in file"
 msgid "no 'sub' found in file"
-msgstr "nessun sub presente nel file"
+msgstr "nessun 'sub' trovato nel file"
 
 #: tcl/ngcgui.tcl:742
-#, fuzzy
-#| msgid "no endsub found in file"
 msgid "no 'endsub' found in file"
-msgstr "nessun endsub presente nel file"
+msgstr "nessun 'endsub' trovato nel file"
 
 #: tcl/ngcgui.tcl:814
 msgid "Cannot find gcmc executable"
@@ -8266,11 +8234,11 @@ msgstr "Mostra configurazione _HAL"
 
 #: share/axis/tcl/axis.tcl:183
 msgid "H_al Meter"
-msgstr "H_al Meter"
+msgstr "Hal Meter"
 
 #: share/axis/tcl/axis.tcl:187
 msgid "Ha_l Scope"
-msgstr "Ha_l Scope"
+msgstr "Hal Scope"
 
 #: share/axis/tcl/axis.tcl:191
 msgid "Sho_w LinuxCNC Status"
@@ -9141,7 +9109,7 @@ msgstr "wd"
 
 #: src/emc/usr_intf/touchy/touchy.glade:458
 msgid "Estop Reset"
-msgstr "Estop Reset"
+msgstr "Reset Estop"
 
 #: src/emc/usr_intf/touchy/touchy.glade:469
 #: src/emc/usr_intf/stepconf/pport1.glade:21
@@ -10860,7 +10828,7 @@ msgstr "mm/s"
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
 #: src/emc/usr_intf/pncconf/dialogs.glade:3478
 msgid "Jog:"
-msgstr "Jog:"
+msgstr "Corsa:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:349
 #: src/emc/usr_intf/pncconf/dialogs.glade:3493
@@ -11256,7 +11224,7 @@ msgstr "Presets pinout output:"
 #: src/emc/usr_intf/pncconf/pport1.glade:40
 #: src/emc/usr_intf/pncconf/pport2.glade:40
 msgid "Out"
-msgstr "Out"
+msgstr "Fuori"
 
 #: src/emc/usr_intf/stepconf/pport2.glade:51
 #: src/emc/usr_intf/pncconf/base.glade:35
@@ -11316,7 +11284,7 @@ msgstr "Scala %"
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:489
 msgid "Axis"
-msgstr "Axis"
+msgstr "Asse "
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
@@ -11738,7 +11706,8 @@ msgstr "Opposta"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2097
 #: src/emc/usr_intf/pncconf/dialogs.glade:2399
 #: src/emc/usr_intf/pncconf/dialogs.glade:2486
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12740,7 +12709,7 @@ msgstr "invert"
 #: src/emc/usr_intf/pncconf/build_HAL.py:1115
 #, python-format
 msgid "%(name)s Parport"
-msgstr "%(name)s Parport"
+msgstr "%(name)s Porta Parallela"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1120
 #: src/emc/usr_intf/pncconf/build_HAL.py:1128
@@ -12786,10 +12755,8 @@ msgid "# ---8i20 amplifier card signals/setup---"
 msgstr "# ---8i20 segnali della scheda amplificatore / configurazione---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
-#, fuzzy
-#| msgid "# ---digital potentionmeter output signals/setup---"
 msgid "# ---digital potentiometer output signals/setup---"
-msgstr "# ---Segnali di uscita/impostazione del potenziometro digitale---"
+msgstr "# ---Segnali di uscita del potenziometro digitale/impostazione---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1358
 msgid "# ---PWM Generator signals/setup---"
@@ -13048,7 +13015,7 @@ msgstr "Dummy"
 
 #: src/emc/usr_intf/pncconf/private_data.py:111
 msgid "8i20 Servo Drive"
-msgstr "8i20 Servo Drive"
+msgstr "Servoazionamento 8i20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
 msgid "POT Output"
@@ -13072,7 +13039,7 @@ msgstr "Output GPIO"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO O Drain"
-msgstr "GPIO O Drain"
+msgstr "GPIO O Scarico"
 
 #: src/emc/usr_intf/pncconf/private_data.py:117
 msgid "SSR Output"
@@ -17729,7 +17696,7 @@ msgstr "% "
 #: src/emc/usr_intf/pncconf/z_motor.glade:1796
 #: src/emc/usr_intf/pncconf/a_motor.glade:1724
 msgid "Range:"
-msgstr "Range:"
+msgstr "Gamma:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1825
 #: src/emc/usr_intf/pncconf/y_motor.glade:1825
@@ -18451,7 +18418,7 @@ msgstr "Giri motore alla massima velocità:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3101
 msgid "xmaxrpm"
-msgstr "xmaxrpm"
+msgstr "xmax rpm"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3604
 msgid "Seconds"
@@ -19874,7 +19841,7 @@ msgstr "Il file degli utensili è stato modificato dall'ultima lettura"
 #: lib/python/gladevcp/gladevcp-test.glade:103
 #: lib/python/gladevcp/gladevcp-test.glade:119
 msgid "radiobutton"
-msgstr "radiobutton"
+msgstr "pulsante di opzione"
 
 #: lib/python/gladevcp/gladevcp-test.glade:159
 msgid "checkbutton"
@@ -19918,15 +19885,11 @@ msgstr ""
 "G92"
 
 #: lib/python/gladevcp/offsetpage.glade:464
-#, fuzzy
-#| msgid ""
-#| "    Zero\n"
-#| "Rotational"
 msgid ""
 "Zero\n"
 "Rotational"
 msgstr ""
-"    Zero\n"
+"Zero\n"
 "Rotazionale"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:80
