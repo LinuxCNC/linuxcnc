@@ -9,6 +9,7 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
+MODULE_LICENSE("GPL");
 
 #define TPMOD_DEBUG
 #undef  TPMOD_DEBUG

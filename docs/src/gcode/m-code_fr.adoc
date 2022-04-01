@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:m-codes]]
 = Les M-codes
-
-[[cha:M-codes]]
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -13,32 +12,32 @@
 
 [width="60%", options="header", cols="2^,5<"]
 |========================================================
-| Code                                                 | Description
-|<<sec:M0-M1,M0 M1>>                                   | Pause dans le programme
-|<<sec:M2-M30,M2 M30>>                                 | Fin de programme
-|<<sec:M60,M60>>                                       | Pause pour déchargement pièce
-|<<sec:M3-M4-M5,M3 M4 M5>>                             | Contrôle de la broche
-|<<sec:M6-Appel-Outil,M6 Tn>>                          | Appel d'outil n=numéro d'outil
-|<<sec:M7-M8-M9,M7 M8 M9>>                             | Contrôle des arrosages
-|<<sec:M19,M19>>                                       | Orientation de la broche
-|<<sec:M48-M49,M48 M49>>                               | Contrôle des correcteurs de vitesse 
-|<<sec:M50-Controle-Correcteur-Vitesse-Travail,M50>>   | Contrôle du correcteur de vitesse travail
-|<<sec:M51-Controle-Correcteur-Vitesse-Broche,M51>>    | Contrôle du correcteur de vitesse de broche
-|<<sec:M52-Controle-Vitesse-Adaptative,M52>>           | Correcteur dynamique de vitesse d'avance
-|<<sec:M53-Controle-Coupure-Vitesse,M53>>              | Contrôle de la coupure de vitesse
-|<<sec:M61-Correction-Numero-Outil-Courant,M61>>       | Correction du numéro de l'outil courant
-|<<sec:M62-a-M65-Ctrl-Sortie-Numerique,M62 à M65>>     | Contrôle de sortie numérique
-|<<sec:M66-Ctrl-Entree-Numerique-Et-Analogique,M66>>   | Contrôle d'entrée numérique et analogique
-|<<sec:M67-Ctrl-Sortie-Analogique-Synchro,M67>>        | Contrôle sortie analogique synchronisée
-|<<sec:M68-Ctrl-Sortie-Analogique-Directe,M68>>        | Contrôle sortie analogique directe
-|<<sec:M70-Save-Modal-State,M70>>                      | Enregistre l'état modal
-|<<sec:M71-Invalidate-Stored-Modal-State,M71>>         | Invalide l'état modal enregistré
-|<<sec:M72-Restore-Modal-State,M72>>                   | Restaure l'état modal
-|<<sec:M73-Save-Autorestore-Modal-State,M73>>          | Enregistrement/auto-restauration de l'état modal
-|<<sec:M100-a-M199, M100 à M199 >>                     | M-codes définis par l'utilisateur
+| Code                    | Description
+|<<mcode:m0-m1,M0 M1>>    | Pause dans le programme
+|<<mcode:m2-m30,M2 M30>>  | Fin de programme
+|<<mcode:m60,M60>>        | Pause pour déchargement pièce
+|<<mcode:m3-m5,M3 M4 M5>> | Contrôle de la broche
+|<<mcode:m6,M6 Tn>>       | Appel d'outil n=numéro d'outil
+|<<mcode:m7-m9,M7 M8 M9>> | Contrôle des arrosages
+|<<mcode:m19,M19>>        | Orientation de la broche
+|<<mcode:m48-m49,M48 M49>>| Contrôle des correcteurs de vitesse 
+|<<mcode:m50,M50>>        | Contrôle du correcteur de vitesse travail
+|<<mcode:m51,M51>>        | Contrôle du correcteur de vitesse de broche
+|<<mcode:m52,M52>>        | Correcteur dynamique de vitesse d'avance
+|<<mcode:m53,M53>>        | Contrôle de la coupure de vitesse
+|<<mcode:m61,M61>>        | Correction du numéro de l'outil courant
+|<<mcode:m62-m65,M62 à M65>>| Contrôle de sortie numérique
+|<<mcode:m66,M66>>        | Contrôle d'entrée numérique et analogique
+|<<mcode:m67,M67>>        | Contrôle sortie analogique synchronisée
+|<<mcode:m68,M68>>        | Contrôle sortie analogique directe
+|<<mcode:m70,M70>>        | Enregistre l'état modal
+|<<mcode:m71,M71>>        | Invalide l'état modal enregistré
+|<<mcode:m72,M72>>        | Restaure l'état modal
+|<<mcode:m73,M73>>        | Enregistrement/auto-restauration de l'état modal
+|<<mcode:m100-m199,M100 à M199>>| M-codes définis par l'utilisateur
 |========================================================
 
-[[sec:M0-M1]]
+[[mcode:m0-m1]]
 == M0, M1, pause dans le programme
 (((M0 Pause dans le programme)))
 (((M1 Pause optionnelle dans le programme)))
@@ -61,7 +60,7 @@ mais l'effet ne sera probablement pas perceptible,
 puisque le comportement normal en mode MDI est
 de s'arrêter, de toute façon, à la fin de chaque ligne.
 
-[[sec:M2-M30]]
+[[mcode:m2-m30]]
 == M2, M30, fin de programme
 (((M2 Fin de programme)))
 (((M30 Fin de programme avec déchargement pièce)))
@@ -88,7 +87,7 @@ Les deux commandes précédentes produisent les effets suivants:
 [NOTE]
 Les lignes de code placées après un 'M2' ou un 'M30' ne sont pas exécutées.
 
-[[sec:M60]]
+[[mcode:m60]]
 == M60, pause pour déchargement pièce
 (((M60 Pause pour déchargement pièce)))
 
@@ -97,11 +96,8 @@ effectue une pause dans le programme en cours (quel que soit le réglage
 du bouton d'arrêt facultatif). Presser ensuite le bouton de départ cycle pour
 relancer le programme à la ligne suivante.
 
-[[sec:M3-M4-M5]]
-== M3, M4, M5 Contrôle de la broche
-(((M3 Broche en sens horaire)))
-(((M4 Broche en sens anti-horaire)))
-(((M5 Arrêt de broche)))
+[[mcode:m3-m5]]
+== M3, M4, M5 Contrôle de la broche(((M3 Broche en sens horaire)))(((M4 Broche en sens anti-horaire)))(((M5 Arrêt de broche)))
 
 * 'M3 Snnnnn' - Démarre la broche en sens horaire à la vitesse *nnnnn*.
 * 'M4 Snnnnn' - Démarre la broche en sens anti-horaire à la vitesse *nnnnn*.
@@ -117,9 +113,8 @@ la broche va se mettre en rotation.
 Il est permis d'utiliser 'M3' ou 'M4' quand la broche est déjà
 en rotation ou d'utiliser 'M5' quand la broche est déjà arrêtée.
 
-[[sec:M6-Appel-Outil]]
-== M6 Appel d'outil
-(((M6 Appel d'outil)))
+[[mcode:m6]]
+== M6 Appel d'outil(((M6 Appel d'outil)))
 
 === Changement d'outil manuel
 
@@ -164,11 +159,8 @@ dans ce cas, la broche sera vide après le changement d'outil.
 Si le slot zéro a été le dernier sélectionné,
 il n'y aura pas d'outil dans la broche après le changement.
 
-[[sec:M7-M8-M9]]
-== M7, M8, M9 Contrôle de l'arrosage
-(((M7 Arrosage gouttelettes)))
-(((M8 Arrosage fluide)))
-(((M9 Arrêt des arrosages)))
+[[mcode:m7-m9]]
+== M7, M8, M9 Contrôle de l'arrosage(((M7 Arrosage gouttelettes)))(((M8 Arrosage fluide)))(((M9 Arrêt des arrosages)))
 
 * 'M7' - Active l'arrosage par gouttelettes.
 * 'M8' - Active l'arrosage fluide.
@@ -177,9 +169,8 @@ il n'y aura pas d'outil dans la broche après le changement.
 Il est toujours permis d'utiliser une de ces commandes,
 que les arrosages soient arrêtés ou non.
 
-[[sec:M19]]
-== M19 Orientation de la broche
-(((M19 Orientation de la broche)))
+[[mcode:m19]]
+== M19 Orientation de la broche(((M19 Orientation de la broche)))
 
 * 'M19 R- Q- [P-]'
 
@@ -236,9 +227,8 @@ zéro, provoquera l'abandon du cycle d'orientation.
 Pin indiquant que le cycle de rotation est terminé. Désactivée par M3,M4 ou M5.
 
 
-[[sec:M48-M49]]
-== M48, M49 Contrôle des correcteurs de vitesse
-(((M48, M49 Autoriser/Inhiber les correcteurs de vitesse)))
+[[mcode:m48-m49]]
+== M48, M49 Contrôle des correcteurs de vitesse(((M48, M49 Autoriser/Inhiber les correcteurs de vitesse)))
 
 * 'M48' - Autorise les curseurs de corrections de
 vitesses de broche et celui de vitesse d'avance travail.
@@ -248,9 +238,8 @@ Il est permis d'autoriser ou d'inhiber ces curseurs quand
 ils sont déjà autorisés ou inhibés. Ils peuvent aussi être activés
 individuellement en utilisant les commandes 'M50' et 'M51', voir ci-dessous.
 
-[[sec:M50-Controle-Correcteur-Vitesse-Travail]]
-== M50 Contrôle du correcteur de vitesse travail
-(((M50 Contrôle du correcteur de vitesse travail)))
+[[mcode:m50]]
+== M50 Contrôle du correcteur de vitesse travail(((M50 Contrôle du correcteur de vitesse travail)))
 
 * 'M50 <P1>' - Autorise le curseur de correction de vitesse d'avance travail. Le
 paramètre 'P1' est optionnel.
@@ -261,9 +250,8 @@ vitesse n'a plus aucune influence et les mouvements seront exécutés à la
 vitesse d'avance travail programmée. (à moins que ne soit actif un
 correcteur de vitesse adaptative).
 
-[[sec:M51-Controle-Correcteur-Vitesse-Broche]]
-== M51 Contrôle du correcteur de vitesse broche
-(((M51 Contrôle du correcteur de vitesse broche)))
+[[mcode:m51]]
+== M51 Contrôle du correcteur de vitesse broche(((M51 Contrôle du correcteur de vitesse broche)))
 
 * 'M51 <P1>' - Autorise le curseur de correction de vitesse de la broche. Le
 paramètre 'P1' est optionnel.
@@ -274,9 +262,8 @@ n'a plus aucune influence, et la broche tournera à la vitesse programmée,
 en utilisant le mot 'S' comme décrit dans la section <<sec:S-Broche, sur le
 réglage de la vitesse de broche>>.
 
-[[sec:M52-Controle-Vitesse-Adaptative]]
-== M52 Contrôle de vitesse adaptative
-(((M52 Contrôle vitesse adaptative)))
+[[mcode:m52]]
+== M52 Contrôle de vitesse adaptative(((M52 Contrôle vitesse adaptative)))
 
 * 'M52 P1' - Utilise une vitesse adaptative. Le paramètre 'P1' est optionnel.
 * 'M52 P0' - Cesse l'utilisation d'une vitesse adaptative.
@@ -293,9 +280,8 @@ L'utilisation de vitess adaptative négative (destinée notamment aux
 machines à plasma et à électroérosion) est une nouveauté et n'a pas
 encore été testée de manière approfondie sur des machines réelles.
 
-[[sec:M53-Controle-Coupure-Vitesse]]
-== M53 Contrôle de la coupure de vitesse
-(((M53 Contrôle coupure vitesse)))
+[[mcode:m53]]
+== M53 Contrôle de la coupure de vitesse(((M53 Contrôle coupure vitesse)))
 
 * 'M53 P1' - Autorise le bouton de coupure de vitesse. Le paramètre 'P1' est
 optionnel. Autoriser la coupure de vitesse permet d'interrompre les mouvements
@@ -305,9 +291,8 @@ de 1 provoque un arrêt des mouvements quand 'M53' est actif.
 * 'M53 P0' - Inhibe le bouton de coupure de vitesse. L'état de
 'motion.feed-hold' est sans effet sur la vitesse quand 'M53' est inhibé.
 
-[[sec:M61-Correction-Numero-Outil-Courant]]
-== M61 Correction du numéro de l'outil courant
-(((M61 Correction du numéro de l'outil courant)))
+[[mcode:m61]]
+== M61 Correction du numéro de l'outil courant(((M61 Correction du numéro de l'outil courant)))
 
 * 'M61 Q ' - Corrige le numéro de l'outil courant, en mode MDI ou après un
 changement manuel d'outil dans la fenêtre de données manuelles. Au démarrage
@@ -318,9 +303,8 @@ C'est une erreur si:
 
 * Q n'est pas égal où supérieur à 0
 
-[[sec:M62-a-M65-Ctrl-Sortie-Numerique]]
-== M62 à M65 Contrôle de bits de sortie numérique
-(((M62 Contrôle un bit de sortie numérique)))
+[[mcode:m62-m65]]
+== M62 à M65 Contrôle de bits de sortie numérique(((M62 Contrôle un bit de sortie numérique)))
 
 * 'M62 P' - Active un bit de sortie numérique en synchronisme avec
 un mouvement.
@@ -354,9 +338,8 @@ contrôleur de mouvement. Ils ne sont pas synchronisés avec un mouvement.
 M62 à M66 ne seront opérationnels que si les pins 'motion.digital-out-nn'
 appropriées sont connectées aux sorties dans le fichier HAL.
 
-[[sec:M66-Ctrl-Entree-Numerique-Et-Analogique]]
-== M66 Contrôle d'entrée numérique et analogique
-(((M66 Contrôle d'entrée numerique et analogique)))
+[[mcode:m66]]
+== M66 Contrôle d'entrée numérique et analogique(((M66 Contrôle d'entrée numerique et analogique)))
 
 ----
 M66 P- | E- <L-> <Q->
@@ -395,9 +378,8 @@ plus d'informations, section des configurations, paragraphes "LinuxCNC et HAL".
 M66 ne sera opérationnel que si les pins motion.digital-in-nn ou
 motion.analog-in-nn appropriées sont connectées aux entrées dans le fichier HAL.
 
-[[sec:M67-Ctrl-Sortie-Analogique-Synchro]]
-== M67 Contrôle de sortie analogique
-(((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
+[[mcode:m67]]
+== M67 Contrôle de sortie analogique(((M67 Contrôle de sortie analogique synchronisée avec un mouvement)))
 
 ----
 M67 E- Q-
@@ -421,9 +403,8 @@ pour plus d'informations sur le contrôleur de mouvement.
 M67 ne sera opérationnel que si les pins motion.analog-out-nn appropriées sont
 connectées aux sorties dans le fichier HAL.
 
-[[sec:M68-Ctrl-Sortie-Analogique-Directe]]
-== M68 Contrôle de sortie analogique directe
-(((M68 Contrôle de Sortie analogique directe)))
+[[mcode:m68]]
+== M68 Contrôle de sortie analogique directe(((M68 Contrôle de Sortie analogique directe)))
 
 ----
 M68 E- Q-
@@ -445,9 +426,8 @@ d'informations sur le contrôleur de mouvement.
 M68 ne sera opérationnel que si les pins 'motion.analog-out-nn' appropriées sont
 connectées aux sorties dans le fichier HAL.
 
-[[sec:M70-Save-Modal-State]]
-== M70 Enregistrement de l'état modal
-(((M70 Save Modal State)))
+[[mcode:m70]]
+== M70 Enregistrement de l'état modal(((M70 Save Modal State)))
 
 Pour enregistrer explicitement l'état modal au niveau de l'appel courant,
 programmer 'M70'. Une fois l'état modal enregistré avec 'M70', il peut être
@@ -496,12 +476,11 @@ on ne peut s'y référer qu'à l'intérieur du sous-programme en invoquant un 'M
 
 Une invocation récursive d'un sous-programme introduit un nouveau niveau d'appel.
 
-[[sec:M71-Invalidate-Stored-Modal-State]]
-== M71 Invalidation de l'état modal enregistré
-(((M71 Invalidate Stored Modal State)))
+[[mcode:m71]]
+== M71 Invalidation de l'état modal enregistré(((M71 Invalidate Stored Modal State)))
 
 <<saved_state_by_M70,L'état modal enregistré par 'M70'>> ou par
-<<sec:M73-Save-Autorestore-Modal-State, 'M73'>> au niveau de l'appel courant est
+<<mcode:m73,'M73'>> au niveau de l'appel courant est
 invalidé (ne peut plus être restauré nulle part).
 
 Un appel ultérieur à 'M72' sur le même niveau d'appel, échouera.
@@ -512,9 +491,8 @@ un 'return' ou 'endsub' ultérieur ne restaurera 'PAS' l'état modal.
 L'utilité de ce dispositif est douteuse. Il ne devrait pas être invoqué quand
 il peut disparaître.
 
-[[sec:M72-Restore-Modal-State]]
-== M72 Restauration de l'état modal
-(((M72 Restore Modal State)))
+[[mcode:m72]]
+== M72 Restauration de l'état modal(((M72 Restore Modal State)))
 
 <<saved_state_by_M70,L'état modal enregistré par un 'M70'>> peut être
 restauré en exécutant un 'M72'.
@@ -568,9 +546,8 @@ o<showstate> call
 m2
 ----
 
-[[sec:M73-Save-Autorestore-Modal-State]]
-== M73 Enregistrement et auto-restauration de l'état modal
-(((M73 Save and Autorestore Modal State)))
+[[mcode:m73]]
+== M73 Enregistrement et auto-restauration de l'état modal(((M73 Save and Autorestore Modal State)))
 
 
 Pour enregistrer l'état modal à l'intérieur d'un sous-programme et restaurer cet
@@ -655,10 +632,8 @@ O<measure> endsub
 ----
 
 
-[[sec:M100-a-M199]]
-== M100 à M199 Commandes définies par l'utilisateur
-(((M100 à M199 M-codes définis par l'utilisateur)))
-(((M-codes définis par l'utilisateur M100-M199)))
+[[mcode:m100-m199]]
+== M100 à M199 Commandes définies par l'utilisateur(((M100 à M199 M-codes définis par l'utilisateur)))(((M-codes définis par l'utilisateur M100-M199)))
 
 ----
 M1-- <P- Q->

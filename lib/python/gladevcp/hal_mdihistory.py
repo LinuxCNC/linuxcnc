@@ -39,12 +39,7 @@ try:
 except:
     pass
 
-import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
-import sys
-
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-LOCALEDIR = os.path.join(BASE, "share", "locale")
 
 class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
     '''
@@ -70,11 +65,6 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
 
     def __init__(self, *a, **kw):
         Gtk.VBox.__init__(self, *a, **kw)
-
-        # prepare for translation
-        locale.setlocale(locale.LC_ALL, '')
-        locale.bindtextdomain("linuxcnc", LOCALEDIR)
-        gettext.install("linuxcnc", localedir=LOCALEDIR)
 
         self.use_double_click = False
         self.gstat = GStat()

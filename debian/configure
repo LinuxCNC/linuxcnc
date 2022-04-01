@@ -65,13 +65,8 @@ fi
 EXTRAS=extras
 
 if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
-    DOC_DEPENDS='asciidoc (>= 8.5), dblatex (>= 0.2.12), docbook-xsl, \
-        dvipng, ghostscript, graphviz, groff, imagemagick, inkscape, \
-        python3-lxml, source-highlight, w3c-linkchecker, xsltproc, \
-        texlive-extra-utils, texlive-font-utils, texlive-fonts-recommended, \
-        texlive-lang-cyrillic, texlive-lang-french, texlive-lang-german, \
-        texlive-lang-polish, texlive-lang-spanish, texlive-latex-recommended, \
-        asciidoc-dblatex'
+    DOC_DEPENDS="asciidoc (>= 8.5),\n    dblatex (>= 0.2.12),\n    docbook-xsl,\n    dvipng,\n    ghostscript,\n    graphviz,\n    groff,\n    imagemagick,\n    inkscape,\n    python3-lxml,\n    source-highlight,\n    w3c-linkchecker,\n    xsltproc,\n    texlive-extra-utils,\n    texlive-font-utils,\n    texlive-fonts-recommended,\n    texlive-lang-cyrillic,\n    texlive-lang-french,\n    texlive-lang-german,\n    texlive-lang-polish,\n    texlive-lang-spanish,\n    texlive-latex-recommended,\n    asciidoc-dblatex"
+
     case $DISTRIB_NAME in
 	Debian-9)
 	    ;; # No xetex in Debian 9 Stretch
@@ -79,7 +74,7 @@ if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
 	    # Not quite sure which packages is needed for xetex, but
 	    # texlive-xetex seem like a safe choice.  Need xetex to be
 	    # able to build Chinese PDF.
-	    DOC_DEPENDS="$DOC_DEPENDS,texlive-xetex"
+	    DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
 	    ;;
     esac
 else
@@ -92,11 +87,7 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
-QTVCP_DEPENDS="python3-pyqt5,python3-pyqt5.qsci,python3-pyqt5.qtsvg, \
-        python3-pyqt5.qtopengl, python3-opencv,python3-dbus,python3-espeak, \
-        python3-dbus.mainloop.pyqt5,python3-pyqt5.qtwebkit,python3-xlib, \
-        espeak-ng,python3-numpy,pyqt5-dev-tools,gstreamer1.0-tools,espeak, \
-        sound-theme-freedesktop"
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    python3-xlib,\n    espeak-ng,python3-numpy,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,espeak,\n    sound-theme-freedesktop"
 YAPPS_RUNTIME="python3-yapps"
 DEBHELPER="debhelper (>= 9)"
 COMPAT="9"

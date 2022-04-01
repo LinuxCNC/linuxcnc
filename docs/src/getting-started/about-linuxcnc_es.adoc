@@ -22,15 +22,15 @@
  de generación de código G a partir de dibujos (CAM - Fabricación automatizada por computadora)
 * Puede mover simultáneamente hasta 9 ejes y admite una variedad de interfaces
 * El control puede operar servos verdaderos (analógicos o PWM) con retroalimentación
- de bucle cerrado por el software LinuxCNC en la computadora, o bucle abierto, con
+  de bucle cerrado por el software LinuxCNC en la computadora, o bucle abierto, con
   servomotores o motores paso a paso.
 * Las características de control de movimiento incluyen: compensación del radio de corte y longitud
  de herramienta, desviación de trayectoria limitada a una tolerancia especificada, roscado en torno,
  movimientos de eje sincronizados, avance adaptativo, control de ajuste de avance por el operador
  y control de velocidad constante.
 * Soporte para sistemas de movimiento no cartesianos, a través de
- módulos cinemáticos personalizados. Las arquitecturas disponibles incluyen hexapodos (
-plataformas Stewart y conceptos similares) y sistemas con articulaciones rotativas para
+  módulos cinemáticos personalizados. Las arquitecturas disponibles incluyen hexapodos (
+  plataformas Stewart y conceptos similares) y sistemas con articulaciones rotativas para
  proporcionar movimiento como robots PUMA o SCARA.
 * LinuxCNC se ejecuta en Linux usando extensiones en tiempo real.
 

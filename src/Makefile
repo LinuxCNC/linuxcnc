@@ -656,6 +656,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/sim_pin $(DESTDIR)$(bindir)
 	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 	$(FILE) ../lib/hallib/*   $(DESTDIR)$(datadir)/linuxcnc/hallib
+	$(FILE) ../tcl/*.png $(DESTDIR)$(tcldir)
 
 	# install all the sample configs, including subdirs (tar is required on debian systems, and common on others)
 	$(DIR) $(DESTDIR)$(sampleconfsdir)
@@ -761,6 +762,7 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mitsub_vfd $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pmx485 $(DESTDIR)$(bindir)
+	$(EXE) ../bin/sim-torch $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(EXE) ../bin/axis $(DESTDIR)$(bindir)
@@ -972,6 +974,7 @@ hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/resolver.o  \
     hal/drivers/mesa-hostmot2/sserial.o   \
     hal/drivers/mesa-hostmot2/ssr.o       \
+    hal/drivers/mesa-hostmot2/outm.o      \
     hal/drivers/mesa-hostmot2/stepgen.o   \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
     hal/drivers/mesa-hostmot2/tram.o	  \
@@ -1137,6 +1140,7 @@ obj-m += 5axiskins.o
 
 obj-$(CONFIG_MOTMOD) += motmod.o
 motmod-objs := emc/kinematics/cubic.o
+motmod-objs += emc/motion/axis.o
 motmod-objs += emc/motion/motion.o
 motmod-objs += emc/motion/command.o
 motmod-objs += emc/motion/control.o

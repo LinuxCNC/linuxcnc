@@ -1,3 +1,5 @@
+:lang: en
+
 = Building LinuxCNC
 
 == Introduction
@@ -9,14 +11,13 @@ a user who is testing developer branches, though then you also have
 the option of just installing Debian packages from the buildbot:
 http://buildbot.linuxcnc.org
 
-
 [[Quick-Start]]
 === Quick Start
 
 For the impatient, try this:
 
 ----
-> git clone git://github.com/linuxcnc/linuxcnc.git linuxcnc-dev
+> git clone https://github.com/LinuxCNC/linuxcnc.git linuxcnc-dev
 > cd linuxcnc-dev/src
 > ./autogen.sh
 > ./configure --with-realtime=uspace
@@ -352,7 +353,6 @@ missing packages.
 This section describes the special steps needed to set up a machine to
 run the LinuxCNC programs, including the tests.
 
-
 === Increase the locked memory limit
 
 LinuxCNC tries to improve its realtime latency by locking the memory it
@@ -391,14 +391,12 @@ the memory lock limit is raised using the following command:
 > ulimit -l
 -----
 
-
 == Options for checking out the git repo
 
 The <<Quick-Start, Quick Start>> instructions at the top of this
-document said to make an anonymous local clone from our git repo at
-http://github.com/linuxcnc/linuxcnc.git.  This is the quickest, easiest
+document clone our git repo at
+https://github.com/LinuxCNC/linuxcnc.git.  This is the quickest, easiest
 way to get started.  However, there are other options to consider.
-
 
 === Fork us on Github
 
@@ -414,3 +412,5 @@ We of the LinuxCNC project hope that you will share your changes with
 us, so that the community can benefit from your work.  Github makes this
 sharing very easy: after you polish your changes and push them to your
 github fork, send us a Pull Request.
+
+// vim: set syntax=asciidoc:

@@ -1,5 +1,6 @@
-[[cha:pncconf-wizard]]
+:lang: en
 
+[[cha:pncconf-wizard]]
 = Mesa Configuration Wizard
 
 PNCconf is made to help build configurations that utilize specific Mesa 
@@ -941,9 +942,9 @@ Custom HAL Files::
 There are four custom files that you can use to add HAL commands to:
 
 * custom.hal is for HAL commands that don't have to be run after the GUI frontend
-loads. It is run after the configuration-named HAL file.
+  loads. It is run after the configuration-named HAL file.
 * custom_postgui.hal is for commands that must be run after AXIS loads or a 
-standalone PYVCP display loads.
+  standalone PYVCP display loads.
 * custom_gvcp.hal is for commands that must be run after glade VCP is loaded.
 * shutdown.hal is for commands to run when LinuxCNC shuts down in a controlled manner.
 

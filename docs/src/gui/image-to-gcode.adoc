@@ -1,5 +1,7 @@
-[[cha:image-to-g-code]]
+:lang: en
+:toc:
 
+[[cha:image-to-g-code]]
 = Image to G-Code
 
 image::images/image-to-gcode.png[align="center", alt="Image to G-Code"]
@@ -50,8 +52,8 @@ G-code and as the units for each option labeled '(units)'.
 
 === Invert Image
 
-If “no”, the black pixel is the lowest point and the white pixel is
-the highest point. If “yes”, the black pixel is the highest point and
+If "no", the black pixel is the lowest point and the white pixel is
+the highest point. If "yes", the black pixel is the highest point and
 the white pixel is the lowest point.
 
 === Normalize Image
@@ -82,15 +84,15 @@ object from a 400x400 image file, use a pixel size of .00625, because
 
 === Plunge Feed Rate (units per minute)
 
-The feed rate for the initial plunge movement. 
+The feed rate for the initial plunge movement.
 
 === Feed Rate (units per minute)
 
-The feed rate for other parts of the path. 
+The feed rate for other parts of the path.
 
 === Spindle Speed (RPM)
 
-The spindle speed S code that should be put into the gcode file. 
+The spindle speed S code that should be put into the gcode file.
 
 === Scan Pattern
 
@@ -142,8 +144,8 @@ The shape of the cutting part of the tool. Possible tool shapes are:
 
  - Ball End
  - Flat End
- - 45 degree “vee”
- - 60 degree “vee”
+ - 45 degree "vee"
+ - 60 degree "vee"
 
 === Lace bounding
 
@@ -161,7 +163,7 @@ columns are being milled. Possible bounding options are:
 
 === Contact angle
 
-When 'Lace bounding' is not 'None', slopes greater than 'Contact angle' 
+When 'Lace bounding' is not 'None', slopes greater than 'Contact angle'
 are considered to be 'strong' slopes, and slopes less than that angle
 are considered to be weak slopes.
 
@@ -178,6 +180,5 @@ In this image, Roughing depth per pass is 0.2 inches and roughing
 offset is 0.1 inches.
 
 .Roughing passes and final pass
-
-image::images/i2g-roughing.png[alt="Roughing passes and final pass"]
+image::images/i2g-roughing.png["Roughing passes and final pass"]
 

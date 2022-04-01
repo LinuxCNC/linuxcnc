@@ -1,8 +1,7 @@
 :lang: es
 
-= Afinación de Steppers
-
 [[cha:Stepper-Tuning]]
+= Afinación de Steppers
 
 == Obtener el máximo rendimiento del Software de Stepping
 
@@ -62,6 +61,7 @@ Las diferentes marcas de unidades paso a paso tienen diferentes requisitos de te
 en sus pasos y entradas de dirección. Necesita la hoja de datos que tiene las especificaciones de su unidad.
 
 Del manual de Gecko G202:
+
 ....
 Frecuencia de pasos: 0 a 200 kHz
 Step Pulse "0" Time: 0.5 us min (Paso en el flanco descendente)
@@ -70,6 +70,7 @@ Configuración de dirección: 1 us min (20 us min tiempo de retencion despues de
 ....
 
 Del manual de Gecko G203V:
+
 ....
 Frecuencia de paso: 0 a 333 kHz
 Step Pulse "0" Time: 2.0 us min (paso en flanco ascendente)
@@ -225,5 +226,4 @@ que podrá generar
 
 Se han agregado mas cosas a la hoja de cálculo para calcular la velocidad máxima y
 cálculos eléctricos paso a paso.
-
 

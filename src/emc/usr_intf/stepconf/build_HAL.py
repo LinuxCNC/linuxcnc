@@ -781,7 +781,7 @@ class HAL:
             vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
             voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
             # arc voltage settings in prefs file
-            prefsfile = os.path.join(base, "qtplasmac.prefs")
+            prefsfile = os.path.join(base, self.d.machinename + ".prefs")
             # edit existing prefs file
             if os.path.exists(prefsfile):
                 with open(prefsfile, "r") as f1:
@@ -810,16 +810,24 @@ class HAL:
             # make a sim_postgui.hal file
             spfilename = os.path.join(base, "sim_postgui.hal")
             f1 = open(spfilename, "w")
-            print("# QtPlasmaC simulator panel connections", file=f1)
-            print("\nloadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui", file=f1)
-            print("net plasmac:torch-on                                    =>  qtplasmac_sim.torch_on", file=f1)
-            print("net sim:arc-voltage-in  qtplasmac_sim.arc_voltage_out-f =>  plasmac.arc-voltage-in  qtplasmac_sim.arc_voltage_in", file=f1)
-            print("net sim:arc-ok          qtplasmac_sim.arc_ok            =>  db_arc-ok.in", file=f1)
-            print("net sim:ohmic           qtplasmac_sim.sensor_ohmic      =>  db_ohmic.in", file=f1)
-            print("net sim:float           qtplasmac_sim.sensor_float      =>  db_float.in", file=f1)
-            print("net sim:breakaway       qtplasmac_sim.sensor_breakaway  =>  db_breakaway.in", file=f1)
-            print("net sim:move-up         qtplasmac_sim.move_up           =>  plasmac.move-up", file=f1)
-            print("net sim:move-down       qtplasmac_sim.move_down         =>  plasmac.move-down", file=f1)
+            print("# QTPLASMAC SIMULATOR PANEL", file=f1)
+            print("\n# load the simulated torch", file=f1)
+            print("loadrt sim_torch", file=f1)
+            print("addf sim-torch servo-thread", file=f1)
+            print("\n# load the sim GUI", file=f1)
+            print("loadusr -Wn qtplasmac_sim qtvcp qtplasmac_sim.ui", file=f1)
+            print("\n# connect to existing plasmac connections", file=f1)
+            print("net plasmac:torch-on        =>  qtplasmac_sim.torch_on  sim-torch.start", file=f1)
+            print("net plasmac:cut-volts       =>  sim-torch.voltage-in", file=f1)
+            print("\n# create new sim connections", file=f1)
+            print("net sim:arc-ok              qtplasmac_sim.arc_ok                =>  db_arc-ok.in", file=f1)
+            print("net sim:arc-voltage-in      sim-torch.voltage-out               =>  plasmac.arc-voltage-in", file=f1)
+            print("net sim:arc_voltage_offset  qtplasmac_sim.arc_voltage_offset-f  =>  sim-torch.offset-in", file=f1)
+            print("net sim:breakaway           qtplasmac_sim.sensor_breakaway      =>  db_breakaway.in", file=f1)
+            print("net sim:float               qtplasmac_sim.sensor_float          =>  db_float.in", file=f1)
+            print("net sim:move-down           qtplasmac_sim.move_down             =>  plasmac.move-down", file=f1)
+            print("net sim:move-up             qtplasmac_sim.move_up               =>  plasmac.move-up", file=f1)
+            print("net sim:ohmic               qtplasmac_sim.sensor_ohmic          =>  db_ohmic.in", file=f1)
             f1.close()
 
     # Boiler code

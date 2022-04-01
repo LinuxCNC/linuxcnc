@@ -8,7 +8,10 @@ from PyQt5.QtGui import QWindow, QResizeEvent, QMoveEvent
 from PyQt5.QtWidgets import QWidget
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.lib import xembed
+try:
+    from qtvcp.lib import xembed
+except:
+    pass
 from qtvcp import logger
 
 # Instantiate the libraries with global reference

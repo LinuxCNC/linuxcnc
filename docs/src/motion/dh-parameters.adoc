@@ -1,7 +1,7 @@
-[[cha:dh-parameters]] (((DH parameters Examples)))
+:lang: en
 
-= Setting up "modified" Denavit-Hartenberg (DH) parameters for
-'genserkins'
+[[cha:dh-parameters]]
+= Setting up "modified" Denavit-Hartenberg (DH) parameters for 'genserkins'(((DH parameters Examples)))
 
 == Prelude
 
@@ -13,13 +13,11 @@ This document illustrates a method to set up the DH-parameters for a
 Mitsubishi RV-6SDL in LinuxCNC using 'genserkins' kinematics.
 
 [NOTE]
-
 This document does not cover the creation of a 'vismach' model which,
 while certainly very useful, requires just as much careful modeling
 if it is to match the 'genserkins' model derived in this document.
 
 [NOTE]
-
 There may be errors and/or shortcomings -- use at your own risk!
 
 == General
@@ -35,11 +33,11 @@ that extends from a base to an end-effector.
 
 Control of such a serial robot requires the calculation of the
 end-effector's position and orientation in relation to a reference
-coordinate system when the joint angles are known (*forward
-kinematics*) and also the more complex reverse calculation of the
+coordinate system when the joint angles are known (*forward kinematics*)
+and also the more complex reverse calculation of the
 required joint angles for a given end-effector position and
-orientation in relation to the reference coordinate system (*inverse
-kinematics*).  The standard mathematical tools used for these
+orientation in relation to the reference coordinate system (*inverse kinematics*).
+The standard mathematical tools used for these
 calculations are matrices which are basically tables of parameters and
 formulas that make it easier to handle the rotations and translations
 involved in forward and inverse kinematics calculations.
@@ -102,11 +100,9 @@ impossible to define the 0° position of our robots joints arbitrarily.
 The three configurable parameters are:
 
 . *alpha* : positive or negative rotation (in radians) around the X-axis
-of the "current coordinate system"
-
+  of the "current coordinate system"
 . *a* : positive distance, along X, between two joint axes specified in
-'machine units' (mm or inch) defined in the system's ini file.
-
+  'machine units' (mm or inch) defined in the system's ini file.
 . *d* : positive or negative length along Z (also in 'machine units')
 
 The parameter sets are always derived in the same order and a set is
@@ -200,4 +196,3 @@ image::rv-6sl/rv-6sl-018.jpg[align="center"]
 
 Thanks to user Aciera for all text and the graphics
 for the RV-6SL robot!
-

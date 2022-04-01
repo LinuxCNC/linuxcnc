@@ -1,6 +1,7 @@
-[[cha:starting-linuxcnc]]
+:lang: en
 
-= Starting LinuxCNC
+[[cha:starting-linuxcnc]]
+= Starting LinuxCNC(((Starting LinuxCNC)))
 
 == Running LinuxCNC
 
@@ -54,8 +55,7 @@ connections to those pins. See the <<sec:hal-section,[HAL]>> section of the
 INI configuration for more information.
 
 [[sub:configuration-selector]]
-
-=== Configuration Selector
+=== Configuration Selector(((Configuration Selection)))
 
 If no ini file is passed to the linuxcnc script it loads the configuration
 selector so you can choose and save a sample configuration. Once a sample
@@ -63,5 +63,6 @@ configuration has been saved it can be modified to suit your application.
 The configuration files are saved in linuxcnc/configs directory.
 
 .Configuration Selector
+image::images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
 
-image::images/configuration-selector.png[align="center", alt="LinuxCNC Configuration Selector"]
+// vim: set syntax=asciidoc:

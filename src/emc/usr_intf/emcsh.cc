@@ -2549,7 +2549,7 @@ static int emc_user_angular_units(ClientData clientdata,
 	return TCL_OK;
     }
 
-    /* else it's an abitrary number, so just return it */
+    /* else it's an arbitrary number, so just return it */
     setresult(interp,"custom");
     return TCL_OK;
 }

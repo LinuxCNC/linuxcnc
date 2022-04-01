@@ -1,10 +1,11 @@
+:lang: en
+
 [[cha:Panelui]](((Panelui)))
+= Panelui
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
-
-= Panelui
 
 == Introduction
 
@@ -20,21 +21,27 @@ While actual input buttons are required to be momentary, Panelui will use this
 input to make toggle, radio, or momentary button output. +
 
 == Loading Commands
+
 The command used to load panelui (with optional -d debug switch):
+
 ----
 loadusr -W panelui -d
 ----
+
 This will initialize panelui, which will look for the INI file panelui.ini in
 the config folder or user folder.
 
 One can validate the INI file with this command:
+
 ----
 loadusr pyui
 ----
+
 This will read, try to correct, then save the panelui.ini file.
 It will print errors to the terminal if found.
 
 A typical HAL file will have these commands added:
+
 [source,{hal}]
 ----
 # commands needed for panelui loading
@@ -65,11 +72,12 @@ net key-scan    sampler.0.pin.0
 addf sim-matrix-kb.0    servo-thread
 addf sampler.0          servo-thread
 ----
+
 == panelui.ini file reference
 
 .*Key words*
 * KEY= This is used to designate the key that the button responds to. It can be NONE or
-ROW number and column number eg R1C2. A row and column can only be used once.
+  ROW number and column number eg R1C2. A row and column can only be used once.
 * OUTPUT= This sets the Button's output type, eg S32, U32, FLOAT, BIT, NONE, COMMAND
 * DEFAULT= This sets the starting output of the group or button.
 * GROUP= In radiobuttons, designates the group the button interacts with.
@@ -86,12 +94,14 @@ ROW number and column number eg R1C2. A row and column can only be used once.
 [HAL_PREFIX]
     NAME= Yourname 
 ----
+
 This allows one to change the prefix of the HAL pins from 'panelui' to an arbritary name.
 
 .*Radio Buttons*
 Radiobutons allow only one button in the group to be active at a time. +
 Each group has its own output pin, separate from each button in the group. +
 Radio button definitions start with the text 'RADIO_BUTTON' inside single brackets.
+
 [source,{ini}]
 ----
 [RADIO_BUTTONS]
@@ -146,6 +156,7 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
 .*Toggle Buttons*
 Togglebuttons only change state on each press of the button.
 Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brackets.
+
 [source,{ini}]
 ----
 [TOGGLE_BUTTONS]
@@ -166,7 +177,6 @@ Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brac
         TRUE_STATE = 1
         FALSE_STATE = 0
 ----
-
 
 .*Momentary Buttons*
 Momentary buttons are true when pressed and false when released.

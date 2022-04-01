@@ -70,8 +70,10 @@ po/linuxcnc.pot:
 	$(Q)(cd ..; $(XGETTEXT) --from-code=UTF-8 -k_ -o src/$@ `$(PYTHON) src/po/fixpaths.py -j src $^`)
 	$(Q)touch $@
 
-pofiles: po/linuxcnc.pot
+.PHONY: pofiles
+pofiles: po/linuxcnc.pot po/gmoccapy/gmoccapy.pot
 	set -x; for i in po/*.po; do msgmerge -U $$i po/linuxcnc.pot; done
+	set -x; for i in po/gmoccapy/*.po; do msgmerge -U $$i po/gmoccapy/gmoccapy.pot; done
 
 po/linuxcnc.pot: emc/task/emctaskmain.cc $(LIBRS274SRCS) emc/rs274ngc/rs274ngc_return.hh
 po/linuxcnc.pot: hal/utils/meter.c \

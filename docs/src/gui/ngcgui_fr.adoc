@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= L'utilitaire graphique NGCGUI
-
 [[cha:ngcgui]]
+= L'utilitaire graphique NGCGUI
 
 image::images/ngcgui_fr.png[]
 
@@ -18,9 +17,9 @@ Ngcgui est un outil puissant pour construire les programmes de G-code en
 sous-programmes.
 
 * Les sous-programmes peuvent être concaténés pour fournir un programme de
-G-code complet.
+  G-code complet.
 * De multiples instances d'un sous-programme peuvent être utilisées pour
-fournir la même tâche à différents emplacements sur la même pièce. 
+  fournir la même tâche à différents emplacements sur la même pièce. 
 * N'importe quel G-code valide peut être utilisé dans un sous-programme.
 * De nouveaux sous-programmes peuvent être ajoutés à la volée.
 
@@ -129,13 +128,13 @@ D'autres exemples de sous-programmes se trouvent dans le répertoire sim/ngcgui
 Les items de fichier INI pour NGCGUI vont dans la section [DISPLAY].
 
 * _TKPKG_             = Ngcgui    1.0 - Le paquet principal de NGCGUI (doit
-précéder Ngcguittt).
+  précéder Ngcguittt).
 * _TKPKG_             = Ngcguittt 1.0 - Le paquet du traceur True Type pour
-générer des textes à graver.
+  générer des textes à graver.
 * _NGCGUI_FONT_       = Helvetica -12 normal - Spécifie la police utilisée.
 * _NGCGUI_PREAMBLE_   = in_std.ngc - Le fichier de préambule à ajouter au début
-du sous-programme. Quand plusieurs sous-programmes sont concaténés, un seul
-est ajouté.
+  du sous-programme. Quand plusieurs sous-programmes sont concaténés, un seul
+  est ajouté.
 * _NGCGUI_SUBFILE_    = simp.ngc - Crée un onglet depuis le sous-programme nommé.
 * _NGCGUI_SUBFILE_    = "" - Crée un onglet personnalisé.
 * _#NGCGUI_OPTIONS_   = opt1 opt2 ... - Options Ngcgui
@@ -146,8 +145,7 @@ est ajouté.
 *** #   noiframe   -- no internal image, image on separate top level
 * _TTT_               = Le programme True-type Tracer
 * _TTT_PREAMBLE_      = in_std.ngc - Optionnel, spécifie le nom de fichier de
-préambule utilisé par ttt pour créer les sous-fichiers.
-
+  préambule utilisé par ttt pour créer les sous-fichiers.
 
 Voici un exemple d'intégration de NGCGUI dans Axis. Les sous-programmes doivent
 être placés dans un répertoire spécifié par la variable 
@@ -163,7 +161,6 @@ par ngcgui. D'autres items sont requis par LinuxCNC pour obtenir un fichier ini
 complet.
 
 .Simple fichier.ini
-
 ----
 [RS274NGC]
 SUBROUTINE_PATH   = ../../../nc_files/ngcgui_lib:../../../ngcgui_lib/utilitysubs
@@ -245,6 +242,7 @@ suivi par les répertoires multiples spécifiés par:
 .Répertoires
 Les répertoires peuvent être spécifiés comme des chemins absolus ou des
 chemins relatifs.
+
 ....
 Exemple: [DISPLAY]PROGRAM_PREFIX = /home/myname/linuxcnc/nc_files
 Exemple: [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files
@@ -315,6 +313,7 @@ séparés pour dissuader toute tentative d'utilisation de ces sous-fichiers.
 
 Pour intégrer ngcgui dans Axis, spécifier les items suivants dans le fichier
 ini:
+
 ....
 Item:    [DISPLAY]PROGRAM_PREFIX = dirname
 Exemple: [DISPLAY]PROGRAM_PREFIX = ../../../nc_files
@@ -396,6 +395,7 @@ Note:    De multiples options séparées par des blancs.
          avoir des possibilités de sélection de sous-fichiers et de création
          d'onglet additionnels limitées.
 ....
+
 :showcomments:
 // FIX-ME Keyboard shortcuts do not work in version _fr.
 
@@ -568,7 +568,6 @@ et l'usage de ngcgui.
 Des sous-programmes additionnels soumis par les utilisateurs se trouvent dans
 le forum dans la section _Subroutines_.
 
-
 == Exemple, découpe pour DB25
 
 L'exemple ci-dessous montre l'utilisation du sous-programme DB25. 
@@ -588,14 +587,15 @@ image::images/ngcgui-db25-3_fr.png[]
 == Création d'un sous-programme
 
 * Pour la création d'un sous-programme à utiliser avec Ngcgui, le nom de fichier 
-    et le nom du sous-programme doivent être les mêmes. 
+  et le nom du sous-programme doivent être les mêmes. 
 * Le fichier doit être placé dans le sous-répertoire pointé dans le fichier ini. 
 * À la première ligne peut se trouver un commentaires de type info: qui doit 
-    être placé au début du sous-programme. 
+  être placé au début du sous-programme. 
 * Le sous-programme doit être entouré par les balises `sub` et `endsub`. 
 * Les variables utilisées doivent être des variables numérotées et ne doivent pas 
-    sauter de numéro. 
+  sauter de numéro. 
 * Des commentaires et presets peuvent être inclus.
+
 ----
 (info: simp -- simple exemple de sous-programme -- Ctrl-U pour éditer)
 o<simp> sub
@@ -608,3 +608,4 @@ o<simp> sub
 o<simp> endsub
 ----
 
+// vim: set syntax=asciidoc:

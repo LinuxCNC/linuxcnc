@@ -50,7 +50,7 @@ DOC_SRCS_EN := \
 	config/core-components.adoc \
 	config/ini-config.adoc \
 	config/ini-homing.adoc \
-  config/iov2.adoc \
+	config/iov2.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
 	config/moveoff.adoc \
@@ -62,7 +62,7 @@ DOC_SRCS_EN := \
 	config/stepper-quickstart.adoc \
 	drivers/ax5214h.adoc \
 	drivers/vfs11.adoc \
-	drivers/mitsub_vfd.adoc \
+	drivers/mitsub-vfd.adoc \
 	drivers/gm.adoc \
 	drivers/gs2.adoc \
 	drivers/hostmot2.adoc \
@@ -95,18 +95,19 @@ DOC_SRCS_EN := \
 	getting-started/system-requirements.adoc \
 	getting-started/updating-linuxcnc.adoc \
 	gui/axis.adoc \
-	gui/filter_programs.adoc \
+	gui/filter-programs.adoc \
 	gui/gladevcp.adoc \
 	gui/gmoccapy.adoc \
 	gui/gscreen.adoc \
 	gui/qtdragon.adoc \
 	gui/qtvcp.adoc \
-	gui/qtvcp_VCPpanels.adoc \
-	gui/qtvcp_widgets.adoc \
-	gui/qtvcp_libraries.adoc \
-	gui/qtvcp_custom_widgets.adoc \
-	gui/qtvcp_code_snippets.adoc \
-	gui/qtvcp_development.adoc \
+	gui/qtvcp-VCPpanels.adoc \
+	gui/qtvcp-widgets.adoc \
+	gui/qtvcp-libraries.adoc \
+	gui/qtvcp-vismach.adoc \
+	gui/qtvcp-custom-widgets.adoc \
+	gui/qtvcp-code-snippets.adoc \
+	gui/qtvcp-development.adoc \
 	gui/panelui.adoc \
 	gui/halui.adoc \
 	gui/image-to-gcode.adoc \
@@ -329,21 +330,21 @@ $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Start
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
-	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/Master_Documentation_es.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_User_fr.pdf: $(DOC_SRCDIR)/Master_User_fr.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_HAL_fr.pdf: $(DOC_SRCDIR)/Master_HAL_fr.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/Master_Integrator_fr.pdf
+$(DOC_DIR)/LinuxCNC_Documentation_fr.pdf: $(DOC_SRCDIR)/Master_Documentation_fr.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Developer_es.pdf: $(DOC_SRCDIR)/Master_Developer_es.pdf
+	@ln -f $< $@
+$(DOC_DIR)/LinuxCNC_Developer_fr.pdf: $(DOC_SRCDIR)/Master_Developer_fr.pdf
 	@ln -f $< $@
 
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
@@ -464,6 +465,7 @@ $(DOC_TARGETS_HTML): $(DOC_DIR)/html/%.html: $(DOC_SRCDIR)/%.html
 		mkdir -p objects/image-cache; \
 		HTML_LATEX_CACHE=objects/image-cache $(DOC_SRCDIR)/html-latex-images $$HTML_FILE || (X=$$?; rm $$HTML_FILE; exit $$X); \
 	done
+	cp -f ../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini $(DOC_DIR)/html/drivers/
 	touch $@
 
 # Define a target-specific variable called STYLES_SCRIPTS_DIR, which has
@@ -574,13 +576,13 @@ docclean:
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_es.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_User_fr.pdf
-	-rm -f $(DOC_DIR)/LinuxCNC_HAL_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Documentation_fr.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Integrator.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Integrator_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Developer.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Developer_es.pdf
+	-rm -f $(DOC_DIR)/LinuxCNC_Developer_fr.pdf
 	-rm -f $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf
 	-rm -f $(DOC_SRCDIR)/*.d
 	-rm -f $(DOC_SRCDIR)/*.pdf

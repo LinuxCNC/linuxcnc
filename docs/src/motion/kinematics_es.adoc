@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:kinematics]]
-
 = Cinemática
 
 == Introducción
@@ -147,8 +146,7 @@ bípode (una versión simplificada del trípode, que es una version simplificada
 del hexápodo).
 
 .Configuración del bípode
-
-image::images/bipod.png[alt="Configuracion de Bipod"]
+image::images/bipod.png["Configuracion de Bipod"]
 
 El Bipod del que estamos hablando es un dispositivo que consta de 2 motores
 colocado en una pared, de la cual cuelga un dispositivo usando un cable. Las
@@ -174,23 +172,23 @@ reglas de trigonometría (los triángulos rectángulos determinados por los punt
 
 Podemos ver fácilmente que: 
 
-image::images/kinematics-math-01.png[align="center"]
+image:images/kinematics-math-01.png[align="center"]
 
 asi como: 
 
-image::images/kinematics-math-02.png[align="center"]
+image:images/kinematics-math-02.png[align="center"]
 
 Si restamos una de la otra obtendremos:
 
-image::images/kinematics-math-03.png[align="center"]
+image:images/kinematics-math-03.png[align="center"]
 
 y por lo tanto:
 
-image::images/kinematics-math-04.png[align="center"]
+image:images/kinematics-math-04.png[align="center"]
 
 A partir de ahí calculamos:
 
-image::images/kinematics-math-05.png[align="center"]
+image:images/kinematics-math-05.png[align="center"]
 
 ////////////////////////////////////////////////////////////////////
 podemos ver fácilmente que latexmath:[$AD^{2}=x^{2}+y^{2}$], likewise
@@ -302,5 +300,4 @@ Estas son las funciones estándar de configuración y desmontaje de los módulos
 Cuando están contenidos en un solo archivo fuente, los módulos cinemáticos
 pueden ser compilados e instalados por 'halcompile'. Consulte la página de manual de 'halcompile(1)' o
 el manual de HAL para más información.
-
 

@@ -2504,10 +2504,11 @@ int Interp::ini_load(const char *filename)
         logDebug("did not find PARAMETER_FILE");
     }
     SET_PARAMETER_FILE_NAME(parameter_file_name);
-    CHKS(strlen(parameter_file_name) > 0, _("Parameter file name is missing"));
 
     // close it
     inifile.Close();
+
+    CHKS((strlen(parameter_file_name) == 0), _("Parameter file name is missing"));
 
     return 0;
 }

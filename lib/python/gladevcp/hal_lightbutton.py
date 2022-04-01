@@ -17,7 +17,7 @@ gi.require_version("Gtk","3.0")
 from gi.repository import Gtk
 from gi.repository import Gdk
 from gi.repository import GObject
-from gi.repository import Pango
+from gi.repository import Pango, PangoCairo
 import cairo
 import math
 
@@ -106,8 +106,8 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         
         self.dual_color = False
         self.use_bitmaps = False  #this feature is not implemented yet
-        self.light_on_color = Gdk.Color.parse('green')
-        self.light_off_color = Gdk.Color.parse('gray')
+        self.light_on_color = Gdk.Color.parse('green')[1]
+        self.light_off_color = Gdk.Color.parse('gray')[1]
         self.border_width = 6
         self.corner_radius = 4
         self.button_text = 'Button'
@@ -115,8 +115,8 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         self.font_face = 'Sans'
         self.font_bold = False
         self.font_size = 10
-        self.font_on_color = Gdk.Color.parse('black')
-        self.font_off_color = Gdk.Color.parse('black')
+        self.font_on_color = Gdk.Color.parse('black')[1]
+        self.font_off_color = Gdk.Color.parse('black')[1]
         self.create_enable_pin = False
         
         self.active = False
@@ -222,24 +222,37 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
             cr.arc(x + self.corner_radius, y + h2 - self.corner_radius, self.corner_radius, 90 * degrees, 180 * degrees)
             cr.arc(x + self.corner_radius, y + self.corner_radius, self.corner_radius, 180 * degrees, 270 * degrees)
             cr.close_path()
-            
+
+            def modify_hsv_color(color, h_mult, s_mult, v_mult):
+                hsv = Gtk.HSV()
+                (h,s,v) = Gtk.rgb_to_hsv(color.red_float, color.green_float, color.blue_float)
+                h = h*h_mult
+                s = s*s_mult
+                v = v*v_mult
+                # suppress Gtk assertion error when value is > 1.0 due to rounding errors
+                if h > 1.0: h = 1.0
+                if s > 1.0: s = 1.0
+                if v > 1.0: v = 1.0
+                (r,g,b) = hsv.to_rgb(h, s, v)
+                return Gdk.Color.from_floats(r,g,b)
+
             if (self.light_is_on):
                 color = self.light_on_color
                 if self.mouseover:
-                    color = Gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
-                color2 = Gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
-                linecolor = Gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
+                    color = modify_hsv_color(color, 1.0, .5, 1.5)
+                color2 = modify_hsv_color(color, 1.0, .25, 1.0)
+                linecolor = modify_hsv_color(color, 1.0, 1.0, .95)
             else:
                 color = self.light_off_color
                 if self.mouseover:
-                    color = Gdk.color_from_hsv(color.hue, color.saturation * .5, color.value * 1.5)
+                    color = modify_hsv_color(color, 1.0, .5, 1.5)
                 if (self.dual_color):
-                    color2 = Gdk.color_from_hsv(color.hue, color.saturation * .25, color.value)
-                    linecolor = Gdk.color_from_hsv(color.hue, color.saturation, color.value * .95)
+                    color2 = modify_hsv_color(color, 1.0, .25, 1.0)
+                    linecolor = modify_hsv_color(color, 1.0, 1.0, .95)
                 else:
-                    color1 = Gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * 2)
-                    color2 = Gdk.color_from_hsv(color.hue, color.saturation, color.value * .50)
-                    linecolor = Gdk.color_from_hsv(color.hue, color.saturation * .50, color.value * .75)
+                    color1 = modify_hsv_color(color, 1.0, .50, 2)
+                    color2 = modify_hsv_color(color, 1.0, 1.0, .50)
+                    linecolor = modify_hsv_color(color, 1.0, .50, .75)
             
             cr.set_line_width(linewidth)
             set_color(linecolor)
@@ -283,8 +296,8 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
  
         fontw, fonth = _layout.get_pixel_size()
         cr.move_to((w - fontw)/2, (h - fonth)/2)
-        cr.update_layout(_layout)
-        cr.show_layout(_layout)
+        PangoCairo.update_layout(cr, _layout)
+        PangoCairo.show_layout(cr, _layout)
         return False
     
     def update_font(self):
@@ -321,12 +334,12 @@ class HAL_LightButton(Gtk.DrawingArea, _HalWidgetBase):
         
     def set_text(self, text):
         self.button_text = text
-        self.default_pangolayout.set_text(text)
+        self.default_pangolayout.set_text(text, -1)
         self.update_widget_size()
         
     def set_on_text(self, text):
         self.button_on_text = text
-        self.on_pangolayout.set_text(text)
+        self.on_pangolayout.set_text(text, -1)
         self.update_widget_size()
 
     #**************************************************************

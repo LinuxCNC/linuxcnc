@@ -226,7 +226,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
 
     # This actually builds and displays the dialog.
     # there are three ways to get results:
-    # - through a return by status mesage   (return_callback = None, use_exec = False)
+    # - through a return by status message  (return_callback = None, use_exec = False)
     # - callback return                     (return_callback = function_name)
     # - by direct return statement          (use_exec = True)
     def showdialog(self, messagetext, more_info=None, details=None, display_type='OK',
@@ -381,11 +381,14 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if not self._return_callback is None:
             self._return_callback(self, result)
         # these return via status messages
-        else:
+        elif self._message is not None:
             self._message['RETURN'] = result
             STATUS.emit('general', self._message)
             STATUS.emit('focus-overlay-changed', False, None, None)
             self._message = None
+        # just return result
+        else:
+            LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
 
     # **********************
     # Designer properties

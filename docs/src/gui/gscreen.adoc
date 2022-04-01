@@ -1,5 +1,6 @@
-[[cha:gscreen]]
+:lang: en
 
+[[cha:gscreen]]
 = Gscreen
 
 == Intro
@@ -68,7 +69,6 @@ in the folder that holds all the configuration files for the configuration you
 selected.
 
 .Local Glade Files
-
 If present, local glade files in the configuration folder will be loaded instead
 of the stock Glade files. Local Glade files allow you to use your customized
 designs rather then the default screens. There is a switch in the INI file to
@@ -87,7 +87,6 @@ also have signals defined for them in the GLADE editor. It defines what signal
 is given and what method to call.
 
 .Modifying Stock Skins
-
 If you change the name of a widget, Gscreen might not be able to find it. If
 this widget is referenced to from python code, at best this makes the widget
 not work anymore at worst it will cause an error when loading Gscreen's default
@@ -96,7 +95,6 @@ python code. If you move (cut and paste) a widget with signals, the signals
 will not be copied. You must add them again manually.
 
 .Handler Files
-
 A handler file is a file containing python code, which Gscreen adds to it's
 default routines. A handler file allows one to modify defaults, or add logic
 to a Gscreen skin without having to modify Gscreen proper. You can combine new
@@ -114,7 +112,6 @@ such as adding a sound. Please see the <<cha:glade-vcp,GladeVCP Chapter>> for
 the basics to GladeVCP handler files. Gscreen uses a very similar technique.
 
 .Themes
-
 Gscreen uses the PyGTK toolkit to display the screen.
 Pygtk is the Python language binding to GTK.
 GTK supports 'themes'.
@@ -149,13 +146,11 @@ Gscreen is just a big complicated GladeVCP panel, with python code to control
 it. To customize it we need the Glade file loaded in the Glade editor.
 
 .Installed LinuxCNC
-
 If you have LinuxCNC 2.6+ installed on Ubuntu 10.04 just start the Glade editor
 from the applications menu or from the terminal. Newer versions of Linux will
 require you to install Glade 3.8.0 - 3.8.6 (you may need to compile it yourself).
 
 .RIP compiled commands
-
 Using a compiled from source version of
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Installing_LinuxCNC[LinuxCNC] open
 a terminal and <<faq:cd,cd>> to the top of the LinuxCNC folder. Set up the
@@ -252,14 +247,11 @@ There are special functions Gscreen checks the handler file for.
 If you add these in you handler file Gscreen will call them instead of gscreen's internal same-named functions. 
 
  * initialize_preferences(self): You can install new preference routines.
-
  * initialize_keybindings(self) You can install new keybinding routines. In
    most cases you won't want to do this, you will want to override the
    individual keybinding calls. You can also add more keybindings that will
    call an arbitrary function.
-
  * initialize_pins(self): makes / initializes HAL pins
-
  * connect_signals(self,handlers): If you are using a completely different
    screen the default Gscreen you must add this or gscreen will try to connect
    signals to widgets that are not there. Gscreen's default function is called
@@ -267,33 +259,25 @@ If you add these in you handler file Gscreen will call them instead of gscreen's
    signals to your screen but still want the default ones call this first then
    add more signals. If you signals are simple (no user data passed) then you
    can also use the Glade signal selection in the Glade editor.
-
  * initialize_widgets(self): You can use this to set up any widgets. Gscreen
    usually calls 'self.gscreen.initialize_widgets()' which actually calls
    many separate functions. If you wish to incorporate some of those widgets
    then just call those functions directly. or add 
    self.gscreen.init_show_windows() so widgets are just shown. Then if
    desired, initialize/adjust your new widgets.
-
  * initialize_manual_toolchange(self): allows a complete revamp of the manual
    toolchange system.
-
  * set_restart_line(self.line):
-
  * timer_interrupt(self): allows one to complete redefine the interrupt
    routine This is used for calling periodic() and checking for errors from
    linuxcnc.status.
-
  * check_mode(self): used to check what mode the screen is in. Returns a list[]
    0 -manual 1- mdi 2- auto 3- jog.
-
  * on_tool_change(self,widget): You can use this to override the manual tool
    change dialog -this is called when 'gscreen.tool-change' changes state.
-
  * dialog_return(self,dialog_widget,displaytype,pinname): Use this to override
    any user message or manual tool change dialog. Called when the dialog is
    closed.
-
  * periodic(self): This is called every (default 100) milliseconds. Use it to
    update your widgets/HAL pins. You can call Gscreen regular periodic
    afterwards too, self.gscreen.update_position() or just add pass to not
@@ -306,15 +290,16 @@ would add a signal to a widget to call your function.
 
 === Adding Keybindings Functions
 
-Our tester example would be more useful if it responded to keyboard commands. +
-There is a function called keybindings() that tries to set this up. +
-While you can override it completely, we didn't - but it assumes some things. +
-It assumes the estop toggle button is call 'button_estop' and that F1 key controls it. +
-It assumes the power button is called 'button_machine_on' and the F2 key controls it. +
-These are easily fixed by renaming the buttons in the Glade editor to match. +
-But instead we are going to override the standard calls and add our own. +
- +
+Our tester example would be more useful if it responded to keyboard commands.
+There is a function called keybindings() that tries to set this up.
+While you can override it completely, we didn't - but it assumes some things.
+It assumes the estop toggle button is call 'button_estop' and that F1 key controls it.
+It assumes the power button is called 'button_machine_on' and the F2 key controls it.
+These are easily fixed by renaming the buttons in the Glade editor to match.
+But instead we are going to override the standard calls and add our own.
+
 Add these command to the handler file:
+
 ----
   # override Gscreen Functions
   # keybinding calls
@@ -334,21 +319,24 @@ Add these command to the handler file:
       return True
 ----
 
-So now we have overridden Gscreen's function calls of the same name and deal with them in our handler file. +
-We now reference the widgets by the name we used in the Glade editor. +
-We also added a built in gscreen function to make a sound when Estop changes. +
-Note that we we call Gscreen's built in functions we must use self.gscreen.[FUNCTION NAME]() +
-If we used self.[FUNCTION NAME]() it would call the function in our handler file. +
+So now we have overridden Gscreen's function calls of the same name and deal with them in our handler file
+We now reference the widgets by the name we used in the Glade editor.
+We also added a built in gscreen function to make a sound when Estop changes.
+Note that we we call Gscreen's built in functions we must use self.gscreen.[FUNCTION NAME]()
+If we used self.[FUNCTION NAME]() it would call the function in our handler file.
 
-Lets add another key binding that loads halmeter when F4 is pressed. +
- +
+Lets add another key binding that loads halmeter when F4 is pressed.
+
 In the handler file under 'def initialize_widgets(self):' change to:
+
 ----
   def initialize_widgets(self):
     self.gscreen.init_show_windows()
     self.gscreen.keylookup.add_conversion('F4','TEST','on_keycall_HALMETER')
 ----
+
 Then add these functions under the 'HandlerClass' class:
+
 ----
   def on_keycall_HALMETER(self,state,SHIFT,CNTRL,ALT):
     if state:
@@ -361,34 +349,38 @@ Then we add the function to the handle file to call a Gscreen builtin function t
 
 === Linuxcnc State Status
 
-The module 'Gstat' polls linuxcnc's state every 100ms and sends callback messages to user functions when state changes. +
-You can register messages to act on specific state changes. +
-As an example we will register to get 'file-loaded' messages when linuxcnc loads a new file. +
-First we must import the module and instantiate it: +
-In the import section of the handler file add: +
+The module 'Gstat' polls linuxcnc's state every 100ms and sends callback messages to user functions when state changes.
+You can register messages to act on specific state changes.
+As an example we will register to get 'file-loaded' messages when linuxcnc loads a new file.
+First we must import the module and instantiate it:
+In the import section of the handler file add:
+
 ----
 from hal_glib import GStat
 GSTAT = GStat()
 ----
 
-In the handler file under 'def \_\_init__(self):' add: +
+In the handler file under 'def \_\_init__(self):' add:
+
 ----
 GSTAT.connect('file-loaded', self.update_filepath)
 ----
 
-Then in the 'HandlerClass', add the function: +
+Then in the 'HandlerClass', add the function:
+
 ----
 self.update_filepath(self, obj, path):
     self.widgets.my_path_label.set_text(path)
 ----
 
-When linuxcnc loads a new file, Gstat will send a callback message to the function 'update_filepath'. +
-In this example we update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file. +
+When linuxcnc loads a new file, Gstat will send a callback message to the function 'update_filepath'.
+In this example we update a label with that path name (assuming there is a label nammed 'my_path_label') in the GLADE file.
 
 === Jogging Keys
 
-There are no special widgets to do screen-button jogging, so we must do it with python code. +
-Under the connect_signals function add this code: +
+There are no special widgets to do screen-button jogging, so we must do it with python code.
+Under the connect_signals function add this code:
+
 ----
         for i in('x','y','z'):
             self.widgets[i+'neg'].connect("pressed", self['jog_'+i],0,True)
@@ -399,6 +391,7 @@ Under the connect_signals function add this code: +
 ----
 
 Add these functions under the HandlerClass class:
+
 ----
     def jog_x(self,widget,direction,state):
         self.gscreen.do_key_jog(_X,direction,state)
@@ -409,9 +402,10 @@ Add these functions under the HandlerClass class:
     def jog_speed_changed(self,widget,value):
         self.gscreen.set_jog_rate(absolute = value)
 ----
-Finally add two buttons to the GLADE file for each axis - one for positive, one for negative direction jogging. +
-Name these buttons xneg, xpos, yneg, ypos zneg, zpos respectively. +
-add a SpeedControl widget to the GLADE file and name it jog_speed +
+
+Finally add two buttons to the GLADE file for each axis - one for positive, one for negative direction jogging.
+Name these buttons xneg, xpos, yneg, ypos zneg, zpos respectively.
+add a SpeedControl widget to the GLADE file and name it jog_speed
 
 == Gscreen Start Up
 
@@ -483,6 +477,7 @@ DISPLAY = gscreen -c tester
    -d debugging on
    -v verbose debugging on
 ----
+
 The -c switch allows one to select a 'skin'. Gscreen assumes the Glade file and
 the handler file use this same name. The optional second screen will be the
 same name with a 2 (eg. tester2.glade) There is no second handler file allowed.
@@ -492,23 +487,22 @@ skin folder.
 
 == User Dialog Messages
 
-This function is used to display pop up dialog messages on the screen. +
+This function is used to display pop up dialog messages on the screen.
 These are defined in the INI file and controlled by HAL pins. +
 'Boldtext' is generally a title. +
 'text' is below that and usually longer. +
 'Detail' is hidden unless clicked on. +
 'pinname' is the basename of the HAL pins. +
 'type' specifies whether its a yes/no, ok, or status message. +
-Status messages will be shown in the status bar and the notify dialog. +
+Status messages will be shown in the status bar and the notify dialog.
 it requires no user intervention. +
 ok messages require the user to click ok to close the dialog. +
-ok messages have one HAL pin to launch the dialog and one to signify it's waiting 
-for response. +
+ok messages have one HAL pin to launch the dialog and one to signify it's waiting for response. +
 yes/no messages require the user to select yes or no buttons to close the dialog. +
 yes/no messages have three hal pins - one to show the dialog, one for waiting, +
 and one for the answer. +
 
-Here is a sample INI code. It would be under the [DISPLAY] heading. +
+Here is a sample INI code. It would be under the [DISPLAY] heading.
 
 [source,{ini}]
 ----
@@ -538,19 +532,20 @@ MESSAGE_PINNAME = bothtest
 === Copy the Stock Handler/Glade File For Modification
 
 If you wish to use a stock screen but modify it's handler file, you need to 
-copy the stock file to your config file folder. +
+copy the stock file to your config file folder.
 Gscreen will see this and use the 
-copied file. +
+copied file.
 But where is the original file? If using a RIP linuxcnc the 
-sample skins are in /share/gscreen/skins/'SCREENNAME' +
+sample skins are in /share/gscreen/skins/'SCREENNAME'
 Installed versions of linuxcnc have them in slightly different places depending 
-on the distribution used. +
+on the distribution used.
 An easy way to find the location is to open a terminal 
-and start the sim screen you wish to use. +
-In the terminal the file locations will be printed. +
-It may help to add the -d switch t0 the gscreen load line in the INI. +
+and start the sim screen you wish to use.
+In the terminal the file locations will be printed.
+It may help to add the -d switch t0 the gscreen load line in the INI.
 
 Here is a sample:
+
 ----
 chris@chris-ThinkPad-T500 ~/emc-dev/src $ linuxcnc
 LINUXCNC - 2.7.14
@@ -572,10 +567,13 @@ Found file(lib): /home/chris/emc-dev/lib/hallib/simulated_home.hal
 **** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
 ---- 
 
-The line: +
+The line:
+
 ----
 **** GSCREEN INFO: handler file path: ['/home/chris/emc-dev/share/gscreen/skins/industrial/industrial_handler.py']
 ----
+
 shows where the stock file lives. Copy this file to your config folder. +
 This works the same for the Glade file.
 
+// vim: set syntax=asciidoc:

@@ -53,11 +53,11 @@ def preview(P, W, Conv):
     except:
         msg.append(_translate('Conversational', 'ROWS OFFSET'))
     try:
-        xOrgOffset = float(W.oxEntry.text())
+        xOrgOffset = float(W.xsEntry.text())
     except:
         msg.append(_translate('Conversational', 'X OFFSET ORIGIN'))
     try:
-        yOrgOffset = float(W.oyEntry.text())
+        yOrgOffset = float(W.ysEntry.text())
     except:
         msg.append(_translate('Conversational', 'Y OFFSET ORIGIN'))
     try:
@@ -404,9 +404,9 @@ def get_parameters(P, W):
             elif line.startswith('#<array_rows>'):
                 W.rnEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<origin_x_offset>'):
-                W.oxEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.xsEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
             elif line.startswith('#<origin_y_offset>'):
-                W.oyEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.ysEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
             elif line.startswith('#<array_angle>'):
                 W.aEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<blk_scale>'):
@@ -431,18 +431,18 @@ def widgets(P, W, Conv):
         W.cLabel = QLabel(_translate('Conversational', 'COLUMNS'))
         W.cnLabel = QLabel(_translate('Conversational', 'NUMBER'))
         W.cnEntry = QLineEdit('1', objectName='cnEntry')
-        W.coEntry = QLineEdit('0.0')
+        W.coEntry = QLineEdit('0.0', objectName='coEntry')
         W.coLabel = QLabel(_translate('Conversational', 'OFFSET'))
         W.rLabel = QLabel(_translate('Conversational', 'ROWS'))
         W.rnLabel = QLabel(_translate('Conversational', 'NUMBER'))
         W.rnEntry = QLineEdit('1', objectName='rnEntry')
-        W.roEntry = QLineEdit('0.0')
+        W.roEntry = QLineEdit('0.0', objectName='coEntry')
         W.roLabel = QLabel(_translate('Conversational', 'OFFSET'))
         W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
         text = _translate('Conversational', 'OFFSET')
         W.oxLabel = QLabel('X {}'.format(text))
-        W.oxEntry = QLineEdit('0.0', objectName = 'xsEntry')
-        W.oyEntry = QLineEdit('0.0', objectName = 'ysEntry')
+        W.xsEntry = QLineEdit('0.0', objectName='xsEntry')
+        W.ysEntry = QLineEdit('0.0', objectName='ysEntry')
         W.oyLabel = QLabel('Y {}'.format(text))
         W.aEntry = QLineEdit('0.0', objectName='aEntry')
         W.aLabel = QLabel(_translate('Conversational', 'ANGLE'))
@@ -458,7 +458,7 @@ def widgets(P, W, Conv):
         #alignment and size
         rightAlign = ['cnLabel', 'cnEntry', 'coEntry', \
                       'rnLabel', 'rnEntry', 'roEntry', \
-                      'oxLabel', 'oxEntry', 'oyEntry', \
+                      'oxLabel', 'xsEntry', 'ysEntry', \
                       'scLabel', 'aEntry', 'scEntry', \
                       'rtEntry']
         leftAlign = ['coLabel', 'roLabel', 'oyLabel', 'aLabel', 'rtLabel']
@@ -490,8 +490,8 @@ def widgets(P, W, Conv):
     W.undo.pressed.connect(lambda:undo_shape(P, W, Conv))
     W.mirror.clicked.connect(lambda:mirror_shape(P, W, Conv))
     W.flip.clicked.connect(lambda:flip_shape(P, W, Conv))
-    entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'oxEntry',
-               'oyEntry', 'scEntry', 'aEntry', 'rtEntry']
+    entries = ['cnEntry', 'coEntry', 'rnEntry', 'roEntry', 'xsEntry',
+               'ysEntry', 'scEntry', 'aEntry', 'rtEntry']
     for entry in entries:
         W[entry].textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
         W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
@@ -512,8 +512,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.roLabel, 3, 4)
         W.entries.addWidget(W.oLabel, 5, 2)
         W.entries.addWidget(W.oxLabel, 5, 0)
-        W.entries.addWidget(W.oxEntry, 5, 1)
-        W.entries.addWidget(W.oyEntry, 5, 3)
+        W.entries.addWidget(W.xsEntry, 5, 1)
+        W.entries.addWidget(W.ysEntry, 5, 3)
         W.entries.addWidget(W.oyLabel, 5, 4)
         W.entries.addWidget(W.aEntry, 7, 3)
         W.entries.addWidget(W.aLabel, 7, 4)
@@ -545,8 +545,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.roLabel, 2, 4)
         W.entries.addWidget(W.oLabel, 4, 2)
         W.entries.addWidget(W.oxLabel, 4, 0)
-        W.entries.addWidget(W.oxEntry, 4, 1)
-        W.entries.addWidget(W.oyEntry, 4, 3)
+        W.entries.addWidget(W.xsEntry, 4, 1)
+        W.entries.addWidget(W.ysEntry, 4, 3)
         W.entries.addWidget(W.oyLabel, 4, 4)
         W.entries.addWidget(W.aEntry, 6, 3)
         W.entries.addWidget(W.aLabel, 6, 4)

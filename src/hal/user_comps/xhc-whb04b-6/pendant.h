@@ -314,7 +314,7 @@ public:
     const MetaButtonCodes function;
     const MetaButtonCodes probe_z;
     const MetaButtonCodes macro9;
-    const MetaButtonCodes macro10;        // Hardcoded Absolue/relative Dro
+    const MetaButtonCodes macro10;        // Hardcoded Absolute/relative Dro
     const MetaButtonCodes macro14;
     const MetaButtonCodes continuous;
     const MetaButtonCodes macro15;

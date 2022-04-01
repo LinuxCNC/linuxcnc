@@ -22,6 +22,43 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 import os
 from shutil import copy as COPY
 
+# split out qtplasmac.prefs into <machine_name>.prefs and qtvcp.prefs (pre V1.222.170 2022/03/08)
+def split_prefs_file(old, new, prefs):
+    move = False
+    copy = False
+    moves = ['[GUI_OPTIONS]','[COLOR_OPTIONS]','[ENABLE_OPTIONS]','[STATISTICS]', \
+             '[PLASMA_PARAMETERS]','[DEFAULT MATERIAL]', '[SINGLE CUT]', '[CONVERSATIONAL]']
+    copies = ['[SHUTDOWN_OPTIONS]']
+    with open(old, 'r') as inFile:
+        data = inFile.readlines()
+    with open(new, 'w') as newFile:
+        with open(prefs, 'w') as prefsFile:
+            for line in data:
+                if line.strip() in moves:
+                    move = True
+                    copy = False
+                elif line.strip() in copies:
+                    move = False
+                    copy = True
+                elif line.strip().startswith('['):
+                    move = False
+                    copy = False
+                if move:
+                    prefsFile.write(line)
+                elif copy:
+                    if line.strip().startswith('['):
+                        prefsFile.write(line)
+                    if 'shutdown_msg_detail' in line:
+                        prefsFile.write(line)
+                        prefsFile.write('\n')
+                    newFile.write(line)
+                else:
+                    newFile.write(line)
+    if os.path.isfile(old):
+        os.remove(old)
+    print('QtPlasmaC updated to V1.222.170')
+
+# use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
 def add_component_hal_file(path, inifile, halfiles):
     written = False
     tmpFile = '{}~'.format(inifile)
@@ -95,3 +132,4 @@ def add_component_hal_file(path, inifile, halfiles):
                                 outFile.write(line)
     if os.path.isfile(tmpFile):
         os.remove(tmpFile)
+    print('QtPlasmaC updated to V1.221.154')

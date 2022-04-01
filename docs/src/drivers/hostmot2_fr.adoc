@@ -1,6 +1,8 @@
+:lang: en
+
 = Mesa HostMot2
 
-== Introduction 
+== Introduction
 
 HostMot2 is an FPGA configuration developed by Mesa Electronics for
 their line of "Anything I/O" motion control cards. The firmware is open
@@ -19,21 +21,21 @@ different Anything I/O boards. (This list is incomplete, check the
 hostmot2-firmware distribution for up-to-date firmware lists.)
 
  * 3x20 (144 I/O pins): using hm2_pci module
-  - 24-channel servo
-  - 16-channel servo plus 24 step/dir generators
+   - 24-channel servo
+   - 16-channel servo plus 24 step/dir generators
 
  * 5i22 (96 I/O pins): using hm2_pci module
-  - 16-channel servo
-  - 8-channel servo plus 24 step/dir generators 
+   - 16-channel servo
+   - 8-channel servo plus 24 step/dir generators
 
  * 5i20, 5i23, 4i65, 4i68 (72 I/O pins): using hm2_pci module
-  - 12-channel servo
-  - 8-channel servo plus 4 step/dir generators
-  - 4-channel servo plus 8 step/dir generators 
+   - 12-channel servo
+   - 8-channel servo plus 4 step/dir generators
+   - 4-channel servo plus 8 step/dir generators
 
  * 7i43 (48 I/O pins): using hm2_7i43 module
-  - 8-channel servo (8 PWM generators & 8 encoders)
-  - 4-channel servo plus 4 step/dir generators 
+   - 8-channel servo (8 PWM generators & 8 encoders)
+   - 4-channel servo plus 4 step/dir generators
 
 == Installing Firmware
 
@@ -51,7 +53,7 @@ I/O boards. The low-level I/O drivers are "hm2_7i43" and "hm2_pci" (for
 all the PCI- and PC-104/Plus-based Anything I/O boards). The hostmot2 driver
 must be loaded first, using a HAL command like this:
 
-    loadrt hostmot2 
+    loadrt hostmot2
 
 See the hostmot2(9) man page for details.
 
@@ -60,8 +62,9 @@ boards running the HostMot2 firmware. The low-level I/O drivers provide
 this access. The low-level I/O drivers are loaded with commands like
 this:
 
-     loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3
-    num_pwmgens=3 num_stepgens=1"
+----
+loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=1"
+----
 
 The config parameters are described in the hostmot2 man page.
 
@@ -114,25 +117,25 @@ hm2_<BoardType>.<BoardNum>.pet-watchdog::
     Pet the watchdog to keep it from biting us for a while.
 
 hm2_<BoardType>.<BoardNum>.read_gpio::
-     Read the GPIO input pins only. (This function 
+     Read the GPIO input pins only. (This function
     is not available on the 7i43 due to limitations of the EPP bus.)
 
 hm2_<BoardType>.<BoardNum>.write_gpio::
-     Write the GPIO control registers and output pins only. (This function 
-    is not available on the 7i43 due to limitations of the EPP bus.) 
+     Write the GPIO control registers and output pins only. (This function
+    is not available on the 7i43 due to limitations of the EPP bus.)
 
 [NOTE]
 =====================================================================
-The above *read_gpio* and *write_gpio* functions should not 
-normally be needed, since the GPIO bits are read and written along 
-with everything else in the standard *read* and *write* 
-functions above, which are normally run in the servo thread. 
+The above *read_gpio* and *write_gpio* functions should not
+normally be needed, since the GPIO bits are read and written along
+with everything else in the standard *read* and *write*
+functions above, which are normally run in the servo thread.
 
-The *read_gpio* and *write_gpio* functions were provided in 
-case some very fast (frequently updated) I/O is needed. These 
-functions should be run in the base thread. If you have need for 
-this, please send an email and tell us about it, and what your 
-application is. 
+The *read_gpio* and *write_gpio* functions were provided in
+case some very fast (frequently updated) I/O is needed. These
+functions should be run in the base thread. If you have need for
+this, please send an email and tell us about it, and what your
+application is.
 =====================================================================
 
 == Pinouts
@@ -164,44 +167,48 @@ your configuration.
 
 An example of a 5i20 configuration:
 
-    [HOSTMOT2] 
-    DRIVER=hm2_pci 
-    BOARD=5i20 
-    CONFIG="firmware=hm2/5i20/SVST8_4.BIT num_encoders=1 num_pwmgens=1 num_stepgens=3"
+----
+[HOSTMOT2]
+DRIVER=hm2_pci
+BOARD=5i20
+CONFIG="firmware=hm2/5i20/SVST8_4.BIT num_encoders=1 num_pwmgens=1 num_stepgens=3"
+----
 
 The above configuration produced this printout.
 
-    [ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used: 
-    [ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort 
-    [ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort 
-    [ 1141.053401] hm2/hm2_5i20.0: IO Pin 002 (P2-05): Encoder #0, pin B (Input) 
-    [ 1141.053405] hm2/hm2_5i20.0: IO Pin 003 (P2-07): Encoder #0, pin A (Input) 
-    [ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort 
-    [ 1141.053411] hm2/hm2_5i20.0: IO Pin 005 (P2-11): Encoder #0, pin Index (Input) 
-    [ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort 
-    [ 1141.053418] hm2/hm2_5i20.0: IO Pin 007 (P2-15): PWMGen #0, pin Out0
-    (PWM or Up) (Output) 
-    [ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort 
-    [ 1141.053425] hm2/hm2_5i20.0: IO Pin 009 (P2-19): PWMGen #0, pin Out1
-    (Dir or Down) (Output) 
-    [ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort 
-    [ 1141.053432] hm2/hm2_5i20.0: IO Pin 011 (P2-23): PWMGen #0, pin
-    Not-Enable (Output) 
-    <snip>... 
-    [ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin Step (Output) 
-    [ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin Direction (Output) 
-    [ 1141.053597] hm2/hm2_5i20.0: IO Pin 062 (P4-29): StepGen #2, pin (unused) (Output) 
-    [ 1141.053601] hm2/hm2_5i20.0: IO Pin 063 (P4-31): StepGen #2, pin (unused) (Output) 
-    [ 1141.053605] hm2/hm2_5i20.0: IO Pin 064 (P4-33): StepGen #2, pin (unused) (Output) 
-    [ 1141.053609] hm2/hm2_5i20.0: IO Pin 065 (P4-35): StepGen #2, pin (unused) (Output) 
-    [ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort 
-    [ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort 
-    [ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort 
-    [ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort 
-    [ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort 
-    [ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort 
-    [ 1141.053811] hm2/hm2_5i20.0: registered 
-    [ 1141.053815] hm2_5i20.0: initialized AnyIO board at 0000:02:02.0
+----
+[ 1141.053386] hm2/hm2_5i20.0: 72 I/O Pins used:
+[ 1141.053394] hm2/hm2_5i20.0: IO Pin 000 (P2-01): IOPort
+[ 1141.053397] hm2/hm2_5i20.0: IO Pin 001 (P2-03): IOPort
+[ 1141.053401] hm2/hm2_5i20.0: IO Pin 002 (P2-05): Encoder #0, pin B (Input)
+[ 1141.053405] hm2/hm2_5i20.0: IO Pin 003 (P2-07): Encoder #0, pin A (Input)
+[ 1141.053408] hm2/hm2_5i20.0: IO Pin 004 (P2-09): IOPort
+[ 1141.053411] hm2/hm2_5i20.0: IO Pin 005 (P2-11): Encoder #0, pin Index (Input)
+[ 1141.053415] hm2/hm2_5i20.0: IO Pin 006 (P2-13): IOPort
+[ 1141.053418] hm2/hm2_5i20.0: IO Pin 007 (P2-15): PWMGen #0, pin Out0
+(PWM or Up) (Output)
+[ 1141.053422] hm2/hm2_5i20.0: IO Pin 008 (P2-17): IOPort
+[ 1141.053425] hm2/hm2_5i20.0: IO Pin 009 (P2-19): PWMGen #0, pin Out1
+(Dir or Down) (Output)
+[ 1141.053429] hm2/hm2_5i20.0: IO Pin 010 (P2-21): IOPort
+[ 1141.053432] hm2/hm2_5i20.0: IO Pin 011 (P2-23): PWMGen #0, pin
+Not-Enable (Output)
+    <snip>...
+[ 1141.053589] hm2/hm2_5i20.0: IO Pin 060 (P4-25): StepGen #2, pin Step (Output)
+[ 1141.053593] hm2/hm2_5i20.0: IO Pin 061 (P4-27): StepGen #2, pin Direction (Output)
+[ 1141.053597] hm2/hm2_5i20.0: IO Pin 062 (P4-29): StepGen #2, pin (unused) (Output)
+[ 1141.053601] hm2/hm2_5i20.0: IO Pin 063 (P4-31): StepGen #2, pin (unused) (Output)
+[ 1141.053605] hm2/hm2_5i20.0: IO Pin 064 (P4-33): StepGen #2, pin (unused) (Output)
+[ 1141.053609] hm2/hm2_5i20.0: IO Pin 065 (P4-35): StepGen #2, pin (unused) (Output)
+[ 1141.053613] hm2/hm2_5i20.0: IO Pin 066 (P4-37): IOPort
+[ 1141.053616] hm2/hm2_5i20.0: IO Pin 067 (P4-39): IOPort
+[ 1141.053619] hm2/hm2_5i20.0: IO Pin 068 (P4-41): IOPort
+[ 1141.053621] hm2/hm2_5i20.0: IO Pin 069 (P4-43): IOPort
+[ 1141.053624] hm2/hm2_5i20.0: IO Pin 070 (P4-45): IOPort
+[ 1141.053627] hm2/hm2_5i20.0: IO Pin 071 (P4-47): IOPort
+[ 1141.053811] hm2/hm2_5i20.0: registered
+[ 1141.053815] hm2_5i20.0: initialized AnyIO board at 0000:02:02.0
+----
 
 Note that the I/O Pin nnn will correspond to the pin number shown on
 the HAL Configuration screen for GPIOs. Some of the Stepgen, Encoder
@@ -209,18 +216,18 @@ and PWMGen will also show up as GPIOs in the HAL Configuration screen.
 
 == PIN Files
 
-The default pinout is described in a .PIN file (human-readable text). 
-When you install a firmware package .deb, the .PIN files are installed in 
+The default pinout is described in a .PIN file (human-readable text).
+When you install a firmware package .deb, the .PIN files are installed in
 
-    /usr/share/doc/hostmot2-firmware-<board>/ 
+    /usr/share/doc/hostmot2-firmware-<board>/
 
 == Firmware
 
-The selected firmware (.BIT file) and configuration is uploaded from 
-the PC motherboard to the Mesa mothercard on LinuxCNC startup. 
-If you are using Run In Place, you must still install a 
-hostmot2-firmware-<board> package. There is more information about 
-firmware and configuration in the "Configurations" section. 
+The selected firmware (.BIT file) and configuration is uploaded from
+the PC motherboard to the Mesa mothercard on LinuxCNC startup.
+If you are using Run In Place, you must still install a
+hostmot2-firmware-<board> package. There is more information about
+firmware and configuration in the "Configurations" section.
 
 == HAL Pins
 
@@ -229,39 +236,39 @@ HAL Configuration" from the Machine menu. All the HAL pins and
 parameters can be found there. The following figure is of the 5i20
 configuration used above.
 
-.5i20 HAL Pins[[cap:5i20-HAL-Pins]]
-
-image::images/5i20-halpins.png[alt="5i20 HAL Pins"]
+[[cap:5i20-HAL-Pins]]
+.5i20 HAL Pins
+image::images/5i20-halpins.png["5i20 HAL Pins"]
 
 == Configurations
 
-The Hostmot2 firmware is available in several versions, depending on 
-what you are trying to accomplish. You can get a reminder of what a 
-particular firmware is for by looking at the name. Let's look at a 
-couple of examples. 
+The Hostmot2 firmware is available in several versions, depending on
+what you are trying to accomplish. You can get a reminder of what a
+particular firmware is for by looking at the name. Let's look at a
+couple of examples.
 
-In the 7i43 (two ports), SV8 ("Servo 8") would be for having 8 servos 
-or fewer, using the "classic" 7i33 4-axis (per port) servo board. 
-So 8 servos would use up all 48 signals in the two ports. But if 
-you only needed 3 servos, you could say `num_encoders=3` and `num_pwmgens=3` 
-and recover 5 servos at 6 signals each, thus gaining 30 bits of GPIO. 
+In the 7i43 (two ports), SV8 ("Servo 8") would be for having 8 servos
+or fewer, using the "classic" 7i33 4-axis (per port) servo board.
+So 8 servos would use up all 48 signals in the two ports. But if
+you only needed 3 servos, you could say `num_encoders=3` and `num_pwmgens=3`
+and recover 5 servos at 6 signals each, thus gaining 30 bits of GPIO.
 
-Or, in the 5i22 (four ports), SVST8_24 ("Servo 8, Stepper 24") would be 
-for having 8 servos or fewer (7i33 x2 again), and 24 steppers or fewer 
-(7i47 x2). This would use up all four ports. 
-If you only needed 4 servos you could say `num_encoders=4` and 
-`num_pwmgens=4` and recover 1 port (and save a 7i33). 
-And if you only needed 12 steppers you could say `num_stepgens=12` and 
-free up one port (and save a 7i47). 
-So in this way we can save two ports (48 bits) for GPIO. 
+Or, in the 5i22 (four ports), SVST8_24 ("Servo 8, Stepper 24") would be
+for having 8 servos or fewer (7i33 x2 again), and 24 steppers or fewer
+(7i47 x2). This would use up all four ports.
+If you only needed 4 servos you could say `num_encoders=4` and
+`num_pwmgens=4` and recover 1 port (and save a 7i33).
+And if you only needed 12 steppers you could say `num_stepgens=12` and
+free up one port (and save a 7i47).
+So in this way we can save two ports (48 bits) for GPIO.
 
-Here are tables of the firmwares available in the official packages. 
-There may be additional firmwares available at the Mesanet.com website 
-that have not yet made it into the LinuxCNC official firmware packages, so 
-check there too.  
+Here are tables of the firmwares available in the official packages.
+There may be additional firmwares available at the Mesanet.com website
+that have not yet made it into the LinuxCNC official firmware packages, so
+check there too.
 
-3x20 (6-port various) Default Configurations (The 3x20 comes in 1M, 1.5M, and 2M gate versions. 
-So far, all firmware is available in all gate sizes.) 
+3x20 (6-port various) Default Configurations (The 3x20 comes in 1M, 1.5M, and 2M gate versions.
+So far, all firmware is available in all gate sizes.)
 [width="90%", options="header"]
 |====================================================================
 |Firmware         | Encoder | PWMGen | StepGen | GPIO
@@ -269,8 +276,8 @@ So far, all firmware is available in all gate sizes.)
 |SVST16_24        | 16      | 16     | 24      | 0
 |====================================================================
 
-5i22 (4-port PCI) Default Configurations (The 5i22 comes in 1M and 1.5M gate versions. 
-So far, all firmware is available in all gate sizes.) 
+5i22 (4-port PCI) Default Configurations (The 5i22 comes in 1M and 1.5M gate versions.
+So far, all firmware is available in all gate sizes.)
 [width="90%", options="header"]
 |====================================================================
 |Firmware         | Encoder | PWM | StepGen | GPIO
@@ -355,12 +362,12 @@ So far, all firmware is available in all gate sizes.)
 |SVST2_4_7I47     | 4        | 2          | 4        | 24
 |====================================================================
 
-Even though several cards may have the same named .BIT file you cannot use 
-a .BIT file that is not for that card. Different cards have different 
-clock frequencies so make sure you load the proper .BIT file for your 
-card. Custom hm2 firmwares can be created for special applications and 
-you may see some custom hm2 firmwares in the directories with the 
-default ones. 
+Even though several cards may have the same named .BIT file you cannot use
+a .BIT file that is not for that card. Different cards have different
+clock frequencies so make sure you load the proper .BIT file for your
+card. Custom hm2 firmwares can be created for special applications and
+you may see some custom hm2 firmwares in the directories with the
+default ones.
 
 When you load the board-driver (hm2_pci or hm2_7i43), you can tell it
 to disable instances of the three primary modules (pwmgen, stepgen, and
@@ -443,8 +450,8 @@ two-digit number that corresponds to the HostMot2 stepgen instance
 number. There are "num_stepgens" instances, starting with 00.
 
 Each stepgen allocates 2-6 I/O pins (selected at firmware compile
-time), but currently only uses two: Step and Direction outputs.footnote:[At 
-present, the firmware supports multi-phase stepper outputs, but 
+time), but currently only uses two: Step and Direction outputs.footnote:[At
+present, the firmware supports multi-phase stepper outputs, but
 the driver doesn't. Interested volunteers are solicited.]
 
 The stepgen representation is modeled on the stepgen software
@@ -528,7 +535,7 @@ output run dmesg as described above.
 invert_output::
      (Bit, RW) This parameter only has an effect if the "is_output"
     parameter is true. If this parameter is true, the output value of the
-    GPIO will be the inverse of the value on the "out" HAL pin. 
+    GPIO will be the inverse of the value on the "out" HAL pin.
 
 is_opendrain::
      (Bit, RW) If this parameter is false, the GPIO behaves as a normal
@@ -624,7 +631,7 @@ which I/O pin belongs to which output run dmesg as described above.
 invert_output::
      (Bit, RW) This parameter only has an effect if the "is_output"
     parameter is true. If this parameter is true, the output value of the
-    GPIO will be the inverse of the value on the "out" HAL pin. 
+    GPIO will be the inverse of the value on the "out" HAL pin.
 
 is_opendrain::
      (Bit, RW) If this parameter is false, the GPIO behaves as a normal
@@ -740,5 +747,4 @@ save a copy to your computer so you can edit it. To see the exact pins
 and parameters that your configuration gave you, open the Show HAL
 Configuration window from the Machine menu, or do dmesg as outlined
 above.
-
 

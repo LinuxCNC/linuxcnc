@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
+[[cha:haltcl]]
 = Fichiers TCL pour HAL
-
-[[cha:hal-tcl]]
 
 Le langage de halcmd excelle pour spécifier des composants et des connexions
 mais il n'offre aucune possibilité de calcul.
@@ -39,6 +38,7 @@ sous-ensemble du puissant et polyvalent langage de script Tcl.
 Les fichiers haltcl utilisent le langage de script Tcl, auquel s'ajoutent
 les commandes spécifiques de la couche d'abstraction matériel de LinuxCNC (HAL).
 Les commandes spécifiques sont les suivantes:
+
 ....
 addf, alias,
 delf, delsig,
@@ -215,3 +215,4 @@ l'utilisation du processus "twopass". L'exemple montre l'utilisation des
 procédures Tcl, les boucles, l'utilisation des commentaires avec sortie
 sur le terminal.
 
+// vim: set syntax=asciidoc:

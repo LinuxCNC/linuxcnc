@@ -1,12 +1,10 @@
 :lang: fr
 :toc:
 
+[[cha:config-steppers]]
 = Configuration d'un système pas/direction (dir/step)
 
-[[cha:config-steppers]]
-
-
-[[sec:Introduction]]
+[[sec:config-stepper-introduction]]
 == Introduction
 
 Ce chapitre décrit quelques uns des réglages les plus fréquents, sur

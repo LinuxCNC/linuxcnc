@@ -1,12 +1,12 @@
 :lang: es
-[[cha:tooledit-gui]]
 
+[[cha:tooledit-gui]]
 = GUI del Editor de Herramientas 
 
 == Descripción general
 
 .Tabla de herramientas
-image::images/tooledit.png[align="center", width="640", alt="GUI del Editor de Herramientas - Descripción general"]
+image::images/tooledit.png["GUI del Editor de Herramientas - Descripción general",align="center", width="640"]
 
 El programa 'tooledit' puede actualizar el archivo de la tabla de herramientas con
 los cambios editados usando el botón Guardar Archivo. El botón Guardar Archivo
@@ -24,7 +24,7 @@ en orden descendente. La clasificación de columnas requiere que la máquina
 se configure con la versión tcl mayor o igual a la 8.5.
 
 .Clasificacion segun DIAM
-image::images/tooledit-sort.png[align="center", alt="GUI del Editor de Herramientas - Ordenación por columnas"]
+image::images/tooledit-sort.png["GUI del Editor de Herramientas - Ordenación por columnas",align="center"]
 
 Dependiendo de otras aplicaciones instaladas en el sistema, puede ser
 necesario habilitar tcl/tk8.5 con los comandos:
@@ -38,9 +38,7 @@ Por defecto, el programa 'tooledit' mostrará todas las posibles
 columnas de parámetros de la tabla de herramientas. Dado que pocas máquinas utilizan todos los
 parámetros, las columnas mostradas pueden ser limitadas con el siguiente ajuste de archivo ini:
 
-
-
-Sintaxis en archivo .INI
+.Sintaxis en archivo .INI
 ----
 [DISPLAY]
 TOOL_EDITOR = tooledit column_name column_name ...
@@ -52,7 +50,7 @@ TOOL_EDITOR = tooledit column_name column_name ...
 TOOL_EDITOR = tooledit Z DIAM
 ----
 
-image::images/tooledit-columns.png[align="center", alt="GUI del Editor de Herramientas - Selección de columnas"]
+image::images/tooledit-columns.png["GUI del Editor de Herramientas - Selección de columnas",align="center"]
 
 == Uso independiente
 El programa 'tooledit' también se puede invocar como un programa independiente.
@@ -88,7 +86,6 @@ un procesador de textos).
 
 La gui Axis puede usar opcionalmente una configuración de archivo ini para especificar el programa editor de herramientas
 
-
   [DISPLAY]TOOL_EDITOR = path_to_editor_programa
 
 Por defecto, se usa el programa llamado 'tooledit'. Este editor
@@ -96,4 +93,4 @@ es compatible con todos los parámetros de la tabla de herramientas, permite la 
 de entradas de herramientas, y realiza una serie de verificaciones de validez en
 valores paramétricos.
 
-
+// vim: set syntax=asciidoc:

@@ -1864,7 +1864,7 @@ class HAL:
             vscale = dratio / (((self.d.voltsfullf - self.d.voltszerof) * 1000) / int(self.d.voltsfjumper) / int(self.d.voltsmodel))
             voffset = self.d.voltszerof * 1000 / int(self.d.voltsfjumper)
             # arc voltage settings in prefs file
-            prefsfile = os.path.join(base, "qtplasmac.prefs")
+            prefsfile = os.path.join(base, self.d.machinename + ".prefs")
             # edit existing prefs file
             if os.path.exists(prefsfile):
                 with open(prefsfile, "r") as f1:

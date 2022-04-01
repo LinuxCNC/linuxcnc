@@ -57,9 +57,9 @@ M2
 
 Pour plus de détails sur ces instructions voir:
 
-* <<sec:G53-Mouvement-Coordonnees-Absolues, mouvement G53>>,
-* <<sec:G0, mouvement rapide G0>>,
-* <<sec:M2-M30, fin de programme M2>>.
+* <<gcode:g53,mouvement G53>>,
+* <<gcode:g0,mouvement rapide G0>>,
+* <<mcode:m2-m30,fin de programme M2>>.
 
 .O- return
 À l'intérieur d'un sous-programme, 'O- return' peut être exécuté,
@@ -79,7 +79,7 @@ o100 endsub
 Voir également les sections:
 
 * <<sec:Operateurs-Binaires, les opérateurs binaires>>,
-* <<sec:parametres, les paramètres>>.
+* <<sec:overview-parameters,les paramètres>>.
 
 .O- call
 'O- call' peut prendre jusqu'à 30 arguments optionnels, qui sont
@@ -110,8 +110,7 @@ sont visibles depuis le code appelant. Les sous-programmes peuvent
 aussi changer la valeur des paramètres nommés globaux.
 
 [[sec:Boucles]]
-== Boucles: *do*, *while*, *endwhile*, *break*, *continue*
-(((Boucles)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
+== Boucles: *do*, *while*, *endwhile*, *break*, *continue*(((Boucles)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
 La boucle 'while' a deux structures possibles: 'while - endwhile' et 'do - while'.
 Dans chaque cas, la boucle est quittée quand la condition du 'while' devient
@@ -156,8 +155,7 @@ la boucle et 'O- continue', saute immédiatement à la prochaine
 recommence au début. Si elle est fausse, la boucle est quittée.
 
 [[sec:Conditionnels]]
-== Conditionnel: *if*, *elseif*, *else*, *endif*
-(((Conditionnel: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
+== Conditionnel: *if*, *elseif*, *else*, *endif*(((Conditionnel: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
 
 Le 'if' conditionnel exécute un groupe d'instructions avec le même nombre 'O'
 qui commence avec 'if' et se termine avec 'endif'. Les conditions optionnelles
@@ -193,8 +191,7 @@ o102 endif
 ----
 
 [[sec:Repetitions]]
-== Répétition: *Repeat*
-(((Repeat)))
+== Répétition: *Repeat*(((Repeat)))
 
 La répétition 'repeat', exécutera les blocs contenus entre 'repeat' et
 'endrepeat' le nombre de fois spécifié entre crochets. L'exemple
@@ -212,8 +209,7 @@ O103 endrepeat
 G90 (Mode absolu)
 ----
 
-== Indirection
-(((Indirection)))
+== Indirection(((Indirection)))
 
 L'adresse de O- peut être donnée par un paramètre ou un calcul.
 
@@ -225,13 +221,12 @@ O[#101+2] call
 .Calcul des valeurs dans les O-codes
 Voici un condensé des sections utiles aux calculs des O-codes:
 
-* <<sec:parametres, les paramètres>>, 
-* <<sec:Expressions, les expressions>>, 
-* <<sec:Operateurs-Binaires, les opérateurs binaires>>, 
-* <<sec:Fonctions, les fonctions>>.
+* <<sec:overview-parameters,les paramètres>>, 
+* <<sec:Expressions,les expressions>>, 
+* <<sec:Operateurs-Binaires,les opérateurs binaires>>, 
+* <<sec:Fonctions,les fonctions>>.
 
-== Appel de fichier
-(((Appel de fichier)))
+== Appel de fichier(((Appel de fichier)))
 
 Pour appeler un sous-programme par son nom, ce sous-programme doit contenir
 un 'sub' et un 'endsub'. Le fichier appelé doit se trouver dans le répertoire

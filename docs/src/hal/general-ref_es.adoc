@@ -1,6 +1,6 @@
 :lang: es
-[[cha:general-reference]]
 
+[[cha:general-reference]]
 =Referencia general
 
 ==Convenciones Generales de Nomenclatura
@@ -99,15 +99,13 @@ Los campos individuales son:
 .Ejemplos
 
 motenc.0.encoder.2.position::
-      - Salida de posición del tercer canal (2) de encoder en la primera (0)
-    tarjeta Motenc.
+      - Salida de posición del tercer canal (2) de encoder en la primera (0) tarjeta Motenc.
 
 stg.0.din.03.in::
       - Estado de la cuarta entrada digital (03) en la primera (0) tarjeta Servo-to-Go.
 
 ppmc.0.pwm.00-03.frequency::
-     - Frecuencia de portadora utilizada para los canales PWM 0 a 3 (cuatro canales) en la 
-    primera (0) placa ppmc Pico Systems.
+      - Frecuencia de portadora utilizada para los canales PWM 0 a 3 (cuatro canales) en la primera (0) placa ppmc Pico Systems.
 
 ===Nombres de funciones
 
@@ -124,7 +122,7 @@ hardware utilizando datos de pines HAL. Deben nombrarse de la siguiente manera:
      El dispositivo específico al que accederá la función.
 
 <io-type>::
-      Opcional. Una función puede acceder a todas las E/S de una placa, o puede
+     Opcional. Una función puede acceder a todas las E/S de una placa, o puede
     acceder solo a cierto tipo. Por ejemplo, puede haber distintas
     funciones para leer contadores de encoder y leer E/S digitales. Si tales
     funciones independientes existen, el campo <io-type> identifica el tipo de
@@ -141,7 +139,7 @@ hardware utilizando datos de pines HAL. Deben nombrarse de la siguiente manera:
     se accede por diferentes funciones.
 
 read|write::
-     Indica si la función lee el hardware o escribe en él.
+    Indica si la función lee el hardware o escribe en él.
 
 .Ejemplos
 
@@ -149,10 +147,9 @@ motenc.0.encoder.read::
      - lee todos los codificadores en la primera placa motenc.
 
 generic8255.0.din.09-15.read::
-      - lee el segundo puerto de 8 bits en el primera placa genérica basada en 8255
-    de E/S digital.
+      - lee el segundo puerto de 8 bits en el primera placa genérica basada en 8255 de E/S digital.
 
 ppmc.0.write::
-      - escribe todas las salidas (generadores de pasos, pwm, DAC y digitales) en
-    la primera placa Pico Systems ppmc.
+      - escribe todas las salidas (generadores de pasos, pwm, DAC y digitales) en la primera placa Pico Systems ppmc.
 
+// vim: set syntax=asciidoc:

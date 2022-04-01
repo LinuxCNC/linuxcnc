@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:gmoccapy]]
-
 = GMOCCAPY
 
 == Introducción
@@ -18,7 +17,7 @@ Como un buen ejemplo de esto, puede verse.
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccapy_plasma[gmoccapy_plasma]
 
 * gmoccapy 3 soporta hasta 9 ejes y 9 articulaciones. Como el código ha cambiado en gmoccapy 3
-para admitir los cambios articulaciones/ejes en LinuxCNC, ¡NO trabaja en versiones 2.7 o 2.6!
+  para admitir los cambios articulaciones/ejes en LinuxCNC, ¡NO trabaja en versiones 2.7 o 2.6!
 
 Tiene soporte para teclado virtual (onboard o matchbox),
 por lo que no hay necesidad de un teclado o mouse de hardware, pero también se puede usar
@@ -73,30 +72,30 @@ image::images/gmoccapy_3_axis.png[align="left"]
 Realmente no hay mucho que configurar para ejecutar gmoccapy, pero hay algunos puntos
 con los que debe tener cuidado si desea utilizar todas las funciones de la GUI.
 
-Encontrará los siguientes archivos INI incluidos, solo para mostrar lo básico: +
- +
- * gmoccapy.ini +
- * gmoccapy_4_axis.ini +
- * lathe_configs/gmoccapy_lathe.ini +
- * lathe_configs/gmoccapy_lathe_imperial.ini +
- * gmoccapy_left_panel.ini +
- * gmoccapy_right_panel.ini +
- * gmoccapy_messages.ini +
- * gmoccapy_pendant.ini +
- * gmoccapy_sim_hardware_button.ini +
- * gmoccapy_tool_sensor.ini +
- * gmoccapy_with_user_tabs.ini +
- * gmoccapy_XYZAB.ini +
- * gmoccapy_XYZAC.ini +
- * gmoccapy_XYZCW.ini +
- * gmoccapy-JA/Gantry/gantry_mm.ini +
- * gmoccapy-JA/scara/scara.ini +
- * gmoccapy-JA/table-rotary-tilting/xyzac-trt.ini +
- * y algunos mas... +
- +
-Los nombres deben explicar la intención principal de los diferentes archivos INI. +
+Encontrará los siguientes archivos INI incluidos, solo para mostrar lo básico:
 
-Si utiliza una configuración existente en su máquina, simplemente edite su INI de acuerdo con este documento. +
+ * gmoccapy.ini
+ * gmoccapy_4_axis.ini
+ * lathe_configs/gmoccapy_lathe.ini
+ * lathe_configs/gmoccapy_lathe_imperial.ini
+ * gmoccapy_left_panel.ini
+ * gmoccapy_right_panel.ini
+ * gmoccapy_messages.ini
+ * gmoccapy_pendant.ini
+ * gmoccapy_sim_hardware_button.ini
+ * gmoccapy_tool_sensor.ini
+ * gmoccapy_with_user_tabs.ini
+ * gmoccapy_XYZAB.ini
+ * gmoccapy_XYZAC.ini
+ * gmoccapy_XYZCW.ini
+ * gmoccapy-JA/Gantry/gantry_mm.ini
+ * gmoccapy-JA/scara/scara.ini
+ * gmoccapy-JA/table-rotary-tilting/xyzac-trt.ini
+ * y algunos mas...
+
+Los nombres deben explicar la intención principal de los diferentes archivos INI.
+
+Si utiliza una configuración existente en su máquina, simplemente edite su INI de acuerdo con este documento.
 
 IMPORTANTE: si desea utilizar <<gmoccapy:macros, MACROS>>, no olvide configurar la ruta a sus macros o
 carpeta de subrutinas como se describe a continuación.
@@ -187,7 +186,6 @@ linuxcnc/nc_files y luego el directorio home de los usuarios.
 
 [[gmoccapy:configuration-of-tabs-and-side-panels]]
 .Configuración de pestañas y paneles laterales.
-
 Puede agregar programas integrados a gmoccapy como lo puede hacer en axis, touchy y gscreen. Todo se hace automáticamente por gmoccapy si incluye algunas líneas en su archivo INI en la sección DISPLAY.
 
 Si nunca usó un panel glade, se recomienda leer la excelente documentación.
@@ -210,8 +208,6 @@ las tres líneas mencionadas,
 
 * EMBED_TAB_NAME = Representa el nombre de la pestaña o el panel lateral. Depende de usted
   qué nombre usar, pero debe estar presente.
-
-
 * EMBED_TAB_LOCATION = Es el lugar donde se colocará su programa en la GUI.
 
 .Los valores válidos son:
@@ -263,23 +259,18 @@ realizarse en el archivo hal postgui especificado en su archivo INI, porque este
 Aquí hay unos ejemplos:
 
 .ntb_preview - como versión maximizada
-
 image::images/gmoccapy_ntb_preview_maximized_2.png[align="left"]
 
 .ntb_preview
-
 image::images/gmoccapy_ntb_preview.png[align="left"]
 
 .box_left - mostrando gmoccapy en modo de edición
-
 image::images/gmoccapy_with_left_box_in_edit_mode.png[align="left"]
 
 .box_right - y gmoccapy en modo MDI
-
 image::images/gmoccapy_with_right_panel_in_MDI_mode.png[align="left"]
 
 .Configuración de mensajes creados por el usuario
-
 Gmoccapy tiene la capacidad de crear mensajes de usuario desde hal. Para usarlos
 es necesario introducir algunas líneas en la sección [DISPLAY] del archivo INI.
 
@@ -295,10 +286,8 @@ MESSAGE_PINNAME = es el nombre del grupo de pines hal que se creará
 
  * 'status' : solo mostrará un mensaje como ventana emergente, usando el 
    sistema de mensajes de gmoccapy
-
  * 'okdialog' : mantendrá el foco en el cuadro de diálogo del mensaje y activará un Hal_Pin OUT
-  "-waiting". Cerrar el mensaje restablecerá el pin de espera
-
+   "-waiting". Cerrar el mensaje restablecerá el pin de espera
  * 'yesnodialog' : mantendrá el foco en el cuadro de diálogo del mensaje y lo activará
    un bit Hal_Pin OUT "-waiting" y también dará acceso a un bit Hal_Pin Out "-response".
    Este pin mantendrá 1 si el usuario hace clic en Aceptar, y en todos
@@ -326,7 +315,6 @@ Las convenciones específicas de pines hal para esto se pueden encontrar en la s
 <<gmoccapy:user-created-message,mensajes de usuario>>.
 
 [[gmocappy:rs274ngc]]
-
 === La sección RS274NGC
 
 ----
@@ -338,7 +326,6 @@ Establece la ruta para buscar macros y otras subrutinas. Si quiere usar
 varias rutas de subrutinas, simplemente sepárelas con ":"
 
 [[gmoccapy:macros]]
-
 === La sección MACRO
 
 Puede agregar macros a gmoccapy, de manera parecida a Touchy. Una macro no es nada
@@ -430,7 +417,6 @@ Si desea usar una macro sin ningún movimiento, vea también las notas en <<sub:
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
 [[gmoccapy:traj-section]]
-
 === La sección TRAJ
 
 ----
@@ -755,7 +741,6 @@ Para un eje "C" se veria:
 * gmoccapy.jog.axis.jog-c-minus
 
 [[gmoccapy:jog-velocity]]
-
 === Velocidades Jog y pin hal jog-tortuga
 
 La velocidad de jog se puede seleccionar con el control deslizante correspondiente. La escala
@@ -796,7 +781,6 @@ jog-inc-0 no se puede cambiar y representará jogging continuo.
 
 
 [[gmoccapy:hardware-unlock]]
-
 === Pin de desbloqueo hardware
 
 Para poder usar un interruptor de llave para desbloquear la página de configuración, 
@@ -820,7 +804,6 @@ NOTA: Los mensajes o las informaciones de usuario no afectarán el pin gmoccapy.
 pin borrará el último mensaje si no se muestra ningún error!
 
 [[gmoccapy:user-created-message]]
-
 === Pines HAL de Mensajes creados por el usuario
 
 gmoccapy puede reaccionar a errores externos, utilizando 3 mensajes de usuario diferentes (todos son HAL_BIT):
@@ -833,7 +816,7 @@ gmoccapy puede reaccionar a errores externos, utilizando 3 mensajes de usuario d
 
 * gmoccapy.messages.yesnodialog
 * gmoccapy.messages.yesnodialog-waiting
-* gmoccapy.messages.yesnodialog-responce
+* gmoccapy.messages.yesnodialog-response
 
 'dialogo-Ok'
 
@@ -866,7 +849,7 @@ red gmoccapy-pin gmoccapy.messages.pin
 ----
 
 Para obtener más información sobre los archivos HAL y el comando net, consulte la
-<<cha:basic-hal-reference, referencia HAL básica>>.
+<<cha:basic-hal-reference,referencia HAL básica>>.
 
 === Pines de realimentación del husillo
 
@@ -901,7 +884,6 @@ herramienta, como 'Fresa 7,5 mm 3 filos'. La información se toma de la tabla de
 por lo que depende de usted lo qué se muestre.
 
 .Cambio manual de herramienta
-
 image::images/manual_toolchange.png[align = "center"]
 
 * gmoccapy.toolchange-number, HAL_S32, El número de la herramienta que se va a cambiar
@@ -918,12 +900,10 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 ----
 
 .Pines de offsets de herramientas
-
 Estos pines le permiten mostrar los valores de offset de la herramienta activa para X y Z en el
 cuadro de información de la herramienta. Solo están activos después de G43.
 
 .Informacion de herramienta
-
 image::images/gmoccapy_0_9_7_tool_info.png[align="center"]
 
 * gmoccapy.tooloffset-x
@@ -948,7 +928,6 @@ Al escribir un programa, usted es responsable de incluir un G43 después
 cada cambio de herramienta!
 
 [[gmoccapy:auto-tool-measurement]]
-
 == Medición automática de herramientas
 
 Gmoccapy ofrece una medición automática integrada de herramientas. Para usar esta característica, usted
@@ -974,7 +953,6 @@ Debe seguir estos pasos:
 Aquí hay un pequeño boceto:
 
 .Datos para medicion de herramientas
-
 image::images/sketch_auto_tool_measurement.png[align="center"]
 
 Con el primer cambio de herramienta, la herramienta se medirá y el offset
@@ -1031,7 +1009,6 @@ MAXPROBE = -20
 ----
 
 .La sección de cambio de posición
-
 Esto no se ha llamado TOOL_CHANGE_POSITION a propósito - *canon usa ese nombre e
 interferiria.*. Es la posición a donde mover la máquina antes de dar el comando
 para cambiar la herramienta. Todos los valores están en coordenadas absolutas.
@@ -1044,7 +1021,6 @@ Z = -2
 ----
 
 .La Sección de Python.
-
 Los complementos de Python sirven como intérprete y tarea.
 
 ----
@@ -1070,7 +1046,7 @@ Desde 'su_directorio_linuxcnc-dev/configs/sim/gmoccapy/macros' copie:
 'on_abort.ngc' y 
 'change.ngc' 
 al directorio especificado como SUBROUTINE_PATH. 
-Vea <<gmocappy:rs274ngc, Seccion RS274NGC>>.
+Vea <<gmocappy:rs274ngc,Seccion RS274NGC>>.
 
 Abra 'change.ngc' con un editor y descomente las siguientes líneas
 (49 y 50):
@@ -1113,7 +1089,6 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 -------
 
 [[gmoccapy:settings-page]]
-
 == La página de configuración
 
 Para ingresar a la página deberás hacer click en
@@ -1125,7 +1100,6 @@ en este momento tendrá que editar el archivo de preferencias oculto. Vea
 La página se ve así:
 
 .Pagina de configuracion
-
 image::images/gmoccapy_settings_appearance.png[align="center"]
 
 La página está separada en tres pestañas principales:
@@ -1143,13 +1117,12 @@ Ventana principal::
 * iniciar como pantalla completa
 * iniciar maximizado
 * iniciar como ventana
-    +
-    Si selecciona Iniciar como ventana, se activarán los cuadros para establecer la posición y el tamaño. +
-    Una vez establecidos, la GUI se iniciará cada vez en el lugar y con el tamaño seleccionado. +
-    Sin embargo, el usuario puede cambiar el tamaño y la posición con el mouse, pero eso +
-    no tiene ninguna influencia en la configuración. +
+  Si selecciona Iniciar como ventana, se activarán los cuadros para establecer la posición y el tamaño. +
+  Una vez establecidos, la GUI se iniciará cada vez en el lugar y con el tamaño seleccionado. +
+  Sin embargo, el usuario puede cambiar el tamaño y la posición con el mouse, pero eso +
+  no tiene ninguna influencia en la configuración. +
 
-'* Ocultar cursor *' permite ocultar el cursor, lo que es muy útil si utilizar una pantalla táctil.
+* 'Ocultar cursor' permite ocultar el cursor, lo que es muy útil si utilizar una pantalla táctil.
 
 Teclado::
     Las casillas de verificación permiten al usuario seleccionar si desea que el teclado integrado se muestre de inmediato, +
@@ -1323,7 +1296,6 @@ Puede configurar aquí el directorio a donde saltar si presiona el botón corres
 en el cuadro de diálogo de selección de archivos.
 
 .Seleccion de directorio
-
 image::images/gmoccapy_file_selection_dialog_with_keyboard.png[align="center"]
 
 Temas y sonidos ::
@@ -1409,18 +1381,16 @@ MAX = 6000
 ----
 
 [[gmoccapy:turtle-jog]]
-
 Turtle Jog:: [[sub:turtle_jog]]
 Esta configuración tendrá influencia en las velocidades de jog.
 
 * 'Ocultar boton jog tortuga' ocultará el botón a la derecha del control deslizante de velocidad de jog.
-Si oculta este botón, tenga cuidado de que se muestre el icono conejo,
-de lo contrario no podrá hacer jog más rápido que la velocidad de tortuga,
-que se calcula utilizando el factor jog de tortuga.
-
+  Si oculta este botón, tenga cuidado de que se muestre el icono conejo,
+  de lo contrario no podrá hacer jog más rápido que la velocidad de tortuga,
+  que se calcula utilizando el factor jog de tortuga.
 * 'factor de jog de tortuga' establece la escala para el modo jog tortuga. Si le pone
-un factor de 20, la velocidad máxima de jog será 1/20 de la velocidad máxima de la máquina
-si está en modo tortuga (botón presionado, mostrando la tortuga)
+  un factor de 20, la velocidad máxima de jog será 1/20 de la velocidad máxima de la máquina
+  si está en modo tortuga (botón presionado, mostrando la tortuga)
 
 [NOTE]
 Este botón se puede activar usando el pin hal <<gmoccapy:jog-velocity, turtle-jog>>.
@@ -1428,11 +1398,9 @@ Este botón se puede activar usando el pin hal <<gmoccapy:jog-velocity, turtle-j
 === Configuración avanzada
 
 .Configuracion avanzada
-
 image::images/gmoccapy_settings_advanced.png[align="center"]
 
 [[gmoccapy:tool-measurement]]
-
 .Medición de herramientas
 
 Si esta parte no es sensible, no tiene una configuración de archivo INI válida
@@ -1441,42 +1409,39 @@ para utilizar la medición de herramienta.
 Verifique <<gmoccapy:auto-tool-measurement, medición automática de herramientas>>
 
 * Usar la medición automática de herramientas: si se marca, después de cada cambio de herramienta
-se realizará la medición. El resultado se almacenará en la tabla de herramientas y se ejecutará un
-G43 después del cambio.
+  se realizará la medición. El resultado se almacenará en la tabla de herramientas y se ejecutará un
+  G43 después del cambio.
 
 .Información de sonda
-
 Las siguientes informaciones se tomaran de las de su archivo INI y se deben proporcionar
 en coordenadas absolutas
 
  * X Pos. = La posición X del interruptor de herramienta
  * Y Pos. = La posición Y del interruptor de herramienta
  * Z Pos. = La posición Z del interruptor de la herramienta, iremos como movimiento rápido a
- esta coordenada
+   esta coordenada
 
  * Max. Sonda = es la distancia para buscar contacto. Un error será
- lanzado si no se da contacto dentro de ella. La distancia tiene que ser dada en coordenadas relativas,
- comenzando el movimiento desde Z Pos., por lo que tiene que dar un valor negativo
- para bajar!
+   lanzado si no se da contacto dentro de ella. La distancia tiene que ser dada en coordenadas relativas,
+   comenzando el movimiento desde Z Pos., por lo que tiene que dar un valor negativo
+   para bajar!
 
  * Altura sonda = es la altura de su interruptor de sonda; puede medirlo.
- Solo toque la base donde se encuentra el interruptor de la sonda y ajústelo a
- cero. Luego haga un cambio de herramienta y observe el valor de tool_offset_z, que es el
- valor que debe entrar aquí.
+   Solo toque la base donde se encuentra el interruptor de la sonda y ajústelo a
+   cero. Luego haga un cambio de herramienta y observe el valor de tool_offset_z, que es el
+   valor que debe entrar aquí.
 
 .Las velocidades de la sonda
-
  * Vel. Búsqueda = La velocidad para buscar el interruptor. Después del contacto,
- la herramienta volverá a subir y luego volverá hacia la sonda con la velocidad de sonda,
- por lo que obtendrá mejores resultados.
+   la herramienta volverá a subir y luego volverá hacia la sonda con la velocidad de sonda,
+   por lo que obtendrá mejores resultados.
 
  * Vel. Sonda = Es la velocidad para el segundo movimiento hacia el interruptor, que
- debe ser más lento para obtener mejores resultados. (En modo sim, esto es
- comentado en macros/change.ngc, de lo contrario el usuario tendría que hacer clic
- dos veces en el botón de la sonda)
+   debe ser más lento para obtener mejores resultados. (En modo sim, esto es
+   comentado en macros/change.ngc, de lo contrario el usuario tendría que hacer clic
+   dos veces en el botón de la sonda)
 
 .Cambiador de herramientas
-
 Si su cuarto eje 'se utiliza en un cambiador de herramientas, es posible que desee ocultar el DRO
 y todos los demás botones relacionados con ese eje.
 
@@ -1489,7 +1454,6 @@ Puedes hacerlo marcando la casilla de verificación, que ocultará:
  * Columna del 4º eje en el editor de herramientas.
 
 [[gmoccapy:reload-tool-on-start]]
-
 Si se marca, la herramienta en el husillo se guardará en cada cambio en el archivo de preferencias,
 lo que hace posible volver a cargar la última herramienta montada en nuevo arranque.
 La herramienta se cargará después de que todos los ejes estén conectados, porque antes no está
@@ -1497,9 +1461,7 @@ permitido ejecutar comandos MDI. Si usa NO_FORCE_HOMING no puedes usar
 esta característica, porque nunca se emitirá la señal 'all_homed' necesaria.
 
 [[gmoccapy:message-behavior]]
-
 .Comportamiento y apariencia de mensajes.
-
 Esto mostrará pequeñas ventanas emergentes que muestran el mensaje o el texto de error.
 El comportamiento es muy similar al que utiliza AXIS. Puede eliminar un determinado
 mensaje haciendo clic en el botón Cerrar. Si desea eliminar el último,
@@ -1509,22 +1471,21 @@ con <CTRL><SPACE>.
 Puedes configurar algunas opciones:
 
  * X Pos = La posición X de la esquina superior izquierda del mensaje
- en pixels desde la esquina superior izquierda de la pantalla.
+   en pixels desde la esquina superior izquierda de la pantalla.
  * Y Pos = La posición Y de la esquina superior izquierda del mensaje
- en pixels desde la esquina superior izquierda de la pantalla.
+   en pixels desde la esquina superior izquierda de la pantalla.
  * Ancho = El ancho del cuadro de mensaje
  * max = el máximo de mensajes que desea ver. Si establece esto en 10,
- el mensaje número 11 eliminará el primero, por lo que solo verá los últimos 10.
+   el mensaje número 11 eliminará el primero, por lo que solo verá los últimos 10.
  * Fuente = la fuente y el tamaño que desea utilizar para mostrar los mensajes
  * usar marcos = Si activa la casilla de verificación, se mostrará cada mensaje
- en un marco, por lo que es mucho más fácil distinguir los mensajes, pero 
- se necesitara un poco más de espacio.
+   en un marco, por lo que es mucho más fácil distinguir los mensajes, pero 
+   se necesitara un poco más de espacio.
  * Lanzamiento de mensaje de prueba solo hará lo que se supone que debe hacer,
- mostrar un mensaje, para que pueda ver los cambios de su configuración sin la necesidad
- para generar un error.
+   mostrar un mensaje, para que pueda ver los cambios de su configuración sin la necesidad
+   para generar un error.
 
 .La opción Ejecutar desde línea
-
 Puede permitir o rechazar la ejecución desde línea. Esto pondra al correspondiente
 botón insensible (en gris), por lo que el usuario no podrá utilizar esta
 opción. El valor predeterminado es deshabilitar la ejecución desde la línea.
@@ -1536,7 +1497,6 @@ son mas que probables
 
 
 [[gmoccapy:lathe-section]]
-
 == Sección específica del torno
 
 Si en el archivo INI se da LATHE = 1, la GUI cambiará su apariencia
@@ -1544,11 +1504,9 @@ a las necesidades especiales de un torno. Principalmente se ocultará el eje Y y
 Los botones de jog se ordenarán en un orden diferente.
 
 .Torno normal (herramienta delantera)
-
 image::images/gmoccapy_lathe.png[align="center"]
 
 .Torno con herramienta trasera
-
 image::images/gmoccapy_back_tool_lathe.png[align="center"]
 
 Como ve, el R DRO tiene un fondo negro y el de D DRO es gris. Esto puede
@@ -1581,7 +1539,6 @@ offset X y la tabla de herramientas muestra toda la información relevante del t
 == Sección específica de plasma
 
 .GUI plasma
-
 image::images/gmoccapy_plasma.png[align="center"]
 
 Hay un muy buen WIKI, que en realidad está creciendo, mantenido por Marius.
@@ -1616,7 +1573,6 @@ Inglés = http://www.youtube.com/watch?v=ItVWJBK9WFA
 http://www.youtube.com/watch?v=rG1zmeqXyZI
 
 [[gmoccapy:tool-measurement-videos]]
-
 === Videos de Medicion de Herramientas
 
 Simulacion de medicion Auto = http://youtu.be/rrkMw6rUFdk
@@ -1632,7 +1588,6 @@ Máquina de medición automática de herramientas = http://youtu.be/1arucCaDdX4
 Si obtienes números extraños en el área de información de gmoccapy como:
 
 .Numeros extraños
-
 image::images/strange_numbers.png[align="center"]
 
 ha creado su archivo de configuración con una versión anterior de StepConfWizard.
@@ -1676,5 +1631,4 @@ o<zeroxy> endsub
 m2
 ---------
 
-
-
+// vim: set syntax=asciidoc:

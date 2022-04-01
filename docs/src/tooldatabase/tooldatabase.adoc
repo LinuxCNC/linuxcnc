@@ -1,5 +1,6 @@
-[[cha:tooldatabase]]
+:lang: en
 
+[[cha:tooldatabase]]
 = Tool Database Interface
 
 Tool data is conventionally described by a tool table file specified
@@ -47,22 +48,22 @@ example), or other data sources.
 When a *db_progam* is specified, operation is as follows:
 
 . At startup, LinuxCNC starts the *db_program* and connects
-to its stdin and stdout.
+  to its stdin and stdout.
 
 . The *db_program* must respond by writing a single line acknowledgement
-consisting of a version string (e.g., "v2.0").  No tools will be
-available if the version is not compatible with the LinuxCNC database
-interface version.
+  consisting of a version string (e.g., "v2.0").  No tools will be
+  available if the version is not compatible with the LinuxCNC database
+  interface version.
 
 . Upon a successful acknowledgement, LinuxCNC issues a 'g' (*get*)
-command to request all tools.  The *db_program* must respond with a
-sequence of replies to identify each available tool.  The textual
-reply format is identical to the text line format used in conventional tool
-table files.  A final response of "FINI" terminates the reply.
+  command to request all tools.  The *db_program* must respond with a
+  sequence of replies to identify each available tool.  The textual
+  reply format is identical to the text line format used in conventional tool
+  table files.  A final response of "FINI" terminates the reply.
 
 . The *db_program* then enters an event wait loop to receive commands
-that indicate that tool data has been changed by LinuxCNC.  Tool data
-changes include:
+  that indicate that tool data has been changed by LinuxCNC.  Tool data
+  changes include:
 
   * a) spindle loading(Tn M6)/unloading(T0 M6)
   * b) tool parameter changes (G10L1Pn for example)
@@ -83,21 +84,19 @@ The commands issued for tool data changes are:
     The tool data line will include all elements of a tool table
     text line.
 
-  * "'l'" spindle_load (TnM6). The tool data line inclues only the 'T' and
+  * "'l'" spindle_load (TnM6). The tool data line includes only the 'T' and
     'P' items identifying the relevant tool number and pocket number.
 
-  * "'u'" spindle_unload (T0M6).  The tool data line inclues only the 'T'
+  * "'u'" spindle_unload (T0M6).  The tool data line includes only the 'T'
     and 'P' items identifying the relevant tool number and pocket number
 
 [NOTE]
-
 When a NON_RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=0 (the default), the spindle_load command
 issued for TnM6 (or M61Qn) is: 'l Tn P0' (pocket '0' is the spindle).
 The spindle_unload command issued for T0M6 is 'u T0 P0'.
 
 [NOTE]
-
 When a RANDOM tool changer is specified using
 [EMCIO]RANDOM_TOOL_CHANGER=1, a pair of spindle_unload/spindle_load
 commands are issued at each tool exchange.  The pair of commands
@@ -200,7 +199,6 @@ tooldb_loop()
 ----
 
 [NOTE]
-
 Use of 'tooldb' is not required -- it is provided as a demonstration
 of the required interface and as a convenience for implementing
 python-based applications that interface with an external database.
@@ -233,3 +231,4 @@ When a *db_program* is used in conjunction with a random tool changer
 ([EMCIO]RANDOM_TOOLCHANGER), LinuxCNC maintains a file
 ('db_spindle.tbl' in the configuration directory) that consists of a
 single tool table line identifying the current tool in the spindle.
+

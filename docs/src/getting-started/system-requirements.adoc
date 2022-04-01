@@ -1,6 +1,7 @@
-[[cha:system-requirements]]
+:lang: en
 
-= System Requirements
+[[cha:system-requirements]]
+= System Requirements(((System Requirements)))
 
 == Minimum Requirements
 
@@ -12,7 +13,7 @@ Keep in mind that the Latency Test numbers are more important than the
 processor speed for software step generation. More information on the
 Latency Test is <<latency-test,here>>.
 In addition LinuxCNC needs to be run on an operating system that uses a
-specially modified kernel. See <<kernel_and_version_requirements,Kernel and Version Requirements>>
+specially modified kernel. See <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>
 
 Additional information is on the LinuxCNC Wiki site:
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
@@ -29,8 +30,8 @@ systems.
 * 512 MB or more of RAM
 * 8 GB hard disk
 * Graphics card capable of at least 1024x768 resolution, which is not
-   using the NVidia or ATI fglrx proprietary drivers. Modern onboard
-   graphic chipsets seem to generally be OK.
+  using the NVidia or ATI fglrx proprietary drivers. Modern onboard
+  graphic chipsets seem to generally be OK.
 * A network or Internet connection (not strictly needed, but very useful
   for updates and for communicating with the LinuxCNC community)
 
@@ -39,7 +40,7 @@ check the https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]
 web site for details on the LiveCD you're using. Older hardware may
 benefit from selecting an older version of the LiveCD when available.
 
-[[kernel_and_version_requirements]]
+[[sec:kernel_and_version_requirements]]
 == Kernel and Version requirements
 
 LinuxCNC requires a kernel modified for realtime use to control real
@@ -53,7 +54,9 @@ The realtime kernel options are preempt-rt, RTAI and Xenomai.
 
 You can discover the kernel version of your system with the command
 
+----
  uname -a
+----
 
 If you see (as above) `-rt-` in the kernel name then you are running the
 preempt-rt kernel and should install the "uspace" version of LinuxCNC.
@@ -93,7 +96,6 @@ and compile LinuxCNC from source to utilise it.
 It is also possible to run LinuxCNC with RTAI in user-space mode. As
 with Xenomai you will need to compile from source to do this.
 
-
 == Problematic Hardware
 
 === Laptops
@@ -110,5 +112,3 @@ can sometimes be worked-around by installing drivers or creating /
 editing Xorg.conf files.
 
 // vim: set syntax=asciidoc:
-
-

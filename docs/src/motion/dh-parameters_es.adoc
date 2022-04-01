@@ -1,9 +1,7 @@
 :lang: es
 
-[[cha:dh-parameters]] (((DH parameters Examples)))
-
-= Configuración de parámetros "modificados" Denavit-Hartenberg (DH) para
-'genserkins'
+[[cha:dh-parameters]]
+= Configuración de parámetros "modificados" Denavit-Hartenberg (DH) para 'genserkins'(((DH parameters Examples)))
 
 == Preludio
 
@@ -15,13 +13,11 @@ Este documento ilustra un método para configurar los parámetros DH para un rob
 Mitsubishi RV-6SDL en LinuxCNC utilizando la cinemática 'genserkins'.
 
 [NOTE]
-
 Este documento no cubre la creación de un modelo 'vismach' que,
 aunque ciertamente es muy útil, requiere un modelado igual de cuidadoso
 para que coincida con el modelo 'genserkins' derivado en este documento.
 
 [NOTE]
-
 Puede haber errores y/o defectos: ¡use bajo su propio riesgo!
 
 == General
@@ -102,11 +98,9 @@ imposible definir la posición 0° de nuestras articulaciones de robots de forma
 Los tres parámetros configurables son:
 
 . *alpha*: rotación positiva o negativa (en radianes) alrededor del eje X
-del "sistema de coordenadas actual"
-
+  del "sistema de coordenadas actual"
 . *a*: distancia positiva, a lo largo de X, entre dos ejes de articulacion especificados en
-'unidades máquina' (mm o pulgadas) definidas en el archivo ini del sistema.
-
+  'unidades máquina' (mm o pulgadas) definidas en el archivo ini del sistema.
 . *d*: longitud positiva o negativa a lo largo de Z (también en 'unidades máquina')
 
 Los conjuntos de parámetros siempre se derivan en el mismo orden y un conjunto es

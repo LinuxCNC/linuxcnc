@@ -18,7 +18,7 @@ F2 --------- Machine On
 Ctrl-Home -- Home All
 R ---------- Run program
 
-You can also experiment with MDI for the releveant
+You can also experiment with MDI for the relevant
 commands (TnM6, T0M6, G10L0, G10L1, G10L10, M61)
 
 The default program runs a loop that a) loads tool
@@ -30,7 +30,7 @@ The display will show different zoffsets at each
 tool change since the tool data includes several
 tools with the same diameter but different
 zoffsets and the applied database rule selects the
-tool with the minimun time usage.  Since the pause
+tool with the minimum time usage.  Since the pause
 time is nominally the same for each tool offered,
 the database will select different tools for T10
 with each reload.

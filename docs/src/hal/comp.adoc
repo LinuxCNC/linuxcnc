@@ -1,5 +1,6 @@
-[[cha:hal-component-generator]]
+:lang: en
 
+[[cha:hal-component-generator]]
 = The HAL Component Generator
 
 == Introduction
@@ -16,7 +17,6 @@ lines of code. The equivalent component is very short when written using the
 'halcompile' preprocessor:
 
 [[code:simple-comp-example]]
-
 .Simple Component Example
 ----
 component ddt "Compute the derivative of the input function";
@@ -64,21 +64,21 @@ To test your component you can follow the examples in the
 == Definitions
 
 * 'component' - A component is a single real-time module, which is loaded with
-    'halcmd loadrt'. One '.comp' file specifies one component. The component
-    name and file name must match.
+  'halcmd loadrt'. One '.comp' file specifies one component. The component
+  name and file name must match.
 
 * 'instance' - A component can have zero or more instances. Each instance of a
-    component is created equal (they all have the same pins, parameters,
-    functions, and data) but behave independently when their pins,
-    parameters, and data have different values.
+  component is created equal (they all have the same pins, parameters,
+  functions, and data) but behave independently when their pins,
+  parameters, and data have different values.
 
 * 'singleton' - It is possible for a component to be a "singleton", in which case
-    exactly one instance is created. It seldom makes sense to write a
-    'singleton'  component, unless there can literally only be a single
-    object of that
-    kind in the system (for instance, a component whose purpose is to
-    provide a pin with the current UNIX time, or a hardware driver for the
-    internal PC speaker)
+  exactly one instance is created. It seldom makes sense to write a
+  'singleton'  component, unless there can literally only be a single
+  object of that
+  kind in the system (for instance, a component whose purpose is to
+  provide a pin with the current UNIX time, or a hardware driver for the
+  internal PC speaker)
 
 == Instance creation
 
@@ -126,28 +126,27 @@ alternatives. Words in 'CAPITALS' indicate variable text, as follows:
 * 'NAME' - A standard C identifier
 
 * 'STARREDNAME' - A C identifier with zero or more * before it.  This syntax can be used
-    to declare instance variables that are pointers.  Note that because of the
-    grammar, there may not be whitespace between the * and the variable name.
+  to declare instance variables that are pointers.  Note that because of the
+  grammar, there may not be whitespace between the * and the variable name.
     
 * 'HALNAME' - An extended identifier.
-    When used to create a HAL identifier, any underscores are replaced
-    with dashes, and any trailing dash or period is removed, so that
-    "this_name_" will be turned into "this-name", and if the name is "_",
-    then a trailing period is removed as well, so that "function _" gives
-    a HAL function name like "component.<num>" instead of "component.<num>."
-+   
+  When used to create a HAL identifier, any underscores are replaced
+  with dashes, and any trailing dash or period is removed, so that
+  "this_name_" will be turned into "this-name", and if the name is "_",
+  then a trailing period is removed as well, so that "function _" gives
+  a HAL function name like "component.<num>" instead of "component.<num>."
+   
 If present, the prefix 'hal_'  is removed from the beginning of the
 component name when creating pins, parameters and functions.
-+   
+   
 In the HAL identifier for a pin or parameter, # denotes an array item,
 and must be used in conjunction with a '[SIZE]'  declaration. The hash
 marks are replaced with a 0-padded number with
 the same length as the number of # characters.
-+   
+   
 When used to create a C identifier, the following changes are applied
 to the HALNAME:
-+   
---
+
  . Any "#" characters, and any ".", "_" or "-" characters immediately
    before them, are removed.
  . Any remaining "." and "-" characters are replaced with "_". 
@@ -157,36 +156,36 @@ A trailing "_" is retained, so that HAL identifiers which would otherwise
 collide with reserved names or keywords (e.g., 'min') can be used. 
 
 [width="90%", options="header"]
-|========================================
+|===
 |HALNAME | C Identifier | HAL Identifier
 |x_y_z   | x_y_z        | x-y-z
 |x-y.z   | x_y_z        | x-y.z
 |x_y_z_  | x_y_z_       | x-y-z
 |x.##.y  | x_y(MM)      | x.MM.z
 |x.##    | x(MM)        | x.MM 
-|========================================
---
+|===
+
 * 'if CONDITION' - An expression involving the variable 'personality' which is nonzero
-    when the pin or parameter should be created
+   when the pin or parameter should be created
 
 * 'SIZE' - A number that gives the size of an array. The array items are numbered
-    from 0 to 'SIZE'-1.
+  from 0 to 'SIZE'-1.
 
 * 'MAXSIZE : CONDSIZE' - A number that gives the maximum size of the array followed by an
-    expression involving the variable 'personality' and which always
-    evaluates to less than 'MAXSIZE'. When the array is created its size
-    will be 'CONDSIZE'.
+  expression involving the variable 'personality' and which always
+  evaluates to less than 'MAXSIZE'. When the array is created its size
+  will be 'CONDSIZE'.
 
 * 'DOC' - A string that documents the item. String can be a C-style "double
-    quoted" string, like: 
-+
+  quoted" string, like: 
+  +
 ----
 "Selects the desired edge: TRUE means falling, FALSE means rising"
 ----
-+
-or a Python-style "triple quoted" string, which 
-may include embedded newlines and quote characters, such as: 
-+
+  +
+  or a Python-style "triple quoted" string, which 
+  may include embedded newlines and quote characters, such as: 
+  +
 ----
 """The effect of this parameter, also known as "the orb of zot",
 will require at least two paragraphs to explain.
@@ -194,136 +193,136 @@ will require at least two paragraphs to explain.
 Hopefully these paragraphs have allowed you to understand "zot"
 better."""
 ----
-+
-Or a string may be preceded by the literal character 'r', in which
-case the string is interpreted like a Python raw-string.
-+
-The documentation string is in "groff -man" format. For more
-information on this markup format, see 'groff_man(7)'. Remember that
-'halcompile' interprets backslash escapes in strings, so for instance
-to set the italic font for the word 'example', write: 
-+
-----
-"\\fIexample\\fB"
-----
-+
-In this case, r-strings are particularly useful, because the backslashes
-in an r-string need not be doubled:
-+
-----
-r"\fIexample\fB"
-----
+  +
+  Or a string may be preceded by the literal character 'r', in which
+  case the string is interpreted like a Python raw-string.
+  +
+  The documentation string is in "groff -man" format. For more
+  information on this markup format, see 'groff_man(7)'. Remember that
+  'halcompile' interprets backslash escapes in strings, so for instance
+  to set the italic font for the word 'example', write: 
+  +
+  ----
+  "\\fIexample\\fB"
+  ----
+  +
+  In this case, r-strings are particularly useful, because the backslashes
+  in an r-string need not be doubled:
+  +
+  ----
+  r"\fIexample\fB"
+  ----
 
 * 'TYPE' - One of the HAL types: 'bit', 'signed', 'unsigned', or 'float'. The old
-    names 's32' and 'u32' may also be used, but 'signed' and 'unsigned' are
-    preferred.
+  names 's32' and 'u32' may also be used, but 'signed' and 'unsigned' are
+  preferred.
 
 * 'PINDIRECTION' - One of the following: 'in', 'out', or 'io'. A component sets a value
-    for an 'out' pin, it reads a value from an 'in' pin, and it may read or
-    set the value of an 'io' pin.
+  for an 'out' pin, it reads a value from an 'in' pin, and it may read or
+  set the value of an 'io' pin.
 
 * 'PARAMDIRECTION' - One of the following: 'r' or 'rw'. A component sets a value for a 'r'
-    parameter, and it may read or set the value of a 'rw' parameter.
+  parameter, and it may read or set the value of a 'rw' parameter.
 
 * 'STARTVALUE' - Specifies the initial value of a pin or parameter. If it is not
-    specified, then the default is '0' or 'FALSE', depending on the type of
-    the item.
+  specified, then the default is '0' or 'FALSE', depending on the type of
+  the item.
 
 * 'HEADERFILE' - The name of a header file, either in double-quotes
-    (`include "myfile.h";`) or in angle brackets (`include
-    <systemfile.h>;`).  The header file will be included (using
-    C's #include) at the top of the file, before pin and parameter
-    declarations.
+  (`include "myfile.h";`) or in angle brackets (`include
+  <systemfile.h>;`).  The header file will be included (using
+  C's #include) at the top of the file, before pin and parameter
+  declarations.
 
 === HAL functions
 
 * 'fp' - Indicates that the function performs floating-point calculations.
 
 * 'nofp' - Indicates that it only performs integer calculations. If neither is
-    specified, 'fp' is assumed. Neither 'halcompile' nor gcc can detect the use of
-    floating-point calculations in functions that are tagged 'nofp', but use of
-    such operations results in undefined behavior.
+  specified, 'fp' is assumed. Neither 'halcompile' nor gcc can detect the use of
+  floating-point calculations in functions that are tagged 'nofp', but use of
+  such operations results in undefined behavior.
 
 === Options
 
 The currently defined options are:
 
 * 'option singleton yes' - (default: no)
-   Do not create a 'count' module parameter, and always create a single
-   instance. With 'singleton', items are named 'component-name.item-name' 
-   and without 'singleton', items for numbered instances are named 
-   'component-name.<num>.item-name'.
+  Do not create a 'count' module parameter, and always create a single
+  instance. With 'singleton', items are named 'component-name.item-name' 
+  and without 'singleton', items for numbered instances are named 
+  'component-name.<num>.item-name'.
 
 * 'option default_count number' - (default: 1)
-   Normally, the module parameter 'count' defaults to 1. If specified,
-   the 'count' will default to this value instead.
+  Normally, the module parameter 'count' defaults to 1. If specified,
+  the 'count' will default to this value instead.
 
 * 'option count_function yes' - (default: no)
-   Normally, the number of instances to create is specified in the
-   module parameter 'count'; if 'count_function' is specified, the value
-   returned by the function 'int get_count(void)' is used instead, 
-   and the 'count' module parameter is not defined.
+  Normally, the number of instances to create is specified in the
+  module parameter 'count'; if 'count_function' is specified, the value
+  returned by the function 'int get_count(void)' is used instead, 
+  and the 'count' module parameter is not defined.
 
 * 'option rtapi_app no' - (default: yes)
-   Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are
-   automatically defined. With 'option rtapi_app no', they are not, and
-   must be provided in the C code.  Use the following prototypes:
-   +
-   `int rtapi_app_main(void);`
-   +
-   `void rtapi_app_exit(void);`
-   +
-   When implementing your own `rtapi_app_main()`, call the function `int
-   export(char *prefix, long extra_arg)` to register the pins,
-   parameters, and functions for `prefix`.
+  Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are
+  automatically defined. With 'option rtapi_app no', they are not, and
+  must be provided in the C code.  Use the following prototypes:
+  +
+  `int rtapi_app_main(void);`
+  +
+  `void rtapi_app_exit(void);`
+  +
+  When implementing your own `rtapi_app_main()`, call the function `int
+  export(char *prefix, long extra_arg)` to register the pins,
+  parameters, and functions for `prefix`.
 
 * 'option data TYPE' - (default: none) *deprecated*
-   If specified, each instance of the component will have an associated
-   data block of type 'TYPE' (which can be a simple type like 'float' or the
-   name of a type created with 'typedef'). 
-   In new components, 'variable' should be used instead. 
+  If specified, each instance of the component will have an associated
+  data block of type 'TYPE' (which can be a simple type like 'float' or the
+  name of a type created with 'typedef'). 
+  In new components, 'variable' should be used instead. 
 
 * 'option extra_setup yes' - (default: no)
-   If specified, call the function defined by 'EXTRA_SETUP' for each
-   instance. If using the automatically defined 'rtapi_app_main',
-   'extra_arg' is the number of this instance.
+  If specified, call the function defined by 'EXTRA_SETUP' for each
+  instance. If using the automatically defined 'rtapi_app_main',
+  'extra_arg' is the number of this instance.
 
 * 'option extra_cleanup yes' - (default: no)
-   If specified, call the function defined by 'EXTRA_CLEANUP' from the
-   automatically defined 'rtapi_app_exit', or if an error is detected
-   in the automatically defined 'rtapi_app_main'.
+  If specified, call the function defined by 'EXTRA_CLEANUP' from the
+  automatically defined 'rtapi_app_exit', or if an error is detected
+  in the automatically defined 'rtapi_app_main'.
 
 * 'option userspace yes' - (default: no)
-   If specified, this file describes a userspace (ie, non-realtime) component, rather
-   than a regular (ie, realtime) one. A userspace component may not have functions
-   defined by the 'function'  directive. Instead, after all the 
-   instances are constructed, the C function `void user_mainloop(void);`
-   is called. When this function returns, the component exits. 
-   Typically, 'user_mainloop()' will use 'FOR_ALL_INSTS()' to 
-   perform the update action for each instance, then sleep for 
-   a short time. Another common action in 'user_mainloop()' may 
-   be to call the event handler loop of a GUI toolkit. 
+  If specified, this file describes a userspace (ie, non-realtime) component, rather
+  than a regular (ie, realtime) one. A userspace component may not have functions
+  defined by the 'function'  directive. Instead, after all the 
+  instances are constructed, the C function `void user_mainloop(void);`
+  is called. When this function returns, the component exits. 
+  Typically, 'user_mainloop()' will use 'FOR_ALL_INSTS()' to 
+  perform the update action for each instance, then sleep for 
+  a short time. Another common action in 'user_mainloop()' may 
+  be to call the event handler loop of a GUI toolkit. 
 
 * 'option userinit yes' - (default: no)
-   This option is ignored if the option 'userspace' (see above) is set to
-   'no'.  If 'userinit' is specified, the function 'userinit(argc,argv)'
-   is called before 'rtapi_app_main()' (and thus before the call to
-   'hal_init()' ). This function may process the commandline arguments or
-   take other actions. Its return type is 'void'; it may call 'exit()'
-   if it wishes to terminate rather than create a HAL component (for
-   instance, because the commandline arguments were invalid).
+  This option is ignored if the option 'userspace' (see above) is set to
+  'no'.  If 'userinit' is specified, the function 'userinit(argc,argv)'
+  is called before 'rtapi_app_main()' (and thus before the call to
+  'hal_init()' ). This function may process the commandline arguments or
+  take other actions. Its return type is 'void'; it may call 'exit()'
+  if it wishes to terminate rather than create a HAL component (for
+  instance, because the commandline arguments were invalid).
 
 * 'option extra_link_args "..."' - (default: "")
-   This option is ignored if the option 'userspace' (see above) is set to
-   'no'.  When linking a userspace component, the arguments given are inserted
-   in the link line.  Note that because compilation takes place in a temporary
-   directory, "-L." refers to the temporary directory and not the directory where
-   the .comp source file resides.
+  This option is ignored if the option 'userspace' (see above) is set to
+  'no'.  When linking a userspace component, the arguments given are inserted
+  in the link line.  Note that because compilation takes place in a temporary
+  directory, "-L." refers to the temporary directory and not the directory where
+  the .comp source file resides.
 
 * 'option extra_compile_args "..."' - (default: "")
-   This option is ignored if the option 'userspace' (see above) is set to
-   'no'.  When compiling a userspace component, the arguments given are inserted
-   in the compiler command line. 
+  This option is ignored if the option 'userspace' (see above) is set to
+  'no'.  When compiling a userspace component, the arguments given are inserted
+  in the compiler command line. 
 
 * 'option homemod yes' - (default: no)
    Module is a custom Homing module loaded using [EMCMOT]HOMEMOD=modulename
@@ -339,15 +338,15 @@ The result of using any other option is undefined.
 === License and Authorship
 
 * 'LICENSE' - Specify the license of the module for the documentation and for the
-    MODULE_LICENSE() module declaration. For example, to specify that the
-    module's license is GPL v2 or later,
+  MODULE_LICENSE() module declaration. For example, to specify that the
+  module's license is GPL v2 or later,
 
         license "GPL"; // indicates GPL v2 or later
-+   
+   
 For additional information on the meaning of MODULE_LICENSE() and
 additional license identifiers, see '<linux/module.h>'. or the manual page
 'rtapi_module_param(3)'
-+   
+   
 This declaration is required.
 
 * 'AUTHOR' - Specify the author of the module for the documentation.
@@ -361,23 +360,23 @@ This declaration is required.
 * 'variable CTYPE STARREDNAME = DEFAULT;'
 
 * 'variable CTYPE STARREDNAME[SIZE] = DEFAULT;'
-+
+
 Declare a per-instance variable 'STARREDNAME' of type 'CTYPE', optionally as
 an array of 'SIZE' items, and optionally with a default value
 'DEFAULT'. Items with no 'DEFAULT' are initialized to all-bits-zero.
 'CTYPE' is a simple one-word C type, such as 'float', 'u32', 's32',
 int, etc. Access to array variables uses square brackets. 
-+
+
 If a variable is to be of a pointer type, there may not be any space
 between the "*" and the variable name. 
 Therefore, the following is acceptable: 
-+
+
 ----
 variable int *example;
 ----
-+
+
 but the following are not: 
-+
+
 ----
 variable int* badexample;
 variable int * badexample;
@@ -422,48 +421,48 @@ details of `struct __comp_state` and these macros may change from one version
 of 'halcompile' to the next.
 
 * 'FUNCTION(name)' - Use this macro to begin the definition of a realtime function which
-    was previously declared with 'function NAME'. The function includes a
-    parameter 'period' which is the integer number of nanoseconds
-    between calls to the
-    function.
+  was previously declared with 'function NAME'. The function includes a
+  parameter 'period' which is the integer number of nanoseconds
+  between calls to the
+  function.
 
 * 'EXTRA_SETUP()' - Use this macro to begin the definition of the function called to
-    perform extra setup of this instance. Return a negative Unix 'errno'
-    value to indicate failure (e.g., 'return -EBUSY' on failure to reserve
-    an I/O port), or 0 to indicate success.
+  perform extra setup of this instance. Return a negative Unix 'errno'
+  value to indicate failure (e.g., 'return -EBUSY' on failure to reserve
+  an I/O port), or 0 to indicate success.
 
 * 'EXTRA_CLEANUP()' - Use this macro to begin the definition of the function called to
-    perform extra cleanup of the component. Note that this function must
-    clean up all instances of the component, not just one. The "pin_name",
-    "parameter_name", and "data" macros may not be used here.
+  perform extra cleanup of the component. Note that this function must
+  clean up all instances of the component, not just one. The "pin_name",
+  "parameter_name", and "data" macros may not be used here.
 
 * 'pin_name' or 'parameter_name' - For each pin 'pin_name' or param 'parameter_name'
-    there is a macro which allows the name to be used on its own to refer
-    to the pin or parameter.
-    When 'pin_name' or 'parameter_name' is an array, the macro is of the
-    form 'pin_name(idx)' or 'param_name(idx)' where 'idx'  is the index
-    into the pin array. When the array is a variable-sized
-    array, it is only legal to refer to items up to its 'condsize'.
+  there is a macro which allows the name to be used on its own to refer
+  to the pin or parameter.
+  When 'pin_name' or 'parameter_name' is an array, the macro is of the
+  form 'pin_name(idx)' or 'param_name(idx)' where 'idx'  is the index
+  into the pin array. When the array is a variable-sized
+  array, it is only legal to refer to items up to its 'condsize'.
 +
 When the item is a conditional item, it is only legal to refer to it
-    when its 'condition' evaluated to a nonzero value.
+when its 'condition' evaluated to a nonzero value.
 
 * 'variable_name' - For each variable 'variable_name'  there is a macro which allows the
-    name to be used on its own to refer
-     to the variable. When 'variable_name' is an array, the normal C-style
-    subscript is used: 'variable_name[idx]'
+  name to be used on its own to refer
+  to the variable. When 'variable_name' is an array, the normal C-style
+  subscript is used: 'variable_name[idx]'
 
 * 'data' - If "option data" is specified, this macro allows access to the
-    instance data.
+  instance data.
 
 * 'fperiod' - The floating-point number of seconds between calls to this realtime
-    function.
+  function.
 
 * 'FOR_ALL_INSTS() {...}' - For userspace components. This macro
-    iterates over all the defined instances. Inside the
-    body of the 
-     loop, the 'pin_name', 'parameter_name', and 'data' macros work as they
-    do in realtime functions.
+  iterates over all the defined instances. Inside the
+  body of the 
+  loop, the 'pin_name', 'parameter_name', and 'data' macros work as they
+  do in realtime functions.
 
 == Components with one function
 
@@ -505,7 +504,6 @@ loadrt logic names=and4,or3,nand5, personality=0x104,0x203,0x805
 ----
 
 [NOTE]
-
 If a loadrt line specifies more instances than personalities, the
 instances with unspecified personalities are assigned a
 personality of 0.  If the requested number of instances
@@ -534,7 +532,6 @@ module directory:
 ----
 
 [NOTE]
-
 sudo (for root permission) is needed when using LinuxCNC from
 a deb package install.  When using a Run-In-Place (RIP) build,
 root privileges should not be needed.
@@ -591,8 +588,8 @@ This only works for '.comp' files, not for '.c' files.
 
 === constant
 
-Note that the declaration "function _" creates functions named "constant.0"
-, etc. The file name must match the component name.
+Note that the declaration "function _" creates functions named "constant.0", etc.
+The file name must match the component name.
 
 [source,c]
 ----
@@ -789,6 +786,7 @@ A typical load line for this component might be
 ----
 loadrt logic count=3 personality=0x102,0x305,0x503
 ----
+
 which creates the following pins:
 
  - A 2-input AND gate: logic.0.and, logic.0.in-00, logic.0.in-01
@@ -854,3 +852,5 @@ A brief summary of halcompile usage is given by:
 ----
 $ halcompile --help
 ----
+
+// vim: set syntax=asciidoc:

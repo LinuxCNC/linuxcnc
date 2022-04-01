@@ -49,7 +49,7 @@ The HostMot2 firmware provides modules such as encoders, PWM generators,
 step/dir generators, and general purpose I/O pins (GPIOs).  These things are
 called "Modules".  The firmware is configured, at firmware compile time,
 to provide zero or more instances of each of these Modules.
-.SH Board I/O Pins
+.SS Board I/O Pins
 
 The HostMot2 firmware runs on an FPGA board.  The board interfaces with
 the computer via PCI, Ethernet, SPI, or EPP, and interfaces with motion
@@ -73,7 +73,7 @@ HAL interface.  IO pins that belong to active Module instances are
 constrained by the requirements of the owning Module, and have a more
 limited interface in HAL.  This is described in the General Purpose
 I/O section below.
-.SH config modparam
+.SS config modparam
 
 All the board-driver modules (hm2_pci, hm2_eth etc) accept a load-time
 modparam of type string array, named "config".  This array has one config
@@ -125,7 +125,8 @@ The valid entries in the format string are:
  [sserial_port_\fI0\fB=\fI00000000\fB]
  [num_bspis=\fIN\fB]
  [num_leds=\fIN\fB]
- [num_ssrs=\fIN\fB]
+ [num_ssrs=\fIN\fB] 
+ [num_outms=\fIN\fB]
  [num_xy2mods=\fIN\fB]
  [enable_raw]
 
@@ -250,7 +251,7 @@ no pins will be added.
 If specified, this turns on a raw access mode, whereby a user can peek and
 poke the firmware from HAL.  See Raw Mode below.
 
-.SH dpll
+.SS dpll
 The hm2dpll module has pins like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.dpll\fR"
 It is likely that the pin-count will decrease in the future and that some pins
 will become parameters. 
@@ -318,7 +319,7 @@ Used internally by the driver, likely to disappear.
 Prescale factor for the rate generator. Default 1. 
 
 
-.SH encoder
+.SS encoder
 
 Encoders have names like 
 ""hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.encoder.\fI<Instance>\fR".".
@@ -500,7 +501,7 @@ does not support DPLL, then this pin is not created.
 When available, this feature should typically be enabled.  Doing so generally
 reduces following errors.
 
-.SH Synchronous Serial Interface (SSI)
+.SS Synchronous Serial Interface (SSI)
 (Not to be confused with the Smart Serial Interface)
 
 One pin is created for each SSI instance regardless of data format:
@@ -641,7 +642,7 @@ index-homing. Non-integer factors might be appropriate where there is a
 synchronous drive ratio between the encoder and the spindle or ballscrew. 
 
 
-.SH BiSS
+.SS BiSS
 BiSS is a bidirectional variant of SSI. Currently only a single direction is
 supported by LinuxCNC (encoder to PC). 
 
@@ -664,7 +665,7 @@ although the Mesa Hostmot2 module can handle 512 bit packets. It should be
 possible to extend the number of packets supported by the driver if there is a
 requirement to do so. 
 
-.SH Fanuc encoder. 
+.SS Fanuc encoder
 The pins and format specifier for this module are identical to the SSI module
 described above, except that at least one pre-configured format is provided. 
 A modparam of fanuc_chan_N=AA64 (case sensitive) will configure the channel for
@@ -681,7 +682,7 @@ a Fanuc Aa64 encoder. The pins created are:
  hm2_XXXX.N.fanuc.MM.valid               Indicates that the absolute position is valid
  hm2_XXXX.N.fanuc.MM.valid\-not           Inverted version
 
-.SH resolver
+.SS resolver
 Resolvers have names like 
 hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.resolver.\fI<Instance>\fR.
 <Instance is a 2-digit number, which for the 7i49 board will be between 00 and
@@ -797,7 +798,7 @@ In conjunction with \fBjoint-pos-fb\fR (qv) emulate absolute encoders.
 
 
 
-.SH pwmgen
+.SS pwmgen
 
 pwmgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.pwmgen.\fI<Instance>\fR".
@@ -892,7 +893,7 @@ different max PDM frequencies.  If the user attempts to set the frequency
 too high, it will be clipped to the max supported frequency of the board.
 The default pdm_frequency is 20,000 Hz (20 kHz).
 
-.SH 3ppwmgen
+.SS 3ppwmgen
 Three-Phase PWM generators (3pwmgens) are intended for controlling the high-side
 and low-side gates in a 3-phase motor driver. The function is included to
 support the Mesa motor controller daughter-cards but can be used to control
@@ -970,7 +971,7 @@ that affects all instances
 Sets the master PWM frequency. Maximum is approx 48kHz, minimum
 is 1kHz. Defaults to 20kHz.
 
-.SH rcpwmgen
+.SS rcpwmgen
 The rcpwmgen is a simple PWM generator optimized for use with standard RC servos
 that use pulse width to determine position. 
 rcpwmgens have names like "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.rcpwmgen.\fI<Instance>\fR"
@@ -1003,7 +1004,7 @@ and the offset to 1.5 mS would result in a position range of +-45 degrees
 scale in degrees for 1-2 mS servos with a full motion range of 90 degrees 
 
 
-.SH stepgen
+.SS stepgen
 
 stepgens have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.stepgen.\fI<Instance>\fR".
@@ -1196,7 +1197,7 @@ does not support DPLL, then this pin is not created.
 When available, this feature should typically be enabled.  Doing so generally
 reduces following errors.
 
-.SH Smart Serial Interface
+.SS Smart Serial Interface
 
 The Smart Serial Interface allows up to 32 different devices such as the Mesa
 8i20 2.2kW 3-phase drive or 7i64 48-way IO cards to be connected to a single
@@ -1207,7 +1208,7 @@ Devices can be connected in any order to any active channel of an active port.
 
 For full details of the smart-serial devices see \fBman sserial\fR.
 
-.SH BSPI
+.SS BSPI
 The BSPI (Buffered SPI) driver is unusual in that it does not create any HAL
 pins. Instead the driver exports a set of functions that can be used by a sub-driver
 for the attached hardware. Typically these would be written in the "comp"
@@ -1223,7 +1224,7 @@ The names of the available channels are printed to standard output during the
 driver loading process and take the form
 hm2_<board name>.<board index>.bspi.<index> For example hm2_5i23.0.bspi.0
 
-.SH UART
+.SS UART
 The UART driver also does not create any HAL pins, instead it declares two 
 simple read/write functions and a setup function to be utilised by user-written
 code.  Typically this would be written in the "comp"
@@ -1236,7 +1237,7 @@ hm2_uart_setup.
 The names of the available uart channels are printed to standard output during the
 driver loading process and take the form
 hm2_<board name>.<board index>uart.<index> For example hm2_5i23.0.uart.0
-.SH General Purpose I/O
+.SS General Purpose I/O
 
 I/O pins on the board which are not used by a module instance are exported
 to HAL as "full" GPIO pins.  Full GPIO pins can be configured at run-time
@@ -1332,7 +1333,7 @@ and
 .BR hm2_5i20.0.gpio.023.invert_output )
 are both created.
 
-.SH inm and inmux
+.SS inm and inmux
 inm/inmuxs are input debouncing modules that support hardware digital filtering of input pins.
 In addition to the input filtering function, the inm/inmux modules support up to 4 simple quadrature
 counters for MPG use. The quadrature inputs for MPG encoders 0 through 3 are inm/inmux pins 0 through 7. 
@@ -1399,7 +1400,7 @@ when False.
 This read only parameter specifies the number of inputs scanned by the module.
 
 
-.SH led
+.SS led
 
 Creates HAL pins for the LEDs on the FPGA board.
 
@@ -1411,7 +1412,7 @@ The pins are numbered from CR01 upwards with the name
 corresponding to the PCB silkscreen. Setting the bit to "True" or 1 lights
 the LED.
 
-.SH Solid State Relay
+.SS Solid State Relay
 
 SSRs have names like
 "hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.ssr.\fI<Instance>\fR".
@@ -1439,9 +1440,33 @@ make them act like a closed switch.
 
 .TP
 (bit in) invert-NN
-Inverts the state of the this SSR instance's NNth output, defaults to 0. 
+Inverts the state of this SSR instance's NNth output, defaults to 0. 
 When invert-NN is set to 1, SSR output NN is closed when the out-NN 
 pin is 0 and open when the out-NN pin is 1
+
+.SH OutM Simple output module
+
+OutMs have names like
+"hm2_\fI<BoardType>\fR.\fI<BoardNum>\fR.OutM.\fI<Instance>\fR".
+"Instance" is a two-digit number that corresponds to the HostMot2 OutM
+instance number.  There are 'num_outms' instances, starting
+with 00.
+
+Each instance has between 1 and 32 output pins.
+
+Pins:
+
+
+.TP
+(bit in) out-NN
+The sets the state of this OutM instance's NNth output. Normally the output
+pin follows the state of this pin but may be inverted by the invert-nn hal pin 
+
+.TP
+(bit in) invert-NN
+Inverts the state of the this OutM instance's NNth output, defaults to 0. 
+When invert-NN is set to 1, OutM output NN is high when the out-NN 
+pin is 0 and low when the out-NN pin is 1
 
 .SH xy2mod
 
@@ -1528,7 +1553,7 @@ If set to -1, pre-read sampling is disabled.
 Selects the DPLL timer number for post write update of the position and velocity registers. 
 If set to -1, post write update is disabled.
 
-.SH Watchdog
+.SS Watchdog
 
 The HostMot2 firmware may include a watchdog Module; if it does, the
 hostmot2 driver will use it.  The HAL representation of the watchdog is
@@ -1570,7 +1595,7 @@ Watchdog timeout, in nanoseconds.  This is
 initialized to 5,000,000 (5 milliseconds) at module load time.  If more
 than this amount of time passes between calls to the hm2 write()
 function, the watchdog will bite.
-.SH Raw Mode
+.SS Raw Mode
 
 If the "enable_raw" config keyword is specified, some extra debugging
 pins are made available in HAL.  The raw mode HAL pin names begin with
@@ -1612,7 +1637,7 @@ This pin is normally False.  If it gets set to
 True the hostmot2 driver will write its representation of the board's
 internal state to the syslog, and set the pin back to False.
 
-.SH Setting up Smart Serial devices 
+.SS Setting up Smart Serial devices 
 
 See man setsserial for the current way to set smart-serial eeprom parameters. 
 
@@ -1683,7 +1708,10 @@ hm2_7i43(9)
 hm2_7i90(9)
 .br
 
-Mesa's documentation for the Anything I/O boards, at <http://www.mesanet.com>
+Mesa's documentation for the Anything I/O boards, at 
+.UR
+http://www.mesanet.com
+.UE
 .br
 .SH LICENSE
 

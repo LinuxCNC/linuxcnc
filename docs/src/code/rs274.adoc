@@ -1,5 +1,6 @@
-[[cha:rs274]]
+:lang: en
 
+[[cha:rs274]]
 = Stand Alone Interpreter
 
 The rs274 stand alone interpreter is available for use via the command line.
@@ -54,3 +55,5 @@ T3 P3 Z1.273 D0.201 ;#7 tap drill
 ----
 rs274 -g test.ngc -t test.tbl
 ----
+
+// vim: set syntax=asciidoc:

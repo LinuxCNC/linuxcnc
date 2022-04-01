@@ -71,10 +71,21 @@ class MDI(QLineEdit):
         if text == '': return
         if text == 'HALMETER':
             AUX_PRGM.load_halmeter()
-        elif text == 'STATUS':
-            AUX_PRGM.load_status()
+        elif text.startswith('HALMETER'):
+            args = text.replace('HALMETER', '').strip()
+            AUX_PRGM.load_halmeter(args)
         elif text == 'HALSHOW':
             AUX_PRGM.load_halshow()
+        elif text.startswith('HALSHOW'):
+            args = text.replace('HALSHOW', '').strip()
+            AUX_PRGM.load_halshow(args)
+        elif text == 'HALSCOPE':
+            AUX_PRGM.load_halscope()
+        elif text.startswith('HALSCOPE'):
+            args = text.replace('HALSCOPE', '').strip()
+            AUX_PRGM.load_halscope(args)
+        elif text == 'STATUS':
+            AUX_PRGM.load_status()
         elif text == 'CLASSICLADDER':
             AUX_PRGM.load_ladder()
         elif text == 'HALSCOPE':
@@ -134,17 +145,17 @@ class MDI(QLineEdit):
         if arguments == 2:
             halpin, value = setpString.lower().replace('setp ','').split(' ')
         else:
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nsetp requires 2 arguments, {} given\n'.format(arguments))
+            ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nsetp requires 2 arguments, {} given\n'.format(arguments))
             return
         try:
             hal.get_value(halpin)
         except Exception as err:
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\n{}\n'.format(err))
+            ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\n{}\n'.format(err))
             return
         try:
             hal.set_p(halpin, value)
         except Exception as err:
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\n"{}" {}\n'.format(halpin, err))
+            ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\n"{}" {}\n'.format(halpin, err))
             return
         if type(hal.get_value(halpin)) == bool:
             if value.lower() in ['true', '1']:
@@ -152,28 +163,28 @@ class MDI(QLineEdit):
             elif value.lower() in ['false', '0']:
                 value = False
             else:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nValue "{}" invalid for a BIT pin/parameter\n'.format(value))
+                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nValue "{}" invalid for a BIT pin/parameter\n'.format(value))
                 return
             if hal.get_value(halpin) != value:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nBIT value comparison error\n')
+                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nBIT value comparison error\n')
                 return
         elif type(hal.get_value(halpin)) == float:
             try:
                 value = float(value)
             except:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nValue "{}" invalid for a Float pin/parameter\n'.format(value))
+                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nValue "{}" invalid for a Float pin/parameter\n'.format(value))
                 return
             if hal.get_value(halpin) != value:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nFloat value comparison error\n')
+                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nFloat value comparison error\n')
                 return
         else:
             try:
                 value = int(value)
             except:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nValue "{}" invalid for S32 or U32 pin/parameter\n'.format(value))
+                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nValue "{}" invalid for S32 or U32 pin/parameter\n'.format(value))
                 return
             if hal.get_value(halpin) != value:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'SETP UNSUCCESSFUL:\nS32 or U32 value comparison error\n')
+                ACTION.SET_ERROR_MESSAGE('SETP UNSUCCESSFUL:\nS32 or U32 value comparison error\n')
                 return
 
     def spindle_inhibit(self, state):
@@ -182,13 +193,13 @@ class MDI(QLineEdit):
     # inhibit m3, m4, and m5 commands for plasma configs using the plasmac component
     def inhibit_spindle_commands(self, text):
         if 'm3' in text.lower().replace(' ',''):
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\nM3 commands are not allowed in MDI mode\n')
+            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM3 commands are not allowed in MDI mode\n')
             return(1)
         elif 'm4' in text.lower().replace(' ',''):
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\nM4 commands are not allowed in MDI mode\n')
+            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM4 commands are not allowed in MDI mode\n')
             return(1)
         elif 'm5' in text.lower().replace(' ',''):
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'MDI ERROR:\nM5 commands are not allowed in MDI mode\n')
+            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM5 commands are not allowed in MDI mode\n')
             return(1)
         return(0)
 

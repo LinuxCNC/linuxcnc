@@ -736,16 +736,23 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     # see if the INI specified an optional new label
     # if so apply it, otherwise skip and use the original text
     def setMDILabel(self):
+        # if the MDI command is missing set a tooltip to say so
+        try:
+            mdi = INFO.MDI_COMMAND_LIST[self.ini_mdi_num]
+        except:
+            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(self.ini_mdi_num)
+            self.setToolTip(msg)
+            return
+
+        # otherwise set any optional label
         try:
             label = INFO.MDI_COMMAND_LABEL_LIST[self.ini_mdi_num]
             self.setToolTip(INFO.MDI_COMMAND_LIST[self.ini_mdi_num].replace(';', '\n'))
-            if label is None:
-                return
             label = label.replace(r'\n', '\n')
             self.setText(label)
-
         except:
             return
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor

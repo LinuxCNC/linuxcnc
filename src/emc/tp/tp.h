@@ -78,6 +78,8 @@ void tpMotFunctions(void(*pDioWrite)(int,char)
                    ,void(*pAioWrite)(int,double)
                    ,void(*pSetRotaryUnlock)(int,int)
                    ,int( *pGetRotaryUnlock)(int)
+                   ,double(*paxis_get_vel_limit)(int)
+                   ,double(*paxis_get_acc_limit)(int)
                    );
 
 void tpMotData(emcmot_status_t *

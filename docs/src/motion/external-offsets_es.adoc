@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:external-offsets]]
-
 = Offsets Externos de Ejes
 
 Los offsets externos de ejes estan soportados durante los movimientos teleop (universal)
@@ -27,11 +26,13 @@ Para cada letra de eje (*L* será uno de x,y,z,a,b,c,u,v,w):
 . Si no es cero, OFFSET_AV_RATIO (*r*), ajusta la velocidad y aceleración máxima convencional (planificada)
   para preservar las restricciones en [AXIS_L]:
 
-  velocidad máxima planificada   = (1-r) * MAX_VELOCITY
-  velocidad de offset externo    = (  r) * MAX_VELOCITY
+----
+velocidad máxima planificada   = (1-r) * MAX_VELOCITY
+velocidad de offset externo    = (  r) * MAX_VELOCITY
 
-  aceleración máxima planificada = (1-r) * MAX_ACCELERATIOIN
-  aceleración de offset externo  = (  r) * MAX_ACCELERATION
+aceleración máxima planificada = (1-r) * MAX_ACCELERATIOIN
+aceleración de offset externo  = (  r) * MAX_ACCELERATION
+----
 
 == Pines Hal
 

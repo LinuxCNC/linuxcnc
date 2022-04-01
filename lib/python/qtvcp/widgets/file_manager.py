@@ -122,7 +122,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb = QComboBox()
         self.cb.currentIndexChanged.connect(self.filterChanged)
         self.fillCombobox(INFO.PROGRAM_FILTERS_EXTENSIONS)
-        self.cb.setMinimumHeight(30)
+        self.cb.setMinimumSize(200,30)
         self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.button2 = QToolButton()

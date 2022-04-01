@@ -19,6 +19,7 @@
 /* for debugging */
 extern int printf(const char * fmt, ...);
 #include <stddef.h>		/* NULL */
+#include <string.h>		/* memset */
 
 #include "rtapi_math.h"
 #include <float.h>
@@ -1764,6 +1765,8 @@ int go_cart_cart_pose(const go_cart * v1, const go_cart * v2,
   go_real d[4], e[4];
   go_real eigenval;
   int retval;
+
+  memset(&Nspace,0,sizeof(Nspace));
 
   Sxx = Sxy = Sxz = 0.0;
   Syx = Syy = Syz = 0.0;

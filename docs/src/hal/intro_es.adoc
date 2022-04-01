@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:hal-introduction]]
-
 = Introducción a HAL
 
 HAL(((HAL))) significa 'capa de abstracción de hardware'. Al más alto

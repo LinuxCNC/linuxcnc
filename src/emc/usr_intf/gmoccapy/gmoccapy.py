@@ -155,6 +155,10 @@ class gmoccapy(object):
             button {
                 padding: 0;
             }
+            #gcode_edit { 
+                padding: 3px;
+                margin: 1px;
+            }
         """
         provider.load_from_data(css)
 
@@ -226,6 +230,7 @@ class gmoccapy(object):
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
 
         self.file_changed = False
+        self.widgets.hal_action_saveas.connect("saved-as", self.saved_as)
 
         self.lathe_mode = None # we need this to check if we have a lathe config
         self.backtool_lathe = False
@@ -475,7 +480,8 @@ class gmoccapy(object):
         # call the function to change the button status
         # so every thing is ready to start
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
-                      "ntb_jog", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
+                      "ntb_jog", "ntb_jog_JA", "vbtb_jog_incr", "hbox_jog_vel", 
+                      "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
                       "rbt_reverse", "rbt_stop", "tbtn_flood", "tbtn_mist", "btn_change_tool",
                       "btn_select_tool_by_no", "btn_spindle_100", "spc_rapid", "spc_spindle",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z"
@@ -483,6 +489,10 @@ class gmoccapy(object):
         #
         self._sensitize_widgets(widgetlist, False)
 
+        # if limit switch active, activate ignore-checkbox
+        if any(self.stat.limit):
+            self.widgets.ntb_jog.set_sensitive(True)
+            
         # this must be done last, otherwise we will get wrong values
         # because the window is not fully realized
         self._init_notification()
@@ -562,10 +572,6 @@ class gmoccapy(object):
         self.scale_spindle_override = self.prefs.getpref("scale_spindle_override", 1, float)
         self.scale_feed_override = self.prefs.getpref("scale_feed_override", 1, float)
         self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
-
-        # holds the max velocity value and is needed to be able to jog at
-        # at max velocity if <SHIFT> is hold during jogging
-        self.max_velocity = self.stat.max_velocity
 
         # the velocity settings
         self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
@@ -973,7 +979,11 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
             btn.show()
 
-        btn = Gtk.Button.new_with_label(_("    set\nselected"))
+        lbl = Gtk.Label.new(_("set\nselected"))
+        lbl.set_visible(True)
+        lbl.set_justify(Gtk.Justification.CENTER)
+        btn = Gtk.Button.new()
+        btn.add(lbl)
         btn.connect("clicked", self._on_btn_set_selected_clicked)
         btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
         btn.set_property("name", "set_active")
@@ -1098,7 +1108,7 @@ class gmoccapy(object):
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_property("max") / 60
             else:
-                value = self.stat.max_velocity
+                value = self.jog_rate_max
         else:
             if button_name[0] in "abc":
                 value = self.widgets.spc_ang_jog_vel.get_value() / 60
@@ -2187,16 +2197,16 @@ class gmoccapy(object):
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 title = "Pin " + message[2] + " message"
-                responce = self.dialogs.show_user_message(self, message[0], title)
+                response = self.dialogs.show_user_message(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         elif message[1] == "yesnodialog":
             if pin.get():
                 self.halcomp["messages." + message[2] + "-waiting"] = 1
                 self.halcomp["messages." + message[2] + "-response"] = 0
                 title = "Pin " + message[2] + " message"
-                responce = self.dialogs.yesno_dialog(self, message[0], title)
+                response = self.dialogs.yesno_dialog(self, message[0], title)
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
-                self.halcomp["messages." + message[2] + "-response"] = responce
+                self.halcomp["messages." + message[2] + "-response"] = response
             else:
                 self.halcomp["messages." + message[2] + "-waiting"] = 0
         else:
@@ -2545,6 +2555,12 @@ class gmoccapy(object):
         self.widgets.vbtb_jog_incr.set_sensitive(False)
         self.widgets.hbox_jog_vel.set_sensitive(False)
 
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
+
     def on_hal_status_state_off(self, widget):
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "btn_homing", "btn_touch", "btn_tool",
                       "hbox_jog_vel", "ntb_jog_JA", "vbtb_jog_incr", "spc_feed", "btn_feed_100", "rbt_forward", "btn_index_tool",
@@ -2577,6 +2593,12 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
 
+        # activate limit override only if limit switch active
+        if any(self.stat.limit):
+            self.widgets.chk_ignore_limits.set_sensitive(True)
+        else:
+            self.widgets.chk_ignore_limits.set_sensitive(False)
+
     def on_hal_status_override_limits_changed(self, object, state, limits_list):
         # object = hal_status from glade file
         # state = true if override_limit is active
@@ -2588,7 +2610,13 @@ class gmoccapy(object):
         # state = true if limit has been tripped
         # lst_limits = list of joint limits that has been tripped ([0,0],[0,1],[0,0])
         self.widgets.chk_ignore_limits.set_sensitive(state)
-
+        if state:
+            # sensitize ntb_jog when limit tripped
+            self.widgets.ntb_jog.set_sensitive(True)
+        else:
+            # refresh immediately when limit is no longer active
+            self.widgets.chk_ignore_limits.set_active(False)
+            
     def on_hal_status_mode_manual(self, widget):
         print ("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
@@ -2825,6 +2853,15 @@ class gmoccapy(object):
         self.command.state(linuxcnc.STATE_ESTOP)
         Gtk.main_quit()
 
+    def on_focus_out(self, widget, data=None):
+        self.stat.poll()
+        if self.stat.enabled and self.stat.task_mode == linuxcnc.MODE_MANUAL and self.stat.current_vel > 0:
+            # cancel any joints jogging
+            JOGMODE = self._get_jog_mode()
+            for jnum in range(self.stat.joints):
+                self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
+            print("Stopped jogging on focus-out-event")
+
     # What to do if a macro button has been pushed
     def _on_btn_macro_pressed( self, widget = None, data = None ):
         o_codes = data.split()
@@ -3015,7 +3052,7 @@ class gmoccapy(object):
                 return
 
             if (keyname == "R" or keyname == "r") and self.stat.interp_state == linuxcnc.INTERP_IDLE:
-                if event.state & Gdk.CONTROL_MASK:
+                if event.state & Gdk.ModifierType.CONTROL_MASK:
                     print("R und Control gedrückt")
                     self.widgets.hal_action_reload.emit("activate")
                 else:
@@ -4028,8 +4065,8 @@ class gmoccapy(object):
     def on_btn_back_clicked(self, widget, data=None):
         if self.widgets.ntb_button.get_current_page() == _BB_EDIT:  # edit mode, go back to auto_buttons
             if self.file_changed:
-                message = "Do you want to exit without saving the changes?"
-                result = self.dialogs.yesno_dialog(self, message, _("Attention!!"))
+                message = _("Exit and discard changes?")
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
                 if not result: # user says no, he want to save
                     return
             self.widgets.ntb_button.set_current_page(_BB_AUTO)
@@ -4480,7 +4517,8 @@ class gmoccapy(object):
                 except:
                     message = _("Tool\n\n# {0:d}\n\n not in the tool table!").format(toolnumber)
 
-            result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"))
+            result = self.dialogs.warning_dialog(self, message, title=_("Manual Tool change"),\
+                confirm_pin = 'toolchange-confirm', active_pin = 'toolchange-change')
             if result:
                 self.halcomp["toolchange-changed"] = True
             else:
@@ -4772,9 +4810,9 @@ class gmoccapy(object):
         self.gcodeerror = ""
         self.file_changed = False
 
-    def on_gcode_view_changed(self, state):
-        print("gcode view changed")
-        self.file_changed = True
+    def on_gcode_view_changed(self, widget, state):
+        print("gcode view changed (modified: {})".format(state))
+        self.file_changed = state
 
     # Search and replace handling in edit mode
     # undo changes while in edit mode
@@ -4852,6 +4890,9 @@ class gmoccapy(object):
             # self.command.program_open(tempfilename)
         self.widgets.gcode_view.grab_focus()
         self.widgets.btn_save.set_sensitive(False)
+
+    def saved_as(self, widget):
+        self.widgets.btn_save.set_sensitive(True)
 
     def on_tbtn_optional_blocks_toggled(self, widget, data=None):
         opt_blocks = widget.get_active()
@@ -5288,6 +5329,10 @@ class gmoccapy(object):
         self.halcomp.newpin("toolchange-changed", hal.HAL_BIT, hal.HAL_OUT)
         pin = self.halcomp.newpin('toolchange-change', hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect('value_changed', self.on_tool_change)
+        self.halcomp.newpin('toolchange-confirm', hal.HAL_BIT, hal.HAL_IN)
+
+        # make a pin to confirm a warning dialog
+        self.halcomp.newpin('warning-confirm', hal.HAL_BIT, hal.HAL_IN)
 
         # make a pin to reset feed override to 100 %
         pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)

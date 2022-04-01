@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QOpenGLWidget, QSlider,
 
 import OpenGL.GL as GL
 from OpenGL import GLU
-from .primitives import *
+from qtvcp.lib.qt_vismach.primitives import *
 
 
 class Window(QWidget):
@@ -388,12 +388,16 @@ class GLWidget(QOpenGLWidget):
         return angle
 
 
-def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0):
+def main(model, tool, work, size=10, hud=None, rotation_vectors=None, lat=0, lon=0):
     app = QApplication(sys.argv)
 
     window = Window()
     t = window.glWidget
     t.set_latitudelimits(-180, 180)
+
+    if not hud is None:
+        t.hud = hud
+        t.hud.app = t #HUD needs to know where to draw
 
     world = Capture()
 

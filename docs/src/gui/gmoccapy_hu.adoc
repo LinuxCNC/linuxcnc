@@ -1,6 +1,7 @@
-= gmoccapy
+:lang: hu
 
 [[cha:gmoccapy-hu]]
+= gmoccapy
 
 == Bevezetés
 
@@ -72,7 +73,8 @@ Egy létezõ konfiguráció használata esetén módosítani kell az INI fájlt 
 
 Vegyünk egy közelebbi pillantást az INI fájlra, minek kell szerepelni a gmoccapy használatához: +
 
-=== A DISPLAY fejezet [[sub:the_display_section]]
+[[sub:the_display_section]]
+=== A DISPLAY fejezet
 
  [DISPLAY]
  DISPLAY = gmoccapy
@@ -286,7 +288,8 @@ Részletes leírás a pango nyelvrõl itt található: https://developer.gnome.o
 
 Az idetartozó HAL láb névkonvenciók a HAl lábak fejezetben találhatóak <<sub:User_Created_Message_HAL_Pins, User Messages hal pin section>>
 
-=== The RS274NGC Fejezet [[sub:RS274NGC]]
+[[sub:RS274NGC]]
+=== The RS274NGC Fejezet
 
  [RS274NGC]
  SUBROUTINE_PATH = macros
@@ -294,7 +297,8 @@ Az idetartozó HAL láb névkonvenciók a HAl lábak fejezetben találhatóak <<
 A fenti sor beállítja a makrók és egyéb szubrutinok elérési útvonalát
 
 
-=== The MACRO Fejezet [[sub:MACROS]]
+[[sub:MACROS]]
+=== The MACRO Fejezet
 A Touchy felülethez hasonlóan a gmoccapy-ban is van lehetõség a makrók definiálására. +
 A makró semmi más mint egy G-kódot tartalmazó fájl.  +
 MDI módban lehetõség van ezeket a makrókat egy gombnyomásra végrehajtani. +
@@ -364,7 +368,8 @@ Az adott makróhoz tartozó gomb lenyomásakor a makró bekéri az X-pos, Y-pos,
 
 image::images/gmoccapy_getting_macro_info.png[align="left"]
 
-=== The TRAJ Fejezet[[sub:The_TRAJ_Section]]
+[[sub:The_TRAJ_Section]]
+=== The TRAJ Fejezet
 
  MAX_VELOCITY = 230.000
 
@@ -484,7 +489,8 @@ ha az INI fájlban 4. tengely van definiálva, akkor az alábbi két láb elérh
 * gmoccapy.jog-c-plus
 * gmoccapy.jog-c-minus
 
-=== Léptetési sebességek és teknős-lépés HAL láb [[sub:Jog_Vel_and_Turtle-Jog]]
+[[sub:Jog_Vel_and_Turtle-Jog]]
+=== Léptetési sebességek és teknős-lépés HAL láb
 A léptetési sebesség  értéke beállítható a megfelelő csúszkával. +
 A csúszka léptéke változik a lassú ("teknős") módba való kapcsolással. Ha a gomb nem látható akkor lehet, hogy letiltásra került itt:  <<sub:turtle_jog,Beállítások oldal>>. 
 Ha a nyulat ábrázoló gomb látszik akkor a sebssség a minimális és maximális értékek között változhat. Ha a gomb teknőst ábrázol, akkor a maximális sebesség 1/20-a lesz csak elérhető alapértelmezésben. 
@@ -510,7 +516,8 @@ Ha 6 inkrementum van akkor a következő HAL  *7* láb lesz elérhető:
 
 jog-inc-0 értéke nem változtatható és folyamatos léptetést jelent.
 
-=== Hardver zárolás láb [[sub:hardware_unlock_pin]]
+[[sub:hardware_unlock_pin]]
+=== Hardver zárolás láb
 A beállítások zárolásához és a zárolás feloldásához lehetséges egy kölső hardver kulccsal is, ennek érdekében egy HAL láb kerül kiexportálásra:
 
 * gmoccapy.unlock-settings
@@ -530,7 +537,8 @@ delete the first error and reset the gmoccapy.error pin to False after the last 
 NOTE: Messages or user infos will not affect the gmoccapy.error pin, but the gmoccapy.delete-message
 pin will delete the last message if no error is shown!
 
-=== User Created Message HAL Pins [[sub:User_Created_Message_HAL_Pins]]
+[[sub:User_Created_Message_HAL_Pins]]
+=== User Created Message HAL Pins
 gmoccapy may react to external errors, using 3 different user messages: +
 Mind HAL_BIT lábak. +
 
@@ -542,7 +550,7 @@ Mind HAL_BIT lábak. +
 
 * gmoccapy.messages.yesnodialog
 * gmoccapy.messages.yesnodialog-waiting
-* gmoccapy.messages.yesnodialog-responce
+* gmoccapy.messages.yesnodialog-response
 
 'Okdialog'
 
@@ -635,7 +643,8 @@ sending an G43 after any tool change, *but not in auto mode!*
 
 IMPORTANT: So writing a program makes you responsible to include an G43 after each tool change!
 
-== Auto Tool Measurement [[sub:Auto_Tool_Measurement]]
+[[sub:Auto_Tool_Measurement]]
+== Auto Tool Measurement
 
 Gmoccapy offers an integrated auto tool measurement. +
 To use this feature, you will need to do some additional settings and you may want to use the
@@ -768,7 +777,8 @@ In your postgui.hal file add:
  net tool-prep-loop         iocontrol.0.tool-prepare      <=   iocontrol.0.tool-prepared
 -------
 
-== The settings page [[sub:The_settings_page]]
+[[sub:The_settings_page]]
+== The settings page
 To enter the page you will have to click on:
 
 image::images/gmoccapy_settings_button.png[align="left"]
@@ -1007,7 +1017,8 @@ the main screen. It is no error giving wrong values. If you give a maximum of 20
  MIN = 0
  MAX = 6000
 
-==== Turtle Jog [[sub:turtle_jog]]
+[[sub:turtle_jog]]
+==== Turtle Jog
 This settings will have influence on the jog velocities.
 
 * 'hide turtle jog button' will hide the button right of the jog velocity slider, if you hide this button, please take care that it shows the rabbit icon, otherwise you will not be able to jog faster than the turtle jog velocity, which is calculated using the turtle jog factor.
@@ -1019,7 +1030,8 @@ NOTE: This button can be activated using the <<sub:Jog_Vel_and_Turtle-Jog,turtle
 
 image::images/gmoccapy_settings_advanced.png[align="left"]
 
-==== Tool Measurement [[sub:Tool_Measurement_Setup]]
+[[sub:Tool_Measurement_Setup]]
+==== Tool Measurement
 If this part is not sensitive, you do not have a valid INI file configuration to use tool measurement.
 
 Please check <<sub:Auto_Tool_Measurement, Auto Tool Measurement>>
@@ -1062,7 +1074,8 @@ You can do that by checking the checkbox, that will hide: +
  * column of 4'th axis in the offsetpage
  * column of 4'th axis in the tolleditor
 
-==== Message behavior and appearance [[sub:Message_behavior_and_appearance]]
+[[sub:Message_behavior_and_appearance]]
+==== Message behavior and appearance
 This will display small popup windows displaying the message or error text, the behavior is very similar
 to the one axis uses. You can delete a specific message, by clicking on it's close button, if you want
 to delete the last one, just hit the WINDOWS key on your keyboard, or delete all messages
@@ -1095,7 +1108,8 @@ Default is disable run from line
 If this button is active, nearly every button press or relevant action of LinuxCNC will be logged in the ALARM history.
 This is very useful for debugging.
 
-== LATHE specific section [[sub:LATHE_specific_section]]
+[[sub:LATHE_specific_section]]
+== LATHE specific section
 If in the INI File LATHE = 1 is given, the GUI will change its appearance to the special needs for a lathe.
 Mainly the Y axis will be hidden and the jog buttons will be arranged in a different order.
 
@@ -1163,7 +1177,8 @@ Hardveres nyomógombok angolul = http://www.youtube.com/watch?v=ItVWJBK9WFA
 === Felhasználói fülek
 Felhasználói fülek angolul = http://www.youtube.com/watch?v=rG1zmeqXyZI
 
-=== Tool_Measurement_Video [[sub:Tool_Measurement_Videos]]
+[[sub:Tool_Measurement_Videos]]
+=== Tool_Measurement_Video
 English Auto Tool Measurement Simmulation = http://youtu.be/rrkMw6rUFdk +
 English Auto Tool Measurement Screen = http://youtu.be/Z2ULDj9dzvk +
 English Auto Tool Measurement Machine = http://youtu.be/1arucCaDdX4 +

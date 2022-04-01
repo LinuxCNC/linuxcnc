@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:haltcl]]
-
 = Archivos HALTCL
 
 El lenguaje halcmd sobresale en la especificación de componentes y conexiones, pero
@@ -118,6 +117,7 @@ valores y el valor inicial (y posiblemente unico) en la lista.
 En Tcl, esto se escribe `[lindex $::SECTION(ITEM) 0]`.
 
 Por ejemplo: dados los siguientes valores ini
+
 ----
 [HOSTMOT2]
 DRIVER=hm2_eth
@@ -125,17 +125,23 @@ IPADDR="10.10.10.10"
 BOARD=7i92
 CONFIG="num_encoders=0 num_pwmgens=0 num_stepgens=6"
 ----
+
 Y este comando loadrt:
+
 ----
 loadrt $::HOSTMOT2(DRIVER) board_ip=$::HOSTMOT2(IPADDR) config=$::HOSTMOT2(CONFIG)
 ----
+
 este sera el comando real que se ejecuta:
+
 ----
 loadrt hm2_eth board_ip={"10.10.10.10"} config={"num_encoders=0 num_pwmgens=0 num_stepgens=6"}
 ----
+
 Esto falla porque loadrt no reconoce las llaves.
 
 Por tanto, para obtener los valores tal como se ingresaron en el archivo ini, vuelva a escribir la línea loadrt así:
+
 ----
 loadrt $::HOSTMOT2(DRIVER) board_ip=[lindex $::HOSTMOT2(IPADDR) 0] config=[lindex $::HOSTMOT2(CONFIG) 0]
 ----
@@ -241,4 +247,4 @@ para demostrar una configuración haltcl junto con el uso de
 procesamiento twopass. El ejemplo muestra el uso de procedimientos tcl, bucles,
 uso de comentarios, y salida al terminal.
 
-
+// vim: set syntax=asciidoc:

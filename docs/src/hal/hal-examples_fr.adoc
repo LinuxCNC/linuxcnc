@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-= Exemples pour HAL 
-
 [[Exemples-pour-HAL]]
+= Exemples pour HAL 
 
 Tous ces exemples s'appuient sur une configuration créée par Stepconf, 
 elle a deux threads, _base-thread_ et _servo-thread_. 
@@ -97,8 +96,7 @@ dans la direction négative. Noter que la valeur absolue peut être prise sur
 la pin _abs.0.out_ ou le signal X-IPM.
 
 [[cap:Velocity-Example]]
-.Exemple avec la vitesse
-(((Velocity exemple)))
+.Exemple avec la vitesse(((Velocity exemple)))
 
 image::images/velocity-01.png[]
 
@@ -179,13 +177,13 @@ Pour séparer les signaux et mieux les visualiser, cliquer sur un canal et
 utiliser le curseur de position verticale pour positionner les traces.
 
 .Amortissement d'un signal carré[[cap:Softstart]]
-
 image::images/softstart-scope_fr.png[]
 
 Pour voir l'effet d'un changement du point de réglage des valeurs des composants,
 il est possible de passer des commandes depuis le terminal. Par exemple,pour 
 voir différentes valeurs de gain pour le passe-bas, taper la commande suivante,
 puis essayer différentes valeurs:
+
 ----
 setp lowpass.0.gain .01
 ----
@@ -248,3 +246,5 @@ stop
 # décharge tous les composants de HAL avant de quitter
 unloadrt all
 ----
+
+// vim: set syntax=asciidoc:

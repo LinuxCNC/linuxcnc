@@ -1,6 +1,7 @@
-= Lathe Configuration
+:lang: en
 
 [[cha:lathe-configuration]]
+= Lathe Configuration
 
 == Default Plane
 

@@ -1,6 +1,11 @@
 import hal
 import os
 import subprocess
+import threading
+import time
+from qtvcp.core import Action
+
+ACTION = Action()
 
 # path to TCL for external programs eg. halshow
 try:
@@ -21,12 +26,13 @@ class Aux_program_loader:
 
     # opens halshow
     def load_halshow(self, *args):
-        print("halshow", TCLPATH)
-        p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
+        if args:
+            self.load_haltool_args('halshow', args)
+        else:
+            p = os.popen("tclsh %s/bin/halshow.tcl &" % (TCLPATH))
 
     # opens the calibration program
     def load_calibration(self):
-        print("calibration --%s" % INIPATH)
         p = os.popen("tclsh %s/bin/emccalib.tcl -- -ini %s > /dev/null &" % (TCLPATH, INIPATH), "w")
 
     # opens the linuxcnc status program
@@ -35,12 +41,17 @@ class Aux_program_loader:
 
     # opens a halmeter
     def load_halmeter(self, *args):
-        print("halmeter")
-        p = os.popen("halmeter &")
+        if args:
+            self.load_haltool_args('halmeter', args)
+        else:
+            p = os.popen("halmeter &")
 
     # opens the halscope
     def load_halscope(self, *args):
-        p = os.popen("halscope  > /dev/null &", "w")
+        if args:
+            self.load_haltool_args('halscope', args)
+        else:
+            p = os.popen("halscope  > /dev/null &", "w")
 
     # open linuxcnc standard tool edit program
     def load_tooledit(self, filepath):
@@ -60,3 +71,30 @@ class Aux_program_loader:
         except:
             print('Onboard keyboard could not be loaded by aux_program_loader')
             return False
+
+    def new_thread(self, args):
+        try:
+            reply = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except Exception as e:
+            pass
+        stdout, stderr = reply.communicate()
+        if stdout:
+            self.threadError = stdout.decode()
+        if stderr:
+            self.threadError = stderr.decode()
+
+    # used via above functions to open halshow, halmeter, or halscope with arguments
+    def load_haltool_args(self, tool, args):
+            args = args[0].split()
+            args.insert(0, tool)
+            self.threadError = ''
+            t = threading.Thread(target=self.new_thread, args=(args,), daemon=True)
+            t.start()
+            #this delay is necessary to allow the thread to finish on error
+            time.sleep(0.5)
+            if self.threadError:
+                if 'Cannot read file' in self.threadError:
+                    err = 'AUX LOAD ERROR:\nCannot open \'{}\'\n'.format(args[1:][0])
+                elif 'is not a valid probe type' in self.threadError:
+                    err = 'AUX LOAD ERROR:\n\'{}\' is not a valid probe type\n'.format(args[1:][0])
+                ACTION.SET_ERROR_MESSAGE(err)

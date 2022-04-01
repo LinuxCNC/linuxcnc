@@ -28,14 +28,15 @@ funcionamiento razonable para la mayoría de los sistemas basados en motores a p
 * 512 MB o más de RAM
 * 8 GB de espacio en disco duro
 * Tarjeta gráfica capaz de una resolución de al menos de 1024x768, que no este usando controladores propietarios 
-   Nvidia o ATI fglrx. Los chipsets de graficos integrados mas modernos parecen ser validos en general.
+  Nvidia o ATI fglrx. Los chipsets de graficos integrados mas modernos parecen ser validos en general.
 * Una conexión de red o Internet (no es estrictamente necesaria, pero resulta muy útil para realizar actualizaciones 
-   y contactar con la comunidad de LinuxCNC)
+  y contactar con la comunidad de LinuxCNC)
 
 Los requerimientos mínimos del sistema cambian conforme las distribuciones Linux evolucionan, por lo tanto revise el 
 sitio https://www.debian.org/releases/stable/amd64/ch02.es.html[Debian] para mas detalles sobre el LiveCD que esta usando.
 El hardware antiguo podría beneficiarse si se selecciona una versión mas antigua del LiveCD cuando se encuentre disponible.
 
+[[sec:kernel_and_version_requirements]]
 == Kernel y requisitos de Versión
 
 LinuxCNC requiere un kernel modificado para uso con tiempo real para controlar hardware real
@@ -48,7 +49,7 @@ Las opciones de kernel en tiempo real son preempt-rt, RTAI y Xenomai.
 
 Puede descubrir la versión del kernel de su sistema con el comando
 
- uname -a
+  uname -a
 
 Si ve (como arriba) `-rt-` en el nombre del kernel, entonces está ejecutando el
 preempt-rt kernel y debería instalar la versión "uspace" de linuxcnc.
@@ -57,7 +58,7 @@ También debe instalar uspace para configuraciones "sim" en kernels que no son e
 Si ve `-rtai-` en el nombre del kernel, entonces está ejecutando RTAI
 tiempo real. Consulte a continuación la versión de linuxcnc para instalar.
 
-=== Preempt-RT con linuxcnc-uspace
+=== Preempt-RT con 'linuxcnc-uspace'
 
 Preempt-RT es el más nuevo de los sistemas en tiempo real, y también es la versión
 que está más cerca de un kernel estandar. Los kernels Preempt-RT están disponibles
@@ -67,7 +68,7 @@ Preempt-RT generalmente tendrá el mejor soporte de controladores y es la única
 opción para sistemas que usan tarjetas Mesa Ethernet. 
 En general, preempt-rt tiene la peor latencia de los sistemas disponibles, pero hay excepciones.
 
-=== RTAI con linuxcnc
+=== RTAI con 'linuxcnc'
 
 RTAI ha sido el pilar de las distribuciones LinuxCNC durante muchos años.
 Generalmente dará el mejor rendimiento en tiempo real, en términos de baja
@@ -76,12 +77,12 @@ de pantallas. Un Kernel RTAI está disponible desde el repositorio de paquetes d
 Si instaló desde la imagen Live/Install, entonces proceda con 
 el kernel y LinuxCNC como se describe en [Installing-RTAI].
 
-=== Xenomai con linuxcnc-uspace
+=== Xenomai con 'linuxcnc-uspace'
 
 Xenomai también es compatible, pero tendrá que buscar o construir el kernel
 y compilar LinuxCNC desde las fuentes para utilizarlo.
 
-=== RTAI con linuxcnc-uspace
+=== RTAI con 'linuxcnc-uspace'
 
 También es posible ejecutar LinuxCNC con RTAI en modo de espacio de usuario. Como
 con Xenomai, necesitará compilar desde las fuentes para hacer esto.
@@ -101,4 +102,3 @@ reconoció apropiadamente su monitor o tarjeta de vídeo. Esto se puede solucion
 o creando/editando archivos Xorg.conf.
 
 // vim: set syntax=asciidoc:
-

@@ -302,7 +302,7 @@ def conv_entry_changed(P, W, widget):
     if widget.text():
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
-        elif name in ['xsEntry', 'ysEntry', 'aEntry']:
+        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'coEntry', 'roEntry']:
             good = '-.0123456789'
         else:
             good = '.0123456789'

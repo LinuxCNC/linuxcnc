@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:hal-tutorial]]
-
 = Tutorial HAL
 
 == Introducción
@@ -156,7 +155,7 @@ contenido dentro del componente, algunos de los pines tienen un valor cero.
 
 El siguiente paso es mirar los parámetros:
 
-. Mostrar parámetros
+.Mostrar parámetros
 ----
 halcmd: show param
 
@@ -402,9 +401,8 @@ el siguiente comando en una ventana de terminal.
 halrun -U
 ----
 
-[[sec:tutorial-halmeter]] (((Halmeter, Halmeter Tutorial)))
-
-== Halmeter
+[[sec:tutorial-halmeter]]
+== Halmeter(((Halmeter, Halmeter Tutorial)))
 
 Puede construir sistemas HAL muy complejos sin tener que utilizar un interfaz gráfico.
 Sin embargo, es muy satisfactorio ver graficamente el resultado de su trabajo. La primera y más simple herramienta GUI para HAL es
@@ -434,8 +432,7 @@ halcmd: loadusr halmeter
 La primera ventana que verá es la ventana 'Seleccionar elemento a sondear'.
 
 .Ventana de selección de Halmeter
-
-image::images/halmeter-select.png[align="center",alt="Ventana de selección de halmeter"]
+image::images/halmeter-select.png["Ventana de selección de halmeter",align="center"]
 
 Este diálogo tiene tres pestañas. La primera pestaña muestra todos los pines HAL
 en el sistema. La segunda muestra todas las señales, y la tercera
@@ -445,8 +442,7 @@ El cuadro de diálogo de selección se cerrará, y el medidor se vera como en la
 siguiente figura.
 
 .Halmeter
-
-image::images/halmeter-1.png[align="center",alt="Halmeter"]
+image::images/halmeter-1.png["Halmeter",align="center"]
 
 Para cambiar lo que muestra el medidor presione el botón 'Select' que
 devuelve la ventana de seleccion del elemento a sondear.
@@ -460,7 +456,7 @@ Si desea ver más de un pin, señal o parámetro a la vez,
 puede lanzar más halmeters. La ventana de halmeter es intencionalmente
 muy pequeña para que se pueda tener muchas de ellas a la vez en la pantalla.
 
-== Ejemplo Stepgen (((stepgen)))
+== Ejemplo Stepgen(((stepgen)))
 
 Hasta ahora solo hemos cargado un componente HAL. Pero toda la idea
 detrás de HAL es permitir cargar y conectar una serie de componentes simples
@@ -774,9 +770,8 @@ están generando impulsos, variando entre ​+10 KHz y -10 KHz cada segundo. Má
 ver cómo sacar esas señales internas para mover motores en la realidad,
 pero primero queremos ver los pulsos y comprobar lo qué está sucediendo.
 
-[[sec:tutorial-halscope]](((Tutorial Halscope)))
-
-== Halscope
+[[sec:tutorial-halscope]]
+== Halscope(((Tutorial Halscope)))
 
 El ejemplo anterior genera algunas señales muy interesantes. Pero mucho de
 lo que sucede es demasiado rápido para verlo con 'halmeter'. Para
@@ -801,8 +796,7 @@ el cuadro de diálogo 'Realtime function not linked' que se aparece a la siguien
 figura.
 
 .diálogo Función Realtime no vinculada
-
-image::images/halscope-01.png[align="center", alt="Diálogo de función de tiempo real no vinculada"]
+image::images/halscope-01.png["Diálogo de función de tiempo real no vinculada",align="center"]
 
 Este diálogo es donde se establece la frecuencia de muestreo para el osciloscopio.
 Por ahora, queremos muestrear una vez por milisegundo, así que haga clic en el hilo 'slow'
@@ -812,8 +806,7 @@ a la vez. Cuando selecciona un hilo y luego hace clic en 'Ok', el diálogo
 desaparece, y la ventana del osciloscopio aparece como en la siguiente figura.
 
 .Vista inicial de halscope
-
-image::images/halscope-02.png[align="center", alt="Ventana inicial de halscope"]
+image::images/halscope-02.png["Ventana inicial de halscope",align="center"]
 
 === Conectando las sondas
 
@@ -833,16 +826,14 @@ antes. Hacemos clic en la pestaña "Señales" y el cuadro de diálogo muestra to
 las señales en HAL (solo dos para este ejemplo).
 
 .Seleccione Origen del canal
-
-image::images/halscope-03.png[align="center", alt="Seleccionar fuente de canal"]
+image::images/halscope-03.png["Seleccionar fuente de canal",align="center"]
 
 Para elegir una señal, simplemente haga clic en ella. En este caso, queremos que el canal 1
 muestre la señal 'X-vel'. Haga clic en la pestaña Señales y luego haga clic en
 'X-vel' y el diálogo se cerrara. El canal está ahora seleccionado.
 
 .Seleccion de señal
-
-image::images/halscope-04.png[align="center", alt="Seleccionar señal"]
+image::images/halscope-04.png["Seleccionar señal",align="center"]
 
 El botón del canal 1 se ve "presionado", y el canal número 1 y el nombre
 'X-vel' aparece debajo de la fila de botones. Esa pantalla siempre indica
@@ -851,8 +842,7 @@ el seleccionado se resalta, y los diversos controles, como posicion vertical
 y escala, siempre funcionan en el canal seleccionado.
 
 .Halscope
-
-image::images/halscope-05.png[align="center", alt="Halscope"]
+image::images/halscope-05.png["Halscope",align="center"]
 
 Para agregar una señal al canal 2, haga clic en el botón '2'. Cuando el diálogo
 aparezca, haga clic en la pestaña 'Señales', luego haga clic en 'Y-vel'. También queremos
@@ -877,8 +867,7 @@ la pantalla mostrará las formas de onda capturadas. El resultado se verá
 como en la siguiente figura.
 
 .Capturando formas de onda
-
-image::images/halscope-06.png[align="center", alt="Formas de onda capturadas"]
+image::images/halscope-06.png["Formas de onda capturadas",align="center"]
 
 El cuadro "Selected Channel", en la parte inferior, le dice que la señal de color púrpura
 es el canal actualmente seleccionado, canal 4, que muestra el
@@ -897,8 +886,7 @@ mueve el trazo mostrado arriba y abajo sobre la altura de la pantalla
 solamente. Para ajustes más grandes, se debe usar el botón 'offset'.
 
 .Ajuste vertical
-
-image::images/halscope-07.png[align="center", alt="Ajuste vertical"]
+image::images/halscope-07.png["Ajuste vertical",align="center"]
 
 === Disparando
 
@@ -910,8 +898,7 @@ sonda para usarla como disparador haciendo clic en ella. Para este ejemplo lo ha
 con el canal 3, la onda triangular, como se muestra en la siguiente figura.
 
 .Diálogo de Fuente de Disparo 
-
-image::images/halscope-08.png[align="center", alt="Diálogo de origen del disparador"]
+image::images/halscope-08.png["Diálogo de origen del disparador",align="center"]
 
 Después de configurar la fuente de activación, puede ajustar el nivel de activación y
 posición del gatillo usando los controles deslizantes en la casilla 'Trigger' a lo largo del borde derecho.
@@ -930,8 +917,7 @@ Ahora que hemos ajustado los controles verticales y el disparo,
 la pantalla del osciloscopio se parecerá a la siguiente figura.
 
 .Formas de onda con Triggering
-
-image::images/halscope-09.png[align="center", alt="Formas de onda con disparador"]
+image::images/halscope-09.png["Formas de onda con disparador",align="center"]
 
 === Ajustes horizontales
 
@@ -950,8 +936,7 @@ en lugar de mostrar aproximadamente 4 segundos de datos, un registro es 4000
 muestras a 20 kHz, o aproximadamente 0,20 segundos.
 
 .Diálogo de frecuencia de muestreo
-
-image::images/halscope-10.png[align="center",alt="Diálogo de frecuencia de muestreo"]
+image::images/halscope-10.png["Diálogo de frecuencia de muestreo",align="center"]
 
 === Más canales
 
@@ -973,8 +958,7 @@ el cambio en el comando de velocidad. El resultado debería verse como la
 siguiente figura.
 
 .Pasos de paso
-
-image::images/halscope-11.png[align="center", alt="Impulsos de paso"]
+image::images/halscope-11.png["Impulsos de paso",align="center"]
 
 === Más muestras
 
@@ -992,4 +976,4 @@ lo carga y solicita 80000 muestras en total, de modo que al tomar muestras en
 (Si 'scope_rt' ya estaba cargado, el argumento numérico para
 halscope no tendrá ningún efecto).
 
-
+// vim: set syntax=asciidoc:

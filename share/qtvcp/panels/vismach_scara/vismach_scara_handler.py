@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from qtvcp.core import Status
-from qtvcp.lib.qt_vismach import scara as MILL
+from qtvcp.lib.qt_vismach import scara as SCARA
 
 ###########################################
 # **** instantiate libraries section **** #
@@ -35,7 +35,7 @@ class HandlerClass:
     # the widgets are instantiated.
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
-        machine = MILL.Window()
+        machine = SCARA.Window()
         self.w.mainLayout.addWidget(machine)
 
 

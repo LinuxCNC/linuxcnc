@@ -1,10 +1,8 @@
 :lang: fr
 :toc:
 
-= Création d'interfaces graphiques avec GladeVCP
-
 [[cha:GladeVCP]]
-
+= Création d'interfaces graphiques avec GladeVCP
 
 == Qu'est-ce que GladeVCP?
 
@@ -63,11 +61,11 @@ Une fenêtre de panneau GladeVCP peut démarrer avec trois différentes
 configuration:
 
 * Toujours visible, intégré dans Axis, du côté droit, exactement comme
-un panneau PyVCP.
+  un panneau PyVCP.
 * Dans un onglet dans Axis ou Touchy; dans Axis un troisième onglet sera créé
-   à côté des deux d'origine, ils doivent être choisis explicitement.
+  à côté des deux d'origine, ils doivent être choisis explicitement.
 * Comme une fenêtre indépendante, qui peut être iconisée ou agrandie,
-   indépendamment de la fenêtre principale.
+  indépendamment de la fenêtre principale.
 
 Lancer un panneau GladeVCP simple, intégré dans Axis comme PyVCP, taper les
 commandes suivantes:
@@ -190,8 +188,7 @@ Programmation de GladeVCP>>.
 
 == Créer et intégrer une interface utilisateur Glade
 
-[[gladevcp:Pre-requis]]
-=== Pré-requis: Installation de Glade
+=== [[gladevcp:Pre-requis]]Pré-requis: Installation de Glade
 
 Pour visualiser ou modifier les fichiers d'une interface Glade, Glade doit
 être installé. Ce n'est pas nécessaire pour seulement essayer un panneau GladeVCP. 
@@ -302,6 +299,7 @@ Le nom de composant HAL d'une application GladeVCP lancé avec l'option GLADEVCP
 est toujours: +gladevcp+.
 La ligne de commande actuellement lancée par Axis dans la configuration ci-dessous
 est la suivante:
+
 ----
 halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} <arguments pour GLADEVCP>
 ----
@@ -318,6 +316,7 @@ n'est peut être pas nécessaire dans votre configuration.
 
 Pour cela, éditer le fichier .ini et ajouter dans les sections DISPLAY et HAL,
 les lignes suivantes:
+
 [source,{ini}]
 ----
 [DISPLAY]
@@ -377,7 +376,7 @@ Noter les différences suivantes avec la configuration de l'onglet d'Axis:
    raccourcis ont été pris.
 
  - Il n'y a pas d'option _POSTGUI_HALFILE=_, mais il est correct, de passer
-le fichier de commandes HAL, + 
+   le fichier de commandes HAL, + 
    par la ligne _EMBED_TAB_COMMAND=_.
 
  - L'appel _halcmd loaduser -Wn ..._ n'est pas nécessaire.
@@ -501,8 +500,7 @@ pas déjà associée avec un autre widget, ce qui aurait pu être créé par la 
 Voir la <<gladevcp:GladeVCP_Programming,programmation de GladeVCP>> pour
 d'autres exemples.
 
-[[gladevcp::hal-pin-changed_signal]]
-=== Le signal _hal-pin-changed_
+=== [[gladevcp::hal-pin-changed_signal]]Le signal _hal-pin-changed_
 
 La programmation événementielle signifie que l'interface graphique indique au 
 code quand "quelque chose se produit", grâce à une fonction de rappel, comme quand un 
@@ -520,8 +518,7 @@ image::images/hal-pin-change-66.png[]
 L'exemple dans +configs/gladevcp/examples/complex+ montre comment c'est géré 
 en Python.
 
-[[gladevcp:HAL_Button]]
-=== Les boutons (HAL Button)
+=== [[gladevcp:HAL_Button]]Les boutons (HAL Button)
 
 Ce groupe de widgets est dérivé de divers boutons Gtk, ce sont les widgets
 HAL_Button, HAL_ToggleButton, HAL_RadioButton et CheckButton. Tous ont une seule
@@ -562,10 +559,7 @@ Voir +configs/gladevcp/by-widget/radiobutton+ pour une application GladeVCP avec
 un fichier d'interface utilisateur, pour travailler sur les boutons radio.
 ====
 
-[[gladevcp:HAL_VScale]]
-
-[[gladevcp:HAL_HScale]]
-=== Les échelles (Scales)
+=== [[gladevcp:HAL_VScale]][[gladevcp:HAL_HScale]]Les échelles (Scales)
 
 HAL_HScale et HAL_VScale sont respectivement dérivées de GtkHScale et GtkVScale. 
 Elles ont une pin de sortie FLOAT portant le même nom que le widget. Les échelles
@@ -579,9 +573,7 @@ l'ajustement sur automatique pour éviter les warnings.
 Exemple d'échelle (HAL_hscale):
 image:images/hscale.png[]
 
-
-[[gladevcp:HAL_SpinButton]]
-=== La boîte d'incrément (SpinButton)
+=== [[gladevcp:HAL_SpinButton]]La boîte d'incrément (SpinButton)
 
 La boîte d'incrément de HAL est dérivée de GtkSpinButton, elle a deux pins de sortie:
 
@@ -596,9 +588,7 @@ l'échelle, vue précédemment.
 Exemple de boîte d'incrément:
 image:images/spinbutton.png[]
 
-
-[[gladevcp:HAL_Label]]
-=== Les labels
+=== [[gladevcp:HAL_Label]]Les labels
 
 Le Label HAL est un simple widget basé sur GtkLabel qui représente la valeur 
 d'une pin de HAL dans un format défini par l'utilisateur.
@@ -616,11 +606,7 @@ text template::
 	Exemple: +Distance: %.03f+ va afficher le texte et la valeur de la pin avec
     3 digits fractionnaires remplis avec des zéros pour une pin FLOAT.
 
-
-[[gladevcp:HAL_Table]]
-
-[[gladevcp:HAL_HBox]]
-=== Les conteneurs: HAL_HBox et HAL_Table
+=== [[gladevcp:HAL_Table]][[gladevcp:HAL_HBox]]Les conteneurs: HAL_HBox et HAL_Table
 
 Comparés à leurs contreparties Gtk ils ont une pin d'entrée BIT qui contrôle si
 les enfants des widgets sont sensitifs ou non. Si la pin est basse, alors 
@@ -630,8 +616,7 @@ les widgets enfants sont inactifs, ce qui est le comportement par défaut.
 Si vous trouvez que certaines parties de votre application GladeVCP sont _grisées_ 
 (insensible), vérifiez que les pins d'un conteneur ne soient pas inutilisées.
 
-[[gladevcp:HAL_LED]]
-=== Les Leds
+=== [[gladevcp:HAL_LED]]Les Leds
 
 La Led hal simule un vrai indicateur à Led. Elle a une seule pin d'entrée BIT
 qui contrôle son état: ON ou OFF. Les Leds ont quelques propriétés pour
@@ -674,8 +659,7 @@ pour reporter la valeur courante.
 Exemple de Leds:
 image:images/leds.png[]
 
-[[gladevcp:HAL_ProgressBar]]
-=== La barre de progression (ProgressBar)
+=== [[gladevcp:HAL_ProgressBar]]La barre de progression (ProgressBar)
 
 [NOTE]
 Ce widget pourrait disparaître. Utilisez les widgets HAL_HBar et HAL_VBar à sa
@@ -707,9 +691,7 @@ text_template::
 Exemple de barre de progression:
 image:images/progressbar2.png[]
 
-
-[[gladevcp:HAL_ComboBox]]
-=== La boîte combinée (ComboBox)
+=== [[gladevcp:HAL_ComboBox]]La boîte combinée (ComboBox)
 
 La comboBox HAL est dérivée de gtk.ComboBox. Elle valide le choix d'une valeur 
 dans une liste déroulante.
@@ -743,10 +725,7 @@ colonne pour prendre une valeur flottante dans un stockage de liste.
 Si comme moi, vous êtes désorienté pour éditer une liste de stockage de ComboBox
 ou de CellRenderer, voyez http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-[[gladevcp:HAL_VBar]]
-
-[[gladevcp:HAL_HBar]]
-=== Les barres
+=== [[gladevcp:HAL_VBar]][[gladevcp:HAL_HBar]]Les barres
 
 Les widgets HAL, HBar et VBar pour barres Horizontale et Verticale, représentent
 des valeurs flottantes. Elles ont une pin d'entrée de HAL FLOAT. Chaque barre a
@@ -782,14 +761,12 @@ z0_border, z1_border::
    remplir de la première à la seconde bordure et zone 2 depuis la dernière bordure
    jusqu'à 1. Les bordures se règlent comme des fractions, les valeurs vont de 0 à 1.
 
-Barre horizontale:
+.Barre horizontale:
 image:images/hal_hbar.png[]
-Barre verticale:
+.Barre verticale:
 image:images/vscale.png[]
 
-
-[[gladevcp:HAL_Meter]]
-=== L'indicateur (HAL Meter)
+=== [[gladevcp:HAL_Meter]]L'indicateur (HAL Meter)
 
 L'indicateur est un widget similaire à celui de PyVCP, 
 il représente une valeur flottante et a une pin d'entrée de HAL FLOAT. 
@@ -824,13 +801,10 @@ z0_border, z1_border::
    zone 2 depuis la dernière bordure jusqu'à max. Les bordures se règlent sur une
    étendue comprise en min et max.
 
-Exemples d'indicateurs:
-
+.Exemples d'indicateurs:
 image::images/hal_meter.png[]
 
-
-[[gladevcp:HAL_Gremlin]]
-===  Gremlin, visualiseur de parcours d'outil pour fichiers .ngc
+=== [[gladevcp:HAL_Gremlin]]Gremlin, visualiseur de parcours d'outil pour fichiers .ngc
 
 Gremlin est un traceur de parcours d'outil similaire à celui d'Axis.
 Il demande un environnement LinuxCNC en fonctionnement, comme Axis ou Touchy. 
@@ -851,7 +825,6 @@ enable_dro ::
 Exemple:
 
 image::images/gremlin.png[]
-
 
 === Fonction de diagrammes animés: Widgets HAL dans un bitmap
 
@@ -1055,8 +1028,7 @@ Une fois ajouté, vous pouvez associer des gestionnaires avec les signaux suivan
   - +interp-waiting+
 
 
-[[gladevcp:GladeVCP_Programming]]
-== Programmation de GladeVCP
+== [[gladevcp:GladeVCP_Programming]]Programmation de GladeVCP
 
 === Actions définies par l'utilisateur
 
@@ -1436,8 +1408,7 @@ détectée, un message émis dans la console, donneront des indices sur ce qui s
 passé et le mauvais fichier ini sera renommé avec le suffixe .BAD. Après une
 mauvaise initialisation, les fichiers .BAD les plus anciens seront écrasés.
 
-[[gladevcp:Adding_HAL_pins]]
-=== Ajouter des pins de HAL
+=== [[gladevcp:Adding_HAL_pins]]Ajouter des pins de HAL
 
 Si il faut des pins de HAL non associées avec un widget HAL, les ajouter comme
 ci-dessous:
@@ -1539,18 +1510,18 @@ Mon panneau gladevcp ne marche pas dans Axis, il n'enregistre pas les états qua
 == Troubleshooting
 
 // FIXME this is out of date
- -  make sure your have the development version of LinuxCNC installed. You
+ - make sure your have the development version of LinuxCNC installed. You
    don't need the axisrc file any more, this was mentioned in the old
    GladeVcp wiki page.
- -  run GladeVCP or Axis from a terminal window. If you get Python errors,
+ - run GladeVCP or Axis from a terminal window. If you get Python errors,
    check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
    file lying around besides the newer
    +/usr/lib/python2.6/dist-packages/_hal.so+ (note underscore); if yes,
    remove the +hal.so+ file. It has been superseded by hal.py in the same
    directory and  confuses the import mechanism.
- -  if you're using run-in-place, do a 'make clean' to remove any
+ - if you're using run-in-place, do a 'make clean' to remove any
    accidentally left over hal.so file, then 'make'.
- -  if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have
+ - if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have
    an HAL pin associated with it which is off by default. This pin
    controls whether these container's children are active or not.
 

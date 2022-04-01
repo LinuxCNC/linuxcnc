@@ -38,7 +38,8 @@ Build-Depends:
     tclx,
     tk@TCLTK_VERSION@-dev,
     yapps2
-Build-Depends-Indep: @DOC_DEPENDS@
+Build-Depends-Indep:
+    @DOC_DEPENDS@
 Standards-Version: 4.6.0
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git
@@ -48,9 +49,9 @@ Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
 Depends: ${misc:Depends},
+         ${python3:Depends},
          @KERNEL_HEADERS@,
          python3-serial,
-         ${python3:Depends},
          @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
          udev,
          @YAPPS_RUNTIME@

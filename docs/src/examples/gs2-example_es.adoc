@@ -1,5 +1,7 @@
-[[cha:gs2-spindle]]
+:lang: es
+:toc:
 
+[[cha:gs2-spindle]]
 = Husillo con GS2
 
 Este ejemplo muestra las conexiones necesarias para usar un VFD GS2
@@ -43,17 +45,17 @@ basado en sus requisitos físicos, pero estos están más allá del alcance de e
 manual. Consulte el manual de GS2 que vino con la unidad para obtener más información
 sobre los parámetros del variador.
 
-* Los interruptores de comunicación deben configurarse en RS-232C
-* Los parámetros del motor deben configurarse para que coincidan con el motor
-* P3.00 (Fuente del comando de operación) debe establecerse en Operación
+ * Los interruptores de comunicación deben configurarse en RS-232C
+ * Los parámetros del motor deben configurarse para que coincidan con el motor
+ * P3.00 (Fuente del comando de operación) debe establecerse en Operación
    determinada por la interfaz RS-485, 03 o 04
-* P4.00 (Fuente del comando de frecuencia) debe establecerse en Frecuencia
+ * P4.00 (Fuente del comando de frecuencia) debe establecerse en Frecuencia
    determinada por la interfaz de comunicación RS232C/RS485, 05
-* P9.01 (Velocidad de transmisión) debe establecerse en 9600 baudios, 01
-* P9.02 (Protocolo de comunicación) debe establecerse en "Modo Modbus RTU,
+ * P9.01 (Velocidad de transmisión) debe establecerse en 9600 baudios, 01
+ * P9.02 (Protocolo de comunicación) debe establecerse en "Modo Modbus RTU,
    8 bits de datos, sin paridad, 2 bits de parada ", 03
 
-Un panel PyVCP basado en este ejemplo está <<gs2-rpm-meter,aqui>>.
+Un panel PyVCP basado en este ejemplo está aqui.
+//<<gs2-rpm-meter,aqui>>.
 
-
-
+// vim: set syntax=asciidoc:

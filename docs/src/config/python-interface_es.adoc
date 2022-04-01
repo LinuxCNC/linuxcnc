@@ -1,7 +1,6 @@
 :lang: es
 
 [[cha:python-interface]]
-
 = Interfaz de Python
 
 :ini: {basebackend@docbook:'':ini}

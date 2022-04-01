@@ -1,5 +1,6 @@
-[[cha:stepper-quickstart]]
+:lang: en
 
+[[cha:stepper-quickstart]]
 = Stepper Quickstart
 
 This section assumes you have done a standard install from the Live
@@ -12,20 +13,18 @@ latest updates for LinuxCNC and Ubuntu before continuing.
 The Latency Test determines how late your computer processor is in
 responding to a request. Some hardware can interrupt the processing
 which could cause missed steps when running a CNC machine. This is the
-first thing you need to do. Follow the instructions  
+first thing you need to do. Follow the instructions
 <<latency-test,here>> to run the latency test.
 
-[[sec:sherline]](((Sherline)))
-
-== Sherline
+[[sec:sherline]]
+== Sherline(((Sherline)))
 
 If you have a Sherline several predefined configurations are provided.
 This is on the main menu CNC/EMC then pick the Sherline configuration
 that matches yours and save a copy.
 
-[[sec:xylotex]](((Xylotex)))
-
-== Xylotex
+[[sec:xylotex]]
+== Xylotex(((Xylotex)))
 
 If you have a Xylotex you can skip the following sections and go
 straight to the <<cha:stepconf-wizard,Stepper Config Wizard>>.
@@ -44,10 +43,10 @@ wiki site of more drives.
 [width="100%", options="header"]
 |====================================================================
 |Axis | Drive Type | Step Time ns | Step Space ns | Dir. Hold ns | Dir. Setup ns
-|X    |            |              |               |              | 
-|Y    |            |              |               |              | 
-|Z    |            |              |               |              | 
-|     |            |              |               |              | 
+|X    |            |              |               |              |
+|Y    |            |              |               |              |
+|Z    |            |              |               |              |
+|     |            |              |               |              |
 |====================================================================
 
 == Pinout Information
@@ -58,18 +57,18 @@ PC parallel port.
 [width="100%", options="header"]
 |==============================================================================
 |Output Pin | Typ. Function    | If Different | Input Pin | Typ. Function | If Different
-|1          | E-Stop Out       |              | 10        | X Limit/Home  | 
-|2          | X Step           |              | 11        | Y Limit/Home  | 
-|3          | X Direction      |              | 12        | Z Limit/Home  | 
-|4          | Y Step           |              | 13        | A Limit/Home  | 
-|5          | Y Direction      |              | 15        | Probe In      | 
-|6          | Z Step           |              |           |               | 
-|7          | Z Direction      |              |           |               | 
-|8          | A Step           |              |           |               | 
-|9          | A Direction      |              |           |               | 
-|14         | Spindle CW       |              |           |               | 
-|16         | Spindle PWM      |              |           |               | 
-|17         | Amplifier Enable |              |           |               | 
+|1          | E-Stop Out       |              | 10        | X Limit/Home  |
+|2          | X Step           |              | 11        | Y Limit/Home  |
+|3          | X Direction      |              | 12        | Z Limit/Home  |
+|4          | Y Step           |              | 13        | A Limit/Home  |
+|5          | Y Direction      |              | 15        | Probe In      |
+|6          | Z Step           |              |           |               |
+|7          | Z Direction      |              |           |               |
+|8          | A Step           |              |           |               |
+|9          | A Direction      |              |           |               |
+|14         | Spindle CW       |              |           |               |
+|16         | Spindle PWM      |              |           |               |
+|17         | Amplifier Enable |              |           |               |
 |==============================================================================
 
 Note any pins not used should be set to Unused in the drop down box.
@@ -83,32 +82,32 @@ per user unit which is used for SCALE in the .ini file.
 [width="100%", options="header"]
 |==============================================================================
 |Axis | Steps/Rev. | Micro Steps | Motor Teeth | Leadscrew Teeth | Leadscrew Pitch
-|X    |            |             |             |                 | 
-|Y    |            |             |             |                 | 
-|Z    |            |             |             |                 | 
-|     |            |             |             |                 | 
+|X    |            |             |             |                 |
+|Y    |            |             |             |                 |
+|Z    |            |             |             |                 |
+|     |            |             |             |                 |
 |==============================================================================
 
-* 'Steps per revolution' - is how many stepper-motor-steps it takes to turn 
-the stepper motor one revolution. 
-Typical is 200.
+* 'Steps per revolution' - is how many stepper-motor-steps it takes to turn
+  the stepper motor one revolution.
+  Typical is 200.
 
-* 'Micro Steps' - is how many steps the drive needs 
-to move the stepper motor one full step. 
-If microstepping is not used, this number will be 1. 
-If microstepping is used the value will depend on the 
-stepper drive hardware. 
+* 'Micro Steps' - is how many steps the drive needs
+  to move the stepper motor one full step.
+  If microstepping is not used, this number will be 1.
+  If microstepping is used the value will depend on the
+  stepper drive hardware.
 
-* 'Motor Teeth and Leadscrew Teeth' - is if you have some reduction 
-(gears, chain, timing belt, etc.) between the motor and the leadscrew. 
-If not, then set these both to 1. 
+* 'Motor Teeth and Leadscrew Teeth' - is if you have some reduction
+  (gears, chain, timing belt, etc.) between the motor and the leadscrew.
+  If not, then set these both to 1.
 
-* 'Leadscrew Pitch' - is how much movement occurs 
-(in user units) in one leadscrew turn. 
-If you're setting up in inches then it is inches per turn. 
-If you're setting up in millimeters then it is millimeters per turn. 
+* 'Leadscrew Pitch' - is how much movement occurs
+  (in user units) in one leadscrew turn.
+  If you're setting up in inches then it is inches per turn.
+  If you're setting up in millimeters then it is millimeters per turn.
 
-The net result you're looking for is how many CNC-output-steps it takes 
+The net result you're looking for is how many CNC-output-steps it takes
 to move one user unit (inches or mm).
 
 .Units inches
@@ -122,20 +121,21 @@ Leadscrew Pitch =   0.2000 inches per turn
 ............................................
 ============================================
 
-From the above information, the leadscrew moves 0.200 inches per turn. 
- - The motor turns 2.000 times per 1 leadscrew turn. 
- - The drive takes 10 microstep inputs to make the stepper step once. 
- - The drive needs 2000 steps to turn the stepper one revolution. 
-So the scale needed is: 
+From the above information, the leadscrew moves 0.200 inches per turn.
+- The motor turns 2.000 times per 1 leadscrew turn.
+- The drive takes 10 microstep inputs to make the stepper step once.
+- The drive needs 2000 steps to turn the stepper one revolution.
+
+So the scale needed is:
 
 image::images/step-calc-inch-math.png[align="center"]
 
 ////////////////////////////////////////////
-latexmath:[ 
-\frac{200 motor steps}{1 motor rev} \times 
+latexmath:[
+\frac{200 motor steps}{1 motor rev} \times
 \frac{10 microsteps}{1 motor step} \times
-\frac{2 motor revs}{1 leadscrew rev} \times 
-\frac{1 leadscrew revs}{0.2000 inch} 
+\frac{2 motor revs}{1 leadscrew rev} \times
+\frac{1 leadscrew revs}{0.2000 inch}
 = \frac{20,000 microsteps}{inch} ]
 ///////////////////////////////////////////
 
@@ -144,30 +144,29 @@ latexmath:[
 ............................................
     Stepper         = 200 steps per revolution
     Drive           =   8 micro steps per step
-    Motor Teeth     =  30 
+    Motor Teeth     =  30
     Leadscrew Teeth =  90
     Leadscrew Pitch =   5.00 mm per turn
 ............................................
 ============================================
 
-From the above information: 
- - The leadscrew moves 5.00 mm per turn. 
- - The motor turns 3.000 times per 1 leadscrew turn. 
- - The drive takes 8 microstep inputs to make the stepper step once. 
- - The drive needs 1600 steps to turn the stepper one revolution. 
-So the scale needed is: 
+From the above information:
+- The leadscrew moves 5.00 mm per turn.
+- The motor turns 3.000 times per 1 leadscrew turn.
+- The drive takes 8 microstep inputs to make the stepper step once.
+- The drive needs 1600 steps to turn the stepper one revolution.
+
+So the scale needed is:
 
 image::images/step-calc-mm-math.png[align="center"]
 
 //////////////////////////////////////////////
-latexmath:[ 
-\frac{200 motor steps}{1 motor rev} \times 
+latexmath:[
+\frac{200 motor steps}{1 motor rev} \times
 \frac{8 microsteps}{1 motor step} \times
-\frac{3 motor revs}{1 leadscrew rev} \times 
-\frac{1 leadscrew revs}{5.000 mm} 
+\frac{3 motor revs}{1 leadscrew rev} \times
+\frac{1 leadscrew revs}{5.000 mm}
 = \frac{960 microsteps}{mm} ]
 /////////////////////////////////////////////
 
 // vim: set syntax=asciidoc:
-
-

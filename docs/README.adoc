@@ -3,7 +3,10 @@ README for Document Writers
 
 Adding files:
 -------------
-The submakefile, docs.xml and index.tmpl must be updated to add a file to the documents.
+The src/Submakefile, src/docs.xml and src/index.tmpl files must be updated to add a new document file.
+
+The relevant pdf.adoc must be updated to include the new document in the pdf documentation. 
+e.g. if a new document belongs in the Master Documentation then an entry is required in src/Master_Documentation.adoc
 
 docs.xml is used to create the "previous" and "next" buttons at the top of each individual HTML document. 
 it should generally match the order of the index.tmpl
@@ -122,6 +125,87 @@ Drawings from QCAD
  - Export the  image as 480 x 480 Resolution Auto .png
 
 
+Dealing with translations
+-------------------------
+
+Translation of our documentation is in transition at the moment.
+
+We have some old-style translations that are separate asciidoc .adoc files
+checked into git.  These started out as copies of the english master
+docs at some point, and diverged from there over time.  This turned out
+not to be an ideal situation.
+
+We are experimenting with a new system using
+[po4a](https://po4a.alioth.debian.org/).  With po4a, the English text
+is the master document, and each paragraph is translated using
+gettext, just like the strings in our software.
+
+Some documentation of po4a is available in the po4a(7) manpage, and
+online here:
+
+    https://po4a.alioth.debian.org/man/man7/po4a.7.php
+
+We are using po4a version 0.62, available in Debian Bullseye.
+
+
+To transition a translated file to po4a
+---------------------------------------
+
+If there is a pre-existing translation of the file to your language,
+create a .po translation database seeded by the old translation.
+
+If the english file is called "file.adoc" then the old pre-existing
+translated file is probably called "file_fr.adoc" (for the french
+translation, as an example), and the translation database should be
+called "file.fr.po".  Creating PO file from adoc can be done by
+running this command:
+
+    (f=getting-linuxcnc; l=cn; po4a-gettextize --format asciidoc -m ${f}.adoc -M utf8 -l ${f}_${l}.adoc -L utf8 -p ${f}.${l}.po)
+
+Similarly, for translated manual pages:
+
+    (f=elbpcom.1; l=es; po4a-gettextize --format asciidoc -m man/man1/${f} -M utf8 -l man/${l}/man1/${f} -L utf8 -p ${f}.${l}.po)
+
+
+To append the extracted translations to the combined PO file, do
+something like this:
+
+    msgcat --use-first po/Documentation.es.po elbpcom.1.es.po \
+      > po/Documentation.es.po
+
+To create a new po4a translation of an untranslated file
+--------------------------------------------------------
+
+If there is no pre-existing translation of the file to your language,
+create an empty .po file to start with.  If the english file is called
+"file.adoc" then the translation database should be called "file.se.po"
+(for the swedish translation, as an example).  It is created by running
+this command:
+
+    po4a-gettextize --format text -m file.adoc -M utf8 -p file.se.po
+
+
+Improving the translation of a po4a-managed file
+------------------------------------------------
+
+Translations are done paragraph by paragraph.
+
+You can use a GUI tool like poedit or gtranslator or others, or you can
+(carefully!) edit the .po file by hand.
+
+The next time the translated document gets rebuilt, the updated
+translations will be used.
+
+
+When the master document (english) changes
+------------------------------------------
+
+When the master document (english) file has changed, use the po4a-updatepo
+to update the .po files:
+
+  po4a-updatepo -f text -m file.adoc -p file.fr.po
+
+
 How to add a new translation language
 -------------------------------------
 
@@ -134,8 +218,10 @@ Add the asciidoc source files containing your new translation.  Usually
 that means copying the language files from one of the existing languages,
 probably English since that's usually the most up-to-date.
 
-Add the new files to the proper place in docs/src/Submakefile, to ensure
-they get built.
+Copy the docs/po/Documentation.pot todocs/po/Documentation.$LANG.po.
+where $LANG is a two letter language code according to ISO 639-1, or
+three letter code according to ISO 639-2 if no two letter code exist.
+Add the new language code to the proper place in docs/po4a.conf.
 
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.
 Add the new doc package to the or-list of the "Recommends" line of the
@@ -144,7 +230,7 @@ linuxcnc main package.
 If there is a texlive-lang-$NEWLANGUAGE package for your new language,
 add it to the DOC_DEPENDS variable in debian/configure.
 
-Add the appropriate 'linuxcnc-doc-$NEWLANG.*' files for the new package,
-probably by copying and editing 'debian/linuxcnc-doc-en.*'.
+Add the appropriate `linuxcnc-doc-$NEWLANG.*` files for the new package,
+probably by copying and editing `debian/linuxcnc-doc-en.*`.
 
 Test build the packages and verify!

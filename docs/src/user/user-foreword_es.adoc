@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:user-foreword]]
-
 = Prefacio para el usuario
 
 LinuxCNC es modular y flexible. Estos atributos llevan a muchas personas a verlo como un revoltijo confuso de pequeñas cosas y se preguntan por qué es así.
@@ -22,8 +21,7 @@ Eric S. Raymond, en su libro The Art of Unix Programming, resume la filosofía U
 * Regla de composición: diseñar programas para conectarse a otros programas.
 
 * Regla de separación: Separar las políticas de los mecanismos; separar
-    interfaces de motores.footnote:[Encontrado en
-    http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
+  interfaces de motores.footnote:[Encontrado en http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
 El Sr. Raymond ofreció varias reglas más, pero estas cuatro describen las
 características esenciales del sistema de control de movimiento LinuxCNC.
@@ -49,6 +47,6 @@ Al comenzar su viaje hacia el uso de LinuxCNC, le ofrecemos dos consideraciones:
  - Parafraseando las palabras de Doug Gwyn en UNIX: "LinuxCNC no fue diseñado para
    evitar que sus usuarios hagan cosas estúpidas, ya que eso también les impediria
    hacer cosas ingeniosas".
- - Tambien las palabras de Steven King: "LinuxCNC es fácil de usar. Simplemente no     se descuida con respecto a qué tipo de usuarios es amigable".
-
+ - Tambien las palabras de Steven King: "LinuxCNC es fácil de usar. Simplemente no
+   se descuida con respecto a qué tipo de usuarios es amigable".
 

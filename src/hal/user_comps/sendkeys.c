@@ -91,6 +91,7 @@ int init(int argc, char* argv[]){
     for (i = 1; i < argc; i++){
         static int index = -1;
         static int type = -1;
+        void *v1, *v2;
         int ptr = 0;
         bool shift = 0;
         if (strncmp(argv[i], "config=", 7) == 0) type = 1, ptr = 6;
@@ -103,8 +104,17 @@ int init(int argc, char* argv[]){
                 case ' ':
                 case ',':
                     index++;
-                    codes = realloc(codes, (index + 1) * sizeof(int));
-                    pins = realloc(pins, (index + 1) * sizeof(int));
+                    v1 = realloc(codes, (index + 1) * sizeof(int));
+                    v2 = realloc(pins, (index + 1) * sizeof(int));
+                    if (!v1 || !v2) {
+                        free(codes);
+                        free(pins);
+                        rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.keycode error\n");
+                        return -ENOMEM;
+                    } else {
+                        codes=v1;
+			pins=v2;
+                    }
                     codes[index] = 0;
                     pins[index] = 0;
                     shift = 0;
@@ -152,14 +162,20 @@ int init(int argc, char* argv[]){
         sendkeys_param* param = &(me->param[i]);
         if (hal_pin_u32_newf(HAL_IN, &(hal->keycode), comp_id,
         "sendkeys.%i.keycode", i) < 0) {
+        free(codes);
+        free(pins);
         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.keycode error\n");
         return -ENOMEM;}
         if (hal_pin_s32_newf(HAL_OUT, &(hal->current_event), comp_id,
         "sendkeys.%i.current-event", i) < 0) {
+        free(codes);
+        free(pins);
         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.current-event error\n");
         return -ENOMEM;}
         if (hal_pin_bit_newf(HAL_IN, &(hal->init), comp_id,
         "sendkeys.%i.init", i) < 0) {
+        free(codes);
+        free(pins);
         rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.init error\n");
         return -ENOMEM;}
         // event params
@@ -171,12 +187,16 @@ int init(int argc, char* argv[]){
         for (j = 0; j < param->num_codes; j++){
             if (hal_param_u32_newf(HAL_RW, &(hal->event[j]), comp_id,
                     "sendkeys.%i.scan-event-%02i", i, j) < 0) {
+                free(codes);
+                free(pins);
                 rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.scan-event-%02i error\n", j);
                 return -ENOMEM;}
         }
         for (j = 0; j < param->num_triggers; j++){
             if (hal_param_u32_newf(HAL_RW, &(hal->event[j + param->num_codes]), comp_id,
                     "sendkeys.%i.pin-event-%02i", i, j) < 0) {
+                free(codes);
+                free(pins);
                 rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.pin-event-%02i error\n", j);
                 return -ENOMEM;}
         }
@@ -187,10 +207,14 @@ int init(int argc, char* argv[]){
             if (hal_pin_bit_newf(HAL_IN, &(hal->trigger[j]), comp_id,
                     "sendkeys.%i.trigger-%02i", i, j) < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "sendkeys.N.trigger-%02i error\n",j);
+                free(codes);
+                free(pins);
                 return -ENOMEM;}
             param->prev[j] = 0;
         }
     }
+    free(codes);
+    free(pins);
     return 0;
 }
 

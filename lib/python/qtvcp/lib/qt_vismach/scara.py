@@ -15,11 +15,9 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-from .qt_vismach import *
+from qtvcp.lib.qt_vismach.qt_vismach import *
 import hal
 import math
-import sys
 
 c = None
 METRIC = 1
@@ -43,38 +41,6 @@ d5 =   200.0
 d6 =   0.0
 j3min =  40.0
 j3max = 270.0
-
-class HalToolCylinder(CylinderZ):
-    def __init__(self, comp, *args):
-        # get machine access so it can
-        # change itself as it runs
-        # specifically tool cylinder in this case.
-        CylinderZ.__init__(self, *args)
-        self.comp = c
-
-    def coords(self):
-        # update data -  not needed if using 2.8 and self.comp["tooldiameter"]
-        # 2.7 does not have direct pin for diameter so this is workaround. commented out code is direct way to do it.
-        # s.poll() # 2.8 don't need this, comment out if using 2.8.
-        # get diameter and divide by 2 to get radius.
-        # rad = ( s.tool_table[s.tool_in_spindle].diameter ) # 2.7 workaround
-        try:
-            dia = (hal.get_value('halui.tool.diameter') * MODEL_SCALING)
-        except:
-            dia = 0
-        rad = dia / 2  # change to rad
-        # this instantly updates tool model but tooltip doesn't move till -
-        # tooltip, the drawing point will NOT move till g43h(tool number) is called, however.
-        # Tool will "crash" if h and tool length does not match.
-        try:
-            leng = hal.get_value('motion.tooloffset.z') * MODEL_SCALING
-        except:
-            leng = 0
-        # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
-        # commented out as I prefer machine to show actual tool size right away.
-        # leng = self.comp["toollength"]
-        return (-leng, rad, 0, rad)
-
 
 # calculate a bunch of other dimensions that are used
 # to scale the model of the machine
@@ -133,13 +99,13 @@ tool = Rotate([tool],tool_angle,0.0,-1.0,0.0)
 # make joint 3 rotate
 
 
-tool = HalRotate([tool],c,"joint.3.pos-fb", 1, 0, 0, 1, direct = 1)
+tool = HalRotate([tool],c,"joint.3.pos-fb", 1, 0, 0, 1)
 
 link3 = CylinderZ(0.0, l3_rad, l3_len, l3_rad)
 # attach tool to end
 link3 = Collection([tool,link3])
 # make joint 2 go up and down
-link3 = HalTranslate([link3], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING, direct=1)
+link3 = HalTranslate([link3], c, "joint.2.pos-fb", 0, 0, MODEL_SCALING)
 
 # outer arm
 # start with link3 and the cylinder it slides in
@@ -164,7 +130,7 @@ link2 = Collection([
     Box(1.15*j1_rad, -0.9*j1_rad, -0.4*d3, 0.0, 0.9*j1_rad, flip*j1_hi2),
     CylinderZ(-0.4*d3, j1_rad, flip*1.2*j1_hi2, j1_rad)])
 # make the joint work
-link2 = HalRotate([link2],c,"joint.1.pos-fb", 1, 0, 0, 1, direct = 1)
+link2 = HalRotate([link2],c,"joint.1.pos-fb", 1, 0, 0, 1)
 
 # inner arm
 # the outer arm and the joint
@@ -183,7 +149,7 @@ link1 = Collection([
     Box(1.5*j0_rad, -0.9*j0_rad, -j0_hi, 0.0, 0.9*j0_rad, j0_hi),
     CylinderZ(-1.2*j0_hi, j0_rad, 1.2*j0_hi, j0_rad)])
 # make the joint work
-link1 = HalRotate([link1],c,"joint.0.pos-fb", 1, 0, 0, 1, direct = 1)
+link1 = HalRotate([link1],c,"joint.0.pos-fb", 1, 0, 0, 1)
 link1 = Color([1, .5, .5, .5],[link1])
 #stationary base
 link0 = Collection([
@@ -208,13 +174,17 @@ table = Collection([
 
 # make the table moveable (tilting)
 
-#table = HalRotate([table],c,"joint.4.pos-fb", 1, 0, 1, 0, direct = 1)
-#table = HalRotate([table],c,"joint.5.pos-fb", 1, 1, 0, 0, direct = 1)
+#table = HalRotate([table],c,"joint.4.pos-fb", 1, 0, 1, 0)
+#table = HalRotate([table],c,"joint.5.pos-fb", 1, 1, 0, 0)
 
 # put the table into its proper place
 table = Translate([table],0.5*reach,0.0,table_height)
 
 model = Collection([link0, floor, table])
+
+# show a title to prove the HUD
+myhud = Hud()
+myhud.show("Scara")
 
 class Window(QWidget):
 
@@ -224,9 +194,11 @@ class Window(QWidget):
         v = self.glWidget
         v.set_latitudelimits(-360, 360)
         size = max(d1+d3+l3_len,d2+d4+d6)
+
+        v.hud = myhud
+        v.hud.app = v #HUD needs to know where to draw
+
         world = Capture()
-        #main(model, tooltip, work, size)
-        #v.model = Collection([model, tooltip, work, size])
         v.model = Collection([model, world])
         v.distance = size * 3
         v.near = size * 0.01
@@ -243,9 +215,5 @@ class Window(QWidget):
 # but it you call this directly it should work too
 
 if __name__ == '__main__':
-    from PyQt5.QtWidgets import (QApplication, QWidget)
+    main(model, tooltip, work, size=600, hud=myhud, lat=-75, lon=215)
 
-    app = QApplication(sys.argv)
-    window = Window()
-    window.show()
-    sys.exit(app.exec_())

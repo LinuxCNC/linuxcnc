@@ -55,7 +55,6 @@ Un ejemplo completo integrado como una aplicación gladevcp y usando gcmc está 
 
  Configuraciones de muestra/sim/gscreen/ngcgui/pyngcgui_gcmc
 
-
 Las configuraciones sim de ejemplo utilizan archivos de biblioteca que proporcionan
 ejemplo de archivos de subrutina de código G (.ngc) y archivos de metacompilador de código G (.gcmc):
 
@@ -197,12 +196,15 @@ Uso:
        [--quiet]                     (menos comentarios en outfile)
        [--noiframe]                  (predeterminado: el cuadro muestra la imagen)
 ----
+
 [NOTE]
 Como aplicación independiente, ngcgui maneja un único archivo de subrutina que
 se puede invocar varias veces. Se puede iniciar múltiples aplicaciones ngcgui independientes.
 
 === PYNGCGUI independiente
+
 Para su uso, escriba en un terminal:
+
 ----
 pyngcgui --help
 Uso:
@@ -243,7 +245,7 @@ Los siguientes elementos del archivo INI van en la sección [DISPLAY]. (Ver a co
 
 * 'TKPKG = Ngcgui 1.0' - el paquete NGCGUI
 * 'TKPKG = Ngcguittt 1.0': el paquete True Type Tracer para generar texto
-   para grabar (opcional, debe seguir TKPKG = Ngcgui).
+  para grabar (opcional, debe seguir TKPKG = Ngcgui).
 * 'TTT = truetype-tracer': nombre del programa truetype tracer (debe estar en la RUTA del usuario)
 * 'TTT_PREAMBLE = in_std.ngc' - Opcional, especifica el nombre del archivo para el preámbulo utilizado para subfiles ttt creados. (alternativo: mm_std.ngc)
 
@@ -289,6 +291,7 @@ Los siguientes elementos del archivo INI van en la sección [DISPLAY] para cualq
 ** 'noiframe' - sin imagen interna, muestra imágenes en un widget de nivel superior separado
 ** 'nom2' - Esta opción elimina todos los efectos secundarios de la terminación m2
 * 'GCMC_INCLUDE_PATH = dirname1:dirname2' - busca directorios para archivos include de gcmc
+
 Este es un ejemplo de NGCGUI incrustado en Axis. Las subrutinas deben estar en un directorio especificado por [RS274NGC]SUBROUTINE_PATH. En algun ejemplo las subrutinas usan otras subrutinas, así que asegúrese de tener las dependencias, si las hay, en un directorio SUBROUTINE_PATH. Algunas subrutinas pueden usar archivos M personalizados que deben estar en un directorio especificado por [RS274NGC]USER_M_PATH.
 
 Gcode-meta-compiler (gcmc) puede incluir declaraciones como:
@@ -335,7 +338,6 @@ TTT               = truetype-tracer
 TTT_PREAMBLE      = in_std.ngc
 
 PROGRAM_PREFIX    = ../../nc_files
-
 ----
 
 [NOTE]
@@ -362,6 +364,7 @@ Item:    [DISPLAY]TTT_PREAMBLE = preamble_filename
 Example: [DISPLAY]TTT_PREAMBLE = in_std.ngc
 Note:    Opcional, especifica el nombre de archivo para el preámbulo utilizado para los archivos subttt creados.
 ....
+
 === Especificaciones de ruta en archivo INI
 
 Ngcgui usa la ruta de búsqueda de LinuxCNC.
@@ -374,6 +377,7 @@ seguido de múltiples directorios especificados por:
   [RS274NGC]SUBROUTINE_PATH=directorio1_nombre:directorio1_nombre:directorio3_nombre ...
 
 Los directorios pueden especificarse como rutas absolutas o relativas.
+
 ....
 Ejemplo: [DISPLAY]PROGRAM_PREFIX = /home/myname/linuxcnc/nc_files
 Ejemplo: [DISPLAY]PROGRAM_PREFIX = ~/linuxcnc/nc_files
@@ -423,6 +427,7 @@ Los nuevos usuarios pueden intentar inadvertidamente usar archivos que no están
 para usar como subarchivos puede incluir un comentario especial: "(not_a_subfile)" para que ngcgui los rechace automáticamente con un mensaje relevante.
 
 === Resumen de los detalles de elementos del archivo INI para usar NGCGUI
+
 ....
 Elemento: [RS274NGC]SUBROUTINE_PATH = dirname1:dirname2:dirname3 ...
 Ejemplo:  [RS274NGC]SUBROUTINE_PATH = ../../nc_files/ngcgui_lib:../../nc_files/ngcgui_lib/utilitysubs
@@ -440,7 +445,8 @@ Nota:     Las entradas: EMBED_TAB_NAME, EMBED_TAB_COMMAND, EMBED_TAB_LOCATION
 
 Elemento: [DISPLAY]EMBED_TAB_COMMAND = nombre del programa seguido de argumentos
 Ejemplo:  [DISPLAY]EMBED_TAB_COMMAND = gladevcp -x {XID} pyngcgui_axis.ui
-Nota:     Para aplicaciones gladevcp, vea el <<cha:glade-vcp,Capítulo GladeVCP>>
+Nota:     Para aplicaciones gladevcp, vea el Capítulo GladeVCP
+//cha:glade-vcp
 
 Elemento: [DISPLAY]EMBED_TAB_LOCATION = nombre_de_ubicación
 Ejemplo:  [DISPLAY]EMBED_TAB_LOCATION = notebook_main
@@ -533,10 +539,10 @@ Elemento: [DISPLAY]GCMC_INCLUDE_PATH = dirname1: dirname2: ...
 Ejemplo:  [DISPLAY]GCMC_INCLUDE_PATH =/home/myname/gcmc_includes:/home/myname/gcmc_includes2
 Nota:     Opcional, cada directorio se incluirá cuando se invoque gcmc
           usando la opción: --incluir dirname
-
 ....
 
 == Requisitos de archivo para compatibilidad NGCGUI
+
 === Requisitos de subrutina de Gcode de un solo archivo (.ngc)
 
 Un subfile compatible con NGCGUI contiene una única definición de subrutina. El nombre de la subrutina debe ser el mismo que el nombre del archivo (sin incluir el sufijo .ngc). LinuxCNC admite subrutinas con nombre o numeradas, pero solo las subrutinas con nombre son compatibles con NGCGUI. Para más información ver el
@@ -657,6 +663,7 @@ el metacompilador Gcode (gcmc)
 Se pueden encontrar subrutinas adicionales para usuarios en el Foro, en la sección de subrutinas.
 
 === Requisitos del archivo Gcode-meta-compiler (.gcmc)
+
 Ngcgui lee los archivos de Gcode-meta-compiler (gcmc) y crea cuadros de entrada para variables etiquetadas en el archivo. Cuando una característica del archivo
 finaliza, ngcgui pasa el archivo como entrada al compilador gcmc y, si la compilación es exitosa, el archivo gcode resultante se envía a LinuxCNC para su ejecución. El archivo resultante está formateado como subrutina de un solo archivo; Los archivos .gcmc y los archivos .ngc se pueden mezclar en ngcgui.
 
@@ -686,7 +693,9 @@ formatos de línea de etiqueta aceptados. Los formatos alternativos ignoran los 
 //ngcgui: varname2 = value2;
 //ngcgui: varname3 = value3; //, etiqueta3;
 ----
+
 Ejemplos:
+
 ----
 //ngcgui: feedrate = 10;
 //ngcgui: xl = 0; //, límite x
@@ -702,10 +711,13 @@ Una línea de información que aparecerá en la parte superior de una pestaña p
 Cuando sea necesario, las opciones se pueden pasar al compilador gcmc con una línea etiquetada:
 
 Formato de etiqueta de línea de opción
+
 ----
 //ngcgui: -option_name [ [=] option_value]
 ----
+
 Ejemplos:
+
 ----
 //ngcgui: -I
 //ngcgui: --imperial
@@ -714,6 +726,7 @@ Ejemplos:
 ----
 
 Las opciones para gcmc están disponibles con el comando de terminal:
+
 ----
 gcmc --help
 ----
@@ -755,3 +768,5 @@ Esta imagen muestra el uso del nuevo botón y la pestaña personalizada para cre
 tres recortes DB25 en un programa.
 
 image::images/ngcgui-db25-3.png[align="center"]
+
+// vim: set syntax=asciidoc:
