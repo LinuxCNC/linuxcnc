@@ -694,7 +694,7 @@ Para obtener más información, consulte el capítulo <<cha:hal-twopass,Hal TWOP
    para usarlos. Las GUI que admiten halfiles postgui incluyen Touchy, Axis, Gscreen y
    gmoccapy.
 
-  Vea la sección <<sec:pyvcp-with-axis,pyVCP con Axis>> para más información.
+  Vea la sección <<sec:pyvcp-with-axis,pyVCP with Axis>> para más información.
 
  * 'HALUI = halui' - agrega los pines de la interfaz de usuario de HAL. Para más información, ver
    el capítulo "Interfaz de usuario HAL".
