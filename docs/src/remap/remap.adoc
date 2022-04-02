@@ -587,7 +587,7 @@ def involute(self, **words):
     old_z = self.current_z
 
     if self.debugmask & 0x10000000:
-        print "x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z)
+        print("x0=%f y0=%f a=%f old_z=%f" % (x0,y0,a,old_z))
 
     try:
         #self.execute("G3456")  # would raise InterpreterException
@@ -1280,17 +1280,17 @@ added. Python output by default goes to stdout, so you need to start
 LinuxCNC from a terminal window to see results. Example (eg. in the
 MDI window):
 
-  ;py,print 2*3
+  ;py,print(2*3)
 
 Note that the interpreter instance is available here as `self`, so you
 could also run:
 
-  ;py,print self.tool_table[0].toolno
+  ;py,print(self.tool_table[0].toolno)
 
 The `emcStatus` structure is accessible, too:
 
   ;py,from emctask import *
-  ;py,print emcstat.io.aux.estop
+  ;py,print(emcstat.io.aux.estop)
 
 [[remap:programming-embedded-python]]
 == Programming Embedded Python in the RS274NGC Interpreter
@@ -1403,9 +1403,9 @@ Arguments:
 ---------------------------------------------------------------------
 # this would be defined in the oword module
 def mysub(self, *args):
-    print "number of parameters passed:", len(args)
+    print("number of parameters passed:", len(args))
     for a in args:
-  print a
+  print(a)
 ---------------------------------------------------------------------
 .Return values of O-word Python subroutines
 Just as NGC procedures may return values, so do O-word Python
@@ -1452,9 +1452,9 @@ Example call:
 [source,python]
 ---------------------------------------------------------------------
 def minimal_prolog(self, **words): # in remap module
-    print len(words)," words passed"
+    print(len(words)," words passed")
     for w in words:
-        print "%s: %s" % (w, words[w])
+        print("%s: %s" % (w, words[w]))
     if words['p'] < 78: # NB: could raise an exception if p were optional
        return "failing miserably"
     return INTERP_OK
@@ -1524,7 +1524,7 @@ def read_pin(self,*args):
     yield INTERP_EXECUTE_FINISH
     # post-sync() execution resumes here:
     pin_status = emccanon.GET_EXTERNAL_DIGITAL_INPUT(0,0);
-    print "pin status=",pin_status
+    print("pin status=",pin_status)
 ---------------------------------------------------------------------
 
 WARNING: The 'yield' feature is fragile. The following restrictions
@@ -1575,18 +1575,18 @@ extraction of parameters into/from the O-word procedure:
 [source,python]
 ---------------------------------------------------------------------
 def insert_param(self, **words): # in the remap module
-    print "insert_param call level=",self.call_level
+    print("insert_param call level=",self.call_level)
     self.params["myname"] = 123
     self.params[1] = 345
     self.params[2] = 678
     return INTERP_OK
 
 def retrieve_param(self, **words):
-    print "retrieve_param call level=",self.call_level
-    print "#1=", self.params[1]
-    print "#2=", self.params[2]
+    print("retrieve_param call level=",self.call_level)
+    print("#1=", self.params[1])
+    print("#2=", self.params[2])
     try:
-        print "result=", self.params["result"]
+        print("result=", self.params["result"])
     except Exception,e:
   return "testparam forgot to assign #<result>"
     return INTERP_OK
@@ -2481,14 +2481,14 @@ interpreter's perception of the tool currently loaded for instance is
 accessed by:
 
  ;py,from interpreter import *
- ;py,print this.tool_table[0]
+ ;py,print(this.tool_table[0]
 
 To see fields in the global emcStatus structure, try this:
 
  ;py,from emctask import *
- ;py,print emcstat.io.tool.pocketPrepped
- ;py,print emcstat.io.tool.toolInSpindle
- ;py,print emcstat.io.tool.toolTable[0]
+ ;py,print(emcstat.io.tool.pocketPrepped)
+ ;py,print(emcstat.io.tool.toolInSpindle)
+ ;py,print(emcstat.io.tool.toolTable[0])
 
 You need to have LinuxCNC started from a terminal window to see the
 results.

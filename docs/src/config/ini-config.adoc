@@ -481,7 +481,7 @@ def main(argv):
 
   file_out = []
   for line in file_in:
-    # print line
+    # print(line)
     if line.find('Z') != -1:
       words = line.rstrip('\n')
       words = words.split(' ')
@@ -496,7 +496,7 @@ def main(argv):
     else:
       file_out.append(line)
   for item in file_out:
-    print "%s" % item
+    print("%s" % item)
 
 if __name__ == "__main__":
   main(sys.argv[1:])

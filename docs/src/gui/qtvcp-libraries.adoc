@@ -49,9 +49,9 @@ These would call functions that looks like these: +
 [source,python]
 ----
         def on_state_on(self, status_object):
-            print 'Linuxcnc machine is on'
+            print('Linuxcnc machine is on')
         def on_state_off(self):
-            print 'Linuxcnc machine is off'
+            print('Linuxcnc machine is off')
 ----
 
 In this example code when LinuxCNC is in 'machine on'-state the function self.on_state_on will be called. +
@@ -178,7 +178,7 @@ To access INFO data use this general syntax: +
 ----
 home_state = INFO.NO_HOME_REQUIRED
 if INFO.MACHINE_IS_METRIC is True:
-    print 'Metric based'
+    print('Metric based')
 ----
 
 == Action
@@ -551,11 +551,11 @@ section add this: +
 
     def on_keycall_F12(self,event,state,shift,cntrl,value):
         if state:
-            print 'F12 pressed'
+            print('F12 pressed')
 
     def on_keycall_override(self,event,state,shift,cntrl,value):
         if state:
-            print 'value = {}'.format(value)
+            print('value = {}'.format(value))
 ----
 
 == Messages
@@ -807,7 +807,7 @@ In the 'GENERAL FUNCTIONS SECTION' ADD: +
     #####################
 
    def my_function(self, widget, state):
-        print 'My function State = ()'.format(state)
+        print('My function State = ()'.format(state))
 ----
 
 == QT Vismach Machine Graphics library

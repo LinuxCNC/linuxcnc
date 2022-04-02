@@ -130,7 +130,7 @@ In the 'CALLBACKS FROM STATUS SECTION'
         id_code = bool(message.get('ID') == 'FORM__NUMBER')
         name = bool(message.get('NAME') == 'ENTRY')
         if id_code and name and num is not None:
-            print 'The {} number from {} was: {}'.format(name, id_code, num)
+            print('The {} number from {} was: {}'.format(name, id_code, num))
 ----
 This catches all general messages so must check the dialog type and id code to confirm it's our dialog. +
 In this case we had requested an 'ENTRY' dialog and our unique id was 'ENTRY_NUMBER', so now we know the message is for us. +
@@ -194,7 +194,7 @@ In the 'GENERAL FUNCTIONS SECTION' ADD: +
 [source,python]
 ----
    def my_function(self, widget, state):
-        print 'My function State = ()'.format(state)
+        print('My function State = ()'.format(state))
 ----
 The function to be called if the actionMyFunction button is pressed.
 
@@ -381,7 +381,7 @@ which in this case is self.w.filemanager (the name given in the designer editor)
     #####################
 
     def our_load(self,fname):
-        print fname
+        print(fname)
         self.old_load(self.w.filemanager,fname)
 ----
 
@@ -411,7 +411,7 @@ We won't use that in built in qtvcp widgets. +
     #####################
 
     def our_load(self,fname):
-        print fname
+        print(fname)
         self.w.filemanager.super__load(fname)
 ----
 
@@ -640,7 +640,7 @@ You will need to run linuxcnc from a terminal to see the printed text. +
     # general functions #
     #####################
     def test_zmq_function(self, arg1, arg2):
-        print 'zmq test function called:',arg1, arg2
+        print('zmq test function called:',arg1, arg2)
 ----
 
 Here is a sample program to call a function. +
@@ -679,11 +679,11 @@ m2 = json.dumps(x)
 
 if __name__ == '__main__':
     while True:
-        print 'send message 1'
+        print('send message 1')
         socket.send_multipart([topic, bytes((m1).encode('utf-8'))])
         sleep(ms(1000))
 
-        print 'send message 2'
+        print('send message 2')
         socket.send_multipart([topic, bytes((m2).encode('utf-8'))])
         sleep(ms(1000))
 ----
@@ -754,7 +754,7 @@ sock.connect("tcp://127.0.0.1:5690")
 
 while True:
     topic, message = sock.recv_multipart()
-    print '{} sent message:{}'.format(topic,json.loads(message))
+    print('{} sent message:{}'.format(topic,json.loads(message)))
 
 ----
 
