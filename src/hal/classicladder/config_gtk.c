@@ -102,7 +102,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 		if ( ScanSub==1 )
 		{
 			GtkWidget * VertSep = gtk_vseparator_new( );
-			gtk_widget_set_size_request( VertSep, 30, -1 );
+			gtk_widget_set_size_request( VertSep, 10, -1 );
 			gtk_box_pack_start (GTK_BOX(vbox_sub[ScanSub]), VertSep, TRUE/*expand*/, TRUE/*fill*/, 0);
 		}
 		gtk_container_add (GTK_CONTAINER(hbox_for_subs), vbox_sub[ScanSub]);
@@ -211,7 +211,7 @@ GtkWidget * CreateGeneralParametersPage( void )
 			LabelParam[NumObj] = gtk_label_new(BuffLabel);
 //ForGTK3			gtk_widget_set_usize(/*(GtkWidget *)*/LabelParam[NumObj],(NumObj<NBR_OBJECTS_GENERAL-2)?420:180,0);
 			if( NumObj<NBR_OBJECTS-1 )
-				gtk_widget_set_size_request(LabelParam[NumObj],440,-1);
+				gtk_widget_set_size_request(LabelParam[NumObj],350,-1);
 			gtk_misc_set_alignment(GTK_MISC(LabelParam[NumObj]), 0.0f, 0.5f);
 			gtk_box_pack_start (GTK_BOX(hbox[NumObj]), LabelParam[NumObj], FALSE, FALSE, 5);
 

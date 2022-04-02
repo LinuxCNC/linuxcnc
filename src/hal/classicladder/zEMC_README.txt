@@ -28,6 +28,7 @@ config_gtk.c:
     is only removed from the GUI. Previously there was a comment in
     'protocol_modbus_master.c' in SetVarFromModbus(), which might mean that
     this was previously handled on a lower level.
+--- Make config window narrower.
 
 emc_mods.c:
 --- Check for NULL after call to ConvSymbolToVarName().
