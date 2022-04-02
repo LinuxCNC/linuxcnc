@@ -1124,7 +1124,7 @@ char GetSizesOfAnElement(short int NumTypeEle,int * pSizeX, int * pSizeY)
 	{
 		GetSizesOfTheSelectionToCopy( pSizeX, pSizeY );
 		cRuleDefined = TRUE;
-printf( "Size for selection = %d,%d\n", *pSizeX, *pSizeY );
+//printf( "Size for selection = %d,%d\n", *pSizeX, *pSizeY );
 	}
 	else
 	{

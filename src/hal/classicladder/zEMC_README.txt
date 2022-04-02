@@ -30,6 +30,14 @@ config_gtk.c:
     this was previously handled on a lower level.
 --- Make config window narrower.
 
+edit.c:
+--- Comment out printf() in GetSizesOfAnElement(), spams a lot useless info
+    when you copy a rung.
+
+edit_copy.c:
+--- comment out printf() in GetSizesOfTheSelectionToCopy(), creates a lot of
+    useless info when you copy a rung.
+
 emc_mods.c:
 --- Check for NULL after call to ConvSymbolToVarName().
 --- Cleaned up the entire file regarding whitespace and indentation.

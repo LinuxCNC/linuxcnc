@@ -86,7 +86,7 @@ void GetSizesOfTheSelectionToCopy( int * pSizeX, int * pSizeY )
 {
 	*pSizeX = PartSelectionSizeX;
 	*pSizeY = PartSelectionSizeY;
-printf("get size selection : (%d,%d)\n", PartSelectionSizeX, PartSelectionSizeY );
+//printf("get size selection : (%d,%d)\n", PartSelectionSizeX, PartSelectionSizeY );
 }
 char GetIsOutputEleLastColumnSelection( )
 {
