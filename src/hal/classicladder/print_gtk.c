@@ -73,7 +73,7 @@ static void begin_print(GtkPrintOperation *operation, GtkPrintContext   *context
 		int the_height = PrintHeaderLabelCommentHeight + RUNG_HEIGHT*PrintLadderBlockHeight;
 
 		int NbrTotalRungs = 0;
-		GetCurrentNumAndNbrRungsForASection( NULL, &NbrTotalRungs );
+		GetCurrentNumAndNbrRungsForCurrentSection( NULL, &NbrTotalRungs );
 		NbrRungsPerPage = PageHeight/(the_height+SpaceBetweenRungsY);
 		NbrPagesToPrint = (NbrTotalRungs+NbrRungsPerPage-1)/NbrRungsPerPage;
 printf( "rung page: w=%d, h=%d, PageWidth=%d, NbrTotalRungs=%d NbrRungsPerPage=%d  NbrPagesToPrint=%d\n",the_width,the_height,PageWidth,NbrTotalRungs,NbrRungsPerPage,NbrPagesToPrint );

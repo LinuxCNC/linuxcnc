@@ -50,10 +50,11 @@
 #define NBR_PHYS_FLOAT_OUTPUTS_DEF 10
 #define NBR_ERROR_BITS_DEF 10
 
-#define NBR_INPUTS_CONF 5
-#define NBR_OUTPUTS_CONF 5
 
 #define NBR_VARS_SYSTEM 20
+#define NBR_INPUTS_CONF 32
+#define NBR_OUTPUTS_CONF 32
+
 #define NBR_VARS_WORDS_SYSTEM 20
 
 typedef struct plc_sizeinfo_s {
@@ -303,7 +304,8 @@ typedef struct StrArithmExpr
 	char Expr[ARITHM_EXPR_SIZE];
 }StrArithmExpr;
 
-#define DEVICE_TYPE_DIRECT_ACCESS 0	/* used inb( ) and outb( ) calls */
+#define DEVICE_TYPE_NONE -1 //added in 0.9.4 because now we can have DEVICE_TYPE_DIRECT_CONFIG and FirstClassicLadderIO at -1 !!!
+#define DEVICE_TYPE_DIRECT_ACCESS 0	/* use inb( ) and outb( ) calls to read/write local inputs/outputs */
 #define DEVICE_TYPE_COMEDI 100	/* /dev/comedi0 and following */
 
 typedef struct StrIOConf

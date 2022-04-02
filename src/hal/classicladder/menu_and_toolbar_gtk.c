@@ -158,32 +158,39 @@ GtkUIManager * InitMenusAndToolBar( GtkWidget *vbox )
 void SetToogleMenuForSectionsManagerWindow( gboolean OpenedWin )
 {
 	GtkWidget *ToggleElement = gtk_ui_manager_get_widget( uiManager, "/MenuBar/ViewMenuAction/ViewSectionsAction" );
-	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//ForGTK3	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+	gtk_check_menu_item_set_active( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
 }
 void SetToggleMenuForEditorWindow( gboolean OpenedWin )
 {
 	GtkWidget *ToggleElement = gtk_ui_manager_get_widget( uiManager, "/MenuBar/ViewMenuAction/ViewEditorAction" );
-	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//ForGTK3	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+	gtk_check_menu_item_set_active( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
 }
 void SetToggleMenuForSymbolsWindow( gboolean OpenedWin )
 {
 	GtkWidget *ToggleElement = gtk_ui_manager_get_widget( uiManager, "/MenuBar/ViewMenuAction/ViewSymbolsAction" );
-	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//ForGTK3	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//printf("%s set toggle element %d\n", __FUNCTION__, OpenedWin );
+	gtk_check_menu_item_set_active( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
 }
 void SetToggleMenuForBoolVarsWindow( gboolean OpenedWin )
 {
 	GtkWidget *ToggleElement = gtk_ui_manager_get_widget( uiManager, "/MenuBar/ViewMenuAction/ViewBoolVarsAction" );
-	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//ForGTK3	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+	gtk_check_menu_item_set_active( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
 }
 void SetToggleMenuForFreeVarsWindow( gboolean OpenedWin )
 {
 	GtkWidget *ToggleElement = gtk_ui_manager_get_widget( uiManager, "/MenuBar/ViewMenuAction/ViewFreeVarsAction" );
-	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//ForGTK3	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+	gtk_check_menu_item_set_active( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
 }
 void SetToggleMenuForLogWindow( gboolean OpenedWin )
 {
 	GtkWidget *ToggleElement = gtk_ui_manager_get_widget( uiManager, "/MenuBar/ViewMenuAction/ViewLogAction" );
-	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+//ForGTK3	gtk_check_menu_item_set_state( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
+	gtk_check_menu_item_set_active( GTK_CHECK_MENU_ITEM(ToggleElement), OpenedWin );
 }
 
 //toggle function ourself, depends on "status running/stopped..." 

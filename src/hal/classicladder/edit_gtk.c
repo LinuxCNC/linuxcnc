@@ -41,18 +41,31 @@ static GtkWidget *EditorButtonAdd,*EditorButtonIns,*EditorButtonDel;
 static GtkWidget *EditorButtonModify;
 
 #define NBR_ELE_IN_TOOLBAR 50
-#define NBR_ELE_TOOLBAR_Y_MAX 15 // used for each GtkTable
+#define NBR_ELE_TOOLBAR_Y_MAX 12 // used for each GtkTable
 #define NBR_ELE_TOOLBAR_X_MAX 4
-static GtkWidget * ToolbarBtnRadio[ NBR_ELE_IN_TOOLBAR ];
-static GtkWidget * ToolbarImage[ NBR_ELE_IN_TOOLBAR ];
-static GdkPixmap * ToolbarPixmap[ NBR_ELE_IN_TOOLBAR ];
-#define NUM_TOOLBAR_FOR_RUNGS 0
+typedef struct StrToolbarDatas
+{
+	GtkWidget * ToolbarTable;
+	GtkWidget * ToolbarBtnRadio[ NBR_ELE_TOOLBAR_Y_MAX ][ NBR_ELE_TOOLBAR_X_MAX ];
+	GtkWidget * ToolbarImage[ NBR_ELE_TOOLBAR_Y_MAX ][ NBR_ELE_TOOLBAR_X_MAX ];
+#if GTK_MAJOR_VERSION<3
+	GdkPixmap * ToolbarPixmap[ NBR_ELE_TOOLBAR_Y_MAX ][ NBR_ELE_TOOLBAR_X_MAX ];
+#else
+	cairo_surface_t * ToolBarSurface[ NBR_ELE_TOOLBAR_Y_MAX ][ NBR_ELE_TOOLBAR_X_MAX ];
+#endif
+//	short int PtrOnToolBarElementsList[ ][ NBR_ELE_TOOLBAR_X_MAX ]; //hard....
+	short int (*PtrOnToolBarElementsList)[ NBR_ELE_TOOLBAR_X_MAX ];
+}StrToolbarDatas;
+
+#define NUM_TOOLBAR_FOR_LADDER 0
 #ifdef SEQUENTIAL_SUPPORT
 #define NUM_TOOLBAR_FOR_SEQ 1
+#define NBR_TOOLBARS 2
+#else
+#define NBR_TOOLBARS 1
 #endif
-static GtkWidget * ToolbarTable[ 2 ];
-static int NumWidgetEditPointer[ 2 ];
-GtkTooltips * TheTooltips;
+static StrToolbarDatas ToolbarDatas[ NBR_TOOLBARS ];
+//ForGTK3, deprecated...GtkTooltips * TheTooltips;
 
 #define PIXELS_SIZE_IN_TOOLBAR 32
 
@@ -120,18 +133,12 @@ void ButtonsForStart()
 	// select directly the pointer in toolbar per default...
 	EditDatas.NumElementSelectedInToolBar = EDIT_POINTER;
 	// ...in rung toolbar
-	if ( NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ]!=-1 )
-	{
-		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] ]), TRUE );
-		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], TRUE );
-	}
+	SelectAnElementInToolBar( NUM_TOOLBAR_FOR_LADDER, EDIT_POINTER );
+	gtk_widget_set_sensitive( ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].ToolbarTable, TRUE );
 #ifdef SEQUENTIAL_SUPPORT
 	// ...in sequential toolbar
-	if ( NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ]!=-1 )
-	{
-		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] ]), TRUE );
-		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], TRUE );
-	}
+	SelectAnElementInToolBar( NUM_TOOLBAR_FOR_SEQ, EDIT_POINTER );
+	gtk_widget_set_sensitive( ToolbarDatas[ NUM_TOOLBAR_FOR_SEQ ].ToolbarTable, TRUE );
 #endif
 	MessageInStatusBar( iCurrentLanguage==SECTION_IN_LADDER?_("Current rung in edit mode..."):_("Edit mode...") );
 	ManagerEnableActionsSectionsList( FALSE );
@@ -143,7 +150,7 @@ void ButtonsForEnd( char ForRung )
 		gtk_widget_show (EditorButtonAdd);
 		gtk_widget_show (EditorButtonIns);
 		gtk_widget_show (EditorButtonDel);
-		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], FALSE );
+		gtk_widget_set_sensitive( ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].ToolbarTable, FALSE );
 	}
 	else
 	{
@@ -151,7 +158,7 @@ void ButtonsForEnd( char ForRung )
 		gtk_widget_hide (EditorButtonIns);
 		gtk_widget_hide (EditorButtonDel);
 #ifdef SEQUENTIAL_SUPPORT
-		gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], FALSE );
+		gtk_widget_set_sensitive( ToolbarDatas[ NUM_TOOLBAR_FOR_SEQ ].ToolbarTable, FALSE );
 #endif
 	}
 	gtk_widget_show (EditorButtonModify);
@@ -170,17 +177,17 @@ void EditorButtonsAccordingSectionType( )
 		ButtonCancelCurrentRung( );
 	if ( iCurrentLanguage==SECTION_IN_SEQUENTIAL )
 	{
-		gtk_widget_hide( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+		gtk_widget_hide( ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].ToolbarTable );
 #ifdef SEQUENTIAL_SUPPORT
-		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ] );
+		gtk_widget_show( ToolbarDatas[ NUM_TOOLBAR_FOR_SEQ ].ToolbarTable );
 #endif
 	}
     else
 	{
 #ifdef SEQUENTIAL_SUPPORT
-		gtk_widget_hide( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ] );
+		gtk_widget_hide( ToolbarDatas[ NUM_TOOLBAR_FOR_SEQ ].ToolbarTable );
 #endif
-		gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+		gtk_widget_show( ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].ToolbarTable );
 	}
 	ButtonsForEnd( iCurrentLanguage==SECTION_IN_LADDER );
 	MessageInStatusBar( "" );
@@ -279,12 +286,58 @@ void OpenEditWindow( GtkAction * ActionOpen, gboolean OpenIt )
 			printf("to move edit window: x%d,y%d,w%d,h%d => x%d,y%d,w%d,h%d\n",mainx,mainy,mainw,mainh,winx,winy,winw,winh);
 			gtk_window_move( GTK_WINDOW(EditWindow), winx,winh );
 			FirstOpenToSetPosition = TRUE;
-		}
+        }
 	}
 	else
 	{
 		gtk_widget_hide( EditWindow );
 	}
+}
+
+char ConvertNumElementInToolbarPosisXY( int NumToolbar, int NumElementWanted, int *FoundX, int *FoundY )
+{
+	StrToolbarDatas *pToolbarDatas = &ToolbarDatas[ NumToolbar ];
+	int ScanX = 0;
+	int ScanY = 0;
+	char Found = FALSE;
+	char End = FALSE;
+	do
+	{
+		do
+		{
+			int EleValue = pToolbarDatas->PtrOnToolBarElementsList[ ScanY ][ ScanX ];
+			if ( EleValue==NumElementWanted )
+				Found = TRUE;
+			else if ( EleValue==-1 )
+				End = TRUE;
+			else
+				ScanX++;
+			if ( ScanX>NBR_ELE_TOOLBAR_X_MAX )
+			{
+				ScanX = 0;
+				ScanY++;
+			}
+		}
+		while( ScanX<NBR_ELE_TOOLBAR_X_MAX && !Found && !End );
+	}
+	while( !Found && !End );
+	if( Found )
+	{
+		*FoundX = ScanX;
+		*FoundY = ScanY;
+	}
+	else
+	{
+		printf("ERROR ELEMENT NOT FOUND IN ARRAY FOR THIS ELEMENT !!!!!\n");
+	}
+	return Found;
+}
+
+void SelectAnElementInToolBar( int iNumToolbar, int iNumElementSelectedWithPopup )
+{
+	int SearchEleX, SearchEleY;
+	if ( ConvertNumElementInToolbarPosisXY( iNumToolbar, iNumElementSelectedWithPopup, &SearchEleX, &SearchEleY ) )
+		gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(ToolbarDatas[iNumToolbar].ToolbarBtnRadio[ SearchEleY ][ SearchEleX ]), TRUE );
 }
 
 void ButtonToolbarSignal( GtkWidget * widget, gpointer data )
@@ -306,96 +359,106 @@ printf( "Ghost Size %d,%d for type=%d\n", EditDatas.GhostZoneSizeX, EditDatas.Gh
 
 void InitAllForToolbar( void )
 {
-	int Search = 0;
-	for ( Search=0; Search<NBR_ELE_IN_TOOLBAR; Search++ )
+	int ScanToolbar = 0;
+	for ( ScanToolbar=0; ScanToolbar<NBR_TOOLBARS; ScanToolbar++ )
 	{
-		ToolbarBtnRadio[ Search ] = NULL;
-		ToolbarImage[ Search ] = NULL;
-		ToolbarPixmap[ Search ] = NULL;
+		int ScanX,ScanY;
+		StrToolbarDatas *pToolbarDatas = &ToolbarDatas[ ScanToolbar ];
+		pToolbarDatas->ToolbarTable = NULL;
+		for( ScanY=0; ScanY<NBR_ELE_TOOLBAR_Y_MAX; ScanY++ ) 
+		{
+			for( ScanX=0; ScanX<NBR_ELE_TOOLBAR_X_MAX; ScanX++ ) 
+			{
+				pToolbarDatas->ToolbarBtnRadio[ ScanY ][ ScanX ] = NULL;
+				pToolbarDatas->ToolbarImage[ ScanY ][ ScanX ] = NULL;
+#if GTK_MAJOR_VERSION<3
+				pToolbarDatas->ToolbarPixmap[ ScanY ][ ScanX ] = NULL;
+#else
+				pToolbarDatas->ToolBarSurface[ ScanY ][ ScanX ] = NULL;
+#endif
+			}
+		}
 	}
-	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = -1;
+	ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].PtrOnToolBarElementsList = ToolBarElementsLadder;
 #ifdef SEQUENTIAL_SUPPORT
-	NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = -1;
+	ToolbarDatas[ NUM_TOOLBAR_FOR_SEQ ].PtrOnToolBarElementsList = ToolBarElementsSequential;
 #endif
 }
 
-void CreateOneToolbar( GtkWidget * Box, int NumTable, short int PtrOnToolBarElementsList[][NBR_ELE_TOOLBAR_X_MAX], char * PtrOnToolTipsText[][NBR_ELE_TOOLBAR_X_MAX] )
+void CreateOneToolbar( GtkWidget * Box, int NumTable, char * PtrOnToolTipsText[][NBR_ELE_TOOLBAR_X_MAX] )
 {
-	int CurrentAvail = 0;
-	while( ToolbarBtnRadio[ CurrentAvail ]!=NULL && CurrentAvail<NBR_ELE_IN_TOOLBAR )
-		CurrentAvail++;
-	if ( CurrentAvail<NBR_ELE_IN_TOOLBAR )
+	StrElement ToolBarEle;
+	int ScanToolBarX,ScanToolBarY;
+	GSList * PtrListRadiosBtn = NULL;
+	StrToolbarDatas * pToolbarDatas = &ToolbarDatas[ NumTable ];
+	ScanToolBarX = 0;
+	ScanToolBarY = 0;
+	pToolbarDatas->ToolbarTable = gtk_table_new( NBR_ELE_TOOLBAR_X_MAX, NBR_ELE_TOOLBAR_Y_MAX, FALSE/*homogeneous*/ );
+	gtk_box_pack_start (GTK_BOX(Box), pToolbarDatas->ToolbarTable, TRUE, TRUE, 0);
+
+	do
 	{
-		StrElement ToolBarEle;
-		int ScanToolBarX,ScanToolBarY;
-		GSList * PtrListRadiosBtn = NULL;
-		ScanToolBarX = 0;
-		ScanToolBarY = 0;
-		ToolbarTable[ NumTable ] = gtk_table_new( NBR_ELE_TOOLBAR_X_MAX, NBR_ELE_TOOLBAR_Y_MAX, FALSE/*homogeneous*/ );
-		gtk_box_pack_start (GTK_BOX(Box), ToolbarTable[ NumTable ], TRUE, TRUE, 0);
-		do
+		ToolBarEle.Type = pToolbarDatas->PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX];
+		ToolBarEle.ConnectedWithTop = 0;
+
+		if ( ToolBarEle.Type!=0 )
 		{
-			ToolBarEle.Type = PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX];
-			ToolBarEle.ConnectedWithTop = 0;
-			if ( ToolBarEle.Type==EDIT_POINTER )
-			{
-#ifdef SEQUENTIAL_SUPPORT
-				if ( PtrOnToolBarElementsList==ToolBarElementsSequential )
-					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_SEQ ] = CurrentAvail;
-				else
+			char * pHelpText = gettext( PtrOnToolTipsText[ ScanToolBarY ][ ScanToolBarX ] );
+#if GTK_MAJOR_VERSION<3
+			GdkGC * gc = drawing_area->style->bg_gc[0];
+			pToolbarDatas->ToolbarPixmap[ ScanToolBarY ][ ScanToolBarX ] = gdk_pixmap_new( GDK_DRAWABLE(drawing_area->window), PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, -1 );
+			gdk_draw_rectangle (GDK_DRAWABLE(pToolbarDatas->ToolbarPixmap[ ScanToolBarY ][ ScanToolBarX ]), gc, TRUE, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR);
+			cairo_t *cr = gdk_cairo_create( pToolbarDatas->ToolbarPixmap[ ScanToolBarY ][ ScanToolBarX ] );
+#else
+			pToolbarDatas->ToolBarSurface[ ScanToolBarY ][ ScanToolBarX ] = cairo_image_surface_create( CAIRO_FORMAT_A8, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR );
+			cairo_t *cr = cairo_create( pToolbarDatas->ToolBarSurface[ ScanToolBarY ][ ScanToolBarX ] );
 #endif
-					NumWidgetEditPointer[ NUM_TOOLBAR_FOR_RUNGS ] = CurrentAvail;
-			}
-
-			if ( ToolBarEle.Type!=0 )
-			{
-				GdkGC * gc = drawing_area->style->bg_gc[0];
-				char * pHelpText = PtrOnToolTipsText[ ScanToolBarY ][ ScanToolBarX ];
-				ToolbarPixmap[ CurrentAvail ] = gdk_pixmap_new( GDK_DRAWABLE(drawing_area->window), PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, -1 );
-				gdk_draw_rectangle (GDK_DRAWABLE(ToolbarPixmap[ CurrentAvail ]), gc, TRUE, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR);
-
-				cairo_t *cr = gdk_cairo_create( ToolbarPixmap[ CurrentAvail ] );
-				CreateFontPangoLayout( cr, PIXELS_SIZE_IN_TOOLBAR, DRAW_FOR_TOOLBAR );
+			CreateFontPangoLayout( cr, PIXELS_SIZE_IN_TOOLBAR, DRAW_FOR_TOOLBAR );
 
 #ifdef SEQUENTIAL_SUPPORT
-				if ( PtrOnToolBarElementsList==ToolBarElementsSequential )
-					DrawSeqElementForToolBar(cr, 0, 0, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle.Type );
-				else
+			if ( NumTable==NUM_TOOLBAR_FOR_SEQ )
+				DrawSeqElementForToolBar(cr, 0, 0, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle.Type );
+			else
 #endif
-					DrawElement( cr, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle, TRUE);
+				DrawElement( cr, 0, 0, PIXELS_SIZE_IN_TOOLBAR, PIXELS_SIZE_IN_TOOLBAR, ToolBarEle, TRUE);
 
-				ToolbarImage[ CurrentAvail ] = gtk_image_new_from_pixmap( ToolbarPixmap[ CurrentAvail ], NULL );
-				ToolbarBtnRadio[ CurrentAvail ] = gtk_radio_button_new( PtrListRadiosBtn );
-				PtrListRadiosBtn = gtk_radio_button_get_group (GTK_RADIO_BUTTON(ToolbarBtnRadio[ CurrentAvail ]));
-				gtk_button_set_relief (GTK_BUTTON( ToolbarBtnRadio[ CurrentAvail ] ), GTK_RELIEF_NONE);
-				gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON(ToolbarBtnRadio[ CurrentAvail ]), FALSE);
-				gtk_container_add( GTK_CONTAINER( ToolbarBtnRadio[ CurrentAvail ] ), ToolbarImage[ CurrentAvail ] );
-				gtk_widget_show( ToolbarImage[ CurrentAvail ] );
-				gtk_table_attach( GTK_TABLE( ToolbarTable[ NumTable ] ), ToolbarBtnRadio[ CurrentAvail ], 
-									ScanToolBarX, ScanToolBarX+1, ScanToolBarY, ScanToolBarY+1,
-									0, 0, 0, 0 );
+#if GTK_MAJOR_VERSION<3
+			pToolbarDatas->ToolbarImage[ ScanToolBarY ][ ScanToolBarX ] = gtk_image_new_from_pixmap( pToolbarDatas->ToolbarPixmap[ ScanToolBarY ][ ScanToolBarX ], NULL );
+#else
+			pToolbarDatas->ToolbarImage[ ScanToolBarY ][ ScanToolBarX ] =  gtk_image_new_from_surface( pToolbarDatas->ToolBarSurface[ ScanToolBarY ][ ScanToolBarX ] );
+			cairo_surface_destroy( pToolbarDatas->ToolBarSurface[ ScanToolBarY ][ ScanToolBarX ] );
+#endif
+			pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ] = gtk_radio_button_new( PtrListRadiosBtn );
+			PtrListRadiosBtn = gtk_radio_button_get_group (GTK_RADIO_BUTTON(pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ]));
+			gtk_button_set_relief (GTK_BUTTON( pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ] ), GTK_RELIEF_NONE);
+			gtk_toggle_button_set_mode (GTK_TOGGLE_BUTTON(pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ]), FALSE);
+			gtk_container_add( GTK_CONTAINER( pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ] ), pToolbarDatas->ToolbarImage[ ScanToolBarY ][ ScanToolBarX ] );
+			gtk_widget_show( pToolbarDatas->ToolbarImage[ ScanToolBarY ][ ScanToolBarX ] );
+			gtk_table_attach( GTK_TABLE( pToolbarDatas->ToolbarTable ), pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ], 
+								ScanToolBarX, ScanToolBarX+1, ScanToolBarY, ScanToolBarY+1,
+								0, 0, 0, 0 );
 
-				gtk_signal_connect( GTK_OBJECT (ToolbarBtnRadio[ CurrentAvail ]), "clicked", (GtkSignalFunc) ButtonToolbarSignal, GINT_TO_POINTER((int)ToolBarEle.Type) );
+			gtk_signal_connect( GTK_OBJECT (pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ]), "clicked", GTK_SIGNAL_FUNC(ButtonToolbarSignal), GINT_TO_POINTER((int)ToolBarEle.Type) );
 
-				if (pHelpText!=NULL )
-					gtk_tooltips_set_tip (TheTooltips, ToolbarBtnRadio[ CurrentAvail ], pHelpText, NULL);
-
-				gtk_widget_show( ToolbarBtnRadio[ CurrentAvail ] );
-
-				cairo_destroy( cr );
-
-				CurrentAvail++;
-			}//if ( ToolBarEle.Type!=0 )
-
-			ScanToolBarX++;
-			if (ScanToolBarX>=NBR_ELE_TOOLBAR_X_MAX)
+			if (pHelpText!=NULL )
 			{
-				ScanToolBarX = 0;
-				ScanToolBarY++;
+//ForGTK3, deprecated...				gtk_tooltips_set_tip (TheTooltips, pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ], pHelpText, NULL);
+				gtk_widget_set_tooltip_text( pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ], pHelpText );
 			}
+
+			gtk_widget_show( pToolbarDatas->ToolbarBtnRadio[ ScanToolBarY ][ ScanToolBarX ] );
+
+			cairo_destroy( cr );
+		}//if ( ToolBarEle.Type!=0 )
+
+		ScanToolBarX++;
+		if (ScanToolBarX>=NBR_ELE_TOOLBAR_X_MAX)
+		{
+			ScanToolBarX = 0;
+			ScanToolBarY++;
 		}
-		while( PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX]!=-1 );
 	}
+	while( pToolbarDatas->PtrOnToolBarElementsList[ScanToolBarY][ScanToolBarX]!=-1 );
 }
 
 
@@ -413,46 +476,46 @@ void EditorInitGtk()
 	EditorButtonAdd = gtk_button_new_with_label (_("Add"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonAdd, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonAdd), "clicked",
-						(GtkSignalFunc) ButtonAddRung, 0);
+						GTK_SIGNAL_FUNC(ButtonAddRung), 0);
 	gtk_widget_show (EditorButtonAdd);
 	EditorButtonIns = gtk_button_new_with_label (_("Insert"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonIns, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonIns), "clicked",
-						(GtkSignalFunc) ButtonInsertRung, 0);
+						GTK_SIGNAL_FUNC(ButtonInsertRung), 0);
 	gtk_widget_show (EditorButtonIns);
 	EditorButtonDel = gtk_button_new_with_label (_("Delete"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonDel, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonDel), "clicked",
-						(GtkSignalFunc) ButtonDeleteCurrentRung, 0);
+						GTK_SIGNAL_FUNC(ButtonDeleteCurrentRung), 0);
 	gtk_widget_show (EditorButtonDel);
 	EditorButtonModify = gtk_button_new_with_label (_("Modify"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonModify, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonModify), "clicked",
-						(GtkSignalFunc) ButtonModifyCurrentRung, 0);
+						GTK_SIGNAL_FUNC(ButtonModifyCurrentRung), 0);
 	gtk_widget_show (EditorButtonModify);
 	EditorButtonOk = gtk_button_new_with_label (_("Ok"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonOk, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonOk), "clicked",
-						(GtkSignalFunc) ButtonOkCurrentRung, 0);
+						GTK_SIGNAL_FUNC(ButtonOkCurrentRung), 0);
 	EditorButtonCancel = gtk_button_new_with_label (_("Cancel"));
 	gtk_box_pack_start (GTK_BOX (vbox), EditorButtonCancel, FALSE, FALSE, 0);
 	gtk_signal_connect(GTK_OBJECT (EditorButtonCancel), "clicked",
-						(GtkSignalFunc) ButtonCancelCurrentRung, 0);
+						GTK_SIGNAL_FUNC(ButtonCancelCurrentRung), 0);
 
 	InitAllForToolbar( );
-	TheTooltips = gtk_tooltips_new();
+//ForGTK3, deprecated...	TheTooltips = gtk_tooltips_new();
 	/* Rungs elements toolbar */
-	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_RUNGS, ToolBarElementsLadder, ToolBarToolTipsTextLadder );
-	gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ], FALSE );
-	gtk_widget_show( ToolbarTable[ NUM_TOOLBAR_FOR_RUNGS ] );
+	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_LADDER, ToolBarToolTipsTextLadder );
+	gtk_widget_set_sensitive( ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].ToolbarTable, FALSE );
+	gtk_widget_show( ToolbarDatas[ NUM_TOOLBAR_FOR_LADDER ].ToolbarTable );
 	/* Sequential elements toolbar */
 #ifdef SEQUENTIAL_SUPPORT
-	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_SEQ, ToolBarElementsSequential, ToolBarToolTipsTextSequential );
-	gtk_widget_set_sensitive( ToolbarTable[ NUM_TOOLBAR_FOR_SEQ ], FALSE );
+	CreateOneToolbar( vbox, NUM_TOOLBAR_FOR_SEQ, ToolBarToolTipsTextSequential );
+	gtk_widget_set_sensitive( ToolbarDatas[ NUM_TOOLBAR_FOR_SEQ ].ToolbarTable, FALSE );
 #endif
 
 	gtk_signal_connect( GTK_OBJECT(EditWindow), "delete_event",
-		(GtkSignalFunc)EditorWindowDeleteEvent, 0 );
+		GTK_SIGNAL_FUNC(EditorWindowDeleteEvent), 0 );
 
 	gtk_window_set_resizable( GTK_WINDOW( EditWindow ), FALSE );
 //gtk_widget_show (EditWindow);

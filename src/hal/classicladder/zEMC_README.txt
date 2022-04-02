@@ -19,6 +19,10 @@ global, some changes is quite old, but undocumented:
 --- Code related to log functionality has been commented out or not included.
 --- Code related to hardware I/O is removed.
 
+config_gtk.c:
+--- CreateGeneralParametersPage() is slightly modified to make it more pretty,
+    changes include alignment of text, some white space and margins.
+
 emc_mods.c:
 --- Check for NULL after call to ConvSymbolToVarName().
 --- Cleaned up the entire file regarding whitespace and indentation.

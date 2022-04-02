@@ -924,25 +924,6 @@ void DrawGhostZone( cairo_t * cr, int OffX, int AddPosiY )
 	cairo_restore( cr );
 }
 
-void GetTheSizesForRung( )
-{
-	static int PageHeightBak = 0;
-	static int BlockHeightBak = 0;
-	InfosGene->BlockWidth = ((GTK_WIDGET(drawing_area)->allocation.width*995/1000) / RUNG_WIDTH);
-	// keep ratio aspect (if defaults values of size block not square)
-	InfosGene->BlockHeight = InfosGene->BlockWidth*BLOCK_HEIGHT_DEF/BLOCK_WIDTH_DEF;
-
-	InfosGene->PageHeight = GTK_WIDGET(drawing_area)->allocation.height;
-	// used for sequential
-	InfosGene->PageWidth = GTK_WIDGET(drawing_area)->allocation.width;
-
-	// size of the page or block changed ?
-	if ( InfosGene->PageHeight!=PageHeightBak || InfosGene->BlockHeight!=BlockHeightBak )
-		UpdateVScrollBar();
-	PageHeightBak = InfosGene->PageHeight;
-	BlockHeightBak = InfosGene->BlockHeight;
-}
-
 void DrawPathLabelCommentHeader( cairo_t * cr, StrRung * Rung, int OffX, int PosiY, int BlockWidth, int HeaderHeight, char Background, char DrawingOption )
 {
 	int HeaderBarHeight = HeaderHeight*70/100;
@@ -1071,7 +1052,6 @@ void DrawCurrentSection( cairo_t * cr )
 {
 //Cairo		GdkRectangle update_rect;
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
-	GetTheSizesForRung();
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
 		DrawRungs( cr );
 #ifdef SEQUENTIAL_SUPPORT

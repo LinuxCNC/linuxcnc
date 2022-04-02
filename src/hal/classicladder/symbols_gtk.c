@@ -209,7 +209,7 @@ void SymbolsInitGtk()
 	SymbolsWindow = gtk_window_new( GTK_WINDOW_TOPLEVEL );
 	gtk_window_set_title( GTK_WINDOW( SymbolsWindow ), _("Symbols names") );
 	gtk_signal_connect( GTK_OBJECT( SymbolsWindow ), "delete_event",
-		(GtkSignalFunc)SymbolsWindowDeleteEvent, 0 );
+		GTK_SIGNAL_FUNC(SymbolsWindowDeleteEvent), 0 );
 
 	vbox = gtk_vbox_new(FALSE,0);
 

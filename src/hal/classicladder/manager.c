@@ -122,11 +122,11 @@ int SearchSectionWithName( char * SectionNameToFind )
 		return -1;
 }
 
-void SectionSelected( char * SectionName )
+void SetSectionSelected( int NumSec /*char * SectionName*/ )
 {
 	StrSection * pSection;
-	int NumSec = SearchSectionWithName( SectionName );
-	if ( NumSec>=0 )
+//	int NumSec = SearchSectionWithName( SectionName );
+//	if ( NumSec>=0 )
 	{
 		pSection = &SectionArray[ NumSec ];
 		InfosGene->FirstRung = pSection->FirstRung;
@@ -134,6 +134,9 @@ void SectionSelected( char * SectionName )
 		InfosGene->CurrentRung = InfosGene->FirstRung;
 
 		InfosGene->CurrentSection = NumSec;
+		
+// added in v0.9.7
+		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
 	}
 }
 
@@ -198,11 +201,11 @@ int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNb
 	}
 	return FreeFound;
 }
-void ModifySectionProperties( char * OriginalSectionName, char * NewSectionName )
+void ModifySectionProperties( int NumSec /*char * OriginalSectionName*/, char * NewSectionName )
 {
 	StrSection * pSection;
-	int NumSec = SearchSectionWithName( OriginalSectionName );
-	if ( NumSec>=0 )
+//	int NumSec = SearchSectionWithName( OriginalSectionName );
+//	if ( NumSec>=0 )
 	{
 		pSection = &SectionArray[ NumSec ];
 		rtapi_strxcpy( pSection->Name, NewSectionName );
@@ -211,12 +214,11 @@ void ModifySectionProperties( char * OriginalSectionName, char * NewSectionName 
 
 int NbrSectionsDefined( void )
 {
-	StrSection * pSection;
 	int NumSec;
 	int NbrSectionsDefined = 0;
 	for ( NumSec=0; NumSec<NBR_SECTIONS; NumSec++ )
 	{
-		pSection = &SectionArray[ NumSec ];
+		StrSection * pSection = &SectionArray[ NumSec ];
 		if ( pSection->Used )
 			NbrSectionsDefined++;
 	}
@@ -239,12 +241,12 @@ int VerifyIfSubRoutineNumberExist( int SubRoutineNbr )
 	return( NumSec>=0?TRUE:FALSE );
 }
 
-void DelSection( char * SectionNameToErase )
+void DelSection( int NumSec /*char * SectionNameToErase*/ )
 {
 	StrSection * pSection;
-	int NumSec;
-	NumSec = SearchSectionWithName( SectionNameToErase );
-	if ( NumSec>=0 )
+//	int NumSec;
+//	NumSec = SearchSectionWithName( SectionNameToErase );
+//	if ( NumSec>=0 )
 	{
 		pSection = &SectionArray[ NumSec ];
 		pSection->Used = FALSE;
@@ -264,20 +266,36 @@ void DelSection( char * SectionNameToErase )
 	}
 }
 
-void SwapSections( char * SectionName1, char * SectionName2 )
+int GetPrevNextSection( int RefSectionNbr, char NextSearch )
+{
+	int ScanSect = RefSectionNbr;
+//printf("Search sect base = %d\n", ScanSect );
+	int ScanFound = -1;
+	do
+	{
+		ScanSect = ScanSect + ( NextSearch?1:-1 );
+//printf("Search sect %d\n", ScanSect );
+		if ( SectionArray[ ScanSect ].Used )
+			ScanFound = ScanSect;
+	}
+	while( ( NextSearch && ScanSect<NBR_SECTIONS-1 ) && ( !NextSearch && ScanSect>0 ) );
+	return ScanFound;
+}
+
+void SwapSections( int SectionNbr1, int SectionNbr2 /*char * SectionName1, char * SectionName2*/ )
 {
 	StrSection * pSection1;
 	StrSection * pSection2;
 	StrSection SectionTemp;
 	StrSection * pSectionTemp = &SectionTemp;
-	int NumSec1;
-	int NumSec2;
-	NumSec1 = SearchSectionWithName( SectionName1 );
-	NumSec2 = SearchSectionWithName( SectionName2 );
-	if ( NumSec1>=0 && NumSec2>=0 )
+//	int NumSec1;
+//	int NumSec2;
+//	NumSec1 = SearchSectionWithName( SectionName1 );
+//	NumSec2 = SearchSectionWithName( SectionName2 );
+//	if ( NumSec1>=0 && NumSec2>=0 )
 	{
-		pSection1 = &SectionArray[ NumSec1 ];
-		pSection2 = &SectionArray[ NumSec2 ];
+		pSection1 = &SectionArray[ SectionNbr1 /*NumSec1*/ ];
+		pSection2 = &SectionArray[ SectionNbr2 /*NumSec2*/ ];
 
 		memcpy( pSectionTemp, pSection1, sizeof(StrSection) );
 		memcpy( pSection1, pSection2, sizeof(StrSection) );

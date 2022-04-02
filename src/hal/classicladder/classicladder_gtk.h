@@ -48,6 +48,7 @@
 
 
 void GetCurrentNumAndNbrRungsForASection( int * pCurrNumRung, int * pNbrRungs );
+void GetTheSizesForRung( void );
 void UpdateVScrollBar();
 void save_label_comment_edited();
 void refresh_label_comment( void );
@@ -80,4 +81,6 @@ void UpdateWindowTitleWithProjectName( void );
 void ShowErrorMessage(const char * title, const char * text, const char * button);
 void CheckForErrors (void);
 
+// Included for print_gtk.c
+void GetCurrentNumAndNbrRungsForCurrentSection( int * NumCurrentRung, int * NbrRungs );
 #endif

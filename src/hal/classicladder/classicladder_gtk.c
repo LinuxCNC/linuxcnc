@@ -85,18 +85,23 @@ gint StatusBarContextId;
 #include "print_gtk.h"
 //#include "vars_system.h"
 
-void CairoDrawCurrentSectionOnDrawingArea( void )
+void CairoDrawCurrentSectionOnDrawingArea( cairo_t *cr )
 {
-	cairo_t *cr = gdk_cairo_create( drawing_area->window );
 	/* clean up */
 	double w,h;
+//ForGTK3
+#if GTK_MAJOR_VERSION>=3
+	w = gtk_widget_get_allocated_width( drawing_area );
+	h = gtk_widget_get_allocated_height( drawing_area );
+#else
 	w = drawing_area->allocation.width;
 	h = drawing_area->allocation.height;
+#endif
 	cairo_set_source_rgb( cr, 1, 1 ,1 );
 	cairo_rectangle( cr, 0.0, 0.0, w, h );
 	cairo_fill( cr );
+	GetTheSizesForRung( );
 	DrawCurrentSection( cr );
-	cairo_destroy( cr );
 }
 
 /* Create a new backing pixmap of the appropriate size */
@@ -118,10 +123,15 @@ void CairoDrawCurrentSectionOnDrawingArea( void )
 						widget->allocation.height);
 	return TRUE;
 }*/
-
 /* Redraw the screen with Cairo */
-static gint expose_event( GtkWidget      *widget,
-                        GdkEventExpose *event )
+#if GTK_MAJOR_VERSION>=3
+void draw_callback( GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+	CairoDrawCurrentSectionOnDrawingArea( cr );
+}
+#else
+static gint expose_event( GtkWidget	  *widget,
+						GdkEventExpose *event )
 {
 /*	gdk_draw_pixmap(widget->window,
 					widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
@@ -130,11 +140,49 @@ static gint expose_event( GtkWidget      *widget,
 					event->area.x, event->area.y,
 					event->area.width, event->area.height);
 */
-	CairoDrawCurrentSectionOnDrawingArea( );
+	cairo_t *cr = gdk_cairo_create( drawing_area->window );
+	CairoDrawCurrentSectionOnDrawingArea( cr );
+	cairo_destroy( cr );
 	return FALSE;
 }
+#endif
 
-void GetCurrentNumAndNbrRungsForASection( int * pCurrNumRung, int * pNbrRungs )
+void GetTheSizesForRung( void )
+{
+	static int PageHeightBak = 0;
+	static int BlockHeightBak = 0;
+//ForGTK3
+#if GTK_MAJOR_VERSION>=3
+	InfosGene->BlockWidth = ((gtk_widget_get_allocated_width( drawing_area )*995/1000) / RUNG_WIDTH);
+#else
+	InfosGene->BlockWidth = ((GTK_WIDGET(drawing_area)->allocation.width*995/1000) / RUNG_WIDTH);
+#endif
+	// keep ratio aspect (if defaults values of size block not square)
+	InfosGene->BlockHeight = InfosGene->BlockWidth*BLOCK_HEIGHT_DEF/BLOCK_WIDTH_DEF;
+
+//ForGTK3
+#if GTK_MAJOR_VERSION>=3
+	InfosGene->PageHeight = gtk_widget_get_allocated_height( drawing_area );
+#else
+	InfosGene->PageHeight = GTK_WIDGET(drawing_area)->allocation.height;
+#endif
+	// used for sequential
+//ForGTK3
+#if GTK_MAJOR_VERSION>=3
+	InfosGene->PageWidth = gtk_widget_get_allocated_width( drawing_area );
+#else
+	InfosGene->PageWidth = GTK_WIDGET(drawing_area)->allocation.width;
+#endif
+
+	// size of the page or block changed ?
+	if ( InfosGene->PageHeight!=PageHeightBak || InfosGene->BlockHeight!=BlockHeightBak )
+		UpdateVScrollBar( TRUE/*AutoSelectCurrentRung*/ );
+	PageHeightBak = InfosGene->PageHeight;
+	BlockHeightBak = InfosGene->BlockHeight;
+}
+
+// calc total nbr rungs in a section, and nbr of rungs before current rung.
+void GetCurrentNumAndNbrRungsForCurrentSection( int * pCurrNumRung, int * pNbrRungs )
 {
 	int iSecurityBreak = 0;
 	int NbrRungs = 1;
@@ -167,18 +215,23 @@ void UpdateVScrollBar()
 	{
 		int NbrRungs = 1;
 		int NumCurrentRung = 0;
-		GetCurrentNumAndNbrRungsForASection( &NumCurrentRung, &NbrRungs );
+		int AdjustUpper;
+		int AdjustValue;
+		GetCurrentNumAndNbrRungsForCurrentSection( &NumCurrentRung, &NbrRungs );
 //printf("Nbr rungs=%d , NumRung=%d\n", NbrRungs, NumCurrentRung);
-		AdjustVScrollBar->lower = 0;
-		AdjustVScrollBar->upper = NbrRungs * TOTAL_PX_RUNG_HEIGHT;
-		AdjustVScrollBar->value = NumCurrentRung *  TOTAL_PX_RUNG_HEIGHT;
-		while( AdjustVScrollBar->value+InfosGene->PageHeight > AdjustVScrollBar->upper )
+		AdjustUpper = NbrRungs * TOTAL_PX_RUNG_HEIGHT;
+		AdjustValue = NumCurrentRung *  TOTAL_PX_RUNG_HEIGHT;
+		gtk_adjustment_set_lower( AdjustVScrollBar, 0 );
+		gtk_adjustment_set_upper( AdjustVScrollBar, AdjustUpper );
+		// go up lift to take into account the fact that total height page is generally more than just one rung...
+		while( AdjustValue+InfosGene->PageHeight > AdjustUpper )
 		{
-			AdjustVScrollBar->value = AdjustVScrollBar->value - TOTAL_PX_RUNG_HEIGHT;
+			AdjustValue = AdjustValue - TOTAL_PX_RUNG_HEIGHT;
 		}
-		AdjustVScrollBar->step_increment = InfosGene->BlockHeight;
-		AdjustVScrollBar->page_increment = TOTAL_PX_RUNG_HEIGHT;
-		AdjustVScrollBar->page_size = InfosGene->PageHeight;
+		gtk_adjustment_set_value( AdjustVScrollBar, AdjustValue );
+		gtk_adjustment_set_step_increment( AdjustVScrollBar, InfosGene->BlockHeight );
+		gtk_adjustment_set_page_increment( AdjustVScrollBar, TOTAL_PX_RUNG_HEIGHT );
+		gtk_adjustment_set_page_size( AdjustVScrollBar, InfosGene->PageHeight );
 		gtk_adjustment_changed( AdjustVScrollBar );
 		gtk_adjustment_value_changed( AdjustVScrollBar );
 		gtk_widget_hide( HScrollBar );
@@ -192,20 +245,20 @@ void UpdateVScrollBar()
 //        gtk_widget_hide( entrylabel );
 //        gtk_widget_hide( entrycomment );
 		refresh_label_comment( );
-		AdjustVScrollBar->lower = 0;
-		AdjustVScrollBar->upper = SEQ_PAGE_HEIGHT * SEQ_SIZE_DEF;
-		AdjustVScrollBar->value = 0;
-		AdjustVScrollBar->step_increment = SEQ_SIZE_DEF;
-		AdjustVScrollBar->page_increment = InfosGene->PageHeight;
-		AdjustVScrollBar->page_size = InfosGene->PageHeight;
+		gtk_adjustment_set_lower( AdjustVScrollBar, 0 );
+		gtk_adjustment_set_upper( AdjustVScrollBar, SEQ_PAGE_HEIGHT * SEQ_SIZE_DEF );
+		gtk_adjustment_set_value( AdjustVScrollBar, 0 );
+		gtk_adjustment_set_step_increment( AdjustVScrollBar, SEQ_SIZE_DEF );
+		gtk_adjustment_set_page_increment( AdjustVScrollBar, InfosGene->PageHeight );
+		gtk_adjustment_set_page_size( AdjustVScrollBar, InfosGene->PageHeight );
 		gtk_adjustment_changed( AdjustVScrollBar );
 		gtk_adjustment_value_changed( AdjustVScrollBar );
-		AdjustHScrollBar->lower = 0;
-		AdjustHScrollBar->upper = SEQ_PAGE_WIDTH * SEQ_SIZE_DEF;
-		AdjustHScrollBar->value = 0;
-		AdjustHScrollBar->step_increment = SEQ_SIZE_DEF;
-		AdjustHScrollBar->page_increment = InfosGene->PageWidth;
-		AdjustHScrollBar->page_size = InfosGene->PageWidth;
+		gtk_adjustment_set_lower( AdjustHScrollBar, 0 );
+		gtk_adjustment_set_upper( AdjustHScrollBar, SEQ_PAGE_WIDTH * SEQ_SIZE_DEF );
+		gtk_adjustment_set_value( AdjustHScrollBar, 0 );
+		gtk_adjustment_set_step_increment( AdjustHScrollBar, SEQ_SIZE_DEF );
+		gtk_adjustment_set_page_increment( AdjustHScrollBar, InfosGene->PageWidth );
+		gtk_adjustment_set_page_size( AdjustHScrollBar, InfosGene->PageWidth );
 		gtk_adjustment_changed( AdjustHScrollBar );
 		gtk_adjustment_value_changed( AdjustHScrollBar );
 	}
@@ -242,7 +295,7 @@ static gint VScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * no
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
 	{
-		int NumRung = ((int)ScrollBar->value)/TOTAL_PX_RUNG_HEIGHT;
+		int NumRung = ((int)gtk_adjustment_get_value( ScrollBar ))/TOTAL_PX_RUNG_HEIGHT;
 		int ScanRung = 0;
 		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
 		if ( NumRung<0 )
@@ -252,18 +305,18 @@ static gint VScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * no
 			InfosGene->TopRungDisplayed = RungArray[ InfosGene->TopRungDisplayed ].NextRung;
 			ScanRung++;
 		}
-		InfosGene->OffsetHiddenTopRungDisplayed = ((int)ScrollBar->value)%TOTAL_PX_RUNG_HEIGHT;
+		InfosGene->OffsetHiddenTopRungDisplayed = ((int)gtk_adjustment_get_value( ScrollBar ))%TOTAL_PX_RUNG_HEIGHT;
 
 		// if top rung displayed entirely (no vertical offset), it's the current rung => give '0'.
 		// else, search the next one => give '1'.
 		ChoiceOfTheCurrentRung( (InfosGene->OffsetHiddenTopRungDisplayed>0)?1:0 );
 	}
-	InfosGene->VScrollValue = (int)ScrollBar->value;
+	InfosGene->VScrollValue = (int)gtk_adjustment_get_value( ScrollBar );
 	return TRUE;
 }
 static gint HScrollBar_value_changed_event( GtkAdjustment * ScrollBar, void * not_used )
 {
-	InfosGene->HScrollValue = (int)ScrollBar->value;
+	InfosGene->HScrollValue = (int)gtk_adjustment_get_value( ScrollBar );
 	return TRUE;
 }
 
@@ -766,21 +819,23 @@ void ShowMessageBox(const char * title, const char * text, const char * button)
 	label = gtk_label_new (text);
 	okay_button = gtk_button_new_with_label(button);
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
-	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
+//ForGTK3	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
+//ForGTK3							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
+	g_signal_connect_swapped(GTK_OBJECT (okay_button), "clicked",
 							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(dialog));
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area),
-					okay_button);
+//ForGTK3	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area), okay_button);
+	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area(GTK_DIALOG(dialog))), okay_button);
 	gtk_widget_grab_focus(okay_button);
 	/* Add the label, and show everything we've added to the dialog. */
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
-					label);
+//ForGTK3	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox), label);
+	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area(GTK_DIALOG(dialog))), label);
 	gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
 	gtk_window_set_title(GTK_WINDOW(dialog),title);
 	gtk_window_set_position(GTK_WINDOW(dialog),GTK_WIN_POS_CENTER);
 	gtk_widget_show_all (dialog);
 }
 
-void DoFunctionOfConfirmationBox(void * (*function_to_do)(void *))
+void DoFunctionOfConfirmationBox( GtkWidget *widget, void * (*function_to_do)(void *) )
 {
 	gtk_widget_destroy(ConfirmDialog);
 	(function_to_do)(NULL);
@@ -794,8 +849,8 @@ void ShowConfirmationBoxWithChoiceOrNot(const char * title,const char * text,voi
 	label = gtk_label_new (text);
 	if ( HaveTheChoice )
 	{
-		yes_button = gtk_button_new_with_label("Yes");
-		no_button = gtk_button_new_with_label("No");
+		yes_button = gtk_button_new_with_label(_("Yes"));
+		no_button = gtk_button_new_with_label(_("No"));
 	}
 	else
 	{
@@ -804,19 +859,21 @@ void ShowConfirmationBoxWithChoiceOrNot(const char * title,const char * text,voi
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
 	if ( HaveTheChoice )
 	{
-	gtk_signal_connect_object (GTK_OBJECT (no_button), "clicked",
+//ForGTK3		gtk_signal_connect_object (GTK_OBJECT (no_button), "clicked",
+//ForGTK3							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(ConfirmDialog));
+		g_signal_connect_swapped(GTK_OBJECT (no_button), "clicked",
 							GTK_SIGNAL_FUNC (gtk_widget_destroy), GTK_OBJECT(ConfirmDialog));
-		gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area),
-					no_button);
+//ForGTK3		gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area), no_button);
+		gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area(GTK_DIALOG(ConfirmDialog))), no_button);
 		gtk_widget_grab_focus(no_button);
 	}
-	gtk_signal_connect_object (GTK_OBJECT (yes_button), "clicked",
+	gtk_signal_connect(GTK_OBJECT (yes_button), "clicked",
 							GTK_SIGNAL_FUNC (DoFunctionOfConfirmationBox), function_if_yes);
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area),
-					yes_button);
+//ForGTK3	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->action_area), yes_button);
+	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area(GTK_DIALOG(ConfirmDialog))), yes_button);
 	/* Add the label, and show everything we've added to the dialog. */
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->vbox),
-					label);
+//ForGTK3	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(ConfirmDialog)->vbox), label);
+	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area(GTK_DIALOG(ConfirmDialog))), label);
 	gtk_window_set_modal(GTK_WINDOW(ConfirmDialog),TRUE);
 	gtk_window_set_title(GTK_WINDOW(ConfirmDialog),title);
 	gtk_window_set_position(GTK_WINDOW(ConfirmDialog),GTK_WIN_POS_CENTER);
@@ -875,11 +932,11 @@ void MainSectionWindowInitGtk()
 //#ifdef GNOME_PRINT_USE
 //	GtkWidget *ButtonPrint,*ButtonPrintPreview,*ButtonExportSVG,*ButtonExportPNG,*ButtonCopyToClipboard;
 //#endif
-	GtkTooltips * TooltipsEntryLabel, * TooltipsEntryComment;
+//ForGTK3, deprecated...	GtkTooltips * TooltipsEntryLabel, * TooltipsEntryComment;
 	GtkUIManager * PtrUIManager;
 
 	MainSectionWindow = gtk_window_new (GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title ((GtkWindow *)MainSectionWindow, _("Section Display"));
+	gtk_window_set_title ( GTK_WINDOW(MainSectionWindow), _("ClassicLadder Section Display"));
 
 	vbox = gtk_vbox_new (FALSE, 0);
 	gtk_container_add (GTK_CONTAINER (MainSectionWindow), vbox);
@@ -898,35 +955,42 @@ void MainSectionWindowInitGtk()
 	gtk_box_set_child_packing(GTK_BOX(vbox), hboxtop,
 		/*expand*/ FALSE, /*fill*/ FALSE, /*pad*/ 0, GTK_PACK_START);
 
-	TooltipsEntryLabel = gtk_tooltips_new();
+//ForGTK3, deprecated...	TooltipsEntryLabel = gtk_tooltips_new();
 	entrylabel = gtk_entry_new();
-	gtk_widget_set_usize((GtkWidget *)entrylabel,80,0);
-	gtk_entry_set_max_length((GtkEntry *)entrylabel,LGT_LABEL-1);
-	gtk_entry_prepend_text((GtkEntry *)entrylabel,"");
+//GTK3	gtk_widget_set_usize((GtkWidget *)entrylabel,80,0);
+	gtk_widget_set_size_request( entrylabel, 80, -1 );
+	gtk_entry_set_max_length(GTK_ENTRY(entrylabel),LGT_LABEL-1);
+//ForGTK3	gtk_entry_prepend_text((GtkEntry *)entrylabel,"");
+	gtk_entry_set_text(GTK_ENTRY(entrylabel),"");
 	gtk_box_pack_start (GTK_BOX (hboxtop), entrylabel, FALSE, FALSE, 0);
-	gtk_tooltips_set_tip ( TooltipsEntryLabel, entrylabel, _("Label of the current selected rung"), NULL );
+//ForGTK3, deprecated...	gtk_tooltips_set_tip ( TooltipsEntryLabel, entrylabel, "Label of the current selected rung", NULL );
+	gtk_widget_set_tooltip_text( entrylabel, _("Label of the current selected rung") );
 	gtk_widget_show(entrylabel);
-	TooltipsEntryComment = gtk_tooltips_new();
+//ForGTK3, deprecated...	TooltipsEntryComment = gtk_tooltips_new();
 	entrycomment = gtk_entry_new();
-	gtk_entry_set_max_length((GtkEntry *)entrycomment,LGT_COMMENT-1);
-	gtk_entry_prepend_text((GtkEntry *)entrycomment,"");
+	gtk_entry_set_max_length(GTK_ENTRY(entrycomment),LGT_COMMENT-1);
+//ForGTK3	gtk_entry_prepend_text((GtkEntry *)entrycomment,"");
+	gtk_entry_set_text(GTK_ENTRY(entrycomment),"");
 	gtk_box_pack_start (GTK_BOX (hboxtop), entrycomment, TRUE, TRUE, 0);
-	gtk_tooltips_set_tip ( TooltipsEntryComment, entrycomment, _("Comment of the current selected rung"), NULL );
+//ForGTK3, deprecated...	gtk_tooltips_set_tip ( TooltipsEntryComment, entrycomment, "Comment of the current selected rung", NULL );
+	gtk_widget_set_tooltip_text( entrycomment, _("Comment of the current selected ladder rung or sequential page") );
 	gtk_widget_show(entrycomment);
 
 	CheckDispSymbols = gtk_check_button_new_with_label(_("Display symbols"));
 	gtk_box_pack_start( GTK_BOX (hboxtop), CheckDispSymbols, FALSE, FALSE, 0 );
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON( CheckDispSymbols ), InfosGene->DisplaySymbols );
 	gtk_signal_connect( GTK_OBJECT(CheckDispSymbols), "toggled",
-				(GtkSignalFunc)CheckDispSymbols_toggled, NULL );
+				GTK_SIGNAL_FUNC(CheckDispSymbols_toggled), NULL );
 	gtk_widget_show( CheckDispSymbols );
 
 #if defined( RT_SUPPORT ) || defined( __XENO__ )
 	DurationOfLastScan = gtk_entry_new();
-	gtk_widget_set_usize((GtkWidget *)DurationOfLastScan,60,0);
+//GTK3	gtk_widget_set_usize(DurationOfLastScan,150,0);
+	gtk_widget_set_size_request( DurationOfLastScan, 150, -1 );
 //    gtk_entry_set_max_length((GtkEntry *)DurationOfLastScan,LGT_COMMENT-1);
 //    gtk_entry_set_max_length((GtkEntry *)DurationOfLastScan,20);
-	gtk_entry_prepend_text((GtkEntry *)DurationOfLastScan,"");
+//ForGTK3	gtk_entry_prepend_text((GtkEntry *)DurationOfLastScan,"---");
+	gtk_entry_set_text(GTK_ENTRY(DurationOfLastScan),"---");
 	gtk_box_pack_start (GTK_BOX (hboxtop), DurationOfLastScan, FALSE, FALSE, 0);
 	gtk_widget_set_sensitive(DurationOfLastScan, FALSE);
 	gtk_widget_show(DurationOfLastScan);
@@ -941,7 +1005,10 @@ void MainSectionWindowInitGtk()
 
 	/* Create the drawing area */
 	drawing_area = gtk_drawing_area_new ();
-	gtk_drawing_area_size (GTK_DRAWING_AREA (drawing_area) ,
+//ForGTK3	gtk_drawing_area_size (GTK_DRAWING_AREA (drawing_area) ,
+//ForGTK3							BLOCK_WIDTH_DEF*RUNG_WIDTH+20 ,
+//ForGTK3							BLOCK_HEIGHT_DEF*RUNG_HEIGHT+45);
+	gtk_widget_set_size_request(drawing_area,
 							BLOCK_WIDTH_DEF*RUNG_WIDTH+20 ,
 							BLOCK_HEIGHT_DEF*RUNG_HEIGHT+45);
 	gtk_box_pack_start (GTK_BOX (hboxmiddle), drawing_area, TRUE, TRUE, 0);
@@ -959,9 +1026,9 @@ void MainSectionWindowInitGtk()
 	UpdateVScrollBar();
 
 	gtk_signal_connect(GTK_OBJECT (AdjustVScrollBar), "value-changed",
-						(GtkSignalFunc) VScrollBar_value_changed_event, 0);
+						GTK_SIGNAL_FUNC(VScrollBar_value_changed_event), 0);
 	gtk_signal_connect(GTK_OBJECT (AdjustHScrollBar), "value-changed",
-						(GtkSignalFunc) HScrollBar_value_changed_event, 0);
+						GTK_SIGNAL_FUNC(HScrollBar_value_changed_event), 0);
 
 	/* Create the status bar */
     StatusBar = gtk_statusbar_new ();
@@ -1091,14 +1158,14 @@ void MainSectionWindowInitGtk()
 						GTK_SIGNAL_FUNC(draw_callback), NULL);
 #else
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "expose_event",
-						(GtkSignalFunc) expose_event, NULL);
+						GTK_SIGNAL_FUNC(expose_event), NULL);
 #endif
 //Cairo	gtk_signal_connect (GTK_OBJECT(drawing_area),"configure_event",
 //Cairo						(GtkSignalFunc) configure_event, NULL);
 
 	/* Event signals */
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "button_press_event",
-						(GtkSignalFunc) button_press_event, NULL);
+						GTK_SIGNAL_FUNC(button_press_event), NULL);
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "motion_notify_event",
 						GTK_SIGNAL_FUNC(motion_notify_event), NULL);
 	gtk_signal_connect (GTK_OBJECT (drawing_area), "button_release_event",
@@ -1114,7 +1181,7 @@ void MainSectionWindowInitGtk()
 							| GDK_POINTER_MOTION_HINT_MASK);
 
 	gtk_signal_connect( GTK_OBJECT(MainSectionWindow), "delete_event",
-		(GtkSignalFunc)MainSectionWindowDeleteEvent, 0 );
+		GTK_SIGNAL_FUNC(MainSectionWindowDeleteEvent), 0 );
 	gtk_widget_show (MainSectionWindow);
 
 	GetTheSizesForRung();
@@ -1122,11 +1189,15 @@ void MainSectionWindowInitGtk()
 
 void RedrawSignalDrawingArea( void )
 {
+#if GTK_MAJOR_VERSION>=3
+	gtk_widget_queue_draw( drawing_area );
+#else
 	GdkRegion * region = gdk_drawable_get_clip_region( drawing_area->window );
 	// redraw completely by exposing it
 	gdk_window_invalidate_region( drawing_area->window, region, TRUE );
 	gdk_window_process_updates( drawing_area->window, TRUE );
 	gdk_region_destroy( region );
+#endif
 }
 
 static gint PeriodicUpdateDisplay(gpointer data)
@@ -1217,17 +1288,18 @@ void InitGtkWindows( int argc, char *argv[] )
 	SymbolsInitGtk( );
 SetMenuStateForRunStopSwitch( TRUE );
         ShowErrorMessage( _("Error"), _("Failed MODBUS communications"), _("Ok") );
-    gtk_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
+    g_timeout_add( TIME_UPDATE_GTK_DISPLAY_MS, PeriodicUpdateDisplay, NULL );
 }
 
 void UpdateAllGtkWindows( void )
 {
-	//DrawCurrentSection( );
+	ManagerDisplaySections( TRUE/*ForgetSectionSelected*/ );
+//	DrawCurrentSection( );
 	RedrawSignalDrawingArea( );
 	refresh_label_comment( );
 	autorize_prevnext_buttons( TRUE );
 	UpdateVScrollBar();
-	ManagerDisplaySections( );
+//moved at top in v0.9.7	ManagerDisplaySections( );
 	DisplaySymbols( );
 }
 
@@ -1261,15 +1333,15 @@ void ShowErrorMessage(const char * title, const char * text, const char * button
 	label = gtk_label_new (text);
 	okay_button = gtk_button_new_with_label(button);
 	/* Ensure that the dialog box is destroyed when the user clicks ok. */
-	gtk_signal_connect_object (GTK_OBJECT (okay_button), "clicked",
-							GTK_SIGNAL_FUNC (ErrorMessageDeleteEvent), GTK_OBJECT(dialog));
-        gtk_signal_connect( GTK_OBJECT( dialog ), "delete_event",
-		(GtkSignalFunc)ErrorMessageDeleteEvent, 0 );
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->action_area),
+	g_signal_connect_swapped (okay_button, "clicked",
+							G_CALLBACK (ErrorMessageDeleteEvent), dialog);
+        g_signal_connect( dialog, "delete_event",
+		G_CALLBACK(ErrorMessageDeleteEvent), 0 );
+	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_action_area(GTK_DIALOG(dialog))),
 					okay_button);
 	gtk_widget_grab_focus(okay_button);
 	/* Add the label, and show everything we've added to the dialog. */
-	gtk_container_add (GTK_CONTAINER (GTK_DIALOG(dialog)->vbox),
+	gtk_container_add (GTK_CONTAINER (gtk_dialog_get_content_area(GTK_DIALOG(dialog))),
 					label);
 	//gtk_window_set_modal(GTK_WINDOW(dialog),TRUE);
 	gtk_window_set_title(GTK_WINDOW(dialog),title);
@@ -1285,7 +1357,7 @@ void CheckForErrors (void)
            { 
              temp=1;
              //ShowErrorMessage( _("Error"), _("Failed MODBUS communications"), _("Ok") );
-             if ( !GTK_WIDGET_VISIBLE( dialog ) ) {  gtk_widget_show (dialog);  }
+             if ( !gtk_widget_get_visible( dialog ) ) {  gtk_widget_show (dialog);  }
            }
         if ( ReadVar( VAR_ERROR_BIT, 0 )==FALSE) {    temp=0;  }
 }
