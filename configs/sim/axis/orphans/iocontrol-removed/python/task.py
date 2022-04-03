@@ -24,7 +24,7 @@ import interpreter
 try:
     import emctask
     import customtask
-except ImportError,e:
+except ImportError as e:
     print("failed on import emctask,customtask",e)
     pass
 
