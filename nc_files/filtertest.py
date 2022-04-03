@@ -7,13 +7,13 @@ for i in range(0,100):
         time.sleep(.1)
 
         # output a line of gcode
-        print >>sys.stdout, 'G0 X1'
+        print('G0 X1', file=sys.stdout)
 
         # update progress
-        print >>sys.stderr, 'FILTER_PROGRESS={}'.format(i)
+        print('FILTER_PROGRESS={}'.format(i), file=sys.stderr)
     except:
         # This causes an error message
-        print >>sys.stderr, 'Error; But this was only a test'
+        print('Error; But this was only a test', file=sys.stderr)
         raise SystemExit(1)
 
 

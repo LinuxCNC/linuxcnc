@@ -54,25 +54,25 @@ class EmcToolTable(object):
         for p in range(start,len(tooltable)):
             t = tooltable[p]
             if t.toolno != -1:
-                print >> fp, "T%d P%d" % (t.toolno, p if self.random_toolchanger else fms[p]),
-                if t.diameter:  print >> fp, "D%f" % (t.diameter),
-                if t.offset.x: print >> fp, "X%+f" % (t.offset.x),
-                if t.offset.y: print >> fp, "Y%+f" % (t.offset.y),
-                if t.offset.z: print >> fp, "Z%+f" % (t.offset.z),
-                if t.offset.a: print >> fp, "A%+f" % (t.offset.a),
-                if t.offset.b: print >> fp, "B%+f" % (t.offset.b),
-                if t.offset.c: print >> fp, "C%+f" % (t.offset.c),
-                if t.offset.u: print >> fp, "U%+f" % (t.offset.u),
-                if t.offset.v: print >> fp, "V%+f" % (t.offset.v),
-                if t.offset.w: print >> fp, "W%+f" % (t.offset.w),
-                if t.offset.w: print >> fp, "W%+f" % (t.offset.w),
-                if t.frontangle: print >> fp, "I%+f" % (t.frontangle),
-                if t.backangle: print >> fp, "J%+f" % (t.backangle),
-                if t.orientation: print >> fp, "Q%+d" % (t.orientation),
+                fp.write("T%d P%d" % (t.toolno, p if self.random_toolchanger else fms[p]))
+                if t.diameter: fp.write("D%f" % (t.diameter))
+                if t.offset.x: fp.write("X%+f" % (t.offset.x))
+                if t.offset.y: fp.write("Y%+f" % (t.offset.y))
+                if t.offset.z: fp.write("Z%+f" % (t.offset.z))
+                if t.offset.a: fp.write("A%+f" % (t.offset.a))
+                if t.offset.b: fp.write("B%+f" % (t.offset.b))
+                if t.offset.c: fp.write("C%+f" % (t.offset.c))
+                if t.offset.u: fp.write("U%+f" % (t.offset.u))
+                if t.offset.v: fp.write("V%+f" % (t.offset.v))
+                if t.offset.w: fp.write("W%+f" % (t.offset.w))
+                if t.offset.w: fp.write("W%+f" % (t.offset.w))
+                if t.frontangle: fp.write("I%+f" % (t.frontangle))
+                if t.backangle: fp.write("J%+f" % (t.backangle))
+                if t.orientation: fp.write("Q%+d" % (t.orientation))
                 if comments.has_key(p) and comments[p]:
-                    print >> fp, ";%s" % (comments[p])
+                    fp.write(";%s\n" % (comments[p]))
                 else:
-                    print >> fp
+                    fp.write("\n")
         fp.close()
 
     def assign(self,tooltable,entry,comments,fms):
@@ -80,13 +80,13 @@ class EmcToolTable(object):
         if not self.random_toolchanger:
             self.fakepocket += 1
             if self.fakepocket >= len(tooltable):
-                print "too many tools. skipping tool %d" % (toolno)
+                print("too many tools. skipping tool %d" % (toolno))
                 return
             if not fms is None:
                 fms[self.fakepocket] = pocket
             pocket = self.fakepocket
         if pocket < 0 or pocket > len(tooltable):
-            print "max pocket number is %d. skipping tool %d" % (len(tooltable) - 1, toolno)
+            print("max pocket number is %d. skipping tool %d" % (len(tooltable) - 1, toolno))
             return
 
         tooltable[pocket].zero()
@@ -127,10 +127,10 @@ class EmcToolTable(object):
                     key = name.upper()
                     result[key] = EmcToolTable.ttype[key](value)
                 else:
-                    print "%s:%d  bad line: '%s' " % (self.filename, lineno, entry)
+                    print("%s:%d  bad line: '%s' " % (self.filename, lineno, entry))
             result['comment'] = comment
             return result
-        print "%s:%d: unrecognized tool table entry   '%s'" % (self.filename,lineno,line)
+        print("%s:%d: unrecognized tool table entry   '%s'" % (self.filename,lineno,line))
 
 
     def restore_state(self,e):
