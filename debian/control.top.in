@@ -15,6 +15,8 @@ Build-Depends:
     desktop-file-utils,
     gettext,
     intltool,
+    asciidoc (>= 8.5),
+    dblatex (>= 0.2.12),
     libboost-python-dev,
     libepoxy-dev,
     libgl1-mesa-dev | libgl1-mesa-swx11-dev,

@@ -612,8 +612,18 @@ NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
 TCL=$(call GLOB,../tcl/*.tcl)
 TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
-install: install-kernel-dep install-kernel-indep
+install:
+	$(MAKE) install-docs || echo "Ignored."
+	$(MAKE) install-kernel-dep || echo "Ignored."
+	$(MAKE) install-kernel-indep || echo "Ignored."
 	$(ECHO) "Installed in DESTDIR='$(DESTDIR)' with prefix $(prefix)"
+
+install-docs:
+	$(DIR) $(DESTDIR)$(docsdir)
+	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
+	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
+	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
+	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 
 install-dirs:
 	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR) \
@@ -684,8 +694,6 @@ install-kernel-indep: install-dirs
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	-ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
-	$(FILE) $(addprefix ../docs/,$(DOCS)) $(DESTDIR)$(docsdir)
-	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docsdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)
 	$(FILE) ../tcl/TkLinuxCNC $(DESTDIR)/etc/X11/app-defaults
@@ -787,8 +795,6 @@ install-python: install-dirs
 	$(EXE) ../bin/scorbot-er-3 $(DESTDIR)$(bindir)
 	$(EXE) $(patsubst %.py,../bin/%,$(VISMACH_PY)) $(DESTDIR)$(bindir)
 	$(FILE) ../share/linuxcnc/linuxcnc-wizard.gif $(DESTDIR)$(prefix)/share/linuxcnc
-	$(FILE) emc/usr_intf/axis/etc/axis_light_background $(DESTDIR)$(docsdir)
-	$(FILE) emc/usr_intf/axis/README $(DESTDIR)$(docsdir)/README.axis
 	$(FILE) ../share/axis/images/*.png ../share/axis/images/*.gif ../share/axis/images/*.xbm ../share/axis/images/*.ngc $(DESTDIR)$(datadir)/axis/images
 	$(FILE) ../share/axis/tcl/*.tcl $(DESTDIR)$(datadir)/axis/tcl
 	$(FILE) ../share/gscreen/images/*.gif $(DESTDIR)$(datadir)/gscreen/images
