@@ -286,10 +286,10 @@ void clearHomes(int joint_num)
     if (emcmotConfig->kinType == KINEMATICS_INVERSE_ONLY) {
 	if (rehomeAll) {
 	    for (n = 0; n < ALL_JOINTS; n++) {
-                set_joint_homed(joint_num,0);
+                set_unhomed(n,emcmotStatus->motion_state);
 	    }
 	} else {
-            set_joint_homed(joint_num,0);
+            set_unhomed(joint_num,emcmotStatus->motion_state);
 	}
     }
 }
@@ -514,7 +514,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		    joint->free_tp.enable = 0;
 		    /* stop homing if in progress */
 		    if ( ! get_home_is_idle(joint_num)) {
-			set_home_abort(joint_num);
+			do_cancel_homing(joint_num);
 		    }
 		}
 	    }
@@ -549,7 +549,7 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		if (joint == 0) { break; }
 		/* stop homing if in progress */
 		if ( !get_home_is_idle(joint_num) ) {
-                    set_home_abort(joint_num);
+                    do_cancel_homing(joint_num);
 		}
 		/* update status flags */
 		SET_JOINT_ERROR_FLAG(joint, 0);
@@ -1389,35 +1389,8 @@ void emcmotCommandHandler(void *arg, long servo_period)
 		break;
 	    }
 
-
-	    if(joint_num == -1) { // -1 means home all
-                if(get_home_sequence_state() == HOME_SEQUENCE_IDLE) {
-                    set_home_sequence_state(HOME_SEQUENCE_START);
-                } else {
-                    reportError(_("homing sequence already in progress"));
-                }
-	        break;  // do home-all sequence
-	    }
-
-	    if (joint == NULL) { break; }
-            joint->free_tp.enable = 0; /* abort movement (jog, etc) in progress */
-
-            // ********************************************************
-            // support for other homing modes (one sequence, one joint)
-            if (get_home_sequence(joint_num) < 0) {
-               int jj;
-               set_home_sequence_state(HOME_SEQUENCE_DO_ONE_SEQUENCE);
-               for (jj = 0; jj < ALL_JOINTS; jj++) {
-                  if (ABS(get_home_sequence(jj)) == ABS(get_home_sequence(joint_num))) {
-                      // set home_state for all joints at same neg sequence
-                      set_home_start(jj);
-                  }
-               }
-               break;
-            } else {
-               set_home_sequence_state(HOME_SEQUENCE_DO_ONE_JOINT);
-               set_home_start(joint_num); //one joint only
-            }
+	    // Negative joint_num specifies homeall
+	    do_home_joint(joint_num);
 	    break;
 
 	case EMCMOT_JOINT_UNHOME:
@@ -1431,74 +1404,8 @@ void emcmotCommandHandler(void *arg, long servo_period)
                 return;
             }
 
-            if (joint_num < 0) {
-                /* we want all or none, so these checks need to all be done first.
-                 * but, let's only report the first error.  There might be several,
-                 * for instance if a homing sequence is running. */
-                for (n = 0; n < ALL_JOINTS; n++) {
-                    joint = &joints[n];
-                    if(GET_JOINT_ACTIVE_FLAG(joint)) {
-                        if (get_homing(n)) {
-                            reportError(_("Cannot unhome while homing, joint %d"), n);
-                            return;
-                        }
-                        if (!GET_JOINT_INPOS_FLAG(joint)) {
-                            reportError(_("Cannot unhome while moving, joint %d"), n);
-                            return;
-                        }
-                    }
-                    if (   (n >= NO_OF_KINS_JOINTS)
-                        && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
-                        reportError(_("Cannot unhome extrajoint <%d> with motion enabled"), n);
-                        return;
-                    }
-                }
-                /* we made it through the checks, so unhome them all */
-                for (n = 0; n < ALL_JOINTS; n++) {
-                    joint = &joints[n];
-                    if(GET_JOINT_ACTIVE_FLAG(joint)) {
-                        /* legacy notes:
-                        4aa4791cd1 (Chris Radek 2008-02-27 21:07:02 +0000 1310)
-                        Unhome support, partly based on a patch by Bryant.
-                        Allow unhoming one joint or all (-1) via nml message.
-                        A special unhome mode (-2) unhomes only the joints
-                        marked as VOLATILE_HOME in the ini.  task could use this
-                        to unhome some joints, based on policy, at various state changes.
-                        This part is unimplemented so far.
-                        */
-                        /* if -2, only unhome the volatile_home joints */
-                        if( (joint_num != -2) || get_home_is_volatile(n) ) {
-                            set_joint_homed(n, 0);
-                        }
-
-                    }
-                }
-            } else if (joint_num < ALL_JOINTS) {
-                /* request was for only one joint */
-                if (   (joint_num >= NO_OF_KINS_JOINTS)
-                    && (emcmotStatus->motion_state != EMCMOT_MOTION_DISABLED)) {
-                    reportError(_("Cannot unhome extrajoint <%d> with motion enabled"), joint_num);
-                    return;
-                }
-                if(GET_JOINT_ACTIVE_FLAG(joint)) {
-                    if (get_homing(joint_num) ) {
-                        reportError(_("Cannot unhome while homing, joint %d"), joint_num);
-                        return;
-                    }
-                    if (!GET_JOINT_INPOS_FLAG(joint)) {
-                        reportError(_("Cannot unhome while moving, joint %d"), joint_num);
-                        return;
-                    }
-                    set_joint_homed(joint_num, 0);
-                } else {
-                    reportError(_("Cannot unhome inactive joint %d"), joint_num);
-                }
-            } else {
-                /* invalid joint number specified */
-                reportError(_("Cannot unhome invalid joint %d (max %d)"), joint_num, (ALL_JOINTS-1));
-                return;
-            }
-
+            //Negative joint_num specifies unhome_method (-1,-2)
+            set_unhomed(joint_num,emcmotStatus->motion_state);
             break;
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:

@@ -255,10 +255,18 @@ extern void refresh_jog_limits(emcmot_joint_t *joint,int joint_num);
 extern void clearHomes(int joint_num);
 
 extern void emcmot_config_change(void);
-extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2))); /* Use the rtapi_print call */
+extern void reportError(const char *fmt, ...) __attribute__((format(printf,1,2))); /* Use the rtapi_print call */
+
 
 int joint_is_lockable(int joint_num);
 
+#define ALL_JOINTS emcmotConfig->numJoints
+// number of kinematics-only joints:
+#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
+#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
+// 0-based Joint numbering:
+// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
+// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
 
  /* rtapi_get_time() returns a nanosecond value. In time, we should use a u64
     value for all calcs and only do the conversion to seconds when it is
@@ -295,11 +303,7 @@ int joint_is_lockable(int joint_num);
 
 #define SET_JOINT_ENABLE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ENABLE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ENABLE_BIT;
 
-#define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
-
 #define SET_JOINT_ACTIVE_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_ACTIVE_BIT; else (joint)->flag &= ~EMCMOT_JOINT_ACTIVE_BIT;
-
-#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)
 
 #define SET_JOINT_INPOS_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_INPOS_BIT; else (joint)->flag &= ~EMCMOT_JOINT_INPOS_BIT;
 

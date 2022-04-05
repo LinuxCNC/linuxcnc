@@ -753,10 +753,6 @@ typedef struct emcmot_internal_t {
     int idForStep;      /* status id while stepping */
     } emcmot_internal_t;
 
-/*
-  function prototypes for emcmot code
-*/
-
 /* error ring buffer access functions */
     extern int emcmotErrorInit(emcmot_error_t * errlog);
     extern int emcmotErrorPut(emcmot_error_t * errlog, const char *error);
@@ -764,15 +760,8 @@ typedef struct emcmot_internal_t {
     extern int emcmotErrorPutf(emcmot_error_t * errlog, const char *fmt, ...);
     extern int emcmotErrorGet(emcmot_error_t * errlog, char *error);
 
-#define ALL_JOINTS emcmotConfig->numJoints
-// number of kinematics-only joints:
-#define NO_OF_KINS_JOINTS (ALL_JOINTS - emcmotConfig->numExtraJoints)
-#define IS_EXTRA_JOINT(jno) (jno >= NO_OF_KINS_JOINTS)
-// 0-based Joint numbering:
-// kinematic-only jno.s: [0                 ... (NO_OF_KINS_JOINTS -1) ]
-// extrajoint     jno.s: [NO_OF_KINS_JOINTS ... (ALL_JOINTS  -1) ]
-
 #define GET_JOINT_ACTIVE_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_ACTIVE_BIT ? 1 : 0)
+#define GET_JOINT_INPOS_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_INPOS_BIT ? 1 : 0)
 
 #ifdef __cplusplus
 }

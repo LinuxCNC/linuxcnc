@@ -229,9 +229,6 @@ static int module_intfc() {
     homeMotFunctions(emcmotSetRotaryUnlock
                     ,emcmotGetRotaryIsUnlocked
                     );
-    homeMotData(emcmotConfig
-               ,joints
-               );
 
     tpMotFunctions(emcmotDioWrite
                   ,emcmotAioWrite
@@ -396,7 +393,11 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-    if (homing_init(mot_comp_id, num_joints)) {
+    if (homing_init(mot_comp_id,
+                    emcmotConfig->servoCycleTime,
+                    num_joints,
+                    num_extrajoints,
+                    joints)) {
 	rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: homing_init() failed\n"));
 	hal_exit(mot_comp_id);
 	return -1;

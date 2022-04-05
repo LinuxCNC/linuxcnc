@@ -249,7 +249,6 @@ void emcmotController(void *arg, long period)
     if (!emcmotStatus->on_soft_limit && !*emcmot_hal_data->jog_inhibit) {  // change from teleop to move off joint soft limit
         axis_handle_jogwheels(GET_MOTION_TELEOP_FLAG(), GET_MOTION_ENABLE_FLAG(), get_homing_is_active());
     }
-    do_homing_sequence();
     if (   (emcmotStatus->motion_state == EMCMOT_MOTION_FREE)
         && do_homing()) {
         switch_to_teleop_mode();
@@ -712,7 +711,7 @@ static void process_probe_inputs(void)
 
             // abort any homing
             if(get_homing(i)) {
-                set_home_abort(i);
+                do_cancel_homing(i);
                 aborted=1;
             }
 
@@ -843,8 +842,7 @@ static void set_operating_mode(void)
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_INPOS_FLAG(joint, 1);
 		SET_JOINT_ENABLE_FLAG(joint, 0);
-		set_joint_homing(joint_num,0);
-		set_home_idle(joint_num);
+		do_cancel_homing(joint_num);
 	    }
 	    /* don't clear the joint error flag, since that may signify why
 	       we just went into disabled state */
@@ -872,8 +870,7 @@ static void set_operating_mode(void)
 	    joint->free_tp.curr_pos = joint->pos_cmd;
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
 		SET_JOINT_ENABLE_FLAG(joint, 1);
-		set_joint_homing(joint_num,0);
-                set_home_idle(joint_num);
+		do_cancel_homing(joint_num);
 	    }
 	    /* clear any outstanding joint errors when going into enabled
 	       state */
@@ -1230,8 +1227,6 @@ static void get_pos_cmds(long period)
 		/* active TP means we're moving, so not in position */
 		SET_JOINT_INPOS_FLAG(joint, 0);
 		SET_MOTION_INPOS_FLAG(0);
-                /* if we move at all, clear at_home flag */
-		set_joint_at_home(joint_num,0);
 		/* is any limit disabled for this move? */
 		if ( emcmotStatus->overrideLimitMask ) {
                     emcmotInternal->overriding = 1;

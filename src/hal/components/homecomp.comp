@@ -50,7 +50,6 @@ EXTRA_SETUP() {
 }
 
 // retrieved from motmod.so:
-static emcmot_config_t *emcmotConfig;
 static emcmot_joint_t  *joints;
 
 //========================================================
@@ -68,14 +67,6 @@ void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
     GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
 }
 
-// emcmot pointers received from motmod
-void homeMotData(emcmot_config_t * pconfig
-                ,emcmot_joint_t  * pjoints
-                )
-{
-    emcmotConfig = pconfig;
-    joints       = pjoints;
-}
 //========================================================
 
 // data for per-joint homing-specific hal pins:
@@ -128,29 +119,29 @@ static int makepins(int id,int njoints)
 // All functions required for homing api
 // For homecomp.comp: most are skeleton
 
+int  homing_init(int id,
+                 double servo_period,
+                 int n_joints,
+                 int n_extrajoints,
+                 emcmot_joint_t* pjoints) {
+     joints = pjoints;
+     return makepins(id,n_joints);
+}
 bool do_homing(void)                                 {return 1;}
-void do_homing_sequence(void)                        {return;}
 bool get_allhomed()                                  {return 1;}
 bool get_homed(int jno)                              {return 1;}
 bool get_home_is_idle(int jno)                       {return 1;}
 bool get_home_is_synchronized(int jno)               {return 0;}
-bool get_home_is_volatile(int jno)                   {return 0;}
 bool get_home_needs_unlock_first(int jno)            {return 0;}
 int  get_home_sequence(int jno)                      {return 0;}
-home_sequence_state_t get_home_sequence_state() {return HOME_SEQUENCE_IDLE;}
 bool get_homing(int jno)                             {return 0;}
 bool get_homing_at_index_search_wait(int jno)        {return 0;}
 bool get_homing_is_active()                          {return 0;}
-int  homing_init(int id,int njoints)          {return makepins(id,njoints);}
 bool get_index_enable(int jno)                       {return 0;}
 void read_homing_in_pins(int njoints)                {return;}
-void set_home_abort(int jno)                         {return;}
-void set_home_idle(int jno)                          {return;}
-void set_home_sequence_state(home_sequence_state_t s_state) {return;}
-void set_home_start(int jno)                         {return;}
-void set_joint_at_home(int jno, bool value)          {return;}
-void set_joint_homed(int jno,bool value)             {return;}
-void set_joint_homing(int jno,bool value)            {return;}
+void do_home_joint(int jno)                          {return;}
+void set_unhomed(int jno,motion_state_t motstate)    {return;}
+void do_cancel_homing(int jno)                       {return;}
 void set_joint_homing_params(int    jno,
                              double offset,
                              double home,
@@ -171,31 +162,23 @@ void write_homing_out_pins(int njoints)              {return;}
 //========================================================
 // all home functions for homing api
 EXPORT_SYMBOL(homeMotFunctions);
-EXPORT_SYMBOL(homeMotData);
 
+EXPORT_SYMBOL(homing_init);
 EXPORT_SYMBOL(do_homing);
-EXPORT_SYMBOL(do_homing_sequence);
 EXPORT_SYMBOL(get_allhomed);
 EXPORT_SYMBOL(get_homed);
 EXPORT_SYMBOL(get_home_is_idle);
 EXPORT_SYMBOL(get_home_is_synchronized);
-EXPORT_SYMBOL(get_home_is_volatile);
 EXPORT_SYMBOL(get_home_needs_unlock_first);
 EXPORT_SYMBOL(get_home_sequence);
-EXPORT_SYMBOL(get_home_sequence_state);
 EXPORT_SYMBOL(get_homing);
 EXPORT_SYMBOL(get_homing_at_index_search_wait);
 EXPORT_SYMBOL(get_homing_is_active);
 EXPORT_SYMBOL(get_index_enable);
-EXPORT_SYMBOL(homing_init);
 EXPORT_SYMBOL(read_homing_in_pins);
-EXPORT_SYMBOL(set_home_abort);
-EXPORT_SYMBOL(set_home_idle);
-EXPORT_SYMBOL(set_home_sequence_state);
-EXPORT_SYMBOL(set_home_start);
-EXPORT_SYMBOL(set_joint_at_home);
-EXPORT_SYMBOL(set_joint_homed);
-EXPORT_SYMBOL(set_joint_homing);
+EXPORT_SYMBOL(do_home_joint);
+EXPORT_SYMBOL(do_cancel_homing);
+EXPORT_SYMBOL(set_unhomed);
 EXPORT_SYMBOL(set_joint_homing_params);
 EXPORT_SYMBOL(update_joint_homing_params);
 EXPORT_SYMBOL(write_homing_out_pins);

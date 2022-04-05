@@ -18,8 +18,9 @@
 #include "hal.h"
 
 static double servo_freq;
-static emcmot_config_t * emcmotConfig;
 static emcmot_joint_t  * joints;
+static int all_joints;
+static int extra_joints;
 
 #define ABS(x) (((x) < 0) ? -(x) : (x))
 
@@ -27,8 +28,8 @@ static emcmot_joint_t  * joints;
 #define _(s) (s)
 
 //========================================================
-// homing module interface
-// motmod function ptrs for functions called by homeing:
+// Module interface
+// motmod provided ptrs for functions called by homing:
 static void(*SetRotaryUnlock)(int,int);
 static int (*GetRotaryIsUnlocked)(int);
 
@@ -40,15 +41,6 @@ void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
     GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
 }
 
-// struct ptrs from motmod:
-void homeMotData(emcmot_config_t *pconfig
-                ,emcmot_joint_t  *pjoints
-                )
-{
-    // retrieve emcmot pointers from motmod
-    emcmotConfig = pconfig;  // ->servoCycleTime
-    joints       = pjoints;
-}
 //========================================================
 
 /***********************************************************************
@@ -66,6 +58,16 @@ void homeMotData(emcmot_config_t *pconfig
 /***********************************************************************
 *                  LOCAL VARIABLE DECLARATIONS                         *
 ************************************************************************/
+
+// internal SEQUENCE states
+typedef enum {
+  HOME_SEQUENCE_IDLE = 0,        // valid start state
+  HOME_SEQUENCE_START,           // valid start state
+  HOME_SEQUENCE_DO_ONE_JOINT,    // valid start state
+  HOME_SEQUENCE_DO_ONE_SEQUENCE, // valid start state
+  HOME_SEQUENCE_START_JOINTS,    // internal usage
+  HOME_SEQUENCE_WAIT_JOINTS,     // internal usage
+} home_sequence_state_t;
 
 // home sequences (some states are required)
 static home_sequence_state_t sequence_state;
@@ -111,7 +113,6 @@ typedef struct {
   bool         homed;                // OUT pin
   bool         home_sw;              // IN  pin
   bool         index_enable;         // IO  pin
-  bool         at_home;
   bool         sync_final_move;      // joints with neg sequence
   bool         joint_in_sequence;
   int          pause_timer;
@@ -207,18 +208,26 @@ static void home_do_moving_checks(emcmot_joint_t * joint,int jno)
 
 static void update_home_is_synchronized(void) {
     // invoke anytime H[*].home_sequence is altered
-    int jno,joint_num;
+    int jno,jj,joint_num;
 
     // first, clear all H[*].home_is_synchronized
-    for (jno = 0; jno < ALL_JOINTS; jno++) {
+    for (jno = 0; jno < all_joints; jno++) {
         H[jno].home_is_synchronized = 0;
+        if (H[jno].home_sequence < 0) {
+            // neg: sync all joints with same ABS(home_sequence):
+            for (jj = 0; jj < all_joints; jj++) {
+                if (ABS(H[jj].home_sequence) == ABS(H[jno].home_sequence)) {
+                    H[jj].home_sequence = H[jno].home_sequence;
+                }
+            }
+        }
     }
-    for (jno = 0; jno < ALL_JOINTS; jno++) {
+    for (jno = 0; jno < all_joints; jno++) {
         if (H[jno].home_sequence < 0) {
             H[jno].home_is_synchronized = 1;
             continue;
         }
-        for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
+        for (joint_num = 0; joint_num < all_joints; joint_num++) {
             if (joint_num == jno) continue;
             if (   (    H[joint_num].home_sequence < 0)
                 && (ABS(H[joint_num].home_sequence) == H[jno].home_sequence) )  {
@@ -259,194 +268,78 @@ static int make_joint_home_pins(int id,int njoints)
     return retval;
 } // make_joint_home_pins()
 
-/***********************************************************************
-*                      PUBLIC FUNCTIONS                                *
-************************************************************************/
-
-int homing_init(int id, int njoints)
+static void do_home_all(void)
 {
-#ifdef USE_HOME_PARMS
-    if (home_parms) {
-        rtapi_print("%s:%s: home_parms=%s\n",__FILE__,__FUNCTION__,home_parms);
+    if (!get_homing_is_active() ) {
+        sequence_state = HOME_SEQUENCE_START;
     }
-#endif
+} // do_home_all()
 
-    int i;
-    if (emcmotConfig->servoCycleTime < 1e-9) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"%s: bad servoCycleTime:%g\n",
-                        __FUNCTION__,
-                        emcmotConfig->servoCycleTime);
-        return -1;
-    }
-    if (make_joint_home_pins(id,njoints)) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"%s: make_joint_home_pins fail\n",
-                        __FUNCTION__);
-        return -1;
-    }
-
-    servo_freq = 1/emcmotConfig->servoCycleTime;
-    homing_active = 0;
-    for (i=0; i < njoints; i++) {
-        H[i].home_state      =  HOME_IDLE;
-        H[i].home_search_vel =  0;
-        H[i].home_latch_vel  =  0;
-        H[i].home_final_vel  =  0;
-        H[i].home_offset     =  0;
-        H[i].home            =  0;
-        H[i].home_flags      =  0;
-        H[i].home_sequence   = -1;
-        H[i].volatile_home   =  0;
-    }
-    return 0;
-}
-
-void read_homing_in_pins(int njoints)
+static void do_home_one_joint(int jno)
 {
-    int jno;
-    one_joint_home_data_t *addr;
-    for (jno = 0; jno < njoints; jno++) {
-        addr = &(joint_home_data->jhd[jno]);
-        H[jno].home_sw      = *(addr->home_sw);      // IN
-        H[jno].index_enable = *(addr->index_enable); // IO
+    //NOTE: if home_sequence neg, home all joints in sequence
+    int jj;
+    if (H[jno].home_sequence < 0) {  //neg: home all joints in sequence
+        sequence_state = HOME_SEQUENCE_DO_ONE_SEQUENCE;
+        for (jj = 0; jj < all_joints; jj++) {
+            if (ABS(H[jj].home_sequence) == ABS(H[jno].home_sequence)) {
+                // set home_state for all joints with same sequence
+                H[jj].home_state = HOME_START;
+            }
+        }
+    } else {
+        sequence_state = HOME_SEQUENCE_DO_ONE_JOINT;
     }
-}
-
-void write_homing_out_pins(int njoints)
-{
-    int jno;
-    one_joint_home_data_t *addr;
-    for (jno = 0; jno < njoints; jno++) {
-        addr = &(joint_home_data->jhd[jno]);
-        *(addr->homing)       = H[jno].homing;       // OUT
-        *(addr->homed)        = H[jno].homed;        // OUT
-        *(addr->home_state)   = H[jno].home_state;   // OUT
-        *(addr->index_enable) = H[jno].index_enable; // IO
-    }
-}
-
-void set_home_sequence_state(home_sequence_state_t s_state) {
-   sequence_state = s_state;
-}
-
-void set_home_abort(int jno) {
-    H[jno].home_state = HOME_ABORT;
-}
-
-void set_home_start(int jno) {
     H[jno].home_state = HOME_START;
-}
+} // do_home_one_joint()
 
-void set_home_idle(int jno) {
-    H[jno].home_state = HOME_IDLE;
-}
-
-void set_joint_homing(int jno,bool value) {
-    H[jno].homing = value;
-}
-
-void set_joint_homed(int jno,bool value) {
-    H[jno].homed = value;
-}
-
-void set_joint_at_home(int jno, bool value) {
-    H[jno].at_home = value;
-}
-
-void set_joint_homing_params(int    jno,
-                             double offset,
-                             double home,
-                             double home_final_vel,
-                             double home_search_vel,
-                             double home_latch_vel,
-                             int    home_flags,
-                             int    home_sequence,
-                             bool   volatile_home
-                             )
+static void set_all_unhomed(int unhome_method, motion_state_t motstate) 
 {
-    H[jno].home_offset     = offset;
-    H[jno].home            = home;
-    H[jno].home_final_vel  = home_final_vel;
-    H[jno].home_search_vel = home_search_vel;
-    H[jno].home_latch_vel  = home_latch_vel;
-    H[jno].home_flags      = home_flags;
-    H[jno].home_sequence   = home_sequence;
-    H[jno].volatile_home   = volatile_home;
-    update_home_is_synchronized();
-}
-
-void update_joint_homing_params (int    jno,
-                                 double offset,
-                                 double home,
-                                 int    home_sequence
-                                )
-{
-    H[jno].home_offset   = offset;
-    H[jno].home          = home;
-    H[jno].home_sequence = home_sequence;
-    update_home_is_synchronized();
-}
-
-bool get_homing_is_active() {
-    return homing_active;
-}
-
-bool get_allhomed() {
-    int joint_num;
+    /* 
+    ** unhome_method == -1: unhome all joints
+    ** unhome_method == -2: unhome joints marked as VOLATILE_HOME
+    */
+    int jno;
     emcmot_joint_t *joint;
-
-    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
-        joint = &joints[joint_num];
-        if (!GET_JOINT_ACTIVE_FLAG(joint)) {
-            /* if joint is not active, don't even look at its limits */
-            continue;
+    /* we want all or none, so these checks need to all be done first.
+     * but, let's only report the first error.  There might be several,
+     * for instance if a homing sequence is running. */
+    for (jno = 0; jno < all_joints; jno++) {
+        joint = &joints[jno];
+        if(GET_JOINT_ACTIVE_FLAG(joint)) {
+            if (get_homing(jno)) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                     _("Cannot unhome while homing, joint %d"), jno);
+                return;
+            }
+            if (!GET_JOINT_INPOS_FLAG(joint)) {
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                     _("Cannot unhome while moving, joint %d"), jno);
+                return;
+            }
         }
-        if (!get_homed(joint_num) ) {
-            /* if any of the joints is not homed return false */
-            return 0;
+        if (   (jno >= (all_joints - extra_joints))  // jno is extrajoint
+            && (motstate != EMCMOT_MOTION_DISABLED)) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 _("Cannot unhome extrajoint <%d> with motion enabled"), jno);
+            return;
         }
     }
-    /* return true if all active joints are homed*/
-    return 1;
-}
-
-int get_home_sequence(int jno) {
-    return H[jno].home_sequence;
-}
-
-bool get_homing(int jno) {
-    return H[jno].homing;
-}
-
-bool get_homed(int jno) {
-    return H[jno].homed;
-}
-
-bool get_index_enable(int jno) {
-     return H[jno].index_enable;
-}
-
-bool get_home_is_volatile(int jno) {
-    return H[jno].volatile_home;
-}
-
-bool get_home_needs_unlock_first(int jno) {
-    return (H[jno].home_flags & HOME_UNLOCK_FIRST) ? 1 : 0;
-}
-
-bool get_home_is_idle(int jno) {
-    return H[jno].home_state == HOME_IDLE ? 1 : 0;
-}
-
-bool get_homing_at_index_search_wait(int jno) {
-    return H[jno].home_state == HOME_INDEX_SEARCH_WAIT ? 1 : 0;
-}
-
-home_sequence_state_t get_home_sequence_state(void) {
-   return sequence_state;
-}
+    /* we made it through the checks, so unhome them all per unhome_method */
+    for (jno = 0; jno < all_joints; jno++) {
+        joint = &joints[jno];
+        if(GET_JOINT_ACTIVE_FLAG(joint)) {
+            if (     (unhome_method == -1)
+                || ( (unhome_method == -2) && (H[jno].volatile_home) )
+               ) {
+                H[jno].homed = 0;
+            }
+        }
+    }
+} // set_all_unhomed()
 
 // SEQUENCE management
-void do_homing_sequence(void)
+static void do_homing_sequence(void)
 {
     int i,ii;
     int special_case_sync_all;
@@ -466,7 +359,7 @@ void do_homing_sequence(void)
 
     case HOME_SEQUENCE_DO_ONE_JOINT:
         // Expect one joint with home_state==HOME_START
-        for (i=0; i < ALL_JOINTS; i++) {
+        for (i=0; i < all_joints; i++) {
             if (H[i].home_state == HOME_START) {
                H[i].joint_in_sequence = 1;
                home_sequence = ABS(H[i].home_sequence);
@@ -487,7 +380,7 @@ void do_homing_sequence(void)
         // Determine home_sequence and set H[i].joint_in_sequence
         // based on home_state[i] == HOME_START
         if (!sequence_is_set) {
-            for (i=0; i < ALL_JOINTS; i++) {
+            for (i=0; i < all_joints; i++) {
                 if (H[i].home_state == HOME_START) {
                     if (   sequence_is_set
                         && (ABS(H[i].home_sequence) != home_sequence)) {
@@ -531,7 +424,7 @@ void do_homing_sequence(void)
         for(i=0; i < MAX_HOME_SEQUENCES; i++) {
             H[i].sync_final_move = 0; //reset to allow a rehome
         }
-        for(i=0; i < ALL_JOINTS; i++) {
+        for(i=0; i < all_joints; i++) {
             if (!H[i].joint_in_sequence) continue;
             if (   (H[i].home_flags & HOME_NO_REHOME)
                 &&  H[i].homed
@@ -543,7 +436,7 @@ void do_homing_sequence(void)
             if (H[i].home_sequence < 0) {
                 // if a H[i].home_sequence is neg, find all joints that
                 // have the same ABS sequence value and make them the same
-                for(ii=0; ii < ALL_JOINTS; ii++) {
+                for(ii=0; ii < all_joints; ii++) {
                     if (H[ii].home_sequence == ABS(H[i].home_sequence)) {
                         H[ii].home_sequence =      H[i].home_sequence;
                     }
@@ -554,13 +447,13 @@ void do_homing_sequence(void)
         *                          synchronize all joints final move
         */
         special_case_sync_all = 1; // disprove
-        for(i=0; i < ALL_JOINTS; i++) {
+        for(i=0; i < all_joints; i++) {
             if (H[i].home_sequence != -1) {special_case_sync_all = 0;}
         }
         if (special_case_sync_all) {
             home_sequence = 1;
         }
-        for(i=0; i < ALL_JOINTS; i++) {
+        for(i=0; i < all_joints; i++) {
             if (!H[i].joint_in_sequence) continue;
             if  ( H[i].home_state != HOME_IDLE && H[i].home_state != HOME_START) {
                 /* a home is already in progress, abort the home-all */
@@ -574,7 +467,7 @@ void do_homing_sequence(void)
 
     case HOME_SEQUENCE_START_JOINTS:
         /* start all joints whose sequence number matches home_sequence */
-        for(i=0; i < ALL_JOINTS; i++) {
+        for(i=0; i < all_joints; i++) {
             joint = &joints[i];
             if(ABS(H[i].home_sequence) == home_sequence) {
                 if (!H[i].joint_in_sequence) continue;
@@ -595,7 +488,7 @@ void do_homing_sequence(void)
         break;
 
     case HOME_SEQUENCE_WAIT_JOINTS:
-        for(i=0; i < ALL_JOINTS; i++) {
+        for(i=0; i < all_joints; i++) {
             if (!H[i].joint_in_sequence) continue;
             // negative H[i].home_sequence means sync final move
             if(ABS(H[i].home_sequence) != home_sequence) {
@@ -607,13 +500,15 @@ void do_homing_sequence(void)
                 seen = 1;
                 continue;
             }
-            if (!H[i].at_home) {
+#if 0 // not reachable ?
+            if (!H[i].homed) {
                 /* joint should have been homed at this step, it is no longer
                    homing, but its not at home - must have failed.  bail out */
                 sequence_state = HOME_SEQUENCE_IDLE;
                 homing_active = 0;
                 return;
             }
+#endif
         }
         if(!seen) {
             /* all joints at this step have finished, move on to next step */
@@ -632,6 +527,218 @@ void do_homing_sequence(void)
     }
 } // do_homing_sequence()
 
+/***********************************************************************
+*                      PUBLIC FUNCTIONS                                *
+************************************************************************/
+
+int homing_init(int id,
+                double servo_period,
+                int n_joints,
+                int n_extrajoints,
+                emcmot_joint_t* pjoints)
+{
+    int i;
+#ifdef USE_HOME_PARMS
+    if (home_parms) {
+        rtapi_print("%s:%s: home_parms=%s\n",__FILE__,__FUNCTION__,home_parms);
+    }
+#endif
+    all_joints   = n_joints;
+    extra_joints = n_extrajoints;
+    joints       = pjoints;
+
+    if (servo_period < 1e-9) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: bad servo_period:%g\n",
+                        __FUNCTION__,
+                        servo_period);
+        return -1;
+    }
+    if (make_joint_home_pins(id,all_joints)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,"%s: make_joint_home_pins fail\n",
+                        __FUNCTION__);
+        return -1;
+    }
+
+    servo_freq = 1/servo_period;
+    homing_active = 0;
+    for (i=0; i < all_joints; i++) {
+        H[i].home_state      =  HOME_IDLE;
+        H[i].home_search_vel =  0;
+        H[i].home_latch_vel  =  0;
+        H[i].home_final_vel  =  0;
+        H[i].home_offset     =  0;
+        H[i].home            =  0;
+        H[i].home_flags      =  0;
+        H[i].home_sequence   = -1;
+        H[i].volatile_home   =  0;
+    }
+    return 0;
+}
+
+void read_homing_in_pins(int njoints)
+{
+    int jno;
+    one_joint_home_data_t *addr;
+    for (jno = 0; jno < njoints; jno++) {
+        addr = &(joint_home_data->jhd[jno]);
+        H[jno].home_sw      = *(addr->home_sw);      // IN
+        H[jno].index_enable = *(addr->index_enable); // IO
+    }
+}
+
+void write_homing_out_pins(int njoints)
+{
+    int jno;
+    one_joint_home_data_t *addr;
+    for (jno = 0; jno < njoints; jno++) {
+        addr = &(joint_home_data->jhd[jno]);
+        *(addr->homing)       = H[jno].homing;       // OUT
+        *(addr->homed)        = H[jno].homed;        // OUT
+        *(addr->home_state)   = H[jno].home_state;   // OUT
+        *(addr->index_enable) = H[jno].index_enable; // IO
+    }
+}
+
+void do_home_joint(int jno) {
+    if (jno == -1) {
+        do_home_all();
+    } else {
+        do_home_one_joint(jno); // apply rules if home_sequence negative
+    }
+}
+
+void do_cancel_homing(int jno) {
+    if (H[jno].homing) {
+        H[jno].home_state = HOME_ABORT;
+    }
+}
+
+void set_unhomed(int jno, motion_state_t motstate) {
+    // Note: negative jno ==> unhome multiple joints
+    emcmot_joint_t *joint;
+    if (jno < 0) { set_all_unhomed(jno,motstate); return; }
+
+    if (jno > all_joints) {
+        /* invalid joint number specified */
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             _("Cannot unhome invalid joint %d (max %d)\n"), jno, (all_joints-1));
+        return;
+    }
+    /* request was for one joint number */
+    if (   (jno >= (all_joints - extra_joints) )  // jno is extrajoint
+        && (motstate != EMCMOT_MOTION_DISABLED)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             _("Cannot unhome extrajoint <%d> with motion enabled\n"), jno);
+        return;
+    }
+    joint = &joints[jno];
+    if(GET_JOINT_ACTIVE_FLAG(joint) ) {
+        if (get_homing(jno) ) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 _("Cannot unhome while homing, joint %d\n"), jno);
+            return;
+        }
+        if (!GET_JOINT_INPOS_FLAG(joint) ) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                 _("Cannot unhome while moving, joint %d\n"), jno);
+            return;
+        }
+        H[jno].homed = 0;
+    } else {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+             _("Cannot unhome inactive joint %d\n"), jno);
+    }
+} // set_unhomed()
+
+void set_joint_homing_params(int    jno,
+                             double offset,
+                             double home,
+                             double home_final_vel,
+                             double home_search_vel,
+                             double home_latch_vel,
+                             int    home_flags,
+                             int    home_sequence,
+                             bool   volatile_home
+                             )
+{
+    H[jno].home_offset     = offset;
+    H[jno].home            = home;
+    H[jno].home_final_vel  = home_final_vel;
+    H[jno].home_search_vel = home_search_vel;
+    H[jno].home_latch_vel  = home_latch_vel;
+    H[jno].home_flags      = home_flags;
+    H[jno].home_sequence   = home_sequence;
+    H[jno].volatile_home   = volatile_home;
+    update_home_is_synchronized();
+}
+
+void update_joint_homing_params (int    jno,
+                                 double offset,
+                                 double home,
+                                 int    home_sequence
+                                )
+{
+    H[jno].home_offset   = offset;
+    H[jno].home          = home;
+    H[jno].home_sequence = home_sequence;
+    update_home_is_synchronized();
+}
+
+bool get_allhomed() {
+    int joint_num;
+    emcmot_joint_t *joint;
+
+    for (joint_num = 0; joint_num < all_joints; joint_num++) {
+        joint = &joints[joint_num];
+        if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+            /* if joint is not active, don't even look at its limits */
+            continue;
+        }
+        if (!get_homed(joint_num) ) {
+            /* if any of the joints is not homed return false */
+            return 0;
+        }
+    }
+    /* return true if all active joints are homed*/
+    return 1;
+} // get_allhomed()
+
+bool get_homing_is_active() {
+    return homing_active;
+}
+
+int get_home_sequence(int jno) {
+    return H[jno].home_sequence;
+}
+
+bool get_homing(int jno) {
+    return H[jno].homing;
+}
+
+bool get_homed(int jno) {
+    return H[jno].homed;
+}
+
+bool get_index_enable(int jno) {
+     return H[jno].index_enable;
+}
+
+bool get_home_needs_unlock_first(int jno) {
+    return (H[jno].home_flags & HOME_UNLOCK_FIRST) ? 1 : 0;
+}
+
+bool get_home_is_idle(int jno) {
+    return H[jno].home_state == HOME_IDLE ? 1 : 0;
+}
+
+bool get_home_is_synchronized(int jno) {
+    return H[jno].home_is_synchronized;
+}
+
+bool get_homing_at_index_search_wait(int jno) {
+    return H[jno].home_state == HOME_INDEX_SEARCH_WAIT ? 1 : 0;
+}
+
 // HOMING management
 bool do_homing(void)
 {
@@ -641,9 +748,11 @@ bool do_homing(void)
     double offset, tmp;
     int home_sw_active, homing_flag;
 
+    do_homing_sequence();
+
     homing_flag = 0;
     /* loop thru joints, treat each one individually */
-    for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
+    for (joint_num = 0; joint_num < all_joints; joint_num++) {
         if (!H[joint_num].joint_in_sequence) continue;
         /* point to joint struct */
         joint = &joints[joint_num];
@@ -698,7 +807,6 @@ bool do_homing(void)
                     H[joint_num].homing = 1;
                     H[joint_num].homed = 0;
                 }
-                H[joint_num].at_home = 0;
                 /* stop any existing motion */
                 joint->free_tp.enable = 0;
                 /* reset delay counter */
@@ -1207,7 +1315,7 @@ bool do_homing(void)
                         int jno;
                         emcmot_joint_t *jtmp;
                         H[home_sequence].sync_final_move = 1; //disprove
-                        for (jno = 0; jno < ALL_JOINTS; jno++) {
+                        for (jno = 0; jno < all_joints; jno++) {
                             jtmp = &joints[jno];
                             if (!H[jno].joint_in_sequence) continue;
                             if (ABS(H[jno].home_sequence) != home_sequence) {continue;}
@@ -1289,7 +1397,6 @@ bool do_homing(void)
             case HOME_FINISHED:
                 H[joint_num].homing = 0;
                 H[joint_num].homed = 1;
-                H[joint_num].at_home = 1;
                 H[joint_num].home_state = HOME_IDLE;
                 immediate_state = 1;
                 H[joint_num].joint_in_sequence = 0;
@@ -1304,7 +1411,6 @@ bool do_homing(void)
             case HOME_ABORT:
                 H[joint_num].homing = 0;
                 H[joint_num].homed = 0;
-                H[joint_num].at_home = 0;
                 H[joint_num].joint_in_sequence = 0;
                 joint->free_tp.enable = 0;
                 H[joint_num].home_state = HOME_IDLE;
@@ -1333,41 +1439,30 @@ bool do_homing(void)
             homing_active = 0;
         }
     }
-    if (allhomed) {return 1;}
+    if (allhomed) {homing_active = 0; return 1;}
     return 0;
 } // do_homing()
 
-bool get_home_is_synchronized(int jno) {
-    return H[jno].home_is_synchronized;
-}
 //========================================================
 // all home functions for homing api
 EXPORT_SYMBOL(homeMotFunctions);
-EXPORT_SYMBOL(homeMotData);
 
+EXPORT_SYMBOL(homing_init);
 EXPORT_SYMBOL(do_homing);
-EXPORT_SYMBOL(do_homing_sequence);
 EXPORT_SYMBOL(get_allhomed);
 EXPORT_SYMBOL(get_homed);
 EXPORT_SYMBOL(get_home_is_idle);
 EXPORT_SYMBOL(get_home_is_synchronized);
-EXPORT_SYMBOL(get_home_is_volatile);
 EXPORT_SYMBOL(get_home_needs_unlock_first);
 EXPORT_SYMBOL(get_home_sequence);
-EXPORT_SYMBOL(get_home_sequence_state);
 EXPORT_SYMBOL(get_homing);
 EXPORT_SYMBOL(get_homing_at_index_search_wait);
 EXPORT_SYMBOL(get_homing_is_active);
 EXPORT_SYMBOL(get_index_enable);
-EXPORT_SYMBOL(homing_init);
 EXPORT_SYMBOL(read_homing_in_pins);
-EXPORT_SYMBOL(set_home_abort);
-EXPORT_SYMBOL(set_home_idle);
-EXPORT_SYMBOL(set_home_sequence_state);
-EXPORT_SYMBOL(set_home_start);
-EXPORT_SYMBOL(set_joint_at_home);
-EXPORT_SYMBOL(set_joint_homed);
-EXPORT_SYMBOL(set_joint_homing);
+EXPORT_SYMBOL(do_home_joint);
+EXPORT_SYMBOL(do_cancel_homing);
+EXPORT_SYMBOL(set_unhomed);
 EXPORT_SYMBOL(set_joint_homing_params);
 EXPORT_SYMBOL(update_joint_homing_params);
 EXPORT_SYMBOL(write_homing_out_pins);
