@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# Use after creating master POT and empty PO files to migrate existing
+# translations into PO files.
+#
+# See po4a-gettextize(1p) to learn more about the requirement for text
+# structure alignment.
+
+set -e
+set -x
+
+cd $(dirname $0)/..
+
+do_man=true
+do_adoc=true
+lang="es fr zh_CN"
+
+match_translation() {
+    type=$1
+    master=$2
+    translation=$3
+    if [ ! -e "$master" ] ; then
+	echo
+	echo "error: Translation $translation lack matching master $master"
+	echo
+	exit 1
+    fi
+    if grep -qi "^.de" "$master" ; then
+	echo
+	echo "error: Skipping $f with format po4a do not handle"
+	echo
+	return
+    fi
+    ls -l "$master" "$translation"
+    if ! po4a-gettextize -f $type -M UTF-8 -L UTF-8 -m "$master" -l "$translation" -p po/Documentation-new_$l-extra.po; then
+	echo
+	echo "error: master $master and translation $translation structure do not match, fix translation and try again."
+	echo
+	diff -uw "$master" "$translation"
+	echo
+	echo "Debug using 'po4a-gettextize -f $type -M UTF-8 -L UTF-8 -m "$master" -l "$translation"'"
+	exit 1
+    else
+	echo ok
+	touch po/Documentation-new_$l.po
+	msgcat --use-first po/Documentation-new_$l.po po/Documentation-new_$l-extra.po \
+	       -o po/Documentation-new_$l-new.po &&
+	    mv po/Documentation-new_$l-new.po po/Documentation-new_$l.po
+	rm po/Documentation-new_$l-extra.po
+    fi
+}
+
+for l in $lang; do
+    if $do_man ; then
+	if [ -d man/$l ] ; then
+	    for t in man/$l/man?/*; do
+		if grep -q $t po/ignore_${l}.txt; then
+		    echo "I: skipping $t as requested"
+		    continue
+		fi
+		f="man/$(echo $t|cut -d/ -f3-)"
+		match_translation man "$f" "$t"
+	    done
+	fi
+    fi
+    if $do_adoc ; then
+	for t in $(find src/ -name "*_$l.adoc" | sort); do
+	    if grep -q $t po/ignore_${l}.txt; then
+	        echo "I: skipping $t as requested"
+	        continue
+	    fi
+	    f=$(echo $t | sed s/_$l//)
+	    echo $f $t
+	    match_translation AsciiDoc "$f" "$t"
+	done
+    fi
+done
