@@ -136,8 +136,10 @@ point is used, not the current value of the actual current_point.
 There are three cases for when the coordinate is included in the block:
 
 1. G_53 is active. This means to interpret the coordinates as machine
-coordinates. That is accomplished by adding the two offsets to the
-coordinate given in the block.
+coordinates. That is accomplished by adding the three offsets to the
+coordinates given in the block. The x,y block coordinates are also
+rotated. The end result is the machine coordinates in the block are
+converted to coordinates in the current system.
 
 2. Absolute coordinate mode is in effect. The coordinate in the block
 is used.
@@ -171,23 +173,25 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
 #endif
         CHKS((block->radius_flag || block->theta_flag), _("Cannot use polar coordinates with G53"));
 
-        double cx = s->current_x;
-        double cy = s->current_y;
+        double cx = s->current_x + s->axis_offset_x;
+        double cy = s->current_y + s->axis_offset_y;
         rotate(&cx, &cy, s->rotation_xy);
 
         if(block->x_flag) {
-            *px = block->x_number - s->origin_offset_x - s->axis_offset_x - s->tool_offset.tran.x;
+            *px = block->x_number - s->origin_offset_x - s->tool_offset.tran.x;
         } else {
             *px = cx;
         }
 
         if(block->y_flag) {
-            *py = block->y_number - s->origin_offset_y - s->axis_offset_y - s->tool_offset.tran.y;
+            *py = block->y_number - s->origin_offset_y - s->tool_offset.tran.y;
         } else {
             *py = cy;
         }
 
         rotate(px, py, -s->rotation_xy);
+        *px -= s->axis_offset_x;
+        *py -= s->axis_offset_y;
 
         if(block->z_flag) {
             *pz = block->z_number - s->origin_offset_z - s->axis_offset_z - s->tool_offset.tran.z;
@@ -421,9 +425,11 @@ int Interp::find_relative(double x1,     //!< absolute x position
                           double *w_2,
                           setup_pointer settings)        //!< pointer to machine settings
 {
-  *x2 = x1 - settings->origin_offset_x - settings->axis_offset_x - settings->tool_offset.tran.x;
-  *y2 = y1 - settings->origin_offset_y - settings->axis_offset_y - settings->tool_offset.tran.y;
+  *x2 = x1 - settings->origin_offset_x -  settings->tool_offset.tran.x;
+  *y2 = y1 - settings->origin_offset_y -  settings->tool_offset.tran.y;
   rotate(x2, y2, -settings->rotation_xy);
+  *x2 -= settings->axis_offset_x;
+  *y2 -= settings->axis_offset_y;
   *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_offset.tran.z;
 
   if(settings->a_axis_wrapped) {

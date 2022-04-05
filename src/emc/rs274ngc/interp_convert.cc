@@ -1024,6 +1024,9 @@ are always used when motion is specified with respect to absolute
 distance mode using any of the nine coordinate systems (those designated
 by G54 - G59.3). Thus all nine coordinate systems are affected by G92.
 
+G92 and G52 offsets are relative to the current G5x offsets so they
+are applied after the G5x offsets and G10 R rotations are applied.
+
 Being in incremental distance mode has no effect on the action of G92
 in this implementation. [NCMS] is not explicit about this, but it is
 implicit in the second sentence of [Fanuc, page 61].
@@ -2358,6 +2361,22 @@ int Interp::convert_g(block_pointer block,       //!< pointer to a block of RS27
   return INTERP_OK;
 }
 
+/*! convert_savehome
+
+Returned Value: int
+   Returns an error if cutter_comp_side is set or the routine is called
+   from a gcode other than G_28_1 or G_30_1
+
+Side effects:
+   None
+
+Called by: convert_modal_0
+
+Saves the absolute coordinates of the current point in parameters 5161-5169
+   for G28.1, or 5181-5189 for G30.1
+
+*/
+
 int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
     double *p = s->parameters;
 
@@ -2365,8 +2384,11 @@ int Interp::convert_savehome(int code, block_pointer block, setup_pointer s) {
         ERS(_("Cannot set reference point with cutter compensation in effect"));
     }
 
-    double x = PROGRAM_TO_USER_LEN(s->current_x + s->tool_offset.tran.x + s->origin_offset_x + s->axis_offset_x);
-    double y = PROGRAM_TO_USER_LEN(s->current_y + s->tool_offset.tran.y + s->origin_offset_y + s->axis_offset_y);
+    double x = s->current_x + s->axis_offset_x;
+    double y = s->current_y + s->axis_offset_y;
+    rotate(&x, &y, s->rotation_xy);
+    x = PROGRAM_TO_USER_LEN(x + s->tool_offset.tran.x + s->origin_offset_x);
+    y = PROGRAM_TO_USER_LEN(y + s->tool_offset.tran.y + s->origin_offset_y);
     double z = PROGRAM_TO_USER_LEN(s->current_z + s->tool_offset.tran.z + s->origin_offset_z + s->axis_offset_z);
     double a = PROGRAM_TO_USER_ANG(s->AA_current + s->tool_offset.a + s->AA_origin_offset + s->AA_axis_offset);
     double b = PROGRAM_TO_USER_ANG(s->BB_current + s->tool_offset.b + s->BB_origin_offset + s->BB_axis_offset);
@@ -4506,6 +4528,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
             ) {   /* reset stuff here */
 
 /*1*/
+    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
     settings->current_x += settings->origin_offset_x;
     settings->current_y += settings->origin_offset_y;
     settings->current_z += settings->origin_offset_z;
@@ -4515,7 +4538,6 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->u_current += settings->u_origin_offset;
     settings->v_current += settings->v_origin_offset;
     settings->w_current += settings->w_origin_offset;
-    rotate(&settings->current_x, &settings->current_y, settings->rotation_xy);
 
     settings->origin_index = 1;
     settings->parameters[5220] = 1.0;
@@ -4530,7 +4552,6 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->w_origin_offset = USER_TO_PROGRAM_LEN(settings->parameters[5229]);
     settings->rotation_xy = settings->parameters[5230];
 
-    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
     settings->current_x -= settings->origin_offset_x;
     settings->current_y -= settings->origin_offset_y;
     settings->current_z -= settings->origin_offset_z;
@@ -4540,6 +4561,7 @@ int Interp::convert_stop(block_pointer block,    //!< pointer to a block of RS27
     settings->u_current -= settings->u_origin_offset;
     settings->v_current -= settings->v_origin_offset;
     settings->w_current -= settings->w_origin_offset;
+    rotate(&settings->current_x, &settings->current_y, -settings->rotation_xy);
 
     SET_G5X_OFFSET(settings->origin_index,
                    settings->origin_offset_x,

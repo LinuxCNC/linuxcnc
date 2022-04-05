@@ -720,27 +720,42 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_ABS_X:  // abs position
-	*value = _setup.current_x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+        {
+            double x = _setup.current_x + _setup.axis_offset_x;
+            double y = _setup.current_y + _setup.axis_offset_y;
+            rotate(&x, &y, _setup.rotation_xy);
+	    *value = x + _setup.origin_offset_x + _setup.tool_offset.tran.x;
+        }
 	break;
 
     case NP_ABS_Y:  // abs position
-	*value = _setup.current_y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+        {
+            double x = _setup.current_x + _setup.axis_offset_x;
+            double y = _setup.current_y + _setup.axis_offset_y;
+            rotate(&x, &y, _setup.rotation_xy);
+	    *value = y + _setup.origin_offset_y + _setup.tool_offset.tran.y;
+        }
 	break;
 
+
     case NP_ABS_Z:  // abs position
-	*value = _setup.current_z + _setup.origin_offset_z + _setup.tool_offset.tran.z;
+	*value = _setup.current_z + _setup.axis_offset_z +
+                 _setup.origin_offset_z + _setup.tool_offset.tran.z;
 	break;
 
     case NP_ABS_A:  // abs position
-	*value = _setup.AA_current + _setup.AA_origin_offset + _setup.tool_offset.a;
+	*value = _setup.AA_current + _setup.AA_axis_offset +
+                 _setup.AA_origin_offset + _setup.tool_offset.a;
 	break;
 
     case NP_ABS_B:  // abs position
-	*value = _setup.BB_current + _setup.BB_origin_offset + _setup.tool_offset.b;
+	*value = _setup.BB_current + _setup.BB_axis_offset +
+                 _setup.BB_origin_offset + _setup.tool_offset.b;
 	break;
 
     case NP_ABS_C:  // abs position
-	*value = _setup.CC_current + _setup.CC_origin_offset + _setup.tool_offset.c;
+	*value = _setup.CC_current + _setup.CC_axis_offset +
+                 _setup.CC_origin_offset + _setup.tool_offset.c;
 	break;
 
 	// o-word subs may optionally have an
