@@ -69,6 +69,8 @@ class HandlerClass:
         self.axis_a_list = ["label_axis_a", "dro_axis_a", "action_zero_a", "axistoolbutton_a",
                             "action_home_a", "widget_jog_angular", "widget_increments_angular",
                             "a_plus_jogbutton", "a_minus_jogbutton"]
+        self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
+                            "btn_home_z", "action_home_a", "btn_reload_file"]
 
         STATUS.connect('general', self.dialog_return)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
@@ -76,6 +78,8 @@ class HandlerClass:
         STATUS.connect('mode-manual', lambda w: self.enable_auto(True))
         STATUS.connect('mode-mdi', lambda w: self.enable_auto(True))
         STATUS.connect('mode-auto', lambda w: self.enable_auto(False))
+        STATUS.connect('interp-run', lambda w: self.set_button_response_state(True))
+        STATUS.connect('interp-idle', lambda w: self.set_button_response_state(False))
         STATUS.connect('gcode-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('graphics-line-selected', lambda w, line: self.set_start_line(line))
         STATUS.connect('hard-limits-tripped', self.hard_limit_tripped)
@@ -496,6 +500,10 @@ class HandlerClass:
             self.w.chk_override_limits.setChecked(False)
         else:
             self.w.chk_override_limits.setChecked(True)
+
+    def set_button_response_state(self, state):
+        for i in (self.button_response_list):
+            self.w[i].setEnabled(not state)
 
     #######################
     # CALLBACKS FROM FORM #
