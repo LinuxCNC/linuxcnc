@@ -520,7 +520,7 @@ class pyvcp_jogwheel(Canvas):
         #TJP items get rendered in order of creation, so the knob will be behind these texts
         #TJP the font can be described with pixel size by using negative value
 
-        self.txtroom=size/10
+        self.txtroom=int(size/10)
         # a title, if the user has supplied one
         if text!=None:
             self.title=self.create_text([self.mid,self.mid-self.txtroom],
