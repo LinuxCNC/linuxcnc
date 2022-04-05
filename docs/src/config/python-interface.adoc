@@ -841,7 +841,7 @@ if error:
         typus = "error"
     else:
         typus = "info"
-    print typus, text
+    print(typus, text)
 ----
 
 
@@ -867,7 +867,7 @@ inifile = linuxcnc.ini(sys.argv[1])
 # following idiom is useful for setting a default value:
 
 machine_name = inifile.find("EMC", "MACHINE") or "unknown"
-print "machine name: ", machine_name
+print("machine name: ", machine_name)
 
 # inifile.findall() returns a list of matches, or an empty list
 # if the key wasn't found:

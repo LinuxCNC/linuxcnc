@@ -365,9 +365,9 @@ And have a function to be called:
 [source,python]
 ----
     def _on_example_trigger_change(self,pin,userdata=None):
-        print "pin value changed to:" % (pin.get())
-        print "pin name= %s" % (pin.get_name())
-        print "pin type= %d" % (pin.get_type())
+        print("pin value changed to:" % (pin.get()))
+        print("pin name= %s" % (pin.get_name()))
+        print("pin type= %d" % (pin.get_type()))
 
         # this can be called outside the function
         self.example_trigger.get()
@@ -408,13 +408,13 @@ This shows ways to get the pin value and information.
     # general functions #
     #####################
     def setTestPin(self, data):
-        print "Test pin value changed to:" % (data)
-        print 'halpin object =', self.w.sender()
-        print 'Halpin name: ',self.sender().text()
-        print 'Halpin type: ',self.sender().get_type()
+        print("Test pin value changed to:" % (data))
+        print('halpin object =', self.w.sender())
+        print('Halpin name: ',self.sender().text())
+        print('Halpin type: ',self.sender().get_type())
 
         # this can be called outside the function
-        print self.testPin.get()
+        print(self.testPin.get())
 ----
 
 
@@ -424,8 +424,8 @@ This shows ways to get the pin value and information.
   indicators. Connect everything to a microcontroller, and connect the
   microcontroller to the PC using a serial interface. Python has a very
   capable serial interface module called
-  http://pyserial.sourceforge.net/[pyserial]
-  (Ubuntu package name "python-serial", in the universe repository)
+  https://pyserial.readthedocs.io/en/latest/[pyserial]
+  (Ubuntu package name "python3-serial", in the universe repository)
 * Attach a http://lcdproc.omnipotent.net/[LCDProc]-compatible LCD module
   and use it to display a digital readout with information of your choice
   (Ubuntu package name "lcdproc", in the universe repository)

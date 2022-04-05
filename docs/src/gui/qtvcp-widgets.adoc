@@ -1727,9 +1727,9 @@ the file path and whether it's a file.
 [source,python]
 ----
 temp = FILEMANAGER.getCurrentSelected()
-print 'filepath={}'.format(temp[0])
+print('filepath={}'.format(temp[0]))
 if temp[1]:
-    print 'Is a file'
+    print('Is a file')
 ----
 
 It is based on pyQT's
@@ -1866,7 +1866,7 @@ is advisable.
         code = bool(message.get('ID') == '__test1__')
         name = bool(message.get('NAME') == 'ENTRY')
         if code and name and not rtn is None:
-            print ('Entry return value from {} = {}').format(code, rtn)
+            print('Entry return value from {} = {}'.format(code, rtn))
 ----
 
 

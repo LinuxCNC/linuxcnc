@@ -1132,7 +1132,7 @@ every time Axis updates itself. You can use this to update your own functions.
 ----
 # continuous update function
 def user_live_update():
-    print 'i am printed every update...'
+    print('i am printed every update...')
 ----
 
 === Disable the Close Dialog
@@ -1206,7 +1206,7 @@ root_window.bind('<Key-0>',lambda event: set_feedrate(100))
 ----
 # read an ini file item
 machine = inifile.find('EMC','MACHINE')
-print 'machine name =',machine
+print('machine name =',machine)
 ----
 
 === Read linuxcnc Status
@@ -1214,8 +1214,8 @@ print 'machine name =',machine
 [source,python]
 ----
 # linuxcnc status can be read from s.
-print s.actual_position
-print s.paused
+print(s.actual_position)
+print(s.paused)
 ----
 
 === Change the current view
@@ -1260,7 +1260,7 @@ hal.set_p('my_component.pause-led','1')
 # get a pin 2,8+ branch
 
 value = hal.get_value('halui.program.is-idle')
-print 'value is a',type(value),'value of',value
+print('value is a',type(value),'value of',value)
 ----
 
 === Switch Tabs with HAL Pins
@@ -1338,11 +1338,11 @@ root_window.tk.call('bind','.pane.top.tabs.fmanual.mybutton','<ButtonRelease-1>'
 # functions called from the buttons
 
 def mybutton_clicked():
-    print 'mybutton was clicked'
+    print('mybutton was clicked')
 def mybutton_pressed():
-    print 'mybutton was pressed'
+    print('mybutton was pressed')
 def mybutton_released():
-    print 'mybutton was released'
+    print('mybutton was released')
 
 # any function called from tcl needs to be added to TclCommands
 
@@ -1358,8 +1358,8 @@ commands = TclCommands(root_window)
 ----
 # the following variables may be read from the vars instance
 
-print vars.machine.get()
-print vars.emcini.get()
+print(vars.machine.get())
+print(vars.emcini.get())
 
 ----
 
@@ -1458,7 +1458,7 @@ root_window.tk.call('.pane.top.tabs.fmanual.mist','configure','-command','hijack
 # The new function
 
 def hijacked_command():
-    print 'hijacked mist command'
+    print('hijacked mist command')
 
 # add the function to TclCommands
 
@@ -1521,6 +1521,6 @@ try:
                                     (255,255,255,255),
                                     (0,255,255,255))
 except Exception as e:
-    print (e)
+    print(e)
 ----
 

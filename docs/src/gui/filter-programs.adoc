@@ -71,13 +71,13 @@ for i in range(0,100):
         time.sleep(.1)
 
         # output a line of G-code
-        print >>sys.stdout, 'G0 X1'
+        print('G0 X1', file=sys.stdout)
 
         # update progress
-        print >>sys.stderr, 'FILTER_PROGRESS={}'.format(i)
+        print('FILTER_PROGRESS={}'.format(i), file=sys.stderr)
     except:
         # This causes an error message
-        print >>sys.stderr, 'Error; But this was only a test'
+        print('Error; But this was only a test', file=sys.stderr)
         raise SystemExit(1)
 
 ----
@@ -119,7 +119,7 @@ class CustomDialog(QDialog):
         self._percentDone = 0
 
         if not os.path.exists(path):
-            print >>sys.stderr, "Path: '{}' doesn't exist:".format(path)
+            print("Path: '{}' doesn't exist:".format(path), file=sys.stderr)
             raise SystemExit(1)
 
         self.infile = open(path, "r")
@@ -134,7 +134,7 @@ class CustomDialog(QDialog):
 
     def reject(self):
         # This provides an error message
-        print >>sys.stderr, 'You asked to cancel before finished.'
+        print('You asked to cancel before finished.', file=sys.stderr)
         raise SystemExit(1)
 
     def process(self):
@@ -145,22 +145,22 @@ class CustomDialog(QDialog):
             # process the line somehow
 
             # push out processed code
-            print >>sys.stdout, codeLine
+            print(codeLine, file=sys.stdout)
             self.line +=1
 
             # update progress
             self._percentDone += self.bump
-            print >>sys.stderr, 'FILTER_PROGRESS={}'.format(int(self._percentDone))
+            print('FILTER_PROGRESS={}'.format(int(self._percentDone)), file=sys.stderr)
 
             # if done end with no error/error message
             if self._percentDone >= 99:
-                print >>sys.stderr, 'FILTER_PROGRESS=-1'
+                print('FILTER_PROGRESS=-1', file=sys.stderr)
                 self.infile.close()
                 raise SystemExit(0)
 
         except Exception as e:
             # This provides an error message
-            print >>sys.stderr, 'Something bad happened:',e
+            print(('Something bad happened:',e), file=sys.stderr)
             # this signals the error message should be shown
             raise SystemExit(1)
 

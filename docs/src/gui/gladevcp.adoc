@@ -1055,7 +1055,7 @@ changed, then connect this signal to a handler, for example
 [source,python]
 ----------------------------------
 def on_led_pin_changed(self,hal_led,data=None):
-    print "on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get()
+    print("on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get())
 ----------------------------------
 
 This will be called at any edge of the signal and also during program
@@ -2300,7 +2300,7 @@ Here is a minimum user-defined handler example module:
 ----------------------------------
 class MyCallbacks :
     def on_this_signal(self,obj,data=None):
-        print "this_signal happened, obj=",obj
+        print("this_signal happened, obj=",obj)
 
 def get_handlers(halcomp,builder,useropts):
     return [MyCallbacks ()]
@@ -2326,7 +2326,7 @@ the [:7] below.) A sample handler for these signals is:
 ----------------------------------
     # This catches our messages from another program
     def event(self,w,event):
-        print event.message_type,event.data
+        print(event.message_type,event.data)
         if event.message_type == 'Gladevcp':
             if event.data[:7] == 'Visible':
                 self.active = True
@@ -2336,7 +2336,7 @@ the [:7] below.) A sample handler for these signals is:
     # connect to client-events from the host GUI
     def on_map_event(self, widget, data=None):
         top = widget.get_toplevel()
-        print "map event"
+        print("map event")
         top.connect('client-event', self.event)
 ----------------------------------
 
@@ -2441,7 +2441,7 @@ def get_handlers(halcomp,builder,useropts):
 This way you can pass arbitrary Python statements to your module
 through the gladevcp -U option, for example:
 
-    gladevcp -U debug=42 -U "print 'debug=%d' % debug" ...
+    gladevcp -U debug=42 -U "print('debug=%d' % debug)" ...
 
 This should set debug to 2 and confirm that your module actually did it.
 
@@ -2587,7 +2587,7 @@ on Ctrl-C (actually on the SIGINT and SIGTERM signals). Example
 [source,python]
 ----------------------------------
 def on_unix_signal(self,signum,stack_frame):
-    print "on_unix_signal(): signal %d received, saving state" % (signum)
+    print("on_unix_signal(): signal %d received, saving state" % (signum))
     self.ini.save_state(self)
 ----------------------------------
 
@@ -2628,7 +2628,7 @@ and define a callback method (or function, in this case leave out the
 ----------------------------------
 # note '_' - this method will not be visible to the widget tree
 def _on_example_trigger_change(self,pin,userdata=None):
-    print "pin value changed to:" % (pin.get())
+    print("pin value changed to:" % (pin.get()))
 ----------------------------------
 
 === Adding timers

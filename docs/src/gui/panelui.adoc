@@ -379,7 +379,7 @@ sock.connect("tcp://127.0.0.1:5690")
 
 while True:
     topic, message = sock.recv_multipart()
-    print '{} sent message:{}'.format(topic,json.loads(message))
+    print('{} sent message:{}'.format(topic,json.loads(message)))
 ----
 
 == Handler File Extension
