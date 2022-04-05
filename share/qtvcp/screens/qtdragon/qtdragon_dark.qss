@@ -41,7 +41,9 @@ AxisToolButton:hover {
 }
 
 QPushButton:disabled,
-ActionButton:disabled {
+ActionButton:disabled,
+AxisToolButton:disabled,
+SystemToolButton:disabled {
     color: gray;
 }
 
