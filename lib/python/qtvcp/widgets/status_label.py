@@ -47,7 +47,7 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self._state_label_list = ['Estopped','Running','Stopped','Paused','Waiting','Reading']
         self._halpin_name = 'remapStat.tool'
 
-        self.feed_override = True
+        self.feed_override = False
         self.rapid_override = False
         self.max_velocity_override = False
         self.spindle_override = False
