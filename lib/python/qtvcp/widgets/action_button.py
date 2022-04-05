@@ -265,9 +265,12 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
             STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
-            STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
             if True in (self.run, self.run_from_status, self.run_from_slot):
                 STATUS.connect('file-loaded', lambda w, f: self.setEnabled(True))
+                STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+            else:
+                STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
+
             if self.run_from_status:
                 STATUS.connect('gcode-line-selected', lambda w, line: self.updateRunFromLine(line))
 
