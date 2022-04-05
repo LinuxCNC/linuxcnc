@@ -240,6 +240,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             STATUS.connect('state-estop', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
             if self.jog_joint_pos:
                 self.pressed.connect(lambda: self.jog_action(1))
                 self.released.connect(lambda: self.jog_action(0))
