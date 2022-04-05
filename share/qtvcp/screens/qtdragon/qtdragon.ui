@@ -3940,19 +3940,19 @@ GCODE</string>
                           <property name="cornerButtonEnabled">
                            <bool>false</bool>
                           </property>
-                          <attribute name="horizontalHeaderDefaultSectionSize">
+                          <attribute name="horizontalHeaderMinimumSectionSize">
                            <number>80</number>
                           </attribute>
-                          <attribute name="horizontalHeaderMinimumSectionSize">
+                          <attribute name="horizontalHeaderDefaultSectionSize">
                            <number>80</number>
                           </attribute>
                           <attribute name="verticalHeaderCascadingSectionResizes">
                            <bool>false</bool>
                           </attribute>
-                          <attribute name="verticalHeaderDefaultSectionSize">
+                          <attribute name="verticalHeaderMinimumSectionSize">
                            <number>30</number>
                           </attribute>
-                          <attribute name="verticalHeaderMinimumSectionSize">
+                          <attribute name="verticalHeaderDefaultSectionSize">
                            <number>30</number>
                           </attribute>
                          </widget>
@@ -11541,6 +11541,9 @@ ZERO</string>
                            <property name="alt_textTemplate" stdset="0">
                             <string>%d</string>
                            </property>
+                           <property name="rapid_override_status" stdset="0">
+                            <bool>false</bool>
+                           </property>
                            <property name="current_feedrate_status" stdset="0">
                             <bool>false</bool>
                            </property>
@@ -14000,7 +14003,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>08:24:38 </string>
+            <string>10:38:40 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14170,14 +14173,14 @@ ZERO</string>
    <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
   <customwidget>
-   <class>VirtualKeyboard</class>
-   <extends>QWidget</extends>
-   <header>qtvcp.widgets.virtualkeyboard</header>
-  </customwidget>
-  <customwidget>
    <class>ActionToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.action_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>VirtualKeyboard</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.virtualkeyboard</header>
   </customwidget>
  </customwidgets>
  <resources>
@@ -14335,8 +14338,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>275</y>
+     <x>508</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -14351,8 +14354,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>513</x>
-     <y>341</y>
+     <x>508</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -14399,8 +14402,8 @@ ZERO</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1139</x>
-     <y>547</y>
+     <x>1137</x>
+     <y>550</y>
     </hint>
     <hint type="destinationlabel">
      <x>1445</x>
@@ -14463,8 +14466,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>83</x>
+     <y>53</y>
     </hint>
     <hint type="destinationlabel">
      <x>-3</x>
@@ -14479,8 +14482,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>83</x>
+     <y>53</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -14496,7 +14499,7 @@ ZERO</string>
    <hints>
     <hint type="sourcelabel">
      <x>85</x>
-     <y>55</y>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -14511,8 +14514,8 @@ ZERO</string>
    <slot>btn_ref_laser_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>249</x>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>238</x>
@@ -14527,8 +14530,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>413</x>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -14607,8 +14610,8 @@ ZERO</string>
    <slot>cmb_gcode_history_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>103</x>
-     <y>33</y>
+     <x>101</x>
+     <y>35</y>
     </hint>
     <hint type="destinationlabel">
      <x>356</x>
@@ -14703,8 +14706,8 @@ ZERO</string>
    <slot>btn_ref_camera_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>55</y>
+     <x>331</x>
+     <y>446</y>
     </hint>
     <hint type="destinationlabel">
      <x>273</x>
@@ -14767,8 +14770,8 @@ ZERO</string>
    <slot>percent_done_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>111</x>
-     <y>59</y>
+     <x>101</x>
+     <y>31</y>
     </hint>
     <hint type="destinationlabel">
      <x>-68</x>
@@ -14847,8 +14850,8 @@ ZERO</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>454</x>
-     <y>331</y>
+     <x>482</x>
+     <y>96</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -14863,8 +14866,8 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>468</y>
+     <x>508</x>
+     <y>106</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
@@ -14950,4 +14953,3 @@ ZERO</string>
   <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
-

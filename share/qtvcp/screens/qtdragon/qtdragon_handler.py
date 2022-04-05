@@ -144,7 +144,7 @@ class HandlerClass:
 
                 self.backBtn = QtWidgets.QPushButton(self.w)
                 self.backBtn.setEnabled(True)
-                self.backBtn.setIconSize(QtCore.QSize(48, 48))
+                self.backBtn.setIconSize(QtCore.QSize(58, 52))
                 self.backBtn.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
 
                 self.backBtn.clicked.connect(self.back)
@@ -264,7 +264,6 @@ class HandlerClass:
         self.w.chk_override_limits.setChecked(False)
         self.w.chk_override_limits.setEnabled(False)
         self.w.lbl_maxv_percent.setText("100 %")
-        self.w.lbl_max_rapid.setText(str(INFO.MAX_LINEAR_JOG_VEL))
         self.w.lbl_home_x.setText(INFO.get_error_safe_setting('JOINT_0', 'HOME',"50"))
         self.w.lbl_home_y.setText(INFO.get_error_safe_setting('JOINT_1', 'HOME',"50"))
         self.w.cmb_gcode_history.addItem("No File Loaded")
@@ -288,6 +287,7 @@ class HandlerClass:
             self.w.lbl_laser_offset.setText('INCH')
             self.w.lbl_camera_offset.setText('INCH')
             self.w.lbl_touchheight_units.setText('INCH')
+
         #set up gcode list
         self.gcodes.setup_list()
 
@@ -423,13 +423,14 @@ class HandlerClass:
         self.w.actionbutton_rel.setText(sys)
 
     def metric_mode_changed(self, mode):
+        rate = (float(self.w.slider_rapid_ovr.value()) / 100)
         if mode is False:
-            self.w.lbl_jog_linear.setText('INCH/<sup> MIN</sup>')
-            maxvel = float(INFO.MAX_LINEAR_JOG_VEL) / 25.4
+            self.w.lbl_jog_linear.setText('INCH/<sup>MIN</sup>')
+            self.factor = INFO.convert_machine_to_imperial(INFO.MAX_TRAJ_VELOCITY)
         else:
-            self.w.lbl_jog_linear.setText('MM/<sup> MIN</sup>')
-            maxvel = float(INFO.MAX_LINEAR_JOG_VEL)
-        self.w.lbl_max_rapid.setText("{:4.0f}".format(maxvel))
+            self.w.lbl_jog_linear.setText('MM/<sup>MIN</sup>')
+            self.factor = INFO.convert_machine_to_metric(INFO.MAX_TRAJ_VELOCITY)
+        self.w.lbl_max_rapid.setText("{:4.0f}".format(rate * self.factor))
 
     def file_loaded(self, obj, filename):
         if os.path.basename(filename).count('.') > 1:
@@ -626,10 +627,7 @@ class HandlerClass:
         self.w.lbl_maxv_percent.setText("{:3.0f} %".format(maxpc))
 
     def slider_rapid_changed(self, value):
-        if STATUS.is_metric_mode():
-            rapid = (float(value) / 100) * INFO.MAX_LINEAR_JOG_VEL
-        else:
-            rapid = (float(value) / 100) * (INFO.MAX_LINEAR_JOG_VEL / 25.4)
+        rapid = (float(value) / 100) * self.factor
         self.w.lbl_max_rapid.setText("{:4.0f}".format(rapid))
 
     def btn_maxv_100_clicked(self):
