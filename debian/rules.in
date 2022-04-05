@@ -29,8 +29,8 @@ export DATE=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%d\ %b\ %Y')
 export TIME=$(shell LANG=C date --date='@$(TIMESTAMP)' '+%T')
 
 kernel_version = @KERNEL_VERSION@
-enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 configure_realtime_arg = @CONFIGURE_REALTIME_ARG@
+enable_build_documentation = @ENABLE_BUILD_DOCUMENTATION@
 DESTDIR=$(CURDIR)/debian/@MAIN_PACKAGE_NAME@
 DEV_PACKAGE_NAME=@MAIN_PACKAGE_NAME@-dev
 
@@ -44,7 +44,7 @@ override_dh_auto_configure:
 	    --prefix=/usr --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    $(configure_realtime_arg) \
-            $(enable_build_documentation) \
+	    $(enable_build_documentation) \
 	    --disable-check-runtime-deps
 
 override_dh_auto_build-arch:
@@ -105,21 +105,22 @@ override_dh_auto_install:
 	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-integratorinfo.desktop ; \
 	mv -t $$d $(DESTDIR)/usr/share/applications/linuxcnc-manualpages.desktop
 
-ifneq "$(enable_build_documentation)" ""
 	# Only the English developer documentation goes to the -dev package
-	mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf
 	# The translated developer documentation goes to the respective regular -doc package
-	mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf
-	for lang in zh_CN es fr; do \
-		p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
-		d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
-		mkdir -p $$d ; \
-		find $(DESTDIR)/usr/share/doc/linuxcnc -name "*_$${lang}.pdf" | xargs -r mv -t $$d ; \
-	done
 	# english documentation has no "en" suffix
-	d=debian/linuxcnc-doc-en/usr/share/doc/linuxcnc && mkdir -p $$d && mv -t $$d $(DESTDIR)/usr/share/doc/linuxcnc/*.pdf
-endif
+	if [ -r $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf ]; then \
+		mkdir -p debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer.pdf; \
+		mv -t debian/$(DEV_PACKAGE_NAME)/usr/share/doc/linuxcnc-dev/ $(DESTDIR)/usr/share/doc/linuxcnc/LinuxCNC_Developer_*.pdf; \
+		for lang in zh_CN es fr; do \
+			p=$$(echo $$lang | tr _ - | tr A-Z a-z); \
+			d=debian/linuxcnc-doc-$$p/usr/share/doc/linuxcnc ; \
+			mkdir -p $$d ; \
+			find $(DESTDIR)/usr/share/doc/linuxcnc -name "*_$${lang}.pdf" | xargs -r mv -t $$d ; \
+		done; \
+		d=debian/linuxcnc-doc-en/usr/share/doc/linuxcnc && mkdir -p $$d && mv -t $$d $(DESTDIR)/usr/share/doc/linuxcnc/*.pdf; \
+	fi
+
 	mkdir -p $(DESTDIR)/usr/share/doc/linuxcnc/examples 
 	cd $(DESTDIR)/usr/share/doc/linuxcnc/examples && ln -sf ../../../linuxcnc/ncfiles ./nc_files
 
