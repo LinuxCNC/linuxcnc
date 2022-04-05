@@ -1112,7 +1112,7 @@ def filter_program(program_filter, infilename, outfilename):
             t.update()
             r,w,x = select.select([p.stderr], [], [], 0.100)
             if r:
-                stderr_line = p.stderr.readline()
+                stderr_line = p.stderr.readline().decode()
                 m = progress_re.match(stderr_line)
                 if m:
                     progress.update(int(m.group(1)), 1)
@@ -1121,10 +1121,11 @@ def filter_program(program_filter, infilename, outfilename):
                     sys.stderr.write(stderr_line)
         # .. might be something left on stderr
         for line in p.stderr:
-            m = progress_re.match(line)
+            stderr_line = line.decode()
+            m = progress_re.match(stderr_line)
             if not m:
-                stderr_text.append(line)
-                sys.stderr.write(line)
+                stderr_text.append(stderr_line)
+                sys.stderr.write(stderr_line)
         return p.returncode, "".join(stderr_text)
     finally:
         progress.done()
