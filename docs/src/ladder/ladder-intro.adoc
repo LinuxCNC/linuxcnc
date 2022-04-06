@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:classicladder-introduction]]
+[[cha:classicladder]]
 = Classicladder Introduction
 
 == History

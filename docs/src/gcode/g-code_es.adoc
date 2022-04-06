@@ -142,7 +142,7 @@ M2 (final del programa)
 * Consulte las secciones <<gcode:g90-g91, G90>> y <<mcode:m2-m30, M2>> para obtener más información.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-radius-compensation,Compensación del cortador>>.
 
 Si 'G53' está programado en la misma línea, el movimiento también será diferente;
 Consulte la sección <<gcode:g53, G53>> para obtener más información.
@@ -181,7 +181,7 @@ M2 (final del programa)
 para más información.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-radius-compensation,Compensación del cortador>>.
 
 Si 'G53' está programado en la misma línea, el movimiento también será diferente;
 Consulte la sección <<gcode:g53,G53>> para obtener más información.
@@ -202,7 +202,7 @@ G2 o G3 ejes R- (formato radio)
 G2 o G3 offsets|R- <P-> (círculos completos)
 ----
 
-Un arco circular o helicoidal se especifica utilizando 'G2' (arco en sentido horario) 
+Un arco circular o helicoidal se especifica utilizando 'G2' (arco en sentido horario)
 o 'G3' (arco en sentido antihorario) a la
 <<sec:set-feed-rate,velocidad de avance>> actual. La dirección (CW, CCW) se ve desde
 extremo positivo del eje sobre el cual ocurre el movimiento circular.
@@ -235,7 +235,7 @@ comienze y termine cuando el movimiento XYZ comienza y termina.
 Las líneas de este tipo casi nunca se programan.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-radius-compensation,Compensación del cortador>>.
 
 El centro del arco es absoluto o relativo según lo establecido por <<gcode:g90.1-g91.1,G90.1
 o G91.1>> respectivamente.
@@ -345,7 +345,7 @@ opción es calcular las coordenadas y el offset utilizando fórmulas. Como
 puede ver en las siguientes figuras, se puede formar un triángulo a partir de la
 posición actual, la posición final y el centro del arco.
 
-En la siguiente figura puede ver que la posición de inicio es X0 Y0 y 
+En la siguiente figura puede ver que la posición de inicio es X0 Y0 y
 la posición final es X1 Y1. La posición central del arco está en X1 Y0. Esto da
 un offset desde la posición inicial de 1 en el eje X y 0 en el eje Y.
 En este caso solo se necesita un offset I.
@@ -375,7 +375,7 @@ G2 X0 Y1 I1 J0.5 F25 (arco en sentido horario en el plano XY)
 G3 X0 Y0 I1 J-0.5 F25 (arco en sentido antihorario en el plano XY)
 ----
 
-.Ejemplo G2-G3 
+.Ejemplo G2-G3
 
 image::images/g2-3_en.svg[align="center", alt="Ejemplo G2-G3"]
 
@@ -423,7 +423,7 @@ En el formato radio, las coordenadas del punto final del arco en
 el plano seleccionado se especifica junto con el radio del arco.
 Programe los ejes 'G2' 'ejes' ' R-'(o use 'G3' en lugar de 'G2'). R es el
 radio. Las palabras de eje son todas opcionales, excepto que debe ser usada
-al menos una de las dos palabras para los ejes del plano seleccionado. 
+al menos una de las dos palabras para los ejes del plano seleccionado.
 El número R es el radio. Un radio positivo indica que el
 el arco gira menos de 180 grados, mientras que un radio negativo
 indica un giro de más de 180 grados. Si el arco es helicoidal, también se especifica el
@@ -714,7 +714,7 @@ Es un error si:
 * El número P no se evalúa como un entero en el rango de 0 a 9.
 * Se programa un eje que no está definido en la configuración.
 
-.Ejemplo de línea G10 L2 
+.Ejemplo de línea G10 L2
 [source,{ngc}]
 ----
 G10 L2 P1 X3.5 Y17.2
@@ -762,7 +762,7 @@ G10 L10 P1 Z1.5 (establecer la posición actual para Z en 1.5)
 G43 (vuelve a cargar las compensaciones de longitud de herramienta de la tabla de herramientas modificada)
 M2 (final del programa)
 ----
-* Consulte las secciones <<sec:select-tool,T>> , <<mcode:m6,M6>> y 
+* Consulte las secciones <<sec:select-tool,T>> , <<mcode:m6,M6>> y
   <<gcode:g43, G43>>/<<gcode:g43.1,G43.1>>  para más información.
 
 Es un error si:
@@ -786,7 +786,7 @@ G10 L11 P- ejes <R- I- J- Q->
 * 'Q' - orientación (torno)
 
 G10 L11 es como G10 L10, excepto que en lugar de configurar la entrada
-de acuerdo con las compensaciones actuales, se establece de modo que 
+de acuerdo con las compensaciones actuales, se establece de modo que
 las coordenadas actuales se convertirían en el valor dado si se vuelve a cargar el offset
 de la nueva herramienta y la máquina se coloca en el sistema de coordenadas G59.3
 sin ningún offset G52/G92 activo.
@@ -1110,7 +1110,7 @@ Si la operación de sondeo falla, G38.2 y G38.4 señalarán un error
 mostrando un mensaje en pantalla si la GUI seleccionada lo admite,
 y al detener la ejecución del programa.
 
-Un comentario de la forma '(PROBEOPEN filename.txt)' abrirá 
+Un comentario de la forma '(PROBEOPEN filename.txt)' abrirá
 'filename.txt' y almacenará las coordenadas
 XYZABCUVW de cada sonda recta exitosa en ella.
 El archivo debe cerrarse con '(PROBECLOSE)'. Para más información
@@ -1160,7 +1160,7 @@ G42 <D-> (a la derecha de la ruta programada)
 ----
 * 'D' - número de herramienta
 
-La palabra D es opcional; si no hay una palabra D, se utilizará el radio de la 
+La palabra D es opcional; si no hay una palabra D, se utilizará el radio de la
 herramienta cargada actual (si no se carga ninguna herramienta y no se proporciona una palabra D,
 se usará un radio de 0).
 
@@ -1194,7 +1194,7 @@ La compensación del cortador se puede realizar si el plano XY o el plano XZ est
 Los comandos de usuario M100-M199 están permitidos cuando la compensación de cortador está activada.
 
 El comportamiento del centro de mecanizado cuando la compensación del cortador
-está activada se describe en la sección <<sec:cutter-compensation,Compensación de cortador>>
+está activada se describe en la sección <<sec:cutter-radius-compensation,Compensación de cortador>>
 junto con ejemplos de código.
 
 Es un error si:
@@ -1246,7 +1246,7 @@ el punto final de ese eje será la ubicación compensada.
 [NOTE]
 'G43 H0' es un poco especial. Su comportamiento es diferente en
 máquinas de cambio de herramientas aleatorio y máquinas de cambio no aleatorio (ver la sección
-<<sec:tool-changers,Cambiadores de herramientas>>). En máquinas de cambiador de herramientas no aleatorio,
+<<sub:tool-changers,Cambiadores de herramientas>>). En máquinas de cambiador de herramientas no aleatorio,
 'G43 H0' aplica el TLO de la herramienta actualmente en el husillo,
 o un TLO de 0 si no hay herramienta. En máquinas con cambiador de herramientas aleatorio,
 'G43 H0' aplica el TLO de la herramienta T0 definida en la tabla de herramientas
@@ -1403,7 +1403,7 @@ en los parámetros que se muestran en la siguiente tabla.
 
 [width="80%", options="header", cols="<,11*^"]
 |============================================================
-|Selec.|SC|X   |Y   |Z   |A   |B   |C   |U   |V   |W   |R   
+|Selec.|SC|X   |Y   |Z   |A   |B   |C   |U   |V   |W   |R
 |G54   |1 |5221|5222|5223|5224|5225|5226|5227|5228|5229|5230
 |G55   |2 |5241|5242|5243|5244|5245|5246|5247|5248|5249|5250
 |G56   |3 |5261|5262|5263|5264|5265|5266|5267|5268|5269|5270
@@ -1693,7 +1693,7 @@ pases de roscado. 'R2.0' selecciona área constante. Valores entre 1.0 y
 2.0 seleccionan profundidad decreciente pero área creciente.
 Los valores superiores a 2.0 seleccionan área decreciente.
 Tenga en cuenta que los valores de degresión innecesariamente altos causarán un gran
-número de pases. 
+número de pases.
 
 * 'Q-' - 'ángulo de deslizamiento compuesto' es el ángulo (en grados) que describe
 en qué medida los pases sucesivos deben compensarse a lo largo de la línea guia.
@@ -1714,7 +1714,7 @@ hilo. Para un programa de conicidad de 45 grados, E igual que K
 cono (predeterminado), 'L1' para el cono de entrada, 'L2' para el cono de salida o 'L3'
 tanto para entradas y salidas cónicas. Las entradas cónicas se detendrán en la línea guia para
 sincronizar con el pulso de índice y luego moverse a <<sec:set-feed-rate,avance>>
-en el comienzo del cono. Sin entrada cónica, la herramienta hará un rapido a la 
+en el comienzo del cono. Sin entrada cónica, la herramienta hará un rapido a la
 profundidad de corte, luego sincronizara y comenzara el corte.
 
 La herramienta se movera a las posiciones X y Z iniciales antes de emitir
@@ -1728,7 +1728,7 @@ el comienzo del hilo pase el final del material o se usa una conicidad de entrad
 A menos que use conicidad de salida, el movimiento de salida no está sincronizado con la
 velocidad del husillo y será un <<gcode:g0,movimiento rápido>>. Con un husillo lento, el
 movimiento de salida puede tomar solo una pequeña fracción de una revolución. Si la velocidad
-del husillo aumenta después de completar varios pases, 
+del husillo aumenta después de completar varios pases,
 los movimientos de salida posteriores requerirán una porción mayor de una revolución, lo que resultará en un
 corte muy pesado durante el movimiento de salida. Esto se puede evitar proporcionando un
 surco de alivio en la salida, o no cambiar la velocidad del husillo mientras se rosca.
@@ -2183,7 +2183,7 @@ pausa se especifica mediante una palabra 'P-' en el bloque G82.
 G83 (X- Y- Z-) o (U- V- W-) R- L- Q-
 ----
 
-El ciclo 'G83' está destinado a perforación o fresado con rotura de viruta. 
+El ciclo 'G83' está destinado a perforación o fresado con rotura de viruta.
 Las retracciones en este ciclo despejan el agujero de esquirlas y cortar las virutas largas
 (que son comunes cuando se perfora aluminio). Este ciclo toma un número Q que representa un
 incremento 'delta' a lo largo del eje Z. La retracción antes de la profundidad final siempre
@@ -2231,7 +2231,7 @@ El ciclo 'G84' está diseñado para roscar con mandril flotante y permanecer en 
 
 8. Restaura y habilita ajustes de alimentación y velocidad al estado anterior
 
-La longitud de la pausa se especifica mediante una palabra 'P-' en el bloque G84. El pitch de la rosca es F 
+La longitud de la pausa se especifica mediante una palabra 'P-' en el bloque G84. El pitch de la rosca es F
 dividido por S.
 En el ejemplo, S100 F125 ofrece un paso de 1,25 mm por revolución.
 
@@ -2322,7 +2322,7 @@ G90 (establecer modo de distancia absoluta)
 G0 X2.5 (movimiento rápido a coordenada X2.5 incluyendo cualquier compensación en efecto)
 ----
 
-.Ejemplo G91 
+.Ejemplo G91
 ----
 G91 (establecer modo de distancia incremental)
 G0 X2.5 (movimiento rápido de 2.5 udes. desde la posición actual a lo largo del eje X)
@@ -2338,7 +2338,7 @@ G0 X2.5 (movimiento rápido de 2.5 udes. desde la posición actual a lo largo de
 Cuando G90.1 está en vigor, I y J deben especificarse con G2/G3
 para el plano XY o J y K para el plano XZ o es un error.
 
-* 'G91.1' - modo de distancia incremental para offsets I, J y K. G91.1 devuelve 
+* 'G91.1' - modo de distancia incremental para offsets I, J y K. G91.1 devuelve
 I, J y K a su comportamiento predeterminado.
 
 [[gcode:g92]]
@@ -2484,7 +2484,7 @@ para cada husillo antes de emitir M3.
 
 * 'G97' selecciona el modo RPM.
 
-.Línea de ejemplo G96 
+.Línea de ejemplo G96
 ----
 G96 D2500 S250 (establece CSS con rpm máximo de 2500 y una velocidad de superficie de 250)
 ----
@@ -2505,7 +2505,7 @@ de uno o más ciclos contiguos.
 
 Programe un 'G98' y el ciclo fijo usará la posición Z antes del
 ciclo fijo como la posición de retorno Z si es más alto que el valor R
-especificado en el ciclo. Si es menor, se usará el valor R. 
+especificado en el ciclo. Si es menor, se usará el valor R.
 La palabra R tiene diferentes significados en modo de distancia absoluta y
 en modo de distancia incremental.
 
@@ -2526,6 +2526,3 @@ a G83) NO restablece el plano 'inicial'. Es posible cambiar
 entre G98 y G99 durante una serie de ciclos.
 
 // vim:set syntax = asciidoc:
-
-
-

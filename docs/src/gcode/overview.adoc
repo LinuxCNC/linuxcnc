@@ -176,7 +176,7 @@ example), M-codes, and G-codes multiplied by ten. A decimal number
 which is intended to represent an integer is considered close enough if
 it is within 0.0001 of an integer value.
 
-[[gcode:parameters]]
+[[sec:overview-parameters]]
 == Parameters(((Parameters)))
 
 The RS274/NGC language supports 'parameters' - what in other

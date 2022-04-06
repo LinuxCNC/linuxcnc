@@ -1,9 +1,8 @@
 :lang: fr
 :toc:
 
-[[cha:classicladder-introduction]]
-= La programmation en Ladder 
-
+[[cha:classicladder]]
+= La programmation en Ladder
 == Introduction
 
 La logique Ladder ou langage de programmation Ladder est une méthode
@@ -72,5 +71,3 @@ tension soit appliquée à l'extrême gauche, dès que B0 devient vraie
 (par exemple: l'entrée est activée, ou l'utilisateur a pressé le
 contact NO), la tension atteint l'extrême droite en traversant la
 bobine Q0. Avec comme conséquence que la sortie Q0 passe de 0 à 1.
-
-

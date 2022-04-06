@@ -105,7 +105,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
 |<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
 |<<gcode:g87,G87>>                  |Back-borring Cycle'(not yet implemented)'
-|<<sec:g88,G88>>                    |Boring Cycle, Stop, Manual Out '(not yet implemented)'
+|<<gcode:g88,G88>>                    |Boring Cycle, Stop, Manual Out '(not yet implemented)'
 |<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
 |<<gcode:g90-g91,G90 G91>>          |Distance Mode
 |<<gcode:g90.1-g91.1,G90.1 G91.1>>  |Arc Distance Mode
@@ -148,7 +148,7 @@ M2 (end program)
 * See <<gcode:g90-g91,G90>> & <<mcode:m2-m30,M2>> sections for more information.
 
 If cutter compensation is active, the motion will differ from
-the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
+the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<gcode:g53,G53>> Section for more information.
@@ -196,7 +196,7 @@ M2 (end program)
 for more information.
 
 If cutter compensation is active, the motion will differ from
-the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
+the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>> Section.
 
 If 'G53' is programmed on the same line, the motion will also differ;
 see the <<gcode:g53,G53>> Section for more information.
@@ -245,7 +245,7 @@ programmed arc. Multi turn helical arcs are supported and give motion useful
 for milling holes or threads.
 
 WARNING: If the pitch of the helix is very small (less than the
-<<programming-the-planner,naive CAM tolerance>> then
+<<sub:programming-the-planner,naive CAM tolerance>> then
 the helix might be converted into a straight line.
 https://github.com/LinuxCNC/linuxcnc/issues/222[Bug #222]
 
@@ -255,7 +255,7 @@ motion starts and finishes when the XYZ motion starts and finishes.
 Lines of this sort are hardly ever programmed.
 
 If cutter compensation is active, the motion will differ from
-the above; see the <<sec:cutter-compensation,Cutter Compensation>> Section.
+the above; see the <<sec:cutter-radius-compensation,Cutter Compensation>> Section.
 
 The arc center is absolute or relative as set by <<gcode:g90.1-g91.1,G90.1
 or G91.1>> respectively.
@@ -1293,7 +1293,7 @@ Cutter compensation may be performed if the XY-plane or XZ-plane is active.
 User M100-M199 commands are allowed when Cutter Compensation is on.
 
 The behavior of the machining center when cutter compensation
-is on is described in the <<sec:cutter-compensation,Cutter Compensation>>
+is on is described in the <<sec:cutter-radius-compensation,Cutter Compensation>>
 Section along with code examples.
 
 It is an error if:
@@ -1345,7 +1345,7 @@ that axis's endpoint is the compensated location.
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
 tool changer machines and nonrandom tool changer machines (see the
-<<sec:tool-changers,Tool Changers>> section).  On nonrandom tool changer
+<<sub:tool-changers,Tool Changers>> section).  On nonrandom tool changer
 machines, 'G43 H0' applies the Tool Length Offset of the tool currently in the
 spindle, or a TLO of 0 if no tool is in the spindle.  On random tool changer
 machines, 'G43 H0' applies the TLO of the tool T0 defined in the tool

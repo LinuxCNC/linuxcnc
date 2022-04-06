@@ -332,6 +332,23 @@ Sauf si votre intention est d'utiliser les mêmes décalages G92 dans le prochai
 programme, la meilleure pratique consiste à envoyer un G92.1 à la fin de tout
 fichier de G-code dans lequel vous utilisez les compensations G92.
 
+When a program is aborted during processing that has 'G92' offsets in
+effect a startup will cause them to become active again.  As a
+safeguard, always have your preamble to set the environment as you
+expect it.  Additionally, 'G92' persistence may be disabled by setting
+'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
+'.ini' file.
+
+[[sec:g92-g52-interaction-cautions]]
+=== G92 and G52 Interaction Cautions
+
+'G52' and 'G92' share the same offset registers.  Unless 'G92'
+persistence is disabled in the '.ini' file (see <<sec:g92-commands,G92 Commands>>),
+'G52' offsets will also persist after machine reset,
+'M02' or 'M30'.  Beware that a 'G52' offset in effect during a program
+abort may result in unintended offsets when the next program is run.
+See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> above.
+
 == Exemple de programme utilisant les décalages d'axes
 
 Cet exemple de projet de gravure, usine un jeu de quatre cercles de

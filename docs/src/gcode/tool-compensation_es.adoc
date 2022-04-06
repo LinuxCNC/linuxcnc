@@ -1,7 +1,6 @@
 ﻿:lang:es
 
 [[cha:herramienta-compensación]]
-
 = Compensación de herramientas
 
 == Compensación de longitud de herramienta
@@ -179,8 +178,7 @@ La columna 'Comentario' puede usarse opcionalmente para describir la herramienta
 tipo de descripción estará bien. Esta columna es solo para lectores humanos.
 El comentario debe ir precedido de un punto y coma.
 
-[[sec:tool-changers]]
-
+[[sub:tool-changers]]
 === Cambiadores de herramientas
 
 LinuxCNC admite tres tipos de cambiadores de herramientas: 'manual', 'ubicación aleatoria'
@@ -213,8 +211,7 @@ siempre esta en un ranura diferente después de un cambio de herramienta. Cuando
 LinuxCNC reescribe el número de ranura para realizar un seguimiento de dónde están las herramientas.
 T puede ser cualquier número pero P debe ser un número que tenga sentido para la máquina.
 
-[[sec:cutter-compensation]]
-
+[[sec:cutter-radius-compensation]]
 == Compensación del cortador
 
 La compensación de cortador permite al programador programar la trayectoria de la herramienta
@@ -292,4 +289,3 @@ image::images/outside-comp.png[alt="Perfil externo"]
 .Perfil interno
 
 image::images/inside-comp.png[alt="Perfil interno"]
-
