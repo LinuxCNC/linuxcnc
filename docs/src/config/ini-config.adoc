@@ -758,7 +758,7 @@ gui-dependent actions (like creating gui-specific hal pins).
 === [TRAJ] Section(((INI File, TRAJ Section)))
 
 [WARNING]
-----
+====
 The new Trajectory Planner (TP) is on by default.
 If you have no TP settings in your [TRAJ] section - LinuxCNC defaults to: +
 ARC_BLEND_ENABLE = 1 +
@@ -766,7 +766,7 @@ ARC_BLEND_FALLBACK_ENABLE = 0 +
 ARC_BLEND_OPTIMIZATION_DEPTH = 50 +
 ARC_BLEND_GAP_CYCLES = 4 +
 ARC_BLEND_RAMP_FREQ = 100
-----
+====
 
 The [TRAJ] section contains general parameters for the trajectory
 planning module in 'motion'.
@@ -1521,4 +1521,3 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
 * 'RANDOM_TOOLCHANGER = 1' -
   This is for machines that cannot place the tool back into the pocket it came from.
   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
-

@@ -717,7 +717,8 @@ solves this problem by considering values equal if their absolute
 difference is less than 0.0001 (this value is defined as
 'TOLERANCE_EQUAL' in src/emc/rs274ngc/interp_internal.hh).
 
-[[gcode:functions]][[gcode:unary-operations]]
+[[gcode:functions]]
+[[gcode:unary-operations]]
 == Functions(((Functions)))(((Unary operations)))
 
 The available functions are shown in following table. Arguments to unary
@@ -912,7 +913,8 @@ measure in inches vs. measure in millimeters. A machining center may be
 in many modes at the same time, with one mode from each modal group
 being in effect. The modal groups are shown in the following Table.
 
-[[cap:modal-groups]][[tbl:gcodes-modal-groups]]
+[[cap:modal-groups]]
+[[tbl:gcodes-modal-groups]]
 .G-Code Modal Groups(((Modal Groups: G-Codes)))
 
 [width="80%", cols="4,6", options="header"]

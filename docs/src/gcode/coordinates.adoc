@@ -199,13 +199,13 @@ these parameters.
 See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 [CAUTION]
-----
+====
 'G52' and 'G92' share the same offset registers.  Therefore, setting
 'G52' will override any earlier 'G92' setting, and 'G52' will persist
 across machine reset when 'G92' persistence is enabled.  These
 interactions may result in unexpected offsets.
 See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
-----
+====
 
 Programming 'G52 X1 Y2' offsets the current workpiece coordinate
 system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
