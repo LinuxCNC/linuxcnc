@@ -77,7 +77,7 @@ void ManagerDisplaySections( char ForgetSectionSelected )
 	StrSection * pSection;
 	GtkTreeIter   iter;
 	int NumSec;
-	char BufferForSRx[ 10 ];
+	char BufferForSRx[ 15 ];
 char buffer_debug[ 50 ];
 //	pNameSectionSelected = NULL;
 	if ( ForgetSectionSelected )
@@ -95,8 +95,8 @@ printf("%s(): init...\n",__FUNCTION__);
 			if ( pSection->Language == SECTION_IN_SEQUENTIAL )
 				strcpy( BufferForSRx, "---" );
 			if ( pSection->SubRoutineNumber>=0 )
-				sprintf( BufferForSRx, "SR%d", pSection->SubRoutineNumber );
-sprintf( buffer_debug, "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
+				snprintf( BufferForSRx, sizeof(BufferForSRx), "SR%d", pSection->SubRoutineNumber );
+snprintf( buffer_debug, sizeof(buffer_debug), "F=%d, L=%d, P=%d", pSection->FirstRung, pSection->LastRung, pSection->SequentialPage );
 
 			// Acquire an iterator
 			gtk_list_store_append( ListStore, &iter );
@@ -454,7 +454,7 @@ void AddSectionWindowInit( )
 				gtk_combo_box_append_text( MY_GTK_COMBO_BOX(CycleSubRoutineNbr), _("Main") );
 				for ( NumSub=0; NumSub<10; NumSub++ )
 				{
-					sprintf( BuffNumSub, "SR%d", NumSub );
+					snprintf( BuffNumSub, sizeof(BuffNumSub), "SR%d", NumSub );
 					gtk_combo_box_append_text( MY_GTK_COMBO_BOX(CycleSubRoutineNbr), BuffNumSub );
 				}
 				gtk_box_pack_start( GTK_BOX (hbox[Line]), CycleSubRoutineNbr, TRUE, TRUE, 0 );
