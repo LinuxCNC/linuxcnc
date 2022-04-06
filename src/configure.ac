@@ -1076,36 +1076,43 @@ EOF
         BUILD_DOCS=no
     fi
 
-    AC_MSG_CHECKING([dblatex version])
-    set -- `dblatex --version`; DBLATEX_VER=$3
-    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-    micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_MSG_CHECKING([dblatex version])
+        set -- `dblatex --version`; DBLATEX_VER=$3
+        set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
+        micro=`echo $3 | sed 's/\([[0-9]]*\).*/\1/g'`
 
-    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
-        AC_MSG_WARN([dblatex version $DBLATEX_VER less than 0.2.12.
+        if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${micro:-0} -lt 12 \) \); then
+            AC_MSG_WARN([dblatex version $DBLATEX_VER less than 0.2.12.
 Documentation cannot be built.])
-        BUILD_DOCS=no
-    fi
-    AC_MSG_RESULT([$DBLATEX_VER])
-
-
-    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-	AC_MSG_WARN([no source-highlight, documentation cannot be built])
-        BUILD_DOCS=no
+            BUILD_DOCS=no
+        else
+            AC_MSG_RESULT([$DBLATEX_VER])
+        fi
     fi
 
-
-    AC_PATH_PROG(CONVERT,convert,"none")
-    if ( test "none" = "$CONVERT" ) ; then
-	AC_MSG_WARN([no convert, documentation cannot be built])
-        BUILD_DOCS=no
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
+        if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
+            AC_MSG_WARN([no source-highlight, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
     fi
 
-    AC_PATH_PROG(GS,gs,"none")
-    if ( test "none" = "$GS" ) ; then
-	AC_MSG_WARN([no gs, documentation cannot be built])
-        BUILD_DOCS=no
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(CONVERT,convert,"none")
+        if ( test "none" = "$CONVERT" ) ; then
+            AC_MSG_WARN([no convert, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
+    fi
+
+    if ( test "$BUILD_DOCS" = "yes" ) ; then
+        AC_PATH_PROG(GS,gs,"none")
+        if ( test "none" = "$GS" ) ; then
+            AC_MSG_WARN([no gs, documentation cannot be built])
+            BUILD_DOCS=no
+        fi
     fi
 fi
 
