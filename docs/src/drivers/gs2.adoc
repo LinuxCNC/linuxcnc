@@ -4,7 +4,7 @@
 = GS2 VFD Driver
 
 This is a userspace HAL program for the GS2 series of VFD's at
-Automation Direct. footnote:[En Europe on trouve l'équivalent sous la marque Omron.]
+Automation Direct. footnote:[In Europe the equivalent can be found under the brand name Omron.]
 
 This component is loaded using the halcmd "loadusr" command:
 ----
@@ -13,9 +13,7 @@ loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
 
 The above command says: loadusr, wait for named to load,
 component gs2_vfd, named spindle-vfd.
-FIXME from French: La commande de HAL _loadusr_ est détaillée au
-chapitre:
-The HAL `loadusr` command is detailed in the <<sub:hal-loadusr,loadusr>> chapter.
+The HAL `loadusr` command is described in the <<sub:hal-loadusr,loadusr>> chapter.
 
 == Command Line Options
 

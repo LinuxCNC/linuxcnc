@@ -36,7 +36,7 @@
 
 == El sistema operativo
 
-LinuxCNC está disponible como paquetes listos para usar en distribuciones para Ubuntu y Debian
+LinuxCNC está disponible como paquetes listos para usar en distribuciones para Ubuntu y Debian.
 
 
 == Obtener ayuda

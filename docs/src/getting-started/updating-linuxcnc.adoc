@@ -84,8 +84,8 @@ realtime. See below for the LinuxCNC version to install.
     then click on `Software Sources...` to open the `Software Sources`
     window.
 ** Ubuntu (Lucid):
-*** Haga clic en el menú `Sistema`, luego en` Administración`, luego `Administrador de paquetes Synaptic`.
-*** En Synaptic, haga clic en el menú `Configuración`, luego haga clic en `Repositorios` para abrir la ventana `Fuentes de software`.
+*** Click the `System` menu, then `Administration`, then `Synaptic Package Manager`.
+*** In Synaptic, click on the `Settings` menu, then click on `Repositories` to open the `Software Sources` window.
 * In the `Software Sources` window, select the `Other Software` tab.
 * Delete or un-check all the old linuxcnc.org entries (leave all
   non-linuxcnc.org lines as they are).

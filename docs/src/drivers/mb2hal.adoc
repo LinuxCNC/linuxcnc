@@ -17,7 +17,7 @@ Consider using Mb2hal if:
 * You need to use Classic Ladder "only" to manage the Modbus connections. 
 * You have to discover and configure first time the Modbus transactions. Mb2hal have debug levels to facilitate the low level protocol debug. 
 * You have more than one device to connect. Mb2hal is very efficient managing multiple devices, transactions and links.
-  Currently i am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
+  Currently I am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
 * You want a protocol to connect your Arduino to HAL. Look the included sample configuration file, sketch and library for Arduino Modbus. 
 
 == Usage

@@ -28,8 +28,8 @@ DISPLAY = tklinuxcnc
 Then, start LinuxCNC and select that ini file. The sample configuration
 'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
 
-From French: Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre
-<<sec:tklinuxcnc-introduction,comme celle-ci s'affiche>>.
+When LinuxCNC is started with TkLinuxCNC, a window
+<<sec:tklinuxcnc-introduction,like this one is displayed>>.
 
 === A typical session with TkLinuxCNC
 

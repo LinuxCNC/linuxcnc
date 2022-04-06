@@ -20,10 +20,9 @@ from software generated steps.
 
 === Run a Latency Test
 
-FIXME from French: Le CPU n'est pas le seul facteur déterminant la latence. Les cartes
-mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
-la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
-d'un PC consiste à exécuter le test de latence RTAI.
+The CPU is not the only factor determining latency. Motherboards, graphics
+cards, USB ports and many other things can degrade it. The best way to find out
+what you can expect from a PC is to run the RTAI latency test.
 
 Run the latency test as described in the <<cha:latency-testing,Latency Test>>
 chapter.

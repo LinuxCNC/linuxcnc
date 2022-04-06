@@ -6,14 +6,13 @@
 
 == Introduction
 
-Dans ce chapitre, nous allons tenter de démystifier les systèmes de coordonnées.
-C'est une notion capitale pour maitriser le fonctionnement d'une machine CNC, sa
-configuration et son utilisation.
+In this chapter, we will try to demystify coordinate systems.
+It is a very important concept to understand the operation of a CNC machine, its
+configuration and its use.
 
-Nous montrerons également, qu'il est très intéressant d'utiliser un point de
-référence sur le brut ou la pièce et de faire travailler le programme à partir
-de ce point, sans avoir à tenir compte d'où est placée la pièce sur la
-machine pendant l'usinage.
+We will also show that it is very interesting to use a reference point on the
+blank or the part and to make the program work from this point, without having
+to take into account where the part is placed on the table.
 
 This chapter introduces you to offsets as they are used by the LinuxCNC.
 These include:
@@ -41,7 +40,7 @@ code tells the interpreter to move to the actual axes positions
 G53 G0 X0 Y0 Z0
 ----
 
-Will move the mobile from the current position to the position where
+will move the mobile from the current position to the position where
 the machine coordinates of the three axes will be at zero. You can
 use this command if you have a fixed position for the tool change or if
 your machine has an automatic tool changer. You can also use this command
@@ -49,6 +48,8 @@ to clear the work area and access the workpiece in the vise.
 
 G53 is a non modal command. It must be used in every block where a move
 in machine coordinate system is desired
+
+== Coordinate Systems
 
 [[fig:coordinate-systems-example]]
 .Coordinate Systems Example

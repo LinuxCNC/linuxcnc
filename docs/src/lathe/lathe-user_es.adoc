@@ -4,9 +4,6 @@
 [[cha:lathe-user-information]]
 = Informacion para Usuarios de Torno
 
-FIXME from French: Ce chapitre va regrouper les informations spécifiques aux tours, il
-est encore en cours de rédaction.
-
 == Modo Torno
 
 Si su máquina CNC es un torno, hay algunos cambios específicos que

@@ -43,9 +43,10 @@ zone de travail et accéder à la pièce dans l'étau.
 G53 est une commande non modale. Elle doit être utilisée sur chaque
 ligne où un mouvement basé sur les coordonnées machine est souhaité.
 
-[[fig:decalages-ilots]]
-== Décalages pièce (G54 à G59.3)
+== Systèmes de coordonnées
 
+[[fig:decalages-ilots]]
+.Coordinate Systems Example
 image::images/offsets.png["Exemple de décalages pour 8 ilots"]
 
 .Exemple de décalages pour 8 ilots

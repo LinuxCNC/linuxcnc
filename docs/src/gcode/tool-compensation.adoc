@@ -97,7 +97,7 @@ In general, the new tool table line format is:
 - Q - tool orientation (lathe only) - integer, 0-9
 - ; - beginning of comment or remark - text
 
-El archivo consta de un punto y coma de apertura en la primera línea, seguido de hasta un máximo de 1000 entradas de herramientas.
+The file consists of an opening semicolon on the first line, followed by up to 1000 tool entries.
 
 [NOTE]
 Although tool numbers up to 99999 are allowed, the number of entries in
@@ -252,14 +252,6 @@ and 'non-random or fixed location'. Information about configuring a LinuxCNC too
 is in the <<sec:emcio-section,EMCIO Section>> of the INI chapter.
 
 .Manual Tool Changer
-
-El cambiador manual de herramientas (cambiar la herramienta a mano) se trata como un
-cambiador de herramienta de ubicación fija y el número P se ignora. Utilizar
-el cambiador manual de herramientas solo tiene sentido si tiene portaherramientas que
-permanezcan con la herramienta (Cat, NMTB, Kwik Switch, etc.) cuando se cambia
-preservando así la ubicación de la herramienta en el husillo. Máquinas con R-8 o
-los portaherramientas de tipo collar de enrutadores no conservan la ubicación de
-la herramienta y el cambiador de herramientas manual no debe usarse.
 
 Manual tool changer (you change the tool by hand) is treated like a
 fixed location tool changer.  Manual toolchanges can be aided by
