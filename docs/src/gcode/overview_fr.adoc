@@ -204,7 +204,7 @@ les expressions logiques peuvent être formulées avec
 <<sec:Operateurs-Binaires,les opérateurs booléens>> ('AND', 'OR', 'XOR' et les
 opérateurs de comparaison
 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE') ainsi que 'MOD', 'ROUND', 'FUP' et 'FIX'
-<<sec:Fonctions, les fonctions>> qui supportent l'arithmétique entière.
+<<gcode:functions,les fonctions>> qui supportent l'arithmétique entière.
 
 Les paramètres différent par leur syntaxe, leur portée, leur comportement quand ils
 ne sont pas encore initialisés, leur mode, leur persistance et l'usage pour lequel
@@ -485,98 +485,68 @@ sinon 0.
 * '#<_retract_old_z>' - Retourne 1 si G99 est 'on', sinon 0.
 
 [[sec:Parametres-Systeme]]
+[[sub:system-parameters]]
 == Paramètres système
 (((Paramètres système)))
 
 * `#<_spindle_rpm_mode>` - Retourne 1 si la broche est en mode tr/mn (G97),
-sinon 0.
-
+  sinon 0.
 * `#<_spindle_css_mode>` - Retourne 1 si la broche est en mode vitesse de coupe
-constante (G96), sinon 0.
-
+  constante (G96), sinon 0.
 * `#<_ijk_absolute_mode>` - Retourne 1 si le mode de déplacement en arc est
-absolu (G90.1), sinon 0.
-
+  absolu (G90.1), sinon 0.
 * `#<_lathe_diameter_mode>` - Retourne 1 pour un tour configuré en mode diamètre
-(G7), sinon 0.
-
-* `#<_lathe_radius_mode>` - Retourne 1 pour un tour configuré en mode rayon (G8)
-, sinon 0.
-
+  (G7), sinon 0.
+* `#<_lathe_radius_mode>` - Retourne 1 pour un tour configuré en mode rayon (G8),
+  sinon 0.
 * `#<_spindle_on>` - Retourne 1 si la broche tourne (M3 ou M4 en cours), sinon 0.
-
 * `#<_spindle_cw>` - Retourne 1 si la broche est dans le sens horaire (M3)
-sinon 0.
-
+  sinon 0.
 * `#<_mist>` - Retourne 1 si l'arrosage par gouttelettes est activé (M7).
-
 * `#<_flood>` - Retourne 1 si l'arrosage fluide est activé (M8).
-
 * `#<_speed_override>` - Retourne 1 si un correcteur de vitesse d'avance travail
-est activé (M48 ou M50 P1), sinon 0.
-
+  est activé (M48 ou M50 P1), sinon 0.
 * `#<_feed_override>` - Retourne 1 si un correcteur de vitesse broche est activé
-(M48 ou M51 P1), sinon 0.
-
+  (M48 ou M51 P1), sinon 0.
 * `#<_adaptive_feed>` - Retourne 1 si un correcteur de vitesse adaptative est
-activé (M52 ou M52 P1), sinon 0.
-
+  activé (M52 ou M52 P1), sinon 0.
 * `#<_feed_hold>` - Retourne 1 si le contrôle de coupure vitesse est activé
-(M53 P1), sinon 0.
-
+  (M53 P1), sinon 0.
 * `#<_feed>` - Retourne la valeur courante d'avance travail (F).
-
 * `#<_rpm>` - Retourne la valeur courante de vitesse broche (S).
-
 * `#<_x>` - Retourne la coordonnée machine courante en X. Identique à #5420.
-
 * `#<_y>` - Retourne la coordonnée machine courante en Y. Identique à #5421.
-
 * `#<_z>` - Retourne la coordonnée machine courante en Z. Identique à #5422.
-
 * `#<_a>` - Retourne la coordonnée machine courante en A. Identique à #5423.
-
 * `#<_b>` - Retourne la coordonnée machine courante en B. Identique à #5424.
-
 * `#<_c>` - Retourne la coordonnée machine courante en C. Identique à #5425.
-
 * `#<_u>` - Retourne la coordonnée machine courante en U. Identique à #5426.
-
 * `#<_v>` - Retourne la coordonnée machine courante en V. Identique à #5427.
-
 * `#<_w>` -Retourne la coordonnée machine courante en W. Identique à #5428.
-
 * `#<_current_tool>` - Retourne le N° de l'outil courant monté dans la broche.
-Identique à #5400.
-
+  Identique à #5400.
 * `#<_current_pocket>` - Retourne le N° de poche de l'outil courant.
-
 * `#<_selected_tool>` - Retourne le N° de l'outil sélectionné par le mot T.
-Par défaut -1.
-
+  Par défaut -1.
 * `#<_selected_pocket>` - Retourne le N° de poche sélectionné par le mot T.
-Par défaut -1 (pas de poche sélectionnée).
-
+  Par défaut -1 (pas de poche sélectionnée).
 * `#<_value>` -  [[param:_value]] Retourne la valeur du dernier O-code `return`
-ou `endsub`. Valeur 0 par défaut si pas d'expression après `return` ou `endsub`.
-Initialisé à 0 au démarrage du programme.
-
+  ou `endsub`. Valeur 0 par défaut si pas d'expression après `return` ou `endsub`.
+  Initialisé à 0 au démarrage du programme.
 * `#<_value_returned>` - 1.0 si le dernier O-code `return` ou `endsub` a
-retourné une valeur, 0 autrement. Effacé par le prochain appel à un O-code.
-
+  retourné une valeur, 0 autrement. Effacé par le prochain appel à un O-code.
 * `#<_task>` - 1.0 si l'instance en cours d'exécution par l'interpréteur fait
-partie d'une tâche de fraisage, 0.0 autrement. Il est parfois nécessaire de
-traiter ce cas particulier pour conserver un chemin d'outil propre, par exemple
-quand on teste le succès d'une mesure au palpeur (G38.x), en examinant #5070,
-ce qui ratait toujours dans le chemin d'outil de l'interpréteur (ex: Axis).
-
+  partie d'une tâche de fraisage, 0.0 autrement. Il est parfois nécessaire de
+  traiter ce cas particulier pour conserver un chemin d'outil propre, par exemple
+  quand on teste le succès d'une mesure au palpeur (G38.x), en examinant #5070,
+  ce qui ratait toujours dans le chemin d'outil de l'interpréteur (ex: Axis).
 * `#<_call_level>` - current nesting level of O-word procedures. Pour débogage.
-
 * `#<_remap_level>` - current level of the remap stack. Each remap in a block adds one
-    to the remap level. Pour débogage.
+  to the remap level. Pour débogage.
 
 
 [[sec:Expressions]]
+[[gcode:expressions]]
 == Expressions
 (((Expressions)))
 
@@ -590,6 +560,7 @@ est évaluée pour produire un nombre. Les expressions sur une ligne sont
 Un exemple d'expression: '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
 [[sec:Operateurs-Binaires]]
+[[gcode:binary-operators]]
 == Opérateurs binaires
 (((Opérateurs binaires)))
 
@@ -635,6 +606,7 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 |========================================
 
 [[sec:Fonctions]]
+[[gcode:functions]]
 == Fonctions[[sec:Operations-unaires]]
 (((Fonctions)))
 (((Opérations unaires)))
@@ -659,7 +631,6 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 
 
 .Fonctions
-
 [width="90%", options="header"]
 |========================================
 |Nom de fonction | Fonction
@@ -682,7 +653,7 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 == Répétitions d'items
 
 Une ligne peut contenir autant de mots G que voulu, mais un seul du même
-<<sec:Groupes-modaux,groupe modal>>.
+<<gcode:modal-groups,groupe modal>>.
 
 Une ligne peut avoir de zéro à quatre mots M. Mais pas deux mots M du
 même groupe modal.
@@ -749,7 +720,7 @@ mouvement.
 Les codes 'non modaux' n'ont d'effet que sur la ligne ou ils se
 présentent. Par exemple, G4 (tempo) est non modale.
 
-[[sec:Coordonnees-polaires]]
+[[gcode:polar-coordinates]]
 == Coordonnées polaires
 (((coordonnées polaires)))
 
@@ -792,7 +763,6 @@ celle à laquelle vous vous attendiez, parce-que avons ajouté
 0.5 à la distance de la position XY zéro à chaque début de ligne.
 
 .Spirale polaire[[fig:Spirale-polaire]]
-
 image::images/polar01.png[alt="Spirale polaire"]
 
 Le code suivant va produire notre modèle carré.
@@ -809,7 +779,6 @@ Comme vous pouvez le voir, en ajoutant seulement l'angle de 90 degrés à
 chaque ligne. La distance du point final est la même pour chaque ligne.
 
 .Carré polaire[[fig:Carre-polaire]]
-
 image::images/polar02.png[alt="Carré polaire"]
 
 C'est une erreur si:
@@ -819,6 +788,7 @@ C'est une erreur si:
 
 
 [[sec:Groupes-modaux]]
+[[gcode:modal-groups]]
 == Groupes modaux(((Groupes modaux)))
 
 Les commandes modales sont arrangées par lots appelés 'groupes
@@ -832,6 +802,7 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 
 
 [[tbl:G-codes-modaux]]
+[[cap:modal-groups]]
 .Groupes modaux des G-codes (((G-codes modaux)))
 
 [width="100%", cols="4,6", options="header"]
@@ -855,6 +826,7 @@ visibles dans le tableau <<tbl:G-codes-modaux, ci-dessous>>.
 |==========================================================
 
 [[tbl:M-codes-modaux]]
+[[tbl:mcodes-modal-groups]]
 .Groupes modaux des M-codes
 (((M-codes modaux)))
 
@@ -892,7 +864,7 @@ G30, G52 et G92.
 C'est une erreur d'inclure des mots sans rapport sur une ligne avec le
 contrôle de flux 'O'.
 
-[[sec:Commentaires]]
+[[gcode:comments]]
 == Commentaires
 (((Commentaires)))
 
@@ -904,6 +876,7 @@ n'est pas traité comme un début de commentaire si il se trouve entre deux
 parenthèses.
 
 Voici un exemple de programme commenté:
+
 ----
 G0 (Rapide à démarrer.) X1 Y1
 G0 X1 Y1 (Rapide à démarrer; mais n'oubliez pas l'arrosage.)
@@ -912,11 +885,13 @@ M2 ; Fin du programme.
 
 Les commentaires peuvent se trouver entre des mots, mais pas entre des mots et
 leur paramètre correspondant. Ainsi, cette ligne est correcte:
+
 ----
 S100(vitesse broche)F200(vitesse d'avance)
 ----
 
 mais celle-ci est incorrecte:
+
 ----
 S(speed)100F(feed)200
 ----
@@ -936,9 +911,8 @@ Un commentaire commençant par un point virgule est par définition le dernier
 commentaire sur cette ligne et sera toujours interprété selon la syntaxe des
 commentaires actifs.
 
-[[sec:Messages]]
-== Messages
-(((Messages)))
+[[gcode:messages]]
+== Messages(((Messages)))
 
 * '(MSG,)' - Un commentaire contient un message si 'MSG' apparaît après la
             parenthèse ouvrante et avant tout autre caractère. Les variantes de
@@ -952,44 +926,43 @@ commentaires actifs.
 (MSG, Ceci est un message)
 ----
 
-[[sec:Log-des-mesures]]
+[[gcode:probe-logging]]
 == Enregistrement des mesures
 (((Enregistrement des mesures)))
 
 * '(PROBEOPEN filename.txt)' - ouvrira le fichier 'filename.txt' et y
-                            enregistrera les 9 coordonnées de XYZABCUVW pour
-                            chacune des mesures réussie.
+  enregistrera les 9 coordonnées de XYZABCUVW pour
+  chacune des mesures réussie.
 * '(PROBECLOSE)'. - fermera le fichier de log palpeur.
 
 Voir la section <<gcode:g38,sur la mesure au palpeur>> pour d'autres
 informations sur le palpage avec G38.
 
 [[sec:Log-general]]
+[[gcode:logging]]
 == Log général(((Log général)))
 
 * '(LOGOPEN,filename.txt)' - Ouvre le fichier de log 'filename.txt'.
-                            Si le fichier existe déjà, il sera tronqué.
-
+  Si le fichier existe déjà, il sera tronqué.
 * '(LOGAPPEND,filename.txt)' - Ouvre le fichier de log 'filename.txt'.
-                            Si le fichier existe déjà, il sera ajoutées.
-
+  Si le fichier existe déjà, il sera ajoutées.
 * '(LOGCLOSE)' - Si le fichier est ouvert, il sera fermé.
-
 * '(LOG,message)' - Le 'message' placé derrière la virgule est écrit dans
-                    le fichier de log si il est ouvert. Supporte l'extension
-                    des paramètres comme décrit plus loin.
+  le fichier de log si il est ouvert. Supporte l'extension
+  des paramètres comme décrit plus loin.
 
 [[gcode:debug]]
 == Messages de débogage(((Messages de débogage)))
 
 * '(DEBUG,commentaire)' sont traités de la même façon que ceux avec
-                        '(msg,reste du commentaire)' avec l'ajout de
-                        possibilités spéciales pour les paramètres, comme
-                        décrit plus loin.
+  '(msg,reste du commentaire)' avec l'ajout de
+  possibilités spéciales pour les paramètres, comme
+  décrit plus loin.
 
+[[gcode:debug]]
 * '(PRINT,commentaire)' vont directement sur la sortie 'stderr' avec des
-                        possibilités spéciales pour les paramètres, comme
-                        décrit plus loin.
+  possibilités spéciales pour les paramètres, comme
+  décrit plus loin.
 
 == Paramètres dans les commentaires
 
@@ -1044,13 +1017,14 @@ chargement des fichiers conséquents. L'aperçu peut être désactivé en
 passant un <<sub:Commentaires-speciaux,commentaire spécial>>.
 
 [[sec:Ordre-d-execution]]
+[[gcode:order-of-execution]]
 == Ordre d'exécution(((Ordre d'exécution)))
 
 L'ordre d'exécution des éléments d'une ligne est défini, non pas par sa position
 dans la ligne mais par la liste suivante:
 
 * Commandes O-code, optionnellement suivies par un commentaire mais aucun autre
-mot n'est permis sur la même ligne.
+  mot n'est permis sur la même ligne.
 * Commentaire (message inclus).
 * Positionnement du mode de vitesses (G93, G94).
 * Réglage de la vitesse travail (F).
@@ -1073,10 +1047,10 @@ mot n'est permis sur la même ligne.
 * Réglage du mode de déplacement (G90, G91).
 * Réglage du mode de retrait (G98, G99).
 * Prise d'origine (G28, G30) ou établissement du système de
-   coordonnées (G10) ou encore, réglage des décalages d'axes (G52,
-   G92, G92.1, G92.2, G94).
+  coordonnées (G10) ou encore, réglage des décalages d'axes (G52,
+  G92, G92.1, G92.2, G94).
 * Effectuer un mouvement (G0 à G3, G33, G80 à G89), tel que modifié
-   (éventuellement) par G53.
+  (éventuellement) par G53.
 * Arrêt (M0, M1, M2, M30, M60).
 
 == G-Code: Bonnes pratiques(((G-Code bonnes pratiques)))
@@ -1109,6 +1083,7 @@ entrées manuelles.
 
 Une bonne mesure préventive consiste à placer la ligne suivante au
 début de tous les programmes:
+
 ----
 G17 G21 G40 G49 G54 G80 G90 G94
 ----
@@ -1124,7 +1099,7 @@ plan de retrait des cycles de perçage peuvent être importantes.
 
 === Ne pas mettre trop de choses sur une ligne
 
-Ignorer le contenu de la section <<sec:Ordre-d-execution, ordre d'exécution>> et
+Ignorer le contenu de la section <<sec:Ordre-d-execution,ordre d'exécution>> et
 ne pas écrire de ligne de code qui laisse la moindre ambiguïté.
 
 === Ne pas régler et utiliser un paramètre sur la même ligne
@@ -1160,15 +1135,15 @@ matériaux à enlever, souhaitée.
 == Messages d'erreur courants
 
 * 'G code hors d'étendue' - Un G-code supérieur à G99 a été utilisé. L'étendue
-des G-codes dans LinuxCNC est comprise entre 0 et 99. Toutefois, les valeurs
-entre 0 et 99 ne sont pas toutes celle d'un G-code valide.
+  des G-codes dans LinuxCNC est comprise entre 0 et 99. Toutefois, les valeurs
+  entre 0 et 99 ne sont pas toutes celle d'un G-code valide.
 * 'Utilisation d'un G code inconnu' - Un G-code à été utilisé qui n'appartient
-pas aux langage G-code de LinuxCNC.
+  pas aux langage G-code de LinuxCNC.
 * 'Mot i, j, k sans Gx l'utilisant' - Les mots i, j et k doivent être utilisés
-sur la même ligne que leur G-code.
+  sur la même ligne que leur G-code.
 * 'Impossible d'employer des valeurs d'axe sans G code pour les utiliser' - Les
-valeurs d'axe ne peuvent pas être utilisées sur une ligne sans qu'un G-code ne
-se trouve sur la même ligne ou qu'un G-code modal soit actif.
+  valeurs d'axe ne peuvent pas être utilisées sur une ligne sans qu'un G-code ne
+  se trouve sur la même ligne ou qu'un G-code modal soit actif.
 * 'Le fichier se termine sans signe pourcent ni fin de programme' - Tout fichier
 G-code doit se terminer par un M2, un M30 ou être encadré par le signe '%'.
 
