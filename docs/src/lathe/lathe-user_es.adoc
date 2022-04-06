@@ -14,7 +14,8 @@ los mejores resultados de LinuxCNC.
 
 Si está utilizando la gui AXIS,
 haga que Axis muestre sus herramientas de torno correctamente.
-Consulte la sección <<cha:ini-configuration,configuración INI>> para obtener más detalles.
+Consulte la sección <<cha:ini-configuration,configuración INI>> para
+obtener más detalles.
 
 Para configurar AXIS para el modo torno:
 
@@ -62,20 +63,17 @@ con el ángulo de la línea central (l.c.) de cada orientación e información s
 FRONTANGLE y BACKANGLE están en el sentido de las agujas del reloj comenzando en una línea paralela a Z+.
 
 .Orientaciones de la herramienta del torno
-
 image::images/tool-positions_es.svg[align="center", alt="Orientaciones herramienta torno"]
 
 En AXIS, la siguientes figura muestra cómo se ven las posiciones de las herramientas, tal como se ingresaron en la tabla de herramientas.
 
 .Posiciones 1, 2, 3 y 4
-
 image:images/tool-pos-1_es.svg[alt="Posicion 1"]
 image:images/tool-pos-2_es.svg[alt="Posicion 2"]
 image:images/tool-pos-3_es.svg[alt="Posicion 3"]
 image:images/tool-pos-4_es.svg[alt="Posicion 4"]
 
 .Posiciones 5, 6, 7 y 8
-
 image:images/tool-pos-5_es.svg[alt="Posicion 5"]
 image:images/tool-pos-6_es.svg[alt="Posicion 6"]
 image:images/tool-pos-7_es.svg[alt="Posicion 7"]
@@ -112,12 +110,12 @@ por lo que la herramienta actual es el offset actual.
 
 Una sesión típica podría ser:
 
- . homing de cada eje si no lo están.
- . Configurar la herramienta actual con 'Tn M6 G43', donde 'n' es el número de la herramienta.
- . Seleccionar el eje X en la ventana de Control Manual.
- . Mover la X a una posición conocida o realizar un corte de prueba y medir el diámetro.
- . Seleccionar Touch Off y seleccionar Tabla de herramientas, luego ingrese la posición o el diámetro.
- . Siga la misma secuencia para corregir el eje Z.
+. homing de cada eje si no lo están.
+. Configurar la herramienta actual con 'Tn M6 G43', donde 'n' es el número de la herramienta.
+. Seleccionar el eje X en la ventana de Control Manual.
+. Mover la X a una posición conocida o realizar un corte de prueba y medir el diámetro.
+. Seleccionar Touch Off y seleccionar Tabla de herramientas, luego ingrese la posición o el diámetro.
+. Siga la misma secuencia para corregir el eje Z.
 
 Nota: si está en el modo Radio, debe ingresar el radio, no el diámetro.
 
@@ -135,15 +133,15 @@ establece su offset Z sin tener que reiniciar todas las herramientas.
 
 Una sesión típica podría ser:
 
- . homing de cada eje si no lo están.
- . Asegurar de que no haya offsets en vigor para el sistema de coordenadas actual.
- . Configurar la herramienta actual con 'Tn M6 G43', donde 'n' es el número de la herramienta.
- . Seleccionar el eje Z en la ventana de Control manual.
- . Acerque la herramienta a la superficie de control. Usando un cilindro mueva el
-   Z lejos de la superficie de control hasta que el cilindro pase justo entre
-   la herramienta y la superficie de control.
- . Seleccione Touch Off y seleccione la Tabla de herramientas y establezca la posición en 0.0.
- . Repita para cada herramienta usando el mismo cilindro.
+. homing de cada eje si no lo están.
+. Asegurar de que no haya offsets en vigor para el sistema de coordenadas actual.
+. Configurar la herramienta actual con 'Tn M6 G43', donde 'n' es el número de la herramienta.
+. Seleccionar el eje Z en la ventana de Control manual.
+. Acerque la herramienta a la superficie de control. Usando un cilindro mueva el
+  Z lejos de la superficie de control hasta que el cilindro pase justo entre
+  la herramienta y la superficie de control.
+. Seleccione Touch Off y seleccione la Tabla de herramientas y establezca la posición en 0.0.
+. Repita para cada herramienta usando el mismo cilindro.
 
 Ahora todas las herramientas están desplazadas a la misma distancia de una posición estándar.
 Si cambia una herramienta como una broca, repita lo anterior y
@@ -162,10 +160,10 @@ utilizando el sistema de coordenadas de máquina.
 
 Una sesión típica podría ser:
 
- . homing de cada eje si no lo estan.
- . Configurar la herramienta actual con "Tn M6", donde "n" es el número de la herramienta.
- . Emitir un G43 de modo que el offset de la herramienta actual esté vigente.
- . Lleve la herramienta a la pieza de trabajo y configure el offset Z de la máquina.
+. homing de cada eje si no lo estan.
+. Configurar la herramienta actual con "Tn M6", donde "n" es el número de la herramienta.
+. Emitir un G43 de modo que el offset de la herramienta actual esté vigente.
+. Lleve la herramienta a la pieza de trabajo y configure el offset Z de la máquina.
 
 Si olvida configurar el G43 para la herramienta actual al configurar el
 sistema de coordenadas de la máquina compensado, no obtendrá lo que espera,
@@ -212,9 +210,9 @@ normalmente se configura con el eje Y imaginario (+) apuntando al suelo.
 
 Lo siguiente será cierto en este tipo de configuración:
 
- - El eje Z(+) apunta hacia la derecha, alejandose del husillo.
- - El eje X(+) apunta hacia el operador, y cuando está en el lado del operador,
-   los valores de X son positivos.
+- El eje Z(+) apunta hacia la derecha, alejandose del husillo.
+- El eje X(+) apunta hacia el operador, y cuando está en el lado del operador,
+  los valores de X son positivos.
 
 Algunos tornos con herramientas en la parte posterior tienen el eje Y imaginario (+)
 apuntando hacia arriba.
@@ -269,7 +267,6 @@ image::images/ramp-cut_es.svg["Camino en Rampa",align="center"]
 
 El ejemplo anterior se podria ajustar la ruta programada a la ruta real deseada
 moviendo la ruta programada hacia la izquierda del radio de la punta de la herramienta.
-
 
 === Cortando un radio
 

@@ -1,6 +1,7 @@
 :lang: en
 
-= About LinuxCNC
+[[cha:about-linuxcnc]]
+= About LinuxCNC(((About LinuxCNC)))
 
 == The Software
 
@@ -25,7 +26,8 @@
   from the drawing (CAM - Computer Automated Manufacturing) functions.
 * It can simultaneously move up to 9 axes and supports a variety of interfaces.
 * The control can operate true servos (analog or PWM) with the feedback
-  loop closed by the LinuxCNC software at the computer, or open loop with step-servos or stepper motors.
+  loop closed by the LinuxCNC software at the computer, or open loop with
+  step-servos or stepper motors.
 * Motion control features include: cutter radius and length
   compensation, path deviation limited to a specified tolerance, lathe
   threading, synchronized axis motion, adaptive feedrate, operator
@@ -73,9 +75,11 @@ Sharing Files::
 The most common way to share files on the IRC is to upload the file
 to one of the following or a similar service and paste the link:
 
-* 'For text': http://pastebin.com/ , http://pastie.org/, https://gist.github.com/
+* 'For text': http://pastebin.com/ , http://pastie.org/,
+  https://gist.github.com/
 * 'For pictures': http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
-* 'For files': https://filedropper.com/ , http://filefactory.com/ , http://1fichier.com/
+* 'For files': https://filedropper.com/ , http://filefactory.com/ ,
+  http://1fichier.com/
 
 === Mailing List
 
@@ -91,8 +95,8 @@ https://lists.sourceforge.net/lists/listinfo/emc-users
 
 === Web Forum
 
-A web forum can be found at https://forum.linuxcnc.org or by following the link at the
-top of the linuxcnc.org home page.
+A web forum can be found at https://forum.linuxcnc.org or by following
+the link at the top of the linuxcnc.org home page.
 
 This is quite active but the demographic is more user-biased than the
 mailing list.  If you want to be sure that your message is seen by the
@@ -103,8 +107,10 @@ developers then the mailing list is to be preferred.
 A Wiki site is a user maintained web site that anyone can add to or edit.
 
 The user maintained LinuxCNC Wiki site contains a
-wealth of information and tips at: link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
+wealth of information and tips at:
+link:http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org]
 
 === Bug Reports
 
-Report bugs to the LinuxCNC link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
+Report bugs to the LinuxCNC
+link:http:///github.com/LinuxCNC/linuxcnc/issues[github bug tracker].
