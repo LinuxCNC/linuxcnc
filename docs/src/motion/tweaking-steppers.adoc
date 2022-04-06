@@ -69,6 +69,7 @@ on their step and direction inputs. So you need to dig out (or Google
 for) the data sheet that has your drive's specs.
 
 From the Gecko G202 manual:
+
 ....
 Step Frequency: 0 to 200 kHz
 Step Pulse "0" Time: 0.5 us min (Step on falling edge)
@@ -77,6 +78,7 @@ Direction Setup: 1 us min (20 us min hold time after Step edge)
 ....
 
 From the Gecko G203V manual:
+
 ....
 Step Frequency: 0 to 333 kHz
 Step Pulse "0" Time: 2.0 us min (Step on rising edge)
@@ -88,6 +90,7 @@ Direction Setup:
 ....
 
 From the Xylotex datasheet:
+
 ....
 Minimum DIR setup time before rising edge of STEP Pulse 200 ns Minimum
 DIR hold time after rising edge of STEP pulse 200 ns
