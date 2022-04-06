@@ -126,10 +126,10 @@ NGCGUI:: <<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style prog
 .NGCGUI graphical interface integrated into Axis
 image::../gui/images/ngcgui.png["NGCGUI graphical interface integrated into Axis",align="center"]
 
-TkLinuxCNC:: <<cha:TkLinuxCNC,TkLinuxCNC>>, another interface based on Tcl/Tk.
+TkLinuxCNC:: <<cha:tklinuxcnc,TkLinuxCNC>>, another interface based on Tcl/Tk.
   Once the most popular interface after AXIS.
 
-[[fig:tklinuxcnc-graphical-interface]]
+[[fig:tklinuxcnc-gui]]
 .TkLinuxCNC graphical interface
 image::images/tklinuxcnc_fr.png["TkLinuxCNC graphical interface",align="center"]
 

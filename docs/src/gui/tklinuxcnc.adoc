@@ -1,9 +1,9 @@
 :lang: en
 
-[[cha:tklinuxcnc-gui]]
+[[cha:tklinuxcnc]]
 = TkLinuxCNC GUI
 
-[[sec:tklinuxcnc-introduction]]
+[[sec:tklinuxcnc-intro]]
 == Introduction
 
 TkLinuxCNC is one of the first graphical front-ends
@@ -12,8 +12,8 @@ for the display. Being written in Tcl makes it very portable (it runs on a
 multitude of platforms). A separate backplot window can be displayed as
 shown.
 
+[[cap:tklinuxcnc-display]]
 .TkLinuxCNC Window
-
 image::images/tkemc.png["TkLinuxCNC Window",align="center"]
 
 == Getting Started
@@ -29,7 +29,7 @@ Then, start LinuxCNC and select that ini file. The sample configuration
 'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
 
 From French: Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre
-<<sec:tklinuxcnc-introduction,comme celle-ci s'affiche>>.
+<<cap:tklinuxcnc-display,comme celle-ci s'affiche>>.
 
 === A typical session with TkLinuxCNC
 
@@ -120,7 +120,7 @@ in the Integrator Manual).
 When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
-[[cap:TkLinuxCNC-Interpreteur]]
+[[cap:tklinuxcnc-interpreter]]
 === Automatic control
 
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
@@ -262,5 +262,3 @@ following table.
 |[, ]         | Jog fourth axis
 |ESC          | Stop execution
 |========================================
-
-

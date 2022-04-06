@@ -123,7 +123,7 @@ Las banderas pueden ser una o más de las siguientes:
 
 -n:: Nombrar un componente cuando es una opción válida para ese componente.
 
-[[sub:net]] (((net)))
+[[sub:hal-net]] (((net)))
 
 === net
 
@@ -239,7 +239,7 @@ unlinkp parport.0.pin-02-out
 === Comandos obsoletos
 
 Los siguientes comandos están desaconsejados y pueden eliminarse en futuras
-versiones. Cualquier nueva configuración debe usar el comando <<sub:net,'net'>>.
+versiones. Cualquier nueva configuración debe usar el comando <<sub:hal-net,'net'>>.
 Estos comandos están incluidos para que las configuraciones más antiguas sigan funcionando.
 
 .linksp

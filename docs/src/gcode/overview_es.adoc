@@ -1015,7 +1015,7 @@ NOTA: Los comentarios en línea en palabras O no deben usarse. Vea la sección d
 Ejemplos de registro están en 'nc_files/examples/smartprobe.ngc' y en
 'nc_files/ngcgui_lib/rectange_probe.ngc' archivos de código G de muestra.
 
-[[gcode:debug-messages]]
+[[gcode:debug]]
 == Mensajes de depuracion(((Debug Messages)))
 
 * '(DEBUG,)' - muestra un mensaje como '(MSG,)' con la adición de manejo especial

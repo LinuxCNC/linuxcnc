@@ -186,9 +186,8 @@ programme G-code contient des sous-programmes.
 * 'Annulation décalages d'origine...' - Annule les décalages d'origine du
    système de coordonnées choisi.
 
-[[sec:tool-touch-off]] (((Tool Touch Off)))
-
-* 'L'outil touchera la pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur
+[[sub:axis:tool-touch-off]]
+* 'L'outil touchera la pièce...'(((Tool Touch Off))) - Lorsqu'un 'Toucher' est effectué, la valeur
    entrée est relative au système de coordonnées pièce actuel (G5x), tel que
    modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
    complète, la coordonnée relative pour l'axe choisi prendra la valeur
@@ -214,7 +213,7 @@ Ces termes sont corrects si la machine CNC a un axe Z vertical, avec une valeur
 de Z positive en haut. C'est vrai pour les fraiseuses verticales, qui sont
 probablement les plus populaires, c'est également vrai pour toutes les machines
 d'électro-érosion et aussi les tours verticaux, sur lesquels la pièce tourne
-sous l'outil. 
+sous l'outil.
 
 Les termes 'Vue de dessus', 'Vue de face' et 'Vue de côté' sont cependant
 source de confusion sur d'autres machines CNC, comme un tour standard, sur
@@ -329,13 +328,13 @@ l'affichage comme il se doit.
 
 * 'Afficher la position machine...' - C'est la position par rapport à l'origine
    machine, telle qu'établie par la prise d'origine machine '(POM)'.
-   
+
 * 'Afficher la position relative...' - C'est la position par rapport à l'origine
    pièce, telle qu'établie par la prise d'origine pièce '(POP)'.
    On peut aussi représenter cette position comme étant l'origine machine
    à laquelle on a appliqué les codes de décalages des systèmes de
    coordonnées G5x, G92 et G43.
-   
+
 .Menu Aide
 
 * 'A propos d'Axis...' - Donne la version et quelques informations relatives
@@ -666,7 +665,7 @@ résultante sera de *F6400*. Cet élément n'apparaît que si la 'HAL pin'
 'spindle.0.speed-out' est connectée dans le fichier .hal.
 
 === Vitesse de Jog
-(((Vitesse de jog))) 
+(((Vitesse de jog)))
 
 En déplaçant ce curseur, la vitesse de jog peut être modifiée. Par
 exemple, si ce curseur est placé sur 100 mm/mn, alors un jog de 1 mm
@@ -685,7 +684,7 @@ présent. Il permet d'ajuster la vitesse de rotation des axes rotatifs
 
 En déplaçant ce curseur, la vitesse maximale peut être réglée.
 Ceci couvre la vitesse maximale de tous les mouvements programmés,
-sauf les mouvements avec broche synchronisée. 
+sauf les mouvements avec broche synchronisée.
 
 == Raccourcis clavier
 
@@ -817,7 +816,7 @@ après un M6 T<n>.
 
 image::images/manualtoolchange_fr.png["La fenêtre de changement manuel d'outil"]
 
-== Modules en Python 
+== Modules en Python
 
 AXIS(((AXIS))) inclut plusieurs modules en Python(((Python))) qui
 peuvent être très utiles. Pour des informations complètes sur ces
@@ -904,7 +903,7 @@ sa sortie traitée comme du G-code. Un autre exemple est disponible
 dans: '/nc_files/holecircle.py' . Ce script crée le G-code pour percer
 une série de trous suivant un arc de cercle.
 
-.Perçages circulaires 
+.Perçages circulaires
 
 image::images/holes.png["Perçages circulaires"]
 
@@ -956,7 +955,7 @@ est aussi reporté sur une 'pin HAL' avec un nom comme 'axisui.jog.x'.
 Excepté pendant un court instant après que l'axe courant ait changé,
 une seule de ces pins à la fois est 'TRUE', les autres restent 'FALSE'.
 
-Après qu'AXIS ait créé ces 'HAL pins', il exécute le fichier hal 
+Après qu'AXIS ait créé ces 'HAL pins', il exécute le fichier hal
 déclaré avec: [HAL]POSTGUI_HALFILE. Ce qui diffère de [HAL]HALFILE,
 qui lui ne s'utilise qu'une seule fois.
 
@@ -995,7 +994,7 @@ afficheront des données et plus encore. Voir le manuel de l'intégrateur.
 
 Les commentaires spéciaux peuvent être insérés dans le fichier de G-code pour
 contrôler le comportement de l'affichage d'AXIS. Pour limiter l'aperçu au seul
-affichage du parcours d'outil, utiliser ces commentaires spéciaux. Rien ne 
+affichage du parcours d'outil, utiliser ces commentaires spéciaux. Rien ne
 s'affichera entre le commentaire (AXIS,hide) et le commentaire (AXIS,show) sauf
 le parcours d'outil. Les (AXIS,hide) et (AXIS,show) doivent être utilisés par
 paires avec le (AXIS, hide) en premier. Tout ce qui est après un (AXIS,stop)
@@ -1011,4 +1010,3 @@ aperçu sur certaines parties qui sont déjà fonctionnelles).
  - (AXIS,notify,le_texte) Affiche 'le_texte' à l'écran, comme une info.
 Cet affichage peut être très utile lors du pré-affichage du parcours d'outil,
 quand les commentaires (debug,message) ne sont pas affichés.
-

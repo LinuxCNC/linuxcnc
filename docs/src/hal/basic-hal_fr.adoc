@@ -87,7 +87,7 @@ loadusr -Wn spindle gs2_vfd -n spindle
 En anglais ça donne 'loadusr wait for name spindle component gs2_vfd name spindle'.
 Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr.
 
-=== net[[sub:net]]
+=== net[[sub:hal-net]]
 
 La commande 'net' crée une 'connexion' entre un signal et une ou plusieurs pins.
 Si le signal n'existe pas, net le crée. Les flèches de direction '<=', '=>' et
@@ -203,7 +203,7 @@ unlinkp parport.0.pin-02-out
 === Commandes obsolètes
 
 Les commandes suivantes sont dépréciées et seront retirées dans les futures
-versions. Toute nouvelle configuration doit utiliser la commande <<sub:net,'net'>>.
+versions. Toute nouvelle configuration doit utiliser la commande <<sub:hal-net,'net'>>.
 
 === linksp
 

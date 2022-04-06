@@ -193,7 +193,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 
 * 'Zero Coordinate System' - Set all offsets to zero in the coordinate system chosen.
 
-[[axis:tool-touch-off]]
+[[sub:axis:tool-touch-off]]
 * 'Tool touch off to workpiece'(((Axis, Tool Touch Off))) - When performing Touch Off, the value
   entered is relative to the current workpiece ('G5x') coordinate system,
   as modified by the axis offset ('G92').  When the Touch Off is complete,
@@ -570,7 +570,7 @@ button will show 'Home Joint'.
 
 See the <<cha:homing-configuration,Homing Configuration Chapter>> for more information.
 
-[[sec:touch-off]]
+[[sub:axis:touch-off]]
 .Touch Off
 
 By pressing 'Touch Off' or the END key, the 'G5x offset' for the

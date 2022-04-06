@@ -20,8 +20,8 @@ Avec ce programme, dans la plupart des cas, la machine va appliquer le
 décalage sous forme d'une rampe pendant le mouvement en xyz suivant le
 mot G43.
 
-[[sub:touch-off]](((Touch Off)))
-== Touch Off
+[[sec:touch-off]]
+== Touch Off(((Touch Off)))
 
 Using the Touch Off Screen in the AXIS interface you can update the
 tool table automatically.

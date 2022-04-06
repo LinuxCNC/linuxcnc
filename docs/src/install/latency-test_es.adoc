@@ -1,8 +1,10 @@
 :lang: es
 
 [[cha:latency-testing]]
+= Test de Latencia(((Latency Testing)))
 
-= Test de Latencia
+[[sec:latency-test]]
+== Latency Test(((Latency Test)))
 
 Esta prueba es la primera que debe realizarse en un PC
 para ver si es capaz de manejar una máquina CNC.
@@ -89,7 +91,7 @@ usaba el video incorporado. Una tarjeta de video usada de 5$ resolvió el proble
 LinuxCNC no requiere hardware de última generación.
 
 Para obtener más información sobre la sintonización de pasos, consulte el capítulo
-<<cha:Stepper-Tuning,Sintonización de steppers>>.
+<<cha:stepper-tuning,Sintonización de steppers>>.
 
 Hay herramientas adicionales disponibles desde la línea de comandos para examinar la latencia
 cuando LinuxCNC no está corriendo.

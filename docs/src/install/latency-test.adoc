@@ -4,7 +4,7 @@
 [[cha:latency-testing]]
 = Latency Testing(((Latency Testing)))
 
-[[cha:latency-test]]
+[[sec:latency-test]]
 == Latency Test(((Latency Test)))
 
 This test is the first test that should be performed on a PC
@@ -112,7 +112,7 @@ problem.
 LinuxCNC does not require bleeding edge hardware.
 
 For more information on stepper tuning see the
-<<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
+<<cha:stepper-tuning,Stepper Tuning>> Chapter.
 
 *Additional command line tools are available for examining latency
 when LinuxCNC is not running.*

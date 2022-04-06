@@ -1,6 +1,7 @@
-= Configuración de motores a pasos
+:lang: es
 
 [[cha:stepper-quickstart]]
+= Configuración de motores a pasos
 
 ////
 ATTENTION TRANSLATORS before translating this document copy the base document
@@ -30,15 +31,12 @@ Hardware pueden interrumpir el procesamiento lo que puede traducirse
 a la perdida de algunos pasos cuando se opera una maquina CNC. Esto
 es la primer cosa que se requiere hacer posterior a la instalación.
 
-////
 Put this link back when the latency-test_es.txt is translated.
 Siga las instrucciones de la sección <<cha:latency-testing,here>> Para correr
 La prueba de latencia.
-////
 
 [[sec:Sherline]]
-== Sherline
-(((Sherline)))
+== Sherline(((Sherline)))
 
 Si usted posee una maquina marca Sherline varias configuraciones predefinidas
 están disponibles. Estas configuraciones se encuentran en el menú principal
@@ -46,8 +44,7 @@ CNC/EMC donde puede seleccionar la configuración que sea compatible con el tipo
 maquina que posea y hacer clic, para copiarla y salvarla.
 
 [[sec:Xylotex]]
-== Xylotex
-(((Xylotex)))
+== Xylotex(((Xylotex)))
 
 Si usted tiene una maquina marca Xylotex, usted puede escapar las siguientes secciones
 para pasar directamente a la sección de Asistente de Configuración de Motores a Pasos

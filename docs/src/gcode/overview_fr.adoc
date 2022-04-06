@@ -979,9 +979,8 @@ informations sur le palpage avec G38.
                     le fichier de log si il est ouvert. Supporte l'extension
                     des paramètres comme décrit plus loin.
 
-[[sec:Messages-debogage]]
-== Messages de débogage
-(((Messages de débogage)))
+[[gcode:debug]]
+== Messages de débogage(((Messages de débogage)))
 
 * '(DEBUG,commentaire)' sont traités de la même façon que ceux avec
                         '(msg,reste du commentaire)' avec l'ajout de

@@ -35,7 +35,7 @@ La configuracion de ejemplo 'sim/axis.ini' ya está configurada para usar AXIS c
 Ejecutar el mismo programa de nuevo dependera de su configuración y requisitos.
 Es posible que deba cargar más material y establecer offsets o desplazarse y
 establecer un nuevo offset y luego ejecutar el programa de nuevo. Si la ubicacion del material es
-siempre la misma, entonces es posible que solo tenga que volver a ejecutar el programa. Ver la seccion 
+siempre la misma, entonces es posible que solo tenga que volver a ejecutar el programa. Ver la seccion
 <<sub:axis-machine-menu,Menu Maquina>> para obtener más información sobre el comando de ejecución.
 
 == Pantalla AXIS
@@ -175,9 +175,8 @@ No use 'Ejecutar desde la línea seleccionada' si su programa de código g conti
 
 * 'Sistema de coordenadas cero'- establece todos los offsets a cero en el sistema de coordenadas elegido.
 
-[[axis:tool-touch-off]] (((Axis, Tool Touch Off)))
-
-* 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
+[[sub:axis:tool-touch-off]]
+* 'Tool touch off to workpiece'(((Axis, Tool Touch Off))) - Al realizar Touch Off, el valor
 ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
 modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
 la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
@@ -190,7 +189,7 @@ ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas e
 de tal manera que la punta de una herramienta de longitud cero esté en el origen del montaje cuando
 las coordenadas relativas son 0. Consulte <<gcode:g10-l11,G10 L11 en el capítulo de códigos G.
 
-.Menú Ver 
+.Menú Ver
 
 * 'Vista superior' - la vista superior (o vista Z) muestra la previsualizacion del código G mirando en direccion
   del eje Z de positivo a negativo. Esta vista es la mejor para mirar el plano XY.
@@ -225,7 +224,7 @@ tornos verticales de torreta, donde la pieza gira debajo de la herramienta.
 Los términos 'Superior', 'Delantera' y 'Lateral' pueden ser confusos, sin embargo, en otras
 máquinas CNC, como un torno estándar, donde el eje Z es horizontal, o
 una fresa horizontal (de nuevo donde el eje Z es horizontal) o incluso un
-torno vertical de torreta invertido, donde la pieza gira sobre la herramienta y la 
+torno vertical de torreta invertido, donde la pieza gira sobre la herramienta y la
 dirección positiva del eje Z es hacia abajo!
 
 Solo recuerde que el eje Z positivo está (casi) siempre 'alejandose' de la pieza.
@@ -269,7 +268,7 @@ Familiarícese con el diseño de su máquina e interprete la pantalla según sea
     su máquina de la velocidad de diseño. Puede ser desactivado si se desea.
 
 * 'Mostrar distancia a recorrer' - Distancia a recorrer es un elemento muy útil que conocer cuando se ejecuta un
-    programa de código G desconocido por primera vez. En combinación con los 
+    programa de código G desconocido por primera vez. En combinación con los
     controles de anulación de velocidad rápida y  de avance, se puede evitar el daño a herramientas
     y/o a la máquina. Una vez que el programa de código G
     se ha depurado y se está ejecutando sin problemas, la pantalla Distancia a ir
@@ -288,12 +287,12 @@ Familiarícese con el diseño de su máquina e interprete la pantalla según sea
     restricciones físicas, o cuantización de la posición.
 
 * 'Mostrar posición de la máquina': esta es la posición en coordenadas sin compensación, según lo establecido por Homing.
-    
+
 * 'Mostrar posición relativa': esta es la posición de la máquina modificada por las compensaciones 'G5x', 'G92' y 'G43'.
 .Menú de ayuda
 
 * 'Acerca de Axis' - Todos sabemos lo que es esto.
-    
+
 * 'Referencia rápida': muestra las teclas de método abreviado del teclado.
 
 === Botones de la barra de herramientas
@@ -354,7 +353,7 @@ en la barra de estado. Si la posición es 'Máquina actual', entonces
 el número mostrado está en el sistema de coordenadas de la máquina. Si se muestra
 'Relative Actual', entonces el número mostrado está en la coordenada del sistema con desplazamiento.
 Cuando las coordenadas mostradas son relativas y se ha establecido un desplazamiento,
-la pantalla incluirá un marcador <<sec:machine-coordinate-system,'origen de máquina'>> 
+la pantalla incluirá un marcador <<sec:machine-coordinate-system,'origen de máquina'>>
 image:images/axis-machineorigin.png["Origen maquina cian"] cian.
 
 Si la posición es 'Comandada', entonces la coordenada exacta dada en un comando de código G
@@ -362,7 +361,7 @@ es la mostrada. Si es 'Actual', entonces es la posición real a la que la máqui
 se ha movido. Estos valores pueden ser diferentes de la posición ordenada
 debido al error de seguimiento, banda muerta, resolución del codificador o tamaño de paso.
 Por ejemplo, si ordena un movimiento a X 0.0033 en su fresadora, pero el paso de
-su motor paso a paso o su resolucion de encoder es 0.00125, 
+su motor paso a paso o su resolucion de encoder es 0.00125,
 la posición 'Comandada' podría ser 0.0033, pero la posición 'Actual' será 0.0025 (2 pasos)
 o 0.00375 (3 pasos).
 
@@ -601,7 +600,7 @@ modificada. Por ejemplo, si un programa solicita S8000 y el control deslizante e
 establecido en 80%, entonces la velocidad del husillo resultante será 6400. Este elemento
 solo aparece cuando el pin HAL 'motion.spindle-speed-out' está conectado.
 
-=== Velocidad de Jog 
+=== Velocidad de Jog
 
 Al mover este control deslizante, se puede modificar la velocidad de joging.
 Por ejemplo, si el control deslizante se establece en 1 pulgada/min, entonces un avance de .01 pulgadas
@@ -632,7 +631,7 @@ Las teclas de anulación de la alimentación se comportan de manera diferente cu
 [NOTE]
 En el teclado 'Español de España', el simbolo " ' " se refiere al signo de acentuacion junto a la tecla
 "P". Este signo precisa doble pulsacion de dicha tecla.
-  
+
 Las teclas ',1,2,3,4,5,6,7 y 8 seleccionarán un eje si está programado. Si tiene 3
 eje ' seleccionará el eje 0, 1 seleccionará el eje 1, y 2 seleccionará
 eje 2. El resto de las teclas numéricas establecerán el porcentaje de alimentación.
@@ -842,7 +841,7 @@ gif = image-to-gcode
 También es posible especificar un intérprete:
 
 ----
-PROGRAM_EXTENSION = .py Script Python 
+PROGRAM_EXTENSION = .py Script Python
 py = python
 ----
 
@@ -870,7 +869,7 @@ debe ser utilizada por cualquier filtro que se ejecute durante mucho tiempo.
 
 Los colores de la mayoría de los elementos de la interfaz de usuario AXIS pueden ser
 personalizado a través de la base de datos de recursos X. El archivo de ejemplo
-'axis_light_background' cambia los colores de la ventana de backplot a 
+'axis_light_background' cambia los colores de la ventana de backplot a
 'líneas oscuras en fondo blanco', y también sirve como una referencia para elementos configurables
 en el área de visualización. El archivo de ejemplo 'axis_big_dro' cambia la
 posición de lectura a una fuente de tamaño más grande. Para utilizar estos archivos:
@@ -900,7 +899,7 @@ puededan anularlas
 
 === ~/.axisrc
 
-Si existe, el contenido de `~/.axisrc` se ejecuta como 
+Si existe, el contenido de `~/.axisrc` se ejecuta como
 código fuente Python justo antes de la interfaz gráfica de usuario de AXIS.
 Los detalles de lo que se puede escribir en `~/.axisrc` están sujetos
 a cambios durante el ciclo de desarrollo.
@@ -915,7 +914,7 @@ help2.append(("Control-Q", "Quit"))
 Lo siguiente detiene el cuadro de diálogo "¿Realmente desea salir?".
 
 ----
-root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .") 
+root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 ----
 
 === USER_COMMAND_FILE
@@ -1037,7 +1036,7 @@ cada vez que Axis se actualiza solo. Puede usar esto para actualizar sus propias
 
 # función de actualización continua
 def user_live_update():
-    print 'i am printed every update...' 
+    print 'i am printed every update...'
 ----
 
 === Deshabilitar el cuadro de diálogo Cerrar
@@ -1122,8 +1121,8 @@ print 'machine name =',machine
 ----
 # El estado de linuxcnc se puede leer desde s.
 
-print s.actual_position 
-print s.paused 
+print s.actual_position
+print s.paused
 ----
 === Cambiar la vista actual
 
@@ -1413,4 +1412,3 @@ root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-wid
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
 ----
-

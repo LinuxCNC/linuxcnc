@@ -105,7 +105,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g85,G85>>                  |Boring Cycle, No Dwell, Feed Out
 |<<gcode:g86,G86>>                  |Boring Cycle, Stop, Rapid Out
 |<<gcode:g87,G87>>                  |Back-borring Cycle'(not yet implemented)'
-|<<gcode:g88,G88>>                    |Boring Cycle, Stop, Manual Out '(not yet implemented)'
+|<<gcode:g88,G88>>                  |Boring Cycle, Stop, Manual Out '(not yet implemented)'
 |<<gcode:g89,G89>>                  |Boring Cycle, Dwell, Feed Out
 |<<gcode:g90-g91,G90 G91>>          |Distance Mode
 |<<gcode:g90.1-g91.1,G90.1 G91.1>>  |Arc Distance Mode

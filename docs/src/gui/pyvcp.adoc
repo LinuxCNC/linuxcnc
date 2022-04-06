@@ -54,8 +54,8 @@ pins that start with 'mypanel.'). Since no <halpin> tag was present
 inside the <led> tag, PyVCP will automatically name the HAL pin for the
 LED widget mypanel.led.0
 
-For a list of widgets and their tags and options, see the widget
-reference below.
+For a list of widgets and their tags and options, see the
+<<sec:pyvcp:widgets,widget reference>> below.
 
 Once you have created your panel, connecting HAL signals to and from
 the PyVCP pins is done with the halcmd:
@@ -100,8 +100,8 @@ spindle.xml:
 
 Here we've made a panel with a Label and a Bar widget, specified that
 the HAL pin connected to the Bar should be named 'spindle-speed', and
-set the maximum value of the bar to 5000 (see widget reference below
-for all options). To make AXIS aware of this file, and call it at start
+set the maximum value of the bar to 5000 (see <<sec:pyvcp:widgets,widget reference>>
+below for all options). To make AXIS aware of this file, and call it at start
 up, we need to specify the following in the `[DISPLAY]` section of the `.ini` file:
 
 ----
@@ -220,8 +220,8 @@ This tells HAL to wait for component 'panelname' to close before
 continuing HAL commands. This is usually set as the last command so that
 HAL shuts down when the panel is closed.
 
-[[pyvcp:widgets]]
-== Widgets(((PyVCP Widgets)))
+[[sec:pyvcp:widgets]]
+== Widgets(((PyVCP Widgets Reference)))
 
 HAL signals come in two variants, bits and numbers. Bits are off/on
 signals. Numbers can be 'float', 's32' or 'u32'. For more information on HAL
@@ -397,7 +397,7 @@ will be on_color when the halpin is true, and off_color otherwise.
   n is an integer that is incremented for each LED.
 * '<size>n</size>' - 'n' is the size of the led in pixels, default is 20
 * '<on_color>color</on_color>' - sets the color of the LED when the pin is true.
-  default is 'green'. See <<pyvcp-colors,colors>> for more info.
+  default is 'green'. See <<pyvcp:colors,colors>> for more info.
 * '<off_color>color</off_color>' - sets the color of the LED when the pin is
   false. default is 'red'
 * '<height>n</height>' - sets the height of the LED in pixels

@@ -1,6 +1,6 @@
 :lang: es
 
-[[cha:Stepper-Tuning]]
+[[cha:stepper-tuning]]
 = Afinación de Steppers
 
 == Obtener el máximo rendimiento del Software de Stepping
@@ -19,7 +19,8 @@ a partir de pasos generados por software.
 
 === Ejecutar una prueba de latencia
 
-Ejecute la prueba de latencia como se describe en el capítulo <<cha:latency-testing,Test de Latencia>>.
+Ejecute la prueba de latencia como se describe en el capítulo
+<<cha:latency-testing,Test de Latencia>>.
 
 Mientras se ejecuta la prueba, debe 'abusar' de la computadora. Mueva
 ventanas alrededor de la pantalla. Navegue por la web. Copie algunos archivos grandes

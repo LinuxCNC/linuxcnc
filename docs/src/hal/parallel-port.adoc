@@ -267,7 +267,7 @@ setting the HAL '-out' pin TRUE will drive the physical pin low.
   later in the same thread as 'write. 'If '-reset' is TRUE, then the
   'reset' function will set the pin to the value of '-out-invert'. This
   can be used in conjunction with stepgen's 'doublefreq' to produce one
-  step per period. The <<sec:stepgen-parameters,stepgen stepspace>> for that pin
+  step per period. The <<sub:stepgen-parameters,stepgen stepspace>> for that pin
   must be set to 0 to enable doublefreq.
 
 The individual functions are provided for situations where one port
