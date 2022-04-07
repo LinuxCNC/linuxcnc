@@ -2,7 +2,6 @@
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
-
 = LinuxCNC
 
 == Introduction
@@ -14,6 +13,7 @@ chapitres suivants.
 La documentation complète sur l'installation et
 la configuration se trouve dans le manuel de l'intégrateur.
 
+[[sec:how-linuxcnc-works]]
 == Comment fonctionne LinuxCNC[[sec:Comment-Fonctionne-LinuxCNC]]
 
 LinuxCNC est un peu plus que juste un autre programme de fraiseuse
@@ -47,46 +47,41 @@ parallèle étendu connecté à une carte de contrôle externe. Quand nous
 examinerons chacun des composants qui forment un système LinuxCNC, nous
 nous référerons à cette machine typique.
 
-[[sub:Interfaces-utilisateur-graphiques]]
+[[sec:graphical-user-interfaces]]
 == Interfaces utilisateur graphiques
 
 L'interface graphique est la partie de LinuxCNC qui interagit avec
 l'opérateur de la machine. LinuxCNC est fourni avec plusieurs
 interfaces utilisateurs graphiques:
 
-
-* <<cha:axis-gui,_Axis_>>, l'interface utilisateur standard.
+ * <<cha:axis-gui,_Axis_>>, l'interface utilisateur standard.
 
 .L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
 image::images/axis_25_fr.png["L'interface graphique AXIS",align="center"]
 
-* <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écran tactile.
+ * <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écran tactile.
 
 .L'interface graphique Touchy[[fig:touchy-gui]]
-
 image::images/touchy_fr.png["L'interface graphique Touchy",align="center"]
 
-* <<cha:ngcgui,_NGCGUI_>>, une interface graphique gérant les sous-programmes.
-  Elle permet très simplement de créer des programme G-code. Elle supporte
-  surtout la concaténation de fichiers de sous-programmes, ce qui permet de
-  construire des programmes G-code complets sans aucune programmation.
-
+ * <<cha:ngcgui,_NGCGUI_>>, une interface graphique gérant les sous-programmes.
+   Elle permet très simplement de créer des programme G-code. Elle supporte
+   surtout la concaténation de fichiers de sous-programmes, ce qui permet de
+   construire des programmes G-code complets sans aucune programmation.
+ 
 .L'interface graphique NGCGUI intégrée dans Axis[[fig:ngcgui-gui]]
 image::images/ngcgui_fr.png["L'interface graphique NGCGUI intégrée dans Axis",align="center"]
 
-* <<cha:tklinuxcnc,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
-  C'est l'interface la plus populaire après Axis
+ * <<cha:tklinuxcnc,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
+   C'est l'interface la plus populaire après Axis
 
 .L'interface graphique tklinuxcnc[[fig:tklinuxcnc-gui]]
 image::images/tklinuxcnc_fr.png["L'interface graphique tklinuxcnc",align="center"]
-
-* _Xemc_, un programme X-Windows
-
-* _halui_, une interface utilisateur basée sur HAL, qui permet de contrôler
-  LinuxCNC en utilisant des boutons et des interrupteurs
-
-* _linuxcncrsh_, une interface utilisateur basée sur telnet, qui permet
-  d'envoyer des commandes à partir d'ordinateurs distants de celui de LinuxCNC
+ * _Xemc_, un programme X-Windows
+ * _halui_, une interface utilisateur basée sur HAL, qui permet de contrôler
+   LinuxCNC en utilisant des boutons et des interrupteurs
+ * _linuxcncrsh_, une interface utilisateur basée sur telnet, qui permet
+   d'envoyer des commandes à partir d'ordinateurs distants de celui de LinuxCNC
 
 == Panneaux de contrôle virtuels
 
