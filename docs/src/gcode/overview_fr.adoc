@@ -128,7 +128,7 @@ sont pas valides sur une machine n'ayant pas les axes correspondants.
 .Les mots et leur signification[[sec:Les-mots-et-leur-significations]]
 
 [width="100%", options="header"]
-|========================================
+|====
 |Lettre | Signification
 |A      | Axe A de la machine
 |B      | Axe B de la machine
@@ -155,7 +155,7 @@ sont pas valides sur une machine n'ayant pas les axes correspondants.
 |X      | Axe X de la machine
 |Y      | Axe Y de la machine
 |Z      | Axe Z de la machine
-|========================================
+|====
 
 [[gcode:numbers]]
 == Les nombres(((Les nombres)))
@@ -466,29 +466,19 @@ programme avec les instructions 'if-then-else'.
 [[sub:system-parameters]]
 == Paramètres système(((Paramètres système)))
 
-* `#<_spindle_rpm_mode>` - Retourne 1 si la broche est en mode tr/mn (G97),
-  sinon 0.
-* `#<_spindle_css_mode>` - Retourne 1 si la broche est en mode vitesse de coupe
-  constante (G96), sinon 0.
-* `#<_ijk_absolute_mode>` - Retourne 1 si le mode de déplacement en arc est
-  absolu (G90.1), sinon 0.
-* `#<_lathe_diameter_mode>` - Retourne 1 pour un tour configuré en mode diamètre
-  (G7), sinon 0.
-* `#<_lathe_radius_mode>` - Retourne 1 pour un tour configuré en mode rayon (G8),
-  sinon 0.
+* `#<_spindle_rpm_mode>` - Retourne 1 si la broche est en mode tr/mn (G97), sinon 0.
+* `#<_spindle_css_mode>` - Retourne 1 si la broche est en mode vitesse de coupe constante (G96), sinon 0.
+* `#<_ijk_absolute_mode>` - Retourne 1 si le mode de déplacement en arc est absolu (G90.1), sinon 0.
+* `#<_lathe_diameter_mode>` - Retourne 1 pour un tour configuré en mode diamètre (G7), sinon 0.
+* `#<_lathe_radius_mode>` - Retourne 1 pour un tour configuré en mode rayon (G8), sinon 0.
 * `#<_spindle_on>` - Retourne 1 si la broche tourne (M3 ou M4 en cours), sinon 0.
-* `#<_spindle_cw>` - Retourne 1 si la broche est dans le sens horaire (M3)
-  sinon 0.
+* `#<_spindle_cw>` - Retourne 1 si la broche est dans le sens horaire (M3) sinon 0.
 * `#<_mist>` - Retourne 1 si l'arrosage par gouttelettes est activé (M7).
 * `#<_flood>` - Retourne 1 si l'arrosage fluide est activé (M8).
-* `#<_speed_override>` - Retourne 1 si un correcteur de vitesse d'avance travail
-  est activé (M48 ou M50 P1), sinon 0.
-* `#<_feed_override>` - Retourne 1 si un correcteur de vitesse broche est activé
-  (M48 ou M51 P1), sinon 0.
-* `#<_adaptive_feed>` - Retourne 1 si un correcteur de vitesse adaptative est
-  activé (M52 ou M52 P1), sinon 0.
-* `#<_feed_hold>` - Retourne 1 si le contrôle de coupure vitesse est activé
-  (M53 P1), sinon 0.
+* `#<_speed_override>` - Retourne 1 si un correcteur de vitesse d'avance travail est activé (M48 ou M50 P1), sinon 0.
+* `#<_feed_override>` - Retourne 1 si un correcteur de vitesse broche est activé (M48 ou M51 P1), sinon 0.
+* `#<_adaptive_feed>` - Retourne 1 si un correcteur de vitesse adaptative est activé (M52 ou M52 P1), sinon 0.
+* `#<_feed_hold>` - Retourne 1 si le contrôle de coupure vitesse est activé (M53 P1), sinon 0.
 * `#<_feed>` - Retourne la valeur courante d'avance travail (F).
 * `#<_rpm>` - Retourne la valeur courante de vitesse broche (S).
 * `#<_x>` - Retourne la coordonnée machine courante en X. Identique à #5420.
@@ -500,13 +490,10 @@ programme avec les instructions 'if-then-else'.
 * `#<_u>` - Retourne la coordonnée machine courante en U. Identique à #5426.
 * `#<_v>` - Retourne la coordonnée machine courante en V. Identique à #5427.
 * `#<_w>` -Retourne la coordonnée machine courante en W. Identique à #5428.
-* `#<_current_tool>` - Retourne le N° de l'outil courant monté dans la broche.
-  Identique à #5400.
+* `#<_current_tool>` - Retourne le N° de l'outil courant monté dans la broche.  Identique à #5400.
 * `#<_current_pocket>` - Retourne le N° de poche de l'outil courant.
-* `#<_selected_tool>` - Retourne le N° de l'outil sélectionné par le mot T.
-  Par défaut -1.
-* `#<_selected_pocket>` - Retourne le N° de poche sélectionné par le mot T.
-  Par défaut -1 (pas de poche sélectionnée).
+* `#<_selected_tool>` - Retourne le N° de l'outil sélectionné par le mot T.  Par défaut -1.
+* `#<_selected_pocket>` - Retourne le N° de poche sélectionné par le mot T.  Par défaut -1 (pas de poche sélectionnée).
 * `#<_value>` -  [[param:_value]] Retourne la valeur du dernier O-code `return`
   ou `endsub`. Valeur 0 par défaut si pas d'expression après `return` ou `endsub`.
   Initialisé à 0 au démarrage du programme.
@@ -521,8 +508,6 @@ programme avec les instructions 'if-then-else'.
 * `#<_remap_level>` - current level of the remap stack. Each remap in a block adds one
   to the remap level. Pour débogage.
 
-
-[[sec:Expressions]]
 [[gcode:expressions]]
 == Expressions(((Expressions)))
 
@@ -568,15 +553,15 @@ réels et non pas seulement sur des entiers. Le zéro est équivalent à un
 [[gcode:operators-precedence]]
 .Précédence des opérateurs(((Précédence des opérateurs)))
 
-[width="90%", options="header"]
-|========================================
+[width="90%",options="header"]
+|====
 |Opérateurs        | Précédence
 |**                | 'haute'
 |* / MOD           |
 |+ -               |
 |EQ NE GT GE LT LE |
 |AND OR XOR        | 'basse'
-|========================================
+|====
 
 [[gcode:functions]]
 == Fonctions(((Fonctions)))(((Opérations unaires)))
@@ -604,20 +589,20 @@ C'est une erreur si un paramètre numéroté ou une expression est utilisé.
 [width="90%", options="header"]
 |========================================
 |Nom de fonction | Fonction
-|ATAN[Y]/[X] | Tangente quatre quadrants
-|ABS[arg] | Valeur absolue
-|ACOS[arg] | Arc cosinus
-|ASIN[arg] | Arc sinus
-|COS[arg] | Cosinus
-|EXP[arg] | Exposant
-|FIX[arg] | Arrondi à l'entier immédiatement inférieur
-|FUP[arg] | Arrondi à l'entier immédiatement supérieur
-|ROUND[arg] | Arrondi à l'entier le plus proche
-|LN[arg] | Logarithme Néperien
-|SIN[arg] | Sinus
-|SQRT[arg] | Racine carrée
-|TAN[arg] | Tangente
-|EXISTS[arg] | Vérifie l'existence d'un paramètre nommé
+|    ATAN[Y]/[X] | Tangente quatre quadrants
+|    ABS[arg]    | Valeur absolue
+|    ACOS[arg]   | Arc cosinus
+|    ASIN[arg]   | Arc sinus
+|    COS[arg]    | Cosinus
+|    EXP[arg]    | Exposant
+|    FIX[arg]    | Arrondi à l'entier immédiatement inférieur
+|    FUP[arg]    | Arrondi à l'entier immédiatement supérieur
+|    ROUND[arg]  | Arrondi à l'entier le plus proche
+|    LN[arg]     | Logarithme Néperien
+|    SIN[arg]    | Sinus
+|    SQRT[arg]   | Racine carrée
+|    TAN[arg]    | Tangente
+|    EXISTS[arg] | Vérifie l'existence d'un paramètre nommé
 |========================================
 
 == Répétitions d'items
@@ -755,9 +740,8 @@ image::images/polar02.png[alt="Carré polaire"]
 
 C'est une erreur si:
 
-  - Un mouvement incrémental est lancé à l'origine.
-  - Un mélange de mots polaires et de X ou Y est utilisé.
-
+ - Un mouvement incrémental est lancé à l'origine.
+ - Un mélange de mots polaires et de X ou Y est utilisé.
 
 [[gcode:modal-groups]]
 == Groupes modaux(((Groupes modaux)))
@@ -773,7 +757,6 @@ visibles dans le tableau <<cap:modal-groups, ci-dessous>>.
 
 [[cap:modal-groups]]
 .Groupes modaux des G-codes (((G-codes modaux)))
-
 [width="100%", cols="4,6", options="header"]
 |====
 |Signification du groupe modal        | Mots G
