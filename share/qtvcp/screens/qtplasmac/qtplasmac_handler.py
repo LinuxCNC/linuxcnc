@@ -1248,6 +1248,7 @@ class HandlerClass:
 
     def power_state(self, state):
         if state:
+            self.w.power.setChecked(True)
             self.set_buttons_state([self.idleOnList], True)
             if self.tpButton and not self.w.torch_enable.isChecked():
                 self.w[self.tpButton].setEnabled(False)
