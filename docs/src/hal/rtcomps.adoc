@@ -59,7 +59,7 @@ halcmd: unloadrt stepgen
 ----
 
 [[sub:stepgen-pins]]
-.Stepgen Pins(((HAL stepgen pins)))
+=== Stepgen Pins(((HAL stepgen pins)))
 on the step type and control type selected.
 
 * '(float) stepgen.<chan>.position-cmd' - Desired motor position, in
@@ -83,7 +83,8 @@ on the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
 [[sub:stepgen-parameters]]
-.Stepgen Parameters(((HAL stepgen parameters)))
+=== Stepgen Parameters(((HAL stepgen parameters)))
+
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.
   This parameter is used for both output and feedback.
 * '(float) stepgen.<chan>.maxvel' - Maximum velocity, in position
@@ -129,12 +130,11 @@ values for these parameters ensure that the motor can follow the
 generated pulse train.
 
 [[sub:stepgen-step-types]]
-.Step Types(((HAL stepgen Step Types)))
+=== Step Types(((HAL stepgen Step Types)))
 
 Step generator supports 15 different _step sequences_:
 
 .Step Type 0
-
 Step type 0 is the standard step and direction type. When configured for
 step type 0, there are four extra parameters that determine the exact
 timing of the step and direction signals. In the following figure
