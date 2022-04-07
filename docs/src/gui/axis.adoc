@@ -103,7 +103,7 @@ Some menu items might be grayed out depending on how you have your .ini
 file configured. For more information on configuration see the
 <<cha:ini-configuration,INI Chapter>>.
 
-.File Menu
+==== File Menu
 
 * 'Open...' - Opens a standard dialog box to open a g code file to load in AXIS. If
   you have configured LinuxCNC to use a filter program you can also open it
@@ -130,7 +130,7 @@ file configured. For more information on configuration see the
 * 'Quit' - Terminates the current LinuxCNC session.
 
 [[sub:axis-machine-menu]]
-.Machine Menu
+==== Machine Menu
 
 * 'Toggle Emergency Stop F1' - Change the state of the Emergency Stop.
 * 'Toggle Machine Power F2' - Change the state of the Machine Power if the Emergency Stop is not on.
@@ -164,8 +164,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
 * 'Homing' - Home one or all axes.
 * 'Unhoming' - Unhome one or all axes.
 * 'Zero Coordinate System' - Set all offsets to zero in the coordinate system chosen.
-
-[[sub:axis:tool-touch-off]]
+//[[sub:axis:tool-touch-off]]
 * Tool Touch Off(((Axis, Tool Touch Off)))
 ** 'Tool touch off to workpiece' - When performing Touch Off, the value
    entered is relative to the current workpiece ('G5x') coordinate system,
@@ -179,7 +178,7 @@ Do not use 'Run From Selected Line' if your g code program contains subroutines.
    such that the tip of a zero-length tool is at the fixture's origin when the
    Relative coordinates are 0.  See <<gcode:g10-l11,G10 L11>> in the G code chapter.
 
-.View Menu
+==== View Menu
 
 * 'Top View' - The Top View (or Z view) displays the G-code looking along the
   Z axis from positive to negative. This view is best for looking at X & Y.
@@ -262,7 +261,7 @@ So be familiar with your machine's design and interpret the display as needed.
 * 'Show Machine Position' - This is the position in unoffset coordinates, as established by Homing.
 * 'Show Relative Position' - This is the Machine Position modified by 'G5x', 'G92', and 'G43' offsets.
 
-.Help Menu
+==== Help Menu
 
 * 'About Axis' - We all know what this is.
 * 'Quick Reference' - Shows the keyboard shortcut keys.

@@ -1,6 +1,6 @@
 :lang: en
 
-[[cha:tklinuxcnc]]
+[[sec:tklinuxcnc-intro]]
 = TkLinuxCNC GUI
 
 [[sec:tklinuxcnc-intro]]

@@ -91,7 +91,7 @@ configura Z cero del material tendra seleccionado 'Touch off to material'.
 Para obtener más información sobre los códigos G utilizados para las herramientas, consulte
 <<mcode:m6, M6>>, <<sec:select-tool,Tn>>, y <<gcode:g43, G43>>.
 Para obtener más información sobre las opciones touch off de la herramienta en Axis, consulte
-<<sub:axis:tool-touch-off,Tool Touch Off>>.
+<<sub:axis-machine-menu,Tool Touch Off>>.
 
 === X Touch Off
 

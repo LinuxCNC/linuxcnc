@@ -123,48 +123,47 @@ options du fichier de configuration ini.
 Ne pas utiliser la commande 'Démarrer à la ligne sélectionnée...' si le
 programme G-code contient des sous-programmes.
 
- * 'Pas à pas...' - Avance d'un seul pas de programme.
- * 'Pause...' - Effectue une pause dans le programme.
- * 'Reprise...' - Reprends la marche après une pause.
- * 'Stopper...' - Stoppe le programme en marche.
- * 'Arrêt sur M1...' - Si M1 est rencontré et que cette option est cochée,
-   l'exécution du programme s'interrompra à la ligne où il a été rencontré.
-   Presser 'Reprise' pour continuer.
- * 'Sauter les lignes avec "/"...' - Si une ligne commençant par '/' est rencontrée
-   et que cette option est cochée, cette ligne sera sautée.
- * 'Vider l'historique du MDI...' - Efface l'historique des données manuelles.
- * 'Copier depuis l'historique du MDI...' - Copier l'historique des données
-   manuelles dans le presse-papier.
- * 'Coller dans l'historique du MDI...' - Coller le contenu du presse-papier dans
-   la fenêtre d'historique
-   des données manuelles.
- * 'Calibration' - Lance l'assistant de réglage de PID Servo. La calibration lit
-   le fichier HAL et pour chaque 'pas' il utilise une variable de la section
-   [AXIS_n] du fichier ini et crée une entrée pouvant être éditée et testée.
- * 'Afficher configuration de HAL...' - Ouvre une fenêtre sur la configuration de
-   HAL depuis laquelle il est possible de visualiser tous les 'Components',
-   'Pins', 'Parameters', 'Signals', 'Functions' et 'Threads' de HAL.
- * 'HAL Mètre...' - Ouvre une fenêtre dans laquelle il est possible de visualiser
-   un seul 'Signal, HAL Pin', ou 'Parameter' de HAL.
- * 'HAL Scope...' - Ouvre un oscilloscope virtuel qui permet de tracer dans le
-   temps, les valeurs de HAL.
- * 'Afficher l'état de LinuxCNC...' - Ouvre une fenêtre montrant l'état de
-   LinuxCNC.
- * 'Choisir le niveau de Debug...' - Ouvre une fenêtre dans laquelle les niveaux
-   de débogage sont visibles et certains réglables.
- * 'Prise d'origine...' - Effectue la prise d'origine machine d'un ou de tous les
-   axes.
- * 'Annulation OM...' - Annule les origines d'un ou de tous les axes.
- * 'Annulation décalages d'origine...' - Annule les décalages d'origine du
-   système de coordonnées choisi.
-
-[[sub:axis:tool-touch-off]]
+* 'Pas à pas...' - Avance d'un seul pas de programme.
+* 'Pause...' - Effectue une pause dans le programme.
+* 'Reprise...' - Reprends la marche après une pause.
+* 'Stopper...' - Stoppe le programme en marche.
+* 'Arrêt sur M1...' - Si M1 est rencontré et que cette option est cochée,
+  l'exécution du programme s'interrompra à la ligne où il a été rencontré.
+  Presser 'Reprise' pour continuer.
+* 'Sauter les lignes avec "/"...' - Si une ligne commençant par '/' est rencontrée
+  et que cette option est cochée, cette ligne sera sautée.
+* 'Vider l'historique du MDI...' - Efface l'historique des données manuelles.
+* 'Copier depuis l'historique du MDI...' - Copier l'historique des données
+  manuelles dans le presse-papier.
+* 'Coller dans l'historique du MDI...' - Coller le contenu du presse-papier dans
+  la fenêtre d'historique
+  des données manuelles.
+* 'Calibration' - Lance l'assistant de réglage de PID Servo. La calibration lit
+  le fichier HAL et pour chaque 'pas' il utilise une variable de la section
+  [AXIS_n] du fichier ini et crée une entrée pouvant être éditée et testée.
+* 'Afficher configuration de HAL...' - Ouvre une fenêtre sur la configuration de
+  HAL depuis laquelle il est possible de visualiser tous les 'Components',
+  'Pins', 'Parameters', 'Signals', 'Functions' et 'Threads' de HAL.
+* 'HAL Mètre...' - Ouvre une fenêtre dans laquelle il est possible de visualiser
+  un seul 'Signal, HAL Pin', ou 'Parameter' de HAL.
+* 'HAL Scope...' - Ouvre un oscilloscope virtuel qui permet de tracer dans le
+  temps, les valeurs de HAL.
+* 'Afficher l'état de LinuxCNC...' - Ouvre une fenêtre montrant l'état de
+  LinuxCNC.
+* 'Choisir le niveau de Debug...' - Ouvre une fenêtre dans laquelle les niveaux
+  de débogage sont visibles et certains réglables.
+* 'Prise d'origine...' - Effectue la prise d'origine machine d'un ou de tous les
+  axes.
+* 'Annulation OM...' - Annule les origines d'un ou de tous les axes.
+* 'Annulation décalages d'origine...' - Annule les décalages d'origine du
+  système de coordonnées choisi.
+//[[sub:axis:tool-touch-off]]
 * 'Palpage Outil'(((AXIS, Palpage Outil)))
 ** 'L'outil touchera la pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur
-    entrée est relative au système de coordonnées pièce actuel (G5x), tel que
-    modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
-    complète, la coordonnée relative pour l'axe choisi prendra la valeur
-    entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
+   entrée est relative au système de coordonnées pièce actuel (G5x), tel que
+   modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
+   complète, la coordonnée relative pour l'axe choisi prendra la valeur
+   entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
 
 ** 'L'outil touchera le porte-pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur entrée est relative au 9ème
    système de coordonnées (G59.3), le décalage d'axe (G92) est ignoré.
@@ -224,73 +223,73 @@ l'affichage comme il se doit.
 
 * 'Affichage en pouces...' - Ajuste l'échelle d'affichage d'AXIS pour les pouces.
 * 'Affichage en mm...' - Ajuste l'échelle d'affichage d'AXIS pour les
-   millimètres.
- * 'Afficher le programme...' - L'affichage à l'écran de l'aspect du G-code peut
-   être entièrement désactivé si l'opérateur le souhaite.
- * 'Parcours d'outil en vitesse rapide...' - L'affichage du parcours d'outil du
-   programme G-code courant représente toujours les mouvements en vitesse
-   travail (G1,G2,G3) en blanc. Mais l'affichage des mouvements en vitesse
-   rapide (G0) en cyan peut être désactivé si si l'opérateur le souhaite.
- * 'Simulation de transparence...' - Cette option rends plus lisible le tracé des
-   parcours affichés par les programmes complexes, mais il peut rendre
-   l'affichage plus lent.
- * 'Parcours d'outil en temps réel...' - La surbrillance des chemins d'outils en
-   vitesse travail (G1,G2,G3) quand l'outil se déplace peut être désactivée si
-   l'opérateur le souhaite.
- * 'Afficher l'outil...' - Le symbole d'un outil, représenté par un cône ou un
-   cylindre peut être désactivé si l'opérateur le souhaite.
- * 'Afficher les étendues...' - L'affichage des étendues du programme G-code
-   chargé (déplacements maximum de chacun des axes), peut être désactivé si
-   l'opérateur le souhaite.
- * 'Afficher les offsets...' - L'emplacement de l'origine du système de
-   coordonnées pièce (G54 à G59.3) peut être représenté par un jeu de trois
-   lignes orthogonales, une rouge, une bleue et une verte.
-   L'affichage de cette origine pièce (ou zéro pièce), peut être désactivé si
-   l'opérateur le souhaite.
- * 'Afficher les limites machine...' - Les limites maximales de déplacement
-   machine pour chacun des axes, qui sont fixées dans le fichier ini,
-   s'affichent comme une boîte rectangulaire en lignes pointillées rouges. Il
-   est facile, au chargement d'un nouveau programme G-code, de voir si la pièce
-   est contenue dans le volume représenté. Ou de vérifier de combien l'étau doit
-   être décalé, pour que le G-code puisse être usiné sans dépasser les limites
-   de déplacements de la machine. Cette option peut être désactivée si
-   l'opérateur le souhaite.
- * 'Afficher la vitesse d'avance...' - L'affichage de la vitesse peut être utile
-   pour voir la précision avec laquelle la machine suit la vitesse commandée.
-   Cette option peut être désactivée si l'opérateur le souhaite.
- * 'Afficher la distance restante...' - La distance restante est une valeur très
-   utile à suivre, au lancement d'un programme de G-code inconnu pour la
-   première fois. En combinaison avec les curseurs des correcteurs de vitesse,
-   des dégâts sur l'outil ou la machine peuvent être évités. Quand le programme
-   G-code sera débogué et qu'il fonctionnera en douceur, l'affichage de la
-   distance restante pourra être désactivée si l'opérateur le souhaite.
- * 'Coordonnées en police large...' - Les coordonnées des axes et la vitesse
-   d'avance, s'afficheront en police large dans la vue du parcours d'outil.
- * 'Rafraîchir le parcours d'outil...' - Au fur et à mesure des déplacements de
-   l'outil, les parcours s'affichent sur l'écran d'Axis en surbrillance. Avant
-   de répéter le programme, ou pour avoir un affichage clair sur une zone
-   intéressante, la surbrillance des parcours précédents peut être rafraîchie.
- * 'Afficher la position commandée...' - C'est la position que LinuxCNC cherche
-   à atteindre. Quand le mouvement est stoppé, c'est la position que LinuxCNC
-   cherchera à maintenir.
- * 'Afficher la position actuelle...' - La position actuelle est la position
-   mesurée grâce aux informations issues des codeurs ou simulées par le
-   générateur de pas. Elle peut différer légèrement de la position commandée
-   pour diverses raisons, comme les réglages des boucles PID, les contraintes
-   physiques ou les efforts de coupe.
- * 'Afficher la position machine...' - C'est la position par rapport à l'origine
-   machine, telle qu'établie par la prise d'origine machine '(POM)'.
- * 'Afficher la position relative...' - C'est la position par rapport à l'origine
-   pièce, telle qu'établie par la prise d'origine pièce '(POP)'.
-   On peut aussi représenter cette position comme étant l'origine machine
-   à laquelle on a appliqué les codes de décalages des systèmes de
-   coordonnées G5x, G92 et G43.
+  millimètres.
+* 'Afficher le programme...' - L'affichage à l'écran de l'aspect du G-code peut
+  être entièrement désactivé si l'opérateur le souhaite.
+* 'Parcours d'outil en vitesse rapide...' - L'affichage du parcours d'outil du
+  programme G-code courant représente toujours les mouvements en vitesse
+  travail (G1,G2,G3) en blanc. Mais l'affichage des mouvements en vitesse
+  rapide (G0) en cyan peut être désactivé si si l'opérateur le souhaite.
+* 'Simulation de transparence...' - Cette option rends plus lisible le tracé des
+  parcours affichés par les programmes complexes, mais il peut rendre
+  l'affichage plus lent.
+* 'Parcours d'outil en temps réel...' - La surbrillance des chemins d'outils en
+  vitesse travail (G1,G2,G3) quand l'outil se déplace peut être désactivée si
+  l'opérateur le souhaite.
+* 'Afficher l'outil...' - Le symbole d'un outil, représenté par un cône ou un
+  cylindre peut être désactivé si l'opérateur le souhaite.
+* 'Afficher les étendues...' - L'affichage des étendues du programme G-code
+  chargé (déplacements maximum de chacun des axes), peut être désactivé si
+  l'opérateur le souhaite.
+* 'Afficher les offsets...' - L'emplacement de l'origine du système de
+  coordonnées pièce (G54 à G59.3) peut être représenté par un jeu de trois
+  lignes orthogonales, une rouge, une bleue et une verte.
+  L'affichage de cette origine pièce (ou zéro pièce), peut être désactivé si
+  l'opérateur le souhaite.
+* 'Afficher les limites machine...' - Les limites maximales de déplacement
+  machine pour chacun des axes, qui sont fixées dans le fichier ini,
+  s'affichent comme une boîte rectangulaire en lignes pointillées rouges. Il
+  est facile, au chargement d'un nouveau programme G-code, de voir si la pièce
+  est contenue dans le volume représenté. Ou de vérifier de combien l'étau doit
+  être décalé, pour que le G-code puisse être usiné sans dépasser les limites
+  de déplacements de la machine. Cette option peut être désactivée si
+  l'opérateur le souhaite.
+* 'Afficher la vitesse d'avance...' - L'affichage de la vitesse peut être utile
+  pour voir la précision avec laquelle la machine suit la vitesse commandée.
+  Cette option peut être désactivée si l'opérateur le souhaite.
+* 'Afficher la distance restante...' - La distance restante est une valeur très
+  utile à suivre, au lancement d'un programme de G-code inconnu pour la
+  première fois. En combinaison avec les curseurs des correcteurs de vitesse,
+  des dégâts sur l'outil ou la machine peuvent être évités. Quand le programme
+  G-code sera débogué et qu'il fonctionnera en douceur, l'affichage de la
+  distance restante pourra être désactivée si l'opérateur le souhaite.
+* 'Coordonnées en police large...' - Les coordonnées des axes et la vitesse
+  d'avance, s'afficheront en police large dans la vue du parcours d'outil.
+* 'Rafraîchir le parcours d'outil...' - Au fur et à mesure des déplacements de
+  l'outil, les parcours s'affichent sur l'écran d'Axis en surbrillance. Avant
+  de répéter le programme, ou pour avoir un affichage clair sur une zone
+  intéressante, la surbrillance des parcours précédents peut être rafraîchie.
+* 'Afficher la position commandée...' - C'est la position que LinuxCNC cherche
+  à atteindre. Quand le mouvement est stoppé, c'est la position que LinuxCNC
+  cherchera à maintenir.
+* 'Afficher la position actuelle...' - La position actuelle est la position
+  mesurée grâce aux informations issues des codeurs ou simulées par le
+  générateur de pas. Elle peut différer légèrement de la position commandée
+  pour diverses raisons, comme les réglages des boucles PID, les contraintes
+  physiques ou les efforts de coupe.
+* 'Afficher la position machine...' - C'est la position par rapport à l'origine
+  machine, telle qu'établie par la prise d'origine machine '(POM)'.
+* 'Afficher la position relative...' - C'est la position par rapport à l'origine
+  pièce, telle qu'établie par la prise d'origine pièce '(POP)'.
+  On peut aussi représenter cette position comme étant l'origine machine
+  à laquelle on a appliqué les codes de décalages des systèmes de
+  coordonnées G5x, G92 et G43.
 
 .Menu Aide
 
- * 'A propos d'Axis...' - Donne la version et quelques informations relatives
-   au copyright.
- * 'Aide rapide...' - Affiche la liste des raccourcis clavier.
+* 'A propos d'Axis...' - Donne la version et quelques informations relatives
+  au copyright.
+* 'Aide rapide...' - Affiche la liste des raccourcis clavier.
 
 === Boutons de la barre d'outils
 
@@ -546,15 +545,15 @@ programme est en cours d'exécution, cet onglet n'est pas opérationnel.
 
 image::images/axis-codeentry_fr.png["L'onglet 'Données manuelles"]
 
- * 'Historique' - Affiche les commandes précédemment tapées et au cours des
-   session précédentes.
- * 'Commande MDI' - Ce champ permet la saisie d'une ligne de commande à exécuter.
-   La commande sera exécutée par l'appui de la touche <Entrée> ou un appui sur
-   le bouton 'Envoi'.
- * 'G-Codes actifs' - Cette fenêtre affiche les 'codes modaux' actuellement
-   actifs dans l'interpréteur. Par exemple, *G54* indique que le système de
-   décalage d'origine actuel est *G54* qui s'appliquera à toutes les coordonnées
-   qui seront entrées.
+* 'Historique' - Affiche les commandes précédemment tapées et au cours des
+  session précédentes.
+* 'Commande MDI' - Ce champ permet la saisie d'une ligne de commande à exécuter.
+  La commande sera exécutée par l'appui de la touche <Entrée> ou un appui sur
+  le bouton 'Envoi'.
+* 'G-Codes actifs' - Cette fenêtre affiche les 'codes modaux' actuellement
+  actifs dans l'interpréteur. Par exemple, *G54* indique que le système de
+  décalage d'origine actuel est *G54* qui s'appliquera à toutes les coordonnées
+  qui seront entrées.
 
 === Correcteurs de vitesse(((Correcteurs de vitesse)))
 
@@ -600,12 +599,12 @@ ces raccourcis sont inaccessible en mode Entrées manuelles.
 
 Touches des correcteurs de vitesse.
 
- - Les touches des correcteurs de vitesse se comportent différemment en mode manuel.
-   Les touches '12345678' sélectionneront l'axe correspondant, si il est programmé.
- - Si vous avez 3 axes, alors *** sélectionnera l'axe 0, 1 sélectionnera l'axe 1,
-   et 2 sélectionnera l'axe 2.
- - Pendant l'exécution d'un programme, les touches '1234567890' fixeront la
-   correction de vitesse travail entre 10% et 100%.
+- Les touches des correcteurs de vitesse se comportent différemment en mode manuel.
+  Les touches '12345678' sélectionneront l'axe correspondant, si il est programmé.
+- Si vous avez 3 axes, alors *** sélectionnera l'axe 0, 1 sélectionnera l'axe 1,
+  et 2 sélectionnera l'axe 2.
+- Pendant l'exécution d'un programme, les touches '1234567890' fixeront la
+  correction de vitesse travail entre 10% et 100%.
 
 Les raccourcis clavier les plus fréquents sont visibles dans la table ci-dessous.
 
@@ -723,12 +722,12 @@ peuvent être très utiles. Pour des informations complètes sur ces
 modules, faites: 'pydoc <nom du module' ou lisez son code source.
 Modules inclus:
 
- - 'LinuxCNC' fournit l'accès aux commandes de LinuxCNC, à son état et aux chaînes d'erreur
- - 'gcode' fournit l'accès à l'interpréteur RS274NGC
- - 'rs274' fournit des outils supplémentaires pour travailler sur les fichiers RS274NGC
- - 'hal' permet la création par l'utilisateur de composants de HAL écrits en Python
- - '_togl' fournit des éléments OpenGL utilisables dans les applications Tkinter
- - 'minigl' fournit l'accès aux sous-ensembles d'OpenGL utilisés par AXIS
+- 'LinuxCNC' fournit l'accès aux commandes de LinuxCNC, à son état et aux chaînes d'erreur
+- 'gcode' fournit l'accès à l'interpréteur RS274NGC
+- 'rs274' fournit des outils supplémentaires pour travailler sur les fichiers RS274NGC
+- 'hal' permet la création par l'utilisateur de composants de HAL écrits en Python
+- '_togl' fournit des éléments OpenGL utilisables dans les applications Tkinter
+- 'minigl' fournit l'accès aux sous-ensembles d'OpenGL utilisés par AXIS
 
 Pour utiliser ces modules dans vos propres scripts, assurez-vous que
 le répertoire où ils se trouvent est dans le chemin d'accès des modules

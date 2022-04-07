@@ -68,11 +68,11 @@ image::images/touchy_fr.png["L'interface graphique Touchy",align="center"]
    Elle permet très simplement de créer des programme G-code. Elle supporte
    surtout la concaténation de fichiers de sous-programmes, ce qui permet de
    construire des programmes G-code complets sans aucune programmation.
- 
+
 .L'interface graphique NGCGUI intégrée dans Axis[[fig:ngcgui-gui]]
 image::images/ngcgui_fr.png["L'interface graphique NGCGUI intégrée dans Axis",align="center"]
 
- * <<cha:tklinuxcnc,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
+ * <<sec:tklinuxcnc-intro,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
    C'est l'interface la plus populaire après Axis
 
 .L'interface graphique tklinuxcnc[[fig:tklinuxcnc-gui]]
