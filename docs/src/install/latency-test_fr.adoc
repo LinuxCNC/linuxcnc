@@ -39,7 +39,6 @@ latency-test
 Une fenêtre comme ci-dessous devrait s'ouvrir:
 
 .Test de latence de HAL
-
 image::../config/images/latency.png[alt="Test de latence de HAL"]
 
 Alors que le test est en cours d'exécution, il faut charger l'ordinateur au
@@ -157,6 +156,5 @@ changer leur adressage selon le connecteur PCI dans lequel elles
 sont placées. Si l'installation des cartes PCI de
 la machine est modifiée, ne pas oublier de vérifier leurs adresses avant de
 lancer LinuxCNC.
-
 
 // vim: set syntax=asciidoc:

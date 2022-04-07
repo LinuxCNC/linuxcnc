@@ -48,7 +48,6 @@ latency-test
 Debería ver algo como esto:
 
 .Prueba de Latencia HAL
-
 image::../config/images/latency.png[align="center", alt="Prueba de Latencia HAL"]
 
 Mientras se ejecuta la prueba, debe 'abusar' de la computadora.
@@ -99,6 +98,7 @@ cuando LinuxCNC no está corriendo.
 latency-plot graba un registro de los hilos base y servo.
 Puede ser útil para ver picos de latencia cuando se inician o se usan otras aplicaciones.
 Uso:
+
 ----
 latency-plot --help
 
@@ -113,11 +113,12 @@ Opciones:
       --relative (tiempo relativo de reloj (predeterminado))
       --actual   (hora actual del reloj)
 ----
-image::../config/images/latency-plot.png[alt="latency-plot hace una grabación en un gráfico de bandas para hilos base y servo"]
 
+image::../config/images/latency-plot.png[alt="latency-plot hace una grabación en un gráfico de bandas para hilos base y servo"]
 
 latency-histogram muestra un histograma de latencia (jitter) para hilos
 base y servo.
+
 ----
 Uso:
    latency-histogram --help | -?
@@ -146,6 +147,7 @@ Notas:
   con barras finales especiales. Use --show para mostrar el conteo de
   bins fuera del grrafico [pos | neg]
 ----
+
 image ::../config/images/latency-histogram.png [alt = "latency-histogram muestra un histograma de latencia (jitter) para hilos base y servo"]
 
 // vim: set syntax = asciidoc:
