@@ -959,7 +959,7 @@ informations sur le palpage avec G38.
   possibilités spéciales pour les paramètres, comme
   décrit plus loin.
 
-[[gcode:debug]]
+[[gcode:print]]
 * '(PRINT,commentaire)' vont directement sur la sortie 'stderr' avec des
   possibilités spéciales pour les paramètres, comme
   décrit plus loin.
