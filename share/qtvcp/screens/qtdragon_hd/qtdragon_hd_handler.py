@@ -341,6 +341,10 @@ class HandlerClass:
         from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
         self.hole_circle = Hole_Circle()
         self.w.layout_hole_circle.addWidget(self.hole_circle)
+        LOG.info("Using NGCGUI utility")
+        from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
+        self.ngcgui = NgcGui()
+        self.w.layout_ngcgui.addWidget(self.ngcgui)
 
     def processed_focus_event__(self, receiver, event):
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return

@@ -6144,7 +6144,7 @@ TO FILE</string>
                   </item>
                  </layout>
                 </widget>
-                <widget class="QWidget" name="main_tab_widgetPage10">
+                <widget class="QWidget" name="main_tab_Page_Utilities">
                  <layout class="QHBoxLayout" name="horizontalLayout_65">
                   <property name="spacing">
                    <number>4</number>
@@ -6170,7 +6170,7 @@ TO FILE</string>
                      </sizepolicy>
                     </property>
                     <property name="currentIndex">
-                     <number>1</number>
+                     <number>0</number>
                     </property>
                     <widget class="QWidget" name="facing">
                      <attribute name="title">
@@ -6199,6 +6199,28 @@ TO FILE</string>
                       <string>HOLE CIRCLE</string>
                      </attribute>
                      <layout class="QVBoxLayout" name="layout_hole_circle">
+                      <property name="spacing">
+                       <number>0</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="topMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="bottomMargin">
+                       <number>0</number>
+                      </property>
+                     </layout>
+                    </widget>
+                    <widget class="QWidget" name="ngcgui">
+                     <attribute name="title">
+                      <string>NGCGUI</string>
+                     </attribute>
+                     <layout class="QVBoxLayout" name="layout_ngcgui">
                       <property name="spacing">
                        <number>0</number>
                       </property>
@@ -14128,7 +14150,7 @@ INCREMENT</string>
                <number>2</number>
               </property>
               <property name="text">
-               <string>01:10:11 AM</string>
+               <string>10:13:12 PM</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -15110,7 +15132,7 @@ INCREMENT</string>
   <slot>chk_inhibit_selection_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
