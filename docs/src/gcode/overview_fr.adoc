@@ -379,79 +379,84 @@ aux états internes de l'interpréteur et de la machine. Ils peuvent être utili
 dans les expressions quelconques, par exemple pour contrôler le flux d'un
 programme avec les instructions 'if-then-else'.
 
-* '#<_vmajor>' - Version majeure de LinuxCNC. Si la version courante est 2.5.2,
-  2.5 est retourné.
-* '#<_vminor>' - Version mineure du LinuxCNC. Si la version courante est 2.6.2,
-  0.2 est retourné.
-* '#<_line>' - Numéro de séquence. Si un fichier G-code est en cours, le numéro
-  de la ligne courante est retourné.
+* '#<_vmajor>' - Version majeure de LinuxCNC. Si la version courante est 2.5.2, 2.5 est retourné.
+* '#<_vminor>' - Version mineure du LinuxCNC. Si la version courante est 2.6.2, 0.2 est retourné.
+* '#<_line>' - Numéro de séquence. Si un fichier G-code est en cours, le numéro de la ligne courante est retourné.
 * '#<_motion_mode>' - Retourne le mode mouvement courant de l'interpréteur:
 
 [width="20%",options="header"]
-|========================================
+|====
 |Mode mouvement | Valeur retournée
-|G1| 10
-|G2| 20
-|G3| 30
-|G33| 330
-|G38.2| 382
-|G38.3| 383
-|G38.4| 384
-|G38.5| 385
-|G5.2| 52
-|G73| 730
-|G76| 760
-|G80| 800
-|G81| 810
-|G82| 820
-|G83| 830
-|G84| 840
-|G85| 850
-|G86| 860
-|G87| 870
-|G88| 880
-|G89| 890
-|========================================
+|      G1       | 10
+|      G2       | 20
+|      G3       | 30
+|      G33      | 330
+|      G38.2    | 382
+|      G38.3    | 383
+|      G38.4    | 384
+|      G38.5    | 385
+|      G5.2     | 52
+|      G73      | 730
+|      G76      | 760
+|      G80      | 800
+|      G81      | 810
+|      G82      | 820
+|      G83      | 830
+|      G84      | 840
+|      G85      | 850
+|      G86      | 860
+|      G87      | 870
+|      G88      | 880
+|      G89      | 890
+|====
 
  * '#<_plane>' - Retourne une valeur désignant le plan courant:
 
 [width="20%",options="header"]
 |========================================
-|Plan | Valeur retournée
-|G17| 170
-|G18| 180
-|G19| 190
-|G17.1| 171
-|G18.1| 181
-|G19.1| 191
+| Plan  | Valeur retournée
+| G17   | 170
+| G18   | 180
+| G19   | 190
+| G17.1 | 171
+| G18.1 | 181
+| G19.1 | 191
 |========================================
 
  * '#<_ccomp>' - Statut de la compensation d'outil. Retourne une valeur:
 
 [width="20%",options="header"]
 |========================================
-|Mode | Valeur retournée
-|G40 | 400
-|G41 | 410
-|G41.1| 411
-|G41 | 410
-|G42 | 420
-|G42.1 | 421
+| Mode  | Valeur retournée
+| G40   | 400
+| G41   | 410
+| G41.1 | 411
+| G41   | 410
+| G42   | 420
+| G42.1 | 421
 |========================================
 
+ * '#<_metric>' - Retourne 1 si G21 est 'on', sinon 0.
+ * '#<_imperial>' - Retourne 1 si G20 est 'on', sinon 0.
+ * '#<_absolute>' - Retourne 1 si G90 est 'on', sinon 0.
+ * '#<_incremental>' - Retourne 1 si G91 est 'on', sinon 0.
+ * '#<_inverse_time>' - Retourne 1 si le mode inverse du temps (G93) est 'on', sinon 0.
+ * '#<_units_per_minute>' - Retourne 1 si le mode unités par minute (G94) est 'on', sinon 0.
+ * '#<_units_per_rev>' - Retourne 1 si le mode Unités par tour (G95) est 'on', sinon 0.
+ * '#<_coord_system>' - Retourne l'index du système de coordonnées courant (G54 à G59.3).
 
 [width="20%",options="header"]
 |========================================
-|Mode | Valeur retournée
-|G54| 0
-|G55| 1
-|G56| 2
-|G57| 3
-|G58| 4
-|G59| 5
-|G59.1|6
-|G59.2|7
-|G59.3|8
+| Mode  | Valeur retournée
+| G54   | 0
+| G55   | 1
+| G56   | 2
+| G57   | 3
+| G58   | 4
+| G59   | 5
+| G59.1 | 6
+| G59.2 | 7
+| G59.3 | 8
 |========================================
 
  * '#<_tool_offset>' - Retourne 1 si l'offset d'outil (G43) est 'on', sinon 0.
@@ -770,7 +775,7 @@ visibles dans le tableau <<cap:modal-groups, ci-dessous>>.
 .Groupes modaux des G-codes (((G-codes modaux)))
 
 [width="100%", cols="4,6", options="header"]
-|==========================================================
+|====
 |Signification du groupe modal        | Mots G
 |Codes non modaux ('Groupe 0')| G4, G10, G28, G30, G53, G52, G92, G92.1, G92.2, G92.3
 .2+|Mouvements ('Groupe 1')      | G0, G1, G2, G3, G33, G38.x, G73, G80, G81,
@@ -787,13 +792,13 @@ visibles dans le tableau <<cap:modal-groups, ci-dessous>>.
 |Mode contrôle de trajectoire ('Groupe 13') |G61, G61.1, G64
 |Mode contrôle vitesse broche ('Groupe 14') | G96, G97
 |Mode diamètre/rayon sur les tours ('Groupe 15') | G7, G8
-|==========================================================
+|====
 
 [[tbl:mcodes-modal-groups]]
 .Groupes modaux des M-codes(((M-codes modaux)))
 
 [width="100%", cols="4,6", options="header"]
-|==========================================================
+|====
 |Signification du groupe modal        | Mots M
 |Types de fin de programme  ('Groupe 4') | M0, M1, M2, M30, M60
 |On/Off I/O ('Groupe 5')              | M6 Tn
@@ -802,7 +807,7 @@ visibles dans le tableau <<cap:modal-groups, ci-dessous>>.
 |Arrosages  ('Groupe 8')     | (M7, M8, peuvent être actifs simultanément), M9
 |Boutons de correction de vitesse ('Groupe 9')| M48, M49, M50, M51
 |Définis par l'utilisateur ('Groupe 10') | M100 à M199
-|==========================================================
+|====
 
 Pour plusieurs groupes modaux, quand la machine est prête à accepter
 des commandes, un membre du groupe doit être en vigueur. Il y a des
