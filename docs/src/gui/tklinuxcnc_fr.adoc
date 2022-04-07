@@ -189,7 +189,7 @@ jog temporaire pour même si l'axe à franchi une limite d'axe fixée dans
 le fichier .ini. Noter que si _Dépassement de limite_ est activé il
 s'affiche en rouge.
 
-[[cap:Override-Limits]]
+[[cap:override-limits]]
 .Exemple de dépassement de limite et incréments de jog
 
 image::images/tkemc-override-limits.png[alt="Exemple de dépassement de limite et incréments de jog"]
@@ -263,7 +263,7 @@ Beaucoup des raccourcis clavier ne sont pas accessibles en mode MDI.
 Les raccourcis clavier les plus fréquemment utilisés sont montrés dans
 la table ci-dessous.
 
-[[cap:Raccourcis-clavier-frequents]]
+[[cap:common-keyboard-shortcuts]]
 .Les raccourcis clavier les plus utilisés
 
 [width="90%", options="header"]
