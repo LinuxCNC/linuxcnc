@@ -5442,7 +5442,7 @@ class HandlerClass:
         return self.keyboard_shortcuts() and not event.isAutoRepeat() and not self.w.main_tab_widget.currentIndex() and self.w['jog_{}'.format(key)].isEnabled()
 
     def on_keycall_ESTOP(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state):
+        if self.key_is_valid(event, state) and self.w.estopButton == 2:
             ACTION.SET_ESTOP_STATE(STATUS.estop_is_clear())
 
     def on_keycall_POWER(self, event, state, shift, cntrl):
