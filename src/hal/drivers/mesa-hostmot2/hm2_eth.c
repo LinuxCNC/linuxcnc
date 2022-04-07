@@ -1239,6 +1239,29 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
 
+    } else if (strncmp(board_name, "7I96S", 8) == 0) {
+        strncpy(llio_name, board_name, 8);
+        llio_name[1] = tolower(llio_name[1]);
+        llio_name[4] = tolower(llio_name[4]);
+       board->llio.num_ioport_connectors = 3;
+        board->llio.pins_per_connector = 17;
+        board->llio.io_connector_pin_names = hm2_7i96_pin_names;
+
+        // DB25, 17 pins used, IO 34 to IO 50
+        board->llio.ioport_connector_name[0] = "P1";
+
+        // terminal block, 8 pins used, Step & Dir 0-3
+        board->llio.ioport_connector_name[1] = "TB1";
+
+        // terminal block, 7 pins used, Step & Dir 4, Enc A, B, Z, serial Rx/Tx, Spindle Analog
+        board->llio.ioport_connector_name[2] = "TB2";
+
+        // terminal block, 11 inputs, 6 SSR outputs
+        board->llio.ioport_connector_name[3] = "TB3";
+
+        board->llio.fpga_part_number = "t20f256";
+        board->llio.num_leds = 4;
+
     } else if (strncmp(board_name, "7I97", 8) == 0) {
         strncpy(llio_name, board_name, 8);
         llio_name[1] = tolower(llio_name[1]);
