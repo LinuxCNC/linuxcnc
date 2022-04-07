@@ -2868,19 +2868,19 @@ RESET</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_7">
                  <property name="spacing">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="leftMargin">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="topMargin">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <property name="rightMargin">
                   <number>0</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>2</number>
+                  <number>0</number>
                  </property>
                  <item>
                   <widget class="QStackedWidget" name="main_tab_widget">
@@ -6350,24 +6350,93 @@ TO FILE</string>
                      </item>
                     </layout>
                    </widget>
-                   <widget class="QWidget" name="main_tab_widgetPage11">
+                   <widget class="QWidget" name="main_tab_Page_Utilities">
                     <layout class="QVBoxLayout" name="verticalLayout_14">
+                     <property name="spacing">
+                      <number>0</number>
+                     </property>
+                     <property name="leftMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="topMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="rightMargin">
+                      <number>0</number>
+                     </property>
+                     <property name="bottomMargin">
+                      <number>0</number>
+                     </property>
                      <item>
                       <widget class="QTabWidget" name="tabWidget_utilities">
                        <property name="currentIndex">
-                        <number>1</number>
+                        <number>0</number>
                        </property>
                        <widget class="QWidget" name="facing">
                         <attribute name="title">
                          <string>FACING</string>
                         </attribute>
-                        <layout class="QVBoxLayout" name="layout_facing"/>
+                        <layout class="QVBoxLayout" name="layout_facing">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                        </layout>
                        </widget>
                        <widget class="QWidget" name="hole_circle">
                         <attribute name="title">
-                         <string>Bolt Hole Cirlce</string>
+                         <string>Bolt Hole Circle</string>
                         </attribute>
-                        <layout class="QVBoxLayout" name="layout_hole_circle"/>
+                        <layout class="QVBoxLayout" name="layout_hole_circle">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                        </layout>
+                       </widget>
+                       <widget class="QWidget" name="ngcgui">
+                        <attribute name="title">
+                         <string>NgcGui</string>
+                        </attribute>
+                        <layout class="QVBoxLayout" name="layout_ngcgui">
+                         <property name="spacing">
+                          <number>0</number>
+                         </property>
+                         <property name="leftMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="topMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="rightMargin">
+                          <number>0</number>
+                         </property>
+                         <property name="bottomMargin">
+                          <number>0</number>
+                         </property>
+                        </layout>
                        </widget>
                       </widget>
                      </item>
@@ -14003,7 +14072,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>10:38:40 PM</string>
+            <string>09:25:14 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14949,7 +15018,7 @@ ZERO</string>
   <slot>chk_use_versaprobe_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
