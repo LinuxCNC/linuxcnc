@@ -30,7 +30,7 @@ is configured with the default tcl version >= 8.5.
 
 image::images/tooledit-sort.png["Tool Edit GUI - Column Sorting",align="center"]
 
-From French: In Ubuntu Lucid 10.04 tcl/tk8.4 it is installed by défault.
+In Ubuntu Lucid 10.04 tcl/tk8.4 it is installed by default.
 The installation is performed as follows:
 
 ----

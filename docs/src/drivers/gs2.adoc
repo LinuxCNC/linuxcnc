@@ -13,8 +13,6 @@ loadusr -Wn spindle-vfd gs2_vfd -n spindle-vfd
 
 The above command says: loadusr, wait for named to load,
 component gs2_vfd, named spindle-vfd.
-FIXME from French: La commande de HAL _loadusr_ est détaillée au
-chapitre:
 The HAL `loadusr` command is detailed in the <<sub:hal-loadusr,loadusr>> chapter.
 
 == Command Line Options

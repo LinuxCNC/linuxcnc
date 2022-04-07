@@ -4,8 +4,7 @@
 [[cha:lathe-user-information]]
 = Lathe User Information(((Lathe User Information)))
 
-FIXME from French: Ce chapitre va regrouper les informations spécifiques aux tours, il
-est encore en cours de rédaction.
+This chapter regroups informations specific to lathes.
 
 == Lathe Mode
 

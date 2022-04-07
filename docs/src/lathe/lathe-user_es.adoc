@@ -4,8 +4,8 @@
 [[cha:lathe-user-information]]
 = Informacion para Usuarios de Torno
 
-FIXME from French: Ce chapitre va regrouper les informations spécifiques aux tours, il
-est encore en cours de rédaction.
+Este capítulo reunirá información específica de las torres,
+todavía se está redactando.
 
 == Modo Torno
 

@@ -13,7 +13,8 @@
   are entirely licensed under the GNU General Public License and Lesser
   GNU General Public License (GPL and LGPL)
 * LinuxCNC provides:
-** From French: Une installation facile à partir d'un CD live.
+** easy discovery and testing without installation with the LiveCD
+** easy installation from the Live CD
 ** a graphical user interface (actually several interfaces to choose from)
 ** an interpreter for 'G-code' (the RS-274 machine tool programming language)
 ** a realtime motion planning system with look-ahead
