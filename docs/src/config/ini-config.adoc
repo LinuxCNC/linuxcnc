@@ -655,9 +655,6 @@ from the command line using the -m option ($linuxcnc -h)
   at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
   processed as above but use haltcl for processing  See the
   <<cha:haltcl,HALTCL Chapter>> for more information.
-* 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl' at start up with arg1, arg2, etc as ::argv list.
-  Files with a .tcl suffix are processed as above but use haltcl for processing.
-  See the <<cha:haltcl,HALTCL Chapter>> for more information.
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal' at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
 * 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Execute the system library file 'sys_texample.tcl' at start up.

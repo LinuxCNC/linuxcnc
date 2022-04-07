@@ -4,9 +4,6 @@
 [[cha:lathe-user-information]]
 = Particularités des tours
 
-Ce chapitre va regrouper les informations spécifiques aux tours, il
-est encore en cours de rédaction.
-
 == Mode tour
 
 Si l'interface graphique Axis est utilisée et que la machine est un tour, pour

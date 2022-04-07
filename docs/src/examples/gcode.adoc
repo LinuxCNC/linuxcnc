@@ -46,7 +46,7 @@ This program repeatedly probes in a regular XY grid and writes the
 probed location to the file 'probe-results.txt' in the same directory
 as the .ini file. This is improved from the grid probe file.
 
-image::images/smartprobe-ngc.png["La grille de palpage plus fine"]
+image::images/smartprobe-ngc.png["The finer probing grid"]
 
 === Tool Length Probe
 

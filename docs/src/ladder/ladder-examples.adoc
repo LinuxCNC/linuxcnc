@@ -3,8 +3,6 @@
 [[cha:classicladder-examples]]
 = Classicladder Examples
 
-= Classicladder Examples
-
 == Wrapping Counter
 
 To have a counter that 'wraps around' you have to use the preset pin

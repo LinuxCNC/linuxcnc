@@ -33,12 +33,12 @@ It is an error if:
 
 * the S number is negative.
 
-Introduced in _fr: Comme décrit dans la section (G84-Taraudage-a-droite) sur le cycle de
-taraudage à droite>>, si un cycle de perçage 'G84' (taraudage) est actif et que
-les potentiomètres de vitesse et d'avance sont autorisés, celui qui a le
-réglage le plus bas sera utilisé. La vitesse de rotation et d'avance resterons
-synchronisées. Dans ce cas, la vitesse peut différer de celle programmée, même
-si le potentiomètre de correction de vitesse travail est sur 100%.
+As described in the section <<gcode:g84, Right-hand Tapping Cycle with Dwell>>,
+if a 'G84' (tapping) drilling cycle is active and the speed and feed
+potentiometers are enabled, the one with the lowest setting will be used.
+The rotational speed and feed rate will remain synchronized. In this case, the
+speed may differ from the one programmed, even if the speed correction potentiometer
+is set to 100%.
 
 [[sec:select-tool]]
 == T: Select Tool(((T: Select Tool)))

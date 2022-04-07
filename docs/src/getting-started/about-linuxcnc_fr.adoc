@@ -42,21 +42,9 @@
 
 == Le système d'exploitation
 
-La distribution Ubuntu a été choisie car elle s'intègre parfaitement dans les
-vues Open Source de LinuxCNC:
+LinuxCNC est disponible sous forme de paquets prêts à l'emploi pour les
+distributions Ubuntu et Debian.
 
- - Ubuntu sera toujours gratuit, et il n'y a aucun frais supplémentaire pour la
-    version  _"Enterprise Edition"_,
-    nous rendons nos travaux disponibles pour  tout le monde dans les mêmes 
-    conditions de gratuité.
- - LinuxCNC est jumelé avec les versions LTS d'Ubuntu qui apportent le soutien et 
-    les correctifs de sécurité de l'équipe Ubuntu pour 3 à 5 ans.
- - Ubuntu utilise les meilleurs outils de traductions et d'accessibilité 
-    à l'infrastructure, que la communauté du logiciel libre a à offrir, pour 
-    rendre Ubuntu accessible à un maximum de personnes.
- - La communauté Ubuntu a entièrement souscrit aux principes du développement de 
-    logiciels libres, nous encourageons tout le monde à utiliser des logiciels 
-    open source, à les améliorer et à les transmettre.
 
 [[sec:Trouver-aide]]
 == Trouver de l'aide(((Trouver de l'aide)))

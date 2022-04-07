@@ -4,8 +4,7 @@
 [[cha:lathe-user-information]]
 = Informacion para Usuarios de Torno
 
-Este capítulo reunirá información específica de las torres,
-todavía se está redactando.
+Este capítulo reunirá información específica de los tornos.
 
 == Modo Torno
 

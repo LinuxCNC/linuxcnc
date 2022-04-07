@@ -20,7 +20,7 @@ from software generated steps.
 
 === Run a Latency Test
 
-The CPU is not the only factor determining latency. The motherboards,
+The CPU is not the only factor determining latency. Motherboards,
 graphics cards, USB ports and many other things can degrade it. The best
 way to know what to expect from a PC is to run the RT latency tests.
 

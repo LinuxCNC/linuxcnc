@@ -124,11 +124,11 @@ with the halcompile utility, numerous other comps support the names=option.
 Comps that support names= option include: at_pid, encoder,
 encoder_ratio, pid, siggen, and sim_encoder.
 
-El procesamiento en dos pasos ocurre antes de la carga de la interfaz gráfica de usuario. Cuando se utiliza un
-[HAL]POSTGUI_HALFILE, es conveniente colocar todo las
-declaraciones loadrt para los componentes necesarios en un halfile que se carge con anterioridad.
+Two-step processing occurs before the GUI is loaded. When using a
+[HAL]POSTGUI_HALFILE, it is convenient to place all the [HAL]POSTGUI_HALFILE
+loadrt declarations for the necessary components in a preloaded halfile.
 
-Ejemplo de una sección HAL cuando se usa un POSTGUI_HALFILE:
+Example of a HAL section when using a POSTGUI_HALFILE:
 ----
 [HAL]
 
@@ -137,7 +137,7 @@ HALFILE = core_sim.hal
 HALFILE = sim_spindle_encoder.hal
 HALFILE = axis_manualtoolchange.hal
 HALFILE = simulated_home.hal
-HALFILE = load_for_postgui.hal <- líneas loadrt para componentes en postgui.hal
+HALFILE = load_for_postgui.hal <- loadrt lines for components in postgui.hal
 
 POSTGUI_HALFILE = postgui.hal
 HALUI = halui

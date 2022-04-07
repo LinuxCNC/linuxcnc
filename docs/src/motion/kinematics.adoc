@@ -249,16 +249,12 @@ return 0;
 
 === Inverse transformation
 
-The inverse kinematics is lots easier in our example, as we can write
+The inverse kinematics is much easier in our example, as we can write
 it directly:
 
-image::images/kinematics-math-06.png[align="center"]
+image::images/kinematics-math-06.png[align="left"]
 
-image::images/kinematics-math-07.png[align="center"]
-
-//*AD=sqrt(x^2^+y^2^)*
-
-//*BD=sqrt((Bx-x)^2^+y^2^)*
+image::images/kinematics-math-07.png[align="left"]
 
 /////////////////////////////////////////////////
 latexmath::[\[AD=\sqrt{x^{2}+y^{2}}\]]
