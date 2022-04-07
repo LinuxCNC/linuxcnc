@@ -11,7 +11,7 @@ offre un aperçu permanent du parcours de l'outil. Il est écrit en
 Python(((Python))), utilise Tk(((Tk))) et OpenGL(((OpenGL))) pour
 afficher son interface graphique.
 
-[[cap:Fenetre-AXIS]]
+[[fig:axis-window]]
 .Fenêtre d'AXIS
 image::../user/images/axis_25_fr.png["Fenêtre d'AXIS"]
 
@@ -27,7 +27,7 @@ simplifiée 'sim/axis.ini' est déjà configurée pour utiliser AXIS comme
 interface graphique.
 
 Quand AXIS démarre, une fenêtre telle que celle de la figure
-<<cap:Fenetre-AXIS,ci-dessus>> s'ouvre.
+<<fig:axis-window,ci-dessus>> s'ouvre.
 
 === Une session typique avec AXIS
 
@@ -46,7 +46,7 @@ Quand AXIS démarre, une fenêtre telle que celle de la figure
    Pour usiner un fichier différent, retourner à l'étape 4. Quand le travail
    est terminé, quitter AXIS.
 
-== Eléments de la fenêtre d'AXIS
+== Fenêtre d'AXIS
 
 La fenêtre d'AXIS contient les éléments suivants:
 
@@ -157,14 +157,16 @@ programme G-code contient des sous-programmes.
  * 'Annulation OM...' - Annule les origines d'un ou de tous les axes.
  * 'Annulation décalages d'origine...' - Annule les décalages d'origine du
    système de coordonnées choisi.
- * [[sub:axis:tool-touch-off]]'L'outil touchera la pièce...'(((Tool Touch Off))) - Lorsqu'un 'Toucher' est effectué, la valeur
-   entrée est relative au système de coordonnées pièce actuel (G5x), tel que
-   modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
-   complète, la coordonnée relative pour l'axe choisi prendra la valeur
-   entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
 
-L'outil touchera le porte-pièce...::
-   Lorsqu'un 'Toucher' est effectué, la valeur entrée est relative au 9ème
+[[sub:axis:tool-touch-off]]
+* 'Palpage Outil'(((AXIS, Palpage Outil)))
+** 'L'outil touchera la pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur
+    entrée est relative au système de coordonnées pièce actuel (G5x), tel que
+    modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
+    complète, la coordonnée relative pour l'axe choisi prendra la valeur
+    entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
+
+** 'L'outil touchera le porte-pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur entrée est relative au 9ème
    système de coordonnées (G59.3), le décalage d'axe (G92) est ignoré.
    Mode destiné aux machines possédant un porte-pièce référencé à un endroit,
    sur lequel s'effectue le 'Toucher'. Le 9ème système de coordonnées doit
@@ -175,29 +177,7 @@ L'outil touchera le porte-pièce...::
 
 .Menu Vues
 
-.Tout est dans le point de vue...
-****
-Les icônes de choix du type d'affichage et du menu 'Vues' d'AXIS se référent
-à des 'Vue de dessus', 'Vue de face' et 'Vue de côté'.
-Ces termes sont corrects si la machine CNC a un axe Z vertical, avec une valeur
-de Z positive en haut. C'est vrai pour les fraiseuses verticales, qui sont
-probablement les plus populaires, c'est également vrai pour toutes les machines
-d'électro-érosion et aussi les tours verticaux, sur lesquels la pièce tourne
-sous l'outil.
-
-Les termes 'Vue de dessus', 'Vue de face' et 'Vue de côté' sont cependant
-source de confusion sur d'autres machines CNC, comme un tour standard, sur
-lequel l'axe Z est horizontal, ou sur une fraiseuse horizontale, qui a également
-l'axe Z horizontal, ou même un tour vertical inversé, sur lequel la pièce tourne
-au dessus de l'outil et qui a son axe Z positif vers le bas!
-
-Il faut juste se rappeler que l'axe Z est toujours parallèle a la broche et
-plus positif en s'éloignant de celle-ci.
-Etre familiarisé avec la cinématique de ses machines, permet d'interpréterez
-l'affichage comme il se doit.
-****
-
- * 'Vue de dessus...' - La vue de dessus (ou vue de Z) affiche l'aspect du G-code
+* 'Vue de dessus...' - La vue de dessus (ou vue de Z) affiche l'aspect du G-code
    vu depuis le côté positif de l'axe Z et en regardant vers son côté négatif.
    Cette vue convient bien pour visualiser les axes X et Y.
  * 'Vue de dessus basculée...' - La vue de dessus basculée (ou vue de Z basculé)
@@ -219,8 +199,31 @@ l'affichage comme il se doit.
    certaines caractéristiques difficiles à voir, ce qui requerra un
    changement de point de vue. Cette vue convient bien pour voir les trois
    axes à la fois.
- * 'Affichage en pouces...' - Ajuste l'échelle d'affichage d'AXIS pour les pouces.
- * 'Affichage en mm...' - Ajuste l'échelle d'affichage d'AXIS pour les
+
+.Point de vue
+****
+Les icônes de choix du type d'affichage et du menu 'Vues' d'AXIS se référent
+à des 'Vue de dessus', 'Vue de face' et 'Vue de côté'.
+Ces termes sont corrects si la machine CNC a un axe Z vertical, avec une valeur
+de Z positive en haut. C'est vrai pour les fraiseuses verticales, qui sont
+probablement les plus populaires, c'est également vrai pour toutes les machines
+d'électro-érosion et aussi les tours verticaux, sur lesquels la pièce tourne
+sous l'outil.
+
+Les termes 'Vue de dessus', 'Vue de face' et 'Vue de côté' sont cependant
+source de confusion sur d'autres machines CNC, comme un tour standard, sur
+lequel l'axe Z est horizontal, ou sur une fraiseuse horizontale, qui a également
+l'axe Z horizontal, ou même un tour vertical inversé, sur lequel la pièce tourne
+au dessus de l'outil et qui a son axe Z positif vers le bas!
+
+Il faut juste se rappeler que l'axe Z est toujours parallèle a la broche et
+plus positif en s'éloignant de celle-ci.
+Etre familiarisé avec la cinématique de ses machines, permet d'interpréterez
+l'affichage comme il se doit.
+****
+
+* 'Affichage en pouces...' - Ajuste l'échelle d'affichage d'AXIS pour les pouces.
+* 'Affichage en mm...' - Ajuste l'échelle d'affichage d'AXIS pour les
    millimètres.
  * 'Afficher le programme...' - L'affichage à l'écran de l'aspect du G-code peut
    être entièrement désactivé si l'opérateur le souhaite.

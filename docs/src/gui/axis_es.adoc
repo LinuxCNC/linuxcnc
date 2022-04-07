@@ -8,8 +8,8 @@
 AXIS es una interfaz gráfica para LinuxCNC que cuenta con vista previa y backplot. Está escrito en Python y utiliza
 Tk y OpenGL para mostrar la interfaz de usuario.
 
+[[fig:axis-window]]
 .Ventana de AXIS
-
 image::images/axis_es.png["Ventana AXIS",align="center"]
 
 == Primeros pasos
@@ -114,7 +114,6 @@ archivo .ini configurado. Para más información sobre configuración vea el
 * 'Salir' - Termina la sesión actual de LinuxCNC.
 
 [[sub:axis-machine-menu]]
-
 .Menú de Máquina
 
 * 'Toggle Emergency Stop F1'- cambia el estado de la parada de emergencia.
@@ -176,13 +175,14 @@ No use 'Ejecutar desde la línea seleccionada' si su programa de código g conti
 * 'Sistema de coordenadas cero'- establece todos los offsets a cero en el sistema de coordenadas elegido.
 
 [[sub:axis:tool-touch-off]]
-* 'Tool touch off to workpiece'(((Axis, Tool Touch Off))) - Al realizar Touch Off, el valor
+* 'Tool Touch Off'(((Axis, Tool Touch Off)))
+** 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
 ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
 modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
 la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
 Consulte <<gcode:g10-l10,G10 L10 en el capítulo de código G.
 
-* 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
+** 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
 es relativo al noveno ('G59.3') sistema de coordenadas, con el offset del eje
 ('G92') ignorado. Esto es útil cuando hay un accesorio para Tool touch off en una
 ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas establecido
@@ -531,7 +531,6 @@ programas rs274ngc, excepto que las variables no pueden ser referidas.
 El valor resultante se muestra como un número.
 
 .Touch Off
-
 image::images/touchoff_es.png["Touch Off",align="center"]
 
 Consulte también las opciones 'Tool touch off to workpiece' y 'Tool touch off to fixture'

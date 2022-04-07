@@ -15,7 +15,7 @@ Le test de latence détermine la capacité du processeur à répondre aux
 requêtes qui lui sont faites. Certains matériels peuvent interrompre ce
 processus, causant des pertes de pas lorsque le PC pilote une machine
 CNC. Ce test est la toute première chose à faire pour valider un PC.
-Pour le lancer, suivre les instructions de la section <<cha:latency-testing,sur le test de latence>>.
+Pour le lancer, suivre les instructions de la section <<sec:latency-test,sur le test de latence>>.
 
 [[sec:Sherline]]
 == Sherline(((Sherline)))

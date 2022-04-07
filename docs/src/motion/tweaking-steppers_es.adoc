@@ -19,8 +19,8 @@ a partir de pasos generados por software.
 
 === Ejecutar una prueba de latencia
 
-Ejecute la prueba de latencia como se describe en el capítulo
-<<cha:latency-testing,Test de Latencia>>.
+Ejecute la prueba de latencia como se describe en el
+capítulo <<sec:latency-test,Test de Latencia>>.
 
 Mientras se ejecuta la prueba, debe 'abusar' de la computadora. Mueva
 ventanas alrededor de la pantalla. Navegue por la web. Copie algunos archivos grandes

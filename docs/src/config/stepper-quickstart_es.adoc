@@ -32,8 +32,8 @@ a la perdida de algunos pasos cuando se opera una maquina CNC. Esto
 es la primer cosa que se requiere hacer posterior a la instalación.
 
 Put this link back when the latency-test_es.txt is translated.
-Siga las instrucciones de la sección <<cha:latency-testing,here>> Para correr
-La prueba de latencia.
+Siga las instrucciones de la sección <<sec:latency-test,here>> para correr
+la prueba de latencia.
 
 [[sec:Sherline]]
 == Sherline(((Sherline)))

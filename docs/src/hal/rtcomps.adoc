@@ -60,7 +60,8 @@ halcmd: unloadrt stepgen
 
 [[sub:stepgen-pins]]
 === Stepgen Pins(((HAL stepgen pins)))
-on the step type and control type selected.
+
+On the step type and control type selected.
 
 * '(float) stepgen.<chan>.position-cmd' - Desired motor position, in
   position units (position mode only).
@@ -192,7 +193,8 @@ image::images/stepgen-type5-10.png[align="center"]
 .Five-Phase Step Types(((Five Phase)))
 image::images/stepgen-type11-14.png["Five-Phase Step Types",align="center"]
 
-.Functions
+[[sub:stepgen-functions]]
+.Functions(((Hal stepgen Functions)))
 The component exports three functions. Each function acts on all of
 the step pulse generators - running different generators in different
 threads is not supported.
