@@ -3776,6 +3776,7 @@ class HandlerClass:
                 ACTION.CALL_MDI('G53 G1 X{:0.2f}'.format(xMax))
                 ACTION.CALL_MDI('G53 G1 Y{:0.2f}'.format(yMin))
                 ACTION.CALL_MDI('G53 G1 X{:0.2f}'.format(xMin))
+                ACTION.CALL_MDI('G0 X0 Y0')
 
     def single_cut(self):
         self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], False)

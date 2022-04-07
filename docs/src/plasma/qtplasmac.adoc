@@ -179,7 +179,7 @@ Refer to the <<qt_initial-setup,Heights Diagram>> diagram for a visual represent
  * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with
    allowances for float_switch_travel and over travel tolerance. For example,
    if the user's float switch takes 4mm (0.157") to activate then set the Z
-   minimum to 5mm (0.197") plus an allowance for overrun (either calculated
+   minimum to 5mm (0.2") plus an allowance for overrun (either calculated
    using the equation below or allow 5mm (0.2") below the lowest slat.
  * *[AXIS_Z] MAX_LIMIT* should be the highest the user wants the Z axis
    to travel (it must not be lower than Z HOME_OFFSET).
@@ -1870,7 +1870,7 @@ Probe Height refers to the height above the Z axis MINIMUM_LIMIT.
 
 Offset Probing is the use of a probe that is offset from the torch. This method is an alternative to Ohmic Probing and uses the plasmac.ohmic-enable output pin to operate a solenoid for extending and retracting the probe. The plasmac.ohmic-probe input pin is used to detect the material and the *Ohmic Offset* in the PROBING frame of the CONFIGURATION section of the <<qt_parameters-tab, PARAMETERS Tab>> is used to set the correct measured height.
 
-The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5mm below the torch tip. If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
+The probe could be a mechanically deployed probe, a permanently mounted proximity sensor or even simply a stiff piece of wire extending about 0.5mm (0.2") below the torch tip. If the probe is mechanically deployed then it needs to extend/retract rather quickly to avoid excessive probing times and would commonly be pneumatically operated.
 
 To use this feature, the user must set the probes's offset from the torch center by following the procedure described in <<peripheral-offsets, Peripheral Offsets>>.
 
@@ -2354,7 +2354,7 @@ In order to utilize them, *KB Shortcuts* must be enabled in the *GUI SETTINGS* s
 |===
 |*Keyboard Shortcut*|*Action*
 |ESC|Aborts current automated motion (example: a running program, a probe test, etc.) as well as an active torch pulse (behaves the same as clicking CYCLE STOP).
-|F1|Toggles the E-STOP button (if the GUI E-STOP button is enabled).
+|F1|Toggles the GUI E-STOP button (if the GUI E-STOP button is enabled).
 |F2|Toggles the GUI power button.
 |F9|Toggles the "Cutting" command, used to begin or end a manual cut.
 |F12|Show stylesheet editor.
@@ -3169,9 +3169,9 @@ BUTTON_n_CODE = single-cut
 
 Framing is the ability to move the torch around the perimeter of a rectangle that encompasses the bounds of the current job.
 
-The laser enable HAL pin (qtplasmac.laser_on) will be enabled during the framing moves and any X/Y offsets for the laser pointer in the <machine_name>.ini file will also be applied to the X/Y motion.
+The laser enable HAL pin (qtplasmac.laser_on) will be turned on during the framing moves and any X/Y offsets for the laser pointer in the <machine_name>.ini file will also be applied to the X/Y motion. After the framing motion is completed, the torch will move to the X0 Y0 position to clear any applied laser offsets and qtplasmac.laser_on will be turned off.
 
-Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm before X/Y motion begins.
+Upon starting a Framing cycle, it is important to note that by default the Z axis will be moved to a height of [AXIS_Z]MAX_LIMIT - 5mm (0.2") before X/Y motion begins.
 
 The velocity for the XY movements of the Framing motion can be specified so that Framing motion always occurs at a set velocity. This can be achieved by adding the feed rate (F) as the as the last portion of the button code. If the feed rate is omitted from the button code, Framing motion velocity will default to the feed rate for the currently selected material.
 
