@@ -132,8 +132,8 @@ start the backplot window by selecting View→Backplot.
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
 
 .Control Buttons
-The buttons in the lower part of TkLinuxCNC are used to control the execution of a
-program:
+The buttons in the lower part of TkLinuxCNC are used to control the
+execution of a program:
 +
 * 'Open' to load a program,
 * 'Verify' to check it for errors,
@@ -141,7 +141,8 @@ program:
 * 'Pause' to stop it while running,
 * 'Resume' to resume an already paused program,
 * 'Step' to advance one line in the program and
-* 'Optional Stop' to toggle the optional stop switch (if the button is green the program execution will be stopped on any M1 encountered).
+* 'Optional Stop' to toggle the optional stop switch (if the button is
+  green the program execution will be stopped on any M1 encountered).
 
 .Text Program Display Area
 When the program is running, the line currently being executed is
