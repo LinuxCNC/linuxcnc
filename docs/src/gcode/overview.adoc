@@ -229,16 +229,16 @@ numbered parameters are reset to zero.
 
 Intended Use::
 * user parameters:: numbered parameters in the range 31..5000, and named
-global and local parameters except predefined parameters. These are
-available for general-purpose storage of floating-point values, like
-intermediate results, flags etc, throughout program execution. They
-are read/write (can be assigned a value).
+  global and local parameters except predefined parameters. These are
+  available for general-purpose storage of floating-point values, like
+  intermediate results, flags etc, throughout program execution. They
+  are read/write (can be assigned a value).
 * <<sub:subroutine-parameters,subroutine parameters>> - these are used to
-hold the actual parameters passed to a subroutine.
+  hold the actual parameters passed to a subroutine.
 * <<sub:numbered-parameters,numbered parameters>> - most of these are used
-to access offsets of coordinate systems.
+  to access offsets of coordinate systems.
 * <<sub:system-parameters,system parameters>> - used to determine the current
-running version. They are read-only.
+  running version. They are read-only.
 
 [[sub:numbered-parameters]]
 === Numbered Parameters(((Numbered Parameters)))
@@ -329,7 +329,6 @@ example '##2'  means the value of the parameter whose index is the
   Volatile.
 
 .Numbered Parameters Persistence
-
 The values of parameters in the persistent range are retained over
 time, even if the machining center is powered down. LinuxCNC uses a
 parameter file to ensure persistence. It is managed by the
@@ -399,19 +398,16 @@ they act just like regular numeric parameters. They are not stored in files.
 Examples:
 
 .Declaration of named global variable
-
 ----
 #<_endmill_dia> = 0.049
 ----
 
 .Reference to previously declared global variable
-
 ----
 #<_endmill_rad> = [#<_endmill_dia>/2.0]
 ----
 
 .Mixed literal and named parameters
-
 ----
 o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
 ----
@@ -1013,14 +1009,13 @@ NOTE: Inline comments on O words should not be used see the O Code
 == Messages(((Messages)))
 
 * '(MSG,)' - displays message if 'MSG' appears after the left parenthesis
-and before any other printing characters. Variants of 'MSG' which include
-white space and lower case characters are allowed. The rest of the
-characters before the right parenthesis are considered to be a message.
-Messages should be displayed on the message display device of the user
-interface if provided.
+  and before any other printing characters. Variants of 'MSG' which include
+  white space and lower case characters are allowed. The rest of the
+  characters before the right parenthesis are considered to be a message.
+  Messages should be displayed on the message display device of the user
+  interface if provided.
 
 .Message Example
-
 ----
 (MSG, This is a message)
 ----
@@ -1029,7 +1024,7 @@ interface if provided.
 == Probe Logging(((Probe Logging)))
 
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
-coordinate consisting of XYZABCUVW of each successful straight probe in it.
+  coordinate consisting of XYZABCUVW of each successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
 
 For more information on probing see the <<gcode:g38,G38>> Section.
@@ -1083,8 +1078,7 @@ will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
 [[gcode:file-requirements]]
-== File Requirements
-(((File Requirements)))
+== File Requirements (((File Requirements)))
 
 A G-code file must contain one or more lines of G-code and be terminated
 with a <<mcode:m2-m30,Program End>>. Any G-code past the program end
@@ -1126,7 +1120,7 @@ The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
 * O-word commands (optionally followed by a comment but no other words allowed
-on the same line)
+  on the same line)
 * Comment (including message)
 * Set feed rate mode (G93, G94).
 * Set feed rate (F).

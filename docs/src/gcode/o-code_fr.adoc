@@ -222,9 +222,9 @@ O[#101+2] call
 Voici un condensé des sections utiles aux calculs des O-codes:
 
 * <<sec:overview-parameters,les paramètres>>, 
-* <<sec:Expressions,les expressions>>, 
-* <<sec:Operateurs-Binaires,les opérateurs binaires>>, 
-* <<sec:Fonctions,les fonctions>>.
+* <<gcode:expressions,les expressions>>, 
+* <<gcode:binary-operators,les opérateurs binaires>>, 
+* <<gcode:functions,les fonctions>>.
 
 == Appel de fichier(((Appel de fichier)))
 

@@ -122,7 +122,7 @@ en nanosecondes.
   dans la colonne "Max Jitter" et à la ligne "Base thread". Cette valeur
   correspond à la latence maximale du PC testé.
   Pour exécuter directement un test de latence cliquer sur le bouton
-  _Test de latence_. Lire le <<cha:test-de-latence,chapitre sur le test de latence>>
+  _Test de latence_. Lire le <<cha:latency-testing,chapitre sur le test de latence>>
   pour tous les détails concernant ce test.
 * _Dialogue à l'écran pour le changement d'outil_ - (((Dialogue d'appel d'outil)))
   Si cette case est cochée, LinuxCNC va faire une pause et ouvrir un dialogue

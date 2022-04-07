@@ -289,7 +289,6 @@ switch should be set before starting the NGC program.
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-[[sec:tool-table]]
 == Tool Table(((Tool Table)))
 
 A tool table is required to use the Interpreter. The file tells which
