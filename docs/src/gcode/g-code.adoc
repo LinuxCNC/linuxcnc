@@ -1189,7 +1189,6 @@ whichever occurs first.
 
 [[gcode:probing-codes]]
 .Probing G-Codes
-
 [width="90%", options="header"]
 |==========================================================
 |Code  | Target State    | Move orientation | Error Signal
@@ -1212,7 +1211,7 @@ A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
 XYZABCUVW of each successful straight probe in it.
 The file must be closed with '(PROBECLOSE)'. For more information
-see the <<gcode:comments, Comments>> Section.
+see the <<gcode:comments,Comments>> Section.
 
 An example file 'smartprobe.ngc' is included (in the examples directory)
 to demonstrate using probe moves to log to a file the coordinates of a part.
@@ -1229,9 +1228,9 @@ It is an error if:
 [[gcode:g40]]
 == G40 Compensation Off(((G40 Cutter Compensation Off)))
 
-* 'G40' - turn cutter compensation off. If tool compensation was on the
-next move must be a linear move and longer than the tool diameter.
-It is OK to turn compensation off when it is already off.
+ * 'G40' - turn cutter compensation off. If tool compensation was on the
+   next move must be a linear move and longer than the tool diameter.
+   It is OK to turn compensation off when it is already off.
 
 .G40 Example
 
@@ -1246,8 +1245,8 @@ See <<gcode:g0,G0>> & <<mcode:m2-m30,M2>> sections for more information.
 
 It is an error if:
 
-* A G2/G3 arc move is programmed next after a G40.
-* The linear move after turning compensation off is less than the tool diameter.
+ * A G2/G3 arc move is programmed next after a G40.
+ * The linear move after turning compensation off is less than the tool diameter.
 
 [[gcode:g41-g42]]
 == G41, G42 Cutter Compensation(((G41 G42 Cutter Compensation)))
@@ -1257,7 +1256,7 @@ G41 <D-> (left of programmed path)
 G42 <D-> (right of programmed path)
 ----
 
-* 'D' - tool number
+ * 'D' - tool number
 
 The D word is optional; if there is no D word the radius of the currently
 loaded tool will be used (if no tool is loaded and no D word is given,
