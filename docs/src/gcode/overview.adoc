@@ -446,53 +446,53 @@ can be added easily without changes to the source code.
 [width="20%",options="header"]
 |====
 |Motion mode | return value
-|G1| 10
-|G2| 20
-|G3| 30
-|G33| 330
-|G38.2| 382
-|G38.3| 383
-|G38.4| 384
-|G38.5| 385
-|G5.2| 52
-|G73| 730
-|G76| 760
-|G80| 800
-|G81| 810
-|G82| 820
-|G83| 830
-|G84| 840
-|G85| 850
-|G86| 860
-|G87| 870
-|G88| 880
-|G89| 890
+|      G1    | 10
+|      G2    | 20
+|      G3    | 30
+|      G33   | 330
+|      G38.2 | 382
+|      G38.3 | 383
+|      G38.4 | 384
+|      G38.5 | 385
+|      G5.2  | 52
+|      G73   | 730
+|      G76   | 760
+|      G80   | 800
+|      G81   | 810
+|      G82   | 820
+|      G83   | 830
+|      G84   | 840
+|      G85   | 850
+|      G86   | 860
+|      G87   | 870
+|      G88   | 880
+|      G89   | 890
 |====
 
 * '#<_plane>' - returns the value designating the current plane:
 
 [width="20%",options="header"]
 |====
-|Plane | return value
-|G17| 170
-|G18| 180
-|G19| 190
-|G17.1| 171
-|G18.1| 181
-|G19.1| 191
+| Plane | return value
+| G17   | 170
+| G18   | 180
+| G19   | 190
+| G17.1 | 171
+| G18.1 |  181
+| G19.1 | 191
 |====
 
 * '#<_ccomp>' - Status of cutter compensation. Return values:
 
 [width="20%",options="header"]
 |====
-|Mode | return value
-|G40 | 400
-|G41 | 410
-|G41.1| 411
-|G41 | 410
-|G42 | 420
-|G42.1 | 421
+| Mode  | return value
+| G40   | 400
+| G41   | 410
+| G41.1 | 411
+| G41   | 410
+| G42   | 420
+| G42.1 | 421
 |====
 
 * '#<_metric>' - Return 1 if G21 is on, else 0.
@@ -508,16 +508,16 @@ can be added easily without changes to the source code.
 
 [width="20%",options="header"]
 |====
-|Mode | return value
-|G54| 540
-|G55| 550
-|G56| 560
-|G57| 570
-|G58| 580
-|G59| 590
-|G59.1|591
-|G59.2|592
-|G59.3|593
+| Mode  | return value
+| G54   | 540
+| G55   | 550
+| G56   | 560
+| G57   | 570
+| G58   | 580
+| G59   | 590
+| G59.1 | 591
+| G59.2 | 592
+| G59.3 | 593
 |====
 
 * '#<_tool_offset>' - Return 1 if tool offset (G43) is on, else 0.
