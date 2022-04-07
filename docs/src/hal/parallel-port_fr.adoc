@@ -176,7 +176,7 @@ un pas par période.
   soit écoulé depuis la dernière écriture associée _write_ puis remet à jour les
   pins aux valeurs indiquées par _-out-invert_ et les paramètres de _-out-invert_.  This
   can be used in conjunction with stepgen's 'doublefreq' to produce one
-  step per period. The <<sub:stepgen-parameters,stepgen stepspace>> for that pin
+  step per period. The <<sec:stepgen,stepgen stepspace>> for that pin
   must be set to 0 to enable doublefreq.
   La réinitialisation doit être plus tard dans le même thread que l'écriture.
 

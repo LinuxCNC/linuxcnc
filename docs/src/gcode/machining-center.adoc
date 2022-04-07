@@ -79,6 +79,7 @@ speed used in machining at some percentage of the programmed rate.
 A CNC machine can have a block delete switch.
 See the <<sub:block-delete-switch,Block Delete>> Section.
 
+[[sub:optional-program-stop-switch]]
 === Optional Program Stop Switch
 
 A CNC machine can have an optional program stop switch.

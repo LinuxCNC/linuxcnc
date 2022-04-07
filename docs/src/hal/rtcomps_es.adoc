@@ -79,7 +79,7 @@ del tipo de paso y el tipo de control seleccionado:
  * '(bit) stepgen.<chan>.phase-D' - Salida de fase D (tipos de paso 5-14 solamente).
  * '(bit) stepgen.<chan>.phase-E' - Salida de fase E (tipos de pasos 11-14 solamente).
 
-[[sub:stepgen-parameters]]
+[[sec:stepgen-parameters]]
 .Parametros
  * '(float) stepgen.<chan>.position-scale' - Pasos por unidad de posición.
    Este parámetro se usa tanto por la salida como por la retroalimentación.

@@ -90,7 +90,7 @@ pins, selon le type de pas et le mode de contrôle sélectionné.
  - _(bit) stepgen.<chan>.phase-D_ -- Sortie phase D (séquences de pas 5 à 14 seulement).
  - _(bit) stepgen.<chan>.phase-E_ -- Sortie phase E (séquences de pas 11 à 14 seulement).
 
-[[sub:stepgen-parameters]]
+[[sec:stepgen-parameters]]
 === Paramètres(((HAL stepgen parameters)))
 
  - _(float) stepgen.<chan>.position-scale_ -- Pas par unité de longueur.

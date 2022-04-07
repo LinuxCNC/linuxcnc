@@ -1078,7 +1078,7 @@ will have white space removed from them. So, '\#<named parameter>'
 will be converted to '#<namedparameter>'.
 
 [[gcode:file-requirements]]
-== File Requirements (((File Requirements)))
+== File Requirements(((File Requirements)))
 
 A G-code file must contain one or more lines of G-code and be terminated
 with a <<mcode:m2-m30,Program End>>. Any G-code past the program end
@@ -1101,8 +1101,7 @@ The file must be created with a text editor like Gedit and not a word
 processor like Open Office Word Processor.
 
 [[gcode:file-size]]
-== File Size
-(((File Size)))
+== File Size(((File Size)))
 
 The interpreter and task are carefully written so that the only limit
 on part program size is disk capacity. The TkLinuxCNC and Axis interface
@@ -1203,15 +1202,14 @@ Line numbers offer no benefits. When line numbers are reported in
 error messages, the numbers refer to the line number in the file, not
 the N-word value.
 
-.Fromm _fr: Lorsque plusieurs systèmes de coordonnées sont déplacés
+.When several coordinate systems are moved
 
-Fromm _fr: Envisager le mode vitesse inverse du temps.
+Consider using the inverse time speed mode
 
-Fromm _fr: Parce que la signification d'un mot 'F' en mètres par minute varie selon
-les axes à déplacer et parce que la quantité de matière enlevée ne
-dépend pas que de la vitesse travail, il peut être plus simple
-d'utiliser G93, vitesse inverse du temps, pour atteindre l'enlèvement de
-matière souhaité.
+Because the meaning of an 'F' word in meters per minute varies depending on
+the axes to be moved and because the quantity of material removed does
+not depend only on the feed rate, it can be simpler to use G93, inverse
+speed of time, to achieve the removal of desired material.
 
 == Linear and Rotary Axis
 

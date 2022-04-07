@@ -27,7 +27,7 @@ la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
 d'un PC consiste à exécuter le test de latence RTAI.
 
 Lancer un test comme décrit au chapitre sur
-le <<cha:latency-testing,test de latence>>.
+le <<sec:latency-test,test de latence>>.
 
 === Connaître ce dont vos cartes de pilotage ont besoin
 

@@ -83,7 +83,7 @@ On the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
-[[sub:stepgen-parameters]]
+[[sec:stepgen-parameters]]
 === Stepgen Parameters(((HAL stepgen parameters)))
 
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.

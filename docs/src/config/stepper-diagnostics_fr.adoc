@@ -93,7 +93,7 @@ effet, si votre BASE_PERIOD était trop basse vous pourriez avoir des
 centaines de milliers de messages d'erreur par seconde si plus d'un
 était affiché.
 
-Plus d'informations <<cha:latency-testing,sur le test de latence.>>
+Plus d'informations <<sec:latency-test,sur le test de latence.>>
 
 == Tester
 

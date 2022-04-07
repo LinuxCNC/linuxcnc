@@ -656,7 +656,7 @@ requis par l'électronique, la fréquence maximum absolue est de un pas
 par 'BASE_PERIOD'. Ainsi, la 'BASE_PERIOD'  utilisée ici donnera une
 fréquence de pas maximum absolue de 20000
 pas par seconde. 50000ns est une valeur assez large. La plus petite
-valeur utilisable est liée au résultat <<cha:latency-testing,du test de latence>>,
+valeur utilisable est liée au résultat <<sec:latency-test,du test de latence>>,
 à la longueur des impulsions de pas nécessaire et à la vitesse du µP.
 Choisir une BASE_PERIOD trop basse peut amener à des messages
 'Unexpected realtime delay', des blocages ou des reboots spontanés.

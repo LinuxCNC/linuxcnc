@@ -242,7 +242,7 @@ al establecer el pin HAL '-out' TRUE, el pin físico estará bajo.
    en el mismo hilo, posterior a 'write'. Si '-reset' es TRUE, entonces
    la función 'reset' configurará el pin al valor de '-out-invert'. Esta
    puede usarse junto con 'doublefreq' de stepgen para producir un
-   paso por periodo. El <<sub:stepgen-parameters,stepgen steppace>> para ese pin
+   paso por periodo. El <<sec:stepgen,stepgen steppace>> para ese pin
    debe establecerse en 0 para habilitar doublefreq.
 
 Las funciones individuales se proporcionan para situaciones en las que un puerto

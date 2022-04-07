@@ -78,13 +78,13 @@ programmées.
 === Bouton d'effacement de bloc(((Bouton effacement de bloc)))
 
 Une machine à commande numérique peut être équipée d'un bouton d'effacement de
-bloc. Voir la section <<sec:block-delete-switch,effacement de bloc>>.
+bloc. Voir la section <<sub:block-delete-switch,effacement de bloc>>.
 
-[[sub:optional-program-stop]]
+[[sub:optional-program-stop-switch]]
 === Bouton d'arrêt optionnel du programme(((arrêt optionnel)))
 
 Une machine à commande numérique peut être équipée d'un bouton d'arrêt du programme.
-Voir la section <<sec:sub:optional-program-stop,arrêts optionnels>>.
+Voir la section <<sub:optional-program-stop,arrêts optionnels>>.
 
 == Composants de contrôle et de données
 
@@ -229,20 +229,20 @@ en position d'usinage.
 === Modes de contrôle de trajectoire[[sec:Modes-de-controle-trajectoires]]
 
 La machine peut être placée dans un de ces trois modes de contrôle de
-trajectoire: 
+trajectoire:
 
 * mode arrêt exact::
     En mode arrêt exact, le mobile s'arrête brièvement à la fin de chaque mouvement
     programmé.
-* mode trajectoire exacte:: 
+* mode trajectoire exacte::
     En mode trajectoire exacte, le mobile suit la trajectoire
     programmée aussi précisément que possible, ralentissant ou s'arrêtant
     si nécessaire aux angles vifs du parcours.
 * mode trajectoire continue avec tolérance optionnelle::
-    En mode trajectoire continue, les angles vifs du parcours peuvent être 
-    légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la 
-    tolérance, si elle est spécifiée). 
-    
+    En mode trajectoire continue, les angles vifs du parcours peuvent être
+    légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la
+    tolérance, si elle est spécifiée).
+
 Voir également les G-codes <<gcode:g61-g61.1,G61/G61.1>> et <<gcode:g64,G64>> des
 contrôles de trajectoire.
 
@@ -357,4 +357,3 @@ commentaires ne sont pas conservés lorsque le fichier est écrit.
 |5161 | 0.0 | G28 pom X
 |5162 | 0.0 | G28 pom Y
 |========================================
-
