@@ -201,7 +201,7 @@ ayant différents usages et différentes formes. Le seul type de nombre support�
 par les paramètres est le flottant, il n'y a pas de string, pas de boolean ni
 d'entier dans le G-code comme dans d'autres langages de programmation. Toutefois,
 les expressions logiques peuvent être formulées avec
-<<sec:Operateurs-Binaires,les opérateurs booléens>> ('AND', 'OR', 'XOR' et les
+<<gcode:binary-operators,les opérateurs booléens>> ('AND', 'OR', 'XOR' et les
 opérateurs de comparaison
 'EQ', 'NE', 'GT', 'GE', 'LT', 'LE') ainsi que 'MOD', 'ROUND', 'FUP' et 'FIX'
 <<gcode:functions,les fonctions>> qui supportent l'arithmétique entière.
@@ -227,7 +227,7 @@ Le comportement des paramètres non encore initialisés::
  . Les paramètres globaux non initialisés et les paramètres de sous-programmes
    inutilisés, retournent la valeur zéro quand ils sont utilisés dans une expression.
  . Les paramètres nommés signalent une erreur quand ils sont utilisés dans une
-expression.
+   expression.
 
 Le mode:: La plupart des paramètres sont en lecture/écriture et peuvent être
 assignés dans une instruction d'affectation. Cependant, pour beaucoup de
@@ -269,6 +269,7 @@ paramètre.
 
 Une valeur est stockée dans un paramètre avec l'opérateur = par
 exemple:
+
 ----
 #3 = 15 (la valeur 15 est stockée dans le paramètre numéro 3)
 ----
@@ -385,18 +386,13 @@ aux états internes de l'interpréteur et de la machine. Ils peuvent être utili
 dans les expressions quelconques, par exemple pour contrôler le flux d'un
 programme avec les instructions 'if-then-else'.
 
-
-* '#<_vmajor>' - Version majeure de LinuxCNC. Si la version courante est 2.5.2,
-2.5 est retourné.
-
-* '#<_vminor>' - Version mineure du LinuxCNC. Si la version courante est 2.6.2,
-0.2 est retourné.
-
-* '#<_line>' - Numéro de séquence. Si un fichier G-code est en cours, le numéro
-de la ligne courante est retourné.
-
-* '#<_motion_mode>' - Retourne le mode mouvement courant de l'interpréteur:
-
+ * '#<_vmajor>' - Version majeure de LinuxCNC. Si la version courante est 2.5.2,
+   2.5 est retourné.
+ * '#<_vminor>' - Version mineure du LinuxCNC. Si la version courante est 2.6.2,
+   0.2 est retourné.
+ * '#<_line>' - Numéro de séquence. Si un fichier G-code est en cours, le numéro
+   de la ligne courante est retourné.
+ * '#<_motion_mode>' - Retourne le mode mouvement courant de l'interpréteur:
 [width="20%",options="header"]
 |========================================
 |Mode mouvement | Valeur retournée
@@ -422,7 +418,7 @@ de la ligne courante est retourné.
 |G88| 880
 |G89| 890
 |========================================
-* '#<_plane>' - Retourne une valeur désignant le plan courant:
+ * '#<_plane>' - Retourne une valeur désignant le plan courant:
 [width="20%",options="header"]
 |========================================
 |Plan | Valeur retournée
@@ -434,7 +430,7 @@ de la ligne courante est retourné.
 |G19.1| 191
 |========================================
 
-* '#<_ccomp>' - Statut de la compensation d'outil. Retourne une valeur:
+ * '#<_ccomp>' - Statut de la compensation d'outil. Retourne une valeur:
 [width="20%",options="header"]
 |========================================
 |Mode | Valeur retournée
@@ -446,24 +442,17 @@ de la ligne courante est retourné.
 |G42.1 | 421
 |========================================
 
-* '#<_metric>' - Retourne 1 si G21 est 'on', sinon 0.
-
-* '#<_imperial>' - Retourne 1 si G20 est 'on', sinon 0.
-
-* '#<_absolute>' - Retourne 1 si G90 est 'on', sinon 0.
-
-* '#<_incremental>' - Retourne 1 si G91 est 'on', sinon 0.
-
-* '#<_inverse_time>' - Retourne 1 si le mode inverse du temps (G93) est 'on',
-sinon 0.
-
-* '#<_units_per_minute>' - Retourne 1 si le mode unités par minute (G94) est 'on',
-sinon 0.
-
-* '#<_units_per_rev>' - Retourne 1 si le mode Unités par tour (G95) est 'on',
-sinon 0.
-
-* '#<_coord_system>' - Retourne l'index du système de coordonnées courant (G54 à G59.3).
+ * '#<_metric>' - Retourne 1 si G21 est 'on', sinon 0.
+ * '#<_imperial>' - Retourne 1 si G20 est 'on', sinon 0.
+ * '#<_absolute>' - Retourne 1 si G90 est 'on', sinon 0.
+ * '#<_incremental>' - Retourne 1 si G91 est 'on', sinon 0.
+ * '#<_inverse_time>' - Retourne 1 si le mode inverse du temps (G93) est 'on',
+   sinon 0.
+ * '#<_units_per_minute>' - Retourne 1 si le mode unités par minute (G94) est 'on',
+   sinon 0.
+ * '#<_units_per_rev>' - Retourne 1 si le mode Unités par tour (G95) est 'on',
+   sinon 0.
+ * '#<_coord_system>' - Retourne l'index du système de coordonnées courant (G54 à G59.3).
 [width="20%",options="header"]
 |========================================
 |Mode | Valeur retournée
@@ -478,11 +467,9 @@ sinon 0.
 |G59.3|8
 |========================================
 
-* '#<_tool_offset>' - Retourne 1 si l'offset d'outil (G43) est 'on', sinon 0.
-
-* '#<_retract_r_plane>' - Retourne 1 si G98 est actif, sinon 0.
-
-* '#<_retract_old_z>' - Retourne 1 si G99 est 'on', sinon 0.
+ * '#<_tool_offset>' - Retourne 1 si l'offset d'outil (G43) est 'on', sinon 0.
+ * '#<_retract_r_plane>' - Retourne 1 si G98 est actif, sinon 0.
+ * '#<_retract_old_z>' - Retourne 1 si G99 est 'on', sinon 0.
 
 [[sec:Parametres-Systeme]]
 [[sub:system-parameters]]
@@ -559,7 +546,6 @@ est évaluée pour produire un nombre. Les expressions sur une ligne sont
 éxécuté sur cette ligne.
 Un exemple d'expression: '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
-[[sec:Operateurs-Binaires]]
 [[gcode:binary-operators]]
 == Opérateurs binaires
 (((Opérateurs binaires)))

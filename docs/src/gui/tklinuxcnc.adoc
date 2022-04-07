@@ -239,7 +239,7 @@ following table.
 
 [[cap:common-keyboard-shortcuts]]
 .Most Common Keyboard Shortcuts(((TkLinuxCNC Common Keyboard Shortcuts)))
-[width="75%", options="header", cols="1^,3<"]
+[width="75%",options="header",cols="1^,3<"]
 |========================================
 |Keystroke    | Action Taken
 |F1           | Toggle Emergency Stop

@@ -15,13 +15,14 @@ portable (elle fonctionne sur une multitude de plateformes).
 
 [[cap:tklinuxcnc-display]]
 .L'affichage de TkLinuxCNC
-image::images/tklinuxcnc_fr.png["L'affichage de TkLinuxCNC"]
+image::images/tklinuxcnc_fr.png["L'affichage de TkLinuxCNC",align="center"]
 
 == Utiliser TkLinuxCNC
 
 Pour sélectionner l'interface graphique TkLinuxCNC avec LinuxCNC, éditer le
 fichier .ini et dans la section [DISPLAY] modifier l'affichage comme
 ci-dessous:
+
 ----
 DISPLAY = tklinuxcnc
 ----
@@ -129,11 +130,10 @@ Quand la machine se déplace, elle laisse un tracé appelé parcours
 d'outil. La fenêtre d'affichage du parcours d'outil s'active via le
 menu _Vues → Parcours d'outil_.
 
+[[cap:tklinuxcnc-interpreter]]
 === Contrôle en automatique
 
-[[cap:tklinuxcnc-interpreter]]
 .Interpréteur de TkLinuxCNC
-
 image::images/tklinuxcnc_interp_fr.png[alt="Interpréteur de TkLinuxCNC"]
 
 ==== Boutons de contrôle
@@ -191,7 +191,6 @@ s'affiche en rouge.
 
 [[cap:override-limits]]
 .Exemple de dépassement de limite et incréments de jog
-
 image::images/tkemc-override-limits.png[alt="Exemple de dépassement de limite et incréments de jog"]
 
 ==== Le groupe de boutons _Broche_(((broche)))
@@ -215,7 +214,6 @@ d'exécuter des lignes de G-code, une à la fois. Quand la machine n'est
 pas en marche ni mise en mode MDI, l'entrée de code n'est pas possible.
 
 .Le champ de saisie des entrées manuelles
-
 image::images/tkemc-mdi.png[alt="Le champ de saisie des entrées manuelles"]
 
 docs: image alt-tags added
@@ -265,8 +263,7 @@ la table ci-dessous.
 
 [[cap:common-keyboard-shortcuts]]
 .Les raccourcis clavier les plus utilisés
-
-[width="90%", options="header"]
+[width="90%", options="header",cols="1^,3<"]
 |========================================
 |Touche           | Action
 |F1               | Bascule de l'Arrêt d'Urgence
