@@ -9,7 +9,7 @@ In this way you can select what features you want - yet don't have to build comm
 == STATUS
 
 STATUS is a library that sends GObject messages based on LinuxCNC's current state. +
-It is an extension of gladevcp's GStat object. <<cha:GStat,GStats>>
+It is an extension of gladevcp's GStat object. <<cha:gstat,GStats>>
 
 It also has some functions to give status on such things as internal jog rate. +
 You connect a function call to the STATUS message you are interested in. +
@@ -86,7 +86,7 @@ MACHINE_IS_LATHE = False
 MACHINE_IS_METRIC = False
 MACHINE_UNIT_CONVERSION = 1
 MACHINE_UNIT_CONVERSION_9 = [1]*9
-TRAJ_COORDINATES = 
+TRAJ_COORDINATES =
 JOINT_COUNT = int(self.INI.find("KINS","JOINTS")or 0)
 AVAILABLE_AXES = ['X','Y','Z']
 AVAILABLE_JOINTS = [0,1,2]
@@ -106,12 +106,12 @@ DEFAULT_LINEAR_JOG_VEL = 15 units per minute
 MIN_LINEAR_JOG_VEL = 60 units per minute
 MAX_LINEAR_JOG_VEL = 300 units per minute
 
-DEFAULT_ANGULAR_JOG_VEL = 
-MIN_ANGULAR_JOG_VEL = 
-MAX_ANGULAR_JOG_VEL = 
+DEFAULT_ANGULAR_JOG_VEL =
+MIN_ANGULAR_JOG_VEL =
+MAX_ANGULAR_JOG_VEL =
 
-MAX_FEED_OVERRIDE = 
-MAX_TRAJ_VELOCITY = 
+MAX_FEED_OVERRIDE =
+MAX_TRAJ_VELOCITY =
 
 AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
 DEFAULT_SPINDLE_0_SPEED = 200
@@ -137,7 +137,7 @@ self.GLADEVCP = (self.INI.find("DISPLAY", "GLADEVCP")) or None
 TAB_NAMES = (self.INI.findall("DISPLAY", "EMBED_TAB_NAME")) or None
 TAB_LOCATION = (self.INI.findall("DISPLAY", "EMBED_TAB_LOCATION")) or []
 TAB_CMD = (self.INI.findall("DISPLAY", "EMBED_TAB_COMMAND")) or None
-ZIPPED_TABS = 
+ZIPPED_TABS =
 
 MDI_COMMAND_LIST =      (heading: [MDI_COMMAND_LIST], title: MDI_COMMAND")
 TOOL_FILE_PATH =        (heading: [EMCIO], title:TOOL_TABLE)
@@ -276,7 +276,7 @@ ACTION.SET_MIST_OFF()
 
 ACTION.RELOAD_TOOLTABLE()
 ACTION.UPDATE_VAR_FILE()
-    
+
 ACTION.TOGGLE_OPTIONAL_STOP()
 ACTION.SET_OPTIONAL_STOP_ON()
 ACTION.SET_OPTIONAL_STOP_OFF()
@@ -570,7 +570,7 @@ These are defined in the INI file and controlled by HAL pins. +
 Status messages will be shown in the status bar and the notify dialog. +
 it requires no user intervention. +
 ok messages require the user to click ok to close the dialog. +
-ok messages have one HAL pin to launch the dialog and one to signify it's waiting 
+ok messages have one HAL pin to launch the dialog and one to signify it's waiting
 for response. +
 yes/no messages require the user to select yes or no buttons to close the dialog. +
 yes/no messages have three hal pins - one to show the dialog, one for waiting, +
@@ -629,7 +629,7 @@ This module allows one to load and save preference data permanently to storage m
 The screenoptions widget can automatically set up the preference system. +
 qtvcp searches for the screenoption widget first and if found calls _pref_init(). +
 This will create the preference object and return it to qtvcp to pass to all the widgets and +
-add it to the window object attributes. In this case the preferences object would be accesable + 
+add it to the window object attributes. In this case the preferences object would be accesable +
 from the handler file's initialized_ method as self.w.PREFS_ +
 Also all widgets can have access to a specific preference file at initialization time. +
  +
@@ -863,7 +863,7 @@ You can either read a pin from a component owned by the vismach object or, +
 if the component argument is set to None, read a HAL system pin directly.
 
 === HalToolCylinder
-This object will build a CylinderZ object that will change size and length based on 
+This object will build a CylinderZ object that will change size and length based on
 loaded tool dimensition (from the tool table) +
 It reads the HAL pins: 'halui.tool.diameter' and 'motion.tooloffset.z'
 
@@ -884,7 +884,7 @@ move and rotate an object to point from one capture()'d coordinate system to ano
 Base object to hold coordinates for primitive shapes.
 
 ==== CylinderX, CylinderY, CylinderZ
-build a cylinder on the X (or Y or Z) axis by giving endpoint X (or Y, or Z) and radii coordinates. 
+build a cylinder on the X (or Y or Z) axis by giving endpoint X (or Y, or Z) and radii coordinates.
 
 ==== Sphere
 build a sphere from center and radius coordinates.
@@ -893,7 +893,7 @@ build a sphere from center and radius coordinates.
 build a triangle in the soecified plane by giving the corners Z coordinates for each side
 
 ==== ArcX
-build an arc by specifying 
+build an arc by specifying
 
 ==== Box
 Build a box specified by the 6 coordinates
