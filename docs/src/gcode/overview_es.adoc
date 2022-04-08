@@ -588,7 +588,7 @@ a los valores de las entradas del archivo INI y a los pines HAL.
 * '#<_ini[section]name>' Devuelve el valor del elemento correspondiente en el archivo INI.
 Por ejemplo, si el archivo ini se ve así:
 
-[source,{ini}]
+[source,ini]
 ---------------------------------------------------------------------
 [SETUP]
 XPOS = 3.145
@@ -600,7 +600,7 @@ puede referirse a los parámetros nombrados `#<_ini[setup]xpos>` y
 
 `EXISTS` puede usarse para probar la presencia de una variable en el archivo ini dado:
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 o100 if [EXISTS[#<_ini[setup]xpos>]]
   (debug, [setup]xpos existe: #<_ini[setup]xpos>)
@@ -625,7 +625,7 @@ Una forma de hacerlo es con un comando M66 ficticio: M66E0L0
 
 Ejemplo:
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 (debug, #<_hal[motion-controller.time]>)
 ---------------------------------------------------------------------
@@ -635,7 +635,7 @@ a los nombres HAL en minúsculas.
 
 `EXISTS` se puede usar para probar la presencia de un elemento HAL dado:
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 o100 if [EXISTS[#<_hal[motion-controller.time]>]]
   (debug, [motion-controller.time] existe: #<_hal[motion-controller.time]>)
@@ -1139,7 +1139,7 @@ desde programas anteriores y desde los comandos MDI.
 
 Preámbulo de ejemplo para una fresadora.
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 G17 G20 G40 G49 G54 G80 G90 G94
 ---------------------------------------------------------------------

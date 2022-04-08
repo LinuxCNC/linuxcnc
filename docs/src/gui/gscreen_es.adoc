@@ -521,7 +521,7 @@ y uno para la respuesta. +
 
 Aquí hay un código INI de muestra. Estaría bajo el encabezado [DISPLAY]. +
 
-[source,{ini}]
+[source,ini]
 ----
 # Esto solo se muestra en la barra de estado y en la ventana emergente de notificación del escritorio.
 MESSAGE_BOLDTEXT = NONE
