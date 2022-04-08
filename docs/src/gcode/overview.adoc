@@ -588,7 +588,7 @@ to the values of INI file entries and HAL pins.
 
 For example, if the ini file looks like so:
 
-[source,{ini}]
+[source,ini]
 ---------------------------------------------------------------------
 [SETUP]
 XPOS = 3.145
@@ -601,7 +601,7 @@ you may refer to the named parameters `#<_ini[setup]xpos>` and
 `EXISTS` can be used to test for presence of a given ini file
 variable:
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 o100 if [EXISTS[#<_ini[setup]xpos>]]
   (debug, [setup]xpos exists: #<_ini[setup]xpos>)
@@ -626,7 +626,7 @@ One way to do this is with a dummy M66 command: M66E0L0
 
 Example:
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 (debug, #<_hal[motion-controller.time]>)
 ---------------------------------------------------------------------
@@ -636,7 +636,7 @@ names can be accessed this way.
 
 `EXISTS` can be used to test for the presence of a given HAL item:
 
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 o100 if [EXISTS[#<_hal[motion-controller.time]>]]
   (debug, [motion-controller.time] exists: #<_hal[motion-controller.time]>)
@@ -1174,7 +1174,7 @@ over from previous programs and from the MDI commands.
 
 .Example Preamble for a Mill
 
-[source,{ngc}]
+[source,ngc]
 ----
 G17 G20 G40 G49 G54 G80 G90 G94
 ----
