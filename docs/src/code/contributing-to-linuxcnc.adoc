@@ -94,7 +94,7 @@ For a more thorough documentation of git see the "Pro Git" book:
 http://git-scm.com/book
 
 Another online tutorial that has been recommended is "Git for the Lazy":
-http://wiki.spheredev.org/Git_for_the_lazy
+https://wiki.spheredev.org/index.php/Git_for_the_lazy
 
 == Overview of the process
 
@@ -241,24 +241,23 @@ This will either report 'All's well' or 'Broke on <commit>'
 
 ===  Renaming files
 
-Please use the ability to rename files very cautiously.  Like running
+Please use the ability to rename files very cautiously. Like running
 indent on single files, renames still make it more difficult to follow
-changes over time.  At a minimum, you should seek consensus on irc or
+changes over time. At a minimum, you should seek consensus on irc or
 the mailing list that the rename is an improvement.
 
 ===  Prefer "rebase"
 
 Use `git pull --rebase` instead of bare `git pull` in order to keep a
-nice linear history.  When you rebase, you always retain your work as
+nice linear history. When you rebase, you always retain your work as
 revisions that are ahead of origin/master, so you can do things like
 `git format-patch` them to share with others without pushing to the
 central repository.
 
-
 == Translations
 
-The LinuxCNC project uses gettext to translate the software into
-many languages.  We welcome contributions and help in this area!
+The LinuxCNC project uses `gettext` to translate the software into
+many languages. We welcome contributions and help in this area!
 Improving and extending the translations is easy: you don't need to know
 any programming, and you don't need to install any special translation
 programs or other software.
@@ -277,8 +276,8 @@ poedit, and many more.
 
 == Other ways to contribute
 
-There are many ways  to contribute to LinuxCNC, that are not addressed
-by this document.  These ways include:
+There are many ways to contribute to LinuxCNC, that are not addressed
+by this document. These ways include:
 
 * Answering questions on the forum, mailing lists, and in IRC
 * Reporting bugs on the bug tracker, forum, mailing lists, or in IRC
