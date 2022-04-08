@@ -511,7 +511,7 @@ autour de l'appel d'un sous-programme utilisant 'M70' et 'M72'. Noter que
 le sous-programme 'imperialsub' n'est pas "au courant" des caractéristiques de
 M7x et peut être utilisé non modifié:
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -563,7 +563,7 @@ mais qui protège le programme appelant contre tout changement inopiné de
 l'état modal. Noter l'usage de <<gcode:named-parameters,paramètres nommés>> dans
 le sous-programme 'showstate'.
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -608,7 +608,7 @@ les modes à restaurer au début du sous-programme et de restaurer ceux-ci avant
 de quitter. Voici un exemple, basé sur le programme
 'nc_files/tool-length-probe.ngc':
 
-[source,{ngc}]
+[source,ngc]
 ----
 O<measure> sub   (measure reference tool)
 ;
