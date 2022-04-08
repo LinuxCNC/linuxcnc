@@ -741,6 +741,14 @@ class NgcGui(QtWidgets.QWidget):
                     fname.write(line)
         return(ct)
 
+    def warp_info_frame(self, newLayout):
+        """ Convience function to move the info frame to another layout"""
+        newLayout.addWidget(self.frame_info)
+
+    def warp_tabs_frame(self, newLayout):
+        """ Convience function to move the tabs frame to another layout"""
+        newLayout.addWidget(self.frame_tabs)
+
 ##################
 # Global functions
 ##################
