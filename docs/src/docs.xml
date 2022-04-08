@@ -1,7 +1,7 @@
 <docs>
 
 <docgroup lang="en" index="index.html">
-<doc name="html_gcode" title="G-code quick reference">
+<doc name="html_gcode" title="G-code quick reference"/>
 
 <doc name="common_emc2-intro" title="Overleaf Image"/>
 <doc name="common_overleaf" title="Overleaf Text"/>
