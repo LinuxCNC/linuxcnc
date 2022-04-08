@@ -15,11 +15,11 @@ Details of the filter can be found in `./doc/source-highlight-filter.txt`.
 :ngc: {basebackend@docbook:'':ngc}
 
 // begin a listing of ini/hal/ngc files like so:
-//[source,{ini}]
-//[source,{hal}]
-//[source,{ngc}]
+//[source,ini]
+//[source,hal]
+//[source,ngc]
 
-[source,{ini}]
+[source,ini]
 ---------------------------------------------------------------------
 
 # EMC controller parameters for a simulated machine.
