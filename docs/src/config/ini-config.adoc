@@ -162,7 +162,7 @@ To use the custom variables in G-code, use the global variable syntax
 Z-axis touch-off routine for a router or mill using a probe plate.
 
 .G-code Example
-[source,{ngc}]
+[source,ngc]
 ---------------------------------------------------------------------
 G91
 G38.2 Z#<_ini[probe]z_safe_distance> F#<_ini[probe]z_feedrate>
