@@ -25,11 +25,23 @@ QtDragon and QtVcp are relatively new programs added into linuxcnc.
 Bugs and oddities are possible. Please test carefully when using a
 dangerous machine. Please forward reports to the forum or maillist.
 
+=== Qtdragon
 .qtdragon - 3 or 4 Axis Sample (1440x860) in silver theme
 image::images/silverdragon.png["QTDragon Router",scale="25%"]
 
+Qtdragon has a resolution of 1440x900 and is not realizable. +
+It will work in window mode on
+any monitor with higher resolution but not on monitors with lower resolution.
+
+=== Qtdragon_hd
 .qtdragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
 image::images/qtdragon_hd.png["QTDragon_hd",scale="25%"]
+
+Qtdragon_hd is a similar design as Qtdragon but modified to utilize the extra space of modern larger monitors. +
+There are some small differences in layout and utility. +
+Qtdragon_hd has a resolution of 1920x1056 and is not realizable. +
+It will work in window mode on
+any monitor with higher resolution but not on monitors with lower resolution.
 
 == Getting Started
 
@@ -202,10 +214,11 @@ QtDragon has two optional probing tab screens:
 USE_PROBE = basicprobe
 ----
 
-QtDragon has two convenience buttons for moving between
-current user system origin (zero point) and Machine system origin
-These could also call OWord routines if desired.
-user origin is the first MDI command in the list, machine origin is the second.
+QtDragon has two convenience macro buttons. (QtDragon_hd has up to ten macro buttons available.) +
+By default they are labelled for moving between
+current user system origin (zero point) and Machine system origin. +
+These could also call OWord routines if desired. +
+User origin is the first MDI command in the INI list, machine origin is the second. +
 This example shows how to move Z axis up first. the commands are separated by the ;
 
 [source,{ini}]
@@ -216,7 +229,7 @@ MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0
 ----
 
 The sample configuration
-'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use QtDragon as its front-end.
+'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use QtDragon as its front-end. +
 There are several others, to demonstrate different machine configurations.
 
 == Key Bindings
@@ -618,7 +631,54 @@ The LASER ON/OFF button in intended to turn an output on or off which is connect
 When the crosshair is positioned over a desired reference point on the workpiece, the REF LASER button can be pushed which then sets
 the X and Y offsets to the values indicated by the LASER OFFSET fields in the Settings page and the INI file.
 
-== Setup Tab
+== Tabs Description
+Tabs allow the user to select the most appropriate info/control on the top three panels. +
+If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, +
+they can do that by pressing the current show tab. +
+
+=== Main tab
+This tab displays the graphical representation of the current program. +
+The side buttons will control the display. +
+
+* 'User View': Select/restore a user set view of the current program
+* 'P','X','Y','Z': Set standard views
+* 'D': Toggle display of dimensions
+* '+', '-': Zoom controls
+* 'C': Clear graphics of tool movement lines
+
+In Qtdragon_hd there are also macro buttons available on the right side. +
+Up to tens buttons can be defined in the INI. +
+
+=== File Tab
+You can use this tab to load or transfer programs. +
+Editing of Gcode programs can be selected from this tab. _
+
+=== Offsets Tab
+You can monitor/modify system offsets from this tab.
+there are convenience buttons for zeroing the rotation.G92 and current G5x user offset.
+=== Tool Tab
+You can monitor/modify tool offsets from this tab. +
+Adding and deleting tools from the tool file can also be done from this tab. +
+
+=== Status Tab
+A time-stamped log of important machine or system events will be shown here. +
+Machine events would be more suited to an operator, where the system events may help in debugging problems. 
+
+=== Probe Tab
+Probing routines options are displayed on this tab. Depending on INI options, this could be +
+VersaProbe or BasicProbe style. They are functionally similar. +
+Qtdragon_hd will also show a smaller graphics display window.
+
+=== Camview Tab
+If the recognized webcam is connected, this tab will display the video image overlayed with a cross-hair +
+, circle and degree readout. This can be adjusted to suit a part feature for such things as touchoff. +
+The underlying library uses openCV python module to connect to the webcam. +
+
+=== Gcodes Tab
+This tab will display a list of linuxcnc's gcode. +
+if you click on a line, a description of the code will be displayed. +
+
+=== Setup Tab
 
 It's possible to load Html or PDF file (.html ending) with setup notes.
 HTML docs will be displayed in the setup tab and PDF will launch the system PDF Viewer.
@@ -628,6 +688,16 @@ If you load a G-code program and there is an HTML/PDF file of the same name, it 
 .qtdragon - Setup Tab Sample
 image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
 
+=== Settings Tab
+The settings tab is used to set running options, probing/touchplate/laser/camera offsets and load debugging external programs. +
+
+=== Utilities Tab
+This tabs will display another stab election of gcode utility programs. +
+
+* 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees
+* 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
+* 'NgcGui': is a Qtvcp version of the popular gcode subroutine builder/selector.
+
 == Styles
 
 Nearly all aspects of the GUI appearance are configurable via the qtdragon.qss stylesheet file. The file can be edited manually or
@@ -636,14 +706,6 @@ temporarily and then saved to a new qss file, or overwrite the current qss file.
 
 .qtdragon - Two Style Examples
 image::images/style-comparison.png["QtDragon styles",scale="25%"]
-
-== Screen resolution
-
-This GUI was initially developed for a screen with 1440 x 900 resolution.
-QtDragon_hd has a resolution of 1920 x 1056.
-They are not resizable. They will work in window mode on
-any monitor with higher resolution but not on monitors with lower resolution.
-
 
 == Customization
 
