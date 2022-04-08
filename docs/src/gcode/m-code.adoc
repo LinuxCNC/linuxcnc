@@ -110,7 +110,7 @@ Use $-1 to operate on all active spindles.
 This example will start spindles 0, 1, and 2 simultaneously at different
 speeds:
 
-[source,ngc]
+[source,{ngc}]
 ----
 S100 $0
 S200 $1
@@ -120,14 +120,14 @@ M3 $-1
 
 This example will then reverse spindle 1 but leave the other spindles
 rotating forwards:
-[source,ngc]
+[source,{ngc}]
 ----
 M4 $1
 ----
 
 And this will stop spindle 2 and leave the other spindles rotating:
 
-[source,ngc]
+[source,{ngc}]
 ----
 M5 $2
 ----
@@ -549,7 +549,7 @@ modal state around a subroutine call using 'M70' and 'M72'. Note that
 the 'imperialsub' subroutine is not "aware" of the M7x features and can be
 used unmodified:
 
-[source,ngc]
+[source,{ngc}]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -601,7 +601,7 @@ against inadvertent modal changes. Note the use of
 <<gcode:predefined-named-parameters, predefined named parameters>> in
 the 'showstate' subroutine.
 
-[source,ngc]
+[source,{ngc}]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absolute=#<_absolute> feed=#<_feed> rpm=#<_rpm>)
@@ -652,7 +652,7 @@ statements. The idea is to remember the modes to be restored at the
 beginning of the subroutine, and restore these before exiting. Here is
 an example, based on snippet of 'nc_files/tool-length-probe.ngc':
 
-[source,ngc]
+[source,{ngc}]
 ----
 O<measure> sub   (measure reference tool)
 ;

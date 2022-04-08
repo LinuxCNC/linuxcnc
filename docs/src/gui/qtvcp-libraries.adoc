@@ -586,7 +586,7 @@ These will silently fail if those options are not set up. +
 
 Here is a sample INI code. It would be under the [DISPLAY] heading. +
 
-[source,ini]
+[source,{ini}]
 ----
 # This just shows in the status bar and desktop notify popup.
 MESSAGE_BOLDTEXT = NONE
