@@ -1,4 +1,4 @@
-﻿:lang: es
+:lang: es
 
 [[cha:stepper-diagnostics]]
 = Diagnósticos para steppers

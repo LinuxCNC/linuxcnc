@@ -1,4 +1,4 @@
-﻿:lang: es
+:lang: es
 
 [[cha:g-code-overview]]
 = Descripcion general del codigo G

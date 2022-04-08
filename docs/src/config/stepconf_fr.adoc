@@ -1,4 +1,4 @@
-﻿:lang: fr
+:lang: fr
 
 [[cha:stepconf-wizard]](((Assistant stepconf)))
 = Assistant graphique de configuration StepConf

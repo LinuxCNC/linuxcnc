@@ -1,4 +1,4 @@
-﻿:lversion: {sys: cat ../VERSION}
+:lversion: {sys: cat ../VERSION}
 :date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
 Manual del Desarrollador V{lversion}, {date}
 ============================================

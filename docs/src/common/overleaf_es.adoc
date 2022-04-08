@@ -1,4 +1,4 @@
-﻿:lang: es
+:lang: es
 
 Este manual es un trabajo en progreso. Si puedes ayudar con
 redacción, edición o preparación gráfica, comuníquese con cualquier miembro

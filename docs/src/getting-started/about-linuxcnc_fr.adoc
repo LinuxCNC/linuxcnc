@@ -1,4 +1,4 @@
-﻿:lang: fr
+:lang: fr
 
 = À propos du logiciel LinuxCNC
 

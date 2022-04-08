@@ -1,4 +1,4 @@
-﻿[[cha:updating-linuxcnc]]
+[[cha:updating-linuxcnc]]
 
 = 更新LinuxCNC
 
