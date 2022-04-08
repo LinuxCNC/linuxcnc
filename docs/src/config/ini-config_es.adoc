@@ -163,7 +163,7 @@ Para usar las variables personalizadas en el código G, use la sintaxis de varia
 rutina touch-off del eje Z para una fresadora o fresadora que utiliza una placa de sonda.
 
 .Ejemplo de código G
-[source,ngc]
+[source,{ngc}]
 ----
 G91
 G38.2 Z#<_ini[probe]z_safe_distance> F#<_ini[probe]z_feedrate>

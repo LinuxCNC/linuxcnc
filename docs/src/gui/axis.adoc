@@ -42,7 +42,7 @@ Configuration Chapter.
 Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
 (will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens)
 
-[source,ini]
+[source,{ini}]
 ----
 [DISPLAY]
 CYCLE_TIME = 100

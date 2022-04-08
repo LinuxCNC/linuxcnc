@@ -1,7 +1,6 @@
 :lang: en
 
-Source Highlight Filter Test
-=============================
+= Source Highlight Filter Test
 
 // for now, PDF's can't have highlighted ini,hal or ngc files
 // for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
@@ -14,14 +13,13 @@ Source Highlight Filter Test
 :ngc: {basebackend@docbook:'':ngc}
 
 // begin a listing of ini/hal/ngc files like so:
-//[source,ini]
-//[source,hal]
-//[source,ngc]
+//[source,{ini}]
+//[source,{hal}]
+//[source,{ngc}]
 
-Details of the filter can be found in
-`./doc/source-highlight-filter.txt`.
+Details of the filter can be found in `./doc/source-highlight-filter.txt`.
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 ; G-code highlighting stresstest - useless otherwise
 ;

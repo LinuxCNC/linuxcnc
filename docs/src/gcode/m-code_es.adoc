@@ -113,7 +113,7 @@ Use $-1 para operar en todos los husillos activos.
 
 Este ejemplo iniciará los husillos 0, 1 y 2 simultáneamente a diferentes
 velocidades:
-[source,ngc]
+[source,{ngc}]
 ----
 S100 $0
 S200 $1
@@ -123,13 +123,13 @@ M3 $-1
 
 Este ejemplo invertirá el husillo 1 pero dejará los otros husillos.
 girando hacia adelante:
-[source,ngc]
+[source,{ngc}]
 ----
 M4 $1
 ----
 
 Y esto detendrá el husillo 2 y dejará rotar a los otros husillos:
-[source,ngc]
+[source,{ngc}]
 ----
 M5 $2
 ----
@@ -569,7 +569,7 @@ estado modal alrededor de una llamada de subrutina usando 'M70' y 'M72'. Tenga e
 la subrutina 'imperialsub' no es "consciente" de las características de M7x y puede ser
 usado sin modificar:
 
-[source,ngc]
+[source,{ngc}]
 ----
 O <showstate> sub
 (DEBUG, imperial=#<_imperial> absoluto=#<_absolute> avance=#<_feed> rpm=#<_rpm>)
@@ -622,7 +622,7 @@ contra cambios modales involuntarios. Tenga en cuenta el uso de
 <<gcode:predefined-named-parameters,parámetros con nombre predefinidos>> en
 la subrutina 'showstate'.
 
-[source,ngc]
+[source,{ngc}]
 ----
 O<showstate> sub
 (DEBUG, imperial=#<_imperial> absoluto=#<_absolute> avance=#<_feed> rpm=#<_rpm>)
@@ -672,7 +672,7 @@ La idea es recordar los modos que se restaurarán en el
 comienzo de la subrutina y restaurar estos antes de salir. Aquí está
 un ejemplo, basado en el fragmento de 'nc_files/tool-length-probe.ngc':
 
-[source,ngc]
+[source,{ngc}]
 ----
 O<measure> sub (medida de herramienta de referencia)
 ;

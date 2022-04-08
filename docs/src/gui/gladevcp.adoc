@@ -300,7 +300,7 @@ section, this will not have the desired effect - see the following sections.
 Place the GladeVCP panel in the righthand side panel by specifying the
 following in the ini file:
 
-[source,ini]
+[source,{ini}]
 ----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
@@ -328,7 +328,7 @@ the above command line options.
 
 It is possible to create a custom HAL component name by adding the +-c+ option:
 
-[source,ini]
+[source,{ini}]
 ----
 [DISPLAY]
 # add GladeVCP panel where PyVCP used to live:
@@ -359,7 +359,7 @@ using a run-in-place setup.
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:
 
-[source,ini]
+[source,{ini}]
 ----
 [DISPLAY]
 # add GladeVCP panel as a tab next to Preview/DRO:
@@ -399,7 +399,7 @@ both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
 
 To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
 
-[source,ini]
+[source,{ini}]
 ----
 [DISPLAY]
 # add GladeVCP panel as a tab

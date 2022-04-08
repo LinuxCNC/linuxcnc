@@ -76,7 +76,7 @@
 <doc name="gui_gladevcp" title="Glade Virtual Control Panel"/>
 <doc name="gui_gscreen" title="Gscreen"/>
 <doc name="gui_qtvcp" title="QTvcp"/>
-<doc name="gui_qtvcp-VCPpanels" title="QTvcp VCP Panels"/>
+<doc name="gui_qtvcp-vcp-panels" title="QTvcp VCP Panels"/>
 <doc name="gui_qtvcp-widgets" title="QTvcp Widgets"/>
 <doc name="gui_qtvcp-libraries" title="QTvcp Libraries"/>
 <doc name="gui_qtvcp-vismach" title="QTvcp Vismach"/>
@@ -270,4 +270,3 @@
 </docgroup>
 
 </docs>
-
