@@ -4,6 +4,12 @@
 [[cha:GladeVCP]]
 = Création d'interfaces graphiques avec GladeVCP
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Qu'est-ce que GladeVCP?
 
 GladeVCP est un composant de LinuxCNC qui donne la possibilité d'ajouter 

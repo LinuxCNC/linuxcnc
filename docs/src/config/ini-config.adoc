@@ -3,6 +3,12 @@
 [[cha:ini-configuration]]
 = INI Configuration(((INI Configuration)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == The INI File Components
 
 A typical INI file follows a rather simple layout that includes;
@@ -14,9 +20,7 @@ A typical INI file follows a rather simple layout that includes;
 Each of these elements is separated on single lines. Each end of line
 or newline character creates a new element.
 
-(((INI File, Comments)))
-
-=== Comments
+=== Comments(((INI File, Comments)))
 
 A comment line is started with a ; or a # mark. When the ini reader
 sees either of these marks at the start a line, the rest of the line is

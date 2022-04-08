@@ -3,7 +3,13 @@
 [[cha:qtvcp-libraries]]
 = QTvcp Libraries modules
 
-libraries are prebuilt python modules that give added features to QTvcp. +
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
+Libraries are prebuilt python modules that give added features to QTvcp. +
 In this way you can select what features you want - yet don't have to build common ones yourself. +
 
 == STATUS

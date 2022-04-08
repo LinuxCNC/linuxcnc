@@ -101,7 +101,7 @@ DOC_SRCS_EN := \
 	gui/gscreen.adoc \
 	gui/qtdragon.adoc \
 	gui/qtvcp.adoc \
-	gui/qtvcp-VCPpanels.adoc \
+	gui/qtvcp-vcp-panels.adoc \
 	gui/qtvcp-widgets.adoc \
 	gui/qtvcp-libraries.adoc \
 	gui/qtvcp-vismach.adoc \
@@ -662,4 +662,3 @@ docs:
 	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
 
 endif
-
