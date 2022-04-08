@@ -232,13 +232,13 @@ USE_PROBE = basicprobe
 
 === Macro Buttons
 
-QtDragon has up to ten convenient macro buttons. +
+QtDragon has up to ten convenient macro buttons.
 In the sample configurations they are labelled for moving between
-current user system origin (zero point) and Machine system origin. +
-User origin is the first MDI command in the INI list, machine origin is the second. +
-These could also call OWord routines if desired. +
-This example shows how to move Z axis up first. the commands are separated by the ';' +
-The label is set after the comma. The symbols '\n' adds a line break. +
+current user system origin (zero point) and Machine system origin.
+User origin is the first MDI command in the INI list, machine origin is the second.
+These could also call OWord routines if desired.
+This example shows how to move Z axis up first. the commands are separated by the ';'
+The label is set after the comma. The symbols '\n' adds a line break.
 
 [source,{ini}]
 ----
