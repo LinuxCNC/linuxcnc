@@ -139,7 +139,7 @@ posibilidad de confusión, el intérprete generará un error si
 las definiciones de un estilo se mezclan con las llamadas de otro.
 
 Ejemplo simple de subprograma numerado
-[source,{ngc}]
+[source,ngc]
 ----
 o1 (Ejemplo 1)		; Programa principal 1, "Ejemplo 1"
 M98 P100			; Llama al subprograma 100
@@ -209,7 +209,7 @@ bloque final de programa con eliminacion `/M30` puede usarse para detener el cic
 en un punto ordenado cuando el operador está listo.
 
 .Ejemplo completo de subprograma numerado
-[source,{ngc}]
+[source,ngc]
 ----
 O1                             ; Programa principal 1
   #1 = 0
@@ -456,4 +456,3 @@ la opción mask [[RS274NGC]FEATURE=` del .ini.
 
 
 // vim: set syntax = asciidoc:
-

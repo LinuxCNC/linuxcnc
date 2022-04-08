@@ -42,7 +42,7 @@ It will print errors to the terminal if found.
 
 A typical HAL file will have these commands added:
 
-[source,{hal}]
+[source,hal]
 ----
 # commands needed for panelui loading
 # 
@@ -89,7 +89,7 @@ addf sampler.0          servo-thread
 * FALSE_COMMAND= sets the command and arguments to be called when the button is FALSE.
 
 .*HAL Prefix*
-[source,{ini}]
+[source,ini]
 ----
 [HAL_PREFIX]
     NAME= Yourname 
@@ -102,7 +102,7 @@ Radiobutons allow only one button in the group to be active at a time. +
 Each group has its own output pin, separate from each button in the group. +
 Radio button definitions start with the text 'RADIO_BUTTON' inside single brackets.
 
-[source,{ini}]
+[source,ini]
 ----
 [RADIO_BUTTONS]
         # The double bracket section(s) define the group(s) of radio buttons.
@@ -157,7 +157,7 @@ Radio button definitions start with the text 'RADIO_BUTTON' inside single bracke
 Togglebuttons only change state on each press of the button.
 Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brackets.
 
-[source,{ini}]
+[source,ini]
 ----
 [TOGGLE_BUTTONS]
     # Each button name inside double brackets, must be unique and is case sensitive.
@@ -181,7 +181,7 @@ Toggle button definitions start with the text 'TOGGLE_BUTTON' inside single brac
 .*Momentary Buttons*
 Momentary buttons are true when pressed and false when released.
 Momentary button definitions start with the text 'MOMENTARY_BUTTON' inside single brackets.
-[source,{ini}]
+[source,ini]
 ----
 [MOMENTARY_BUTTONS]
     # Each button name inside double brackets, must be unique and is case sensitive.
@@ -336,4 +336,3 @@ Here is an example of a handler file that adds two functions - hello_world and c
 ----
 include::panelui_handler.py[]
 ----
-

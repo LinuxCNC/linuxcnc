@@ -619,28 +619,28 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 === Atributos `linuxcnc.command`
 
 `serial`::
-    el número de serie del comando actual
+el número de serie del comando actual
 
 === métodos `linuxcnc.command`:
 
 `abort()`::
-    enviar mensaje EMC_TASK_ABORT.
+    enviar mensaje EMC_TASK_ABORT.
 
 `auto(int [, int])`::
-    ejecutar, escalonar, pausar o reanudar un programa.
+    ejecutar, escalonar, pausar o reanudar un programa.
 
 `brake(int)`::
-    engrane o suelte el freno del husillo.
+    engrane o suelte el freno del husillo.
 
 `debug(int)`::
-    establecer el nivel de depuración a través del mensaje EMC_SET_DEBUG.
+    establecer el nivel de depuración a través del mensaje EMC_SET_DEBUG.
 
 `feedrate(float)`::
-    establecer la velocidad de avance.
+    establecer la velocidad de avance.
 
 `flood(int)`::
-    encender/apagar inundacion. +
-    Sintaxis: +
+    encender/apagar inundacion. +
+    Sintaxis: +
     flood(command) +
     flood(linuxcnc.FLOOD_ON) +
     flood(linuxcnc.FLOOD_OFF) +
@@ -649,36 +649,36 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     FLOOD_OFF
 
 `home(int)`::
-    home una articulación determinada.
+    home una articulación determinada.
 
 `jog(command-constant, bool, int[, float[, float]])`::
-    Sintaxis: +
+    Sintaxis: +
     jog(command,                 jjogmode, joint_num_or_axis_index, velocity[, distance]]) +
     jog(linuxcnc.JOG_STOP,       jjogmode, joint_num_or_axis_index) +
     jog(linuxcnc.JOG_CONTINUOUS, jjogmode, joint_num_or_axis_index, velocity) +
     jog(linuxcnc.JOG_INCREMENT,  jjogmode, joint_num_or_axis_index, velocity, distance)
-    Constantes de comando;
+    Constantes de comando;
     linuxcnc.JOG_STOP +
     linuxcnc.JOG_CONTINUOUS +
     linuxcnc.JOG_INCREMENT
     jjogmode;;
-       True::: solicitar jog de articulacion individual (requiere teleop_enable (0))
-       False::: solicitud jog de eje de coordenadas cartesianas (requiere teleop_enable (1))
-    joint_num_or_axis_index;;
-       Para jog articular (jjogmode = 1)::: joint_number
-       Para jog de eje de coordenadas cartesianas (jjogmode = 0):::
-          índice de base cero de la coordenada del eje con respecto a
-          las letras de coordenadas conocidas XYZABCUVW
-          (x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)
+        True::: solicitar jog de articulacion individual (requiere teleop_enable (0))
+        False::: solicitud jog de eje de coordenadas cartesianas (requiere teleop_enable (1))
+    joint_num_or_axis_index;;
+        Para jog articular (jjogmode = 1)::: joint_number
+        Para jog de eje de coordenadas cartesianas (jjogmode = 0):::
+            índice de base cero de la coordenada del eje con respecto a
+            las letras de coordenadas conocidas XYZABCUVW
+            (x=>0,y=>1,z=>2,a=>3,b=>4,c=>5,u=>6,v=>7,w=>8)
 
 `load_tool_table()`::
-    Vuelve a cargar la tabla de herramientas.
+    Vuelve a cargar la tabla de herramientas.
 
 `maxvel(float)`::
-    establecer la velocidad máxima
+    establecer la velocidad máxima
 
 `mdi(string)`::
-    Enviar un comando MDI. Máximo 254 caracteres.
+    Enviar un comando MDI. Máximo 254 caracteres.
 
 `mist(int)`:: activa/desactiva la niebla. +
     Sintaxis: +
@@ -739,7 +739,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
     SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
     SPINDLE_DECREASE o SPINDLE_CONSTANT.
 
-[source, python]
+[source,python]
 ---------------------------------------------------------------------
 #!/usr/bin/env python3
 import linuxcnc
@@ -888,4 +888,3 @@ Algunas sugerencias de uso se pueden obtener de
 `last([int])`::
     Devuelve el punto más reciente de la trama o ninguno.
 ,
-

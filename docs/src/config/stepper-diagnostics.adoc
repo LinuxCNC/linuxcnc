@@ -103,7 +103,7 @@ the final position will not end up 0.500" that the axis window is
 showing. To test another axis just replace the Z with your axis in the
 G0 lines.
 
-[source,{ngc}]
+[source,ngc]
 ----
 ( test program to see if Z axis loses position )
 ( msg, test 1 of Z axis configuration )

@@ -279,7 +279,7 @@ suivantes.
 Pour placer le panneau GladeVCP dans la partie droite d'Axis, ajouter les lignes
 suivantes dans le fichier ini:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # ajouter le panneau GladeVCP à l'emplacement de PyVCP:
@@ -317,7 +317,7 @@ n'est peut être pas nécessaire dans votre configuration.
 Pour cela, éditer le fichier .ini et ajouter dans les sections DISPLAY et HAL,
 les lignes suivantes:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # ajoute le panneau GladeVCP dans un nouvel onglet:
@@ -356,7 +356,7 @@ GladeVCP dans les deux déclarations +GLADEVCP=+ et +EMBED_TAB_COMMAND=+.
 === Intégration dans Touchy
 Pour ajouter un onglet GladeVCP à _Touchy_, éditer le fichier .ini comme cela:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 # ajoute un panneau GladeVCP dans un onglet
@@ -386,6 +386,7 @@ Noter les différences suivantes avec la configuration de l'onglet d'Axis:
 Voir également, _man gladevcp_. Ce sont les options pour cette ligne de 
 commande:
 
+----
 Usage: gladevcp [options] myfile.ui
 
 Options:
@@ -428,6 +429,7 @@ Options:
 
 -U USEROPT::
     passe les modules python USEROPT
+----
 
 == Références des Widgets HAL
 

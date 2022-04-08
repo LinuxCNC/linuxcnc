@@ -45,7 +45,7 @@ In the section '[DISPLAY]' change the 'DISPLAY' line to read:
 'qtdradon_hd' for the large version.
 you can add '-c-' or '-v' for debug output to the terminal.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DISPLAY = qtvcp qtdragon
@@ -58,7 +58,7 @@ add the following entry under the '[DISPLAY]' heading.
 This will save the file in the config folder of the launch screen.
 (other options are possible see the qtvcp's screenoption widget docs.)
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
@@ -69,7 +69,7 @@ PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 You can specify where to save history/logs.
 In the section '[DISPLAY]' add:
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MDI_HISTORY_FILE = mdi_history.dat
@@ -81,7 +81,7 @@ LOG_FILE = qtdragon.log
 
 set override controls (1.0 = 100 percent):
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MAX_SPINDLE_0_OVERRIDE = 1.5
@@ -93,7 +93,7 @@ MAX_FEED_OVERRIDE       = 1.2
 
 Spindle control settings (in rpm and watts):
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 DEFAULT_SPINDLE_0_SPEED = 500
@@ -107,7 +107,7 @@ MAX_SPINDLE_POWER = 1500
 
 Set selectable jogging increments
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 INCREMENTS = Continuous, .001 mm, .01 mm, .1 mm, 1 mm, 1.0 inch, 0.1 inch, 0.01 inch
@@ -118,7 +118,7 @@ ANGULAR_INCREMENTS = 1, 5, 10, 30, 45, 90, 180, 360
 
 Set jog speed controls (in units per minute)
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MIN_LINEAR_VELOCITY     = 0
@@ -130,7 +130,7 @@ DEFAULT_LINEAR_VELOCITY = 50.0
 Popup Message dialogs, controlled by HAL pins.
 MESSAGE_TYPE can be 'okdialog' or 'yesnodialog'.
 
-[source,{ini}]
+[source,ini]
 ----
 [DISPLAY]
 MESSAGE_BOLDTEXT = This is the short text
@@ -146,7 +146,7 @@ You can control what programs are displayed in the filemanager window with progr
 Create a line with the . endings you wish to use separated by commas, then a space and the description.
 You can add multiple lines for different selections in the combo box
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
@@ -167,7 +167,7 @@ executed by LinuxCNC when 'Run'. The following lines add support for the
 'image-to-gcode' converter included with LinuxCNC and running python based
 filter programs:
 
-[source,{ini}]
+[source,ini]
 ----
 [FILTER]
 PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
@@ -180,7 +180,7 @@ py = python
 
 QtDragon has custom INI entries:
 
-[source,{ini}]
+[source,ini]
 ----
 [TOOLSENSOR]
 MAXPROBE = 40
@@ -195,7 +195,7 @@ Y = -16.85
 
 QtDragon has two optional probing tab screens:
 
-[source,{ini}]
+[source,ini]
 ----
 [PROBE]
 #USE_PROBE = versaprobe
@@ -208,7 +208,7 @@ These could also call OWord routines if desired.
 user origin is the first MDI command in the list, machine origin is the second.
 This example shows how to move Z axis up first. the commands are separated by the ;
 
-[source,{ini}]
+[source,ini]
 ----
 [MDI_COMMAND_LIST]
 MDI_COMMAND = G0 Z0;X0 Y0
@@ -258,7 +258,7 @@ that must be connected for linuxcnc to function.
 
 If you need a manual tool change prompt, add these lines in your postgui file.
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
@@ -267,7 +267,7 @@ net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-num
 
 This input pin should be connected to indicate probe state:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.led-probe
 ----
@@ -277,7 +277,7 @@ These pins are inputs related to spindle VFD indicating:
 The volt and amp pins are used to calculate spindle power.
 (You must also set the MAX_SPINDLE_POWER in the INI)
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.spindle-modbus-errors
 qtdragon.spindle-amps
@@ -288,28 +288,28 @@ qtdragon.spindle-volts
 This bit pin is an output to the spindle control to pause it:
 You would connect it to spindle.0.inhibit.
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.spindle-inhibit
 ----
 
 This bit output pin can be connected to turn on a laser:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.btn-laser-on
 ----
 
 This float output pin indicates the camera rotation in degrees:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.cam-rotation
 ----
 
 These bit/s32 pins are related to external offsets if they are used:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.eoffset-clear
 qtdragon.eoffset-count
@@ -319,7 +319,7 @@ qtdragon.eoffset-value
 
 These float output pins reflect the current slider jograte (in machine units):
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.slider-jogspeed-linear
 qtdragon.slider-jogspeed-angular
@@ -327,7 +327,7 @@ qtdragon.slider-jogspeed-angular
 
 These float output pins reflect the current slider override rates:
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.slider-override-feed
 qtdragon.slider-override-maxv
@@ -338,7 +338,7 @@ qtdragon.slider-override-spindle
 These pins are available when setting the Versa Probe INI option.
 They can be used for auto-tool-length-probe at tool change - with added remap code.
 
-[source,{hal}]
+[source,hal]
 ----
 qtdragon.versaprobe-blockheight
 qtdragon.versaprobe-probeheight
@@ -357,7 +357,7 @@ If your machine requires manual tool changes, QtDragon can pop a message box to 
 You must connect the proper HAL pin in the postgui HAL file.
 For example:
 
-[source,{hal}]
+[source,hal]
 ----
 net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change
 net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
@@ -387,7 +387,7 @@ OFFSET_AV_RATIO  = 0.2
 
 In the qtdragon_postgui.hal file add:
 
-[source,{hal}]
+[source,hal]
 ----
 # Set up Z axis external offsets
 net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
@@ -501,7 +501,7 @@ Modify your INI File to include the following:
 
 QtDragon allows you to select one of two styles of touch probe routines.
 Versa probe works with a M6 remap to add auto tool probing.
-[source,{ini}]
+[source,ini]
 ----
 [PROBE]
 USE_PROBE = versaprobe
@@ -509,7 +509,7 @@ USE_PROBE = versaprobe
 
 .The RS274NGC section
 
-[source,{ini}]
+[source,ini]
 ----
 [RS274NGC]
 
@@ -530,7 +530,7 @@ all values are absolute (G53) coordinates, except MAXPROBE, what must be given i
 relative movement.
 All values are in machine native units
 
-[source,{ini}]
+[source,ini]
 ----
 [TOOLSENSOR]
 X = 10
@@ -546,7 +546,7 @@ will interfere otherwise.* The position to move the machine before giving the
 change tool command. All values are in absolute coordinates.
 All values are in machine native units
 
-[source,{ini}]
+[source,ini]
 ----
 [CHANGE_POSITION]
 X = 10
@@ -559,7 +559,7 @@ Z = -2
 The Python section sets up what files linuxcnc's python interpreter looks for.
 ie. 'toplevel.py' file in the 'python' folder in the configuration directory:
 
-[source,{ini}]
+[source,ini]
 ----
 [PYTHON]
 # The path to start a search for user modules
@@ -595,7 +595,7 @@ Make sure to connect the tool probe input in your hal file:
 If connected properly, you should be able to toggle the probe LED in qtdragon
 if you press the probe stylus.
 
-[source,{hal}]
+[source,hal]
 ----
 net probe  motion.probe-input <= <your_input_pin>
 ----
@@ -655,7 +655,7 @@ For instance:
 
 To change the DRO font (look for this entry and change the font name):
 
-[source,{ini}]
+[source,ini]
 ----
 DROLabel,
 StatusLabel#status_rpm {
@@ -667,7 +667,7 @@ StatusLabel#status_rpm {
 
 To change the text of the mist button to 'air' (add these lines)
 
-[source,{ini}]
+[source,ini]
 ----
 #action_mist{
 qproperty-true_state_string: "Air\\nOn";
@@ -685,4 +685,3 @@ The LinuxCNC website has extensive documentation on the installation and use of 
 
 .qtdragon - Customized QtDragon
 image::images/silverdragon_custom.png["QtDragon customized",scale=25]
-

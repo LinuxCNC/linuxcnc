@@ -15,8 +15,8 @@
 :ngc: {basebackend@docbook:'':ngc}
 // begin a listing of ini/hal/ngc files like so:
 //[source,ini]
-//[source,{hal}]
-//[source,{ngc}]
+//[source,hal]
+//[source,ngc]
 
 == What is GladeVCP?
 
@@ -428,7 +428,6 @@ Note the following differences to the Axis tab setup:
 
 See also 'man gladevcp'. These are the gladevcp command line options:
 
-[source,man]
 ----
 Usage: gladevcp [options] myfile.ui
 
@@ -2398,7 +2397,7 @@ sent are "Visible" and "Hidden". (Note that the signals  have a fixed length of 
 characters so only the first characters should be used in any comparison, hence
 the [:7] below.) A sample handler for these signals is:
 
-[source, python]
+[source,python]
 ----
     # This catches our messages from another program
     def event(self,w,event):

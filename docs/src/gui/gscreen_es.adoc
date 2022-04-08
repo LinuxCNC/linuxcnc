@@ -515,7 +515,7 @@ y uno para la respuesta. +
 
 Aquí hay un código INI de muestra. Estaría bajo el encabezado [DISPLAY]. +
 
-[source,{ini}]
+[source,ini]
 ----
 # Esto solo se muestra en la barra de estado y en la ventana emergente de notificación del escritorio.
 MESSAGE_BOLDTEXT = NONE
@@ -583,4 +583,3 @@ La linea: +
 ----
 muestra dónde vive el archivo de stock. Copie este archivo a su carpeta de configuración. +
 Esto funciona igual para el archivo Glade.
-

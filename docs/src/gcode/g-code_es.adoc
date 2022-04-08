@@ -350,7 +350,7 @@ un offset desde la posición inicial de 1 en el eje X y 0 en el eje Y.
 En este caso solo se necesita un offset I.
 
 .G2 Ejemplo de línea
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0
 G2 X1 Y1 I1 F10 (arco en sentido horario en el plano XY)
@@ -367,7 +367,7 @@ ambos movimientos. Para G2, el offset J es 0.5 y para G3
 el offset J es -0.5.
 
 .Lineas de ejemplo G2-G3
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0
 G2 X0 Y1 I1 J0.5 F25 (arco en sentido horario en el plano XY)
@@ -382,7 +382,7 @@ En el siguiente ejemplo mostramos cómo el arco puede hacer una hélice en el ej
 agregando la palabra Z.
 
 .Ejemplo Helice G2
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0 Z0
 G17 G2 X10 Y16 I3 J4 Z-1 (arco helicoidal con Z agregado)
@@ -435,7 +435,7 @@ Es un error si:
 * el punto final del arco es el mismo que el punto actual.
 
 .G2 Ejemplo de línea
-[source,{ngc}]
+[source,ngc]
 ----
 G17 G2 X10 Y15 R20 Z5 (formato de radio con arco)
 ----
@@ -570,7 +570,7 @@ punto de control, programe G5.2 P- sin dar ninguna X Y.
 El peso predeterminado es 1. El orden predeterminado es 3.
 
 .G5.2 Ejemplo
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0 (movimiento rápido)
 F10 (velocidad de avance establecida)
@@ -716,7 +716,7 @@ Es un error si:
 * Se programa un eje que no está definido en la configuración.
 
 .Ejemplo de línea G10 L2
-[source,{ngc}]
+[source,ngc]
 ----
 G10 L2 P1 X3.5 Y17.2
 ----
@@ -727,7 +727,7 @@ Como solo se especifican X e Y, el punto de origen solo se mueve en X e Y;
 las otras coordenadas no cambian.
 
 .Ejemplo de línea G10 L2
-[source,{ngc}]
+[source,ngc]
 ----
 G10 L2 P1 X0 Y0 Z0 (limpiar offsets para los ejes X, Y y Z en el sistema de coordenadas 1)
 ----
@@ -1048,7 +1048,7 @@ así que se alinean múltiples pases. Los movimientos 'G33.1' terminan en la coo
 Todas las palabras del eje son opcionales, pero debe utilizar al menos una.
 
 .Ejemplo G33.1
-[source,{ngc}]
+[source,ngc]
 ----
 G90 (establecer modo absoluto)
 G0 X1.000 Y1.000 Z0.100 (movimiento rápido a la posición inicial)
@@ -1748,7 +1748,7 @@ El programa de ejemplo 'g76.ngc' muestra el uso del ciclo fijo G76,
 y se puede previsualizar y ejecutar en cualquier máquina usando la configuración 'sim/lathe.ini'.
 
 .G76 Ejemplo
-[source,{ngc}]
+[source,ngc]
 ---------------
 G0 Z-0.5 X0.2
 G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
@@ -2015,7 +2015,7 @@ El ciclo funciona de la siguiente manera:
 
 Supongamos que la posición actual es (X1, Y2, Z3) y la siguiente línea de NC
 
-[source,{ngc}]
+[source,ngc]
 ----
 G90 G98 G81 X4 Y5 Z1.5 R2.8
 ----
@@ -2044,7 +2044,7 @@ image::images/g81ex1_es.svg[align="center"]
 
 Supongamos que la posición actual es (X1, Y2, Z3) y la siguiente línea de NC.
 
-[source,{ngc}]
+[source,ngc]
 ----
 G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
 ----

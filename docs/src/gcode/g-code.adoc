@@ -379,7 +379,7 @@ axis. In this case only an I offset is needed.
 
 .G2 Example Line
 
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0
 G2 X1 Y1 I1 F10 (clockwise arc in the XY plane)
@@ -397,7 +397,7 @@ offset is -0.5.
 
 .G2-G3 Example Line
 
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0
 G2 X0 Y1 I1 J0.5 F25 (clockwise arc in the XY plane)
@@ -413,7 +413,7 @@ by adding the Z word.
 
 .G2 Example Helix
 
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0 Z0
 G17 G2 X10 Y16 I3 J4 Z-1 (helix arc with Z added)
@@ -491,7 +491,7 @@ It is an error if:
 
 .G2 Example Line
 
-[source,{ngc}]
+[source,ngc]
 ----
 G17 G2 X10 Y15 R20 Z5 (radius format with arc)
 ----
@@ -630,7 +630,7 @@ unspecified is 3.
 
 .G5.2 Example
 
-[source,{ngc}]
+[source,ngc]
 ----
 G0 X0 Y0 (rapid move)
 F10 (set feed rate)
@@ -793,7 +793,7 @@ It is an error if:
 
 .G10 L2 Example Line
 
-[source,{ngc}]
+[source,ngc]
 ----
 G10 L2 P1 X3.5 Y17.2
 ----
@@ -805,7 +805,7 @@ the other coordinates are not changed.
 
 .G10 L2 Example Line
 
-[source,{ngc}]
+[source,ngc]
 ----
 G10 L2 P1 X0 Y0 Z0 (clear offsets for X,Y & Z axes in coordinate system 1)
 ----
@@ -1132,7 +1132,7 @@ All the axis words are optional, except that at least one must be used.
 
 .G33.1 Example
 
-[source,{ngc}]
+[source,ngc]
 ----
 G90 (set absolute mode)
 G0 X1.000 Y1.000 Z0.100 (rapid move to starting position)
@@ -1875,7 +1875,7 @@ executed on any machine using the 'sim/lathe.ini' configuration.
 
 .G76 Example Code
 
-[source,{ngc}]
+[source,ngc]
 ---------------
 G0 Z-0.5 X0.2
 G76 P0.05 Z-1 I-.075 J0.008 K0.045 Q29.5 L2 E0.045
@@ -2150,7 +2150,7 @@ The cycle functions as follows:
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
 
-[source,{ngc}]
+[source,ngc]
 ----
 G90 G98 G81 X4 Y5 Z1.5 R2.8
 ----
@@ -2177,7 +2177,7 @@ image::images/g81ex1_en.svg[align="center"]
 Suppose the current position is (X1, Y2, Z3) and the following line of NC
 code is interpreted.
 
-[source,{ngc}]
+[source,ngc]
 ----
 G91 G98 G81 X4 Y5 Z-0.6 R1.8 L3
 ----

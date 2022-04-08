@@ -1123,7 +1123,7 @@ print 'value is a',type(value),'value of',value
 
 === Cambiar pestañas con pines HAL
 
-[source, python]
+[source,python]
 ----
 # los pines hal de un panel GladeVCP no estarán listos cuando se ejecute user_live_update
 # para leerlos necesita ponerlos en un bloque try/except

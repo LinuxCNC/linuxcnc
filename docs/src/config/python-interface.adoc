@@ -757,7 +757,7 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
 `text_msg(string)`::
     sends a operator text message to the screen. (max 254 characters)
 
-[source, python]
+[source,python]
 ---------------------------------------------------------------------
 #!/usr/bin/env python3
 import linuxcnc
