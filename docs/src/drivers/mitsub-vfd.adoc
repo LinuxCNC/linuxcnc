@@ -93,7 +93,7 @@ Where <n> is +mitsub_vfd+ or the name given during loading.
 
 == HAL example
 
-[source,hal]
+[source,{hal}]
 ----
 #
 # example usage of the Mitsubishi VFD driver
