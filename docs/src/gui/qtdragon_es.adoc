@@ -26,7 +26,7 @@ puede cambiarlo editando el archivo INI.
 En la sección '[DISPLAY]' cambie la línea 'DISPLAY' para que lea:
 <<sec:display-section,Sección de visualización>>
 
-[source,ini]
+[source,{ini}]
 ----
 [DISPLAY]
 DISPLAY = qtvcp qtdragon
@@ -36,7 +36,7 @@ Para realizar un seguimiento de las preferencias, qtdragon busca un archivo de t
 agregue la siguiente entrada bajo el encabezado '[DISPLAY]'.
 (son posibles otras opciones, consulte los documentos del widget screenoption del qtvcp).
 
-[source,ini]
+[source,{ini}]
 ----
 PREFERENCE_FILE_PATH = WORKINGFOLDER / qtdragon.pref
 ----
@@ -44,7 +44,7 @@ PREFERENCE_FILE_PATH = WORKINGFOLDER / qtdragon.pref
 Puede especificar dónde guardar el historial / registros.
 En la sección '[DISPLAY]' agregue:
 
-[source,ini]
+[source,{ini}]
 ----
 MDI_HISTORY_FILE = mdi_history.dat
 MACHINE_LOG_PATH = machine_log.dat
@@ -54,7 +54,7 @@ LOG_FILE = qtdragon.log
 Para que las rutinas básicas de la sonda funcionen, SUBROUTINE_PATH debe establecerse correctamente.
 (Su ruta puede ser diferente a esta muestra)
 
-[source,ini]
+[source,{ini}]
 ----
 [RS274NGC]
 SUBROUTINE_PATH = ../../../../nc_files/probe/basic_probe/macros
@@ -64,14 +64,14 @@ También requiere pines de E / S analógicas adicionales para el sondeo.
 Asegúrese de que esta línea en el archivo HAL tenga la entrada 'num_aio = 13':
 El resto de la línea depende de su configuración y puede ser diferente y no debe cambiarse.
 
-[source,hal]
+[source,{hal}]
 ----
 loadrt motmod servo_period_nsec = [EMCMOT] SERVO_PERIOD num_joints = 4 num_aio = 13
 ----
 
 SilverDragon tiene entradas INI personalizadas:
 
-[source,ini]
+[source,{ini}]
 ----
 [TOOLSENSOR]
 MAXPROBE = 40
@@ -125,7 +125,7 @@ que debe estar conectado para que linuxcnc funcione.
 
 Si necesita un aviso de cambio de herramienta manual, agregue estas líneas en su archivo postgui.
 
-[source,hal]
+[source,{hal}]
 ----
 net tool-change hal_manualtoolchange.change <= iocontrol.0.tool-change
 net tool-changed hal_manualtoolchange.changed <= iocontrol.0.tool-changed
@@ -134,7 +134,7 @@ net tool-prep-number hal_manualtoolchange.number <= iocontrol.0.tool-prep-number
 
 Estos pines deben estar conectados en el archivo postgui para que el sondeo funcione:
 
-[source,hal]
+[source,{hal}]
 ----
 net xwidth 		motion.analog-out-00 => qtdragon.x_width
 net ywidth 		motion.analog-out-01 => qtdragon.y_width
@@ -153,14 +153,14 @@ net cal_offset 	motion.analog-out-12 => qtdragon.cal_offset
 
 Este pin de entrada debe estar conectado para indicar el estado de la sonda:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.hal_led_probe
 ----
 
 Estos pines se pueden conectar para indicar estados del interruptor de inicio:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.hal_led_home_x
 qtdragon.hal_led_home_y
@@ -169,7 +169,7 @@ qtdragon.hal_led_home_z
 
 Estos pines son entradas relacionadas con el VFD del husillo que indican:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.modbus-errors
 qtdragon.spindle_amps
@@ -179,14 +179,14 @@ qtdragon.spindle_volts
 
 Este pin es una salida al control del husillo para pausarlo:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.spindle_pause
 ----
 
 Estos pines de salida se pueden conectar para encender un láser:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.btn_laser_on
 ----
@@ -194,7 +194,7 @@ qtdragon.btn_laser_on
 Estos pines de salida indican botones que fueron presionados,
 son probablemente de uso limitado:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.btn_dimensions
 qtdragon.btn_gcode_edit
@@ -213,7 +213,7 @@ qtdragon.btn_tool_delete
 
 Estos pines están relacionados con compensaciones externas si se usan:
 
-[source,hal]
+[source,{hal}]
 ----
 qtdragon.eoffset_clear
 qtdragon.eoffset_count
@@ -233,7 +233,7 @@ Si su máquina requiere cambios manuales de herramientas, SilverDragon puede abr
 Debe conectar el pin HAL adecuado en el archivo post_gui.
 Por ejemplo:
 
-[source,hal]
+[source,{hal}]
 ----
 net tool-change hal_manualtoolchange.change <= iocontrol.0.tool-change
 net tool-changed hal_manualtoolchange.changed <= iocontrol.0.tool-changed
