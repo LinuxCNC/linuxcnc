@@ -107,7 +107,7 @@ la posición final no terminará en las 0.500" que la pantalla muestra.
 Para probar otro eje, simplemente reemplace la Z con la letra de eje a probar en las
 líneas G0.
 
-[source,ngc]
+[source,{ngc}]
 ----
     (programa de prueba para ver si el eje Z pierde posición)
     (msg, prueba 1 de configuración del eje Z)
