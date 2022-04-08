@@ -25,7 +25,7 @@ used for copying qtvcp's builtin screen/panels/vismach code to a folder so one c
 customize it.
 
 In a terminal:
-[source,hal]
+[source,{hal}]
 ----
 qtvcp copy
 ----
@@ -36,7 +36,7 @@ image::images/qtvcp_copy_dialog.png["Copy Dialog",align="left"]
 === test_panel
 
 - collect of useful widgets for testing HAL component. Including speech of LED state.
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp test_panel
 ----
@@ -55,7 +55,7 @@ image::images/qtvcp-cam-align.png["Qt Camera Alignment",align="left"]
 
  - a small control panel to simulate MPG jogging controls etc. for simulated configurations
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp sim_panel
 ----
@@ -67,7 +67,7 @@ image::images/qtvcp_sim_panel.png["Sim Panel",align="left"]
 
  - 3d openGL view of a 3 axis milling machine
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp vismach_mill_xyz
 ----
@@ -79,7 +79,7 @@ image::images/qtvismach.png["Qtvcp Vismach Mill",align="left"]
 
  - 3d openGL view of a scara based milling machine
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp vismach_scara
 ----
@@ -91,7 +91,7 @@ image::images/qtvismach_scara.png["Qtvcp Vismach Scara",align="left"]
 
  - 3d openGL view of a 3 axis milling machine with an A axis/spindle
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp vismach_millturn
 ----
@@ -103,7 +103,7 @@ image::images/qtvismach_millturn.png["Qtvcp Vismach MillTurn",align="left"]
 
  - 3d openGL view of a 5 axis gantry typr milling machine
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr qtvcp vismach_mill_5axis_gantry
 ----
@@ -115,7 +115,7 @@ image::images/qtvismach_5axis_gantry.png["Qtvcp Vismach 5 Axis Gantry",align="le
 
  - manual toolchange dialog that gives tool description.
 
-[source,hal]
+[source,{hal}]
 ----
 loadusr -Wn tool_dialog qtvcp -o speak_on -o audio_on tool_dialog
 ----
@@ -135,7 +135,7 @@ You can of course make your own panel and load it. +
 If you made a ui file named 'my_panel.ui' and name the following HAL file, 'my_panel.hal' +
 You would then load this from a terminal with halrun -I -f my_panel.hal +
 
-[source,hal]
+[source,{hal}]
 ----
 # load realtime components
 loadrt threads 
