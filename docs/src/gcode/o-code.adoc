@@ -147,7 +147,7 @@ possibility of confusion, the interpreter will raise an error if
 definitions of one style are mixed with calls of another.
 
 .Numbered Subprogram Simple Example
-[source,ngc]
+[source,{ngc}]
 ----
 o1 (Example 1)    ; Main program 1, "Example 1"
 M98 P100          ; Call subprogram 100
@@ -215,7 +215,7 @@ block delete program end `/M30` block might be used to stop the cycle
 at a tidy point when the operator is ready.
 
 .Numbered Subprogram Full Example
-[source,ngc]
+[source,{ngc}]
 ----
 O1                             ; Main program 1
   #1 = 0
