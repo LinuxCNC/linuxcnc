@@ -194,6 +194,8 @@ include::gui/panelui.adoc[]
 
 include::gui/halui.adoc[]
 
+include::gui/GStat.adoc[]
+
 include::hal/halui-examples.adoc[]
 
 include::config/python-interface.adoc[]
@@ -319,7 +321,7 @@ include::code/rs274.adoc[]
 
 :leveloffset: 0
 
-include::common/glossary.adoc[]
+//include::common/glossary.adoc[]
 
 include::common/gpld-copyright.adoc[]
 

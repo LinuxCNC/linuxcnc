@@ -43,34 +43,34 @@ siempre la misma, entonces es posible que solo tenga que volver a ejecutar el pr
 La ventana de AXIS contiene los siguientes elementos:
 
 * Un área de visualización que muestra uno de los siguientes elementos:
- ** una vista previa del archivo cargado (en este caso,
+** una vista previa del archivo cargado (en este caso,
    'axis.ngc'), así como la ubicación actual del
    'punto controlado' de la máquina. Más adelante, esta área mostrará el camino
    por el que la máquina se ha movido, llamado 'backplot'
- ** una lector grande que muestra la posición actual y todos los offsets.
+** una lector grande que muestra la posición actual y todos los offsets.
 * Una barra de menús y una barra de herramientas que le permiten realizar varias acciones
 * Una pestaña de 'control manual (F3)' - que te permite
- mover la máquina, encender o apagar el husillo y el refrigerante,
- si se incluye en el archivo ini.
+  mover la máquina, encender o apagar el husillo y el refrigerante,
+  si se incluye en el archivo ini.
 * Una pestaña 'MDI' - donde los programas con código G se pueden ingresar manualmente,
- una línea a la vez. También muestra los 'Códigos G activos' que son
- los códigos G modales en vigor.
+  una línea a la vez. También muestra los 'Códigos G activos' que son
+  los códigos G modales en vigor.
 * 'Feed Override' - que le permite escalar la velocidad de los movimientos programados.
- El máximo predeterminado es 120% y se puede configurar a un valor diferente
- en el archivo ini. Consulte la <<sec:display-section, Sección de visualización>> del
- archivo INI para más información.
+  El máximo predeterminado es 120% y se puede configurar a un valor diferente
+  en el archivo ini. Consulte la <<sec:display-section, Sección de visualización>> del
+  archivo INI para más información.
 * 'Spindle Override' - que le permite
- escalar la velocidad del husillo hacia arriba o hacia abajo.
+  escalar la velocidad del husillo hacia arriba o hacia abajo.
 * 'Jog Speed' - que te permite configurar la velocidad de jog
- dentro de los límites establecidos en el archivo ini. Ver la
- <<sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
+  dentro de los límites establecidos en el archivo ini. Ver la
+  <<sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
 * 'Velocidad máxima' - que le permite restringir la velocidad máxima de todos
- los movimientos programados (excepto movimiento sincronizados del husillo).
+  los movimientos programados (excepto movimiento sincronizados del husillo).
 * Una zona de visualización de texto que muestra el G-Code cargado.
 * Una barra de estado que muestra el estado de la máquina. En la pantalla
- mostrada, la máquina está encendida, no tiene una herramienta insertada y la
- la posición mostrada es 'Relativa' (mostrando todos los offsets) y 'Actual'
- (mostrando la posición retroalimentada).
+  mostrada, la máquina está encendida, no tiene una herramienta insertada y la
+  la posición mostrada es 'Relativa' (mostrando todos los offsets) y 'Actual'
+  (mostrando la posición retroalimentada).
 
 === Elementos del menú
 
@@ -78,94 +78,85 @@ Algunos elementos del menú pueden estar en gris dependiendo de cómo tenga su
 archivo .ini configurado. Para más información sobre configuración vea el
 <<cha:ini-configuration,Capítulo INI.
 
-==== Menú Archivo
+=== Menú Archivo
 
-* 'Abrir ...'- abre un cuadro de diálogo estándar para abrir un archivo de código g para cargar en AXIS. Si
-    ha configurado LinuxCNC para usar un programa de filtro, también puede abrirlo.
-    Consulte la <<sec:filter-section,sección FILTRO>> de la configuración INI
-    para más información.
-
-* 'Archivos recientes'- muestra una lista de los archivos abiertos recientemente.
-
-* 'Editar ...'- abre el archivo de código G actual para editarlo si tienes un editor
-    configurado en su archivo ini. Consulte la sección <<sec:display-section,sección DISPLAY>>
-    para obtener más información sobre la especificación del editor a usar.
-
-* 'Recargar'- vuelve a cargar el archivo de código g actual. Si lo edita, debe recargarlo
-    para que los cambios se actualizen. Si detiene un archivo y quiere empezar
-    desde el principio, vuelva a cargar el archivo. La recarga de la barra de herramientas es la misma
-    qu la del menu.
-
-* 'Guardar gcode como ...' - Guarda el archivo actual con un nuevo nombre.
-
-* 'Propiedades'- la suma de los movimientos rápidos y de avance. No tiene en cuenta
-    modos de aceleración, fusion o ruta para que el tiempo reportado nunca
-    sea menor que el tiempo de ejecución real.
-
-* 'Editar tabla de herramientas ...' - Igual que Editar si ha definido un editor.
-   Puede abrir la tabla de herramientas y editarla.
-
-* 'Recargar tabla de herramientas': después de editar la tabla de herramientas, debe volve a cargarla.
-
-* 'Editor Ladder' - Si has cargado Classic Ladder puedes editarlo desde
+ * 'Abrir ...'- abre un cuadro de diálogo estándar para abrir un archivo de código g para cargar en AXIS. Si
+   ha configurado LinuxCNC para usar un programa de filtro, también puede abrirlo.
+   Consulte la <<sec:filter-section,sección FILTRO>> de la configuración INI
+   para más información.
+ * 'Archivos recientes'- muestra una lista de los archivos abiertos recientemente.
+ * 'Editar ...'- abre el archivo de código G actual para editarlo si tienes un editor
+   configurado en su archivo ini. Consulte la sección <<sec:display-section,sección DISPLAY>>
+   para obtener más información sobre la especificación del editor a usar.
+ * 'Recargar'- vuelve a cargar el archivo de código g actual. Si lo edita, debe recargarlo
+   para que los cambios se actualizen. Si detiene un archivo y quiere empezar
+   desde el principio, vuelva a cargar el archivo. La recarga de la barra de herramientas es la misma
+   qu la del menu.
+ * 'Guardar gcode como ...' - Guarda el archivo actual con un nuevo nombre.
+ * 'Propiedades'- la suma de los movimientos rápidos y de avance. No tiene en cuenta
+   modos de aceleración, fusion o ruta para que el tiempo reportado nunca
+   sea menor que el tiempo de ejecución real.
+ * 'Editar tabla de herramientas ...' - Igual que Editar si ha definido un editor.
+    Puede abrir la tabla de herramientas y editarla.
+ * 'Recargar tabla de herramientas': después de editar la tabla de herramientas, debe volve a cargarla.
+ * 'Editor Ladder' - Si has cargado Classic Ladder puedes editarlo desde
    aquí. Vea el capítulo Classicladder para más información.
 // <<cha:classicladder,Classicladder>> -- all-english file removed
-
-* 'Salir' - Termina la sesión actual de LinuxCNC.
+ * 'Salir' - Termina la sesión actual de LinuxCNC.
 
 [[sub:axis-machine-menu]]
-==== Menú de Máquina
+=== Menú de Máquina
 
-* 'Toggle Emergency Stop F1'- cambia el estado de la parada de emergencia.
-* 'Toggle Machine Power F2' - Cambiar el estado de encendido de la máquina si
+ * 'Toggle Emergency Stop F1'- cambia el estado de la parada de emergencia.
+ * 'Toggle Machine Power F2' - Cambiar el estado de encendido de la máquina si
    la parada de emergencia no está encendida.
-* 'Ejecutar programa'- Ejecuta el programa actualmente cargado desde el principio.
-* 'Ejecutar desde la línea seleccionada' - seleccione la línea desde la que desea comenzar.
+ * 'Ejecutar programa'- Ejecuta el programa actualmente cargado desde el principio.
+ * 'Ejecutar desde la línea seleccionada' - seleccione la línea desde la que desea comenzar.
    Use con precaución ya que esto moverá la herramienta a la posición esperada en
    la línea y luego se ejecutará el resto del código.
 
 [WARNING]
 No use 'Ejecutar desde la línea seleccionada' si su programa de código g contiene subrutinas.
 
-* 'Step' - Un solo paso a través de un programa.
-* 'Pausa' - Pausa un programa.
-* 'Resume' - reanudar la ejecución de una pausa.
-* 'Stop' - Detiene un programa en ejecución. Cuando se selecciona ejecutar después de una parada, el programa
+ * 'Step' - Un solo paso a través de un programa.
+ * 'Pausa' - Pausa un programa.
+ * 'Resume' - reanudar la ejecución de una pausa.
+ * 'Stop' - Detiene un programa en ejecución. Cuando se selecciona ejecutar después de una parada, el programa
            comenzará desde el principio.
-* 'Stop en M1' - Si se alcanza un M1, y esto esta activo, la ejecución del programa
-    parará en la línea M1. Presione Resume para continuar.
-* 'Saltar líneas con "/"' - Si una línea comienza con '/' y esto está activo,
+ * 'Stop en M1' - Si se alcanza un M1, y esto esta activo, la ejecución del programa
+   parará en la línea M1. Presione Resume para continuar.
+ * 'Saltar líneas con "/"' - Si una línea comienza con '/' y esto está activo,
    la línea se saltará.
-* 'Borrar historial de MDI': borra la ventana del historial de MDI.
-* 'Copiar desde el historial de MDI': copia el historial MDI al portapapeles
-* 'Pegar al historial de MDI' - Pegar desde el portapapeles a la ventana del historial MDI
-* 'Calibración': inicia el asistente de calibración (emccalib.tcl).
+ * 'Borrar historial de MDI': borra la ventana del historial de MDI.
+ * 'Copiar desde el historial de MDI': copia el historial MDI al portapapeles
+ * 'Pegar al historial de MDI' - Pegar desde el portapapeles a la ventana del historial MDI
+ * 'Calibración': inicia el asistente de calibración (emccalib.tcl).
    La calibración lee el archivo HAL y para cada 'setp' que usa una variable
    del archivo ini que se encuentra en las secciones [AXIS_L], [JOINT_N] o [TUNE],
    crea una entrada que puede ser editada y probada.
-* 'Mostrar configuración HAL'- abre la ventana de configuración HAL donde puede
+ * 'Mostrar configuración HAL'- abre la ventana de configuración HAL donde puede
    monitorear componentes HAL, pines, parámetros, señales, funciones y subprocesos.
-* 'HAL Meter'- abre una ventana donde puede monitorear un solo Pin HAL, señal o
+ * 'HAL Meter'- abre una ventana donde puede monitorear un solo Pin HAL, señal o
     Parámetro.
-* 'HAL Scope'- abre un osciloscopio virtual que permite seguir valores HAL en función del tiempo.
-* 'Mostrar estado de LinuxCNC'- abre una ventana que muestra el estado de LinuxCNC.
-* 'Establecer nivel de depuración'- abre una ventana donde se pueden ver los niveles de depuración y se pueden configurar algunos.
-* 'Homing' - home uno o todos los ejes.
-* 'Unhoming' - Deshacer home de uno o todos los ejes.
-* 'Sistema de coordenadas cero'- establece todos los offsets a cero en el sistema de coordenadas elegido.
+ * 'HAL Scope'- abre un osciloscopio virtual que permite seguir valores HAL en función del tiempo.
+ * 'Mostrar estado de LinuxCNC'- abre una ventana que muestra el estado de LinuxCNC.
+ * 'Establecer nivel de depuración'- abre una ventana donde se pueden ver los niveles de depuración y se pueden configurar algunos.
+ * 'Homing' - home uno o todos los ejes.
+ * 'Unhoming' - Deshacer home de uno o todos los ejes.
+ * 'Sistema de coordenadas cero'- establece todos los offsets a cero en el sistema de coordenadas elegido.
 //[[sub:axis:tool-touch-off]]
-* 'Tool Touch Off'(((Axis, Tool Touch Off)))
-** 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
-ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
-modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
-la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
-Consulte <<gcode:g10-l10,G10 L10 en el capítulo de código G.
-** 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
-es relativo al noveno ('G59.3') sistema de coordenadas, con el offset del eje
-('G92') ignorado. Esto es útil cuando hay un accesorio para Tool touch off en una
-ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas establecido
-de tal manera que la punta de una herramienta de longitud cero esté en el origen del montaje cuando
-las coordenadas relativas son 0. Consulte <<gcode:g10-l11,G10 L11 en el capítulo de códigos G.
+ * 'Tool Touch Off'(((Axis, Tool Touch Off)))
+ ** 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
+    ingresado es relativo al sistema de coordenadas de la pieza actual ('G5x'),
+    modificado por el offset del eje ('G92'). Cuando se completa el Touch Off,
+    la coordenada relativa para el eje elegido se convertirá en el valor ingresado.
+    Consulte <<gcode:g10-l10,G10 L10 en el capítulo de código G.
+ ** 'Tool touch off to fixture' - Al realizar Touch Off, el valor ingresado
+    es relativo al noveno ('G59.3') sistema de coordenadas, con el offset del eje
+    ('G92') ignorado. Esto es útil cuando hay un accesorio para Tool touch off en una
+    ubicación fija en la máquina, con el noveno ('G59.3') sistema de coordenadas establecido
+    de tal manera que la punta de una herramienta de longitud cero esté en el origen del montaje cuando
+    las coordenadas relativas son 0. Consulte <<gcode:g10-l11,G10 L11 en el capítulo de códigos G.
 
 ==== Menú Ver
 

@@ -74,12 +74,12 @@ La fenêtre d'AXIS contient les éléments suivants:
    'actuelle'(((Position: Actuelle))) (par opposition à une position
    'commandée')(((Position: Commandée)))
 
-=== Options des menus
+== Options des menus
 
 Certaines options de menu peuvent s'afficher en grisé, c'est dépendant des
 options du fichier de configuration ini.
 
-.Menu Fichier
+=== Menu Fichier
 
  * 'Ouvrir...' - C'est une boîte de dialogue standard pour ouvrir un fichier G-code
    à charger dans AXIS. Si un filtre de programme a été configuré, il
@@ -108,7 +108,7 @@ options du fichier de configuration ini.
  * 'Quitter...' - Termine la session courante de LinuxCNC.
 
 [[sub:axis-machine-menu]]
-.Menu Machine
+=== Menu Machine
 
  * 'Arrêt d'Urgence F1...' - (bascule) Active/désactive l'arrêt d'urgence.
  * 'Marche/Arrêt F2...' - (bascule) Active/désactive la puissance machine.
