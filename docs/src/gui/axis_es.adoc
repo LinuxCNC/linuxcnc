@@ -385,7 +385,6 @@ Cuando se carga una herramienta (por ejemplo, con el comando MDI 'T1 M6'),
 el cono cambia a un cilindro que muestra el diámetro de la herramienta, dado en el archivo de tabla de herramientas.
 
 .Backplot
-
 Cuando la máquina se mueve, deja un rastro en pantalla llamado backplot.
 El color de la línea indica el tipo de movimiento:
 Amarillo para jogs, verde claro para movimientos rápidos,
@@ -393,7 +392,6 @@ rojo para movimientos rectos a velocidad de avance
 y magenta para movimientos circulares a velocidad de avance.
 
 .Cuadrícula
-
 Axis puede, opcionalmente, mostrar una cuadrícula en las vistas ortogonales. Habilite
 o deshabilite la cuadrícula usando 'Cuadrícula' en el menu 'Ver'. Cuando esta
 habilitada, la cuadrícula se muestra en las vistas superior y superior girada. Cuando
@@ -404,7 +402,6 @@ por el elemento  del archivo ini `[DISPLAY]GRIDS`. Si no se especifica, el valor
 
 Especificar una cuadrícula muy pequeña puede disminuir el rendimiento.
 
-.Interaccion
 
 Al hacer clic izquierdo en una parte del plot de vista previa,la línea será resaltada
 tanto en las pantallas gráficas como en las de texto.
@@ -413,21 +410,17 @@ Al hacer clic izquierdo en un área vacía, se eliminará el resaltado.
 Al arrastrar con el botón izquierdo del ratón presionado,
 la trama de vista previa se desplazará (panorámico).
 
-Al arrastrar con Mayús y el botón izquierdo del ratón presionado,
-o arrastrando con la rueda del ratón presionada,
+Al arrastrar con Mayús y el botón izquierdo del ratón presionado, o arrastrando con la rueda del ratón presionada,
 La trama de vista previa se rotará.
 Cuando una línea está resaltada,
 el centro de rotación es el centro de la línea.
 De lo contrario, el centro de rotación es
 el centro de todo el plot.
 
-Al girar la rueda del ratón,
-o arrastrando con el botón derecho del ratón presionado,
-o arrastrando con Control y presionando el botón izquierdo del ratón,
+Al girar la rueda del ratón, o arrastrando con el botón derecho del ratón presionado, o arrastrando con Control y presionando el botón izquierdo del ratón,
 el plot de vista previa se acercará o alejará.
 
-Al hacer clic en uno de los iconos de 'Vista predefinida',
-o presionando 'V', se pueden seleccionar varias vistas preestablecidas.
+Al hacer clic en uno de los iconos de 'Vista predefinida', o presionando 'V', se pueden seleccionar varias vistas preestablecidas.
 
 === Área de visualización de texto
 
@@ -438,10 +431,8 @@ Cuando el programa se está ejecutando, la línea que se está ejecutando actual
 resaltada en rojo. Si el usuario no ha seleccionado ninguna línea,
 la pantalla de texto se desplazará automáticamente para mostrar la línea actual.
 
-Líneas actuales y seleccionadas
-
+.Líneas actuales y seleccionadas
 image::images/axis-currentandselected_es.png["Líneas actuales y seleccionadas",align="center"]
-
 
 === Control manual
 
@@ -461,7 +452,6 @@ Si la variable de entorno 'AXIS_NO_AUTOCONFIGURE' está establecida,
 este comportamiento está deshabilitado y todos los elementos aparecerán.
 
 .El grupo Axis
-
 'Axis' le permite mover manualmente la máquina.
 Esta acción se conoce como 'jogging'.
 Primero, seleccione el eje a mover haciendo clic en él.
@@ -502,7 +492,6 @@ activara el bit 'is-homed' para ese eje.
 Consulte el <<cha:homing-configuration,Capítulo de configuración de Homing para obtener más información.
 
 .Touch Off
-
 Al presionar 'Touch Off' o la tecla END, el 'offset G5x' para el
 el eje actual se cambia para que el valor del eje actual sea el
 valor específicado. Las expresiones se pueden ingresar usando las reglas para los
@@ -517,7 +506,6 @@ en el menú Machine.
 
 
 .Anulacion de Límites
-
 Pulsando Anulacion de Límites, se permitirá jog temporalmente en la máquina
 mas alla de un final de carrera físico. Esta casilla solo está disponible
 cuando se dispara un interruptor de límite. La anulación desaparece después de un jog. Si
@@ -527,7 +515,6 @@ no permite un jog más allá de un límite soft. La única manera de deshabilita
 en un eje es con unhome._
 
 .El grupo del husillo.
-
 Los botones de la primera fila seleccionan la dirección de giro del husillo;
 en sentido contrario a las agujas del reloj, detenido y en el sentido de las agujas del reloj.
 El sentido antihorario solo aparece si el pin 'motion.spindle-reverse' está en el archivo HAL (
@@ -539,7 +526,6 @@ los elementos en este grupo. Presionando el botón de arranque del husillo
 se establece la velocidad 'S' en 1.
 
 .El grupo de refrigerante
-
 Dos botones permiten encender los refrigerantes 'Mist' y 'Flood'
 y apagarlos. Dependiendo de la configuración de su máquina, puede no aparecer todos los elementos en
 este grupo.
@@ -554,16 +540,13 @@ La pestaña MDI
 
 image::images/axis-mdi_es.png["pestaña MDI",align="center"]
 
-* 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
-
-* 'Comando MDI' - Esto le permite ingresar un comando de código g para ser ejecutado. Ejecute el
-    comando pulsando Intro o haciendo clic en 'Go'.
-
-* 'Códigos G activos' - Se muestran los 'códigos modales' que están activos en el intérprete.
-    Por ejemplo, 'G54' indica que el 'offset G54' se aplica a todas
-    las coordenadas que se introduzcan. En modo Auto los G-Códigos Activos representan
-    los códigos después la lectura por el intérprete.
-
+ * 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
+ * 'Comando MDI' - Esto le permite ingresar un comando de código g para ser ejecutado. Ejecute el
+   comando pulsando Intro o haciendo clic en 'Go'.
+ * 'Códigos G activos' - Se muestran los 'códigos modales' que están activos en el intérprete.
+   Por ejemplo, 'G54' indica que el 'offset G54' se aplica a todas
+   las coordenadas que se introduzcan. En modo Auto los G-Códigos Activos representan
+   los códigos después la lectura por el intérprete.
 
 === Porcentaje de alimentacion
 
@@ -616,11 +599,9 @@ eje 2. El resto de las teclas numéricas establecerán el porcentaje de alimenta
 Al ejecutar un programa, ',1,2,3,4,5,6,7,8,9,0 establecerán el porcentaje de alimentación
 a 0% - 100%.
 
-
 Los métodos abreviados de teclado más utilizados se muestran en la siguiente tabla
 
 .Atajos de teclado más comunes
-
 [width="80%", options="header", cols="^,<,^"]
 |====================================================================
 | Pulsar tecla       | Acción tomada                                   | Modo
@@ -661,7 +642,6 @@ detalles del estado de LinuxCNC. Puedes ejecutar este programa mediante Maquina 
 Mostrar estado de LinuxCNC
 
 .Ventana de estado de LinuxCNC
-
 image::images/axis-emc-status_es.png["Status LinuxCNC",align="center"]
 
 El nombre de cada elemento se muestra en la columna izquierda. El valor actual
@@ -702,9 +682,8 @@ comandos a un AXIS en ejecución. Los comandos disponibles se muestran ejecutand
 ('--ping'), cargando un archivo por nombre, recargando el archivo cargado actualmente
 archivo ('--reload'), y hacer que AXIS salga ('--quit').
 
-[[sec:manual-tool-change]] (((Axis, Cambio de herramienta manual)))
-
-== Cambio de herramienta manual
+[[sec:manual-tool-change]]
+== Cambio de herramienta manual(((Axis, Cambio de herramienta manual)))
 
 LinuxCNC incluye un componente HAL de espacio de usuario llamado 'hal_manualtoolchange',
 que muestra una ventana que le indica qué herramienta se espera cuando
@@ -730,7 +709,6 @@ Para desactivar esta función para el cambio de herramienta actual,
 programe un G1 sin movimiento después de T<n>.
 
 .Ventana de cambio de herramientas manual
-
 image::images/manual-tool-change_es.png["Ventana de cambio de herramientas manual",align="center"]
 
 == Módulos de Python
@@ -766,7 +744,6 @@ Al presionar 'V' se hace zoom para mostrar el archivo completo, si hay uno carga
 En el modo de torno, se muestra la forma de la herramienta cargada (si existe).
 
 .La forma de la herramienta del torno
-
 image::images/axis-lathe-tool.png["Forma de herramienta del torno",align="center"]
 
 == Usando AXIS en el modo de corte de espuma
@@ -779,7 +756,6 @@ el plano XY y el plano UV. Los comentarios especiales (XY_Z_POS) y (UV_Z_POS)
 establecen las coordenadas Z de estos planos, que por defecto son 0 y 1,5 unidades de máquina.
 
 .Modo de corte de espuma.
-
 image::images/axis-foam_es.png["Modo de corte de espuma",align="center"]
 
 
@@ -829,7 +805,6 @@ tratada como g-code. Un ejemplo de este script está disponible en
 serie de agujeros a lo largo de la circunferencia de un círculo.
 
 .Agujeros circulares
-
 image::images/holes.png["Agujeros circulares",align="center"]
 
 Si la variable de entorno AXIS_PROGRESS_BAR está establecida, entonces las líneas
@@ -958,7 +933,6 @@ como 'axisui.jog.x'. Uno de estos pines es 'VERDADERO' y el resto son
 'FALSO'. Están diseñados para controlar los pines de habilitacion de movimiento jog.
 
 .Axisui Pins
-
 El eje tiene pines Hal para indicar qué botón de selección de jog está seleccionado en el
 Pestaña 'Control manual'.
 
@@ -1091,7 +1065,6 @@ root_window.bind('<Key-0>',lambda event: set_feedrate(100))
 machine = inifile.find('EMC','MACHINE')
 print 'machine name =',machine
 ----
-
 
 === Leer el estado de linuxcnc
 
@@ -1390,3 +1363,5 @@ root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-wid
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
 ----
+
+// vim: set syntax=asciidoc:

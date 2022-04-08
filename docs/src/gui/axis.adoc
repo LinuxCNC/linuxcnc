@@ -381,7 +381,6 @@ by the inifile item `[DISPLAY]GRIDS`; if unspecified, the default is
 Specifying a very small grid may decrease performance.
 
 .Interacting
-
 By left-clicking on a portion of the preview plot,
 the line will be highlighted
 in both the graphical and text displays.
@@ -435,7 +434,6 @@ If the environment variable 'AXIS_NO_AUTOCONFIGURE' is set,
 this behavior is disabled and all the items will appear.
 
 .The Axis group
-
 'Axis' allows you to manually move the machine.
 This action is known as 'jogging'.
 First, select the axis to be moved by clicking it.
@@ -457,7 +455,6 @@ See the <<sec:display-section,DISPLAY Section>> for more information on setting
 the increments.
 
 .Homing (Identity Kinematics)
-
 The inifile setting [KINS]JOINTS defines the total number of
 joints for the system.  A joint may be configured with
 a home switch or for 'immediate' homing.  Joints may specify
@@ -613,9 +610,7 @@ to 0% - 100%.
 
 The most frequently used keyboard shortcuts are shown in the following Table:
 
-[[cap:common-keyboard-shortcuts]]
 .Most Common Keyboard Shortcuts(((Keyboard Shortcuts)))
-
 [width="80%", options="header", cols="^,<,^"]
 |====================================================================
 |Keystroke        | Action Taken                              | Mode

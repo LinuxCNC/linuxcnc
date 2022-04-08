@@ -164,7 +164,6 @@ programme G-code contient des sous-programmes.
    modifié par le décalage d'axe (G92). Quand la séquence de 'Toucher' est
    complète, la coordonnée relative pour l'axe choisi prendra la valeur
    entrée. Voir aussi <<gcode:g10-l10,G10 L10>> dans le chapitre du G-code.
-
 ** 'L'outil touchera le porte-pièce...' - Lorsqu'un 'Toucher' est effectué, la valeur entrée est relative au 9ème
    système de coordonnées (G59.3), le décalage d'axe (G92) est ignoré.
    Mode destiné aux machines possédant un porte-pièce référencé à un endroit,
@@ -176,7 +175,7 @@ programme G-code contient des sous-programmes.
 
 .Menu Vues
 
-* 'Vue de dessus...' - La vue de dessus (ou vue de Z) affiche l'aspect du G-code
+ * 'Vue de dessus...' - La vue de dessus (ou vue de Z) affiche l'aspect du G-code
    vu depuis le côté positif de l'axe Z et en regardant vers son côté négatif.
    Cette vue convient bien pour visualiser les axes X et Y.
  * 'Vue de dessus basculée...' - La vue de dessus basculée (ou vue de Z basculé)
@@ -608,7 +607,7 @@ Touches des correcteurs de vitesse.
 
 Les raccourcis clavier les plus fréquents sont visibles dans la table ci-dessous.
 
-.Raccourcis clavier usuels[[cap:Raccourcis-clavier-usuels]]
+.Raccourcis clavier usuels
 [width="90%", options="header"]
 |====================================================================
 |Touches          | Actions produites                           | Mode
@@ -912,3 +911,5 @@ aperçu sur certaines parties qui sont déjà fonctionnelles).
 
 Cet affichage peut être très utile lors du pré-affichage du parcours d'outil,
 quand les commentaires (debug,message) ne sont pas affichés.
+
+// vim: set syntax=asciidoc:
