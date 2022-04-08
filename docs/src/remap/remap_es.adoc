@@ -66,7 +66,7 @@ Los códigos M y G, y las llamadas de subrutinas O-words tienen una sintaxis bas
 Los procedimientos O-word, por ejemplo, toman parámetros posicionales
 con una sintaxis específica tal como:
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<test> call [1.234] [4.65]
 ---------------------------------------------------------------------
@@ -213,7 +213,7 @@ Para darle una idea de cómo encajan las piezas, exploremos una
 definición de código bastante minimalista pero completa. Elegimos un
 código M no asignado y agregamos la siguiente opción al archivo ini:
 
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
 REMAP=M400  modalgroup=10 argspec=Pq ngc=myprocedure
@@ -406,7 +406,7 @@ Supongamos que el código se define como
 
 y `m400.ngc` es como sigue:
 
-[source,ngc]
+[source,{ngc}]
 ----------------------------------------------------------------------------------
 o<m400>sub
 (Se requiere P ya que está en mayúsculas en argspec)
@@ -432,7 +432,7 @@ Supongamos que el código se define como
 
 y `m410.ngc` es como sigue:
 
-[source,ngc]
+[source,{ngc}]
 ----------------------------------------------------------------------------------
 o<m410> sub
 (debug, [1]=#1 [2]=#2 [3]=#3)
@@ -600,7 +600,7 @@ $ echo 'import remap' >toplevel.py
 
 Ahora edite `/home/user/xxx/xxx.ini` y agregue lo siguiente:
 
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 [PYTHON]
 TOPLEVEL=/home/user/xxx/python/toplevel.py
@@ -791,7 +791,7 @@ valor positivo; los pasos 3-5 eventualmente serían cubiertos aquí (ver
 <<gcode:ini-hal-params, aquí>> para las variables referentes
 a la configuración del archivo ini):
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 O<change> sub
 (debug, cambio: current_tool=#<current_tool>)
@@ -850,7 +850,7 @@ Esto significa que los pines iocontrol correspondientes no tienen ninguna funci�
 más. Por lo tanto, configuramos iocontrol para reconocer inmediatamente un
 cambio, de esta manera:
 
-[source,hal]
+[source,{hal}]
 ---------------------------------------------------------------------
 # puenteo de señales de cambio al reasignar M6
 net tool-change-loop iocontrol.0.tool-change iocontrol.0.tool-changed
@@ -902,7 +902,7 @@ Retorciendo un poco una incorporada se vería así (en el caso de `M6`):
 
  REMAP=M6 modalgroup=6 ngc=mychange
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<mychange> sub
 M6 (uso de comportamiento incorporado de M6)
@@ -934,7 +934,7 @@ al principio del procedimiento O-word.
 Nuevamente, los pines de iocontrol tool-prepare/tool-ready no se utilizarían
 y serian reemplazados por pines `motion.*`, por lo que esos pines deben estar puenteados:
 
-[source,hal]
+[source,{hal}]
 ---------------------------------------------------------------------
 # puentear señales preparar al reasignar T
 net tool-prep-loop iocontrol.0.tool-prepare iocontrol.0.tool-prepared
@@ -973,7 +973,7 @@ def prepare_prolog(self,**words):
 ---------------------------------------------------------------------
 
 El procedimiento mínimo de preparación de ngc de nuevo se ve así:
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<prepare> sub
 ; Devolviendo un valor positivo:
@@ -1020,7 +1020,7 @@ La forma de hacerlo es mediante el uso de la  característica `[RS274NGC]ON_ABOR
 Esta opción de ini especifica una llamada de procedimiento O-word que es
 ejecutada si Task, por alguna razón, aborta la ejecución del programa.
 
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
 ON_ABORT_COMMAND=O <on_abort> call
@@ -1029,7 +1029,7 @@ ON_ABORT_COMMAND=O <on_abort> call
 El procedimiento on_abort sugerido se vería así (adaptelo a
 sus necesidades):
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<on_abort> sub
 
@@ -1075,7 +1075,7 @@ use la característica `(abort, <message>)` para terminar el manejador con un
 mensaje de error. Tenga en cuenta que puede sustituir parámetros HAL numerados, nombrados e ini
 en el texto como en este ejemplo (vea también `tests/interp/abort-hot-comment/test.ngc`):
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o100 if [..] (alguna condición de error)
      (abort, ¡Algo va Mal! p42=#42 q=#<q> ini=#<_ini[a]x> pin=#<_hal[component.pin])
@@ -1137,14 +1137,14 @@ Un ejemplo: Supongamos que tiene un `G84.3` definido como ciclo de código G rea
 con el siguiente segmento ini (ver <<remap:cycle-stdglue,aquí>> para
 una descripción detallada de +cycle_prolog+ y +cycle_epilog+):
 
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 [RS274NGC]
 # Un ciclo con un procedimiento oword: G84.3 <X- Y- Z- Q- P->
 REMAP=G84.3 argspec=xyzabcuvwpr prolog=cycle_prolog ngc=g843 epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
 Ejecutando las siguientes lineas:
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 g17
 (1) g84.3 x1 y2 z3 r1
@@ -1524,7 +1524,7 @@ def retrieve_param(self, **words):
     return INTERP_OK
 ---------------------------------------------------------------------
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 o<testparam> sub
 (debug, call_level=#<_call_level> myname=#<myname>)
@@ -1650,7 +1650,7 @@ def _pi(self):
     return 3.1415926535
 ---------------------------------------------------------------------
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 #<circumference> = [2 * #<radius> * #<_pi>]
 ---------------------------------------------------------------------
@@ -1783,7 +1783,7 @@ investigación más a fondo del bloque de forma manual para dar mejor mensaje
 de error.
 
 El argspec sugerido es el siguiente:
-[source,ini]
+[source,{ini}]
 ---------------------------------------------------------------------
 REMAP=G<somecode> argspec=xyzabcuvwqplr prolog=cycle_prolog ngc=<ngc procedure> epilog=cycle_epilog modalgroup=1
 ---------------------------------------------------------------------
@@ -2264,7 +2264,7 @@ Veamos un programa de ejemplo simple que hace movimientos relativos.
 implica que el resultado del próximo movimiento se basa en la posición del
 anterior:
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 N10 G91
 N20 G0 X10 Y-5 Z20
@@ -2286,7 +2286,7 @@ Sin embargo, la lectura adelantada completa solo es posible cuando
 el intérprete puede predecir el impacto de la posición para *cada* línea en el
 programa de antemano. Veamos un ejemplo modificado:
 
-[source,ngc]
+[source,{ngc}]
 ---------------------------------------------------------------------
 N10 G91
 N20 G0 X10 Y-5 Z20
