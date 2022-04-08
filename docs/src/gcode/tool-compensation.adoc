@@ -16,9 +16,8 @@ N07 G0 X0
 
 image:images/length1.png[]
 
-Avec ce programme, dans la plupart des cas, la machine va appliquer le
-décalage sous forme d'une rampe pendant le mouvement en xyz suivant le
-mot G43.
+With this program, in most cases, the machine will apply the offset in the form
+of a ramp during the movement in xyz following the word G43.
 
 [[sec:touch-off]]
 == Touch Off(((Touch Off)))

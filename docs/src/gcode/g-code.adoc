@@ -1812,7 +1812,7 @@ Typical values are 29, 29.5 or 30.
 * 'H-' - The number of 'spring passes'. Spring passes are additional passes at
 full thread depth. If no additional passes are desired, program 'H0'.
 
-Thread entries and exits can be programmed tapered with the of 'E'
+Thread entries and exits can be programmed tapered with the 'E'
 and 'L' values.
 
 * 'E-' - Specifies the distance along the drive line used for the taper. The

@@ -99,9 +99,9 @@ will restart the program at the following line.
 [[mcode:m3-m4-m5]]
 == M3, M4, M5 Spindle Control(((M3, M4, M5 Spindle Control)))
 
-* 'M3 Snnnnn [$n]' - start the selected spindle clockwise at the 'S' speed.
-* 'M4 Snnnnn [$n]' - start the selected spindle counterclockwise at the 'S' speed.
-* 'M5 Snnnnn [$n]' - stop the selected spindle.
+* 'M3 [$n]' - start the selected spindle clockwise at the 'S' speed.
+* 'M4 [$n]' - start the selected spindle counterclockwise at the 'S' speed.
+* 'M5 [$n]' - stop the selected spindle.
 
 Use $ to operate on specific spindles.
 If $ is omitted then the commands default to operating on spindle 0.

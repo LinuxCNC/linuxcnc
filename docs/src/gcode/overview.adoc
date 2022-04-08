@@ -1154,8 +1154,8 @@ data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94).
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
 
-In particular, tolerances checks of arcs are done for .001 and .0001
-depending on active units
+In particular, tolerance checks of arcs are done for .001 and .0001
+according to the active units.
 
 .Use consistent white space
 G-code is most legible when at least one space appears before words.
@@ -1207,7 +1207,7 @@ the N-word value.
 Consider using the inverse time speed mode
 
 Because the meaning of an 'F' word in meters per minute varies depending on
-the axes to be moved and because the quantity of material removed does
+the type of axis to be moved and because the amount of removed material does
 not depend only on the feed rate, it can be simpler to use G93, inverse
 speed of time, to achieve the removal of desired material.
 

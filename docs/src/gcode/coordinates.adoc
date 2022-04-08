@@ -40,7 +40,7 @@ code tells the interpreter to move to the actual axes positions
 G53 G0 X0 Y0 Z0
 ----
 
-will move the mobile from the current position to the position where
+will move from the current position to the position where
 the machine coordinates of the three axes will be at zero. You can
 use this command if you have a fixed position for the tool change or if
 your machine has an automatic tool changer. You can also use this command
@@ -227,7 +227,7 @@ not explicitly zeroed will retain the previous offset.
 G92 is the most misunderstood and cleverest command
 programmable with LinuxCNC. The way it works has changed a bit
 between the first versions and the current one. These changes have
-doubt baffled many users. She should be seen as
+doubt baffled many users. They should be seen as
 a command producing a temporary offset, which applies to all
 the other offsets.
 
@@ -301,7 +301,7 @@ will be applied when an axis is homed.  See
 
 === Setting G92 Values
 
-There is at least two ways to set G92 values:
+There are at least two ways to set G92 values:
 
 * With a right click on the position displays in tklinuxcnc, a window opens
 where it is possible to enter a value
