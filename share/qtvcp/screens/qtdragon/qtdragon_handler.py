@@ -34,6 +34,7 @@ TAB_CAMERA = 6
 TAB_GCODES = 7
 TAB_SETUP = 8
 TAB_SETTINGS = 9
+TAB_UTILITIES = 10
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -175,13 +176,17 @@ class HandlerClass:
         from qtvcp.lib.gcode_utility.facing import Facing
         self.facing = Facing()
         self.w.layout_facing.addWidget(self.facing)
+
         from qtvcp.lib.gcode_utility.hole_circle import Hole_Circle
         self.hole_circle = Hole_Circle()
         self.w.layout_hole_circle.addWidget(self.hole_circle)
-        LOG.info("Using NGCGUI utility")
+
+        # load the NgcGui widget into the utilities tab
+        # then move (warp) the info tab from it to the left tab widget
         from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
         self.ngcgui = NgcGui()
         self.w.layout_ngcgui.addWidget(self.ngcgui)
+        self.ngcgui.warp_info_frame(self.w.ngcGuiLeftLayout)
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -535,6 +540,11 @@ class HandlerClass:
             self.w.jogging_frame.show()
         if index == TAB_MAIN:
             self.w.stackedWidget_dro.setCurrentIndex(0)
+        # show ngcgui info tab if utilities tab is selected
+        # but only if the utilities tab has ngcgui selected
+        if index == TAB_UTILITIES:
+            if self.w.tabWidget_utilities.currentIndex() == 2:
+                self.w.stackedWidget.setCurrentIndex(4)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -799,6 +809,14 @@ class HandlerClass:
     def chk_use_virtual_changed(self, state):
         if not state:
             self.w.stackedWidget_dro.setCurrentIndex(0)
+
+    # show ngcgui info tab (in the stackedWidget) if ngcgui utilites
+    # tab is selected
+    def tab_utilities_changed(self, num):
+        if num == 2:
+            self.w.stackedWidget.setCurrentIndex(4)
+        else:
+            self.w.stackedWidget.setCurrentIndex(0)
 
     #####################
     # GENERAL FUNCTIONS #

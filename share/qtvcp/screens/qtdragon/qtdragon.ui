@@ -243,7 +243,7 @@
                <enum>QFrame::Raised</enum>
               </property>
               <property name="currentIndex">
-               <number>2</number>
+               <number>4</number>
               </property>
               <widget class="QWidget" name="gcode_page">
                <property name="sizePolicy">
@@ -2027,6 +2027,9 @@ PLATE</string>
                  </widget>
                 </item>
                </layout>
+              </widget>
+              <widget class="QWidget" name="ngcgui_page">
+               <layout class="QVBoxLayout" name="ngcGuiLeftLayout"/>
               </widget>
              </widget>
             </item>
@@ -6370,7 +6373,7 @@ TO FILE</string>
                      <item>
                       <widget class="QTabWidget" name="tabWidget_utilities">
                        <property name="currentIndex">
-                        <number>0</number>
+                        <number>2</number>
                        </property>
                        <widget class="QWidget" name="facing">
                         <attribute name="title">
@@ -14072,7 +14075,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>09:25:14 PM</string>
+            <string>12:15:05 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -14391,8 +14394,8 @@ ZERO</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
+     <x>506</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -14407,8 +14410,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>506</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -14423,8 +14426,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>116</y>
+     <x>506</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -14535,8 +14538,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>53</y>
+     <x>300</x>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>-3</x>
@@ -14551,8 +14554,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>83</x>
-     <y>53</y>
+     <x>399</x>
+     <y>470</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -14615,8 +14618,8 @@ ZERO</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
+     <x>506</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -14631,8 +14634,8 @@ ZERO</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
+     <x>506</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -14647,8 +14650,8 @@ ZERO</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -14663,8 +14666,8 @@ ZERO</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -14695,8 +14698,8 @@ ZERO</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -14711,8 +14714,8 @@ ZERO</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -14727,8 +14730,8 @@ ZERO</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>508</x>
@@ -14759,8 +14762,8 @@ ZERO</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
@@ -14791,8 +14794,8 @@ ZERO</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>458</x>
-     <y>156</y>
+     <x>456</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -14807,8 +14810,8 @@ ZERO</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>458</x>
-     <y>156</y>
+     <x>456</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -14823,8 +14826,8 @@ ZERO</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>458</x>
-     <y>156</y>
+     <x>456</x>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -14839,8 +14842,8 @@ ZERO</string>
    <slot>percent_done_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>101</x>
-     <y>31</y>
+     <x>107</x>
+     <y>55</y>
     </hint>
     <hint type="destinationlabel">
      <x>-68</x>
@@ -14903,8 +14906,8 @@ ZERO</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>528</x>
-     <y>86</y>
+     <x>526</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -14919,8 +14922,8 @@ ZERO</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>482</x>
-     <y>96</y>
+     <x>480</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>-2</x>
@@ -14935,12 +14938,28 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>508</x>
-     <y>106</y>
+     <x>506</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
      <y>-88</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget_utilities</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>tab_utilities_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>529</x>
+     <y>191</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-2</x>
+     <y>204</y>
     </hint>
    </hints>
   </connection>
@@ -15016,9 +15035,10 @@ ZERO</string>
   <slot>percent_loaded_changed()</slot>
   <slot>chk_use_basicprobe_changed()</slot>
   <slot>chk_use_versaprobe_changed()</slot>
+  <slot>tab_utilities_changed()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
