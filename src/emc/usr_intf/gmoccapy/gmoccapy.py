@@ -2740,7 +2740,9 @@ class gmoccapy(object):
             state = True
         if self.stat.task_state != linuxcnc.STATE_ON:
             state = False
-        self._sensitize_widgets(widgetlist, state)
+
+        if not self.widgets.tbtn_setup.get_active():
+            self._sensitize_widgets(widgetlist, state)
 
     def on_hal_status_metric_mode_changed(self, widget, metric_units):
         print("hal status metric mode changed")
@@ -3619,6 +3621,7 @@ class gmoccapy(object):
         # otherwise external halui commands could start a program while we are in settings
         self.command.mode(linuxcnc.MODE_MANUAL)
         self.command.wait_complete()
+        self.widgets.rbt_manual.set_active(True)
 
         if widget.get_active():
             # deactivate the mode buttons, so changing modes is not possible while we are in settings mode
