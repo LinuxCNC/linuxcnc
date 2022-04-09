@@ -172,6 +172,20 @@ class HandlerClass:
         except Exception as e:
             print("No default setup file found - {}".format(e))
 
+        # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
+        flag = True
+        for b in range(0,10):
+            button = self.w['macrobutton{}'.format(b)]
+            num = button.property('ini_mdi_number')
+            try:
+                code = INFO.MDI_COMMAND_LIST[num]
+                flag = False
+            except:
+                button.hide()
+        # no buttons hide frame
+        if flag:
+            self.w.frame_macro_buttons.hide()
+
     def init_utils(self):
         from qtvcp.lib.gcode_utility.facing import Facing
         self.facing = Facing()
