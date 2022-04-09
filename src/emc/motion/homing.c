@@ -569,7 +569,7 @@ int homing_init(int id,
         H[i].home_offset     =  0;
         H[i].home            =  0;
         H[i].home_flags      =  0;
-        H[i].home_sequence   = -1;
+        H[i].home_sequence   = 1000; //startup: unrealizable, positive seq no.
         H[i].volatile_home   =  0;
     }
     return 0;
