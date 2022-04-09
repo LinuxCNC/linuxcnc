@@ -4,9 +4,9 @@ QMainWindow {
 }
 
 QStatusBar {
-    background: #606060;
+    background-color: red;
     font: 10pt "Lato Heavy";
-    color: #FFFFD0;
+    color: black;
 }
 
 QPushButton,
@@ -114,8 +114,12 @@ CalculatorDialog QLineEdit {
 }
 
 QLineEdit#mdiline{
-    background: rgb(250, 250, 250);
+    background:  white;
     color: black;
+}
+QLineEdit#lineEdit_statusbar{
+    background:  #404040;
+    color:  #00FF00;
 }
 
 QTextEdit {
