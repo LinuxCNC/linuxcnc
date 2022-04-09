@@ -35,3 +35,4 @@ div.note {
 	padding-left: 0.5em;
 	border-left: 3px solid #c0c0f0;
 }
+table.admonitionblock { margin-left: 0; }
