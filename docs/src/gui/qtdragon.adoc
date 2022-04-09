@@ -190,7 +190,8 @@ jpg = image-to-gcode
 py = python
 ----
 
-QtDragon has custom INI entries:
+=== Probe/Touchplate/Laser Settings
+QtDragon has custom INI entries for required setup.
 
 [source,{ini}]
 ----
@@ -214,21 +215,27 @@ QtDragon has two optional probing tab screens:
 USE_PROBE = basicprobe
 ----
 
-QtDragon has two convenience macro buttons. (QtDragon_hd has up to ten macro buttons available.) +
-By default they are labelled for moving between
+=== Macro Buttons
+
+QtDragon has up to ten convenient macro buttons. +
+In the sample configurations they are labelled for moving between
 current user system origin (zero point) and Machine system origin. +
-These could also call OWord routines if desired. +
 User origin is the first MDI command in the INI list, machine origin is the second. +
-This example shows how to move Z axis up first. the commands are separated by the ;
+These could also call OWord routines if desired. +
+This example shows how to move Z axis up first. the commands are separated by the ';' +
+The label is set after the comma. The symbols '\n' adds a line break. +
 
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
-MDI_COMMAND = G0 Z0;X0 Y0
-MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0
+# for macro buttons
+MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
+MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 ----
 
-The sample configuration
+=== Builtin Sample Configurations
+
+The sample configurations
 'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is already configured to use QtDragon as its front-end. +
 There are several others, to demonstrate different machine configurations.
 
@@ -249,18 +256,19 @@ Pause -Pause Machine Movement
 
 == Buttons
 
-Buttons that are checkable will change their text colour when checked.
+Buttons that are checkable will change their text colour when checked. +
+This is controlled by the stue theme +
 
 == Virtual Keyboard
 
-QtDragon includes a virtual keyboard for use with touchscreens.
-To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings page.
-Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard.
-It can also be shown by clicking the KEYBD button on the top of the screen,
-unless the machine is in AUTO mode. To hide the keyboard, do one of the following:
- - click the MAIN page button
- - click the KEYBD button
- - go into AUTO mode
+QtDragon includes a virtual keyboard for use with touchscreens. +
+To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings page. +
+Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard. +
+It can also be shown by clicking the KEYBD button on the top of the screen, +
+unless the machine is in AUTO mode. To hide the keyboard, do one of the following: +
+ - click the MAIN page button +
+ - click the KEYBD button +
+ - go into AUTO mode +
 
 It should be noted that keyboard jogging is disabled when using the virtual keyboard.
 

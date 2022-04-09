@@ -555,10 +555,10 @@ You can select one of these actions:
  * 'limits override'
  * 'flood'
  * 'mist'
- *  * 'block delete'
+ * 'block delete'
  * 'optional stop'
- * 'mdi command' (set command_string)
- * 'INI mdi number' (set ini_mdi_number)
+ * 'mdi command' - calls a hard code MDI command (set command_string)
+ * 'INI mdi number' calls an INI based MDI command (set ini_mdi_number)
  * 'dro absolute'
  * 'dro relative'
  * 'dro dtg'
@@ -583,8 +583,16 @@ These set attributes of the selected action. Availability depends on the widget.
  * 'command string' - MDI command string that will be invoked if the MDI command action is selected.
  * 'ini_mdi_number' - a reference to the INI file [MDI_COMMAND_LIST] section.
    Set an integer of select one line under the INI's MDI_COMMAND line starting at 0.
-   Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add a line: +
-   'MDI_COMMAND=<some command>'
+   Then in the INI file, under the heading '[MDI_COMMAND_LIST]' add apropriate lines.
+   The commands are separated by the ';'
+   The label is set after the comma. The symbols '\n' adds a line break.
+
+[source,{ini}]
+----
+[MDI_COMMAND_LIST]
+MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
+MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+----
 
 Action buttons are subclasssed from indicated_PushButton
 
