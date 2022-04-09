@@ -82,6 +82,7 @@ int tooldata_read_entry(const char *input_line,
         fprintf(stderr,"!!! PROBLEM no init %s\n",__FILE__);
         return -1;
     }
+    if (input_line[0] == ';') {return 0;} //ignore leading ';'
     strcpy(work_line, input_line);
 
     CANON_TOOL_TABLE empty = tooldata_entry_init();
