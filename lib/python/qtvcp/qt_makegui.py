@@ -10,7 +10,6 @@ from . import logger
 
 log = logger.getLogger(__name__)
 
-
 # Force the log level for this module
 #log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -87,7 +86,6 @@ class _VCPWindow(QtWidgets.QMainWindow):
             return
         self.__class__._instanceNum += 1
 
-        self.filename = path.XML
         self.halcomp = halcomp
         self.has_closing_handler = None
         self.setFocus(True)
@@ -193,10 +191,10 @@ class _VCPWindow(QtWidgets.QMainWindow):
         else:
             log.info('No resource file to load: {}'.format(qrcpy))
 
-    def instance(self):
+    def instance(self, filename):
         self.load_resources()
         try:
-            instance = uic.loadUi(self.filename, self)
+            instance = uic.loadUi(filename, self)
         except AttributeError as e:
             formatted_lines = traceback.format_exc().splitlines()
             if 'slotname' in formatted_lines[-2]:
@@ -263,12 +261,12 @@ Python Error:\n {}'''.format(str(e))
                     themes += (', {}'.format(i))
                 log.error('QTvcp Available system themes: green<{}> {}'.format(current_theme, themes))
 
-    def load_extension(self, handlerpath):
-        methods, self.handler_module, self.handler_instance = self._load_handlers([handlerpath], self.halcomp, self)
+    def load_extension(self, handlerpath, obj = ''):
+        methods, self[obj].handler_module, self[obj].handler_instance = self._load_handlers([handlerpath], self.halcomp, self[obj])
         for i in methods:
-            self[i] = methods[i]
+            self[obj][i] = methods[i]
         # See if the handler file has a closing function to call first
-        self.has_closing_handler = 'closing_cleanup__' in dir(self.handler_instance)
+        self[obj].has_closing_handler = 'closing_cleanup__' in dir(self[obj].handler_instance)
 
     def _load_handlers(self, usermod, halcomp, widgets):
         hdl_func = 'get_handlers'
@@ -359,6 +357,127 @@ Python Error:\n {}'''.format(str(e))
         else:
             log.info('no Handler Override file at: {}'.format(rcfile))
 
+    # facilitate the main screen to create another window panel
+    def makeMainPage(self, name):
+        return MainPage(main=self,name=name )
+
+# This is used to build a window that a qtvcp panel can be built from.
+# The idea is to embed the panel into the main screen
+# This allow the completely separate panels to be incorporated in 
+# as the user sees fit.
+# the big deal is to still allow the panel to have a functioning handler file
+class MainPage(QtWidgets.QMainWindow):
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        for key, value in kwargs.items():
+            if key =='main':
+                self.halcomp = value.halcomp
+                self.PATHS = value.PATHS
+                self.MAIN = value
+            elif key == 'name':
+                self._name = value
+
+    def instance(self, filename):
+        try:
+            instance = uic.loadUi(filename, self)
+        except AttributeError as e:
+            formatted_lines = traceback.format_exc().splitlines()
+            if 'slotname' in formatted_lines[-2]:
+                log.critical('{}: Missing slot name in handler file: {}'.format(self._name, e))
+                message = '''A widget in the ui file, {} was assigned a signal \
+call to a missing function name in the handler file?\n
+There may be more. Some functions might not work.\n
+Python Error:\n {}'''.format(self._name, str(e))
+                rtn = QtWidgets.QMessageBox.critical(None, "QTVCP Error", message)
+            else:
+                log.critical(e)
+                raise
+
+    def load_extension(self, handlerpath):
+        methods, self.handler_module, self.handler_instance = self._load_handlers([handlerpath], self.halcomp, self)
+        for i in methods:
+            self[i] = methods[i]
+        # See if the handler file has a closing function to call first
+        self.has_closing_handler = 'closing_cleanup__' in dir(self.handler_instance)
+
+    def _load_handlers(self, usermod, halcomp, widgets):
+        hdl_func = 'get_handlers'
+        mod = None
+        object = None
+
+        def add_handler(method, f):
+            if method in handlers:
+                handlers[method].append(f)
+            else:
+                handlers[method] = [f]
+
+        handlers = {}
+        for u in usermod:
+            (directory, filename) = os.path.split(u)
+            (basename, extension) = os.path.splitext(filename)
+            if directory == '':
+                directory = '.'
+            if directory not in sys.path:
+                sys.path.insert(0, directory)
+                log.debug('{}: adding import dir yellow<{}>'.format(self._name, directory))
+
+            try:
+                mod = __import__(basename)
+            except ImportError as e:
+                log.critical("{}: module '{}' skipped - import error: "
+                        .format(self._name, basename), exc_info=e)
+                raise
+                continue
+            log.debug("{}: module '{}' imported green<OK>".format(self._name, mod.__name__))
+
+            try:
+                # look for 'get_handlers' function
+                h = getattr(mod, hdl_func, None)
+                if h and callable(h):
+                    log.debug("{}: module '{}' : '{}' function found".format(self._name, mod.__name__, hdl_func))
+                    objlist = h(halcomp, widgets, self.PATHS)  # this sets the handler class signature
+                else:
+                    # the module has no get_handlers() callable.
+                    # in this case we permit any callable except class Objects in the module to register as handler
+                    log.debug("{}: module '{}': no '{}' function - registering only functions as callbacks"
+                              .format(self._name, mod.__name__, hdl_func))
+                    objlist = [mod]
+                # extract callback candidates
+                for object in objlist:
+                    log.debug("{}: Registering handlers in module {} object {}"
+                            .format(self._name, mod.__name__, object))
+                    if isinstance(object, dict):
+                        methods = list(dict.items())
+                    else:
+                        methods = [(n, getattr(object, n, None)) for n in dir(object)]
+                    for method, f in methods:
+                        if method.startswith('_'):
+                            continue
+                        if callable(f):
+                            log.debug("{}: Register callback '{}'".format(self._name, method))
+                            add_handler(method, f)
+
+            except Exception as e:
+                log.exception("{}: Trouble looking for handlers in '{}':"
+                        .format(self._name, basename), exc_info=e)
+                # we require a working handler file!
+                raise
+
+        # Wrap lists in Trampoline, unwrap single functions
+        for n, v in list(handlers.items()):
+            if len(v) == 1:
+                handlers[n] = v[0]
+            else:
+                handlers[n] = Trampoline(v)
+
+        return handlers, mod, object
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
 class VCPWindow(_VCPWindow):
     _instance = None
     _instanceNum = 0
@@ -369,6 +488,8 @@ class VCPWindow(_VCPWindow):
         return cls._instance
 
     def __getitem__(self, item):
+        if item == '':
+            return self
         return getattr(self, item)
 
     def __setitem__(self, item, value):

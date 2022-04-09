@@ -445,7 +445,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             os.environ['QTVCP_FORWARD_EVENTS_TO'] = str(wid)
 
             for name, loc, cmd in INFO.ZIPPED_TABS:
-                LOG.debug('Processing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
+                LOG.debug('Installing Embedded tab:{}, {}, {}'.format(name,loc,cmd))
                 if loc == 'default':
                     loc = 'rightTab'
                 try:
@@ -461,6 +461,16 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 except Exception as e:
                     LOG.warning("problem inserting VCP '{}' to location: {} :\n {}".format(name, loc, e))
                     return
+                try:
+                    if 'qtvcp' in cmd.split()[0].lower():
+                        layout = QtWidgets.QGridLayout(tw)
+                        layout.setContentsMargins(0,0,0,0)
+                        layout.addWidget(self.QTVCP_INSTANCE_[name.replace(' ','_')], 0, 0)
+                        continue
+                except Exception as e:
+                    LOG.warning("problem inserting NATIVE VCP '{}' to location: {} :\n {}"
+                            .format(name, loc, e))
+                    continue
                 self._embed(cmd,loc,tw)
 
     def _embed(self, cmd,loc,twidget):

@@ -268,7 +268,7 @@ Pressing cancel will close linuxcnc.""" % target)
             self.app.installEventFilter(myFilter)
 
         # actually build the widgets
-        window.instance()
+        window.instance(filename=PATH.XML)
 
         # title
         if INIPATH:
