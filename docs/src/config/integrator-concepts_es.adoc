@@ -139,7 +139,7 @@ a diferencia de los motores paso a paso que generalmente funcionan en 'lazo abie
 'lazo cerrado'?. Veamos un diagrama simplificado de cómo está conectado un sistema servomotor.
 
 .Servo Loop
-image::images/servo-feedback.png[alt="diagrama simplificado de cómo se conecta un sistema servomotor"]
+image::images/servo-feedback.png["diagrama simplificado de cómo se conecta un sistema servomotor"]
 
 Este diagrama muestra que la señal de entrada (y la señal de retroalimentación) alimentan
 un amplificador sumador, el amplificador sumador acciona el amplificador de potencia,
@@ -170,7 +170,7 @@ punto de trabajo o consigna. En el caso de LinuxCNC, el proceso que queremos con
 posición real del eje y el punto de trabajo o consigna es la posición ordenada del eje.
 
 .PID Loop
-image::images/pid-feedback.png[alt="PID Loop, PID significa Proporcional, Integral y Derivado"]
+image::images/pid-feedback.png["PID Loop, PID significa Proporcional, Integral y Derivado"]
 
 Al 'ajustar' las tres constantes en el algoritmo del controlador PID, el
 el controlador puede proporcionar acciones de control diseñadas para requisitos de procesos específicos.
