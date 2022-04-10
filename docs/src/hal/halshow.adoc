@@ -44,6 +44,7 @@ and use a file named my.halshow in the current directory:
 ----
 $ halshow  --fformat "%.5f" ./my.halshow
 ----
+
 For more information regarding the format, please refer to https://www.tcl.tk/man/tcl/TclCmd/format.html
 
 == HAL Tree Area
@@ -53,7 +54,7 @@ you might see with some file browsers. At the right is a tabbed notebook with
 tabs for show and watch.
 
 [[cap:halshow-layout]]
-.Halshow Layout
+//.Halshow Layout
 image::images/halshow-1.png["Halshow Layout",align="center"]
 
 The tree shows all of the major parts of a HAL. In front of each is a
@@ -68,8 +69,7 @@ Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
 [[fig:halshow-show-tab]]
-.Show Tab
-
+//.Show Tab
 image::images/halshow-3.png["Show Tab",align="center"]
 
 == HAL Show Area
@@ -139,8 +139,8 @@ loadrt ddt
 Now look at the components node and you should see ddt in there
 someplace.
 
+.Loaded HAL Components:
 ----
-Loaded HAL Components:
 ID Type        Name
 10 User halcmd29800
 09 User halcmd29374
@@ -155,8 +155,8 @@ ID Type        Name
 Sure enough there it is. Notice that its ID is 08. Next we need to
 find out what functions are available with it so we look at functions:
 
+.Exported Functions:
 ----
-Exported Functions:
 Owner  CodeAddr      Arg  FP Users Name
   08   E0B97630 E0DC7674 YES     0 ddt.0
   03   E0DEF83C 00000000 YES     1 motion-command-handler
@@ -195,8 +195,7 @@ position in the thread. The following figure shows the state of halshow
 after this command has been issued.
 
 [[fig:halshow-addf-command]]
-.Addf command
-
+//.Addf command
 image::images/halshow-2.png["Addf command",align="center"]
 
 Next we need to connect ddt to something. But how do we know
@@ -210,9 +209,9 @@ Owner Type  Dir Value       Name
 08    float -W  0.00000e+00 ddt.0.out
 ----
 
-That looks easy enough to understand, but what signal or pin do we
-want to connect to it? It could be an axis pin, a stepgen pin, or a
-signal. We see this when we look at joint.0:
+That looks easy enough to understand, but what signal or pin do we want to connect to it?
+It could be an axis pin, a stepgen pin, or a signal.
+We see this when we look at joint.0:
 
 ----
 Component Pins:
@@ -220,8 +219,8 @@ Owner Type  Dir Value       Name
 03    float -W  0.00000e+00 joint.0.motor-pos-cmd ==> Xpos-cmd
 ----
 
-So it looks like Xpos-cmd should be a good signal to use. Back to the
-editor where we enter the following command:
+So it looks like Xpos-cmd should be a good signal to use.
+Back to the editor where we enter the following command:
 
 ----
 linksp Xpos-cmd ddt.0.in
@@ -276,8 +275,8 @@ side. Pins that are linked to a signal have disabled buttons. To set these value
 the corresponding pin has to be unlinked from the signal. That can be done by
 right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
 
-[[fig:halshow-watch-tab]]
-.Watch Tab (((Halshow: Watch Tab)))
+[[fig:halshow-watch-tab]](((Halshow: Watch Tab)))
+//.Watch Tab 
 image::images/halshow-4.png["Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles
@@ -294,7 +293,7 @@ increments of distance. If you've used IO_Show in LinuxCNC, the watch page
 in halshow can be set up to watch a parport much as IO_Show did.
 
 [[cap:watch-tab-context-menu]]
-.Watch Tab context menu
+//.Watch Tab context menu
 image::images/halshow-5.png["Watch Tab context menu",align="center"]
 
 // vim: set syntax=asciidoc:

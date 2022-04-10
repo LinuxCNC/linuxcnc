@@ -1,11 +1,11 @@
 :lang: es
-[[cha:other-codes]]
+:toc:
 
-= Otros códigos
+[[cha:other-codes]]
+= Otros códigos(((Otros códigos)))
 
 [[sec:set-feed-rate]]
-== F: Establecer velocidad de alimentación
-(((F: Establecer velocidad de alimentación)))
+== F: Establecer velocidad de alimentación(((F: Establecer velocidad de alimentación)))
 
 'Fx' - establece la velocidad de avance a 'x'. 'x' usualmente está en unidades máquina
 (pulgadas o milímetros) por minuto.
@@ -15,8 +15,7 @@ La aplicación de la velocidad de alimentación es como se describe en la Secci�
 es como se describe en la  Sección <<gcode:g93-g94-g95,G93 G94 G95>>.
 
 [[sec:set-spindle-speed]]
-== S: Establecer la velocidad de husillo
-(((S: Establecer velocidad del husillo)))
+== S: Establecer la velocidad de husillo(((S: Establecer velocidad del husillo)))
 
 'Sx [$n]' - establece la velocidad del husillo a 'x' revoluciones por minuto (RPM).
 Con el $ opcional establece la velocidad del husillo para un husillo específico. Sin el $,
@@ -33,9 +32,16 @@ Es un error si:
 
 * el número S es negativo.
 
+As described in the section <<gcode:g84, Right-hand Tapping Cycle with Dwell>>,
+if a 'G84' (tapping) drilling cycle is active and the speed and feed
+potentiometers are enabled, the one with the lowest setting will be used.
+The rotational speed and feed rate will remain synchronized. In this case, the
+speed may differ from the one programmed, even if the speed correction potentiometer
+is set to 100%.
+
+
 [[sec:select-tool]]
-== T: Seleccionar herramienta
-(((T: Seleccionar herramienta)))
+== T: Seleccionar herramienta(((T: Seleccionar herramienta)))
 
 'Tx': prepára el cambio a la herramienta 'x'.
 
@@ -60,10 +66,9 @@ no aleatorio y descargue el husillo.
 Es un error si:
 
 * se usa un número T negativo,
-
 * Se utiliza un número T que no aparece en el archivo de la tabla de herramientas (con
-    la excepción de que T0 en cambiadores de herramientas no aleatorios, que *es* aceptado
-    como se señaló anteriormente).
+  la excepción de que T0 en cambiadores de herramientas no aleatorios, que *es* aceptado
+  como se señaló anteriormente).
 
 En algunas máquinas, el carrusel se moverá cuando se programe una palabra T,
 Al mismo tiempo, se está mecanizando. En tales máquinas, la programación

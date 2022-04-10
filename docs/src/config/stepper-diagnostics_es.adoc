@@ -44,17 +44,17 @@ calcula si puede mantener el cumplimiento del movimiento solicitado y, si no, en
 da un error de seguimiento. Los erroresde seguimiento generalmente son el resultado de
 uno de los siguientes problemas en sistemas paso a paso.
 
- - FERROR demasiado pequeño
- - MIN_FERROR demasiado pequeño
- - MAX_VELOCITY demasiado rápida
- - MAX_ACCELERATION demasiado rápida
- - BASE_PERIOD demasiado largo
- - Backlash agregado a un eje
+- FERROR demasiado pequeño
+- MIN_FERROR demasiado pequeño
+- MAX_VELOCITY demasiado rápida
+- MAX_ACCELERATION demasiado rápida
+- BASE_PERIOD demasiado largo
+- Backlash agregado a un eje
 
 Cualquiera de los anteriores puede hacer que los pulsos en tiempo real no pueda mantenerse conforme
 a la tasa de pasos solicitada. Esto puede suceder si no ejecutó la prueba de latencia
-el tiempo suficiente para obtener un buen número para el Asistente Stepconf,
-o si configura la Velocidad Máxima o la Aceleración Máxima demasiado alta.
+el tiempo suficiente para obtener un buen número para el Asistente Stepconf, o
+si configura la Velocidad Máxima o la Aceleración Máxima demasiado alta.
 
 Si agregó backlash, debe aumentar STEPGEN_MAXACCEL hasta que
 duplique MAX_ACCELERATION en la sección AXIS del archivo INI para
@@ -67,7 +67,9 @@ planificada del movimiento.
 
 Usted puede recibir este error:
 
-    RTAPI: ERROR: retraso inesperado en tiempo real en la tarea n
+----
+RTAPI: ERROR: retraso inesperado en tiempo real en la tarea n
+----
 
 Rtapi genera este error basándose en una indicación de RTAI de que
 se violó el tiempo limite. Suele ser una indicación de que BASE_PERIOD
@@ -83,7 +85,8 @@ LinuxCNC rastrea el número de ciclos de CPU entre invocaciones de
 hilos en tiempo real. Si algún elemento de su hardware está causando demoras o
 sus hilos en tiempo real se configuran demasiado rápido, obtendrá este error.
 
-NOTA: Este error solo se muestra una vez por sesión. Si tuviera su
+[NOTA]
+Este error solo se muestra una vez por sesión. Si tuviera su
 BASE_PERIOD demasiado bajo, podría obtener cientos de miles de mensajes de error
 por segundo si se mostrara más de uno.
 
@@ -92,8 +95,8 @@ por segundo si se mostrara más de uno.
 === Temporización de pasos
 
 Si tiene un eje que termina en una ubicación incorrecta durante
-movimientos múltiples, es probable que no tenga los tiempos de mantenimiento de dirección
-o de timing de pasos correctos para sus drivers. En cada cambio de dirección
+movimientos múltiples, es probable que no tenga los tiempos de mantenimiento de dirección o
+de timing de pasos correctos para sus drivers. En cada cambio de dirección
 puede estar perdiendo un paso o más. Si los motores se saturan, es
 también es posible que tenga el conjunto MAX_ACCELERATION o MAX_VELOCITY
 demasiado alto para ese eje.
@@ -109,28 +112,28 @@ líneas G0.
 
 [source,{ngc}]
 ----
-    (programa de prueba para ver si el eje Z pierde posición)
-    (msg, prueba 1 de configuración del eje Z)
-    G20 #1000=100 (bucle 100 veces)
-    (este bucle tiene retrasos después de los movimientos)
-    (prueba ajustes de velocidad y aceleracion)
-    o100 while [#1000] 
-    G0 Z1.000 
-    G4 P0.250 
-    G0 Z0.500 
-    G4 P0.250 
-    #1000 = [#1000 - 1] 
-    o100 endwhile 
-    (msg, prueba 2 de la configuración del eje Z, S para continuar)
-    M1 (para aquí)
-    #1000=100 (bucle 100 veces)
-    (el siguiente ciclo no tiene demoras después de los movimientos)
-    (prueba los tiempos de retención de dirección del controlador y también la aceleración máxima)
-    o101 while [#1000]  
-    G0 Z1.000 
-    G0 Z0.500 
-    #1000 = [#1000 - 1] 
-    o101 endwhile 
-    (msg, Listo ... Z debe estar exactamente .5" sobre la mesa)
-    M2
+(programa de prueba para ver si el eje Z pierde posición)
+(msg, prueba 1 de configuración del eje Z)
+G20 #1000=100 (bucle 100 veces)
+(este bucle tiene retrasos después de los movimientos)
+(prueba ajustes de velocidad y aceleracion)
+o100 while [#1000] 
+   G0 Z1.000 
+   G4 P0.250 
+   G0 Z0.500 
+   G4 P0.250 
+   #1000 = [#1000 - 1] 
+o100 endwhile 
+(msg, prueba 2 de la configuración del eje Z, S para continuar)
+M1 (para aquí)
+#1000=100 (bucle 100 veces)
+(el siguiente ciclo no tiene demoras después de los movimientos)
+(prueba los tiempos de retención de dirección del controlador y también la aceleración máxima)
+o101 while [#1000]  
+   G0 Z1.000 
+   G0 Z0.500 
+   #1000 = [#1000 - 1] 
+o101 endwhile 
+(msg, Listo ... Z debe estar exactamente .5" sobre la mesa)
+M2
 ----

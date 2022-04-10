@@ -2,18 +2,16 @@
 :toc:
 
 [[cha:running-emc]]
-
-= Ejecutando LinuxCNC
+= Ejecutando LinuxCNC(((Ejecutando LinuxCNC)))
 
 == Invocando LinuxCNC
 
 Después de la instalación, LinuxCNC comienza como cualquier otro programa de Linux:
-ejecutelo desde una <<faq:terminal,terminal>> mediante el comando 'linuxcnc',
-o selecciónelo en el menú Aplicaciones > CNC.
+ejecutelo desde una <<faq:terminal,terminal>> mediante el comando 'linuxcnc', o
+selecciónelo en el menú Aplicaciones > CNC.
 
-[[sec:config-launcher]](((Selector de configuración)))
-
-== Selector de Configuración
+[[sec:config-launcher]]
+== Selector de Configuración(((Selector de configuración)))
 
 Al iniciar LinuxCNC desde el menú CNC o desde la línea de comandos, sin
 especificar un archivo ini, se inicia el cuadro de diálogo Selector de Configuración.
@@ -25,25 +23,17 @@ aparecerá en Mis configuraciones en la próxima invocación del Selector de Con
 
 El selector de configuración ofrece una selección de configuraciones organizada asi:
 
-* 'Mis configuraciones' - Configuraciones de usuario ubicadas en ~/linuxcnc/configs
-
-* 'Configuraciones de ejemplo' - Estas configuraciones, cuando se seleccionan, se copian en
-  ~/linuxcnc/configs. Una vez que copie una configuración, si usa el
-  selector, selecciónela desde 'Mis configuraciones'. 
+* 'Mis configuraciones' - Configuraciones de usuario ubicadas en linuxcnc/configs un in your home directory
+* 'Configuraciones de ejemplo' - Estas configuraciones, cuando se seleccionan, se copian en linuxcnc/configs.
+  Una vez que copie una configuración, si usa el selector, selecciónela desde 'Mis configuraciones'.
   Los nombres corresponden a los directorios bajo ../configs/
-
-** 'sim' - Configuraciones que incluyen hardware simulado. Pueden ser usadas
-    para probar o aprender cómo funciona LinuxCNC.
-
+** 'sim' - Configuraciones que incluyen hardware simulado.
+   Pueden ser usadas para probar o aprender cómo funciona LinuxCNC.
 ** 'by_interface' - Configuraciones organizadas por tipo de GUI.
-
 ** 'by_machine' - Configuraciones organizadas por tipo de máquina.
-
 ** 'apps' - aplicaciones que no requieren iniciar linuxcnc pero pueden ser
-    útiles para pruebas o aplicaciones como PyVCP o GladeVCP.
-
+   útiles para pruebas o aplicaciones como PyVCP o GladeVCP.
 ** 'attic' - Configuraciones obsoletas o históricas.
-
 
 Las configuraciones en sim suelen ser el punto de partida más útil para
 usuarios nuevos y están organizadas en torno a las siguientes guis soportadas:
@@ -51,6 +41,7 @@ usuarios nuevos y están organizadas en torno a las siguientes guis soportadas:
 * 'axis' - Gui de teclado y mouse
 * 'gmoccapy' - Gui de Pantalla táctil
 * 'gscreen' - Gui de Pantalla táctil
+* 'low_graphics' - Keyboard Gui
 * 'pyvcp_demo' - Paneles de Control Virtuales Python
 * 'qtvcp_screens' - Guis diseñadas con Qt5 y Python 
 * 'tklinuxcnc' - Gui de teclado y mouse (ya no se mantiene)
@@ -92,8 +83,7 @@ Es posible que se requiera un sistema completo para usar estas configuraciones.
 Los elementos de 'aplicaciones' son típicamente utilidades que no requieren iniciar linuxcnc o demostraciones
 de aplicaciones que pueden usarse con linuxcnc:
 
-* info: crea un archivo con información del sistema que puede ser útil para
-  diagnóstico de problemas
+* info: crea un archivo con información del sistema que puede ser útil para diagnóstico de problemas
 * gladevcp - Ejemplo de aplicaciones de gladevcp.
 * halrun - Inicia halrun en un <<faq:terminal,terminal>>.
 * latency: aplicaciones para investigar la latencia
@@ -108,9 +98,9 @@ de aplicaciones que pueden usarse con linuxcnc:
 En el directorio de aplicaciones, solo se ofrecen para copiar en el directorio de usuario
 las aplicaciones que se pueden modificar de forma útil por el usuario.
 
-.Selector de Configuración de LinuxCNC[[cap:LinuxCNC-Configuration-Selector]]
-
-image::images/configuration-selector_es.png[alt="Selector de Configuración de LinuxCNC"]
+[[cap:LinuxCNC-Configuration-Selector]]
+//.Selector de Configuración de LinuxCNC
+image::images/configuration-selector_es.png["Selector de Configuración"]
 
 Haga clic en cualquiera de las configuraciones enumeradas
 para mostrar información específica al respecto.

@@ -55,7 +55,7 @@ The realtime kernel options are preempt-rt, RTAI and Xenomai.
 You can discover the kernel version of your system with the command
 
 ----
- uname -a
+uname -a
 ----
 
 If you see (as above) `-rt-` in the kernel name then you are running the

@@ -49,7 +49,9 @@ Las opciones de kernel en tiempo real son preempt-rt, RTAI y Xenomai.
 
 Puede descubrir la versión del kernel de su sistema con el comando
 
-  uname -a
+----
+uname -a
+----
 
 Si ve (como arriba) `-rt-` en el nombre del kernel, entonces está ejecutando el
 preempt-rt kernel y debería instalar la versión "uspace" de linuxcnc.
@@ -98,7 +100,7 @@ para determinar si resulta apropiado su uso.
 === Tarjetas de Video
 
 Si su instalación arranca con una resolución de 800 x 600, en la mayoría de los casos eso significa que Debian no
-reconoció apropiadamente su monitor o tarjeta de vídeo. Esto se puede solucionar a veces instalando controladores 
-o creando/editando archivos Xorg.conf.
+reconoció apropiadamente su monitor o tarjeta de vídeo. Esto se puede solucionar a veces instalando controladores o
+creando/editando archivos Xorg.conf.
 
 // vim: set syntax=asciidoc:

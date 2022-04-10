@@ -53,7 +53,7 @@ in machine coordinate system is desired
 
 [[fig:coordinate-systems-example]]
 .Coordinate Systems Example
-image::images/offsets.png["Coordinate Systems Example",align="center"]
+image::images/offsets.png["Coordinate systems example",align="center"]
 
 .Coordinate System Offsets
 * G54 - use coordinate system 1
@@ -90,7 +90,7 @@ edit the file so that G55 will take the following values:
 
 .Example of G55 parameters
 [width="40%",cols="^,^,^",options="header"]
-|==========================
+|====
 |Axis | Variable |    Value
 | X   | 5241     |  2.000000
 | Y   | 5242     |  1.000000
@@ -101,7 +101,7 @@ edit the file so that G55 will take the following values:
 | U   | 5247     |  0.000000
 | V   | 5248     |  0.000000
 | W   | 5249     |  0.000000
-|==========================
+|====
 
 You should read this as moving the zero positions of G55 to X = 2
 units, Y= 1 unit, and Z = -2 units away from the absolute zero position.
@@ -200,13 +200,11 @@ these parameters.
 See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 [CAUTION]
-====
 'G52' and 'G92' share the same offset registers.  Therefore, setting
 'G52' will override any earlier 'G92' setting, and 'G52' will persist
 across machine reset when 'G92' persistence is enabled.  These
 interactions may result in unexpected offsets.
 See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
-====
 
 Programming 'G52 X1 Y2' offsets the current workpiece coordinate
 system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
@@ -239,7 +237,6 @@ the other offsets.
 offset".
 
 The 'G92' set of commands includes:
-
 * 'G92' - This command, when used with axis names, sets values to offset variables.
 * 'G92.1' - This command sets zero values to the G92 variables.
 * 'G92.2' - This command suspends but does not zero out the G92 variables.
@@ -304,7 +301,7 @@ will be applied when an axis is homed.  See
 There are at least two ways to set G92 values:
 
 * With a right click on the position displays in tklinuxcnc, a window opens
-where it is possible to enter a value
+  where it is possible to enter a value
 * With the G92 command
 
 Both work from the current position of the axis that should be moved.

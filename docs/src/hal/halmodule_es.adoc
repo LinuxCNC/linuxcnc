@@ -129,11 +129,18 @@ el valor puede ser accedido o establecido usando la sintaxis de subíndice:
 h['out'] = h['in']
 ----
 
+To see all pins with their values, getpins returns all values in a dictionary
+of that component.
+
+----
+h.getpins()
+>>>{'in': 0.0, 'out': 0.0}
+----
+
 === Manejo de Pines de Salida (HAL_OUT)
 
 Periódicamente, generalmente en respuesta a un temporizador, todos los pines HAL_OUT deben
-ser "manejados" al asignarles un nuevo valor. Esto debe hacerse, sea
-o no el valor diferente al último asignado. Cuando un pin es
+ser "manejados" al asignarles un nuevo valor. Esto debe hacerse, sea o no el valor diferente al último asignado. Cuando un pin es
 conectado a una señal, su valor de salida anterior no se copia en la
 señal, por lo que el valor correcto solo aparecerá en la señal una vez que el
 componente asigna un nuevo valor.
@@ -191,6 +198,41 @@ hal.connect("pinname","signal_name")
 leer pin, parametro o señal directamente. +
 ejemplo: +
 value = hal.get_value("iocontrol.0.emc-enable-in") +
+
+=== get_info_pins()
+
+returns a list of dicts of all system pins.
+
+[source,python]
+----
+listOfDicts = hal.get_info_pins()
+pinName1 = listOfDicts[0].get('NAME')
+pinValue1 = listOfDicts[0].get('VALUE')
+pinDirection1 = listOfDicts[0].get('DIRECTION')
+----
+
+=== get_info_signals()
+returns a list of dicts of all system signals.
+
+[source,python]
+----
+listOfDicts = hal.get_info_signals()
+signalName1 = listOfDicts[0].get('NAME')
+signalValue1 = listOfDicts[0].get('VALUE')
+driverPin1 = listOfDicts[0].get('DRIVER')
+----
+
+=== get_info_params()
+
+returns a list of dicts of all system parameters.
+
+[source,python]
+----
+listOfDicts = hal.get_info_params()
+paramName1 = listOfDicts[0].get('NAME')
+paramValue1 = listOfDicts[0].get('VALUE')
+----
+
 
 === new_signal
 Crea una nueva señal del tipo especificado. +

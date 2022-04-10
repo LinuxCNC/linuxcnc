@@ -24,20 +24,24 @@ modo automático, el pin `halui.mode.is-auto` será true.
 Si ambas entradas al componente `and2.0` son true,
 `and2.0.out` se activara e iniciará el programa a traves de `halui.program.run`.
 
-.Ejemplo de arranque remoto
-image::images/remote-start.png[alt="Ejemplo de arranque remoto"]
+//.Ejemplo de arranque remoto
+image::images/remote-start.png["Ejemplo de arranque remoto"]
 
 Los comandos hal necesarios para lograr lo anterior son:
 
-    net program-start-btn halui.mode.auto and2.0.in0 <= <su pin de entrada>
-    net program-run-ok and2.0.in1 <= halui.mode.is-auto
-    net remote-program-run halui.program.run <= and2.0.out
+----
+net program-start-btn halui.mode.auto and2.0.in0 <= <su pin de entrada>
+net program-run-ok and2.0.in1 <= halui.mode.is-auto
+net remote-program-run halui.program.run <= and2.0.out
+----
 
 Observe que en la primera línea hay dos pines de lectura; esto se puede dividir
 en dos líneas como estas:
 
-    net program-start-btn halui.mode.auto <= <su pin de entrada>
-    net program-start-btn and2.0.in0
+----
+net program-start-btn halui.mode.auto <= <su pin de entrada>
+net program-start-btn and2.0.in0
+----
 
 == Pausar y Reanudar
 
@@ -54,12 +58,14 @@ dos líneas siguientes, que se conectarán a su E/S para activar
 la pausa del programa o para reanudar cuando el 
 sistema externo requiera que LinuxCNC continúe.
 
-    net ispaused halui.program.is-paused => "su pin de salida"
-    net resume halui.program.resume <= "su pin de entrada"
+----
+net ispaused halui.program.is-paused => "su pin de salida"
+net resume halui.program.resume <= "su pin de entrada"
+----
 
 Sus pines de entrada y salida están conectados a los pines
-del otro controlador. Pueden ser pines de puerto paralelo
-o cualquier otro pin de E/S al que tenga acceso.
+del otro controlador. Pueden ser pines de puerto paralelo o
+cualquier otro pin de E/S al que tenga acceso.
 
 Este sistema funciona de la siguiente manera. Cuando se
 encuentra un M0 en el código G, la señal `halui.program.is-paused`
