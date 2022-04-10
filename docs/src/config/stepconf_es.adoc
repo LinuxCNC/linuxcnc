@@ -1,7 +1,7 @@
 :lang: es
 
 [[cha:stepconf-wizard]]
-= Asistente de configuracion Stepconf 
+= Asistente de configuracion Stepconf(((Stepper Configuration Asistente)))
 
 == Introduccion
 
@@ -13,8 +13,10 @@ para un tipo especifico de maquina CNC:
 aquellas que son controladas a traves de un 'puerto paralelo estandar', y 
 utilizan las señales 'Paso y Direccion'
 
-Stepconf se instala automaticamente cuando se instala LinuxCNC; se encuentra en el menu CNC. El
-asistente genera un archivo en el directorio ~/linuxcnc/config
+Stepconf se instala automaticamente cuando se instala LinuxCNC; se encuentra en el menu CNC.
+
+El
+asistente genera un archivo en el directorio linuxcnc/config
 en el cual guarda las opciones de cada configuracion que usted genere.
 Cuando se desea cambia algo, se necesita seleccionar el archivo
 cuyo nombre coincida con la configuracion que desea modificar.
@@ -23,104 +25,93 @@ La extension del archivo es *.stepconf*.
 El asistente Stepconf necesita una resolucion de pantalla de al menos 800 x 600
 para que los botones de la parte baja de la pantalla sean visibles.
 
-== Pagina de entrada
+== Pagina de Entrada
 
-.Pagina inicial[[cap:init-Page]]
+[[cap:init-Page]]
+//.Pagina inicial
 image::images/stepconf-start_1_es.png["Pagina inicial",align="center"]
 
-.Pimera Pagina[[cap:Entry-Page]]
+[[cap:Entry-Page]]
+//.Pimera Pagina
 image::images/stepconf-start_2_es.png["Pagina de entrada",align="center"]
 
 Los tres primeros botones radio son autoexplicativos:
 
- * 'Crear una nueva configuración' - 
-   Crea una configuracion nueva.
- * 'Modificar una configuracion ya creada...' - 
-   Modifica una configuracion existente.
-   Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo
-   y usted debera seleccionar el archivo con extension .stepconf que desea modificar.
-   Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini, estas modificaciones se perderan.
-   Las modificaciones en los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
-   asistente Stepconf. Stepconf resaltara la ultima configuracion que se construyo.
- * 'Importar un archivo Mach' - 
-   Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo.
-   Seleccione un archivo de configuración de Mach; LinuxCNC intentará convertirlo en un archivo de configuración
-   apropiado para si mismo.
-   Después de la importación, pase por las páginas de stepconf para confirmar/modificar las entradas.
-   El archivo mach xml original no se cambiará.
+ * 'Crear una nueva configuración' - Crea una configuracion nueva.
+ * 'Modificar una configuracion ya creada...' - Modifica una configuracion existente.
+    Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo
+    y usted debera seleccionar el archivo con extension .stepconf que desea modificar.
+    Si usted relizo alguna modificacion previa a los archivos principales .hal o .ini, estas modificaciones se perderan.
+    Las modificaciones en los archivos custom.hal y custom_postgui.hal no seran canbiadas por el
+    asistente Stepconf. Stepconf resaltara la ultima configuracion que se construyo.
+ * 'Importar un archivo Mach' - Despues de seleccionar esta opcion, aparecera una pantalla de seleccion de archivo.
+    Seleccione un archivo de configuración de Mach; LinuxCNC intentará convertirlo en un archivo de configuración apropiado para si mismo.
+    Después de la importación, pase por las páginas de stepconf para confirmar/modificar las entradas.
+    El archivo mach xml original no se cambiará.
 
 Las siguientes opciones se registrarán en un archivo de preferencias para la próxima ejecución de Stepconf.
 
- * 'Crear Atajo en Escritorio' - 
-   Se generara en su escritorio un enlace a los archivos. 
- * 'Crear un Lanzador en Escritorio' - 
-   Se generara un lanzador en su escritorio para iniciar la aplicacion.
- * 'Crear Hardware Simulado' - 
-   Permite crear configuraciones para pruebas,
-   incluso sin tener el hardware apropiado.
+ * 'Crear Atajo en Escritorio' - Se generara en su escritorio un enlace a los archivos. 
+ * 'Crear un Lanzador en Escritorio' - Se generara un lanzador en su escritorio para iniciar la aplicacion.
+ * 'Crear Hardware Simulado' - Permite crear configuraciones para pruebas, incluso sin tener el hardware apropiado.
 
-== Informacion Basica[[sec:Basic-Information]]
+[[sec:Basic-Information]]
+== Informacion Basica Pagina
 
-.Informacion Basica[[cap:Basic-Information-Page]]
+//.Informacion Basica[[cap:Basic-Information-Page]]
 image::images/stepconf-base_es.png["Informacion Basica",align="center"]
 
- * 'Nombre de la maquina' - 
-   (((Nombre de la Maquina)))
-   Seleccione un nombre para su maquina.
-   Utilice solo letras mayusculas, minusculas, digitos, '-' y '_'.
- * 'Configuracion de Ejes' - 
-   (((Configuracion de Ejes)))
-   Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
- * 'Unidades Maquina' - 
-   (((Unidades Maquina)))
-   Seleccione pulgadas o milimetros. Todas las preguntas posteriores
-   (tales como el largo de los ejes, el paso de los tornillos, etc)
-   deberan ser contestadas utilizando las unidades seleccionadas.
- * 'Tipo de Driver' - 
-   (((Tipo de Driver)))
-   Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
-   En cualquier otro caso, busque los 4 valores de tiempo necesarios.
-   Utilize los manuales de su controlador y rellene los campos.
-   Si sus manuales le dan los datos en microsegundos multipliquelos por 1000 para nanosegundos.
-   Por ejemplo, si el manual marca 4.5 us, escriba 4500 ns.
+= REMOVEME0
 
-En la pagina wiki de LinuxCNC.org puede ser consultada una lista de controladores populares, asi como sus tiempos, en  http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Temporizado de Drivers Stepper]. 
+ * 'Create Simulated Hardware' - This allows you to build a config for testing, even if you don't have the actual hardware.
+ * 'Nombre de la maquina' - (((Nombre de la Maquina))) Seleccione un nombre para su maquina.  Utilice solo letras mayusculas, minusculas, digitos, '-' y '_'.
+ * 'Configuracion de Ejes' - (((Configuracion de Ejes))) Seleccione XYZ (Fresadora), XYZA (Fresadora de 4 ejes) o XZ (Torno).
+ * 'Unidades Maquina' - (((Unidades Maquina)))
+    Seleccione pulgadas o milimetros. Todas las preguntas posteriores
+    (tales como el largo de los ejes, el paso de los tornillos, etc)
+    deberan ser contestadas utilizando las unidades seleccionadas.
+ * 'Tipo de Driver' - (((Tipo de Driver)))
+    Si usted tiene uno de los controladores de motor a pasos listados en el menu desplegable, seleccionelo directamente.
+    En cualquier otro caso, busque los 4 valores de tiempo necesarios.
+    Utilize los manuales de su controlador y rellene los campos.
+    Si sus manuales le dan los datos en microsegundos multipliquelos por 1000 para nanosegundos.
+    Por ejemplo, si el manual marca 4.5 us, escriba 4500 ns.
 
-El acondicionamiento extra de señal o el aislamiento electrico, como cuando se usan optoacopladores y 
-filtros RC en tarjetas breakboards,
-pueden requerir diferentes valores de tiempo a los indicados para su controlador.
+= REMOVEME00
+
+En la pagina wiki de LinuxCNC.org puede ser consultada una lista de controladores populares, asi como sus tiempos, en http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?Stepper_Drive_Timing[Temporizado de Drivers Stepper]. 
+
+El acondicionamiento extra de señal o el aislamiento electrico, como cuando se usan optoacopladores y filtros RC en tarjetas breakboards, pueden requerir diferentes valores de tiempo a los indicados para su controlador.
 Puede ser el caso que se requiera agregar tiempo extra a los valores de temporizacion para compensar los filtros o aislamientos.
+
 La seccion de seleccion de configuracion tiene maquinas de la marca Sherline ya configuradas para su uso en caso de que posea una de estas.
 
- * 'Step Time' - 
-   Tiempo del pulso de paso "Encendido" en nanosegundos.
- * 'Step Space' - 
-   Tiempo minimo entre dos pulsos de paso en nanosegundos.
- * 'Direction Hold' - 
-   Tiempo que debe ser mantenido activo el pin de direccion despues de ordenar cambio de direccion, en nanosegundos.
- * 'Direction Setup' - 
-   Tiempo debe preceder a un cambio de direccion despues del ultimo pulso de paso en la direccion anterior.
- * 'Primer Parport' - 
-   Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378 (puerto no PCI). 
- * 'Segundo Parport' - 
-   En caso de ser necesario especificar un puerto paralelo extra, introduca la direccion
+= REMOVEME1
+
+ * 'Step Time' - Tiempo del pulso de paso "Encendido" en nanosegundos.
+ * 'Step Space' - Tiempo minimo entre dos pulsos de paso en nanosegundos.
+ * 'Direction Hold' - Tiempo que debe ser mantenido activo el pin de direccion despues de ordenar cambio de direccion, en nanosegundos.
+ * 'Direction Setup' - Tiempo debe preceder a un cambio de direccion despues del ultimo pulso de paso en la direccion anterior.
+ * 'One / Two Parport' - Select how many parallel port are to be configured. 
+////
+ * 'Primer Parport' - Usualmente la direcion en hexadecimal del primer puerto paralelo es 0x378 (puerto no PCI). 
+ * 'Segundo Parport' - En caso de ser necesario especificar un puerto paralelo extra, introduca la direccion
    y el tipo. Para informacion de como encontrar la direccion de puertos paralelos PCI
    vea la seccion Port Address en el manual de integrador (trate con 0x278 o 0x3BC para puertos no PCI)
- * 'Maximo Jitter en Periodo Base' - 
-   (((Jitter Maximo del Periodo Base)))
+////
+ * 'Maximo Jitter en Periodo Base' - (((Jitter Maximo del Periodo Base)))
    Introduzca el resultado de la prueba de latencia.
    Para correr la prueba de latencia presione el boton "Test Jitter Periodo Base".
    Vea la seccion de la prueba de latencia para mas detalles.
- * 'Tasa Max de Pasos' - 
-   (((Max Step Rate)))
+ * 'Tasa Max de Pasos' - (((Max Step Rate)))
    Stepconf calculara automaticamente la tasa maxima de pulsos de pasos
    basandose en las caracteristicas del controlador del motor y en el resultado de la prueba de latencia.
- * 'Periodo Base Mínimo' - 
-   (((Min Base Period)))
+ * 'Periodo Base Mínimo' - (((Min Base Period)))
    Stepconf calculara automaticamente el periodo base minimo
    basandose en las caracteristicas del controlador del motor y el resultado de la prueba de latencia.    
 
-== Prueba de latencia[[sub:latency-test]](((Latency Test)))
+[[sub:latency-test]]
+== Prueba de latencia(((Latency Test)))
 
 Mientras se ejecute la prueba, usted debera 'abusar' de la computadora. Mueva
 ventanas alrededor de la pantalla. Navegue en internet. Copie algunos archivos de gran tamano
@@ -134,7 +125,7 @@ la computadora; no se requiere que conecte los controladores de motores.
 [WARNING]
 No ejecute LinuxCNC mientras realiza la prueba de latencia.
 
-.Prueba de Latencia
+//.Prueba de Latencia
 image::images/latency-test_en.png["Prueba de Latencia",align="center"]
 
 La latencia es el tiempo que le tomara a una PC concreta detener lo que esta haciendo
@@ -181,31 +172,30 @@ Para cada pin se debera seleccionar la señal de control
 que concuerde con la configuracion del puerto.
 
 Active la casilla "invert" si la señal de control requiere
-ser invertida (0V para activo/Verdadero, 5v para inactivo/Falso)
+ser invertida (0V para activo/Verdadero, 5v para inactivo/Falso).
 
- * 'Esquemas de pines predefinidos' - 
-   Se configuraran automaticamente los pines del 2 al 9 de acuerdo al estandar
-   de las maquinas Sherline (Direccion en los pines 2, 4, 6, 8) o Xylotex (Direccion en los
-   pines 3, 5, 7, 9).
- * 'Entradas y Salidas' - 
-   Si el pin no sera utilizado como entrada o salida, seleccionarlo como "Sin uso".
- * 'Señal de Paro Externo (E stop)' - 
-   Esta señal pude ser seleccionada en la casilla desplegable.
-   Una cadena de señal de paro tipica utiliza solo contactos en serie normalmente cerrados.
- * 'Posicion home y limites de seguridad (Homing & Limit Switches)' - 
-   Estos pines pueden ser seleccionados para la mayoria de las configuraciones
-   utilizando la casilla desplegable.
- * 'Bomba de Carga (Charge Pump)' - 
-   Si su controlador de motor requiere de una señal de bomba de carga,
-   simplemente seleccione esta opcion de la lista desplegable y conecte la señal
-   al pin seleccionado.
-   La salida de la bomba de carga sera conectada a la tarea base por el programa Stepconf.
-   La salida de bomba de carga sera aproximadamente 1/2 de la maxima tasa de generacion
-   de pulsos de paso mostrados en la pagina de configuracion basica.
+* 'Esquemas de pines predefinidos' - Se configuraran automaticamente los pines del 2 al 9 de acuerdo al estandar
+  de las maquinas Sherline (Direccion en los pines 2, 4, 6, 8) o Xylotex (Direccion en los
+  pines 3, 5, 7, 9).
+* 'Entradas y Salidas' - Si el pin no sera utilizado como entrada o salida, seleccionarlo como "Sin uso".
+* 'Señal de Paro Externo (E stop)' - Esta señal pude ser seleccionada en la casilla desplegable.
+  Una cadena de señal de paro tipica utiliza solo contactos en serie normalmente cerrados.
+* 'Posicion home y limites de seguridad (Homing & Limit Switches)' - 
+  Estos pines pueden ser seleccionados para la mayoria de las configuraciones utilizando la casilla desplegable.
+* 'Bomba de Carga (Charge Pump)' - Si su controlador de motor requiere de una señal de bomba de carga,
+  simplemente seleccione esta opcion de la lista desplegable y conecte la señal
+  al pin seleccionado.
+  La salida de la bomba de carga sera conectada a la tarea base por el programa Stepconf.
+  La salida de bomba de carga sera aproximadamente 1/2 de la maxima tasa de generacion
+  de pulsos de paso mostrados en la pagina de configuracion basica.
+* 'Plasma Arc Voltage' - If you require a Mesa THCAD to input a plasma arc voltage then select Plasma Arc Voltage from the list of output pins.
+  This will enable a THCAD page during the setup procedure for the entry of the card parameters.
+
+= REMOVEME X
 
 == Configuracion del puerto paralelo 2
 
-.Página de configuración del puerto paralelo 2
+//.Página de configuración del puerto paralelo 2
 image::images/stepconf-parallel-2_es.png["Página de configuración del puerto paralelo 2",align="center"]
 
 El segundo puerto paralelo (si está seleccionado) puede configurarse y asignar sus pines en esta página. +
@@ -213,137 +203,101 @@ No se pueden seleccionar señales de paso y dirección. +
 Puede seleccionarlo de entrada o de salida para maximizar el número de pines de entrada/salida que están disponibles. +
 Puede especificar la dirección como hexadecimal (a menudo 0x378) o como el número de puerto predeterminado de Linux (probablemente 1).
 
-== Opciones
+[[sec:Axis-Configuration]]
+== Configuracion de los Ejes(((Axis Configuration)))
 
-.Configuracion avanzada
+//.Pagina de configuracion de ejes[[cap:Axis-Configuration-Page]]
+image::images/stepconf-axis-x_es.png["Pagina de configuracion de ejes",align="center"]
 
-image::images/stepconf-options_es.png["Configuración avanzada",align="center"]
+= REMOVEME2
+* 'Pasos del motor por revolucion' (Motor Steps Per Revolution) - (((Motor Steps Per Revolution)))
+  El numero de pasos completos por revolucion del motor.
+  Si solo se tiene el dato de los grados por paso del motor (ejemplo 1.8 grados), se debe dividir 360 por el numero de grados por paso para encontrar el numero de pasos por revolucion.
+* 'Micro pasos' (Driver Microstepping) - (((Driver Microstepping)))
+  El numero de micropasos producidos por el controlador por cada paso fisico completo del motor.
+  Entre "2" para semipasos.
+  Por ejemplo, si el controlador produce 1/10 de giro de un paso completo
+  del motor por cada pulso de paso que recibe, escriba 10 en la casilla.
+* 'Relacion de Poleas' (Pulley Ratio) - (((Pulley Ratio)))
+  Si su maquina tiene poleas o engranes entre el motor y el tornillo,
+  escriba su relacion mecanica aqui. Si no tiene, escriba "1:1".
+* 'Paso del tornillo' (Leadscrew Pitch) - (((Leadscrew Pitch)))
+  Entre aqui el paso del tornillo.
+  Si se selecciono unidades "Inch", entre el numero de 
+  hilos por pulgada (por ejemplo, 8 para un tornillo de 8 TPI).
+  Si se tiene un tornillo con varias entradas, se necesita saber
+  cuantas vueltas se requieren para mover la tuerca una pulgada.
+  Si se selecciono 'mm' como unidades, entre el numero de milimetros que la tuerca
+  se movera por revolucion (ejemplo, 2 para 2 mm/rev).
+  Si la maquina se mueve en la direccion opuesta a la esperada,
+  entre un valor negativo, o invierta el pin de direccion del eje.
+* 'Velocidad Maxima' (Maximum Velocity) - (((Maximum Velocity)))
+  Entre la velocidad maxima del eje, en unidades por segundo.
+* 'Aceleracion Maxima' (Maximum Acceleration) - (((Maximum Acceleration)))
+  El valor correcto de esta casilla solo puede ser determinado
+  por experimentacion. Vea 
+  <<sub:finding-maximum-velocity,Encontrar Velocidad Maxima para ajustar la velocidad>> y
+  <<sub:finding-maximum-acceleration,Encontrar Velocidad Maxima para ajustar la aceleracion>>.
+* 'Posicion Home' (Home Location) - (((Home Location)))
+  Home es la posicion a la que la maquina se movera despues de completar el procedimiento de inicio del eje.
+  Para maquinas sin interruptores de posicion home, esta es la posicion a la cual el operador debera mover la maquina
+  antes de presionar el boton de inicializacion del eje (Home).
+  Si se combinan interruptores home y de limite,
+  se debera mover la maquina fuera del interruptor para inicializar el eje o se recibira un error de limite en el eje.
+= REMOVEME4
+* 'Carrera de la mesa' (Table Travel) - 
+  (((Table Travel)))
+  El rango de carrera que el codigo g no podra sobrepasar.
+  La posicion de inicializacion del eje debe estar dentro del area de carrera.
+  En particular, tener la posicion de inicializacion (Home) de un eje exactamente
+  en un limite del area de carrera, producira una configuracion invalida.    
+* 'Localizacion de los interruptores home' (Home Switch Location) - 
+  (((Home Switch Location)))
+  La posicion en la cual el interruptor home se activa o desactiva,
+  relativa al origen maquina. Este apartado y los dos siguientes
+  solo apareceran cuando se selecciona la existencia de interruptores home
+  en la configuracion de los pines del puerto paralelo. Si se combinan los 
+  interruptores de limite y de home, la posicion del interruptor home
+  no puede ser la misma que la posicion home o se producira un error de limite de articulacion.
+* 'Velocidad de busqueda de home' (Home Search Velocity) - 
+  (((Home Search Velocity)))
+  Velocidad usada en la busqueda de los interruptores home.
+  Si el interruptor se encuentra cercano al limite de carrera del eje,
+  esta velocidad debe ser seleccionada de tal forma que el eje tenga
+  suficiente tiempo para desacelerar hasta detenerse antes de llegar al
+  limite fisico de la carrera.
+  Si el interruptor se encuentra cerrado en un rango corto de carrera,
+  (en lugar de estar cerrado desde el punto de disparo hasta un final de carrera),
+  la velocidad debera ser seleccionada de tal forma que el eje pueda desacelerar
+  hasta detenerse antes de que el interruptor se habra otra vez, y el procedimiento
+  de homing debera comenzarse siempre desde el mismo lado del interruptor.
+  Si la maquina se mueve en la direccion contraria al inicio del homing,
+  cambie el signo del parametro *Home Search Velocity*.
+= REMOVEME7
+* 'Direccion de enclavamiento' (Home Latch Direction) - (((Home Latch Direction)))
+  Seleccione "Igual" para que el interruptor sea liberado y posteriormente la maquina se acerque a el a muy baja velocidad.
+  La segunda vez que el interruptor se cierre, definira la posicion home.
+  Seleccione "Opuesto" para realizar la inializacion liberando lentamente el interruptor; cuando el interruptor se abra, se marcara la posiocion home.
+* 'Tiempo para acelerar hasta maxima velocidad' (Time to accelerate to max speed) - (((Time to accelerate to max speed)))
+  Tiempo calculado a partir de 'Max Acceleration' y 'Max Velocity'. 
+* 'Distancia para acelerar hasta maxima velocidad' (Distance to accelerate to max speed) - (((Distance to accelerate to max speed)))
+  Distancia para alcanzar maxima velocidad desde posicion de parado.
+* 'Tasa de pulsos a maxima velocidad' (Pulse rate at max speed) - (((Pulse rate at max speed)))
+  Este dato se calcula en base a los valores anteriores.
+  El valor maximo de la *Tasa* determina el 'BASE_PERIOD'.
+  Valores por encima de 20000Hz pueden producir tiempos de respuesta muy bajos o incluso bloqueos
+  (La tasa maxima varia entre computadoras)
+* 'Escala del Eje' (Axis SCALE) - 
+  El numero que sera usado en el archivo ini en la seccion [SCALE].
+  Representa cuantos pasos se deben dar por unidad de usuario.
+* 'Probar este Eje' (Test this axis) - (((Test this axis)))
+  Esta opcion abre una ventana para permitir probar cada eje 
+  y puede ser utilizada despues de llenar toda la informacion referente a cada eje.
 
-* 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
-  capitulo "HALUI" para más información.
-//cha:hal-user-interface removed
-* 'Incluir pyVCP': esta opción agrega el archivo base del panel pyVCP o un archivo ejemplo
-  para trabajar en el. Ver el capítulo PyVCP para más información.
-//<<cha:pyvcp,Capítulo PyVCP>> para más información.
-* 'Incluir ClassicLadder PLC' - Esta opción agregará el PLC ClassicLadder
-  (Controlador lógico programable). Ver el
-  Capitulo Classicladder para más información.
-//<<cha:classicladder,Capitulo Classicladder>> - "all-english" document removed
-* 'Indicador en pantalla para cambio de herramienta' - Si esta casilla está marcada, LinuxCNC
-  para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
-  generalmente solo es útil si tiene herramientas predimensionadas.
+= REMOVEME10
 
-== Configuracion de los Ejes[[sec:Axis-Configuration]](((Axis Configuration)))
-
-.Pagina de configuracion de ejes[[cap:Axis-Configuration-Page]]
-
-image::images/stepconf-axis-x_es.png[align="center", alt="Pagina de configuracion de ejes"]
-
- * 'Pasos del motor por revolucion' (Motor Steps Per Revolution) - 
-   (((Motor Steps Per Revolution)))
-   El numero de pasos completos por revolucion del motor.
-   Si solo se tiene el dato de los grados por paso del motor (ejemplo 1.8 grados),
-   se debe dividir 360 por el numero de grados por paso
-   para encontrar el numero de pasos por revolucion.
- * 'Micro pasos' (Driver Microstepping) - 
-   (((Driver Microstepping)))
-   El numero de micropasos producidos por el controlador por cada paso fisico completo del motor.
-   Entre "2" para semipasos.
-   Por ejemplo, si el controlador produce 1/10 de giro de un paso completo
-   del motor por cada pulso de paso que recibe, escriba 10 en la casilla.
- * 'Relacion de Poleas' (Pulley Ratio) - 
-   (((Pulley Ratio)))
-   Si su maquina tiene poleas o engranes entre el motor y el tornillo,
-   escriba su relacion mecanica aqui. Si no tiene, escriba "1:1".
- * 'Paso del tornillo' (Leadscrew Pitch) - 
-   (((Leadscrew Pitch)))
-   Entre aqui el paso del tornillo.
-   Si se selecciono unidades "Inch", entre el numero de 
-   hilos por pulgada (por ejemplo, 8 para un tornillo de 8 TPI).
-   Si se tiene un tornillo con varias entradas, se necesita saber
-   cuantas vueltas se requieren para mover la tuerca una pulgada.
-   Si se selecciono 'mm' como unidades, entre el numero de milimetros que la tuerca
-   se movera por revolucion (ejemplo, 2 para 2 mm/rev).
-   Si la maquina se mueve en la direccion opuesta a la esperada,
-   entre un valor negativo, o invierta el pin de direccion del eje.
- * 'Velocidad Maxima' (Maximum Velocity) - 
-   (((Maximum Velocity)))
-   Entre la velocidad maxima del eje, en unidades por segundo.
- * 'Aceleracion Maxima' (Maximum Acceleration) - 
-   (((Maximum Acceleration)))
-   El valor correcto de esta casilla solo puede ser determinado
-   por experimentacion. Vea 
-   <<sub:finding-maximum-velocity,Encontrar Velocidad Maxima para ajustar la velocidad>> y
-   <<sub:finding-maximum-acceleration,Encontrar Velocidad Maxima para ajustar la aceleracion>>.
- * 'Posicion Home' (Home Location) - 
-   (((Home Location)))
-   Home es la posicion a la que la maquina se movera despues de completar
-   el procedimiento de inicio del eje.
-   Para maquinas sin interruptores de posicion home,
-   esta es la posicion a la cual el operador debera mover la maquina
-   antes de presionar el boton de inicializacion del eje (Home).
-   Si se combinan interruptores home y de limite,
-   se debera mover la maquina fuera del interruptor para inicializar el eje
-   o se recibira un error de limite en el eje.
- * 'Carrera de la mesa' (Table Travel) - 
-   (((Table Travel)))
-   El rango de carrera que el codigo g no podra sobrepasar.
-   La posicion de inicializacion del eje debe estar dentro del area de carrera.
-   En particular, tener la posicion de inicializacion (Home) de un eje exactamente
-   en un limite del area de carrera, producira una configuracion invalida.    
- * 'Localizacion de los interruptores home' (Home Switch Location) - 
-   (((Home Switch Location)))
-   La posicion en la cual el interruptor home se activa o desactiva,
-   relativa al origen maquina. Este apartado y los dos siguientes
-   solo apareceran cuando se selecciona la existencia de interruptores home
-   en la configuracion de los pines del puerto paralelo. Si se combinan los 
-   interruptores de limite y de home, la posicion del interruptor home
-   no puede ser la misma que la posicion home o se producira un error de limite de articulacion.
- * 'Velocidad de busqueda de home' (Home Search Velocity) - 
-   (((Home Search Velocity)))
-   Velocidad usada en la busqueda de los interruptores home.
-   Si el interruptor se encuentra cercano al limite de carrera del eje,
-   esta velocidad debe ser seleccionada de tal forma que el eje tenga
-   suficiente tiempo para desacelerar hasta detenerse antes de llegar al
-   limite fisico de la carrera.
-   Si el interruptor se encuentra cerrado en un rango corto de carrera,
-   (en lugar de estar cerrado desde el punto de disparo hasta un final de carrera),
-   la velocidad debera ser seleccionada de tal forma que el eje pueda desacelerar
-   hasta detenerse antes de que el interruptor se habra otra vez, y el procedimiento
-   de homing debera comenzarse siempre desde el mismo lado del interruptor.
-   Si la maquina se mueve en la direccion contraria al inicio del homing,
-   cambie el signo del parametro *Home Search Velocity*.
- * 'Direccion de enclavamiento' (Home Latch Direction) - 
-   (((Home Latch Direction)))
-   Seleccione "Igual" para que el interruptor sea liberado
-   y posteriormente la maquina se acerque a el a muy baja velocidad.
-   La segunda vez que el interruptor se cierre, definira la posicion home.
-   Seleccione "Opuesto" para realizar la inializacion liberando lentamente el interruptor;
-    cuando el interruptor se abra, se marcara la posiocion home.
- * 'Tiempo para acelerar hasta maxima velocidad' (Time to accelerate to max speed) - 
-   (((Time to accelerate to max speed)))
-   Tiempo calculado a partir de 'Max Acceleration' y 'Max Velocity'. 
- * 'Distancia para acelerar hasta maxima velocidad' (Distance to accelerate to max speed) - 
-   (((Distance to accelerate to max speed)))
-   Distancia para alcanzar maxima velocidad desde posicion de parado.
- * 'Tasa de pulsos a maxima velocidad' (Pulse rate at max speed) - 
-   (((Pulse rate at max speed)))
-   Este dato se calcula en base a los valores anteriores.
-   El valor maximo de la *Tasa* determina el 'BASE_PERIOD'.
-   Valores por encima de 20000Hz pueden producir tiempos de respuesta muy bajos o incluso bloqueos
-   (La tasa maxima varia entre computadoras)
- * 'Escala del Eje' (Axis SCALE) - 
-   El numero que sera usado en el archivo ini en la seccion [SCALE].
-   Representa cuantos pasos se deben dar por unidad de usuario.
- * 'Probar este Eje' (Test this axis) - 
-   (((Test this axis)))
-   Esta opcion abre una ventana para permitir probar cada eje 
-   y puede ser utilizada despues de llenar toda la informacion referente a cada eje.
-
-=== Probar este eje
-
-.Probar este eje
-image::images/stepconf-x-test_es.png[align="center", alt="Probar este Eje"]
+//.Probar este eje
+image::images/stepconf-x-test_es.png[align="center"]
 
 Es un comprobador básico que solo emite señales de paso y dirección
 para probar diferentes valores de aceleración y velocidad.
@@ -354,8 +308,7 @@ Si su controlador tiene una bomba de carga, tendrá que derivarla.
 Probar el eje no reacciona a las entradas del interruptor de límite. Usar con precaución.
 
 [[sub:finding-maximum-velocity]]
-
-.Encontrar la velocidad máxima
+=== Encontrar la velocidad máxima
 Comience con una baja aceleración
 // comenta el latexmath hasta que se encuentre una solución para los documentos html
 // (por ejemplo, latexmath: [2 in / s ^ 2] o latexmath: [50 mm / s ^ 2])
@@ -412,8 +365,8 @@ reducirlo en un 10% y usarlo como  Aceleración máxima del eje.
 
 == Configuracion del husillo
 
-.Página de configuración del husillo
-image::images/stepconf-spindle_es.png[align="center", alt="Página de configuración del husillo"]
+//.Página de configuración del husillo
+image::images/stepconf-spindle_es.png["Página de configuración del husillo",align="center"]
 
 Esta página solo aparece cuando se selecciona 'Spindle PWM' en
 la página 'Pin Portout Parallel' para una de las salidas.
@@ -465,10 +418,10 @@ en el pinout, se debe ingresar la siguiente información:
 Ingrese los siguientes valores en la página Configuración del husillo:
 
 [width="80%"]
-|=========================
-|Velocidad 1: | 0 | PWM 1: | 0
+|====
+|Velocidad 1: |    0 | PWM 1: | 0
 |Velocidad 2: | 1000 | PWM 2: | 1
-|=========================
+|====
 
 Termine los pasos restantes del proceso de configuración,
 luego, inicie LinuxCNC con su configuración.
@@ -492,6 +445,26 @@ curvas de respuesta, lo mejor es:
 Por ejemplo, si su husillo va de 0 RPM a 8000 RPM,
 pero generalmente usa velocidades de 400 RPM (10%) a 4000 RPM (100%),
 encuentre los valores de PWM que dan 1600 RPM (40%) y 2800 RPM (70%).
+
+== Opciones
+
+//.Configuracion avanzada
+image::images/stepconf-options_es.png["Configuración avanzada",align="center"]
+
+* 'Incluir Halui': esto agregará el componente de interfaz de usuario Halui. Ver el
+  capitulo "HALUI" para más información.
+//cha:hal-user-interface removed
+* 'Incluir pyVCP': esta opción agrega el archivo base del panel pyVCP o un archivo ejemplo
+  para trabajar en el. Ver el capítulo PyVCP para más información.
+//<<cha:pyvcp,Capítulo PyVCP>> para más información.
+* 'Incluir ClassicLadder PLC' - Esta opción agregará el PLC ClassicLadder
+  (Controlador lógico programable). Ver el
+  Capitulo Classicladder para más información.
+//<<cha:classicladder,Capitulo Classicladder>> - "all-english" document removed
+* 'Indicador en pantalla para cambio de herramienta' - Si esta casilla está marcada, LinuxCNC
+  para y le pide que cambie la herramienta cuando se encuentre 'M6'. Esta característica
+  generalmente solo es útil si tiene herramientas predimensionadas.
+
 
 == Configuracion de la maquina completa
 
@@ -569,14 +542,10 @@ hasta que se realice la conexión a tierra y la entrada pasa a baja.
 Sin resistencia, la entrada puede flotar entre encendido y apagado cuando el circuito está abierto.
 Normalmente, para un puerto paralelo, puede usar resistencias de 47k.
 
-. Interruptores normalmente cerrados
-Cableado de interruptores N/C en serie (diagrama simplificado)
-
+.Interruptores normalmente cerrados (N/C) cableado de interruptores en serie (diagrama simplificado)
 image::images/switch-nc-series_es.png["Interruptores normalmente cerrados",align="center"]
 
-. Interruptores normalmente abiertos
-Cableado de interruptores de N/O en paralelo (diagrama simplificado)
-
+.Interruptores normalmente abiertos (N/O) cableado de interruptores en paralelo (diagrama simplificado)
 image::images/switch-no-parallel_es.png["Interruptores normalmente abiertos",align="center"]
 
 Las siguientes combinaciones de interruptores están permitidas en Stepconf:
@@ -586,5 +555,4 @@ Las siguientes combinaciones de interruptores están permitidas en Stepconf:
 * Combinar ambos interruptores de límite para un eje
 * Combinar ambos interruptores de límite y el interruptor de home para un eje
 * Combinar un interruptor de límite y el interruptor de home para un eje
-
 // vim: set syntax = asciidoc:
