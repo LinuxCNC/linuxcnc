@@ -83,6 +83,7 @@ Example:
 unlock_joints_mask=0x38 selects joints 3,4,5
 ----
 
+selecciona articulaciones 3,4,5
 
 [[sec:motion-pins]]
 === Pins(((motion (HAL pins))))
@@ -153,28 +154,6 @@ module.
   The value on this pin does not reflect the feed override or any other adjustments.
 * 'motion.teleop-mode' - (bit, out) TRUE when motion is in 'teleop mode', as opposed to 'coordinated mode'
 * 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
-  it could come from the tool table ('G43' active), or it could come from the gcode ('G43.1' active)
-* 'motion.on-soft-limit' -
-  (bit, out) TRUE when the machine is on a soft limit.
-* 'motion.probe-input' -
-  (bit, in) 'G38.n'  uses the value on this pin to determine when the
-  probe has made contact.
-  TRUE for probe contact closed (touching),
-  FALSE for probe contact open.
-* 'motion.program-line' -
-  (s32, out) The current program line while executing. Zero if not
-  running or between lines while single stepping.
-* 'motion.requested-vel' -
-  (float, out) The current requested velocity in user units per
-  second.  This value is the F-word setting from the G-code file,
-  possibly reduced to accommodate machine velocity and acceleration
-  limits. The value on this pin does not reflect the feed override or
-  any other adjustments.
-* 'motion.teleop-mode' -
-  (bit, out) TRUE when motion is in 'teleop mode', as opposed to
-  'coordinated mode'
-* 'motion.tooloffset.x ... motion.tooloffset.w' -
-  (float, out, one per axis) shows the tool offset in effect;
   it could come from the tool table ('G43' active), or it could
   come from the G-code ('G43.1' active)
 
@@ -210,9 +189,10 @@ order shown.
 * 'motion-controller' - Runs the LinuxCNC motion controller
 
 == Spindle
-Linuxcnc can control upto eight spindles. +
-Motion will produce the following pins: +
-The 'N' will be the integer of the spindle number. (0-7) +
+
+LinuxCNC can control upto eight spindles.
+Motion will produce the following pins:
+The 'N' will be the integer of the spindle number. (0-7)
 
 [[sec:spindle-pins]]
 === Pins(((spindle (HAL pins))))

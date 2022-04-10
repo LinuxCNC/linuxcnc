@@ -115,7 +115,7 @@ like this:
 ** Push your branch to a publicly visible git repo (such as github,
    bitbucket, your own publicly-accessible server, etc) and share that
    location on the emc-developers mailing list, or
-** Email your commits to the emc-developers mailing list (use `git
+** Email your commits to the LinuxCNC-developers mailing list (use `git
    format-patch` to create the patches)
 * Advocate for your patch
 ** Explain what problem it addresses and why it should be included
@@ -123,7 +123,6 @@ like this:
 ** Be receptive to questions and feedback from the developer community.
 ** It is not uncommon for a patch to go through several revisions before
    it is accepted.
-
 
 == git configuration
 
@@ -143,8 +142,8 @@ Use your real name (not a handle), and use an unobfuscated e-mail address.
 
 === Commit contents
 
-Keep your commits small and to the point.  Each commit should accomplish
-one logical change to the repo.
+Keep your commits small and to the point.
+Each commit should accomplish one logical change to the repo.
 
 === Write good commit messages
 
@@ -152,8 +151,8 @@ Keep commit messages around 72 columns wide (so that in a default-size
 terminal window, they don't wrap when shown by `git log`).
 
 Use the first line as a summary of the intent of the change (almost
-like the subject line of an e-mail).  Follow it with a blank line,
-then a longer message explaining the change.  Example:
+like the subject line of an e-mail). Follow it with a blank line,
+then a longer message explaining the change. Example:
 
 ----
 Get rid of RTAPI_SUCCESS, use 0 instead
@@ -205,10 +204,10 @@ you committed, optionally modifying the commit message as well. Use this
 if you realized right away that you left something out of the commit,
 or if you typo'd the commit message.
 
-`git rebase --interactive upstream-branch` lets you go back through each
+`git rebase --interactive` upstream-branch lets you go back through each
 commit made since you forked your feature branch from the upstream branch,
 possibly editing commits, dropping commits, or squashing (combining)
-commits with others.  Rebase can also be used to split individual commits
+commits with others. Rebase can also be used to split individual commits
 into multiple new commits.
 
 ===  Make sure every commit builds
@@ -226,9 +225,9 @@ later on to find the commit which introduced a bug.  So beyond making
 sure your branch builds, it is important to assure every single commit
 builds as well.
 
-There's an automatic way to check a branch for each commit being buildable
-- see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
-, and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence .
+There's an automatic way to check a branch for each commit being
+buildable - see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
+and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence.
 Use as follows (in this case testing every commit from origin/master to
 HEAD, including running regression tests):
 
@@ -237,7 +236,7 @@ cd linuxcnc-dev
 git-test-sequence origin/master..  '(cd src && make && ../scripts/runtests)'
 ----
 
-This will either report 'All's well' or 'Broke on <commit>'
+This will either report 'All is well' or 'Broke on <commit>'
 
 ===  Renaming files
 
@@ -272,7 +271,6 @@ https://docs.weblate.org/en/latest/user/basic.html
 If web services are not your thing, you can also work on translations
 using a variety of local gettext translator apps including gtranslator,
 poedit, and many more.
-
 
 == Other ways to contribute
 
