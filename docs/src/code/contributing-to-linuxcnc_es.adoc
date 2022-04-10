@@ -4,15 +4,19 @@
 
 == Introducción
 
-Este documento contiene información para desarrolladores sobre la  infraestructura de LinuxCNC, y describe las mejores prácticas para contribuir con código y actualizaciones de documentación para el proyecto LinuxCNC.
+Este documento contiene información para desarrolladores sobre la
+infraestructura de LinuxCNC, y describe las mejores prácticas para
+contribuir con código y actualizaciones de documentación para el
+proyecto LinuxCNC.
 
-En este documento, "fuente" significa tanto el código fuente de programas y bibliotecas, como el texto fuente para la documentación.
+En este documento, "fuente" significa tanto el código fuente de programas
+y bibliotecas, como el texto fuente para la documentación.
 
 == Comunicación entre desarrolladores de LinuxCNC
 
 Las dos formas principales en que los desarrolladores de proyectos se comunican entre sí son:
 
-* Vía IRC, en #linuxcnc-devel en FreeNode.
+* Via IRC, en irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel on Libera.chat].
 * Por correo electrónico, en la lista de correo de los desarrolladores:
   https://lists.sourceforge.net/lists/listinfo/emc-developers
 
@@ -22,8 +26,8 @@ Utilizamos Source Forge para las listas de correo: http://sourceforge.net/p/emc/
 
 == El Sistema de Control de Revisiones git
 
-Todas las fuentes LinuxCNC se mantiene en el sistema de control de revisión git
-footnote:[http://git-scm.com/].
+Todas las fuentes LinuxCNC se mantiene en el sistema de control de revisión
+git footnote:[http://git-scm.com/].
 
 === LinuxCNC repositorio oficial de git
 
@@ -35,7 +39,9 @@ Cualquiera puede obtener una copia de solo lectura del árbol fuente LinuxCNC a 
 git clone https://github.com/linuxcnc/linuxcnc linuxcnc-dev
 ----
 
-Si usted es un desarrollador con acceso push, entonces siga las instrucciones de github para configurar un repositorio desde el que pueda hacer push.
+Si usted es un desarrollador con acceso push, entonces siga las
+instrucciones de github para configurar un repositorio desde el que
+pueda hacer push.
 
 Tenga en cuenta que el comando clone coloca el repositorio local de LinuxCNC en un
 directorio llamado `linuxcnc-dev`, en lugar del predeterminado` linuxcnc`.
@@ -81,7 +87,6 @@ documentación de seguimiento también está disponible en línea aquí:
 Para una documentación más completa de git, vea el libro "Pro Git":
 http://git-scm.com/book donde hay versiones en varios idiomas, incluido Español.
 
-
 Otro tutorial en línea que se ha recomendado es "Git for the Lazy":
 http://wiki.spheredev.org/Git_for_the_lazy
 
@@ -106,15 +111,17 @@ la siguiente:
    bitbucket, su propio servidor de acceso público, etc.) y comparta su
    ubicación en la lista de correo de emc-developers, o
 ** Envíe sus confirmaciones por correo electrónico a la lista de correo de 
-   emc-developers (use `git format-patch` para crear parches)
+   LinuxCNC-developers (use `git format-patch` para crear parches)
 * Defienda su parche
-** Explique qué problema aborda y por qué debería incluirse en LinuxCNC
+** Explique qué problema aborda y por qué debería incluirse en LinuxCNC.
 ** Sea receptivo a las preguntas y comentarios de la comunidad de desarrolladores.
-** No es raro que un parche pase por varias revisiones antes de ser aceptado
+** No es raro que un parche pase por varias revisiones antes de ser aceptado.
 
 == Configuración de git
 
-Para ser considerada la inclusión en las fuentes de LinuxCNC, los commits deben tener campos de Autor correctos que identifiquen al autor del commit.
+Para ser considerada la inclusión en las fuentes de LinuxCNC, los
+commits deben tener campos de Autor correctos que identifiquen al autor
+del commit.
 Una buena manera de garantizar esto es establecer su configuración global de git:
 
 ----
@@ -128,13 +135,19 @@ Use su nombre real (no un identificador) y una dirección de correo electrónico
 
 === Contenidos de Commits
 
-Mantenga sus commits pequeños y directos. Cada commit debe aportar un cambio lógico al repositorio.
+Mantenga sus commits pequeños y directos.
+Cada commit debe aportar un cambio lógico al repositorio.
 
 === Escribir buenos mensajes con los commits
 
-Mantenga los mensajes de commits alrededor de 72 columnas de ancho (de modo que en un tamaño predeterminado de ventana de terminal, no se partan cuando se muestren con `git log`).
+Mantenga los mensajes de commits alrededor de 72 columnas de ancho
+(de modo que en un tamaño predeterminado de ventana de terminal, no se
+partan cuando se muestren con `git log`).
 
-Use la primera línea como un resumen de la intención del cambio (casi como la línea de asunto de un correo electrónico). Sígalo con una línea en blanco, y luego un mensaje más largo explicando el cambio. Ejemplo:
+Use la primera línea como un resumen de la intención del cambio
+(casi como la línea de asunto de un correo electrónico). Sígalo
+con una línea en blanco, y luego un mensaje más largo explicando el
+cambio. Ejemplo:
 
 ----
 Deshacerse de RTAPI_SUCCESS, usar 0 en su lugar
@@ -146,28 +159,54 @@ en el espacio de kernel (devuelve -ERRNO para error)
 
 === Commit a la rama adecuada
 
-Las correcciones de errores deben ir en la rama aplicable más antigua. Las nuevas funciones deberían ir a la rama maestra. Si no está seguro de dónde pertenece un cambio, pregunte en el irc o en la lista de correo.
+Las correcciones de errores deben ir en la rama aplicable más
+antigua. Las nuevas funciones deberían ir a la rama maestra. Si no
+está seguro de dónde pertenece un cambio, pregunte en el irc o en la
+lista de correo.
 
 === Use múltiples commits para organizar los cambios
 
-Cuando sea apropiado, organice sus cambios en una rama (una serie de commits) donde cada commit es un paso lógico hacia su objetivo máximo. Por ejemplo, primero factorice un código complejo en una nueva función. Luego, en un segundo commit, corrija algún error subyacente. Después, en un tercer commit, agregue una nueva característica que sea fácil para la refactorización y que no hubiera funcionado sin arreglar aquel error.
+Cuando sea apropiado, organice sus cambios en una rama (una serie
+de commits) donde cada commit es un paso lógico hacia su objetivo
+máximo. Por ejemplo, primero factorice un código complejo en
+una nueva función. Luego, en un segundo commit, corrija algún
+error subyacente. Después, en un tercer commit, agregue una nueva
+característica que sea fácil para la refactorización y que no hubiera
+funcionado sin arreglar aquel error.
 
-Esto es útil para los revisores, porque es más fácil ver que el paso "factorizar el código en una nueva función" era correcto, sin otras ediciones mezcladas; es más fácil ver que el error se corrige cuando el cambio que lo arregla es independiente de la nueva característica; y así sucesivamente.
+Esto es útil para los revisores, porque es más fácil ver que el paso
+"factorizar el código en una nueva función" era correcto, sin otras
+ediciones mezcladas; es más fácil ver que el error se corrige cuando
+el cambio que lo arregla es independiente de la nueva característica;
+y así sucesivamente.
 
 === Siga el estilo del código circundante
 
-Haga un esfuerzo por seguir el estilo de sangría predominante en el código. En particular, los cambios en los espacios en blanco hacen que sea más difícil para otros desarrolladores rastrear cambios a lo largo del tiempo. Cuando se debe reformatear código, hágalo como un commit separado de cualquier cambio semántico.
+Haga un esfuerzo por seguir el estilo de sangría predominante en el
+código. En particular, los cambios en los espacios en blanco hacen que
+sea más difícil para otros desarrolladores rastrear cambios a lo largo
+del tiempo. Cuando se debe reformatear código, hágalo como un commit
+separado de cualquier cambio semántico.
 
 === Simplifique historias complicada antes de compartirla con otros desarrolladores
 
-Con git, es posible grabar cada edición y falso comienzo como un commit separado. Esto es muy conveniente como una forma de crear puntos de control durante el desarrollo, pero a menudo no se quiere compartir estos falsos comienzos con otros.
+Con git, es posible grabar cada edición y falso comienzo como un commit
+separado. Esto es muy conveniente como una forma de crear puntos de
+control durante el desarrollo, pero a menudo no se quiere compartir
+estos falsos comienzos con otros.
 
-Git proporciona dos formas principales de limpiar el historial, las cuales se pueden hacer libremente antes de compartir el cambio:
+Git proporciona dos formas principales de limpiar el historial, las
+cuales se pueden hacer libremente antes de compartir el cambio:
 
-`git commit --amend` le permite hacer cambios adicionales a su último commit, modificando opcionalmente también el mensaje del mismo. Utilizar esto si se dio cuenta de inmediato de que dejó algo fuera del commit o para reescribir el mensaje.
+`git commit --amend` le permite hacer cambios adicionales a su último
+commit, modificando opcionalmente también el mensaje del mismo. Utilizar
+esto si se dio cuenta de inmediato de que dejó algo fuera del commit o para reescribir el mensaje.
 
-`git rebase --interactive upstream-branch` le permite volver a través de cada
-commit realizado desde que bifurco su rama de características desde la rama superior, posiblemente editando, descartando o comprimiendo (combinando) commits con otros. Rebase también se puede usar para dividir commits individuales en múltiples commits nuevos.
+`git rebase --interactive` upstream-branch le permite volver a través
+de cada commit realizado desde que bifurco su rama de características
+desde la rama superior, posiblemente editando, descartando o comprimiendo
+(combinando) commits con otros. Rebase también se puede usar para
+dividir commits individuales en múltiples commits nuevos.
 
 === Asegúrese de que cada commit compila
 
@@ -177,12 +216,17 @@ los pasos de su trabajo. Una consecuencia potencial de reordenar parches
 es que podrían aparecer dependencias incorrectas, por ejemplo, introducir el
 uso de una variable y, en un parche posterior, la declaración de esa variable.
 
-Si bien la rama HEAD se construirá, no todos los commits podrán compilarse en tal caso. Eso rompe `git bisect`, algo que se podría usar más tarde para encontrar el commit que introdujo un error. Así que más allá de asegurarse que su rama compila es importante asegurar que cada commit compila también.
+Si bien la rama HEAD se construirá, no todos los commits podrán
+compilarse en tal caso. Eso rompe `git bisect`, algo que se podría
+usar más tarde para encontrar el commit que introdujo un error. Así
+que más allá de asegurarse que su rama compila es importante asegurar
+que cada commit compila también.
 
 Hay una forma automática de verificar una rama para que con cada commit siga siendo 
-compilable.
-- ver http://dustin.sallings.org/2010/03/28/git-test-sequence.html y el código en https://github.com/dustin/bindir/blob/master/git-test-sequence.
-Úselo de la siguiente manera (en este caso probando cada confirmación desde origen/maestro a HEAD, incluida la ejecución de pruebas de regresión):
+compilable - ver http://dustin.sallings.org/2010/03/28/git-test-sequence.html y
+el código en https://github.com/dustin/bindir/blob/master/git-test-sequence.
+Úselo de la siguiente manera (en este caso probando cada confirmación desde origen/maestro a
+HEAD, incluida la ejecución de pruebas de regresión):
 
 ----
 cd linuxcnc-dev
@@ -193,11 +237,37 @@ Esto informará 'Todo bien' o 'Se rompió en <commit>'
 
 === Renombrar archivos
 
-Utilice la capacidad de cambiar el nombre de los archivos con mucho cuidado. Al igual que correr sangría en archivos individuales, los cambios de nombre hacen que sea más difícil de seguir cambios en el tiempo. Como mínimo, debe buscar consenso en IRC o La lista de correo de que el cambio de nombre es una mejora.
+Utilice la capacidad de cambiar el nombre de los archivos con mucho
+cuidado. Al igual que correr sangría en archivos individuales, los
+cambios de nombre hacen que sea más difícil de seguir cambios en el
+tiempo. Como mínimo, debe buscar consenso en IRC o La lista de correo
+de que el cambio de nombre es una mejora.
 
 === Prefiera "rebase"
 
-Utilice `git pull --rebase` en lugar de` git pull` para mantener un buen historial lineal. Con rebase, siempre se retiene el trabajo como revisiones delante de origen/maestro, para que pueda hacer cosas como `git format-patch` para compartir con otros sin push al repositorio central.
+Utilice `git pull --rebase` en lugar de` git pull` para mantener un
+buen historial lineal. Con rebase, siempre se retiene el trabajo como
+revisiones delante de origen/maestro, para que pueda hacer cosas como
+`git format-patch` para compartir con otros sin push al repositorio central.
+
+== Translations
+
+The LinuxCNC project uses `gettext` to translate the software into
+many languages. We welcome contributions and help in this area!
+Improving and extending the translations is easy: you don't need to know
+any programming, and you don't need to install any special translation
+programs or other software.
+
+The easiest way to help with translations is using Weblate,
+an open-source web service.  Our translation project is here:
+https://hosted.weblate.org/projects/linuxcnc/
+
+Documentation on how to use Weblate is here:
+https://docs.weblate.org/en/latest/user/basic.html
+
+If web services are not your thing, you can also work on translations
+using a variety of local gettext translator apps including gtranslator,
+poedit, and many more.
 
 
 == Otras formas de contribuir
