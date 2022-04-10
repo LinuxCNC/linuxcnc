@@ -1,6 +1,6 @@
 :lang: es
 
-[[cha:linuxcnc-history]]
+[[cha:linuxcnc-history]](((History)))
 == Origen
 
 EMC (controlador de máquina mejorado) fue creado por el
