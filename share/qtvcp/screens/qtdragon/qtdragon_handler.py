@@ -202,13 +202,6 @@ class HandlerClass:
         self.w.layout_ngcgui.addWidget(self.ngcgui)
         self.ngcgui.warp_info_frame(self.w.ngcGuiLeftLayout)
 
-        # load the NgcGui widget into the utilities tab
-        # then move (warp) the info tab from it to the left tab widget
-        from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
-        self.ngcgui = NgcGui()
-        self.w.layout_ngcgui.addWidget(self.ngcgui)
-        self.ngcgui.warp_info_frame(self.w.ngcGuiLeftLayout)
-
     #############################
     # SPECIAL FUNCTIONS SECTION #
     #############################
