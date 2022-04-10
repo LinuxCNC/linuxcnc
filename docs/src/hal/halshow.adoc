@@ -276,9 +276,8 @@ side. Pins that are linked to a signal have disabled buttons. To set these value
 the corresponding pin has to be unlinked from the signal. That can be done by
 right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
 
-(((Halshow: Watch Tab)))
 [[fig:halshow-watch-tab]]
-.Watch Tab
+.Watch Tab (((Halshow: Watch Tab)))
 image::images/halshow-4.png["Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles
