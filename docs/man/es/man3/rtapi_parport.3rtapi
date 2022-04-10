@@ -66,7 +66,7 @@ typedef struct
     .... // otros campos
 } rtapi_parport_t;
 .fi
-.en
+.in
 .SH VALOR DEVUELTO
 \fBrtapi_parport_get\fR devuelve un código de estado HAL. En caso de éxito, \fIport\fR es completado con información sobre el puerto asignado. 
 En caso de falla, los contenidos de \fIport\fR no están definidos, excepto que es seguro (pero no obligatorio) pasar este puerto a \fBrtapi_parport_release\fR.
