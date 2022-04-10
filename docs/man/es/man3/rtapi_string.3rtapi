@@ -24,7 +24,7 @@
 
 rtapi_string.h \- Contenedores RTAPI para funcionalidad del kernel de Linux
 
-Sintaxis .SH
+.SH SINTAXIS
 .HP
 #include <rtapi_string.h>
 .HP

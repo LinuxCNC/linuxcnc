@@ -1,4 +1,4 @@
-q.TH rtapi_open_as_root "3rtapi" "" "Documentación LinuxCNC" "RTAPI"
+.TH rtapi_open_as_root "3rtapi" "" "Documentación LinuxCNC" "RTAPI"
 .SH NOMBRE
 
 rtapi_open_as_root \- Abre un archivo con privilegio "root"
