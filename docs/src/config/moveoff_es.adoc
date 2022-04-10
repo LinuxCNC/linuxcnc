@@ -1,8 +1,7 @@
 :lang: es
 
 [[cha:moveoff]]
-
-= Componente moveoff
+= Componente moveoff(((Moveoff)))
 
 El componente Hal moveoff es un método exclusivo de Hal
 para implementar offsets. Ver la página de manual ('$ man moveoff')
@@ -63,14 +62,14 @@ se vuelva a encender posteriormente.
 
 LinuxCNC generalmente no conoce este medio de offsets solo-Hal
 ni está disponible en las pantallas de vista previa de las GUI. *No se proporciona protección* para
-movimientos con offset ​​que exceden los límites soft administrados por LinuxCNC. Ya que los límites soft
+movimientos con offset que exceden los límites soft administrados por LinuxCNC. Ya que los límites soft
 no se cumplen, un movimiento de offset puede encontrar límites fisicos (o un *CHOQUE* si
 no hay interruptores de límite). Se recomienda limitar la carrera con el uso de las entradas
 offset-min-M y offset-max-M. Disparar un límite fisico apagará
 la máquina - vea *Precaución* arriba.
 
-Los valores de desplazamiento en M pueden establecerse con configuraciones inifile, controladas por una GUI,
-o gestionado por otros componentes y conexiones Hal. Los valores fijos pueden ser
+Los valores de desplazamiento en M pueden establecerse con configuraciones inifile,
+controladas por una GUI, o gestionado por otros componentes y conexiones Hal. Los valores fijos pueden ser
 apropiado en casos simples donde la dirección y la cantidad de desplazamiento es
 bien definido pero se requiere un método de control para desactivar un pin de habilitación
 para devolver las compensaciones a cero. Las GUI pueden proporcionar medios para que los usuarios
@@ -83,13 +82,11 @@ componente Hal desconoce los límites impuestos por LinuxCNC en otros lugares.
 Los usuarios deben probar el uso en una aplicación de simulador y comprender todos los
 riesgos antes de su uso en hardware.
 
-
 Las configuraciones Sim que demuestran el componente y una
 gui (moveoff_gui) se encuentran en:
 
 * configs/sim/axis/moveoff (axis-ui)
 * configs/sim/touchy/ngcgui (touchy-ui)
-
 
 == Modificar una configuración existente
 
