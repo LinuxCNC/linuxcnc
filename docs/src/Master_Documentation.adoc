@@ -321,7 +321,7 @@ include::code/rs274.adoc[]
 
 :leveloffset: 0
 
-//include::common/glossary.adoc[]
+include::common/glossary.adoc[]
 
 include::common/gpld-copyright.adoc[]
 
