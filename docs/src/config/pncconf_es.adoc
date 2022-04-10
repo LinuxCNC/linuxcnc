@@ -203,8 +203,6 @@ PNCconf tiene paneles de muestra para que el usuario los utilice tal como están
 
 En "Opciones de muestra", seleccione cuáles le gustaría. Los botones cero usan comandos HALUI que puede editar más adelante en la sección HALUI.
 
-= REMOVEME10
-
 Auto Z touch-off también requiere el programa  touch-off de classic ladder y una entrada de sonda seleccionada. Requiere una placa conductora de toque y una herramienta conductora puesta a tierra. Para obtener una idea de cómo funciona, consulte:
 
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadderExamples#Single_button_probe_touchoff
@@ -389,8 +387,6 @@ Pncconf proporciona algunos tiempos predeterminados del controlador o permite co
 Consulte http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing para
 algunos números de tiempo más conocidos (siéntase libre de agregar los que haya descubierto).
 Si en caso de duda, utilice números grandes como 5000, esto solo limitará la velocidad máxima.
-
-= REMOVEME 1
 
 Control de motor sin escobillas::
 Estas opciones se utilizan para permitir un control de bajo nivel de motores sin escobillas utilizando

@@ -56,8 +56,6 @@ These next options will be recorded in a preference file for the next run of Ste
 //.Basic Information Page
 image::images/stepconf-base_en.png["Basic Information Page",align="center"]
 
-= REMOVEME0
-
  * 'Create Simulated Hardware' - This allows you to build a config for testing, even if you don't have the actual hardware.
  * 'Machine Name' - (((Machine Name))) Choose a name for your machine.  Use only uppercase letters, lowercase letters, digits, - and _.
  * 'Axis Configuration' - (((Axis Configuration))) Choose XYZ (Mill), XYZA (4-axis mill) or XZ (Lathe).
@@ -73,8 +71,6 @@ image::images/stepconf-base_en.png["Basic Information Page",align="center"]
     If the data sheet gives a value in microseconds, multiply by 1000.
     For example, enter 4.5us as 4500ns.
 
-= REMOVEME00
-
 A list of some popular drives, along with their timing values, is on the LinuxCNC.org Wiki under http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing[Stepper Drive Timing].
 
 Additional signal conditioning or isolation such as optocouplers and RC filters on break out boards can impose timing constraints of their own, in addition to those of the driver.
@@ -82,8 +78,6 @@ You may find it necessary to add some time to the
 drive requirements to allow for this.
 
 The LinuxCNC Configuration Selector has configs for Sherline already configured.
-
-= REMOVEME1
 
 * 'Step Time' - How long the step pulse is 'on' in nano seconds. If your not
   sure about this setting a value of 20,000 will work with most drives.
@@ -184,8 +178,6 @@ Turn on the 'invert' check box if the signal is inverted (0V for true/active, 5V
 * 'Plasma Arc Voltage' - If you require a Mesa THCAD to input a plasma arc voltage then select Plasma Arc Voltage from the list of output pins.
   This will enable a THCAD page during the setup procedure for the entry of the card parameters.
 
-= REMOVEME X
-
 == Parallel Port 2 Setup
 
 //.Parallel Port 2 Setup Page
@@ -202,7 +194,6 @@ You may specify the address as a hexadecimal (often 0x378) or as linux's default
 //.Axis Configuration Page
 image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
 
-= REMOVEME2
 * 'Motor Steps Per Revolution' - (((Motor Steps Per Revolution)))
   The number of full steps per motor revolution.
   If you know how many degrees per step the motor is (e.g., 1.8 degree), then divide 360 by the degrees per step to find the number of steps per motor revolution.
@@ -219,14 +210,12 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
   The correct values for these items can only be determined through experimentation.  See <<sub:finding-maximum-velocity,Finding Maximum Velocity>> to set the speed and <<sub:finding-maximum-acceleration,Finding Maximum Acceleration>> to set the acceleration.
 * 'Home Location' - (((Home Location)))
   The position the machine moves to after completing the homing procedure for this axis.  For machines without home switches, this is the location the operator manually moves the machine to before pressing the Home button.  If you combine the home and limit switches you must move off of the switch to the home position or you will get a joint limit error.
-= REMOVEME4
 * 'Table Travel' - (((Table Travel)))
   The range of travel for that axis based on the machine origin.
   The home location must be inside the 'Table Travel' and not equal to one of the Table Travel values.
 * 'Home Switch Location' - (((Home Switch Location)))
   The location at which the home switch trips or releases relative to the machine origin.  This item and the two below only appear when Home Switches were chosen in the Parallel Port Pinout.  If you combine home and limit switches the home switch location can not be the same as the home position or you will get a joint limit error.
 * 'Home Search Velocity' - (((Home Search Velocity))) The velocity to use when searching for the home switch.  If the switch is near the end of travel, this velocity must be chosen so that the axis can decelerate to a stop before hitting the end of travel.  If the switch is only closed for a short range of travel (instead of being closed from its trip point to one end of travel), this velocity must be chosen so that the axis can decelerate to a stop before the switch opens again, and homing must always be started from the same side of the switch.  If the machine moves the wrong direction at the beginning of the homing procedure, negate the value of 'Home Search Velocity'.
-= REMOVEME7
 * 'Home Latch Direction' - (((Home Latch Direction))) Choose 'Same' to have the axis back off the switch, then approach it again at a very low speed.
   The second time the switch closes, the home position is set.
   Choose 'Opposite' to have the axis back off the switch and when the switch opens, the home position is set.
@@ -242,8 +231,6 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
   This is how many steps per user unit.
 * 'Test this axis' - (((Test this axis)))
   This will open a window to allow testing for each axis. This can be used after filling out all the information for this axis.
-
-= REMOVEME10
 
 image::images/stepconf-x-test_en.png[align="center"]
 

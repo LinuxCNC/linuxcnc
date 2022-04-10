@@ -311,8 +311,6 @@ Under 'sample options' select which ones you would like.
 The zero buttons use HALUI commands which you could edit later in the HALUI
 section.
 
-= REMOVEME10
-
 Auto Z touch-off also requires the classic ladder touch-off program and a probe
 input selected. It requires a conductive touch-off plate and a grounded
 conductive tool. For an idea on how it works see:
@@ -538,8 +536,6 @@ Pncconf supplies some default controller timing or allows custom timing settings
 See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Stepper_Drive_Timing for
 some more known timing numbers (feel free to add ones you have figured out). If
 in doubt use large numbers such as 5000 this will only limit max speed.
-
-= REMOVEME 1
 
 Brushless Motor Control::
 These options are used to allow low level control of brushless motors using
