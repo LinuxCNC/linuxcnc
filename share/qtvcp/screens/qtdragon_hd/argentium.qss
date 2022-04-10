@@ -352,6 +352,12 @@ QScrollBar::sub-page:vertical {
 }
 
 /** Tab Widget **/
+QTabWidget::pane {
+  border: 1px solid gray;
+  top:-1px; 
+      background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #606060, stop:1 #202020);
+}
+
 QTabBar::tab {
     background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #303030, stop:1 #909090);
     border: 1px solid black;
@@ -462,4 +468,4 @@ EditorBase {
     qproperty-styleFont0: "Lato Heavy, 10";
     qproperty-styleFont2: "Lato Heavy, 10";
     qproperty-styleColorSelectionBackground: #00aaff; /* selection background */
-}
+} 

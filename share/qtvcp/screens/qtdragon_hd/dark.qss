@@ -408,3 +408,11 @@ QSpinBox::up-arrow {
     width: 20px;
     height: 20px;
 }
+
+/** Tab Widget **/
+QTabWidget::pane {
+  border: 1px solid gray;
+  top:-1px;
+background-color: #505050;
+     
+}
