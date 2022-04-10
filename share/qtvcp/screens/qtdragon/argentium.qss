@@ -37,7 +37,7 @@ QPushButton:checked {
     color: black;
 }
 
-QPushButton#btn_home_all[homed=true] {
+QPushButton#btn_home_all[ihomed=true] {
     background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #808080, stop:1 #e0e0e0);
     border: 1px solid #e0e0e0;
     color: black;
@@ -143,7 +143,7 @@ DROLabel {
     color: #00aaff;
 }
 
-DROLabel[homed=false] {
+DROLabel[isHomed=false] {
     color: red;
 }
 
@@ -469,3 +469,43 @@ EditorBase {
     qproperty-styleFont2: "Lato Heavy, 10";
     qproperty-styleColorSelectionBackground: #00aaff; /* selection background */
 } 
+
+/* warning colors for SPINDLE overrides if out of normal range*/
+
+#slider_spindle_ovr {
+    qproperty-alertOver: 105.0;
+}
+#slider_spindle_ovr {
+    qproperty-alertUnder: 75.1;
+}
+#slider_spindle_ovr[alertState='over'] {
+    background: yellow;
+}
+#slider_spindle_ovr[alertState='under'] {
+    background: red;
+}
+
+/* warning colors for FEED overrides if out of normal range*/
+
+#slider_feed_ovr {
+    qproperty-alertOver: 105.0;
+}
+#slider_feed_ovr {
+    qproperty-alertUnder: 75.1;
+}
+#slider_feed_ovr[alertState='over'] {
+    background: red;
+}
+#slider_feed_ovr[alertState='under'] {
+    background: yellow;
+}
+
+/* warning colors for RAPID overrides if out of normal range*/
+
+#slider_rapid_ovr {
+    qproperty-alertUnder: 75.1;
+}
+#slider_rapid_ovr[alertState='under'] {
+    background: yellow;
+}
+
