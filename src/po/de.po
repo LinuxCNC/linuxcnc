@@ -2799,7 +2799,7 @@ msgstr "Tastspitze schon abgehoben bei Start durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1542
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr "Tastspitze schon ausgelöst bei Start durch G38.4 oder G38.5"
+msgstr "Tastspitze schon ausgelöst bei Start durch G38.2 oder G38.3"
 
 #: src/emc/motion/command.c:1563
 msgid "can't add probe move"
