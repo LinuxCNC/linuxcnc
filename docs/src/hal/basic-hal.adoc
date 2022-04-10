@@ -29,7 +29,7 @@ component functions need to be added to a thread to be updated at the
 rate of the thread. You cannot load a user space component into the
 real time space.
 
-.HAL loadrt Syntax and Example
+.loadrt Syntax and Example
 ----
 loadrt <component> <options>
 
@@ -41,7 +41,7 @@ loadrt mux4 count=1
 
 The `addf` command adds a function to a real-time thread. If
 the StepConf wizard was used to create the configuration, two
-threads have been created.
+threads have been created (``base-thread`` and ``servo-thread``).
 
 `addf` adds function 'functname' to thread 'threadname'. Default is to add the function
 in the order they are in the file. If 'position' is specified, adds the function
@@ -87,7 +87,7 @@ Realtime Threads:
   can tolerate a slower response, like the motion controller,    ClassicLadder,
   and the motion command handler and supports floating point math.
 
-.HAL addf Syntax and Example
+.addf Syntax and Example
 ----
 addf <function> <thread>
 
@@ -121,7 +121,7 @@ Flags may be one or more of the following:
 
 -n:: name a component when it is a valid option for that component.
 
-.HAL loadusr Syntax and Examples
+.loadusr Syntax and Examples
 ----
 loadusr <component> <options>
 
@@ -142,7 +142,7 @@ arrows '<=', '=>' and '<=>' make it easier to follow the logic when reading
 a 'net' command line and are not used by the net command. The direction arrows
 must be separated by a space from the pin names.
 
-.HAL net Syntax and Example
+.net Syntax and Example
 ----
 net signal-name pin-name <optional arrow> <optional second pin-name>
 
@@ -205,7 +205,7 @@ Some components have parameters that need to be set before use.
 Parameters can be set before use or while running as needed. You cannot
 use setp on a pin that is connected to a signal.
 
-.HAL setp Syntax and Example
+.setp Syntax and Example
 ----
 setp <pin/parameter-name> <value>
 
@@ -217,7 +217,7 @@ setp parport.0.pin-08-out TRUE
 
 The command 'sets' sets the value of a signal.
 
-.HAL sets Syntax and Example:
+.sets Syntax and Example:
 ----
 sets <signal-name> <value>
 
@@ -239,7 +239,7 @@ The command 'unlinkp' unlinks a pin from the connected signal. If no
 signal was connected to the pin prior running the command, nothing
 happens. The 'unlinkp' command is useful for trouble shooting.
 
-.HAL unlinkp syntax and Example
+.unlinkp syntax and Example
 ----
 unlinkp <pin-name>
 
@@ -257,7 +257,7 @@ These commands are included so older configurations will still work.
 The command 'linksp' creates a 'connection' between a signal and one
 pin.
 
-.HAL linksp Syntax and Example
+.linksp Syntax and Example
 ----
 linksp <signal-name> <pin-name>
 
@@ -271,7 +271,7 @@ The 'linksp' command has been superseded by the 'net' command.
 The command 'linkps' creates a 'connection' between one pin and one
 signal. It is the same as linksp but the arguments are reversed.
 
-.HAL linkps Syntax and Example
+.linkps Syntax and Example
 ----
 linkps <pin-name> <signal-name>
 
@@ -286,7 +286,7 @@ the command 'newsig' creates a new HAL signal by the name <signame>
 and the data type of <type>. Type must be 'bit', 's32', 'u32' or
 'float'. Error if <signame> all ready exists.
 
-.HAL newsig Syntax and Example
+.newsig Syntax and Example
 ----
 newsig <signame> <type>
 
@@ -383,20 +383,20 @@ or the man pages.
 The 'and2' component is a two input 'and' gate. The truth table below
 shows the output based on each combination of input.
 
-.HAL and2 Syntax
+.and2 Syntax
 ----
 and2 [count=N] | [names=name1[,name2...]]
 ----
 
-.HAL and2 Functions
+.and2 Functions
   and2.n
 
-.HAL and2 Pins
+.and2 Pins
   and2.N.in0 (bit, in)
   and2.N.in1 (bit, in)
   and2.N.out (bit, out)
 
-.HAL and2 Truth Table
+.and2 Truth Table
 [width="90%", options="header"]
 |===
 |in0   | in1   | out
@@ -411,20 +411,20 @@ and2 [count=N] | [names=name1[,name2...]]
 
 The 'not' component is a bit inverter.
 
-.HAL not Syntax
+.not Syntax
 ----
 not [count=n] | [names=name1[,name2...]]
 ----
 
-.HAL not Functions
+.not Functions
   not.all
   not.n
 
-.HAL not Pins
+.not Pins
   not.n.in (bit, in)
   not.n.out (bit, out)
 
-.HAL not Truth Table
+.not Truth Table
 [width="90%", options="header"]
 |===
 |in    | out
@@ -437,20 +437,20 @@ not [count=n] | [names=name1[,name2...]]
 
 The 'or2' component is a two input OR gate.
 
-.HAL or2 Syntax
+.or2 Syntax
 ----
 or2[count=n] | [names=name1[,name2...]]
 ----
 
-.HAL or2 Functions
+.or2 Functions
   or2.n
 
-.HAL or2 Pins
+.or2 Pins
   or2.n.in0 (bit, in)
   or2.n.in1 (bit, in)
   or2.n.out (bit, out)
 
-.HAL or2 Truth Table
+.or2 Truth Table
 [width="90%", options="header"]
 |===
 |in0   | in1   | out
@@ -465,20 +465,20 @@ or2[count=n] | [names=name1[,name2...]]
 
 The 'xor2' component is a two input XOR (exclusive OR) gate.
 
-.HAL xor2 Syntax
+.xor2 Syntax
 ----
 xor2[count=n] | [names=name1[,name2...]]
 ----
 
-.HAL xo2 Functions
+.xor2 Functions
   xor2.n
 
-.HAL xor2 Pins
+.xor2 Pins
   xor2.n.in0 (bit, in)
   xor2.n.in1 (bit, in)
   xor2.n.out (bit, out)
 
-.HAL xor2 Truth Table
+.xor2 Truth Table
 [width="90%", options="header"]
 |===
 |in0   | in1   | out
@@ -491,7 +491,7 @@ xor2[count=n] | [names=name1[,name2...]]
 [[sec:hal-logic-examples]]
 == Logic Examples(((HAL Logic Examples)))
 
-.HAL `and2` example connecting two inputs to one output
+.`and2` example connecting two inputs to one output
 ----
 loadrt and2 count=1
 
@@ -522,7 +522,7 @@ sum of the 'weights' of the bits present plus any offset. It's similar
 to 'binary coded decimal' but with more options. The 'hold' bit interrupts the
 input processing, so that the 'sum' value no longer changes.
 
-.HAL weighted_sum component loading syntax
+.weighted_sum component loading syntax
 ----
 loadrt weighted_sum wsum_sizes=size[,size,...]
 ----
@@ -531,7 +531,7 @@ Creates groups of `weighted_sum`s, each with the given number of input bits (siz
 
 To update the `weighted_sum`, the `process_wsums` must be attached to a thread.
 
-.HAL add `process_wsums` function
+.add `process_wsums` function
 ----
 addf process_wsums servo-thread
 ----
@@ -542,7 +542,7 @@ In the following example, a copy of the AXIS HAL configuration window,
 bits '0' and '2' are TRUE, they have no offset. The weight ('weight') of bit 0
 is 1, that of bit 2 is 4, so the sum is 5.
 
-.HAL `weighted_sum` Example
+.`weighted_sum` Example
 ----
 Component Pins:
 Owner   Type  Dir         Value  Name

@@ -5,12 +5,12 @@
 = HAL General Reference(((HAL General Reference)))
 
 [[sec:hal-gr:names]]
-== HAL Entities Names(((HAL Entities Names)))
+== HAL Entity Names(((HAL Entity Names)))
 
-All HAL entities are accessible and manipulated by their
+All HAL entities are accessible and manipulable by their
 names, so documenting the names of pins, signals, parameters, etc., is
-very important. Names in HAL have a maximum of 41 characters in length
-(as defined by HAL_NAME_LEN in hal.h). Many names will be presented in
+very important. Names in HAL have a maximum length of 41 characters (as defined
+by HAL_NAME_LEN in hal.h). Many names will be presented in
 the general form, with formatted text _<like-this>_ representing fields
 of various values.
 
@@ -162,7 +162,7 @@ ppmc.0.pwm.00-03.frequency::
   Pico Systems ppmc board.
 
 [[sub:hal-gr:hw-drv:functions-names]]
-=== Functions Names(((HAL Hardware Driver Functions Names)))
+=== Function Names(((HAL Hardware Driver Function Names)))
 
 Hardware drivers usually only have two kinds of HAL functions, ones
 that read the hardware and update HAL pins, and ones that write to the

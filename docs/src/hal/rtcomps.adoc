@@ -59,7 +59,7 @@ halcmd: unloadrt stepgen
 ----
 
 [[sub:stepgen-pins]]
-=== Stepgen Pins(((HAL stepgen pins)))
+=== Pins(((HAL stepgen pins)))
 
 On the step type and control type selected.
 
@@ -84,7 +84,7 @@ On the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
 [[sec:stepgen-parameters]]
-=== Stepgen Parameters(((HAL stepgen parameters)))
+=== Parameters(((HAL stepgen parameters)))
 
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.
   This parameter is used for both output and feedback.

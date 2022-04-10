@@ -66,9 +66,9 @@ loadrt hal_parport cfg="port [type] [port [type] ...]"
 .Specifying the Port
 
 Numbers below 16 refer to parallel ports detected by the system. This is the
-simplest way to configure the hal_parport driver, and cooperates with the Linux
+simplest way to configure the `hal_parport` driver and cooperates with the Linux
 parport_pc driver if it is loaded. A port of 0 is the first parallel port
-detected on the system, 1 is the next, and so on.
+detected on the system, 1 is the next and so on.
 
 .Basic configuration
 
@@ -80,36 +80,33 @@ loadrt hal_parport cfg="0"
 
 .Using the Port Address
 
-Instead, the port address may be specified using the hex notation '0x' then the address.
+Instead, the port address may be specified using the hex notation with the '0x' 
+prefix.
 
 The config string represents the hexadecimal address of the port,
 optionally followed by a direction, all repeated for each port.
 The directions are _in_, _out_, or _x_, and determine the direction of the
-physical pins 2 to 9 as well as whether to create HAL input pins
-for physical control pins. If the direction is not specified,
+physical pins 2 to 9 of the D-Sub 25 connector. If the direction is not specified,
 the data group will by default be configured as outputs. For example:
 
 ----
 loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 ----
 
-Cet exemple installe les pilotes pour un port 0x0278, avec les broches 2 à 9
-en sorties (par défaut, puisque ni _in_, ni _out_ n'est spécifié), un port
-0x0378, avec les broches 2 à 9 en entrées et un port 0x20A0, avec les
-broches 2 à 9 explicitement spécifiées en sorties. Notez que vous devez
-connaître l'adresse de base des ports parallèles pour configurer
-correctement les pilotes. Pour les ports sur bus ISA, ce n'est généralement
-pas un problème, étant donné que les ports sont presque toujours à une
-adresse _bien connue_, comme 0x278 ou 0x378 qui sont typiquement
-configurées dans le BIOS. Les adresses des cartes sur bus PCI sont
-habituellement trouvées avec _lspci -v_ dans une ligne _I/O ports_,
-ou dans un message du noayau après l'exécution de _sudo modprobe -a parport_pc_.
-Il n'y a pas d'adresse par défaut, si <config-string> ne contient pas au
-moins une adresse, c'est une erreur.
+This example installs the drivers for a port 0x0278, with pins 2 to 9
+as outputs (by default, since neither _in_ nor _out_ is specified), a port
+0x0378, with pins 2 to 9 as inputs and a 0x20A0 port, with pins 2 to 9
+explicitly specified as outputs. Note that you must know the base address of the parallel ports to configure the drivers correctly. For ISA bus ports, this is
+usually not a problem,  since the ports are almost always at a well-known
+address,  such as 0x278 or 0x378 which are typically configured in the BIOS. The addresses of PCI bus cards are usually found with `lspci -v` in an _I/O ports_
+line, or in a kernel message after running `sudo modprobe -a parport_pc`.
+There is no default address, so if `<config-string>` does not contain at least one
+address, it is an error.
+
 
 [[fig:parport-block-diag]]
 .Parport block diagram(((Parport block diag)))
-image::images/parport-block-diag.png["Parport block dia"]
+image::images/parport-block-diag.png["Parport block diagram"]
 
 .Type
 
@@ -324,7 +321,7 @@ http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
 [[sec:probe_parport]]
 == probe_parport
 
-In today's PCs, parallel ports may require  aplug and play (PNP) configuration
+In today's PCs, parallel ports may require a plug and play (PNP) configuration
 before they can be used. The kernel module _probe_parport_ configures all
 PNP ports present. It must be loaded before _hal_parport_. On machines
 without a PNP port, it can be loaded but will have no effect.

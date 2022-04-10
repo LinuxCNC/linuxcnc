@@ -6,12 +6,10 @@
 
 == Introduction
 
-Ce document est centré sur l'utilisation de LinuxCNC,
-il est plutôt destiné aux lecteurs l'ayant déjà installé et configuré.
-Quelques informations sur l'installation sont données dans les
-chapitres suivants.
-La documentation complète sur l'installation et
-la configuration se trouve dans le manuel de l'intégrateur.
+This document is focused on the use of LinuxCNC, it is intended for readers who
+have already installed and configured it. Some information on installation is
+given in the following chapters.
+The complete documentation on installation andconfiguration can be found in the integrator's manual.
 
 [[sec:how-linuxcnc-works]]
 == How LinuxCNC Works

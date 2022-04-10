@@ -132,9 +132,6 @@ ddt, add it to the servo thread, then connect it to the position pin
 of a joint. Once that is done we can find the output of the
 differentiator in halscope. So let's go. (Yes, I looked this one up.)
 
-[NOTE]
-The message displayed when loading blocks does not prevent it from running.
-
 ----
 loadrt ddt
 ----
@@ -279,10 +276,9 @@ side. Pins that are linked to a signal have disabled buttons. To set these value
 the corresponding pin has to be unlinked from the signal. That can be done by
 right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
 
+(((Halshow: Watch Tab)))
 [[fig:halshow-watch-tab]]
 .Watch Tab
-(((Halshow: Watch Tab)))
-
 image::images/halshow-4.png["Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles

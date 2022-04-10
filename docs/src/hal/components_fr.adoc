@@ -50,6 +50,7 @@ de détails.
 Si le composant requière un thread avec flottant, c'est normalement le plus
 lent, soit  _servo-thread_.
 
+[[sec:realtime-components]]
 === Composants du coeur de LinuxCNC[[sec:Realtime-Components-coeur]] ===
 
 * _motion_ - (((motion)))Accepte les commandes de mouvement NML, interagi en temps

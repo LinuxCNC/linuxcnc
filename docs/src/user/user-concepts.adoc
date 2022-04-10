@@ -305,12 +305,13 @@ moves in the opposite direction of the Cartesian coordinate system arrows
 shown by the 'Tool Direction' image. This makes the 'tool' move in the
 correct direction in relation to the material.
 
-Noter également la position des fins de course et le sens d'activation de leurs
-cames. Plusieurs combinaisons sont possibles, par exemple il est possible, à
-l'inverse du dessin, de placer un seul fin de course fixe au milieu de la table
-et deux cames mobiles pour l'actionner. Dans ce cas les limites seront inversées,
-+X sera à droite de la table et -X à gauche. Cette inversion ne change rien du
-point de vue du sens de déplacement de l'outil.
+Note also the position of the limit switches and the direction of activation of
+their cams. Several combinations are possible, for example it is possible
+(contrary to the drawing) to place a single fixed limit switch in the middle of
+the table and two mobile cams to activate it. In this case the limits will be
+reversed, +X will be on the right of the table and -X on the left. This
+inversion does not change anything from the point of view of the direction of
+movement of the tool.
 
 .Typical Mill Configuration
 image::images/mill-diagram_en.svg["Mill Configuration",align="center"]
