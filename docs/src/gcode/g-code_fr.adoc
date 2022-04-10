@@ -854,7 +854,7 @@ Ces codes sélectionnent le plan de travail courant comme décrit ci-dessous:
 Les plans UV, WU et VW ne supportent pas les arcs. Il est de bonne pratique
 d'inclure la sélection du plan de travail dans le préambule du programme G-code.
 Les effets de la sélection d'un plan de travail sont discutés dans la section
-<<gcode:g2-g3, sur les arcs>>.
+<<gcode:g2-g3,sur les arcs>>.
 
 [[gcode:g20-g21]]
 == G20, G21 Choix des unités machine
@@ -882,15 +882,15 @@ machine natives, telles que fixées dans le fichier ini. Tous les axes définis
 dans le fichier ini seront déplacés lors d'un G28.
 
 * G28 - effectue un mouvement en vitesse rapide de la position courante à la
-position 'absolue' enregistrée dans les paramètres 5161 à 5166.
+  position 'absolue' enregistrée dans les paramètres 5161 à 5166.
 
 * 'G28 axes' - effectue un déplacement en vitesse rapide à la position
-spécifiée par 'axes' y compris les décalages, puis effectuera un mouvement en
-vitesse rapide aux coordonnées 'absolues' stockées dans les paramètres 5161
-à 5166 pour les axes spécifiés.
+  spécifiée par 'axes' y compris les décalages, puis effectuera un mouvement en
+  vitesse rapide aux coordonnées 'absolues' stockées dans les paramètres 5161
+  à 5166 pour les axes spécifiés.
 
 * G28.1 - enregistre la position 'absolue' courante dans les paramètres 5161
-à 5166.
+  à 5166.
 
 .Exemple avec G28
 ----
@@ -909,17 +909,17 @@ Pour une bonne répétabilité de la position et que la position soit correcteme
 enregistrée avec G30.1, faire la prise d'origine générale avant d'utiliser G30.
 
 * 'G30' - effectue un mouvement en vitesse rapide de la position courante à la
-position 'absolue' stockée dans les paramètres 5181 à 5186.
-Les valeurs stockées dans les paramètres font référence au système de
-coordonnées absolues qui est le système de coordonnées machine.
+  position 'absolue' stockée dans les paramètres 5181 à 5186.
+  Les valeurs stockées dans les paramètres font référence au système de
+  coordonnées absolues qui est le système de coordonnées machine.
 
 * 'G30 axes' - effectue un déplacement en vitesse rapide depuis la position
-courante jusqu'à la position spécifiée par 'axes', y compris les décalages,
-suivi d'un mouvement rapide à la position 'absolue' stockée dans les paramètres
-5181 à 5186 pour les axes spécifiés. Les axes non spécifiés ne bougeront pas.
+  courante jusqu'à la position spécifiée par 'axes', y compris les décalages,
+  suivi d'un mouvement rapide à la position 'absolue' stockée dans les paramètres
+  5181 à 5186 pour les axes spécifiés. Les axes non spécifiés ne bougeront pas.
 
 * 'G30.1' - enregistre la position absolue courante dans les paramètres 5181 à
-5186.
+  5186.
 
 [NOTE]
 Les paramètres de 'G30' peuvent être utilisés pour déplacer l'outil quand un M6
@@ -990,14 +990,14 @@ M2 (fin de programme)
 ----
 
 * Voir les sections <<gcode:g90-g91,G90>>, <<gcode:g0,G0>>
-et <<mcode:m2-m30,M2>> pour plus d'informations.
+  et <<mcode:m2-m30,M2>> pour plus d'informations.
 
 C'est une erreur si:
 
 * Tous les axes sont omis.
 * La broche ne tourne pas quand cette commande est exécutée.
 * Le mouvement linéaire requis excède les limites de vitesse machine
-en raison de la vitesse de broche.
+  en raison de la vitesse de broche.
 
 [[gcode:g33.1]]
 == G33.1 Taraudage Rigide(((G33.1 Taraudage rigide)))
@@ -1020,22 +1020,22 @@ s'effectuera pas le long de l'axe Z mais de la position courante jusqu'aux
 coordonnées X et Y spécifiées.
 
 . Un mouvement aux coordonnées spécifiées, synchronisé avec la rotation de
-la broche, avec le ratio donné et débutant à l'impulsion d'index du codeur
-de broche.
+  la broche, avec le ratio donné et débutant à l'impulsion d'index du codeur
+  de broche.
 . Quand le point final est atteint, la commande inverse le sens de rotation
-de la broche (ex: de 300 tours/mn en sens horaire à 300 tours/mn en sens
-anti-horaire)
+  de la broche (ex: de 300 tours/mn en sens horaire à 300 tours/mn en sens
+  anti-horaire)
 . Le mouvement reste synchronisé en continu avec la broche, même 'au delà'
-de la coordonnée du point final spécifié pendant l'arrêt de la broche et
-son inversion.
+  de la coordonnée du point final spécifié pendant l'arrêt de la broche et
+  son inversion.
 . Le mouvement synchronisé se poursuit pour revenir aux coordonnées initiales.
 . Quand les coordonnées initiale sont atteintes, la commande inverse la
-broche une seconde fois (ex: de 300tr/mn sens anti-horaire à 300tr/mn en
-sens horaire)
+  broche une seconde fois (ex: de 300tr/mn sens anti-horaire à 300tr/mn en
+  sens horaire)
 . Le mouvement reste synchronisé même 'au delà' des coordonnées initiales
-pendant que la broche s'arrête, puis s'inverse.
+  pendant que la broche s'arrête, puis s'inverse.
 . Un mouvement 'non synchronisé' ramène le mobile en arrière, aux
-coordonnées initiales.
+  coordonnées initiales.
 
 Tous les mouvements avec broche synchronisée ont besoin d'un index de broche,
 pour conserver la trajectoire prévue et que les passes se chevauchent
@@ -1102,9 +1102,8 @@ bascule dans l'état attendu selon la première éventualité.
 
 Le tableau de signification des différents codes de mesure.
 
-[[sec:Codes-de-mesure]]
+[[gcode:probing-codes]]
 .Codes de mesure
-
 [width="90%", options="header"]
 |==========================================================
 |Code  | État ciblé    | Sens de destination | Signal d'erreur
@@ -1114,7 +1113,7 @@ Le tableau de signification des différents codes de mesure.
 |G38.5 | Quitté        | Depuis la pièce     | Non
 |==========================================================
 
-Après une mesure réussie, <<sec:Log-des-mesures,les paramètres 5061 à 5069>>
+Après une mesure réussie, les paramètres 5061 à 5069
 contiendront les coordonnées des axes XYZABCUVW, pour l'emplacement du
 point contrôlé à l'instant du changement d'état du palpeur.
 Après une mesure manquée, ils contiendront les coordonnées du point programmé.
@@ -1125,7 +1124,7 @@ en affichant un message à l'écran si l'interface graphique choisie le permet.
 Un commentaire de la forme '(PROBEOPEN filename.txt)' ouvrira le
 fichier 'filename.txt' et y enregistrera les 9 coordonnées de
 XYZABCUVW pour chaque mesure réussie.
-Le fichier doit être fermé avec <<sec:Log-des-mesures,le commentaire>>
+Le fichier doit être fermé avec <<gcode:comments,le commentaire>>
 '(PROBECLOSE)'.
 
 Dans le répertoire des exemples, le fichier 'smartprobe.ngc' montre

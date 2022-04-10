@@ -52,7 +52,8 @@ addf <component> <thread>
 addf mux4 servo-thread
 ----
 
-=== loadusr[[sec:loadusr]]
+[[sub:hal-loadusr]]
+=== loadusr
 
 La commande 'loadusr' charge un composant de HAL de l'espace
 utilisateur. Les programmes de l'espace utilisateur ont leur propre
@@ -86,12 +87,12 @@ loadusr -Wn spindle gs2_vfd -n spindle
 En anglais ça donne 'loadusr wait for name spindle component gs2_vfd name spindle'.
 Le -n spindle est une partie du composant gs2_vfd et non de la commande loadusr.
 
-=== net[[sub:net]]
+=== net[[sub:hal-net]]
 
 La commande 'net' crée une 'connexion' entre un signal et une ou plusieurs pins.
 Si le signal n'existe pas, net le crée. Les flèches de direction '<=', '=>' et
 '<=>' sont seulement là pour aider à la lecture de la logique, ils ne sont pas
-utilisés par la commande net. Un espace doit séparer les flèches de direction 
+utilisés par la commande net. Un espace doit séparer les flèches de direction
 des noms de pin.
 
 .Syntaxe et exemple:
@@ -202,7 +203,7 @@ unlinkp parport.0.pin-02-out
 === Commandes obsolètes
 
 Les commandes suivantes sont dépréciées et seront retirées dans les futures
-versions. Toute nouvelle configuration doit utiliser la commande <<sub:net,'net'>>.
+versions. Toute nouvelle configuration doit utiliser la commande <<sub:hal-net,'net'>>.
 
 === linksp
 
@@ -247,7 +248,7 @@ newsig Xstep bit
 D'autres informations peuvent être trouvées dans le manuel de HAL ou
 la man page de 'halrun'.
 
-== HAL Data[[sec:HAL-Data]] 
+== HAL Data[[sec:HAL-Data]]
 footnote:[NDT la description des données de HAL reste en Anglais, elle sont
 suffisamment simples pour être comprises.]
 
@@ -264,7 +265,7 @@ can move as needed.
 
  - float values = a 64 bit floating point value, with approximately 53 bits of
    resolution and over 1000 bits of dynamic range.
-   
+
 For more information on floating point numbers see:
 
 http://fr.wikipedia.org/wiki/Nombre_flottant[http://fr.wikipedia.org/wiki/Nombre_flottant]

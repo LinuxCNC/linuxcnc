@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:parport]]
 = Parallel Port Driver
@@ -23,6 +24,7 @@ In some parallel ports, the control group has push-pull drivers and cannot be
 used as an input.
 
 .HAL and Open Collectors
+
 [NOTE]
 ===========================================================
 HAL cannot automatically determine if the 'x' mode bidirectional pins are
@@ -64,9 +66,9 @@ loadrt hal_parport cfg="port [type] [port [type] ...]"
 .Specifying the Port
 
 Numbers below 16 refer to parallel ports detected by the system. This is the
-simplest way to configure the hal_parport driver, and cooperates with the Linux
-parport_pc driver if it is loaded.  A port of 0 is the first parallel port
-detected on the system, 1 is the next, and so on.  
+simplest way to configure the `hal_parport` driver and cooperates with the Linux
+parport_pc driver if it is loaded. A port of 0 is the first parallel port
+detected on the system, 1 is the next and so on.
 
 .Basic configuration
 
@@ -78,11 +80,33 @@ loadrt hal_parport cfg="0"
 
 .Using the Port Address
 
-Instead, the port address may be specified using the hex notation '0x' then the address.
+Instead, the port address may be specified using the hex notation with the '0x' 
+prefix.
+
+The config string represents the hexadecimal address of the port,
+optionally followed by a direction, all repeated for each port.
+The directions are _in_, _out_, or _x_, and determine the direction of the
+physical pins 2 to 9 of the D-Sub 25 connector. If the direction is not specified,
+the data group will by default be configured as outputs. For example:
 
 ----
-loadrt hal_parport cfg="0x378"
+loadrt hal_parport cfg="0x278 0x378 in 0x20A0 out"
 ----
+
+This example installs the drivers for a port 0x0278, with pins 2 to 9
+as outputs (by default, since neither _in_ nor _out_ is specified), a port
+0x0378, with pins 2 to 9 as inputs and a 0x20A0 port, with pins 2 to 9
+explicitly specified as outputs. Note that you must know the base address of the parallel ports to configure the drivers correctly. For ISA bus ports, this is
+usually not a problem,  since the ports are almost always at a well-known
+address,  such as 0x278 or 0x378 which are typically configured in the BIOS. The addresses of PCI bus cards are usually found with `lspci -v` in an _I/O ports_
+line, or in a kernel message after running `sudo modprobe -a parport_pc`.
+There is no default address, so if `<config-string>` does not contain at least one
+address, it is an error.
+
+
+[[fig:parport-block-diag]]
+.Parport block diagram(((Parport block diag)))
+image::images/parport-block-diag.png["Parport block diagram"]
 
 .Type
 
@@ -133,7 +157,8 @@ and the second in input mode:
 loadrt hal_parport cfg="0 out 1 in"
 ----
 
-.Functions
+.Parport R/W Functions
+
 You must also direct LinuxCNC to run the 'read' and 'write' functions.
 
 ----
@@ -187,9 +212,7 @@ start LinuxCNC.
 == Pins
 
 * 'parport.<p>.pin-<n>-out' (bit) Drives a physical output pin.
-
 * 'parport.<p>.pin-<n>-in' (bit) Tracks a physical input pin.
-
 * 'parport.<p>.pin-<n>-in-not' (bit) Tracks a physical input pin, but inverted.
 
 For each pin, '<p>' is the port number, and '<n>' is the
@@ -208,10 +231,8 @@ physical pin is high.
 == Parameters
 
 * 'parport.<p>.pin-<n>-out-invert' (bit) Inverts an output pin.
-
 * 'parport.<p>.pin-<n>-out-reset' (bit) (only for 'out' pins) TRUE if this
 pin should be reset when the '-reset' function is executed.
-
 * parport.<p>.reset-time' (U32) The time (in nanoseconds)
 between a pin is set by 'write' and reset by the 'reset' function if it
 is enabled.
@@ -243,7 +264,7 @@ setting the HAL '-out' pin TRUE will drive the physical pin low.
   later in the same thread as 'write. 'If '-reset' is TRUE, then the
   'reset' function will set the pin to the value of '-out-invert'. This
   can be used in conjunction with stepgen's 'doublefreq' to produce one
-  step per period. The <<sec:stepgen-parameters,stepgen stepspace>> for that pin
+  step per period. The <<sec:stepgen,stepgen stepspace>> for that pin
   must be set to 0 to enable doublefreq.
 
 The individual functions are provided for situations where one port
@@ -262,7 +283,7 @@ insmod: error inserting '/home/jepler/emc2/rtlib/hal_parport.ko':
 ----
 
 then ensure that the standard kernel module 'parport_pc'  is not
-loadedfootnote:[In the LinuxCNC packages for Ubuntu, the file
+loaded footnote:[In the LinuxCNC packages for Ubuntu, the file
 /etc/modprobe.d/emc2
 generally prevents 'parport_pc' from being automatically loaded.]
 and that no other device in the system has claimed the I/O ports.
@@ -289,10 +310,43 @@ addf stepgen.make-pulses base-thread
 addf parport.0.write base-thread
 addf parport.0.reset base-thread
 addf stepgen.capture-position servo-thread
-... 
+...
 setp stepgen.0.steplen 1
 setp stepgen.0.stepspace 0
 ----
 
-More information on DoubleStep can be found on the 
+More information on DoubleStep can be found on the
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
+
+[[sec:probe_parport]]
+== probe_parport
+
+In today's PCs, parallel ports may require a plug and play (PNP) configuration
+before they can be used. The kernel module _probe_parport_ configures all
+PNP ports present. It must be loaded before _hal_parport_. On machines
+without a PNP port, it can be loaded but will have no effect.
+
+=== Installing probe_parport
+
+If, when `parport_pc` kernel module is loaded with command:
+
+----
+sudo modprobe -a parport_pc; sudo rmmod parport_pc
+----
+
+Linux kernel outputs a message similar to:
+
+----
+parport: PnPBIOS parport detected.
+----
+
+Then use of this module will probably be necessary.
+
+Finally, HAL parport components should be loaded:
+
+----
+loadrt probe_parport
+loadrt hal_parport ...
+----
+
+// vim: set syntax=asciidoc:

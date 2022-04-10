@@ -11,7 +11,7 @@ run it from the <<faq:terminal,terminal>> by issuing the command 'linuxcnc',
 or select it in the 'Applications -> CNC' menu.
 
 [[sec:config-launcher]]
-== Configuration Launcher(((Configuracion Launcher)))
+== Configuration Launcher(((Configuration Launcher)))
 
 When starting LinuxCNC from the CNC menu or from the command line without
 specifying an ini file the Configuration Selector dialog starts.
@@ -28,7 +28,7 @@ organized:
 * 'My Configurations' - User configurations located in ~/linuxcnc/configs
 * 'Sample Configurations' - Sample configurations, when selected are copied to ~/linuxcnc/configs.
   Once you copy a sample configuration if you use the launcher pick it from 'My Configurations'
-  Los nombres corresponden a los directorios bajo ../configs/
+  Names correspond to the directories under ../configs/
 ** 'sim' - Configurations that include simulated hardware. These can be used for testing or learning how LinuxCNC works.
 ** 'by_interface' - Configurations organized by GUI.
 ** 'by_machine' - Configurations organized by machine.

@@ -7,9 +7,9 @@
 == Overview
 
 [NOTE]
-Les éléments de tooledit modifiables décrits ici sont disponibles
-dans les versions 2.5.1 et suivantes. Dans la version 2.5.0, l'interface
-graphique ne permet pas ces ajustements.
+The tooledit elements described here are available
+in version 2.5.1 and later. In version 2.5.0, the graphical interface
+interface does not allow these adjustments.
 
 image::images/tooledit.png["Tool Edit GUI - Overview",align="center",width="640"]
 
@@ -30,7 +30,7 @@ is configured with the default tcl version >= 8.5.
 
 image::images/tooledit-sort.png["Tool Edit GUI - Column Sorting",align="center"]
 
-From French: In Ubuntu Lucid 10.04 tcl/tk8.4 it is installed by défault.
+In Ubuntu Lucid 10.04 tcl/tk8.4 it is installed by default.
 The installation is performed as follows:
 
 ----
@@ -66,8 +66,8 @@ TOOL_EDITOR = tooledit column_name column_name ...
 TOOL_EDITOR = tooledit Z DIAM
 ----
 
-.Résultat obtenu
-image::images/tooledit-columns_fr.png["Éditeur graphique de table d'outils - Choix des colonnes",align="left"]
+.Tooledit
+image::images/tooledit-columns.png["Graphical tool table editor - Column selection",align="left"]
 
 == Stand Alone Use
 The 'tooledit' program can also be invoked as a standalone

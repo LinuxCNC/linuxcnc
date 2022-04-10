@@ -1,6 +1,6 @@
 :lang: en
 
-[[cha:GStat]]
+[[cha:gstat]]
 = GStat
 
 == Intro
@@ -596,5 +596,3 @@ returns string representing the internal selected axis letter. +
 Some status points are reported wrongly during a running program. +
 This is because the interpreter runs ahead of the current position of a running program. +
 This will hopefully be resolved with the merge of state-tags branch. +
-
-

@@ -788,20 +788,20 @@ Some functions/features are only used for particular modes and are not displayed
 |*Name*|*Description*
 |Material|The top header is clickable in this area to reveal a drop down menu. It is used to manually select the current material cut parameters. If there are no materials in the material file then only the default material will be displayed.
 |VEL:|This displays the actual cut feed rate the table is moving at.
-|FR:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Feed Rate.
-|PH:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Pierce Height.
-|PD:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Pierce Delay.
-|CH:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, this displays the currently selected material's Cut Height.
-|CA:|If "View Material" is selected on the <<qt_parameters-tab, PARAMETERS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
-|T|This button changes the <<qt_preview-view, preview>> to a top down full table view.
-|P|This button changes the <<qt_preview-view, preview>> to an isometric view.
-|Z|This button changes the <<qt_preview-view, preview>> to a top down view.
-|→|This button pans the <<qt_preview-view, preview>> right.
-|←|This button pans the <<qt_preview-view, preview>> left.
-|↑|This button pans the <<qt_preview-view, preview>> up.
-|↓|This button pans the <<qt_preview-view, preview>> down.
-|+|This button zooms the <<qt_preview-view, preview>>.
-|-|This button zooms the <<qt_preview-view, preview>>.
+|FR:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Feed Rate.
+|PH:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Pierce Height.
+|PD:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Pierce Delay.
+|CH:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, this displays the currently selected material's Cut Height.
+|CA:|If "View Material" is selected on the <<qt_parameters-tab,PARAMETERS Tab>>, and RS485 communications are enabled, this displays the currently selected material's Cut Amperage.
+|T|This button changes the <<sub:qt-preview-views,preview>> to a top down full table view.
+|P|This button changes the <<sub:qt-preview-views,preview>> to an isometric view.
+|Z|This button changes the <<sub:qt-preview-views,preview>> to a top down view.
+|→|This button pans the <<sub:qt-preview-views,preview>> right.
+|←|This button pans the <<sub:qt-preview-views,preview>> left.
+|↑|This button pans the <<sub:qt-preview-views,preview>> up.
+|↓|This button pans the <<sub:qt-preview-views,preview>> down.
+|+|This button zooms the <<sub:qt-preview-views,preview>>.
+|-|This button zooms the <<sub:qt-preview-views,preview>>.
 |C|This button clears the live plot.
 |===
 
@@ -999,8 +999,8 @@ During Paused Motion, this section will be shown on top of the JOGGING panel. Th
     *Set To Last* - sets the axis to the previously set coordinate.
 |===
 
-[[qt_preview-view]]
-==== Preview Views
+[[sub:qt-preview-views]]
+=== Preview Views
 
 The QtPlasmaC preview screen has the ability to be switched between different views and displays, as well as zooming in and out, and panning horizontally and vertically.
 

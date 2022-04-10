@@ -26,8 +26,7 @@ foam-cutting machine may have XYUV axes. In LinuxCNC, the case of a XYYZ
 kinematics rather than by a second linear axis.
 
 NOTE:
-If the
-motion of mechanical components is not independent, as with
+If the motion of mechanical components is not independent, as with
 hexapod machines, the RS274/NGC language and the canonical machining
 functions will still be usable, as long as the lower levels of control
 know how to control the actual mechanisms to produce the same relative
@@ -35,9 +34,9 @@ motion of tool and workpiece as would be produced by independent axes.
 This is called 'kinematics'.
 
 NOTE:
-Avec LinuxCNC, le cas de la machine à portique XYYZ avec deux
-moteurs pour un axe est mieux traité par la cinématique que par un
-axe linéaire supplémentaire.
+With LinuxCNC, the case of the XYYZ gantry machine with two
+motors for one axis is better handled by the kinematics than by an additional
+linear axis.
 
 .Primary Linear Axes (((axes, primary linear)))
 
@@ -69,7 +68,7 @@ Flood coolant and mist coolant may each be turned on independently.
 The RS274/NGC language turns them off together see Section
 <<mcode:m7-m8-m9,M7 M8 M9>>.
 
-=== Feed and Speed Override(((correcteurs vitesse)))(((correcteur vitesse broche)))
+=== Feed and Speed Override(((feed override)))(((spindle override)))
 
 A CNC machine can have separate feed and speed override controls,
 which let the operator specify that the actual feed rate or spindle
@@ -80,6 +79,7 @@ speed used in machining at some percentage of the programmed rate.
 A CNC machine can have a block delete switch.
 See the <<sub:block-delete-switch,Block Delete>> Section.
 
+[[sub:optional-program-stop-switch]]
 === Optional Program Stop Switch
 
 A CNC machine can have an optional program stop switch.
@@ -134,7 +134,7 @@ controlled point is either at the tool tip or slightly outside it
 (where the perpendicular, axis-aligned lines touched by the 'front' and
 'side' of the tool intersect).
 
-[[sec:Mouvement-lineaire-coordonne]]
+[[sec:Coordinated-Linear-Motion]]
 === Coordinated Linear Motion
 
 To drive a tool along a specified path, a machining center must often
@@ -224,15 +224,6 @@ A machining center may be commanded to change tools.
 
 The two pallets may be exchanged by command.
 
-=== Boutons des correcteurs de vitesses
-
-Feed and speed override controls can either be active or disabled.
-RS274/NGC langage has codes to switch between both states.
-See the <<mcode:m48-m49, M48 and M49>> sections for more
-informations about activation and inhibition of overrides controls.
-
-See also the <<cnc:interpreter-interaction-with-switches, interpreter interaction with switches>> section for more details.
-
 [[sec:path-control-mode]]
 === Path Control Mode(((Path Control Mode)))
 
@@ -253,9 +244,7 @@ modes:
 
 See Sections <<gcode:g61,G61>> and <<gcode:g64,G64>>.
 
-[[sec:Interaction-vitesses]](((Interraction vitesse)))
-[[sec:Interaction-effacement-de-bloc]](((effacement de bloc)))
-[[sec:Interaction-arrets-optionnels]](((Arrêts optionnels)))
+
 [[cnc:interpreter-interaction-with-switches]]
 == Interpreter Interaction with Switches
 
@@ -263,6 +252,7 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
+[[sec:Interaction-speed]](((Interaction-speed)))
 === Feed and Speed Override Switches
 
 The Interpreter will interpret RS274/NGC commands which enable 'M48'
@@ -289,7 +279,6 @@ switch should be set before starting the NGC program.
 If this switch is on and an M1 code is encountered, program execution
 is paused.
 
-[[sec:tool-table]]
 == Tool Table(((Tool Table)))
 
 A tool table is required to use the Interpreter. The file tells which

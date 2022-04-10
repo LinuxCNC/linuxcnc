@@ -87,7 +87,7 @@ fichiers de HAL en exemples. C'est
 une bonne convention. D'autres éléments sont utilisés directement par
 LinuxCNC et doivent toujours avoir la section et le nom donné à l'item.
 
-== Double passe (TWOPASS) 
+== Double passe (TWOPASS)
 
 LinuxCNC 2.5 supporte le processus dit TWOPASS des fichiers de configuration hal,
 ce qui aide à la modularité des fichiers hal et améliore leur lisibilité.
@@ -140,7 +140,7 @@ Avec le processus double passe, tous les [HAL]HALFILES sont lus une première
 fois et les multiples apparitions de la directive loadrt sont cumulées pour
 chaque module. Aucune commande hal n'est exécutée lors de cette passe initiale.
 
-Après la passe initiale, les modules sont automatiquement chargés 
+Après la passe initiale, les modules sont automatiquement chargés
 en nombre égal au nombre total lors de l'utilisation de count=option ou
 de tous les noms spécifiés individuellement lors de l'utilisation de
 names=option.
@@ -254,7 +254,7 @@ de mouvements temps réel.
 d'entrées/sorties.
 
 [[sub:ini-variables]]
-=== Les variables 
+=== Les variables
 
 Une ligne de variables est composée d'un nom de variable, du signe
 égal (=) et d'une valeur. Tout, du premier caractère non blanc qui suit
@@ -480,7 +480,7 @@ pratique dans le cas de multiples configurations sur la même machine.
 * 'HELP_FILE = tklinucnc.txt' - Chemin du fichier d'aide (non utilisé avec AXIS).
 
 [[sub:Section-FILTER]]
-=== Section [FILTER](((Section [FILTER] du fichier ini))) 
+=== Section [FILTER](((Section [FILTER] du fichier ini)))
 
 AXIS a la possibilité d'envoyer les fichiers chargés au travers d'un programme de
 filtrage. Ce filtrage peut réaliser toutes sortes de tâches. Parfois aussi simple
@@ -541,7 +541,7 @@ fonctionner pendant un long moment.
 Les filtres Python doivent utiliser la fonction 'print' pour sortir le résultat
 dans Axis.
 
-Cet exemple de programme filtre un fichier et ajoute un axe W correspondant à 
+Cet exemple de programme filtre un fichier et ajoute un axe W correspondant à
 l'axe Z. Il marchera selon la présence d'un espace entre chaque mot d'axe.
 
 ----
@@ -585,7 +585,7 @@ if __name__ == "__main__":
 
 * 'PARAMETER_FILE = monfichier.var' - (((PARAMETER FILE))) Le fichier situé
 dans le même répertoire que le fichier ini qui contiendra les paramètres
-utilisés par l'interpréteur (enregistré entre chaque lancement). 
+utilisés par l'interpréteur (enregistré entre chaque lancement).
 
 * 'ORIENT_OFFSET = 0' -
   (((ORIENT OFFSET ))) Une valeur flottante ajoutée au paramètre R d'une
@@ -598,14 +598,14 @@ utilisés par l'interpréteur (enregistré entre chaque lancement).
   pour initialiser l'interpréteur. Elle ne se substitue pas à la
   spécification des G-codes modaux du début de chaque fichier ngc. Les
   codes modaux des machines diffèrent, ils pourraient être modifiés par
-  les G-codes interprétés plutôt dans la session. 
+  les G-codes interprétés plutôt dans la session.
 
 * 'SUBROUTINE_PATH = ncsubroutines:/tmp/testsubs:lathesubs:millsubs' -
   (((SUBROUTINE PATH))) Spécifie une liste, séparée par (:) d'au maximum 10
  répertoires dans lesquels seront cherchés les fichier de sous-programme
  spécifiés dans le g-code. Ces répertoires sont inspectés après que ne le
  soit [DISPLAY]PROGRAM_PREFIX (si il est spécifié) et avant que ne le soit
- [WIZARD]WIZARD_ROOT (si il est spécifié). les recherches s'effectuent dans 
+ [WIZARD]WIZARD_ROOT (si il est spécifié). les recherches s'effectuent dans
  l'ordre dans lequel les chemins sont listés. La première occurrence avec le
  sous-programme recherché est utilisée. Les répertoires sont spécifiés
  relativement au répertoire courant du fichier ini ou par des chemins
@@ -614,8 +614,8 @@ utilisés par l'interpréteur (enregistré entre chaque lancement).
 * 'USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes' -
   (((USER M PATH))) Spécifie une liste de répertoires, séparés par (:) (sans
   aucun espace blanc) pour les fonctions définies par l'utilisateur. Les
-  répertoires sont spécifiés par rapport au répertoire courant pour les 
-  fichiers ini ou en chemins absolus. La liste ne doit contenir aucun 
+  répertoires sont spécifiés par rapport au répertoire courant pour les
+  fichiers ini ou en chemins absolus. La liste ne doit contenir aucun
   espace blanc.
 
 * 'USER_DEFINED_FUNCTION_MAX_DIRS=5' - Défini le nombre maximum de répertoires
@@ -656,8 +656,8 @@ requis par l'électronique, la fréquence maximum absolue est de un pas
 par 'BASE_PERIOD'. Ainsi, la 'BASE_PERIOD'  utilisée ici donnera une
 fréquence de pas maximum absolue de 20000
 pas par seconde. 50000ns est une valeur assez large. La plus petite
-valeur utilisable est liée au résultat <<cha:test-de-latence, du test de
-latence>>, à la longueur des impulsions de pas nécessaire et à la vitesse du µP.
+valeur utilisable est liée au résultat <<sec:latency-test,du test de latence>>,
+à la longueur des impulsions de pas nécessaire et à la vitesse du µP.
 Choisir une BASE_PERIOD trop basse peut amener à des messages
 'Unexpected realtime delay', des blocages ou des reboots spontanés.
 ////
@@ -856,7 +856,7 @@ l'axe dans le sens positif et les nombres négatifs dans le sens négatif.
 
 * 'LOCKING_INDEXER = 1' - Quand ce paramètre est mis à 1, un mouvement en G0
 sur cet axe va produire un signal de déblocage sur la pin 'axis.N.unlock', puis
-attendre le signal 'axis.N.is-unlocked' de cet axe pour déplacer l'axe à la 
+attendre le signal 'axis.N.is-unlocked' de cet axe pour déplacer l'axe à la
 vitesse rapide prévue pour cet axe. Après ce mouvement, le signal
 'axis.N.unlock' retombera à false et les mouvements attendront que
 'axis.N.is-unlocked' redevienne false. Le mouvement des autres axes n'est pas
@@ -915,7 +915,7 @@ Si MIN_FERROR est plus petit que FERROR, les deux produisent une rampe de
 points de dérive. Vous pouvez imaginer un graphe sur lequel une
 dimension représente la vitesse et l'autre, l'erreur tolérée. Quand la
 vitesse augmente, la quantité d'erreurs de suivi augmente également et
-tend vers la valeur FERROR. 
+tend vers la valeur FERROR.
 
 * 'FERROR = 1.0' - (((FERROR))) FERROR est le maximum d'erreur de suivi
 tolérable, en unités machine. Si la différence entre la position commandée et la
@@ -1118,8 +1118,8 @@ suivez cette procédure:
 - *+cmd = a*raw+b+*
 - *+raw = (cmd-b)/a+*
 -  En conséquence, les coefficients *a* et *b* d'ajustement linéaire
-   peuvent être directement utilisés comme valeurs d'échelle et 
-   d'offset pour le contrôleur. 
+   peuvent être directement utilisés comme valeurs d'échelle et
+   d'offset pour le contrôleur.
 //
 // [[cap:Mesure des tensions de sortie]]
 //
@@ -1216,5 +1216,3 @@ dans le Manuel de l'utilisateur.
 * 'RANDOM_TOOLCHANGER = 1' - C'est pour des machines qui ne peuvent pas placer
 l'outil dans la poche il vient. Par exemple, les machines qui change l'outil
 dans la poche active avec l'outil dans la broche.
-
-

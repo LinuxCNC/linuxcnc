@@ -93,7 +93,7 @@ effet, si votre BASE_PERIOD était trop basse vous pourriez avoir des
 centaines de milliers de messages d'erreur par seconde si plus d'un
 était affiché.
 
-Plus d'informations <<cha:test-de-latence, sur le test de latence.>>
+Plus d'informations <<sec:latency-test,sur le test de latence.>>
 
 == Tester
 
@@ -119,29 +119,28 @@ le nouvel axe.
 ----
 ( Faire Z=0 au dessus de la table avant de démarrer! )
 ( Ce programme teste les pertes de position en Z )
-( msg, test 1 de la configuration de l'axe Z ) 
-G21 #1000=100 ( boucle 100 fois )  
+( msg, test 1 de la configuration de l'axe Z )
+G21 #1000=100 ( boucle 100 fois )
 ( cette boucle comporte un délai après chaque mouvement )
 ( test des réglages d'accélération et de vitesse )
-o100 while [#1000] 
+o100 while [#1000]
    G0 Z30.000
-   G4 P0.250 
-   G0 Z10.000 
-   G4 P0.250 
-   #1000 = [#1000 - 1] 
-o100 endwhile 
-( msg, test 2 de la configuration de l'axe Z, pressez S pour continuer) 
+   G4 P0.250
+   G0 Z10.000
+   G4 P0.250
+   #1000 = [#1000 - 1]
+o100 endwhile
+( msg, test 2 de la configuration de l'axe Z, pressez S pour continuer)
 M1 (un arrêt ici)
-#1000=100 ( boucle 100 fois ) 
+#1000=100 ( boucle 100 fois )
 ( Les boucles suivantes n'ont plus de délai en fin de mouvements )
 ( test des réglages des temps de maintien des pilotes)
 ( et les réglages d'accélération max )
-o101 while [#1000] 
+o101 while [#1000]
    G0 Z30.000 .
-   G0 Z10.000 
-   #1000 = [#1000 - 1] 
-o101 endwhile 
-( msg, Fin Z doit être à 10mm au dessus de la table ) 
+   G0 Z10.000
+   #1000 = [#1000 - 1]
+o101 endwhile
+( msg, Fin Z doit être à 10mm au dessus de la table )
 M2
 ----
-

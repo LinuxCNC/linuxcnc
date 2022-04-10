@@ -1,10 +1,10 @@
 :lang: fr
 :toc:
 
+[[cha:tklinuxcnc-intro]]
 = L'interface graphique TkLinuxCNC
 
-[[cha:TkLinuxCNC]]
-
+[[sec:tklinuxcnc-intro]]
 == Introduction
 
 TkLinuxCNC(((tklinuxcnc))) est l'interface utilisateur graphique la plus
@@ -13,16 +13,16 @@ populaire après Axis, c'est l'interface traditionnelle de LinuxCNC. Elle est
 l'affichage. Le fait d'être écrite en TCL la rend vraiment très
 portable (elle fonctionne sur une multitude de plateformes).
 
-[[sec:affichage-TkLinuxCNC]]
+[[cap:tklinuxcnc-display]]
 .L'affichage de TkLinuxCNC
-
-image::images/tklinuxcnc_fr.png["L'affichage de TkLinuxCNC"]
+image::images/tklinuxcnc_fr.png["L'affichage de TkLinuxCNC",align="center"]
 
 == Utiliser TkLinuxCNC
 
 Pour sélectionner l'interface graphique TkLinuxCNC avec LinuxCNC, éditer le
 fichier .ini et dans la section [DISPLAY] modifier l'affichage comme
 ci-dessous:
+
 ----
 DISPLAY = tklinuxcnc
 ----
@@ -31,8 +31,8 @@ Puis, lancer LinuxCNC et choisir ce fichier ini. La configuration qui se
 trouve dans _sim/tklinuxcnc/tklinuxcnc.ini_ est déjà configurée pour utiliser TkLinuxCNC
 comme interface utilisateur.
 
-Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre 
-<<sec:affichage-TkLinuxCNC,comme celle-ci s'affiche>>.
+Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre
+<<cap:tklinuxcnc-display,comme celle-ci s'affiche>>.
 
 === Une session typique avec TkLinuxCNC
 
@@ -59,12 +59,12 @@ La fenêtre TkLinuxCNC contient les éléments suivants:
    Marche/Arrêt de la broche et autres éléments;
  - Une barre de statut pour l'affichage des différents offsets;
  - Une zone d'affichage des coordonnées;
- - Un jeu de curseurs pour contrôler la 
-   _vitesse de jog(((vitesse de jog)))_, le 
-   _Correcteur de vitesse d'avance(((correcteur de vitesse)))_ et 
+ - Un jeu de curseurs pour contrôler la
+   _vitesse de jog(((vitesse de jog)))_, le
+   _Correcteur de vitesse d'avance(((correcteur de vitesse)))_ et
    le _Correcteur de vitesse broche(((correcteur vitesse broche)))_ qui
    permettent d'augmenter ou de diminuer ces vitesses ;
- - Une boîte d'entrée de données manuelles(((MDI))); 
+ - Une boîte d'entrée de données manuelles(((MDI)));
  - Une barre de statut affichant le bloc de programme actif, G-codes,
    M-codes, mots F et S;
  - Les boutons relatifs à l'interpréteur;
@@ -74,8 +74,8 @@ La fenêtre TkLinuxCNC contient les éléments suivants:
 
 Dans la première ligne de la gauche vers la droite et cycliquement:
 
- .  Marche Machine: _Arrêt d'Urgence(((A/U)))_ 
-   _Arrêt d'Urgence relâché_ / _Marche_ 
+ .  Marche Machine: _Arrêt d'Urgence(((A/U)))_
+   _Arrêt d'Urgence relâché_ / _Marche_
  . Bascule gouttelettes(((Gouttelettes)))
  . Broche moins vite
  . Direction de rotation de la broche(((broche))) _Arrêt broche_ /
@@ -130,11 +130,10 @@ Quand la machine se déplace, elle laisse un tracé appelé parcours
 d'outil. La fenêtre d'affichage du parcours d'outil s'active via le
 menu _Vues → Parcours d'outil_.
 
+[[cap:tklinuxcnc-interpreter]]
 === Contrôle en automatique
 
-[[cap:TkLinuxCNC-Interpreteur]]
 .Interpréteur de TkLinuxCNC
-
 image::images/tklinuxcnc_interp_fr.png[alt="Interpréteur de TkLinuxCNC"]
 
 ==== Boutons de contrôle
@@ -146,11 +145,11 @@ programme:
 * _Ouvrir_ (((ouvrir))) pour charger un fichier,
 * _Lancer_ (((lancer))) pour commencer l'usinage,
 * _Pause_ (((pause))) pour stopper temporairement l'usinage,
-* _Reprise_ (((reprise))) pour reprendre un programme mis en pause, 
+* _Reprise_ (((reprise))) pour reprendre un programme mis en pause,
 * _Pas à pas_ (((pas a pas))) pour avancer d'une seule ligne de programme,
-* _Vérifier_ (((vérifier))) pour vérifier si il contient des erreurs, 
-* _Arrêt optionnel_ (((arrêt optionnel))) pour basculer l'arrêt optionnel, si 
-   ce bouton est vert l'exécution du programme est stoppée quand un code M1 
+* _Vérifier_ (((vérifier))) pour vérifier si il contient des erreurs,
+* _Arrêt optionnel_ (((arrêt optionnel))) pour basculer l'arrêt optionnel, si
+   ce bouton est vert l'exécution du programme est stoppée quand un code M1
    est rencontré.
 
 ==== Zone texte d'affichage du programme
@@ -190,9 +189,8 @@ jog temporaire pour même si l'axe à franchi une limite d'axe fixée dans
 le fichier .ini. Noter que si _Dépassement de limite_ est activé il
 s'affiche en rouge.
 
-[[cap:Override-Limits]]
+[[cap:override-limits]]
 .Exemple de dépassement de limite et incréments de jog
-
 image::images/tkemc-override-limits.png[alt="Exemple de dépassement de limite et incréments de jog"]
 
 ==== Le groupe de boutons _Broche_(((broche)))
@@ -216,7 +214,6 @@ d'exécuter des lignes de G-code, une à la fois. Quand la machine n'est
 pas en marche ni mise en mode MDI, l'entrée de code n'est pas possible.
 
 .Le champ de saisie des entrées manuelles
-
 image::images/tkemc-mdi.png[alt="Le champ de saisie des entrées manuelles"]
 
 docs: image alt-tags added
@@ -232,7 +229,7 @@ l'interpréteur. Par exemple, *G54* indique que le système de
 coordonnées courant est celui de G54 et qu'il s'applique à toutes les
 coordonnées entrées.
 
-=== Vitesse de Jog 
+=== Vitesse de Jog
 
 En déplaçant ce curseur, la vitesse de jog peut être modifiée. Le
 nombre indique une vitesse en unités par minute. Le champs de texte est
@@ -264,10 +261,9 @@ Beaucoup des raccourcis clavier ne sont pas accessibles en mode MDI.
 Les raccourcis clavier les plus fréquemment utilisés sont montrés dans
 la table ci-dessous.
 
-[[cap:Raccourcis-clavier-frequents]]
+[[cap:common-keyboard-shortcuts]]
 .Les raccourcis clavier les plus utilisés
-
-[width="90%", options="header"]
+[width="90%", options="header",cols="1^,3<"]
 |========================================
 |Touche           | Action
 |F1               | Bascule de l'Arrêt d'Urgence
@@ -284,5 +280,3 @@ la table ci-dessous.
 |[, ]             | Jog du quatrième axe
 |Echap            | Arrête l'exécution
 |========================================
-
-

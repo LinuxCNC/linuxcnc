@@ -772,9 +772,6 @@ of 10 hal pin for the increments given in the INI File, if you give more
 increments in your INI File, they will be not reachable from the GUI as they
 will not be displayed.
 
-[NOTE]
-Gmoccapy 3 utiliza diferentes nombres de pin hal
-
 If you have 6 increments in your hal you will get *7* pins:
 jog-inc-0 is unchangeable and will represent continuous jogging.
 
@@ -1204,12 +1201,12 @@ On Touch Off::
 As the notebook tabs are shown, you are able to switch between both views in
 any case.
 
-Mostrar pantalla auxiliar::
-    Al hacer clic en este botón se abrirá una ventana adicional. Este botón solo es sensible si un archivo llamado 'Gmoccapy 3.glade'
-    se encuentra en su carpeta de configuración. Puedes construir la pantalla Aux usando Glade.
+Show Auxiliary Screen (Is this still valid?)::
+    Clicking this button will open an additional window. This button is only sensitive if a file named 'Gmoccapy 3.glade' is in your configuration folder.
+    is in your configuration folder. You can build the Aux screen using Glade.
 
 [WARNING]
-'La ventana principal de la pantalla auxiliar debe llamarse window2'
+The main window of the auxiliary screen must be named 'window2'.
 
 DRO Options::
 You have the option to select the background colors of the different DRO states.
@@ -1226,7 +1223,7 @@ The foreground color of the DRO can be selected with:
 * homed color   = green
 * unhomed color = red
 
-'show dro in preview' +
+'show dro' +
 the DRO will be shown in the preview window + +
 
 'show offsets' +
@@ -1234,26 +1231,10 @@ the Offsets will be shown in the preview window + +
 
 'show DTG' +
 the distance to go will be shown in the preview window + +
- +
-'mostrar boton DRO' +
-le permitirá mostrar botones adicionales en el lado izquierdo del DRO. +
-
-Se mostrará: +
-* Un botón para cambiar de coordenadas relativas a absolutas, +
-* un botón para alternar entre la distancia a recorrer y los otros estados +
-* y un botón para alternar las unidades de métricas a imperiales y viceversa.
-
-[WARNING]
-No se recomienda usar esta opción, porque el usuario
-puede perder la opción de unidad automática, que alternará las unidades según el
-gcode activo G20/G21.
 
 [NOTE]
 You can change through the DRO modes (absolute, relative, distance
 to go) by clicking on the DRO!  *if you click on the left side letter of the DRO a popup window will allow you to set the value of the axis, making it easier to set the value, as you will not need to go over the touch off bottom button. Clicking the numbers (right side of the DRO) will toggle through the DRO modes as described above.*
-
-'Usar unidades automáticas' +
-permite deshabilitar la opción de unidades automáticas de la pantalla, para que pueda ejecutar un programa en pulgadas y ver el DRO en mm. + +
 
 'size' +
 allows to set the size of the DRO font, default is 28, if you use a bigger screen you may want to increase the size up to 56.

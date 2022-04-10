@@ -1,6 +1,12 @@
-[[cha:qtvcp-VCP-panels]]
+[[cha:qtvcp-vcp-panels]]
 
 = Qtvcp Virtual Control Panels
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 Qtvcp is an infrastructure to display a custom CNC screen or control panel in LinuxCNC. +
 It displays a UI file built with the QTDesigner screen editor or combines this +
@@ -171,4 +177,3 @@ in case the are used in the rest of the file.
 <<cha:qtvcp-development,QtVCP Development>>
 
 <<cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets>>
-

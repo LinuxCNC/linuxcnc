@@ -155,7 +155,9 @@ The following figure shows the result when the X axis is moving at 15
 IPM in the minus direction. Notice that we can get the absolute value
 from either the abs.0.out pin or the X-IPM signal.
 
-image::images/velocity-01.png["Velocity Example"]
+[[cap:hal-velocity-example]]
+.HAL: Velocity example(((HAL Velocity example)))
+image::images/velocity-01.png["HAL: Velocity Example"]
 
 == Soft Start
 
@@ -241,7 +243,7 @@ After changing a setting run the oscilloscope again to see the change.
 When you're finished type 'exit' in the terminal window to shut down
 halrun and close the halscope. Don't close the terminal window with
 halrun running as it might leave some things in memory that could
-prevent EMC from loading.
+prevent LinuxCNC from loading.
 
 For more information on Halscope see the HAL manual and the tutorial.
 

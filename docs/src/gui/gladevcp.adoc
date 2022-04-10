@@ -1,7 +1,8 @@
 :lang: en
+:toc:
 
 [[cha:glade-vcp]]
-= Glade Virtual Control Panel
+= GladeVCP: Glade Virtual Control Panel(((GladeVCP: Glade Virtual Control Panel)))
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -13,19 +14,19 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 // begin a listing of ini/hal/ngc files like so:
-//[source,{ini}]
-//[source,{hal}]
-//[source,{ngc}]
+//[source,ini]
+//[source,hal]
+//[source,ngc]
 
 == What is GladeVCP?
 
 GladeVCP is an LinuxCNC component which adds the ability to add a new user
 interface panel to LinuxCNC user interfaces like:
 
- - Axis
- - Touchy
- - Gscreen
- - Gmoccapy
+* Axis
+* Touchy
+* Gscreen
+* Gmoccapy
 
 Unlike PyVCP, GladeVCP is not limited to displaying and setting HAL pins,
 as arbitrary actions can be executed in Python code - in fact, a
@@ -38,7 +39,6 @@ rich http://www.gtk.org/[GTK+] widget set, and in fact all of these
 may be used in a GladeVCP application - not just the specialized
 widgets for interacting with HAL and LinuxCNC, which are documented here.
 
-
 === PyVCP versus GladeVCP at a glance
 
 Both support the creation of panels with 'HAL widgets' - user
@@ -47,30 +47,30 @@ linked to a HAL pin, which in turn interfaces to the rest of LinuxCNC.
 
 *PyVCP:*
 
- - widget set: uses TkInter widgets
- - user interface creation: "edit XML file / run result / evaluate looks" cycle
- - no support for embedding user-defined event handling
- - no LinuxCNC interaction beyond HAL pin I/O supported
+- widget set: uses TkInter widgets
+- user interface creation: "edit XML file / run result / evaluate looks" cycle
+- no support for embedding user-defined event handling
+- no LinuxCNC interaction beyond HAL pin I/O supported
 
 *GladeVCP:*
 
- - widget set: relies on the  http://www.gtk.org/[GTK+] widget set.
- - user interface creation: uses the  http://glade.gnome.org/[Glade] WYSIWYG user interface editor
- - any HAL pin change may be directed to call back into a user-defined Python event handler
- - any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python
- - direct LinuxCNC interaction: arbitrary command execution, like initiating MDI
-   commands to call a G-code subroutine, plus support for status change operations through Action Widgets
- - several independent GladeVCP panels may be run in different tabs
- - separation of user interface appearance and functionality: change appearance without touching any code
+- widget set: relies on the  http://www.gtk.org/[GTK+] widget set.
+- user interface creation: uses the  http://glade.gnome.org/[Glade] WYSIWYG user interface editor
+- any HAL pin change may be directed to call back into a user-defined Python event handler
+- any GTK signal (key/button press, window, I/O, timer, network events) may be associated with user-defined handlers in Python
+- direct LinuxCNC interaction: arbitrary command execution, like initiating MDI
+  commands to call a G-code subroutine, plus support for status change operations through Action Widgets
+- several independent GladeVCP panels may be run in different tabs
+- separation of user interface appearance and functionality: change appearance without touching any code
 
 == A Quick Tour with the Example Panel
 
 GladeVCP panel windows may be run in three different setups:
 
- - always visible integrated into Axis at the right side, exactly like PyVCP panels
- - as a tab in Axis,Touchy, Gscreen, or Gmoccapy; in Axis this would create a third
-tab besides the Preview and DRO tabs which must be raised explicitly
- - as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
+- always visible integrated into Axis at the right side, exactly like PyVCP panels
+- as a tab in Axis,Touchy, Gscreen, or Gmoccapy; in Axis this would create a third
+  tab besides the Preview and DRO tabs which must be raised explicitly
+- as a standalone toplevel window, which can be iconifyed/deiconified independent of the main window.
 
 .Installed LinuxCNC
 If you're using an installed version of LinuxCNC the examples shown below are in
@@ -139,7 +139,6 @@ $ linuxcnc gladevcp_touchy.ini
 
 image::images/touchy-tab-33.png[]
 
-
 Functionally these setups are identical - they only differ in screen
 real estate requirements and visibility. Since it is possible to run
 several GladeVCP components in parallel (with different HAL component
@@ -175,7 +174,7 @@ To see how the panel is integrated into Axis, see the
 '[DISPLAY]GLADEVCP' statement in configs/sim/axis/gladevcp/gladevcp_panel.ini, the
 '[DISPLAY]EMBED*' statement in configs/sim/axis/gladevcp/gladevcp_tab.ini
 and '[HAL]POSTGUI_HALFILE' statements in both configs/sim/axis/gladevcp/gladevcp_tab.ini
-and configs/sim/axis/gladevcp/gladevcp_panel.ini
+and configs/sim/axis/gladevcp/gladevcp_panel.ini.
 
 === Exploring the User Interface description
 
@@ -183,9 +182,11 @@ The user interface is created with the glade UI editor - to explore
 it, you need to have <<gladevcp:prerequisites, glade installed>>. To
 edit the user interface, run the command
 
- $ glade configs/axis/gladevcp/manual-example.ui
+----
+$ glade configs/axis/gladevcp/manual-example.ui
+----
 
-(The required glade program may be named glade-gtk2 on more recent systems.)
+The required glade program may be named glade-gtk2 on more recent systems.
 
 The center window shows the appearance of the UI. All user
 interface objects and support objects are found in the right top
@@ -212,16 +213,26 @@ handled in more detail in the
 
 == Creating and Integrating a Glade user interface
 
-=== [[gladevcp:prerequisites]]Prerequisite: Glade installation
+[[gladevcp:prerequisites]]
+=== Prerequisite: Glade installation
+
 To view or modify Glade UI files, you need glade 3.38.2 or later installed - it is not
 needed just to run a GladeVCP panel. If the glade command is missing, install
 it with the command:
 
- $ sudo apt install glade
+----
+$ sudo apt install glade
+----
 
- Glade contains an internal Python interpreter, and only python3 is supported.
- This is true for Debian Bullseye, Ubuntu 21 and Mint 21 or later.
- Older versions will not work, you will get a python error.
+Then verify installed version, which must be equal or superior to 3.6.7:
+
+----
+$ glade --version
+----
+
+Glade contains an internal Python interpreter, and only python3 is supported.
+This is true for Debian Bullseye, Ubuntu 21 and Mint 21 or later.
+Older versions will not work, you will get a python error.
 
 === Running Glade to create a new user interface
 
@@ -234,7 +245,7 @@ Either modify an existing UI component by running +glade <file>.ui+
 or start a new one by just running the +glade+ command from the shell.
 
 - If LinuxCNC was not installed from a package, the LinuxCNC shell environment needs to be set up with
-+. <linuxcncdir>/scripts/rip-environment+, otherwise glade won't find the LinuxCNC-specific widgets.
++.<linuxcncdir>/scripts/rip-environment+, otherwise glade won't find the LinuxCNC-specific widgets.
 - When asked for unsaved Preferences, just accept the defaults and hit 'Close'.
 - From 'Toplevel' (left pane), pick 'Window' (first icon) as top level window, which
 by default will be named 'window1'. Do not change this name - GladeVCP relies on it.
@@ -257,7 +268,9 @@ convention for GtkBuilder file extension is '.ui'.
 
 You're now ready to give it a try (while LinuxCNC, e.g. Axis is running) it with:
 
-    gladevcp myui.ui
+----
+gladevcp myui.ui
+----
 
 GladeVCP creates a HAL component named like the basename of the UI
 file - 'myui' in this case - unless overridden by the +-c <component
@@ -282,7 +295,7 @@ ini file.
 CAUTION: Do not add the GladeVCP HAL command file to the Axis +[HAL]HALFILE=+ ini
 section, this will not have the desired effect - see the following sections.
 
-=== Integrating into Axis like PyVCP
+=== Integrating into Axis, like PyVCP
 
 Place the GladeVCP panel in the righthand side panel by specifying the
 following in the ini file:
@@ -306,7 +319,9 @@ The default HAL component name of a GladeVCP application started with the GLADEV
 
 The command line actually run by Axis in the above configuration is as follows:
 
- halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./hitcounter.py ./manual-example.ui
+----
+halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./hitcounter.py ./manual-example.ui
+----
 
 You may add arbitrary gladevcp options here, as long as they dont collide with
 the above command line options.
@@ -322,7 +337,9 @@ GLADEVCP= -c example -u ./hitcounter.py ./manual-example.ui
 
 The command line actually run by Axis for the above is:
 
- halcmd loadusr -Wn example gladevcp -c example -x {XID} -u ./hitcounter.py ./manual-example.ui
+----
+halcmd loadusr -Wn example gladevcp -c example -x {XID} -u ./hitcounter.py ./manual-example.ui
+----
 
 [NOTE]
 The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate that the files
@@ -332,11 +349,12 @@ directory (alternatively, specify a correct absolute or relative path to the fil
 [NOTE]
 The +[RS274NGC]SUBROUTINE_PATH=+ option is only set so the example
 panel will find the Oword subroutine (oword.ngc) for the MDI Command widget. It
-might not be needed in your setup.  The relative path specifier ../../nc_files/gladevcp_lib
+might not be needed in your setup. The relative path specifier ../../nc_files/gladevcp_lib
 is constructed to work with directories copied by the configuration picker and when
 using a run-in-place setup.
 
-=== [[gladevcp:embeding-tab]]Embeding as a Tab
+[[gladevcp:embeding-tab]]
+=== Embeding as a Tab
 
 To do so, edit your .ini file and add to the DISPLAY and HAL sections of ini
 file as follows:
@@ -378,6 +396,7 @@ Make sure the UI file is the last option passed to GladeVCP in
 both the +GLADEVCP=+ and +EMBED_TAB_COMMAND=+ statements.
 
 === Integrating into Touchy
+
 To do add a GladeVCP tab to 'Touchy', edit your .ini file as follows:
 
 [source,{ini}]
@@ -397,27 +416,25 @@ The file specifiers like ./hitcounter.py, ./manual-example.ui, etc. indicate tha
 are located in the same directory as the ini file.  You might have to copy them to you
 directory (alternatively, specify a correct absolute or relative path to the file(s))
 
-
 Note the following differences to the Axis tab setup:
 
- - The HAL command file is slightly modified since 'Touchy' does not
- use the 'halui' components so its signals are not available and some
- shortcuts have been taken.
-
- - there is no 'POSTGUI_HALFILE=' ini option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok
-
- - the 'halcmd loaduser -Wn ...' incantation is not needed.
+- The HAL command file is slightly modified since 'Touchy' does not
+  use the 'halui' components so its signals are not available and some
+  shortcuts have been taken.
+- there is no 'POSTGUI_HALFILE=' ini option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok
+- the 'halcmd loaduser -Wn ...' incantation is not needed.
 
 == GladeVCP command line options
 
-See also 'man gladevcp' . These are the gladevcp command line options:
+See also 'man gladevcp'. These are the gladevcp command line options:
 
+----
 Usage: gladevcp [options] myfile.ui
 
 Options:
 
 -h, --help::
-    show this help message and exit
+    Show this help message and exit
 
 -c NAME::
     Set component name to NAME. Default is base name of UI file
@@ -426,25 +443,25 @@ Options:
     Enable debug output
 
 -g GEOMETRY::
-     Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
+    Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
     XOFFSET/YOFFSET is referenced from top left of screen.
     Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just
     position
 
 -H FILE::
-    execute hal statements from FILE with halcmd after the
+    Execute hal statements from FILE with halcmd after the
     component is set up and ready
 
 -m MAXIMUM::
-    force panel window to maximize.  Together with the -g geometry option
+    Force panel window to maximize. Together with the -g geometry option
     one can move the panel to a second monitor and force it to use all of the screen
 
 -t THEME::
-    set gtk theme. Default is system theme. Different panels can have different themes.
+    Set gtk theme. Default is system theme. Different panels can have different themes.
     An example theme can be found in the http://wiki.linuxcnc.org/cgi-bin/wiki.pl?GTK_Themes[EMC Wiki].
 
 -x XID::
-     Re-parent GladeVCP into an existing window XID instead of creating a
+    Re-parent GladeVCP into an existing window XID instead of creating a
     new top level window
 
 -u FILE::
@@ -452,6 +469,7 @@ Options:
 
 -U USEROPT::
     pass USEROPTs to Python modules
+----
 
 == Understanding the gladeVCP startup process
 
@@ -512,29 +530,29 @@ are four classes of GladeVcp widgets that you can connect to a HAL
 signal. Another class of helper widgets allow you to organize and
 label your panel.
 
- - Widgets for indicating "bit" signals: <<gladevcp:hal-led,HAL_LED>>
- - Widgets for controlling "bit" signals: <<gladevcp:hal-buttons,HAL_Button HAL_RadioButton HAL_CheckButton>>
- - Widgets for indicating "number" signals: <<gladevcp:hal-label,HAL_Label>>,
-   <<gladevcp:hal-progressbar,HAL_ProgressBar>>,
-   <<gladevcp:hal-bars,HAL_HBar and HAL_VBar>>, <<gladevcp:hal-meter,HAL_Meter>>
- - Widgets for controlling "number" signals: <<gladevcp:hal-spinbutton,HAL_SpinButton>>,
-   <<gladevcp:hal-scales,HAL_HScale and HAL_VScale>>, <<gladevcp:jogwheel, Jog Wheel>>, <<gladevcp:speedcontrol, Speed Control>>
- - Sensitive control widgets: <<gladevcp:hal-table, State_Sensitive_Table HAL_Table and HAL_HBox>>
- - Tool Path preview: <<gladevcp:hal-gremlin,HAL_Gremlin>>
- - Widgets to show axis positions: <<gladevcp:dro_widget, DRO Widget>>,
-   <<gladevcp:combi_dro, Combi DRO Widget>>
- - Widgets for file handling: <<gladevcp:iconview, IconView File Selection>>
- - Widgets for display/edit of all axes offsets: <<gladevcp:offsetpage, OffsetPage >>
- - Widgets for display/edit of all tool offsets: <<gladevcp:tooledit, Tooloffset editor >>
- - Widget for G-code display and edit: <<gladevcp:hal-sourceview, HAL_Sourceview >>
- - widget for MDI input and history display: <<gladevcp:mdi-history, MDI History >>
+- Widgets for indicating "bit" signals: <<gladevcp:hal-led,HAL_LED>>
+- Widgets for controlling "bit" signals: <<gladevcp:hal-buttons,HAL_Button HAL_RadioButton HAL_CheckButton>>
+- Widgets for indicating "number" signals: <<gladevcp:hal-label,HAL_Label>>,
+  <<gladevcp:hal-progressbar,HAL_ProgressBar>>,
+  <<gladevcp:hal-bars,HAL_HBar and HAL_VBar>>, <<gladevcp:hal-meter,HAL_Meter>>
+- Widgets for controlling "number" signals: <<gladevcp:hal-spinbutton,HAL_SpinButton>>,
+  <<gladevcp:hal-scales,HAL_HScale and HAL_VScale>>, <<gladevcp:jogwheel,Jog Wheel>>, <<gladevcp:speedcontrol,Speed Control>>
+- Sensitive control widgets: <<gladevcp:hal-table,State_Sensitive_Table HAL_Table and HAL_HBox>>
+- Tool Path preview: <<gladevcp:hal-gremlin,HAL_Gremlin>>
+- Widgets to show axis positions: <<gladevcp:dro_widget,DRO Widget>>,
+  <<gladevcp:combi_dro,Combi DRO Widget>>
+- Widgets for file handling: <<gladevcp:iconview,IconView File Selection>>
+- Widgets for display/edit of all axes offsets: <<gladevcp:offsetpage,OffsetPage >>
+- Widgets for display/edit of all tool offsets: <<gladevcp:tooledit,Tooloffset editor >>
+- Widget for Gcode display and edit: <<gladevcp:hal-sourceview,HAL_Sourceview >>
+- Widget for MDI input and history display: <<gladevcp:mdi-history,MDI History >>
 
 === Widget and HAL pin naming
 
 Most HAL widgets have a single associated HAL pin with the same HAL name
 as the widget (glade: General→Name).
 
-Exceptions to this rule currently are.
+Exceptions to this rule currently are:
 
 - 'HAL_Spinbutton' and 'HAL_ComboBox', which have two pins: a +<widgetname>-f+ (float) and a +<widgetname>-s+ (s32) pin
 - 'HAL_ProgressBar', which has a +<widgetname>-value+ input pin, and a +<widgetname>-scale+ input pin.
@@ -558,13 +576,13 @@ from a 'GtkObject', and eventually a 'GObject'.
 HAL Widgets also have a few HAL-specific Python attributes:
 
 hal_pin::
-   the underlying HAL pin Python object in case the widget has a
-   single pin type
+  the underlying HAL pin Python object in case the widget has a
+  single pin type
 
 hal_pin_s, hal_pin_f::
-   the S32 and float pins of the 'HAL_Spinbutton' and
-   'HAL_ComboBox' widgets - note these widgets do not have a
-   'hal_pin' attribute!
+  the S32 and float pins of the 'HAL_Spinbutton' and
+  'HAL_ComboBox' widgets - note these widgets do not have a
+  'hal_pin' attribute!
 
 hal_pin_scale::
   the float input pin of 'HAL_ProgressBar' widget representing
@@ -596,10 +614,11 @@ pinname value in the associated halfile for testing though.
 It is perfectly OK to set an output HAL pin's value with
 +halcomp[pinname] = value+ provided this HAL pin is not associated with a
 widget, that is, has been created by the
-+hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>)+ method (see
++hal_glib.GPin(halcomp.newpin(<name>,<type>,<direction>))+ method (see
 <<gladevcp:programming,GladeVCP Programming>> for an example).
 
-=== [[gladevcp:hal-pin-changed-signal]]The hal-pin-changed signal
+[[gladevcp:hal-pin-changed-signal]]
+=== The hal-pin-changed signal
 
 Event-driven programming means that the UI tells your code when "something
 happens" - through a callback, like when a button was pressed. The
@@ -614,10 +633,12 @@ Here is an example how to set a +hal-pin-changed+ signal for a HAL_LED
 in the Glade UI editor:
 
 image::images/hal-pin-change-66.png[]
+
 The example in +configs/apps/gladevcp/complex+ shows how
 this is handled in Python.
 
-=== [[gladevcp:hal-buttons]]Buttons
+[[gladevcp:hal-buttons]]
+=== Buttons
 
 This group of widgets are derived from various Gtk buttons and consists
 of HAL_Button, HAL_ToggleButton, HAL_RadioButton and CheckButton
@@ -625,179 +646,184 @@ widgets. All of them have a single output BIT pin named identical to
 the widget. Buttons have no additional properties compared to their
 base Gtk classes.
 
- - HAL_Button: instantaneous action, does not retain state. Important
-   signal: +pressed+
- - HAL_ToggleButton, HAL_CheckButton: retains on/off state. Important
-   signal: +toggled+
- - HAL_RadioButton: a one-of-many group. Important signal: +toggled+ (per
-   button).
- - Important common methods: +set_active()+, +get_active()+
- - Important properties: +label+, +image+
-
+- HAL_Button: instantaneous action, does not retain state. Important
+signal: +pressed+
+- HAL_ToggleButton, HAL_CheckButton: retains on/off state. Important
+signal: +toggled+
+- HAL_RadioButton: a one-of-many group. Important signal: +toggled+ (per
+button).
+- Important common methods: +set_active()+, +get_active()+
+- Important properties: +label+, +image+
 
 // .Buttons
-Check button:
-image:images/checkbutton.png[]
+.Check button
+image::images/checkbutton.png[]
 
-Radio buttons:
-image:images/radiobutton.png[]
+.Radio buttons
+image::images/radiobutton.png[]
 
-Toggle button:
-image:images/button.png[]
+.Toggle button
+image::images/button.png[]
 
 [TIP]
-----
+====
 Defining radio button groups in Glade:
-- decide on default active button
-- in the other button's 'General→Group' select the default active
+
+- Decide on default active button
+- In the other button's 'General→Group' select the default active
   button's name in the 'Choose a Radio Button in this project' dialog.
-----
+====
 
 See +configs/apps/gladevcp/by-widget/+ for a GladeVCP applications
 and UI file for working with radio buttons.
 
-=== [[gladevcp:hal-scales]]Scales
+[[gladevcp:hal-scales]]
+=== Scales
 
-HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale +
-respectively. +
+HAL_HScale and HAL_VScale are derived from the GtkHScale and GtkVScale
+respectively.
 
 <widgetname>::
-   out FLOAT pin
+  out FLOAT pin
 <widgetname>-s::
-   out S32 pin
+  out S32 pin
 
-To make a scale useful in Glade, add an 'Adjustment' +
-(General→Adjustment→New or existing adjustment) and edit the +
-adjustment object. It defines the default/min/max/increment +
-values. Also, set adjustment 'Page size' and 'Page increment' to zero +
-to avoid warnings. +
+To make a scale useful in Glade, add an 'Adjustment'
+(General→Adjustment→New or existing adjustment) and edit the
+adjustment object. It defines the default/min/max/increment
+values. Also, set adjustment 'Page size' and 'Page increment' to zero
+to avoid warnings.
 
-Example HAL_HScale:
-image:images/hscale.png[]
-.
+.Example HAL_HScale
+image::images/hscale.png[]
 
-=== [[gladevcp:hal-spinbutton]]SpinButton
+[[gladevcp:hal-spinbutton]]
+=== SpinButton
 
 HAL SpinButton is derived from GtkSpinButton and holds two pins:
 
 <widgetname>-f::
-   out FLOAT pin
+  out FLOAT pin
 <widgetname>-s::
-   out S32 pin
+  out S32 pin
 
 To be useful, Spinbuttons need an adjustment value like scales,
 see above.
 
-Example SpinButton:
-image:images/spinbutton.png[]
+.Example SpinButton
+image::images/spinbutton.png[]
 
+[[gladevcp:hal-dial]]
 === Hal_Dial
 
-The hal_dial widget simulates a jogwheel or adjustment dial. +
-It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the Hal_Dial widget, +
-or you hold the left mouse button and move the cursor in circular direction to increase or degrease the counts. +
-By double clicking the left or right button the scale factor can be increased or decreased. +
+The hal_dial widget simulates a jogwheel or adjustment dial.
+It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the Hal_Dial widget,
+or you hold the left mouse button and move the cursor in circular direction to increase or degrease the counts.
+By double clicking the left or right button the scale factor can be increased or decreased.
 
- * Counterclockwise   = reduce counts
- * Clockwise          = increase counts
- * Wheel up           = increase counts
- * Wheel down         = reduce counts
- * left Double Click  = x10 scale
- * Right Double Click = /10 scale
+* Counterclockwise   = reduce counts
+* Clockwise          = increase counts
+* Wheel up           = increase counts
+* Wheel down         = reduce counts
+* left Double Click  = x10 scale
+* Right Double Click = /10 scale
 
-----
 Hal_Dial exports it's count value as hal pins:
 
 <widgetname>::
-   out S32 pin
+  out S32 pin
 <widgetname>-scaled::
-   out FLOAT pin
+  out FLOAT pin
 <widgetname>-delta-scaled::
-   out FLOAT pin
-----
+  out FLOAT pin
 
 It has the following properties:
 
 cpr::
-    Sets the Counts per Revolution, allowed values are in the range from 25 to 360 +
-    default = 100
+  Sets the Counts per Revolution, allowed values are in the range from 25 to 360 +
+  default = 100
 show_counts::
-    Set this to False, if you want to hide the counts display in the middle of the widget. +
-    default = True
+  Set this to False, if you want to hide the counts display in the middle of the widget. +
+  default = True
 label::
-    Set the content of the label which may be shown over the counts value. +
-    If the label given is longer than 15 Characters, it will be cut to 15 Characters. +
-    default = blank
+  Set the content of the label which may be shown over the counts value. +
+  If the label given is longer than 15 Characters, it will be cut to 15 Characters. +
+  default = blank
 center_color::
-    This allows one to change the color of the wheel. It uses a GDK color string. +
-    default = #bdefbdefbdef (gray)
+  This allows one to change the color of the wheel. It uses a GDK color string. +
+  default = #bdefbdefbdef (gray)
 count_type_shown::
-    There are three counts available 0) Raw CPR counts 1) Scaled counts 2) Delta scaled counts. +
-    default = 1
- * count is based on the CPR selected - it will count positive and negative. It is available as a S32 pin. +
- * Scaled-count is CPR count times the scale - it can be positive and negative. +
-    If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin. +
- * Delta-scaled-count is cpr count CHANGE, times scale. +
-    If you change the scale, only the counts after that change will be scaled and then added to the current value. +
-    It is available as a FLOAT pin.
+  There are three counts available 0) Raw CPR counts 1) Scaled counts 2) Delta scaled counts. +
+  default = 1
+* count is based on the CPR selected - it will count positive and negative. It is available as a S32 pin. +
+* Scaled-count is CPR count times the scale - it can be positive and negative. +
+  If you change the scale the output will immediately reflect the change. It is available as a FLOAT pin. +
+* Delta-scaled-count is cpr count CHANGE, times scale. +
+  If you change the scale, only the counts after that change will be scaled and then added to the current value. +
+  It is available as a FLOAT pin.
 scale_adjustable::
-    Set this to False if you want to disallow scale changes by double clicking the widget. +
-    If this is false the scale factor will not show on the widget. +
-    default = True
+  Set this to False if you want to disallow scale changes by double clicking the widget. +
+  If this is false the scale factor will not show on the widget. +
+  default = True
 scale::
-    Set this to scale the counts. +
-    default = 1.0
+  Set this to scale the counts. +
+  default = 1.0
 
 Direct program control::
 
-    There are ways to directly control the widget using Python.
+  There are ways to directly control the widget using Python.
 
-    Using goobject to set the above listed properties:
-        [widget name].set_property("cpr",int(value))
-        [widget name].set_property("show_counts, True)
-        [widget name].set_property("center_color",gtk.gdk.Color('#bdefbdefbdef'))
-        [widget name].set_property('label', 'Test Dial 12345')
-        [widget name].set_property('scale_adjustable', True)
-        [widget name].set_property('scale', 10.5)
-        [widget name].set_property('count_type_shown', 0)
+Using goobject to set the above listed properties:
 
-    There are python methods:
-        [widget name].get_value()
-            Will return the counts value as a s32 integer
-        [widget name].get_scaled_value()
-            Will return the counts value as a float
-        [widget name].get_delta_scaled_value()
-            Will return the counts value as a float
-        [widget name].set_label("string")
-            Sets the label content with "string"
+  [widget name].set_property("cpr",int(value))
+  [widget name].set_property("show_counts, True)
+  [widget name].set_property("center_color",gtk.gdk.Color('#bdefbdefbdef'))
+  [widget name].set_property('label', 'Test Dial 12345')
+  [widget name].set_property('scale_adjustable', True)
+  [widget name].set_property('scale', 10.5)
+  [widget name].set_property('count_type_shown', 0)
 
-    There are two GObject signals emitted:
-        count_changed
-            emitted when the widget's count changes eg. from being wheel scrolled.
-        scale_changed
-            emitted when the widget's scale changes eg. from double clicking. +
-        connect to these like so:
-            [widget name].connect('count_changed', [count function name])
-            [widget name].connect('scale_changed', [scale function name]) +
-        The callback functions would use this pattern:
-            def [count function name](widget, count,scale,delta_scale):
-        This will return: the widget, the current count, scale and delta scale of that widget.
+There are python methods:
 
+  [widget name].get_value()
+    Will return the counts value as a s32 integer
+  [widget name].get_scaled_value()
+    Will return the counts value as a float
+  [widget name].get_delta_scaled_value()
+    Will return the counts value as a float
+  [widget name].set_label("string")
+    Sets the label content with "string"
 
-Example Hal_Dial:
+There are two GObject signals emitted:
 
+  count_changed
+    emitted when the widget's count changes eg. from being wheel scrolled.
+  scale_changed
+    emitted when the widget's scale changes eg. from double clicking.
+  connect to these like so:
+    [widget name].connect('count_changed', [count function name])
+    [widget name].connect('scale_changed', [scale function name])
+
+The callback functions would use this pattern:
+
+    def [count function name](widget, count,scale,delta_scale):
+
+This will return: the widget, the current count, scale and delta scale of that widget.
+
+.Example Hal_Dial
 image::images/Hal_Dial.png[]
 
-=== [[gladevcp:jogwheel]]Jog Wheel
+[[gladevcp:jogwheel]]
+=== Jog Wheel
 
-The jogwheel widget simulates a real jogwheel. +
+The jogwheel widget simulates a real jogwheel.
 It can be operated with the mouse. You can just use the mouse wheel, while the mouse cursor is over the JogWheel widget, +
 or you push the left mouse button and move the cursor in circular direction to increase or degrease the counts. +
 
- * Counterclockwise = reduce counts
- * Clockwise        = increase counts
- * Wheel up         = increase counts
- * Wheel down       = reduce counts
+* Counterclockwise = reduce counts
+* Clockwise        = increase counts
+* Wheel up         = increase counts
+* Wheel down       = reduce counts
 
 As moving the mouse the drag and drop way may be faster than the widget can update itself, you may loose counts turning to fast.
 It is recommended to use the mouse wheel, and only for very rough movements the drag and drop way.
@@ -810,37 +836,38 @@ JogWheel exports it's count value as hal pin:
 It has the following properties:
 
 size::
-    Sets the size in pixel of the widget, allowed values are in the range of 100 to 500
-    default = 200
+  Sets the size in pixel of the widget, allowed values are in the range of 100 to 500
+  default = 200
 cpr::
-    Sets the Counts per Revolution, allowed values are in the range from 25 to 100
-    default = 40
+  Sets the Counts per Revolution, allowed values are in the range from 25 to 100
+  default = 40
 show_counts::
-    Set this to False, if you want to hide the counts display in the middle of the widget.
+  Set this to False, if you want to hide the counts display in the middle of the widget.
 label::
-    Set the content of the label which may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
-
+  Set the content of the label which may be shown over the counts value. The purpose is to give the user an idea about the usage of that jogwheel. If the label given is longer than 12 Characters, it will be cut to 12 Characters.
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+  There a couple ways to directly control the widget using Python.
 
-    Using gobject to set the above listed properties:
-        [widget name].set_property("size",int(value))
-        [widget name].set_property("cpr",int(value))
-        [widget name].set_property("show_counts, True)
+Using gobject to set the above listed properties:
 
-    There are two python methods:
-        [widget name].get_value()
-        Will return the counts value as integer
-        [widget name].set_label("string")
-        Sets the label content with "string"
+  [widget name].set_property("size",int(value))
+  [widget name].set_property("cpr",int(value))
+  [widget name].set_property("show_counts, True)
 
-Example JogWheel:
+There are two python methods:
 
+  [widget name].get_value()
+    Will return the counts value as integer
+  [widget name].set_label("string")
+    Sets the label content with "string"
+
+.Example JogWheel
 image::images/JogWheel.png[]
 
-=== [[gladevcp:speedcontrol]]Speed Control
+[[gladevcp:speedcontrol]]
+=== Speed Control
 
 SpeedControl is a widget specially made to control an adjustment
 with a touch screen. It is a replacement to the normal scale widget
@@ -853,122 +880,126 @@ as well as the time between two changes can be set using the widget properties.
 SpeedControl offers some hal pin:
 
 <widgetname>-value::
-   out float pin
-   The shown value of the widget
+  out float pin
+  The shown value of the widget
 
 <widgetname>-scaled-value::
-   out float pin
-   The shown value divided by the scale value, this is very useful, if the
-   velocity is shown in units / min, but linuxcnc expects it to be in units / second
+  out float pin
+  The shown value divided by the scale value, this is very useful, if the
+  velocity is shown in units / min, but linuxcnc expects it to be in units / second
 
 <widgetname>-scale::
-   in float pin
-   The scale to apply
-   Default is 60
+  in float pin
+  The scale to apply
+  Default is 60
 
 <widgetname>-increase::
-   in bit pin
-   As long as the pin is true, the value will increase
-   Very handy with connected momentary switch
+  in bit pin
+  As long as the pin is true, the value will increase
+  Very handy with connected momentary switch
 
 <widgetname>-decrease::
-   in bit pin
-   As long as the pin is true, the value will decrease
-   Very handy with connected momentary switch
+  in bit pin
+  As long as the pin is true, the value will decrease
+  Very handy with connected momentary switch
 
 It has the following properties:
 
 height::
-	integer
-	The height of the widget in pixel
-	allowed values are 24 to 96
-	default is 36
+  integer
+  The height of the widget in pixel
+  allowed values are 24 to 96
+  default is 36
 
 value::
-	float
-	The  start value to set
-	allowed values are in the range from 0.001 to 99999.0
-	default is 10.0
+  float
+  The  start value to set
+  allowed values are in the range from 0.001 to 99999.0
+  default is 10.0
 
 min::
-	float
-	The min allowed value
-	allowed values are 0.0 to 99999.0
-	default is 0.0
-        If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
+  float
+  The min allowed value
+  allowed values are 0.0 to 99999.0
+  default is 0.0
+  If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
 
 max::
-	float
-	The max allowed value
-	allowed values are 0.001 to 99999.0
-	default is 100.0
-        If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
+  float
+  The max allowed value
+  allowed values are 0.001 to 99999.0
+  default is 100.0
+  If you change this value, the increment will be reset to default, so it might be necessary to set afterwards a new increment.
 
 increment::
-        float
-        sets the applied increment per mouse click
-	allowed values are 0.001 to 99999.0 and -1
-        default is -1 resulting in 100 increments from min to max
+  float
+  sets the applied increment per mouse click
+  allowed values are 0.001 to 99999.0 and -1
+  default is -1 resulting in 100 increments from min to max
 
 inc_speed::
-	integer
-	Sets the timer delay for the increment speed holding pressed the buttons
-	allowed values are 20 to 300
-	default is 100
+  integer
+  Sets the timer delay for the increment speed holding pressed the buttons
+  allowed values are 20 to 300
+  default is 100
 
 unit::
-	string
-	Sets the unit to be shown in the bar after the value
-	any string is allowed
-	default is ""
+  string
+  Sets the unit to be shown in the bar after the value
+  any string is allowed
+  default is ""
 
 color::
-	Color
-	Sets the color of the bar
-	any hex color is allowed
-	default is "#FF8116"
+  Color
+  Sets the color of the bar
+  any hex color is allowed
+  default is "#FF8116"
 
 template::
-	String
-	Text template to display the value Python formatting is used
-	Any allowed format
-	default is "%.1f"
+  String
+  Text template to display the value Python formatting is used
+  Any allowed format
+  default is "%.1f"
 
 do_hide_button::
-	Boolean
-	Whether to show or hide the increment an decrement button
-	True or False
-	Default = False
+  Boolean
+  Whether to show or hide the increment an decrement button
+  True or False
+  Default = False
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+  There a couple ways to directly control the widget using Python.
 
-    Using gobject to set the above listed properties:
-        [widget name].set_property("do_hide_button",bool(value))
-        [widget name].set_property("color","#FF00FF")
-        [widget name].set_property("unit", "mm/min")
-		etc.
+Using gobject to set the above listed properties:
 
-    There are also python methods to modify the widget:
-        [widget name].set_adjustment(gtk-adjustment)
-        You can assign a existing adjustment to the control, that way it is easy to replace
-        existing sliders without many code changes. Be aware, that after changing the adjustment
-        you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX)
-        [widget name].get_value()
-        Will return the counts value as float
-        [widget name].set_value(float(value))
-        Sets the widget to the commanded value
-        [widget name].set_digits(int(value))
-        Sets the digits of the value to be used
-        [widget name].hide_button(bool(value))
-        Hide or show the button
+  [widget name].set_property("do_hide_button",bool(value))
+  [widget name].set_property("color","#FF00FF")
+  [widget name].set_property("unit", "mm/min")
+  etc.
 
-Example Speedcontrol:
+There are also python methods to modify the widget:
 
+  [widget name].set_adjustment(gtk-adjustment)
+
+You can assign a existing adjustment to the control, that way it is easy to replace
+existing sliders without many code changes. Be aware, that after changing the adjustment
+you may need to set a new increment, as it will be reset to its default (100 steps from MIN to MAX)
+
+  [widget name].get_value()
+    Will return the counts value as float
+  [widget name].set_value(float(value))
+    Sets the widget to the commanded value
+  [widget name].set_digits(int(value))
+    Sets the digits of the value to be used
+  [widget name].hide_button(bool(value))
+    Hide or show the button
+
+.Example Speedcontrol
 image::images/SpeedControl.png[]
 
-=== [[gladevcp:hal-label]]Label
+[[gladevcp:hal-label]]
+=== Label
 
 HAL_Label is a simple widget based on GtkLabel which represents a HAL
 pin value in a user-defined format.
@@ -986,89 +1017,97 @@ text_template::
   Example: +Distance: %.03f+ will display the text and the pin value with
   3 fractional digits padded with zeros for a FLOAT pin.
 
-=== [[gladevcp:hal-table]]Containers
+[[gladevcp:hal-table]]
+=== Containers
 
 * HAL_HideTable
 * HAL_Table State_Sensitive_Table
 * HAL_HBox
 
-These containers are meant to be used to sensitize (grey out) or hide their children. +
-Insensitived children will not respond to input. +
-HAL_HideTable has one HAL BIT input pin which controls if it's child widgets are hidden or not. +
+These containers are meant to be used to sensitize (grey out) or hide their children.
+Insensitived children will not respond to input.
+HAL_HideTable has one HAL BIT input pin which controls if it's child widgets are hidden or not.
 
 <Panel_basename>.<widgetname>::
 
 If the pin is low then child widgets are visible which is the default state.
 
-HAL_Table and HAL_Hbox have one HAL BIT input pin which controls if their child widgets are sensitive or not. +
-These widgets's pin name uses the convention: +
+HAL_Table and HAL_Hbox have one HAL BIT input pin which controls if their child widgets are sensitive or not.
+These widgets's pin name uses the convention:
 
 <Panel_basename>.<widgetname>::
 
 If the pin is low then child widgets are inactive which is the default state.
 
-State_Sensitive_table responds to the state to linuxcnc's interpreter. +
-optionally selectable to respond to 'must-be-all-homed','must-be-on' and 'must-be-idle' +
-You can combine them. It will always be insensitive at Estop. +
+State_Sensitive_table responds to the state to linuxcnc's interpreter.
+optionally selectable to respond to 'must-be-all-homed','must-be-on' and 'must-be-idle'
+You can combine them. It will always be insensitive at Estop.
  +
-* HAL_Hbox is depreceiated - use HAL_Table. +
-If current panels use it it won't fail. You just won't find it in the GLADE editor anymore. +
-Future versions of gladeVCP may remove this widget completely and then you will need to update the panel. +
+* HAL_Hbox is depreceiated - use HAL_Table.
+If current panels use it it won't fail. You just won't find it in the GLADE editor anymore.
+Future versions of gladeVCP may remove this widget completely and then you will need to update the panel.
 
 [TIP]
+====
 If you find some part of your GladeVCP application is 'grayed
 out' (insensitive), see whether a HAL_Table pin is unset or unconnected.
+====
 
-=== [[gladevcp:hal-led]]LED
+[[gladevcp:hal-led]]
+=== LED
 
 The hal_led simulates a real indicator LED. +
 It has a single input BIT pin which controls it's state: ON or OFF. +
 LEDs have several properties which control their look and feel: +
 
 on_color::
-   a String defining ON color of LED. May be any valid
-   gdk.Color name. Not working on Ubuntu 8.04.
+  a String defining ON color of LED. May be any valid
+  gdk.Color name. Not working on Ubuntu 8.04.
 off_color::
-   String defining OFF color of LED. May be any valid
-   gdk.Color name or special value `dark`. `dark` means that OFF color
-   will be set to 0.4 value of ON color. Not working on Ubuntu 8.04.
+  String defining OFF color of LED. May be any valid
+  gdk.Color name or special value `dark`. `dark` means that OFF color
+  will be set to 0.4 value of ON color. Not working on Ubuntu 8.04.
 pick_color_on, pick_color_off::
-   Colors for ON and OFF states may be
-   represented as `#RRRRGGGGBBBB` strings. These are optional properties
-   which have precedence over `on_color` and `off_color`.
+  Colors for ON and OFF states may be
+  represented as `#RRRRGGGGBBBB` strings. These are optional properties
+  which have precedence over `on_color` and `off_color`.
 led_size::
-   LED radius (for square - half of LED's side)
+  LED radius (for square - half of LED's side)
 led_shape::
-   LED Shape. Valid values are 0 for round, 1 for oval and 2
-   for square shapes.
+  LED Shape. Valid values are 0 for round, 1 for oval and 2
+  for square shapes.
 led_blink_rate::
-   if set and LED is ON then it's blinking. Blink
-   period is equal to "led_blink_rate" specified in milliseconds.
+  if set and LED is ON then it's blinking. Blink
+  period is equal to "led_blink_rate" specified in milliseconds.
 create_hal_pin::
-    select/deselect making of HAL pin to control LED. With no HAL pin created
-    LED can be controlled with a python function.
+  select/deselect making of HAL pin to control LED. With no HAL pin created
+  LED can be controlled with a python function.
+
 As an input widget, LED also supports the +hal-pin-changed signal+. If
 you want to get a notification in your code when the LED's HAL pin was
 changed, then connect this signal to a handler, for example
 +on_led_pin_changed+ and provide the handler as follows:
 
 [source,python]
-----------------------------------
+----
 def on_led_pin_changed(self,hal_led,data=None):
     print("on_led_pin_changed() - HAL pin value:",hal_led.hal_pin.get())
-----------------------------------
+----
 
 This will be called at any edge of the signal and also during program
 start up to report the current value.
 
-Example LEDs:
-image:images/leds.png[]
+.Example LEDs
+image::images/leds.png[]
 
-=== [[gladevcp:hal-progressbar]]ProgressBar
+[[gladevcp:hal-progressbar]]
+=== ProgressBar
 
 [NOTE]
+====
 This widget might go away. Use the HAL_HBar and HAL_VBar widgets
 instead.
+====
 
 The HAL_ProgressBar is derived from gtk.ProgressBar and has two float
 HAL input pins:
@@ -1085,19 +1124,20 @@ scale::
   setting the <widgetname>.scale pin. A float, range from
   -2^24 to +2^24.
 green_limit::
-      green zone limit lower limit
+  green zone limit lower limit
 yellow_limit::
-      yellow zone limit lower limit
+  yellow zone limit lower limit
 red_limit::
-      red zone limit lower limit
+  red zone limit lower limit
 text_template::
-      Text template to display the current value of the
-      +<widgetname>+ pin. Python formatting may be used for dict
-      +{"value":value}+
+  Text template to display the current value of the
+  +<widgetname>+ pin. Python formatting may be used for dict
+  +{"value":value}+
 
-Example HAL_ProgressBar:
-image:images/progressbar2.png[]
+.Example HAL_ProgressBar
+image::images/progressbar2.png[]
 
+[[gladevcp:hal_combobox]]
 === ComboBox
 
 HAL_ComboBox is derived from gtk.ComboBox. It enables choice of a
@@ -1105,15 +1145,15 @@ value from a dropdown list.
 
 It exports two HAL pins:
 
- <widgetname>-f::
-      the current value, type FLOAT
- <widgetname>-s::
-      the current value, type S32
+<widgetname>-f::
+  the current value, type FLOAT
+<widgetname>-s::
+  the current value, type S32
 
 It has the following property which can be set in Glade:
 
 column::
-   the column index, type S32, defaults to -1, range from -1..100 .
+  the column index, type S32, defaults to -1, range from -1..100 .
 
 In default mode this widgets sets the pins to the index of the chosen
 list entry. So if your widget has three labels, it may only assume
@@ -1132,102 +1172,105 @@ mode to pick a float value from the ListStore.
 If you're confused like me about how to edit ComboBox ListStores and
 CellRenderer, see http://www.youtube.com/watch?v=Z5_F-rW2cL8.
 
-=== [[gladevcp:hal-bars]]Bars
+[[gladevcp:hal-bars]]
+=== Bars
 
 HAL Bar and VBar widgets for horizontal and vertical bars representing
 float values. They have one input FLOAT hal pin. Both bars have the
 following properties:
 
 invert::
-   Swap min and max direction. An inverted HBar grows from right
-   to left, an inverted VBar from top to bottom.
+  Swap min and max direction. An inverted HBar grows from right
+  to left, an inverted VBar from top to bottom.
 min, max::
-   Minimum and maximum value of desired range. It is not an
-   error condition if the current value is outside this range.
+  Minimum and maximum value of desired range. It is not an
+  error condition if the current value is outside this range.
 show limits::
-    Used to select/deselect the limits text on bar.
+  Used to select/deselect the limits text on bar.
 zero::
-   Zero point of range. If it's inside of min/max range then the
-   bar will grow from that value and not from the left (or right) side of
-   the widget. Useful to represent values that may be both positive or
-   negative.
+  Zero point of range. If it's inside of min/max range then the
+  bar will grow from that value and not from the left (or right) side of
+  the widget. Useful to represent values that may be both positive or
+  negative.
 force_width, force_height::
-   Forced width or height of widget. If not
-   set then size will be deduced from packing or from fixed widget size
-   and bar will fill whole area.
+  Forced width or height of widget. If not
+  set then size will be deduced from packing or from fixed widget size
+  and bar will fill whole area.
 text_template::
-   Like in Label sets text format for min/max/current
-   values. Can be used to turn off value display.
+  Like in Label sets text format for min/max/current
+  values. Can be used to turn off value display.
 value::
-    Sets the bar display to the value entered: used only for testing in
-    GLADE editor. The value will be set from A HAL pin.
+  Sets the bar display to the value entered: used only for testing in
+  GLADE editor. The value will be set from A HAL pin.
 target value::
-    Sets the target line to the value entered: used only for testing in
-    GLADE editor. The value will can be set in a Python function
+  Sets the target line to the value entered: used only for testing in
+  GLADE editor. The value will can be set in a Python function
 target_width::
-    Width of the line that marks the target value.
+  Width of the line that marks the target value.
 bg_color::
-   Background (inactive) color of bar.
+  Background (inactive) color of bar.
 target_color::
-    Color of the the target line.
+  Color of the the target line.
 z0_color, z1_color, z2_color::
-   Colors of different value zones.
-   Defaults are `green`, `yellow` and `red`. For description of zones see
-   `z*_border` properties.
+  Colors of different value zones.
+  Defaults are `green`, `yellow` and `red`. For description of zones see
+  `z*_border` properties.
 z0_border, z1_border::
-   Define up bounds of color zones. By default
-   only one zone is enabled. If you want more then one zone set
-   `z0_border` and `z1_border` to desired values so zone 0 will fill from
-   0 to first border, zone 1 will fill from first to second border and
-   zone 2 -- from last border to 1. Borders are set as fractions, values
-   from 0 to 1.
+  Define up bounds of color zones. By default
+  only one zone is enabled. If you want more then one zone set
+  `z0_border` and `z1_border` to desired values so zone 0 will fill from
+  0 to first border, zone 1 will fill from first to second border and
+  zone 2 -- from last border to 1. Borders are set as fractions, values
+  from 0 to 1.
 
-Horizontal bar:
-image:images/hal_hbar.png[]
-Vertical bar:
-image:images/vscale.png[]
-.
+.Horizontal bar
+image::images/hal_hbar.png[]
 
-=== [[gladevcp:hal-meter]]Meter
+.Vertical bar
+image::images/vscale.png[]
+
+[[gladevcp:hal-meter]]
+=== Meter
 
 HAL Meter is a widget similar to PyVCP meter - it represents a float value and has
 one input FLOAT hal pin. HAL Meter has the following properties:
 
 min, max::
-   Minimum and maximum value of desired range. It is not an
-   error condition if the current value is outside this range.
+  Minimum and maximum value of desired range. It is not an
+  error condition if the current value is outside this range.
 force_size::
-   Forced diameter of widget. If not set then size will be
-   deduced from packing or from fixed widget size and meter will fill all
-   available space with respect to aspect ratio.
+  Forced diameter of widget. If not set then size will be
+  deduced from packing or from fixed widget size and meter will fill all
+  available space with respect to aspect ratio.
 text_template::
-   Like in Label sets text format for current value. Can
-   be used to turn off value display.
+  Like in Label sets text format for current value. Can
+  be used to turn off value display.
 label::
-   Large label above center of meter.
+  Large label above center of meter.
 sublabel::
-   Small label below center of meter.
+  Small label below center of meter.
 bg_color::
-   Background color of meter.
+  Background color of meter.
 z0_color, z1_color, z2_color::
-   Colors of different value
-   zones. Defaults are `green`, `yellow` and `red`. For description of
-   zones see `z*_border` properties.
+  Colors of different value
+  zones. Defaults are `green`, `yellow` and `red`. For description of
+  zones see `z*_border` properties.
 z0_border, z1_border::
-   Define up bounds of color zones. By default only
-   one zone is enabled. If you want more then one zone set `z0_border` and
-   `z1_border` to desired values so zone 0 will fill from min to first
-   border, zone 1 will fill from first to second border and zone 2 -- from
-   last border to max. Borders are set as values in range min-max.
+  Define up bounds of color zones. By default only
+  one zone is enabled. If you want more then one zone set `z0_border` and
+  `z1_border` to desired values so zone 0 will fill from min to first
+  border, zone 1 will fill from first to second border and zone 2 -- from
+  last border to max. Borders are set as values in range min-max.
 
-Example HAL Meters:
-image:images/hal_meter.png[]
+.Example HAL Meters
+image::images/hal_meter.png[]
 
 === HAL_Graph
 
 This widget is for plotting values over time.
 
-=== [[gladevcp:hal-gremlin]]Gremlin tool path preview for .ngc files
+[[gladevcp:hal-gremlin]]
+=== Gremlin tool path preview for .ngc files
 
 Gremlin is a plot preview widget similar to the Axis preview window.
 It assumes a running LinuxCNC environment like Axis or Touchy. To connect to
@@ -1241,176 +1284,184 @@ name.
 Gremlin does not export any HAL pins. It has the following properties:
 
 show tool speed::
-    This displays the tool speed. Defaults true
+  This displays the tool speed. Defaults true
 show commanded::
-    This selects the DRO to use commanded or actual values. Defaults true
+  This selects the DRO to use commanded or actual values. Defaults true
 use metric units::
-    This selects the DRO to use metric or imperial units. Defaults true
+  This selects the DRO to use metric or imperial units. Defaults true
 show rapids::
-    This tells the plotter to show the rapid moves. Defaults true
+  This tells the plotter to show the rapid moves. Defaults true
 show DTG::
-    This selects the DRO to display the distance-to-go value. Defaults true
+  This selects the DRO to display the distance-to-go value. Defaults true
 show relative::
-    This selects the DRO to show values relative to user system or machine
-    coordinates. Defaults true
+  This selects the DRO to show values relative to user system or machine
+  coordinates. Defaults true
 show live plot::
-    This tells the plotter to draw or not. Defaults true
+  This tells the plotter to draw or not. Defaults true
 show limits::
-    This tells the plotter to show the machine's limits. Defaults true
+  This tells the plotter to show the machine's limits. Defaults true
 show lathe radius::
-    This selects the DRO to display the X axis in radius or diameter, if in lathe
-    mode (selectable in the INI file with LATHE = 1). Defaults false
+  This selects the DRO to display the X axis in radius or diameter, if in lathe
+  mode (selectable in the INI file with LATHE = 1). Defaults false
 show extents::
-    This tells the plotter to show the extents. Defaults true
+  This tells the plotter to show the extents. Defaults true
 show tool::
-    This tells the plotter to draw the tool. Defaults true
+  This tells the plotter to draw the tool. Defaults true
 show program::
-    TODO
+  TODO
 use joints mode::
-    Used in non trivialkins machines (eg robots). Defaults false
+  Used in non trivialkins machines (eg robots). Defaults false
 grid size::
-    Sets the size of the grid. which is only visible in the X, Y and Z view.
-    Defaults to 0
+  Sets the size of the grid. which is only visible in the X, Y and Z view.
+  Defaults to 0
 use default mouse controls::
-    This disables the default mouse controls. This is most useful when using a
-    touchscreen as the default controls do not work well. You can programically
-    add controls using python and the handler file technique. Defaults to 'True'
+  This disables the default mouse controls. This is most useful when using a
+  touchscreen as the default controls do not work well. You can programically
+  add controls using python and the handler file technique. Defaults to 'True'
 view ::
-   may be any of `x`, `y`, 'y2' , `z`, 'z2' , `p` (perspective) . Defaults to
-   `z` view.
+  may be any of `x`, `y`, 'y2' , `z`, 'z2' , `p` (perspective) . Defaults to
+  `z` view.
 enable_dro ::
-   boolean; whether to draw a DRO on the plot or not.
-   Defaults to `True`
+  boolean; whether to draw a DRO on the plot or not.
+  Defaults to `True`
 mouse_btn_mode ::
-   integer; mouse button handling, leads to different functions of the button
-   0 = default: left rotate, middle move,   right zoom
-   1 =          left zoom,   middle move,   right rotate
-   2 =          left move,   middle rotate, right zoom
-   3 =          left zoom,   middle rotate, right move
-   4 =          left move,   middle zoom,   right rotate
-   5 =          left rotate, middle zoom,   right move
-   6 =          left move,   middle zoom,   right zoom
+  integer; mouse button handling, leads to different functions of the button
+  0 = default: left rotate, middle move,   right zoom
+  1 =          left zoom,   middle move,   right rotate
+  2 =          left move,   middle rotate, right zoom
+  3 =          left zoom,   middle rotate, right move
+  4 =          left move,   middle zoom,   right rotate
+  5 =          left rotate, middle zoom,   right move
+  6 =          left move,   middle zoom,   right zoom
 
-   mode 6 is recommended for plasmas and lathes, as rotation is not needed for such machines
+  mode 6 is recommended for plasmas and lathes, as rotation is not needed for such machines
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+There a couple ways to directly control the widget using Python.
 
-    Using goobject to set the above listed properties:
-        [widget name].set_property('view','P')
-        [widget name].set_property('metric_units',False)
-        [widget name].set_property('use_default_controls',False)
-        [widget name].set_property('enable_dro' False))
-        [widget name].set_property('show_program', False)
-        [widget name].set_property('show_limits', False)
-        [widget name].set_property('show_extents_option', False)
-        [widget name].set_property('show_live_plot', False)
-        [widget name].set_property('show_tool', False)
-        [widget name].set_property('show_lathe_radius',True)
-        [widget name].set_property('show_dtg',True)
-        [widget name].set_property('show_velocity',False)
-        [widget name].set_property('mouse_btn_mode', 4)
+Using goobject to set the above listed properties:
 
-    There are python methods:
-        [widget name].show_offsets = True
-        [widget name].grid_size =  .75
-        [widget name].select_fire(event.x,event.y)
-        [widget name].select_prime(event.x,event.y)
-        [widget name].start_continuous_zoom(event.y)
-        [widget name].set_mouse_start(0,0)
-        [widget name].gremlin.zoom_in()
-        [widget name].gremlin.zoom_out()
-        [widget name].get_zoom_distance()
-        [widget name].set_zoom_distance(dist)
-        [widget name].clear_live_plotter()
-        [widget name].rotate_view(x,y)
-        [widget name].pan(x,y)
+  [widget name].set_property('view','P')
+  [widget name].set_property('metric_units',False)
+  [widget name].set_property('use_default_controls',False)
+  [widget name].set_property('enable_dro' False)
+  [widget name].set_property('show_program', False)
+  [widget name].set_property('show_limits', False)
+  [widget name].set_property('show_extents_option', False)
+  [widget name].set_property('show_live_plot', False)
+  [widget name].set_property('show_tool', False)
+  [widget name].set_property('show_lathe_radius',True)
+  [widget name].set_property('show_dtg',True)
+  [widget name].set_property('show_velocity',False)
+  [widget name].set_property('mouse_btn_mode', 4)
+
+There are python methods:
+
+  [widget name].show_offsets = True
+  [widget name].grid_size = .75
+  [widget name].select_fire(event.x,event.y)
+  [widget name].select_prime(event.x,event.y)
+  [widget name].start_continuous_zoom(event.y)
+  [widget name].set_mouse_start(0,0)
+  [widget name].gremlin.zoom_in()
+  [widget name].gremlin.zoom_out()
+  [widget name].get_zoom_distance()
+  [widget name].set_zoom_distance(dist)
+  [widget name].clear_live_plotter()
+  [widget name].rotate_view(x,y)
+  [widget name].pan(x,y)
 
 Hints::
-    - If you set all the plotting options false but show_offsets true you get an
-      offsets page instead of a graphics plot.
+- If you set all the plotting options false but show_offsets true you get an
+  offsets page instead of a graphics plot.
 
-    - If you get the zoom distance before changing the view then reset the zoom
-      distance, it's much more user friendly.
+- If you get the zoom distance before changing the view then reset the zoom
+  distance, it's much more user friendly.
 
-    - if you select an element in the preview, the selected element will be used
-      as rotation center point
+- if you select an element in the preview, the selected element will be used
+  as rotation center point
 
-Example:
-image:images/gremlin.png[]
+.Gremlin Example
+image::images/gremlin.png[]
 
-=== [[gladevcp:hal-offset]]HAL_Offset
+[[gladevcp:hal-offset]]
+=== HAL_Offset
 
 The HAL_Offset widget is used to display the offset of a single axis.
 It has the following properties:
 
 Joint Number::
-    Used to select which axis (technically which joint) is displayed.
-    On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+  Used to select which axis (technically which joint) is displayed.
+  On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
 
-    0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+  0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+
 Text template for metric units::
-    You can use python formatting to display the position with different precision.
+  You can use python formatting to display the position with different precision.
 Text template for imperial units::
-    You can use python formatting to display the position with different precision.
+  You can use python formatting to display the position with different precision.
 Reference Type::
-    0:G5x 1:tool 2:G92 3:Rotation around Z
+  0:G5x 1:tool 2:G92 3:Rotation around Z
 
-=== [[gladevcp:dro_widget]]DRO widget
+[[gladevcp:dro_widget]]
+=== DRO widget
 
 The DRO widget is used to display the current axis position.
 It has the following properties:
 
 Actual Position::
-    select actual (feedback) position or commanded position.
+  select actual (feedback) position or commanded position.
 Text template for metric units::
-    You can use python formatting to display the position with different precision.
+  You can use python formatting to display the position with different precision.
 Text template for imperial units::
-    You can use python formatting to display the position with different precision.
+  You can use python formatting to display the position with different precision.
 Reference Type::
-    Absolute <<sec:machine-coordinate-system,(machine origin)>>, Relative
-    (to current user coordinate origin - G5x)
-    or Distance-to-go (relative to current user coordinate origin)
+  Absolute <<sec:machine-coordinate-system,(machine origin)>>, Relative
+  (to current user coordinate origin - G5x)
+  or Distance-to-go (relative to current user coordinate origin)
 Joint Number::
-    Used to select which axis (technically which joint) is displayed.
-    On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
+  Used to select which axis (technically which joint) is displayed.
+  On a trivialkins machine (mill, lathe, router) axis vrs joint number are:
 
-    0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
+  0:X  1:Y  2:Z  3:A  4:B  5:C  6:U  7:V  8:W
 
 Display units::
-    Used to toggle the display units between metric and imperial.
+  Used to toggle the display units between metric and imperial.
 
 Hints::
-    - If you want the display to be right justified, set the X align to 1.0
+- If you want the display to be right justified, set the X align to 1.0
 
-    - If you want different colors or size or text change the attributes in the
-    glade editor (eg scale is a good way to change the size of the text)
+- If you want different colors or size or text change the attributes in the
+  glade editor (eg scale is a good way to change the size of the text)
 
-    - The background of the widget is actually see through - so if you place if over
-    an image the DRO numbers will show on top of it with no background. There is a
-    special technique to do this. See the animated function diagrams below.
+- The background of the widget is actually see through - so if you place if over
+  an image the DRO numbers will show on top of it with no background. There is a
+  special technique to do this. See the animated function diagrams below.
 
-    - The DRO widget is a modified gtk label widget. As such much or what can be
-    done to a gtk label can be done to DRO widget.
+- The DRO widget is a modified gtk label widget. As such much or what can be
+  done to a gtk label can be done to DRO widget.
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+There a couple ways to directly control the widget using Python.
 
-    Using goobject to set the above listed properties:
-        [widget name].set_property("display_units_mm",True)
-        [widget name].set_property("actual",True)
-        [widget name].set_property("mm_text_template","%f")
-        [widget name].set_property("imperial_text_template","%f")
-        [widget name].set_property("Joint_number",3)
-        [widget name].set_property("reference_type",3)
+Using goobject to set the above listed properties:
 
-    There are two python methods:
-        [widget name].set_dro_inch()
-        [widget name].set_dro_metric()
+  [widget name].set_property("display_units_mm",True)
+  [widget name].set_property("actual",True)
+  [widget name].set_property("mm_text_template","%f")
+  [widget name].set_property("imperial_text_template","%f")
+  [widget name].set_property("Joint_number",3)
+  [widget name].set_property("reference_type",3)
 
-=== [[gladevcp:combi_dro]]Combi_DRO widget
+There are two python methods:
+
+  [widget name].set_dro_inch()
+  [widget name].set_dro_metric()
+
+[[gladevcp:combi_dro]]
+=== Combi_DRO widget
 
 The Combi_DRO widget is used to display the current , the relative axis position and the distance to go in one DRO.
 By clicking on the DRO the Order of the DRO will toggle around.
@@ -1419,271 +1470,269 @@ In Relative Mode the actual coordinate system will be displayed.
 It has the following properties:
 
 joint_number::
-    Used to select which axis (technically which joint) is displayed.
-    On a trivialkins machine (mill, lathe, router) axis vrs. joint number are: +
-    '0:X  1:Y  2:Z  etc'
+  Used to select which axis (technically which joint) is displayed.
+  On a trivialkins machine (mill, lathe, router) axis vrs. joint number are:
+
+  0:X  1:Y  2:Z  etc
 
 actual::
-    select actual (feedback) or commanded position.
+  select actual (feedback) or commanded position.
 
 metric_units::
-    Used to toggle the display units between metric and imperial.
+  Used to toggle the display units between metric and imperial.
 
 auto_units::
-    Units will toggle between metric and imperial according to the
-    active G-code being G20 or G21 +
-    default is TRUE
+  Units will toggle between metric and imperial according to the
+  active G-code being G20 or G21 +
+  default is TRUE
 
 diameter::
-    Whether to display position as diameter or radius, in diameter mode
-    the DRO will display the joint value multiplied by 2
+  Whether to display position as diameter or radius, in diameter mode
+  the DRO will display the joint value multiplied by 2
 
 mm_text_template::
-    You can use python formatting to display the position with different precision. +
-    default is "%10.3f"
+  You can use python formatting to display the position with different precision. +
+  default is "%10.3f"
 
 imperial_text_template::
-    You can use python formatting to display the position with different precision. +
-    default is "%9.4f"
+  You can use python formatting to display the position with different precision. +
+  default is "%9.4f"
 
 homed_color::
-    The foreground color of the DRO numbers if the joint is homed +
-    default is green
+  The foreground color of the DRO numbers if the joint is homed +
+  default is green
 
 unhomed_color::
-    The foreground color of the DRO numbers if the joint is not homed +
-    default is red
+  The foreground color of the DRO numbers if the joint is not homed +
+  default is red
 
 abs_color::
-    the background color of the DRO, if main DRO shows absolute coordinates +
-    default is blue
+  the background color of the DRO, if main DRO shows absolute coordinates +
+  default is blue
 
 rel_color::
-    the background color of the DRO, if main DRO shows relative coordinates +
-    default is black
+  the background color of the DRO, if main DRO shows relative coordinates +
+  default is black
 
 dtg_color::
-    the background color of the DRO, if main DRO shows distance to go +
-    default is yellow
+  the background color of the DRO, if main DRO shows distance to go +
+  default is yellow
 
 font_size::
-    The font size of the big numbers, the small ones will be 2.5 times smaller,
-    the value must be an integer in the range of 8 to 96, +
-    default is 25
+  The font size of the big numbers, the small ones will be 2.5 times smaller,
+  the value must be an integer in the range of 8 to 96, +
+  default is 25
 
 toggle_readout::
-    A left mouse click will toggle the DRO readout through the different modes ["Rel", "Abs", "DTG"].
-    By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout().
-    Value must be bool +
-    default is TRUE
+  A left mouse click will toggle the DRO readout through the different modes ["Rel", "Abs", "DTG"].
+  By unchecking the box you can disable that behavior. The toggling can still be done with [widget name].toggle_readout().
+  Value must be bool +
+  default is TRUE
 
 cycle_time::
-    The time the DRO waits between two polls,
-    the value must be an integer in the range of 100 to 1000,
-    default is 150, this setting should only be changed if you use more
-    than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that
-    the DRO slows down the main application too much.
+  The time the DRO waits between two polls,
+  the value must be an integer in the range of 100 to 1000,
+  default is 150, this setting should only be changed if you use more
+  than 5 DRO at the same time, i.e. on a 6 axis config, to avoid, that
+  the DRO slows down the main application too much.
 
 Direct program control::
-    Using gobject to set the above listed properties:
+Using gobject to set the above listed properties:
 
-    [widget name].set_property(property, value)
+  [widget name].set_property(property, value)
 
 There are several python methods to control the widget:
 
-    [widget name].set_to_inch(state)
-        sets the DRO to show imperial units
-        state = boolean (True or False)
+  [widget name].set_to_inch(state)
+    sets the DRO to show imperial units
+    state = boolean (True or False)
 
-    [widget name].set_auto_units(state)
-        if True the DRO will change units according to active G-code (G20 / G21)
-        state = boolean (True or False)
-        Default is True
+  [widget name].set_auto_units(state)
+    if True the DRO will change units according to active G-code (G20 / G21)
+    state = boolean (True or False)
+    Default is True
 
-    [widget name].set_to_diameter(state)
-        if True the DRO will show the diameter not the radius, specially needed for lathes
-        the DRO will display the axis value multiplied by 2
-        state = boolean (True or False)
-        Default is False
+  [widget name].set_to_diameter(state)
+    if True the DRO will show the diameter not the radius, specially needed for lathes
+    the DRO will display the axis value multiplied by 2
+    state = boolean (True or False)
+    Default is False
 
-    [widget name].toggle_readout()
-        toggles the order of the DRO in the widget
+  [widget name].toggle_readout()
+    toggles the order of the DRO in the widget
 
-    [widget name].change_axisletter(letter)
-        changes the automatically given axis letter
-        very useful to change an lathe DRO from X to R or D
-        letter = string
+  [widget name].change_axisletter(letter)
+    changes the automatically given axis letter
+    very useful to change an lathe DRO from X to R or D
+    letter = string
 
-    [widget name].get_order()
-        returns the order of the DRO in the widget mainly used to maintain them consistent
-        the order will also be transmitted with the clicked signal
-        returns a list containing the order
+  [widget name].get_order()
+      returns the order of the DRO in the widget mainly used to maintain them consistent
+      the order will also be transmitted with the clicked signal
+      returns a list containing the order
 
-    [widget name].set_order(order)
-        sets the order of the DRO, mainly used to maintain them consistent
-        order = list object, must be one of
-          ["Rel", "Abs", "DTG"]
-          ["DTG", "Rel", "Abs"]
-          ["Abs", "DTG", "Rel"]
-        Default = ["Rel", "Abs", "DTG"]
+  [widget name].set_order(order)
+      sets the order of the DRO, mainly used to maintain them consistent
+      order = list object, must be one of
+        ["Rel", "Abs", "DTG"]
+        ["DTG", "Rel", "Abs"]
+        ["Abs", "DTG", "Rel"]
+      Default = ["Rel", "Abs", "DTG"]
 
-    [widget name].get_position()
-        returns the position of the DRO as a list of floats
-        the order is independent of the order shown on the DRO
-        and will be given as [Absolute , relative , DTG]
-        Absolute = the machine coordinates, depends on the actual property
-                 will give actual or commanded position
-        Relative = will be the coordinates of the actual coordinate system
-        DTG = the distance to go, will mostly be 0, as this function should not be used
-            while the machine is moving, because of time delays
+  [widget name].get_position()
+      returns the position of the DRO as a list of floats
+      the order is independent of the order shown on the DRO
+      and will be given as [Absolute , relative , DTG]
+      Absolute = the machine coordinates, depends on the actual property
+                will give actual or commanded position
+      Relative = will be the coordinates of the actual coordinate system
+      DTG = the distance to go, will mostly be 0, as this function should not be used
+          while the machine is moving, because of time delays
 
 The widget will emit the following signals:
 
-    clicked
-        This signal is emitted, when the user has clicked on the Combi_DRO widget,
-        it will send the following data:
-        widget = widget object = The widget object that sends the signal
-        joint_number = integer = The joint number of the DRO, where '0:X  1:Y  2:Z  etc'
-        order = list object = the order of the DRO in that widget
-                              the order may be used to set other Combi_DRO widgets to the same order with [widget name].set_order(order)
+  clicked
+    This signal is emitted, when the user has clicked on the Combi_DRO widget,
+    it will send the following data:
+    widget = widget object = The widget object that sends the signal
+    joint_number = integer = The joint number of the DRO, where '0:X  1:Y  2:Z  etc'
+    order = list object = the order of the DRO in that widget
+                          the order may be used to set other Combi_DRO widgets to the same order with [widget name].set_order(order)
 
-    units_changed
-        This signal is emitted, if the DRO units are changed, it will send the following data:
-        widget = widget object = The widget object that sends the signal
-        metric_units = boolean = True if the DRO does display metric units, False in case of imperial display
+  units_changed
+    This signal is emitted, if the DRO units are changed, it will send the following data:
+    widget = widget object = The widget object that sends the signal
+    metric_units = boolean = True if the DRO does display metric units, False in case of imperial display
 
-    system_changed
-        This signal is emitted, if the DRO units are changed, it will send the following data:
-        widget = widget object = The widget object that sends the signal
-        system = string = The actual coordinate system. Will be one of
-                          G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3
-                          or Rel if non has been selected at all, what will only happen in Glade with no linuxcnc running
+  system_changed
+    This signal is emitted, if the DRO units are changed, it will send the following data:
+    widget = widget object = The widget object that sends the signal
+    system = string = The actual coordinate system. Will be one of
+                      G54 G55 G56 G57 G58 G59 G59.1 G59.2 G59.3
+                      or Rel if non has been selected at all, what will only happen in Glade with no linuxcnc running
 
 There are some information you can get through commands, which may be of interest for you:
 
-    [widget name].system
-        The actual system, as mentioned in the system_changed signal
+  [widget name].system
+    The actual system, as mentioned in the system_changed signal
 
-    [widget name].homed
-        True if the joint is homed
+  [widget name].homed
+    True if the joint is homed
 
-    [widget name].machine_units
-        0 if Imperial, 1 if Metric
+  [widget name].machine_units
+    0 if Imperial, 1 if Metric
 
-Example, Three Combi_DRO in a window: +
+.Example, Three Combi_DRO in a window
+image::images/combi_dro.png[]
+
 X = Relative Mode +
 Y = Absolute Mode +
 Z = DTG Mode +
 
-image::images/combi_dro.png[]
-
-=== [[gladevcp:iconview]]IconView (File Select)
+[[gladevcp:iconview]]
+=== IconView (File Select)
 
 This is touch screen friendly widget to select a file and to change directories.
 
 The widget has the following properties:
 
-
 icon_size::
-    Sets the size of the displayed icon. +
-    Allowed values are integers in the range from 12 to 96 +
-    default is 48
+  Sets the size of the displayed icon. +
+  Allowed values are integers in the range from 12 to 96 +
+  default is 48
 
 start_dir::
-    Sets the directory to start in when the widget is shown first time, +
-    must be a string, containing a valid directory path, +
-    default is "/"
+  Sets the directory to start in when the widget is shown first time, +
+  must be a string, containing a valid directory path, +
+  default is "/"
 
 jump_to_dir::
-    Sets the directory "jump to" directory, which is selected by the corresponding
-    button in the bottom button list, the 5th button counting from the left, +
-    must be a string, containing a valid directory path, +
-    default is "~"
+  Sets the directory "jump to" directory, which is selected by the corresponding
+  button in the bottom button list, the 5th button counting from the left, +
+  must be a string, containing a valid directory path, +
+  default is "~"
 
 filetypes::
-    Sets the file filter for the objects to be shown +
-    Must be a string containing a comma separated list of extensions to be shown +
-    Default is "ngc,py"
+  Sets the file filter for the objects to be shown +
+  Must be a string containing a comma separated list of extensions to be shown +
+  Default is "ngc,py"
 
 sortorder::
-    Sets the sorting order of the displayed icon
-    must be an integer value from 0 to 3, where +
-    0 = ASCENDING (sorted according to file names) +
-    1 = DESCENDING (sorted according to file names) +
-    2 = FOLDERFIRST (show the folders first, then the files) +
-    3 = FILEFIRST (show the files first, then the folders), +
-    Default = 2 = FOLDERFIRST
-
-
+  Sets the sorting order of the displayed icon
+  must be an integer value from 0 to 3, where +
+  0 = ASCENDING (sorted according to file names) +
+  1 = DESCENDING (sorted according to file names) +
+  2 = FOLDERFIRST (show the folders first, then the files) +
+  3 = FILEFIRST (show the files first, then the folders), +
+  Default = 2 = FOLDERFIRST
 
 Direct program control::
 
 Using goobject to set the above listed properties:
 
-    [widget name].set_property(property,Value)
+  [widget name].set_property(property,Value)
 
 There are python methods to control the widget:
 
-    [widget name].show_buttonbox(state)
-        if False the bottom button box will be hidden, this is helpful in custom screens,
-        with special buttons layouts to not alter the layout of the GUI, good example
-        for that is gmoccapy
-        state = boolean (True or False)
-        Default is True
+  [widget name].show_buttonbox(state)
+    if False the bottom button box will be hidden, this is helpful in custom screens,
+    with special buttons layouts to not alter the layout of the GUI, good example
+    for that is gmoccapy
+    state = boolean (True or False)
+    Default is True
 
-    [widget name].show_filelabel(state)
-        if True the file label (between the IconView window and the bottom button box will be shown.
-        Hiding this label may save place, but showing it is very useful for debugging reasons,
-        state = boolean (True or False)
-        Default is True
+  [widget name].show_filelabel(state)
+    if True the file label (between the IconView window and the bottom button box will be shown.
+    Hiding this label may save place, but showing it is very useful for debugging reasons,
+    state = boolean (True or False)
+    Default is True
 
-    [widget name].set_icon_size(iconsize)
-        sets the icon size
-        must be an integer in the range from 12 to 96
-        Default = 48
+  [widget name].set_icon_size(iconsize)
+    sets the icon size
+    must be an integer in the range from 12 to 96
+    Default = 48
 
-    [widget name].set_directory(directory)
-        Allows to set an directory to be shown
-        directory = string (a valid file path)
+  [widget name].set_directory(directory)
+    Allows to set an directory to be shown
+    directory = string (a valid file path)
 
-    [widget name].set_filetypes(filetypes)
-        sets the file filter to be used, only files with the given extensions will be shown
-        filetypes = string containing a comma separated list of extensions
-        Default = "ngc,py"
+  [widget name].set_filetypes(filetypes)
+    sets the file filter to be used, only files with the given extensions will be shown
+    filetypes = string containing a comma separated list of extensions
+    Default = "ngc,py"
 
-    [widget name].get_selected()
-        Returns the path of the selected file, or None if an directory has been selected
+  [widget name].get_selected()
+    Returns the path of the selected file, or None if an directory has been selected
 
-    [widget name].refresh_filelist()
-        Refreshes the filelist, needed if you add a file without changing the directory
+  [widget name].refresh_filelist()
+    Refreshes the filelist, needed if you add a file without changing the directory
 
 If the button box has been hidden, you can reach the functions of this button
 through it's clicked signals like so:
 
-    [widget name].btn_home.emit("clicked")
-    [widget name].btn_jump_to.emit("clicked")
-    [widget name].btn_sel_prev.emit("clicked")
-    [widget name].btn_sel_next.emit("clicked")
-    [widget name].btn_get_selected.emit("clicked")
-    [widget name].btn_dir_up.emit("clicked")
-    [widget name].btn_exit.emit("clicked")
+  [widget name].btn_home.emit("clicked")
+  [widget name].btn_jump_to.emit("clicked")
+  [widget name].btn_sel_prev.emit("clicked")
+  [widget name].btn_sel_next.emit("clicked")
+  [widget name].btn_get_selected.emit("clicked")
+  [widget name].btn_dir_up.emit("clicked")
+  [widget name].btn_exit.emit("clicked")
 
 The widget will emit the following signals:
 
-    selected
-        This signal is emitted, when the user selects an icon, it will return a string containing a
-        file path if a file has been selected, or None if an directory has been selected
-    sensitive
-        This signal is emitted, when the buttons change there state from sensitive to not sensitive or vice versa.
-        This signal is useful to maintain surrounding GUI synchronized with the button of the widget. See gmoccapy as example.
-        It will return the buttonname and the new state. Buttonname is one of "btn_home", "btn_dir_up", "btn_sel_prev",
-        "btn_sel_next", "btn_jump_to" or "btn_select". State is a boolean and will be True or False.
-    exit
-        This signal is emitted, when the exit button has been pressed to close the IconView
-        mostly needed if the application is started as stand alone.
+  selected
+    This signal is emitted, when the user selects an icon, it will return a string containing a
+    file path if a file has been selected, or None if an directory has been selected
+  sensitive
+    This signal is emitted, when the buttons change there state from sensitive to not sensitive or vice versa.
+    This signal is useful to maintain surrounding GUI synchronized with the button of the widget. See gmoccapy as example.
+    It will return the buttonname and the new state. Buttonname is one of "btn_home", "btn_dir_up", "btn_sel_prev",
+    "btn_sel_next", "btn_jump_to" or "btn_select". State is a boolean and will be True or False.
+  exit
+    This signal is emitted, when the exit button has been pressed to close the IconView
+    mostly needed if the application is started as stand alone.
 
-Example:
-
+.Iconview Example
 image::images/iconview.png[]
 
 === Calculator widget
@@ -1699,24 +1748,27 @@ Set Font::
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+There a couple ways to directly control the widget using Python.
 
-    Using goobject to set the above listed properties:
-        [widget name].set_property("is_editable",True)
-        [widget name].set_property("font","sans 25")
+Using goobject to set the above listed properties:
 
-    There are python methods:
-       [widget name].set_value(2.5)
-            This presets the display and is recorded.
-       [widget name].set_font("sans 25")
-       [widget name].set_editable(True)
-       [widget name].get_value()
-            Returns the calculated value - a float.
-       [widget name].set_editable(True)
-       [widget name].get_preset_value()
-            Returns the recorded value: a float.
+  [widget name].set_property("is_editable",True)
+  [widget name].set_property("font","sans 25")
 
-=== [[gladevcp:tooledit]]Tooleditor widget
+There are python methods:
+
+  [widget name].set_value(2.5)
+    This presets the display and is recorded.
+  [widget name].set_font("sans 25")
+  [widget name].set_editable(True)
+  [widget name].get_value()
+    Returns the calculated value - a float.
+  [widget name].set_editable(True)
+  [widget name].get_preset_value()
+    Returns the recorded value: a float.
+
+[[gladevcp:tooledit]]
+=== Tooleditor widget
 
 This is a tooleditor widget for displaying and modifying a tool editor file. +
 If in lathe mode, it will display wear offsets and tool offsets separately. +
@@ -1726,59 +1778,63 @@ It checks the current file once a second to see if linuxcnc updated it. +
 It has the following properties:
 
 Hidden Columns::
-    This will hide the given columns: The columns are designated (in order) as such: +
-    s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,; +
-    You can hide any number of columns including the select and comments
+  This will hide the given columns: The columns are designated (in order) as such:
+  s,t,p,x,y,z,a,b,c,u,v,w,d,i,j,q,; +
+  You can hide any number of columns including the select and comments
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+There a couple ways to directly control the widget using Python.
 
-    using goobject to set the above listed properties:
-        [widget name].set_properties('hide_columns','uvwijq')
-            This would hide the uvwij and q columns and show all others.
+using goobject to set the above listed properties:
 
-    There are python methods:
-        [widget name].set_visible("ijq",False)
-            Would hide ij and Q columns and leave the rest as they were.
-        [widget name].set_filename(path_to_file)
-            Sets and loads the tool file.
-        [widget name].reload(None)
-            Reloads the current toolfile
-        [widget name].set_font('sans 16,tab='1')
-            Sets the (Pango) font on the Tab, column title, and tool data.
-            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
-            adding 1,2 and/or 3 to the tab string. Default is all the tabs
-            set.
-        [widget name].set_title_font('sans 16,tab='1')
-            Sets the (Pango) font on the column titles only.
-            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
-            adding 1,2 and/or 3 to the tab string. Default is all the tabs
-            set.
-        [widget name].set_tab_font('sans 16,tab='1')
-            Sets the (Pango) font on the tabs only.
-            The all_offsets, wear_offsets, tool_offsets can be set at the same time by
-            adding 1,2 and/or 3 to the tab string. Default is all the tabs
-            set.
-        [widget name].set_col_visible("abcUVW", False, tab='1')
-            This would hide (False) the abcuvw columns on tab 1 (all_offsets)
-        [widget name].set_lathe_display(value)
-            hides or shows the wear and tool offset tabs used for lathes
-        [widget name].get_toolinfo(toolnum)
-            Returns the tool information array of the requested toolnumber
-            or current tool if no tool number is specified
-            returns None if tool not found in table or if there is no current tool
-        [widget name].hide_buttonbox(self, True)
-            'convenience' method to hide buttons
-            you must call this after show_all()
-        [widget name].get_selected_tool()
-            return the user selected (highlighted) tool number
-        [widget name].set_selected_tool(toolnumber)
-            Selects (highlights) the requested tool
+  [widget name].set_properties('hide_columns','uvwijq')
+    This would hide the uvwij and q columns and show all others.
 
+There are python methods:
+
+  [widget name].set_visible("ijq",False)
+    Would hide ij and Q columns and leave the rest as they were.
+  [widget name].set_filename(path_to_file)
+    Sets and loads the tool file.
+  [widget name].reload(None)
+    Reloads the current toolfile
+  [widget name].set_font('sans 16,tab='1')
+    Sets the (Pango) font on the Tab, column title, and tool data.
+    The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+    adding 1,2 and/or 3 to the tab string. Default is all the tabs
+    set.
+  [widget name].set_title_font('sans 16,tab='1')
+    Sets the (Pango) font on the column titles only.
+    The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+    adding 1,2 and/or 3 to the tab string. Default is all the tabs
+    set.
+  [widget name].set_tab_font('sans 16,tab='1')
+    Sets the (Pango) font on the tabs only.
+    The all_offsets, wear_offsets, tool_offsets can be set at the same time by
+    adding 1,2 and/or 3 to the tab string. Default is all the tabs
+    set.
+  [widget name].set_col_visible("abcUVW", False, tab='1')
+    This would hide (False) the abcuvw columns on tab 1 (all_offsets)
+  [widget name].set_lathe_display(value)
+    hides or shows the wear and tool offset tabs used for lathes
+  [widget name].get_toolinfo(toolnum)
+    Returns the tool information array of the requested toolnumber
+    or current tool if no tool number is specified
+    returns None if tool not found in table or if there is no current tool
+  [widget name].hide_buttonbox(self, True)
+    'convenience' method to hide buttons
+    you must call this after show_all()
+  [widget name].get_selected_tool()
+    return the user selected (highlighted) tool number
+  [widget name].set_selected_tool(toolnumber)
+    Selects (highlights) the requested tool
+
+.Tooleditor Example
 image::images/gtk-tooledit.png[]
 
-=== [[gladevcp:offsetpage]]Offsetpage
+[[gladevcp:offsetpage]]
+=== Offsetpage
 
 The Offsetpage widget is used to display/edit the offsets of all the axes. +
 It has convenience buttons for zeroing G92 and Rotation-Around-Z offsets. +
@@ -1789,96 +1845,105 @@ button to allow the OffsetPage to reflect changes.
 It has the following properties:
 
 Hidden Columns::
-    A no-space list of columns to hide: The columns are designated (in order) as such: +
-    xyzabcuvwt +
-    You can hide any of the columns.
+  A no-space list of columns to hide: The columns are designated (in order) as such: +
+  xyzabcuvwt +
+  You can hide any of the columns.
 Hidden Rows::
-    A no-space list of rows to hide: the rows are designated (in order) as such +
-    0123456789abc +
-    You can hide any of the rows.
+  A no-space list of rows to hide: the rows are designated (in order) as such +
+  0123456789abc +
+  You can hide any of the rows.
 Pango Font::
-    Sets text font type and size
+  Sets text font type and size
 HighLight color::
-    when editing this is the high light color
+  when editing this is the high light color
 Active color::
-    when OffsetPage detects an active user coordinate system it will use this +
-    color for the text
+  when OffsetPage detects an active user coordinate system it will use this +
+  color for the text
 Text template for metric units::
-    You can use python formatting to display the position with different precision.
+  You can use python formatting to display the position with different precision.
 Text template for imperial units::
-    You can use python formatting to display the position with different precision.
+  You can use python formatting to display the position with different precision.
 
 Direct program control::
 
-    There a couple ways to directly control the widget using Python.
+There a couple ways to directly control the widget using Python.
 
-    Using goobject to set the above listed properties:
-    [widget name].set_property("highlight_color",gdk.Color('blue'))
-    [widget name].set_property("foreground_color",gdk.Color('black'))
-    [widget name].set_property("hide_columns","xyzabcuvwt")
-    [widget name].set_property("hide_rows","123456789abc")
-    [widget name].set_property("font","sans 25")
+Using goobject to set the above listed properties:
 
-    There are python methods to control the widget:
-    [widget name].set_filename("../../../configs/sim/gscreen/gscreen_custom/sim.var")
-    [widget name].set_col_visible("Yabuvw",False)
-    [widget name].set_row_visible("456789abc",False)
-    [widget name].set_to_mm()
-    [widget name].set_to_inch()
-    [widget name].hide_button_box(True)
-    [widget name].set_font("sans 20")
-    [widget name].set_highlight_color("violet")
-    [widget name].set_foreground_color("yellow")
-    [widget name].mark_active("G55")
-        Allows you to directly set a row to highlight.
-        (eg in case you wish to use your own navigation controls.
-        See <<cha:gmoccapy,Gmoccapy Chapter>>
-    [widget name].selection_mask = ("Tool","Rot","G5x")
-        These rows are NOT selectable in edit mode.
-    [widget name].set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])
-        This allows you to set the text of the 'T' column of each/any row.
-        This is a list of a list of offset-name/user-name pairs.
-        The default text is the same as the offset name.
-    [widget name].get_names()
-        This returns a list of a list of row-keyword/user-name pairs.
-        The user name column is editable, so saving this list is user friendly.
-        see set_names above.
+  [widget name].set_property("highlight_color",gdk.Color('blue'))
+  [widget name].set_property("foreground_color",gdk.Color('black'))
+  [widget name].set_property("hide_columns","xyzabcuvwt")
+  [widget name].set_property("hide_rows","123456789abc")
+  [widget name].set_property("font","sans 25")
 
+There are python methods to control the widget:
+
+  [widget name].set_filename("../../../configs/sim/gscreen/gscreen_custom/sim.var")
+  [widget name].set_col_visible("Yabuvw",False)
+  [widget name].set_row_visible("456789abc",False)
+  [widget name].set_to_mm()
+  [widget name].set_to_inch()
+  [widget name].hide_button_box(True)
+  [widget name].set_font("sans 20")
+  [widget name].set_highlight_color("violet")
+  [widget name].set_foreground_color("yellow")
+  [widget name].mark_active("G55")
+    Allows you to directly set a row to highlight.
+    (eg in case you wish to use your own navigation controls.
+    See <<cha:gmoccapy,Gmoccapy Chapter>>
+  [widget name].selection_mask = ("Tool","Rot","G5x")
+    These rows are NOT selectable in edit mode.
+  [widget name].set_names([['G54','Default'],["G55","Vice1"],['Rot','Rotational']])
+    This allows you to set the text of the 'T' column of each/any row.
+    This is a list of a list of offset-name/user-name pairs.
+    The default text is the same as the offset name.
+  [widget name].get_names()
+    This returns a list of a list of row-keyword/user-name pairs.
+    The user name column is editable, so saving this list is user friendly.
+    see set_names above.
+
+.Offsetpage Example
 image::images/offsetpage.png[]
 
-=== [[gladevcp:hal-sourceview]]HAL_sourceview widget
+[[gladevcp:hal-sourceview]]
+=== HAL_sourceview widget
 
-This is for displaying and simple editing of G-code.
+This is for displaying and simple editing of Gcode.
+
 It looks for .ngc highlight specs in ~/share/gtksourceview-2.0/language-specs/
-The current running line will be highlighted.
-With external python glue code:
- * It can search for text, undo and redo changes.
- * It can be used for program line selection.
 
+The current running line will be highlighted.
+
+With external python glue code:
+
+* It can search for text, undo and redo changes.
+* It can be used for program line selection.
 
 Direct program control::
 
-    There are python methods to control the widget:
+There are python methods to control the widget:
 
-    [widget name].redo()
-        redo one level of changes.
-    [widget name].undo()
-        undo one level of changes
-    [widget name].text_search(direction=True,mixed_case=True,text='G92')
-        Searches forward (direction = True) or back, +
-        Searches with mixed case (mixed_case = True) or exact match
-    [widget name].set_line_number(linenumber)
-        Sets the line to high light. Uses the sourceview line numbers.
-    [widget name].get_line_number()
-        returns the currently high lighted line.
-    [widget name].line_up()
-        Moves the High lighted line up one line
-    [widget name].line_down()
-        Moves the High lighted line down one line
-    [widget name].load_file('filename')
-        loads a file. Using None (not a filename string) will reload the same program.
-    [widget name].get_filename()
+  [widget name].redo()
+    redo one level of changes.
+  [widget name].undo()
+    undo one level of changes
+  [widget name].text_search(direction=True,mixed_case=True,text='G92')
+    Searches forward (direction = True) or back, +
+    Searches with mixed case (mixed_case = True) or exact match
+  [widget name].set_line_number(linenumber)
+    Sets the line to high light. Uses the sourceview line numbers.
+  [widget name].get_line_number()
+    returns the currently high lighted line.
+  [widget name].line_up()
+    Moves the High lighted line up one line
+  [widget name].line_down()
+    Moves the High lighted line down one line
+  [widget name].load_file('filename')
+    loads a file. Using None (not a filename string) will reload the same program.
+  [widget name].get_filename()
+    FIXME [widget name].get_filename() description
 
+.Sourceview Example
 image::images/hal_sourceview.png[]
 
 [[gladevcp:mdi-history]]
@@ -1889,25 +1954,25 @@ It will automatically gray out when MDI is not available. +
 Eg during Estop and program running.
 
 font_size_tree::
-    a integer value between 8 and 96+
-    will modify the default font size of the treeview +
-    to the selected value +
+  a integer value between 8 and 96+
+  will modify the default font size of the treeview +
+  to the selected value +
 font_size_entry::
-    a integer value between 8 and 96+
-    will modify the default font size of the entry +
-    to the selected value +
+  a integer value between 8 and 96+
+  will modify the default font size of the entry +
+  to the selected value +
 use_double_click::
-    True or False, setting this to True will enable the mouse double click +
-    feature and a double click on an entry will submit that command +
-    It is not recommended to use this feature on real machines, as a double +
-    click on a wrong entry may cause dangerous situations
+  True or False, setting this to True will enable the mouse double click +
+  feature and a double click on an entry will submit that command +
+  It is not recommended to use this feature on real machines, as a double +
+  click on a wrong entry may cause dangerous situations
 
 Using goobject to set the above listed properties::
+  Using goobject to set the listed properties:
 
-    Using goobject to set the listed properties:
-    [widget name].set_property("font_size_tree", 10)
-    [widget name].set_property("font_size_entry", 20)
-    [widget name].set_property("use_double_click", False)
+  [widget name].set_property("font_size_tree", 10)
+  [widget name].set_property("font_size_entry", 20)
+  [widget name].set_property("use_double_click", False)
 
 === Animated function diagrams: HAL widgets in a bitmap
 
@@ -1919,6 +1984,7 @@ and use the glade Fixed widget to position widgets on this image.
 
 The code for the below example can be found in +configs/apps/gladevcp/animated-backdrop+:
 
+.HAL widgets in a bitmap Example
 image:images/small-screenshot.png[]
 
 == Action Widgets reference
@@ -1931,18 +1997,19 @@ G-code interpreter.
 VCP Action Widgets are derived from the Gtk.Action widget. The Action
 widget in a nutshell:
 
- - it is an object available in Glade
- - it has no visual appearance by itself
- - it's purpose: associate a visible, sensitive UI component like menu,
-   toolbutton, button with a command. See these widget's 'General→Related
-   Action' property.
- - the "canned action" will be executed when the associated UI component
-   is triggered (button press, menu click..)
- - it provides an easy way to execute commands without resorting to
-   Python programming.
+- it is an object available in Glade
+- it has no visual appearance by itself
+- it's purpose: associate a visible, sensitive UI component like menu,
+  toolbutton, button with a command. See these widget's 'General→Related
+  Action' property.
+- the "canned action" will be executed when the associated UI component
+  is triggered (button press, menu click..)
+- it provides an easy way to execute commands without resorting to
+  Python programming.
 
 The appearance of VCP Actions in Glade is roughly as follows:
 
+.Action Widgets
 image::images/vcp-actions.png[]
 
 Tooltip hovers provide a description.
@@ -1957,30 +2024,31 @@ are for use in simple buttons, menu entries or radio/check groups.
 This widget is used to execute small arbitrary python code.
 The command string may use special keywords to access important functions.
 
- * 'GSTAT' for access to the Gstat library that is used for linuxcnc status
- * 'STAT' for access to linuxcnc's status via the linuxcnc python module
- * 'CMD' for access to linuxcnc's commands via the linuxcnc python module
- * 'EXT' for access to the handler file functions if available
- * 'linuxcnc' for access to the linuxcnc python module
- * 'self' for access to the widget instance
+* 'GSTAT' for access to the Gstat library that is used for linuxcnc status
+* 'STAT' for access to linuxcnc's status via the linuxcnc python module
+* 'CMD' for access to linuxcnc's commands via the linuxcnc python module
+* 'EXT' for access to the handler file functions if available
+* 'linuxcnc' for access to the linuxcnc python module
+* 'self' for access to the widget instance
 
 There are options to select when the widget will be active.
 There are options to set the mode before the command is executed.
-example command to just print a message to the terminal:
+
+Example command to just print a message to the terminal:
 
 [source,python]
 ----
 print('action activated')
 ----
 
-example command to set the machine to off state:
+Example command to set the machine to off state:
 
 [source,python]
 ----
 CMD.state(linuxcnc.STATE_OFF)
 ----
 
-example command to call a handler function that passes data:
+Example command to call a handler function that passes data:
 
 [source,python]
 ----
@@ -2004,22 +2072,22 @@ ESTOP toggle button.
 
 Currently the following widgets are available:
 
- - The ESTOP toggle sends ESTOP or ESTOP_RESET commands to LinuxCNC depending
-   on it's state.
- - The ON/OFF toggle sends STATE_ON and STATE_OFF commands.
- - Pause/Resume sends AUTO_PAUSE or AUTO_RESUME commands.
+- The ESTOP toggle sends ESTOP or ESTOP_RESET commands to LinuxCNC depending
+  on it's state.
+- The ON/OFF toggle sends STATE_ON and STATE_OFF commands.
+- Pause/Resume sends AUTO_PAUSE or AUTO_RESUME commands.
 
 The following toggle actions have only one associated command and use
 the 'pressed' state to indicate that the requested operation is
 running:
 
- - The Run toggle sends an AUTO_RUN command and waits in the pressed
-   state until the interpreter is idle again.
- - The Stop toggle is inactive until the interpreter enters the active
-   state (is running G-code) and then allows user to send AUTO_ABORT
-   command.
- - The MDI toggle sends given MDI command and waits for its completion in
-   'pressed' inactive state.
+- The Run toggle sends an AUTO_RUN command and waits in the pressed
+  state until the interpreter is idle again.
+- The Stop toggle is inactive until the interpreter enters the active
+  state (is running G-code) and then allows user to send AUTO_ABORT
+  command.
+- The MDI toggle sends given MDI command and waits for its completion in
+  'pressed' inactive state.
 
 === The Action_MDI Toggle and Action_MDI widgets
 
@@ -2037,6 +2105,7 @@ this from a terminal window with `gladevcp whoareyou.ui`. See the
 executes +(MSG, "Hi, I'm an VCP_Action_MDI")+ so there should be a
 message popup in Axis like so:
 
+.Action_MDI Simple Example
 image::images/whoareyou.png[]
 
 You'll notice that the button associated with the Action_MDI action is
@@ -2050,18 +2119,18 @@ Optionally, 'MDI command' strings may have parameters substituted
 before they are passed to the interpreter. Parameters currently may be
 names of HAL pins in the GladeVCP component. This is how it works:
 
- - assume you have a 'HAL SpinBox' named +speed+, and you want to pass it's
-   current value as a parameter in an MDI command.
- - The HAL SpinBox will have a float-type HAL pin named speed-f (see
-   HalWidgets description).
- - To substitute this value in the MDI command, insert the HAL pin name
-   enclosed like so: `${pin-name}`
- - for the above HAL SpinBox, we could use `(MSG, "The speed is:
-   ${speed-f}")` just to show what's happening.
+- assume you have a 'HAL SpinBox' named +speed+, and you want to pass it's
+current value as a parameter in an MDI command.
+- The HAL SpinBox will have a float-type HAL pin named speed-f (see
+HalWidgets description).
+- To substitute this value in the MDI command, insert the HAL pin name
+enclosed like so: `${pin-name}`
+- for the above HAL SpinBox, we could use `(MSG, "The speed is:
+${speed-f}")` just to show what's happening.
 
 The example UI file is +configs/apps/gladevcp/mdi-command-example/speed.ui+. Here's what you get when running it:
 
-
+.Action_MDI Parameter Passing Example
 image::images/speed.png[]
 
 === An advanced example: Feeding parameters to an O-word subroutine
@@ -2073,6 +2142,7 @@ is in +configs/apps/gladevcp/mdi-command-example/owordsub.ui+.
 Place +nc_files/gladevcp_lib/oword.ngc+ so Axis can find it, and run `gladevcp owordsub.ui` from
 a terminal window. This looks like so:
 
+.Action_MDI Advanced Example
 image::images/oword.png[]
 
 === Preparing for an MDI Action, and cleaning up afterwards
@@ -2099,7 +2169,7 @@ handlers (note that LinuxCNC command and status channels are available as
 +self.linuxcnc+ and +self.stat+ through the VCP_ActionBase class:
 
 [source,python]
-----------------------------------
+----
     def on_mdi_command_start(self, action, userdata=None):
         action.stat.poll()
         self.start_feed = action.stat.settings[1]
@@ -2108,13 +2178,15 @@ handlers (note that LinuxCNC command and status channels are available as
         action.linuxcnc.mdi('F%.1f' % (self.start_feed))
         while action.linuxcnc.wait_complete() == -1:
             pass
-----------------------------------
+----
 
 Only the Action_MDI Toggle widget supports these signals.
 
 [NOTE]
+====
 In a later release of LinuxCNC, the new M-codes M70-M72 are available which
 make it saving state before a subroutine call, and restoring state on return much easier.
+====
 
 === Using the LinuxCNC Stat object to deal with status changes
 
@@ -2155,7 +2227,8 @@ signals:
   - +all-homed+
   - +not-all-homed+
 
-== [[gladevcp:programming]]GladeVCP Programming
+[[gladevcp:programming]]
+== GladeVCP Programming
 
 === User Defined Actions
 
@@ -2195,13 +2268,13 @@ others, to execute MDI commands. Here's how you do it:
 Write a Python module like so and save as e.g. handlers.py:
 
 [source,python]
-----------------------------------
+----
 nhits = 0
 def on_button_press(gtkobj,data=None):
     global nhits
     nhits += 1
     gtkobj.set_label("hits: %d" % nhits)
-----------------------------------
+----
 
 In Glade, define a button or HAL button, select the 'Signals' tab, and
 in the GtkButton properties select the 'pressed' line. Enter
@@ -2247,14 +2320,14 @@ HAL widgets come with a pre-defined signal called 'hal-pin-changed'. See the
 
 The overall approach is as follows:
 
- - design your UI with Glade, and set signal handlers where you want
-   actions associated with a widget
- - write a Python module which contains callable objects (see 'handler
-   models' below)
- - pass your module's path name to gladevcp with the '-u <module>' option
- - gladevcp imports the module, inspects it for signal handlers and
-   connects them to the widget tree
- - the main event loop is run.
+- design your UI with Glade, and set signal handlers where you want
+actions associated with a widget
+- write a Python module which contains callable objects (see 'handler
+models' below)
+- pass your module's path name to gladevcp with the '-u <module>' option
+- gladevcp imports the module, inspects it for signal handlers and
+connects them to the widget tree
+- the main event loop is run.
 
 .The simple handler model
 
@@ -2265,17 +2338,19 @@ that the 'pressed' signal of a Gtk Button or HAL Button is linked to a
 callback called 'on_button_press':
 
 [source,python]
-----------------------------------
+----
 nhits = 0
 def on_button_press(gtkobj,data=None):
     global nhits
     nhits += 1
     gtkobj.set_label("hits: %d" % nhits)
-----------------------------------
+----
 
 Add this function to a Python file and run as follows:
 
-    gladevcp -u <myhandler>.py mygui.ui
+----
+gladevcp -u <myhandler>.py mygui.ui
+----
 
 Note communication between handlers has to go through global
 variables, which does not scale well and is positively un-pythonic.
@@ -2288,23 +2363,23 @@ class(es) are instantiated and inspected during GladeVCP startup and
 linked to the widget tree as signal handlers. So the task now is to
 write:
 
- - one or more several class definition(s) with one or several methods,
-   in one module or split over several modules,
- - a function 'get_handlers' in each module which will return a list of
-   class instances to GladeVCP - their method names will be linked to
-   signal handlers
+- one or more several class definition(s) with one or several methods,
+  in one module or split over several modules,
+- a function 'get_handlers' in each module which will return a list of
+  class instances to GladeVCP - their method names will be linked to
+  signal handlers
 
 Here is a minimum user-defined handler example module:
 
 [source,python]
-----------------------------------
+----
 class MyCallbacks :
     def on_this_signal(self,obj,data=None):
         print("this_signal happened, obj=",obj)
 
 def get_handlers(halcomp,builder,useropts):
     return [MyCallbacks ()]
-----------------------------------
+----
 
 Now, 'on_this_signal' will be available as signal handler to your
 widget tree.
@@ -2322,8 +2397,8 @@ sent are "Visible" and "Hidden". (Note that the signals  have a fixed length of 
 characters so only the first characters should be used in any comparison, hence
 the [:7] below.) A sample handler for these signals is:
 
-[source, python]
-----------------------------------
+[source,python]
+----
     # This catches our messages from another program
     def event(self,w,event):
         print(event.message_type,event.data)
@@ -2338,23 +2413,22 @@ the [:7] below.) A sample handler for these signals is:
         top = widget.get_toplevel()
         print("map event")
         top.connect('client-event', self.event)
-----------------------------------
-
+----
 
 .The get_handlers protocol
 
 If during module inspection GladeVCP finds a function `get_handlers`,
 it calls it as follows:
 
-    get_handlers(halcomp,builder,useropts)
+  get_handlers(halcomp,builder,useropts)
 
 the arguments are:
 
- - halcomp - refers to the HAL component under construction
- - builder - widget tree - result of reading the UI definition (either
-   referring to a GtkBuilder or libglade-type object)
- - useropts - a list of strings collected from the gladevcp
-   command line `-U <useropts>` option
+- halcomp - refers to the HAL component under construction
+- builder - widget tree - result of reading the UI definition (either
+  referring to a GtkBuilder or libglade-type object)
+- useropts - a list of strings collected from the gladevcp
+  command line `-U <useropts>` option
 
 GladeVCP then inspects the list of class instances and retrieves their
 method names. Qualifying method names are connected to the widget tree
@@ -2375,27 +2449,27 @@ First, modules are imported and initialized in command line order.
 After successful import, `get_handlers()` is called in the following
 state:
 
- - the widget tree is created, but not yet realized (no toplevel
-   `window.show()` has been executed yet)
- - the halcomp HAL component is set up and all HAL widget's pins have
-   already been added to it
- - it is safe to add more HAL pins because `halcomp.ready()` has not yet
-   been called at this point, so you may add your own pins, for instance
-   in the class `__init__()` method.
+- the widget tree is created, but not yet realized (no toplevel
+  `window.show()` has been executed yet)
+- the halcomp HAL component is set up and all HAL widget's pins have
+  already been added to it
+- it is safe to add more HAL pins because `halcomp.ready()` has not yet
+  been called at this point, so you may add your own pins, for instance
+  in the class `__init__()` method.
 
 Once all modules have been imported and method names extracted, the
 following steps happen:
 
- - all qualifying method names will be connected to the widget tree with
-   `connect_signals()/signal_autoconnect()` (depending on the type of UI
-   imported - GtkBuilder vs the old libglade format).
- - the HAL component is finalized with halcomp.ready()
- - if a window ID was passed as argument, the widget tree is re-parented
-   to run in this window, and Glade's toplevel window1 is abandoned (see
-   FAQ)
- - if a HAL command file was passed with `-H halfile`, it is executed
-   with halcmd
- - the Gtk main loop is run.
+- all qualifying method names will be connected to the widget tree with
+  `connect_signals()/signal_autoconnect()` (depending on the type of UI
+  imported - GtkBuilder vs the old libglade format).
+- the HAL component is finalized with halcomp.ready()
+- if a window ID was passed as argument, the widget tree is re-parented
+  to run in this window, and Glade's toplevel window1 is abandoned (see
+  FAQ)
+- if a HAL command file was passed with `-H halfile`, it is executed
+  with halcmd
+- the Gtk main loop is run.
 
 So when your handler class is initialized, all widgets are existent
 but not yet realized (displayed on screen). And the HAL component isn't
@@ -2428,7 +2502,7 @@ strings as you see fit. An possible usage would be to pass them to the
 Python exec function in your `get_handlers()` as follows:
 
 [source,python]
-----------------------------------
+----
 debug = 0
 ...
 def get_handlers(halcomp,builder,useropts):
@@ -2436,12 +2510,14 @@ def get_handlers(halcomp,builder,useropts):
     global debug # assuming there's a global var
     for cmd in useropts:
         exec cmd in globals()
-----------------------------------
+----
 
 This way you can pass arbitrary Python statements to your module
 through the gladevcp -U option, for example:
 
-    gladevcp -U debug=42 -U "print('debug=%d' % debug)" ...
+----
+gladevcp -U debug=42 -U "print 'debug=%d' % debug" ...
+----
 
 This should set debug to 2 and confirm that your module actually did it.
 
@@ -2478,15 +2554,15 @@ If you want any of Gtk widget state, HAL widgets output pin's values
 and/or class attributes of your handler class to be retained across
 invocations, proceed as follows:
 
- - import the +gladevcp.persistence+ module
- - decide which instance attributes, and their default values you want to
-   have retained, if any
- - decide which widgets should have their state retained
- - describe these decisions in your handler class' +__init__()+ method
-   through a nested dictionary as follows:
+- import the +gladevcp.persistence+ module
+- decide which instance attributes, and their default values you want to
+have retained, if any
+- decide which widgets should have their state retained
+- describe these decisions in your handler class' +__init__()+ method
+through a nested dictionary as follows:
 
 [source,python]
-----------------------------------
+----
 def __init__(self, halcomp,builder,useropts):
     self.halcomp = halcomp
     self.builder = builder
@@ -2501,27 +2577,27 @@ def __init__(self, halcomp,builder,useropts):
         # a sensible alternative might be to retain only all HAL output widgets' state:
         # IniFile.widgets: widget_defaults(select_widgets(self.builder.get_objects(), hal_only=True,output_only = True)),
     }
-----------------------------------
+----
 
 Then associate an .ini file with this descriptor:
 
 [source,python]
-----------------------------------
+----
 self.ini_filename = __name__ + '.ini'
 self.ini = IniFile(self.ini_filename,self.defaults,self.builder)
 self.ini.restore_state(self)
-----------------------------------
+----
 
 After `restore_state()`, self will have attributes set if as running the
 following:
 
 [source,python]
-----------------------------------
+----
 self.nhits = 0
 self.a = 1.67
 self.d = True
 self.c = "a string"
-----------------------------------
+----
 
 Note that types are saved and preserved on restore. This example
 assumes that the ini file didn't exist or had the default values from
@@ -2530,51 +2606,57 @@ self.defaults.
 After this incantation, you can use the following IniFil methods:
 
 ini.save_state(obj)::
-   saves objs's attributes as per IniFil.vars
-   dictionary and the widget state as described in IniFile.widgets in
-   self.defaults
+  saves objs's attributes as per IniFil.vars
+  dictionary and the widget state as described in IniFile.widgets in
+  self.defaults
 ini.create_default_ini()::
-   create a .ini file with default values
+  create a .ini file with default values
 ini.restore_state(obj)::
   restore HAL out pins and obj's attributes as
-     saved/initialized to default as above
+  saved/initialized to default as above
 
 === Saving the state on Gladvcp shutdown
 
 To save the widget and/or variable state on exit, proceed as follows:
 
 - select some interior widget (type is not important, for instance a
-table).
+  table).
 - in the 'Signals' tab, select 'GtkObject'. It should show a 'destroy'
-signal in the first column.
+  signal in the first column.
 - add the handler name, e.g. 'on_destroy' to the second column.
 - add a Python handler like below:
 
 [source,python]
-----------------------------------
+----
 import gtk
 ...
 def on_destroy(self,obj,data=None):
     self.ini.save_state(self)
-----------------------------------
+----
 
 This will save state and shutdown GladeVCP properly, regardless
 whether the panel is embedded in Axis, or a standalone window.
 
-CAUTION: Do not use +window1+ (the toplevel window) to connect a
+[CAUTION]
+====
+Do not use +window1+ (the toplevel window) to connect a
 +destroy+ event. Due to the way a GladeVCP panel interacts with Axis
 if a panel is embedded within Axis, *window1 will not receive destroy
 events properly*. However, since on shutdown all widgets are
 destroyed, anyone will do. Recommended: use a second-level widget -
 for instance, if you have a table container in your panel, use
 that.
+====
 
 Next time you start the GladeVCP application, the widgets should come
 up in the state when the application was closed.
 
-CAUTION: The 'GtkWidget' line has a similarly sounding 'destroy-event' -
+[CAUTION]
+====
+The 'GtkWidget' line has a similarly sounding 'destroy-event' -
 *dont use that to connect to the 'on_destroy' handler, it wont work* -
 make sure you use the 'destroy' event from the 'GtkObject' line.
+====
 
 === Saving state when Ctrl-C is pressed
 
@@ -2583,13 +2665,12 @@ By default, the reaction of GladeVCP to a Ctrl-C event is to just exit
 a handler call +on_unix_signal+ which will be automatically be called
 on Ctrl-C (actually on the SIGINT and SIGTERM signals). Example
 
-
 [source,python]
-----------------------------------
+----
 def on_unix_signal(self,signum,stack_frame):
     print("on_unix_signal(): signal %d received, saving state" % (signum))
     self.ini.save_state(self)
-----------------------------------
+----
 
 === Hand-editing .ini files
 
@@ -2606,30 +2687,30 @@ If you need HAL pins which are not associated with a specific HAL
 widget, add them as follows:
 
 [source,python]
-----------------------------------
+----
 import hal_glib
 ...
 # in your handler class __init__():
 self.example_trigger = hal_glib.GPin(halcomp.newpin('example-trigger', hal.HAL_BIT, hal.HAL_IN))
-----------------------------------
+----
 
 To get a callback when this pin's value changes, associate a
 +value-change+ callback with this pin, add:
 
 [source,python]
-----------------------------------
+----
 self.example_trigger.connect('value-changed', self._on_example_trigger_change)
-----------------------------------
+----
 
 and define a callback method (or function, in this case leave out the
 +self+ parameter):
 
 [source,python]
-----------------------------------
+----
 # note '_' - this method will not be visible to the widget tree
 def _on_example_trigger_change(self,pin,userdata=None):
     print("pin value changed to:" % (pin.get()))
-----------------------------------
+----
 
 === Adding timers
 
@@ -2639,7 +2720,7 @@ base class, the full glib functionally is available. Here is an
 example for a timer callback:
 
 [source,python]
-----------------------------------
+----
 def _on_timer_tick(self,userdata=None):
     ...
     return True # to restart the timer; return False for on-shot
@@ -2648,7 +2729,7 @@ def _on_timer_tick(self,userdata=None):
 # for a faster timer (granularity 1 ms), use this:
 # glib.timeout_add(100, self._on_timer_tick,userdata) # 10Hz
 glib.timeout_add_seconds(1, self._on_timer_tick)
-----------------------------------
+----
 
 === Setting HAL widget properties programmatically
 
@@ -2663,7 +2744,7 @@ meter's min value is set from an INI file parameter at startup, and the max valu
 is set via a HAL pin, which causes the widget's scale to readjust dynamically:
 
 [source,python]
-----------------------------------
+----
 import linuxcnc
 import os
 import hal
@@ -2691,14 +2772,12 @@ class HandlerClass:
 
 def get_handlers(halcomp,builder,useropts):
     return [HandlerClass(halcomp,builder,useropts)]
-----------------------------------
-
+----
 
 === Examples, and rolling your own GladeVCP application
 
 Visit +linuxcnc_root_directory/configs/apps/gladevcp+ for running
 examples and starters for your own projects.
-
 
 == FAQ
 
@@ -2706,30 +2785,30 @@ examples and starters for your own projects.
 
 I get an unexpected unmap event in my handler function right after startup. What's this?::
 
-   This is a consequence of your Glade UI file
-   having the window1 Visible property set to True, together with
-   re-parenting the GladeVCP window into Axis or touchy. The GladeVCP
-   widget tree is created, including a top level window, and then
-   'reparented into Axis', leaving that toplevel window laying around
-   orphaned. To avoid having this useless empty window hanging around, it
-   is unmapped (made invisible), which is the cause of the unmap signal
-   you get. Suggested fix: set window1.visible to False, and ignore an
-   initial unmap event.
+  This is a consequence of your Glade UI file
+  having the window1 Visible property set to True, together with
+  re-parenting the GladeVCP window into Axis or touchy. The GladeVCP
+  widget tree is created, including a top level window, and then
+  'reparented into Axis', leaving that toplevel window laying around
+  orphaned. To avoid having this useless empty window hanging around, it
+  is unmapped (made invisible), which is the cause of the unmap signal
+  you get. Suggested fix: set window1.visible to False, and ignore an
+  initial unmap event.
 
 My GladeVCP program starts, but no window appears where I expect it to be?::
 
-   The window Axis allocates for GladeVCP will obtain the 'natural
-   size' of all its child widgets combined. It's the child widget's job to
-   request a size (width and/or height). However, not all widgets do
-   request a width greater than 0, for instance the Graph widget in its
-   current form. If there's such a widget in your Glade file and it's the
-   one which defines the layout you might want to set its width
-   explicitly. Note that setting the window1 width and height properties
-   in Glade does not make sense because this window will be orphaned
-   during re-parenting and hence its geometry will have no impact on
-   layout (see above). The general rule is: if you manually run a UI file
-   with 'gladevcp <uifile>' and its window has reasonable geometry, it
-   should come up in Axis properly as well.
+  The window Axis allocates for GladeVCP will obtain the 'natural
+  size' of all its child widgets combined. It's the child widget's job to
+  request a size (width and/or height). However, not all widgets do
+  request a width greater than 0, for instance the Graph widget in its
+  current form. If there's such a widget in your Glade file and it's the
+  one which defines the layout you might want to set its width
+  explicitly. Note that setting the window1 width and height properties
+  in Glade does not make sense because this window will be orphaned
+  during re-parenting and hence its geometry will have no impact on
+  layout (see above). The general rule is: if you manually run a UI file
+  with 'gladevcp <uifile>' and its window has reasonable geometry, it
+  should come up in Axis properly as well.
 
 I want a blinking LED, but it wont blink::
 
@@ -2740,28 +2819,25 @@ I want a blinking LED, but it wont blink::
   rate field, and save again - this works for me.
 
 My gladevcp panel in Axis doesn't save state when I close Axis, although I defined an on_destroy handler linked to the window destroy signal::
-   Very likely this handler is linked to window1,
-   which due to reparenting isn't usable for this purpose. Please link
-   the on_destroy handler to the destroy signal of an interior
-   window. For instance, I have a notebook inside window1, and linked
-   on_destroy to the notebooks destroy signal, and that works fine. It
-   doesn't work for window1.
 
+  Very likely this handler is linked to window1,
+  which due to reparenting isn't usable for this purpose. Please link
+  the on_destroy handler to the destroy signal of an interior
+  window. For instance, I have a notebook inside window1, and linked
+  on_destroy to the notebooks destroy signal, and that works fine. It
+  doesn't work for window1.
 
 I want to set the background color or text of a HAL_Label widget depending on its HAL pin value::
 
-
-    See the example in configs/apps/gladevcp/colored-label.  Setting the
-    background color of a GtkLabel widget (and HAL_Label is derived
-    from GtkLabel) is a bit tricky. The GtkLabel widget has no window
-    object of its own for performance reasons, and only window objects
-    can have a background color. The solution is to enclose the Label
-    in an EventBox container, which has a window but is otherwise
-    invisible - see the coloredlabel.ui file.
-
+  See the example in configs/apps/gladevcp/colored-label.  Setting the
+  background color of a GtkLabel widget (and HAL_Label is derived
+  from GtkLabel) is a bit tricky. The GtkLabel widget has no window
+  object of its own for performance reasons, and only window objects
+  can have a background color. The solution is to enclose the Label
+  in an EventBox container, which has a window but is otherwise
+  invisible - see the coloredlabel.ui file.
 
 I defined a `hal_spinbutton` widget in glade, and set a default `value` property in the corresponding adjustment. It comes up with zero?::
-
 
   this is due to a bug in the old   Gtk version distributed with Ubuntu
   8.04 and 10.04, and is likely to be the case for all widgets using
@@ -2771,23 +2847,22 @@ I defined a `hal_spinbutton` widget in glade, and set a default `value` property
   explicitly in an `on_realize` signal handler during widget creation.
   See the example in `configs/apps/gladevcp/by-widget/spinbutton.{ui,py}`.
 
-
 == Troubleshooting
 
- - make sure you have the development version of LinuxCNC installed. You
-   don't need the axisrc file any more, this was mentioned in the old
-   GladeVcp wiki page.
- - run GladeVCP or Axis from a terminal window. If you get Python errors,
-   check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
-   file lying around besides the newer
-   +/usr/lib/python2.6/dist-packages/_hal.so+ (note underscore); if yes,
-   remove the +hal.so+ file. It has been superseded by hal.py in the same
-   directory and  confuses the import mechanism.
- - if you're using run-in-place, do a 'make clean' to remove any
-   accidentally left over hal.so file, then 'make'.
- - if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have
-   an HAL pin associated with it which is off by default. This pin
-   controls whether these container's children are active or not.
+- make sure you have the development version of LinuxCNC installed. You
+  don't need the axisrc file any more, this was mentioned in the old
+  GladeVcp wiki page.
+- run GladeVCP or Axis from a terminal window. If you get Python errors,
+  check whether there's still a +/usr/lib/python2.6/dist-packages/hal.so+
+  file lying around besides the newer
+  +/usr/lib/python2.6/dist-packages/_hal.so+ (note underscore); if yes,
+  remove the +hal.so+ file. It has been superseded by hal.py in the same
+  directory and  confuses the import mechanism.
+- if you're using run-in-place, do a 'make clean' to remove any
+  accidentally left over hal.so file, then 'make'.
+- if you're using 'HAL_table' or 'HAL_HBox' widgets, be aware they have
+  an HAL pin associated with it which is off by default. This pin
+  controls whether these container's children are active or not.
 
 == Implementation note: Key handling in Axis
 
@@ -2827,12 +2902,12 @@ that conform to system directory placements as defined by the
 LINUXCNC_AUX_GLADEVCP and LINUXCNC_AUX_EXAMPLES items reported by
 the script linuxcnc_var:
 
-====
-  $ linuxcnc_var LINUXCNC_AUX_GLADEVCP
-  /usr/share/linuxcnc/aux_gladevcp
-  $ linuxcnc_var LINUXCNC_AUX_EXAMPLES
-  /usr/share/linuxcnc/aux_examples
-====
+----
+$ linuxcnc_var LINUXCNC_AUX_GLADEVCP
+/usr/share/linuxcnc/aux_gladevcp
+$ linuxcnc_var LINUXCNC_AUX_EXAMPLES
+/usr/share/linuxcnc/aux_examples
+----
 
 The system directory defined by LINUXCNC_AUX_GLADEVCP
 (/usr/share/linuxcnc/aux_gladevcp) specifies the location for
@@ -2854,9 +2929,9 @@ more configuration directories separated by a (:). Typically,
 this variable would be set in a shell starting linuxcnc or in
 a user's ~/.profile startup script. Example:
 
-====
-  export GLADEVCP_EXTRAS=~/mygladevcp:/opt/othergladevcp
-====
+----
+export GLADEVCP_EXTRAS=~/mygladevcp:/opt/othergladevcp
+----
 
 Files found in directories specified with the environmental
 variable GLADEVCP_EXTRAS supersede identically-named files within
@@ -2869,7 +2944,10 @@ Messages inidicating rejected duplicates are printed to
 stdout.
 
 [NOTE]
-
+====
 Support for auxiliary gladevcp applications requires a python
 module named 'importlib'.  This module may not be available in
 older installations like Ubuntu-Lucid.
+====
+
+// vim: set syntax=asciidoc:

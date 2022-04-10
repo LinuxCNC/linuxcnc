@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:realtime-components]]
 = HAL Component Descriptions
@@ -23,26 +24,26 @@ are set independently, and any combination can be selected.
 .Step Pulse Generator Block Diagram position mode(((Stepgen Block Diagram)))
 image::images/stepgen-block-diag.png[align="center"]
 
-.Installing
+.Loading `stepgen` component
 ----
 halcmd: loadrt stepgen step_type=<type-array> [ctrl_type=<ctrl_array>]
 ----
 
-'<type-array>' is a series of comma separated decimal integers. Each
-number causes a
-single step pulse generator to be loaded, the value of the number
-determines the stepping type. '<ctrl_array>' is a comma separated
-series of 'p' or 'v' characters, to specify position or velocity
-mode. 'ctrl_type' is optional, if omitted, all of the step generators
-will be position
-mode.
+<type-array>:: is a series of comma separated decimal integers. Each
+  number causes a single step pulse generator to be loaded, the value of the number
+  determines the stepping type.
+<ctrl_array>:: is a comma separated
+  series of 'p' or 'v' characters, to specify position or velocity mode.
+ctrl_type:: is optional, if omitted, all of the step generators
+  will be position mode.
 
 For example:
+
 ----
 halcmd: loadrt stepgen step_type=0,0,2 ctrl_type=p,p,v
 ----
 
-will install three step generators. The first two use step type '0'
+Will install three step generators. The first two use step type '0'
 (step and direction) and run in position mode. The last one uses step
 type '2' (quadrature) and runs in velocity mode. The default value for
 '<config-array>' is '0,0,0' which will install three type '0'
@@ -52,13 +53,15 @@ Each generator is independent, but all are updated by the same
 function(s) at the same time. In the following descriptions, '<chan>'
 is the number of a specific generator. The first generator is number 0.
 
-.Removing
+.Unloading `stepgen` component
 ----
 halcmd: unloadrt stepgen
 ----
 
-.Pins
-on the step type and control type selected.
+[[sub:stepgen-pins]]
+=== Pins(((HAL stepgen pins)))
+
+On the step type and control type selected.
 
 * '(float) stepgen.<chan>.position-cmd' - Desired motor position, in
   position units (position mode only).
@@ -80,7 +83,9 @@ on the step type and control type selected.
 * '(bit) stepgen.<chan>.phase-D' - Phase D output (step types 5-14 only).
 * '(bit) stepgen.<chan>.phase-E' - Phase E output (step types 11-14 only).
 
-.Parameters[[sec:stepgen-parameters]]
+[[sec:stepgen-parameters]]
+=== Parameters(((HAL stepgen parameters)))
+
 * '(float) stepgen.<chan>.position-scale' - Steps per position unit.
   This parameter is used for both output and feedback.
 * '(float) stepgen.<chan>.maxvel' - Maximum velocity, in position
@@ -125,7 +130,10 @@ if the commanded velocity changes abruptly. As in position mode, proper
 values for these parameters ensure that the motor can follow the
 generated pulse train.
 
-.Step Types
+[[sub:stepgen-step-types]]
+=== Step Types(((HAL stepgen Step Types)))
+
+Step generator supports 15 different _step sequences_:
 
 .Step Type 0
 Step type 0 is the standard step and direction type. When configured for
@@ -149,10 +157,12 @@ When using the parallel port driver the step frequency can be doubled using
 the <<sub:parport-functions,parport reset>> function together with stepgen's
 'doublefreq' setting.
 
+[[fig:stepdir-timing]]
 .Step and Direction Timing
 image::images/stepgen-type0.png[align="center"]
 
 .Step Type 1
+
 Step type 1 has two outputs, up and down. Pulses appear on one or the
 other, depending on the direction of travel. Each pulse is 'steplen' ns
 long, and the pulses are separated by at least 'stepspace' ns. The
@@ -166,6 +176,7 @@ Do not use the parport reset function with step types 2 - 14. Unexpected
 results can happen.
 
 .Step Type 2 - 14
+
 Step types 2 through 14 are state based, and have from two to five
 outputs. On each step, a state counter is incremented or decremented.
 The Two-and-Three-Phase, Four-Phase, and Five-Phase show the output
@@ -182,7 +193,8 @@ image::images/stepgen-type5-10.png[align="center"]
 .Five-Phase Step Types(((Five Phase)))
 image::images/stepgen-type11-14.png["Five-Phase Step Types",align="center"]
 
-.Functions
+[[sub:stepgen-functions]]
+.Functions(((Hal stepgen Functions)))
 The component exports three functions. Each function acts on all of
 the step pulse generators - running different generators in different
 threads is not supported.
@@ -212,7 +224,7 @@ realtime component only, and depending on CPU speed, etc, is capable of
 PWM frequencies from a few hundred Hertz at pretty good resolution, to
 perhaps 10KHz with limited resolution.
 
-.Installing
+.Loading PWMgen
 ----
 loadrt pwmgen output_type=<config-array>
 ----
@@ -227,17 +239,27 @@ but all are updated by the same function(s) at the same time. In the following
 descriptions, '<chan>' is the number of a specific generator. The first
 generator is number 0.
 
-.Example
+.Loading PWMgen Example
 ----
 loadrt pwmgen output_type=0,1,2
 ----
 
-.Removing
+Will install three PWM generators. The first will use an output of
+type _0_ (PWM only), the next one will use a type 1 output (PWM and direction)
+and the third will use a type 2 output (UP and DOWN). There is no default
+value, if _<config-array>_ is not not specified, no PWM generator will
+be installed. The maximum number of frequency generators is 8 (as defined
+by MAX_CHAN in pwmgen.c). Each generator is independent, but all are
+updated by the same function(s), at the same time. In the descriptions
+that follow, _<chan>_ is the number of specific generators. The numbering of
+PWM generators starts at 0.
+
+.Unloading PWMgen
 ----
 unloadrt pwmgen
 ----
 
-.Output Types
+.PWMgen Output Types
 The PWM generator supports three different 'output types'.
 
 * 'Output type 0' - PWM output pin only. Only positive commands are accepted,
@@ -253,7 +275,7 @@ The PWM generator supports three different 'output types'.
   commands, the PWM signal appears on the down output, and the up output
   remains false. Output type 2 is suitable for driving most H-bridges.
 
-.Pins
+.PWMgen Pins
 Each PWM generator will have the following pins:
 
 * '(float) pwmgen.<chan>.value' - Command value, in arbitrary units.
@@ -272,7 +294,7 @@ output type selected:
 * '(bit) pwmgen.<chan>.down' - PWM/PDM output for negative input value
   (output type 2 only).
 
-.Parameters
+.PWMgen Parameters
 * '(float) pwmgen.<chan>.scale' - Scaling factor to convert 'value'
   from arbitrary units to duty cycle. For example if scale is set to 4000
   and the input value passed to the pwmgen.<chan>.value is 4000 then it will
@@ -296,7 +318,7 @@ output type selected:
 * '(float) pwmgen.<chan>.curr-dc' - Current duty cycle - after all
   limiting and rounding (read only).
 
-.Functions
+.PWMgen Functions
 The component exports two functions. Each function acts on all of the
 PWM generators - running different generators in different threads is
 not supported.
@@ -337,7 +359,7 @@ encoder counter.
 .Encoder Counter Block Diagram(((Encoder Block Diagram)))
 //image::images/encoder-block-diag.png[align="center"]
 
-.Installing
+.Loading Encoder
 ----
 halcmd: loadrt encoder [num_chan=<counters>]
 ----
@@ -350,12 +372,12 @@ counter is independent, but all are updated by the same function(s) at
 the same time. In the following descriptions, '<chan>' is the number
 of a specific counter. The first counter is number 0.
 
-.Removing
+.Unloading Encoder
 ----
 halcmd: unloadrt encoder
 ----
 
-.Pins
+.Encoder Pins
 * 'encoder.<chan>.counter-mode' (bit, I/O) (default: FALSE) - Enables
   counter mode. When true, the
   counter counts each rising edge of the phase-A input, ignoring the
@@ -370,20 +392,17 @@ halcmd: unloadrt encoder
   missing-teeth to 2. To use this mode counter-mode should be set
   true. This mode will work for lathe threading but not for rigid
   tapping.
-
 * 'encoder.<chan>.counts' (s32, Out) - Position in encoder counts.
 * 'encoder.<chan>.counts-latched' (s32, Out) - Not used at this time.
 * 'encoder.<chan>.index-enable' (bit, I/O) - When True, 'counts' and
-  'position are' reset to zero on next rising edge of Phase Z.
-
-At the
-same time, 'index-enable' is reset to zero to indicate that the rising
-edge has occurred. The 'index-enable' pin is bi-directional. If
-'index-enable' is False, the Phase Z channel of the encoder will be
-ignored, and the
-counter will count normally. The encoder driver will never set
-'index-enable' True. However, some other component may do so.
-
+  'position are' reset to zero on next rising edge of Phase Z. +
+  At the
+  same time, 'index-enable' is reset to zero to indicate that the rising
+  edge has occurred. The 'index-enable' pin is bi-directional. If
+  'index-enable' is False, the Phase Z channel of the encoder will be
+  ignored, and the
+  counter will count normally. The encoder driver will never set
+  'index-enable' True. However, some other component may do so.
 * 'encoder.<chan>.latch-falling' (bit, In) (default: TRUE) - Not used
   at this time.
 * 'encoder.<chan>.latch-input' (bit, In) (default: TRUE) - Not used at
@@ -391,32 +410,27 @@ counter will count normally. The encoder driver will never set
 * 'encoder.<chan>.latch-rising' (bit, In) - Not used at this time.
 * 'encoder.<chan>.min-speed-estimate' (float, in) - Determine the
   minimum true velocity magnitude at which
-  velocity will be estimated as nonzero and postition-interpolated will
-  be interpolated.
-
-The units of 'min-speed-estimate' are the same as the
-units of 'velocity' . Scale factor, in counts per length unit. Setting
-this parameter too
-low will cause it to take a long time for velocity to go to 0 after
-encoder pulses have stopped arriving.
-
+  velocity will be estimated as nonzero and position-interpolated will
+  be interpolated. The units of 'min-speed-estimate' are the same as the
+  units of 'velocity' . Scale factor, in counts per length unit. Setting
+  this parameter too
+  low will cause it to take a long time for velocity to go to 0 after
+  encoder pulses have stopped arriving.
 * 'encoder.<chan>.phase-A' (bit, In) - Phase A of the quadrature encoder signal.
 * 'encoder.<chan>.phase-B' (bit, In) - Phase B of the quadrature encoder signal.
 * 'encoder.<chan>.phase-Z' (bit, In) - Phase Z (index pulse) of the quadrature encoder signal.
 * 'encoder.<chan>.position' (float, Out) - Position in scaled units (see 'position-scale').
 * 'encoder.<chan>.position-interpolated' (float, Out) - Position in
-  scaled units, interpolated between encoder counts.
-
-The 'position-interpolated' attempts to interpolate
-between encoder counts, based on the most
-recently measured velocity. Only valid when velocity is approximately
-constant and above 'min-speed-estimate'. Do not use for position
-control, since its value is incorrect at
-low speeds, during direction reversals, and during speed changes.
-However, it allows a low ppr encoder (including a one pulse per
-revolution 'encoder') to be used for lathe threading, and may have
-other uses as well.
-
+  scaled units, interpolated between encoder counts. +
+  The 'position-interpolated' attempts to interpolate
+  between encoder counts, based on the most
+  recently measured velocity. Only valid when velocity is approximately
+  constant and above 'min-speed-estimate'. Do not use for position
+  control, since its value is incorrect at
+  low speeds, during direction reversals, and during speed changes. +
+  However, it allows a low ppr encoder (including a one pulse per
+  revolution 'encoder') to be used for lathe threading, and may have
+  other uses as well.
 * 'encoder.<chan>.position-latched (float, Out)' - Not used at this time.
 * 'encoder.<chan>.position-scale (float, I/O)' - Scale factor, in
   counts per length unit. For example, if
@@ -440,14 +454,13 @@ other uses as well.
   only counts once per full cycle. In counter-mode, this parameter is
   ignored. The 1x mode is useful for some jogwheels.
 
-.Parameters
-
+.Encoder Parameters
 * 'encoder.<chan>.capture-position.time (s32, RO)'
 * 'encoder.<chan>.capture-position.tmax (s32, RW)'
 * 'encoder.<chan>.update-counters.time (s32, RO)'
 * 'encoder.<chan>.update-counter.tmax (s32, RW)'
 
-.Functions
+.Encoder Functions
 
 The component exports two functions. Each function acts on all of the
 encoder counters - running different counters in different threads is
@@ -472,7 +485,7 @@ block diagram of a single PID loop.
 .PID Loop Block Diagram(((PID Block Diagram)))
 image::images/pid-block-diag.png[align="center"]
 
-.Installing
+.Loading PID
 ----
 halcmd: loadrt pid [num_chan=<loops>] [debug=1]
 ----
@@ -490,12 +503,12 @@ may be useful during debugging and tuning. By default, the extra
 pins are not exported, to save shared memory space and avoid
 cluttering the pin list.
 
-.Removing
+.Unloading PID
 ----
 halcmd: unloadrt pid
 ----
 
-.Pins
+.PID Pins
 The three most important pins are
 
 * '(float) pid.<loopnum>.command' - The desired position, as
@@ -546,12 +559,15 @@ advanced tuning possibilities.
   proportional to 2nd derivative
   of command (acceleration).
 * '(float) pid.<loopnum>.deadband' - Amount of error that will be ignored
-* '(float) pid.<loopnum>.maxerror' - Limit on error 
-* '(float) pid.<loopnum>.maxerrorI' - Limit on error integrator 
-* '(float) pid.<loopnum>.maxerrorD' - Limit on error derivative 
-* '(float) pid.<loopnum>.maxcmdD' - Limit on command derivative 
-* '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2nd derivative 
+* '(float) pid.<loopnum>.maxerror' - Limit on error
+* '(float) pid.<loopnum>.maxerrorI' - Limit on error integrator
+* '(float) pid.<loopnum>.maxerrorD' - Limit on error derivative
+* '(float) pid.<loopnum>.maxcmdD' - Limit on command derivative
+* '(float) pid.<loopnum>.maxcmdDD' - Limit on command 2nd derivative
 * '(float) pid.<loopnum>.maxoutput' - Limit on output value
+
+All _max*_ limits are implemented so that if the value of this parameter
+is zero, there is no limit.
 
 If 'debug=1' was specified when the component was installed, four
 additional pins will be exported:
@@ -559,9 +575,9 @@ additional pins will be exported:
 * '(float) pid.<loopnum>.errorI' - Integral of error.
 * '(float) pid.<loopnum>.errorD' - Derivative of error.
 * '(float) pid.<loopnum>.commandD' - Derivative of the command.
-* '(float) pid.<loopnum>.commandDD' - 2nd derivative of the command. 
+* '(float) pid.<loopnum>.commandDD' - 2nd derivative of the command.
 
-.Functions
+.PID Functions
 The component exports one function for each PID loop. This function
 performs all the calculations needed for the loop. Since each loop has
 its own function, individual loops can be included in different threads
@@ -583,7 +599,7 @@ The simulated encoder is exactly that. It produces quadrature pulses
 with an index pulse, at a speed controlled by a HAL pin. Mostly useful
 for testing.
 
-.Installing
+.Loading sim-encoder
 ----
 halcmd: loadrt sim-encoder num_chan=<number>
 ----
@@ -592,21 +608,21 @@ halcmd: loadrt sim-encoder num_chan=<number>
 specified, one encoder will be installed. The maximum number is 8 (as
 defined by MAX_CHAN in sim_encoder.c).
 
-.Removing
+.Unloading sim-encoder
 ----
 halcmd: unloadrt sim-encoder
 ----
 
-.Pins
+.Sim-encoder Pins
 * '(float) sim-encoder.<chan-num>.speed' - The speed command for the
   simulated shaft.
 * '(bit) sim-encoder.<chan-num>.phase-A' - Quadrature output.
 * '(bit) sim-encoder.<chan-num>.phase-B' - Quadrature output.
-* '(bit) sim-encoder.<chan-num>.phase-Z' - Index pulse output. 
+* '(bit) sim-encoder.<chan-num>.phase-Z' - Index pulse output.
 
 When '.speed' is positive, '.phase-A' leads '.phase-B'.
 
-.Parameters
+.Sim-encoder Parameters
 * '(u32) sim-encoder.<chan-num>.ppr' - Pulses Per Revolution.
 * '(float) sim-encoder.<chan-num>.scale' - Scale Factor for 'speed'.
 The default is 1.0, which means that 'speed' is in revolutions per
@@ -617,7 +633,7 @@ Note that pulses per revolution is not the same as counts per
 revolution. A pulse is a complete quadrature cycle. Most encoder
 counters will count four times during one complete cycle.
 
-.Functions
+.Sim-encoder Functions
 The component exports two functions. Each function affects all
 simulated encoders.
 
@@ -633,18 +649,17 @@ Debounce is a realtime component that can filter the glitches created
 by mechanical switch contacts. It may also be useful in other
 applications where short pulses are to be rejected.
 
-.Installing
+.Loading debounce
 ----
 halcmd: loadrt debounce cfg=<config-string>
 ----
 
-'<config-string>' is a series of comma separated decimal integers.
+<config-string>:: Is a series of comma separated decimal integers.
 Each number installs
 a group of identical debounce filters, the number determines how many
-filters are in the group. 
+filters are in the group.
 
-For example:
-
+.Loading debounce Example
 ----
 halcmd: loadrt debounce cfg=1,4,2
 ----
@@ -656,31 +671,31 @@ containing a single filter. The
 maximum number of groups 8 (as defined by MAX_GROUPS in debounce.c).
 The maximum number of filters in a group is limited only by shared
 memory space. Each group is completely independent. All filters in a
-single group are identical, and they are all updated by the same 
+single group are identical, and they are all updated by the same
 function at the same time. In the following descriptions, '<G>' is the
 group number and '<F>' is the filter number within the group. The
-first filter is group 0, 
+first filter is group 0,
 filter 0.
 
-.Removing
+.Unloading debounce
 ----
 halcmd: unloadrt debounce
 ----
 
-.Pins
+.Debounce Pins
 Each individual filter has two pins.
 
 * '(bit) debounce.<G>.<F>.in' - Input of filter '<F>' in group '<G>'.
 * '(bit) debounce.<G>.<F>.out' - Output of filter '<F>' in group '<G>'.
 
-.Parameters
+.Debounce Parameters
 Each group of filters has one parameterfootnote:[Each individual
 filter also has an internal state variable. There is a
 compile time switch that can export that variable as a parameter. This
 is intended for testing, and simply wastes shared memory under normal
 circumstances.].
 
-* '(s32) debounce.<G>.delay' - Filter delay for all filters in group '<G>'. 
+* '(s32) debounce.<G>.delay' - Filter delay for all filters in group '<G>'.
 
 The filter delay is in units of thread periods. The minimum delay is
 zero. The output of a zero delay filter exactly follows its input - it
@@ -688,7 +703,7 @@ doesn't filter anything. As 'delay' increases, longer and longer
 glitches are rejected. If 'delay' is 4, all glitches less than or
 equal to four thread periods will be rejected.
 
-.Functions
+.Debounce Functions
 
 Each group of filters has one function, which updates all the filters
 in that group 'simultaneously'. Different groups of filters can be
@@ -702,25 +717,25 @@ updated from different threads at different periods.
 Siggen is a realtime component that generates square, triangle, and
 sine waves. It is primarily used for testing.
 
-.Installing
+.Loading siggen
 ----
 halcmd: loadrt siggen [num_chan=<chans>]
 ----
 
-'<chans>' is the number of signal generators that you want to install.
+<chans>:: is the number of signal generators that you want to install.
 If 'numchan' is not specified, one signal generator will be installed.
 The maximum
 number of generators is 16 (as defined by MAX_CHAN in siggen.c). Each
 generator is completely independent. In the following descriptions,
-'<chan>' is the number of a specific signal generator (the numbers
+<chan>:: is the number of a specific signal generator (the numbers
 start at 0).
 
-.Removing
+.Unloading siggen
 ----
 halcmd: unloadrt siggen
 ----
 
-.Pins
+.Siggen Pins
 Each generator has five output pins.
 
 * '(float) siggen.<chan>.sine' - Sine wave output.
@@ -745,13 +760,13 @@ For example, if 'siggen.0.amplitude' is 1.0 and 'siggen.0.offset' is
 is 2.5 and 'siggen.0.offset' is 10.0, then the outputs will swing from
 7.5 to 12.5.
 
-.Parameters
+.Siggen Parameters
 None. footnote:[Prior to version 2.1, frequency, amplitude, and offset
 were parameters. They were changed to pins to allow control by other
-components.] 
+components.]
 
-.Functions
-* '(funct) siggen.<chan>.update' - Calculates new values for all five outputs. 
+.Siggen Functions
+* '(funct) siggen.<chan>.update' - Calculates new values for all five outputs.
 
 [[sec:lut5]]
 == lut5(((lut5)))
@@ -760,14 +775,14 @@ The lut5 component is a 5 input logic component based on a look up table.
 
 * 'lut5' does not require a floating point thread.
 
-.Installing
+.Loading lut5
 ----
 loadrt lut5 [count=N|names=name1[,name2...]]
 addf lut5.N servo-thread | base-thread
 setp lut5.N.function 0xN
 ----
 
-.Computing Function
+.Lut5 Computing Function
 To compute the hexadecimal number for the function starting from the top put
 a 1 or 0 to indicate if that row would be true or false. Next write down every
 number in the output column starting from the top and writing them from right
@@ -775,49 +790,49 @@ to left. This will be the binary number. Using a calculator with a program
 view like the one in Ubuntu enter the binary number and then convert it to
 hexadecimal and that will be the value for function.
 
-.Look Up Table
+.Lut5 Look Up Table
 [width="50%",cols="6*^",options="header"]
 |===
 |Bit 4|Bit 3|Bit 2|Bit 1|Bit 0|Output
-|0|0|0|0|0| 
-|0|0|0|0|1| 
-|0|0|0|1|0| 
-|0|0|0|1|1| 
-|0|0|1|0|0| 
-|0|0|1|0|1| 
-|0|0|1|1|0| 
-|0|0|1|1|1| 
-|0|1|0|0|0| 
-|0|1|0|0|1| 
-|0|1|0|1|0| 
-|0|1|0|1|1| 
-|0|1|1|0|0| 
-|0|1|1|0|1| 
-|0|1|1|1|0| 
-|0|1|1|1|1| 
-|1|0|0|0|0| 
-|1|0|0|0|1| 
-|1|0|0|1|0| 
-|1|0|0|1|1| 
-|1|0|1|0|0| 
-|1|0|1|0|1| 
-|1|0|1|1|0| 
-|1|0|1|1|1| 
-|1|1|0|0|0| 
-|1|1|0|0|1| 
-|1|1|0|1|0| 
-|1|1|0|1|1| 
-|1|1|1|0|0| 
-|1|1|1|0|1| 
-|1|1|1|1|0| 
-|1|1|1|1|1| 
+|0|0|0|0|0|
+|0|0|0|0|1|
+|0|0|0|1|0|
+|0|0|0|1|1|
+|0|0|1|0|0|
+|0|0|1|0|1|
+|0|0|1|1|0|
+|0|0|1|1|1|
+|0|1|0|0|0|
+|0|1|0|0|1|
+|0|1|0|1|0|
+|0|1|0|1|1|
+|0|1|1|0|0|
+|0|1|1|0|1|
+|0|1|1|1|0|
+|0|1|1|1|1|
+|1|0|0|0|0|
+|1|0|0|0|1|
+|1|0|0|1|0|
+|1|0|0|1|1|
+|1|0|1|0|0|
+|1|0|1|0|1|
+|1|0|1|1|0|
+|1|0|1|1|1|
+|1|1|0|0|0|
+|1|1|0|0|1|
+|1|1|0|1|0|
+|1|1|0|1|1|
+|1|1|1|0|0|
+|1|1|1|0|1|
+|1|1|1|1|0|
+|1|1|1|1|1|
 |===
 
-.Two Input Example
+.Lut5 Two Inputs Example
 In the following table we have selected the output state for each line
 that we wish to be true.
 
-.Look Up Table
+.Lut5 Two Inputs Example Look Up Table
 [width="50%",cols="6*^",options="header"]
 |===
 |Bit 4|Bit 3|Bit 2|Bit 1|Bit 0|Output
@@ -833,3 +848,4 @@ when Bit 0 or Bit 0 and Bit1 is on and nothing else. The binary number is
 calculator then change the display to hexadecimal and the number needed for
 function is '0xa'. The hexadecimal prefix is '0x'.
 
+// vim: set syntax=asciidoc:

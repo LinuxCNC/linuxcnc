@@ -788,4 +788,3 @@ exit 0
 ----
 
 // vim: set syntax = asciidoc:
-

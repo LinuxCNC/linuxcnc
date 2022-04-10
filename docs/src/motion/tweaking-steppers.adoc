@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:Stepper-Tuning]]
+[[cha:stepper-tuning]]
 = Stepper Tuning
 
 == Getting the most out of Software Stepping
@@ -20,12 +20,11 @@ from software generated steps.
 
 === Run a Latency Test
 
-FIXME from French: Le CPU n'est pas le seul facteur déterminant la latence. Les cartes
-mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
-la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
-d'un PC consiste à exécuter le test de latence RTAI.
+The CPU is not the only factor determining latency. Motherboards,
+graphics cards, USB ports and many other things can degrade it. The best
+way to know what to expect from a PC is to run the RT latency tests.
 
-Run the latency test as described in the <<cha:latency-test,Latency Test>>
+Run the latency test as described in the <<sec:latency-test,Latency Test>>
 chapter.
 
 While the test is running, you should 'abuse' the computer. Move
@@ -238,4 +237,3 @@ that you will be able to generate.
 
 I've added a few things to the spreadsheet to calculate max speed and
 stepper electrical calculations.
-

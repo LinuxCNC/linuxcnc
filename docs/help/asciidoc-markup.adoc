@@ -7,7 +7,7 @@ Encabezados de archivo de documento maestro, primera línea reemplazar "en" con 
 :lversion: {sys: cat ../VERSION}
 Comenzar V{lversion}, {localdate}
 ===============================
-:lang:en
+:lang: en
 :masterdir: {indir}
 :leveloffset: 1
 El equipo de EMC

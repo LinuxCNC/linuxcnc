@@ -73,7 +73,7 @@ Open up the custompanel.xml file by right clicking on it and selecting
 the widgets for our panel.
 
 Look in the PyVCP Widgets Reference section of the manual for more
-detailed information on each widget <<sec:Documentation-des-widgets,documentation des widgets>>.
+detailed information on each widget <<sec:pyvcp:widgets,documentation des widgets>>.
 
 In your custompanel.xml file we will add the description of the
 widgets.
@@ -518,6 +518,6 @@ net rth halui.mdi-command-00 <= pyvcp.rth-button
 ----
 
 [NOTE]
-Information about the <<sub:net, net>> command
+Information about the <<sub:hal-net, net>> command
 
 // vim: set syntax=asciidoc:

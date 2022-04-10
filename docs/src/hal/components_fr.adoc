@@ -50,7 +50,8 @@ de détails.
 Si le composant requière un thread avec flottant, c'est normalement le plus
 lent, soit  _servo-thread_.
 
-=== Composants du coeur de LinuxCNC[[sec:Realtime-Components-coeur]] ===
+[[sec:realtime-components]]
+=== Composants Temps Réel(((Composants Temps Réel)))
 
 * _motion_ - (((motion)))Accepte les commandes de mouvement NML, interagi en temps
 réel avec HAL.
@@ -268,7 +269,7 @@ automatique.
 voir la section <<sec:Codeur, codeur>>
 
 * _stepgen_ - (((stepgen)))Générateur d'impulsions de pas logiciel,
-voir la section <<sec:Stepgen, stepgen>>
+voir la section <<sec:stepgen, stepgen>>
 
 === BLDC and 3-phase motor control[[sec:Realtime-Components-bldc]] ===
 
@@ -348,7 +349,7 @@ des threads.
 
 * _timedelay_ - (((timedelay)))L'équivalent d'un relais temporisé.
 
-* _timedelta_ - (((timedelta)))Composant pour mesurer le comportement temporel 
+* _timedelta_ - (((timedelta)))Composant pour mesurer le comportement temporel
 des threads.
 
 * _toggle2nist_ - (((toggle2nist)))Bouton à bascule pour logique NIST.

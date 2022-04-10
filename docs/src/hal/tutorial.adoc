@@ -1,7 +1,8 @@
 :lang: en
+:toc:
 
 [[cha:hal-tutorial]]
-= HAL Tutorial
+= HAL Tutorial(((HAL Tutorial)))
 
 == Introduction
 
@@ -10,6 +11,19 @@ those who have had just a bit of computer programming, this section is
 the 'Hello World' of the HAL. Halrun can be used to create a working
 system. It is a command line or text file tool for configuration and
 tuning. The following examples illustrate its setup and operation.
+
+[[haltut-halcmd]]
+== Halcmd(((Halcmd Tutorial)))
+
+`halcmd` is a command line tool for manipulating HAL. A more complete man
+page exists for halcmd and installed together with LinuxCNC, from source
+or from a package. If LinuxCNC has been compiled as _run-in-place_, the
+man page is not installed but is accessible in the LinuxCNC main directory
+with the following command:
+
+----
+$ man -M docs/man halcmd
+----
 
 === Notation
 
@@ -58,7 +72,7 @@ To address these differences, the LinuxCNC team came up with RTAPI, which
 provides a consistent way for programs to talk to the RTOS. If you are
 a programmer who wants to work on the internals of LinuxCNC, you may want to
 study 'linuxcnc/src/rtapi/rtapi.h' to understand the API. But if you are a
-normal person all you need to 
+normal person all you need to
 know about RTAPI is that it (and the RTOS) needs to be loaded into the
 memory of your computer before you do anything with HAL.
 
@@ -68,7 +82,7 @@ memory of your computer before you do anything with HAL.
 
 For this tutorial, we are going to assume that you have successfully
 installed the Live CD and, if using a RIP footnote:[Run In Place, when the
-source files have been downloaded to a user directory.], invoked the 
+source files have been downloaded to a user directory.], invoke the
 'rip-environment' script to prepare your shell.
 In that case, all you need to do is
 load the required RTOS and RTAPI modules into memory. Just run the
@@ -115,10 +129,10 @@ about the current state of the HAL. To show all installed components:
 ----
 halcmd: show comp
 
-Loaded HAL Components:  
-ID     Type  Name                                PID   State
-    3  RT    siggen                                    ready
-    2  User  halcmd2177                          2177  ready
+    Loaded HAL Components:
+    ID     Type  Name                                PID   State
+    3      RT    siggen                                    ready
+    2      User  halcmd2177                          2177  ready
 ----
 
 Since 'halcmd' itself is a HAL component, it will always show up in
@@ -136,8 +150,8 @@ Next, let's see what pins 'siggen' makes available:
 ----
 halcmd: show pin
 
-Component Pins: 
-Owner   Type   Dir        Value  Name 
+Component Pins:
+Owner   Type   Dir        Value  Name
      3  float  IN             1  siggen.0.amplitude
      3  bit    OUT        FALSE  siggen.0.clock
      3  float  OUT            0  siggen.0.cosine
@@ -162,8 +176,8 @@ The next step is to look at parameters:
 ----
 halcmd: show param
 
-Parameters: 
-Owner   Type  Dir        Value   Name 
+Parameters:
+Owner   Type  Dir        Value   Name
      3  s32   RO             0   siggen.0.update.time
      3  s32   RW             0   siggen.0.update.tmax
 ----
@@ -190,13 +204,14 @@ exported:
 halcmd: show funct
 
 Exported Functions:
-Owner   CodeAddr  Arg       FP   Users  Name 
- 00003  f801b000  fae820b8  YES      0   siggen.0.update
+Owner   CodeAddr  Arg       FP   Users  Name
+00003   f801b000  fae820b8  YES      0  siggen.0.update
 ----
 
 The siggen component exported a single function. It requires floating
 point. It is not currently linked to any threads, so 'users' is
-zero.
+zero. footnote:[CodeAddr and Arg fields were used during development and
+should probably disappear.]
 
 === Making realtime code run
 
@@ -215,9 +230,9 @@ Let's see if that worked:
 ----
 halcmd: show thread
 
-Realtime Threads: 
+Realtime Threads:
      Period  FP     Name               (     Time, Max-Time )
-     999855  YES           test-thread (        0,        0 )
+     999855  YES    test-thread        (        0,        0 )
 ----
 
 It did. The period is not exactly 1,000,000 ns because of hardware
@@ -240,9 +255,9 @@ succeeded:
 ----
 halcmd: show thread
 
-Realtime Threads: 
+Realtime Threads:
      Period  FP     Name                (     Time, Max-Time )
-     999855  YES          test-thread   (        0,        0 )
+     999855  YES    test-thread         (        0,        0 )
                   1 siggen.0.update
 ----
 
@@ -263,7 +278,7 @@ Now the signal generator is running. Let's look at its output pins:
 halcmd: show pin
 
 Component Pins:
-Owner   Type  Dir         Value  Name 
+Owner   Type  Dir         Value  Name
      3  float IN              1  siggen.0.amplitude
      3  bit   OUT         FALSE  siggen.0.clock
      3  float OUT    -0.1640929  siggen.0.cosine
@@ -275,7 +290,7 @@ Owner   Type  Dir         Value  Name
      3  float OUT    -0.1049393  siggen.0.triangle
 ----
 
-And let's look again: 
+And let's look again:
 
 ----
 halcmd: show pin
@@ -315,12 +330,12 @@ halcmd: setp siggen.0.amplitude 5
 ----
 halcmd: show param
 
-Parameters: 
+Parameters:
 Owner   Type  Dir         Value  Name
      3  s32   RO           1754  siggen.0.update.time
      3  s32   RW          16997  siggen.0.update.tmax
 
-halcmd: show pin
+halcmd: show pn
 
 Component Pins:
 Owner   Type  Dir         Value  Name
@@ -353,16 +368,17 @@ configuration of the entire HAL with a single command:
 .Save
 ----
 halcmd: save
-# components 
-loadrt threads name1=test-thread period1=1000000 
-loadrt siggen 
-# pin aliases 
-# signals 
-# nets 
-# parameter values 
-setp siggen.0.update.tmax 14687 
-# realtime thread/function links 
-addf siggen.0.update test-thread 
+
+# components
+loadrt threads name1=test-thread period1=1000000
+loadrt siggen
+# pin aliases
+# signals
+# nets
+# parameter values
+setp siggen.0.update.tmax 14687
+# realtime thread/function links
+addf siggen.0.update test-thread
 ----
 
 The output of the 'save' command is a sequence of HAL commands. If
@@ -422,7 +438,54 @@ You can build very complex HAL systems without ever using a graphical
 interface. However there is something satisfying about seeing the
 result of your work. The first and simplest GUI tool for the HAL is
 halmeter. It is a very simple program that is the HAL equivalent of the
-handy Fluke multimeter (or Simpson analog meter for the old timers).
+handy multimeter (or analog meter for the old timers).
+
+It allows to observe the pins, signals or parameters by displaying the
+current value of these entities. It is very easy to use application for graphical environments. In a console type:
+
+----
+halmeter
+----
+
+//FIXME Add halmeter screenshot(s)
+
+Two windows will appear. The selection window is the largest and includes
+three tabs:
+
+* One lists all the pins currently defined in HAL,
+* One lists all the signals,
+* One lists all the parameters.
+
+Click on a tab, then click on one of the items to select it. The small
+window will show the name and value of the selected item.
+The display is updated approximately 10 times per second. To free screen
+space, the selection window can be closed with the _Close_ button.
+On the little window, hidden under the selection window at program launch,
+the _Select_ button, re-opens the selection window and the _Exit_ button
+stops the program and closes both windows.
+
+It is possible to run several halmeters simultaneously, which makes it
+possible to visualize several items at the same time. To open a halmeter
+and release the console by running it in the background, run the following command:
+
+----
+halmeter &
+----
+
+It is possible to launch halmeter and make it immediately display an item.
+For this, add  _pin|sig|par[am] name_ arguments on the command line. It
+will display the signal, pin, or parameter _name_ as soon as it
+will start. If the indicated item does not exist, it will start normally.
+
+//FIXME Add halmeter command example for direct item display
+
+Finally, if an item is specified for display, it is possible
+add _-s_ in front of pin|sig|param to tell halmeter to use
+an even smaller window. The item name will be displayed in the
+title bar instead of below the value and there will be no button.
+This is useful for displaying a lot of halmeters in a small space.
+
+//FIXME Add halmeter run with '-s' screenshot
 
 We will use the siggen component again to check out halmeter. If you
 just finished the previous example, then you can load siggen using the
@@ -474,7 +537,7 @@ time, you can just start more halmeters. The halmeter window was
 intentionally made very small so you could have a lot of them on the
 screen at once.
 
-== Stepgen Example(((stepgen)))
+== Stepgen Example(((stepgen Example)))
 
 Up till now we have only loaded one HAL component. But the whole idea
 behind the HAL is to allow you to load and connect a number of simple
@@ -497,8 +560,11 @@ Integrator Manual. In this example we will use the 'velocity' control
 type of stepgen.  For now, we can skip the details, and just run the
 following commands.
 
+In this example we will use the _velocity_ control type from the `stepgen`
+component.
+
 ----
-halrun 
+halrun
 halcmd: loadrt stepgen step_type=0,0 ctrl_type=v,v
 halcmd: loadrt siggen
 halcmd: loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
@@ -584,8 +650,8 @@ the Y axis. The siggen module creates the sine and cosine, but we need
 signals. We need to create two of them. We can call them anything we
 want, for this example they will be 'X-vel' and 'Y-vel'. The signal
 'X-vel' is intended to run from the cosine output of the signal
-generator to the velocity input of the first step pulse generator. 
-The first step is to connect the signal to the signal generator output. 
+generator to the velocity input of the first step pulse generator.
+The first step is to connect the signal to the signal generator output.
 To connect a signal to a pin we use the net command.
 
 .net command
@@ -683,8 +749,8 @@ frequently as possible. Because it needs to run so fast, 'make_pulses'
 is highly optimized and performs only a few calculations. Unlike the
 others, it does not need floating point math.
 
-The last function, 'stepgen.update-freq', is responsible for doing 
-scaling and some other calculations that need to be performed 
+The last function, 'stepgen.update-freq', is responsible for doing
+scaling and some other calculations that need to be performed
 only when the frequency command changes.
 
 What this means for our example is that we want to run
@@ -809,7 +875,7 @@ running in a terminal you can start halscope with the following command.
 
 .Starting Halscope
 ----
-halcmd loadusr halscope
+halcmd: loadusr halscope
 ----
 
 If LinuxCNC is not running or the autosave.halscope file does not match
@@ -818,6 +884,7 @@ will open, immediately followed by a 'Realtime function not linked'
 dialog that looks like the following figure. To change the sample rate
 left click on the samples box.
 
+[[fig:halscope-rt-function-not-linked]]
 .Realtime function not linked dialog
 image::images/halscope-01.png["Realtime function not linked dialog",align="center"]
 
@@ -829,6 +896,7 @@ at one time. When you select a thread and then click 'OK', the dialog
 disappears, and the scope window looks something like the following
 figure.
 
+[[fig:halscope-init-window]]
 .Initial scope window
 image::images/halscope-02.png["Initial scope window",align="center"]
 
@@ -849,6 +917,7 @@ one used by Halmeter. We would like to look at the signals we defined
 earlier, so we click on the 'Signals' tab, and the dialog displays all
 of the signals in the HAL (only two for this example).
 
+[[fig:halscope-channel-source-selection]]
 .Select Channel Source
 image::images/halscope-03.png["Select Channel Source",align="center"]
 
@@ -856,6 +925,7 @@ To choose a signal, just click on it. In this case, we want channel 1
 to display the signal 'X-vel'. Click on the Signals tab then click on
 'X-vel' and the dialog closes and the channel is now selected.
 
+[[fig:halscope-source-signal-selection]]
 .Select Signal
 image::images/halscope-04.png["Select Signal",align="center"]
 
@@ -865,6 +935,7 @@ the selected channel - you can have many channels on the screen, but
 the selected one is highlighted, and the various controls like vertical
 position and scale always work on the selected one.
 
+[[fig:halscope]]
 .Halscope
 image::images/halscope-05.png["Halscope",align="center"]
 
@@ -890,6 +961,7 @@ at the top right. You should see the remainder of the buffer fill, then
 the screen will display the captured waveforms. The result will look
 something like the following figure.
 
+[[fig:halscope-captured-owaveform]]
 .Captured Waveforms
 image::images/halscope-06.png["Captured Waveforms",align="center"]
 
@@ -909,8 +981,14 @@ tiny (pico-units) to very large (Tera-units). The position control
 moves the displayed trace up and down over the height of the screen
 only. For larger adjustments the offset button should be used.
 
+[[fig:halscope-vertical-adjustment]]
 .Vertical Adjustment
-image::images/halscope-07.png["Vertical Adjustment",align="center"]
+image::images/halscope-07.png["Vertical Adjustment", align="center"]
+
+The large _Selected Channel_ button at the bottom indicates that channel 1 is
+currently selected channel and that it matches the _X-vel_ signal.
+Try clicking on the other channels to put their traces in evidence and
+to be able to move them with the _Pos_ cursor.
 
 === Triggering
 
@@ -921,6 +999,7 @@ simply a list of all the probes that are currently connected. Select a
 probe to use for triggering by clicking on it. For this example we will
 use channel 3, the triangle wave as shown in the following figure.
 
+[[fig:halscope-trigger-source]]
 .Trigger Source Dialog
 image::images/halscope-08.png["Trigger Source Dialog",align="center"]
 
@@ -935,11 +1014,15 @@ slider is all the way up, the trigger point is at the beginning of the
 record, displaying what happened after it was triggered. The trigger
 point is visible as a vertical line in the progress box above the
 screen. The trigger polarity can be changed by clicking the button just
-below the trigger level display.
+below the trigger level display. It will then become _descendant_.
+Note that changing the trigger position stops the scope once the position
+has been adjusted, you relaunch the scope by clicking on the _Normal_
+button of _Run mode_ the group.
 
-Now that we have adjusted the vertical controls and triggering, the 
+Now that we have adjusted the vertical controls and triggering, the
 scope display looks something like the following figure.
 
+[[fig:halscope-waveforms-with-triggering]]
 .Waveforms with Triggering
 image::images/halscope-09.png["Waveforms with Triggering",align="center"]
 
@@ -959,6 +1042,7 @@ Sample Rate' dialog, figure . For this example, we will click on the
 instead of displaying about 4 seconds worth of data, one record is 4000
 samples at 20KHz, or about 0.20 seconds.
 
+[[fig:halscope-sample-rate-choice]]
 .Sample Rate Dialog
 image::images/halscope-10.png["Sample Rate Dialog",align="center"]
 
@@ -981,6 +1065,7 @@ increase the gain on channel 1 to about 20 milli per division to better see
 the change in the velocity command. The result should look like  the
 following figure.
 
+[[fig:halscope-step-pulses]]
 .Step Pulses
 image::images/halscope-11.png["Step Pulses",align="center"]
 
@@ -995,9 +1080,9 @@ halcmd: loadusr halscope 80000
 ----
 
 If the 'scope_rt' component was not already loaded, halscope will
-load it and request 80000 total samples, so that when sampling 
-4 channels at a time there will be 20000 samples per channel. 
-(If 'scope_rt' was already loaded, the numeric argument to 
+load it and request 80000 total samples, so that when sampling
+4 channels at a time there will be 20000 samples per channel.
+(If 'scope_rt' was already loaded, the numeric argument to
 halscope will have no effect).
 
 // vim: set syntax=asciidoc:

@@ -1,7 +1,8 @@
 :lang: en
+:toc:
 
 [[cha:user-foreword]]
-= User Foreword
+= User Foreword(((User Foreword)))
 
 LinuxCNC is modular and flexible. These attributes lead many to see it as
 a confusing jumble of little things and wonder why it is the way it is.
@@ -22,11 +23,8 @@ unsurprisingly it is not difficult to find severe violations of most of
 the following in actual Unix practice:
 
 * Rule of Modularity: Write simple parts connected by clean interfaces.
-
 * Rule of Clarity: Clarity is better than cleverness.
-
 * Rule of Composition: Design programs to be connected to other programs.
-
 * Rule of Separation: Separate policy from mechanism; separate
   interfaces from engines.footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
@@ -69,11 +67,11 @@ handbooks we describe the range of abilities currently available.
 As you begin your journey into using LinuxCNC we offer two cautionary
 notes:footnote:[Found at http://en.wikipedia.org/wiki/Unix_philosophy, 07/06/2008]
 
- - Paraphrasing the words of Doug Gwyn on UNIX: "LinuxCNC was not designed to
-   stop its users from doing stupid things, as that would also stop them
-   from doing clever things."
- - Likewise the words of Steven King: "LinuxCNC is user-friendly. It just
-   isn't promiscuous about which users it's friendly with."
+- Paraphrasing the words of Doug Gwyn on UNIX: "LinuxCNC was not designed to
+  stop its users from doing stupid things, as that would also stop them
+  from doing clever things."
+- Likewise the words of Steven King: "LinuxCNC is user-friendly. It just
+  isn't promiscuous about which users it's friendly with."
 
 A series of videos on YouTube provide plenty of evidence a transition to LinuxCNC
 is possible no matter what your regular computer operating system may be. That said,
@@ -81,3 +79,5 @@ with the advent of additive manufacturing like 3D printing there is an increasin
 interest by the broader IT community in CNC machining and it should be possible
 to find someone with complementary skills/equipment near to you to jointly overcome
 the initial hurdles.
+
+// vim: set syntax=asciidoc:

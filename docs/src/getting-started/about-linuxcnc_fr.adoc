@@ -1,4 +1,4 @@
-﻿:lang: fr
+:lang: fr
 
 = À propos du logiciel LinuxCNC
 
@@ -42,23 +42,11 @@
 
 == Le système d'exploitation
 
-La distribution Ubuntu a été choisie car elle s'intègre parfaitement dans les
-vues Open Source de LinuxCNC:
+LinuxCNC est disponible sous forme de paquets prêts à l'emploi pour les
+distributions Ubuntu et Debian.
 
- - Ubuntu sera toujours gratuit, et il n'y a aucun frais supplémentaire pour la
-    version  _"Enterprise Edition"_,
-    nous rendons nos travaux disponibles pour  tout le monde dans les mêmes 
-    conditions de gratuité.
- - LinuxCNC est jumelé avec les versions LTS d'Ubuntu qui apportent le soutien et 
-    les correctifs de sécurité de l'équipe Ubuntu pour 3 à 5 ans.
- - Ubuntu utilise les meilleurs outils de traductions et d'accessibilité 
-    à l'infrastructure, que la communauté du logiciel libre a à offrir, pour 
-    rendre Ubuntu accessible à un maximum de personnes.
- - La communauté Ubuntu a entièrement souscrit aux principes du développement de 
-    logiciels libres, nous encourageons tout le monde à utiliser des logiciels 
-    open source, à les améliorer et à les transmettre.
 
-[[sec:Trouver-aide]]
+[[sec:getting-help]]
 == Trouver de l'aide(((Trouver de l'aide)))
 
 === Les salons IRC
@@ -67,31 +55,31 @@ IRC signifie Internet Relay Chat.
 Il s'agit d'une connexion en direct avec d'autres utilisateurs LinuxCNC.
 Le canal LinuxCNC sur IRC est: #linuxcnc sur freenode.net.
 
-La manière la plus simple d'aller sur IRC est d'utiliser 
+La manière la plus simple d'aller sur IRC est d'utiliser
 le client embarqué sur cette page:
 http://webchat.freenode.net/?channels=linuxcnc
 
 Un peu d'éthique sur le canal IRC:
 
- - Posez des questions précises... Évitez le "quelqu'un peut m'aider?", 
-   ce type de questions, _ne fonctionnera pas_. 
- - Si vous êtes vraiment nouveau dans tout cela, réfléchissez à votre question 
-    avant de la poser. Assurez-vous de donner suffisamment d'informations pour 
-    que quelqu'un puisse résoudre votre problème. 
- - Faites preuve de patience quand vous attendez une réponse, il faut parfois 
-    du temps pour formuler une réponse. Tout les participants peuvent être 
-    occupés, à travailler par exemple :-) ou à autre chose. 
- - Configurez votre compte IRC avec un pseudo unique afin que les participants 
-    sachent qui vous êtes. Si vous utilisez le client java, utilisez le même 
-    pseudo à chaque fois que vous  vous connecter, cela aidera les participants 
-    à se rappeler qui vous êtes, ainsi, si vous êtes déjà venu avant, beaucoup 
+ - Posez des questions précises... Évitez le "quelqu'un peut m'aider?",
+   ce type de questions, _ne fonctionnera pas_.
+ - Si vous êtes vraiment nouveau dans tout cela, réfléchissez à votre question
+    avant de la poser. Assurez-vous de donner suffisamment d'informations pour
+    que quelqu'un puisse résoudre votre problème.
+ - Faites preuve de patience quand vous attendez une réponse, il faut parfois
+    du temps pour formuler une réponse. Tout les participants peuvent être
+    occupés, à travailler par exemple :-) ou à autre chose.
+ - Configurez votre compte IRC avec un pseudo unique afin que les participants
+    sachent qui vous êtes. Si vous utilisez le client java, utilisez le même
+    pseudo à chaque fois que vous  vous connecter, cela aidera les participants
+    à se rappeler qui vous êtes, ainsi, si vous êtes déjà venu avant, beaucoup
     se souviendront des discussions passées, ce qui fait gagner du temps à tout
-    le monde. 
+    le monde.
 
 === Partage de fichiers sur IRC
 
-La façon la plus courante de partager des fichiers sur IRC est de charger le 
-fichier sur un des services suivants ou service similaire, puis collez le lien 
+La façon la plus courante de partager des fichiers sur IRC est de charger le
+fichier sur un des services suivants ou service similaire, puis collez le lien
 vers le fichier, sur l'IRC:
 
 Pour le texte::
@@ -105,23 +93,22 @@ Pour les fichiers::
 
 === Les listes de diffusion
 
-Une liste de diffusion sur Internet est un moyen de poser des questions, 
-tout les abonnés à cette liste pourrons lire et répondre à leur convenance. 
-Vous obtiendrez une meilleurs visibilité de vos questions sur une liste 
-de diffusion plutôt que sur l'IRC et vous aurez plus de réponses. 
-En quelques mots, vous envoyez un e-mail à la liste et selon comment 
-vous avez configuré votre compte, vous aurez les réponses soit, 
+Une liste de diffusion sur Internet est un moyen de poser des questions,
+tout les abonnés à cette liste pourrons lire et répondre à leur convenance.
+Vous obtiendrez une meilleurs visibilité de vos questions sur une liste
+de diffusion plutôt que sur l'IRC et vous aurez plus de réponses.
+En quelques mots, vous envoyez un e-mail à la liste et selon comment
+vous avez configuré votre compte, vous aurez les réponses soit,
 regroupées quotidiennement, soit individuellement.
 
-Inscription sur la liste de diffusion des utilisateurs de LinuxCNC sur: 
+Inscription sur la liste de diffusion des utilisateurs de LinuxCNC sur:
 https://lists.sourceforge.net/lists/listinfo/linuxcnc-users
 
 === Le Wiki de LinuxCNC
 
-Un site Wiki est un site web maintenu et enrichi par les utilisateurs, 
-n'importe qui peut ajouter ou modifier les pages. 
+Un site Wiki est un site web maintenu et enrichi par les utilisateurs,
+n'importe qui peut ajouter ou modifier les pages.
 
-Le Wiki de LinuxCNC est également maintenu par les utilisateurs, 
-il contient un très grand nombre d'informations et d'astuces sur: 
+Le Wiki de LinuxCNC est également maintenu par les utilisateurs,
+il contient un très grand nombre d'informations et d'astuces sur:
 http://wiki.linuxcnc.org/
-

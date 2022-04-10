@@ -1,7 +1,7 @@
 :lang: fr
 :toc:
 
-[[cha:Reglages-de-pas-a-pas]]
+[[cha:stepper-tuning]]
 = Réglages des pas à pas
 
 == Obtenir le meilleur pilotage logiciel possible
@@ -26,8 +26,8 @@ mères, cartes graphiques, ports USB et nombre d'autres choses peuvent
 la dégrader. La meilleure façon de savoir ce que vous pouvez attendre
 d'un PC consiste à exécuter le test de latence RTAI.
 
-Lancer un test comme décrit <<cha:test-de-latence, au chapitre sur le test>>
-de latence.
+Lancer un test comme décrit au chapitre sur
+le <<sec:latency-test,test de latence>>.
 
 === Connaître ce dont vos cartes de pilotage ont besoin
 
@@ -228,4 +228,3 @@ aussi la fréquence de pas maximum que vous serez en mesure de générer.
 
 J'ai ajouté quelques petites choses à la feuille de calcul pour
 calculer la fréquence maximum et quelques autres calculs.
-

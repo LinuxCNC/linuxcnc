@@ -1,4 +1,4 @@
-:lang:en
+:lang: en
 
 [[cha:wiring]]
 = Best Wiring Practices

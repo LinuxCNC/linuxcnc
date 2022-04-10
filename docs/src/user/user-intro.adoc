@@ -2,8 +2,16 @@
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
-= LinuxCNC User Introduction(((introduction)))
+= LinuxCNC User Introduction(((LinuxCNC User Introduction,User Introduction)))
 
+== Introduction
+
+This document is focused on the use of LinuxCNC, it is intended for readers who
+have already installed and configured it. Some information on installation is
+given in the following chapters.
+The complete documentation on installation andconfiguration can be found in the integrator's manual.
+
+[[sec:how-linuxcnc-works]]
 == How LinuxCNC Works
 
 LinuxCNC is a suite of highly-customisable applications for the control of a Computer Numerically
@@ -24,6 +32,7 @@ complete system:
 The below illustration is a simple block diagram showing what a typical 3-axis, CNC mill with stepper
 motors might look like:
 
+.Simple LinuxCNC Controlled Machine
 image::images/whatstep1.png["Simple LinuxCNC Controlled Machine",align="center"]
 
 A computer running LinuxCNC sends a sequence of pulses via the parallel port to the stepper drives, each of
@@ -83,54 +92,82 @@ following files:
 *** The nc_files folder is provided as a default location to store the G-code programs used to drive the
     mill. It also includes a number of subfolders with G-code examples.
 
-== Graphical User Interfaces
+[[sec:graphical-user-interfaces]]
+== Graphical User Interfaces(((Graphical User Interfaces)))
 
 A graphical user interface is the part of the LinuxCNC that the machine tool operator interacts with.
 LinuxCNC comes with several types of user interfaces which may be chosen from by editing
 certain fields contained in the <<cha:ini-configuration,INI file>>:
 
-<<cha:axis-gui,Axis>>, the standard keyboard GUI interface. This is also the default GUI launched when a
-Configuration Wizard is used to create a desktop icon launcher:
+AXIS:: <<cha:axis-gui,AXIS>>, the standard keyboard GUI interface. This is also the default GUI launched when a
+  Configuration Wizard is used to create a desktop icon launcher:
 
+[[fig:axis-graphical-interface]]
+.AXIS graphical interface
 image::../gui/images/axis.png["Axis, the standard keyboard GUI interface",align="center"]
 
-<<cha:touchy-gui,Touchy>>, a touch screen GUI:
+Touchy:: <<cha:touchy-gui,Touchy>>, a touch screens GUI:
 
+[[fig:touchy-graphical-interface]]
+.Touchy graphical interface
 image::../gui/images/touchy.png["Touchy, a touch screen GUI",align="center"]
 
-<<cha:gscreen,Gscreen>>, a user-configurable touch screen GUI:
+Gscreen:: <<cha:gscreen,Gscreen>>, a user-configurable touch screen GUI:
 
+[[fig:gscreen-graphical-interface]]
+.Gscreen graphical interface
 image::../gui/images/gscreen-mill.png["Gscreen, a configurable base touch screen GUI",align="center"]
 
-<<cha:gmoccapy,GMOCCAPY>>, a touch screen GUI based on Gscreen. GMOCCAPY is also designed to work equally
-well in applications where a keyboard and mouse are the preferred methods of controlling the GUI:
+GMOCCAPY:: <<cha:gmoccapy,GMOCCAPY>>, a touch screen GUI based on Gscreen. GMOCCAPY is also designed to work equally
+  well in applications where a keyboard and mouse are the preferred methods of controlling the GUI:
 
+[[fig:gmoccapy-graphical-interface]]
+.GMOCCAPY graphical interface
 image::../gui/images/gmoccapy_3_axis.png["gmoccapy, a touch screen GUI based on Gscreen",align="center"]
 
-<<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style programming of G code. NGCGUI may be
-run as a standalone program or embedded into another GUI as a series of tabs. The following screen shot
-shows NGCGUI embedded into Axis:
+NGCGUI:: <<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style programming of G code. NGCGUI may be
+  run as a standalone program or embedded into another GUI as a series of tabs. The following screen shot
+  shows NGCGUI embedded into Axis:
 
-image::../gui/images/ngcgui.png["NGCGUI, a subroutine GUI that provides wizard-style programming of G code",align="center"]
+[[fig:ngcgui-graphical-interface-into-axis]]
+.NGCGUI graphical interface integrated into Axis
+image::../gui/images/ngcgui.png["NGCGUI graphical interface integrated into Axis",align="center"]
+
+TkLinuxCNC:: <<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.
+  Once the most popular interface after AXIS.
+
+[[fig:tklinuxcnc-gui]]
+.TkLinuxCNC graphical interface
+image::images/tklinuxcnc_fr.png["TkLinuxCNC graphical interface",align="center"]
+
+Xemc:: an X-Window program
+
+halui:: A HAL based user interface allowing to control LinuxCNC using
+  buttons and switches
+
+linuxcncrsh:: A telnet based user interface allowing to send commands
+  from remote computers.
 
 == Virtual Control Panels
 
-As mentioned above, many of LinuxCNC's GUIs may be customised by the user. This may be done to add
+As mentioned above, many of LinuxCNC's GUIs may be customized by the user. This may be done to add
 indicators, readouts, switches or sliders to the basic appearance of one of the GUIs for increased
 flexibility or functionality. Two styles of Virtual Control Panel are offered in LinuxCNC:
 
-<<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be added to the Axis GUI. PyVCP only
-utilises virtual signals contained within the Hardware Abstraction Layer, such as the spindle-at-speed
-indicator or the Emergency Stop output signal, and has a simple no-frills appearance. This makes it an
-excellent choice if the user wants to add a Virtual Control Panel with minimal fuss.
+PyVCP:: <<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be added to the Axis GUI. PyVCP only
+  utilises virtual signals contained within the Hardware Abstraction Layer, such as the spindle-at-speed
+  indicator or the Emergency Stop output signal, and has a simple no-frills appearance. This makes it an
+  excellent choice if the user wants to add a Virtual Control Panel with minimal fuss.
 
+.PyVCP Example Embedded Into AXIS GUI
 image::../gui/images/axis-pyvcp.png["PyVCP with Axis",align="center"]
 
-'GladeVCP', a Glade-based virtual control panel that can be added to the Axis or Touchy
-GUIs. GladeVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL
-virtual signals, but can include other external interfaces outside LinuxCNC such as window or network
-events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
+GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel that can be added to the Axis or Touchy
+  GUIs. GladeVCP has the advantage over PyVCP in that it is not limited to the display or control of HAL
+  virtual signals, but can include other external interfaces outside LinuxCNC such as window or network
+  events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
 
+.GladeVCP Example Embedded Into AXIS GUI
 image::../gui/images/axis-gladevcp.png["GladeVCP with Axis",align="center"]
 
 == Languages
@@ -141,6 +178,25 @@ created, LinuxCNC will automatically use whatever native language you log in wit
 operating system. If your language has not been translated, contact a developer on the IRC, the mailing
 list or the User Forum for assistance.
 
+[[sec:thinking-operator]]
+== Think Like a CNC Operator
+
+This manual does not pretend to teach you how to use a lathe or a milling
+machine. Becoming an experienced operator takes a lot of time and requires
+a lot of work. An author once said, _We learn by experience, if one possesses it all_.
+Broken tools, vices attacked and the scars are evidence of the lessons
+learned. A beautiful finish, tight tolerances and caution during the work
+are evidence of lessons learned. No machine, none program can replace
+human experience.
+
+Now that you start working with the LinuxCNC software, you have to put
+yourself in the shoes of an operator. You must be in the role of someone
+in charge of a machine. It's a machine that will wait for your commands
+and then execute the orders that you will give it. In these pages, we
+will give the explanations which will help you to become a good CNC
+operator with LinuxCNC.
+
+[[sec:modes-of-operations]]
 == Modes of Operation
 
 When LinuxCNC is running, there are three different major modes used for inputting commands. These are

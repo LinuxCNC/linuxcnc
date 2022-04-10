@@ -20,7 +20,7 @@
 |<<mcode:m6,M6 Tn>>       | Appel d'outil n=numéro d'outil
 |<<mcode:m7-m9,M7 M8 M9>> | Contrôle des arrosages
 |<<mcode:m19,M19>>        | Orientation de la broche
-|<<mcode:m48-m49,M48 M49>>| Contrôle des correcteurs de vitesse 
+|<<mcode:m48-m49,M48 M49>>| Contrôle des correcteurs de vitesse
 |<<mcode:m50,M50>>        | Contrôle du correcteur de vitesse travail
 |<<mcode:m51,M51>>        | Contrôle du correcteur de vitesse de broche
 |<<mcode:m52,M52>>        | Correcteur dynamique de vitesse d'avance
@@ -38,9 +38,7 @@
 |========================================================
 
 [[mcode:m0-m1]]
-== M0, M1, pause dans le programme
-(((M0 Pause dans le programme)))
-(((M1 Pause optionnelle dans le programme)))
+== M0, M1, pause dans le programme(((M0 Pause dans le programme)))(((M1 Pause optionnelle dans le programme)))
 
 * 'M0' - Effectue une pause temporaire dans le programme en cours
 (quelle que soit la position du bouton d'arrêt facultatif).
@@ -61,9 +59,7 @@ puisque le comportement normal en mode MDI est
 de s'arrêter, de toute façon, à la fin de chaque ligne.
 
 [[mcode:m2-m30]]
-== M2, M30, fin de programme
-(((M2 Fin de programme)))
-(((M30 Fin de programme avec déchargement pièce)))
+== M2, M30, fin de programme(((M2 Fin de programme)))(((M30 Fin de programme avec déchargement pièce)))
 
 * 'M2' - Indique la fin du programme. Presser le départ cycle après cette
 commande relance le programme au début du fichier.
@@ -88,8 +84,7 @@ Les deux commandes précédentes produisent les effets suivants:
 Les lignes de code placées après un 'M2' ou un 'M30' ne sont pas exécutées.
 
 [[mcode:m60]]
-== M60, pause pour déchargement pièce
-(((M60 Pause pour déchargement pièce)))
+== M60, pause pour déchargement pièce(((M60 Pause pour déchargement pièce)))
 
 * 'M60' - Procède au changement de porte-pièce avec le chargeur de pièces et
 effectue une pause dans le programme en cours (quel que soit le réglage
@@ -121,13 +116,13 @@ en rotation ou d'utiliser 'M5' quand la broche est déjà arrêtée.
 Si le composant de HAL, hal_manualtoolchange est chargé,
 'M6' va arrêter la broche et inviter l'utilisateur à changer l'outil.
 Pour plus d'informations sur hal_manualtoolchange voir
-la section <<sec:Changement-D-Outil-Manuel, sur le changement manuel d'outil>>.
+la section <<sec:Changement-D-Outil-Manuel,sur le changement manuel d'outil>>.
 
 === Changement d'outil
 
 Pour changer l'outil, actuellement dans la broche, par un autre,
 nouvellement sélectionné en utilisant le mot T, voir la section
-<<sec:T-Choix-Outil, sur le choix de l'outil>>, programmer 'M6'.
+<<sec:T-Choix-Outil,sur le choix de l'outil>>, programmer 'M6'.
 Un changement d'outil complet donnera:
 
 * La rotation de la broche est arrêtée.
@@ -275,8 +270,9 @@ Dans LinuxCNC, la HAL pin 'motion.adaptive-feed' est utilisée dans ce but.
 Les valeurs de 'motion.adaptive-feed' doivent être dans comprises
 entre -1 (pleine vitesse arrière) et 1 (pleine vitesse). Une valeur du nulle
 correspond à l'arrêt du mouvement.
+
 [NOTE]
-L'utilisation de vitess adaptative négative (destinée notamment aux
+L'utilisation de vitesse adaptative négative (destinée notamment aux
 machines à plasma et à électroérosion) est une nouveauté et n'a pas
 encore été testée de manière approfondie sur des machines réelles.
 
@@ -317,7 +313,7 @@ Le mot 'P' spécifie le numéro du bit de sortie numérique. Le mot P doit
 être compris entre 0 et une valeur par défaut de 3. Si nécessaire, le
 nombre des entrées/sorties peut être augmenté en utilisant
 le paramètre 'num_dio' lors du chargement du contrôleur de mouvement.
-Voir le manuel de l'intégrateur et section "LinuxCNC et HAL", 
+Voir le manuel de l'intégrateur et section "LinuxCNC et HAL",
 pour plus d'informations.
 
 Les commandes 'M62' et 'M63' seront mises en file d'attente.
@@ -344,6 +340,7 @@ appropriées sont connectées aux sorties dans le fichier HAL.
 ----
 M66 P- | E- <L-> <Q->
 ----
+
 * 'P' - Spécifie le numéro d'un bit d'entrée numérique entre 0 et 3.
 * 'E' - Spécifie le numéro d'un bit d'entrée analogique entre 0 et 3.
 * 'L' - Spécifie le mode d'attente.
@@ -384,6 +381,7 @@ motion.analog-in-nn appropriées sont connectées aux entrées dans le fichier H
 ----
 M67 E- Q-
 ----
+
 * 'M67' - Contrôle une sortie analogique synchronisée avec un mouvement.
 * 'E' - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
 * 'Q' - Spécifie la valeur à appliquer sur la sortie.
@@ -409,9 +407,10 @@ connectées aux sorties dans le fichier HAL.
 ----
 M68 E- Q-
 ----
+
 * 'M68' - Contrôle directement une sortie analogique.
 * 'E' - Spécifie le numéro de la sortie, doit être compris entre 0 et 3.
-* 'Q' - Spécifie la valeur à appliquer sur la sortie. 
+* 'Q' - Spécifie la valeur à appliquer sur la sortie.
 
 M68 produit son effet immédiatement après être reçu par le
 contrôleur de mouvement. Il n'est pas synchronisé avec un mouvement.
@@ -512,7 +511,6 @@ autour de l'appel d'un sous-programme utilisant 'M70' et 'M72'. Noter que
 le sous-programme 'imperialsub' n'est pas "au courant" des caractéristiques de
 M7x et peut être utilisé non modifié:
 
-
 [source,{ngc}]
 ----
 O<showstate> sub
@@ -549,21 +547,20 @@ m2
 [[mcode:m73]]
 == M73 Enregistrement et auto-restauration de l'état modal(((M73 Save and Autorestore Modal State)))
 
-
 Pour enregistrer l'état modal à l'intérieur d'un sous-programme et restaurer cet
 état lors d'un 'endsub' ou autre 'return', programmer 'M73'.
 
 En cas d'abandon d'un programme en cours d'exécution dans un sous-programme
 traitant un 'M73', l'état ne sera *PAS* restauré.
 
-En outre, la fin normale ('M2') d'un programme principal contenant un 'M73' ne 
+En outre, la fin normale ('M2') d'un programme principal contenant un 'M73' ne
 restaurera *pas* l'état.
 
 L'utilisation suggérée consiste à placer au début d'un sous-programme, un O-code
 de sous-programme comme dans l'exemple ci-dessous. En utilisant 'M73', cette
 manière valide le design des sous-programmes qui doivent modifier l'état modal
 mais qui protège le programme appelant contre tout changement inopiné de
-l'état modal. Noter l'usage de <<sec:Parametres-Nommes, paramètres nommés>> dans
+l'état modal. Noter l'usage de <<gcode:named-parameters,paramètres nommés>> dans
 le sous-programme 'showstate'.
 
 [source,{ngc}]
@@ -598,18 +595,18 @@ o<showstate> call
 m2
 ----
 
-
-== Restauration sélective de l'état modal par le test de paramètres prédéfinis[[sec:Selectively-restoring-modal-state]]
+[[sec:Selectively-restoring-modal-state]]
+== Restauration sélective de l'état modal par le test de paramètres prédéfinis
 
 Exécuter un 'M72' ou au retour d'un sous-programme contenant un 'M73_ pour
 restaurer <<saved_state_by_M70,*tout* l'état modal enregistré>>.
 
 Si seulement certains aspects de l'état modal doivent être préservés, une
-alternative consiste a utiliser les <<sec:Predefined-Named-Parameters,paramètres nommés prédéfinis>>, paramètres locaux et états conditionnels. L'idée est de rappeler
+alternative consiste a utiliser les <<gcode:predefined-named-parameters,paramètres nommés prédéfinis>>,
+paramètres locaux et états conditionnels. L'idée est de rappeler
 les modes à restaurer au début du sous-programme et de restaurer ceux-ci avant
 de quitter. Voici un exemple, basé sur le programme
 'nc_files/tool-length-probe.ngc':
-
 
 [source,{ngc}]
 ----
@@ -628,9 +625,7 @@ O<restore_abs> if [#<absolute>]
 O<restore_abs> endif
 ;
 O<measure> endsub
-
 ----
-
 
 [[mcode:m100-m199]]
 == M100 à M199 Commandes définies par l'utilisateur(((M100 à M199 M-codes définis par l'utilisateur)))(((M-codes définis par l'utilisateur M100-M199)))
@@ -679,7 +674,7 @@ le lancement de LinuxCNC puis rendus exécutables, par exemple par un clic
 droit puis 'propriétés → permissions → Exécution'. S'assurer que cette
 broche du port parallèle n'est pas déjà utilisée dans un fichier de HAL.
 
-.Exemple de fichier pour M101 
+.Exemple de fichier pour M101
 ----
 #!/bin/bash
 # ce fichier met la broche 14 du port à 1 pour ouvrir le mandrin automatique

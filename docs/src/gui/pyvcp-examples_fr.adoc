@@ -5,12 +5,12 @@
 
 == Panneau PyVCP dans AXIS
 
-Procédure pour créer un panneau PyVCP et l'utiliser, attaché dans la partie 
+Procédure pour créer un panneau PyVCP et l'utiliser, attaché dans la partie
 droite de l'interface AXIS.
 
  - Créer un fichier .xml contenant la description du panneau et le placer dans
    le répertoire de la configuration.
- - Ajouter une entrée, avec le nom du fichier .xml, dans la section [DISPLAY] 
+ - Ajouter une entrée, avec le nom du fichier .xml, dans la section [DISPLAY]
    du fichier ini.
  - Ajouter une entrée POSTGUI_HALFILE, avec le nom du fichier postgui HAL.
  - Ajouter les liens vers les pins de HAL pour le panneau dans le fichier
@@ -30,12 +30,12 @@ n'importe quelle interface, suivre les points suivants:
 L'exemple suivant montre le chargement de deux panneaux PyVCP.
 
 ----
-loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml 
+loadusr -Wn btnpanel pyvcp -c btnpanel panel1.xml
 loadusr -Wn sppanel pyvcp -c sppanel panel2.xml
 ----
 
 Les paramètres -Wn font que HAL **W**ait for **n**ame, attends le composant
-nommé _btnpanel_. 
+nommé _btnpanel_.
 
 Les paramètres pyvcp -c font que PyVCP nomme le panneau.
 
@@ -71,7 +71,7 @@ sélectionnant _Ouvrir avec l'éditeur de texte_. Entre les balises
 _<pyvcp>_ et _</pyvcp>_ nous ajouterons les widgets pour le panneau.
 
 Tous les détails sur chacun des Widgets de PyVCP sont donnés dans la
-<<sec:Documentation-des-widgets,documentation des widgets>>.
+<<sec:pyvcp:widgets,documentation des widgets>>.
 
 Dans le fichier custompanel.xml nous ajoutons la description des widgets.
 
@@ -79,79 +79,79 @@ Dans le fichier custompanel.xml nous ajoutons la description des widgets.
 ----
 <pyvcp>
 
-    <labelframe text="Boutons de Jog"> 
+    <labelframe text="Boutons de Jog">
        <font>("Helvetica",16)</font>
 
-        <!-- le bouton de jog de l'axe X --> 
-        <hbox> 
-            <relief>RAISED</relief> 
-            <bd>3</bd> 
-            <button> 
-                <font>("Helvetica",20)</font> 
-                <width>3</width> 
-                <halpin>"x-plus"</halpin> 
-                <text>"X+"</text> 
-            </button> 
-            <button> 
-                <font>("Helvetica",20)</font> 
-                <width>3</width> 
-                <halpin>"x-moins"</halpin> 
-                <text>"X-"</text> 
-            </button> 
+        <!-- le bouton de jog de l'axe X -->
+        <hbox>
+            <relief>RAISED</relief>
+            <bd>3</bd>
+            <button>
+                <font>("Helvetica",20)</font>
+                <width>3</width>
+                <halpin>"x-plus"</halpin>
+                <text>"X+"</text>
+            </button>
+            <button>
+                <font>("Helvetica",20)</font>
+                <width>3</width>
+                <halpin>"x-moins"</halpin>
+                <text>"X-"</text>
+            </button>
         </hbox>
 
-        <!-- le bouton de jog de l'axe Y --> 
-        <hbox> 
-            <relief>RAISED</relief> 
-            <bd>3</bd> 
-            <button> 
-                <font>("Helvetica",20)</font> 
-                <width>3</width> 
-                <halpin>"y-plus"</halpin> 
-                <text>"Y+"</text> 
-            </button> 
-            <button> 
-                <font>("Helvetica",20)</font> 
-                <width>3</width> 
-                <halpin>"y-moins"</halpin> 
-                <text>"Y-"</text> 
-            </button> 
+        <!-- le bouton de jog de l'axe Y -->
+        <hbox>
+            <relief>RAISED</relief>
+            <bd>3</bd>
+            <button>
+                <font>("Helvetica",20)</font>
+                <width>3</width>
+                <halpin>"y-plus"</halpin>
+                <text>"Y+"</text>
+            </button>
+            <button>
+                <font>("Helvetica",20)</font>
+                <width>3</width>
+                <halpin>"y-moins"</halpin>
+                <text>"Y-"</text>
+            </button>
         </hbox>
 
-        <!-- le bouton de jog de l'axe Z --> 
-        <hbox> 
-            <relief>RAISED</relief> 
-            <bd>3</bd> 
-            <button> 
-                <font>("Helvetica",20)</font> 
-                <width>3</width> 
-                <halpin>"z-plus"</halpin> 
-                <text>"Z+"</text> 
-            </button> 
-            <button> 
-                <font>("Helvetica",20)</font> 
-                <width>3</width> 
-                <halpin>"z-moins"</halpin> 
-                <text>"Z-"</text> 
-            </button> 
+        <!-- le bouton de jog de l'axe Z -->
+        <hbox>
+            <relief>RAISED</relief>
+            <bd>3</bd>
+            <button>
+                <font>("Helvetica",20)</font>
+                <width>3</width>
+                <halpin>"z-plus"</halpin>
+                <text>"Z+"</text>
+            </button>
+            <button>
+                <font>("Helvetica",20)</font>
+                <width>3</width>
+                <halpin>"z-moins"</halpin>
+                <text>"Z-"</text>
+            </button>
         </hbox>
 
-        <!-- le curseur de vitesse de jog --> 
-        <vbox> 
-            <relief>RAISED</relief> 
-            <bd>3</bd> 
-            <label> 
-                <text>"Vitesse de Jog"</text> 
-                <font>("Helvetica",16)</font> 
-            </label> 
-            <scale> 
-                <font>("Helvetica",14)</font> 
-                <halpin>"jog-speed"</halpin> 
-                <resolution>1</resolution> 
-                <orient>HORIZONTAL</orient> 
-                <min_>0</min_> 
-                <max_>80</max_> 
-            </scale> 
+        <!-- le curseur de vitesse de jog -->
+        <vbox>
+            <relief>RAISED</relief>
+            <bd>3</bd>
+            <label>
+                <text>"Vitesse de Jog"</text>
+                <font>("Helvetica",16)</font>
+            </label>
+            <scale>
+                <font>("Helvetica",14)</font>
+                <halpin>"jog-speed"</halpin>
+                <resolution>1</resolution>
+                <orient>HORIZONTAL</orient>
+                <min_>0</min_>
+                <max_>80</max_>
+            </scale>
         </vbox>
     </labelframe>
 </pyvcp>
@@ -159,9 +159,9 @@ Dans le fichier custompanel.xml nous ajoutons la description des widgets.
 
 Après les ajouts précédents, nous avons un panneau PyVCP tel que celui
 de l'image suivante, attaché à droite d'Axis. Il est beau mais ne fait rien tant
-que les boutons ne sont pas "connectés" à halui. Si, à ce stade, une erreur se 
-produit lors du déplacement de la fenêtre vers le bas, c'est généralement dû à 
-une erreur de syntaxe ou d'écriture, elle est donc dans cette partie qu'il 
+que les boutons ne sont pas "connectés" à halui. Si, à ce stade, une erreur se
+produit lors du déplacement de la fenêtre vers le bas, c'est généralement dû à
+une erreur de syntaxe ou d'écriture, elle est donc dans cette partie qu'il
 conviendra tout d'abord de vérifier soigneusement.
 
 .Boutons de Jog[[cap:Jog-Buttons]]
@@ -174,26 +174,26 @@ et y ajouter le code suivant:
 
 [source,c]
 ----
-# connecte les boutons PyVCP pour X 
-net my-jogxmoins halui.jog.0.minus <= pyvcp.x-moins 
+# connecte les boutons PyVCP pour X
+net my-jogxmoins halui.jog.0.minus <= pyvcp.x-moins
 net my-jogxplus halui.jog.0.plus <= pyvcp.x-plus
 
 # connecte les boutons PyVCP pour Y
-net my-jogymoins halui.jog.1.minus <= pyvcp.y-moins 
+net my-jogymoins halui.jog.1.minus <= pyvcp.y-moins
 net my-jogyplus halui.jog.1.plus <= pyvcp.y-plus
 
-# connecte les boutons PyVCP pour Z 
-net my-jogzmoins halui.jog.2.minus <= pyvcp.z-moins 
+# connecte les boutons PyVCP pour Z
+net my-jogzmoins halui.jog.2.minus <= pyvcp.z-moins
 net my-jogzplus halui.jog.2.plus <= pyvcp.z-plus
 
-# connecte le curseur de vitesse de jog PyVCP  
+# connecte le curseur de vitesse de jog PyVCP
 net my-jogspeed halui.jog-speed <= pyvcp.jog-speed-f
 ----
 
 Après avoir désactivé l'A/U (E-Stop) et activé la marche machine en mode Jog,
-le déplacement du curseur du panneau PyVCP devrait agir dès qu'il est placé au 
-delà de zéro et les boutons de jog devraient fonctionner. Il est impossible de 
-jogger alors qu'un fichier G-code s'exécute ou pendant qu'il est en pause ni 
+le déplacement du curseur du panneau PyVCP devrait agir dès qu'il est placé au
+delà de zéro et les boutons de jog devraient fonctionner. Il est impossible de
+jogger alors qu'un fichier G-code s'exécute ou pendant qu'il est en pause ni
 quand l'onglet _Données manuelles [F5]_ du (MDI), est ouvert.
 
 == Testeur de port
@@ -267,7 +267,7 @@ la description du panneau.
 </pyvcp>
 ----
 
-Le panneau flottant contenant deux pins de HAL d'entrée et deux pins de 
+Le panneau flottant contenant deux pins de HAL d'entrée et deux pins de
 HAL de sortie.
 
 .Panneau flottant testeur de port parallèle[[cap:Port-Tester-Panel]]
@@ -290,7 +290,7 @@ net pin11 parport.0.pin-11-in ptest.led-11
 start
 ----
 
-Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes 
+Pour lancer le fichier HAL, nous utilisons, dans un terminal, les commandes
 suivantes:
 ----
 ~$ halrun -I -f ptest.hal
@@ -301,7 +301,7 @@ La figure suivante montre à quoi ressemble le panneau complet.
 .Testeur de port parallèle, complet[[cap:Port-Tester-Complete]]
 image::images/ptest-final.png[alt="Testeur de port parallèle, complet"]
 
-Pour ajouter le reste des pins du port parallèle, il suffi de modifier les 
+Pour ajouter le reste des pins du port parallèle, il suffi de modifier les
 fichiers .xml et .hal.
 
 Pour visualiser les pins après avoir lancé le script HAL, utiliser la
@@ -347,13 +347,13 @@ connections.
 [[sec:Exemple-Compte-Tours-GS2]]
 == Compte tours pour GS2
 
-L'exemple suivant utilise un variateur de fréquence GS2 de la société Automation 
+L'exemple suivant utilise un variateur de fréquence GS2 de la société Automation
 Direct. footnote:[ En Europe on trouve ce type de variateur sous la marque Omron.]
  Il permet le pilotage du moteur, la visualisation de la vitesse ainsi que
 d'autres informations dans un panneau PyVCP. Cet exemple est basé sur un autre,
 relatif au variateur GS2 et se trouvant dans la section des exemples matériels
 de ce manuel.
-Ce dernier exemple s'appuie lui même sur la description du composant de 
+Ce dernier exemple s'appuie lui même sur la description du composant de
 HAL gs2_vfd.
 
 === Le panneau
@@ -364,89 +364,89 @@ Pour créer le panneau nous ajoutons ce code au fichier .xml.
 ----
 <pyvcp>
 
-    <!-- Compte tours --> 
-    <hbox> 
-        <relief>RAISED</relief> 
-        <bd>3</bd> 
-        <meter> 
-            <halpin>"spindle_rpm"</halpin> 
-            <text>"Broche"</text> 
-            <subtext>"tr/mn"</subtext> 
-            <size>200</size> 
-            <min_>0</min_> 
-            <max_>3000</max_> 
-            <majorscale>500</majorscale> 
-            <minorscale>100</minorscale> 
-            <region1>0,10,"yellow"</region1> 
-        </meter> 
+    <!-- Compte tours -->
+    <hbox>
+        <relief>RAISED</relief>
+        <bd>3</bd>
+        <meter>
+            <halpin>"spindle_rpm"</halpin>
+            <text>"Broche"</text>
+            <subtext>"tr/mn"</subtext>
+            <size>200</size>
+            <min_>0</min_>
+            <max_>3000</max_>
+            <majorscale>500</majorscale>
+            <minorscale>100</minorscale>
+            <region1>0,10,"yellow"</region1>
+        </meter>
     </hbox>
 
-    <!-- La Led On --> 
-    <hbox> 
-        <relief>RAISED</relief> 
-        <bd>3</bd> 
-        <vbox> 
-            <relief>RAISED</relief> 
-            <bd>2</bd> 
-            <label> 
-                <text>"On"</text> 
-                <font>("Helvetica",18)</font> 
-            </label> 
-            <width>5</width> 
-            <hbox> 
-                <label width="2"/> <!-- utilisé pour centrer la Led --> 
-                <rectled> 
-                    <halpin>"on-led"</halpin> 
-                    <height>"30"</height> 
-                    <width>"30"</width> 
-                    <on_color>"green"</on_color> 
-                    <off_color>"red"</off_color> 
-                </rectled> 
-            </hbox> 
+    <!-- La Led On -->
+    <hbox>
+        <relief>RAISED</relief>
+        <bd>3</bd>
+        <vbox>
+            <relief>RAISED</relief>
+            <bd>2</bd>
+            <label>
+                <text>"On"</text>
+                <font>("Helvetica",18)</font>
+            </label>
+            <width>5</width>
+            <hbox>
+                <label width="2"/> <!-- utilisé pour centrer la Led -->
+                <rectled>
+                    <halpin>"on-led"</halpin>
+                    <height>"30"</height>
+                    <width>"30"</width>
+                    <on_color>"green"</on_color>
+                    <off_color>"red"</off_color>
+                </rectled>
+            </hbox>
         </vbox>
 
-        <!-- La Led Sens horaire --> 
-        <vbox> 
-            <relief>RAISED</relief> 
-            <bd>2</bd> 
-            <label> 
-                <text>"Sens horaire"</text> 
-                <font>("Helvetica",18)</font> 
-                <width>5</width> 
-            </label> 
-            <label width="2"/> 
-            <rectled> 
-                <halpin>"fwd-led"</halpin> 
-                <height>"30"</height> 
-                <width>"30"</width> 
-                <on_color>"green"</on_color> 
-                <off_color>"red"</off_color> 
-            </rectled> 
+        <!-- La Led Sens horaire -->
+        <vbox>
+            <relief>RAISED</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Sens horaire"</text>
+                <font>("Helvetica",18)</font>
+                <width>5</width>
+            </label>
+            <label width="2"/>
+            <rectled>
+                <halpin>"fwd-led"</halpin>
+                <height>"30"</height>
+                <width>"30"</width>
+                <on_color>"green"</on_color>
+                <off_color>"red"</off_color>
+            </rectled>
         </vbox>
 
-        <!-- La Led Sens inverse --> 
-        <vbox> 
-            <relief>RAISED</relief> 
-            <bd>2</bd> 
-            <label> 
-                <text>"Sens inverse"</text> 
-                <font>("Helvetica",18)</font> 
-                <width>5</width> 
-            </label> 
-            <label width="2"/> 
-            <rectled> 
-                <halpin>"rev-led"</halpin> 
-                <height>"30"</height> 
-                <width>"30"</width> 
-                <on_color>"red"</on_color> 
-                <off_color>"green"</off_color> 
-            </rectled> 
-        </vbox> 
-    </hbox> 
+        <!-- La Led Sens inverse -->
+        <vbox>
+            <relief>RAISED</relief>
+            <bd>2</bd>
+            <label>
+                <text>"Sens inverse"</text>
+                <font>("Helvetica",18)</font>
+                <width>5</width>
+            </label>
+            <label width="2"/>
+            <rectled>
+                <halpin>"rev-led"</halpin>
+                <height>"30"</height>
+                <width>"30"</width>
+                <on_color>"red"</on_color>
+                <off_color>"green"</off_color>
+            </rectled>
+        </vbox>
+    </hbox>
 </pyvcp>
 ----
 
-L'image ci-dessous montre notre panneau PyVCP en fonctionnement. 
+L'image ci-dessous montre notre panneau PyVCP en fonctionnement.
 
 [[cap:Panneau-GS2]]
 .Panneau pour GS2
@@ -459,28 +459,28 @@ custom_postgui.hal, il réalise les connections entre PyVCP et LinuxCNC.
 
 [source,c]
 ----
-# affiche le compte tours, calcul basé sur freq * rpm par hz 
-loadrt mult2 
-addf mult2.0 servo-thread 
-setp mult2.0.in1 28.75 
-net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out 
-net speed_out pyvcp.spindle_rpm <= mult2.0.out 
+# affiche le compte tours, calcul basé sur freq * rpm par hz
+loadrt mult2
+addf mult2.0 servo-thread
+setp mult2.0.in1 28.75
+net cypher_speed mult2.0.in0 <= spindle-vfd.frequency-out
+net speed_out pyvcp.spindle_rpm <= mult2.0.out
 
-# la led On 
+# la led On
 net gs2-run => pyvcp.on-led
 
-# la led Sens horaire 
+# la led Sens horaire
 net gs2-fwd => pyvcp.fwd-led
 
 # la led Sens anti-horaire
 net running-rev spindle-vfd.spindle-rev => pyvcp.rev-led
 ----
 
-Certaines lignes demandent quelques explications. 
+Certaines lignes demandent quelques explications.
 
- - La ligne de la led Sens horaire utilise le signal créé dans le fichier 
-   custom.hal dans lequel la led Sens inverse doit utiliser le bit _spindle-rev_. 
- - On ne _peut pas_ lier deux fois le bit _spindle-fwd_ pour utiliser le signal 
+ - La ligne de la led Sens horaire utilise le signal créé dans le fichier
+   custom.hal dans lequel la led Sens inverse doit utiliser le bit _spindle-rev_.
+ - On ne _peut pas_ lier deux fois le bit _spindle-fwd_ pour utiliser le signal
    auquel il est déjà lié.
 
 // vim: set syntax=asciidoc:

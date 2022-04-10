@@ -1,9 +1,9 @@
 :lang: en
 
-[[cha:tklinuxcnc-gui]]
+[[cha:tklinuxcnc-intro]]
 = TkLinuxCNC GUI
 
-[[sec:tklinuxcnc-introduction]]
+[[sec:tklinuxcnc-intro]]
 == Introduction
 
 TkLinuxCNC is one of the first graphical front-ends
@@ -12,8 +12,8 @@ for the display. Being written in Tcl makes it very portable (it runs on a
 multitude of platforms). A separate backplot window can be displayed as
 shown.
 
+[[cap:tklinuxcnc-display]]
 .TkLinuxCNC Window
-
 image::images/tkemc.png["TkLinuxCNC Window",align="center"]
 
 == Getting Started
@@ -28,8 +28,8 @@ DISPLAY = tklinuxcnc
 Then, start LinuxCNC and select that ini file. The sample configuration
 'sim/tklinuxcnc/tklinuxcnc.ini' is already configured to use TkLinuxCNC as its front-end.
 
-From French: Quand LinuxCNC est lancé avec TkLinuxCNC, une fenêtre
-<<sec:tklinuxcnc-introduction,comme celle-ci s'affiche>>.
+When LinuxCNC is launched with TKLinuxCNC a window <<cap:tklinuxcnc-display,like this one>>
+is opened.
 
 === A typical session with TkLinuxCNC
 
@@ -116,17 +116,15 @@ trivial kinematics), but help on machines with non-trivial kinematics like robot
 in the Integrator Manual).
 
 .Backplot
-
 When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
-[[cap:TkLinuxCNC-Interpreteur]]
+[[cap:tklinuxcnc-interpreter]]
 === Automatic control
 
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
 
 .Control Buttons
-
 The buttons in the lower part of TkLinuxCNC are used to control the execution of a
 program:
 
@@ -139,7 +137,6 @@ program:
 * 'Optional Stop' to toggle the optional stop switch (if the button is green the program execution will be stopped on any M1 encountered).
 
 .Text Program Display Area
-
 When the program is running, the line currently being executed is
 highlighted in white. The text display will automatically scroll to
 show the current line.
@@ -147,7 +144,6 @@ show the current line.
 === Manual Control
 
 .Implicit keys
-
 TkLinuxCNC allows you to manually move the machine. This action is known as
 'jogging'. First, select the axis to be moved by clicking it. Then,
 click and hold the '+' or '-' button depending on the desired direction
@@ -174,11 +170,11 @@ permitted to jog outside the limits defined in the .ini file. (Note: if
 'Override Limits' is active the button will be displayed using a red
 color).
 
-.TkLinuxCNC Override Limits & Jogging increments example[[cap:Override-Limits]]
+[[cap:override-limits]]
+.TkLinuxCNC Override Limits & Jogging increments example
 image::images/tkemc-override-limits.png["TkLinuxCNC Override Limits and Jogging increments example",align="center"]
 
 .The Spindle group(((spindle)))
-
 The button on the first row selects the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
 allow the user to increase or decrease the rotation speed. The button
@@ -187,7 +183,6 @@ Depending on your machine configuration, not all the items in this
 group may have an effect.
 
 .The Coolant group(((Coolant)))
-
 The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
 and off. Depending on your machine configuration, not all the items in
 this group may appear.
@@ -204,7 +199,6 @@ This allows you to enter a G-code command to be executed. Execute the
 command by pressing Enter.
 
 .Active G-Codes
-
 This shows the 'modal codes' that are active in the interpreter. For
 instance, 'G54' indicates that the 'G54 offset' is applied to all
 coordinates that are entered.
@@ -243,9 +237,9 @@ Many of the shortcuts are unavailable when in MDI mode.
 The most frequently used keyboard shortcuts are shown in the
 following table.
 
-[[cap:Raccourcis-clavier-frequents]]
-.Most Common Keyboard Shortcuts
-[width="75%", options="header", cols="1^,3<"]
+[[cap:common-keyboard-shortcuts]]
+.Most Common Keyboard Shortcuts(((TkLinuxCNC Common Keyboard Shortcuts)))
+[width="75%",options="header",cols="1^,3<"]
 |========================================
 |Keystroke    | Action Taken
 |F1           | Toggle Emergency Stop
@@ -262,5 +256,3 @@ following table.
 |[, ]         | Jog fourth axis
 |ESC          | Stop execution
 |========================================
-
-

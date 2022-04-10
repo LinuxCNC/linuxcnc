@@ -3,8 +3,6 @@
 [[cha:classicladder-examples]]
 = Classicladder Examples
 
-= Classicladder Examples
-
 == Wrapping Counter
 
 To have a counter that 'wraps around' you have to use the preset pin
@@ -18,7 +16,6 @@ The underflow output %Q2 will set the counter value at the preset when
 counting backwards.
 
 .Wrapping Counter
-
 image::images/wrapping-counter.png["Wrapping Counter",align="center"]
 
 == Reject Extra Pulses
@@ -33,7 +30,6 @@ the output of the timer blocks any further inputs from reaching our
 output until it times out.
 
 .Reject Extra Pulse
-
 image::images/extra-pulse-reject.png["Reject Extra Pulse",align="center"]
 
 == External E-Stop
@@ -64,7 +60,7 @@ addf classicladder.0.refresh servo-thread
 
 Next we run our config and build the ladder as shown here.
 
-[[cap:E-Stop-Section-Display]]
+[[cap:e-stop-section-display]]
 .E-Stop Section Display
 image::images/EStop_Section_Display.png["E-Stop Section Display",align="center"]
 
@@ -141,7 +137,8 @@ to open it with the text editor not the default html viewer.
 
 Now start up your config and it should look like this.
 
-.AXIS E-Stop[[cap:AXIS-E-Stop]]
+[[cap:axis-e-stop]]
+.AXIS E-Stop
 image::images/axis_cl-estop.png["AXIS E-Stop",align="center"]
 
 Note that in this example like in real life you must clear the remote
@@ -155,7 +152,8 @@ reset from the external after you do an E-Stop in AXIS.
 In this example we are using the Operate block to assign a value to
 the timer preset based on if an input is on or off.
 
-.Timer/Operate Example[[cap:Timer/Operate-Example]]
+[[cap:timer-operate-Example]]
+.Timer/Operate Example
 image::images/Tmr_Section_Display.png["Timer/Operate Example",align="center"]
 
 In this case %I0 is true so the timer preset value is 10. If %I0 was
@@ -205,4 +203,3 @@ Step 3 is active and waiting for %B2 to be true.
 Step 4 is active and is waiting for %B3 to be true.
 WOW, that was quite a mouthful!!
 ///////////////////////////////////////////////////////////////////////////////
-

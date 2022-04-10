@@ -170,7 +170,7 @@ include::gui/qtvcp.adoc[]
 
 :leveloffset: 3
 
-include::gui/qtvcp-VCPpanels.adoc[]
+include::gui/qtvcp-vcp-panels.adoc[]
 
 include::gui/qtvcp-widgets.adoc[]
 
@@ -193,6 +193,8 @@ include::gui/qtvcp-development.adoc[]
 include::gui/panelui.adoc[]
 
 include::gui/halui.adoc[]
+
+include::gui/GStat.adoc[]
 
 include::hal/halui-examples.adoc[]
 
@@ -326,5 +328,3 @@ include::common/gpld-copyright.adoc[]
 // = Index
 
 // vim: set syntax=asciidoc:
-
-

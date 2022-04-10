@@ -307,7 +307,7 @@ Los archivos de controlador se utilizan para crear controles personalizados con 
 Aquí hay un archivo de controlador de muestra.
 Está dividido en secciones para facilitar la discusión.
 
-[source, python]
+[source,python]
 ----
 ############################
 # **** SECCIÓN DE IMPORTACIÓN **** #
@@ -619,7 +619,7 @@ Si está utilizando la biblioteca de combinación de teclas, aquí es donde colo
 Rutinas de llamadas clave personalizadas.
 La firma de la función es:
 
-[source, python]
+[source,python]
 ----
     def on_keycall_KEY (self, event, state, shift, cntrl):
         si estado:
@@ -633,7 +633,7 @@ Al poner aquí la función de evento cerrado, se detectarán los eventos de cier
 Esto reemplaza cualquier función closeEvent predefinida de qtvcp
 Por lo general, es mejor usar la función de cierre_cleanup__ especial.
 
-[source, python]
+[source,python]
 ----
     def closeEvent (self, event):
         self.do_something ()
@@ -687,7 +687,7 @@ Agregaremos algo de código para imprimir el nombre del widget.
 
 Entonces, para nuestro ejemplo:
 
-[source, python]
+[source,python]
 ----
 def test_button (self):
     nombre = self.w.sender (). text ()
@@ -717,5 +717,3 @@ Removed all-English _es file: cha:qtvcp-code,fragmentos de código de archivo de
 Removed all-English _es file: cha:qtvcp-development,QtVCP Development
 
 Removed all-English _es file: cha:qtvcp-custom-widgets,QtVCP Custom Designer Widgets
-
-

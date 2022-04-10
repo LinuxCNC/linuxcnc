@@ -13,7 +13,7 @@ partir du Live-CD avant de l'installer sur un ordinateur. Garder à
 l'esprit que les valeurs retournées par le test de latence (Latency
 Test), sont plus importantes que la vitesse du microprocesseur pour la génération
 logicielle des pas. Plus d'informations à ce propos dans la section
-relative au <<cha:test-de-latence, test de latence>>.
+relative au <<sec:latency-test,test de latence>>.
 De surcroît, LinuxCNC a besoin d'être exécuté sur un noyau modifié.
 Voir <<sec:kernel_and_version_requirements,Noyau et version requise>>.
 

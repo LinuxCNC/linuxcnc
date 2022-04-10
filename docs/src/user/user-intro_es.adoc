@@ -1,9 +1,18 @@
-﻿:lang: es
+:lang: es
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
 
 = Introduccion para usuarios de LinuxCNC
+
+== Introduction
+
+Ce document est centré sur l'utilisation de LinuxCNC,
+il est plutôt destiné aux lecteurs l'ayant déjà installé et configuré.
+Quelques informations sur l'installation sont données dans les
+chapitres suivants.
+La documentation complète sur l'installation et
+la configuration se trouve dans le manuel de l'intégrateur.
 
 == Como funciona LinuxCNC
 

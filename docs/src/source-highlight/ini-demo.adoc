@@ -1,10 +1,8 @@
 :lang: en
 
-Source Highlight Filter Test
-=============================
+= Source Highlight Filter Test
 
-Details of the filter can be found in
-`./doc/source-highlight-filter.txt`.
+Details of the filter can be found in `./doc/source-highlight-filter.txt`.
 
 // for now, PDF's can't have highlighted ini,hal or ngc files
 // for brave souls: extend /usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty

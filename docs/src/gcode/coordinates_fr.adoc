@@ -11,8 +11,8 @@ Dans ce chapitre, nous allons tenter de démystifier les systèmes de coordonné
 C'est une notion capitale pour maitriser le fonctionnement d'une machine CNC, sa
 configuration et son utilisation.
 
-Nous montrerons également, qu'il est très intéressant d'utiliser un point de 
-référence sur le brut ou la pièce et de faire travailler le programme à partir 
+Nous montrerons également, qu'il est très intéressant d'utiliser un point de
+référence sur le brut ou la pièce et de faire travailler le programme à partir
 de ce point, sans avoir à tenir compte d'où est placée la pièce sur la
 machine pendant l'usinage.
 Ce chapitre va donc introduire les décalages et comment ils sont utilisés
@@ -23,7 +23,7 @@ par LinuxCNC:
 * Un jeu de décalages globaux (G92) and local offsets (G52)
 
 [[sec:machine-coordinate-system]]
-== Commande en coordonnées machine: G53 
+== Commande en coordonnées machine: G53
 
 Indépendamment de tout décalage pouvant être actif, un G53 dans une ligne de
 code indique à l'interpréteur de se déplacer aux positions réelles des axes
@@ -43,9 +43,10 @@ zone de travail et accéder à la pièce dans l'étau.
 G53 est une commande non modale. Elle doit être utilisée sur chaque
 ligne où un mouvement basé sur les coordonnées machine est souhaité.
 
-[[fig:decalages-ilots]]
-== Décalages pièce (G54 à G59.3)
+== Systèmes de coordonnées
 
+[[fig:decalages-ilots]]
+.Coordinate Systems Example
 image::images/offsets.png["Exemple de décalages pour 8 ilots"]
 
 .Exemple de décalages pour 8 ilots
@@ -97,7 +98,7 @@ directement le fichier pour que G55 prenne les valeurs suivantes:
 |5246 |0.000000
 |==============
 
-Vous pouvez voir que les positions zéro de G55 sont passées en X = 2, 
+Vous pouvez voir que les positions zéro de G55 sont passées en X = 2,
 Y = 1, et Z = -2 éloignées donc de l'origine absolue (machine).
 
 Une fois que les valeurs sont assignées, un appel de G55 dans une
@@ -201,13 +202,13 @@ these parameters.
 See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> below.
 
 [CAUTION]
-----
+====
 'G52' and 'G92' share the same offset registers.  Therefore, setting
 'G52' will override any earlier 'G92' setting, and 'G52' will persist
 across machine reset when 'G92' persistence is enabled.  These
 interactions may result in unexpected offsets.
 See <<sec:g92-g52-interaction-cautions,G92 and G52 Interaction Cautions>> below.
-----
+====
 
 Programming 'G52 X1 Y2' offsets the current workpiece coordinate
 system X axis by 1 and Y axis by 2.  Accordingly, on the DRO, the
@@ -270,7 +271,7 @@ Il y a au moins deux façons d'établir les valeurs de G92.
 
  * Par un clic droit de la souris sur les afficheurs de position de
    tklinuxcnc, une fenêtre s'ouvre dans laquelle il est possible de saisir une
-   valeur. 
+   valeur.
  * Par la commande G92.
 
 Toutes les deux, fonctionnent depuis l'emplacement courant de l'axe
@@ -292,11 +293,11 @@ devienne X=0.000. Un nouveau 'G92 X5.000' fixera un décalage de 3.000
 et l'affichage indiquera une position courante X=5.000.
 
 [[sec:g92-persistence-cautions]]
-=== Précautions avec G92 
+=== Précautions avec G92
 
 Parfois, les valeurs de décalage d'un G92 restent bloquées dans le
 fichier VAR. Quand ça arrive, une ré-initialisation ou un redémarrage
-peut les rendre de nouveau actives. Les variables sont numérotées: 
+peut les rendre de nouveau actives. Les variables sont numérotées:
 
 [width="40%",cols="^,^",options="header"]
 |==============
@@ -316,21 +317,38 @@ position lorsque vous démarrez, regardez ces variables dans le fichier
 VAR pour vérifier si elles contiennent des valeurs. Si c'est le cas,
 les mettre à zéro devrait solutionner le problème.
 
-Si des valeurs G92 existent dans le fichier VAR quand LinuxCNC démarre, ces 
-valeurs seront appliquées aux valeurs courantes des emplacements d'axe. 
+Si des valeurs G92 existent dans le fichier VAR quand LinuxCNC démarre, ces
+valeurs seront appliquées aux valeurs courantes des emplacements d'axe.
 Si c'est sa position d'origine et que l'origine est définie au zéro machine, tout
-sera correct. Une fois que l'origine machine a été établie en utilisant les 
+sera correct. Une fois que l'origine machine a été établie en utilisant les
 contacts d'origine machine, ou en déplaçant chaque axe à une position connue, puis
 en envoyant la commande de prise d'origine de l'axe, tous les décalages G92 seront
 appliqués. Si un X1 G92 est actif lors de la prise d'origine machine de l'axe X,
-la visu affichera 'X: 1.000' au lieu du 'X: 0.000' attendu, c'est parce-que le 
+la visu affichera 'X: 1.000' au lieu du 'X: 0.000' attendu, c'est parce-que le
 G92 a été appliqué à l'origine machine. Si vous passez un G92.1 et que la visu
-affiche tous à zéro, alors c'est que vous avez encore l'effet de l'offset G92 
+affiche tous à zéro, alors c'est que vous avez encore l'effet de l'offset G92
 de la dernière session de LinuxCNC.
 
 Sauf si votre intention est d'utiliser les mêmes décalages G92 dans le prochain
-programme, la meilleure pratique consiste à envoyer un G92.1 à la fin de tout 
+programme, la meilleure pratique consiste à envoyer un G92.1 à la fin de tout
 fichier de G-code dans lequel vous utilisez les compensations G92.
+
+When a program is aborted during processing that has 'G92' offsets in
+effect a startup will cause them to become active again.  As a
+safeguard, always have your preamble to set the environment as you
+expect it.  Additionally, 'G92' persistence may be disabled by setting
+'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
+'.ini' file.
+
+[[sec:g92-g52-interaction-cautions]]
+=== G92 and G52 Interaction Cautions
+
+'G52' and 'G92' share the same offset registers.  Unless 'G92'
+persistence is disabled in the '.ini' file (see <<sec:g92-commands,G92 Commands>>),
+'G52' offsets will also persist after machine reset,
+'M02' or 'M30'.  Beware that a 'G52' offset in effect during a program
+abort may result in unintended offsets when the next program is run.
+See <<sec:g92-persistence-cautions,G92 Persistence Cautions>> above.
 
 == Exemple de programme utilisant les décalages d'axes
 
@@ -340,7 +358,7 @@ Nous pouvons configurer individuellement les formes de la façon
 suivante:
 
 ----
-G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro) 
+G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro)
 G0 X-0.1 Y0 Z0
 G1 F1 Z-0.25
 G3 X-0.1 Y0 I0.1 J0
@@ -364,9 +382,9 @@ Nous mettons ces ensembles dans le programme suivant:
 (Un programme de fraisage de cinq petits cercles dans un losange)
 
 G10 L2 P1 X0 Y0 Z0 (assure que G54 a mis la machine à zéro)
-G10 L2 P2 X0.5 (décalages G55 X la valeur de 0.5 pouces) 
-G10 L2 P3 X-0.5 (décalages G56 X la valeur de -0.5 pouces) 
-G10 L2 P4 Y0.5 (décalages G57 X la valeur de 0.5 pouces) 
+G10 L2 P2 X0.5 (décalages G55 X la valeur de 0.5 pouces)
+G10 L2 P3 X-0.5 (décalages G56 X la valeur de -0.5 pouces)
+G10 L2 P4 Y0.5 (décalages G57 X la valeur de 0.5 pouces)
 G10 L2 P5 Y-0.5 (décalages G58 X la valeur de -0.5 pouces)
 
 G54 G0 X-0.1 Y0 Z0 (cercle du centre)
@@ -408,4 +426,3 @@ pas, les programmes que vous pourriez lancer après celui-ci,
 utiliseront également les décalages G92. En outre, cela permettrait
 d'éviter d'écrire les valeurs de G92 lorsque vous arrêtez LinuxCNC et donc,
 d'éviter de les recharger quand vous démarrez à nouveau le programme.
-

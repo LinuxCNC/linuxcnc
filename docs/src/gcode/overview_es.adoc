@@ -1,4 +1,4 @@
-﻿:lang: es
+:lang: es
 
 [[cha:g-code-overview]]
 = Descripcion general del codigo G
@@ -7,9 +7,9 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 // comienze un listado de archivos ini/hal/ngc así:
-// [source,{ini}]
-// [source,{hal}]
-// [source,{ngc}]
+// [source,ini]
+// [source,hal]
+// [source,ngc]
 
 == Descripcion general
 
@@ -222,7 +222,7 @@ Uso previsto::
   Son de lectura/escritura (se le puede asignar un valor).
 * <<sub:subroutine-parameters,parámetros de subrutina >> - se utilizan para
   mantener los parámetros reales pasados ​​a una subrutina.
-* <<sub:numbered-parameters,parámetros numerados>> - La mayoría de estos se utilizan 
+* <<sub:numbered-parameters,parámetros numerados>> - La mayoría de estos se utilizan
   para acceder a offsets de sistemas de coordenadas.
 * <<sub:system-parameters,parámetros del sistema>> - utilizado para determinar la
   versión en ejecución. Son de solo lectura.
@@ -244,9 +244,9 @@ Un valor se almacena en un parámetro con el operador '=' , por ejemplo:
 #3 = 15 (configura el parámetro 3 a 15)
 ----
 
-Una configuración de parámetros no toma efecto hasta después de que todos los valores de los 
-parámetros en la misma línea hayan sido encontrados. Por ejemplo, si el parámetro 3 tiene 
-previamente el valor 15 y se interpreta la línea '#3=6 G1 X#3', ocurrirá un movimiento directo 
+Una configuración de parámetros no toma efecto hasta después de que todos los valores de los
+parámetros en la misma línea hayan sido encontrados. Por ejemplo, si el parámetro 3 tiene
+previamente el valor 15 y se interpreta la línea '#3=6 G1 X#3', ocurrirá un movimiento directo
 a un punto donde X es igual a 15 y el valor del parámetro #3 pasara a 6.
 
 El carácter '\#' tiene prioridad sobre otras operaciones, de modo que, por
@@ -321,8 +321,8 @@ El formato de un archivo de parámetros se muestra en la Tabla
 
 El intérprete espera que el archivo tenga dos columnas. Se salta cualquier
 líneas que no contienen exactamente dos valores numéricos.
-Se espera que la primera columna contenga un valor entero (el número de parámetro). 
-La segunda columna contiene un número de coma flotante (último valor del parámetro). 
+Se espera que la primera columna contenga un valor entero (el número de parámetro).
+La segunda columna contiene un número de coma flotante (último valor del parámetro).
 El valor se representa como un número de coma flotante de doble precisión dentro del intérprete, pero
 el punto decimal no se requiere en el archivo.
 
@@ -389,7 +389,7 @@ Ejemplos:
 o100 call [0.0] [0.0] [#<_inside_cutout>-#<_endmill_dia>] [#<_Zcut>] [#<_feedrate>]
 ----
 
-Los parámetros con nombre aparecen cuando se les asigna un valor por primera vez. 
+Los parámetros con nombre aparecen cuando se les asigna un valor por primera vez.
 Los parámetros locales nombrados desaparecen cuando se abandona su alcance, esto es,
 cuando se vuelve de una subrutina se eliminan todos sus parámetros locales
 y ya no se puede hacer referencia a ellos.
@@ -560,7 +560,7 @@ Por ejemplo, si está en el sistema de coordenadas G55, el valor de retorno es
 * '#<_selected_pocket>' -
   El número de ranura seleccionado por un código T. Predeterminado -1
   (sin ranura seleccionada).
-* '#<_value>' - 
+* '#<_value>' -
   Valor de retorno de la última palabra O 'return' o 'endsub'. Por defecto
   valor 0 si no hay expresión después de 'return' o 'endsub'. Inicializado
   a 0 al inicio del programa.
@@ -609,7 +609,7 @@ o100 else
 o100 endif
 ---------------------------------------------------------------------
 
-El valor se lee desde el archivo ini una vez y se almacena en caché del interprete. 
+El valor se lee desde el archivo ini una vez y se almacena en caché del interprete.
 Estos parámetros son de solo lectura: asignar un valor
 causa un error de tiempo de ejecución. Los nombres no distinguen entre mayúsculas y minúsculas, son
 convertido a mayúsculas antes de consultar el archivo ini.
@@ -630,7 +630,7 @@ Ejemplo:
 (debug, #<_hal[motion-controller.time]>)
 ---------------------------------------------------------------------
 
-El acceso a los items HAL es de solo lectura. Actualmente, solo se puede acceder de esta manera 
+El acceso a los items HAL es de solo lectura. Actualmente, solo se puede acceder de esta manera
 a los nombres HAL en minúsculas.
 
 `EXISTS` se puede usar para probar la presencia de un elemento HAL dado:
@@ -665,12 +665,12 @@ expresión es '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 [[gcode:binary-operators]]
 == Operadores binarios
 
-Los operadores binarios solo aparecen dentro de las expresiones. Hay cuatro operaciones 
+Los operadores binarios solo aparecen dentro de las expresiones. Hay cuatro operaciones
 matemáticas básicas: suma ('+'), resta ('-'), multiplicación ('\*') y división ('/'). Hay tres
-operaciones lógicas: o no exclusivo ('OR'), o exclusivo ('XOR'), y lógico 'AND'). 
+operaciones lógicas: o no exclusivo ('OR'), o exclusivo ('XOR'), y lógico 'AND').
 La octava operación es la operación de módulo ('MOD').
 La novena operación es la operación 'potencia' ('**'); elevar el número
-a la izquierda de la operación al exponente de la derecha. 
+a la izquierda de la operación al exponente de la derecha.
 Los operadores relacionales son igualdad ('EQ'), desigualdad
 ('NE'), estrictamente mayor que ('GT'), mayor o igual que ('GE'),
 estrictamente menor que ('LT'), y menor o igual que ('LE').
@@ -935,12 +935,12 @@ comandos, un miembro del grupo debe estar en vigor. Hay por defecto
 ajustes para estos grupos modales. Cuando el centro de mecanizado está encendido
 o reinicializado, los valores predeterminados entran automáticamente en efecto.
 
-El grupo 1 es un grupo de códigos G para movimiento. Uno de ellos siempre está vigente. 
+El grupo 1 es un grupo de códigos G para movimiento. Uno de ellos siempre está vigente.
 A ese se le llama modo de movimiento actual.
 
 Es un error colocar un código G del grupo 1 y un código G del grupo 0
-en la misma línea si ambos usan palabras de eje. Si un código G del grupo 1 que usa palabras de eje 
-estaba implícitamente vigente en una línea (por haber sido activado en una línea anterior) 
+en la misma línea si ambos usan palabras de eje. Si un código G del grupo 1 que usa palabras de eje
+estaba implícitamente vigente en una línea (por haber sido activado en una línea anterior)
 y un código G del grupo 0 que usa las palabras de eje aparece en la línea, la actividad del código G del grupo 1 es
 suspendida para esa línea. Los códigos G del grupo 0 que usan palabras de eje son
 G10, G28, G30, G52 y G92.
@@ -997,7 +997,7 @@ NOTA: Los comentarios en línea en palabras O no deben usarse. Vea la sección d
 
 == Registro de sonda(((Probe Logging)))
 
-* '(PROBEOPEN filename.txt)' - abrirá filename.txt y almacenará 9 números de 
+* '(PROBEOPEN filename.txt)' - abrirá filename.txt y almacenará 9 números de
   coordenadas, XYZABCUVW, de cada sondeo recto exitoso en el.
 * '(PROBECLOSE)' - cerrará el archivo abierto. Para más información sobre
   sondeo ver la sección <<gcode:g38,G38>>.

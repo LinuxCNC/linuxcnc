@@ -2,34 +2,34 @@
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
-
 = LinuxCNC
 
 == Introduction
 
-Ce document est centré sur l'utilisation de LinuxCNC, 
+Ce document est centré sur l'utilisation de LinuxCNC,
 il est plutôt destiné aux lecteurs l'ayant déjà installé et configuré.
 Quelques informations sur l'installation sont données dans les
 chapitres suivants.
 La documentation complète sur l'installation et
 la configuration se trouve dans le manuel de l'intégrateur.
 
+[[sec:how-linuxcnc-works]]
 == Comment fonctionne LinuxCNC[[sec:Comment-Fonctionne-LinuxCNC]]
 
 LinuxCNC est un peu plus que juste un autre programme de fraiseuse
 CNC(((CNC))). Il est capable de contrôler des machines-outils, des
 robots ou d'autres automatismes. Il est capable de contrôler des
 servomoteurs, des moteurs pas à pas, des relais ainsi que d'autres
-mécanismes relatifs aux machines-outils. 
+mécanismes relatifs aux machines-outils.
 
 Il y a quatre principales composantes du logiciel LinuxCNC:
 
-* un contrôleur de mouvement (EMCMOT), 
-* une contrôleur d'entrées/sorties discrètes (EMCIO), 
-* un exécuteur des tâches qui les coordonne (EMCTASK), 
-* et les interfaces utilisateur graphiques. 
+* un contrôleur de mouvement (EMCMOT),
+* une contrôleur d'entrées/sorties discrètes (EMCIO),
+* un exécuteur des tâches qui les coordonne (EMCTASK),
+* et les interfaces utilisateur graphiques.
 
-En outre il existe une couche appelée HAL (couche d'abstraction du matériel) 
+En outre il existe une couche appelée HAL (couche d'abstraction du matériel)
 qui permet la configuration de LinuxCNC sans avoir besoin de recompiler.
 
 .Machine simple contrôlée par LinuxCNC
@@ -47,46 +47,41 @@ parallèle étendu connecté à une carte de contrôle externe. Quand nous
 examinerons chacun des composants qui forment un système LinuxCNC, nous
 nous référerons à cette machine typique.
 
-[[sub:Interfaces-utilisateur-graphiques]]
+[[sec:graphical-user-interfaces]]
 == Interfaces utilisateur graphiques
 
 L'interface graphique est la partie de LinuxCNC qui interagit avec
 l'opérateur de la machine. LinuxCNC est fourni avec plusieurs
 interfaces utilisateurs graphiques:
 
-
-* <<cha:axis-gui,_Axis_>>, l'interface utilisateur standard.
+ * <<cha:axis-gui,_Axis_>>, l'interface utilisateur standard.
 
 .L'interface graphique AXIS[[fig:Interface-graphique-AXIS]]
 image::images/axis_25_fr.png["L'interface graphique AXIS",align="center"]
 
-* <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écran tactile.
+ * <<cha:touchy-gui,_Touchy_>>, une interface graphique pour écran tactile.
 
 .L'interface graphique Touchy[[fig:touchy-gui]]
-
 image::images/touchy_fr.png["L'interface graphique Touchy",align="center"]
 
-* <<cha:ngcgui,_NGCGUI_>>, une interface graphique gérant les sous-programmes.
-  Elle permet très simplement de créer des programme G-code. Elle supporte
-  surtout la concaténation de fichiers de sous-programmes, ce qui permet de
-  construire des programmes G-code complets sans aucune programmation.
+ * <<cha:ngcgui,_NGCGUI_>>, une interface graphique gérant les sous-programmes.
+   Elle permet très simplement de créer des programme G-code. Elle supporte
+   surtout la concaténation de fichiers de sous-programmes, ce qui permet de
+   construire des programmes G-code complets sans aucune programmation.
 
 .L'interface graphique NGCGUI intégrée dans Axis[[fig:ngcgui-gui]]
 image::images/ngcgui_fr.png["L'interface graphique NGCGUI intégrée dans Axis",align="center"]
 
-* <<cha:TkLinuxCNC,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
-  C'est l'interface la plus populaire après Axis
+ * <<sec:tklinuxcnc-intro,_TkLinuxCNC_>>, une autre interface basée sur Tcl/Tk.
+   C'est l'interface la plus populaire après Axis
 
-.L'interface graphique tklinuxcnc[[fig:L-interface-graphique-tklinuxcnc]]
+.L'interface graphique tklinuxcnc[[fig:tklinuxcnc-gui]]
 image::images/tklinuxcnc_fr.png["L'interface graphique tklinuxcnc",align="center"]
-
-* _Xemc_, un programme X-Windows
-
-* _halui_, une interface utilisateur basée sur HAL, qui permet de contrôler
-  LinuxCNC en utilisant des boutons et des interrupteurs
-
-* _linuxcncrsh_, une interface utilisateur basée sur telnet, qui permet 
-  d'envoyer des commandes à partir d'ordinateurs distants de celui de LinuxCNC
+ * _Xemc_, un programme X-Windows
+ * _halui_, une interface utilisateur basée sur HAL, qui permet de contrôler
+   LinuxCNC en utilisant des boutons et des interrupteurs
+ * _linuxcncrsh_, une interface utilisateur basée sur telnet, qui permet
+   d'envoyer des commandes à partir d'ordinateurs distants de celui de LinuxCNC
 
 == Panneaux de contrôle virtuels
 
@@ -98,10 +93,10 @@ intégré dans l'interface graphique Axis ou utilisé en autonome.
 
 == Langues
 
-LinuxCNC utilise des fichiers traduits pour les interfaces utilisateur. 
-Il fonctionne dans plusieurs langues et démarre dans la langue de la 
-session ouverte par l'utilisateur au démarrage du PC. Si votre langue n'a pas 
-encore été traduite contactez un développeur sur l'IRC ou sur la mailing liste 
+LinuxCNC utilise des fichiers traduits pour les interfaces utilisateur.
+Il fonctionne dans plusieurs langues et démarre dans la langue de la
+session ouverte par l'utilisateur au démarrage du PC. Si votre langue n'a pas
+encore été traduite contactez un développeur sur l'IRC ou sur la mailing liste
 si vous pouvez aider à la traduction.
 
 == Penser comme un opérateur sur CNC[[sec:Penser-operateur]]
@@ -116,12 +111,12 @@ travail sont les preuves des leçons retenues. Aucune machine, aucun
 programme ne peut remplacer l'expérience humaine.
 
 Maintenant que vous commencez à travailler avec le programme LinuxCNC,
-vous devez vous placer dans la peau d'un opérateur. Vous devez être 
+vous devez vous placer dans la peau d'un opérateur. Vous devez être
 dans le rôle de quelqu'un qui a la charge d'une machine. C'est une
 machine qui attendra vos commandes puis qui exécutera les ordres que
 vous lui donnerez. Dans ces pages, nous donnerons les explications qui
 vous aideront à devenir un bon opérateur de CNC avec LinuxCNC. Vous aurez besoin
-de bonnes informations ici, devant vous, c'est là que les pages suivantes 
+de bonnes informations ici, devant vous, c'est là que les pages suivantes
 prendront tout leur sens.
 
 == Modes opératoires[[sub:Modes-operatoires]]
@@ -150,7 +145,7 @@ _Return_ ou _Entrée_ du clavier.
 
 Certaines commandes de mouvement sont disponibles et produisent les
 mêmes effets dans tous les modes. Il s'agit des commandes
-_Abandon_(((ABANDON))), _Arrêt d'Urgence_(((ESTOP))) et _Correcteur de vitesse 
+_Abandon_(((ABANDON))), _Arrêt d'Urgence_(((ESTOP))) et _Correcteur de vitesse
 travail_ (((correcteur de vitesse))). Ces commandes se dispensent d'explications.
 
 L'interface utilisateur graphique AXIS supprime certaines distinctions
@@ -158,7 +153,5 @@ entre Auto et les autres modes en rendant automatique la disponibilité
 des commandes, la plupart du temps. Il rend également floue la
 distinction entre Manuel et MDI parce que certaines commandes manuelles
 comme _Toucher_, sont également implémentées en envoyant une commande
-MDI. Il fait cela en changeant automatiquement le mode qui est 
-nécessaire pour l'action que l'utilisateur a demandé. 
-
-
+MDI. Il fait cela en changeant automatiquement le mode qui est
+nécessaire pour l'action que l'utilisateur a demandé.

@@ -12,7 +12,7 @@ un bucle de posición preajustado, por lo que no se requiere sintonización PID.
 modo velocidad, maneja un motor a la velocidad ordenada, manteniendo los
 límites de velocidad y aceleración. Es un componente en tiempo real solamente, y
 dependiendo de la velocidad de la CPU, etc, es capaz de velocidades de paso máximas de entre 10 kHz
-a 50kHz. El diagrama de bloques del generador de pulsos de pasos muestra un diagrama 
+a 50kHz. El diagrama de bloques del generador de pulsos de pasos muestra un diagrama
 con tres bloques; cada uno es un generador de pulsos de paso. El primer diagrama es para
 pasos tipo '0', (paso y dirección). El segundo es para el tipo de paso '1'
 (arriba/abajo, o pseudo-PWM), y el tercero es para los tipos de paso 2 a 14
@@ -79,7 +79,8 @@ del tipo de paso y el tipo de control seleccionado:
  * '(bit) stepgen.<chan>.phase-D' - Salida de fase D (tipos de paso 5-14 solamente).
  * '(bit) stepgen.<chan>.phase-E' - Salida de fase E (tipos de pasos 11-14 solamente).
 
-.Parametros[[sec:stepgen-parameters]]
+[[sec:stepgen-parameters]]
+.Parametros
  * '(float) stepgen.<chan>.position-scale' - Pasos por unidad de posición.
    Este parámetro se usa tanto por la salida como por la retroalimentación.
  * '(float) stepgen.<chan>.maxvel' - Velocidad máxima, en unidades de posición
@@ -91,7 +92,7 @@ del tipo de paso y el tipo de control seleccionado:
  * '(float) stepgen.<chan>.steplen' - Duración de un pulso de paso (pasos
    tipo 0 y 1) o tiempo mínimo en un estado dado (tipos de pasos 2-14), en nanosegundos.
  * '(float) stepgen.<chan>.stepspace' - Espacio mínimo entre dos
-   pulsos de paso (tipos de pasos 0 y 1 solamente), en nanosegundos. Establecer a 0 
+   pulsos de paso (tipos de pasos 0 y 1 solamente), en nanosegundos. Establecer a 0
    para habilitar la función stepgen 'doublefreq'. Para usar 'doublefreq' la
    <<sub:parport-functions, funcion reset parport>> debe estar habilitada.
  * '(float) stepgen.<chan>.dirsetup' - Tiempo mínimo desde un cambio de dirección
@@ -115,7 +116,7 @@ de control', consulte el código.
 
 En el modo velocidad, 'maxvel' es un límite simple que se aplica a la
 velocidad ordenada, y 'maxaccel' se usa para aumentar la frecuencia real
-si la velocidad ordenada cambia bruscamente. Como en el modo de posición, unos 
+si la velocidad ordenada cambia bruscamente. Como en el modo de posición, unos
 valores apropiados para estos parámetros aseguran que el motor pueda seguir el
 tren de pulsos generado
 
@@ -137,7 +138,7 @@ bajara automáticamente, y si es cero, permanecerá en cero, pero la frecuencia 
 podra ser aún limitada
 
 Al usar el controlador de puerto paralelo, la frecuencia de pasos se puede duplicar usando
-la función <<sub:parport-functions, parport reset>> junto con la 
+la función <<sub:parport-functions, parport reset>> junto con la
 configuración 'doublefreq' de stepgen.
 
 .Temporizado de Paso y Dirección
@@ -154,12 +155,12 @@ limitada.
 
 [WARNING]
 No use la función 'reset parport' con los tipos de paso 2 - 14.
-Pueden producirse resultados inesperados. 
+Pueden producirse resultados inesperados.
 
 .Paso tipo 2 - 14
 Los tipos de pasos 2 a 14 están basados ​​en estados y tienen de dos a cinco
 salidas. En cada paso, un contador de estado se incrementa o disminuye.
-Se muestran patrones de salida de dos-tres fases, cuatro fases y cinco fases 
+Se muestran patrones de salida de dos-tres fases, cuatro fases y cinco fases
 como una función del contador de estado. La frecuencia máxima es
 1.000.000.000 divididos por 'steplen', y como en los otros modos, 'maxfreq'
 se reducirá si está por encima del límite.
@@ -195,7 +196,7 @@ periodo del hilo en nanosegundos. Las otras dos funciones se pueden llamar a una
 [[sec:pwmgen]]
 == PWMgen(((PWMgen)))
 
-Este componente proporciona generación de PWM (modulacion de ancho de pulso) basada en software 
+Este componente proporciona generación de PWM (modulacion de ancho de pulso) basada en software
 y formas de onda PDM (Modulación de Densidad de Pulso). Es un
 componente en tiempo real solamente, y dependiendo de la velocidad de la CPU, etc, es capaz de
 frecuencias PWM de unos pocos cientos de hercios con una resolución bastante buena, a
@@ -249,7 +250,7 @@ Cada generador de PWM tendrá los siguientes pines:
 
  * '(float) pwmgen.<chan>.value' - Valor de comando, en unidades arbitrarias.
    Será escalado por el parámetro 'scale' (ver a continuación).
- * '(bit) pwmgen.<chan>.enable' - Activa o desactiva las 
+ * '(bit) pwmgen.<chan>.enable' - Activa o desactiva las
    salidas del generador PWM.
 
 Cada generador PWM también tendrá algunos de estos pines, dependiendo del
@@ -288,7 +289,7 @@ tipo de salida seleccionado:
 
 .Funciones
 El componente exporta dos funciones. Cada función actúa en todos los
-generadores PWM. No esta soportado ejecutar diferentes generadores en diferentes hilos 
+generadores PWM. No esta soportado ejecutar diferentes generadores en diferentes hilos
 
 * '(funct) pwmgen.make-pulses' - Función de alta velocidad para generar formas de onda PWM
   (sin punto flotante). La función de alta velocidad 'pwmgen.make-pulses' debe
@@ -312,7 +313,7 @@ encoders de cuadratura. Es un componente en tiempo real, y dependiendo de
 la velocidad de la CPU, la latencia, etc., es capaz de obtener tasas de conteo máximas desde 10 kHz hasta
 quizás unos 50kHz.
 
-El hilo base debe tener una velocidad doble a la de de conteo para permitir ruido y 
+El hilo base debe tener una velocidad doble a la de de conteo para permitir ruido y
 variaciónes de timing. Por ejemplo, si tiene un codificador de 100 impulsos por revolución en el
 husillo y sus RPM máximas es 3000, el hilo base máximo debe ser de 25 us.
 Un encoder de 100 impulsos por revolución tendrá 400 conteos. La velocidad del eje
@@ -330,7 +331,7 @@ halcmd: loadrt encoder [num_chan=<counters>]
 ----
 
 '<counters>' es la cantidad de contadores de encoder que desea
-instalar. Si no se especifica 'numchan',  serán instalados tres contadores. 
+instalar. Si no se especifica 'numchan',  serán instalados tres contadores.
 El maximo número de contadores es 8 (definido en MAX_CHAN en encoder.c). Cada
 contador es independiente, pero todos son actualizados por la(s) misma(s) función(es)
  al mismo tiempo. En las siguientes descripciones, '<chan>' es el número
@@ -344,18 +345,18 @@ halcmd: unloadrt encoder
 
 .Pines
  * 'encoder.<chan>.counter-mode' (bit, I/O) (predeterminado: FALSE) - Habilita el
-   modo contador. Cuando es VERDADERO, el contador cuenta cada flanco ascendente 
-   de la entrada de la fase A, ignorando el valor en la fase B. Esto es útil para 
-   contar la salida de un solo canal del sensor (sin cuadratura). Cuando es FALSO, 
+   modo contador. Cuando es VERDADERO, el contador cuenta cada flanco ascendente
+   de la entrada de la fase A, ignorando el valor en la fase B. Esto es útil para
+   contar la salida de un solo canal del sensor (sin cuadratura). Cuando es FALSO,
    cuenta en modo cuadratura.
  * 'encoder.<chan>.counts' (s32, salida) - Posición, en conteos del codificador.
  * 'encoder.<chan>.counts-latched' (s32, salida) - No se usa en este momento.
  * 'encoder.<chan>.index-enable' (bit, I/O) - Cuando es VERDADERO, 'counts' y
-   'position' se resetean a cero en el siguiente flanco ascendente de la Fase Z. 
+   'position' se resetean a cero en el siguiente flanco ascendente de la Fase Z.
    Al mismo tiempo, 'index-enable' se resetea a cero para indicar que el
    flanco ascendente ha aparecido. El pin es bidireccional. Si
    'index-enable' es FALSO, el canal de la fase Z del codificador será
-   ignorado, y el contador contará normalmente. El controlador del codificador nunca 
+   ignorado, y el contador contará normalmente. El controlador del codificador nunca
    pondra 'index-enable' en VERDADERO, pero otros componentes puede hacerlo.
  * 'encoder.<chan>.latch-falling' (bit, entrada) (predeterminado: TRUE) - No utilizado
    en este momento.
@@ -377,7 +378,7 @@ halcmd: unloadrt encoder
    cuenta del codificador. La 'posición interpolada' intenta interpolar
    entre cuentas del codificador, basandose ​​en la mayor
    velocidad medida reciente. Solo válido cuando la velocidad es aproximadamente
-   constante y superior a 'min-speed-estimate'. No lo use para control de posición, ya que su 
+   constante y superior a 'min-speed-estimate'. No lo use para control de posición, ya que su
    valor es incorrecto a velocidades bajas, durante las inversiones de dirección y durante los cambios de velocidad.
    Sin embargo, permite usar un codificador de pocos impulsos (incluido un impulso por
    revolución) para roscado en el torno, y puede tener
@@ -393,7 +394,7 @@ halcmd: unloadrt encoder
    por un reinicio o pulso de índice.
  * 'encoder.<chan>.reset' (bit, entrada) - Cuando es VERDADERO, fuerza 'count' y
    'position' a cero de inmediato.
- * 'encoder.<chan>.velocity' (float, salida) - Velocidad en unidades escaladas por segundo. 
+ * 'encoder.<chan>.velocity' (float, salida) - Velocidad en unidades escaladas por segundo.
    Se utiliza un algoritmo que reduce en gran medida la cuantificación
    de ruido comparado con una simple diferenciacion de la salida de 'position'. Cuando la magnitud
    de la verdadera velocidad está por debajo de la
@@ -533,7 +534,7 @@ y ejecutar a diferentes velocidades.
 
 Si quieres entender el algoritmo exacto utilizado para calcular la
 salida del bucle PID, consulte la figura <<fig:pid-block-diag, Diagrama de bloques de bucle PID>>, los
-comentarios al comienzo de 'emc2/src/hal/components/pid.c', y 
+comentarios al comienzo de 'emc2/src/hal/components/pid.c', y
 por supuesto, el código en sí. Los cálculos del bucle están en la funcion C 'calc_pid()'.
 
 [[sec:simulated-encoder]]
@@ -615,7 +616,7 @@ el grupo 1 contiene cuatro y el grupo 2 contiene dos filtros. El valor por defec
 valor para '<config-string>' es "'1'" que instalará un solo grupo
 que contiene un solo filtro. El
 número máximo de grupos es 8 (definido por MAX_GROUPS en debounce.c).
-La cantidad máxima de filtros en un grupo está limitada solo por el 
+La cantidad máxima de filtros en un grupo está limitada solo por el
 espacio de memoria compartida. Cada grupo es completamente independiente. Todos los filtros en
 un solo grupo son idénticos, y todos son actualizados por la misma
 funcion al mismo tiempo. En las siguientes descripciones, '<G>' es el
@@ -643,7 +644,7 @@ está destinado a pruebas, y simplemente desperdicia memoria compartida en condi
 
 El retraso del filtro está en unidades de período de hilos. El retraso mínimo es
 cero. La salida de un filtro de retardo cero sigue exactamente su entrada:
-no filtra nada. A medida que aumenta "delay", son rechazados rebotes mas largos. 
+no filtra nada. A medida que aumenta "delay", son rechazados rebotes mas largos.
 Si 'delay' es 4, todos los rebotes menores que o
 igual a cuatro períodos de hilo serán rechazados.
 
@@ -728,7 +729,7 @@ setp lut5.N.function 0xN
 Para calcular el número hexadecimal para la función comenzando desde la parte superior
 ponga un 1 o 0 para indicar si esa fila sería verdadera o falsa. A continuación, escriba cada
 número en la columna de salida comenzando desde arriba y escribiéndolos desde la derecha
-a la izquierda. Este será el número binario. Usando una calculadora, ingrese el número binario 
+a la izquierda. Este será el número binario. Usando una calculadora, ingrese el número binario
 y luego conviértalo en hexadecimal; ese será el valor para la función.
 
 .Tabla de búsqueda
@@ -788,4 +789,3 @@ cuando Bit 0 o (Bit 0 y Bit1) están activados y nada más. El número binario e
 'b1010' (gira la salida 90 grados CW). Ingrese este número en la
 calculadora luego cambie la pantalla a hexadecimal y el número necesario para
 la función es '0xa'. El prefijo hexadecimal es '0x'.
-

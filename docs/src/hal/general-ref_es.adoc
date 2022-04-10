@@ -1,6 +1,6 @@
 :lang: es
 
-[[cha:general-reference]]
+[[cha:hal-general-reference]]
 =Referencia general
 
 ==Convenciones Generales de Nomenclatura
@@ -22,7 +22,7 @@ bloques funcionales, cada bloque puede tener varios canales, y cada
 canal tiene uno o más pines. Resulta asi en una estructura que
 se asemeja a un árbol de directorios. Aunque halcmd no reconoce
 estructuras de árbol, la elección adecuada de las convenciones de nomenclatura dejará agrupar
-elementos relacionados (ya que ordena los nombres). Además, 
+elementos relacionados (ya que ordena los nombres). Además,
 las herramientas de más alto nivel se pueden diseñarse para reconocer dicha estructura, si los nombres
 proporcionan la información necesaria. Para hacer eso, todos los componentes HAL deberían
 seguir estas reglas:
@@ -82,7 +82,7 @@ Los campos individuales son:
     dígitos, con un cero a la izquierda en números menores a 10 para preservar
     la ordenacion. Algunos módulos tienen pines y/o parámetros que afectan a más
     de un canal. Por ejemplo, un generador de PWM podría tener cuatro canales
-    con cuatro entradas independientes de "ciclo de trabajo", pero un solo parámetro 
+    con cuatro entradas independientes de "ciclo de trabajo", pero un solo parámetro
     "frecuencia" que controla los cuatro canales (debido a limitaciones hardware).
     El parámetro de frecuencia debe usar "0-3" como número de canal.
 
@@ -94,7 +94,7 @@ Los campos individuales son:
     bajas  y activas altas. Para la mayoría de los tipos-io, hay un conjunto estándar
     de pines y parámetros, (denominada "interfaz canónica") que
     el driver debería implementar. Las interfaces canónicas se describen en
-    el capítulo <<cha:canonical-device-interfaces,Interfaces canonicos de dispositivos>>
+    el capítulo <<cha:hal-canonical-device-interfaces,Interfaces canonicos de dispositivos>>
 
 .Ejemplos
 
@@ -113,7 +113,7 @@ Los controladores de hardware generalmente solo tienen dos tipos de funciones HA
 que lee el hardware y actualiza los pines HAL, y otras que escriben en el
 hardware utilizando datos de pines HAL. Deben nombrarse de la siguiente manera:
 
-+*<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write*+ 
++*<device-name>-<device-num>.<io-type>-<chan-num-range>.read|write*+
 
 <device-name>::
      El mismo que se use para pines y parámetros.

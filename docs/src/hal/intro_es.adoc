@@ -230,102 +230,15 @@ dos funciones: una para leer los pines de entrada física y actualizar los pines
 y otra para tomar datos de los pines HAL y escribirlo en
 pines de salida física. Ambas funciones son parte del driver parport.
 
+[[sec:hal-components]]
 == Componentes HAL
 
 Cada componente HAL es una pieza de software con entradas,
 salidas y comportamiento bien definidos, que se pueden instalar e interconectar como sea
-necesario. Esta sección enumera algunos de los componentes disponibles y una breve
-descripción de lo que hace cada uno. Los detalles completos para cada componente estan
-disponible más adelante en este documento.
+necesario. The section <<sec:realtime-components, Realtime Components List>>
+lists all available components and a brief description of what each does.
 
-=== Programas externos con "enganches" HAL
-
-[NOTE]
-Un enganche, o "hook", es la parte de codigo de un programa destinada a interceptar 
-llamadas de función, mensajes o eventos pasados entre componentes de software.
-
-motion::
-     (((motion))) Un módulo en tiempo real que acepta mensajes NML
-     footnote:[El Language Neutral de Mensajes NML proporciona un mecanismo para el manejo
-     de múltiples tipos de mensajes en el mismo búfer, así como simplifica
-     la interfaz para codificar y decodificar memorias intermedias en formato neutral y
-     su mecanismo de configuración.] de comandos de movimiento e interactúa con HAL
-
-iocontrol::
-     (((iocontrol))) Un módulo de espacio de usuario que acepta comandos de E/S NML e
-     interactúa con HAL
-
-classicladder::
-     (((ClassicLadder))) Un PLC que usa HAL para todas sus E/S
-
-halui::
-     (((halui))) Un programa de espacio de usuario que interactúa con HAL y envía comandos NML,
-     que está destinado a funcionar como una interfaz de usuario completa utilizando
-     botones e interruptores externos.
-
-=== Componentes internos
-
-stepgen::
-     Generador software de impulsos de pasos, con lazo de posición. Ver la sección <<sec:stepgen,stepgen>>
-
-encoder::
-     Contador codificador basado en software. Ver la sección  <<sec:encoder,encoder>>
-
-pid::
-     Bucle de control Proporcional/Integral/Derivativo. Ver la sección <<sec:pid,pid>>
-
-siggen::
-     Un generador de ondas seno/coseno/triángular/cuadrada para pruebas.
-     Ver la sección <<sec:siggen,siggen>>
-
-supply::
-     una fuente simple para pruebas(((supply)))
-
-
-=== Controladores de hardware
-
-hal_ax5214h::
-     (((hal-ax5214h))) Un controlador para la tarjeta de E/S digital Axiom Measurement & Control AX5241H
-
-hal_gm::
-    (((hal-gm))) Placa General Mechatronics GM6-PCI
-
-hal_m5i20::
-    (((hal-m5i20))) Placa Mesa Electronics 5i20
-
-hal_motenc::
-    (((hal-motenc))) Placa Vital Systems MOTENC-100
-
-hal_parport::
-    (((hal-parport))) Puerto paralelo de PC.
-
-hal_ppmc::
-    (((hal-ppmc))) Familia de controladores de la familia Pico (PPMC, USC y UPC)
-
-hal_stg::
-    (((hal-stg))) Tarjeta Servo To Go (versión 1 y 2)
-
-hal_vti ::
-    (((hal-vti))) Controlador Vigilant Technologies PCI ENCDAC-4
-
-=== Herramientas y utilidades
-
-Halcmd::
-    (((halcmd))) Herramienta de línea de comandos para configuración y ajuste. Ver
-    sección <<sec:halcmd,halcmd>>
-
-halgui::
-    Herramienta GUI para configuración y ajuste (aún no implementada).
-
-halmeter::
-    (((halmeter))) Un práctico multímetro para señales HAL. Ver la sección <<sec:halmeter,halmeter>>.
-
-halscope::
-    (((halscope))) Un osciloscopio de almacenamiento digital completo para señales HAL.
-    Ver la sección <<sec:halscope,halscope>>.
-
-Cada uno de estos bloques de construcción se describe en detalle en capítulos posteriores.
-
+[[sec:hal-timing-issues]]
 == Problemas de sincronización en HAL
 
 A diferencia de los modelos de cableado físico entre cajas negras en el que se dijo

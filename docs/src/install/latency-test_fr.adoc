@@ -1,11 +1,11 @@
 :lang: fr
 :toc:
 
-= Test des capacités temps réel
+[[cha:latency-testing]]
+= Test des capacités temps réel(((Latency Testing)))
 
-[[cha:test-de-latence]]
-
-== Test de latence
+[[sec:latency-test]]
+== Test de latence(((Latency Test)))
 
 Ce test est le premier test qui doit être effectué sur un PC
 pour savoir si celui-ci est capable de piloter une machine CNC.
@@ -39,7 +39,6 @@ latency-test
 Une fenêtre comme ci-dessous devrait s'ouvrir:
 
 .Test de latence de HAL
-
 image::../config/images/latency.png[alt="Test de latence de HAL"]
 
 Alors que le test est en cours d'exécution, il faut charger l'ordinateur au
@@ -83,6 +82,12 @@ Si une latence élevée est obtenue, il peut être possible de l'améliorer.
 Un PC avait une très mauvaise latence (plusieurs millisecondes) en utilisant
 la carte graphique interne. Un carte graphique d'occasion à $5US a résolu le
 problème. LinuxCNC n'exige pas de matériel de pointe.
+
+For more information on stepper tuning see the
+<<cha:stepper-tuning,Stepper Tuning>> Chapter.
+
+*Additional command line tools are available for examining latency
+when LinuxCNC is not running.*
 
 == Adresses des ports
 
@@ -152,7 +157,4 @@ sont placées. Si l'installation des cartes PCI de
 la machine est modifiée, ne pas oublier de vérifier leurs adresses avant de
 lancer LinuxCNC.
 
-
 // vim: set syntax=asciidoc:
-
-

@@ -3,6 +3,12 @@
 [[cha:stepper-diagnostics]]
 = Stepper Diagnostics(((Stepper Diagnostics)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 If what you get is not what you expect many times you just got some
 experience. Learning from the experience increases your understanding
 of the whole. Diagnosing problems is best done by divide and conquer.

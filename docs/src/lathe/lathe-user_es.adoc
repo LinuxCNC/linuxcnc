@@ -4,8 +4,7 @@
 [[cha:lathe-user-information]]
 = Informacion para Usuarios de Torno
 
-FIXME from French: Ce chapitre va regrouper les informations spécifiques aux tours, il
-est encore en cours de rédaction.
+Este capítulo reunirá información específica de los tornos.
 
 == Modo Torno
 
@@ -92,7 +91,7 @@ configura Z cero del material tendra seleccionado 'Touch off to material'.
 Para obtener más información sobre los códigos G utilizados para las herramientas, consulte
 <<mcode:m6, M6>>, <<sec:select-tool,Tn>>, y <<gcode:g43, G43>>.
 Para obtener más información sobre las opciones touch off de la herramienta en Axis, consulte
-<<axis:tool-touch-off,Tool Touch Off>>.
+<<sub:axis-machine-menu,Tool Touch Off>>.
 
 === X Touch Off
 
@@ -268,7 +267,7 @@ ajustar la ruta programada para compensar el radio de la punta.
 .Rampa de ruta
 image::images/ramp-cut_es.svg["Camino en Rampa",align="center"]
 
-El ejemplo anterior se podria ajustar la ruta programada a la ruta real deseada 
+El ejemplo anterior se podria ajustar la ruta programada a la ruta real deseada
 moviendo la ruta programada hacia la izquierda del radio de la punta de la herramienta.
 
 
@@ -312,7 +311,5 @@ Cuando utilice una herramienta de corte en un torno, piense en el radio de la pu
 radio de un cortador cilindrico (fresa). Cuando se usa una herramienta de corte, el camino debe ser
 suficiente grande para una herramienta cilindrica que no interfiriera en la línea siguiente. Cuando se
 cortan líneas rectas en el torno es posible que no desee utilizar compensacion del cortador.
-Por ejemplo, mandrinar un agujero con una barra demasiado ajustada puede que no le permita suficiente espacio 
+Por ejemplo, mandrinar un agujero con una barra demasiado ajustada puede que no le permita suficiente espacio
 para realizar el movimiento de salida. El movimiento de entrada en un arco con compensacion es importante para obtener los resultados correctos.
-
-

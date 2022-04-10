@@ -2576,4 +2576,3 @@ DEBUG = 0x10008000 # USER1, PYTHON
 DEBUG = 0x30008000 # USER1, USER2, PYTHON # USER2 hará que la involuta intente conectarse a pydev
 DEBUG = 0x7FFFFFFF # Todos los mensajes de depuración
 ----
-

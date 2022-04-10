@@ -4,7 +4,7 @@
 [[cha:Composants-temps-reel]]
 = Les composants temps réel
 
-[[sec:Stepgen]]
+[[sec:stepgen]]
 == Stepgen(((stepgen)))
 
 Ce composant fournit un générateur logiciel d'impulsions de pas
@@ -15,7 +15,7 @@ la vitesse commandée, tout en obéissant aux limites de vitesse et
 d'accélération. C'est un composant uniquement temps réel, dépendant de
 plusieurs facteurs comme la vitesse du CPU, etc, il est capable de
 fournir des fréquences de pas maximum comprise entre 10kHz et 50kHz.
-La figure <<fig:Diagramme-bloc-stepgen,ci-dessous>> montre trois schémas
+La figure <<fig:diagramme-bloc-stepgen,ci-dessous>> montre trois schémas
 fonctionnels, chacun est un simple générateur d'impulsions de pas. Le
 premier diagramme est pour le type _0_, (pas et direction). Le second
 est pour le type _1_ (up/down, ou pseudo-PWM) et le troisième est pour
@@ -25,7 +25,7 @@ troisième montre le mode _vitesse_. Le mode de commande et le type de
 pas, se règlent indépendamment et n'importe quelle combinaison peut
 être choisie.
 
-[[fig:Diagramme-bloc-stepgen]]
+[[fig:diagramme-bloc-stepgen]]
 .Diagramme bloc du générateur de pas stepgen(((Diagramme bloc stepgen)))
 image::images/stepgen-block-diag.png[align="center"]
 
@@ -66,7 +66,8 @@ générateurs commence à 0.
 halcmd: unloadrt stepgen
 ----
 
-=== Pins
+[[sub:stepgen-pins]]
+=== Stepgen Pins(((HAL stepgen pins)))
 
 Chaque générateur d'impulsions de pas n'aura que certaines de ces
 pins, selon le type de pas et le mode de contrôle sélectionné.
@@ -79,25 +80,18 @@ pins, selon le type de pas et le mode de contrôle sélectionné.
    unités de comptage, actualisée par la fonction _capture_position()_.
  - _(float) stepgen.<chan>.position-fb_ -- Rétroaction de la position
    en unités de longueur, actualisée par la fonction _capture_position()_.
- - _(bit) stepgen.<chan>.step_ -- Sortie des impulsions de pas
-(type de pas 0 seulement).
+ - _(bit) stepgen.<chan>.step_ -- Sortie des impulsions de pas (type de pas 0 seulement).
  - _(bit) stepgen.<chan>.dir_ -- Sortie direction (type de pas 0 seulement).
- - _(bit) stepgen.<chan>.up_ -- Sortie UP en pseudo-PWM
-(type de pas 1 seulement).
- - _(bit) stepgen.<chan>.down_ -- Sortie DOWN en pseudo-PWM
-(type de pas 1 seulement).
- - _(bit) stepgen.<chan>.phase-A_ -- Sortie phase A
-(séquences de pas 2 à 14 seulement).
- - _(bit) stepgen.<chan>.phase-B_ -- Sortie phase B
-(séquences de pas 2 à 14 seulement).
- - _(bit) stepgen.<chan>.phase-C_ -- Sortie phase C
-(séquences de pas 3 à 14 seulement).
- - _(bit) stepgen.<chan>.phase-D_ -- Sortie phase D
-(séquences de pas 5 à 14 seulement).
- - _(bit) stepgen.<chan>.phase-E_ -- Sortie phase E
-(séquences de pas 11 à 14 seulement).
+ - _(bit) stepgen.<chan>.up_ -- Sortie UP en pseudo-PWM (type de pas 1 seulement).
+ - _(bit) stepgen.<chan>.down_ -- Sortie DOWN en pseudo-PWM (type de pas 1 seulement).
+ - _(bit) stepgen.<chan>.phase-A_ -- Sortie phase A (séquences de pas 2 à 14 seulement).
+ - _(bit) stepgen.<chan>.phase-B_ -- Sortie phase B (séquences de pas 2 à 14 seulement).
+ - _(bit) stepgen.<chan>.phase-C_ -- Sortie phase C (séquences de pas 3 à 14 seulement).
+ - _(bit) stepgen.<chan>.phase-D_ -- Sortie phase D (séquences de pas 5 à 14 seulement).
+ - _(bit) stepgen.<chan>.phase-E_ -- Sortie phase E (séquences de pas 11 à 14 seulement).
 
-=== Paramètres
+[[sec:stepgen-parameters]]
+=== Paramètres(((HAL stepgen parameters)))
 
  - _(float) stepgen.<chan>.position-scale_ -- Pas par unité de longueur.
    Ce paramètre est utilisé pour les sorties et les rétroactions.
@@ -142,11 +136,13 @@ fréquence actuelle, si la vitesse commandée change brutalement. Comme
 dans le mode position, des valeurs appropriées de ces paramètres
 assurent que le moteur pourra suivre le train d'impulsions généré.
 
-[[sub:Stepgen-sequences-de-pas]]
+[[sub:stepgen-step-types]]
 === Séquences de pas
 
-Le générateur de pas supporte 15 différentes _séquences de pas_. Le
-type de pas 0 est le plus familier, c'est le standard pas et direction
+Le générateur de pas supporte 15 différentes _séquences de pas_.
+
+.Step Type 0
+Le type de pas 0 est le plus familier, c'est le standard pas et direction
 (step/dir). Quand stepgen est configuré pour le type 0, il y a quatre
 paramètres supplémentaires qui déterminent le timing exact des signaux
 de pas et de direction. Voir la figure <<fig:StepDir-timing, ci-dessous>>
@@ -886,4 +882,3 @@ Le nombre binaire est 'b1010' (rotation de la sortie de 90° en sens horaire).
 Entrer ce nombre dans une calculette, le convertir en hexadécimal et le nombre
 demandé pour cette fonction est '0xa'. Le préfixe '0x' étant celui des nombres
 hexadécimaux.
-

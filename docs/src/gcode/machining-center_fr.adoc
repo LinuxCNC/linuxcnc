@@ -66,7 +66,7 @@ stoppée sur une position fixée ou non.
 Une machine à commande numérique peut être équipée d'un système fournissant
 l'arrosage fluide ou un arrosage par gouttelettes.
 
-=== Correcteurs de vitesse d'avance et de broche(((correcteurs vitesse)))(((correcteur vitesse broche)))
+=== Correcteurs de vitesse d'avance et de broche(((feed override)))(((spindle override)))
 
 Une machine à commande numérique est équipée de boutons de réglage de la vitesse
 d'avance et de la vitesse de rotation de la broche, ils laissent
@@ -74,17 +74,17 @@ l'opérateur corriger les vitesses nécessaires pour la broche et
 l'avance travail, il peut ainsi augmenter ou réduire les vitesses
 programmées.
 
-[[sec:Bouton-effacement-de-block]]
+[[sub:block-delete-switch]]
 === Bouton d'effacement de bloc(((Bouton effacement de bloc)))
 
 Une machine à commande numérique peut être équipée d'un bouton d'effacement de
-bloc. Voir la section <<sec:Interaction-effacement-de-bloc,effacement de bloc>>.
+bloc. Voir la section <<sub:block-delete-switch,effacement de bloc>>.
 
-[[sec:arret-optionnel]]
+[[sub:optional-program-stop-switch]]
 === Bouton d'arrêt optionnel du programme(((arrêt optionnel)))
 
 Une machine à commande numérique peut être équipée d'un bouton d'arrêt du programme.
-Voir la section <<sec:Interaction-arrets-optionnels,arrêts optionnels>>.
+Voir la section <<sub:optional-program-stop,arrêts optionnels>>.
 
 == Composants de contrôle et de données
 
@@ -123,7 +123,7 @@ l'outil ou (correction du rayon de bec) légèrement en retrait du point
 d'intersection des droites perpendiculaires formées par l'axe des
 points de tangence à la pièce, de face et sur le côté de l'outil.
 
-[[sec:Mouvement-lineaire-coordonne]]
+[[sec:Coordinated-Linear-Motion]]
 === Mouvement linéaire coordonné
 
 Pour mener un outil sur une trajectoire spécifiée, une machine à commande
@@ -226,44 +226,34 @@ pièces. Le système se compose de deux porte-pièces sur lesquels sont
 fixés les bruts des pièces à usiner. Un seul porte-pièce à la fois est
 en position d'usinage.
 
-=== Boutons des correcteurs de vitesses
-
-Les boutons des correcteurs de vitesses peuvent être activés (ils
-fonctionnent normalement) ou rendus inopérants (Ils n'ont plus aucun
-effet). Le langage RS274/NGC dispose d'une commande qui active tous les
-boutons et une autre qui les désactive. Voir l'inhibition et l'activation
-<<mcode:m48-m49,des correcteurs de vitesse>>.
-Voir également <<sec:Interaction-vitesses,ici pour d'autres détails>>.
-
 === Modes de contrôle de trajectoire[[sec:Modes-de-controle-trajectoires]]
 
 La machine peut être placée dans un de ces trois modes de contrôle de
-trajectoire: 
+trajectoire:
 
 * mode arrêt exact::
     En mode arrêt exact, le mobile s'arrête brièvement à la fin de chaque mouvement
     programmé.
-* mode trajectoire exacte:: 
+* mode trajectoire exacte::
     En mode trajectoire exacte, le mobile suit la trajectoire
     programmée aussi précisément que possible, ralentissant ou s'arrêtant
     si nécessaire aux angles vifs du parcours.
 * mode trajectoire continue avec tolérance optionnelle::
-    En mode trajectoire continue, les angles vifs du parcours peuvent être 
-    légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la 
-    tolérance, si elle est spécifiée). 
-    
+    En mode trajectoire continue, les angles vifs du parcours peuvent être
+    légèrement arrondis pour que la vitesse soit maintenue (sans dépasser la
+    tolérance, si elle est spécifiée).
+
 Voir également les G-codes <<gcode:g61-g61.1,G61/G61.1>> et <<gcode:g64,G64>> des
 contrôles de trajectoire.
 
-[[sec:Interaction-vitesses]](((Interraction vitesse)))
-[[sec:Interaction-effacement-de-bloc]](((effacement de bloc)))
-[[sec:Interaction-arrets-optionnels]](((Arrêts optionnels)))
+[[cnc:interpreter-interaction-with-switches]]
 == Interaction de l'interpréteur avec les boutons
 
 L'interpréteur interagit avec plusieurs boutons de commande. Cette
 section décrit ces interactions plus en détail. En aucun cas
 l'interpréteur ne connait ce que sont les réglages de ces boutons.
 
+[[sec:Interaction-speed]](((Interaction-speed)))
 === Boutons de correction de vitesses
 
 L'interpréteur de commande RS274/NGC autorise (M48) ou interdit (M49)
@@ -282,6 +272,7 @@ d'effacement de bloc) ne sont pas interprétées. Si le bouton est
 désactivé, ces mêmes lignes sont interprétées. Normalement le bouton
 d'effacement de bloc doit être positionné avant de lancer le programme G-code.
 
+[[sub:optional-program-stop]](((optional-program-stop)))
 === Bouton d'arrêt optionnel du programme
 
 Si ce bouton est actif et qu'un code M1 est rencontré, le programme
@@ -366,4 +357,3 @@ commentaires ne sont pas conservés lorsque le fichier est écrit.
 |5161 | 0.0 | G28 pom X
 |5162 | 0.0 | G28 pom Y
 |========================================
-

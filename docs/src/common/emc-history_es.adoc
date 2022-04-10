@@ -1,4 +1,4 @@
-﻿:lang: es
+:lang: es
 
 [[cha:linuxcnc-history]]
 == Origen
@@ -114,4 +114,3 @@ NIST también publicó un artículo sobre la historia de EMC y sus
 transición a https://www.nist.gov/node/702276[open
 source]. El documento también está disponible en
 http://linuxcnc.org/files/Use-of-Open-Source-Distribution-for-a-Machine-Tool-Controller.pdf
-

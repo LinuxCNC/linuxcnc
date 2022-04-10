@@ -67,7 +67,10 @@ find: Expand Tree, Collapse Tree; Expand Pins, Expand Parameters,
 Expand Signals; and Erase Watch. (Note that Erase Watch erases 'all'
 previously set watches, you cannot erase just one watch.)
 
-image::images/halshow-3.png["Show Menu",align="center"]
+[[fig:halshow-show-tab]]
+.Show Tab
+
+image::images/halshow-3.png["Show Tab",align="center"]
 
 == HAL Show Area
 
@@ -109,11 +112,11 @@ persist as long as LinuxCNC remains up but are gone as soon as LinuxCNC is.
 The entry box labeled "Test HAL Command:" will accept any of the
 commands listed for halcmd. These include:
 
- - loadrt, unloadrt (load/unload real-time module)
- - loadusr, unloadusr (load/unload user-space component)
- - addf, delf (add/delete a function to/from a real-time thread)
- - net (create a connection between two or more items)
- - setp (set parameter (or pin) to a value)
+- loadrt, unloadrt (load/unload real-time module)
+- loadusr, unloadusr (load/unload user-space component)
+- addf, delf (add/delete a function to/from a real-time thread)
+- net (create a connection between two or more items)
+- setp (set parameter (or pin) to a value)
 
 This little editor will enter a command any time you press <enter> or
 push the execute button. An error message from halcmd will show below
@@ -191,7 +194,10 @@ This is just for viewing, so we leave position blank and get the last
 position in the thread. The following figure shows the state of halshow
 after this command has been issued.
 
-image::images/halshow-2.png["Addf Command",align="center"]
+[[fig:halshow-addf-command]]
+.Addf command
+
+image::images/halshow-2.png["Addf command",align="center"]
 
 Next we need to connect ddt to something. But how do we know
 what pins are available? The answer is to look under pins. There we
@@ -245,7 +251,7 @@ editor panel to modify that HAL. There are times when you want a
 different set of things displayed without all of the information
 available in this area. That is where the HAL Watch Area is of value.
 
-== Watch Tab
+== Watch Tab Area
 
 .[yellow-background]#New in 2.9#
 * Buttons for pin/signal/parameter manipulation
@@ -270,6 +276,8 @@ side. Pins that are linked to a signal have disabled buttons. To set these value
 the corresponding pin has to be unlinked from the signal. That can be done by
 right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-context-menu>>.
 
+[[fig:halshow-watch-tab]]
+.Watch Tab (((Halshow: Watch Tab)))
 image::images/halshow-4.png["Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles

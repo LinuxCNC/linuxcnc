@@ -3,6 +3,12 @@
 [[cha:ini-configuration]]
 = Configuración INI
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Los Componentes del Archivo INI
 
 Un archivo INI típico sigue un diseño bastante simple, que incluye;
@@ -1080,7 +1086,7 @@ Ejemplo Tipo 0
 -1.000 -1.005 -0.995
 0.000 0.002 -0.003
 1.000 1.003 0.998
------
+----
 
 ** 'Tipo 1:' El segundo valor especifica el desplazamiento positivo del nominal mientras
    se va en la dirección positiva. El tercer valor especifica el negativo
@@ -1473,4 +1479,3 @@ STEPGEN_MAXVEL no mejora el ajuste del bucle de posición de stepgen.
   Esto es para máquinas que no pueden volver a colocar la herramienta en la ranura
   de la que vino. Por ejemplo, máquinas que intercambian la herramienta en la
   ranura activa con la herramienta en el husillo.
-

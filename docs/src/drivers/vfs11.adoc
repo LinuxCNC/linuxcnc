@@ -367,4 +367,3 @@ Libmodbus does not build on Ubuntu Hardy, hence vfs11_vfd is not
 available on hardy.
 
 // Michael Haberler; loosely based on gs2_vfd by Steve Padnos and John Thornton.
-

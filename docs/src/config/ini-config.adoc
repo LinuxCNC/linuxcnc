@@ -3,6 +3,12 @@
 [[cha:ini-configuration]]
 = INI Configuration(((INI Configuration)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == The INI File Components
 
 A typical INI file follows a rather simple layout that includes;
@@ -14,9 +20,7 @@ A typical INI file follows a rather simple layout that includes;
 Each of these elements is separated on single lines. Each end of line
 or newline character creates a new element.
 
-(((INI File, Comments)))
-
-=== Comments
+=== Comments(((INI File, Comments)))
 
 A comment line is started with a ; or a # mark. When the ini reader
 sees either of these marks at the start a line, the rest of the line is
@@ -655,9 +659,6 @@ from the command line using the -m option ($linuxcnc -h)
   at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
   processed as above but use haltcl for processing  See the
   <<cha:haltcl,HALTCL Chapter>> for more information.
-* 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl' at start up with arg1, arg2, etc as ::argv list.
-  Files with a .tcl suffix are processed as above but use haltcl for processing.
-  See the <<cha:haltcl,HALTCL Chapter>> for more information.
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal' at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
 * 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Execute the system library file 'sys_texample.tcl' at start up.
@@ -758,7 +759,7 @@ gui-dependent actions (like creating gui-specific hal pins).
 === [TRAJ] Section(((INI File, TRAJ Section)))
 
 [WARNING]
-----
+====
 The new Trajectory Planner (TP) is on by default.
 If you have no TP settings in your [TRAJ] section - LinuxCNC defaults to: +
 ARC_BLEND_ENABLE = 1 +
@@ -766,7 +767,7 @@ ARC_BLEND_FALLBACK_ENABLE = 0 +
 ARC_BLEND_OPTIMIZATION_DEPTH = 50 +
 ARC_BLEND_GAP_CYCLES = 4 +
 ARC_BLEND_RAMP_FREQ = 100
-----
+====
 
 The [TRAJ] section contains general parameters for the trajectory
 planning module in 'motion'.
@@ -1521,4 +1522,3 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
 * 'RANDOM_TOOLCHANGER = 1' -
   This is for machines that cannot place the tool back into the pocket it came from.
   For example, machines that exchange the tool in the active pocket with the tool in the spindle.
-

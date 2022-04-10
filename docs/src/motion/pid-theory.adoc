@@ -1,12 +1,15 @@
 :lang: en
+:toc:
 
-= PID Tuning
+[[cha:pid-tuning]]
+= PID Tuning(((PID Tuning)))
+
 
 == PID Controller
 
 A proportional-integral-derivative controller (PID controller) is a
 common feedback loop component in industrial control
-systems.footnote:[This Subsection is taken from an much more extensive
+systems. footnote:[This Subsection is taken from an much more extensive
 article found at http://en.wikipedia.org/wiki/PID_controller]
 
 The Controller compares a measured value from a process (typically an
@@ -39,11 +42,9 @@ difference between the gauge's needle and the set point is the 'error'.
 
 A control loop consists of three parts:
 
-1. Measurement by a sensor connected to the process (e.g. encoder),
-
-2. Decision in a controller element,
-
-3. Action through an output device such as an motor.
+. Measurement by a sensor connected to the process (e.g. encoder),
+. Decision in a controller element,
+. Action through an output device such as an motor.
 
 As the controller reads a sensor, it subtracts this measurement from
 the 'set point' to determine the 'error'. It then uses the error to
@@ -184,3 +185,4 @@ After tuning the axis check the following error with Halscope to make
 sure it is within your machine requirements. More information on
 Halscope is in the HAL User manual.
 
+// vim: set syntax=asciidoc:

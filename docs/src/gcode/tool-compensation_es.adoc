@@ -1,7 +1,6 @@
-﻿:lang:es
+:lang: es
 
-[[cha:herramienta-compensación]]
-
+[[cha:tool-compensation]]
 = Compensación de herramientas
 
 == Compensación de longitud de herramienta
@@ -13,13 +12,13 @@ tabla de herramientas de forma automática.
 
 Los pasos típicos para actualizar la tabla de herramientas son:
 
-* Después de homing, cargue una herramienta con 'Tn M6' donde 'n' es el número de herramienta.
-* Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y
+ * Después de homing, cargue una herramienta con 'Tn M6' donde 'n' es el número de herramienta.
+ * Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y
    medida.
-* Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón
+ * Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón
    Fin en su teclado).
-* Seleccione 'Tabla de herramientas' en el cuadro desplegable Sistema de Coordenadas.
-* Ingrese el valor calibrado o la dimensión medida y seleccione OK.
+ * Seleccione 'Tabla de herramientas' en el cuadro desplegable Sistema de Coordenadas.
+ * Ingrese el valor calibrado o la dimensión medida y seleccione OK.
 
 La tabla de herramientas se cambiará con la longitud Z correcta para que el
 DRO muestre la posición Z correcta y se emitirá un comando G43 para
@@ -27,7 +26,6 @@ para que la longitud Z de la nueva herramienta esté vigente. Touch Off de la ta
 está disponible cuando una herramienta se carga con 'Tn M6'.
 
 .Touch Off de tabla de herramientas
-
 image::images/ToolTable-TouchOff.png[align="center", alt="Touch Off de Tabla de herramientas"]
 
 === Usando G10 L1/L10/L11
@@ -44,9 +42,7 @@ Los comandos G10 L1/L10/L11 se pueden usar para establecer las compensaciones de
                       (vea <<gcode:g10-l11,G10 L11>> para más detalles)
 
 [[sec:tool-table]]
-
 == Tabla de herramientas
-
 
 La 'Tabla de herramientas' es un archivo de texto que contiene información sobre cada
 herramienta. El archivo está ubicado en el mismo directorio que su configuración
@@ -60,11 +56,9 @@ El número máximo de herramienta y de ranura es 99999.
 <<cha:tooledit-gui,Tool Editor>> o un editor de texto se pueden usar para editar la
 tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a cargar la tabla en la GUI
 
-=== Formato de tabla de herramientas
-(((Tool-Table-Format)))
+=== Formato de tabla de herramientas(((Tool-Table-Format)))
 
 .Formato de tabla de herramientas
-
 [width="100%", options="header"]
 |====
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |AF |AP |Ori |Com
@@ -179,8 +173,7 @@ La columna 'Comentario' puede usarse opcionalmente para describir la herramienta
 tipo de descripción estará bien. Esta columna es solo para lectores humanos.
 El comentario debe ir precedido de un punto y coma.
 
-[[sec:tool-changers]]
-
+[[sub:tool-changers]]
 === Cambiadores de herramientas
 
 LinuxCNC admite tres tipos de cambiadores de herramientas: 'manual', 'ubicación aleatoria'
@@ -213,8 +206,7 @@ siempre esta en un ranura diferente después de un cambio de herramienta. Cuando
 LinuxCNC reescribe el número de ranura para realizar un seguimiento de dónde están las herramientas.
 T puede ser cualquier número pero P debe ser un número que tenga sentido para la máquina.
 
-[[sec:cutter-compensation]]
-
+[[sec:cutter-radius-compensation]]
 == Compensación del cortador
 
 La compensación de cortador permite al programador programar la trayectoria de la herramienta
@@ -237,7 +229,6 @@ muestra cómo el movimiento compensado se detendrá en diferentes puntos dependi
 del próximo movimiento
 
 .Punto final de compensación
-
 image::images/comp-path_en.svg[align="center", alt="Punto final de compensación"]
 
 === Descripción general
@@ -262,21 +253,17 @@ X0, el perfil resultante dejaría una protuberancia debido al offset del
 movimiento de entrada.
 
 .Movimiento de entrada
-
 image::images/comp02_en.svg[alt="Movimiento de entrada"]
 
 .Movimientos Z
-
 El movimiento del eje Z puede tener lugar mientras se sigue el contorno en
 el plano XY. Se pueden omitir partes del contorno retrayendo el
 eje Z sobre la pieza y extendiendo el eje Z en el siguiente punto de inicio.
 
 .Movimientos rápidos
-
 Se pueden programar movimientos rápidos mientras la compensación está activada.
 
 .Buenas practicas
-
  - Inicie un programa con G40 para asegurarse de que la compensación esté desactivada.
 
 === Ejemplos
@@ -284,12 +271,9 @@ Se pueden programar movimientos rápidos mientras la compensación está activad
 .Perfil externo
 
 .Perfil externo
-
 image::images/outside-comp.png[alt="Perfil externo"]
 
 .Perfil interno
 
 .Perfil interno
-
 image::images/inside-comp.png[alt="Perfil interno"]
-

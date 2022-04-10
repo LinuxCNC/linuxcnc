@@ -1,4 +1,4 @@
-:lang:es
+:lang: es
 
 [[cha:g-codes]]
 = Códigos G
@@ -47,9 +47,8 @@ A menos que se indique lo contrario, los números explícitos pueden ser valores
 ejemplo, 'G10 L2' podría igualmente escribirse 'G[2*5] L[1+1]'. Si el
 el valor del parámetro 100 era 2, 'G10 L#100' también significaría lo mismo.
 
-== Tabla de referencia rápida de código G[[gcode:quick-reference-table]]
-
-(((G Code Table)))
+[[gcode:quick-reference-table]]
+== Tabla de referencia rápida de código G(((G Code Table)))
 
 [width="75%", options="header", cols="2^,5<"]
 |====================================================================
@@ -142,7 +141,7 @@ M2 (final del programa)
 * Consulte las secciones <<gcode:g90-g91, G90>> y <<mcode:m2-m30, M2>> para obtener más información.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-radius-compensation,Compensación del cortador>>.
 
 Si 'G53' está programado en la misma línea, el movimiento también será diferente;
 Consulte la sección <<gcode:g53, G53>> para obtener más información.
@@ -181,7 +180,7 @@ M2 (final del programa)
 para más información.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-radius-compensation,Compensación del cortador>>.
 
 Si 'G53' está programado en la misma línea, el movimiento también será diferente;
 Consulte la sección <<gcode:g53,G53>> para obtener más información.
@@ -202,7 +201,7 @@ G2 o G3 ejes R- (formato radio)
 G2 o G3 offsets|R- <P-> (círculos completos)
 ----
 
-Un arco circular o helicoidal se especifica utilizando 'G2' (arco en sentido horario) 
+Un arco circular o helicoidal se especifica utilizando 'G2' (arco en sentido horario)
 o 'G3' (arco en sentido antihorario) a la
 <<sec:set-feed-rate,velocidad de avance>> actual. La dirección (CW, CCW) se ve desde
 extremo positivo del eje sobre el cual ocurre el movimiento circular.
@@ -235,7 +234,7 @@ comienze y termine cuando el movimiento XYZ comienza y termina.
 Las líneas de este tipo casi nunca se programan.
 
 Si la compensación del cortador está activa, el movimiento será diferente de
-lo anterior; vea la sección <<sec:cutter-compensation,Compensación del cortador>>.
+lo anterior; vea la sección <<sec:cutter-radius-compensation,Compensación del cortador>>.
 
 El centro del arco es absoluto o relativo según lo establecido por <<gcode:g90.1-g91.1,G90.1
 o G91.1>> respectivamente.
@@ -345,7 +344,7 @@ opción es calcular las coordenadas y el offset utilizando fórmulas. Como
 puede ver en las siguientes figuras, se puede formar un triángulo a partir de la
 posición actual, la posición final y el centro del arco.
 
-En la siguiente figura puede ver que la posición de inicio es X0 Y0 y 
+En la siguiente figura puede ver que la posición de inicio es X0 Y0 y
 la posición final es X1 Y1. La posición central del arco está en X1 Y0. Esto da
 un offset desde la posición inicial de 1 en el eje X y 0 en el eje Y.
 En este caso solo se necesita un offset I.
@@ -375,7 +374,7 @@ G2 X0 Y1 I1 J0.5 F25 (arco en sentido horario en el plano XY)
 G3 X0 Y0 I1 J-0.5 F25 (arco en sentido antihorario en el plano XY)
 ----
 
-.Ejemplo G2-G3 
+.Ejemplo G2-G3
 
 image::images/g2-3_en.svg[align="center", alt="Ejemplo G2-G3"]
 
@@ -406,6 +405,7 @@ el punto actual o el punto final del arco.
 ----
 G2 o G3 ejes R- <P->
 ----
+
 * 'R' - radio desde la posición actual
 
 No es una buena práctica programar arcos de formato de radio que sean
@@ -423,7 +423,7 @@ En el formato radio, las coordenadas del punto final del arco en
 el plano seleccionado se especifica junto con el radio del arco.
 Programe los ejes 'G2' 'ejes' ' R-'(o use 'G3' en lugar de 'G2'). R es el
 radio. Las palabras de eje son todas opcionales, excepto que debe ser usada
-al menos una de las dos palabras para los ejes del plano seleccionado. 
+al menos una de las dos palabras para los ejes del plano seleccionado.
 El número R es el radio. Un radio positivo indica que el
 el arco gira menos de 180 grados, mientras que un radio negativo
 indica un giro de más de 180 grados. Si el arco es helicoidal, también se especifica el
@@ -453,6 +453,7 @@ de lo contrario es un arco helicoidal.
 ----
 G4 P-
 ----
+
 * 'P' - segundos en parada (punto flotante)
 
 El número P es el tiempo en segundos que todos los ejes permanecerán inmóviles.
@@ -475,6 +476,7 @@ Es un error si:
 ----
 G5 X- Y- <I- J-> P- Q-
 ----
+
 * 'I' - offset incremental X desde el punto de inicio hasta el primer punto de control
 * 'J' - offset incremental Y desde el punto de inicio hasta el primer punto de control
 * 'P' - offset incremental X desde el punto final hasta el segundo punto de control
@@ -671,7 +673,6 @@ el sistema de coordenadas especificado. Las palabras de eje no utilizadas no se 
 Programe P0 a P9 para especificar qué sistema de coordenadas cambiar.
 
 .Sistema coordinado
-
 [width="50%", options="header", cols="^,^,^"]
 |========================================
 |Valor P |Sistema de coordenadas |Código G
@@ -714,7 +715,7 @@ Es un error si:
 * El número P no se evalúa como un entero en el rango de 0 a 9.
 * Se programa un eje que no está definido en la configuración.
 
-.Ejemplo de línea G10 L2 
+.Ejemplo de línea G10 L2
 [source,{ngc}]
 ----
 G10 L2 P1 X3.5 Y17.2
@@ -762,7 +763,8 @@ G10 L10 P1 Z1.5 (establecer la posición actual para Z en 1.5)
 G43 (vuelve a cargar las compensaciones de longitud de herramienta de la tabla de herramientas modificada)
 M2 (final del programa)
 ----
-* Consulte las secciones <<sec:select-tool,T>> , <<mcode:m6,M6>> y 
+
+* Consulte las secciones <<sec:select-tool,T>> , <<mcode:m6,M6>> y
   <<gcode:g43, G43>>/<<gcode:g43.1,G43.1>>  para más información.
 
 Es un error si:
@@ -779,6 +781,7 @@ Es un error si:
 ----
 G10 L11 P- ejes <R- I- J- Q->
 ----
+
 * 'P' - número de herramienta
 * 'R' - radio de herramienta
 * 'I' - ángulo frontal (torno)
@@ -786,7 +789,7 @@ G10 L11 P- ejes <R- I- J- Q->
 * 'Q' - orientación (torno)
 
 G10 L11 es como G10 L10, excepto que en lugar de configurar la entrada
-de acuerdo con las compensaciones actuales, se establece de modo que 
+de acuerdo con las compensaciones actuales, se establece de modo que
 las coordenadas actuales se convertirían en el valor dado si se vuelve a cargar el offset
 de la nueva herramienta y la máquina se coloca en el sistema de coordenadas G59.3
 sin ningún offset G52/G92 activo.
@@ -878,12 +881,10 @@ se emite un G28. Si no se almacenan posiciones con G28.1, todos los ejes irán a
 
 * 'G28' - hace un <<gcode:g0,movimiento rápido>> desde ls actual
   posición a la posición 'absoluta' de los valores en los parámetros 5161-5166.
-
 * 'G28 ejes' - hace un movimiento rápido a la posición especificada por
   'ejes' incluyendo cualquier offset, luego hará un movimiento rápido hacia la
   posición 'absoluta' de los valores en los parámetros 5161-5166 para todos los 'ejes' especificados. Ningun
   'eje' no especificado no se moverá.
-
 * 'G28.1' - almacena la posición 'absoluta' actual en los parámetros 5161-5166.
 
 .Linea de ejemplo G28
@@ -917,12 +918,10 @@ si TOOL_CHANGE_AT_G30 = 1 está en la sección [EMCIO] del archivo ini.
 
 * 'G30' - hace un <<gcode:g0,movimiento rápido>> desde la
   posición actual a la posición "absoluta" de los valores en los parámetros 5181-5189.
-
 * 'G30 ejes':realiza un movimiento rápido a la posición especificada
   por 'ejes' incluyendo cualquier offset, luego hará un movimiento rápido a la
   posición 'absoluta' de los valores en los parámetros 5181-5189 para todos los 'ejes'
   especificados. Cualquier 'eje' no especificado no se moverá.
-
 * 'G30.1' - almacena la posición absoluta actual en los parámetros 5181-5186.
 
 .G30 Ejemplo de línea
@@ -941,6 +940,7 @@ Es un error si:
 ----
 G33 X- Y- Z- K- $ -
 ----
+
 * 'K' - distancia por revolución
 
 Para movimiento sincronizado con husillo en una dirección, codifique 'G33 X- Y- Z- K-'
@@ -993,6 +993,7 @@ G0 X1.25 (movimiento rápido herramienta fuera del trabajo)
 Z0.1 (movimiento rápido a la posición Z inicial)
 M2 (final del programa)
 ----
+
 * Consulte las secciones <<gcode:g90-g91,G90>> , <<gcode:g0,G0>> y <<mcode:m2-m30,M2>> para obtener más información.
 
 Es un error si:
@@ -1009,6 +1010,7 @@ debido a la velocidad del husillo
 ----------------
 G33.1 X- Y- Z- K- I- $ -
 ----------------
+
 * 'K' - distancia por revolución
 * 'I' - multiplicador de velocidad del husillo opcional para un movimiento de retorno más rápido
 * '$' - selector de husillo opcional
@@ -1027,17 +1029,17 @@ por cada revolución del husillo.
 Un movimiento de roscado rígido consiste en la siguiente secuencia:
 
 . Un movimiento desde la coordenada actual a la coordenada especificada, sincronizada
-con el husillo seleccionado en la proporción dada y comenzando desde la
-coordenada actual tras un pulso de índice del husillo.
+  con el husillo seleccionado en la proporción dada y comenzando desde la
+  coordenada actual tras un pulso de índice del husillo.
 . Al llegar al punto final, comanda la inversion del eje y acelera
-por un factor establecido por el multiplicador (p. ej., de derecha a izquierda).
+  por un factor establecido por el multiplicador (p. ej., de derecha a izquierda).
 . Movimiento sincronizado continuo más allá de la coordenada final especificada
-hasta que el husillo realmente se detenga y se invierta.
+  hasta que el husillo realmente se detenga y se invierta.
 . Movimiento sincronizado continuo de vuelta a la coordenada original.
 . Al alcanzar la coordenada original,
-comanda para invertir el eje por segunda vez (por ejemplo, de izquierda a derecha).
+  comanda para invertir el eje por segunda vez (por ejemplo, de izquierda a derecha).
 . Movimiento sincronizado continuo más allá de la coordenada original
-hasta que el husillo realmente se detenga y se invierta.
+  hasta que el husillo realmente se detenga y se invierta.
 . Un movimiento *no sincronizado* retrocediendo a la coordenada original.
 
 Los movimientos sincronizados con el husillo esperan el índice del husillo,
@@ -1061,7 +1063,7 @@ Es un error si:
 * Se omiten todas las palabras de eje.
 * El husillo no gira cuando se ejecuta este comando
 * El movimiento lineal solicitado excede los límites de velocidad de la máquina.
-debido a la velocidad del husillo
+  debido a la velocidad del husillo
 
 [[gcode:g38]]
 == G38.n Sonda recta
@@ -1110,7 +1112,7 @@ Si la operación de sondeo falla, G38.2 y G38.4 señalarán un error
 mostrando un mensaje en pantalla si la GUI seleccionada lo admite,
 y al detener la ejecución del programa.
 
-Un comentario de la forma '(PROBEOPEN filename.txt)' abrirá 
+Un comentario de la forma '(PROBEOPEN filename.txt)' abrirá
 'filename.txt' y almacenará las coordenadas
 XYZABCUVW de cada sonda recta exitosa en ella.
 El archivo debe cerrarse con '(PROBECLOSE)'. Para más información
@@ -1158,9 +1160,10 @@ Es un error si:
 G41 <D-> (a la izquierda de la ruta programada)
 G42 <D-> (a la derecha de la ruta programada)
 ----
+
 * 'D' - número de herramienta
 
-La palabra D es opcional; si no hay una palabra D, se utilizará el radio de la 
+La palabra D es opcional; si no hay una palabra D, se utilizará el radio de la
 herramienta cargada actual (si no se carga ninguna herramienta y no se proporciona una palabra D,
 se usará un radio de 0).
 
@@ -1194,7 +1197,7 @@ La compensación del cortador se puede realizar si el plano XY o el plano XZ est
 Los comandos de usuario M100-M199 están permitidos cuando la compensación de cortador está activada.
 
 El comportamiento del centro de mecanizado cuando la compensación del cortador
-está activada se describe en la sección <<sec:cutter-compensation,Compensación de cortador>>
+está activada se describe en la sección <<sec:cutter-radius-compensation,Compensación de cortador>>
 junto con ejemplos de código.
 
 Es un error si:
@@ -1211,6 +1214,7 @@ Es un error si:
 G41.1 D- <L-> (a la izquierda de la ruta programada)
 G42.1 D- <L-> (a la derecha de la ruta programada)
 ----
+
 * 'D' - diámetro del cortador
 * 'L' - orientación de herramienta (ver <<lathe-tool-orientation, orientación de herramienta de torno>>)
 
@@ -1231,6 +1235,7 @@ Es un error si:
 ----
 G43 <H->
 ----
+
 * 'H' - número de herramienta (opcional)
 
 G43 permite la compensación de la longitud de la herramienta. G43 cambia los movimientos posteriores
@@ -1246,7 +1251,7 @@ el punto final de ese eje será la ubicación compensada.
 [NOTE]
 'G43 H0' es un poco especial. Su comportamiento es diferente en
 máquinas de cambio de herramientas aleatorio y máquinas de cambio no aleatorio (ver la sección
-<<sec:tool-changers,Cambiadores de herramientas>>). En máquinas de cambiador de herramientas no aleatorio,
+<<sub:tool-changers,Cambiadores de herramientas>>). En máquinas de cambiador de herramientas no aleatorio,
 'G43 H0' aplica el TLO de la herramienta actualmente en el husillo,
 o un TLO de 0 si no hay herramienta. En máquinas con cambiador de herramientas aleatorio,
 'G43 H0' aplica el TLO de la herramienta T0 definida en la tabla de herramientas
@@ -1260,12 +1265,9 @@ G43 H1 (establecer compensaciones de herramienta utilizando los valores de la he
 Es un error si:
 
 * el número H no es un entero, o
-
 * el número H es negativo, o
-
 * el número H no es un número de herramienta válido (aunque tenga en cuenta que 0 es un número válido
-de herramienta en máquinas no aleatorias y significa "la herramienta actualmente en el husillo")
-
+  de herramienta en máquinas no aleatorias y significa "la herramienta actualmente en el husillo")
 
 [[gcode:g43.1]]
 == G43.1 Offset de longitud dinámica de herramienta
@@ -1276,8 +1278,8 @@ G43.1 ejes
 ----
 
 * 'G43.1 ejes' - cambia los movimientos siguientes reemplazando los offsets actuales
-de ejes. G43.1 no causa ningún movimiento. La próxima vez un eje compensado
-se mueva, el punto final de ese eje será la ubicación compensada.
+  de ejes. G43.1 no causa ningún movimiento. La próxima vez un eje compensado
+  se mueva, el punto final de ese eje será la ubicación compensada.
 
 .Ejemplo G43.1
 ----
@@ -1286,6 +1288,7 @@ T1 M6 G43 (carga herramienta 1 y offset de longitud de herramienta, Z está en 0
 G43.1 Z0.250 (offset actual de la herramienta en 0.250, DRO ahora muestra Z1.250)
 M2 (final del programa)
 ----
+
 * Consulte las secciones <<gcode:g90-g91, G90>> , <<sec:select-tool,T>> y <<mcode:m6,M6>>
 para más información.
 
@@ -1352,7 +1355,6 @@ G52 se utiliza en un programa de pieza como un "offset del sistema de coordenada
 dentro del sistema de coordenadas de la pieza de trabajo. Más información sobre G52 en la sección
 <<sec:g52,offsets locales y globales>> .
 
-
 [[gcode:g53]]
 == G53 Mover en coordenadas de máquina
 (((Coordenadas de la máquina G53)))
@@ -1400,10 +1402,9 @@ Los sistemas de coordenadas almacenan los valores del eje y el
 en los parámetros que se muestran en la siguiente tabla.
 
 .Parámetros del sistema de coordenadas
-
 [width="80%", options="header", cols="<,11*^"]
 |============================================================
-|Selec.|SC|X   |Y   |Z   |A   |B   |C   |U   |V   |W   |R   
+|Selec.|SC|X   |Y   |Z   |A   |B   |C   |U   |V   |W   |R
 |G54   |1 |5221|5222|5223|5224|5225|5226|5227|5228|5229|5230
 |G55   |2 |5241|5242|5243|5244|5245|5246|5247|5248|5249|5250
 |G56   |3 |5261|5262|5263|5264|5265|5266|5267|5268|5269|5270
@@ -1427,8 +1428,8 @@ sistemas de coordenadas.
 (((G61 G61.1 G64 Path Mode)))
 
 * 'G61' - Modo de ruta exacta, movimiento exactamente como se programó. Los movimientos se ralentizarán o
-detendran según sea necesario para llegar a cada punto programado. Si dos movimientos secuenciales son
-exactamente co-lineales, no se detendrá.
+  detendran según sea necesario para llegar a cada punto programado. Si dos movimientos secuenciales son
+  exactamente co-lineales, no se detendrá.
 
 [[gcode:g61.1]]
 == G61.1 Modo de parada exacta
@@ -1444,32 +1445,29 @@ G64 <P- <Q->>
 ----
 * 'P' - tolerancia de mezcla de movimiento
 * 'Q' - tolerancia naive cam
-
 * 'G64' - la mejor velocidad posible.
 * 'G64 P- <Q->' mezcla con tolerancia.
-
 * 'G64' - sin P significa mantener la mejor velocidad posible, sin importar cómo
-de lejos del punto programado se termina.
-
+  de lejos del punto programado se termina.
 * 'G64 P- Q-' - es una forma de ajustar su sistema para obtener el mejor compromiso
-entre velocidad y precisión. La tolerancia P significa que la ruta real
-no se apartará más de P- del punto final programado. La velocidad
-se reducirá si es necesario para mantener el camino. Además, cuando se
-active G64 P- Q- , se enciende 'nive cam'; cuando hay
-una serie de alimentación lineal XYZ se mueve al mismo <<sec:set-feed-rate,feed rate>>
-que están a menos de Q- lejos de ser colineales, se colapsan en un
-movimiento lineal único. En G2 / G3 se mueve en el plano G17 (XY) cuando el máximo
-La desviación de un arco de una línea recta es menor que el G64 P-
-tolerancia el arco se divide en dos líneas (desde el inicio del arco hasta
-punto medio, y desde el punto medio hasta el final). esas líneas están sujetas a
-El ingenuo algoritmo de leva para líneas. Por lo tanto, line-arc, arc-arc y
-los casos de línea de arco y la línea de línea se benefician de la 'cámara ingenua
-detector'. Esto mejora el rendimiento de contorneado al simplificar el
-camino. Está bien programar para el modo que ya está activo. Ver también
-la sección <<sec:trajectory-control,control de trayectoria>> para más
-información sobre estos modos.
-Si Q no se especifica, tendrá el mismo comportamiento que antes y
-use el valor de P-.
+  entre velocidad y precisión. La tolerancia P significa que la ruta real
+  no se apartará más de P- del punto final programado. La velocidad
+  se reducirá si es necesario para mantener el camino. Además, cuando se
+  active G64 P- Q- , se enciende 'nive cam'; cuando hay
+  una serie de alimentación lineal XYZ se mueve al mismo <<sec:set-feed-rate,feed rate>>
+  que están a menos de Q- lejos de ser colineales, se colapsan en un
+  movimiento lineal único. En G2 / G3 se mueve en el plano G17 (XY) cuando el máximo
+  La desviación de un arco de una línea recta es menor que el G64 P-
+  tolerancia el arco se divide en dos líneas (desde el inicio del arco hasta
+  punto medio, y desde el punto medio hasta el final). esas líneas están sujetas a
+  El ingenuo algoritmo de leva para líneas. Por lo tanto, line-arc, arc-arc y
+  los casos de línea de arco y la línea de línea se benefician de la 'cámara ingenua
+  detector'. Esto mejora el rendimiento de contorneado al simplificar el
+  camino. Está bien programar para el modo que ya está activo. Ver también
+  la sección <<sec:trajectory-control,control de trayectoria>> para más
+  información sobre estos modos.
+  Si Q no se especifica, tendrá el mismo comportamiento que antes y
+  use el valor de P-.
 
 .G64 P- Línea de ejemplo
 ----
@@ -1486,6 +1484,7 @@ de cada archivo de código G.
 ----
 G70 Q- <X-> <Z-> <D-> <E-> <P->
 ----
+
 * 'Q':el número de subrutina.
 * 'X' - La posición X inicial, por defecto es la posición inicial.
 * 'Z' - La posición Z inicial, por defecto es la posición inicial.
@@ -1498,23 +1497,23 @@ en la subrutina con el número Q se ha cortado con G71 o G72.
 
 . Movimiento preliminar
 ** Si se usan Z o X, <<gcode:g0,movimiento rápido>> a esa posición
-está hecho. Esta posición también se usa entre cada pasada de acabado.
+   está hecho. Esta posición también se usa entre cada pasada de acabado.
 ** Entonces un <<gcode:g0,movimiento rápido>> al inicio del perfil es
-ejecutado.
+   ejecutado.
 ** La ruta dada en Q- se sigue usando <<gcode:g1,G1>> y
-<<gcode:g2-g3>> comandos.
+   <<gcode:g2-g3>> comandos.
 ** Si se requiere un próximo pase, hay otro rápido al intermedio
-ubicación, antes de que se realice un rápido al inicio del perfil.
+   ubicación, antes de que se realice un rápido al inicio del perfil.
 ** Después de la pasada final, la herramienta se deja al final del perfil
-incluyendo E-.
+   incluyendo E-.
 . Pases múltiples
-La distancia entre el pase y el perfil final es (pase-1) * (D-E) / P + E.
-Donde pasar el número de pase y D, E y P son los números D / E / P.
+  La distancia entre el pase y el perfil final es (pase-1) * (D-E) / P + E.
+  Donde pasar el número de pase y D, E y P son los números D / E / P.
 . La distancia se calcula utilizando la posición inicial del ciclo, con
-una distancia positiva hacia este punto.
+  una distancia positiva hacia este punto.
 . Filete y chaflanes en el perfil.
-Es posible agregar filetes o chaflanes en el perfil, vea
-<<gcode:g71-g72>> para más detalles.
+  Es posible agregar filetes o chaflanes en el perfil, vea
+  <<gcode:g71-g72>> para más detalles.
 
 Es un error si:
 
@@ -1534,6 +1533,7 @@ G72 Q- <X-> <Z-> <D-> <I-> <R->
 G72.1 Q- <X-> <Z-> <D-> <I-> <R->
 G72.2 Q- <X-> <Z-> <D-> <I-> <R->
 ----
+
 * 'Q':el número de subrutina.
 * 'X' - La posición X inicial, por defecto es la posición inicial.
 * 'Z' - La posición Z inicial, por defecto es la posición inicial.
@@ -1601,10 +1601,10 @@ Este ciclo toma un número Q que representa un incremento 'delta' a lo largo del
 
 . Movimiento preliminar
 ** Si la posición Z actual está por debajo de la posición R, el eje Z hace un
-<<gcode:g0,movimiento rápido>> a la posición R.
+   <<gcode:g0,movimiento rápido>> a la posición R.
 ** Moverse a las coordenadas X Y
 . Mueve el eje Z solo a <<sec:set-feed-rate,avance>> actual hacia abajo
-la cantidad delta o hacia la posición Z, lo que sea menos profundo.
+  la cantidad delta o hacia la posición Z, lo que sea menos profundo.
 . Rápido elevandose un poco.
 . Repite los pasos 2 y 3 hasta alcanzar la posición Z en el paso 2.
 . rapido del eje Z a la posición R.
@@ -1613,7 +1613,6 @@ Es un error si:
 
 * el número Q es negativo o cero.
 * el número R no está especificado
-
 
 [[gcode:g74]]
 == G74 Ciclo de roscado izquierdo, con Dwell
@@ -1625,8 +1624,7 @@ G74 (X- Y- Z-) o (U- V- W-) R- L- P- $ -
 
 El ciclo 'G74' está diseñado para roscar con mandril flotante y parada en el fondo del agujero.
 
-1. Movimiento preliminar, como se describe en la sección
-<<gcode:preliminary-motion,movimientos preliminares e intermedios>>
+1. Movimiento preliminar, como se describe en la sección <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
 
 2. Deshabilita los ajustes de avance y velocidad.
 
@@ -1659,11 +1657,9 @@ image::images/g76-threads_en.svg[align="center", alt="G76 Roscado"]
 
 
 * 'Línea guia' - una línea a través de la posición X inicial paralela a Z.
-
 * 'P-' - 'paso de hilo' en distancia por revolución.
-
 * 'Z-' - posición final de los hilos. Al final del ciclo, la herramienta
-estará en esa posición Z
+  estará en esa posición Z
 
 [NOTE]
 Cuando G7 'Modo de diámetro de torno' está en vigor, los valores para 'I', 'J' y 'K' son
@@ -1671,51 +1667,44 @@ mediciones de diámetro. Cuando G8 'Modo de radio de torno' está en vigor, los 
 'I', 'J' y 'K' son medidas de radio.
 
 * 'I-' - offset de la 'cresta de hilo' desde la 'línea guia'. Valores negativos de 'I'
-son hilos externos, y valores positivos de 'I' son hilos internos.
-Generalmente, el material se ha convertido a este tamaño antes del ciclo 'G76'.
-
+  son hilos externos, y valores positivos de 'I' son hilos internos.
+  Generalmente, el material se ha convertido a este tamaño antes del ciclo 'G76'.
 * 'J-' - un valor positivo que especifica la 'profundidad de corte inicial'. El primer
-corte de roscado será 'J' más allá de la posición de 'cresta de hilo'.
-
+  corte de roscado será 'J' más allá de la posición de 'cresta de hilo'.
 * 'K-' - un valor positivo que especifica la 'profundidad del hilo completo'. El final
-del corte de roscado será 'K' más allá de la posición de 'cresta de hilo'.
+  del corte de roscado será 'K' más allá de la posición de 'cresta de hilo'.
 
 Configuraciones opcionales
 
 * '$ -' - el número de husillo con el que se sincronizará el movimiento
-(predeterminado 0). Por ejemplo, si está programado $1, entonces el movimiento comenzará
-en el reinicio de spindle.1.index-enable y procede en sincronía con el
-valor de spindle.1.revs
-
+  (predeterminado 0). Por ejemplo, si está programado $1, entonces el movimiento comenzará
+  en el reinicio de spindle.1.index-enable y procede en sincronía con el
+  valor de spindle.1.revs
 * 'R-' - La 'degresión de profundidad'. (degresión = un descenso por etapas o pasos)
-'R1.0' selecciona profundidad constante en sucesivos
-pases de roscado. 'R2.0' selecciona área constante. Valores entre 1.0 y
-2.0 seleccionan profundidad decreciente pero área creciente.
-Los valores superiores a 2.0 seleccionan área decreciente.
-Tenga en cuenta que los valores de degresión innecesariamente altos causarán un gran
-número de pases. 
-
+  'R1.0' selecciona profundidad constante en sucesivos
+  pases de roscado. 'R2.0' selecciona área constante. Valores entre 1.0 y
+  2.0 seleccionan profundidad decreciente pero área creciente.
+  Los valores superiores a 2.0 seleccionan área decreciente.
+  Tenga en cuenta que los valores de degresión innecesariamente altos causarán un gran
+  número de pases.
 * 'Q-' - 'ángulo de deslizamiento compuesto' es el ángulo (en grados) que describe
-en qué medida los pases sucesivos deben compensarse a lo largo de la línea guia.
-Esto se usa para hacer que un lado de la herramienta elimine más material que
-el otro. Un valor positivo 'Q' hace que el borde de ataque de la herramienta
-corte más fuerte. Los valores típicos son 29, 29.5 o 30.
-
+  en qué medida los pases sucesivos deben compensarse a lo largo de la línea guia.
+  Esto se usa para hacer que un lado de la herramienta elimine más material que
+  el otro. Un valor positivo 'Q' hace que el borde de ataque de la herramienta
+  corte más fuerte. Los valores típicos son 29, 29.5 o 30.
 * 'H-' - El número de 'pases elasticos'. Los pases elasticos son pases adicionales a
-la profundidad total del hilo. Si no se desean pases adicionales, programe 'H0'.
-
+  la profundidad total del hilo. Si no se desean pases adicionales, programe 'H0'.
 * 'E-' - Especifica la distancia a lo largo de la línea guia utilizada para conicidad de la entrada.
-El ángulo del cono será de modo que el último pase se estrecha hacia la cresta del hilo
-sobre la distancia especificada con E. 'E0.2' dará un cono para las
-primeras/últimas 0.2 unidades de longitud a lo largo del
-hilo. Para un programa de conicidad de 45 grados, E igual que K
-
+  El ángulo del cono será de modo que el último pase se estrecha hacia la cresta del hilo
+  sobre la distancia especificada con E. 'E0.2' dará un cono para las
+  primeras/últimas 0.2 unidades de longitud a lo largo del
+  hilo. Para un programa de conicidad de 45 grados, E igual que K
 * 'L-' - Especifica qué extremos del hilo tendran conicidad. Programar 'L0' para no
-cono (predeterminado), 'L1' para el cono de entrada, 'L2' para el cono de salida o 'L3'
-tanto para entradas y salidas cónicas. Las entradas cónicas se detendrán en la línea guia para
-sincronizar con el pulso de índice y luego moverse a <<sec:set-feed-rate,avance>>
-en el comienzo del cono. Sin entrada cónica, la herramienta hará un rapido a la 
-profundidad de corte, luego sincronizara y comenzara el corte.
+  cono (predeterminado), 'L1' para el cono de entrada, 'L2' para el cono de salida o 'L3'
+  tanto para entradas y salidas cónicas. Las entradas cónicas se detendrán en la línea guia para
+  sincronizar con el pulso de índice y luego moverse a <<sec:set-feed-rate,avance>>
+  en el comienzo del cono. Sin entrada cónica, la herramienta hará un rapido a la
+  profundidad de corte, luego sincronizara y comenzara el corte.
 
 La herramienta se movera a las posiciones X y Z iniciales antes de emitir
 G76. La posición X es la 'línea guia' y la posición Z es el
@@ -1728,7 +1717,7 @@ el comienzo del hilo pase el final del material o se usa una conicidad de entrad
 A menos que use conicidad de salida, el movimiento de salida no está sincronizado con la
 velocidad del husillo y será un <<gcode:g0,movimiento rápido>>. Con un husillo lento, el
 movimiento de salida puede tomar solo una pequeña fracción de una revolución. Si la velocidad
-del husillo aumenta después de completar varios pases, 
+del husillo aumenta después de completar varios pases,
 los movimientos de salida posteriores requerirán una porción mayor de una revolución, lo que resultará en un
 corte muy pesado durante el movimiento de salida. Esto se puede evitar proporcionando un
 surco de alivio en la salida, o no cambiar la velocidad del husillo mientras se rosca.
@@ -1854,8 +1843,7 @@ Es un error si:
 
 Si el plano XY está activo, el número Z es sticky y es un error si:
 
-* falta el número Z y el mismo ciclo fijo no estaba
-activo,
+* falta el número Z y el mismo ciclo fijo no estaba activo,
 * o el número R es menor que el número Z
 
 Si otros planos están activos, las condiciones de error son análogas a las
@@ -1872,10 +1860,8 @@ una vez, independientemente del valor de L.
 Además, al comienzo del primer ciclo y en cada repetición,
 se realizan uno o dos movimientos siguientes
 
-. Un <<gcode:g0,movimiento rápido>> paralelo al plano XY para
-la posición XY dada,
-. El eje Z hace un movimiento rápido a la posición R, si
-no está ya en la posición R.
+. Un <<gcode:g0,movimiento rápido>> paralelo al plano XY para la posición XY dada,
+. El eje Z hace un movimiento rápido a la posición R, si no está ya en la posición R.
 
 Si otro plano está activo, los movimientos preliminares y intermedios son
 análogo.
@@ -1939,10 +1925,8 @@ La segunda razón para usar un ciclo fijo es que todos producen
 movimientos preliminares y retornos que se pueden anticipar y controlar
 independientemente del punto de inicio del ciclo fijo.
 
-
 [[gcode:g80]]
-== G80 Cancelar ciclo fijo
-((G80 Cancel Modal Motion)))
+== G80 Cancelar ciclo fijo((G80 Cancel Modal Motion)))
 
 * 'G80' - cancela el movimiento modal de ciclo fijo. 'G80' es parte del grupo modal 1,
 así que programar cualquier otro código G del grupo modal 1 también
@@ -2003,7 +1987,6 @@ Además, este es uno de los pocos lugares donde los números de línea tienen al
 ser capaz de señalar a un lector una línea específica de código.
 
 .Ciclo G80
-
 image::images/g81mult_es.svg[align="center", alt="Ciclo G80"]
 
 El uso de G80 en la línea N200 es opcional porque el G0 en la siguiente
@@ -2025,13 +2008,9 @@ El ciclo 'G81' está destinado a taladrado.
 El ciclo funciona de la siguiente manera:
 
 . Movimiento preliminar, como se describe en la sección
-<<gcode:preliminary-motion,movimientos preliminares e intermedios>>
-
-. Mover el eje Z al <<sec:set-feed-rate,avance>> actual a la posición Z
-.
-
+  <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
+. Mover el eje Z al <<sec:set-feed-rate,avance>> actual a la posición Z.
 . El eje Z hace un <<gcode:g0,movimiento rápido>> para despejar Z.
-
 . Ejemplo 1 - Posición absoluta G81 [[gcode:g81-example]]
 
 Supongamos que la posición actual es (X1, Y2, Z3) y la siguiente línea de NC
@@ -2055,11 +2034,8 @@ El valor R y la Z de despeje son 2.8. OLD_Z es 3.
 Se realizan los siguientes movimientos:
 
 . un <<gcode:g0,movimiento rápido>> paralelo al plano XY a (X4, Y5)
-
 . un movimiento rápido paralelo al eje Z hacia (Z2.8).
-
 . movimiento paralelo al eje Z al <<sec:set-feed-rate,avance>> actual a (Z1.5)
-
 . Un movimiento rápido paralelo al eje Z a (Z3)
 
 image::images/g81ex1_es.svg[align="center"]
@@ -2086,27 +2062,21 @@ El primer movimiento preliminar es un movimiento rápido a lo largo del eje Z pa
 La primera repetición consiste en 3 movimientos.
 
 . un <<gcode:g0,movimiento rápido>> paralelo al plano XY a (X5, Y7)
-
 . movimiento paralelo al eje Z a <<sec:set-feed-rate,avance>> hacia (Z4.2)
-
 . Un movimiento rápido paralelo al eje Z a (X5, Y7, Z4.8)
 
 La segunda repetición consiste en 3 movimientos. La posición X se restablece a
 9 (= 5 + 4) y la posición Y a 12 (= 7 + 5).
 
 . un <<gcode:g0,movimiento rápido>> paralelo al plano XY a (X9, Y12, Z4.8)
-
 . movimiento paralelo al eje Z a la velocidad de avance a (X9, Y12, Z4.2)
-
 . Un movimiento rápido paralelo al eje Z a (X9, Y12, Z4.8)
 
 La tercera repetición consiste en 3 movimientos. La posición X se restablece a
 13 (= 9 + 4) y la posición Y a 17 (= 12 + 5).
 
 . un <<gcode:g0,movimiento rápido>> paralelo al plano XY a (X13, Y17, Z4.8)
-
 . movimiento paralelo al eje Z a la velocidad de avance a (X13, Y17, Z4.2)
-
 . Un movimiento rápido paralelo al eje Z a (X13, Y17, Z4.8)
 
 image::images/g81ex2_es.svg[align="center"]
@@ -2166,7 +2136,7 @@ El ciclo 'G82' está diseñado para perforar con una pausa en la parte inferior 
 el agujero.
 
 . Movimiento preliminar, como se describe en la sección
-<<gcode:preliminary-motion,movimientos preliminares e intermedios>>
+  <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
 . Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> a la posición Z.
 . Espera P segundos.
 . El eje Z hace un <<gcode:g0,movimiento rápido>> para despejar Z.
@@ -2183,7 +2153,7 @@ pausa se especifica mediante una palabra 'P-' en el bloque G82.
 G83 (X- Y- Z-) o (U- V- W-) R- L- Q-
 ----
 
-El ciclo 'G83' está destinado a perforación o fresado con rotura de viruta. 
+El ciclo 'G83' está destinado a perforación o fresado con rotura de viruta.
 Las retracciones en este ciclo despejan el agujero de esquirlas y cortar las virutas largas
 (que son comunes cuando se perfora aluminio). Este ciclo toma un número Q que representa un
 incremento 'delta' a lo largo del eje Z. La retracción antes de la profundidad final siempre
@@ -2214,8 +2184,7 @@ G84 (X- Y- Z-) o (U- V- W-) R- L- P- $ -
 
 El ciclo 'G84' está diseñado para roscar con mandril flotante y permanecer en el fondo del agujero.
 
-1. Movimiento preliminar, como se describe en la sección
-<<gcode:preliminary-motion,movimientos preliminares e intermedios>>
+1. Movimiento preliminar, como se describe en la sección <<gcode:preliminary-motion,movimientos preliminares e intermedios>>
 
 2. Deshabilita ajustes de avance y velocidad.
 
@@ -2231,7 +2200,7 @@ El ciclo 'G84' está diseñado para roscar con mandril flotante y permanecer en 
 
 8. Restaura y habilita ajustes de alimentación y velocidad al estado anterior
 
-La longitud de la pausa se especifica mediante una palabra 'P-' en el bloque G84. El pitch de la rosca es F 
+La longitud de la pausa se especifica mediante una palabra 'P-' en el bloque G84. El pitch de la rosca es F
 dividido por S.
 En el ejemplo, S100 F125 ofrece un paso de 1,25 mm por revolución.
 
@@ -2246,11 +2215,9 @@ G85 (X- Y- Z-) o (U- V- W-) R- L-
 El ciclo 'G85' está diseñado para mandrinar o escariar, pero podría usarse
 para taladrar o fresar.
 
-. Movimiento preliminar, como se describe en la sección
-<<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
+. Movimiento preliminar, como se describe en la sección <<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
 . Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> a la posición Z.
-. Retrae el eje Z a velocidad de avance actual al plano R si es más bajo
-que la Z inicial.
+. Retrae el eje Z a velocidad de avance actual al plano R si es más bajo que la Z inicial.
 . Retrae a la velocidad transversal para despejar Z.
 
 [[gcode:g86]]
@@ -2264,8 +2231,7 @@ G86 (X- Y- Z-) o (U- V- W-) R- L- P- $-
 El ciclo 'G86' está destinado a mandrinado. Este ciclo usa P
 segundos de parada.
 
-. Movimiento preliminar, como se describe en la sección
-<<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
+. Movimiento preliminar, como se describe en la sección <<gcode:preliminary-motion,movimientos preliminares e intermedios>>.
 . Mueve el eje Z a <<sec:set-feed-rate,velocidad de avance>> a la posición Z.
 . Espera P segundos.
 . Detiene el giro del husillo seleccionado (elegido por el parámetro $).
@@ -2308,13 +2274,13 @@ que especifica el número de segundos de parada (Dwell).
 (((G90, G91 Distance Mode)))
 
 * 'G90' - modo de distancia absoluta. En este
-modo, los números de eje (X, Y, Z, A, B, C, U, V, W)
-generalmente representan posiciones en términos del
-sistema coordinado activo. Las excepciones a esta regla se describen
-explícitamente en la sección <<gcode:g80-g89,G80 G89>>.
+  modo, los números de eje (X, Y, Z, A, B, C, U, V, W)
+  generalmente representan posiciones en términos del
+  sistema coordinado activo. Las excepciones a esta regla se describen
+  explícitamente en la sección <<gcode:g80-g89,G80 G89>>.
 
 * 'G91' - modo de distancia incremental. En este modo, los números de eje generalmente representan
-incrementos de la coordenada actual.
+  incrementos de la coordenada actual.
 
 .Ejemplo G90
 ----
@@ -2322,7 +2288,7 @@ G90 (establecer modo de distancia absoluta)
 G0 X2.5 (movimiento rápido a coordenada X2.5 incluyendo cualquier compensación en efecto)
 ----
 
-.Ejemplo G91 
+.Ejemplo G91
 ----
 G91 (establecer modo de distancia incremental)
 G0 X2.5 (movimiento rápido de 2.5 udes. desde la posición actual a lo largo del eje X)
@@ -2335,11 +2301,11 @@ G0 X2.5 (movimiento rápido de 2.5 udes. desde la posición actual a lo largo de
 (((Arc Distance Mode)))
 
 * 'G90.1' - modo de distancia absoluta para offsets I, J y K.
-Cuando G90.1 está en vigor, I y J deben especificarse con G2/G3
-para el plano XY o J y K para el plano XZ o es un error.
+  Cuando G90.1 está en vigor, I y J deben especificarse con G2/G3
+  para el plano XY o J y K para el plano XZ o es un error.
 
-* 'G91.1' - modo de distancia incremental para offsets I, J y K. G91.1 devuelve 
-I, J y K a su comportamiento predeterminado.
+* 'G91.1' - modo de distancia incremental para offsets I, J y K. G91.1 devuelve
+  I, J y K a su comportamiento predeterminado.
 
 [[gcode:g92]]
 == G92 Offset de sistema de coordenadas G92
@@ -2429,32 +2395,32 @@ las compensaciones guardadas en el primer programa.
 (((G93, G94, G95 Feed Rate Mode)))
 
 * 'G93' - Modo de Tiempo Inverso. En modo de velocidad de avance de tiempo inverso, la palabra F
-significa que el movimiento debe completarse en [uno dividido por el número F]
-minutos. Por ejemplo, si el número F es 2.0, el movimiento debería ser
-completado en medio minuto.
+  significa que el movimiento debe completarse en [uno dividido por el número F]
+  minutos. Por ejemplo, si el número F es 2.0, el movimiento debería ser
+  completado en medio minuto.
 +
-Cuando el modo de velocidad de avance de tiempo inverso está activo, debe aparecer una palabra F
-en cada línea que tiene un movimiento G1, G2 o G3. Si la linea no tiene G1, G2 o G3, F se ignora.
-Estar en modo de velocidad de tiempo inverso no afecta a los movimientos G0.
+  Cuando el modo de velocidad de avance de tiempo inverso está activo, debe aparecer una palabra F
+  en cada línea que tiene un movimiento G1, G2 o G3. Si la linea no tiene G1, G2 o G3, F se ignora.
+  Estar en modo de velocidad de tiempo inverso no afecta a los movimientos G0.
 
 * 'G94' - Modo Unidades por Minuto.
-En el modo de alimentación de unidades por minuto, una palabra F significa que
-el punto controlado debe moverse a un cierto número de pulgadas por
-minuto, milímetros por minuto o grados por minuto, dependiendo de
-qué unidades de longitud se utilizan y qué eje o ejes se mueven.
+  En el modo de alimentación de unidades por minuto, una palabra F significa que
+  el punto controlado debe moverse a un cierto número de pulgadas por
+  minuto, milímetros por minuto o grados por minuto, dependiendo de
+  qué unidades de longitud se utilizan y qué eje o ejes se mueven.
 
 * 'G95' - Modo Unidades por Revolución
-En modo de unidades por revolución, una palabra F se interpreta como que
-el punto controlado debe moverse un cierto número de pulgadas por revolución
-del husillo, dependiendo de qué unidades de longitud se estén utilizando y cuáles
-eje o ejes se mueven. G95 no es adecuado para roscar; use G33 o G76.
-G95 requiere que se conecte spindle.N.speed-in. El husillo real
-con el que se sincroniza la alimentacion se elige con el parámetro $
+  En modo de unidades por revolución, una palabra F se interpreta como que
+  el punto controlado debe moverse un cierto número de pulgadas por revolución
+  del husillo, dependiendo de qué unidades de longitud se estén utilizando y cuáles
+  eje o ejes se mueven. G95 no es adecuado para roscar; use G33 o G76.
+  G95 requiere que se conecte spindle.N.speed-in. El husillo real
+  con el que se sincroniza la alimentacion se elige con el parámetro $
 
 Es un error si:
 
 * El modo de alimentación de tiempo inverso está activo y una línea con G1, G2 o G3
-(explícita o implícitamente) no tiene una palabra F.
+  (explícita o implícitamente) no tiene una palabra F.
 * No se especifica una nueva velocidad de alimentación después de cambiar a G94 o G95
 
 [[gcode:g96-g97]]
@@ -2469,22 +2435,21 @@ G97 S- <$ -> (Modo RPM)
 * 'D' - RPM máximas del husillo
 * 'S' - velocidad de superficie
 * '$ "- el husillo del cual se variará la velocidad.
-
 * 'G96 D- S-' - selecciona la velocidad superficial constante de 'S' pies por minuto
-(si G20 está en vigor) o metros por minuto
-(si G21 está en vigor). D- es opcional.
+  (si G20 está en vigor) o metros por minuto
+  (si G21 está en vigor). D- es opcional.
 +
-Cuando use G96, asegúrese de que X0 en
-el sistema de coordenadas actual (incluidos los offsets y las longitudes de herramienta) es
-el centro de rotación o LinuxCNC no proporcionará la velocidad de superficie deseada.
-G96 no se ve afectado por el modo de radio o diámetro.
+  Cuando use G96, asegúrese de que X0 en
+  el sistema de coordenadas actual (incluidos los offsets y las longitudes de herramienta) es
+  el centro de rotación o LinuxCNC no proporcionará la velocidad de superficie deseada.
+  G96 no se ve afectado por el modo de radio o diámetro.
 
 Para lograr el modo CSS en los husillos seleccionados, ejecute comandos G96 sucesivos
 para cada husillo antes de emitir M3.
 
 * 'G97' selecciona el modo RPM.
 
-.Línea de ejemplo G96 
+.Línea de ejemplo G96
 ----
 G96 D2500 S250 (establece CSS con rpm máximo de 2500 y una velocidad de superficie de 250)
 ----
@@ -2499,13 +2464,12 @@ Es un error si:
 (((G98, G99 Canned Cycle Return)))
 
 * 'G98' - se retrocede a la posición en la que se encontraba el eje justo antes de una serie
-de uno o más ciclos contiguos.
-
+  de uno o más ciclos contiguos.
 * 'G99' - retrocede a la posición especificada por la palabra R del ciclo fijo.
 
 Programe un 'G98' y el ciclo fijo usará la posición Z antes del
 ciclo fijo como la posición de retorno Z si es más alto que el valor R
-especificado en el ciclo. Si es menor, se usará el valor R. 
+especificado en el ciclo. Si es menor, se usará el valor R.
 La palabra R tiene diferentes significados en modo de distancia absoluta y
 en modo de distancia incremental.
 
@@ -2526,6 +2490,3 @@ a G83) NO restablece el plano 'inicial'. Es posible cambiar
 entre G98 y G99 durante una serie de ciclos.
 
 // vim:set syntax = asciidoc:
-
-
-

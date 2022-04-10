@@ -13,8 +13,8 @@ latest updates for LinuxCNC and Ubuntu before continuing.
 The Latency Test determines how late your computer processor is in
 responding to a request. Some hardware can interrupt the processing
 which could cause missed steps when running a CNC machine. This is the
-first thing you need to do. Follow the instructions
-<<latency-test,here>> to run the latency test.
+first thing you need to do. Follow the instructions <<sec:latency-test,here>>
+to run the latency test.
 
 [[sec:sherline]]
 == Sherline(((Sherline)))
@@ -137,7 +137,7 @@ latexmath:[
 \frac{2 motor revs}{1 leadscrew rev} \times
 \frac{1 leadscrew revs}{0.2000 inch}
 = \frac{20,000 microsteps}{inch} ]
-///////////////////////////////////////////
+////////////////////////////////////////////
 
 .Units mm
 ============================================
@@ -167,6 +167,6 @@ latexmath:[
 \frac{3 motor revs}{1 leadscrew rev} \times
 \frac{1 leadscrew revs}{5.000 mm}
 = \frac{960 microsteps}{mm} ]
-/////////////////////////////////////////////
+//////////////////////////////////////////////
 
 // vim: set syntax=asciidoc:

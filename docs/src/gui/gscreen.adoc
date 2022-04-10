@@ -5,6 +5,12 @@
 
 == Intro
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 Gscreen is an infrastructure to display a custom screen to control LinuxCNC.
 Gscreen borrows heavily from GladeVCP. GladeVCP uses the GTK widget editor
 GLADE to build virtual control panels (VCP) by point and click. Gscreen

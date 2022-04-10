@@ -4,8 +4,6 @@
 
 == The Software
 
-////
-////
 * LinuxCNC (the Enhanced Machine Control) is a software system for computer
   control of machine tools such as milling machines and lathes, robots
   such as puma and scara and other computer controlled machines up to 9 axes.
@@ -13,7 +11,8 @@
   are entirely licensed under the GNU General Public License and Lesser
   GNU General Public License (GPL and LGPL)
 * LinuxCNC provides:
-** From French: Une installation facile à partir d'un CD live.
+** easy discovery and testing without installation with the LiveCD
+** easy installation from the Live CD
 ** a graphical user interface (actually several interfaces to choose from)
 ** an interpreter for 'G-code' (the RS-274 machine tool programming language)
 ** a realtime motion planning system with look-ahead
@@ -42,21 +41,8 @@
 LinuxCNC is available as ready-to-use packages for the Ubuntu and Debian
 distributions.
 
- - Ubuntu sera toujours gratuit, et il n'y a aucun frais supplémentaire pour la
-   version  _"Enterprise Edition"_,
-   nous rendons nos travaux disponibles pour  tout le monde dans les mêmes
-   conditions de gratuité.
- - LinuxCNC est jumelé avec les versions LTS d'Ubuntu qui apportent le soutien et
-   les correctifs de sécurité de l'équipe Ubuntu pour 3 à 5 ans.
- - Ubuntu utilise les meilleurs outils de traductions et d'accessibilité
-   à l'infrastructure, que la communauté du logiciel libre a à offrir, pour
-   rendre Ubuntu accessible à un maximum de personnes.
- - La communauté Ubuntu a entièrement souscrit aux principes du développement de
-   logiciels libres, nous encourageons tout le monde à utiliser des logiciels
-   open source, à les améliorer et à les transmettre.
-
-[[sec:Trouver-aide]]
-== Getting Help(((Trouver de l'aide)))
+[[sec:getting-help]]
+== Getting Help(((Getting Help)))
 
 === IRC
 

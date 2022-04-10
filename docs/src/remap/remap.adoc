@@ -2655,4 +2655,3 @@ DEBUG = 0x10008000 # USER1, PYTHON
 DEBUG = 0x30008000 # USER1,USER2, PYTHON # USER2 will cause involute to try to connect to pydev
 DEBUG = 0x7FFFFFFF # All debug messages
 ----
-

@@ -755,4 +755,3 @@ The LinuxCNC website has extensive documentation on the installation and use of 
 
 .qtdragon - Customized QtDragon
 image::images/silverdragon_custom.png["QtDragon customized",scale=25]
-

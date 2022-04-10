@@ -1,4 +1,4 @@
-﻿[[cha:ngcgui]]
+[[cha:ngcgui]]
 
 = NGCGUI
 

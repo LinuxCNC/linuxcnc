@@ -1,8 +1,11 @@
 :lang: en
 :toc:
 
-[[cha:latency-test]]
-= Latency Test(((Latency Test)))
+[[cha:latency-testing]]
+= Latency Testing(((Latency Testing)))
+
+[[sec:latency-test]]
+== Latency Test(((Latency Test)))
 
 This test is the first test that should be performed on a PC
 to see if it is able to drive a CNC machine.
@@ -46,7 +49,7 @@ and run the following command:
 latency-test
 ----
 
-This will start the latency test with a base-thread period of 25uS and a 
+This will start the latency test with a base-thread period of 25uS and a
 servo-thread period of 1mS. The period times may be specified on the command
 line:
 
@@ -54,7 +57,7 @@ line:
 latency-test 50000 1000000
 ----
 
-This will start the latency test with a base-thread period of 50uS and a 
+This will start the latency test with a base-thread period of 50uS and a
 servo-thread period of 1mS.
 
 For available options, on the command line enter:
@@ -101,21 +104,20 @@ stepping. Numbers over 1 millisecond (1,000,000 nanoseconds) mean
 the PC is not a good candidate for LinuxCNC, regardless of whether you
 use software stepping or not.
 
-Note that if you get high numbers, there may be ways to improve
+[NOTE]
+If you get high numbers, there may be ways to improve
 them. Another PC had very bad latency (several milliseconds) when
 using the onboard video. But a $5 used video card solved the
 problem.
-
-[NOTE]
 LinuxCNC does not require bleeding edge hardware.
 
 For more information on stepper tuning see the
-<<cha:Stepper-Tuning,Stepper Tuning>> Chapter.
+<<cha:stepper-tuning,Stepper Tuning>> Chapter.
 
 *Additional command line tools are available for examining latency
 when LinuxCNC is not running.*
 
-= Latency Plot
+== Latency Plot
 
 latency-plot makes a strip chart recording for a base and a servo thread.
 It may be useful to see spikes in latency when other
@@ -135,9 +137,10 @@ Options:
       --relative (relative clock time (default))
       --actual   (actual clock time)
 ----
+
 image::../config/images/latency-plot.png["latency-plot makes a strip chart recording for a base and a servo thread"]
 
-= Latency Histogram
+== Latency Histogram
 
 latency-histogram displays a histogram of latency (jitter) for
 a base and servo thread.
@@ -169,4 +172,7 @@ Notes:
   with special end bars.  Use --show to show count for
   the off-chart [pos|neg] bin
 ----
+
 image::../config/images/latency-histogram.png["latency-histogram displays a histogram of latency (jitter) for a base and servo thread"]
+
+// vim: set syntax=asciidoc:

@@ -116,7 +116,7 @@ especificar un 'tipo' opcionalmente. El tipo es uno de 'in', 'out', 'epp' o 'x'.
 Si el tipo no está especificado, el valor predeterminado es 'out'.
 
 El tipo 'epp' es igual a 'out', pero el controlador hal_parport pide que
-el puerto cambie al modo EPP. El controlador hal_parport no *usa* el 
+el puerto cambie al modo EPP. El controlador hal_parport no *usa* el
 protocolo de bus EPP, pero en algunos sistemas el modo EPP cambia las
 características del puerto de una manera que puede hacer que algún hardware marginal funcione
 mejor. Se sabe que la bomba de carga del Gecko G540 requiere esto en un puerto paralelo.
@@ -242,7 +242,7 @@ al establecer el pin HAL '-out' TRUE, el pin físico estará bajo.
    en el mismo hilo, posterior a 'write'. Si '-reset' es TRUE, entonces
    la función 'reset' configurará el pin al valor de '-out-invert'. Esta
    puede usarse junto con 'doublefreq' de stepgen para producir un
-   paso por periodo El <<sec:stepgen-parameters,stepgen steppace>> para ese pin
+   paso por periodo. El <<sec:stepgen,stepgen steppace>> para ese pin
    debe establecerse en 0 para habilitar doublefreq.
 
 Las funciones individuales se proporcionan para situaciones en las que un puerto
@@ -252,7 +252,7 @@ idea utilizar una función '-all' y una función individual al mismo tiempo.
 
 == Problemas comunes
 
-Si cargando el módulo se informa 
+Si cargando el módulo se informa
 
 ----
 insmod: error inserting '../rtlib/hal_parport.ko':
@@ -287,11 +287,10 @@ addf stepgen.make-pulses base-thread
 addf parport.0.write base-thread
 addf parport.0.reset base-thread
 addf stepgen.capture-position servo-thread
-... 
+...
 setp stepgen.0.steplen 1
 setp stepgen.0.stepspace 0
 ----
 
 Puede encontrar más información sobre DoubleStep en
 http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TweakingSoftwareStepGeneration[wiki].
-

@@ -3,6 +3,12 @@
 [[cha:gscreen]]
 = Gscreen
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Introducción
 
 Gscreen es una infraestructura para mostrar una pantalla personalizada para controlar LinuxCNC.
@@ -583,4 +589,3 @@ La linea: +
 ----
 muestra dónde vive el archivo de stock. Copie este archivo a su carpeta de configuración. +
 Esto funciona igual para el archivo Glade.
-

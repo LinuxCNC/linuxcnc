@@ -765,9 +765,6 @@ de 10 pines hal para los incrementos dados en el archivo INI; si da más
 incrementos en su archivo INI, no serán accesibles desde la GUI ya que
 no se mostrarán.
 
-[NOTE]
-Gmoccapy 3 utiliza diferentes nombres de pin hal
-
 Si tiene 6 incrementos en su hal, obtendrá * 7 * pines:
 jog-inc-0 no se puede cambiar y representará jogging continuo.
 
@@ -1179,7 +1176,7 @@ Mostrar pantalla auxiliar::
     se encuentra en su carpeta de configuración. Puedes construir la pantalla Aux usando Glade.
 
 [WARNING]
-'La ventana principal de la pantalla auxiliar debe llamarse window2'
+La ventana principal de la pantalla auxiliar debe llamarse 'window2'
 
 Opciones de DRO::
 Tiene la opción de seleccionar los colores de fondo de los diferentes estados del DRO.
@@ -1204,26 +1201,10 @@ Los offsets se mostrarán en la ventana de vista previa + +
 
 'mostrar DTG' +
 La distancia a recorrer se mostrará en la ventana de vista previa + +
- +
-'mostrar boton DRO' +
-le permitirá mostrar botones adicionales en el lado izquierdo del DRO. +
-
-Se mostrará: +
-* Un botón para cambiar de coordenadas relativas a absolutas, +
-* un botón para alternar entre la distancia a recorrer y los otros estados +
-* y un botón para alternar las unidades de métricas a imperiales y viceversa.
-
-[WARNING]
-No se recomienda usar esta opción, porque el usuario
-puede perder la opción de unidad automática, que alternará las unidades según el
-gcode activo G20/G21.
 
 [NOTE]
 Puede cambiar a través de los modos DRO (absoluto, relativo, distancia
 a recorrer) haciendo clic en el DRO!
-
-'Usar unidades automáticas' +
-permite deshabilitar la opción de unidades automáticas de la pantalla, para que pueda ejecutar un programa en pulgadas y ver el DRO en mm. + +
 
 'tamaño' +
 permite configurar el tamaño de la fuente DRO; el valor predeterminado es 28; si usa una pantalla más grande, es posible que desee aumentar el tamaño hasta 56.

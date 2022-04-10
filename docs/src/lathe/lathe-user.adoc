@@ -4,8 +4,7 @@
 [[cha:lathe-user-information]]
 = Lathe User Information(((Lathe User Information)))
 
-FIXME from French: Ce chapitre va regrouper les informations spécifiques aux tours, il
-est encore en cours de rédaction.
+This chapter regroups informations specific to lathes.
 
 == Lathe Mode
 
@@ -87,7 +86,7 @@ setting the material Z zero you have 'Touch off to material' selected.
 For more information on the G-codes used for tools see
 <<mcode:m6,M6>>, <<sec:select-tool,Tn>>, and <<gcode:g43,G43>>.
 For more information on tool touch off options in Axis see
-<<axis:tool-touch-off,Tool Touch Off>>.
+<<sub:axis-machine-menu,Tool Touch Off>>.
 
 === X Touch Off
 

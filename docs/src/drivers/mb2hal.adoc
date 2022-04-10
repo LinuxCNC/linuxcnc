@@ -3,6 +3,12 @@
 [[cha:mb2hal]]
 = MB2HAL
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 MB2HAL is a generic userspace HAL component to communicate with one or more Modbus devices.
 So far, there are two options to communicate with a Modbus device:
 
@@ -17,7 +23,7 @@ Consider using Mb2hal if:
 * You need to use Classic Ladder "only" to manage the Modbus connections. 
 * You have to discover and configure first time the Modbus transactions. Mb2hal have debug levels to facilitate the low level protocol debug. 
 * You have more than one device to connect. Mb2hal is very efficient managing multiple devices, transactions and links.
-  Currently i am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
+  Currently I am monitoring two axis drivers using a Rs232 port, a VFD driver using another Rs232 port, and a remote I/O using TCP/IP. 
 * You want a protocol to connect your Arduino to HAL. Look the included sample configuration file, sketch and library for Arduino Modbus. 
 
 == Usage
@@ -35,27 +41,23 @@ Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 == Options
 
 === Init Section
+
 `[MB2HAL_INIT]`
 
 [options="header", cols="12,8,13,70", frame="none", grid="none"]
 |=======================
 |Value | Type | Required | Description
-|`INIT_DEBUG`| Integer | No | Debug level of init and INI file parsing.
-
+|`INIT_DEBUG`| Integer | No | Debug level of init and INI file parsing. +
 0 = silent +
 1 = error messages (default) +
 2 = OK confirmation messages +
 3 = debugging messages +
 4 = maximum debugging messages (only in transactions) +
-
 |`HAL_MODULE_NAME` | String | No | HAL module (component) name. Defaults to "mb2hal".
-
 |`SLOWDOWN` | Float | No | Insert a delay of "FLOAT seconds" between transactions in order to not to have a lot of logging 
 and facilitate the debugging.
 Useful when using `DEBUG=3` (NOT `INIT_DEBUG=3`). It affects ALL transactions. Use "0.0" for normal activity.
-
 | `TOTAL_TRANSACTIONS` | Integer | Yes | The number of total Modbus transactions. There is no maximum.
-
 |=======================
 
 
@@ -84,9 +86,9 @@ In ms. Defaults to 0. Ignored if `LINK_TYPE=tcp`.
 |`NELEMENTS`      | Integer | Unless `PIN_NAMES` is specified | The number of elements. It is an error to specify both 
 `NELEMENTS` and `PIN_NAMES`. The pin names will be sequential numbers e.g. `mb2hal.plcin.01`
 |`PIN_NAMES`      | List | Unless `NELEMENTS` is specified | A list of element names. 
-These names will be used for the pin names, e.g. mb2hal.plcin.cycle_start. 
-NOTE: there must be no white space characters in the list.
-Example: `PIN_NAMES=cycle_start,stop,feed_hold`
+These names will be used for the pin names, e.g. mb2hal.plcin.cycle_start. +
+*NOTE:* There must be no white space characters in the list. Example:
+`PIN_NAMES=cycle_start,stop,feed_hold`
 |`MB_TX_CODE`     | String | Yes | 
 
 Modbus transaction function code (see link:https://modbus.org/specs.php[specifications]):
@@ -105,16 +107,17 @@ Response timeout for this transaction. In ms. Defaults to 500 ms. This is how mu
 |`MB_BYTE_TIMEOUT_MS`    | Integer | No | Byte timeout for this transaction. In ms. Defaults to 500 ms. This is how much to 
 wait from byte to byte before raise an error.
 |`HAL_TX_NAME`    | String | No | Instead of giving the transaction number, use a name. Example: `mb2hal.00.01` 
-could become `mb2hal.plcin.01`. The name must not exceed 28 characters. NOTE: when using names be careful that 
+could become `mb2hal.plcin.01`. The name must not exceed 28 characters. *NOTE:* when using names be careful that 
 you don't end up with two transactions using the same name.
 |`MAX_UPDATE_RATE`| Float | No | Maximum update rate in Hz. Defaults to 0.0 (0.0 = as soon as available = infinit).
-NOTE: This is a maximum rate and the actual rate may be lower. If you want to calculate it in ms use (1000 / required_ms).
+*NOTE:* This is a maximum rate and the actual rate may be lower. If you want to calculate it in ms use (1000 / required_ms).
 Example: 100 ms = `MAX_UPDATE_RATE=10.0`, because 1000.0 ms / 100.0 ms = 10.0 Hz.
 |`DEBUG`          | String | No | Debug level for this transaction only. See `INIT_DEBUG` parameter above.
 
 |=======================
 
 === Error codes
+
 While debugging transactions, note the returned "`ret[]`" value correspond to:
 
 Modbus protocol exceptions:
@@ -145,36 +148,45 @@ Program or connection:
 == Example config file
 
 Click link:mb2hal_HOWTO.ini[here] to download.
-[source,{basebackend@docbook:'':ini}]
 
+[source,{ini}]
 ----
 include::../../../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini[]
 ----
 
 == Pins
 
+[NOTE]
+[yellow yellow-background]#Yellow# = New in LinuxCNC 2.9
+
 === [yellow-background]#fnct_01_read_coils#
+
 * [yellow-background]#mb2hal.m.n.bit# _bit out_
 * [yellow-background]#mb2hal.m.n.bit-inv# _bit out_
 
 === fnct_02_read_discrete_inputs
+
 * mb2hal.m.n.[yellow-background]#bit# _bit out_
 * [yellow-background]#mb2hal.m.n.bit-inv# _bit out_
 
 === fnct_03_read_holding_registers
+
 * mb2hal.m.n.float _float out_
 * mb2hal.m.n.int _s32 out_
 
 === fnct_04_read_input_registers
+
 * mb2hal.m.n.float _float out_
 * mb2hal.m.n.int _s32 out_
 
 === [yellow-background]#fnct_05_write_single_coil#
+
 * [yellow-background]#mb2hal.m.n.bit# _bit in_
 
 `NELEMENTS` needs to be 1 or `PIN_NAMES` must contain just one name.
 
 === fnct_06_write_single_register
+
 * mb2hal.m.n.[yellow-background]#float# _float in_
 * [yellow-background]#mb2hal.m.n.int# _s32 in_
 
@@ -182,17 +194,15 @@ include::../../../src/hal/user_comps/mb2hal/mb2hal_HOWTO.ini[]
 Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
 
 === fnct_15_write_multiple_coils
+
 * mb2hal.m.n.[yellow-background]#bit# _bit in_
 
 === fnct_16_write_multiple_registers
+
 * mb2hal.m.n.[yellow-background]#float# _float in_
 * [yellow-background]#mb2hal.m.n.int# _s32 in_
 
 Both pin values are added and limited to 65535 (UINT16_MAX). Use one and let the other open (read as 0).
-
-
-[NOTE]
-[yellow yellow-background]#Yellow# = New in LinuxCNC 2.9
 
 ==========================
 m = `HAL_TX_NAME` or transaction number if not set, n = element number (`NELEMENTS`) or name from `PIN_NAMES`

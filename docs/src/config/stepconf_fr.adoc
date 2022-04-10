@@ -1,4 +1,4 @@
-﻿:lang: fr
+:lang: fr
 
 [[cha:stepconf-wizard]](((Assistant stepconf)))
 = Assistant graphique de configuration StepConf
@@ -29,19 +29,19 @@ pour que les boutons sur le bas des pages soient apparents.
 .La page d'accueil de stepconf
 image::images/stepconf-config_fr.png["La page d'accueil de stepconf"]
 
-* _Créer une nouvelle configuration_ - 
+* _Créer une nouvelle configuration_ -
   Créera une configuration nouvelle.
-* _Modifier une configuration déjà créée_ - 
+* _Modifier une configuration déjà créée_ -
   Modifiera une configuration existante, déjà créée avec Stepconf.
   Après la sélection de celle-ci un sélecteur de fichier s'ouvre pour y
   choisir le fichier .stepconf à modifier. Si des modifications sont
   faites aux fichiers .hal et .ini avec un autre éditeur, ils ne seront
   plus utilisables par Stepconf. Les modifications de custom.hal et de
   custom_postgui.hal, par contre, sont conservées par Stepconf.
-* _Créer un lien_ - 
+* _Créer un lien_ -
   Placera un lien sur le bureau, pointant sur le dossier des fichiers
   de configuration.
-* _Créer un lanceur_ - 
+* _Créer un lanceur_ -
   Placera un lanceur sur le bureau pour démarrer l'application avec sa
   configuration.
 
@@ -88,7 +88,7 @@ nanosecondes.
 en nanosecondes.
 * _Adresse de base du premier port parallèle_ - Généralement l'adresse 0x378 est correcte pour le premier port.
   Le premier port a toujours ses broches 2 à 9 configurées en sortie.
-* _Adresse du second port parallèle_ - 
+* _Adresse du second port parallèle_ -
   Si un second port parallèle est nécessaire, entrer son adresse ici.
   Si ce port est intégré à la carte mère il est possible de vérifier leur
   ordre dans le BIOS, habituellement 0x378 0x278 0x3bc. Attention les cartes
@@ -99,7 +99,7 @@ en nanosecondes.
   Le bouton situé à droite du champs d'adresse du port, permet de choisir le
   sens des broches 2 à 9, soit comme étant des entrée, soit comme étant des
   sorties.
-* _Adresse du troisième port parallèle_ - 
+* _Adresse du troisième port parallèle_ -
   Si un troisième port parallèle est nécessaire, entrer son adresse ici.
   Si ce port est intégré à la carte mère il est possible de vérifier leur
   ordre dans le BIOS, habituellement 0x378 0x278 0x3bc. Attention les cartes
@@ -122,7 +122,7 @@ en nanosecondes.
   dans la colonne "Max Jitter" et à la ligne "Base thread". Cette valeur
   correspond à la latence maximale du PC testé.
   Pour exécuter directement un test de latence cliquer sur le bouton
-  _Test de latence_. Lire le <<cha:test-de-latence,chapitre sur le test de latence>>
+  _Test de latence_. Lire le <<sec:latency-test,chapitre sur le test de latence>>
   pour tous les détails concernant ce test.
 * _Dialogue à l'écran pour le changement d'outil_ - (((Dialogue d'appel d'outil)))
   Si cette case est cochée, LinuxCNC va faire une pause et ouvrir un dialogue
@@ -135,15 +135,15 @@ en nanosecondes.
 .Configuration avancée
 image::images/stepconf-advanced_fr.png["Configuration avancée"]
 
-* _Inclure l'interface Halui_ - 
+* _Inclure l'interface Halui_ -
   Ajoutera l'interface utilisateur Halui.
   Voir le manuel de l'intégrateur pour plus d'informations sur Halui.
-* _Inclure un panneau pyVCP_ - 
+* _Inclure un panneau pyVCP_ -
   Ceci ajoutera un panneau pyVCP de base, avec son fichier de configuration
   sur lequel il sera possible de travailler. Quelques options sont disponibles
   pour enrichir le panneau grâce à des cases à cocher.
   Voir le manuel de l'intégrateur pour plus d'information sur pyVCP.
-* _Inclure l'API ClassicLadder_ - 
+* _Inclure l'API ClassicLadder_ -
   Cette option ajoutera l'automate programmable en logique à contacts
   ClassicLadder. Un certain nombre d'options sont disponibles pour enrichir
   l'API grâce à des cases à cocher. L'éditeur de programme ladder est
@@ -155,7 +155,7 @@ image::images/stepconf-advanced_fr.png["Configuration avancée"]
 .Page de réglage du port parallèle
 image::images/stepconf-pinout_fr.png["Page de réglage du port parallèle"]
 
-* _Sorties (PC vers machine)_ - 
+* _Sorties (PC vers machine)_ -
   Pour chacune des broches, choisir le signal correspondant au brochage entre
   le port parallèle et l'interface matérielle. Cocher la case inverser
   si le signal est inversé (0V pour vrai/actif, 5V pour faux/inactif).
@@ -163,18 +163,18 @@ image::images/stepconf-pinout_fr.png["Page de réglage du port parallèle"]
   Réglage automatique des pins 2 à 9
   Direction sur les pins 2, 4, 6, 8, selon le _type Sherline_
   Direction sur les pins 3, 5, 7, 9, selon le _type Xylotex_
-* _Entrées et sorties_ - 
+* _Entrées et sorties_ -
   Les entrées ou les sorties non utilisées doivent être placées sur
   Inutilisé.
-* _Sortie arrêt d'urgence_ - 
+* _Sortie arrêt d'urgence_ -
   Sélectionnable dans la liste déroulante des sorties.
   La sortie d'arrêt d'urgence est utilisée pour actionner l'organe de coupure
   du circuit de puissance de la machine. Le contact de cet organe est câblé
   en série avec les contacts des boutons d'arrêt d'urgence extérieurs ainsi
   qu'avec tous les contacts compris dans la boucle d'arrêt d'urgence.
-* _Entrées (machine vers PC)_ - 
+* _Entrées (machine vers PC)_ -
   Ces choix se font dans la liste déroulante des entrées.
-* _Pompe de charge_ - 
+* _Pompe de charge_ -
   Si la carte de contrôle accepte un signal pompe de charge, dans la liste
   déroulante des sorties, sélectionner _Pompe de charge_ sur la sortie
   correspondant à l'entrée Pompe de charge de la carte de contrôle.
@@ -269,14 +269,14 @@ _Vitesse de recherche de l'origine_.
   Des valeurs supérieures à 20000Hz peuvent toutefois provoquer des
   ralentissements importants de l'ordinateur, voir même son blocage
   (La plus grande fréquence utilisable variera d'un ordinateur à un autre)
-* _Échelle de l'axe_ - 
+* _Échelle de l'axe_ -
   Le nombre qui sera utilisé dans le fichier ini [SCALE].
   C'est le nombre de pas moteur par unité utilisateur.
 * _Test de cet axe_ - (((Test de cet axe)))
   Ouvre une fenêtre permettant de tester les paramètres pour chaque axe.
   Il est possible de modifier par expérimentation certaines données et de
   les reporter dans la configuration.
-* _Adresse du second port parallèle_ - 
+* _Adresse du second port parallèle_ -
   Si un second port parallèle est nécessaire, entrer son adresse ici.
   Si les ports sont intégrés à la carte mère il est possible de vérifier
   dans le BIOS, habituellement 0x378 0x278 0x3bc. Attention les cartes
@@ -361,7 +361,7 @@ réglage du port parallèle.
 Si _PWM broche_ apparaît dans le réglage du port parallèle, les
 informations suivantes doivent être renseignées:
 
-* _Fréquence PWM_ - 
+* _Fréquence PWM_ -
 (((Fréquence PWM)))
 La fréquence porteuse du signal PWM (modulation de largeur d'impulsions)
 du moteur de broche.  Entrer 0 pour le mode PDM (modulation de
@@ -369,7 +369,7 @@ densité d'impulsions), qui est très utile pour générer une tension de
 consigne analogique. Se reporter à la documentation du variateur de broche
 pour connaître la valeur appropriée.
 
-* _Vitesse 1 et 2, PWM 1 et 2_ - 
+* _Vitesse 1 et 2, PWM 1 et 2_ -
 (((Vitesse 1 et 2)))(((PWM 1 et 2)))
 Le fichier de configuration généré utilise une simple relation linéaire
 pour déterminer la valeur PWM correspondant à une vitesse de rotation.
@@ -383,18 +383,18 @@ connectés au port parallèle, LinuxCNC peut être utilisé pour les usinages
 avec broche synchronisée comme le filetage ou le taraudage rigide.
 Ces signaux son:
 
-* _Index broche_ - 
+* _Index broche_ -
 (((Index codeur broche)))
 Également appelé PPR broche, c'est une impulsion produite à chaque
 tour de broche.
 
-* _Phase A broche_ - 
+* _Phase A broche_ -
 (((Phase A codeur broche)))
 C'est une suite d'impulsions carrées générées sur la voie A du codeur
 pendant la rotation de la broche. Le nombre d'impulsions pour un
 tour correspond à la résolution du codeur.
 
-* _Phase B broche_ (optionnelle) - 
+* _Phase B broche_ (optionnelle) -
 (((Phase B codeur broche)))
 C'est une seconde suite d'impulsions, générées sur la voie B du codeur
 et décalées par rapport à celle de la voie A. L'utilisation de ces
@@ -405,11 +405,11 @@ Si _Phase A broche_ et _Index broche_ apparaissent dans le
 réglage des broches du port, l'information suivante doit être renseignée sur
 la page de configuration broche:
 
-* _Cycles par tour_ - 
+* _Cycles par tour_ -
 (((Cycles par tour)))
 Le nombre d'impulsions par tour sur la broche Phase A broche.
 
-* _La vitesse maximale en filetage_ - 
+* _La vitesse maximale en filetage_ -
 La vitesse de broche maximale utilisée en filetage.
 Pour exploiter un moteur de broche rapide ou un codeur ayant une résolution
 élevée, une valeur basse de BASE_PERIOD est requise.
@@ -471,7 +471,7 @@ mécanique doit être suffisante pour permettre au moteur, dont la puissance
 a été coupée, de s'arrêter malgré l'inertie du mobile. Ces fins de course
 doivent détecter le mobile sur toutes la distance d'arrêt et ne pas se
 réactiver à cause d'un dépassement dû à l'inertie.
- 
+
 Avant le contact de fin de course se trouve une limite logicielle *[blue]#(d)#*.
 Cette limite logicielle est introduite après la prise d'origine machine.
 Si une commande manuelle ou un programme G-code dépasse cette limite,
@@ -531,7 +531,7 @@ Toutefois, un seul port parallèle d'ordinateur offre un total de 5 entrées,
 alors qu'il n'y a pas moins de 9 contacts sur une machine 3 axes. Au lieu
 de cela, plusieurs contacts seront câblés ensembles, selon diverse combinaisons,
 afin de nécessiter un plus petit nombre d'entrées.
- 
+
 Les figures ci-dessous montrent l'idée générale du câblage de plusieurs
 contacts à une seule broche d'entrée. Dans chaque cas, lorsqu'un contact
 est actionné, la valeur vue sur l'entrée va passer d'une logique haute à

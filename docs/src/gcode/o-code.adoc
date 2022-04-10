@@ -4,6 +4,12 @@
 [[cha:o-codes]]
 = O Codes(((O Codes)))
 
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
+
 == Use of O-codes
 
 O-codes provide for flow control in NC programs. Each block has an
@@ -449,4 +455,3 @@ To make these errors non-fatal  warnings on stderr, set bit 0x20 in
 the `[RS274NGC]FEATURE=` mask ini option.
 
 // vim: set syntax=asciidoc:
-

@@ -1,6 +1,6 @@
 :lang: es
 
-[[cha:canonical-device-interfaces]]
+[[cha:hal-canonical-device-interfaces]]
 = Interfaces de dispositivos canónicos
 
 == Introducción

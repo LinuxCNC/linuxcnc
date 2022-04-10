@@ -104,8 +104,6 @@ connecter à la pin position d'un axe. Une fois cela fait, nous pourrons
 retrouver la sortie du différenciateur dans halscope. Alors allons-y.
 (oui j'ai vérifié).
 
-Ndt: le message qui s'affiche au chargement de blocks ne l'empêche pas
-de fonctionner.
 ----
 loadrt blocks ddt=1 
 ----

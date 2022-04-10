@@ -35,7 +35,7 @@ L'utilisation de la lettre *o* minuscule facilite la distinction avec le
 chiffre *0* qui peut être tapé par erreur. Par exemple: +
 *+o100+* est plus facile à distinguer de *+0100+* que *+O100+*.
 
-[[sec:Sous-programmes]]
+[[ocode:subroutines]]
 == Sous-programmes: *sub*, *endsub*, *return*, *call*
 (((Sous-programmes)))(((sub)))(((endsub)))(((return)))(((call)))
 
@@ -78,8 +78,8 @@ o100 endsub
 
 Voir également les sections:
 
-* <<sec:Operateurs-Binaires, les opérateurs binaires>>,
-* <<sec:overview-parameters,les paramètres>>.
+ * <<gcode:binary-operators,les opérateurs binaires>>,
+ * <<sec:overview-parameters,les paramètres>>.
 
 .O- call
 'O- call' peut prendre jusqu'à 30 arguments optionnels, qui sont
@@ -109,7 +109,7 @@ changer la valeur des paramètres au dessus de #30 et ces changements
 sont visibles depuis le code appelant. Les sous-programmes peuvent
 aussi changer la valeur des paramètres nommés globaux.
 
-[[sec:Boucles]]
+[[ocode:looping]]
 == Boucles: *do*, *while*, *endwhile*, *break*, *continue*(((Boucles)))(((do)))(((while)))(((endwhile)))(((break)))(((continue)))
 
 La boucle 'while' a deux structures possibles: 'while - endwhile' et 'do - while'.
@@ -154,7 +154,7 @@ la boucle et 'O- continue', saute immédiatement à la prochaine
 évaluation de la condition du 'while'. Si elle est vraie, la boucle
 recommence au début. Si elle est fausse, la boucle est quittée.
 
-[[sec:Conditionnels]]
+[[ocode:conditional]]
 == Conditionnel: *if*, *elseif*, *else*, *endif*(((Conditionnel: if, elseif, else, endif)))(((if)))(((else)))(((elseif)))(((endif)))
 
 Le 'if' conditionnel exécute un groupe d'instructions avec le même nombre 'O'
@@ -190,7 +190,7 @@ o102 else (sinon le paramètre #2 vaut entre 2 et 5 alors F150)
 o102 endif
 ----
 
-[[sec:Repetitions]]
+[[ocode:repeat]]
 == Répétition: *Repeat*(((Repeat)))
 
 La répétition 'repeat', exécutera les blocs contenus entre 'repeat' et
@@ -222,9 +222,9 @@ O[#101+2] call
 Voici un condensé des sections utiles aux calculs des O-codes:
 
 * <<sec:overview-parameters,les paramètres>>, 
-* <<sec:Expressions,les expressions>>, 
-* <<sec:Operateurs-Binaires,les opérateurs binaires>>, 
-* <<sec:Fonctions,les fonctions>>.
+* <<gcode:expressions,les expressions>>, 
+* <<gcode:binary-operators,les opérateurs binaires>>, 
+* <<gcode:functions,les fonctions>>.
 
 == Appel de fichier(((Appel de fichier)))
 
