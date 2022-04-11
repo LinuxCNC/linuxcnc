@@ -18,10 +18,8 @@
 ** an interpreter for 'G-code' (the RS-274 machine tool programming language)
 ** a realtime motion planning system with look-ahead
 ** operation of low-level machine electronics such as sensors and motor drives
-** an easy to use 'breadboard' layer for quickly creating a unique
-   configuration for your machine
+** an easy to use 'breadboard' layer for quickly creating a unique configuration for your machine
 ** a software PLC programmable with ladder diagrams
-** easy installation with a Live-CD
 * It does not provide drawing (CAD - Computer Aided Design) or G-code generation
   from the drawing (CAM - Computer Automated Manufacturing) functions.
 * It can simultaneously move up to 9 axes and supports a variety of interfaces.
@@ -52,11 +50,9 @@ IRC stands for Internet Relay Chat.
 It is a live connection to other LinuxCNC users.
 The LinuxCNC IRC channel is #linuxcnc on libera.
 
-The simplest way to get on the IRC is to use the embedded client on this
-https://web.libera.chat/#linuxcnc[page].
+The simplest way to get on the IRC is to use the embedded client on this https://web.libera.chat/#linuxcnc[page].
 
 Some IRC etiquette::
-
 * Ask specific questions... Avoid questions like "Can someone help me?".
 * If you're really new to all this, think a bit about your question
   before typing it.  Make sure you give enough information so
@@ -71,15 +67,12 @@ Some IRC etiquette::
   saves time on both ends.
 
 Sharing Files::
-
 The most common way to share files on the IRC is to upload the file
 to one of the following or a similar service and paste the link:
 
-* 'For text': http://pastebin.com/ , http://pastie.org/,
-  https://gist.github.com/
-* 'For pictures': http://imagebin.org/ , http://imgur.com/ , http://bayimg.com/
-* 'For files': https://filedropper.com/ , http://filefactory.com/ ,
-  http://1fichier.com/
+* 'For text': http://pastebin.com/, http://pastie.org/, https://gist.github.com/
+* 'For pictures': http://imagebin.org/, http://imgur.com/, http://bayimg.com/
+* 'For files': https://filedropper.com/, http://filefactory.com/, http://1fichier.com/
 
 === Mailing List
 
