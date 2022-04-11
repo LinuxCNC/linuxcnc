@@ -12,7 +12,6 @@ linuxcnc [options] [<ini-file>]
 ----
 
 .linuxcnc script options
-
 ----
 linuxcnc: Run LINUXCNC
 
@@ -62,7 +61,7 @@ selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.
 The configuration files are saved in linuxcnc/configs directory.
 
-.Configuration Selector
+//.Configuration Selector
 image::images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
 
 // vim: set syntax=asciidoc:
