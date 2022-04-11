@@ -1,7 +1,7 @@
 :lang: es
 
 [[cha:external-offsets]]
-= Offsets Externos de Ejes
+= Offsets Externos de Ejes(((Offsets Externos de Ejes)))
 
 Los offsets externos de ejes estan soportados durante los movimientos teleop (universal)
 y coordinado (gcode). Los offsets externos de ejes estan
@@ -59,11 +59,10 @@ pines utilizados para volante jog.
 
 === Cálculo de offset
 
-En cada período servo, el pin 'axis.L.eoffset-count' se compara con
-el valor en el periodo anterior. El aumento o disminución (delta positivo
-o negativo) del pin 'axis.L.eoffset-count' se multiplica
-por el valor actual del pin 'axis.L.eoffset-scale'. Este producto es
-acumulado en un registro interno y exportado al pin Hal
+En cada período servo, el pin 'axis.L.eoffset-count' se compara con el valor
+en el periodo anterior. El aumento o disminución (delta positivo o negativo)
+del pin 'axis.L.eoffset-count' se multiplica por el valor actual del pin 'axis.L.eoffset-scale'.
+Este producto es acumulado en un registro interno y exportado al pin Hal
 'axis.L.eoffset-request'. El registro de acumulación se reinicia
 a cero en cada encendido de la máquina.
 
@@ -110,10 +109,9 @@ Cuando se aplican offsets externos y el movimiento alcanza un límite soft
 (por aumentos de offset externo o jogging teleop o movimiento coordinado),
 se activa el pin hal 'motion.eoffset-limited' y el
 valor del eje se mantiene nominalmente al del límite soft. Este pin hal puede
-ser utilizado por la lógica hal asociada para truncar cuentas de eoffsets adicionales
-o para detener la máquina (conectando a 'halui.machine.off' por
-ejemplo). Si el eje se mueve dentro de los límites soft, el
-pin 'motion.eoffset-limited' se reinicia.
+ser utilizado por la lógica hal asociada para truncar cuentas de eoffsets adicionales o
+para detener la máquina (conectando a 'halui.machine.off' por ejemplo).
+Si el eje se mueve dentro de los límites soft, el pin 'motion.eoffset-limited' se reinicia.
 
 Cuando se opera en un límite soft durante el movimiento coordinado que
 continúa cambiando el valor planificado del eje, el pin de salida
