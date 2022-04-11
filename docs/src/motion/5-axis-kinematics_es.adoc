@@ -4,9 +4,8 @@
 use image:: para archivos png de ecuaciónes - no latexmath
 //////////////////////////////////////////////////////////
 
-[[cha:5-axis-kinematics]] (((5-Axis Kinematics)))
-
-= Cinemática de 5 ejes
+[[cha:5-axis-kinematics]]
+= Cinemática de 5 ejes(((5-Axis Kinematics)))
 
 == Introducción
 
@@ -338,6 +337,7 @@ loadusr -W xyzac-trt-gui
 ----
 
 y las conexiones se realizan usando comandos HAL como:
+
 ----
 net  :table-x   joint.0.pos-fb xyzac-trt-gui.table-x
 net  :saddle-y  joint.1.pos-fb xyzac-trt-gui.saddle-y
@@ -412,11 +412,10 @@ seria reemplazada por
 KINEMATICS = kinsname
 ----
 
-donde "kinsname" es el nombre de su programa. Los pines HAL adicionales pueden
-ser creados por el módulo para elementos de configuración variable tales como
-D~x~, D~y~, D~z~, offset de herramienta-offset utilizado en el módulo de cinemática xyzac-trt.
-Estos pines se pueden conectar a una señal para control dinámico
-o establecer conexiones HAL como:
+donde "kinsname" es el nombre de su programa.
+Los pines HAL adicionales pueden ser creados por el módulo para elementos de configuración variable tales
+como D~x~, D~y~, D~z~, offset de herramienta-offset utilizado en el módulo de cinemática xyzac-trt.
+Estos pines se pueden conectar a una señal para control dinámico o establecer conexiones HAL como:
 
 ----
 # establecer los parámetros de offsets
@@ -427,32 +426,24 @@ setp xyzac-trt-kins.z-offset 20
 
 == Figuras
 
-.Configuración de mesa basculante/giratoria
-image::5-axis-figures/Figure-9.png[align= "center",height=300]
+image::5-axis-figures/Figure-9.png["Configuración de mesa basculante/giratoria",align="center",height=300]
 
-.Configuración con inclinación de husillo/mesa
-image::5-axis-figures/Figure-10.png[align= "center",height=300]
+image::5-axis-figures/Figure-10.png["Configuración con inclinación de husillo/mesa",align="center",height=300]
 
-.Configuracion husillo oscilante / giratoria
-image::5-axis-figures/Figure-11.png[align= "center",height=300]
+image::5-axis-figures/Figure-11.png["Configuracion husillo oscilante / giratoria",align="center",height=300]
 
-////////////////////////////////////////////////// ///
+/////////////////////////////////////////////////////
 == Referencias nope nope nope pdf nope
-////////////////////////////////////////////////// ///
+/////////////////////////////////////////////////////
 
 == REFERENCIAS
 
- . A Postprocessor Based on the Kinematics Model for General Five-Axis machine
-Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
-
- . NC Post-processor for 5-axis milling of table-rotating/tilting type: YH Jung,
-DW Lee, JS Kim, HS Mok, J Materials Processing Technology,130-131 (2002)
-641-646.
-
- . 3D 6-DOF Serial Arm Robot Kinematics, RJ du Preez, SA-CNC-CLUB, Dec.
-5, 2013.
-
- . Design of a generic five-axis postprocessor based on generalized kinematics
-model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
-47 (2007) 537-545.
-
+. A Postprocessor Based on the Kinematics Model for General Five-Axis machine
+  Tools: C-H She, R-S Lee, J Manufacturing Processes, V2 N2, 2000.
+. NC Post-processor for 5-axis milling of table-rotating/tilting type: YH Jung,
+  DW Lee, JS Kim, HS Mok, J Materials Processing Technology,130-131 (2002)
+  641-646.
+. 3D 6-DOF Serial Arm Robot Kinematics, RJ du Preez, SA-CNC-CLUB, Dec. 5, 2013.
+. Design of a generic five-axis postprocessor based on generalized kinematics
+  model of machine tool: C-H She, C-C Chang, Int. J Machine Tools & Manufacture,
+  47 (2007) 537-545.

@@ -26,7 +26,7 @@ into positions which correspond to the machine
 (((kinematics)))kinematics. footnote:[Kinematics: a two way function to
 transform from Cartesian space to joint space]
 
-=== Joints vs. Axes
+=== Joints vs Axes
 
 A joint of a CNC machine is a one of the physical degrees of freedom
 of the machine. This might be linear (leadscrews) or rotary (rotary
@@ -36,11 +36,10 @@ typical simple milling machine has only 3.
 
 There are certain machines where the joints are laid out to match
 kinematics axes (joint 0 along axis X, joint 1 along axis Y, joint 2
-along axis Z), and these machines are called (((Cartesian
-machines)))Cartesian machines (or machines with (((Trivial
-Kinematics)))Trivial Kinematics). These are the most common machines
-used in milling, but are not very common in other domains of machine
-control (e.g. welding: puma-typed robots).
+along axis Z), and these machines are called (((Cartesian machines)))
+Cartesian machines (or machines with (((Trivial Kinematics)))Trivial Kinematics).
+These are the most common machines used in milling,
+but are not very common in other domains of machine control (e.g. welding: puma-typed robots).
 
 LinuxCNC supports axes with names: X Y Z A B C U V W.  The X Y Z axes
 typically refer to the usual Cartesian coordinates. The A B C axes refer to
@@ -97,8 +96,7 @@ pos->v      = joints[7];
 pos->w      = joints[8];
 ----
 
-Similarly, the default relationships for inverse kinematics for trivkins
-are:
+Similarly, the default relationships for inverse kinematics for trivkins are:
 
 ----
 joints[0] = pos->tran.x;
@@ -298,7 +296,7 @@ Implements the inverse kinematics function.
 KINEMATICS_TYPE kinematicsType(void)
 ----
 
-Returns the kinematics type identifier:
+Returns the kinematics type identifier, típicamente 'KINEMATICS_BOTH':
 
 . KINEMATICS_IDENTITY  (each joint number corresponds to an axis letter)
 . KINEMATICS_BOTH      (forward and inverse kinematics functions are provided)
