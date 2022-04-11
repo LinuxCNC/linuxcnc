@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:latency-testing]]
 = Test de Latencia(((Latency Testing)))
@@ -45,10 +46,27 @@ y ejecute el siguiente comando:
 latency-test
 ----
 
+This will start the latency test with a base-thread period of 25uS and a
+servo-thread period of 1mS. The period times may be specified on the command
+line:
+
+----
+latency-test 50000 1000000
+----
+
+This will start the latency test with a base-thread period of 50uS and a
+servo-thread period of 1mS.
+
+For available options, on the command line enter:
+
+----
+latency-test -h
+----
+
 Debería ver algo como esto:
 
-.Prueba de Latencia HAL
-image::../config/images/latency.png[align="center", alt="Prueba de Latencia HAL"]
+//.Prueba de Latencia HAL
+image::../config/images/latency.png["Prueba de Latencia HAL",align="center"]
 
 Mientras se ejecuta la prueba, debe 'abusar' de la computadora.
 Mueva las ventanas alrededor de la pantalla. Navege por la web. Copie algunos archivos grandes
@@ -82,18 +100,19 @@ Números de más de 1 milisegundo (1,000,000 de nanosegundos) significan
 la PC no es un buen candidato para LinuxCNC, independientemente de si
 usa pasos por software o no.
 
+[NOTE]
 Tenga en cuenta que si obtiene números demasiado altos, puede haber formas de mejorarlos.
 Otra PC tuvo muy mala latencia (varios milisegundos) cuando
 usaba el video incorporado. Una tarjeta de video usada de 5$ resolvió el problema.
-
-[NOTE]
 LinuxCNC no requiere hardware de última generación.
 
 Para obtener más información sobre la sintonización de pasos, consulte el capítulo
 <<cha:stepper-tuning,Sintonización de steppers>>.
 
-Hay herramientas adicionales disponibles desde la línea de comandos para examinar la latencia
-cuando LinuxCNC no está corriendo.
+*Hay herramientas adicionales disponibles desde la línea de comandos para examinar la latencia
+cuando LinuxCNC no está corriendo.*
+
+== Latency Plot
 
 latency-plot graba un registro de los hilos base y servo.
 Puede ser útil para ver picos de latencia cuando se inician o se usan otras aplicaciones.
@@ -114,7 +133,9 @@ Opciones:
       --actual   (hora actual del reloj)
 ----
 
-image::../config/images/latency-plot.png[alt="latency-plot hace una grabación en un gráfico de bandas para hilos base y servo"]
+image::../config/images/latency-plot.png["latency-plot hace una grabación en un gráfico de bandas para hilos base y servo"]
+
+== Latency Histogram
 
 latency-histogram muestra un histograma de latencia (jitter) para hilos
 base y servo.
@@ -148,6 +169,6 @@ Notas:
   bins fuera del grrafico [pos | neg]
 ----
 
-image ::../config/images/latency-histogram.png [alt = "latency-histogram muestra un histograma de latencia (jitter) para hilos base y servo"]
+image::../config/images/latency-histogram.png["latency-histogram muestra un histograma de latencia (jitter) para hilos base y servo"]
 
 // vim: set syntax = asciidoc:
