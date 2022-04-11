@@ -1,4 +1,5 @@
 :lang: es
+:toc:
 
 [[cha:stepper-tuning]]
 = Afinación de Steppers
@@ -19,6 +20,10 @@ a partir de pasos generados por software.
 
 === Ejecutar una prueba de latencia
 
+The CPU is not the only factor determining latency. Motherboards,
+graphics cards, USB ports and many other things can degrade it. The best
+way to know what to expect from a PC is to run the RT latency tests.
+
 Ejecute la prueba de latencia como se describe en el
 capítulo <<sec:latency-test,Test de Latencia>>.
 
@@ -37,8 +42,10 @@ cada segundo). Debe ejecutar la prueba durante al menos varios minutos;
 a veces, la peor latencia no ocurre muy a menudo, o solo
 sucede cuando se hace alguna acción particular. Cierta placa base Intel
 funcionó bastante bien la mayor parte del tiempo, pero cada 64 segundos tenía una
-muy mala latencia de 300 us. Afortunadamente, eso es reparable, ver
-FixingDapperSMIIssues en la wiki que se encuentra en wiki.linuxcnc.org.
+muy mala latencia de 300 us.
+Afortunadamente, eso es reparable, ver
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues[Fixing SMI
+issues on the LinuxCNC Wiki].
 
 Entonces, ¿qué significan los resultados? Si su número 'ovl max' es menor que
 aproximadamente 15-20 microsegundos (15000-20000 nanosegundos), la computadora debería

@@ -23,7 +23,7 @@ Puede haber errores y/o defectos: ¡use bajo su propio riesgo!
 == General
 
 Con la proliferación de robots industriales ha aumentado el
-interés por controlar robots usados ​​con LinuxCNC. Un tipo común de robot
+interés por controlar robots usados con LinuxCNC. Un tipo común de robot
 utilizado en la industria y la fabricación es el "manipulador en serie"
 diseñado como una serie de articulaciones motorizadas conectadas por eslabones rígidos.
 Los robots en serie a menudo tienen seis articulaciones requeridas para los seis grados de
@@ -112,11 +112,11 @@ eje de la siguiente articulación.
 
 == Numeración de articulaciones y parámetros
 
-La primera articulación en LinuxCNC es joint-0 (porque en el software
-el conteo comienza con 0) mientras que la mayoría de las publicaciones comienzan con el número
-'1'. Eso también se aplica a todos los parámetros. Es decir, la numeración
-comienza con a-0, alpha-0, d-0 y termina con a-5, alpha-5 y d-5. Mantener
-esto en mente al seguir una publicación para configurar parámetros 'genserkins'.
+La primera articulación en LinuxCNC es joint-0 (porque en el software el conteo comienza con 0)
+mientras que la mayoría de las publicaciones comienzan con el número '1'.
+Eso también se aplica a todos los parámetros.
+Es decir, la numeración comienza con a-0, alpha-0, d-0 y termina con a-5, alpha-5 y d-5.
+Mantener esto en mente al seguir una publicación para configurar parámetros 'genserkins'.
 
 == Cómo comenzar
 
@@ -149,48 +149,47 @@ apunte a establecerlo de otra manera que 0.
 
 A continuación se describe un método para derivar los "Parámetros DH modificados" para un 
 Mitsubishi RV-6SDL y cómo configurar los parámetros en el archivo HAL que se utilizará con la cinemática 'genserkins' en
-LinuxCNC. Las dimensiones necesarias se toman mejor de un dibujo dimensional
+LinuxCNC.
+Las dimensiones necesarias se toman mejor de un dibujo dimensional
 proporcionado por el fabricante del robot.
 
-imagen::rv-6sl/rv-6sl-001.jpg[align="center"]
+image::rv-6sl/rv-6sl-001.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-002.jpg[align="center"]
+image::rv-6sl/rv-6sl-002.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-003.jpg[align="center"]
+image::rv-6sl/rv-6sl-003.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-004.jpg[align="center"]
+image::rv-6sl/rv-6sl-004.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-005.jpg[align="center"]
+image::rv-6sl/rv-6sl-005.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-006.jpg[align="center"]
+image::rv-6sl/rv-6sl-006.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-007.jpg[align="center"]
+image::rv-6sl/rv-6sl-007.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-008.jpg[align="center"]
+image::rv-6sl/rv-6sl-008.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-009.jpg[align="center"]
+image::rv-6sl/rv-6sl-009.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-010.jpg[align="center"]
+image::rv-6sl/rv-6sl-010.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-011.jpg[align="center"]
+image::rv-6sl/rv-6sl-011.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-012.jpg[align="center"]
+image::rv-6sl/rv-6sl-012.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-013.jpg[align="center"]
+image::rv-6sl/rv-6sl-013.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-014.jpg[align="center"]
+image::rv-6sl/rv-6sl-014.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-015.jpg[align="center"]
+image::rv-6sl/rv-6sl-015.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-016.jpg[align="center"]
+image::rv-6sl/rv-6sl-016.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-017.jpg[align="center"]
+image::rv-6sl/rv-6sl-017.jpg[align="center"]
 
-imagen::rv-6sl/rv-6sl-018.jpg[align="center"]
+image::rv-6sl/rv-6sl-018.jpg[align="center"]
 
 == Créditos
 
 Gracias al usuario Aciera por todo el texto y los gráficos.
 para el robot RV-6SL!
-
-
