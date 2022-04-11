@@ -2,8 +2,7 @@
 :toc:
 
 [[cha:linuxcnc-user-introduction]]
-
-= Introduccion para usuarios de LinuxCNC
+= Introduccion para usuarios de LinuxCNC(((Introduccion para usuarios)))
 
 == Introduction
 
@@ -14,6 +13,7 @@ chapitres suivants.
 La documentation complète sur l'installation et
 la configuration se trouve dans le manuel de l'intégrateur.
 
+[[sec:how-linuxcnc-works]]
 == Como funciona LinuxCNC
 
 LinuxCNC es un conjunto de aplicaciones altamente personalizables para el control de fresadoras y tornos de control numerico mediante una computadora (CNC), impresoras 3D, robots, cortadores láser, cortadores de plasma y otros dispositivos automatizados. Es capaz de proporcionar el control coordinado de hasta 9 ejes de movimiento.
@@ -55,42 +55,63 @@ Al guardar la nueva configuración con el asistente, se sobrescribirá el archiv
 * Carpeta: nc_files
 *** La carpeta nc_files se proporciona como la ubicación predeterminada para almacenar los programas de código G utilizados en la maquina. También incluye varias subcarpetas con ejemplos de código G.
 
-== Interfaces graficas de usuario
+[[sec:graphical-user-interfaces]]
+== Interfaces graficas de usuario(((Interfaces graficas de usuario)))
 
 Una interfaz gráfica de usuario es la parte del LinuxCNC con la que interactúa el operador de la máquina herramienta.
 LinuxCNC viene con varios tipos de interfaces de usuario que se pueden elegir al editar ciertos campos contenidos en el <<cha:ini-configuration,archivo INI:
 
-<<cha:axis-gui,'Axis'>>, es la interfaz GUI de teclado estándar. Es también la GUI predeterminada que se inicia cuando se usa el Asistente de Configuración para crear un icono lanzador en escritorio:
+AXIS:: <<cha:axis-gui,'Axis'>>, es la interfaz GUI de teclado estándar. Es también la GUI predeterminada que se inicia cuando se usa el Asistente de Configuración para crear un icono lanzador en escritorio:
 
+[[fig:axis-graphical-interface]]
 image::../gui/images/axis_es.png["Axis, interfaz GUI de teclado estándar",align="center"]
 
-'Touchy' es una GUI para usar con pantalla táctil:
+Touchy:: 'Touchy' es una GUI para usar con pantalla táctil:
 
+[[fig:touchy-graphical-interface]]
 image::../gui/images/touchy_es.png["Touchy, una GUI para usar con pantalla táctil",align="center"]
 
-<<cha:gscreen,'Gscreen'>> una GUI de pantalla táctil configurable por el usuario:
+Gscreen:: <<cha:gscreen,'Gscreen'>> una GUI de pantalla táctil configurable por el usuario:
 
+[[fig:gscreen-graphical-interface]]
 image::../gui/images/gscreen-mill.png["Gscreen, una GUI de pantalla táctil configurable",align="center"]
 
-<<cha:gmoccapy,'GMOCCAPY'>> una GUI de pantalla táctil basada en Gscreen. GMOCCAPY también está diseñada para funcionar tambien en aplicaciones donde el teclado y el mouse son los métodos preferidos para controlar la GUI:
+GMOCCAPY:: <<cha:gmoccapy,'GMOCCAPY'>> una GUI de pantalla táctil basada en Gscreen. GMOCCAPY también está diseñada para funcionar tambien en aplicaciones donde el teclado y el mouse son los métodos preferidos para controlar la GUI:
 
+[[fig:gmoccapy-graphical-interface]]
 image::../gui/images/gmoccapy_3_axis.png["gmoccapy, una GUI de pantalla táctil basada en Gscreen",align="center"]
 
-<<cha:ngcgui,'NGCGUI'>> una GUI de subrutinas que proporciona una programación de código G, de tipo asistente. NGCGUI puede ejecutarse como un programa independiente o incrustado en otra GUI como una serie de pestañas. La siguiente captura de pantalla muestra a NGCGUI incrustado en Axis:
+NGCGUI:: <<cha:ngcgui,'NGCGUI'>> una GUI de subrutinas que proporciona una programación de código G, de tipo asistente. NGCGUI puede ejecutarse como un programa independiente o incrustado en otra GUI como una serie de pestañas. La siguiente captura de pantalla muestra a NGCGUI incrustado en Axis:
 
+[[fig:ngcgui-graphical-interface-into-axis]]
 image::../gui/images/ngcgui.png["NGCGUI, una GUI de subrutinas que proporciona una programación de código G tipo asistente",align="center"]
+
+TkLinuxCNC:: <<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.
+  Once the most popular interface after AXIS.
+
+[[fig:tklinuxcnc-gui]]
+//.TkLinuxCNC graphical interface
+image::images/tklinuxcnc_fr.png["TkLinuxCNC graphical interface",align="center"]
+
+Xemc:: an X-Window program
+
+halui:: A HAL based user interface allowing to control LinuxCNC using
+  buttons and switches
+
+linuxcncrsh:: A telnet based user interface allowing to send commands
+  from remote computers.
 
 == Paneles de control virtual
 
 Como se mencionó anteriormente, muchas de las GUI de LinuxCNC pueden ser personalizadas por el usuario. Esto se puede hacer para agregar indicadores, salidas de lectores, interruptores o controles deslizantes a la apariencia básica de una de las GUI para aumentar su flexibilidad o funcionalidad. Se ofrecen dos estilos de Paneles de Control Virtual en LinuxCNC:
 
 //<<cha:pyvcp,'PyVCP'>>
-'PyVCP' un panel de control virtual basado en Python que se puede agregar a la GUI Axis. PyVCP utiliza solo señales virtuales contenidas dentro de la capa de abstracción de hardware HAL, como el indicador de velocidad del husillo o la señal de salida de Parada de Emergencia, y tiene una apariencia sencilla, sin lujos. Esto lo hace una excelente opción si el usuario desea agregar un Panel de Control Virtual con un mínimo esfuerzo.
+'PyVCP':: PyVCP un panel de control virtual basado en Python que se puede agregar a la GUI Axis. PyVCP utiliza solo señales virtuales contenidas dentro de la capa de abstracción de hardware HAL, como el indicador de velocidad del husillo o la señal de salida de Parada de Emergencia, y tiene una apariencia sencilla, sin lujos. Esto lo hace una excelente opción si el usuario desea agregar un Panel de Control Virtual con un mínimo esfuerzo.
 
 image::../gui/images/axis-pyvcp.png["PyVCP en Axis",align="center"]
 
 //cha:glade-vcp
-'GladeVCP' un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
+GladeVCP:: 'GladeVCP' un panel de control virtual basado en Glade que se puede agregar a las GUIs Axis o Touchy. GladeVCP tiene la ventaja sobre PyVCP en que no se limita a la visualización o control de señales virtuales HAL, sino que puede incluir otras interfaces externas fuera de LinuxCNC, como ventanas o eventos de redes. GladeVCP también es más flexible en cuanto a cómo se puede configurar para que aparezca en la GUI:
 
 image::../gui/images/axis-gladevcp.png["GladeVCP con Axis",align="center"]
 
@@ -98,9 +119,33 @@ image::../gui/images/axis-gladevcp.png["GladeVCP con Axis",align="center"]
 
 LinuxCNC utiliza archivos de traducción para traducir las interfaces de usuario de LinuxCNC a muchos idiomas, incluidos francés, español, alemán, italiano, finlandés, ruso, rumano, portugués y chino. Suponiendo que una traducción ha sido creada, LinuxCNC usará automáticamente cualquier idioma nativo con el que inicie la sesión en el sistema operativo Linux. Si su idioma no ha sido traducido, contacte a un desarrollador en el IRC, la lista de correo o el Foro de usuarios para obtener ayuda.
 
+[[sec:thinking-operator]]
+== Think Like a CNC Operator
+
+This manual does not pretend to teach you how to use a lathe or a milling
+machine. Becoming an experienced operator takes a lot of time and requires
+a lot of work. An author once said, _We learn by experience, if one possesses it all_.
+Broken tools, vices attacked and the scars are evidence of the lessons
+learned. A beautiful finish, tight tolerances and caution during the work
+are evidence of lessons learned. No machine, none program can replace
+human experience.
+
+Now that you start working with the LinuxCNC software, you have to put
+yourself in the shoes of an operator. You must be in the role of someone
+in charge of a machine. It's a machine that will wait for your commands
+and then execute the orders that you will give it. In these pages, we
+will give the explanations which will help you to become a good CNC
+operator with LinuxCNC.
+
+[[sec:modes-of-operations]]
 == Modos de operacion
 
-Cuando LinuxCNC se está ejecutando, hay tres modos principales, diferentes entre si, utilizados para ingresar comandos. Son los modos manual, automático y MDI (entrada manual de datos). Al cambiar de un modo a otro, hay una gran diferencia en la forma en que se comporta LinuxCNC. Hay cosas específicas que se pueden hacer en un modo y que no pueden hacerse en otro. Un operador puede hacer home en un eje en modo manual pero no en modo automático o MDI, o puede hacer que la máquina ejecute un archivo completo de código G en el modo automático pero no en manual o MDI.
+Cuando LinuxCNC se está ejecutando, hay tres modos principales, diferentes entre si,
+utilizados para ingresar comandos. Son los modos manual, automático y MDI (entrada manual de datos).
+Al cambiar de un modo a otro, hay una gran diferencia en la forma en que se comporta LinuxCNC.
+Hay cosas específicas que se pueden hacer en un modo y que no pueden hacerse en otro.
+Un operador puede hacer home en un eje en modo manual pero no en modo automático o MDI, o
+puede hacer que la máquina ejecute un archivo completo de código G en el modo automático pero no en manual o MDI.
 
 En el modo manual, cada comando se ingresa por separado. En términos humanos, un comando manual podría ser encender el refrigerante o mover el eje X a 25 pulgadas por minuto. Estos serian, más o menos, equivalentes a pulsar un interruptor o girar el volante de un eje. Estos comandos se manejan normalmente en una de las interfaces gráficas, presionando un botón con el mouse o presionando una tecla en el teclado. En el modo automático, un botón similar o presionar una tecla podría usarse para cargar o iniciar la ejecución de un programa completo de código G almacenado en un archivo. En el Modo MDI, el operador puede escribir un bloque de código y decirle a la máquina que lo ejecute al presionar en el teclado <return> o <enter>.
 
