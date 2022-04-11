@@ -59,7 +59,6 @@ include::plasma/plasma-cnc-primer.adoc[]
 
 :leveloffset: 1
 
-
 = User Interfaces
 
 :leveloffset: 2
@@ -194,13 +193,13 @@ include::gui/panelui.adoc[]
 
 include::gui/halui.adoc[]
 
-include::gui/GStat.adoc[]
-
 include::hal/halui-examples.adoc[]
+
+include::gui/vismach.adoc[]
 
 include::config/python-interface.adoc[]
 
-include::gui/vismach.adoc[]
+include::gui/gstat.adoc[]
 
 :leveloffset: 1
 
