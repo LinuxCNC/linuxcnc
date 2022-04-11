@@ -66,9 +66,6 @@ TOOL_EDITOR = tooledit column_name column_name ...
 TOOL_EDITOR = tooledit Z DIAM
 ----
 
-.Tooledit
-image::images/tooledit-columns.png["Graphical tool table editor - Column selection",align="left"]
-
 == Stand Alone Use
 The 'tooledit' program can also be invoked as a standalone
 program. For example, if the program is in the user PATH, typing

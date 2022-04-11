@@ -17,8 +17,7 @@ La pestaña 'Volante' tiene botones radio para seleccionar entre las funciones d
 'Porcentaje de husillo', 'Velocidad máxima' y 'Jogging' para la entrada del volante/MPG.
 También están previstos botones radio para la selección de eje e incrementos para jog 
 
-.Touchy
-image::images/touchy.png[align="center", alt="GUI Touchy"]
+image::images/touchy.png["GUI Touchy",align="center"]
 
 == Configuración del panel
 
