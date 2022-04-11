@@ -4,14 +4,15 @@
 [[cha:lathe-user-information]]
 = Lathe User Information(((Lathe User Information)))
 
+Este capítulo reunirá información específica de los tornos.
+
 == Lathe Mode
 
 If your CNC machine is a lathe, there are some specific changes you
 will probably want to make to your ini file in order to get the
 best results from LinuxCNC.
 
-If you are using the AXIS display,
-have Axis display your lathe tools properly.
+If you are using the AXIS display, have Axis display your lathe tools properly.
 See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
@@ -140,8 +141,7 @@ A typical session might be:
 . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
 . Select the Z axis in the Manual Control window.
 . Bring the tool close to the control surface.
-. Using a cylinder move the Z away from the control surface until the
-  cylinder just passes between the tool and the control surface.
+. Using a cylinder move the Z away from the control surface until the cylinder just passes between the tool and the control surface.
 . Select Touch Off and pick Tool Table and set the position to 0.0.
 . Repeat for each tool using the same cylinder.
 
@@ -234,6 +234,8 @@ When calculating arcs in diameter mode X is diameter and the X offset (I)
 is radius even if you're in G7 diameter mode.
 
 == Tool Path
+
+=== Control point
 
 The control point for the tool follows the programmed path. The
 control point is the intersection of a line parallel to the X and Z
