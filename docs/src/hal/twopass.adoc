@@ -10,12 +10,11 @@ that can help in the modularization and readability of hal files.
 (Hal files are specified in an LinuxCNC ini file in the HAL stanza
 as [HAL]HALFILE=filename).
 
-Normally, a set of one or more hal configuration files must use
-a single, unique loadrt line to load a kernel module that may
-handle multiple instances of a component.  For example, if you
-use a two input AND gate component (and2) in three different
-places in your setup, you would need to have a single line
-somewhere to specify:
+Normally, a set of one or more hal configuration files must use a single,
+unique loadrt line to load a kernel module that may handle multiple
+instances of a component.  For example, if you use a two input AND
+gate component (and2) in three different places in your setup, you
+would need to have a single line somewhere to specify:
 
 ----
 loadrt and2 count=3
@@ -64,8 +63,7 @@ The TWOPASS option can be specified with options to add output for
 debugging (verbose) and to prevent deletion of temporary files (nodelete).
 The options are separated with commas.
 
-Example:
-
+.Example
 ----
 [HAL]
 
@@ -128,7 +126,7 @@ Two-step processing occurs before the GUI is loaded. When using a
 [HAL]POSTGUI_HALFILE, it is convenient to place all the [HAL]POSTGUI_HALFILE
 loadrt declarations for the necessary components in a preloaded halfile.
 
-Example of a HAL section when using a POSTGUI_HALFILE:
+.Example of a HAL section when using a POSTGUI_HALFILE
 ----
 [HAL]
 
@@ -190,7 +188,7 @@ While the order of loadrt directives is not usually critical,
 ordering of addf directives is often very important for proper
 operation of servo loop components.
 
-.Excluded '.hal' file example:
+.Excluded '.hal' file example
 ----
 $ cat twopass_excluded.hal
 # The following magic comment causes this file to

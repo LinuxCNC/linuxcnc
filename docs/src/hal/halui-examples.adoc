@@ -24,7 +24,7 @@ auto mode the pin `halui.mode.is-auto` will be on.
 If both the inputs to the `and2.0` component are on the
 `and2.0.out` will be on and this will start the program.
 
-.Remote Start Example
+//.Remote Start Example
 image::images/remote-start.png["Remote Start Example"]
 
 The hal commands needed to accomplish the above are:
@@ -58,8 +58,10 @@ two lines that will be connected to your I/O to turn
 on the program pause or to resume when the external
 system wants LinuxCNC to continue.
 
-    net ispaused halui.program.is paused => "your output pin"
-    net resume halui.program.resume <= "your input pin"
+----
+net ispaused halui.program.is paused => "your output pin"
+net resume halui.program.resume <= "your input pin"
+----
 
 Your input and output pins are connected to the pins
 wired to the other controller. They may be parallel port
@@ -79,7 +81,6 @@ Difficulties in timing
  - The "resume" input return signal should not be
    longer than the time required to get the G-code
    running again.
-
  - The "is-paused" output should no longer be active
    by the time the "resume" signal ends.
 
@@ -87,4 +88,3 @@ These timing problems could be avoided by using
 ClassicLadder to activate the "is-paused" output via a
 monostable timer to deliver one narrow output pulse.
 The "resume" pulse could also be received via a monostable timer.
-

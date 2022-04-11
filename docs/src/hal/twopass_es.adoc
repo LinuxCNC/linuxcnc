@@ -69,14 +69,17 @@ Las opciones están separadas por comas.
 TWOPASS = on, verbose, nodelete
 ----
 
-
 Con el procesamiento de TWOPASS, todos los [HAL]HALFILES se leen primero y
 se acumulan las apariciones múltiples de las directivas loadrt para cada módulo.
 No se ejecutan comandos hal en esta pasada inicial.
 
-Después de la pasada inicial, los módulos se cargan automáticamente
-con un número de instancias igual al número total, resultado de la opcion 'count =',
-o con todos los nombres individuales especificados al usar la opcion 'names ='.
+[NOTE]
+User components should use the wait (-W) option to ensure
+the component is ready before other commands are executed.
+
+Después de la pasada inicial, los módulos se cargan automáticamente con un número
+de instancias igual al número total, resultado de la opcion 'count =', o con
+todos los nombres individuales especificados al usar la opcion 'names ='.
 
 Luego se hace una segunda pasada para ejecutar todas las demás
 instrucciones HAL especificadas en los HALFILES. Los comandos addf que
@@ -119,7 +122,7 @@ El procesamiento en dos pasos ocurre antes de la carga de la interfaz gráfica d
 [HAL]POSTGUI_HALFILE, es conveniente colocar todo las
 declaraciones loadrt para los componentes necesarios en un halfile que se carge con anterioridad.
 
-.Ejemplo de una sección HAL cuando se usa un POSTGUI_HALFILE:
+.Ejemplo de una sección HAL cuando se usa un POSTGUI_HALFILE
 ----
 [HAL]
 
@@ -133,38 +136,6 @@ HALFILE = load_for_postgui.hal <- líneas loadrt para componentes en postgui.hal
 POSTGUI_HALFILE = postgui.hal
 HALUI = halui
 ----
-
-== Excluyendo archivos .hal
-
-El procesamiento TWOPASS convierte los archivos '.hal' en archivos '.tcl' equivalentes y utiliza
-haltcl para encontrar los comandos loadrt y addf para acumularlos y consolidar
-su uso. Se esperan parámetros de loadrt que se ajustan a los parámetros 'nombres =' (o
- 'count =') aceptados por el generador de componentes HAL ('halcompile').
-Los elementos de parámetros más complejos incluidos en componentes hal especializados +
-no puede ser manejado adecuadamente.
-
-Un archivo '.hal' puede ser excluido del procesamiento TWOPASS incluyendo una
-línea de comentarios especial en cualquier lugar del archivo. La línea de comentario debe comenzar
-con la cadena: '#NOTWOPASS'. Los archivos especificados con este comentario son
-tratados por halcmd usando las opciones '-k' (seguir adelante en caso de fallo) y '-v' (verbose).
-
-Esta disposición de exclusión se puede utilizar para aislar problemas o para cargar cualquier
-componente hal que no requiere o no se beneficia del procesamiento TWOPASS que maneja
-múltiples instancias de componentes loadrt.
-
-.Ejemplo de archivo '.hal' excluido:
-----
-$ cat twopass_excluded.hal
-# El siguiente 'comentario mágico' hace que este archivo
-# sea excluido del procesamiento de dos fases:
-# NOTWOPASS
-
-loadrt mycomponent parm1="abc def" parm2=ghi
-show pin mycomponent
-----
-
-[NOTE]
-El caso y los espacios en blanco dentro de # NOTWOPASS se ignoran.
 
 == Post GUI
 
@@ -184,6 +155,52 @@ HALFILE = file_with_all_loads_for_postgui.hal
 ...
 POSTGUI_HALFILE = the_postgui_file.hal
 ----
+
+== Excluyendo archivos .hal
+
+El procesamiento TWOPASS convierte los archivos '.hal' en archivos '.tcl' equivalentes y utiliza
+haltcl para encontrar los comandos loadrt y addf para acumularlos y consolidar
+su uso. Se esperan parámetros de loadrt que se ajustan a los parámetros 'nombres =' (o 'count =')
+aceptados por el generador de componentes HAL ('halcompile').
+Los elementos de parámetros más complejos incluidos en componentes hal especializados +
+no puede ser manejado adecuadamente.
+
+Un archivo '.hal' puede ser excluido del procesamiento TWOPASS incluyendo una
+línea de comentarios especial en cualquier lugar del archivo. La línea de comentario debe comenzar
+con la cadena: '#NOTWOPASS'. Los archivos especificados con este comentario son
+tratados por halcmd usando las opciones '-k' (seguir adelante en caso de fallo) y '-v' (verbose).
+
+Esta disposición de exclusión se puede utilizar para aislar problemas o para cargar cualquier
+componente hal que no requiere o no se beneficia del procesamiento TWOPASS que maneja
+múltiples instancias de componentes loadrt.
+
+Ordinarily, the loadrt ordering of realtime components is not critical,
+but loadrt ordering for special components can be enforced by placing the
+such loadrt directives in an excluded file.
+
+[NOTE]
+While the order of loadrt directives is not usually critical,
+ordering of addf directives is often very important for proper
+operation of servo loop components.
+
+.Ejemplo de archivo '.hal' excluido
+----
+$ cat twopass_excluded.hal
+# El siguiente 'comentario mágico' hace que este archivo
+# sea excluido del procesamiento de dos fases:
+# NOTWOPASS
+
+# debugging component with complex options:
+loadrt mycomponent parm1="abc def" parm2=ghi
+show pin mycomponent
+
+# ordering special components
+loadrt component_1
+loadrt component_2
+----
+
+[NOTE]
+El caso y los espacios en blanco dentro de # NOTWOPASS se ignoran.
 
 == Ejemplos
 
