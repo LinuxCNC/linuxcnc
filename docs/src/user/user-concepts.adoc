@@ -48,10 +48,10 @@ program a corner in G Code, the trajectory planner can do several
 things, all of which are right in some cases:
 
 * it can decelerate to a stop exactly at the coordinates of the corner,
-and then accelerate in the new direction.
+  and then accelerate in the new direction.
 * It can also do what is called blending,
-which is to keep the feed rate up while going through the corner,
-making it necessary to round the corner off in order to obey machine constraints.
+  which is to keep the feed rate up while going through the corner,
+  making it necessary to round the corner off in order to obey machine constraints.
 
 You can see that there is a trade off here: you can slow down to get
 better path following, or keep the speed up and have worse path
@@ -133,7 +133,7 @@ the next move. The bottom plot shows the effect of the Naive Cam
 Detector to combine the moves and do a better job of keeping the
 velocity as planned.
 
-.Naive CAM Detector
+//.Naive CAM Detector
 image::images/naive-cam.png["Naive CAM Detector",align="center"]
 
 [[sub:planning-moves]]
@@ -235,8 +235,8 @@ Once homed your soft limits that are set in the ini file will be used.
 
 If you want to deviate from the default behavior, or want to use the
 Mini interface you will need to set the option NO_FORCE_HOMING = 1 in
-the [TRAJ] section of your ini file. More information on homing can be
-found in the Integrator Manual.
+the [TRAJ] section of your ini file.
+More information on homing can be found in the Integrator Manual.
 
 == Tool Changes
 
@@ -313,13 +313,13 @@ reversed, +X will be on the right of the table and -X on the left. This
 inversion does not change anything from the point of view of the direction of
 movement of the tool.
 
-.Typical Mill Configuration
+//.Typical Mill Configuration
 image::images/mill-diagram_en.svg["Mill Configuration",align="center"]
 
 The following diagram shows a typical lathe showing direction of travel
 of the tool and limit switches.
 
-.Typical Lathe Configuration
+//.Typical Lathe Configuration
 image::images/lathe-diagram_en.svg["Lathe Configuration",align="center"]
 
 // vim: set syntax=asciidoc:
