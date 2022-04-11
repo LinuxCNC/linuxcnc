@@ -39,8 +39,8 @@ the new tool Z length will be in effect. Tool table touch off is only
 available when a tool is loaded with 'Tn M6'.
 
 [[cap:touch-off-tool]]
-.Touch Off Tool Table
-//image::images/ToolTable-TouchOff.png["Touch Off Tool Table",align="center"]
+//.Touch Off Tool Table
+image::images/ToolTable-TouchOff.png["Touch Off Tool Table",align="center"]
 
 == Using G10 L1/L10/L11
 
@@ -74,7 +74,6 @@ the GUI.
 === Tool Table Format(((Tool Table Format)))
 
 .Tool Table Format
-
 [width="100%", options="header"]
 |====
 |T#    |P#  |X  |Y  |Z  |A  |B  |C  |U  |V  |W  |Dia |FA |BA |Ori |Rem
@@ -96,7 +95,8 @@ In general, the new tool table line format is:
 - Q - tool orientation (lathe only) - integer, 0-9
 - ; - beginning of comment or remark - text
 
-The file consists of an opening semicolon on the first line, followed by up to 1000 tool entries.
+The file consists of an opening semicolon on the first line,
+followed by up to 1000 tool entries.
 
 [NOTE]
 Although tool numbers up to 99999 are allowed, the number of entries in
@@ -244,18 +244,17 @@ The io program provides hal output pins to facilitate toolchanger management:
 .. *iocontrol.0.tool-prep-pocket* = pocket number for tool N
 
 [[sub:tool-changers]]
-=== Tool Changers
+=== Tool Changers(((Tool Changers)))
 
 LinuxCNC supports three types of tool changers: 'manual', 'random location'
 and 'non-random or fixed location'. Information about configuring a LinuxCNC tool changer
 is in the <<sec:emcio-section,EMCIO Section>> of the INI chapter.
 
 .Manual Tool Changer
-
-Manual tool changer (you change the tool by hand) is treated like a
-fixed location tool changer.  Manual toolchanges can be aided by
-a hal configuration that employs the userspace program
-*hal_manualtoolchange* and is typically specified in an ini file
+Manual tool changer (you change the tool by hand) is treated like a fixed location tool changer.
+Utilizar el cambiador manual de herramientas solo tiene sentido si tiene portaherramientas que permanezcan con la herramienta (Cat, NMTB, Kwik Switch, etc.) cuando se cambia preservando así la ubicación de la herramienta en el husillo.
+Máquinas con R-8 o los portaherramientas de tipo collar de enrutadores no conservan la ubicación de la herramienta y el cambiador de herramientas manual no debe usarse.
+Manual toolchanges can be aided by a hal configuration that employs the userspace program *hal_manualtoolchange* and is typically specified in an ini file
 with ini statements:
 
 ----
@@ -264,7 +263,6 @@ HALFILE = axis_manualtoolchange.hal
 ----
 
 .Fixed Location Tool Changers
-
 Fixed location tool changers always return the tools to a
 fixed position in the tool changer. This would also include
 designs like lathe turrets. When LinuxCNC is configured for a fixed
@@ -272,7 +270,6 @@ location tool changer the 'P' number is not used internally (but read, preserved
 and rewritten) by LinuxCNC, so you can use P for any bookkeeping number you want.
 
 .Random Location Tool Changers
-
 Random location tool changers swap the tool in the spindle with the
 one in the changer. With this type of tool changer the tool will
 always be in a different pocket after a tool change. When a tool is
@@ -302,8 +299,8 @@ move will stop short so to not gouge the part. The following figure
 shows how the compensated move will stop at different points depending
 on the next move.
 
-[[cap:compensation-end-point]]
-.Compensation End Point(((Compensation End Point)))
+[[cap:compensation-end-point]](((Compensation End Point)))
+//.Compensation End Point
 image::images/comp-path_en.svg["Compensation End Point",align="center"]
 
 === Overview
@@ -329,7 +326,7 @@ X0 the resulting profile would leave a bump due to the offset of the
 entry move.
 
 [[cap:entry-move]]
-.Entry Move
+//.Entry Move
 image::images/comp02_en.svg["Entry Move",align="center"]
 
 ==== Z Motion
@@ -344,16 +341,18 @@ Rapid moves may be programmed while compensation is turned on.
 
 ==== Good Practices
 
-- Start a program with G40 to make sure compensation is off.
+Start a program with G40 to make sure compensation is off.
 
 === Examples
 
-==== Outside Profile
+==== Outside Profile Example
 
-.Outside Profile[[cap:outside-profile]]
+[[cap:outside-profile]]
+//.Outside Profile
 image::images/outside-comp.png["Outside Profile",align="center"]
 
-==== Inside Profile
+==== Inside Profile Example
 
-.Inside Profile[[cap:inside-profile]]
+[[cap:inside-profile]]
+//.Inside Profile
 image::images/inside-comp.png["Inside Profile",align="center"]
