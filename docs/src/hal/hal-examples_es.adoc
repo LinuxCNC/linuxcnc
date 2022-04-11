@@ -154,10 +154,11 @@ La siguiente figura muestra el resultado cuando el eje X se mueve a 15
 IPM en la dirección negativa. Tenga en cuenta que podemos obtener el valor absoluto
 desde el pin abs.0.out o la señal X-IPM.
 
-.Ejemplo cálculo de velocidad[[cap:Velocity-Example]]
-image::images/velocity-01.png["Ejemplo Velocidad"]
+[[cap:hal-velocity-example]](((HAL Ejemplo Velocidad)))
+//.Ejemplo cálculo de velocidad
+image::images/velocity-01.png["Ejemplo Velocidad Screenshot"]
 
-== Arranque suave
+== Arranque suave details
 
 Este ejemplo muestra cómo los componentes HAL 'lowpass', 'limit2' o
 'limit3' puede usarse para limitar la rapidez con que cambia una señal.
@@ -225,8 +226,8 @@ comenzara a correr y cuando termine verá las trazas en el osciloscopio.
 Para separar las señales para que pueda verlas mejor, haga clic en un canal y
 luego use el control deslizante Pos en el cuadro Vertical para establecer las posiciones.
 
-.Arranque suave[[cap:Softstart]]
-image::images/softstart-scope.png["Softstart"]
+[[cap:Softstart]]
+image::images/softstart-scope.png["Arranque suave"]
 
 To see the effect of changing the set point values of any of the
 components you can change them in the terminal window. To see what
