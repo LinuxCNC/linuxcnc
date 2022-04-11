@@ -42,5 +42,8 @@ position.txt
 *.glade.h
 # Ignore test results
 *.result
-
-gettextization.failed.po
+# Ignore temp files
+*.swp
+# Ignore po4a temp files
+*.failed.po
+*-new_??.po
