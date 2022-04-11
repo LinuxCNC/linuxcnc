@@ -303,7 +303,7 @@ del próximo movimiento
 
 [[cap:compensation-end-point]](((Punto final de compensación)))
 //.Punto final de compensación
-image::images/comp-path_en.svg["Punto final de compensación",align="center"]
+image:images/comp-path_en.svg["Punto final de compensación",align="center"]
 
 === Descripción general
 
