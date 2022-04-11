@@ -1230,7 +1230,7 @@ latexmath: [\ frac {X \, pulgadas} {1 \, encoder \, count} =
 \ frac {0.000050 \, pulgadas} {1 \, encoder \, count}]
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-image::images/encoder-count-math.png[align="center"]
+image::images/encoder-counts-math.png[align="center"]
 
 * 'BIAS = 0.000' - Esto es utilizado por hm2-servo y algunos otros.
   BIAS es una cantidad constante que se agrega a la salida. En la mayoría de los casos, debe dejarse en cero.
