@@ -1,7 +1,7 @@
 :lang: es
 
 [[cha:plasma-primer]]
-= Basicos del Corte por Plasma para Usuarios de LinuxCNC
+= Basicos del Corte por Plasma para Usuarios de LinuxCNC(((Basicos del Corte por Plasma)))
 
 :toc:
 
@@ -36,12 +36,12 @@ Las operaciones de plasma en máquinas CNC son bastante especiales en comparaci�
 
 Un arco de plasma tiene forma ovalada y la altura de corte debe controlarse para minimizar  bordes biselados. Si la antorcha está demasiado alta o demasiado baja, los bordes pueden quedar excesivamente biselados. También es crítico que la antorcha se mantenga perpendicular a la superficie.
 
-* La distancia de la antorcha al trabajo puede afectar el bisel del borde *
+* *La distancia de la antorcha al trabajo puede afectar el bisel del borde*
 
 image::images/primer_cut-angularity.png[width=50%]
 
-* Ángulo de corte negativo: * antorcha demasiado baja, aumente la distancia de la antorcha al trabajo.
-* Ángulo de corte positivo: * antorcha demasiado alta, disminuir la antorcha a la distancia de trabajo.
+* *Ángulo de corte negativo:* antorcha demasiado baja, aumente la distancia de la antorcha al trabajo.
+* *Ángulo de corte positivo:* antorcha demasiado alta, disminuir la antorcha a la distancia de trabajo.
 
 [NOTE]
 Una ligera variación en los ángulos de corte puede ser normal, siempre que esté dentro de tolerancia.
@@ -119,7 +119,7 @@ El siguiente es un circuito de ejemplo que se ha demostrado que funciona y es co
 
 image::images/primer_ohmic-sensing.png[width=100%]
 
-== Hipersensibilidad con  MESA THCAD-5
+=== Hipersensibilidad con MESA THCAD-5
 
 Un método más sofisticado de detección de material que elimina los relés y diodos es usar otro THCAD-5 para monitorear el voltaje del circuito de detección de material desde una fuente de alimentación aislada. La ventaja que tiene es que el THCAD está diseñado para el entorno eléctrico de plasma hostil y aísla totalmente y con seguridad el lado lógico del lado de alto voltaje.
 
@@ -135,7 +135,7 @@ image::images/primer_hypersensing.png[width=75%]
 
 Utilizamos una Fuente de alimentación aislada de riel DIN Mean Well HDR-15 ultradelgada de 15 vatios basada en riel DIN de 24 V .. Este es un dispositivo de doble aislamiento de clase II que resistirá cualquier voltaje de arco que pueda aplicarse a los terminales.
 
-== Ejemplo de código HAL para hipersensibilidad
+=== Ejemplo de código HAL para hipersensibilidad
 
 El siguiente código HAL se puede pegar en su QtPlasmaC custom.hal para habilitar la detección Ohmica en el codificador 2 de un 7i76e. Instale el archivo de bits correcto y conecte el THCAD a IDX + e IDX-. Asegúrese de cambiar la configuración de calibración para estar de acuerdo con su THCAD-5.
 
@@ -420,7 +420,7 @@ Debido a que no es probable que haya ningún EMI significativo, debería poder i
 
 * Si tiene un divisor de voltaje, instale un THCAD-10 en su panel de control. No hemos tenido problemas con esta configuración con un cortador de plasma Thermal Dynamics de 120 amp.
 
-. Inicio HF 
+.Inicio HF 
 
 Instale el THCAD en el inverter ya que la señal de frecuencia es mucho más inmune al ruido EMI. 
 
