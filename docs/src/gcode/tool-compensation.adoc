@@ -307,7 +307,7 @@ on the next move.
 
 [[cap:compensation-end-point]](((Compensation End Point)))
 //.Compensation End Point
-image::images/comp-path_en.svg["Compensation End Point",align="center"]
+image:images/comp-path_en.svg["Compensation End Point",align="center"]
 
 === Overview
 
