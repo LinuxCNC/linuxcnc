@@ -18,6 +18,7 @@ screen.
 In the custom.hal file we place the following to connect LinuxCNC to the
 GS2 and have LinuxCNC control the drive.
 
+.GS2 Example
 ----
 # load the user space component for the Automation Direct GS2 VFD's 
 loadusr -Wn spindle-vfd gs2_vfd -r 9600 -p none -s 2 -n spindle-vfd

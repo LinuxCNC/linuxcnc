@@ -1,3 +1,6 @@
+:lang: es
+:toc:
+
 [[cha:gcode-examples]]
 
 = Ejemplos de código G
@@ -10,41 +13,42 @@ máquina antes de correrlo.
 
 === Fresado helicoidal
 
-Nombre de archivo: useful-subroutines.ngc
-
-Descripción: Subrutina para fresar un agujero utilizando parámetros.
+- Nombre de archivo: useful-subroutines.ngc
+- Descripción: Subrutina para fresar un agujero utilizando parámetros.
 
 === Ranurado
 
-Nombre de archivo: useful-subroutines.ngc
+- Nombre de archivo: useful-subroutines.ngc
+- Descripción: Subrutina para fresar una ranura usando parámetros.
 
-Descripción: Subrutina para fresar una ranura usando parámetros.
+image::images/useful-subroutines-ngc.png["usando parámetros"]
 
 === Sondeo en cuadrícula
 
-Nombre de archivo: gridprobe.ngc
-
-Descripción: sondeo rectangular
+- Nombre de archivo: gridprobe.ngc
+- Descripción: sondeo rectangular
 
 Este programa prueba repetidamente en una cuadrícula XY normal y escribe la
 ubicación sondeada al archivo 'probe-results.txt' en el mismo directorio
 que el archivo .ini.
 
+image::images/gridprobe-ngc.png["Grill probe"]
+
 === Sonda inteligente
 
-Nombre de archivo: smartprobe.ngc
-
-Descripción: sondeo rectangular
+- Nombre de archivo: smartprobe.ngc
+- Descripción: sondeo rectangular
 
 Este programa prueba repetidamente en una cuadrícula XY normal y escribe la
 ubicación sondeada al archivo 'probe-results.txt' en el mismo directorio
 que el archivo .ini. Es una mejora del archivo de sondeo de cuadrícula.
 
+image::images/smartprobe-ngc.png["The finer probing grid"]
+
 === Sondeo de longitud de herramienta
 
-Nombre de archivo: tool-length-probe.ngc
-
-Descripción: Sondeo de longitud de herramienta
+- Nombre de archivo: tool-length-probe.ngc
+- Descripción: Sondeo de longitud de herramienta
 
 Este programa muestra un ejemplo de cómo medir longitudes de herramientas
 automáticamente usando un interruptor conectado a la entrada de la sonda. Esto es útil
@@ -53,25 +57,28 @@ diferente cada vez que se inserta.
 
 === Sonda de agujero
 
-Nombre de archivo: probe-hole.ngc
-
-Descripción: Encontrar el centro y el diámetro de un agujero.
+- Nombre de archivo: probe-hole.ngc
+- Descripción: Encontrar el centro y el diámetro de un agujero.
 
 El programa muestra cómo encontrar el centro de un agujero, medir el
 diámetro del agujero y registrar los resultados.
 
 === Compensación del cortador
 
-Para ser agregado
+- File Name: comp-g1.ngc
+- Description: Entry and exit movements with compensation of tool radius.
+
+This program demonstrates the peculiarity of the toolpath without and with
+tool radius compensation. The tool radius is taken from the
+tool table.
+
 
 == Ejemplos de torno
 
 === Roscado
 
-Nombre de archivo lathe-g76.ngc
-
-Descripción: Refrentado, roscado y tronzado.
+- Nombre de archivo lathe-g76.ngc
+- Descripción: Refrentado, roscado y tronzado.
 
 Este archivo muestra un ejemplo de roscado en un torno utilizando parámetros.
-
 

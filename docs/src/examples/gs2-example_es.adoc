@@ -4,6 +4,8 @@
 [[cha:gs2-spindle]]
 = Husillo con GS2
 
+== Ejemplo
+
 Este ejemplo muestra las conexiones necesarias para usar un VFD GS2
 de Automation Direct para manejar un husillo. La velocidad y dirección del husillo son
 controladas por LinuxCNC.
