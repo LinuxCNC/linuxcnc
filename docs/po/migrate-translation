@@ -11,9 +11,9 @@ set -x
 
 cd $(dirname $0)/..
 
-do_man=true
+do_man=false
 do_adoc=true
-lang="es fr zh_CN"
+lang="fr"
 
 match_translation() {
     type=$1
