@@ -98,8 +98,6 @@ In the 0-10 volt example the line
 net spindle-speed-scale spindle.0.speed-out => scale.0.in
 ----
 
-= REMOVEME0
-
 is changed as shown in the following example:
 
 === Intro to HAL components limit2 and near

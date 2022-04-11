@@ -97,8 +97,6 @@ En el ejemplo de 0-10 voltios, la línea
 net spindle-speed-scale spindle.0.speed-out => scale.0.in
 ----
 
-= REMOVEME0
-
 se cambia como se muestra en el siguiente ejemplo:
 
 === Introducción a los componentes HAL2 limit2 y near
