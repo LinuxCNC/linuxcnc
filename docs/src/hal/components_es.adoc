@@ -152,8 +152,6 @@ maj3:: (((maj3)))Calcula la mayor de 3 entradas.
 
 scale:: (((scale)))Aplica una escala y un desplazamiento a su entrada.
 
-= REMOVEME150
-
 === Conversion de tipos
 
 conv_bit_s32:: (((conv_bit_s32)))Convierte un valor bit a s32.
@@ -311,8 +309,6 @@ tristate_bit:: (((tristate_bit))) Coloca una señal en un pin de E/S solo cuando
 tristate_float:: (((tristate_float))) Coloca una señal en un pin de E/S solo cuando esté habilitado, similar a un buffer triestado en electrónica.
 
 watchdog:: (((watchdog))) Monitorea de una a treinta y dos entradas para un 'latido'.
-
-= REMOVEME190
 
 == Llamadas API HAL
 
