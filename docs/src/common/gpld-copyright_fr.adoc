@@ -1,11 +1,8 @@
-:lang: fr
-
 = Legal Section
 
-Ce document n'est pas traduit en raison de la complexité de la 
-validation des documents juridiques. Vous trouverez sur ce site 
-plus d'information: http://www.gnu.org/licenses/licenses.fr.html
+Ce document n'est pas traduit en raison de la complexité de la validation des documents juridiques. Vous trouverez sur ce site plus d'information: http://www.gnu.org/licenses/licenses.fr.html
 
+[#copyright,reftext=Copyright]
 == Copyright Terms
 
 Copyright (c) 2000-2020 LinuxCNC.org
@@ -17,7 +14,7 @@ with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
 A copy of the license is included in the section entitled "GNU
 Free Documentation License".
 
-
+[#gpld,reftext=GPLD]
 == GNU Free Documentation License
 
 GNU Free Documentation License Version 1.1, March 2000
@@ -169,6 +166,7 @@ Modified Version under precisely this License, with the Modified
 Version filling the role of the Document, thus licensing distribution
 and modification of the Modified Version to whoever possesses a copy of
 it. In addition, you must do these things in the Modified Version:
+
 A. Use in the Title Page (and on the covers, if any) a title distinct
 from that of the Document, and from those of previous versions (which
 should, if there were any, be listed in the History section of the

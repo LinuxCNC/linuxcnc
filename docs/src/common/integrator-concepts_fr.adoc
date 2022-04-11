@@ -1,6 +1,8 @@
 :lang: fr
 :toc:
 
+// TODO Backtranslate integrator-concepts_fr.adoc
+
 [[cha:concepts-integrateur]]
 = Concepts importants pour l'intégrateur
 
@@ -250,4 +252,3 @@ c'est pourquoi vous pourriez avoir besoin de presser sur le bouton
 d'alimentation pour éteindre complètement votre ordinateur. 
 Le groupe RTAI a amélioré cela dans les versions récentes, de sorte 
 que votre système LinuxCNC peut éteindre le système par lui-même.
-
