@@ -32,7 +32,7 @@ complete system:
 The below illustration is a simple block diagram showing what a typical 3-axis, CNC mill with stepper
 motors might look like:
 
-.Simple LinuxCNC Controlled Machine
+//.Simple LinuxCNC Controlled Machine
 image::images/whatstep1.png["Simple LinuxCNC Controlled Machine",align="center"]
 
 A computer running LinuxCNC sends a sequence of pulses via the parallel port to the stepper drives, each of
@@ -103,26 +103,26 @@ AXIS:: <<cha:axis-gui,AXIS>>, the standard keyboard GUI interface. This is also 
   Configuration Wizard is used to create a desktop icon launcher:
 
 [[fig:axis-graphical-interface]]
-.AXIS graphical interface
+//.AXIS graphical interface
 image::../gui/images/axis.png["Axis, the standard keyboard GUI interface",align="center"]
 
 Touchy:: <<cha:touchy-gui,Touchy>>, a touch screens GUI:
 
 [[fig:touchy-graphical-interface]]
-.Touchy graphical interface
+//.Touchy graphical interface
 image::../gui/images/touchy.png["Touchy, a touch screen GUI",align="center"]
 
 Gscreen:: <<cha:gscreen,Gscreen>>, a user-configurable touch screen GUI:
 
 [[fig:gscreen-graphical-interface]]
-.Gscreen graphical interface
+//.Gscreen graphical interface
 image::../gui/images/gscreen-mill.png["Gscreen, a configurable base touch screen GUI",align="center"]
 
 GMOCCAPY:: <<cha:gmoccapy,GMOCCAPY>>, a touch screen GUI based on Gscreen. GMOCCAPY is also designed to work equally
   well in applications where a keyboard and mouse are the preferred methods of controlling the GUI:
 
 [[fig:gmoccapy-graphical-interface]]
-.GMOCCAPY graphical interface
+//.GMOCCAPY graphical interface
 image::../gui/images/gmoccapy_3_axis.png["gmoccapy, a touch screen GUI based on Gscreen",align="center"]
 
 NGCGUI:: <<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style programming of G code. NGCGUI may be
@@ -130,14 +130,14 @@ NGCGUI:: <<cha:ngcgui,NGCGUI>>, a subroutine GUI that provides wizard-style prog
   shows NGCGUI embedded into Axis:
 
 [[fig:ngcgui-graphical-interface-into-axis]]
-.NGCGUI graphical interface integrated into Axis
+//.NGCGUI graphical interface integrated into Axis
 image::../gui/images/ngcgui.png["NGCGUI graphical interface integrated into Axis",align="center"]
 
 TkLinuxCNC:: <<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.
   Once the most popular interface after AXIS.
 
 [[fig:tklinuxcnc-gui]]
-.TkLinuxCNC graphical interface
+//.TkLinuxCNC graphical interface
 image::images/tklinuxcnc_fr.png["TkLinuxCNC graphical interface",align="center"]
 
 Xemc:: an X-Window program
@@ -159,7 +159,7 @@ PyVCP:: <<cha:pyvcp,'PyVCP'>>, a Python-based virtual control panel that can be 
   indicator or the Emergency Stop output signal, and has a simple no-frills appearance. This makes it an
   excellent choice if the user wants to add a Virtual Control Panel with minimal fuss.
 
-.PyVCP Example Embedded Into AXIS GUI
+//.PyVCP Example Embedded Into AXIS GUI
 image::../gui/images/axis-pyvcp.png["PyVCP with Axis",align="center"]
 
 GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel that can be added to the Axis or Touchy
@@ -167,7 +167,7 @@ GladeVCP:: <<cha:glade-vcp,'GladeVCP'>>, a Glade-based virtual control panel tha
   virtual signals, but can include other external interfaces outside LinuxCNC such as window or network
   events. GladeVCP is also more flexible in how it may be configured to appear on the GUI:
 
-.GladeVCP Example Embedded Into AXIS GUI
+//.GladeVCP Example Embedded Into AXIS GUI
 image::../gui/images/axis-gladevcp.png["GladeVCP with Axis",align="center"]
 
 == Languages
