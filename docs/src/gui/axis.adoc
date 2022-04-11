@@ -346,7 +346,7 @@ jog to the left and Touch Off X again.
 
 [[fig:soft-limits]](((Soft Limits)))
 //.Soft limits
-image::images/axis-outofrange.png["Soft limits", align="center"]
+image:images/axis-outofrange.png["Soft limits",align="center"]
 
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is

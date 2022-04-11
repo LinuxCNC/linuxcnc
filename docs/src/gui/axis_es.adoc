@@ -349,7 +349,7 @@ haga jog a la izquierda y vuelva a hacer Touch Off X.
 
 [[fig:soft-limits]](((Soft Limits)))
 //.Soft limits
-image::images/axis-outofrange.png["Se muestran las extensiones del programa en el eje x",align="center",]
+image:images/axis-outofrange.png["Se muestran las extensiones del programa en el eje x",align="center",]
 
 .Herramienta Cono
 Cuando no se ha cargado ninguna herramienta, la ubicación de la punta de la herramienta esta
