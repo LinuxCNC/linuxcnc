@@ -1,6 +1,7 @@
 :lang: fr
 :toc:
 
+[[cha:gcode-examples]]
 = Exemples de fichiers G-Code
 
 Après l'installation de LinuxCNC, plusieurs exemples de fichiers G-code se trouveront
@@ -13,19 +14,15 @@ adaptés au type de la machine sont utilisable.
 
 - Nom du fichier: useful-subroutines.ngc
 
-- Description: Programme pour usiner une poche ou un alésage avec utilisation
-des paramètres.
+- Description: Programme pour usiner une poche ou un alésage avec utilisation des paramètres.
 
 === Rainurage
 
 - Nom du fichier: useful-subroutines.ngc
 
-- Decription: Programme pour fraiser une rainure avec utilisation des
-paramètres.
+- Decription: Programme pour fraiser une rainure avec utilisation des paramètres.
 
-.Les différents usinages de l'exemple
-
-image::images/useful-subroutines-ngc.png[alt="Les différents usinages de l'exemple"]
+image::images/useful-subroutines-ngc.png["Les différents usinages de l'exemple"]
 
 === Palpage d'une grille rectangulaire de points
 
@@ -37,9 +34,7 @@ Ce programme palpe de manière répétitive, en suivant une grille
 régulière en XY et écrit les points mesurés dans le fichier
 _probe-results.txt_ situé dans le même répertoire que le fichier .ini.
 
-.La grille de palpage
-
-image::images/gridprobe-ngc.png[alt="La grille de palpage"]
+image::images/gridprobe-ngc.png["La grille de palpage"]
 
 === Amélioration du palpage d'une grille rectangulaire de points
 
@@ -49,16 +44,13 @@ image::images/gridprobe-ngc.png[alt="La grille de palpage"]
 
 Ce programme est une amélioration du précédent. Il palpe de manière
 répétitive, en suivant une grille régulière en XY et écrit les points
-mesurés dans le fichier _probe-results.txt_ situé dans le même
-répertoire que le fichier .ini.
+mesurés dans le fichier _probe-results.txt_ situé dans le même répertoire que le fichier .ini.
 
-.La grille de palpage plus fine
-
-image::images/smartprobe-ngc.png[alt="La grille de palpage plus fine"]
+image::images/smartprobe-ngc.png["La grille de palpage plus fine"]
 
 === Mesure de longueur d'outil
 
-- Nom du fichier: tool-lenght-probe.ngc
+- Nom du fichier: tool-length-probe.ngc
 
 - Description: Mesure automatique de la longueur de l'outil.
 
@@ -80,8 +72,7 @@ calculer son diamètre et enregistrer les mesures dans un fichier.
 
 - Nom du fichier: comp-g1.ngc
 
-- Description: Mouvements d'entrée et de sortie avec la compensation de
-rayon d'outil.
+- Description: Mouvements d'entrée et de sortie avec la compensation de rayon d'outil.
 
 Ce programme démontre la particularité du chemin d'outil sans et avec
 la compensation de rayon d'outil. Le rayon d'outil est pris dans la
@@ -95,8 +86,4 @@ table d'outils.
 
 - Description: Dressage, filetage et tronçonnage.
 
-Ce programme donne un exemple de filetage automatique sur un tour avec
-utilisation des paramètres. Il demande quelques adaptations pour fonctionner, ces
-adaptations seront un excellent exercice.
-
-
+This program gives an example of automatic threading on a lathe with use of parameters. It requires some adaptations to work, these adaptations will be a great exercise.
