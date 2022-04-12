@@ -13,7 +13,7 @@ MB2HAL is a generic userspace HAL component to communicate with one or more Modb
 So far, there are two options to communicate with a Modbus device:
 
 . One option is to create a HAL component as a driver see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?VFD_Modbus[VFD Modbus].
-. Another option is to use Classic Ladder which has Modbus built in see <<cha:classicladder,ClassicLadder>>.
+. Another option is to use Classic Ladder which has Modbus built in see << cha:classicladder,ClassicLadder >>.
 . Now there is a third option that consists of a "generic" driver configured by text file, this is called MB2HAL.
 
 Why MB2HAL ?

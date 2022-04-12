@@ -360,7 +360,7 @@ espera. Además, la persistencia 'G92' puede deshabilitarse configurando
 'DISABLE_G92_PERSISTENCE = 1' en la sección '[RS274NGC]' del
 archivo '.ini'.
 
-[[sec:g92-g52-animation-cautions]]
+[[sec:g92-g52-interaction-cautions]]
 === Precauciones de Interacción G92 y G52
 
 'G52' y 'G92' comparten los mismos registros de desplazamiento. A menos que 
