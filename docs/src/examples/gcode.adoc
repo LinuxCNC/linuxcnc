@@ -79,4 +79,3 @@ tool table.
 - Description: Facing, threading and parting off.
 
 This file shows an example of threading on a lathe using parameters.
-
