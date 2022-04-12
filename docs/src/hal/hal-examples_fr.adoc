@@ -95,10 +95,9 @@ La figure suivante montre le résultat quand l'axe X se déplace à 15 unités/m
 dans la direction négative. Noter que la valeur absolue peut être prise sur
 la pin _abs.0.out_ ou le signal X-IPM.
 
-[[cap:Velocity-Example]]
-.Exemple avec la vitesse(((Velocity exemple)))
-
-image::images/velocity-01.png[]
+[[cap:hal-velocity-example]](((HAL Velocity exemple)))
+//.Exemple avec la vitesse
+image:images/velocity-01.png["Exemple avec la vitesse"]
 
 == Amortissement d'un signal
 
