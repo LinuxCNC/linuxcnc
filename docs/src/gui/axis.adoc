@@ -711,7 +711,7 @@ program a G1 with no move after the T<n>.
 
 [[fig:manual-toolchange-window]](((Axis:Manual Toolchange Window)))
 //.The Manual Toolchange Window
-image::images/manual-tool-change.png["The Manual Toolchange Screenshot",align="center"]
+image:images/manual-tool-change.png["The Manual Toolchange Screenshot",align="center"]
 
 [[sec:axis-python-modules]]
 == Python modules(((Axis:Python Modules)))

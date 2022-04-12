@@ -156,7 +156,7 @@ desde el pin abs.0.out o la señal X-IPM.
 
 [[cap:hal-velocity-example]](((HAL Ejemplo Velocidad)))
 //.Ejemplo cálculo de velocidad
-image::images/velocity-01.png["Ejemplo Velocidad Screenshot"]
+image:images/velocity-01.png["Ejemplo Velocidad Screenshot"]
 
 == Arranque suave details
 

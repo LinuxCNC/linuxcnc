@@ -232,11 +232,9 @@ bref regard sur TkLinuxCNC en arrière plan, montre que l'état de LinuxCNC est
 ESTOP RESET. L'activation des amplis ne deviendra pas vraie tant que la
 machine ne sera pas mise en marche.
 
-[[Onglet-watch]]
-.L'onglet WATCH
-(((L'onglet watch)))
-
-image::images/halshow-4.png[alt="L'onglet WATCH"]
+[[Onglet-watch]](((L'onglet watch)))
+//.L'onglet WATCH
+image:images/halshow-4.png["L'onglet WATCH",align="center"]
 
 Les cercles de deux couleurs, simili Leds, sont toujours bruns foncé
 quand un signal est faux. Elle sont jaunes quand le signal est vrai.
@@ -252,4 +250,8 @@ par très petits incréments de distance. Si vous avez déjà utilisé
 IO_Show dans LinuxCNC, la page de Watch de halshow peut être réglée pour
 afficher ce que fait le port parallèle.
 
+[[cap:watch-tab-context-menu]]
+//.Watch Tab context menu
+image:images/halshow-5.png["Watch Tab context menu",align="center"]
 
+// vim: set syntax=asciidoc:
