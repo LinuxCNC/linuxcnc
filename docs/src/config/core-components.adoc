@@ -8,24 +8,26 @@ See also the man pages 'motion(9)'.
 [[sec:motion]]
 == Motion
 
-These pins and parameters are created by the realtime 'motmod' module.
-This module provides a HAL interface for LinuxCNC's motion planner.
-Basically motmod takes in a list of waypoints and generates a nice
-blended and constraint-limited stream of joint positions to be fed
-to the motor drives.
+These pins and parameters are created by the realtime 'motmod' module. +
+This module provides a HAL interface for LinuxCNC's motion planner. +
+Basically motmod takes in a list of waypoints and generates a nice 
+blended and +
+constraint-limited stream of joint positions to be fed to the motor drives. +
 
-Optionally the number of Digital I/O is set with num_dio.
-The number of Analog I/O is set with num_aio. The default is 4 each.
+Optionally the number of Digital I/O is set with 'num_dio'. +
+The number of Analog I/O is set with 'num_aio'. The default is 4 each. +
+The number of Spindles is set with 'num_spindles'. The default is 1. +
 
-Pin and parameter names starting with 'axis.L' and joint.N'
-are read and updated by the motion-controller function.
+Pin and parameter names starting with 'axis.L' and joint.N' +
+are read and updated by the motion-controller function. +
 
-Motion is loaded with the motmod command. A kins should be loaded
-before motion.
+Motion is loaded with the motmod command. A kins should be loaded +
+before motion. +
 
 ----
-loadrt motmod [base_period_nsec=period] [servo_period_nsec=period]
-[traj_period_nsec=period] [num_joints=[0-9] ([num_dio=1-64] num_aio=1-16]) ([unlock_joints_mask=0xNN])
+loadrt motmod base_period_nsec=['period'] servo_period_nsec=['period']
+traj_period_nsec=['period'] num_joints=['0-9'] num_dio=['1-64'] num_aio=['1-16'] unlock_joints_mask=['0xNN']
+num_spindles=['1-8']
 ----
 
 * 'base_period_nsec = 50000' - the 'Base' task period in nanoseconds.
@@ -168,18 +170,6 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
 * 'motion.tooloffset.x ... motion.tooloffset.w' - (float, out, one per axis) shows the tool offset in effect;
   it could come from the tool table ('G43' active), or it could come from the gcode ('G43.1' active)
 
-* 'spindle.0.at-speed' - (bit, in)
-  Motion will pause until this pin is TRUE, under the following conditions:
-** before the first feed move after each spindle start or speed change;
-** before the start of every chain of spindle-synchronized moves;
-** and if in CSS mode,
-  at every rapid to feed transition.
-  +
-  This input can be used to ensure that the spindle is up to speed before starting a cut, or that a lathe spindle in CSS mode has
-  slowed down after a large to small facing pass before starting the next pass at the large diameter.
-  Many VFDs have an 'at speed' output.
-  Otherwise, it is easy to generate this signal with the 'HAL near' component, by comparing requested and actual spindle speeds.
-
 * 'motion.on-soft-limit' -
   (bit, out) TRUE when the machine is on a soft limit.
 
@@ -200,17 +190,64 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
   limits. The value on this pin does not reflect the feed override or
   any other adjustments.
 
-* 'spindle.0.at-speed' -
-  (bit, in) Motion will pause until this pin is TRUE, under the
-  following conditions: before the first feed move after each spindle
-  start or speed change; before the start of every chain of
-  spindle-synchronized moves; and if in CSS mode, at every rapid to feed
-  transition. This input can be used to ensure that the spindle is up to
-  speed before starting a cut, or that a lathe spindle in CSS mode has
-  slowed down after a large to small facing pass before starting the next
-  pass at the large diameter. Many VFDs have an 'at speed' output.
-  Otherwise, it is easy to generate this signal with the 'HAL near'
-  component, by comparing requested and actual spindle speeds.
+* 'motion.teleop-mode' -
+  (bit, out) TRUE when motion is in 'teleop mode', as opposed to
+  'coordinated mode'
+
+* 'motion.tooloffset.x ... motion.tooloffset.w' -
+  (float, out, one per axis) shows the tool offset in effect;
+  it could come from the tool table ('G43' active), or it could
+  come from the G-code ('G43.1' active)
+
+
+=== Parameters
+
+Many of these parameters serve as debugging aids, and are subject to
+change or removal at any time.
+
+* 'motion-command-handler.time' - (s32, RO)
+* 'motion-command-handler.tmax' - (s32, RW)
+* 'motion-controller.time' - (s32, RO)
+* 'motion-controller.tmax' - (s32, RW)
+* 'motion.debug-bit-0' - (bit, RO) This is used for debugging purposes.
+* 'motion.debug-bit-1' - (bit, RO) This is used for debugging purposes.
+* 'motion.debug-float-0' - (float, RO) This is used for debugging purposes.
+* 'motion.debug-float-1' - (float, RO) This is used for debugging purposes.
+* 'motion.debug-float-2' - (float, RO) This is used for debugging purposes.
+* 'motion.debug-float-3' - (float, RO) This is used for debugging purposes.
+* 'motion.debug-s32-0' - (s32, RO) This is used for debugging purposes.
+* 'motion.debug-s32-1' - (s32, RO) This is used for debugging purposes.
+* 'motion.servo.last-period' - (u32, RO) The number of CPU cycles between invocations of the servo
+  thread. Typically, this number divided by the CPU speed gives the time
+  in seconds, and can be used to determine whether the realtime motion
+  controller is meeting its timing constraints
+* 'motion.servo.last-period-ns' - (float, RO)
+
+=== Functions
+
+Generally, these functions are both added to the servo-thread in the
+order shown.
+
+* 'motion-command-handler' - Processes motion commands coming from user space
+* 'motion-controller' - Runs the LinuxCNC motion controller
+
+== Spindle
+Linuxcnc can control upto eight spindles. +
+Motion will produce the following pins: +
+The 'N' will be the integer of the spindle number. (0-7) +
+
+[[sec:spindle-pins]]
+=== Pins(((spindle (HAL pins))))
+
+* 'spindle.N.at-speed' - (bit, in)
+  Motion will pause until this pin is TRUE, under the following conditions:
+** before the first feed move after each spindle start or speed change;
+** before the start of every chain of spindle-synchronized moves;
+** and if in CSS mode, at every rapid to feed transition. +
+  This input can be used to ensure that the spindle is up to speed before starting a cut, or that a lathe spindle in CSS mode has
+  slowed down after a large to small facing pass before starting the next pass at the large diameter.
+  Many VFDs have an 'at speed' output.
+  Otherwise, it is easy to generate this signal with the 'HAL near' component, by comparing requested and actual spindle speeds.
 
 * 'spindle.N.brake' -
   (bit, out) TRUE when the spindle brake should be applied.
@@ -261,15 +298,6 @@ These pins, parameters, and functions are created by the realtime 'motmod' modul
 * 'spindle.N.speed-out-rps-abs' -
   (float, out) Commanded spindle speed in rotations per second. This will
   always be a positive number.
-
-* 'motion.teleop-mode' -
-  (bit, out) TRUE when motion is in 'teleop mode', as opposed to
-  'coordinated mode'
-
-* 'motion.tooloffset.x ... motion.tooloffset.w' -
-  (float, out, one per axis) shows the tool offset in effect;
-  it could come from the tool table ('G43' active), or it could
-  come from the G-code ('G43.1' active)
 
 * 'spindle.N.orient-angle' -
   (float,out) Desired spindle orientation for M19. Value of the
@@ -338,37 +366,6 @@ interpreted as follows:
 It can be used with the `orient` HAL component which provides a PID
 command value based on spindle encoder position, `spindle-orient-angle`
 and `spindle-orient-mode`.
-
-=== Parameters
-
-Many of these parameters serve as debugging aids, and are subject to
-change or removal at any time.
-
-* 'motion-command-handler.time' - (s32, RO)
-* 'motion-command-handler.tmax' - (s32, RW)
-* 'motion-controller.time' - (s32, RO)
-* 'motion-controller.tmax' - (s32, RW)
-* 'motion.debug-bit-0' - (bit, RO) This is used for debugging purposes.
-* 'motion.debug-bit-1' - (bit, RO) This is used for debugging purposes.
-* 'motion.debug-float-0' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-float-1' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-float-2' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-float-3' - (float, RO) This is used for debugging purposes.
-* 'motion.debug-s32-0' - (s32, RO) This is used for debugging purposes.
-* 'motion.debug-s32-1' - (s32, RO) This is used for debugging purposes.
-* 'motion.servo.last-period' - (u32, RO) The number of CPU cycles between invocations of the servo
-  thread. Typically, this number divided by the CPU speed gives the time
-  in seconds, and can be used to determine whether the realtime motion
-  controller is meeting its timing constraints
-* 'motion.servo.last-period-ns' - (float, RO)
-
-=== Functions
-
-Generally, these functions are both added to the servo-thread in the
-order shown.
-
-* 'motion-command-handler' - Processes motion commands coming from user space
-* 'motion-controller' - Runs the LinuxCNC motion controller
 
 == Axis and Joint Pins and Parameters
 
