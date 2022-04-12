@@ -272,7 +272,7 @@ La habilitacion del amplificador no pasara a 'verdadero' hasta que la máquina s
 
 [[fig:halshow-watch-tab]](((Halshow: Watch Tab)))
 //.Watch Tab
-image::images/halshow-4.png["Watch Tab",align="center"]
+image:images/halshow-4.png["Watch Tab",align="center"]
 
 WATCH muestra valores de tipo de bit (binarios) utilizando círculos de colores
 representando leds. Se muestran en color marrón oscuro cuando la señal de bit o el pin son 'Falso', y amarillo claro si es verdadero.
@@ -287,6 +287,6 @@ en halshow puede configurarse para ver un parport como lo hizo con IO_Show.
 
 [[cap:watch-tab-context-menu]]
 //.Watch Tab context menu
-image::images/halshow-5.png["Watch Tab context menu",align="center"]
+image:images/halshow-5.png["Watch Tab context menu",align="center"]
 
 // vim: set syntax=asciidoc:
