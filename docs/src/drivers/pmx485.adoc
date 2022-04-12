@@ -12,6 +12,7 @@ a change in the status output. One should always have an Estop circuit that
 kills the power to the unit in case of emergency.
 
 This component is loaded using the halcmd "loadusr" command:
+
 ----
 loadusr -Wn pmx485 pmx485 /dev/ttyUSB0
 ----
@@ -24,31 +25,18 @@ It is necessary to name the port to use for communications.
 == Pins
 
 * *pmx485.mode-set* (bit, in) #set cutting mode
-
 * *pmx485.current-set* (bit, in) #set cutting current
-
 * *pmx485.pressure-set* (bit, in) #set gas pressure
-
 * *pmx485.enable* (bit, in) #enable the component
-
 * *pmx485.mode* (bit, out) #cut mode feedback
-
 * *pmx485.current* (bit, out) #cutting current feedback
-
 * *pmx485.pressure* (bit, out) #gas pressure feedback
-
 * *pmx485.fault* (bit, out) #powermax fault code
-
 * *pmx485.status* (bit, out) #connection status
-
 * *pmx485.current-min* (bit, out) #minimum allowed current
-
 * *pmx485.current-max* (bit, out) #maximum allowed current
-
 * *pmx485.pressure-min* (bit, out) #minimum allowed gas pressure
-
 * *pmx485.pressure-max* (bit, out) #maximum allowed gas pressure
-
 
 == Description
 
@@ -68,13 +56,12 @@ While in remote mode, the mode, current and pressure may be changed as needed.
 
 To terminate the communications, do one of the following:
 
- * Set all set pins to zero: *mode-set*, *current-set*, and *pressure-set*.
- * Disconnect the Powermax power supply from its power source for approximately
-   30 seconds. When you power the system back ON, it will no longer be in remote
-   mode.
+* Set all set pins to zero: *mode-set*, *current-set*, and *pressure-set*.
+* Disconnect the Powermax power supply from its power source for approximately
+  30 seconds. When you power the system back ON, it will no longer be in remote
+  mode.
 
 == Reference:
 
 * Hypertherm Application Note #807220 +
-  "Powermax45 XP/65/85/105/125® Serial Communication Protocol"
-
+"Powermax45 XP/65/85/105/125® Serial Communication Protocol"
