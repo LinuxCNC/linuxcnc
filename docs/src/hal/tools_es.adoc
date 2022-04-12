@@ -104,7 +104,7 @@ Notes:
 
 LinuxCNC debe estar ejecutanse para uso independiente de Halshow.
 
-image::images/halshow-4.png["Watch Tab",align="center"]
+image:images/halshow-4.png["Watch Tab",align="center"]
 
 El archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar lista de observación'
 está formateado como una sola línea con tokens "pin+", "param+", "sig=+"

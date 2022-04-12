@@ -106,7 +106,7 @@ Notes:
 
 LinuxCNC must be running for standalone usage.
 
-image::images/halshow-4.png["Watch Tab",align="center"]
+image:images/halshow-4.png["Watch Tab",align="center"]
 
 A watchfile created using the 'File/Save Watch List' menu item
 is formatted as a single line with tokens "pin+", "param+", "sig=+"
