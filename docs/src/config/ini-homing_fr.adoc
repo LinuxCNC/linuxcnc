@@ -1,41 +1,118 @@
 :lang: fr
 :toc:
 
-[[sec:Prises-d-origine]]
 [[cha:homing-configuration]]
-= Prise d'origine
+= Configuration de la Prise d'Origine
 
-== La prise d'origine
+== Overview
 
-La prise d'origine semble assez simple, il suffit de déplacer chaque
-axe à un emplacement connu et de positionner l'ensemble des variables
-internes de LinuxCNC en conséquence. Toutefois, les machines étant différentes
-les unes des autres, la prise d'origine est maintenant devenue assez complexe.
+Homing sets the zero origin of the G53 machine coordinates.
+Soft limits are defined relative to the machine origin.
+The soft limits automatically decelerate and stop the axes before they hit the limits switches
+A properly configured and functioning machine will not move beyond soft(ware) limits and
+will have the machine origin set as repeatable as the home switch/index mechanism is.
+Linuxcnc can be homed by eye (alignment marks), with switches, with switches and an encoder index, or by using absolute encoders.
+Homing seems simple enough - just move each joint to a known location,
+and set LinuxCNC's internal variables accordingly.
+However, different machines have different requirements, and homing is actually quite
+complicated. 
 
-== Séquences de prise d'origine
+[NOTE]
+While it is possible to use linuxcnc without homing switches/home procedures or limit switches,
+It defeats the extra security of the soft limits.
 
-Il existe quatre séquences de prise d'origine possibles. Elles sont définies par
-le signe des variables SEARCH_VEL et LATCH_VEL ainsi que les paramètres de
-configuration associés, la figure suivante donne le détail de ces séquences.
+== Prerequisite
 
-[[fig:Sequences-de-prise-d-origine]]
-.Les séquences de POM possibles
-image::images/linuxcnc-motion-homing-diag_fr.png["Les séquences de POM possibles"]
+Homing relies on some fundamental machine assumptions.
+
+* The negative and positive directions are based on <<sec:machine-configurations,Tool Movement>> which can be different
+  then the actual machine movement. ie on a mill typically the table moves rather then the tool.
+* Everything is referenced from the G53 machine zero origin, the origin can be anywhere (even outside where you can move)
+* The G53 machine zero origin is typically inside the soft limits area but not necessarily.
+* The homing switch offset sets where the origin is, but even it is referenced from the origin.
+* When using encoder index homing, the home switch offset is calculated from the encoder reference position, after the home switch has been tripped.
+* The negative soft(ware) limits are the most you can move in the negative direction after homing.
+  (but they might not be negative in the absolute sense)
+* The positive soft(ware) limits are the most you can move in the positive direction after homing.
+  (but they might not be positive in the absolute sense, though it is usual to set it as a positive number)
+* Soft(ware) limits are inside the limit switch area.
+* (Final) Homed Position is inside the soft limit area
+* (If using switch based homing) the homing switch(es) either utilize the limit switches (shared home / limit switch),
+  or when using a separate home switch, are inside the limit switch area. 
+* If using a separate homing switch, it's possible to start homing on the wrong side of the home switch,
+  which combined with HOME_IGNORE_LIMITS option will lead to a hard crash.
+  You can avoid this by making the home switch toggle it's state when the trip dog is on a particular
+  side until it returns passed the trip point again.
+  Said another way, the home switch state must represent the position of the dog relative to the switch (ie _before_ or _after_ the switch),
+  and must stay that way even if the dog coasts past the switch in the same direction.
+
+[NOTE]
+While it is possible to use linuxcnc with the G53 machine origin outside the soft machine limits, if you use G28 or G30 without setting
+the parameters it goes to the origin by default. This would trip the limit switches before getting to position.
+
+== Separate Home Switch Example Layout
+
+This example shows minimum and maximum limit switches with a separate home switch.
+
+.Demonstrative Separate Switch Layout
+image::images/HomeAxisTravel_V2.png["Example Homing Switch layout",align="center"]
+
+* A is the negative soft limit 
+* B is the G53 machine coordinate Origin
+* C is the home switch trip point
+* D is the positive soft limit
+* H is the final home position (HOME) = 0 units
+* The -L and +L are the limit switches trip points
+* A<->B is the negative soft limits (MIN_LIMITS) = -3 units
+* B<->C is the home_offset (HOME_OFFSET) = -2.3 units
+* B<->D is the positive soft limits (MAX_LIMITS) = 7 units
+* A<->D is the total travel = 10 units
+* The distance between the limit switches and soft limits (-L<->A and D<-+L) is magnified in this example
+* Note that there is distance between the limit switches and actual physical hard contact for coasting after the amplifier is disabled.
+
+[NOTE]
+Homing sets the G53 coordinate system, while the machine origin (zero point) can be anywhere,
+setting the zero point at the negative soft limit makes all G53 coordinates positive,
+which is probably easiest to remember. Do this by setting MIN_LIMIT = 0 and make sure MAX_LIMIT is positive.
+
+== Shared Limit/Home Switch Example Layout
+
+This example shows a maximum limit switch and a combined minimum limit/home switch.
+
+.Demonstrative Shared Switch Layout
+image::images/HomeAxisTravel_V3.png["Example shared Home Limit Switch layout",align="center"]
 
 
-. Comme on le voit sur la figure, les deux conditions de base sont les suivantes:
-.. La direction de recherche (SEARCH_VEL) et la direction de détection
-(LATCH_VEL) sont de même signe.
-.. La direction de recherche (SEARCH_VEL) et la direction de détection
-(LATCH_VEL) sont de signe opposé.
+* A is the negative soft limit 
+* B is the G53 machine coordinate Origin
+* C is the home switch trip point shared with (-L) minimum limit trip
+* D is the positive soft limit
+* H is the final home position (HOME) = 3 units
+* The -L and +L are the limit switch trip points
+* A<->B is the negative soft limits (MIN_LIMITS) = 0 units
+* B<->C is the home_offset (HOME_OFFSET) = -0.7 units
+* B<->D is the positive soft limits (MAX_LIMITS) 10 units
+* A<->D is the total travel = 10 units
+* The distance between the limits switches and soft limits (-L<->A and D<->+L) is magnified in this example
+* Note that there is distance between the limit switches and actual physical hard contact for coasting after the amplifier is disabled.
+
+== Homing Sequence
+
+There are four possible homing sequences defined by the sign of HOME_SEARCH_VEL
+and HOME_LATCH_VEL, along with the associated configuration parameters as shown
+in the following table. Two basic conditions exist, HOME_SEARCH_VEL and
+HOME_LATCH_VEL are the same sign or they are opposite signs. For a more
+detailed description of what each configuration parameter does, see the
+following section.
+
+.Homing Sequences
+image::images/emc2-motion-homing-diag.png["Homing Sequences",align="center"]
 
 == Configuration
 
 Le tableau suivant détermine exactement comment se déroule la séquence de
-prise d'origines définie dans la section [AXIS] du fichier ini.
+prise d'origines définie dans la section [AXIS] du fichier INI.
 
-[[cap:Variables-sequences-de-POM]]
-.Combinaisons des variables de la POM
 [width="80%", options="header", cols="4*^"]
 |==========================================================
 |Type de POM      |SEARCH_VEL |LATCH_VEL    |USE_INDEX
@@ -48,14 +125,16 @@ prise d'origines définie dans la section [AXIS] du fichier ini.
 [NOTE]
 Toute autre combinaison produira une erreur.
 
-=== Vitesse de recherche (HOME_SEARCH_VEL) (((Vitesse de recherche du contact d'origine)))
+=== Vitesse de recherche (HOME_SEARCH_VEL)(((Vitesse de recherche du contact d'origine)))
 
-Vitesse de la phase initiale de prise d'origine, pendant la recherche du
-contact d'origine machine. Une valeur différente de zéro indique à LinuxCNC
-la présence d'un contact d'origine machine. LinuxCNC va alors commencer par
-vérifier si ce contact est déjà attaqué. Si oui, il le dégagera à la
-vitesse établie par _HOME_SEARCH_VEL_, la direction du dégagement sera
-de signe opposé à celui de _HOME_SEARCH_VEL_. Puis, il va revenir vers
+This variable has units of machine-units per second.
+
+Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine machine, dans ce cas, les phases de recherche de ce contact seront
+occultées. La valeur par défaut est zéro.
+
+Vitesse de la phase initiale de prise d'origine, pendant la recherche du contact d'origine machine. Une valeur différente de zéro indique à LinuxCNC
+la présence d'un contact d'origine machine. LinuxCNC va alors commencer par vérifier si ce contact est déjà attaqué. Si oui, il le dégagera à la
+vitesse établie par _HOME_SEARCH_VEL_, la direction du dégagement sera de signe opposé à celui de _HOME_SEARCH_VEL_. Puis, il va revenir vers
 le contact en se déplaçant dans la direction spécifiée par le signe de
 _HOME_SEARCH_VEL_ et à la vitesse déterminée par sa valeur absolue.
 Quand le contact d'origine machine est détecté, le mobile s'arrête
@@ -63,27 +142,19 @@ aussi vite que possible, il y aura cependant toujours un certain dépassement
 dû à l'inertie et dépendant de la vitesse. Si celle-ci est trop élevée, le
 mobile peut dépasser suffisamment le contact pour aller attaquer un
 fin de course de limite d'axe, voir même aller se crasher dans une butée
-mécanique. À l'opposé, si _HOME_SEARCH_VEL_ est trop basse, la prise
+mécanique. À l'opposé, si _HOME_SEARCH_VEL_ est trop basse, la prise 
 d'origine peut durer très longtemps.
 
-Une valeur égale à zéro indique qu'il n'y a pas de contact d'origine
-machine, dans ce cas, les phases de recherche de ce contact seront
-occultées. La valeur par défaut est zéro.
+=== Vitesse de détection (HOME_LATCH_VEL)(((Vitesse de détection du contact d'origine)))
 
-=== Vitesse de détection (HOME_LATCH_VEL) (((Vitesse de détection du contact d'origine)))
+This variable has units of machine-units per second.
 
-Spécifie la vitesse et la direction utilisée par le mobile pendant la
-dernière phase de la prise d'origine, c'est la recherche précise du
-contact d'origine machine, si il existe et de l'emplacement de
-l'impulsion d'index, si elle est présente. Cette vitesse est plus lente
-que celle de la phase de recherche initiale, afin d'améliorer la précision.
-Si _HOME_SEARCH_VEL_ et _HOME_LATCH_VEL_ sont de mêmes signes, la phase de
-recherche précise s'effectuera dans le même sens que la phase de
-recherche initiale. Dans ce cas, le mobile dégagera d'abord le contact
-en sens inverse avant de revenir vers lui à la vitesse définie ici.
-L'acquisition de l'origine machine se fera sur la première
-impulsion de changement d'état du contact. Si _HOME_SEARCH_VEL_ et
-_HOME_LATCH_VEL_ sont de signes opposés, la phase de recherche précise
+Spécifie la vitesse et la direction utilisée par le mobile pendant la dernière phase de la prise d'origine, c'est la recherche précise du
+contact d'origine machine, si il existe et de l'emplacement de l'impulsion d'index, si elle est présente. Cette vitesse est plus lente
+que celle de la phase de recherche initiale, afin d'améliorer la précision. Si _HOME_SEARCH_VEL_ et _HOME_LATCH_VEL_ sont de mêmes signes, la phase de
+recherche précise s'effectuera dans le même sens que la phase de recherche initiale. Dans ce cas, le mobile dégagera d'abord le contact
+en sens inverse avant de revenir vers lui à la vitesse définie ici. L'acquisition de l'origine machine se fera sur la première
+impulsion de changement d'état du contact. Si _HOME_SEARCH_VEL_ et _HOME_LATCH_VEL_ sont de signes opposés, la phase de recherche précise
 s'effectuera dans le sens opposé à celui de la recherche initiale. Dans
 ce cas, LinuxCNC dégagera le contact à la vitesse définie ici. L'acquisition
 de l'origine machine se fera sur la première impulsion de
@@ -92,47 +163,67 @@ _HOME_SEARCH_VEL_ est à zéro, signifiant qu'il n'y a pas de contact et
 que _HOME_LATCH_VEL_ et différente de zéro, le mobile continuera
 jusqu'à la prochaine impulsion d'index, l'acquisition de l'origine machine
 se fera à cet position. Si _HOME_SEARCH_VEL_ est différent de zéro et
- que _HOME_LATCH_VEL_ est égale à zéro, c'est une cause d'erreur, 
-l'opération de prise d'origine échouera. La valeur par défaut est zéro.
+ que _HOME_LATCH_VEL_ est égale à zéro, c'est une cause d'erreur, l'opération de prise d'origine échouera. La valeur par défaut est zéro.
 
-=== HOME_IGNORE_LIMITS (((HOME IGNORE LIMITS)))
+=== HOME_FINAL_VEL
+
+This variable has units of machine-units per second.
+
+It specifies the speed that LinuxCNC uses when it makes its move from
+HOME_OFFSET to the HOME position. If the HOME_FINAL_VEL is missing from
+the ini file, then the maximum joint speed is used to make this move.
+The value must be a positive number.
+
+=== HOME_IGNORE_LIMITS(((HOME IGNORE LIMITS)))
 
 Peut contenir les valeurs YES ou NO. Cette variable détermine si LinuxCNC
 doit ignorer les fins de course de limites d'axe. Certaines machines
 n'utilisent pas un contact d'origine séparé, à la place, elles
 utilisent un des interrupteurs de fin de course comme contact
-d'origine. Dans ce cas, LinuxCNC doit ignorer l'activation de cette limite
+d'origine.
+Dans ce cas, LinuxCNC doit ignorer l'activation de cette limite
 de course pendant la séquence de prise d'origine. La valeur par défaut
 de ce paramètre est NO.
 
-=== HOME_USE_INDEX (((HOME USE INDEX)))
+=== HOME_USE_INDEX(((HOME USE INDEX)))
 
-Spécifie si une impulsion d'index doit être prise en compte (cas de
-règles de mesure ou de codeurs de positions). Si cette variable est
+Spécifie si une impulsion d'index doit être prise en compte (cas de règles de mesure ou de codeurs de positions). Si cette variable est
 vraie (HOME_USE_INDEX = YES), LinuxCNC fera l'acquisition de l'origine
 machine sur le premier front de l'impulsion d'index. Si elle est fausse
 (=NO), LinuxCNC fera l'acquisition de l'origine sur le premier front produit
-par le contact d'origine (dépendra des signes de _HOME_SEARCH_VEL_ et
-_HOME_LATCH_VEL_). La valeur par défaut est NO.
+par le contact d'origine (dépendra des signes de _HOME_SEARCH_VEL_ et _HOME_LATCH_VEL_). La valeur par défaut est NO.
 
-=== HOME_OFFSET (((HOME OFFSET)))
+[NOTE]
+HOME_USE_INDEX requires connections in your hal file to joint.n.index-enable
+from the encoder.n.index-enable.
+
+=== HOME_INDEX_NO_ENCODER_RESET(((HOME INDEX NO ENCODER RESET)))
+
+Default is NO.   Use YES if the encoder used for this joint does not
+reset its counter when an index pulse is detected after assertion
+of the joint index_enable hal pin.
+Applicable only for HOME_USE_INDEX = YES.
+
+
+=== HOME_OFFSET(((HOME OFFSET)))
 
 Contient l'emplacement du point d'origine ou de l'impulsion d'index,
 en coordonnées relatives. Il peut aussi être traité comme le décalage
 entre le point d'origine machine et le zéro de l'axe. A la détection du point
 d'origine ou de l'impulsion d'origine, LinuxCNC ajuste les coordonnées de l'axe
-à la valeur de _HOME_OFFSET_. La valeur par défaut est zéro.
+à la valeur de _HOME_OFFSET_.
+La valeur par défaut est zéro.
 
-=== Position de l'origine (HOME) (((HOME)))
+NOTE: The home switch location, as indicated by the HOME_OFFSET variable,
+can be inside or outside the soft limits. They will be shared with or inside the 
+hard limit switches.
 
-C'est la position sur laquelle ira le mobile à la fin de la séquence
-de prise d'origine machine. Après avoir détecté le contact d'origine,
-avoir ajusté les coordonnées de ce point à la valeur de _HOME_OFFSET_,
-le mobile va se déplacer sur la valeur de _HOME_, c'est le point final
-de la séquence de prise d'origine. La valeur par défaut est zéro.
-Notez que même si ce paramètre est égal à la valeur de _HOME_OFFSET_,
-le mobile dépassera très légérement la position du point d'aquisition de
-l'origine machine avant de s'arrêter. Donc il y aura toujours un petit
+=== Position de l'origine (HOME)(((HOME)))
+
+C'est la position sur laquelle ira le mobile à la fin de la séquence de prise d'origine machine. Après avoir détecté le contact d'origine,
+avoir ajusté les coordonnées de ce point à la valeur de _HOME_OFFSET_, le mobile va se déplacer sur la valeur de _HOME_, c'est le point final
+de la séquence de prise d'origine. La valeur par défaut est zéro. Notez que même si ce paramètre est égal à la valeur de _HOME_OFFSET_,
+le mobile dépassera très légérement la position du point d'aquisition de l'origine machine avant de s'arrêter. Donc il y aura toujours un petit
 mouvement à ce moment là (sauf bien sûr si _HOME_SEARCH_VEL_ est à
 zéro, et que toute la séquence de POM a été sautée). Ce mouvement final
 s'effectue en vitesse de déplacement rapide. Puisque l'axe est
@@ -140,7 +231,13 @@ maintenant référencé, il n'y a plus de risque pour la machine, un
 mouvement rapide est donc la façon la plus rapide de finir la séquence
 de prise d'origine.
 
-=== HOME_IS_SHARED (((HOME IS SHARED)))
+[NOTE]
+The distinction between 'HOME_OFFSET' and 'HOME' is that 'HOME_OFFSET' first
+establishes the origin location and scale on the machine by applying the 'HOME_OFFSET'
+value to the location where home was found, and then 'HOME' says where the
+joint should move to on that scale.
+
+=== HOME_IS_SHARED(((HOME IS SHARED)))
 
 Si cet axe n'a pas un contact d'origine séparé des autres, mais
 plusieurs contacts câblés sur la même broche d'entrée, mettre cette
@@ -148,30 +245,198 @@ valeur à 1 pour éviter de commencer la prise d'origine si un de ces
 contacts partagés est déjà activé. Mettez cette valeur à 0 pour
 permettre la prise d'origine même si un contact est déjà attaqué.
 
-=== HOME_SEQUENCE (((HOME SEQUENCE)))
+=== HOME_ABSOLUTE_ENCODER(((HOME ABSOLUTE ENCODER)))
 
-Utilisé pour définir l'ordre des séquences _HOME_ALL_ de prise
-d'origine des différents axes (exemple: la POM de l'axe X ne pourra se
-faire qu'après celle de Z). La POM d'un axe ne pourra se faire qu'après
-tous les autres en ayant la valeur la plus petite de _HOME_SEQUENCE_ et
-après qu'ils soient déjà tous à _HOME_OFFSET_. Si deux axes ont la même
-valeur de _HOME_SEQUENCE_, leurs POM s'effectueront simultanément. Si
+Use for absolute encoders.  When a request is made to home the joint,
+the current joint position is set to the '[JOINT_n]HOME_OFFSET' value.
+
+The final move to the '[JOINT_n]HOME' position is optional according
+to the 'HOME_ABSOLUTE_ENCODER' setting:
+
+----
+HOME_ABSOLUTE_ENCODER = 0 (Default) joint does not use an absolute encoder
+HOME_ABSOLUTE_ENCODER = 1 Absolute encoder, final move to [JOINT_n]HOME
+HOME_ABSOLUTE_ENCODER = 2 Absolute encoder, NO final move to [JOINT_n]HOME
+----
+
+[NOTE]
+A HOME_IS_SHARED setting is silently ignored.
+
+[NOTE]
+A request to rehome the joint is silently ignored.
+
+[[sec:homing-section]]
+=== HOME_SEQUENCE(((HOME SEQUENCE)))
+
+Utilisé pour définir l'ordre des séquences _HOME_ALL_ de prise d'origine des différents axes (exemple: la POM de l'axe X ne pourra se
+faire qu'après celle de Z). La POM d'un axe ne pourra se faire qu'après tous les autres en ayant la valeur la plus petite de _HOME_SEQUENCE_ et
+après qu'ils soient déjà tous à _HOME_OFFSET_. Si deux axes ont la même valeur de _HOME_SEQUENCE_, leurs POM s'effectueront simultanément. Si
 _HOME_SEQUENCE_ est égale à -1 ou n'est pas spécifiée, l'axe ne sera pas
 compris dans la séquence _HOME_ALL_. Les valeurs de _HOME_SEQUENCE_
 débutent à 0, il ne peut pas y avoir de valeur inutilisée.
 
-=== VOLATILE_HOME (((VOLATILE HOME)))
+[NOTE]
+If HOME_SEQUENCE is not specified then the joint will not be
+homed by the *HOME ALL* sequence (but may be homed by individual
+joint-specific homing commands).
 
-Si ce paramètre est vrai, l'origine machine de cet axe sera effacée
-chaque fois que la machine sera mise à l'arrêt. Cette variable est
+The initial HOME_SEQUENCE number may be 0, 1 (or -1).  The
+absolute value of sequence numbers must increment by one --
+skipping sequence numbers is not supported.  If a sequence number
+is omitted, *HOME ALL* homing will stop upon completion of the
+last valid sequence number.
+
+*Negative* HOME_SEQUENCE values indicate that joints in the sequence
+should *synchronize the final move* to [JOINT_n]HOME by waiting until all 
+joints in the sequence are ready.  If any joint has a *negative*
+HOME_SEQUENCE value, then all joints with the same absolute value
+(positive or negative) of the HOME_SEQUENCE item value will synchronize
+the final move.
+
+A *negative* HOME_SEQUENCE also applies to commands to home a single
+joint.  If the HOME_SEQUENCE value is *negative*, all joints having
+the same absolute value of that HOME_SEQUENCE will be *homed together
+with a synchronized final move*.  If the HOME_SEQUENCE value is
+zero or positive, a command to home the joint will home only the
+specified joint.
+
+Joint mode jogging of joints having a negative HOME_SEQUENCE is
+disallowed.  In common gantry applications, such jogging can lead
+to misalignment (racking).  Note that conventional jogging in
+world coordinates is always available once a machine is homed.
+
+Examples for a 3 joint system
+
+Two sequences (0,1), no synchronization
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE =  1
+[JOINT_2]HOME_SEQUENCE =  1
+----
+
+Two sequences, joints 1 and 2 synchronized
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE = -1
+[JOINT_2]HOME_SEQUENCE = -1
+----
+
+With mixed positive and negative values, joints 1 and 2 synchronized
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE = -1
+[JOINT_2]HOME_SEQUENCE =  1
+----
+
+
+One sequence, no synchronization
+
+----
+[JOINT_0]HOME_SEQUENCE =  0
+[JOINT_1]HOME_SEQUENCE =  0
+[JOINT_2]HOME_SEQUENCE =  0
+----
+
+One sequence, all joints synchronized
+
+----
+[JOINT_0]HOME_SEQUENCE = -1
+[JOINT_1]HOME_SEQUENCE = -1
+[JOINT_2]HOME_SEQUENCE = -1
+----
+
+
+=== VOLATILE_HOME(((VOLATILE HOME)))
+
+Si ce paramètre est vrai, l'origine machine de cet axe sera effacée chaque fois que la machine sera mise à l'arrêt. Cette variable est
 appropriée pour les axes ne maintenant pas la position si le moteur
 est désactivé (gravité de la broche par exemple).
 Certains moteurs pas à pas, en particulier fonctionnant en micropas,
 peuvent se comporter de la sorte.
 
-=== LOCKING_INDEXER (((Verrouillage Indexeur)))
+=== LOCKING_INDEXER(((Verrouillage Indexeur)))
 
-Si cet axe comporte un verrouillage d'indexeur rotatif, celui-ci
-sera déverrouillé avant le début de la séquence de prise d'origine,
+Si cet axe comporte un verrouillage d'indexeur rotatif, celui-ci sera déverrouillé avant le début de la séquence de prise d'origine,
 et verrouillé à la fin.
 
+=== Immediate Homing(((Immediate Homing)))
+
+If a joint does not have home switches or does not have a logical
+home position like a rotary joint and you want that joint to home at
+the current position when the "Home All" button is pressed in the
+Axis gui, then the following ini entries for that joint are needed.
+
+. HOME_SEARCH_VEL = 0
+. HOME_LATCH_VEL = 0
+. HOME_USE_INDEX = NO
+. HOME equals to HOME_OFFSET
+. HOME_SEQUENCE = 0 (or other valid sequence number)
+
+[NOTE]
+The default values for unspecified HOME_SEARCH_VEL, HOME_LATCH_VEL,
+HOME_USE_INDEX, HOME, and HOME_OFFSET are *zero*, so they may be
+omitted when requesting immediate homing.  A valid HOME_SEQUENCE
+number should usually be included since omitting a HOME_SEQUENCE
+eliminates the joint from *HOME ALL* behavior as noted above.
+
+=== Inhibiting Homing(((Inhibiting Homing)))
+
+A hal pin (motion.homing-inhibit) is provided to disallow
+homing initiation for both "Home All" and individual joint
+homing.
+
+Some systems take advantage of the provisions for synchronizing
+final joint homing moves as controlled by negative
+[JOINT_N]HOME_SEQUENCE= ini file items.  By default, the
+synchronization provisions disallow *joint* jogging prior to
+homing in order to prevent *joint* jogs that could misalign the
+machine (gantry racking for example).
+
+System integrator can allow *joint* jogging prior to homing with
+hal logic that switches the [JOINT_N]HOME_SEQUENCE items.  This
+logic should also assert the *motion.homing-inhibit* pin to ensure
+that homing is not inadvertently initiated when *joint* jogging
+is enabled.
+
+Example: Synced joints 0,1 using negative sequence (-1) for
+synchronized homing with a switch (allow_jjog) that selects a
+positive sequence (1) for individual *joint* jogging prior to
+homing (partial hal code):
+
+----
+loadrt mux2           names=home_sequence_mux
+loadrt conv_float_s32 names=home_sequence_s32
+setp home_sequence_mux.in0 -1
+setp home_sequence_mux.in1  1
+addf home_sequence_mux servo-thread
+addf home_sequence_s32 servo-thread
+...
+net home_seq_float <= home_sequence_mux.out
+net home_seq_float => home_sequence_s32.in
+net home_seq_s32   <= home_sequence_s32.out
+net home_seq_s32   => ini.0.home_sequence
+net home_seq_s32   => ini.1.home_sequence
+...
+# allow_jjog: pin created by a virtual panel or hardware switch
+net hsequence_select <= allow_jjog
+net hsequence_select => home_sequence_mux.sel
+net hsequence_select => motion.homing-inhibit
+----
+
+[NOTE]
+Inihal pins (like ini.N.home_sequence) are not available until
+milltask starts so execution of the above hal commands should be
+deferred using a postgui halfile or a delayed
+[APPLICATION]APP= script.
+
+[NOTE]
+Realtime synchronization of joint jogging for multiple joints
+requires additional hal connections for the Manual-Pulse-Generator
+(MPG) type jog pins (joint.N.enable, joint.N.scale, joint.N.counts).
+
+An example simulation config (gantry_jjog.ini) that demonstrates
+joint jogging when using negative home sequences is located in the:
+configs/sim/axis/gantry/ directory.

@@ -1,17 +1,14 @@
 :lang: fr
-:toc:
-
-= Tours
 
 [[cha:Configuration-tour]]
+= Tours
 
 == Plan par défaut
 
 Quand l'interpréteur de LinuxCNC à été créé, il à été écrit pour les
 fraiseuses. C'est pourquoi le plan par défaut est le plan XY (G17). Sur
 un tour standard on utilise seulement les axes du plan XZ (G18). Pour
-changer le plan par défaut d'un tour, mettez la ligne suivante dans la
-section RS274NGC du fichier ini.
+changer le plan par défaut d'un tour, mettez la ligne suivante dans la section RS274NGC du fichier INI.
 
 ----
 RS274NGC_STARTUP_CODE = G18
@@ -22,18 +19,63 @@ dans le préambule du programme G-code.
 
 == Réglages INI
 
-Les réglages du fichier .ini suivants sont nécessaires dans Axis en mode tour, 
-en remplacement ou ajout au fichier .ini normal.
+Les réglages du fichier .ini suivants sont nécessaires dans Axis en mode tour,
+en remplacement ou ajout au fichier .ini normal. These historical settings use
+identity kinematics (trivkins) and 'three' joints (0,1,2) corresponding to
+coordinates x,y,z.  The joint 1 for the unused y axis is required but not used
+in these historical configurations.  Simulated lathe configs may use these
+historical settings.
+Gmoccapy also uses the mentioned settings, but does offer additional settings,
+check the <<cha:gmoccapy,gmoccapy>> Section for details.
 
 ----
 [DISPLAY]
 DISPLAY = axis
 LATHE = 1
-[TRAJ]
-AXES = 3
-COORDINATES = X Z
-[AXIS_0]
 ...
-[AXIS_2]
+
+[KINS]
+KINEMATICS = trivkins
+JOINTS = 3
+
+[TRAJ]
+COORDINATES = X Z
+...
+
+[JOINT_0]
+...
+[JOINT_2]
+...
+[AXIS_X]
+...
+[AXIS_Z]
+...
+----
+
+With joints_axes incorporation, a simpler configuration can be made with just
+the two required joints by specifying trivkins with the 'coordinates='
+parameter:
+
+----
+[DISPLAY]
+DISPLAY = axis
+LATHE = 1
+...
+
+[KINS]
+KINEMATICS = trivkins coordinates=xz
+JOINTS = 2
+
+[TRAJ]
+COORDINATES = X Z
+...
+
+[JOINT_0]
+...
+[JOINT_1]
+...
+[AXIS_X]
+...
+[AXIS_Z]
 ...
 ----
