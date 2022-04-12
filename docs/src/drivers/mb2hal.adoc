@@ -41,7 +41,9 @@ Consider using Mb2hal if:
 .. Create a config file from the example below
 . Set component name (optional)
 +
-Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
+----
+set `HAL_MODULE_NAME=mymodule`
+----
 +
 . Load the modbus HAL userspace component
 .. Default component name: `loadusr -W mb2hal config=config_file.ini`
@@ -52,7 +54,7 @@ Set `HAL_MODULE_NAME=mymodule` (default `HAL_MODULE_NAME=mb2hal`)
 
 === Init Section
 
-`[MB2HAL_INIT]`
+*`[MB2HAL_INIT]`*
 
 [options="header",cols="14,8,13,67"]
 |=======================
@@ -198,7 +200,10 @@ Program or connection:
 * 0x10 (-16) - INVALID_CRC
 * 0x11 (-17) - INVALID_EXCEPTION_CODE
 
+////
 == Example config file
+
+FIXME Files missing
 
 Click link:mb2hal_HOWTO.ini[here] to download.
 
@@ -206,6 +211,7 @@ Click link:mb2hal_HOWTO.ini[here] to download.
 ----
 include::mb2hal_HOWTO.ini[]
 ----
+////
 
 == Pins
 
