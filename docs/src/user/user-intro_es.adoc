@@ -86,7 +86,7 @@ NGCGUI:: <<cha:ngcgui,'NGCGUI'>> una GUI de subrutinas que proporciona una progr
 [[fig:ngcgui-graphical-interface-into-axis]]
 image::../gui/images/ngcgui.png["NGCGUI, una GUI de subrutinas que proporciona una programación de código G tipo asistente",align="center"]
 
-TkLinuxCNC:: <<sec:tklinuxcnc-intro,TkLinuxCNC>>, another interface based on Tcl/Tk.
+TkLinuxCNC:: << sec:tklinuxcnc-intro,TkLinuxCNC >>, another interface based on Tcl/Tk.
   Once the most popular interface after AXIS.
 
 [[fig:tklinuxcnc-gui]]

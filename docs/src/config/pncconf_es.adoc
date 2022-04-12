@@ -634,8 +634,8 @@ El Z-touch-off automático es con una placa de touch-off, el botón de apagado G
 y comandos especiales HALUI para establecer el origen del usuario actual en cero y rápido
 claro.
 El programa modbus serie es básicamente un programa de plantilla en blanco que configura
-Escalera clasica para modbus serie. Ver el
-<<cha:classicladder,Classicladder Chapter>> en el manual.
+Escalera clasica para modbus serie.
+Ver el << cha:classicladder,Classicladder Chapter >> en el manual.
   
 //.PNCconf, opciones avanzadas
 image::images/pncconf-advanced.png["PNCconf Opciones avanzadas"]

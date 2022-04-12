@@ -333,10 +333,10 @@ Consulte el documento <<cha:gmoccapy,gmoccapy>> para obtener detalles sobre Gmoc
     Otras entradas validas   son "gedit", "gnome-terminal -e vim" y "gvim".
     Esta entrada no se aplica a gmoccapy, ya que gmoccapy   tiene un editor integrado.
  * 'PYVCP = /filename.xml' - el archivo de descripción del panel PyVCP.
-    Ver el capítulo PyVCP para más información. //<<cha:pyvcp,Capítulo PyVCP>>
+    Ver el << cha:pyvcp,capítulo PyVCP >> para más información. 
  * 'PYVCP_POSITION = BOTTOM' - la ubicación del panel PyVCP en la interfaz de usuario AXIS.
     Si se omite esta variable, el panel pasará por defecto al lado derecho. La unica alternativa valida
-    es BOTTOM. Vea el capítulo PyVCP para más información. //<<cha:pyvcp,Capítulo PyVCP>>
+    es BOTTOM. Vea el << cha:pyvcp,Capítulo PyVCP >> para más información.
  * 'LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno" con una vista superior y con Radio y Diámetro en el DRO.
  * 'BACK_TOOL_LATHE = 1' - cualquier valor no vacío (incluido "0") hace que Axis utilice el "modo torno de herramienta trasera" con el eje X invertido.
  * 'FOAM = 1' - cualquier valor no vacío (incluido "0") hace que Axis cambie la visualización para el modo cortador de espuma.
@@ -708,9 +708,9 @@ Para obtener más información, consulte el capítulo <<cha:hal-twopass,Hal TWOP
 * 'POSTGUI_HALFILE = example2.hal' - Ejecuta 'example2.hal' después de que la GUI haya creado  sus pines HAL.
   Algunas GUI crean pines hal y admiten el uso de un halfile postgui para usarlos.
   Las GUI que admiten halfiles postgui incluyen Touchy, Axis, Gscreen y gmoccapy.
-  Vea la sección <<sec:pyvcp-with-axis,pyVCP with Axis>> para más información.
+  Vea la sección << sec:pyvcp-with-axis,pyVCP with Axis >> para más información.
 * 'HALUI = halui' - agrega los pines de la interfaz de usuario de HAL.
-  Para más información, ver el capítulo <<cha:hal-user-interface,"Interfaz de usuario HAL">>.
+  Para más información, ver el capítulo << cha:hal-user-interface,"Interfaz de usuario HAL" >>.
 
 [[sec:halui-section]]
 === Sección [HALUI](((Archivo INI, Sección HALUI)))
