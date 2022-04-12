@@ -1,6 +1,8 @@
 :lang: fr
 :toc:
 
+// TODO Backtranslate linuxcnc2hal_fr.adoc
+
 = LinuxCNC et HAL
 
 [[cha:LinuxCNC-et-HAL]]
@@ -541,4 +543,3 @@ utilisateur, habituellement appelé 'io'.
 
 * 'iocontrol.0.user-request-enable' - 
     (bit, out) TRUE quand l'arrêt d'urgence est relâché.
-
