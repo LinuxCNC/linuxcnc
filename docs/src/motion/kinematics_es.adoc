@@ -304,7 +304,7 @@ KINS_NOT_SWITCHABLE
 The function kinematicsSwitchable() returns 1 if multiple
 kinematics types are supported.  The function kinematicsSwitch()
 selects the kinematics type.
-See <<cha:switchable-kinematics,Switchable Kinematitcs>>.
+See << cha:switchable-kinematics,Switchable Kinematitcs >>.
 
 [NOTE]
 The majority of provided kinematics modules support a single
