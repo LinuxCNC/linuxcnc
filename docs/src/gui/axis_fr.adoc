@@ -710,9 +710,9 @@ en vitesse travail. Ceci peut être source de confusion pour l'opérateur.
 Pour contourner cette particularité, ajoutez toujours un G1 sans mouvement
 après un M6 T<n>.
 
-[[cap:Changement-manuel-d-outil]]
-.La fenêtre de changement manuel d'outil
-image::images/manualtoolchange_fr.png["La fenêtre de changement manuel d'outil"]
+[[fig:manual-toolchange-window]](((fenêtre de changement manuel d'outil)))
+//.La fenêtre de changement manuel d'outil
+image:images/manualtoolchange_fr.png["La fenêtre de changement manuel d'outil"]
 
 == Modules en Python
 

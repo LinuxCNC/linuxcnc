@@ -708,7 +708,7 @@ programe un G1 sin movimiento después de T<n>.
 
 [[fig:manual-toolchange-window]](((Cambio de herramientas manual)))
 //.Ventana de cambio de herramientas manual
-image::images/manual-tool-change_es.png["Cambio de herramientas manual screenshot",align="center"]
+image:images/manual-tool-change_es.png["Cambio de herramientas manual screenshot",align="center"]
 
 [[sec:axis-python-modules]]
 == Módulos de Python
