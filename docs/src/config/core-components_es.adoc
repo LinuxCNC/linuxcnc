@@ -84,7 +84,6 @@ Ejemplo:
 unlock_joints_mask = 0x38 (111000b) 
 ----
 
-selecciona articulaciones 3,4,5
 
 [[sec:motion-pins]]
 === Pines(((motion(pines HAL))))
