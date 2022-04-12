@@ -157,7 +157,7 @@ from either the abs.0.out pin or the X-IPM signal.
 
 [[cap:hal-velocity-example]](((HAL Velocity example)))
 //.HAL: Velocity example
-image::images/velocity-01.png["Velocity Example Screenshot"]
+image:images/velocity-01.png["Velocity Example Screenshot"]
 
 == Soft Start Details
 
