@@ -56,7 +56,7 @@ axis:: (((axis)))Acepta comandos de movimiento NML e interactúa con HAL en tiem
 
 classicladder:: (((classicladder)))Software PLC en tiempo real basado en lógica de escalera.
     Consulte el capítulo ClassicLadder para obtener más información.
-    //<<cha:classicladder,ClassicLadder>> // all English _es file removed
+//<<cha:classicladder,ClassicLadder>> // all English _es file removed
 
 gladevcp:: (((gladevcp)))Muestra paneles de control virtuales construidos con GTK/Glade.
 
@@ -177,7 +177,7 @@ conv_u32_s32:: (((conv_u32_s32)))Convierte un valor u32 a s32.
 [[sec:Realtime-Components-pilotes]]
 === Controladores de hardware
 
-hal_ppmc:: (((hal_ppmc)))Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller.
+hal_ppmc:: (((hal_ppmc)))Pico Systems << cha:pico-drivers,driver >> for analog servo, PWM and Stepper controller.
 
 hm2_7i43:: (((hm2_7i43)))Controlador HAL para tarjetas EPP Anything Mesa Electronics 7i43 EPP con HostMot2.
 
