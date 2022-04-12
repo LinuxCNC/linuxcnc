@@ -277,7 +277,7 @@ right-click on the signal name and select "Unlink pin", see <<cap:watch-tab-cont
 
 [[fig:halshow-watch-tab]](((Halshow: Watch Tab)))
 //.Watch Tab 
-image::images/halshow-4.png["Watch Tab",align="center"]
+image:images/halshow-4.png["Watch Tab",align="center"]
 
 Watch displays bit type (binary) values using colored circles
 representing LEDs. They show as dark red when a bit signal or pin is
@@ -294,6 +294,6 @@ in halshow can be set up to watch a parport much as IO_Show did.
 
 [[cap:watch-tab-context-menu]]
 //.Watch Tab context menu
-image::images/halshow-5.png["Watch Tab context menu",align="center"]
+image:images/halshow-5.png["Watch Tab context menu",align="center"]
 
 // vim: set syntax=asciidoc:
