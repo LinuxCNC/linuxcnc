@@ -759,14 +759,15 @@ control.
 TIP: Many of the option on this page will not show unless the proper option was
 selected on previous pages!
 
-//.Spindle Configuration
+.Spindle Motor/Encoder Configuration
 image::images/pncconf-spindle-config.png["Spindle Configuration"]
 
 This page is similar to the axis motor configuration page.
 
 There are some differences:
 
-* Unless one has chosen a stepper driven spindle there is no acceleration or velocity limiting.
+* Unless one has chosen a stepper driven spindle there is no acceleration or
+  velocity limiting.
 * There is no support for gear changes or ranges.
 * If you picked a VCP spindle display option then spindle-at-speed scale and
   filter settings may be shown.

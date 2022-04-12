@@ -79,6 +79,7 @@ The following sections are used by LinuxCNC:
 * '[<<sec:kins-section,KINS>>]' kinematics variables
 * '[<<sec:emcio-section,EMCIO>>]' settings used by the I/O Controller
 
+[[sub:ini-variables]]
 === Variables
 
 A variable line is made up of a variable name, an equals sign (=), and
@@ -171,7 +172,6 @@ G1 Z#5063
 G10 L20 P0 Z#<_ini[probe]z_offset>
 ---------------------------------------------------------------------
 
-
 === Include Files
 
 An INI file may include the contents of another file by using a #INCLUDE directive.
@@ -203,23 +203,24 @@ The #INCLUDE directives are supported for one level of expansion only -- an
 included file may not include additional files.  The recommended file extension
 is .inc.  Do not use a file extension of .ini for included files.
 
+[[sec:ini-file-sections]]
 == INI File Sections
 
 [[sec:emc-section]]
-=== [EMC] Section(((INI File, EMC Section)))
+=== [EMC] Section(((INI File,EMC Section)))
 
- * 'VERSION = 1.1' - The version number for the configuration. Any value other
-    than 1.1 will cause the configuration checker to run and try to update the
-    configuration to the new style joint axes type of configuration.
- * 'MACHINE = My Controller' - This is the name of the controller, which is
-    printed out at the top of most graphical interfaces. You can put whatever
-    you want here as long as you make it a single line long.
- * 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is
-    run from a <<faq:terminal,terminal>>. Debug flags are usually only useful to
-    developers. See src/emc/nml_intf/debugflags.h for other settings.
+* 'VERSION = 1.1' - The version number for the configuration. Any value other
+  than 1.1 will cause the configuration checker to run and try to update the
+  configuration to the new style joint axes type of configuration.
+* 'MACHINE = My Controller' - This is the name of the controller, which is
+  printed out at the top of most graphical interfaces. You can put whatever
+  you want here as long as you make it a single line long.
+* 'DEBUG = 0' - Debug level 0 means no messages will be printed when LinuxCNC is
+  run from a <<faq:terminal,terminal>>. Debug flags are usually only useful to
+  developers. See src/emc/nml_intf/debugflags.h for other settings.
 
 [[sec:display-section]]
-=== [DISPLAY] Section(((INI File, DISPLAY Section)))
+=== [DISPLAY] Section(((INI File,DISPLAY Section)))
 
 Different user interface programs use different options, and not every
 option is supported by every user interface. There are several interfaces,
@@ -230,79 +231,79 @@ can be used both ways and offers also many connections for hardware controls.
 Descriptions of the interfaces are in the Interfaces section of the
 User Manual.
 
- * 'DISPLAY = axis' - The name of the user interface to use. Valid options
-    may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp'
- * 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
-    to show on the DRO when the user interface starts. The RELATIVE coordinate
-    system reflects the G92 and G5x coordinate offsets currently in effect.
- * 'POSITION_FEEDBACK = COMMANDED' - The coordinate value (COMMANDED or ACTUAL)
-    to show on the DRO when the user interface starts. In Axis this can be changed
-    from the View menu. The COMMANDED position is the position requested by
-    LinuxCNC. The ACTUAL position is the feedback position of the motors if they
-    have feedback like most servo systems. Typically the COMMANDED value is used.
- * 'DRO_FORMAT_MM = %+08.6f' - Over-ride the default DRO formatting in metric
-    mode. (normally 3 decimal places, padded with spaces to 6 digits to the left)
-    the example above will pad with zeros, display 6 decimal digits and force
-    display of a + sign for positive numbers. Formatting follows Python practice.
-    https://docs.python.org/2/library/string.html#format-specification-mini-language
-    an error will be raised if the format can not accept a floating-point value.
- * 'DRO_FORMAT_IN = % 4.1f' - Over-ride the default DRO formatting in imperial
-    mode. (normally 4 decimal places, padded with spaces to 6 digits to the left)
-    the example above will display only one decimal digit. Formatting follows
-    Python practice.
-    https://docs.python.org/2/library/string.html#format-specification-mini-language
-    An error will be raised if the format can not accept a floating-point value.
- * 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in
-    the graphics display
- * 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
-    1.2 means 120% of the programmed feed rate.
- * 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may
-    select. 0.5 means 50% of the programmed spindle speed. (This is used to
-    set the minimum spindle speed).
- * 'MIN_SPINDLE_0_OVERRIDE = 0.5' - The minimum spindle override the user may select.
-    0.5 means 50% of the programmed spindle speed.  (This is used to
-    set the minimum spindle speed).
-    On multi spindle machine there will be entries for each spindle number. Qtvcp only.
- * 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may
-    select. 1.0 means 100% of the programmed spindle speed.
- * 'MAX_SPINDLE_0_OVERRIDE = 1.0' - The maximum feed override the user may select.
-    1.2 means 120% of the programmed feed rate.
-    On multi spindle machine there will be entries for each spindle number. Qtvcp only
- * 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
-    is started in manual mode. if this setting is not present, this
-    defaults to 1 RPM for AXIS and 300 RPM for gmoccapy.
-    - deprecated - use the [SPINDLE_n] section instead
- * 'DEFAULT_SPINDLE_0_SPEED = 100' - The default spindle RPM when the spindle
-    is started in manual mode. On multi spindle machine there will be entries for each spindle number. Qtvcp only
-    - deprecated - use the [SPINDLE_n] section instead
- * 'SPINDLE_INCREMENT = 200' - The increment used when clicking increase/decrease buttons Qtvcp only
-    - deprecated - use the [SPINDLE_n] section instead
- * 'MIN_SPINDLE_0_SPEED = 1000' - The minimum RPM that can be manually selected.
-    On multi spindle machine there will be entries for each spindle number. Qtvcp only.
-    - deprecated - use the [SPINDLE_n] section instead
- * 'MAX_SPINDLE_0_SPEED = 20000' - The maximum RPM that can be manually selected.
-    On multi spindle machine there will be entries for each spindle number. Qtvcp only.
-    - deprecated - use the [SPINDLE_n] section instead
- * 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for G-code
-    files and the location for user-defined M-codes. This location is searched
-    for the file name before the subroutine path and user M path if specified
-    in the [RS274NGC] section.
- * 'INTRO_GRAPHIC = emc2.gif' - The image shown on the splash screen.
- * 'INTRO_TIME = 5' - The maximum time to show the splash screen, in seconds.
- * 'CYCLE_TIME = 100' - Cycle time of the Display GUI.
-    Depending on the screen, this can be in seconds or ms (ms preferred).
-    This is often the update rate rather then sleep time between updates.
-    If the update time is not set right the screen can become unresponsive or very jerky.
-    A value of 100ms (0.1 seconds) is a common setting though a range of 50 - 200ms (.05 - .2 seconds) may be useable.
-    An under powered CPU may see improvement with a longer setting. Usually the default is fine.
+* 'DISPLAY = axis' - The name of the user interface to use. Valid options
+  may include: 'axis', 'touchy', 'gmoccapy', 'gscreen', 'tklinuxcnc', 'qtvcp'
+* 'POSITION_OFFSET = RELATIVE' - The coordinate system (RELATIVE or MACHINE)
+  to show on the DRO when the user interface starts. The RELATIVE coordinate
+  system reflects the G92 and G5x coordinate offsets currently in effect.
+* 'POSITION_FEEDBACK = COMMANDED' - The coordinate value (COMMANDED or ACTUAL)
+  to show on the DRO when the user interface starts. In Axis this can be changed
+  from the View menu. The COMMANDED position is the position requested by
+  LinuxCNC. The ACTUAL position is the feedback position of the motors if they
+  have feedback like most servo systems. Typically the COMMANDED value is used.
+* 'DRO_FORMAT_MM = %+08.6f' - Over-ride the default DRO formatting in metric
+  mode. (normally 3 decimal places, padded with spaces to 6 digits to the left)
+  the example above will pad with zeros, display 6 decimal digits and force
+  display of a + sign for positive numbers. Formatting follows Python practice.
+  https://docs.python.org/2/library/string.html#format-specification-mini-language
+  an error will be raised if the format can not accept a floating-point value.
+* 'DRO_FORMAT_IN = % 4.1f' - Over-ride the default DRO formatting in imperial
+  mode. (normally 4 decimal places, padded with spaces to 6 digits to the left)
+  the example above will display only one decimal digit. Formatting follows
+  Python practice.
+  https://docs.python.org/2/library/string.html#format-specification-mini-language
+  An error will be raised if the format can not accept a floating-point value.
+* 'CONE_BASESIZE = .25' - Over-ride the default cone/tool base size of .5 in
+  the graphics display
+* 'MAX_FEED_OVERRIDE = 1.2' - The maximum feed override the user may select.
+  1.2 means 120% of the programmed feed rate.
+* 'MIN_SPINDLE_OVERRIDE = 0.5' - The minimum spindle override the user may
+  select. 0.5 means 50% of the programmed spindle speed. (This is used to
+  set the minimum spindle speed).
+* 'MIN_SPINDLE_0_OVERRIDE = 0.5' - The minimum spindle override the user may select.
+  0.5 means 50% of the programmed spindle speed.  (This is used to
+  set the minimum spindle speed).
+  On multi spindle machine there will be entries for each spindle number. Qtvcp only.
+* 'MAX_SPINDLE_OVERRIDE = 1.0' - The maximum spindle override the user may
+  select. 1.0 means 100% of the programmed spindle speed.
+* 'MAX_SPINDLE_0_OVERRIDE = 1.0' - The maximum feed override the user may select.
+  1.2 means 120% of the programmed feed rate.
+  On multi spindle machine there will be entries for each spindle number. Qtvcp only
+* 'DEFAULT_SPINDLE_SPEED = 100' - The default spindle RPM when the spindle
+  is started in manual mode. if this setting is not present, this
+  defaults to 1 RPM for AXIS and 300 RPM for gmoccapy.
+  - deprecated - use the [SPINDLE_n] section instead
+* 'DEFAULT_SPINDLE_0_SPEED = 100' - The default spindle RPM when the spindle
+  is started in manual mode. On multi spindle machine there will be entries for each spindle number. Qtvcp only
+  - deprecated - use the [SPINDLE_n] section instead
+* 'SPINDLE_INCREMENT = 200' - The increment used when clicking increase/decrease buttons Qtvcp only
+  - deprecated - use the [SPINDLE_n] section instead
+* 'MIN_SPINDLE_0_SPEED = 1000' - The minimum RPM that can be manually selected.
+  On multi spindle machine there will be entries for each spindle number. Qtvcp only.
+  - deprecated - use the [SPINDLE_n] section instead
+* 'MAX_SPINDLE_0_SPEED = 20000' - The maximum RPM that can be manually selected.
+  On multi spindle machine there will be entries for each spindle number. Qtvcp only.
+  - deprecated - use the [SPINDLE_n] section instead
+* 'PROGRAM_PREFIX = ~/linuxcnc/nc_files' - The default location for G-code
+  files and the location for user-defined M-codes. This location is searched
+  for the file name before the subroutine path and user M path if specified
+  in the [RS274NGC] section.
+* 'INTRO_GRAPHIC = emc2.gif' - The image shown on the splash screen.
+* 'INTRO_TIME = 5' - The maximum time to show the splash screen, in seconds.
+* 'CYCLE_TIME = 100' - Cycle time of the Display GUI.
+  Depending on the screen, this can be in seconds or ms (ms preferred).
+  This is often the update rate rather then sleep time between updates.
+  If the update time is not set right the screen can become unresponsive or very jerky.
+  A value of 100ms (0.1 seconds) is a common setting though a range of 50 - 200ms (.05 - .2 seconds) may be useable.
+  An under powered CPU may see improvement with a longer setting. Usually the default is fine.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP, see the
 gladevcp:embeding-tab,embedding a tab section of the GladeVCP Chapter.
 //<<gladevcp:embeding-tab,embedding a tab>> section of the GladeVCP Chapter. FIXME SPANISH
 
- * 'EMBED_TAB_NAME=GladeVCP demo'
- * 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
+* 'EMBED_TAB_NAME=GladeVCP demo'
+* 'EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} -u ./gladevcp/hitcounter.py ./gladevcp/manual-example.ui'
 
 [NOTE]
 Different user interface programs use different options, and not every
@@ -310,43 +311,43 @@ option is supported by every user interface.
 See <<cha:axis-gui,AXIS GUI>> document for AXIS details.
 See <<cha:gmoccapy,gmoccapy>> document for Gmoccapy details.
 
- * 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in <<sec:traj-section,machine units>> per second.
- * 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
- * 'MAX_LINEAR_VELOCITY = 1.0' - The maximum velocity for linear jogs, in machine units per second.
- * 'MIN_LINEAR_VELOCITY = .01' - The approximate lowest value the jog slider.
- * 'DEFAULT_ANGULAR_VELOCITY = .25' - The default velocity for angular jogs, in machine units per second.
- * 'MIN_ANGULAR_VELOCITY = .01' - The approximate lowest value the angular jog slider.
- * 'MAX_ANGULAR_VELOCITY = 1.0' - The maximum velocity for angular jogs, in machine units per second.
- * 'INCREMENTS = 1 mm, .5 in, ...' - Defines the increments available for incremental jogs.
-    The INCREMENTS can be used to override the default.
-    The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16),
-    optionally followed by a unit (cm, mm, um, inch, in or mil).
-    If a unit is not specified the machine unit is assumed.
-    Metric and imperial distances may be mixed:
-    INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a valid entry.
- * 'GRIDS = 10 mm, 1 in, ...' - Defines the preset values for grid lines.
-    The value is interpreted the same way as 'INCREMENTS'.
- * 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts.
-    Use a blank string "" and no file will be loaded at start up.
-    gmoccapy will not use this setting, as it offers a corresponding entry on its settings page.
- * 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G-code from the AXIS menu.
-    This must be configured for this menu item to work.
-    Another valid entry is gnome-terminal -e vim.
-    This entry does not apply to gmoccapy, as gmoccapy has an integrated editor.
- * 'TOOL_EDITOR = tooledit' - The editor to use when editing the tool table
-    (for example by selecting "File > Edit tool table..." in Axis).
-    Other valid entries are "gedit", "gnome-terminal -e vim", and "gvim".
-    This entry does not apply to gmoccapy, as gmoccapy has an integrated editor.
- * 'PYVCP = /filename.xml' - The PyVCP panel description file.
-    See the PyVCP Chapter for more information.  //<<cha:pyvcp,Capítulo PyVCP>>PyVCP Chapter 
- * 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
-    If this variable is omitted the panel will default to the right side. The only valid
-    alternative is BOTTOM. See the PyVCP Chapter for more information.  //<<cha:pyvcp,Capítulo PyVCP>>PyVCP Chapter 
- * 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
- * 'BACK_TOOL_LATHE = 1' - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
- * 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
- * 'GEOMETRY = XYZABCUVW' - Controls the *preview* and *backplot* of motion.
-    This item consists of a sequence of axis letters and control characters, optionally preceeded with a "-" sign:
+* 'DEFAULT_LINEAR_VELOCITY = .25' - The default velocity for linear jogs, in <<sec:traj-section,machine units>> per second.
+* 'MIN_VELOCITY = .01' - The approximate lowest value the jog slider.
+* 'MAX_LINEAR_VELOCITY = 1.0' - The maximum velocity for linear jogs, in machine units per second.
+* 'MIN_LINEAR_VELOCITY = .01' - The approximate lowest value the jog slider.
+* 'DEFAULT_ANGULAR_VELOCITY = .25' - The default velocity for angular jogs, in machine units per second.
+* 'MIN_ANGULAR_VELOCITY = .01' - The approximate lowest value the angular jog slider.
+* 'MAX_ANGULAR_VELOCITY = 1.0' - The maximum velocity for angular jogs, in machine units per second.
+* 'INCREMENTS = 1 mm, .5 in, ...' - Defines the increments available for incremental jogs.
+  The INCREMENTS can be used to override the default.
+  The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16),
+  optionally followed by a unit (cm, mm, um, inch, in or mil).
+  If a unit is not specified the machine unit is assumed.
+  Metric and imperial distances may be mixed:
+  INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a valid entry.
+* 'GRIDS = 10 mm, 1 in, ...' - Defines the preset values for grid lines.
+  The value is interpreted the same way as 'INCREMENTS'.
+* 'OPEN_FILE = /full/path/to/file.ngc' - The file to show in the preview plot when AXIS starts.
+  Use a blank string "" and no file will be loaded at start up.
+  gmoccapy will not use this setting, as it offers a corresponding entry on its settings page.
+* 'EDITOR = gedit' - The editor to use when selecting File > Edit to edit the G-code from the AXIS menu.
+  This must be configured for this menu item to work.
+  Another valid entry is gnome-terminal -e vim.
+  This entry does not apply to gmoccapy, as gmoccapy has an integrated editor.
+* 'TOOL_EDITOR = tooledit' - The editor to use when editing the tool table
+  (for example by selecting "File > Edit tool table..." in Axis).
+  Other valid entries are "gedit", "gnome-terminal -e vim", and "gvim".
+  This entry does not apply to gmoccapy, as gmoccapy has an integrated editor.
+* 'PYVCP = /filename.xml' - The PyVCP panel description file.
+  See the PyVCP Chapter for more information.  //<<cha:pyvcp,Capítulo PyVCP>>PyVCP Chapter 
+* 'PYVCP_POSITION = BOTTOM' - The placement of the PyVCP panel in the AXIS user interface.
+  If this variable is omitted the panel will default to the right side. The only valid
+  alternative is BOTTOM. See the PyVCP Chapter for more information.  //<<cha:pyvcp,Capítulo PyVCP>>PyVCP Chapter 
+* 'LATHE = 1' - Any non-empty value (including "0") causes axis to use "lathe mode" with a top view and with Radius and Diameter on the DRO.
+* 'BACK_TOOL_LATHE = 1' - Any non-empty value (including "0") causes axis to use "back tool lathe mode" with inverted X axis.
+* 'FOAM = 1' - Any non-empty value (including "0") causes axis to change the display for foam-cutter mode.
+* 'GEOMETRY = XYZABCUVW' - Controls the *preview* and *backplot* of motion.
+  This item consists of a sequence of axis letters and control characters, optionally preceeded with a "-" sign:
 
 . The letters X,Y,Z specify translation along the named coordinate.
 . The letters A,B,C specify rotation about the corresponding axes X,Y,Z.
@@ -409,7 +410,7 @@ The following [DISPLAY] item is used by the TKLinuxCNC interface only.
 * 'HELP_FILE = tklinucnc.txt' - Path to help file.
 
 [[sec:filter-section]]
-=== [FILTER] Section(((INI File, FILTER Section)))
+=== [FILTER] Section(((INI File,FILTER Section)))
 
 AXIS and gmoccapy have the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure
@@ -423,33 +424,43 @@ must write RS274NGC code to standard output. This output is what will
 be displayed in the text area, previewed in the display area, and
 executed by LinuxCNC when Run.
 
-* 'PROGRAM_EXTENSION = .extension Description'
+----
+PROGRAM_EXTENSION = .extension Description
+----
 
 If your post processor outputs files in all caps you might want to add
 the following line:
 
-* 'PROGRAM_EXTENSION = .NGC XYZ Post Processor'
+----
+PROGRAM_EXTENSION = .NGC XYZ Post Processor
+----
 
 The following lines add support for the image-to-G-code converter
 included with LinuxCNC.
 
-* 'PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image'
-** 'png = image-to-gcode'
-** 'gif = image-to-gcode'
-** 'jpg = image-to-gcode'
+----
+PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
+  png = image-to-gcode
+  gif = image-to-gcode
+  jpg = image-to-gcode
+----
 
 An example of a custom G-code converter located in the linuxcnc directory.
 
-* 'PROGRAM_EXTENSION = .gcode 3D Printer'
-** 'gcode = /home/mill/linuxcnc/convert.py'
+----
+PROGRAM_EXTENSION = .gcode 3D Printer
+  gcode = /home/mill/linuxcnc/convert.py
+----
 
 NOTE: The program file associated with an extension must have either the full
 path to the program or be located in a directory that is on the system path.
 
 It is also possible to specify an interpreter:
 
-* 'PROGRAM_EXTENSION = .py Python Script'
-** 'py = python'
+----
+PROGRAM_EXTENSION = .py Python Script
+  py = python
+----
 
 In this way, any Python script can be opened, and its output is
 treated as G-code. One such example script is available at
@@ -461,7 +472,9 @@ http://wiki.linuxcnc.org/[http://wiki.linuxcnc.org/].
 If the environment variable AXIS_PROGRESS_BAR is set, then lines
 written to stderr of the form
 
-* 'FILTER_PROGRESS=%d'
+----
+FILTER_PROGRESS=%d
+----
 
 sets the AXIS progress bar to the given percentage. This feature
 should be used by any filter that runs for a long time.
@@ -505,9 +518,9 @@ if __name__ == "__main__":
   main(sys.argv[1:])
 ----
 
-[[sec:rs274ngc-section]](((INI File, RS274NGC Section)))
+[[sec:rs274ngc-section]]
 [[gcode:ini-features]]
-=== [RS274NGC] Section
+=== [RS274NGC] Section(((INI File,RS274NGC Section)))
 
 * 'PARAMETER_FILE = myfile.var' -
   (((PARAMETER FILE))) The file located in the same directory as the ini
@@ -537,16 +550,16 @@ if __name__ == "__main__":
   Specifies a list of colon (:) separated directories for user defined functions.
   Directories are specified relative to the current directory for the ini file or as absolute paths.
   The list must contain no intervening whitespace.
-
++
 A search is made for each possible user defined function, typically
 (M100-M199). The search order is:
-
++
 . [DISPLAY]PROGRAM_PREFIX (if specified)
 . If [DISPLAY]PROGRAM_PREFIX is not specified, search the default location: nc_files
 . Then search each directory in the list [RS274NGC]USER_M_PATH
-
++
 The first executable M1xx found in the search is used for each M1xx.
-
++
 [NOTE]
 The maximum number of USER_M_PATH directories is defined at compile time (typ: 'USER_DEFINED_FUNCTION_MAX_DIRS == 5').
 
@@ -583,7 +596,7 @@ implemented and the results of using it are unpredictable.
   See <<cha:remap,Remap Extending G-Code>> chapter for details.
 
 [[sec:emcmot-section]]
-=== [EMCMOT] Section(((INI File, EMCMOT Section)))
+=== [EMCMOT] Section(((INI File,EMCMOT Section)))
 
 This section is a custom section and is not used by LinuxCNC directly. Most
 configurations use values from this section to load the motion controller. For
@@ -599,14 +612,13 @@ Section.
   realtime part of the motion controller) to acknowledge receipt of
   messages from Task (the non-realtime part of the motion controller).
 * HOMEMOD = alternate_homing_module [home_parms=value]
-
-The HOMEMOD variable is optional.  If specified, use a specified (user-built)
-module instead of the default (homemod).  Module parameters (home_parms) may be
-included if supported by the named module.  The setting may be overridden
-from the command line using the -m option ($linuxcnc -h)
+  The HOMEMOD variable is optional. If specified, use a specified (user-built)
+  module instead of the default (homemod). Module parameters (home_parms) may be
+  included if supported by the named module. The setting may be overridden
+  from the command line using the -m option ($linuxcnc -h)
 
 [[sec:task-section]]
-=== [TASK] Section(((INI File, TASK Section)))
+=== [TASK] Section(((INI File,TASK Section)))
 
 * 'TASK = milltask' -
   Specifies the name of the 'task' executable. The 'task' executable does various
@@ -630,24 +642,27 @@ from the command line using the -m option ($linuxcnc -h)
   stepper configuration ('core_stepper.hal') and one which specifies
   the machine pin out ('xxx_pinout.hal').
 
-  HALFILES are found using a search.
-  If the named file is found in the directory containing the ini file, it is used.
-  If the named file is not found in this ini file directory, a search is made using a system library of halfiles.
+HALFILES are found using a search.
+If the named file is found in the directory containing the ini file, it is used.
+If the named file is not found in this ini file directory, a search is made using a system library of halfiles.
 
-  If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
-  the specified dirname is prepended to the search described above so that
-  "dirname" is searched first.  The "-H dirname" option may be specified more
-  than once, directories are prepended in order.
+If LinuxCNC is started with the linuxcnc script using the "-H dirname" option,
+the specified dirname is prepended to the search described above so that
+"dirname" is searched first.  The "-H dirname" option may be specified more
+than once, directories are prepended in order.
 
-  A HALFILE may also be specified as an absolute path (when the name starts with
-  a '/' character).  Absolute paths are not recommended as their use may limit
-  relocation of configurations.
-* 'HALFILE = texample.tcl [arg1 [arg2] ...]]' - Execute the tcl file 'texample.tcl'
+A HALFILE may also be specified as an absolute path (when the name starts with
+a '/' character).  Absolute paths are not recommended as their use may limit
+relocation of configurations.
+
+* 'HALFILE = texample.tcl [arg1 [arg2] ...]' - Execute the tcl file 'texample.tcl'
   at start up with arg1, arg2, etc as ::argv list.  Files with a .tcl suffix are
   processed as above but use haltcl for processing  See the
   <<cha:haltcl,HALTCL Chapter>> for more information.
+
 * 'HALFILE = LIB:sys_example.hal' - Execute the system library file 'sys_example.hal' at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
+
 * 'HALFILE = LIB:sys_texample.tcl [arg1 [arg2 ...]]' - Execute the system library file 'sys_texample.tcl' at start up.
   Explicit use of the LIB: prefix causes use of the system library HALFILE without searching the ini file directory.
 
@@ -661,7 +676,7 @@ A system library file is provided to make checks for these conditions and
 report to stdout and in a popup gui:
 
 ----
-    HALFILE = LIB:halcheck.tcl [ nopopup ]
+HALFILE = LIB:halcheck.tcl [ nopopup ]
 ----
 
 [NOTE]
@@ -669,34 +684,38 @@ The LIB:halcheck.tcl line should be the last [HAL]HALFILE.
 Specify the 'nopopup' option to suppress the popup message and allow immediate starting.
 Connections made using a POSTGUI_HALFILE are not checked.
 
- * 'TWOPASS = ON' - Use twopass processing for loading HAL components.
-   With TWOPASS processing, [HAL]HALFILE= lines are processed in two passes.
-   In the first pass (pass0), all HALFILES are read and multiple appearances of loadrt and loadusr commands are accumulated.
-   These accumulated load commands are executed at the end of pass0.
-   This accumulation allows load lines to be specified more than once for a given component (provided the names= names used are unique on each use).
-   In the second pass (pass1), the HALFILES are reread and all commands except the previously executed load commands are executed.
- * 'TWOPASS = nodelete verbose' - The TWOPASS feature can be activated with any non-null string including the keywords verbose and nodelete.
-   The verbose keyword causes printing of details to stdout.
-   The nodelete keyword preserves temporary files in /tmp.
+* 'TWOPASS = ON' - Use twopass processing for loading HAL components.
+  With TWOPASS processing, [HAL]HALFILE= lines are processed in two passes.
+  In the first pass (pass0), all HALFILES are read and multiple appearances of loadrt and loadusr commands are accumulated.
+  These accumulated load commands are executed at the end of pass0.
+  This accumulation allows load lines to be specified more than once for a given component (provided the names= names used are unique on each use).
+  In the second pass (pass1), the HALFILES are reread and all commands except the previously executed load commands are executed.
+
+* 'TWOPASS = nodelete verbose' - The TWOPASS feature can be activated with any non-null string including the keywords verbose and nodelete.
+  The verbose keyword causes printing of details to stdout.
+  The nodelete keyword preserves temporary files in /tmp.
 
 For more information see the <<cha:hal-twopass,Hal TWOPASS>> chapter.
 
- * 'HALCMD = command' - Execute 'command' as a single HAL command.
-   If 'HALCMD' is specified multiple times, the commands are executed in the order
-   they appear in the ini file.
-   'HALCMD' lines are executed after all 'HALFILE' lines.
- * 'SHUTDOWN = shutdown.hal' - Execute the file 'shutdown.hal' when LinuxCNC is exiting.
-   Depending on the hardware drivers used, this may make it possible to set outputs to
-   defined values when LinuxCNC is exited normally. However, because there is
-   no guarantee this file will be executed (for instance, in the case of a
-   computer crash) it is not a replacement for a proper physical e-stop
-   chain or other protections against software failure.
- * 'POSTGUI_HALFILE = example2.hal' - Execute 'example2.hal' after the GUI has created its HAL pins.
-   Some GUIs create hal pins and support the use of a postgui halfile to use them.
-   GUIs that support postgui halfiles include Touchy, Axis, Gscreen, and gmoccapy.
-   See section <<sec:pyvcp-with-axis,pyVCP with Axis>> for more information.
- * 'HALUI = halui' - adds the HAL user interface pins.
-   For more information see the <<cha:hal-user-interface,HAL User Interface>> chapter.
+* 'HALCMD = command' - Execute 'command' as a single HAL command.
+  If 'HALCMD' is specified multiple times, the commands are executed in the order
+  they appear in the ini file. 'HALCMD' lines are executed after all
+  'HALFILE' lines.
+
+* 'SHUTDOWN = shutdown.hal' - Execute the file 'shutdown.hal' when LinuxCNC is exiting.
+  Depending on the hardware drivers used, this may make it possible to set outputs to
+  defined values when LinuxCNC is exited normally. However, because there is
+  no guarantee this file will be executed (for instance, in the case of a
+  computer crash) it is not a replacement for a proper physical e-stop
+  chain or other protections against software failure.
+
+* 'POSTGUI_HALFILE = example2.hal' - Execute 'example2.hal' after the GUI has created its HAL pins.
+  Some GUIs create hal pins and support the use of a postgui halfile to use them.
+  GUIs that support postgui halfiles include Touchy, Axis, Gscreen, and gmoccapy.
+
+See section <<sec:pyvcp-with-axis,pyVCP with Axis>> for more information.
+
+* 'HALUI = halui' - adds the HAL user interface pins. For more information see the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
 [[sec:halui-section]]
 === [HALUI] section(((INI File, HALUI Section)))
@@ -719,24 +738,31 @@ gui-dependent actions (like creating gui-specific hal pins).
   This specification can be included multiple times.
   The appname can be explicitly named as an absolute or tilde specified filename (first character is / or ~),
   a relative filename (first characters of filename are ./), or as a file in the inifile directory.
-  If no executable file is found using these names, then the user search PATH is used to find the application.
-
+  If no executable file is found using these names, then the user search PATH is used to find the application. +
   Examples:
 ** Simulate inputs to hal pins for testing (using sim_pin -- a simple gui to set inputs to parameters,
    unconnected pins, or signals with no writers):
-
-   APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
++
+----
+APP = sim_pin motion.probe-input halui.abort motion.analog-in-00
+----
 ** Invoke halshow with a previuosly saved watchlist.
    Since linuxcnc sets the working directory to the directory for the inifile,
    you can refer to files in that directory (example: my.halshow):
-
-   APP = halshow my.halshow
++
+----
+APP = halshow my.halshow
+----
 ** Alternatively, a watchlist file identified with a full pathname could be specified:
-
-   APP = halshow ~/saved_shows/spindle.halshow
++
+----
+APP = halshow ~/saved_shows/spindle.halshow
+----
 ** Open halscope using a previously saved configuration:
-
-   APP = halscope -i my.halscope
++
+----
+APP = halscope -i my.halscope
+----
 
 [[sec:traj-section]]
 === [TRAJ] Section(((INI File, TRAJ Section)))
@@ -762,11 +788,11 @@ planning module in 'motion'.
   However, this estimate is rough, and it seems that just disabling it gives better performance.
   Default value 0.
 * 'ARC_BLEND_OPTIMIZATION_DEPTH = 50' - Look ahead depth in number of segments.
-  +
-  To expand on this a bit, you can choose this value somewhat arbitrarily.
-  Here's a formula to estimate how much 'depth' you need for a particular
-  config:
-  +
++
+To expand on this a bit, you can choose this value somewhat arbitrarily.
+Here's a formula to estimate how much 'depth' you need for a particular
+config:
++
 ----
 # n = v_max / (2.0 * a_max * t_c)
 # where:
@@ -775,67 +801,67 @@ planning module in 'motion'.
 # a_max = max axis acceleration (UU / sec)
 # t_c = servo period (seconds)
 ----
-  +
-  So, a machine with a maximum axis velocity of 10 IPS, a max acceleration
-  of 100 IPS^2, and a servo period of 0.001 sec would need:
-  +
-  10 / (2.0 * 100 * 0.001) = 50 segments to always reach maximum velocity
-  along the fastest axis.
-  +
-  In practice, this number isn't that important to tune, since the
-  look ahead rarely needs the full depth unless you have lots of very short
-  segments. If during testing, you notice strange slowdowns and can't
-  figure out where they come from, first try increasing this depth using
-  the formula above.
-  +
-  If you still see strange slowdowns, it may be because you have short
-  segments in the program. If this is the case, try adding a small
-  tolerance for Naive CAM detection. A good rule of thumb is this:
-  +
++
+So, a machine with a maximum axis velocity of 10 IPS, a max acceleration
+of 100 IPS^2, and a servo period of 0.001 sec would need:
++
+10 / (2.0 * 100 * 0.001) = 50 segments to always reach maximum velocity
+along the fastest axis.
++
+In practice, this number isn't that important to tune, since the
+look ahead rarely needs the full depth unless you have lots of very short
+segments. If during testing, you notice strange slowdowns and can't
+figure out where they come from, first try increasing this depth using
+the formula above.
++
+If you still see strange slowdowns, it may be because you have short
+segments in the program. If this is the case, try adding a small
+tolerance for Naive CAM detection. A good rule of thumb is this:
++
 ----
 # min_length ~= v_req * t_c
 # where:
 # v_req = desired velocity in UU / sec
 # t_c = servo period (seconds)
 ----
-  +
-  If you want to travel along a path at 1 IPS = 60 IPM, and your servo
-  period is 0.001 sec, then any segments shorter than min_length will slow
-  the path down. If you set Naive CAM tolerance to around this min length,
-  overly short segments will be combined together to eliminate this
-  bottleneck. Of course, setting the tolerance too high means big path
-  deviations, so you have to play with it a bit to find a good value. I'd
-  start at 1/2 of the min_length, then work up as needed.
++
+If you want to travel along a path at 1 IPS = 60 IPM, and your servo
+period is 0.001 sec, then any segments shorter than min_length will slow
+the path down. If you set Naive CAM tolerance to around this min length,
+overly short segments will be combined together to eliminate this
+bottleneck. Of course, setting the tolerance too high means big path
+deviations, so you have to play with it a bit to find a good value. I'd
+start at 1/2 of the min_length, then work up as needed.
 * 'ARC_BLEND_GAP_CYCLES = 4' How short the previous segment must be before the trajectory planner 'consumes' it.
-  +
-  Often, a circular arc blend will leave short line segments in between
-  the blends. Since the geometry has to be circular, we can't blend over
-  all of a line if the next one is a little shorter. Since the trajectory
-  planner has to touch each segment at least once, it means that very tiny
-  segments will slow things down significantly. My fix to this way to
-  "consume" the short segment by making it a part of the blend arc. Since
-  the line+blend is one segment, we don't have to slow down to hit the
-  very short segment. Likely, you won't need to touch this setting.
++
+Often, a circular arc blend will leave short line segments in between
+the blends. Since the geometry has to be circular, we can't blend over
+all of a line if the next one is a little shorter. Since the trajectory
+planner has to touch each segment at least once, it means that very tiny
+segments will slow things down significantly. My fix to this way to
+"consume" the short segment by making it a part of the blend arc. Since
+the line+blend is one segment, we don't have to slow down to hit the
+very short segment. Likely, you won't need to touch this setting.
 * 'ARC_BLEND_RAMP_FREQ = 20' - This is a 'cutoff' frequency for using ramped velocity.
-  +
-  'Ramped velocity' in this case just means constant acceleration over the whole segment.
-  This is less optimal than a trapezoidal velocity profile, since the acceleration is not maximized.
-  However, if the segment is short enough, there isn't enough time to accelerate much before we hit the next segment.
-  Recall the short line segments from the previous example.
-  Since they're lines, there's no cornering acceleration, so we're free to accelerate up to the requested speed.
-  However, if this line is between two arcs, then it will have to quickly decelerate again to be within the maximum speed of the next segment.
-  This means that we have a spike of acceleration, then a spike of deceleration, causing a large jerk, for very little performance gain.
-  This setting is a way to eliminate this jerk for short segments.
-  +
-  Basically, if a segment will complete in less time than 1 /
-  ARC_BLEND_RAMP_FREQ, we don't bother with a trapezoidal velocity profile
-  on that segment, and use constant acceleration. (Setting
-  ARC_BLEND_RAMP_FREQ = 1000 is equivalent to always using trapezoidal
-  acceleration, if the servo loop is 1kHz).
-  +
-  You can characterize the worst-case loss of performance by comparing the
-  velocity that a trapezoidal profile reaches vs. the ramp:
-  +
++
+'Ramped velocity' in this case just means constant acceleration over the whole segment.
+This is less optimal than a trapezoidal velocity profile, since the acceleration is not maximized.
+However, if the segment is short enough, there isn't enough time to accelerate much before we hit the next segment.
+Recall the short line segments from the previous example.
+Since they're lines, there's no cornering acceleration, so we're free to accelerate up to the requested speed.
+However, if this line is between two arcs, then it will have to quickly decelerate again to be within the maximum speed of the next segment.
+This means that we have a spike of acceleration, then a spike of deceleration, causing a large jerk, for very little performance gain.
+This setting is a way to eliminate this jerk for short segments.
++
+Basically, if a segment will complete in less time than 1 /
+ARC_BLEND_RAMP_FREQ, we don't bother with a trapezoidal velocity profile
+on that segment, and use constant acceleration. (Setting
+ARC_BLEND_RAMP_FREQ = 1000 is equivalent to always using trapezoidal
+acceleration, if the servo loop is 1kHz).
++
+You can characterize the worst-case loss of performance by comparing the
+velocity that a trapezoidal profile reaches vs. the ramp:
++
 ----
 # v_ripple = a_max / (4.0 * f)
 # where:
@@ -843,16 +869,16 @@ planning module in 'motion'.
 # a_max = max axis acceleration
 # f = cutoff frequency from INI
 ----
-  +
-  For the aforementioned machine, the ripple for a 20Hz cutoff frequency
-  is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
-  is only a worst-case estimate. In reality , the trapezoidal motion
-  profile is limited by other factors, such as normal acceleration or
-  requested velocity, and so the actual performance loss should be much
-  smaller. Increasing the cutoff frequency can squeeze out more
-  performance, but make the motion rougher due to acceleration
-  discontinuities. A value in the range 20Hz to 200Hz should be reasonable
-  to start.
++
+For the aforementioned machine, the ripple for a 20Hz cutoff frequency
+is 100 / (4 * 20) = 1.25 IPS. This seems high, but keep in mind that it
+is only a worst-case estimate. In reality , the trapezoidal motion
+profile is limited by other factors, such as normal acceleration or
+requested velocity, and so the actual performance loss should be much
+smaller. Increasing the cutoff frequency can squeeze out more
+performance, but make the motion rougher due to acceleration
+discontinuities. A value in the range 20Hz to 200Hz should be reasonable
+to start.
 
 Finally, no amount of tweaking will speed up a toolpath with lots of
 small, tight corners, since you're limited by cornering acceleration.
@@ -902,9 +928,9 @@ small, tight corners, since you're limited by cornering acceleration.
   option set to 1.
 
 [WARNING]
-----
+====
 LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'.
-----
+====
 
 * 'HOME = 0 0 0 0 0 0 0 0 0' - World home position needed for kinematics modules
   that compute world coordinates using kinematicsForward() when switching
@@ -914,14 +940,13 @@ LinuxCNC will not know your joint travel limits when using 'NO_FORCE_HOMING = 1'
   kinematics (mill, lathe, gantry types) this value is ignored.
   Note: the sim hexapod config requires a non-zero value for the Z coordinate.
 * TPMOD = alternate_trajectory_planning module [tp_parms=value]
-
-The TPMOD variable is optional.  If specified, use a specified (user-built)
-module instead of the default (tpmod).  Module parameters (tp_parms) may be
-included if supported by the named module.  The setting may be overridden
-from the command line using the -t option ($linuxcnc -h)
+  The TPMOD variable is optional.  If specified, use a specified (user-built)
+  module instead of the default (tpmod).  Module parameters (tp_parms) may be
+  included if supported by the named module.  The setting may be overridden
+  from the command line using the -t option ($linuxcnc -h)
 
 [[sec:kins-section]]
-=== [KINS] Section(((INI File, KINS Section)))
+=== [KINS] Section(((INI File,KINS Section)))
 
 * 'JOINTS = 3' - Specifies the number of joints (motors) in the system.
   For example, a trivkins XYZ machine with a single motor for each axis has 3 joints.
@@ -932,7 +957,7 @@ from the command line using the -t option ($linuxcnc -h)
   For more information on kinematics modules see the manpage: '$ man kins'
 
 [[sec:axis-section]]
-=== [AXIS_<letter>] Section(((INI File, AXIS Section)))
+=== [AXIS_<letter>] Section(((INI File,AXIS Section)))
 
 The <letter> specifies one of: X Y Z A B C U V W
 
@@ -957,24 +982,28 @@ The <letter> specifies one of: X Y Z A B C U V W
   After the move the joint.4.unlock will be false and motion will wait for joint.4.is-unlocked to go false.
   Moving with other joints is not allowed when moving a locked rotary joint.
   To create the unlock pins, use the motmod parameter:
-
-      unlock_joints_mask=jointmask
-
-  The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ...
-
-  Example: loadrt motmod ... unlock_joints_mask=0x38
-  creates  unlock  pins for joints 3,4,5
-* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of hal input pins for external axis offsets:
++
 ----
-axis.<letter>.eoffset-enable
-axis.<letter>.eoffset-counts
-axis.<letter>.eoffset-scale
+unlock_joints_mask=jointmask
+----
++
+The jointmask bits are: (LSB)0:joint0, 1:joint1, 2:joint2, ...
++
+Example: `loadrt motmod ... unlock_joints_mask=0x38` creates unlock pins for joints 3,4,5
+
+* 'OFFSET_AV_RATIO = 0.1' - If nonzero, this item enables the use of hal input pins for external axis offsets:
++
+----
+'axis.<letter>.eoffset-enable'
+'axis.<letter>.eoffset-counts'
+'axis.<letter>.eoffset-scale'
 ----
 
 See the chapter: <<cha:external-offsets,'External Axis Offsets'>> for usage information.
 
 [[sec:joint-section]]
-=== [JOINT_<num>] Section(((INI File, JOINT Section)))
+=== [JOINT_<num>] Section(((INI File,JOINT Section)))
+
 The <num> specifies the joint number 0 ... (num_joints-1)
 The value of 'num_joints' is set by [KINS]JOINTS=
 
@@ -1029,17 +1058,19 @@ For more information on kinematics modules see the manpage: '$ man kins'
   Compensation files must start with the smallest nominal and be in ascending order to the largest value of nominals.
   File names are case sensitive and can contain letters and/or numbers.
   Currently the limit inside LinuxCNC is for 256 triplets per joint.
-  +
-  If COMP_FILE is specified for an joint, BACKLASH is not used.
-  A 'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
-* 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file.
-  The first value is the nominal (commanded) position for both types.
++
+If COMP_FILE is specified for an joint, BACKLASH is not used. +
+A 'COMP_FILE_TYPE' must be specified for each 'COMP_FILE'.
+
+* 'COMP_FILE_TYPE = 0 or 1' - Specifies the type of compensation file. The
+  first value is the nominal (commanded) position for both types.
 ** 'Type 0:' The second value specifies the actual position as the joint is moving
    in the positive direction (increasing value) and the third value specifies
    the actual position as the joint is moving in the negative direction
    (decreasing value).
-   +
-.Type 0 Example
++
+Type 0 Example:
++
 ----
 -1.000 -1.005 -0.995
 0.000 0.002 -0.003
@@ -1048,8 +1079,9 @@ For more information on kinematics modules see the manpage: '$ man kins'
 ** 'Type 1:' The second value specifies positive offset from nominal while
    traveling in the positive direction. The third value specifies the negative
    offset from nominal while traveling in a negative direction.
-   +
-.Type 1 Example
++
+Type 1 Example:
++
 ----
 -1.000 0.005 -0.005
 0.000 0.002 -0.003
@@ -1065,15 +1097,15 @@ For more information on kinematics modules see the manpage: '$ man kins'
   For a rotary joint with unlimited rotation having no MAX_LIMIT for that joint in the [JOINT_N] section a the value 1e99 is used.
 
 [NOTE]
-----
+====
 For *identity* kinematics, the [JOINT_N]MIN_LIMIT,MAX_LIMIT settings must equal
 or exceed the corresponding (one-to-one identity) [AXIS_L] limits.  These
 settings are verified at startup when the trivkins kinematics modules is
 specified.
-----
+====
 
 [NOTE]
-----
+====
 The [JOINT_N]MIN_LIMIT, MAX_LIMIT settings are enforced while jogging in joint
 mode prior to homing.  After homing, [AXIS_L]MIN_LIMIT,MAX_LIMIT coordinate
 limits are used as constraints for axis (coordinate letter) jogging and
@@ -1085,7 +1117,7 @@ trajectory planning position limits when non identity kinematics are used.  The
 motion module always detects joint position limit violations and faults if they
 occur during the execution of G-code commands.  See also related github issue
 #97.
-----
+====
 
 * 'MIN_FERROR = 0.010' - (((MIN FERROR)))
   This is the value in machine units by which the joint is permitted to deviate from commanded position at very low speeds.
@@ -1105,7 +1137,8 @@ occur during the execution of G-code commands.  See also related github issue
   following errors will always be present due to vibration, etc.
 * 'LOCKING_INDEXER = 1' - Indicates the joint is used as a locking indexer.
 
-.Homing
+==== Homing
+
 These parameters are Homing related, for a better explanation read the
 <<cha:homing-configuration,Homing Configuration>> Chapter.
 
@@ -1161,7 +1194,8 @@ These parameters are Homing related, for a better explanation read the
   When enabled (set to 1) this joint will be unhomed if the Machine Power is off or if E-Stop is on.
   This is useful if your machine has home switches and does not have position feedback such as a step and direction driven machine.
 
-.Servo
+==== Servos
+
 These parameters are relevant to joints controlled by servos.
 
 [WARNING]
@@ -1283,8 +1317,8 @@ See the following table for an example of voltage measurements.
 // latexmath:[ raw=(cmd-b)/a ]
 
 .Output Voltage Measurements
-[width="50%",cols="2*^",options="header"]
-|===
+[width="50%", cols="2*^", options="header"]
+|===============
 |Raw | Measured
 |-10 | -9.93
 | -9 | -8.83
@@ -1292,14 +1326,14 @@ See the following table for an example of voltage measurements.
 |  1 |  0.96
 |  9 |  9.87
 | 10 | 10.87
-|===
+|===============
 
 * 'MAX_OUTPUT = 10' - The maximum value for the output of the PID compensation that is written to the motor amplifier, in volts.
   The computed output value is clamped to this limit.
   The limit is applied before scaling to raw output units.
   The value is applied symmetrically to both the plus and the minus side.
-* 'INPUT_SCALE = 20000' - in Sample configs
-* 'ENCODER_SCALE = 20000' - in PNCconf built configs
+* 'INPUT_SCALE = 20000' - in Sample configs(((INPUT SCALE)))
+* 'ENCODER_SCALE = 20000' - in PNCconf built configs(((ENCODER SCALE)))
 
 Specifies the number of pulses that corresponds to a move of one machine unit as set in the [TRAJ] section.
 For a linear joint one machine unit will be equal to the setting of LINEAR_UNITS.
@@ -1313,7 +1347,8 @@ image::images/encoder-scale.png[align="center"]
 //\frac{2000\, counts}{rev} \times \frac{10\, rev}{inch} =
 //\frac{20000\, counts}{inch} ]
 
-.Stepper
+==== Steppers
+
 These parameters are relevant to joints controlled by steppers.
 
 [WARNING]
@@ -1324,8 +1359,8 @@ custom INI file entries see the <<sub:custom-variables,Custom Sections and Varia
 
 The following items might be used by a stepgen component.
 
-* 'SCALE = 4000' - in Sample configs
-* 'STEP_SCALE = 4000' - in PNCconf built configs
+* 'SCALE = 4000' - in Sample configs(((SCALE)))(((INPUT SCALE)))
+* 'STEP_SCALE = 4000' - in PNCconf built configs(((STEP_SCALE)))
 
 Specifies the number of pulses that corresponds to a move of one machine unit as set in the [TRAJ] section.
 For stepper systems, this is the number of step pulses issued per machine unit.
@@ -1343,6 +1378,9 @@ image::images/stepper-scale.png[align="center"]
 //latexmath:[ scale =
 //\frac{2\, steps}{1.8\, degree} \times \frac{360\, degree}{rev} \times \frac{10\, rev}{inch} =
 //\frac{4000\, steps}{inch} ]
+
+[NOTE]
+Old .ini and .hal files used INPUT_SCALE for this value.
 
 * 'ENCODER_SCALE = 20000' (Optionally used in PNCconf built configs) -
   Specifies the number of pulses that
@@ -1420,11 +1458,11 @@ The value of 'num_spindles' is set by [TRAJ]SPINDLES=
 * 'DB_PROGRAM = db_program' - Path to an executable program that manages tool data.
    (When a DB_PROGRAM is specified, a TOOL_TABLE entry is ignored)
 * 'TOOL_CHANGE_POSITION = 0 0 2' -
-   Specifies the XYZ location to move to when performing a tool change if three digits are used.
-   Specifies the XYZABC location when 6 digits are used.
-   Specifies the XYZABCUVW location when 9 digits are used.
-   Tool Changes can be combined.
-   For example if you combine the quill up with change position you can move the Z first then the X and Y.
+  Specifies the XYZ location to move to when performing a tool change if three digits are used.
+  Specifies the XYZABC location when 6 digits are used.
+  Specifies the XYZABCUVW location when 9 digits are used.
+  Tool Changes can be combined.
+  For example if you combine the quill up with change position you can move the Z first theun the X and Y.
 * 'TOOL_CHANGE_WITH_SPINDLE_ON = 1' -
    The spindle will be left on during the tool change when the value is 1.
    Useful for lathes or machines where the material is in the spindle, not the tool.
