@@ -11,7 +11,7 @@ generate step pulses than servo systems. You can use the Live-CD to test
 the software before committing to a permanent installation on a computer.
 Keep in mind that the Latency Test numbers are more important than the
 processor speed for software step generation. More information on the
-Latency Test is <<cha:latency-testing,here>>.
+Latency Test is <<sec:latency-test,here>>.
 In addition LinuxCNC needs to be run on an operating system that uses a
 specially modified kernel. See <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>
 
