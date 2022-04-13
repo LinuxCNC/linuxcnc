@@ -213,7 +213,7 @@ configuration. Some of the sample configurations include onscreen
 3D simulated machines, look for "Vismach" to see these.
 
 To see if your computer is suitable for software step pulse generation
-run the Latency Test as shown <<cha:latency-testing,here>>.
+run the Latency Test as shown <<sec:latency-test,here>>.
 
 At the time of writing the Live-Image is only available with the
 preempt-rt kernel and a matching LinuxCNC. On some hardware this might
