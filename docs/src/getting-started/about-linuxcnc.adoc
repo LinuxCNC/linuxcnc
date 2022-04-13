@@ -14,8 +14,12 @@
 * LinuxCNC provides:
 ** easy discovery and testing without installation with the LiveCD
 ** easy installation from the Live CD
+** Easy to use graphical configuration wizards to rapidly create a configuration
+   specific to the machine
 ** a graphical user interface (actually several interfaces to choose from)
-** an interpreter for 'G-code' (the RS-274 machine tool programming language)
+** A graphical interface creation tool (GladeVCP)
+** an interpreter for 'G-code' (the RS-274 machine tool programming
+   language)
 ** a realtime motion planning system with look-ahead
 ** operation of low-level machine electronics such as sensors and motor drives
 ** an easy to use 'breadboard' layer for quickly creating a unique configuration for your machine
