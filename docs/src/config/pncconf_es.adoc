@@ -625,7 +625,7 @@ Esto permite configurar los comandos HALUI y cargar la escalera clásica y la mu
 programas de escalera
 Si seleccionó las opciones de GLADE VCP, como para el eje de puesta a cero, habrá
 comandos que muestran.
-Consulte la sección <<cha:hal-user-interface,HALUI Chapter>> para obtener más información sobre el uso personalizado
+Consulte la sección << cha:hal-user-interface,HALUI Chapter >> para obtener más información sobre el uso personalizado
 Halcmds.
 Hay varias opciones de programa de escalera.
 El programa Estop permite que un interruptor ESTOP externo o la interfaz gráfica de usuario lancen
