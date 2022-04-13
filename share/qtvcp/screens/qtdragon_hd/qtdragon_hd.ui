@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options">
+     <widget class="ScreenOptions" name="screen_options" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -266,7 +266,7 @@
              </widget>
             </item>
             <item>
-             <widget class="GcodeEditor" name="gcode_viewer">
+             <widget class="GcodeEditor" name="gcode_viewer" native="true">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -935,7 +935,7 @@
                  <enum>QFrame::Raised</enum>
                 </property>
                 <property name="currentIndex">
-                 <number>0</number>
+                 <number>1</number>
                 </property>
                 <widget class="QWidget" name="main_tab_widgetPage1">
                  <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -1666,7 +1666,7 @@ View</string>
                    </widget>
                   </item>
                   <item>
-                   <widget class="GCodeGraphics" name="gcodegraphics">
+                   <widget class="GCodeGraphics" name="gcodegraphics" native="true">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                       <horstretch>0</horstretch>
@@ -2682,12 +2682,18 @@ View</string>
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="FileManager" name="filemanager_usb"/>
+                   <widget class="FileManager" name="filemanager_usb" native="true"/>
                   </item>
                   <item>
                    <layout class="QVBoxLayout" name="verticalLayout_5">
+                    <property name="topMargin">
+                     <number>38</number>
+                    </property>
                     <property name="rightMargin">
                      <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>48</number>
                     </property>
                     <item>
                      <widget class="QWidget" name="widget_file_copy" native="true">
@@ -2882,10 +2888,10 @@ GCODE</string>
                    </layout>
                   </item>
                   <item>
-                   <widget class="FileManager" name="filemanager"/>
+                   <widget class="FileManager" name="filemanager" native="true"/>
                   </item>
                   <item>
-                   <widget class="GcodeEditor" name="gcode_editor">
+                   <widget class="GcodeEditor" name="gcode_editor" native="true">
                     <property name="auto_show_mdi_status" stdset="0">
                      <bool>false</bool>
                     </property>
@@ -2951,19 +2957,19 @@ GCODE</string>
                        <property name="cornerButtonEnabled">
                         <bool>false</bool>
                        </property>
-                       <attribute name="horizontalHeaderMinimumSectionSize">
+                       <attribute name="horizontalHeaderDefaultSectionSize">
                         <number>80</number>
                        </attribute>
-                       <attribute name="horizontalHeaderDefaultSectionSize">
+                       <attribute name="horizontalHeaderMinimumSectionSize">
                         <number>80</number>
                        </attribute>
                        <attribute name="verticalHeaderCascadingSectionResizes">
                         <bool>false</bool>
                        </attribute>
-                       <attribute name="verticalHeaderMinimumSectionSize">
+                       <attribute name="verticalHeaderDefaultSectionSize">
                         <number>30</number>
                        </attribute>
-                       <attribute name="verticalHeaderDefaultSectionSize">
+                       <attribute name="verticalHeaderMinimumSectionSize">
                         <number>30</number>
                        </attribute>
                       </widget>
@@ -3599,7 +3605,7 @@ TO FILE</string>
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="CamView" name="camview"/>
+                   <widget class="CamView" name="camview" native="true"/>
                   </item>
                   <item>
                    <widget class="QWidget" name="widget_cam_controls" native="true">
@@ -6478,7 +6484,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="StateLED" name="hal_led_home_x">
+                 <widget class="StateLED" name="hal_led_home_x" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -6500,10 +6506,10 @@ OFF</string>
                   <property name="halpin_option" stdset="0">
                    <bool>false</bool>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -6564,7 +6570,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="StateLED" name="hal_led_home_y">
+                 <widget class="StateLED" name="hal_led_home_y" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -6586,10 +6592,10 @@ OFF</string>
                   <property name="halpin_option" stdset="0">
                    <bool>false</bool>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -6653,7 +6659,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="StateLED" name="hal_led_home_z">
+                 <widget class="StateLED" name="hal_led_home_z" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -6675,10 +6681,10 @@ OFF</string>
                   <property name="halpin_option" stdset="0">
                    <bool>false</bool>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -6742,7 +6748,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_probe">
+                 <widget class="LED" name="hal_led_probe" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -6764,10 +6770,10 @@ OFF</string>
                   <property name="pin_name" stdset="0">
                    <string>led-probe</string>
                   </property>
-                  <property name="diameter">
+                  <property name="diameter" stdset="0">
                    <number>15</number>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -6798,7 +6804,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="StateLED" name="hal_led_atspeed">
+                 <widget class="StateLED" name="hal_led_atspeed" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -6823,7 +6829,7 @@ OFF</string>
                   <property name="halpin_option" stdset="0">
                    <bool>false</bool>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>0</red>
                     <green>255</green>
@@ -6881,7 +6887,7 @@ OFF</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="LED" name="hal_led_limit">
+                 <widget class="LED" name="hal_led_limit" native="true">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -6906,7 +6912,7 @@ OFF</string>
                   <property name="pin_name" stdset="0">
                    <string>led-limits-tripped</string>
                   </property>
-                  <property name="color">
+                  <property name="color" stdset="0">
                    <color>
                     <red>85</red>
                     <green>255</green>
@@ -7327,7 +7333,7 @@ OFF</string>
              <number>4</number>
             </property>
             <property name="topMargin">
-             <number>4</number>
+             <number>0</number>
             </property>
             <property name="rightMargin">
              <number>4</number>
@@ -7388,7 +7394,7 @@ OFF</string>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>90</width>
+                   <width>188</width>
                    <height>50</height>
                   </size>
                  </property>
@@ -7475,7 +7481,7 @@ LINE 0</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7549,7 +7555,7 @@ LINE 0</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7601,7 +7607,7 @@ LINE 0</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7632,7 +7638,7 @@ LINE 0</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7723,7 +7729,7 @@ LINE 0</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7789,7 +7795,7 @@ STOP</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7879,7 +7885,7 @@ BLOCK</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -7959,7 +7965,7 @@ OFF</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -8057,7 +8063,7 @@ OFF</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>90</width>
+                   <width>100</width>
                    <height>16777215</height>
                   </size>
                  </property>
@@ -8347,7 +8353,7 @@ SPINDLE</string>
                <pixmap resource="qtdragon_hd.qrc">:/images/images/atc_spindle_tool.png</pixmap>
               </property>
               <property name="alignment">
-               <set>Qt::AlignCenter</set>
+               <set>Qt::AlignBottom|Qt::AlignHCenter</set>
               </property>
               <property name="margin">
                <number>4</number>
@@ -8610,6 +8616,9 @@ SPINDLE</string>
                   <height>30</height>
                  </size>
                 </property>
+                <property name="alignment">
+                 <set>Qt::AlignCenter</set>
+                </property>
                 <property name="tool_comment_status" stdset="0">
                  <bool>true</bool>
                 </property>
@@ -8646,9 +8655,15 @@ SPINDLE</string>
             </property>
             <item>
              <widget class="QGroupBox" name="frame_offsets">
+              <property name="minimumSize">
+               <size>
+                <width>212</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
-                <width>16777215</width>
+                <width>220</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -8669,7 +8684,7 @@ SPINDLE</string>
                 <number>4</number>
                </property>
                <property name="topMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <property name="rightMargin">
                 <number>4</number>
@@ -8705,7 +8720,10 @@ SPINDLE</string>
                <item>
                 <layout class="QHBoxLayout" name="horizontalLayout_45">
                  <property name="spacing">
-                  <number>8</number>
+                  <number>4</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>16</number>
                  </property>
                  <item>
                   <widget class="QCheckBox" name="chk_lock_wph">
@@ -8743,14 +8761,14 @@ HEIGHT</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>30</height>
+                     <width>50</width>
+                     <height>28</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
                      <width>16777215</width>
-                     <height>30</height>
+                     <height>28</height>
                     </size>
                    </property>
                    <property name="maxLength">
@@ -8778,14 +8796,14 @@ HEIGHT</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -8971,14 +8989,14 @@ G30</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -9010,14 +9028,14 @@ HOME</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -9081,14 +9099,14 @@ OFF</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -9117,14 +9135,14 @@ LASER</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -9149,14 +9167,14 @@ SENSOR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -9188,14 +9206,14 @@ PLATE</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="toolTip">
@@ -9220,14 +9238,14 @@ SENSOR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
-                     <height>50</height>
+                     <width>90</width>
+                     <height>48</height>
                     </size>
                    </property>
                    <property name="text">
@@ -9251,8 +9269,8 @@ CAMERA</string>
               </property>
               <property name="maximumSize">
                <size>
-                <width>16777215</width>
-                <height>16777215</height>
+                <width>212</width>
+                <height>120</height>
                </size>
               </property>
               <property name="title">
@@ -9269,7 +9287,7 @@ CAMERA</string>
                 <number>4</number>
                </property>
                <property name="topMargin">
-                <number>4</number>
+                <number>0</number>
                </property>
                <property name="rightMargin">
                 <number>4</number>
@@ -9282,7 +9300,7 @@ CAMERA</string>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>4</height>
+                   <height>2</height>
                   </size>
                  </property>
                  <property name="text">
@@ -9313,13 +9331,13 @@ CAMERA</string>
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="text">
@@ -9335,13 +9353,13 @@ CAMERA</string>
                     <property name="minimumSize">
                      <size>
                       <width>100</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="frameShape">
@@ -9384,13 +9402,13 @@ CAMERA</string>
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="text">
@@ -9412,13 +9430,13 @@ CAMERA</string>
                     <property name="minimumSize">
                      <size>
                       <width>100</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="frameShape">
@@ -9470,13 +9488,13 @@ CAMERA</string>
                     <property name="minimumSize">
                      <size>
                       <width>30</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>16777215</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="text">
@@ -9498,13 +9516,13 @@ CAMERA</string>
                     <property name="minimumSize">
                      <size>
                       <width>0</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="maximumSize">
                      <size>
                       <width>100</width>
-                      <height>30</height>
+                      <height>28</height>
                      </size>
                     </property>
                     <property name="text">
@@ -9583,13 +9601,13 @@ CAMERA</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>0</width>
+                 <width>480</width>
                  <height>0</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>16777215</width>
+                 <width>480</width>
                  <height>16777215</height>
                 </size>
                </property>
@@ -9604,13 +9622,13 @@ CAMERA</string>
                  <number>4</number>
                 </property>
                 <property name="leftMargin">
-                 <number>4</number>
+                 <number>8</number>
                 </property>
                 <property name="topMargin">
                  <number>4</number>
                 </property>
                 <property name="rightMargin">
-                 <number>4</number>
+                 <number>8</number>
                 </property>
                 <property name="bottomMargin">
                  <number>4</number>
@@ -9619,24 +9637,27 @@ CAMERA</string>
                  <widget class="QWidget" name="widget_dro" native="true">
                   <layout class="QGridLayout" name="gridLayout_dro">
                    <property name="leftMargin">
-                    <number>4</number>
+                    <number>0</number>
                    </property>
                    <property name="topMargin">
                     <number>0</number>
                    </property>
                    <property name="rightMargin">
-                    <number>4</number>
+                    <number>0</number>
                    </property>
                    <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="horizontalSpacing">
                     <number>4</number>
                    </property>
-                   <property name="spacing">
-                    <number>4</number>
+                   <property name="verticalSpacing">
+                    <number>6</number>
                    </property>
                    <item row="0" column="0">
                     <widget class="SystemToolButton" name="systemtoolbutton">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -9650,7 +9671,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="toolTip">
@@ -9667,7 +9688,7 @@ CAMERA</string>
                    <item row="2" column="4">
                     <widget class="AxisToolButton" name="axistoolbutton_y">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -9681,7 +9702,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -9707,7 +9728,7 @@ CAMERA</string>
                    <item row="3" column="4">
                     <widget class="AxisToolButton" name="axistoolbutton_z">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -9721,7 +9742,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -9747,7 +9768,7 @@ CAMERA</string>
                    <item row="1" column="4">
                     <widget class="AxisToolButton" name="axistoolbutton_x">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -9761,7 +9782,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -9784,21 +9805,21 @@ CAMERA</string>
                    <item row="1" column="1" colspan="2">
                     <widget class="DROLabel" name="dro_axis_x">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>140</width>
+                       <width>154</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>16777215</width>
-                       <height>50</height>
+                       <width>154</width>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -9821,21 +9842,21 @@ CAMERA</string>
                    <item row="2" column="1" colspan="2">
                     <widget class="DROLabel" name="dro_axis_y">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>140</width>
+                       <width>154</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>16777215</width>
-                       <height>50</height>
+                       <width>154</width>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -9858,21 +9879,21 @@ CAMERA</string>
                    <item row="3" column="1" colspan="2">
                     <widget class="DROLabel" name="dro_axis_z">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>140</width>
+                       <width>154</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>16777215</width>
-                       <height>50</height>
+                       <width>154</width>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -9895,7 +9916,7 @@ CAMERA</string>
                    <item row="1" column="3">
                     <widget class="ActionButton" name="action_zero_x">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -9909,7 +9930,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="toolTip">
@@ -9991,7 +10012,7 @@ CAMERA</string>
                    <item row="2" column="3">
                     <widget class="ActionButton" name="action_zero_y">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10005,7 +10026,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="toolTip">
@@ -10087,7 +10108,7 @@ CAMERA</string>
                    <item row="3" column="3">
                     <widget class="ActionButton" name="action_zero_z">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10101,7 +10122,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="toolTip">
@@ -10183,7 +10204,7 @@ CAMERA</string>
                    <item row="1" column="0">
                     <widget class="QLabel" name="label_axis_x">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10197,7 +10218,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -10220,7 +10241,7 @@ CAMERA</string>
                    <item row="2" column="0">
                     <widget class="QLabel" name="label_axis_y">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10234,7 +10255,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>80</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -10257,7 +10278,7 @@ CAMERA</string>
                    <item row="3" column="0">
                     <widget class="QLabel" name="label_axis_z">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10271,7 +10292,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>80</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -10294,7 +10315,7 @@ CAMERA</string>
                    <item row="0" column="3">
                     <widget class="ActionButton" name="actionbutton_dtg">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10308,7 +10329,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="baseSize">
@@ -10340,7 +10361,7 @@ CAMERA</string>
                    <item row="0" column="2">
                     <widget class="ActionButton" name="actionbutton_rel">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10354,7 +10375,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="baseSize">
@@ -10386,7 +10407,7 @@ CAMERA</string>
                    <item row="0" column="1">
                     <widget class="ActionButton" name="actionbutton_abs">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10400,7 +10421,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="baseSize">
@@ -10432,7 +10453,7 @@ CAMERA</string>
                    <item row="4" column="0">
                     <widget class="QLabel" name="label_axis_a">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10446,7 +10467,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -10469,21 +10490,21 @@ CAMERA</string>
                    <item row="4" column="1" colspan="2">
                     <widget class="DROLabel" name="dro_axis_a">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>140</width>
+                       <width>154</width>
                        <height>50</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>16777215</width>
-                       <height>50</height>
+                       <width>154</width>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="frameShape">
@@ -10509,7 +10530,7 @@ CAMERA</string>
                    <item row="4" column="3">
                     <widget class="ActionButton" name="action_zero_a">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10523,7 +10544,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="toolTip">
@@ -10608,7 +10629,7 @@ CAMERA</string>
                    <item row="4" column="4">
                     <widget class="AxisToolButton" name="axistoolbutton_a">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10622,7 +10643,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -10651,7 +10672,7 @@ CAMERA</string>
                       <bool>true</bool>
                      </property>
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10665,7 +10686,7 @@ CAMERA</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -10751,7 +10772,7 @@ ZERO</string>
                    <item row="1" column="5">
                     <widget class="IndicatedPushButton" name="btn_home_x">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10765,7 +10786,7 @@ ZERO</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -10794,7 +10815,7 @@ ZERO</string>
                    <item row="2" column="5">
                     <widget class="IndicatedPushButton" name="btn_home_y">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10808,7 +10829,7 @@ ZERO</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -10834,7 +10855,7 @@ ZERO</string>
                    <item row="3" column="5">
                     <widget class="IndicatedPushButton" name="btn_home_z">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10848,7 +10869,7 @@ ZERO</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -10877,7 +10898,7 @@ ZERO</string>
                    <item row="0" column="4" colspan="2">
                     <widget class="IndicatedPushButton" name="btn_home_all">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -10891,7 +10912,7 @@ ZERO</string>
                      <property name="maximumSize">
                       <size>
                        <width>16777215</width>
-                       <height>50</height>
+                       <height>54</height>
                       </size>
                      </property>
                      <property name="text">
@@ -10979,7 +11000,7 @@ ZERO</string>
                    <number>2</number>
                   </property>
                   <property name="indent">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <property name="gcodes_status" stdset="0">
                    <bool>true</bool>
@@ -11029,7 +11050,7 @@ ZERO</string>
                    <number>2</number>
                   </property>
                   <property name="indent">
-                   <number>0</number>
+                   <number>2</number>
                   </property>
                   <property name="mcodes_status" stdset="0">
                    <bool>true</bool>
@@ -11052,7 +11073,7 @@ ZERO</string>
                  <number>4</number>
                 </property>
                 <property name="leftMargin">
-                 <number>2</number>
+                 <number>4</number>
                 </property>
                 <property name="topMargin">
                  <number>0</number>
@@ -11165,6 +11186,9 @@ ZERO</string>
                       </item>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_39">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
                         <item>
                          <widget class="QPushButton" name="btn_maxv_ovr_50">
                           <property name="sizePolicy">
@@ -11278,13 +11302,13 @@ ZERO</string>
                           <property name="minimumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="mouseTracking">
@@ -11372,6 +11396,9 @@ ZERO</string>
                       </item>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_36">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
                         <item>
                          <widget class="ActionButton" name="action_rapid_ovr_50">
                           <property name="sizePolicy">
@@ -11503,13 +11530,13 @@ ZERO</string>
                           <property name="minimumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="toolTip">
@@ -11597,6 +11624,9 @@ ZERO</string>
                       </item>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_21">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
                         <item>
                          <widget class="ActionButton" name="action_feed_ovr_50">
                           <property name="sizePolicy">
@@ -11734,13 +11764,13 @@ ZERO</string>
                           <property name="minimumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="toolTip">
@@ -11829,10 +11859,7 @@ ZERO</string>
                       <item>
                        <layout class="QHBoxLayout" name="horizontalLayout_57">
                         <property name="spacing">
-                         <number>6</number>
-                        </property>
-                        <property name="topMargin">
-                         <number>0</number>
+                         <number>4</number>
                         </property>
                         <item>
                          <widget class="ActionButton" name="action_spindle_ovr_50">
@@ -11977,13 +12004,13 @@ ZERO</string>
                           <property name="minimumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="maximumSize">
                            <size>
                             <width>60</width>
-                            <height>24</height>
+                            <height>26</height>
                            </size>
                           </property>
                           <property name="toolTip">
@@ -12028,6 +12055,12 @@ ZERO</string>
                 </item>
                 <item>
                  <widget class="QGroupBox" name="frame_speeds">
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>150</height>
+                   </size>
+                  </property>
                   <property name="title">
                    <string>SPEEDS</string>
                   </property>
@@ -12048,12 +12081,12 @@ ZERO</string>
                     <number>4</number>
                    </property>
                    <property name="bottomMargin">
-                    <number>4</number>
+                    <number>2</number>
                    </property>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_11">
                      <property name="spacing">
-                      <number>4</number>
+                      <number>0</number>
                      </property>
                      <property name="topMargin">
                       <number>0</number>
@@ -12063,13 +12096,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="text">
@@ -12094,13 +12127,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="toolTip">
@@ -12137,7 +12170,7 @@ ZERO</string>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_13">
                      <property name="spacing">
-                      <number>4</number>
+                      <number>0</number>
                      </property>
                      <property name="topMargin">
                       <number>0</number>
@@ -12147,13 +12180,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="text">
@@ -12178,13 +12211,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maxLength">
@@ -12203,7 +12236,7 @@ ZERO</string>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_55">
                      <property name="spacing">
-                      <number>4</number>
+                      <number>0</number>
                      </property>
                      <property name="topMargin">
                       <number>0</number>
@@ -12213,13 +12246,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="text">
@@ -12244,13 +12277,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="frameShape">
@@ -12287,7 +12320,7 @@ ZERO</string>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_19">
                      <property name="spacing">
-                      <number>4</number>
+                      <number>0</number>
                      </property>
                      <property name="topMargin">
                       <number>0</number>
@@ -12297,13 +12330,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>0</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>16777215</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="text">
@@ -12328,13 +12361,13 @@ ZERO</string>
                        <property name="minimumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="maximumSize">
                         <size>
                          <width>60</width>
-                         <height>24</height>
+                         <height>26</height>
                         </size>
                        </property>
                        <property name="frameShape">
@@ -12394,7 +12427,7 @@ ZERO</string>
               <number>0</number>
              </property>
              <item>
-              <widget class="VirtualKeyboard" name="virtualkeyboard">
+              <widget class="VirtualKeyboard" name="virtualkeyboard" native="true">
                <property name="minimumSize">
                 <size>
                  <width>0</width>
@@ -12429,7 +12462,7 @@ ZERO</string>
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
+             <width>310</width>
              <height>400</height>
             </size>
            </property>
@@ -12444,10 +12477,10 @@ ZERO</string>
              <number>4</number>
             </property>
             <property name="leftMargin">
-             <number>4</number>
+             <number>2</number>
             </property>
             <property name="topMargin">
-             <number>4</number>
+             <number>0</number>
             </property>
             <property name="rightMargin">
              <number>4</number>
@@ -12461,7 +12494,7 @@ ZERO</string>
                <number>4</number>
               </property>
               <property name="topMargin">
-               <number>4</number>
+               <number>2</number>
               </property>
               <property name="bottomMargin">
                <number>0</number>
@@ -12470,27 +12503,24 @@ ZERO</string>
                <widget class="QWidget" name="widget_jog_buttons" native="true">
                 <layout class="QGridLayout" name="gridLayout_jog_2" rowstretch="0,0,0,0,0,0">
                  <property name="leftMargin">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <property name="topMargin">
                   <number>0</number>
                  </property>
                  <property name="rightMargin">
-                  <number>0</number>
+                  <number>2</number>
                  </property>
                  <property name="bottomMargin">
                   <number>0</number>
                  </property>
-                 <property name="horizontalSpacing">
-                  <number>0</number>
+                 <property name="spacing">
+                  <number>2</number>
                  </property>
-                 <property name="verticalSpacing">
-                  <number>4</number>
-                 </property>
-                 <item row="1" column="1">
-                  <widget class="ActionButton" name="z_minus_jogbutton">
+                 <item row="5" column="2">
+                  <widget class="ActionButton" name="a_plus_jogbutton">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -12512,29 +12542,29 @@ ZERO</string>
                    </property>
                    <property name="icon">
                     <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
+                     <normaloff>:/buttons/images/a_plus_jog_button.png</normaloff>:/buttons/images/a_plus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>48</width>
-                     <height>48</height>
+                     <width>46</width>
+                     <height>46</height>
                     </size>
                    </property>
-                   <property name="jog_joint_neg_action" stdset="0">
+                   <property name="jog_joint_pos_action" stdset="0">
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>2</number>
+                    <number>3</number>
                    </property>
                    <property name="axis_letter" stdset="0">
-                    <string>Z</string>
+                    <string>A</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="3" column="0">
-                  <widget class="ActionButton" name="x_minus_jogbutton">
+                 <item row="4" column="1">
+                  <widget class="ActionButton" name="y_minus_jogbutton">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -12556,12 +12586,12 @@ ZERO</string>
                    </property>
                    <property name="icon">
                     <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/x_minus_jog_button.png</normaloff>:/buttons/images/x_minus_jog_button.png</iconset>
+                     <normaloff>:/buttons/images/y_minus_jog_button.png</normaloff>:/buttons/images/y_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>48</width>
-                     <height>48</height>
+                     <width>46</width>
+                     <height>46</height>
                     </size>
                    </property>
                    <property name="jog_joint_neg_action" stdset="0">
@@ -12571,10 +12601,10 @@ ZERO</string>
                     <bool>false</bool>
                    </property>
                    <property name="joint_number" stdset="0">
-                    <number>0</number>
+                    <number>1</number>
                    </property>
                    <property name="axis_letter" stdset="0">
-                    <string>X</string>
+                    <string>Y</string>
                    </property>
                    <property name="incr_imperial_number" stdset="0">
                     <double>0.010000000000000</double>
@@ -12614,7 +12644,7 @@ ZERO</string>
                  <item row="2" column="1">
                   <widget class="ActionButton" name="y_plus_jogbutton">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -12640,8 +12670,8 @@ ZERO</string>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>48</width>
-                     <height>48</height>
+                     <width>46</width>
+                     <height>46</height>
                     </size>
                    </property>
                    <property name="jog_joint_pos_action" stdset="0">
@@ -12691,10 +12721,10 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
-                 <item row="4" column="1">
-                  <widget class="ActionButton" name="y_minus_jogbutton">
+                 <item row="3" column="0">
+                  <widget class="ActionButton" name="x_minus_jogbutton">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -12716,95 +12746,15 @@ ZERO</string>
                    </property>
                    <property name="icon">
                     <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/y_minus_jog_button.png</normaloff>:/buttons/images/y_minus_jog_button.png</iconset>
+                     <normaloff>:/buttons/images/x_minus_jog_button.png</normaloff>:/buttons/images/x_minus_jog_button.png</iconset>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>48</width>
-                     <height>48</height>
+                     <width>46</width>
+                     <height>46</height>
                     </size>
                    </property>
                    <property name="jog_joint_neg_action" stdset="0">
-                    <bool>true</bool>
-                   </property>
-                   <property name="template_label_option" stdset="0">
-                    <bool>false</bool>
-                   </property>
-                   <property name="joint_number" stdset="0">
-                    <number>1</number>
-                   </property>
-                   <property name="axis_letter" stdset="0">
-                    <string>Y</string>
-                   </property>
-                   <property name="incr_imperial_number" stdset="0">
-                    <double>0.010000000000000</double>
-                   </property>
-                   <property name="incr_mm_number" stdset="0">
-                    <double>0.025000000000000</double>
-                   </property>
-                   <property name="incr_angular_number" stdset="0">
-                    <double>-1.000000000000000</double>
-                   </property>
-                   <property name="toggle_float_option" stdset="0">
-                    <bool>false</bool>
-                   </property>
-                   <property name="float_num" stdset="0">
-                    <double>100.000000000000000</double>
-                   </property>
-                   <property name="float_alt_num" stdset="0">
-                    <double>50.000000000000000</double>
-                   </property>
-                   <property name="view_type_string" stdset="0">
-                    <string>P</string>
-                   </property>
-                   <property name="command_text_string" stdset="0">
-                    <string/>
-                   </property>
-                   <property name="ini_mdi_number" stdset="0">
-                    <number>0</number>
-                   </property>
-                   <property name="textTemplate" stdset="0">
-                    <string>%1.3f in</string>
-                   </property>
-                   <property name="alt_textTemplate" stdset="0">
-                    <string>%1.2f mm</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="3" column="2">
-                  <widget class="ActionButton" name="x_plus_jogbutton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/x_plus_jog_button.png</normaloff>:/buttons/images/x_plus_jog_button.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>48</width>
-                     <height>48</height>
-                    </size>
-                   </property>
-                   <property name="jog_joint_pos_action" stdset="0">
                     <bool>true</bool>
                    </property>
                    <property name="template_label_option" stdset="0">
@@ -12854,7 +12804,7 @@ ZERO</string>
                  <item row="0" column="1">
                   <widget class="ActionButton" name="z_plus_jogbutton">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -12880,8 +12830,8 @@ ZERO</string>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>48</width>
-                     <height>48</height>
+                     <width>46</width>
+                     <height>46</height>
                     </size>
                    </property>
                    <property name="jog_joint_pos_action" stdset="0">
@@ -12895,10 +12845,134 @@ ZERO</string>
                    </property>
                   </widget>
                  </item>
+                 <item row="1" column="1">
+                  <widget class="ActionButton" name="z_minus_jogbutton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/z_minus_jog_button.png</normaloff>:/buttons/images/z_minus_jog_button.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>46</width>
+                     <height>46</height>
+                    </size>
+                   </property>
+                   <property name="jog_joint_neg_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>2</number>
+                   </property>
+                   <property name="axis_letter" stdset="0">
+                    <string>Z</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="2">
+                  <widget class="ActionButton" name="x_plus_jogbutton">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>50</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>50</width>
+                     <height>50</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset resource="qtdragon_hd.qrc">
+                     <normaloff>:/buttons/images/x_plus_jog_button.png</normaloff>:/buttons/images/x_plus_jog_button.png</iconset>
+                   </property>
+                   <property name="iconSize">
+                    <size>
+                     <width>46</width>
+                     <height>46</height>
+                    </size>
+                   </property>
+                   <property name="jog_joint_pos_action" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="template_label_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="joint_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="axis_letter" stdset="0">
+                    <string>X</string>
+                   </property>
+                   <property name="incr_imperial_number" stdset="0">
+                    <double>0.010000000000000</double>
+                   </property>
+                   <property name="incr_mm_number" stdset="0">
+                    <double>0.025000000000000</double>
+                   </property>
+                   <property name="incr_angular_number" stdset="0">
+                    <double>-1.000000000000000</double>
+                   </property>
+                   <property name="toggle_float_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="float_num" stdset="0">
+                    <double>100.000000000000000</double>
+                   </property>
+                   <property name="float_alt_num" stdset="0">
+                    <double>50.000000000000000</double>
+                   </property>
+                   <property name="view_type_string" stdset="0">
+                    <string>P</string>
+                   </property>
+                   <property name="command_text_string" stdset="0">
+                    <string/>
+                   </property>
+                   <property name="ini_mdi_number" stdset="0">
+                    <number>0</number>
+                   </property>
+                   <property name="textTemplate" stdset="0">
+                    <string>%1.3f in</string>
+                   </property>
+                   <property name="alt_textTemplate" stdset="0">
+                    <string>%1.2f mm</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="5" column="0">
                   <widget class="ActionButton" name="a_minus_jogbutton">
                    <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
                      <verstretch>0</verstretch>
                     </sizepolicy>
@@ -12924,58 +12998,14 @@ ZERO</string>
                    </property>
                    <property name="iconSize">
                     <size>
-                     <width>48</width>
-                     <height>48</height>
+                     <width>46</width>
+                     <height>46</height>
                     </size>
                    </property>
                    <property name="jog_joint_pos_action" stdset="0">
                     <bool>false</bool>
                    </property>
                    <property name="jog_joint_neg_action" stdset="0">
-                    <bool>true</bool>
-                   </property>
-                   <property name="joint_number" stdset="0">
-                    <number>3</number>
-                   </property>
-                   <property name="axis_letter" stdset="0">
-                    <string>A</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item row="5" column="2">
-                  <widget class="ActionButton" name="a_plus_jogbutton">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>50</width>
-                     <height>50</height>
-                    </size>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset resource="qtdragon_hd.qrc">
-                     <normaloff>:/buttons/images/a_plus_jog_button.png</normaloff>:/buttons/images/a_plus_jog_button.png</iconset>
-                   </property>
-                   <property name="iconSize">
-                    <size>
-                     <width>48</width>
-                     <height>48</height>
-                    </size>
-                   </property>
-                   <property name="jog_joint_pos_action" stdset="0">
                     <bool>true</bool>
                    </property>
                    <property name="joint_number" stdset="0">
@@ -13005,7 +13035,7 @@ ZERO</string>
                   <number>0</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="lbl_jog_linear">
@@ -13023,9 +13053,14 @@ ZERO</string>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>30</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <property name="text">
                     <string>JOG
@@ -13046,13 +13081,13 @@ LINEAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>30</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>16777215</width>
+                     <width>58</width>
                      <height>30</height>
                     </size>
                    </property>
@@ -13086,13 +13121,13 @@ LINEAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>16777215</height>
                     </size>
                    </property>
@@ -13138,13 +13173,13 @@ LINEAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>40</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>40</height>
                     </size>
                    </property>
@@ -13190,7 +13225,7 @@ LINEAR</string>
                   <number>0</number>
                  </property>
                  <property name="bottomMargin">
-                  <number>0</number>
+                  <number>5</number>
                  </property>
                  <item>
                   <widget class="QLabel" name="lbl_jog_angular">
@@ -13202,15 +13237,20 @@ LINEAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>0</width>
+                     <width>60</width>
                      <height>30</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>80</width>
+                     <width>58</width>
                      <height>30</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>10</pointsize>
+                    </font>
                    </property>
                    <property name="text">
                     <string>JOG
@@ -13231,15 +13271,20 @@ ANGULAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>30</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>16777215</width>
+                     <width>58</width>
                      <height>30</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                    </font>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::WinPanel</enum>
@@ -13271,15 +13316,20 @@ ANGULAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>0</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>16777215</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                    </font>
                    </property>
                    <property name="toolTip">
                     <string>Adjust angular jog rate</string>
@@ -13320,15 +13370,20 @@ ANGULAR</string>
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>40</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
-                     <width>60</width>
+                     <width>58</width>
                      <height>40</height>
                     </size>
+                   </property>
+                   <property name="font">
+                    <font>
+                     <pointsize>8</pointsize>
+                    </font>
                    </property>
                    <property name="toolTip">
                     <string>Toggle angular jog speed range</string>
@@ -13387,18 +13442,17 @@ ANGULAR</string>
                  <property name="minimumSize">
                   <size>
                    <width>150</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>120</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="text">
-                  <string>LINEAR
-INCREMENT</string>
+                  <string>LINEAR INCREMENT</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13416,13 +13470,13 @@ INCREMENT</string>
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>100</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="focusPolicy">
@@ -13436,6 +13490,9 @@ INCREMENT</string>
                  </property>
                  <property name="maxCount">
                   <number>20</number>
+                 </property>
+                 <property name="insertPolicy">
+                  <enum>QComboBox::InsertAtTop</enum>
                  </property>
                  <property name="frame">
                   <bool>true</bool>
@@ -13474,18 +13531,17 @@ INCREMENT</string>
                  <property name="minimumSize">
                   <size>
                    <width>150</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>120</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="text">
-                  <string>ANGULAR
-INCREMENT</string>
+                  <string>ANGULAR INCREMENT</string>
                  </property>
                  <property name="alignment">
                   <set>Qt::AlignCenter</set>
@@ -13503,13 +13559,13 @@ INCREMENT</string>
                  <property name="minimumSize">
                   <size>
                    <width>100</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>100</width>
-                   <height>30</height>
+                   <height>26</height>
                   </size>
                  </property>
                  <property name="focusPolicy">
@@ -13620,7 +13676,7 @@ INCREMENT</string>
                    <number>2</number>
                   </property>
                   <item>
-                   <widget class="Gauge" name="gauge_spindle">
+                   <widget class="Gauge" name="gauge_spindle" native="true">
                     <property name="halpin_option" stdset="0">
                      <bool>false</bool>
                     </property>
@@ -14121,7 +14177,7 @@ INCREMENT</string>
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>87</width>
                 <height>0</height>
                </size>
               </property>
@@ -14320,11 +14376,6 @@ INCREMENT</string>
    <header>qtvcp.widgets.action_button</header>
   </customwidget>
   <customwidget>
-   <class>RoundButton</class>
-   <extends>ActionButton</extends>
-   <header>qtvcp.widgets.action_button_round</header>
-  </customwidget>
-  <customwidget>
    <class>StatusSlider</class>
    <extends>QSlider</extends>
    <header>qtvcp.widgets.status_slider</header>
@@ -14359,6 +14410,11 @@ INCREMENT</string>
    <class>VirtualKeyboard</class>
    <extends>QWidget</extends>
    <header>qtvcp.widgets.virtualkeyboard</header>
+  </customwidget>
+  <customwidget>
+   <class>RoundButton</class>
+   <extends>ActionButton</extends>
+   <header>qtvcp.widgets.action_button_round</header>
   </customwidget>
   <customwidget>
    <class>Gauge</class>
