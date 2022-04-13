@@ -210,9 +210,9 @@ Tooldata is accessed by an ordered index (idx) that depends on the
 type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
 
 . For *RANDOM_TOOLCHANGER = 0*, (0 is default and specifies a non-random
-toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
+  toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
 . For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
-for the toolnumber specified by the gcode select tool command *Tn*.
+  for the toolnumber specified by the gcode select tool command *Tn*.
 
 The io program provides hal output pins to facilitate toolchanger management:
 
@@ -251,10 +251,10 @@ and 'non-random or fixed location'. Information about configuring a LinuxCNC too
 is in the <<sec:emcio-section,EMCIO Section>> of the INI chapter.
 
 .Manual Tool Changer
-Manual tool changer (you change the tool by hand) is treated like a fixed location tool changer.
-Using the manual tool changer only makes sense if you have toolholders that remain with the tool (Cat, NMTB, Kwik Switch, etc.) so that the tool position is preserved in the spindle.
-Machines with R8 or router collet type toolholders do not retain the tool location and the manual tool changer should not be used.
-Manual toolchanges can be aided by a hal configuration that employs the userspace program *hal_manualtoolchange* and is typically specified in an ini file
+Manual tool changer (you change the tool by hand) is treated like a
+fixed location tool changer.  Manual toolchanges can be aided by
+a hal configuration that employs the userspace program
+*hal_manualtoolchange* and is typically specified in an ini file
 with ini statements:
 
 ----

@@ -109,7 +109,6 @@ Letters which refer to axis names are not valid on a machine which does
 not have the corresponding axis.
 
 .Words and their meanings
-
 [width="75%", options="header", cols="^1,<5"]
 |====
 |Letter | Meaning
@@ -152,15 +151,15 @@ digit is a single character between 0 and 9.
 ** zero to many digits, followed, possibly, by
 ** one decimal point, followed by
 ** zero to many digits - provided that there is at least
-one digit somewhere in the number.
+   one digit somewhere in the number.
 * There are two kinds of numbers:
 ** Integers, that does not have a decimal point,
 ** Decimals, that do have a decimal point.
 * Numbers may have any number of digits, subject to the limitation on
-line length. Only about seventeen significant figures will be retained,
-however (enough for all known applications).
+  line length. Only about seventeen significant figures will be retained,
+  however (enough for all known applications).
 * A non-zero number with no sign but the first character is assumed to be
-positive.
+  positive.
 
 Notice that initial (before the decimal point and the first non-zero
 digit) and trailing (after the decimal point and the last non-zero
@@ -286,11 +285,11 @@ example '##2'  means the value of the parameter whose index is the
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
   otherwise.  Volatile by default; persistent if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-'.ini' file.
+  '.ini' file.
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
   V & W.  Volatile by default; persistent if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
-'.ini' file.
+  '.ini' file.
 * '5220' - Coordinate System number 1 - 9 for G54 - G59.3. Persistent.
 * '5221-5230' - Coordinate System 1, G54 for X, Y, Z, A, B, C, U, V, W & R.
   R denotes the XY rotation angle around the Z axis. Persistent.
@@ -616,13 +615,13 @@ cause a runtime error. The names are not case sensitive - they are
 converted to uppercase before consulting the ini file.
 
 * '#<_hal[Hal item]>'
-Allows G-code programs to read the values of HAL pins Variable access is
-read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
-M67, M68 and custom M100-M199 codes.
-Note that the value read will not update in real-time, typically the
-value that was on the pin when the G-code program was started will be
-returned. It is possible to work round this by forcing a state synch.
-One way to do this is with a dummy M66 command: M66E0L0
+  Allows G-code programs to read the values of HAL pins Variable access is
+  read-only, the only way to _set_ HAL pins from G-code remains M62-M65,
+  M67, M68 and custom M100-M199 codes.
+  Note that the value read will not update in real-time, typically the
+  value that was on the pin when the G-code program was started will be
+  returned. It is possible to work round this by forcing a state synch.
+  One way to do this is with a dummy M66 command: M66E0L0
 
 Example:
 
@@ -722,7 +721,6 @@ degrees. Values returned by unary operations which return angle measures
 ('ACOS', 'ASIN', and 'ATAN') are also in degrees.
 
 .Functions
-
 [width="75%", options="header", cols="^,<"]
 |====
 |Function Name | Function result
@@ -874,7 +872,7 @@ distance from the XY zero position increased with each line.
 .Polar Spiral
 image::images/polar01.png["Polar Spiral",align="center"]
 
-The following code will produce our square pattern.
+The following code will produce our square pattern:
 
 ----
 F100 G1 @.5 ^90
@@ -910,7 +908,6 @@ being in effect. The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
 .G-Code Modal Groups(((Modal Groups: G-Codes)))
-
 [width="80%", cols="4,6", options="header"]
 |====
 |Modal Group Meaning                   | Member Words
@@ -933,7 +930,6 @@ being in effect. The modal groups are shown in the following Table.
 
 [[tbl:mcodes-modal-groups]]
 .M-Code Modal Groups(((Modal Groups: M-Codes)))
-
 [width="80%", cols="4,6", options="header"]
 |====
 |Modal Group Meaning           | Member Words
@@ -1038,7 +1034,7 @@ For more information on probing see the <<gcode:g38,G38>> Section.
   exists, the data is appended.
 * '(LOGCLOSE)' - closes an open log file.
 * '(LOG,)' - everything past the ',' is written to the log file if it is open.
-Supports expansion of parameters as described below.
+  Supports expansion of parameters as described below.
 
 Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
@@ -1065,7 +1061,6 @@ For example: to print a named global variable to stderr (the default
 console window).
 
 .Parameters Example
-
 ----
 (print,endmill dia = #<_endmill_dia>)
 (print,value of variable 123 is: #123)
@@ -1142,9 +1137,9 @@ position of each item on the line, but by the following list:
 * Set distance mode (G90, G91).
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system
-data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94).
+  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94).
 * Perform motion (G0 to G3, G33, G38.n, G73, G76, G80 to G89), as modified
-(possibly) by G53.
+  (possibly) by G53.
 * Stop (M0, M1, M2, M30, M60).
 
 [[gcode:best-practices]]
