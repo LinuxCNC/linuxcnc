@@ -1,9 +1,4 @@
 .TH PID "9" "2007-01-16" "LinuxCNC Documentation" "HAL Component"
-.de TQ
-.br
-.ns
-.TP \\$1
-..
 
 .SH NAME
 pid \- proportional/integral/derivative controller
@@ -198,7 +193,9 @@ When true, the current PID output is saturated.  That is,
 .RE
 .TP
 \fBpid.\fIN\fB.saturated\-s\fR float out
-.TQ
+.br
+.ns
+.TP
 \fBpid.\fIN\fB.saturated\-count\fR s32 out
 When true, the output of PID was continually saturated for this many seconds
 (\fBsaturated\-s\fR) or periods (\fBsaturated\-count\fR).
