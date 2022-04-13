@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2022-03-13 11:02+0100\n"
-"PO-Revision-Date: 2022-03-23 04:32+0000\n"
+"PO-Revision-Date: 2022-04-11 16:07+0000\n"
 "Last-Translator: Hans U. <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -2799,7 +2799,7 @@ msgstr "Tastspitze schon abgehoben bei Start durch G38.4 oder G38.5"
 
 #: src/emc/motion/command.c:1542
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr "Tastspitze schon ausgelöst bei Start durch G38.4 oder G38.5"
+msgstr "Tastspitze schon ausgelöst bei Start durch G38.2 oder G38.3"
 
 #: src/emc/motion/command.c:1563
 msgid "can't add probe move"
