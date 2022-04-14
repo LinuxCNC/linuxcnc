@@ -139,8 +139,8 @@ loadrt ddt
 Now look at the components node and you should see ddt in there
 someplace.
 
-.Loaded HAL Components:
 ----
+Loaded HAL Components:
 ID Type        Name
 10 User halcmd29800
 09 User halcmd29374
@@ -155,8 +155,8 @@ ID Type        Name
 Sure enough there it is. Notice that its ID is 08. Next we need to
 find out what functions are available with it so we look at functions:
 
-.Exported Functions:
 ----
+Exported Functions:
 Owner  CodeAddr      Arg  FP Users Name
   08   E0B97630 E0DC7674 YES     0 ddt.0
   03   E0DEF83C 00000000 YES     1 motion-command-handler

@@ -415,7 +415,7 @@ sudo apt-get update
 sudo apt-get install linux-image-4.19.195-rtai-amd64
 ----
 
-. Instale la capa de aplicación RTAI
+. Install the RTAI application layer
 
 ----
 sudo apt-get install rtai-modules-4.19.195

@@ -26,10 +26,12 @@ The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 == Start Page
 
 [[cap:init-Page]]
-image::images/stepconf-start_en.png["Entry Page",align="center"]
+//.Stepconf splash screen
+image::images/stepconf-start_1_es.png["Pagina de entrada",align="center"]
 
 [[cap:Entry-Page]]
-image::images/stepconf-start_2_es.png["Pagina de entrada",align="center"]
+//.Stepconf entry page
+image::images/stepconf-start_en.png["Entry Page",align="center"]
 
 The three first radio buttons are self-explanatory:
 
@@ -232,6 +234,7 @@ image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
 * 'Test this axis' - (((Test this axis)))
   This will open a window to allow testing for each axis. This can be used after filling out all the information for this axis.
 
+//.Test This Axis B
 image::images/stepconf-x-test_en.png[align="center"]
 
 Test this axis is a basic tester that only outputs step and direction signals

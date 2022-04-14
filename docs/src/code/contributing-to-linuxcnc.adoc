@@ -115,7 +115,8 @@ like this:
 ** Push your branch to a publicly visible git repo (such as github,
    bitbucket, your own publicly-accessible server, etc) and share that
    location on the emc-developers mailing list, or
-** Email your commits to the LinuxCNC-developers mailing list (use `git
+** Email your commits to the LinuxCNC-developers mailing list
+   (emc-developers@lists.sourceforge.net) (use `git
    format-patch` to create the patches)
 * Advocate for your patch
 ** Explain what problem it addresses and why it should be included

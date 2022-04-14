@@ -172,11 +172,9 @@ per revolution' modes are being used, in which case see Section
    stop in coordinated fashion.
  . Otherwise, the move is pure rotary motion and the F word is in rotary
    units in the ABC 'pseudo-cartesian' system.
+=== Coolant(((coolant)))
 
-=== Refrigerante(((refrigerante)))
-
-Copied from Spanish: El refrigerante de inundación y el refrigerante de niebla pueden encenderse independientemente.
-El lenguaje RS274/NGC los apaga juntos con un solo codigo M. Ver Sección <<mcode:m7-m8-m9,M7 M8 M9>>.
+Flood coolant and fog coolant can be turned on independently. The RS274/NGC language turns them off together with a single M-code. See Section <<mcode:m7-m8-m9,M7 M8 M9>>.
 
 === Dwell(((dwell)))
 
