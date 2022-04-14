@@ -258,8 +258,10 @@ is in the <<sec:emcio-section,EMCIO Section>> of the INI chapter.
 
 .Manual Tool Changer
 Manual tool changer (you change the tool by hand) is treated like a fixed location tool changer.
+// spanish
 Utilizar el cambiador manual de herramientas solo tiene sentido si tiene portaherramientas que permanezcan con la herramienta (Cat, NMTB, Kwik Switch, etc.) cuando se cambia preservando así la ubicación de la herramienta en el husillo.
 Máquinas con R-8 o los portaherramientas de tipo collar de enrutadores no conservan la ubicación de la herramienta y el cambiador de herramientas manual no debe usarse.
+//
 Manual toolchanges can be aided by a hal configuration that employs the userspace program *hal_manualtoolchange* and is typically specified in an ini file
 with ini statements:
 

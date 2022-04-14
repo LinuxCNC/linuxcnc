@@ -52,6 +52,7 @@ tool table parameter columns.  Since few machines use all
 parameters, the columns displayed can be limited with the
 following ini file setting:
 
+//.Tooledit GUI
 image::images/tooledit-columns.png["Tool Edit GUI - Column Selection",align="center"]
 
 .Syntax of .INI file
