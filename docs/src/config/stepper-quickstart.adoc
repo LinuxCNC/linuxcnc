@@ -111,7 +111,6 @@ The net result you're looking for is how many CNC-output-steps it takes
 to move one user unit (inches or mm).
 
 .Units inches
-// ---- in combination with ........ gives ugly output
 ====
 ............................................
 Stepper         = 200 steps per revolution

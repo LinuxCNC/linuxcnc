@@ -139,7 +139,6 @@ loadrt ddt
 Now look at the components node and you should see ddt in there
 someplace.
 
-//This is a 1:1 printout and shoud be kept inside
 ----
 Loaded HAL Components:
 ID Type        Name
@@ -156,7 +155,6 @@ ID Type        Name
 Sure enough there it is. Notice that its ID is 08. Next we need to
 find out what functions are available with it so we look at functions:
 
-// same here
 ----
 Exported Functions:
 Owner  CodeAddr      Arg  FP Users Name

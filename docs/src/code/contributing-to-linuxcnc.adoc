@@ -116,7 +116,6 @@ like this:
    bitbucket, your own publicly-accessible server, etc) and share that
    location on the emc-developers mailing list, or
 ** Email your commits to the LinuxCNC-developers mailing list
-// (list still named emc-developers)
    (emc-developers@lists.sourceforge.net) (use `git
    format-patch` to create the patches)
 * Advocate for your patch
