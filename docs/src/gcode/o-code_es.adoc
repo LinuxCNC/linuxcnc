@@ -1,13 +1,16 @@
 :lang: es
+:toc:
 
 [[cha:o-codes]]
-= Códigos O
+= Códigos O(((Códigos O)))
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+
+== Use of O-codes
 
 Los códigos O proporcionan control de flujo en programas NC. Cada bloque tiene un
 número asociado, que es el número utilizado después de O. Se debe tener cuidado
@@ -57,7 +60,7 @@ Las subrutinas comienzan en 'Onnn sub' y terminan en 'Onnn endsub'. Las líneas 
 'Onnn sub' y 'Onnn endsub' no se ejecutan hasta que se llama a la subrutina
 con 'Onnn call'. Cada subrutina debe usar un número único.
 
-Ejemplo de subrutina
+.Ejemplo de subrutina
 ----
 o100 sub
   G53 G0 X0 Y0 Z0 (rápido al home de la máquina)
@@ -141,8 +144,7 @@ rs274ngc tradicional tanto en sintaxis como en ejecución. Para reducir la
 posibilidad de confusión, el intérprete generará un error si
 las definiciones de un estilo se mezclan con las llamadas de otro.
 
-Ejemplo simple de subprograma numerado
-
+.Ejemplo simple de subprograma numerado
 [source,{ngc}]
 ----
 o1 (Ejemplo 1)		; Programa principal 1, "Ejemplo 1"
@@ -343,7 +345,7 @@ repeat/endrepeat el número especificado de veces. El ejemplo muestra cómo
 puede fresar una serie diagonal de formas a partir de la presente
 posición.
 
-.Ejemplo de repeat
+.Ejemplo de 'repeat'
 ----
 (Fresar 5 formas diagonales)
 G91 (modo incremental)
@@ -359,7 +361,7 @@ G90 (modo absoluto)
 
 El O-número puede ser dado por un parámetro y/o cálculo.
 
-Ejemplo de Indirección
+.Ejemplo de Indirección
 ----
 o[#101+2] call
 ----

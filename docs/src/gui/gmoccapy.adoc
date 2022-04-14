@@ -360,7 +360,7 @@ image::images/gmoccapy_mdi_hidden_keyboard.png[align="left"]
 The name of the file must be *exactly the same* as the name given in the MACRO
 line. So the macro '*i_am_lost*' will call the file '*i_am_lost.ngc*'.
 
-.The macro ngc files must follow some rules:
+The macro ngc files must follow some rules:
 
 * the name of the file need to be exactly the same as the name mentioned in the macro
   line, just with the ngc extension (case sensitive)
@@ -631,8 +631,8 @@ This change has been done as many user ask for that.
 
 To connect 'encoders' the following pin are exported:
 
-[width="80%", options="header", cols="^,<,^"]
-|======================================================================
+[width="80%",options="header",cols="^,<,^"]
+|====
 |                   PIN                           |  TYPE   |  FUNCTION
 | gmoccapy.jog.jog-velocity.counts                | HAL_S32 | Jog velocity
 | gmoccapy.jog.jog-velocity.count-enable          | HAL_BIT | Must be True, to enable counts
@@ -644,12 +644,12 @@ To connect 'encoders' the following pin are exported:
 | gmoccapy.spindle.reset-spindle-override         | HAL_BIT | reset the spindle override to 100%
 | gmoccapy.rapid.rapid-override.counts            | HAL_S32 | Maximal Velocity of the machine
 | gmoccapy.rapid.rapid-override.count-enable      | HAL_BIT | Must be True, to enable counts
-|======================================================================
+|====
 
 To connect 'potentiometers', use the following hal pin:
 
-[width="80%", options="header", cols="^,<,^"]
-|========================================================================
+[width="80%",options="header",cols="^,<,^"]
+|====
 |                   PIN                           |  TYPE     |  FUNCTION
 | gmoccapy.jog.jog-velocity.direct-value          | HAL_FLOAT | To adjust the jog velocity slider
 | gmoccapy.jog.jog-velocity.analog-enable         | HAL_BIT   | Must be True, to allow analog inputs
@@ -659,15 +659,14 @@ To connect 'potentiometers', use the following hal pin:
 | gmoccapy.spindle.spindle-override.analog-enable | HAL_BIT   | Must be True, to allow analog inputs
 | gmoccapy.rapid.rapid-override.direct-value      | HAL_FLOAT | To adjust the max velocity slider
 | gmoccapy.rapid.rapid-override.analog-enable     | HAL_BIT   | Must be True, to allow analog inputs
-|========================================================================
+|====
 
-In addition gmoccapy 3 offers additional hal pin to control
-the new slider widgets with momentary switches. The values how fast the increase
-or decrease will be, must be set in the glade file. In a future release it will
-be integrated in the settings page.
+In addition gmoccapy 3 offers additional hal pin to control the new slider widgets with momentary switches.
+The values how fast the increase or decrease will be, must be set in the glade file.
+In a future release it will be integrated in the settings page.
 
-[width="80%", options="header", cols="^,<,^"]
-|==============================================================
+[width="80%",options="header",cols="^,<,^"]
+|====
 |               PIN                 |  TYPE         |  FUNCTION
 | SPEED                             |               |
 | gmoccapy.spc_jog_vel.increase     | HAL_BIT IN    | as long as True the value of the slider will increase
@@ -693,7 +692,7 @@ be integrated in the settings page.
 | gmoccapy.spc_rapid.scale          | HAL_FLOAT IN  | A value to scale the output value (Handy to change units/min to units/sec
 | gmoccapy.spc_rapid.value          | HAL_FLOAT OUT | value of the widget
 | gmoccapy.spc_rapid.scaled-value   | HAL_FLOAT OUT | scaled value of the widget
-|==============================================================
+|====
 
 The float pin do accept values from 0.0 to 1.0, being the percentage value
 you want to set the slider value.
@@ -867,21 +866,16 @@ There are two pins for spindle feedback
 * gmoccapy.spindle_feedback_bar
 * gmoccapy.spindle_at_speed_led
 
-'gmoccapy.spindle_feedback_bar' will accept an float input to show the spindle
-speed.
-'gmoccapy.spindle_at_speed_led' is an bit-in-pin to lit the GUI led if spindle is
-at speed.
+'gmoccapy.spindle_feedback_bar' will accept an float input to show the spindle speed.
+'gmoccapy.spindle_at_speed_led' is an bit-in-pin to lit the GUI led if spindle is at speed.
 
 === Pins To Indicate Program Progress Information
 
 There are three pins giving information over the program progress
 
-* gmoccapy.program.length HAL_S32 showing the total number of lines of the
-  program
-* gmoccapy.program.current-line HAL_S32 indicating the current working line
-  of the program
-* gmoccapy.program.progress HAL_FLOAT giving the program progress in
-  percentage
+* gmoccapy.program.length HAL_S32 showing the total number of lines of the program
+* gmoccapy.program.current-line HAL_S32 indicating the current working line of the program
+* gmoccapy.program.progress HAL_FLOAT giving the program progress in percentage
 
 The values may not be very accurate, if you are working with subroutines or
 large remap procedures, also loops will cause different values.
@@ -889,16 +883,13 @@ large remap procedures, also loops will cause different values.
 === Tool related pins
 
 .Tool Change Pins
-
 These pins are provided to use gmoccapy's internal tool change dialog, similar to
 the one known from axis, but with several modifications. So you will not only
 get the message to change to 'tool number 3', but also the description of that
 tool like '7.5 mm 3 flute cutter'. The information is taken from the tool
 table, so it is up to you what to display.
 
-.Manual tool change
-
-image::images/manual_toolchange.png[align="left"]
+image::images/manual_toolchange.png["Manual tool change",align="left"]
 
 * gmoccapy.toolchange-number _S32 IN_ The number of the tool to be changed
 * gmoccapy.toolchange-change _BIT IN_ Indicates that a tool has to be changed
@@ -918,14 +909,10 @@ net tool-prep-loop iocontrol.0.tool-prepare <= iocontrol.0.tool-prepared
 Please take care, that this connections have to be done in the postgui hal file!
 
 .Tool Offset Pins
-
 These pins allow you to show the active tool offset values for X and Z in the
-tool information frame. You should know that they are only active after G43
-has been sent.
+tool information frame. You should know that they are only active after G43 has been sent.
 
-.Tool information
-
-image::images/gmoccapy_0_9_7_tool_info.png[align="left"]
+image::images/gmoccapy_0_9_7_tool_info.png["Tool information",align="left"]
 
 * gmoccapy.tooloffset-x
 * gmoccapy.tooloffset-z
@@ -934,8 +921,9 @@ image::images/gmoccapy_0_9_7_tool_info.png[align="left"]
 Please take care, that this connections have to be done in the postgui hal file!
 
 [NOTE]
-the tooloffset-x line is not needed on a mill, and will not be displayed on a
-mill with trivial kinematics.
+the tooloffset-x line is not needed on a mill,
+and will not be displayed on a mill with trivial kinematics.
+
 ----
  net tooloffset-x gmoccapy.tooloffset-x <= motion.tooloffset.x
  net tooloffset-z gmoccapy.tooloffset-z <= motion.tooloffset.z
@@ -994,8 +982,7 @@ Gmoccapy offers 5 pins for tool measurement purpose. The pins are mostly used
 to be read from a G-code subroutine, so the code can react to different values.
 
 * gmoccapy.toolmeasurement HAL_BIT enable or not tool measurement
-* gmoccapy.blockheight HAL_FLOAT the measured value of the top face of the
-  workpiece
+* gmoccapy.blockheight HAL_FLOAT the measured value of the top face of the workpiece
 * gmoccapy.probeheight HAL_FLOAT the probe switch height
 * gmoccapy.searchvel HAL_FLOAT the velocity to search for the tool probe switch
 * gmoccapy.probevel HAL_FLOAT the velocity to probe tool length
@@ -1005,7 +992,6 @@ to be read from a G-code subroutine, so the code can react to different values.
 Modify your INI File to include the following:
 
 .The RS274NGC section
-
 ----
 [RS274NGC]
 # Enables the reading of INI and HAL values from G-code
@@ -1019,7 +1005,6 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog
 ----
 
 .The Tool Sensor Section
-
 The position of the tool sensor and the start position of the probing movement,
 all values are absolute coordinates, except MAXPROBE, what must be given in
 relative movement.
@@ -1124,7 +1109,7 @@ at this time you will have to edit the hidden preference file, see
 
 The page looks at the moment like so:
 
-image::images/gmoccapy_settings_appearance.png[Configuration page,align="left"]
+image::images/gmoccapy_settings_appearance.png["Configuration page",align="left"]
 
 The page is separated in three main tabs:
 
@@ -1133,22 +1118,19 @@ The page is separated in three main tabs:
 On this tab you will find the following options:
 
 Main Window::
-    Here you can select how you wish the GUI to start. The main reason for this was the wish to get an easy +
-    way for the user to set the starting options without the need to touch code. +
-    +
-    You have three options: +
+    Here you can select how you wish the GUI to start. The main reason for this was the wish to get an easy
+    way for the user to set the starting options without the need to touch code.
+    You have three options:
 
 * start as full screen
 * start maximized
-* start as window
-    +
-    If you select start as window the spinboxes to set the position and size will get active.
-    One time set, the GUI will start every time on the place and with the size selected.
-    Nevertheless the user can change the size and position using the mouse, but that will
-    not have any influence on the settings.
+* start as window::
+  If you select start as window the spinboxes to set the position and size will get active.
+  One time set, the GUI will start every time on the place and with the size selected.
+  Nevertheless the user can change the size and position using the mouse, but that will
+  not have any influence on the settings.
 
-'*hide the cursor*' does allow to hide the cursor, what is very useful if you
-use a touch screen.
+* 'hide the cursor*' does allow to hide the cursor, what is very useful if you use a touch screen.
 
 Keyboard::
     The check-boxes allows the user to select if he want the on board keyboard to be shown immediately,
@@ -1160,8 +1142,7 @@ Keyboard::
     Default are :
 
 [NOTE]
-If this section is not sensitive, you have not installed a virtual keyboard,
-+ supported are 'onboard' and 'matchbox-keyboard'.
+If this section is not sensitive, you have not installed a virtual keyboard, supported are 'onboard' and 'matchbox-keyboard'.
 
 * show keyboard on offset = True
 * show keyboard on tooledit = False
@@ -1254,9 +1235,9 @@ Neverthereless a click on the axis letter will open the popup dialog to set the 
 
 Preview::
 
-'Grid Size' Sets the grid size of the preview window. Unfortunately the size *has to be set in inches*,
-even if your machine units are metric. We do hope
-to fix that in a future release.
+'Grid Size' Sets the grid size of the preview window.
+Unfortunately the size *has to be set in inches*, even if your machine units are metric.
+We do hope to fix that in a future release.
 
 [NOTE]
 The grid will not be shown in perspective view.
@@ -1268,7 +1249,8 @@ preview, only if Show DRO is active and not full size preview.
 
 'Show Offsets' will show the offsets in the preview window.
 
-[NOTE] If you only check this option and leave the others unchecked, you will
+[NOTE]
+If you only check this option and leave the others unchecked, you will
 get in full size preview a offset page
 
 'Mouse Button Mode' this combobox you can select the button behavior of the
@@ -1417,12 +1399,11 @@ This button can be activated using the <<gmoccapy:jog-velocity,turtle-jog>> hal 
 
 image::images/gmoccapy_settings_advanced.png["Advanced settings",align="left"]
 
-.Tool Measurement
-
 [NOTE]
 If this part is not sensitive, you do not have a valid INI file configuration
 to use tool measurement.
 
+.Tool Measurement
 Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
 
 * Use auto tool measurement : If checked, after each tool change, a tool
@@ -1430,7 +1411,6 @@ Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
   G43 will be executed after the change.
 
 .Probe Information
-
 The following information is taken from your INI file and must be given
 in absolute coordinates
 
@@ -1444,18 +1424,15 @@ in absolute coordinates
   Then make a tool change and watch the tool_offset_z value, that is the height you must enter here.
 
 .Probe velocities
-
 * Search Vel. = The velocity to search for the tool switch, after contact
   the tool will go up again and then goes toward the probe again with probe
   vel, so you will get better results.
-
 * Probe Vel. = Is the velocity for the second movement to the switch, it
   should be slower to get better touch results.(In sim mode, this is
   commented out in macros/change.ngc, otherwise the  user would have to click
   twice on the probe button)
 
 .Cambiador de herramientas
-
 Si su cuarto eje 'se utiliza en un cambiador de herramientas, es posible que desee ocultar el DRO
 y todos los demás botones relacionados con ese eje.
 

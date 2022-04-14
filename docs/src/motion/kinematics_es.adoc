@@ -1,7 +1,7 @@
 :lang: es
 
 [[cha:kinematics]]
-= Cinemática
+= Cinemática(((Cinemática)))
 
 == Introducción
 
@@ -69,6 +69,14 @@ joints[2] = pos->tran.z;
 En LinuxCNC, la cinemática de identidad (1:1) se implementa con el
 módulo cinemático 'trivkins' extendido a 9 ejes. El valor por defecto de
 las relaciones entre las coordenadas del eje y los números de articulaciones son:
+footnote:[If the machine (for example a lathe) is mounted with
+only the X, Z and A axes and the init file of LinuxCNC contains
+only the definition of these 3 joints, then the previous assertion is false.
+Because we currently have (joint0=X, joint1=Z, joint2=A) which
+assumes that joint1=Y.
+To make this work in LinuxCNC just define all the axes (XYZA),
+LinuxCNC will then use a simple loop in HAL for unused Y axis.]
+footnote:[Another way to make it work is to change the corresponding code and recompile the software.]
 
 ----
 pos->tran.x = joints[0];
@@ -82,8 +90,7 @@ pos->v      = joints[7];
 pos->w      = joints[8];
 ----
 
-Del mismo modo, las relaciones predeterminadas para la cinemática inversa para trivkins
-son:
+Del mismo modo, las relaciones predeterminadas para la cinemática inversa para trivkins son:
 
 ----
 joints[0] = pos->tran.x;
@@ -97,8 +104,8 @@ joints[7] = pos->v;
 joints[8] = pos->w;
 ----
 
-Es sencillo hacer la transformación para cinematica trivial (cinemática 'trivkins') 
-o máquina cartesiana siempre que no haya omisiones en las letras de eje usadas.
+Es sencillo hacer la transformación para cinematica trivial (cinemática 'trivkins') o
+máquina cartesiana siempre que no haya omisiones en las letras de eje usadas.
 
 Si a la máquina le falta una o más de las letras de eje, se vuelve un poco más complicado. 
 Los problemas de las letras de eje omitidas se tratan utilizando el
@@ -145,7 +152,7 @@ Para ilustrar lo anterior, analizaremos una maquina de cinemática simple llamad
 bípode (una versión simplificada del trípode, que es una version simplificada
 del hexápodo).
 
-.Configuración del bípode
+//.Configuración del bípode
 image::images/bipod.png["Configuracion de Bipod"]
 
 El Bipod del que estamos hablando es un dispositivo que consta de 2 motores
@@ -276,7 +283,35 @@ Implementa la función cinemática inversa.
 KINEMATICS_TYPE kinematicsType(void)
 ----
 
-Devuelve el identificador de tipo de cinemática, típicamente 'KINEMATICS_BOTH'.
+Devuelve el identificador de tipo de cinemática, típicamente 'KINEMATICS_BOTH':
+
+. KINEMATICS_IDENTITY  (each joint number corresponds to an axis letter)
+. KINEMATICS_BOTH      (forward and inverse kinematics functions are provided)
+. KINEMATICS_FORWARD_ONLY
+. KINEMATICS_INVERSE_ONLY
+
+[NOTE]
+Guis may interpret KINEMATICS_IDENTITY to hide the distinctions
+between joint numbers and axis letters when in joint mode
+(typically prior to homing).
+
+----
+int kinematicsSwitchable(void)
+int kinematicsSwitch(int switchkins_type)
+KINS_NOT_SWITCHABLE
+----
+
+The function kinematicsSwitchable() returns 1 if multiple
+kinematics types are supported.  The function kinematicsSwitch()
+selects the kinematics type.
+See << cha:switchable-kinematics,Switchable Kinematitcs >>.
+
+[NOTE]
+The majority of provided kinematics modules support a single
+kinematics type and use the directive "*KINS_NOT_SWITCHABLE*" to
+supply defaults for the required kinematicsSwitchable() and
+kinematicsSwitch() functions.
+
 
 ----
 int kinematicsHome(EmcPose *world, double *joint,
@@ -300,4 +335,18 @@ Estas son las funciones estándar de configuración y desmontaje de los módulos
 Cuando están contenidos en un solo archivo fuente, los módulos cinemáticos
 pueden ser compilados e instalados por 'halcompile'. Consulte la página de manual de 'halcompile(1)' o
 el manual de HAL para más información.
+
+=== Kinematics module using the userkins.comp template
+
+Another way to create a custom kinematics module is to adapt the
+hal component 'userkins'. This template component can be modified
+locally by a user and can be built using halcompile.
+
+See the userkins man pages for more information.
+
+Note that to create switchable kinematic modules the required
+modifications are somewhat more complicated.
+
+See 'millturn.comp' as an example of a switchable kinematic
+module that was created using the 'userkins.comp' template.
 

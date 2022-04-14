@@ -25,7 +25,7 @@ foam-cutting machine may have XYUV axes. In LinuxCNC, the case of a XYYZ
 'gantry' machine with two motors for one axis is better handled by
 kinematics rather than by a second linear axis.
 
-NOTE:
+[NOTE]
 If the motion of mechanical components is not independent, as with
 hexapod machines, the RS274/NGC language and the canonical machining
 functions will still be usable, as long as the lower levels of control
@@ -33,13 +33,12 @@ know how to control the actual mechanisms to produce the same relative
 motion of tool and workpiece as would be produced by independent axes.
 This is called 'kinematics'.
 
-NOTE:
+[NOTE]
 With LinuxCNC, the case of the XYYZ gantry machine with two
 motors for one axis is better handled by the kinematics than by an additional
 linear axis.
 
 .Primary Linear Axes (((axes, primary linear)))
-
 The X, Y, and Z axes produce linear motion in three mutually
 orthogonal directions.
 
@@ -173,6 +172,12 @@ per revolution' modes are being used, in which case see Section
    stop in coordinated fashion.
  . Otherwise, the move is pure rotary motion and the F word is in rotary
    units in the ABC 'pseudo-cartesian' system.
+// spanish
+=== Refrigerante(((refrigerante)))
+
+Copied from Spanish: El refrigerante de inundación y el refrigerante de niebla pueden encenderse independientemente.
+El lenguaje RS274/NGC los apaga juntos con un solo codigo M. Ver Sección <<mcode:m7-m8-m9,M7 M8 M9>>.
+//
 
 === Dwell(((dwell)))
 
@@ -244,7 +249,6 @@ modes:
 
 See Sections <<gcode:g61,G61>> and <<gcode:g64,G64>>.
 
-
 [[cnc:interpreter-interaction-with-switches]]
 == Interpreter Interaction with Switches
 
@@ -252,8 +256,8 @@ The Interpreter interacts with several switches. This section
 describes the interactions in more detail. In no case does the
 Interpreter know what the setting of any of these switches is.
 
-[[sec:Interaction-speed]](((Interaction-speed)))
-=== Feed and Speed Override Switches
+[[sec:Interaction-speed]]
+=== Feed and Speed Override Switches(((Interaction-speed)))
 
 The Interpreter will interpret RS274/NGC commands which enable 'M48'
 or disable 'M49' the feed and speed override switches. For certain

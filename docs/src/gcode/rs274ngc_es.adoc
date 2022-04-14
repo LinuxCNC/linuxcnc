@@ -45,9 +45,11 @@ Cuando G28 o G30 se programan con solo algunas palabras de eje presentes,
 LinuxCNC solo mueve los ejes nombrados. Esto es común en otros controles de máquinas.
 Para mover algunos ejes a un punto intermedio y luego
 mover todos los ejes al punto predefinido, escriba dos líneas de código G:
-+
-G0 X- Y- (ejes para mover al punto intermedio) G28 (mover todos los ejes
-al punto predefinido)
+
+----
+G0 X- Y- (ejes para mover al punto intermedio)
+G28 (mover todos los ejes al punto predefinido)
+----
 
 == Adiciones a RS274/NGC
 

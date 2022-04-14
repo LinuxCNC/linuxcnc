@@ -83,11 +83,11 @@ Example:
 unlock_joints_mask=0x38 selects joints 3,4,5
 ----
 
-
 [[sec:motion-pins]]
 === Pins(((motion (HAL pins))))
 
-These pins, parameters, and functions are created by the realtime 'motmod' module.
+These pins, parameters, and functions are created by the realtime 'motmod'
+module.
 
 * 'motion.adaptive-feed' - (float, in) When adaptive feed is enabled with 'M52 P1' , the
   commanded velocity is multiplied by this value. This effect is

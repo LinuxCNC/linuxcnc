@@ -348,9 +348,7 @@ Sinon, une erreur sera signalée. Le fichier original est copié comme
 fichier de sauvegarde lorsque le nouveau fichier est écrit. Les
 commentaires ne sont pas conservés lorsque le fichier est écrit.
 
-
 .Format d'un fichier de paramètres[[sec:Format-fichier-de-parametres]]
-
 [width="90%", options="header"]
 |========================================
 |Numéro d'index | Valeur | Commentaire

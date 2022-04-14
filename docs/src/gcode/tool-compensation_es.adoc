@@ -1,48 +1,61 @@
 :lang: es
+:toc:
 
 [[cha:tool-compensation]]
 = Compensación de herramientas
 
-== Compensación de longitud de herramienta
+----
+N01 G1 F15 X0 Y0 Z0
+N02 G43 H1 Z0 X1
+N03 G49 X0 Z0
+N04 G0 X2
+N05 G1 G43 H1 G4 P10 Z0 X3
+N06 G49 X2 Z0
+N07 G0 X0
+----
 
-=== Touch Off (((Touch Off)))
+image:images/length1.png[]
+
+With this program, in most cases, the machine will apply the offset in the form
+of a ramp during the movement in xyz following the word G43.
+
+[[sec:touch-off]]
+== Touch Off(((Touch Off)))
 
 Usando Touch Off en la interfaz AXIS puede actualizar la
 tabla de herramientas de forma automática.
 
 Los pasos típicos para actualizar la tabla de herramientas son:
 
- * Después de homing, cargue una herramienta con 'Tn M6' donde 'n' es el número de herramienta.
- * Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y
-   medida.
- * Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón
-   Fin en su teclado).
- * Seleccione 'Tabla de herramientas' en el cuadro desplegable Sistema de Coordenadas.
- * Ingrese el valor calibrado o la dimensión medida y seleccione OK.
+* Después de homing, cargue una herramienta con 'Tn M6' donde 'n' es el número de herramienta.
+* Mueva la herramienta a un punto establecido utilizando un calibre o realice un corte de prueba y    medida.
+* Haga clic en el botón "Touch Off" en la pestaña Control Manual (o presione el botón    Fin en su teclado).
+* Seleccione 'Tabla de herramientas' en el cuadro desplegable Sistema de Coordenadas.
+* Ingrese el valor calibrado o la dimensión medida y seleccione OK.
 
 La tabla de herramientas se cambiará con la longitud Z correcta para que el
 DRO muestre la posición Z correcta y se emitirá un comando G43 para
 para que la longitud Z de la nueva herramienta esté vigente. Touch Off de la tabla de herramientas solo
 está disponible cuando una herramienta se carga con 'Tn M6'.
 
-.Touch Off de tabla de herramientas
-image::images/ToolTable-TouchOff.png[align="center", alt="Touch Off de Tabla de herramientas"]
+[[cap:touch-off-tool]]
+//.Touch Off de tabla de herramientas
+image::images/ToolTable-TouchOff.png["Touch Off de tabla de herramientas",align="center"]
 
-=== Usando G10 L1/L10/L11
+== Usando G10 L1/L10/L11
 
 Los comandos G10 L1/L10/L11 se pueden usar para establecer las compensaciones de la tabla de herramientas:
 
-* 'G10 L1 Pn' -  Establece los offsets en un valor. Posición actual irrelevante.
-                      (vea <<gcode:g10-l1,G10 L1>> para más detalles)
+* 'G10 L1 Pn' -  Establece los offsets en un valor. Posición actual irrelevante (vea <<gcode:g10-l1,G10 L1>> para más detalles).
+* 'G10 L10 Pn' - Establece los offsets de modo que la posición actual respecto a fijaciones 1-8 se convierta en un valor (vea <<gcode:g10-l10,G10 L10>> para más detalles).
+* 'G10 L11 Pn' - Establece los offsets de modo que la posición actual respecto a fijacion 9 se convierta en un valor (vea <<gcode:g10-l11,G10 L11>> para más detalles).
 
-* 'G10 L10 Pn' - Establece los offsets de modo que la posición actual respecto a fijaciones 1-8 se convierta en un valor.
-                      (vea <<gcode:g10-l10,G10 L10>> para más detalles)
-
-* 'G10 L11 Pn' - Establece los offsets de modo que la posición actual respecto a fijacion 9 se convierta en un valor.
-                      (vea <<gcode:g10-l11,G10 L11>> para más detalles)
+[NOTE]
+This is only a brief presentation, refer to the reference guide of the
+G-code for more detailed explanations.
 
 [[sec:tool-table]]
-== Tabla de herramientas
+== Tabla de herramientas(((Tabla de herramientas)))
 
 La 'Tabla de herramientas' es un archivo de texto que contiene información sobre cada
 herramienta. El archivo está ubicado en el mismo directorio que su configuración
@@ -56,6 +69,7 @@ El número máximo de herramienta y de ranura es 99999.
 <<cha:tooledit-gui,Tool Editor>> o un editor de texto se pueden usar para editar la
 tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a cargar la tabla en la GUI
 
+[[sub:tool-table-format]]
 === Formato de tabla de herramientas(((Tool-Table-Format)))
 
 .Formato de tabla de herramientas
@@ -70,15 +84,15 @@ tabla de herramientas. Si utiliza un editor de texto, asegúrese de volver a car
 
 En general, el nuevo formato de línea de la tabla de herramientas es:
 
- -; - punto y coma de apertura, sin datos
- - T - número de herramienta, 0-99999 (los números de herramienta deben ser únicos)
- - P - número de ranura, 1-99999 (los números de ranura deben ser únicos)
- - X..W - offset de herramienta en el eje especificado - punto flotante
- - D - diámetro de la herramienta - coma flotante, valor absoluto
- - I - ángulo frontal (solo torno) - punto flotante
- - J - ángulo posterior (solo torno) - punto flotante
- - Q - orientación de la herramienta (solo torno) - entero, 0-9
- - ; - comienzo del comentario o anotacion - texto
+- ; - punto y coma de apertura, sin datos
+- T - número de herramienta, 0-99999 (los números de herramienta deben ser únicos)
+- P - número de ranura, 1-99999 (los números de ranura deben ser únicos)
+- X..W - offset de herramienta en el eje especificado - punto flotante
+- D - diámetro de la herramienta - coma flotante, valor absoluto
+- I - ángulo frontal (solo torno) - punto flotante
+- J - ángulo posterior (solo torno) - punto flotante
+- Q - orientación de la herramienta (solo torno) - entero, 0-9
+- ; - comienzo del comentario o anotacion - texto
 
 El archivo consta de un punto y coma de apertura en la primera línea,
 seguido de hasta un máximo de 1000 entradas de herramientas.
@@ -114,12 +128,12 @@ una línea y un carácter de nueva línea al final de cada entrada.
 Los significados de las entradas y el tipo de datos que se colocarán en cada uno son
 como sigue:
 
-.Número de herramienta (requerido)
+Número de herramienta (requerido)::
 La columna 'T' contiene el número (entero sin signo) que
 representa un número de código para la herramienta. El usuario puede usar cualquier código para
 cualquier herramienta, siempre que los códigos sean enteros sin signo.
 
-.Número de ranura (requerido)
+Número de ranura (requerido)::
 La columna 'P' contiene el número (entero sin signo) que
 representa el número de ranura del cambiador de herramientas
 donde se puede encontrar la herramienta. Las entradas en esta columna deben ser todas
@@ -133,7 +147,7 @@ los números de ranura que use estarán determinados por el esquema de numeraci�
 utilizado en su cambiador de herramientas, y los números de ranura que usa deben
 tener sentido en su máquina.
 
-.Números de datos de offsets (opcional)
+Números de datos de offsets (opcional)::
 Las columnas 'Datos de Offset' (XYZABCUVW) contienen números reales que
 representar los offsets de herramientas en cada eje. Este número se usará si la herramienta
 utiliza offset de longitud y está seleccionada.
@@ -173,25 +187,81 @@ La columna 'Comentario' puede usarse opcionalmente para describir la herramienta
 tipo de descripción estará bien. Esta columna es solo para lectores humanos.
 El comentario debe ir precedido de un punto y coma.
 
+[[sub:tool-io]]
+=== Tool IO(((Tool IO)))
+
+The userspace program specified by *[EMCIO]EMCIO = io* is conventionally
+used for tool changer management (and other io functions for enabling
+LinuxCNC and the control of coolant/lube hardware).  The hal pins used for
+tool management are prefixed with *iocontrol.0.*
+
+A gcode *TN* command asserts the hal output pin *iocontrol.0.tool-prepare*.
+The hal input pin, *iocontrol.0.tool-prepared*, must be set by external
+hal logic to complete tool preparation leading to a subsequent reset of
+the tool-prepare pin.
+
+A gcode *M6* command asserts the hal output pin *iocontrol.0.tool-change*.
+The related hal input pin, *iocontrol.0.tool-prepared*, must be set by
+external hal logic to indicate completion of the tool change leading
+to a subsequent reset of the tool-change pin.
+
+Tooldata is accessed by an ordered index (idx) that depends on the
+type of toolchanger specified by *[EMCIO]RANDOM_TOOLCHANGER=type*.
+
+. For *RANDOM_TOOLCHANGER = 0*, (0 is default and specifies a non-random
+toolchanger) idx is a number indicating the sequence in which tooldata was loaded.
+. For *RANDOM_TOOLCHANGER = 1*, idx is the *current* pocket number
+for the toolnumber specified by the gcode select tool command *Tn*.
+
+The io program provides hal output pins to facilitate toolchanger management:
+
+. *iocontrol.0.tool-prep-number*
+. *iocontrol.0.tool-prep-index*
+. *iocontrol.0.tool-prep-pocket*
+
+==== IO for non-random toolchanger
+
+. Tool number N==0 indicates no tool
+. The pocket number for a tool is fixed when tooldata is loaded
+. At gcode *TN* (N != 0) command:
+.. *iocontrol.0.tool-prep-index*  = idx (index based on tooldata load sequence)
+.. *iocontrol.0.tool-prep-number* = N
+.. *iocontrol.0.tool-prep-pocket* = the fixed pocketno for N
+. At gcode *T0* (N == 0 remove) command:
+.. *iocontrol.0.tool-prep-index*  = 0
+.. *iocontrol.0.tool-prep-number* = 0
+.. *iocontrol.0.tool-prep-pocket* = 0
+
+==== IO for random toolchanger
+
+. Tool number N==0 is *not special*
+. Pocket number 0 is *special* as it indicates the *spindle*
+. The *current* pocket number for tool N is the tooldata index (idx) for tool N
+. At gcode command *TN*:
+.. *iocontrol.0.tool-prep-index*  = pocket number for tool N
+.. *iocontrol.0.tool-prep-number* = N
+.. *iocontrol.0.tool-prep-pocket* = pocket number for tool N
+
+
 [[sub:tool-changers]]
-=== Cambiadores de herramientas
+=== Cambiadores de herramientas(((Cambiadores de herramientas)))
 
 LinuxCNC admite tres tipos de cambiadores de herramientas: 'manual', 'ubicación aleatoria'
 y 'ubicación fija'. Información sobre la configuración de un cambiador de herramientas LinuxCNC
 está en la <<sec:emcio-section,Sección EMCIO>> del capítulo INI.
 
 .Cambiador de herramientas manual
+El cambiador manual de herramientas (cambiar la herramienta a mano) se trata como un cambiador de herramienta de ubicación fija y el número P se ignora.
+Utilizar el cambiador manual de herramientas solo tiene sentido si tiene portaherramientas que permanezcan con la herramienta (Cat, NMTB, Kwik Switch, etc.) cuando se cambia preservando así la ubicación de la herramienta en el husillo.
+Máquinas con R-8 o los portaherramientas de tipo collar de enrutadores no conservan la ubicación de la herramienta y el cambiador de herramientas manual no debe usarse.
+Manual toolchanges can be aided by a hal configuration that employs the userspace program *hal_manualtoolchange* and is typically specified in an ini file
 
-El cambiador manual de herramientas (cambiar la herramienta a mano) se trata como un
-cambiador de herramienta de ubicación fija y el número P se ignora. Utilizar
-el cambiador manual de herramientas solo tiene sentido si tiene portaherramientas que
-permanezcan con la herramienta (Cat, NMTB, Kwik Switch, etc.) cuando se cambia
-preservando así la ubicación de la herramienta en el husillo. Máquinas con R-8
-o los portaherramientas de tipo collar de enrutadores no conservan la ubicación de
-la herramienta y el cambiador de herramientas manual no debe usarse.
+----
+[HAL]
+HALFILE = axis_manualtoolchange.hal
+----
 
 .Cambiadores de herramientas de ubicación fija
-
 Los cambiadores de herramientas de ubicación fija siempre devuelven las herramientas a una
 posición fija en el cambiador de herramientas. Esto también incluiría
 diseños como torretas de torno. Cuando LinuxCNC está configurado para un
@@ -199,7 +269,6 @@ cambiador de herramientas de ubicación fija se ignora el número 'P' (pero se l
 y se reescribe), por lo que puede usar P para cualquier número que quiera.
 
 .Cambiadores de herramientas de ubicación aleatoria.
-
 Los cambiadores de herramientas de ubicación aleatoria intercambian la herramienta en el eje con
 una del cambiador. Con este tipo de cambiador de herramientas, la herramienta
 siempre esta en un ranura diferente después de un cambio de herramienta. Cuando una herramienta se cambia,
@@ -207,7 +276,7 @@ LinuxCNC reescribe el número de ranura para realizar un seguimiento de dónde e
 T puede ser cualquier número pero P debe ser un número que tenga sentido para la máquina.
 
 [[sec:cutter-radius-compensation]]
-== Compensación del cortador
+== Compensación del cortador(((Compensación del cortador)))
 
 La compensación de cortador permite al programador programar la trayectoria de la herramienta
 sin conocer el diámetro exacto de la misma. La única advertencia es que
@@ -228,18 +297,19 @@ el movimiento se detendrá brevemente para no dañar la pieza. La siguiente figu
 muestra cómo el movimiento compensado se detendrá en diferentes puntos dependiendo
 del próximo movimiento
 
-.Punto final de compensación
-image::images/comp-path_en.svg[align="center", alt="Punto final de compensación"]
+[[cap:compensation-end-point]](((Punto final de compensación)))
+//.Punto final de compensación
+image:images/comp-path_en.svg["Punto final de compensación",align="center"]
 
 === Descripción general
 
-.Tabla de herramientas
+==== Tabla de herramientas
 
 La compensación del cortador utiliza los datos de la tabla de herramientas para
 determinar el desplazamiento necesario. Los datos se pueden configurar en tiempo de ejecución con G10
 L1
 
-.Programación de movimientos de entrada
+==== Programación de movimientos de entrada
 
 Cualquier movimiento que sea lo suficientemente largo como para realizar la compensación funcionará como
 movimiento de entrada. La longitud mínima es el radio de corte. Esto puede ser un
@@ -252,28 +322,33 @@ de X0 en este caso. Si tuviera que programar un perfil y el final está en
 X0, el perfil resultante dejaría una protuberancia debido al offset del
 movimiento de entrada.
 
-.Movimiento de entrada
-image::images/comp02_en.svg[alt="Movimiento de entrada"]
+[[cap:entry-move]]
+//.Movimiento de entrada
+image::images/comp02_en.svg["Movimiento de entrada"]
 
-.Movimientos Z
+==== Movimientos Z
 El movimiento del eje Z puede tener lugar mientras se sigue el contorno en
 el plano XY. Se pueden omitir partes del contorno retrayendo el
 eje Z sobre la pieza y extendiendo el eje Z en el siguiente punto de inicio.
 
-.Movimientos rápidos
+==== Movimientos rápidos
+
 Se pueden programar movimientos rápidos mientras la compensación está activada.
 
-.Buenas practicas
- - Inicie un programa con G40 para asegurarse de que la compensación esté desactivada.
+==== Buenas practicas
+
+Inicie un programa con G40 para asegurarse de que la compensación esté desactivada.
 
 === Ejemplos
 
-.Perfil externo
+==== Perfil externo ejemplo
 
-.Perfil externo
-image::images/outside-comp.png[alt="Perfil externo"]
+[[cap:outside-profile]]
+//.Perfil externo
+image::images/outside-comp.png["Perfil externo",align="center"]
 
-.Perfil interno
+==== Perfil interno ejemplo
 
-.Perfil interno
-image::images/inside-comp.png[alt="Perfil interno"]
+[[cap:inside-profile]]
+//.Perfil interno
+image::images/inside-comp.png["Perfil interno",align="center"]

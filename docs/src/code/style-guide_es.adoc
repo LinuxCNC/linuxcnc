@@ -15,8 +15,7 @@ introducidos por la sangría hacen que sea más difícil seguir el
 historial de revisión del archivo.
 
 No use un editor que realice cambios innecesarios en los espacios en blanco (por ejemplo,
-reemplaza 8 espacios con un tabulador en una línea no modificada,
-o ajuste de texto en líneas no modificadas de otra manera)
+reemplaza 8 espacios con un tabulador en una línea no modificada, o ajuste de texto en líneas no modificadas de otra manera)
 
 == Tabulaciones
 

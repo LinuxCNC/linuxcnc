@@ -1,12 +1,10 @@
 :lang: es
 
 [[cha:hal-tools]]
-
-=Herramientas HAL
+= Herramientas HAL(((Herramientas HAL)))
 
 [[sec:halcmd]]
-
-==Halcmd
+== Halcmd
 
 Halcmd es una herramienta de línea de comandos para manipular HAL. Hay una
 página del manual bastante completa para halcmd, que se instalará si
@@ -29,9 +27,8 @@ man halcmd
 El capitulo <<cha:hal-tutorial,Tutorial HAL>> es un buen tutorial para halcmd y 
 tiene varios ejemplos de uso.
 
-[[sec:halmeter]] (((Halmeter)))
-
-==Halmeter
+[[sec:halmeter]]
+== Halmeter(((Halmeter)))
 
 Halmeter es un 'voltímetro' para HAL. Le permite ver el valor actual de un pin,
 señal, o parámetro. Es bastante simple de usar. Comience escribiendo *halmeter* en una
@@ -77,11 +74,9 @@ loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 
 Vea la página man para más opciones. Vea tambien la sección <<sec:halmeter,Halmeter>>.
   
-.Halmeter
+image::images/hal-meter01.png["Halmeter 1"]
 
-image::images/hal-meter01.png[alt="Halmeter"]
-
-image::images/hal-meter02.png[alt="Halmeter"]
+image::images/hal-meter02.png["Halmeter 2"]
 
 == Halshow
 
@@ -94,6 +89,7 @@ una lista de vigilancia y para cargar una lista de vigilancia existente. Los ele
 también cargarse automáticamente al inicio. Para su uso, en línea de comandos:
 
 ----
+halshow --help
 Usage:
   halshow [Options] [watchfile]
   Options:
@@ -108,30 +104,34 @@ Notes:
 
 LinuxCNC debe estar ejecutanse para uso independiente de Halshow.
 
+image:images/halshow-4.png["Watch Tab",align="center"]
+
 El archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar lista de observación'
 está formateado como una sola línea con tokens "pin+", "param+", "sig=+"
 seguido del nombre de pin, param o señal apropiado.
 Los pares token-nombre están separados por un carácter de espacio.
 
-Ejemplo:
-   pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
+.Ejemplo:
+----
+pin+joint.0.pos-hard-limit pin+joint.1.pos-hard-limit sig+estop-loop
+----
 
 Un archivo watchfile creado utilizando la opción de menú 'Archivo/Guardar lista de observación (multilínea)'
 está formateado con líneas separadas para cada elemento identificado con pares token-nombre
 como se describe arriba.
 
-Ejemplo:
-   pin+joint.0.pos-hard-limit
-   pin+joint.1.pos-hard-limit
-   sig+estop-loop
+.Ejemplo:
+----
+pin+joint.0.pos-hard-limit
+pin+joint.1.pos-hard-limit
+sig+estop-loop
+----
 
 Al cargar un archivo watchfile con el elemento de menú 'Archivo/cargar lista de observación',
 los pares de nombres de tokens pueden aparecer como líneas simples o múltiples. Líneas en blanco y
 líneas que comienzan con un caracter # son ignoradas.
 
-
 [[sec:halscope]]
-
 == Halscope
 
 Halscope es un "osciloscopio" para HAL. Le permite capturar el
@@ -140,12 +140,12 @@ Las instrucciones de operación deben ubicarse aquí eventualmente. Por ahora,
 consulte la sección <<sec:tutorial-halscope>> en el capítulo tutorial,
 que explica los conceptos básicos.
 
-El selector del menú Archivo de halscope proporciona botones para guardar una configuración
-o abrir una configuración previamente guardada. Cuando halscope termina,
-la última configuración se guarda en un archivo llamado autosave.halscope.
+El selector del menú Archivo de halscope proporciona botones para guardar una configuración o abrir una configuración previamente guardada.
+Cuando halscope termina, la última configuración se guarda en un archivo llamado autosave.halscope.
 
 Los archivos de configuración también se pueden especificar al iniciar halscope desde
 la línea de comando. Ayuda de uso en linea de comandos (-h):
+
 ----
 halscope -h
 Uso:
@@ -155,7 +155,9 @@ Uso:
 == Sim Pin
 
 sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de
-Pines, parámetros o señales editables. Uso:
+Pines, parámetros o señales editables.
+
+.Uso
 ----
   Uso:
          sim_pin [Opciones] nombre1 [nombre2 ...] &
@@ -185,30 +187,36 @@ Pines, parámetros o señales editables. Uso:
          Si el modo comienza con una letra mayúscula,
          no se muestran los botones radio para seleccionar otros modos
 ----
+
 Para obtener información completa, consulte la página man:
+
 ----
 man sim_pin
 ----
-Ejemplo (con LinuxCNC ejecutándose):
+
+.Ejemplo (con LinuxCNC ejecutándose):
 ----
 halcmd loadrt mux2 names=example; halcmd net sig_example example.in0
 sim_pin example.sel example.in1 sig_example &
 ----
-image::images/sim_pin.png[alt="sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de pines, parámetros o señales que se puedan escribir"]
+
+image::images/sim_pin.png["sim_pin es una utilidad de línea de comandos para mostrar y actualizar cualquier cantidad de pines, parámetros o señales que se puedan escribir"]
 
 == Sonda simulada
 
 simulate_probe es una gui simple para simular la activación del pin
 motion.probe-input. Uso:
+
 ----
 simulate_probe &
 ----
 
-image::images/simulate_probe.png[alt="simulate_probe es una gui simple para simular la activación del pin motion.probe-input"]
+image::images/simulate_probe.png["simulate_probe es una gui simple para simular la activación del pin motion.probe-input"]
 
 == Hal Histogram
 
 hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines hal.
+
 ----
 Uso:
    hal-histograma --help | -?
@@ -234,7 +242,8 @@ Notas:
      Para un hilo base, esto puede requerir el uso de:
      loadrt motmod ... base_thread_fp=1
 ----
-image::images/hal-histogram.png[alt="hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines de hal"]
+
+image::images/hal-histogram.png["hal-histogram es una utilidad de línea de comandos para mostrar histogramas para pines de hal"]
 
 == Halreport
 
@@ -266,8 +275,8 @@ o
 
 Para generar el informe para cada inicio de LinuxCNC, incluya halreport
 y un nombre de archivo de salida como una entrada de [APPLICATIONS]APP en el archivo ini.
-Ejemplo:
 
+.Ejemplo:
 ----
 [APPLICATIONS]
 APP = halreport /tmp/halreport.txt
@@ -284,9 +293,9 @@ debe ser numéricamente más bajo que el orden addf de los
 pines de entrada críticos a los que se conecta.
 
 Para rutas de señal de rutinas que manejan entradas de interruptores, pines de 
-espacio de usuario, etc., el ordenamiento addf a menudo no es crítico. Además,
-el momento de los cambios de valor de pin de espacio de usuario no se puede controlar
-o garantizar en los intervalos típicamente empleados para hilos hal.
+espacio de usuario, etc., el ordenamiento addf a menudo no es crítico.
+Además, el momento de los cambios de valor de pin de espacio de usuario no se
+puede controlar o garantizar en los intervalos típicamente empleados para hilos hal.
 
 Ejemplo de archivo de informe que muestran un bucle pid para hostmot2
 stepgen operado en modo de velocidad en una máquina Trivkins con
@@ -313,6 +322,7 @@ SIG:    motor-cmd-0
 
 En el ejemplo anterior, el HALFILE usa alias halcmd para simplificar los nombres de los pines
 para una placa hostmot2 fpga con comandos como:
+
 ----
 alias pin hm2_7i92.0.stepgen.00.position-fb h.00.position-fb
 ----

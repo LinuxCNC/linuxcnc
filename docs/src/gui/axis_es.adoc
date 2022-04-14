@@ -1,7 +1,14 @@
 :lang: es
+:toc:
 
 [[cha:axis-gui]]
-= GUI AXIS
+= GUI AXIS(((GUI AXIS)))
+
+// Custom lang highlight
+// must come after the doc title, to work around a bug in asciidoc 8.6.6
+:ini: {basebackend@docbook:'':ini}
+:hal: {basebackend@docbook:'':hal}
+:ngc: {basebackend@docbook:'':ngc}
 
 == Introducción
 
@@ -9,7 +16,7 @@ AXIS es una interfaz gráfica para LinuxCNC que cuenta con vista previa y backpl
 Tk y OpenGL para mostrar la interfaz de usuario.
 
 [[fig:axis-window]]
-.Ventana de AXIS
+//.Ventana de AXIS
 image::images/axis_es.png["Ventana AXIS",align="center"]
 
 == Primeros pasos
@@ -20,16 +27,37 @@ sección '[DISPLAY]' indiquelo con la linea 'DISPLAY = axis'.
 
 La configuracion de ejemplo 'sim/axis.ini' ya está configurada para usar AXIS como su interfaz de usuario.
 
+When AXIS starts, a window like the one in the figure
+<<fig:axis-window>> above opens.
+
+=== INI settings
+
+For more information on ini file settings that can change how AXIS
+works see the <<sec:display-section,Display Section>> of the INI
+Configuration Chapter.
+
+Adjust the response rate of the GUI in milliseconds. Typical 100, useable range 50 - 200 +
+(will accept time in seconds (.05 -.2) for legacy reasons - milliseconds preferred to match other screens)
+
+[source,{ini}]
+----
+[DISPLAY]
+CYCLE_TIME = 100
+----
+
 === Una sesión típica
 
- . Inicie LinuxCNC.
- . Reinicie E-STOP (F1) y encienda la alimentación de la máquina (F2).
- . Haga Homing de todos los ejes.
- . Cargue el archivo g-code.
- . Utilice el gráfico de vista previa para verificar que el programa es correcto.
- . Cargue el material.
- . Establezca el offset adecuado para cada eje haciendo jogging y usando la tecla Touch Off según sea necesario.
- . Ejecute el programa.
+. Inicie LinuxCNC and select a configuration file.
+. Reinicie E-STOP (F1) y encienda la alimentación de la máquina (F2).
+. Haga Homing de todos los ejes.
+. Cargue el archivo g-code.
+. Utilice el gráfico de vista previa para verificar que el programa es correcto.
+. Cargue el material.
+. Establezca el offset adecuado para cada eje haciendo jogging y usando la tecla Touch Off según sea necesario.
+. Ejecute el programa.
+. To machine the same file again, return to step 6.
+  To machine a different file, return to step 4.
+. When the job is complete, exit AXIS.
 
 [NOTE]
 Ejecutar el mismo programa de nuevo dependera de su configuración y requisitos.
@@ -59,11 +87,9 @@ La ventana de AXIS contiene los siguientes elementos:
   El máximo predeterminado es 120% y se puede configurar a un valor diferente
   en el archivo ini. Consulte la <<sec:display-section, Sección de visualización>> del
   archivo INI para más información.
-* 'Spindle Override' - que le permite
-  escalar la velocidad del husillo hacia arriba o hacia abajo.
-* 'Jog Speed' - que te permite configurar la velocidad de jog
-  dentro de los límites establecidos en el archivo ini. Ver la
-  <<sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
+* 'Spindle Override' - que le permite escalar la velocidad del husillo hacia arriba o hacia abajo.
+* 'Jog Speed' - que te permite configurar la velocidad de jog dentro de los límites establecidos en el archivo ini.
+  Ver la <<sec:display-section,Sección de visualización>> del archivo INI para obtener más información.
 * 'Velocidad máxima' - que le permite restringir la velocidad máxima de todos
   los movimientos programados (excepto movimiento sincronizados del husillo).
 * Una zona de visualización de texto que muestra el G-Code cargado.
@@ -76,44 +102,43 @@ La ventana de AXIS contiene los siguientes elementos:
 
 Algunos elementos del menú pueden estar en gris dependiendo de cómo tenga su
 archivo .ini configurado. Para más información sobre configuración vea el
-<<cha:ini-configuration,Capítulo INI.
+<<cha:ini-configuration,Capítulo INI>>.
 
-=== Menú Archivo
+==== Menú Archivo
 
- * 'Abrir ...'- abre un cuadro de diálogo estándar para abrir un archivo de código g para cargar en AXIS. Si
-   ha configurado LinuxCNC para usar un programa de filtro, también puede abrirlo.
-   Consulte la <<sec:filter-section,sección FILTRO>> de la configuración INI
-   para más información.
- * 'Archivos recientes'- muestra una lista de los archivos abiertos recientemente.
- * 'Editar ...'- abre el archivo de código G actual para editarlo si tienes un editor
-   configurado en su archivo ini. Consulte la sección <<sec:display-section,sección DISPLAY>>
-   para obtener más información sobre la especificación del editor a usar.
- * 'Recargar'- vuelve a cargar el archivo de código g actual. Si lo edita, debe recargarlo
-   para que los cambios se actualizen. Si detiene un archivo y quiere empezar
-   desde el principio, vuelva a cargar el archivo. La recarga de la barra de herramientas es la misma
-   qu la del menu.
- * 'Guardar gcode como ...' - Guarda el archivo actual con un nuevo nombre.
- * 'Propiedades'- la suma de los movimientos rápidos y de avance. No tiene en cuenta
-   modos de aceleración, fusion o ruta para que el tiempo reportado nunca
-   sea menor que el tiempo de ejecución real.
- * 'Editar tabla de herramientas ...' - Igual que Editar si ha definido un editor.
-    Puede abrir la tabla de herramientas y editarla.
- * 'Recargar tabla de herramientas': después de editar la tabla de herramientas, debe volve a cargarla.
- * 'Editor Ladder' - Si has cargado Classic Ladder puedes editarlo desde
-   aquí. Vea el capítulo Classicladder para más información.
+* 'Abrir ...' - abre un cuadro de diálogo estándar para abrir un archivo de código g para cargar en AXIS. Si
+  ha configurado LinuxCNC para usar un programa de filtro, también puede abrirlo.
+  Consulte la <<sec:filter-section,sección FILTRO>> de la configuración INI
+  para más información.
+* 'Archivos recientes' - muestra una lista de los archivos abiertos recientemente.
+* 'Editar ...' - abre el archivo de código G actual para editarlo si tienes un editor
+  configurado en su archivo ini. Consulte la sección <<sec:display-section,sección DISPLAY>>
+  para obtener más información sobre la especificación del editor a usar.
+* 'Recargar' - vuelve a cargar el archivo de código g actual. Si lo edita, debe recargarlo
+  para que los cambios se actualizen. Si detiene un archivo y quiere empezar
+  desde el principio, vuelva a cargar el archivo. La recarga de la barra de herramientas es la misma
+  qu la del menu.
+* 'Guardar gcode como ...' - Guarda el archivo actual con un nuevo nombre.
+* 'Propiedades' - la suma de los movimientos rápidos y de avance. No tiene en cuenta
+  modos de aceleración, fusion o ruta para que el tiempo reportado nunca
+  sea menor que el tiempo de ejecución real.
+* 'Editar tabla de herramientas ...' - Igual que Editar si ha definido un editor.
+  Puede abrir la tabla de herramientas y editarla.
+* 'Recargar tabla de herramientas' - después de editar la tabla de herramientas, debe volve a cargarla.
+* 'Editor Ladder' - Si has cargado Classic Ladder puedes editarlo desde
+  aquí. Vea el capítulo Classicladder para más información.
 // <<cha:classicladder,Classicladder>> -- all-english file removed
- * 'Salir' - Termina la sesión actual de LinuxCNC.
+* 'Salir' - Termina la sesión actual de LinuxCNC.
 
 [[sub:axis-machine-menu]]
-=== Menú de Máquina
+==== Menú de Máquina
 
- * 'Toggle Emergency Stop F1'- cambia el estado de la parada de emergencia.
- * 'Toggle Machine Power F2' - Cambiar el estado de encendido de la máquina si
-   la parada de emergencia no está encendida.
- * 'Ejecutar programa'- Ejecuta el programa actualmente cargado desde el principio.
- * 'Ejecutar desde la línea seleccionada' - seleccione la línea desde la que desea comenzar.
-   Use con precaución ya que esto moverá la herramienta a la posición esperada en
-   la línea y luego se ejecutará el resto del código.
+* 'Toggle Emergency Stop F1'- cambia el estado de la parada de emergencia.
+* 'Toggle Machine Power F2' - Cambiar el estado de encendido de la máquina si la parada de emergencia no está encendida.
+* 'Ejecutar programa'- Ejecuta el programa actualmente cargado desde el principio.
+* 'Ejecutar desde la línea seleccionada' - seleccione la línea desde la que desea comenzar.
+  Use con precaución ya que esto moverá la herramienta a la posición esperada en
+  la línea y luego se ejecutará el resto del código.
 
 [WARNING]
 No use 'Ejecutar desde la línea seleccionada' si su programa de código g contiene subrutinas.
@@ -122,7 +147,7 @@ No use 'Ejecutar desde la línea seleccionada' si su programa de código g conti
  * 'Pausa' - Pausa un programa.
  * 'Resume' - reanudar la ejecución de una pausa.
  * 'Stop' - Detiene un programa en ejecución. Cuando se selecciona ejecutar después de una parada, el programa
-           comenzará desde el principio.
+   comenzará desde el principio.
  * 'Stop en M1' - Si se alcanza un M1, y esto esta activo, la ejecución del programa
    parará en la línea M1. Presione Resume para continuar.
  * 'Saltar líneas con "/"' - Si una línea comienza con '/' y esto está activo,
@@ -134,16 +159,15 @@ No use 'Ejecutar desde la línea seleccionada' si su programa de código g conti
    La calibración lee el archivo HAL y para cada 'setp' que usa una variable
    del archivo ini que se encuentra en las secciones [AXIS_L], [JOINT_N] o [TUNE],
    crea una entrada que puede ser editada y probada.
- * 'Mostrar configuración HAL'- abre la ventana de configuración HAL donde puede
+ * 'Mostrar configuración HAL' - abre la ventana de configuración HAL donde puede
    monitorear componentes HAL, pines, parámetros, señales, funciones y subprocesos.
- * 'HAL Meter'- abre una ventana donde puede monitorear un solo Pin HAL, señal o
-    Parámetro.
- * 'HAL Scope'- abre un osciloscopio virtual que permite seguir valores HAL en función del tiempo.
- * 'Mostrar estado de LinuxCNC'- abre una ventana que muestra el estado de LinuxCNC.
- * 'Establecer nivel de depuración'- abre una ventana donde se pueden ver los niveles de depuración y se pueden configurar algunos.
+ * 'HAL Meter' - abre una ventana donde puede monitorear un solo Pin HAL, señal o Parámetro.
+ * 'HAL Scope' - abre un osciloscopio virtual que permite seguir valores HAL en función del tiempo.
+ * 'Mostrar estado de LinuxCNC' - abre una ventana que muestra el estado de LinuxCNC.
+ * 'Establecer nivel de depuración' - abre una ventana donde se pueden ver los niveles de depuración y se pueden configurar algunos.
  * 'Homing' - home uno o todos los ejes.
  * 'Unhoming' - Deshacer home de uno o todos los ejes.
- * 'Sistema de coordenadas cero'- establece todos los offsets a cero en el sistema de coordenadas elegido.
+ * 'Sistema de coordenadas cero' - establece todos los offsets a cero en el sistema de coordenadas elegido.
 //[[sub:axis:tool-touch-off]]
  * 'Tool Touch Off'(((Axis, Tool Touch Off)))
  ** 'Tool touch off to workpiece' - Al realizar Touch Off, el valor
@@ -200,117 +224,78 @@ Solo recuerde que el eje Z positivo está (casi) siempre 'alejandose' de la piez
 Familiarícese con el diseño de su máquina e interprete la pantalla según sea necesario.
 ****
 
-
 * 'Mostrar pulgadas' - establece la escala de la pantalla AXIS en pulgadas.
-
 * 'Mostrar MM': establece la escala de la pantalla AXIS en milímetros.
-
-* 'Mostrar programa' - la vista previa del programa de código G cargado puede ser completamente
-    desactivada si lo desea.
-
+* 'Mostrar programa' - la vista previa del programa de código G cargado puede ser completamente desactivada si lo desea.
 * 'Mostrar Rapidos' - la vista previa del programa de código G cargado siempre mostrará el
-    avance (G1, G2, G3) en color blanco. Pero la vision de movimientos rápidos (G0)
-    ,en cian, se puede desactivar si se desea.
-
+  avance (G1, G2, G3) en color blanco. Pero la vision de movimientos rápidos (G0), en cian, se puede desactivar si se desea.
 * 'Fusion alfa' - esta opción hace que la vista previa de programas complejos sea más fácil de ver, pero
-    puede hacer que la vista previa se muestre más lentamente.
-
-* 'Mostrar Plot en vivo' - El resaltado de las rutas de avance (G1, G2, G3) a medida que la herramienta se mueve
-    se puede desactivar si se desea.
-
+  puede hacer que la vista previa se muestre más lentamente.
+* 'Mostrar Plot en vivo' - El resaltado de las rutas de avance (G1, G2, G3) a medida que la herramienta se mueve se puede desactivar si se desea.
 * 'Mostrar herramienta' - la visualización del cono/cilindro de la herramienta se puede desactivar si se desea.
-
 * 'Mostrar extensiones' - la visualización de las extensiones (recorrido máximo en cada dirección del eje)
-    del programa de código G cargado se puede desactivar si se desea.
-
+  del programa de código G cargado se puede desactivar si se desea.
 * 'Mostrar Offsets' - Se puede mostrar la ubicación de origen del offset del montaje seleccionado (G54-G59.3)
-    como un conjunto de tres líneas ortogonales, roja, azul y verde.
-    Esta visualización de origen de offset (o punto cero) se puede desactivar si se desea.
-
+  como un conjunto de tres líneas ortogonales, roja, azul y verde.
+  Esta visualización de origen de offset (o punto cero) se puede desactivar si se desea.
 * 'Mostrar límites de máquina' - los límites máximos de desplazamiento de la máquina para cada eje, según lo establecido en
-    el archivo ini, se muestran como una caja rectangular dibujada en líneas discontinuas rojas. Esto
-    es útil cuando se carga un nuevo programa de código G, o cuando se comprueba si
-    se necesitaría mucho offset del montaje para llevar el programa de código G dentro de
-    los límites de recorrido de su máquina. Puede apagarse si no es necesario.
-
+  el archivo ini, se muestran como una caja rectangular dibujada en líneas discontinuas rojas. Esto
+  es útil cuando se carga un nuevo programa de código G, o cuando se comprueba si
+  se necesitaría mucho offset del montaje para llevar el programa de código G dentro de
+  los límites de recorrido de su máquina. Puede apagarse si no es necesario.
 * 'Mostrar Velocidad' - Una visualización de la velocidad a veces es útil para ver qué tan cerca está funcionando
-    su máquina de la velocidad de diseño. Puede ser desactivado si se desea.
-
+  su máquina de la velocidad de diseño. Puede ser desactivado si se desea.
 * 'Mostrar distancia a recorrer' - Distancia a recorrer es un elemento muy útil que conocer cuando se ejecuta un
-    programa de código G desconocido por primera vez. En combinación con los
-    controles de anulación de velocidad rápida y  de avance, se puede evitar el daño a herramientas
-    y/o a la máquina. Una vez que el programa de código G
-    se ha depurado y se está ejecutando sin problemas, la pantalla Distancia a ir
-    se puede desactivar si se desea.
-
+  programa de código G desconocido por primera vez. En combinación con los controles de anulación de velocidad rápida y
+  de avance, se puede evitar el daño a herramientas y/o a la máquina.
+  Una vez que el programa de código G se ha depurado y se está ejecutando sin problemas,
+  la pantalla Distancia a ir se puede desactivar si se desea.
+* 'Coordinates in large font...' - The coordinates of the axes and the speed
+  in advance, will display in large font in the toolpath view.
 * 'Limpiar Plot en vivo' - a medida que la herramienta se desplaza en la pantalla Axis, se resalta la ruta del código G.
-    Para repetir el programa, o para ver mejor un área de interés,
-    las rutas previamente resaltadas se pueden borrar.
-
-* 'Mostrar posición ordenada': esta es la posición a la que intentará ir LinuxCNC. Una vez que el movimiento
-    se ha detenido, esta es la posición que intentará mantener LinuxCNC.
-
-* 'Mostrar posición actual': la posición real es la posición medida, leída desde los
-    codificadores o desde el sistema simulado por los generadores de pasos. Esto puede diferir
-    ligeramente de la posición ordenada por muchas razones, incluyendo afinacion del PID,
-    restricciones físicas, o cuantización de la posición.
-
-* 'Mostrar posición de la máquina': esta es la posición en coordenadas sin compensación, según lo establecido por Homing.
-
-* 'Mostrar posición relativa': esta es la posición de la máquina modificada por las compensaciones 'G5x', 'G92' y 'G43'.
+  Para repetir el programa, o para ver mejor un área de interés,
+  las rutas previamente resaltadas se pueden borrar.
+* 'Mostrar posición ordenada' - esta es la posición a la que intentará ir LinuxCNC. Una vez que el movimiento
+  se ha detenido, esta es la posición que intentará mantener LinuxCNC.
+* 'Mostrar posición actual' - la posición real es la posición medida, leída desde los
+  codificadores o desde el sistema simulado por los generadores de pasos. Esto puede diferir
+  ligeramente de la posición ordenada por muchas razones, incluyendo afinacion del PID,
+  restricciones físicas, o cuantización de la posición.
+* 'Mostrar posición de la máquina' - esta es la posición en coordenadas sin compensación, según lo establecido por Homing.
+* 'Mostrar posición relativa' - esta es la posición de la máquina modificada por las compensaciones 'G5x', 'G92' y 'G43'.
 
 ==== Menú de ayuda
 
 * 'Acerca de Axis' - Todos sabemos lo que es esto.
-
-* 'Referencia rápida': muestra las teclas de método abreviado del teclado.
+* 'Referencia rápida' - muestra las teclas de método abreviado del teclado.
 
 === Botones de la barra de herramientas
 
 De izquierda a derecha en la pantalla de Axis, los botones de la barra de herramientas (atajos de teclado mostrados [entre corchetes]) son:
 
 * image:images/tool_estop.png["Stop de Emergencia"] Stop de Emergencia [F1] (también llamado E-Stop)
-
 * image:images/tool_power.png["Encendido de Maquina"] Encendido de Maquina [F2]
-
 * image:images/tool_open.png["Abrir archivo de código G"] Abrir archivo de código G [O]
-
 * image:images/tool_reload.png["Recargar archivo actual"] Recargar archivo actual [Ctrl-R]
-
 * image:images/tool_run.png["Comenzar a ejecutar el archivo actual"] Comenzar a ejecutar el archivo actual [R]
-
 * image:images/tool_step.png["Ejecutar línea siguiente"] Ejecutar línea siguiente [T]
-
 * image:images/tool_pause.png["Pausar ejecución - Reanudar ejecución"] Pausar ejecución [P] Reanudar ejecución [S]
-
 * image:images/tool_stop.png["Detener la ejecución del programa"] Detener la ejecución del programa [ESC]
-
 * image:images/tool_blockdelete.png["Saltar lineas"] Saltar lineas con "/" [Alt-M- /]
-
 * image:images/tool_optpause.png["Pausa Opcional"] Pausa Opcional [Alt-M-1]
-
 * image:images/tool_zoomin.png["Zoom +"] Zoom (mas)
-
 * image:images/tool_zoomout.png["Zoom -"] Zoom (menos)
-
 * image:images/tool_axis_z.png["Vista superior"] Vista superior
-
 * image:images/tool_axis_z2.png["Vista superior girada"] Vista superior girada
-
 * image:images/tool_axis_x.png["Vista lateral"] Vista lateral
-
 * image:images/tool_axis_y.png["Vista frontal"] Vista frontal
-
 * image:images/tool_axis_p.png["Vista en perspectiva"] Vista en perspectiva
-
 * image:images/tool_rotate.png["Alternar entre los modos arrastrar/rotar"] Alternar entre los modos de arrastrar/rotar [D]
-
 * image:images/tool_clear.png["Limpiar backplot en vivo"] Limpiar backplot en vivo [Ctrl-K]
 
 === Área de visualización gráfica
 
 .Visualizacion de coordenadas
-
 En la esquina superior izquierda de la pantalla del programa está la visualizacion de las coordenadas
 de posicion para cada eje. A la derecha del número, un símbolo de origen
 image:images/axis-homed.png["el símbolo de origen se muestra si el eje ha sido localizado"] que se muestra si el eje ha sido dotado de home.
@@ -332,11 +317,9 @@ se ha movido. Estos valores pueden ser diferentes de la posición ordenada
 debido al error de seguimiento, banda muerta, resolución del codificador o tamaño de paso.
 Por ejemplo, si ordena un movimiento a X 0.0033 en su fresadora, pero el paso de
 su motor paso a paso o su resolucion de encoder es 0.00125,
-la posición 'Comandada' podría ser 0.0033, pero la posición 'Actual' será 0.0025 (2 pasos)
-o 0.00375 (3 pasos).
+la posición 'Comandada' podría ser 0.0033, pero la posición 'Actual' será 0.0025 (2 pasos) o 0.00375 (3 pasos).
 
 .Plot de Vista Previa
-
 Cuando se carga un archivo,se muestra una vista previa en el área de visualización.
 Los movimientos rápidos (como los producidos por el comando 'G0') se muestran como
 lineas cian. Los movimientos a velocidad de avance (como los producidos por el comando 'G1')
@@ -364,10 +347,11 @@ y el programa requiere 3,83 pulgadas de recorrido X.
 Para que el movimiento programado esté dentro del recorrido de la máquina en este caso,
 haga jog a la izquierda y vuelva a hacer Touch Off X.
 
-image::images/axis-outofrange.png["Se muestran las extensiones del programa en el eje x",align="center",]
+[[fig:soft-limits]](((Soft Limits)))
+//.Soft limits
+image:images/axis-outofrange.png["Se muestran las extensiones del programa en el eje x",align="center",]
 
 .Herramienta Cono
-
 Cuando no se ha cargado ninguna herramienta, la ubicación de la punta de la herramienta esta
 indicada por un 'cono de herramienta'.
 La 'herramienta cono' no proporciona orientación sobre la forma, longitud, o radio de una herramienta real.
@@ -383,19 +367,17 @@ rojo para movimientos rectos a velocidad de avance
 y magenta para movimientos circulares a velocidad de avance.
 
 .Cuadrícula
-Axis puede, opcionalmente, mostrar una cuadrícula en las vistas ortogonales. Habilite
-o deshabilite la cuadrícula usando 'Cuadrícula' en el menu 'Ver'. Cuando esta
-habilitada, la cuadrícula se muestra en las vistas superior y superior girada. Cuando
-el sistema de coordenadas no esta girado, la cuadrícula se muestra también en las vistas frontal y
-lateral. Los preajustes en el menú 'Grid' están controlados
-por el elemento  del archivo ini `[DISPLAY]GRIDS`. Si no se especifica, el valor predeterminado es
-`10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
+Axis puede, opcionalmente, mostrar una cuadrícula en las vistas ortogonales.
+Habilite o deshabilite la cuadrícula usando 'Cuadrícula' en el menu 'Ver'.
+Cuando esta habilitada, la cuadrícula se muestra en las vistas superior y superior girada.
+Cuando el sistema de coordenadas no esta girado, la cuadrícula se muestra también en las vistas frontal y lateral.
+Los preajustes en el menú 'Grid' están controlados por el elemento  del archivo ini `[DISPLAY]GRIDS`.
+Si no se especifica, el valor predeterminado es `10mm 20mm 50mm 100mm 1in 2in 5in 10in`.
 
 Especificar una cuadrícula muy pequeña puede disminuir el rendimiento.
 
-
-Al hacer clic izquierdo en una parte del plot de vista previa,la línea será resaltada
-tanto en las pantallas gráficas como en las de texto.
+.Interacting
+Al hacer clic izquierdo en una parte del plot de vista previa,la línea será resaltada tanto en las pantallas gráficas como en las de texto.
 Al hacer clic izquierdo en un área vacía, se eliminará el resaltado.
 
 Al arrastrar con el botón izquierdo del ratón presionado,
@@ -403,10 +385,8 @@ la trama de vista previa se desplazará (panorámico).
 
 Al arrastrar con Mayús y el botón izquierdo del ratón presionado, o arrastrando con la rueda del ratón presionada,
 La trama de vista previa se rotará.
-Cuando una línea está resaltada,
-el centro de rotación es el centro de la línea.
-De lo contrario, el centro de rotación es
-el centro de todo el plot.
+Cuando una línea está resaltada, el centro de rotación es el centro de la línea.
+De lo contrario, el centro de rotación es el centro de todo el plot.
 
 Al girar la rueda del ratón, o arrastrando con el botón derecho del ratón presionado, o arrastrando con Control y presionando el botón izquierdo del ratón,
 el plot de vista previa se acercará o alejará.
@@ -460,11 +440,15 @@ la máquina se moverá exactamente la distancia mostrada
 cada vez que se hace clic en el botón o se presiona la tecla.
 Por defecto, los valores disponibles son '0.1000, 0.0100, 0.0010, 0.0001'
 
-Consulte la <<sec:display-section, sección DISPLAY para obtener más información sobre la configuración
+Consulte la <<sec:display-section, sección DISPLAY>> para obtener más información sobre la configuración
 los incrementos.
 
-
-.Homing
+.Homing (Identity Kinematics)
+The inifile setting [KINS]JOINTS defines the total number of
+joints for the system.  A joint may be configured with
+a home switch or for 'immediate' homing.  Joints may specify
+a home sequence that organizes the order for homing groups
+of joints.
 
 Si la máquina dispone de micros de home y una secuencia definida para homing
 de todos los ejes, en el botón mostrara 'Home All'. El botón 'Home All' o
@@ -475,6 +459,10 @@ Si su máquina tiene interruptores home y no se define una secuencia de inicio o
 no todos los ejes tienen una secuencia home, el botón mostrara 'Home' y
 solo llevara a home el eje seleccionado. Cada eje debe ser seleccionado y llevado a home por separado.
 
+The dropdown menu Machine/Homing provides an alternate method to
+home axes. The dropdown menu Machine/Unhoming provides means to
+unhome axes.
+
 Si su máquina no tiene interruptores home definidos en la
 configuración, el botón 'Home' establecerá la posición actual del eje seleccionado
 como la posición absoluta 0 para ese eje y
@@ -482,6 +470,16 @@ activara el bit 'is-homed' para ese eje.
 
 Consulte el <<cha:homing-configuration,Capítulo de configuración de Homing para obtener más información.
 
+.Homing (Non-Identity Kinematics)
+Operation is similar to that for Identity Kinematics but, prior to
+homing, the selection radio buttons select joints by number.  The
+homing button will show 'Home All' if all joints are configured
+for homing and have valid home sequences.  Otherwise, the homing
+button will show 'Home Joint'.
+
+See the <<cha:homing-configuration,Homing Configuration Chapter>> for more information.
+
+[[sub:axis:touch-off]]
 .Touch Off
 Al presionar 'Touch Off' o la tecla END, el 'offset G5x' para el
 el eje actual se cambia para que el valor del eje actual sea el
@@ -489,12 +487,21 @@ valor específicado. Las expresiones se pueden ingresar usando las reglas para l
 programas rs274ngc, excepto que las variables no pueden ser referidas.
 El valor resultante se muestra como un número.
 
-.Touch Off
-image::images/touchoff_es.png["Touch Off",align="center"]
+//.Touch Off
+image::images/touchoff_es.png["Touch Off screenshot",align="center"]
+
+See also the Machine menu options: 'Touch part' and 'Touch part holder'.
+
+.Tool Touch Off
+By pressing the 'Tool Touch Off' button the tool length and offsets of
+the currently loaded tool will be changed so that the current tool tip
+position matches the entered coordinate.
+
+//.Tool Touch Off Window
+image::images/tooltouchoff.png["Tool Touch Off Window", align="center"]
 
 Consulte también las opciones 'Tool touch off to workpiece' y 'Tool touch off to fixture'
 en el menú Machine.
-
 
 .Anulacion de Límites
 Pulsando Anulacion de Límites, se permitirá jog temporalmente en la máquina
@@ -527,8 +534,7 @@ MDI permite que los comandos de código G se ingresen manualmente.
 Cuando la máquina no está encendida, o cuando un programa está
 en ejecución, los controles MDI no están disponibles.
 
-La pestaña MDI
-
+.La pestaña MDI
 image::images/axis-mdi_es.png["pestaña MDI",align="center"]
 
  * 'Historial' - Muestra los comandos MDI que se han escrito anteriormente en esta sesión.
@@ -576,14 +582,13 @@ La lista completa de atajos de teclado se puede encontrar en AXIS Quick
 Reference, que se puede mostrar seleccionando Ayuda> Quick Reference.
 Muchos de los accesos directos no están disponibles cuando se está en modo MDI.
 
-Teclas de porcentaje de alimentación
-
-Las teclas de anulación de la alimentación se comportan de manera diferente cuando están en modo manual.
+=== Teclas de porcentaje de alimentación
 
 [NOTE]
 En el teclado 'Español de España', el simbolo " ' " se refiere al signo de acentuacion junto a la tecla
 "P". Este signo precisa doble pulsacion de dicha tecla.
 
+Las teclas de anulación de la alimentación se comportan de manera diferente cuando están en modo manual.
 Las teclas ',1,2,3,4,5,6,7 y 8 seleccionarán un eje si está programado. Si tiene 3
 eje ' seleccionará el eje 0, 1 seleccionará el eje 1, y 2 seleccionará
 eje 2. El resto de las teclas numéricas establecerán el porcentaje de alimentación.
@@ -632,7 +637,7 @@ AXIS incluye un programa llamado 'linuxcnctop' que muestra algunos de los
 detalles del estado de LinuxCNC. Puedes ejecutar este programa mediante Maquina >
 Mostrar estado de LinuxCNC
 
-.Ventana de estado de LinuxCNC
+//.Ventana de estado de LinuxCNC
 image::images/axis-emc-status_es.png["Status LinuxCNC",align="center"]
 
 El nombre de cada elemento se muestra en la columna izquierda. El valor actual
@@ -645,7 +650,9 @@ AXIS incluye un programa llamado `mdi` que permite la entrada en modo texto de
 comandos MDI a una sesión de LinuxCNC en ejecución. Puede ejecutar este programa
 abriendo un terminal y escribiendo
 
-    mdi
+----
+mdi
+----
 
 Una vez que se está ejecutando, muestra el mensaje 'MDI>'. Cuando se ingresa una linea en blanco,
 se muestra la posición actual de la máquina.
@@ -699,9 +706,11 @@ Esto puede ser muy confuso para la mayoría de los usuarios.
 Para desactivar esta función para el cambio de herramienta actual,
 programe un G1 sin movimiento después de T<n>.
 
-.Ventana de cambio de herramientas manual
-image::images/manual-tool-change_es.png["Ventana de cambio de herramientas manual",align="center"]
+[[fig:manual-toolchange-window]](((Cambio de herramientas manual)))
+//.Ventana de cambio de herramientas manual
+image:images/manual-tool-change_es.png["Cambio de herramientas manual screenshot",align="center"]
 
+[[sec:axis-python-modules]]
 == Módulos de Python
 
 AXIS incluye varios módulos Python que pueden ser útiles para otros. Para más
@@ -730,12 +739,22 @@ en la parte inferior de la pantalla. Varios controles (como los de
 vistas preestablecidas) se eliminan. Se reemplazan las lecturas de coordenadas para X
 con diámetro y radio.
 
+//.La forma de la herramienta del torno
+image::images/axis-lathe-tool.png["Forma de herramienta del torno",align="center"]
+
 Al presionar 'V' se hace zoom para mostrar el archivo completo, si hay uno cargado.
 
 En el modo de torno, se muestra la forma de la herramienta cargada (si existe).
 
-.La forma de la herramienta del torno
-image::images/axis-lathe-tool.png["Forma de herramienta del torno",align="center"]
+//.Lathe Tool Shape
+image::images/axis-lathe-tool.png["Lathe Tool Shape",align="center"]
+
+To change the display to a back tool lathe you need to have both 'LATHE = 1'
+and 'BACK_TOOL_LATHE = 1' in the [DISPLAY] section. This will invert the view
+and put the tool on the back side of the Z axis.
+
+//.Lathe Back Tool Shape
+image::images/axis-back-tool-lathe.png["Lathe Back Tool Shape",align="center"]
 
 == Usando AXIS en el modo de corte de espuma
 
@@ -746,9 +765,8 @@ en otro. En el plot en vivo, se dibujan líneas entre los puntos correspondiente
 el plano XY y el plano UV. Los comentarios especiales (XY_Z_POS) y (UV_Z_POS)
 establecen las coordenadas Z de estos planos, que por defecto son 0 y 1,5 unidades de máquina.
 
-.Modo de corte de espuma.
+//.Modo de corte de espuma.
 image::images/axis-foam_es.png["Modo de corte de espuma",align="center"]
-
 
 == Configuración avanzada
 
@@ -795,7 +813,7 @@ tratada como g-code. Un ejemplo de este script está disponible en
 'nc_files/holecircle.py'. Este script crea g-code para perforar una
 serie de agujeros a lo largo de la circunferencia de un círculo.
 
-.Agujeros circulares
+//.Agujeros circulares
 image::images/holes.png["Agujeros circulares",align="center"]
 
 Si la variable de entorno AXIS_PROGRESS_BAR está establecida, entonces las líneas
@@ -807,7 +825,6 @@ FILTER_PROGRESS=%d
 
 establecerá la barra de progreso de AXIS en el porcentaje dado. Esta característica
 debe ser utilizada por cualquier filtro que se ejecute durante mucho tiempo.
-
 
 === La base de datos de recursos X
 
@@ -823,6 +840,7 @@ xrdb -merge /usr/share/doc/emc2/axis_light_background
 
 xrdb -merge /usr/share/doc/emc2/axis_big_dro
 ----
+
 Para obtener información sobre los otros elementos que se pueden configurar en Tk
 aplicaciones Tk, ver las páginas del manual de Tk.
 
@@ -841,7 +859,21 @@ esto hace que las opciones integradas se creen en el nivel de opción
 'widgetDefault', de modo que X Resources (que son nivel 'userDefault')
 puededan anularlas
 
-=== ~/.axisrc
+[[sub:axis-jogwheel]]
+=== Jogwheel(((Axis:Jogwheel)))
+
+Pour accroître l'interaction d'AXIS avec une manivelle de jog
+physique, l'axe actif courant sélectionné dans l'interface graphique
+est aussi reporté sur une 'pin HAL' avec un nom comme 'axisui.jog.x'.
+Excepté pendant un court instant après que l'axe courant ait changé,
+une seule de ces pins à la fois est 'TRUE', les autres restent 'FALSE'.
+
+Après qu'AXIS ait créé ces 'HAL pins', il exécute le fichier hal
+déclaré avec: [HAL]POSTGUI_HALFILE. Ce qui diffère de [HAL]HALFILE,
+qui lui ne s'utilise qu'une seule fois.
+
+[[sub:axis-axisrc]]
+=== ~/.axisrc(((Axis:.axisrc)))
 
 Si existe, el contenido de `~/.axisrc` se ejecuta como
 código fuente Python justo antes de la interfaz gráfica de usuario de AXIS.
@@ -850,6 +882,8 @@ a cambios durante el ciclo de desarrollo.
 
 Lo siguiente agrega Control-Q como método abreviado de teclado para Salir.
 
+[[cap:axisrc-file-example]]
+.Example of .axisrc file
 ----
 root_window.bind("<Control-q>", "destroy .")
 help2.append(("Control-Q", "Quit"))
@@ -879,6 +913,18 @@ para realizar acciones personalizadas periódicas. Los detalles de lo que puede
 lograrse cos esta función dependerán de la implementacion de la gui Axis
 y sujeto a cambios durante el ciclo de desarrollo.
 
+=== user_hal_pins()
+
+The axis gui includes a no-op (placeholder) function named
+'user_hal_pins()'. +
+It is executed just after the .axisrc file is called and
+just before any gladevcp panels / embedded tabs are initialized. +
+This function may be implemented
+within a `~/.axisrc` python script or a '[DISPLAY]USER_COMMAND_FILE'
+python script to make custom HAL pins that use the 'axisui.' prefix. +
+Use 'comp' as the HAL component instance reference. +
+HAL comp.ready() is called just after this function returns.
+
 === Editor externo
 
 Las opciones de menú Archivo > Editar ... y Archivo > Editar tabla de herramientas ... estaran
@@ -895,7 +941,7 @@ Para más información, consulte los capitulos PyVCP y GladeVCP.
 //glade-vcp
 
 [[axis:preview-control]]
-=== Control de vista previa
+=== Control de vista previa(((Axis:Control de vista previa)))
 
 Se pueden insertar comentarios especiales en el archivo de Código G para controlar cómo
 se comporta la vista previa de AXIS. En el caso de que quiera limitar el
@@ -909,14 +955,15 @@ Estos comentarios son útiles para limpiar la visualización de vista previa (po
 ejeplo, mientras se depura un archivo g-code más grande, se puede deshabilitar la
 vista previa de ciertas partes que ya están trabajando bien).
 
- - (AXIS,hide) Detiene la vista previa (debe ser la primera)
- - (AXIS,show) Reanuda la vista previa (debe seguir un hide)
- - (AXIS,stop) Detiene la vista previa desde aquí hasta el final del archivo.
- - (AXIS,notify, el_texto) Muestra el_texto como una pantalla de información.
-Esta pantalla puede ser útil en la vista previa de Axis cuando
-los comentarios (debug,message) no se muestran.
+- (AXIS,hide) Detiene la vista previa (debe ser la primera)
+- (AXIS,show) Reanuda la vista previa (debe seguir un hide)
+- (AXIS,stop) Detiene la vista previa desde aquí hasta el final del archivo.
+- (AXIS,notify, el_texto) Muestra el_texto como una pantalla de información.
 
-=== Pines Axisui
+Esta pantalla puede ser útil en la vista previa de Axis cuando los comentarios (debug,message) no se muestran.
+
+[[sec:axis-axisui-pins]]
+== Pines Axisui(((Pines Axisui)))
 
 Para mejorar la interacción de AXIS con jogwheels físicos, el eje
 actualmente seleccionado en la GUI también se reporta en un pin con un nombre
@@ -924,8 +971,7 @@ como 'axisui.jog.x'. Uno de estos pines es 'VERDADERO' y el resto son
 'FALSO'. Están diseñados para controlar los pines de habilitacion de movimiento jog.
 
 .Axisui Pins
-El eje tiene pines Hal para indicar qué botón de selección de jog está seleccionado en el
-Pestaña 'Control manual'.
+El eje tiene pines Hal para indicar qué botón de selección de jog está seleccionado en el Pestaña 'Control manual'.
 
 ----
 Tipo Dir Nombre
@@ -944,6 +990,23 @@ Axis tiene un pin Hal para indicar el incremento de jog seleccionado en 'Control
 ----
 Tipo  Dir Nombre
 float OUT axisui.jog.increment
+----
+
+Axis has a Hal output pin that indicates when an abort has occurred. The
+'axisui.abort' pin will be 'TRUE' and come back to 'FALSE' after 0.3ms.
+
+----
+Type  Dir    Name
+bit   OUT    axisui.abort
+----
+
+Axis has a Hal output pin that indicates when an error has occurred. The
+'axisui.error' pin will remain 'TRUE' until all error notifications have
+been dismissed.
+
+----
+Type  Dir    Name
+bit   OUT    axisui.error
 ----
 
 Axis tiene pines de entrada Hal para borrar las notificaciones emergentes de errores e
@@ -974,9 +1037,9 @@ No se garantiza que estos fragmentos continúen funcionando; pueden necesitar aj
 
 Hay una función en Axis llamada user_live_update que se llama
 cada vez que Axis se actualiza solo. Puede usar esto para actualizar sus propias funciones.
+
 [source,python]
 ----
-
 # función de actualización continua
 def user_live_update():
     print 'i am printed every update...'
@@ -989,6 +1052,7 @@ def user_live_update():
 # disable the do you want to close dialog
 root_window.tk.call("wm","protocol",".","WM_DELETE_WINDOW","destroy .")
 ----
+
 === Cambiar la fuente del texto
 
 [source,python]
@@ -1007,7 +1071,7 @@ root_window.tk.call('.pane.top.right','itemconfigure','preview','-text',' Previe
 root_window.tk.call('.pane.top.right','itemconfigure','numbers','-text',' DRO ')
 
 
-# la fuente gcode es independiente
+# la fuente G-code es independiente
 
 root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue')
 #root_window.tk.call('.pane.bottom.t.text','configure','-foreground','blue','-font',font)
@@ -1041,7 +1105,7 @@ root_window.bind('<Key-3>',lambda event: set_feedrate(30))
 root_window.bind('<Key-4>',lambda event: set_feedrate(40))
 root_window.bind('<Key-5>',lambda event: set_feedrate(50))
 root_window.bind('<Key-6>',lambda event: set_feedrate(60))
-root_window.bind('<Key-7>',lambda event: set_feedrate(70)
+root_window.bind('<Key-7>',lambda event: set_feedrate(70))
 root_window.bind('<Key-8>',lambda event: set_feedrate(80))
 root_window.bind('<Key-9>',lambda event: set_feedrate(90))
 root_window.bind('<Key-0>',lambda event: set_feedrate(100))
@@ -1052,7 +1116,6 @@ root_window.bind('<Key-0>',lambda event: set_feedrate(100))
 [source,python]
 ----
 # leer un elemento del archivo ini
-
 machine = inifile.find('EMC','MACHINE')
 print 'machine name =',machine
 ----
@@ -1062,17 +1125,16 @@ print 'machine name =',machine
 [source,python]
 ----
 # El estado de linuxcnc se puede leer desde s.
-
 print s.actual_position
 print s.paused
 ----
+
 === Cambiar la vista actual
 
 [source,python]
 ----
 # establecer la vista de la vista previa
 # las vistas válidas son view_x view_y view_y2 view_z view_z2 view_p
-
 command.set_view_z()
 ----
 
@@ -1210,8 +1272,6 @@ commands = TclCommands(root_window)
 print vars.machine.get()
 print vars.emcini.get()
 
-----
-
     active_codes            = StringVar
     block_delete            = BooleanVar
     brake                   = BooleanVar
@@ -1273,6 +1333,7 @@ print vars.emcini.get()
     trajcoordinates         = StringVar
     tto_g11                 = BooleanVar
     view_type               = IntVar
+----
 
 === Ocultar widgets
 
@@ -1280,7 +1341,6 @@ print vars.emcini.get()
 ----
 # ocultar un widget
 # use 'grid' o 'pack' dependiendo de cómo se colocó originalmente
-
 root_window.tk.call('grid','forget','.pane.top.tabs.fmanual.jogf.zerohome.tooltouch')
 ----
 
@@ -1301,16 +1361,13 @@ root_window.tk.call('grid','.pane.top.tabs.fmanual.mist','-column','1','-row','5
 ----
 # secuestrar un comando existente
 # originalmente el botón de niebla llama a la función de niebla
-
 root_window.tk.call('.pane.top.tabs.fmanual.mist','configure','-command','hijacked_command')
 
 # La nueva función
-
 def hijacked_command():
     print 'hijacked mist command'
 
 # agrega la función a TclCommands
-
 TclCommands.hijacked_command = hijacked_command
 commands = TclCommands(root_window)
 ----
@@ -1320,7 +1377,6 @@ commands = TclCommands(root_window)
 [source,python]
 ----
 # cambiar la pantalla dro
-
 root_window.tk.call('.pane.top.right.fnumbers.text','configure','-foreground','green','-background','black')
 ----
 
@@ -1354,5 +1410,25 @@ root_window.tk.call('.toolbar.view_p','configure','-image','','-text','3D','-wid
 root_window.tk.call('.toolbar.rotate','configure','-image','','-text','Rotate','-width',buW,'-height',buH,'-borderwidth',boW)
 root_window.tk.call('.toolbar.clear_plot','configure','-image','','-text','Clear','-width',buW,'-height',buH,'-borderwidth',boW)
 ----
+
+=== Change Plotter Colors
+
+In RGBA format, in this order:
+jog, rapid, feed, arc, toolchange, probe
+
+[source,python]
+----
+# change plotter colors
+try:
+    live_plotter.logger.set_colors((255,0,0,255),
+                                    (0,255,0,255),
+                                    (0,0,255,255),
+                                    (255,255,0,255),
+                                    (255,255,255,255),
+                                    (0,255,255,255))
+except Exception as e:
+    print(e)
+----
+
 
 // vim: set syntax=asciidoc:
