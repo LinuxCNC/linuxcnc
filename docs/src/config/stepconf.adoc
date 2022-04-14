@@ -26,12 +26,12 @@ The Stepconf Wizard works best with at least 800 x 600 screen resolution.
 == Start Page
 
 [[cap:init-Page]]
-//.Entry page
-image::images/stepconf-start_en.png["Entry Page",align="center"]
+//.Stepconf splash screen
+image::images/stepconf-start_1_es.png["Pagina de entrada",align="center"]
 
 [[cap:Entry-Page]]
-//spanish duplicated image here ??
-image::images/stepconf-start_2_es.png["Pagina de entrada",align="center"]
+//.Stepconf entry page
+image::images/stepconf-start_en.png["Entry Page",align="center"]
 
 The three first radio buttons are self-explanatory:
 

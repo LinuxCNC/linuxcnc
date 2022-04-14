@@ -943,9 +943,6 @@ from the command line using the -t option ($linuxcnc -h)
   For example, a trivkins XYZ machine with a single motor for each axis has 3 joints.
   A gantry machine with one motor on each of two of the axes, and two motors on the third axis, has 4 joints.
   (This config variable may be used by a gui to set the number of joints (num_joints) specified to the motion module (motmod)).
-  // spanish here?
-  La interfaz gráfica de usuario Axis, pncconf y stepconf usan este elemento.
-  //
 * 'KINEMATICS = trivkins' - Specify a kinematics module for the motion module.
   Guis may use this variable to specify the loadrt line in hal files for the motmod module.
   For more information on kinematics modules see the manpage: '$ man kins'

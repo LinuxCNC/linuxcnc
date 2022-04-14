@@ -4,9 +4,7 @@
 [[cha:lathe-user-information]]
 = Lathe User Information(((Lathe User Information)))
 
-Este capítulo reunirá información específica de los tornos.
-
-// --> translate
+This chapter will provide information specific to lathes.
 
 == Lathe Mode
 

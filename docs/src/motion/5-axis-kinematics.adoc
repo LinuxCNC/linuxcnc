@@ -377,7 +377,7 @@ setp xyzac-trt-kins.z-offset 20
 
 == Figures
 
-//..Table tilting/rotating configuration
+//.Table tilting/rotating configuration
 image::5-axis-figures/Figure-9.png["Table tilting/rotating configuration",align="center",height=300]
 
 //.Spindle/table tilting configuration
