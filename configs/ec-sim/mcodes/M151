@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# M150 sets Period and Amplitude paramters for HSSC component 
+# M151 sets the Interval parameter and turns HSSC on
+# M152 turns off HSSC
+
+
+interval=$1
+
+MCMD=$(readlink -nf $0) ;# canonical file name
+MNAME=$(basename $MCMD)
+
+echo
+echo "Example for User M code invocation:"
+echo "M code File: $MCMD"
+echo "$MNAME R$interval"
+halcmd setp hssc.0.interval $interval 
+halcmd setp hssc.0.hssc-on  True
+
+
+
+# exit 0 for success
+exit 0 ;

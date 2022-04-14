@@ -1,0 +1,128 @@
+component sltgear "2 speed, 3 position gear box Low, Neutral, High gears";
+description """ Function to scale the rpm command to the vfd based on the 
+selected gear. Note: VFD output 3 - 120 Hz, Full torque at 3-60 Hz, Full power 
+at 90 Hz """;
+ 
+pin in bit lsw_low          "low gear limit switch";
+pin in bit lsw_neutral      "neutral gear limit switch";
+pin in bit lsw_high         "high gear limit switch";
+pin in bit shift_request    "if true, output is set to gear-mesh-rpm";
+pin in float rpm_in         "spindle speed command from Linuxcnc";
+
+pin out bit   not_in_gear   "not in gear, probably an error if this occurs";
+pin out float rpm_out       "spindle speed command to vfd";
+pin out float debug         "view intermediate calcs";
+
+param rw float low_gear_ratio = 0.750  "gear ratio of low gear";
+param rw float high_gear_ratio = 2.00  "gear ratio of low gear";
+param rw float gear_mesh_rpm = 20   "commanded speed during gear change";
+
+param rw float motor_min_rpm = 90   "min motor rpm"; 
+param rw float motor_max_rpm = 3600 "max motor rpm";
+
+
+param rw float low_gear_min  = 45   "min rpm for low gear";
+param rw float low_gear_max  = 1500 "max rpm for low gear";
+param rw float high_gear_min = 85   "min rpm for high gear";
+param rw float high_gear_max = 3500 "max rpm for high gear";
+
+function _ fp;
+license "GPL";
+;;
+
+#include <rtapi_math.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h> /* abs function */
+
+FUNCTION(_){
+
+    int in_gear = 0, current_gear = 0;
+    hal_float_t temp = 0.0;
+    hal_float_t dir = 1.0 ;
+    hal_float_t temp_out = 0.0;
+    
+    
+    /* The gearbox scale based on the position of the limit switches L-N-H = 1-2-3 */
+    /* Note: if neutral gear is selected the rpm_out = 0.0 */ 
+    /* Needs to handle both +/- numbers since VFD takes +/- commanded rpm */
+    
+    // Determine the direction
+    if (rpm_in > 0 ){
+        dir = 1.0 ;
+    }
+    
+    else if (rpm_in < 0){
+        dir = -1.0 ;
+    }
+    
+    else{
+        dir = 1.0;
+    }
+
+     
+    if (lsw_low == 1){
+        not_in_gear = 0 ;
+        if (shift_request != 1){
+            if ( abs(rpm_in) < low_gear_min ) {
+                rpm_out = motor_min_rpm  * dir ;
+            } 
+            else if( abs(rpm_in) > low_gear_max ){
+                rpm_out = motor_max_rpm * dir ;
+            }
+        
+            else {
+                rpm_out  =  abs(rpm_in) *  low_gear_ratio * dir ;
+            }
+        }
+        
+        else{
+            rpm_out = gear_mesh_rpm * dir;
+        }
+        
+    }
+    
+    else if (lsw_high == 1){
+        not_in_gear = 0 ;
+        if (shift_request != 1){
+            if ( abs(rpm_in) < high_gear_min ){
+                rpm_out = motor_min_rpm * dir ;
+            }
+            else if ( abs(rpm_in)  > high_gear_max){
+                rpm_out = motor_max_rpm * dir  ;
+            }
+            else {
+                rpm_out = abs(rpm_in) * high_gear_ratio * dir ;
+            }
+        }
+        
+        else{
+            rpm_out = gear_mesh_rpm * dir;
+        }
+    }
+    
+    else if (lsw_neutral == 1){
+        not_in_gear = 0 ;
+        if (shift_request != 1){
+            rpm_out = 0.0 ;
+        }
+        else{
+            rpm_out = gear_mesh_rpm * dir;
+        }
+    
+    }
+    
+    
+    /* If we've gotten here, we're in an unknown state */ 
+    else {
+        if (shift_request != 1){
+            not_in_gear = 1 ;
+            rpm_out = 0.0;
+        }
+        else{
+            rpm_out = gear_mesh_rpm * dir;
+        }        
+    }
+    
+        
+}

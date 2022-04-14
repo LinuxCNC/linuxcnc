@@ -1,0 +1,24 @@
+(M31 Tailbody FWD)
+(Step 1: Tailbody FWD)
+(Step 2: Tailsleeve FWD)
+(Note: M31/M32 procedures only start the classicladder routine and wait)
+(for classicladder to signal when the routine is finished.)
+
+o<m31> sub
+(debug,executing M31 ngc file)
+(expose the remap level)
+(debug, M31; call_level= #<_call_level> remap_level=#<_remap_level>)
+(debug, Tailstock Forward)
+M64 P#<_ini[MOTION_OUT]M31_STEP1>
+M66 P#<_ini[MOTION_IN]M31_STEP1_DONE> L3 Q15
+M65 P#<_ini[MOTION_OUT]M31_STEP1>
+(debug, Tailsleeve Forward)
+M64 P#<_ini[MOTION_OUT]M31_STEP2>
+M66 P#<_ini[MOTION_IN]M31_STEP2_DONE> L3 Q15
+M65 P#<_ini[MOTION_OUT]M31_STEP2>
+
+(if the procedure times out, the rest of the code will not be executed)
+(we need to clean up in the epilog and using on_abort.ngc to reset the state)
+
+o<m31> endsub
+M2

@@ -1,0 +1,26 @@
+(M36 hydraulic shift neutral gear)
+
+
+o<m36> sub
+(debug, executing M36 ngc file)
+(expose the remap level)
+(debug, M36; call_level= #<_call_level> remap_level=#<_remap_level>)
+(debug, Turn ON Solenoids)
+M64 P#<_ini[MOTION_OUT]SOL_INCH>
+M64 P#<_ini[MOTION_OUT]SOL_20A>
+M64 P#<_ini[MOTION_OUT]SOL_20B>
+(this switch is connected to the -not input)
+M66 P#<_ini[MOTION_IN]LSW1> L3 Q30
+
+
+(debug, Turn OFF Solenoids)
+M65 P#<_ini[MOTION_OUT]SOL_INCH>
+M65 P#<_ini[MOTION_OUT]SOL_20A>
+M65 P#<_ini[MOTION_OUT]SOL_20B>
+
+
+
+(if the procedure times out, the rest of the code will not be executed)
+(we need to clean up in the epilog and using on_abort.ngc to reset the state)
+o<m36> endsub 
+M2

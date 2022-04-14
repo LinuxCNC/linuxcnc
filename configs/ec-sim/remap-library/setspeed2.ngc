@@ -1,0 +1,58 @@
+; o-word routine to select the gear based on the requested rpm
+; assumes (for now) that G97 is active
+;G96 <D-> S- <$-> (Constant Surface Speed Mode)
+;G97 S- <$-> (RPM Mode)
+; <_spindle_rpm_mode> - Return 1 if spindle rpm mode (G97) is on, else 0.
+;<_spindle_css_mode> - Return 1 if constant surface speed mode (G96) is on, else 0.
+
+; S must always have a value at the end of the routine,
+; if G96 is active automatically select high gear ?
+; potientally could ask user for high/low gear
+
+o<setspeed2> sub
+    ;determine if CSS is active
+    o100 if [#<_spindle_rpm_mode> EQ 1]
+            (debug, RPM MODE)
+            (debug, requested speed=#<speed>)
+            ; determine if the speed requested is 45 < speed < 1250 rpm
+            ; 1250rpm  x 1.2 override = 1500 rpm
+
+            o102 if [#<speed> LE 1250 and #<speed>GE 45] 
+                    (debug, LOW GEAR)
+                    S#<speed>
+
+            ; else if  1250 < speed > 3500
+            o102 elseif [#<speed> LE 3500 and #<speed>GT 1250]
+                (debug, HIGH GEAR)
+                S#<speed>
+
+
+            ; else if the speed < 45, 
+            ; needed for gearchange
+            o102 elseif [#<speed> LT 45]
+            (debug, Gear change active)
+            S#<speed>
+
+            ; else, if every condition has failed do nothing for now...
+            ; or    .ini file [GEAR_BOX] GEAR_BOX_MAX_RPM
+            ;       o100 if [EXISTS[#<_ini[gear_box]gear_box_max_rpm>]]
+            ;       o100 else ...
+            o102 else
+                (MSG, THAT"S WAY TOO FAST)  
+                S3500
+
+            o102 endif
+
+    o100 else
+            ; in CSS mode we need to locate the value of D
+            (debug, CSS MODE)
+            (debug, CSS speed #<speed>)
+            (debug, HIGH GEAR)
+            S#<speed>
+    o100 endif
+
+
+
+o<setspeed2> endsub [1]
+m2
+

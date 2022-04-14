@@ -1,0 +1,21 @@
+########################################################################
+# GEAR SHIFT
+########################################################################
+# Inputs
+net lsw-1-in        motion.digital-in-00    sltgear.0.lsw-neutral
+net lsw-3-in        motion.digital-in-01    sltgear.0.lsw-low
+net lsw-4-in        motion.digital-in-02    sltgear.0.lsw-high
+
+# Outputs 
+net sol-20A         motion.digital-out-17
+net sol-20B         motion.digital-out-18
+net sol-inch-on     motion.digital-out-30
+
+########################################################################
+# Tailstock/Tailsleeve
+########################################################################
+# Inputs
+net lsw-8-in        motion.digital-in-04
+net lsw-9-in        motion.digital-in-05
+net lsw-10-in       motion.digital-in-06    
+net lsw-11-in       motion.digital-in-07

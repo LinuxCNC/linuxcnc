@@ -1,0 +1,27 @@
+########################################################################
+# X-Axis (Joint 0)
+########################################################################
+
+# Connect the amplifiers mode pins to the correspoding motion.digital-out-xx
+# pins as listed in the .ini file
+net xmp-0 motion.digital-out-00 
+net xmp-1 motion.digital-out-01 
+net xmp-2 motion.digital-out-02 
+net xmp-3 motion.digital-out-03 
+net xmp-4 motion.digital-out-04 
+net xmp-5 motion.digital-out-05 
+net xmp-6 motion.digital-out-06 
+net xmp-7 motion.digital-out-07 
+
+########################################################################
+# Z axis (Joint 1)
+########################################################################
+
+net zmp-0 motion.digital-out-08 lcec.0.A2.op-mode-0
+net zmp-1 motion.digital-out-09 lcec.0.A2.op-mode-1
+net zmp-2 motion.digital-out-10 lcec.0.A2.op-mode-2
+net zmp-3 motion.digital-out-11 lcec.0.A2.op-mode-3
+net zmp-4 motion.digital-out-12 lcec.0.A2.op-mode-4
+net zmp-5 motion.digital-out-13 lcec.0.A2.op-mode-5
+net zmp-6 motion.digital-out-14 lcec.0.A2.op-mode-6
+net zmp-7 motion.digital-out-15 lcec.0.A2.op-mode-7

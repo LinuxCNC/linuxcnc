@@ -1,0 +1,29 @@
+component conv_amps """ Convert motor current (amps) to a percentage of   
+the motor's full load amp rating. """;
+description  """ Function to convert the motor load in amps to a 
+percentage of the motors full load amp rating. amps_in should be in Amps,
+use scale if input is in mA """;
+ 
+pin in float  amps_in                   "Motor current (Amps or mA)";
+pin out float motor_load                "Percentage of Full Load Amps";
+param rw float amp_scale = 1.0          "Scale = 0.001 for mA" ;
+param rw float full_load_amps = 17.7    "Full load amperage of motor ";
+
+function _ fp;
+license "GPL";
+;;
+
+#include <rtapi_math.h>
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h> /* abs function */
+
+
+FUNCTION(_){
+
+    hal_float_t temp = 0.0;
+
+    motor_load = amp_scale * (abs(((amps_in/full_load_amps)*100)));
+
+        
+}

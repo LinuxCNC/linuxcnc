@@ -1,0 +1,19 @@
+(STEP: set the x-axis amplifier mode pins to HOMING)
+
+o<m203> sub
+(debug,executing m203.ngc file)
+(expose the remap level)
+(debug, m203.ngc; call_level= #<_call_level> remap_level=#<_remap_level>)
+
+(HOMING 0x06)
+M65 P#<_ini[MOTION_OUT]XMP_0>
+M64 P#<_ini[MOTION_OUT]XMP_1>
+M64 P#<_ini[MOTION_OUT]XMP_2>
+M65 P#<_ini[MOTION_OUT]XMP_3>
+M65 P#<_ini[MOTION_OUT]XMP_4>
+M65 P#<_ini[MOTION_OUT]XMP_5>
+M65 P#<_ini[MOTION_OUT]XMP_6>
+M65 P#<_ini[MOTION_OUT]XMP_7>
+
+o<m203> endsub 
+M2

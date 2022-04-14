@@ -1,0 +1,132 @@
+component hssc "Harmonic Spindle Speed Control";
+description """ Function to vary the commanded spindle speed by +/- xxx Rpm.
+Primarily used to reduce chatter during boring operations.To activate call 
+M200 and specify  P = period/duration (sec), Q = spindle variation/amplitude (rpm)
+R = interval time (sec) """;
+
+pin in bit hssc_on          "Turn on HSSC with this bit";
+pin in float rpm_in         "Commanded RPM";
+pin out float debug         "Used for debugging debug = 1 during ramp cycle";
+pin out float rpm_out       "RPM out";
+pin out float index         "clock index";
+
+param rw float interval  = 1.0  "Interval, I in seconds";
+param rw float amplitude = 100  "Amplitude, A in RPM";
+param rw float duration  = 6.0  "Period, T in seconds";
+param rw float frequency        "Frequency Hz";
+param r  float increment = 0    "rise in rpm/sec";   
+
+function _ fp;
+license "GPL";
+
+;;
+
+
+#include "rtapi.h"	
+#include "hal.h"		
+#include <float.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
+
+FUNCTION(_) {
+
+    double temp1;
+    double temp2;
+    double ramp_time;
+    double slope;
+    double Rt;
+    double It;
+    double temp3; 
+    
+    /* calculate the frequency */
+    frequency = 1/duration;
+               
+    /* calculate the time since last execution */
+    temp1 = period * 0.000000001;
+    
+    /* calculate how much of an output cycle has passed */
+    temp2 = frequency * temp1;
+    
+    /* limit frequency to comply with Nyquist limit*/
+    if(temp2 > 0.5){                
+        frequency = 0.5/temp1;        
+        temp2 = 0.5;                  
+    }                             
+
+    /* index ramps from 0.0 0.999999 T */ 
+    index = index + temp2;
+    if(index > 1.0) {
+    index = 0.0;
+    }  
+
+    /* rate of change calculations, see timing diagram */
+    /* calculate the ramp time in seconds */ 
+    ramp_time = ((duration - (2 * interval)) / 4);
+        
+    /* calculate the slope in RPM/sec */
+    slope = amplitude/ramp_time;
+        
+    /* calculate the RPM increment*/
+    increment = slope * temp1;
+
+    /* calculate ramp time and interval time in terms of T */
+    Rt = ramp_time / duration;
+    It = interval / duration;
+
+    /* if hssc is off, pass the value straight through */
+    rpm_out = rpm_in;
+
+    
+    /* while hssc is on ramp rpm_out +/- amplitude */ 
+    
+    while ( hssc_on == 1 ) {
+
+    /* Use Rt and It to calculate the timing as index  0 - 0.99999T */
+    /* Use debug to see timing of Rt and It*/
+    
+    /* ramp up */
+    if (index < Rt){
+       temp3 = index;
+       debug = 1.0;
+       rpm_out = rpm_in + (temp3 * duration * slope );       
+        } 
+    
+    /* hold er' steady at max amplitude*/
+    if ( (index >= Rt) && (index <= (Rt + It) ) ){
+       temp3 = index - Rt;
+       debug = 0.0; 
+       rpm_out = rpm_in + amplitude;       
+        }
+    
+    /* ramp down from max amplitude to min amplitude over 2 x Rt */
+    if ( (index >= (Rt + It) ) && (index <= ( (3 * Rt) + It ) ) ){
+       temp3 = index - (Rt + It);
+       debug = 1.0;
+       rpm_out = ( (rpm_in + amplitude) - (temp3 * duration * slope ) );
+        }
+    
+    /* hold er' steady at min amplitude*/
+    if ( (index >= ( (3 * Rt) + It) ) && (index <= ( (3 * Rt) + (2 * It) ) ) ) {
+       temp3 = index - (3 * Rt + It);
+       debug = 0.0;
+       rpm_out = rpm_in - amplitude;
+        }
+    
+    /* ramp back up */
+    if ( (index >= ( (3 * Rt) + (2 * It) ) ) && (index < ( (4 * Rt) + (2 * It )) ) ){
+       temp3 = index - (3 * Rt + 2 * It);
+       debug = 1.0;
+       rpm_out = ( (rpm_in - amplitude)  + (temp3 * duration * slope ) ) ;
+        }
+    
+        break;
+
+    }
+
+
+}   
+  
+
+    
+
+

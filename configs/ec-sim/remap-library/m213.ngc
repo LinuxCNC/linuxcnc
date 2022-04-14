@@ -1,0 +1,19 @@
+(STEP: set the z-axis amplifier mode pins to HOMING)
+
+o<m213> sub
+(debug,executing m213.ngc file)
+(expose the remap level)
+(debug, m213.ngc; call_level= #<_call_level> remap_level=#<_remap_level>)
+
+(HOMING 0x06)
+M65 P#<_ini[MOTION_OUT]ZMP_0>
+M64 P#<_ini[MOTION_OUT]ZMP_1>
+M64 P#<_ini[MOTION_OUT]ZMP_2>
+M65 P#<_ini[MOTION_OUT]ZMP_3>
+M65 P#<_ini[MOTION_OUT]ZMP_4>
+M65 P#<_ini[MOTION_OUT]ZMP_5>
+M65 P#<_ini[MOTION_OUT]ZMP_6>
+M65 P#<_ini[MOTION_OUT]ZMP_7>
+
+o<m213> endsub 
+M2

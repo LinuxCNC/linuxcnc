@@ -1,0 +1,15 @@
+(STEP: toggle the z-axis enable2 pin ON, see classicladder routine)
+
+o<m210> sub
+(debug,executing m210.ngc file)
+(expose the remap level)
+(debug, m210.ngc; call_level= #<_call_level> remap_level=#<_remap_level>)
+
+(Turn ON the enable pin)
+M64 P#<_ini[MOTION_OUT]Z_ENABLE>
+
+(Wait for the brake to disengage)
+G04 P#<_ini[DWELL]Z_BRAKE_DELAY>
+
+o<m210> endsub
+M2

@@ -1,0 +1,39 @@
+
+o<reset_state> sub
+(executing an M2 here is NOT recommended here, so we replicate the steps taken by an M2)
+(but keep executing)
+
+(msg, executing reset_state)
+
+(set to diameter mode)
+G8
+(set to imperial mode)
+G20
+(origin offsets are set to the default)
+G54 
+(select ZX plane)
+G18
+(absolute)
+G90 
+(feed mode: rev/minute default to 0.01" per rev)
+G95 F0.01 
+G97 S1000
+(set feed and speed overrides)
+M48 
+(cutter compensation off)
+G40 
+G49
+(spindle off)
+M5 
+
+(M2 sets G1, but  this fails with feed zero)
+(issuing G80 is the next best safe thing)
+(cancel modal motion)
+G80 
+(mist and coolant off)
+M9
+
+(make sure the amps are in constant velocity mode)
+
+o<reset_state> endsub
+m2

@@ -1,0 +1,22 @@
+(M37 hydraulic shift low gear)
+
+
+o<m37> sub
+(debug,executing M37 ngc file)
+(expose the remap level)
+(debug, M37; call_level= #<_call_level> remap_level=#<_remap_level>)
+
+(debug, Turn on Solenoids)
+M64 P#<_ini[MOTION_OUT]SOL_INCH>
+M64 P#<_ini[MOTION_OUT]SOL_20A> 
+M66 P#<_ini[MOTION_IN]LSW3> L3 Q15
+
+(if the procedure times out, the rest of the code will not be executed)
+(we need to clean up in the epilog and using on_abort.ngc to reset the state)
+
+(debug, Turn OFF Solenoids)
+M65 P#<_ini[MOTION_OUT]SOL_INCH>
+M65 P#<_ini[MOTION_OUT]SOL_20A>
+
+o<m37> endsub 
+M2

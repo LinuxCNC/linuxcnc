@@ -1,0 +1,8 @@
+#!/bin/sh
+
+# M160 sets the X-Axis amplifier to 0x08 CSP Mode 
+halcmd setp motion.digital-out-00 1
+
+
+# exit 0 for success
+exit 0 ;

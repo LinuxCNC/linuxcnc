@@ -1,0 +1,15 @@
+(STEP: toggle the x-axis enable2 pin ON, see classicladder routine)
+
+o<m200> sub
+(debug,executing m200.ngc file)
+(expose the remap level)
+(debug, m-200.ngc; call_level= #<_call_level> remap_level=#<_remap_level>)
+
+(Turn ON the enable pin)
+M64 P#<_ini[MOTION_OUT]X_ENABLE>
+
+(Wait for the brake to disengage)
+G04 P#<_ini[DWELL]X_BRAKE_DELAY>
+
+o<m200> endsub
+M2

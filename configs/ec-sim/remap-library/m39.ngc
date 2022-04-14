@@ -1,0 +1,30 @@
+(M39 hydraulic shift HIGH gear)
+(turn on spindle at slowest speed)
+(turn on the inching solenoid => controlled in classicladder)
+(turn on Sol-20B)
+(wait 15 seconds for lsw4 to go high)
+(turn off the spindle)
+(turn off inching solenoid)
+(turn off SOL-20B)
+
+o<m39> sub
+(debug,executing M39 ngc file)
+(expose the remap level)
+(debug, M39; call_level= #<_call_level> remap_level=#<_remap_level>)
+(debug, Turn ON Inching Solenoid)
+M64 P#<_ini[MOTION_OUT]SOL_INCH>
+M64 P#<_ini[MOTION_OUT]SOL_20B> 
+M66 P#<_ini[MOTION_IN]LSW4> L3 Q15
+
+(if the procedure times out, the rest of the code will not be executed)
+(we need to clean up in the epilog and using on_abort.ngc to reset the state)
+
+(debug, Turn OFF Inching Solenoid)
+M65 P#<_ini[MOTION_OUT]SOL_INCH>
+M65 P#<_ini[MOTION_OUT]SOL_20B>
+
+(if the procedure times out, the rest of the code will not be executed)
+(we need to clean up in the epilog and using on_abort.ngc to reset the state)
+
+o<m39> endsub 
+M2

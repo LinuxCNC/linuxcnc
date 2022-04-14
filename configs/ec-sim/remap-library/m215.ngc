@@ -1,0 +1,34 @@
+(Complete procedure to set the z-axis amplifier mode pins from HOMING to CSP)
+(M211 => M212 => M210)
+
+o<m215> sub
+;(debug,executing m215.ngc file)
+(expose the remap level)
+;(debug, m215.ngc; call_level= #<_call_level> remap_level=#<_remap_level>)
+
+
+(Turn OFF the enable pin)
+M65 P#<_ini[MOTION_OUT]Z_ENABLE>
+
+(Wait for the brake to engage)
+G04 P#<_ini[DWELL]Z_BRAKE_DELAY>
+
+
+(CSP 0x08)
+M65 P#<_ini[MOTION_OUT]ZMP_0>
+M65 P#<_ini[MOTION_OUT]ZMP_1>
+M65 P#<_ini[MOTION_OUT]ZMP_2>
+M64 P#<_ini[MOTION_OUT]ZMP_3>
+M65 P#<_ini[MOTION_OUT]ZMP_4>
+M65 P#<_ini[MOTION_OUT]ZMP_5>
+M65 P#<_ini[MOTION_OUT]ZMP_6>
+M65 P#<_ini[MOTION_OUT]ZMP_7>
+
+(Turn ON the enable pin)
+M64 P#<_ini[MOTION_OUT]Z_ENABLE>
+
+(Wait for the brake to disengage)
+G04 P#<_ini[DWELL]Z_BRAKE_DELAY>
+
+o<m215> endsub 
+M2

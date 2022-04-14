@@ -1,0 +1,29 @@
+# Halshow settings
+# This file is generated automatically.
+wm geometry . 1080x602+683+291
+placeFrames 0.30028530670470754
+set ::ratio 0.30028530670470754
+set ::old_w_leftf 421
+set ::watchlist {
+    pin+joint.0.free-tp-enable
+    pin+joint.0.free-pos-cmd
+    pin+joint.0.home-state
+    pin+joint.0.homing
+    pin+joint.0.home-sw-in
+    pin+joint.0.homed
+    pin+joint.1.free-tp-enable
+    pin+joint.1.free-pos-cmd
+    pin+joint.1.home-state
+    pin+joint.1.homing
+    pin+joint.1.home-sw-in
+    pin+joint.1.homed
+    pin+joint.1.active
+    pin+joint.0.cia-period
+}
+set ::workmode watchhal
+set ::watchInterval 100
+set ::col1_width 100
+set ::ffmts 
+set ::ifmts 
+set ::alwaysOnTop 1
+set ::autoSaveWatchlist 1

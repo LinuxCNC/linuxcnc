@@ -1,0 +1,8 @@
+########################################################################
+# Spindle/Rpm Control
+########################################################################
+
+# sltgear
+setp sltgear.0.low-gear-ratio  1.86
+setp sltgear.0.high-gear-ratio  0.93
+net shift-request sltgear.0.shift-request motion.digital-out-42

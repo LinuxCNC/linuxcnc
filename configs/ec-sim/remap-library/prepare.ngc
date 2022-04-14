@@ -1,0 +1,17 @@
+o<prepare> sub
+(debug, prepare call_level= #<_call_level> remap_level=#<_remap_level> tool=#<tool> pocket=#<pocket>)
+
+#<select_tool> = [#<tool> MOD 100]
+#<tool> = #<select_tool>
+#<pocket> = #<select_tool>
+
+#<wear> = [10000 + FIX[#<tool> / 100 ]]
+(debug, selected tool=#<select_tool>, tool=#<tool>, pocket=#<pocket>, wear=#<wear>)
+
+	; show aborting a prepare on tool 2 by returning a negative value
+;	o<testabort> if [#<tool> EQ 2]
+;		     o<testabort> return [-1]
+;	o<testabort> endif
+
+o<prepare> endsub [#<pocket>]
+m2

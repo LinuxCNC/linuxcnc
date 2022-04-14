@@ -1,0 +1,35 @@
+component conv_freq """ Use in conjunction with Beckhoff EL5101-0000 on 
+lathe spindle with encoder on output of gearbox""";
+description  """ Function to scale the encoder frequency from pulse/10ms
+to rpm with +/- sign to indicate direction. """;
+ 
+pin in bit    spindle_in_rev    "Connect to a pin that indicates the spindle is in reverse";
+pin in float  freq_in           "Connect to the El5101 enc-frequency output";
+pin out float rpm_fb            "Spindle rev/min";
+pin out float revs_fb           "Spindle rev/sec";
+
+param rw float rpm_scale = 1.0   "Conversion scale for rpm";
+param rw float revs_scale = 1.0   "Conversion scale for revolutions/sec";
+
+function _ fp;
+license "GPL";
+;;
+
+
+FUNCTION(_){
+    
+    int dir = 1 ;
+    
+    if (spindle_in_rev == 1){
+        dir = -1;
+        rpm_fb  = freq_in * rpm_scale  * dir;
+        revs_fb = freq_in * revs_scale * dir;
+    }
+    
+    else{
+        dir = 1;
+        rpm_fb  = freq_in * rpm_scale  * dir;
+        revs_fb = freq_in * revs_scale * dir;   
+    }
+        
+}

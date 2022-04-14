@@ -1,0 +1,23 @@
+
+
+
+
+####################################################################################################
+
+# ESTOP  
+# input from the external estop button
+# connect to lcec.0.1.din-4
+# simulate the external estop  until lcec is connected
+#net ext-estop  classicladder.0.in-07 
+#sets ext-estop TRUE
+
+#input from linuxcnc estop button    
+#net linux-estop     classicladder.0.in-08       iocontrol.0.user-enable-out
+
+# connect linuxcnc internal reset        
+#net linux-reset     classicladder.0.in-09       iocontrol.0.user-request-enable
+
+# request e-stop enable from linuxcnc
+#net estop-ok        classicladder.0.out-12      iocontrol.0.emc-enable-in
+
+

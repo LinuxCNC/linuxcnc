@@ -1,0 +1,22 @@
+
+o<on_abort> sub
+
+(msg, executing on_abort)
+(add any resetting specific procedures to your config here)
+(like setting HAL pin values)
+
+(use global parameter #31 to call a o-word subroutine within mcode_fault.ngc)
+(this variable is predifined and therefore recognized at start up)
+o100 if [EXISTS[#31]]
+    (debug, fault code = #31)
+    o110 if [#31 NE 0]
+        o<mcode_fault> call
+    o110 endif    
+o100 else
+    (debug, global variable 31 does not exist)
+o100 endif
+
+o<reset_state> call
+
+o<on_abort> endsub
+m2
