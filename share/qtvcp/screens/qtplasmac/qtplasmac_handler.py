@@ -1,4 +1,4 @@
-VERSION = '1.223.182'
+VERSION = '1.223.183'
 
 '''
 qtplasmac_handler.py
@@ -2128,7 +2128,8 @@ class HandlerClass:
         halfiles = self.iniFile.findall('HAL', 'HALFILE') or None
         prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
     # use qtplasmac_comp.hal for component connections (pre V1.221.154 2022/01/18)
-        if halfiles and not 'qtplasmac_comp.hal' in halfiles and not 'plasmac.tcl' in halfiles:
+        if halfiles and not [f for f in halfiles if 'plasmac.tcl' in f] and not \
+            [f for f in halfiles if 'qtplasmac_comp.hal' in f]:
             UPDATER.add_component_hal_file(self.PATHS.CONFIGPATH, INIPATH, halfiles)
     # split out qtplasmac specific prefs into a separate file (pre V1.222.170 2022/03/08)
         if not os.path.isfile(prefsFile):

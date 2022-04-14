@@ -117,6 +117,7 @@ def add_component_hal_file(path, inifile, halfiles):
                    'plasmac.x-offset-counts','plasmac.y-offset-counts','plasmac.xy-offset-enable',
                    'plasmac.z-offset-counts','plasmac.z-offset-enable','plasmac.requested-velocity']
     for f in halfiles:
+        f = os.path.expanduser(f)
         if not 'custom' in f:
             halfile = os.path.join(path, f)
             with open(halfile, 'r') as inFile:
