@@ -76,8 +76,10 @@ loadusr halmeter pin hm2.0.stepgen.00.velocity-fb -g 0 500
 
 See the man page for more options. See section <<sec:halmeter,Halmeter>>.
 
+//.Halmeter selection window
 image::images/hal-meter01.png["Halmeter 1"]
 
+//.Halmeter watch window
 image::images/hal-meter02.png["Halmeter 2"]
 
 == Halshow

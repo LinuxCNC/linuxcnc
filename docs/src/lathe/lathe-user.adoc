@@ -6,6 +6,8 @@
 
 Este capítulo reunirá información específica de los tornos.
 
+// --> translate
+
 == Lathe Mode
 
 If your CNC machine is a lathe, there are some specific changes you

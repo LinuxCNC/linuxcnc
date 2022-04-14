@@ -238,6 +238,7 @@ generator (MPG) or switches (eg. rotary).
 Here you can set defaults for the display screens, add virtual control panels
 (VCP), and set some LinuxCNC options..
 
+//.GUI Configuration
 image::images/pncconf-gui.png["GUI parameter settings"]
 
 Front-end GUI Options::
