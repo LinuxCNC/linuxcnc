@@ -439,7 +439,7 @@ def index_lathe_tool_with_wear(self,**words):
         wear = 10000 + tool_raw % 100
 
         # uncomment for debugging
-        #print'***tool#',cblock.t_number,'toolraw:',tool_raw,'tool split:',tool,'wear split',wear
+        print('***tool#',cblock.t_number,'toolraw:',tool_raw,'tool split:',tool,'wear split',wear)
         if tool:
             # check for tool number entry in tool file
             (status, pocket) = self.find_tool_pocket(tool)
