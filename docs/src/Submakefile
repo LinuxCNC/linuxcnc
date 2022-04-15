@@ -206,30 +206,38 @@ DOC_TARGETS_HTML_EN := $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(filter-out $(DO
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
-PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-        $(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_EN))))\
-        LinuxCNC_Manual_Pages.pdf \
-        ) \
+PDF_TARGETS_EN := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started.pdf \
+	LinuxCNC_Documentation.pdf \
+	LinuxCNC_Developer_Manual.pdf \
+	LinuxCNC_Manual_Pages.pdf \
+	LinuxCNC_Integrator.pdf \
+	)
 
-PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_FR)))))
+PDF_TARGETS_FR := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_fr.pdf \
+	LinuxCNC_User_Manual_fr.pdf \
+	LinuxCNC_HAL_Manual_fr.pdf \
+	LinuxCNC_Integrator_Manual_fr.pdf \
+	)
 
-PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_ES)))))
+PDF_TARGETS_ES := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_es.pdf \
+	LinuxCNC_Documentation_es.pdf \
+	LinuxCNC_Developer_Manual_es.pdf \
+	)
 
-PDF_TARGETS_ZH_CN := $(addprefix $(DOC_DIR)/, $(patsubst %.adoc,%.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter Master_%,$(DOC_SRCS_ZN_CN)))))
+PDF_TARGETS_CN := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Getting_Started_cn.pdf \
+	)
 
-# Chinese PDFs only build with latex, which is missing in stretch
-ifneq (, $(shell command -v xetex))
-USING_XETEX = true
-endif
-ifdef USING_XETEX
-PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) $(PDF_TARGETS_ZH_CN)
-DBLATEX_OPTS=--backend xetex
-else
-PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES)
-endif
+PDF_TARGETS_JA := $(addprefix $(DOC_DIR)/, \
+	LinuxCNC_Documentation_ja.pdf \
+	LinuxCNC_Manual_Pages_ja.pdf \
+	)
+
+PDF_TARGETS := $(PDF_TARGETS_EN) $(PDF_TARGETS_FR) $(PDF_TARGETS_ES) \
+	$(PDF_TARGETS_CN) $(PDF_TARGETS_JA)
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
 
@@ -329,8 +337,19 @@ $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pd
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/Master_Getting_Started_es.pdf
 	@ln -f $< $@
+<<<<<<< HEAD
 # Chinese PDFs only build when xetex is available.
 $(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf:$(DOC_SRCDIR)/Master_Getting_Started_zh_CN.pdf
+=======
+# Chinese PDFs do not build. They can be persuaded to build by using xetex
+# as the a2x backend. See line 403 but even then all characters display as boxes
+$(DOC_DIR)/LinuxCNC_Getting_Started_cn.pdf:
+# Japanese PDFs also do not build.
+$(DOC_DIR)/LinuxCNC_Documentation_ja.pdf:
+$(DOC_DIR)/LinuxCNC_Manual_Pages_ja.pdf:
+
+$(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
+>>>>>>> docs: added japanese PDF docs from MasaoSakai (https://github.com/MasaoSakai/LinuxCNC)
 	@ln -f $< $@
 $(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/Master_Getting_Started_fr.pdf
 	@ln -f $< $@
