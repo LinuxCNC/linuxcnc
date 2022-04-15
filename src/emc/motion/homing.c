@@ -500,15 +500,6 @@ static void do_homing_sequence(void)
                 seen = 1;
                 continue;
             }
-#if 0 // not reachable ?
-            if (!H[i].homed) {
-                /* joint should have been homed at this step, it is no longer
-                   homing, but its not at home - must have failed.  bail out */
-                sequence_state = HOME_SEQUENCE_IDLE;
-                homing_active = 0;
-                return;
-            }
-#endif
         }
         if(!seen) {
             /* all joints at this step have finished, move on to next step */
@@ -538,11 +529,6 @@ int homing_init(int id,
                 emcmot_joint_t* pjoints)
 {
     int i;
-#ifdef USE_HOME_PARMS
-    if (home_parms) {
-        rtapi_print("%s:%s: home_parms=%s\n",__FILE__,__FUNCTION__,home_parms);
-    }
-#endif
     all_joints   = n_joints;
     extra_joints = n_extrajoints;
     joints       = pjoints;
