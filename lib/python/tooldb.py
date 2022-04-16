@@ -5,7 +5,7 @@ import sys
 #Notes
 #  1) host (LinuxCNC) pushes commands to this program
 #  2) all writes to stdout go to host
-#     (use stderr for debug prints)
+#     (caller: use stderr for debug prints)
 #-----------------------------------------------------------
 DB_VERSION = 'v2.0'
 
@@ -154,5 +154,6 @@ def tooldb_loop():
             saveline(line)
             if (line == ""): nak_reply("empty line")
             else:            do_cmd(line)
+        except BrokenPipeError: sys.stdout.close()
         except Exception as e:
             nak_reply("_exception=%s"%e)
