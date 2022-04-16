@@ -18,14 +18,29 @@ db_nonran_savefile = "/tmp/db_nonran_file"  # db flatfile
 
 #-----------------------------------------------------------
 # Notes
-#  1) all writes to stdout are piped to host
-#     (use stderr for debug prints)
+#  1) Using tooldb: all writes to stdout are piped to host
+#     (use stderr for debug prints in this file)
 #  2) tool usage time is computed based on
 #     loads/unloads.  Tool must be unloaded
 #     when LinuxCNC is stopped.
 #  3) a database savefile will be created at
 #     startup if it does not exist applying
 #     rules for a simulation setup.
+#  4) startup/tooltimer
+#   a) random toolchanger: both LinuxCNC and database
+#      know if there is a loaded tool at startup so
+#      if a tool is loaded, timer is started
+#   b) nonrandom toolchanger: LinuxCNC is not
+#      aware of loaded tool at startup so timer is
+#      not started.  (use m61qn to specify tool
+#      and start timer)
+#   c) best practice: operator always unloads tool
+#      when stopping LinuxCNC
+#  5) problem: unexpected termination (like a power
+#     failure) is not detected by LinuxCNC so tool
+#     time data and tool-in-spindle status may be
+#     corrupted.  A database application may be able
+#     to detect and notify for some anomalies.
 
 #-----------------------------------------------------------
 # use tooldb module for low-level interface:
@@ -80,6 +95,7 @@ def toolline_to_dict(line,letters):
     # line: "Tt Pp Dd Xx Yy Zz ..."
     # dict:  D["T"]=tno, D["P"]="p", D["D"]=d,  ...
     D = dict()
+    # use leading ';' to denote comment line
     line_nocomment = line.upper().split(';')[0]
     for item in line_nocomment.split():
         for l in letters:
@@ -93,7 +109,7 @@ def dict_to_toolline(D,letters):
     toolline = toolline.strip()
     return toolline
 
-def save_tools_to_file(fname):
+def save_tools_to_file(fname,comment=""):
     global tools, all_letters
     f = open(fname,"w")
     for tno in tools:
@@ -104,6 +120,7 @@ def save_tools_to_file(fname):
            if l in D   and D[l] == "0": del D[l] # drop zero entries
         tools[tno] = dict_to_toolline(D,all_letters)
     for i in sorted(tools,key=tools.get): f.write(tools[i]+"\n")
+    if comment: f.write(";%s\n"%comment)
     f.close()
 
 def startup_pno(tno): # simulation rule:
@@ -138,17 +155,33 @@ def make_tools(tfirst,tlast):
     while True:
         line = f.readline().strip()
         if not line: break
+        if line[0] == ';': continue
         D = toolline_to_dict(line,all_letters)
         tno = int(D["T"])
         if not random_toolchanger:
+            #Note: nonran toolchanger:
+            #      database may indicate tool is loaded at startup
+            #      but LinuxCNC does not have this info
+            #      so: timer is not started, use startup_pno
+            if D["P"] == "0":
+                ewrite("nonran toolchanger was stopped with loaded tool %d\n"%tno)
             D["P"] = str(startup_pno(tno))
         tools[tno] = dict_to_toolline(D,all_letters)
         if debug: ewrite("@@tno=%d line=%s\n"%(tno,line))
         if random_toolchanger and D['P'] == "0":
             p0tool = tno
+            start_tool_timer(p0tool)
     f.close()
     save_tools_to_file(db_savefile)
     return
+
+def handle_disconnect(fname):
+    ewrite("%s: disconnected\n"%sys.argv[0])
+    if p0tool > 0:
+        stop_tool_timer(p0tool)
+        save_tools_to_file(fname,"Stopped with loaded tool: %d"%p0tool)
+        ewrite("\n!!!Stopped with loaded tool: %d\n\n"%p0tool)
+    sys.exit(0)
 
 def start_tool_timer(tno):
     global start_time, elapsed_time, p0tool
@@ -354,6 +387,7 @@ def user_unload_spindle_ran_tc(toolno,params):
         p0tool = -1
 
     save_tools_to_file(db_savefile)
+
 #-----------------------------------------------------------
 # begin
 debug = 0 # debug var for command line testing
@@ -377,6 +411,8 @@ tooldb_tools(toollist)
 
 try:
     tooldb_loop()  # loop forever, use callbacks
+except BrokenPipeError:
+    handle_disconnect(db_savefile)
 except Exception as e:
     if sys.stdin.isatty():
         ewrite(("Exception=%s\n"%str(e)))
