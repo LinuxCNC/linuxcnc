@@ -1,8 +1,8 @@
 '''
 conv_block.py
 
-Copyright (C) 2020, 2021  Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020, 2021, 2022  Phillip A Carter
+Copyright (C) 2020, 2021, 2022  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -121,7 +121,7 @@ def preview(P, W, Conv):
                 outNgc.write('{}'.format(line))
         # create new array
         else:
-            xIndex = [5221,5241,5261,5281,5301,5321,5341,5361,5381][0]
+            xIndex = [5221,5241,5261,5281,5301,5321,5341,5361,5381][(STATUS.stat.g5x_index - 1)]
             outNgc.write(';conversational block\n\n')
             # inputs
             outNgc.write(';inputs\n')

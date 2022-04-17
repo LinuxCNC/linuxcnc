@@ -713,6 +713,7 @@ class HandlerClass:
         self.sensorActive = self.h.newpin('sensor_active', hal.HAL_BIT, hal.HAL_IN)
         self.laserRecStatePin = self.h.newpin('laser_recovery_state', hal.HAL_S32, hal.HAL_IN)
         self.zOffsetPin = self.h.newpin('z_offset_counts', hal.HAL_S32, hal.HAL_IN)
+        self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.HAL_BIT, hal.HAL_IN)
 
     def link_hal_pins(self):
         #arc parameters
@@ -1256,7 +1257,8 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
             if STATUS.is_all_homed():
                 self.set_buttons_state([self.idleHomedList], True)
-                self.wcs_rotation('set')
+                if self.convBlockLoaded.get():
+                    self.wcs_rotation('set')
             else:
                 self.set_buttons_state([self.idleHomedList], False)
         else:
@@ -1689,7 +1691,8 @@ class HandlerClass:
                 self.w.power.click()
 
     def run_pressed(self):
-        self.wcs_rotation('get')
+        if self.convBlockLoaded.get():
+            self.wcs_rotation('get')
         if self.startLine and self.rflSelected:
             self.w.run.setEnabled(False)
             if self.frButton:
@@ -1720,7 +1723,8 @@ class HandlerClass:
             hal.set_p('plasmac.cut-recovery', '0')
             self.laserOnPin.set(0)
             self.interp_idle(None)
-            self.wcs_rotation('set')
+            if self.convBlockLoaded.get():
+                self.wcs_rotation('set')
 
     def pause_pressed(self):
         if hal.get_value('plasmac.cut-recovering'):
@@ -2155,10 +2159,13 @@ class HandlerClass:
     def wcs_rotation(self, wcs):
         if wcs == 'get':
             self.currentRotation = STATUS.stat.rotation_xy
-        elif wcs == 'set' and self.currentRotation != STATUS.stat.rotation_xy:
-            ACTION.CALL_MDI_WAIT('G10 L2 P0 R{}'.format(self.currentRotation))
+            self.currentX = STATUS.stat.g5x_offset[0]
+            self.currentY = STATUS.stat.g5x_offset[1]
+        elif wcs == 'set':
+            ACTION.CALL_MDI_WAIT('G10 L2 P0 X{} Y{} R{}'.format(self.currentX, self.currentY, self.currentRotation))
+            if self.currentRotation != STATUS.stat.rotation_xy:
+                self.w.gcodegraphics.set_current_view()
             ACTION.SET_MANUAL_MODE()
-            self.w.gcodegraphics.set_current_view()
 
     def set_buttons_state(self, buttonLists, state):
         for buttonList in buttonLists:

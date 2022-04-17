@@ -22,6 +22,7 @@ with this program; if not, write to the Free Software Foundation, Inc
 import os
 import sys
 import linuxcnc
+import hal
 import math
 import shutil
 import time
@@ -34,6 +35,7 @@ from PyQt5.QtWidgets import QApplication, QDialog, QScrollArea, QWidget, QVBoxLa
 app = QApplication(sys.argv)
 ini = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 cmd = linuxcnc.command()
+h = hal.component('dummy')
 inPath = sys.argv[1]
 inFile = os.path.basename(inPath)
 if inFile == 'rfl.ngc':
@@ -101,6 +103,7 @@ offsetG4x = False
 zSetup = False
 zBypass = False
 convBlock = False
+hal.set_p('qtplasmac.conv_block_loaded', '0')
 filtered = False
 firstMove = False
 notice  = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
@@ -791,6 +794,10 @@ with open(inPath, 'r') as inCode:
             if not ';qtplasmac filtered G-code file' in line:
                 gcodeList.append(line.rstrip())
             continue
+        # check if original is a conversational block
+        if line.startswith(';conversational block'):
+            convBlock = True
+            hal.set_p('qtplasmac.conv_block_loaded', '1')
         # remove whitespace and trailing periods
         line = line.strip().rstrip('.')
         # remove line numbers
@@ -815,9 +822,6 @@ with open(inPath, 'r') as inCode:
             errorLines.append(lineNumOrg)
             gcodeList.append(';{}'.format(line))
             continue
-        # check if original is a conversational block
-        if line.startswith(';conversational block'):
-            convBlock = True
         # check for a material edit
         if line.startswith('(o='):
             check_material_edit()
