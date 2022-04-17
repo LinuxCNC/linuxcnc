@@ -1,43 +1,36 @@
-;imperial material change
+;metric temporary materials
 
-G20
+G21
 G64 P0.01
 M52 P1 ;to enable reverse-run
 
-M190 P1 ; material #1
-M66 P3 L3 Q1 ; wait for material ready
+(o=0, na=Steel 3mm, ph=3.0, pd=0.0, ch=1.0, fr=3000, kw=1.0)
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
-G0 X1 Y1
+G0 X25 Y25
 M3 $0 S1 (select plasma torch)
-G1 X5
-M5 $0
-G40 ; cutter compensation off
-
-M190 P2 ; material #2
-M66 P3 L3 Q1 ; wait for material ready
-F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
-G0 Y2
-M3 $0 S1 (select plasma torch)
-G1 X1
+G1 X125
 M5 $0
 
-M190 P3 ; material # 3
-M66 P3 L3 Q1 ; wait for material ready
+(o=0, na=Steel 3.1mm, ph=3.1, pd=0.1, ch=1.1, fr=3001, kw=1.1)
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
-G0 X1 Y3
+G0 Y50
 M3 $0 S1 (select plasma torch)
-G1 X5
+G1 X25
 M5 $0
-G40 ; cutter compensation off
 
-M190 P4 ; material #4
-M66 P3 L3 Q1 ; wait for material ready
+(o=0, na=Steel 3.2mm, ph=3.2, pd=0.2, ch=1.2, fr=3002, kw=1.2)
 F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
-G0 Y4
+G0 X25 Y75
 M3 $0 S1 (select plasma torch)
-G1 X1
+G1 X125
+M5 $0
+
+(o=0, na=Steel 3.3mm, ph=3.3, pd=0.3, ch=1.3, fr=3003, kw=1.3)
+F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+G0 Y100
+M3 $0 S1 (select plasma torch)
+G1 X25
 M5 $0
 
 G0 X0 Y0
-M190 P0 ; tool #0
 M2

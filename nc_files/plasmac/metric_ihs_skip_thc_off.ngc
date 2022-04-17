@@ -1,4 +1,4 @@
-;skip ihs with thc disabled
+;metric skip ihs with thc disabled
 
 G21
 G64 P0.01
