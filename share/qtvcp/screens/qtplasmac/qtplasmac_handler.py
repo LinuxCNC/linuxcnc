@@ -2496,7 +2496,7 @@ class HandlerClass:
         self.extCutRecSWPin.value_changed.connect(lambda v:self.cutrec_move(v, -1, -1))
         self.extCutRecWPin.value_changed.connect(lambda v:self.cutrec_move(v, -1, 0))
         self.extCutRecNWPin.value_changed.connect(lambda v:self.cutrec_move(v, -1, 1))
-        self.extCutReccancelPin.value_changed.connect(lambda v:self.cutrec_cancel_pressed(v))
+        self.extCutRecCancelPin.value_changed.connect(lambda v:self.cutrec_cancel_pressed(v))
         self.extTorchEnablePin.value_changed.connect(lambda v:self.ext_torch_enable_changed(v))
         self.extThcEnablePin.value_changed.connect(lambda v:self.ext_thc_enable_changed(v))
         self.extCornerLockEnablePin.value_changed.connect(lambda v:self.ext_corner_lock_enable_changed(v))
