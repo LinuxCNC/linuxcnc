@@ -960,9 +960,6 @@ class HAL:
                 f1 = open(custom, "w")
                 print(_("# Include your %s HAL commands here")%i, file=f1)
                 print(_("# This file will not be overwritten when you run PNCconf again"), file=f1)
-                if i == "custom_postgui" and self.d.frontend == _PD._QTPLASMAC:
-                    print(_("\n# --- PLASMAC:LASER-ON ---"), file=f1)
-                    print("#net plasmac:laser-on  qtplasmac.laser_on  =>  YOUR_LASER_ON_PIN", file=f1)
 
         if self.d.frontend == _PD._TOUCHY:# TOUCHY GUI
                 touchyfile = os.path.join(base, "touchy.hal")

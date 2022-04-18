@@ -596,10 +596,11 @@ class INI:
         minlim = -abs(get("minlim"))
         maxlim = get("maxlim")
         home = get("homepos")
-        if self.d.units == _PD._METRIC: extend = .01
-        else: extend = .001
-        minlim = min(minlim, home) - extend
-        maxlim = max(maxlim, home) + extend
+        extend = 0.01 if self.d.units == _PD._METRIC else 0.001
+        if minlim == home:
+            minlim = minlim - extend
+        elif maxlim == home:
+            maxlim = maxlim + extend
         return (minlim, maxlim)
 
 # BOILER CODE

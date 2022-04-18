@@ -768,9 +768,6 @@ class HAL:
             print(_("# Include your custom_postgui HAL commands here"), file=f1)
             print(_("# This file will not be overwritten when you run stepconf again"), file=f1)
             print(file=f1)
-            if self.d.select_qtplasmac:
-                print("# --- PLASMAC:LASER-ON ---", file=f1)
-                print("#net plasmac:laser-on  qtplasmac.laser_on  =>  YOUR_LASER_ON_PIN", file=f1)
             f1.close()
         # if using thcad for arc voltage and not a sim config
         if self.d.thcadenc & 1 and not self.d.sim_hardware:
