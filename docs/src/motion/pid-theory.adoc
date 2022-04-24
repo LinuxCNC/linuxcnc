@@ -4,7 +4,6 @@
 [[cha:pid-tuning]]
 = PID Tuning(((PID Tuning)))
 
-
 == PID Controller
 
 A proportional-integral-derivative controller (PID controller) is a
