@@ -17,24 +17,24 @@ See the <<cha:ini-configuration,INI Configuration>> section for more details.
 
 To set up AXIS for Lathe Mode.
 
----------------------------------------
+----
 [DISPLAY]
 
 # Tell the Axis Display our machine is a lathe.
 LATHE = TRUE
----------------------------------------
+----
 
 Lathe Mode in Axis does not set your default plane to G18 (XZ). You
 must program that in the preamble of each G-code file or
 (better) add it to your ini file, like this:
 
----------------------------------------
+----
 [RS274NGC]
 
 # G-code modal codes (modes) that the interpreter is initialized with
 # on startup
 RS274NGC_STARTUP_CODE = G18 G20 G90
----------------------------------------
+----
 
 If your using Gmoccapy then see the
 <<gmoccapy:lathe-section,the Gmoccapy Lathe section>>.
@@ -141,7 +141,8 @@ A typical session might be:
 . Set the current tool with 'Tn M6 G43' where 'n' is the tool number.
 . Select the Z axis in the Manual Control window.
 . Bring the tool close to the control surface.
-. Using a cylinder move the Z away from the control surface until the cylinder just passes between the tool and the control surface.
+. Using a cylinder move the Z away from the control surface until the
+  cylinder just passes between the tool and the control surface.
 . Select Touch Off and pick Tool Table and set the position to 0.0.
 . Repeat for each tool using the same cylinder.
 
