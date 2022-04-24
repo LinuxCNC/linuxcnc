@@ -106,7 +106,7 @@ Blending without tolerance:: The controlled point will touch each specified
   distance from the end point of the move is as large as it needs to be to
   keep up the best contouring feed.
 
-Naive Cam Detector:: Successive G1 moves that involve only the XYZ axes
+Naive CAM Detector:: Successive G1 moves that involve only the XYZ axes
   that deviate less than Q- from a straight line are merged into a single
   straight line. This merged movement replaces the individual G1 movements
   for the purposes of blending with tolerance. Between successive movements,
