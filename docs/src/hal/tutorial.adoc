@@ -564,7 +564,7 @@ In this example we will use the _velocity_ control type from the `stepgen`
 component.
 
 ----
-halrun
+halrun:
 halcmd: loadrt stepgen step_type=0,0 ctrl_type=v,v
 halcmd: loadrt siggen
 halcmd: loadrt threads name1=fast fp1=0 period1=50000 name2=slow period2=1000000
@@ -983,7 +983,7 @@ only. For larger adjustments the offset button should be used.
 
 [[fig:halscope-vertical-adjustment]]
 .Vertical Adjustment
-image::images/halscope-07.png["Vertical Adjustment", align="center"]
+image::images/halscope-07.png["Vertical Adjustment",align="center"]
 
 The large _Selected Channel_ button at the bottom indicates that channel 1 is
 currently selected channel and that it matches the _X-vel_ signal.

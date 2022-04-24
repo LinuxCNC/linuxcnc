@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:hal-components]]
 = HAL Component List((("HAL Component List")))
@@ -40,6 +41,10 @@ Some of these will have expanded descriptions from the man pages.
 Some will have limited descriptions. All of the components have man pages.
 From this list you know what components exist and can use 'man n name' to get additional information.
 To view the information in the man page, in a terminal window type:
+
+[NOTE]
+If component requires a thread with a float, it is usually the slowest,
+thus _servo-thread_.
 
 [NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the
@@ -103,9 +108,10 @@ constant:: (((constant)))Use a parameter to set the value of a pin.
 
 sum2:: (((sum2)))Sum of two inputs (each with a gain) and an offset.
 
-counter:: (((counter)))Counts input pulses (deprecated).  Use the <<sec:encoder, encoder>> component.
-   Utiliser le composant _encoder_ avec _... counter-mode = TRUE_.
-   See section <<sec:encoder,encoder>>.
+counter:: (((counter)))Counts input pulses (deprecated).
++
+Use the _encoder_ component with _... counter-mode = TRUE_.
+See section <<sec:encoder,encoder>>.
 
 updown:: (((updown)))Counts up or down, with optional limits and wraparound behavior.
 
@@ -141,12 +147,19 @@ biquad:: (((biquad)))Biquad IIR filter
 
 lowpass:: (((lowpass)))Low-pass filter
 
-limit1:: (((limit1)))Limit the output signal to fall between min and max. footnote:[When the input
-is a position, this means that the 'position' is limited.]
+limit1:: (((limit1)))Limit the output signal to fall between min and max.
+  footnote:[When the input is a position, this means that the 'position'
+  is limited.]
 
-limit2:: (((limit2)))Limit the output signal to fall between min and max.  Limit its slew rate to less than maxv per second. footnote:[When the input is a position, this means that 'position' and 'velocity' are limited.]
+limit2:: (((limit2)))Limit the output signal to fall between min and max.
+  Limit its slew rate to less than maxv per second. footnote:[When the input
+  is a position, this means that 'position' and 'velocity' are limited.]
 
-limit3:: (((limit3)))Limit the output signal to fall between min and max.  Limit its slew rate to less than maxv per second.  Limit its second derivative to less than MaxA per second squared. footnote:[When the input is a position, this means that the 'position', 'velocity', and 'acceleration' are limited.]
+limit3:: (((limit3)))Limit the output signal to fall between min and max.
+  Limit its slew rate to less than maxv per second.
+  Limit its second derivative to less than MaxA per second squared.
+  footnote:[When the input is a position, this means that the 'position',
+  'velocity', and 'acceleration' are limited.]
 
 maj3:: (((maj3)))Compute the majority of 3 inputs.
 
@@ -203,22 +216,22 @@ kins:: (((kins)))kinematics definitions for LinuxCNC.
 gantrykins:: (((gantrykins)))A kinematics module that maps one axis to multiple joints.
 
 genhexkins:: (((genhexkins)))Gives six degrees of freedom in position and orientation (XYZABC).
-The location of the motors is defined at compile time.
+  The location of the motors is defined at compile time.
 
 genserkins:: (((genserkins))) Kinematics that can model a general serial-link manipulator with up to
-6 angular joints.
+  6 angular joints.
 
 maxkins:: (((maxkins))) Kinematics for a tabletop 5 axis mill named 'max' with tilting head (B axis) and
-horizontal rotary mounted to the table (C axis).
-Provides UVW motion in the rotated coordinate system.
-The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
+  horizontal rotary mounted to the table (C axis).
+  Provides UVW motion in the rotated coordinate system.
+  The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
 
 tripodkins:: (((tripodkins))) The joints represent the distance of the controlled point from three
-predefined locations (the motors), giving three degrees of freedom in
-position (XYZ).
+  predefined locations (the motors), giving three degrees of freedom in
+  position (XYZ).
 
 trivkins:: (((trivkins))) There is a 1:1 correspondence between joints and axes. Most standard
-milling machines and lathes use the trivial kinematics module.
+  milling machines and lathes use the trivial kinematics module.
 
 pumakins:: (((pumakins))) Kinematics for PUMA-style robots.
 
@@ -228,87 +241,90 @@ scarakins:: (((scarakins))) Kinematics for SCARA-type robots.
 
 === Motor control
 
-at_pid:: (((at_pid)))Proportional/integral/derivative controller with auto tuning.
+at_pid:: (((at_pid))) Proportional/integral/derivative controller with auto tuning.
 
 pid:: Proportional/integral/derivative controller. <<sec:pid,Description>>
 
-pwmgen:: (((pwmgen)))Software PWM/PDM generation. <<sec:pwmgen,Description>>
+pwmgen:: (((pwmgen))) Software PWM/PDM generation. <<sec:pwmgen,Description>>
 
-encoder:: (((encoder)))Software counting of quadrature encoder signals. <<sec:encoder,Description>>.
+encoder:: (((encoder))) Software counting of quadrature encoder signals. <<sec:encoder,Description>>.
 
-stepgen:: (((stepgen)))Software step pulse generation. <<sec:stepgen,Description>>.
+stepgen:: (((stepgen))) Software step pulse generation. <<sec:stepgen,Description>>.
 
 === BLDC and 3-phase motor control
 
-bldc_hall3:: (((bldc_hall3)))3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors.
+bldc_hall3:: (((bldc_hall3))) 3-wire Bipolar trapezoidal commutation BLDC motor driver using Hall sensors.
 
-clarke2:: (((clarke2)))Two input version of Clarke transform.
+clarke2:: (((clarke2))) Two input version of Clarke transform.
 
-clarke3:: (((clarke3)))Clarke (3 phase to cartesian) transform.
+clarke3:: (((clarke3))) Clarke (3 phase to cartesian) transform.
 
-clarkeinv:: (((clarkeinv)))Inverse Clarke transform.
+clarkeinv:: (((clarkeinv))) Inverse Clarke transform.
 
 === Other Components
 
-charge_pump:: (((charge_pump)))Creates a square-wave for the 'charge pump' input of some controller boards.
-    The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
+charge_pump:: (((charge_pump))) Creates a square-wave for the 'charge pump' input of some controller boards.
+  The 'Charge Pump' should be added to the base thread function. When enabled the output is on for one period and off for one period. To calculate the frequency of the output 1/(period time in seconds x 2) = hz. For example if you have a base period of 100,000ns that is 0.0001 seconds and the formula would be 1/(0.0001 x 2) = 5,000 hz or 5 Khz.
 
-encoder_ratio:: (((encoder_ratio)))An electronic gear to synchronize two axes.
+encoder_ratio:: (((encoder_ratio))) An electronic gear to synchronize two axes.
 
-estop_latch:: (((estop_latch)))ESTOP latch.
+estop_latch:: (((estop_latch))) ESTOP latch.
 
-feedcomp:: (((feedcomp)))Multiply the input by the ratio of current velocity to the feed rate.
+feedcomp:: (((feedcomp))) Multiply the input by the ratio of current velocity to the feed rate.
 
-gearchange:: (((gearchange)))Select from one of two speed ranges.
+gearchange:: (((gearchange))) Select from one of two speed ranges.
 
 [[sec:ilowpass]]
-ilowpass:: (((ilowpass)))While it may find other applications, this component was written to create smoother motion while jogging with an MPG.
+ilowpass:: (((ilowpass))) While it may find other applications,
+  this component was written to create smoother motion while jogging with an MPG.
++
+In a machine with high acceleration, a short jog can behave almost like a step
+function. By putting the ilowpass component between the MPG encoder counts
+output and the axis jog-counts input, this can be smoothed.
++
+Choose scale conservatively so that during a single session there will never
+be more than about 2e9/scale pulses seen on the MPG. Choose gain according
+to the smoothing level desired. Divide the axis.N.jog-scale values by scale.
 
-    In a machine with high acceleration, a short jog can behave almost like a step
-    function. By putting the ilowpass component between the MPG encoder counts
-    output and the axis jog-counts input, this can be smoothed.
+joyhandle:: (((joyhandle))) Sets nonlinear joypad movements, deadbands and scales.
 
-    Choose scale conservatively so that during a single session there will never
-    be more than about 2e9/scale pulses seen on the MPG. Choose gain according
-    to the smoothing level desired. Divide the axis.N.jog-scale values by scale.
+knob2float:: (((knob2float))) Convert counts (probably from an encoder) to a float value.
 
-joyhandle:: (((joyhandle)))Sets nonlinear joypad movements, deadbands and scales.
+minmax:: (((minmax))) Track the minimum and maximum values of the input to the outputs.
 
-knob2float:: (((knob2float)))Convert counts (probably from an encoder) to a float value.
+sample_hold:: (((sample_hold))) Sample and Hold.
 
-minmax:: (((minmax)))Track the minimum and maximum values of the input to the outputs.
+sampler:: (((sampler))) Sample data from HAL in real time.
 
-sample_hold:: (((sample_hold)))Sample and Hold.
+siggen:: (((siggen))) Signal generator. <<sec:siggen,Description>>.
 
-sampler:: (((sampler)))Sample data from HAL in real time.
+sim_encoder:: (((sim_encoder))) Simulated quadrature encoder. <<sec:simulated-encoder,Description>>.
 
-siggen:: Signal generator. <<sec:siggen,Description>>.
+sphereprobe:: (((sphereprobe))) Probe a pretend hemisphere.
 
-sim_encoder:: (((sim_encoder)))Simulated quadrature encoder. <<sec:simulated-encoder,Description>>.
+steptest:: (((steptest))) Used by Stepconf to allow testing of acceleration and velocity values for an axis.
 
-sphereprobe:: (((sphereprobe)))Probe a pretend hemisphere.
+streamer:: (((streamer))) Stream file data into HAL in real time.
 
-steptest:: (((steptest)))Used by Stepconf to allow testing of acceleration and velocity values for an axis.
+supply:: (((supply))) Set output pins with values from parameters (deprecated).
 
-streamer:: (((streamer)))Stream file data into HAL in real time.
+threadtest:: (((threadtest))) Component for testing thread behavior.
 
-supply:: (((supply)))Set output pins with values from parameters (deprecated).
+time:: (((time))) Accumulated run-time timer counts HH:MM:SS of 'active' input.
 
-threadtest:: (((threadtest)))Component for testing thread behavior.
+timedelay:: (((timedelay))) The equivalent of a time-delay relay.
 
-time:: (((time)))Accumulated run-time timer counts HH:MM:SS of 'active' input.
+timedelta:: (((timedelta))) Component that measures thread scheduling timing behavior.
 
-timedelay:: (((timedelay)))The equivalent of a time-delay relay.
+toggle2nist:: (((toggle2nist))) Toggle button to nist logic.
 
-timedelta:: (((timedelta)))Component that measures thread scheduling timing behavior.
+toggle:: (((toggle))) Push-on, push-off from momentary pushbuttons.
 
-toggle2nist:: (((toggle2nist)))Toggle button to nist logic.
+tristate_bit:: (((tristate_bit))) Place a signal on an I/O pin only when enabled, similar to a tristate
+  buffer in electronics.
 
-toggle:: (((toggle)))Push-on, push-off from momentary pushbuttons.
-
-tristate_bit:: (((tristate_bit)))Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics.
-
-tristate_float:: (((tristate_float)))Place a signal on an I/O pin only when enabled, similar to a tristate buffer in electronics.
+tristate_float:: (((tristate_float))) Place a signal on an I/O pin only when enabled, similar to a tristate
+  buffer in electronics.
 
 watchdog:: (((watchdog)))Monitor one to thirty-two inputs for a 'heartbeat'.
 
