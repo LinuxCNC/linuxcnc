@@ -43,3 +43,4 @@ position.txt
 # Ignore test results
 *.result
 
+gettextization.failed.po
