@@ -80,6 +80,7 @@ This will save the file in the config folder of the launch screen.
 [source,{ini}]
 ----
 [DISPLAY]
+...
 PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 ----
 
@@ -91,6 +92,7 @@ In the section '[DISPLAY]' add:
 [source,{ini}]
 ----
 [DISPLAY]
+...
 MDI_HISTORY_FILE = mdi_history.dat
 MACHINE_LOG_PATH = machine_log.dat
 LOG_FILE = qtdragon.log
