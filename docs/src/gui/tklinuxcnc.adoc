@@ -1,4 +1,5 @@
 :lang: en
+:toc:
 
 [[cha:tklinuxcnc-intro]]
 = TkLinuxCNC GUI
@@ -109,12 +110,6 @@ step size. For instance, if you command a movement to X 0.0033 on your
 mill, but one step of your stepper motor is 0.00125, then the
 'Commanded' position will be 0.0033 but the 'Actual' position will be
 0.0025 (2 steps) or 0.00375 (3 steps).
-
-* MATCH ME
-* MATCH ME
-* MATCH ME
-* MATCH ME
-* MATCH ME
 
 Another set of radio buttons allows you to choose between 'joint' and
 'world' view. These make little sense on a normal type of machine (e.g.

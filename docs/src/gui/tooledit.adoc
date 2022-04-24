@@ -68,6 +68,7 @@ TOOL_EDITOR = tooledit Z DIAM
 ----
 
 == Stand Alone Use
+
 The 'tooledit' program can also be invoked as a standalone
 program. For example, if the program is in the user PATH, typing
 'tooledit' will show the usage syntax:

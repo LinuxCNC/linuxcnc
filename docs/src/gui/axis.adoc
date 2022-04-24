@@ -17,8 +17,8 @@ preview and backplot. It is written in Python and uses
 Tk and OpenGL to display its user interface.
 
 [[fig:axis-window]]
-//.Axis Window
-image::images/axis.png["AXIS screenshot",align="center"]
+.The AXIS Window
+image::images/axis.png["AXIS main window",align="center"]
 
 == Getting Started
 
@@ -54,7 +54,8 @@ CYCLE_TIME = 100
 . Load the G-code file.
 . Use the preview plot to verify that the program is correct.
 . Load the material.
-. Set the proper offset for each axis by jogging and using the `Touch Off` button as needed.
+. Set the proper offset for each axis by jogging and using the `Touch Off`
+  button as needed.
 . Run the program.
 . To machine the same file again, return to step 6.
   To machine a different file, return to step 4.
@@ -127,7 +128,7 @@ file configured. For more information on configuration see the
   you can open the tool table and edit it.
 * 'Reload tool table' - After editing the tool table you must reload it.
 * 'Ladder editor' - If you have loaded Classic Ladder you can edit it from
-  here. See the <<cha:classicladder,Classicladder Chapter>>
+  here. See the <<cha:classicladder,Classicladder chapter>>
   for more information.
 * 'Quit' - Terminates the current LinuxCNC session.
 
@@ -344,9 +345,9 @@ and the program requires 3.83 inches of X travel.
 To move the program so it's within the machine's travel in this case,
 jog to the left and Touch Off X again.
 
-[[fig:soft-limits]](((Soft Limits)))
-//.Soft limits
-image:images/axis-outofrange.png["Soft limits",align="center"]
+[[fig:soft-limits]]
+.The Soft limits(((Soft Limits)))
+image::images/axis-outofrange.png["Soft limits", align="center"]
 
 .Tool Cone
 When no tool is loaded, the location of the tip of the tool is
@@ -477,7 +478,7 @@ See the <<cha:homing-configuration,Homing Configuration Chapter>> for more infor
 
 .Homing (Non-Identity Kinematics)
 Operation is similar to that for Identity Kinematics but, prior to
-homing, the selection radio buttons select joints by number.  The
+homing, the selection radio buttons select joints by number. The
 homing button will show 'Home All' if all joints are configured
 for homing and have valid home sequences.  Otherwise, the homing
 button will show 'Home Joint'.
@@ -541,13 +542,13 @@ running, the MDI controls are unavailable.
 .The MDI tab
 image::images/axis-mdi.png["MDI tab", align="center"]
 
- * 'History' - This shows MDI commands that have been typed earlier in this session.
- * 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
-   command by pressing Enter or by clicking 'Go'.
- * 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
-   instance, 'G54' indicates that the 'G54 offset' is applied to all
-   coordinates that are entered. When in Auto the Active G-Codes represent
-   the codes after any read ahead by the interpreter.
+* 'History' - This shows MDI commands that have been typed earlier in this session.
+* 'MDI Command' - This allows you to enter a G-code command to be executed. Execute the
+  command by pressing Enter or by clicking 'Go'.
+* 'Active G-Codes' - This shows the 'modal codes' that are active in the interpreter. For
+  instance, 'G54' indicates that the 'G54 offset' is applied to all
+  coordinates that are entered. When in Auto the Active G-Codes represent
+  the codes after any read ahead by the interpreter.
 
 === Feed Override
 
@@ -601,8 +602,9 @@ to 0% - 100%.
 
 The most frequently used keyboard shortcuts are shown in the following Table:
 
-.Most Common Keyboard Shortcuts(((Keyboard Shortcuts)))
-[width="80%", options="header", cols="^,<,^"]
+[[tab:common-keyboard-shortcuts]]
+.Most Common Keyboard Shortcuts(((AXIS,Keyboard Shortcuts)))
+[width="80%",options="header",cols="^,<,^"]
 |====================================================================
 |Keystroke        | Action Taken                              | Mode
 |F1               | Toggle Emergency Stop                     | Any
@@ -743,7 +745,7 @@ the bottom of the screen, and several controls (such as those for
 preset views) are removed.  The coordinate readouts for X are replaced
 with diameter and radius.
 
-//.Axis Lathe
+.Axis Lathe Mode
 image::images/axis-lathe.png["Axis Lathe",align="center"]
 
 Pressing 'V' zooms out to show the entire file, if one is loaded.
@@ -994,6 +996,7 @@ bit  OUT  axisui.jog.w
 ----
 
 Axis has a Hal pin to indicate the jog increment selected on the 'Manual Tab'.
+
 ----
 Type  Dir Name
 float OUT axisui.jog.increment
@@ -1027,6 +1030,7 @@ bit   IN     axisui.notifications-clear-info
 ----
 
 Axis has a Hal input pin that disables/enables the 'Pause/Resume' function.
+
 ----
 Type  Dir    Name
 bit   IN     axisui.resume-inhibit
